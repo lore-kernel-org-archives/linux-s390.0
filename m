@@ -1,17 +1,17 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 02/15] KVM: s390: coding style issue
- kvm_s390_gisa_init/clear()
-Date: Mon, 7 Jan 2019 17:16:15 +0100
-Message-ID: <951277df-bb77-4981-7ec6-bc271aa453a7@linux.ibm.com>
+Subject: Re: [PATCH v5 08/15] KVM: s390: add the GIB and its related life-cyle
+ functions
+Date: Mon, 7 Jan 2019 17:25:05 +0100
+Message-ID: <1ef84b5f-179a-21e2-6ac2-b49f4c3ae5c3@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-3-mimu@linux.ibm.com>
- <0c41bb2c-aa6c-ccbc-752b-c73f74fdd12b@linux.ibm.com>
+ <20181219191756.57973-9-mimu@linux.ibm.com>
+ <c244a27a-2d54-0b22-7df4-71f584aed6c0@linux.ibm.com>
 Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0c41bb2c-aa6c-ccbc-752b-c73f74fdd12b@linux.ibm.com>
+In-Reply-To: <c244a27a-2d54-0b22-7df4-71f584aed6c0@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -22,59 +22,41 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 02.01.19 17:50, Pierre Morel wrote:
+On 03.01.19 10:49, Pierre Morel wrote:
 > On 19/12/2018 20:17, Michael Mueller wrote:
->> The change hepls to reduce line length and
->> icreases code readability.
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> ---
->>   arch/s390/kvm/interrupt.c | 20 ++++++++++----------
->>   1 file changed, 10 insertions(+), 10 deletions(-)
->>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index fcb55b02990e..9a3aed608914 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -2886,20 +2886,20 @@ int kvm_s390_get_irq_state(struct kvm_vcpu 
->> *vcpu, __u8 __user *buf, int len)
->>   void kvm_s390_gisa_clear(struct kvm *kvm)
->>   {
->> -    if (kvm->arch.gisa) {
->> -        memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
->> -        kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
->> -        VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
->> -    }
->> +    if (!kvm->arch.gisa)
->> +        return;
->> +    memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
->> +    kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
->> +    VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
->>   }
->>   void kvm_s390_gisa_init(struct kvm *kvm)
->>   {
->> -    if (css_general_characteristics.aiv) {
->> -        kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
->> -        VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
->> -        kvm_s390_gisa_clear(kvm);
->> -    }
->> +    if (!css_general_characteristics.aiv)
->> +        return;
->> +    kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
->> +    VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+>> The Guest Information Block (GIB) links the GISA of all guests
+>> that have adapter interrupts pending. These interrupts cannot be
+>> delivered because no vcpu of these guests is currently running in
+>> SIE context. Instead, a GIB alert is issued on the host to schedule
+>> these guests to run.
 > 
-> to be annoying, shouldn't the trace be done after the clear?
+> IMHO "Instead" is not exact.
+> The GIB alert is always issued on adapter interrupt if IAM is set even 
+> if the guest is running in SIE context.
+> 
+> I would prefer to rephrase to something like:
+> "If enabled, a GIB alert is issued on the host..." ?
 
-sure, I will address that
+I agree.
 
 > 
->> +    kvm_s390_gisa_clear(kvm);
->>   }
->>   void kvm_s390_gisa_destroy(struct kvm *kvm)
->>
 > 
 > Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
 > 
 > 
-
--- 
+>>
+>> This mechanism allows to process adapter interrupts for currently
+>> not running guests.
+>>
+>> The GIB is created during host initialization and associated with
+>> the Adapter Interruption Facility in case an Adapter Interruption
+>> Virtualization Facility is available.
+>>
+>> The GIB initialization and thus the activation of the related code
+>> will be done in an upcoming patch of this series.
+>>
+>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h | 10 +++++++++
