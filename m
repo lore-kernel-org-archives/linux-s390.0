@@ -1,93 +1,80 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM
- is clean
-Date: Mon, 7 Jan 2019 00:32:44 +0100
-Message-ID: <20190107003244.219e873e@oc2783563651>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH v5 02/15] KVM: s390: coding style issue
+ kvm_s390_gisa_init/clear()
+Date: Mon, 7 Jan 2019 17:16:15 +0100
+Message-ID: <951277df-bb77-4981-7ec6-bc271aa453a7@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
-        <20181219191756.57973-12-mimu@linux.ibm.com>
+ <20181219191756.57973-3-mimu@linux.ibm.com>
+ <0c41bb2c-aa6c-ccbc-752b-c73f74fdd12b@linux.ibm.com>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181219191756.57973-12-mimu@linux.ibm.com>
+In-Reply-To: <0c41bb2c-aa6c-ccbc-752b-c73f74fdd12b@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: pmorel@linux.ibm.com, KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 19 Dec 2018 20:17:52 +0100
-Michael Mueller <mimu@linux.ibm.com> wrote:
 
-> The patch adds the parameter irq_flags and allows to
-> restore the Interruption Alert Mask (IAM) in the GISA
-> atomically while guaranteeing the IPM is clean.
-> 
-> The function returns the IPM of the GISA. If the returned
-> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
-> been restored.
-> 
-> New irq flag:
->   IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
->   		is set in the IPM, i.e. no new airqs are
-> 		pending. The test and restore operations
-> 		are done atomically.
-> 
-> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
->  1 file changed, 29 insertions(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 1cc3ad2e6c7e..8307717e3caf 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -37,6 +37,7 @@
->  #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption pending mask */
->  #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption pending mask */
->  #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption pending mask */
-> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
->  
->  #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | IRQ_FLAG_GISA)
->  #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
-> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->  	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->  }
->  
-> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
-> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
->  {
-> -	return READ_ONCE(gisa->ipm);
-> +	u64 word, _word;
-> +	u8 ipm;
-> +
-> +	if (!(irq_flags & IRQ_FLAG_IAM))
-> +		return READ_ONCE(gisa->ipm);
-> +
-> +	do {
-> +		word = READ_ONCE(gisa->u64.word[0]);
-> +		ipm = word >> 24;
-> +		/* If the GISA is in the alert list, return the IPM. */
-> +		if ((u64)gisa != word >> 32)
-> +			return ipm;
-> +		/* If the IPM is dirty, return the IPM. */
-> +		if (ipm)
-> +			return ipm;
-> +		/*
-> +		 * Try to restore the IAM or loop, if the IPM is dirty
-> +		 * again or the GISA has been inserted into the alert list.
-> +		 */
-> +		_word = (word & ~0xffUL) |
-> +			container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
-> +	} while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
-                                                             ^^
 
-Shouldn't this rather be:
-	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+On 02.01.19 17:50, Pierre Morel wrote:
+> On 19/12/2018 20:17, Michael Mueller wrote:
+>> The change hepls to reduce line length and
+>> icreases code readability.
+>>
+>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/interrupt.c | 20 ++++++++++----------
+>>   1 file changed, 10 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index fcb55b02990e..9a3aed608914 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -2886,20 +2886,20 @@ int kvm_s390_get_irq_state(struct kvm_vcpu 
+>> *vcpu, __u8 __user *buf, int len)
+>>   void kvm_s390_gisa_clear(struct kvm *kvm)
+>>   {
+>> -    if (kvm->arch.gisa) {
+>> -        memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+>> -        kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
+>> -        VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>> -    }
+>> +    if (!kvm->arch.gisa)
+>> +        return;
+>> +    memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
+>> +    kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
+>> +    VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>>   }
+>>   void kvm_s390_gisa_init(struct kvm *kvm)
+>>   {
+>> -    if (css_general_characteristics.aiv) {
+>> -        kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+>> -        VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+>> -        kvm_s390_gisa_clear(kvm);
+>> -    }
+>> +    if (!css_general_characteristics.aiv)
+>> +        return;
+>> +    kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
+>> +    VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
+> 
+> to be annoying, shouldn't the trace be done after the clear?
 
-Regards,
-Halil
-> +
-> +	return 0;
->  }
+sure, I will address that
+
+> 
+>> +    kvm_s390_gisa_clear(kvm);
+>>   }
+>>   void kvm_s390_gisa_destroy(struct kvm *kvm)
+>>
+> 
+> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+> 
+> 
+
+-- 
