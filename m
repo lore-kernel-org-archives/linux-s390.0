@@ -1,78 +1,84 @@
 From: David Hildenbrand <david@redhat.com>
-Date: Mon, 07 Jan 2019 11:37:48 +0000
-Subject: Re: [kvm-unit-tests PATCH v4 03/13] s390x: Make tests bootable from disk
-Message-Id: <dd040aa2-d4ec-1bf5-3c39-7d96cc3cdb6e@redhat.com>
-In-Reply-To: <20190103100806.9039-4-frankja@linux.ibm.com>
-References: <20190103100806.9039-4-frankja@linux.ibm.com>
+Date: Mon, 07 Jan 2019 11:41:15 +0000
+Subject: Re: [kvm-unit-tests PATCH v4 05/13] s390x: Add BSS clearing for non ELF boot
+Message-Id: <303a4573-c7c3-324c-865d-28c514b20639@redhat.com>
+In-Reply-To: <20190103100806.9039-6-frankja@linux.ibm.com>
+References: <20190103100806.9039-6-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 03.01.19 11:07, Janosch Frank wrote:
-> Currently tests are run with the --kernel option of Qemu, which will
-> load the ELF file and jump to the start address. When booting from
-> disk, we need to specify a start address. This is done by setting the
-> initial short PSW at 0x0.
-> 
-> .text was moved to 0x11000 because the bootloader can write from
-> 0x10480 until 0x11000 if it has a lot to write. 0x10480 to 0x10600 was
-> not enough safe space.
+> When doing an IPL normal the memory will not be zeroed and hence the
+> BSS section can have any value. We need to clear it by ourselves.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > Reviewed-by: Thomas Huth <thuth@redhat.com>
 > ---
->  s390x/cstart64.S |  9 ++++++++-
->  s390x/flat.lds   | 13 ++++++++++++-
->  2 files changed, 20 insertions(+), 2 deletions(-)
+>  s390x/cstart64.S | 22 ++++++++++++++++++++--
+>  s390x/flat.lds   |  2 ++
+>  2 files changed, 22 insertions(+), 2 deletions(-)
 > 
 > diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index dc7ddd6..d382497 100644
+> index 6622633..dedfe80 100644
 > --- a/s390x/cstart64.S
 > +++ b/s390x/cstart64.S
-> @@ -14,9 +14,16 @@
->  
->  .section .init
->  
-> -/* entry point - for KVM + TCG we directly start in 64 bit mode */
-> +/*
-> + * Short init between 0x10000 and 0x10480 and then jump to 0x11000.
-> + * 0x10480 - 0x11000 are written to by bootloader.
-> + *
-> + * For KVM and TCG kernel boot we are in 64 bit z/Arch mode.
-> + * When booting from disk the initial short psw is in 31 bit mode.
-> + */
->  	.globl start
->  start:
-> +	sam64				# Set addressing mode to 64 bit
->  	/* setup stack */
->  	larl	%r15, stackptr
+> @@ -39,7 +39,22 @@ start:
 >  	/* setup initial PSW mask + control registers*/
+>  	larl	%r1, initial_psw
+>  	lpswe	0(%r1)
+> -init_psw_cont:
+> +clear_bss_start:
+> +	larl 	%r2, __bss_start
+> +	larl 	%r3, __bss_end
+> +	slgr 	%r3, %r2		# Get sizeof bss
+> +	aghi 	%r3,-1
+> +	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
+> +	ltgr 	%r4,%r4
+> +	lgr 	%r1,%r2
+> +	jz	clear_bss_remainder		# If none, clear remaining bytes
+> +clear_bss_loop:
+> +	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
+> +	la	%r1, 256(%r1)
+> +	brctg 	%r4, clear_bss_loop
+> +clear_bss_remainder:
+> +	larl	%r2, memsetxc
+> +	ex 	%r3, 0(%r2)
+>  	/* setup pgm interrupt handler */
+>  	larl	%r1, pgm_int_psw
+>  	mvc	GEN_LC_PGM_NEW_PSW(16), 0(%r1)
+> @@ -71,6 +86,9 @@ init_psw_cont:
+>  	/* call exit() */
+>  	j exit
+>  
+> +memsetxc:
+> +	xc 0(1,%r1),0(%r1)
+> +
+>  	.macro SAVE_REGS
+>  	/* save grs 0-15 */
+>  	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+> @@ -159,7 +177,7 @@ svc_int:
+>  
+>  	.align	8
+>  initial_psw:
+> -	.quad	0x0000000180000000, init_psw_cont
+> +	.quad	0x0000000180000000, clear_bss_start
+>  pgm_int_psw:
+>  	.quad	0x0000000180000000, pgm_int
+>  ext_int_psw:
 > diff --git a/s390x/flat.lds b/s390x/flat.lds
-> index b6e2172..977af7c 100644
+> index 977af7c..403d967 100644
 > --- a/s390x/flat.lds
 > +++ b/s390x/flat.lds
-> @@ -1,10 +1,21 @@
->  SECTIONS
->  {
-> +	/*
-> +	 * Initial short psw for disk boot, with 31 bit addressing for
-> +	 * non z/Arch environment compatibility and the instruction
-> +	 * address 0x10000 (cstart64.S .init).
-> +	 */
-> +	.lowcore : {
-> +		. = 0;
-> +		 LONG(0x00080000)
-> +		 LONG(0x80010000)
-> +	}
-> +	. = 0x10000;
->  	.text : {
->  		*(.init)
->  		. = 0x480;
->  		ipl_args = .;
-> -		. = 0x600;
-> +		.  = 0x1000;
->  		*(.text)
->  		*(.text.*)
->  	}
+> @@ -40,7 +40,9 @@ SECTIONS
+>  	. = ALIGN(16);
+>  	.rodata : { *(.rodata) *(.rodata.*) }
+>  	. = ALIGN(16);
+> +	__bss_start = .;
+>  	.bss : { *(.bss) }
+> +	__bss_end = .;
+>  	. = ALIGN(64K);
+>  	edata = .;
+>  	. += 64K;
 > 
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
