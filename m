@@ -1,204 +1,144 @@
-Return-Path: <SRS0=Wtxu=QH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
-References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
- <20190131105555.4af6d8ea.cohuck@redhat.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Date: Thu, 31 Jan 2019 18:50:57 -0500
+Return-Path: <SRS0=PvM2=PP=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: general protection fault in __smc_diag_dump
+References: <00000000000060600e057e7748dc@google.com>
+ <2ffacbe4-a33a-8e82-a492-711c00b25754@gmail.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Mon, 7 Jan 2019 17:38:06 +0100
 MIME-Version: 1.0
-In-Reply-To: <20190131105555.4af6d8ea.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <2ffacbe4-a33a-8e82-a492-711c00b25754@gmail.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <2bb57977-bf03-f0c9-abd9-8baa74d31f8a@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <5a0268c3-5f48-9c48-3d0b-422a3a2d81cd@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com
+To: Eric Dumazet <eric.dumazet@gmail.com>, syzbot <syzbot+5dd1f9327a9ee760048c@syzkaller.appspotmail.com>, davem@davemloft.net, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, Cong Wang <xiyou.wangcong@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 1/31/19 4:55 AM, Cornelia Huck wrote:
-> On Wed, 30 Jan 2019 12:48:46 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+
+
+On 01/02/2019 12:29 PM, Eric Dumazet wrote:
 > 
->> The current AP bus implementation periodically polls the AP configuration
->> to detect changes. When the AP configuration is dynamically changed via the
->> SE or an SCLP instruction, the changes will not be reflected to sysfs until
->> the next time the AP configuration is polled. The CHSC architecture
->> provides a Store Event Information (SEI)command to make notification of an
 > 
-> missing blank ---------------------------^
-
-I'll insert it.
-
-> 
->> AP configuration change. This patch introduces a handler to process
->> notification from the CHSC SEI command BY immediately kickING off an AP bus
-> 
-> s/BY/by/
-> 
-> s/kickING/kicking/
-
-Will fix both.
-
-> 
->> scan.
-> 
-> Scan-after-event sounds useful, yeah.
-
-sure
-
-> 
-> Two questions:
-> - Does the event cover _any_ change to the AP configuration, or can the
->    periodic scan detect changes that are not signaled?
-
-It can detect any change, such as a change to the CRYCB masks.
-
-> - Do we want to generate such an event in QEMU on plugging/unplugging
->    the vfio-ap device?
-
-We've discussed this quite a bit internally and decided not to implement
-that at this time. We will address it as a future enhancement.
-
-> 
+> On 01/02/2019 02:41 AM, syzbot wrote:
+>> Hello,
 >>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>> syzbot found the following crash on:
+>>
+>> HEAD commit:    28e8c4bc8eb4 Merge tag 'rtc-4.21' of git://git.kernel.org/..
+>> git tree:       upstream
+>> console output: https://syzkaller.appspot.com/x/log.txt?x=10c040d3400000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=c2ab9708c613a224
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=5dd1f9327a9ee760048c
+>> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15d17880c00000
+>>
+>> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+>> Reported-by: syzbot+5dd1f9327a9ee760048c@syzkaller.appspotmail.com
+>>
+>> IPv6: ADDRCONF(NETDEV_CHANGE): team0: link becomes ready
+>> IPv6: ADDRCONF(NETDEV_UP): vxcan1: link is not ready
+>> 8021q: adding VLAN 0 to HW filter on device batadv0
+>> kasan: CONFIG_KASAN_INLINE enabled
+>> kasan: GPF could be caused by NULL-ptr deref or user memory access
+>> general protection fault: 0000 [#1] PREEMPT SMP KASAN
+>> CPU: 1 PID: 7982 Comm: syz-executor0 Not tainted 4.20.0+ #4
+>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+>> RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:43 [inline]
+>> RIP: 0010:__smc_diag_dump.isra.0+0x32a/0x2ba0 net/smc/smc_diag.c:93
+>> Code: 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 26 25 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b 7f 20 49 8d 7f 0e 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 d2
+>> RSP: 0018:ffff88808a29f120 EFLAGS: 00010203
+>> RAX: dffffc0000000000 RBX: ffff88807f4d7240 RCX: 0000000000000000
+>> RDX: 0000000000000001 RSI: ffffffff87b4e7c2 RDI: 000000000000000e
+>> RBP: ffff88808a29f3e8 R08: ffff88808d5721c0 R09: ffff888098960e90
+>> R10: fffffbfff14a0020 R11: ffffffff8a500103 R12: ffff88808878d760
+>> R13: ffff888098960e40 R14: ffff88807f4d76a0 R15: 0000000000000000
+>> FS:  00007f6b83b40700(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> CR2: 0000000000000000 CR3: 0000000095561000 CR4: 00000000001406e0
+>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>> Call Trace:
+>>  smc_diag_dump_proto.isra.0+0x2e7/0x3c0 net/smc/smc_diag.c:211
+>>  smc_diag_dump+0x27/0x80 net/smc/smc_diag.c:225
+>>  netlink_dump+0x5f2/0x1070 net/netlink/af_netlink.c:2244
+>>  __netlink_dump_start+0x5b4/0x7e0 net/netlink/af_netlink.c:2352
+>>  netlink_dump_start include/linux/netlink.h:225 [inline]
+>>  smc_diag_handler_dump+0x2a7/0x350 net/smc/smc_diag.c:242
+>>  __sock_diag_cmd net/core/sock_diag.c:232 [inline]
+>>  sock_diag_rcv_msg+0x322/0x410 net/core/sock_diag.c:263
+>>  netlink_rcv_skb+0x17d/0x410 net/netlink/af_netlink.c:2477
+>>  sock_diag_rcv+0x2b/0x40 net/core/sock_diag.c:274
+>>  netlink_unicast_kernel net/netlink/af_netlink.c:1310 [inline]
+>>  netlink_unicast+0x574/0x770 net/netlink/af_netlink.c:1336
+>>  netlink_sendmsg+0xa05/0xf90 net/netlink/af_netlink.c:1917
+>>  sock_sendmsg_nosec net/socket.c:621 [inline]
+>>  sock_sendmsg+0xdd/0x130 net/socket.c:631
+>>  ___sys_sendmsg+0x7ec/0x910 net/socket.c:2116
+>>  __sys_sendmsg+0x112/0x270 net/socket.c:2154
+>>  __do_sys_sendmsg net/socket.c:2163 [inline]
+>>  __se_sys_sendmsg net/socket.c:2161 [inline]
+>>  __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2161
+>>  do_syscall_64+0x1a3/0x800 arch/x86/entry/common.c:290
+>>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>> RIP: 0033:0x457ec9
+>> Code: 6d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 3b b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+>> RSP: 002b:00007f6b83b3fc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+>> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457ec9
+>> RDX: 0000000000000000 RSI: 0000000020000040 RDI: 0000000000000006
+>> RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+>> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f6b83b406d4
+>> R13: 00000000004c5188 R14: 00000000004d8a10 R15: 00000000ffffffff
+>> Modules linked in:
+>> ---[ end trace db4e074cdaa51579 ]---
+>> RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:43 [inline]
+>> RIP: 0010:__smc_diag_dump.isra.0+0x32a/0x2ba0 net/smc/smc_diag.c:93
+>> Code: 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 26 25 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b 7f 20 49 8d 7f 0e 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 d2
+>> RSP: 0018:ffff88808a29f120 EFLAGS: 00010203
+>> RAX: dffffc0000000000 RBX: ffff88807f4d7240 RCX: 0000000000000000
+>> RDX: 0000000000000001 RSI: ffffffff87b4e7c2 RDI: 000000000000000e
+>> RBP: ffff88808a29f3e8 R08: ffff88808d5721c0 R09: ffff888098960e90
+>> R10: fffffbfff14a0020 R11: ffffffff8a500103 R12: ffff88808878d760
+>> R13: ffff888098960e40 R14: ffff88807f4d76a0 R15: 0000000000000000
+>> FS:  00007f6b83b40700(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> CR2: 0000000000000000 CR3: 0000000095561000 CR4: 00000000001406e0
+>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>>
+>>
 >> ---
->>   arch/s390/include/asm/ap.h   | 12 ++++++++++++
->>   drivers/s390/cio/chsc.c      | 12 ++++++++++++
->>   drivers/s390/cio/chsc.h      |  1 +
->>   drivers/s390/crypto/ap_bus.c | 12 ++++++++++++
->>   4 files changed, 37 insertions(+)
+>> This bug is generated by a bot. It may contain errors.
+>> See https://goo.gl/tpsmEJ for more information about syzbot.
+>> syzbot engineers can be reached at syzkaller@googlegroups.com.
 >>
->> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
->> index 1a6a7092d942..c778593d509f 100644
->> --- a/arch/s390/include/asm/ap.h
->> +++ b/arch/s390/include/asm/ap.h
->> @@ -360,4 +360,16 @@ static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
->>   	return reg1;
->>   }
->>   
->> +/*
->> + * Interface to tell the AP bus code that a configuration
->> + * change has happened. The bus code should at least do
->> + * an ap bus resource rescan.
->> + */
->> +#if IS_ENABLED(CONFIG_ZCRYPT)
->> +void ap_bus_cfg_chg(void);
->> +#else
->> +#error "no CONFIG_ZCRYPT"
+>> syzbot will keep track of this bug report. See:
+>> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with syzbot.
+>> syzbot can test patches for this bug, for details see:
+>> https://goo.gl/tpsmEJ#testing-patches
 > 
-> That #error looks like a development debugging leftover.
 > 
->> +static void ap_bus_cfg_chg(void){};
->> +#endif
->> +
->>   #endif /* _ASM_S390_AP_H_ */
->> diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
->> index a0baee25134c..dccccc337078 100644
->> --- a/drivers/s390/cio/chsc.c
->> +++ b/drivers/s390/cio/chsc.c
->> @@ -586,6 +586,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
->>   			      " failed (rc=%d).\n", ret);
->>   }
->>   
->> +static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
->> +{
->> +	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
->> +	if (sei_area->rs != 5)
->> +		return;
+> Probable fix would be :
 > 
-> I'm guessing that a reporting source of 5 means ap, right? (The code is
-> silent on all those magic rs values :/)
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index c4da4a78d369e359f237772090ff0890a1782c5b..afa1e24fb935281219016c339b15939312f2c89c 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -165,12 +165,12 @@ static int smc_release(struct socket *sock)
+>  
+>         /* detach socket */
+>         sock_orphan(sk);
+> -       sock->sk = NULL;
+>         if (!smc->use_fallback && sk->sk_state == SMC_CLOSED)
+>                 smc_conn_free(&smc->conn);
+>         release_sock(sk);
+>  
+>         sk->sk_prot->unhash(sk);
+> +       sock->sk = NULL;
+>         sock_put(sk); /* final sock_put */
+>  out:
+>         return rc;
+> 
 
-The 5 indicates the accessibility of one or more adjunct processors has
-changed. The reason this gets called is because the CC sent with the
-instruction indicates the AP configuration has changed, so the reporting
-belongs where it is. There is only one RS associated with it.
-
-> 
-> If so, should the debug logging be moved after the check?
-
-covered in the response above.
-
-> 
->> +
->> +	ap_bus_cfg_chg();
->> +}
->> +
->>   static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
->>   {
->>   	switch (sei_area->cc) {
->> @@ -612,6 +621,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
->>   	case 2: /* i/o resource accessibility */
->>   		chsc_process_sei_res_acc(sei_area);
->>   		break;
->> +	case 3: /* ap config changed */
->> +		chsc_process_sei_ap_cfg_chg(sei_area);
->> +		break;
->>   	case 7: /* channel-path-availability information */
->>   		chsc_process_sei_chp_avail(sei_area);
->>   		break;
->> diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
->> index 78aba8d94eec..5651066c46e3 100644
->> --- a/drivers/s390/cio/chsc.h
->> +++ b/drivers/s390/cio/chsc.h
->> @@ -9,6 +9,7 @@
->>   #include <asm/chsc.h>
->>   #include <asm/schid.h>
->>   #include <asm/qdio.h>
->> +#include <asm/ap.h>
-> 
-> I would probably include this in chsc.c instead.
-
-Already done per Sebastian's comment.
-
-> 
->>   
->>   #define CHSC_SDA_OC_MSS   0x2
->>   
->> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
->> index 48ea0004a56d..94f621783d6b 100644
->> --- a/drivers/s390/crypto/ap_bus.c
->> +++ b/drivers/s390/crypto/ap_bus.c
->> @@ -35,6 +35,7 @@
->>   #include <linux/mod_devicetable.h>
->>   #include <linux/debugfs.h>
->>   #include <linux/ctype.h>
->> +#include <asm/crw.h>
-> 
-> Why are you adding this #include?
-
-Already removed per Sebastian's comment.
-
-> 
->>   
->>   #include "ap_bus.h"
->>   #include "ap_debug.h"
->> @@ -860,6 +861,17 @@ void ap_bus_force_rescan(void)
->>   EXPORT_SYMBOL(ap_bus_force_rescan);
->>   
->>   /*
->> +* A config change has happened, Force an ap bus rescan.
-> 
-> s/Force/force/
-
-Will do.
-
-> 
->> +*/
->> +void ap_bus_cfg_chg(void)
->> +{
->> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
->> +
->> +	ap_bus_force_rescan();
->> +}
->> +EXPORT_SYMBOL(ap_bus_cfg_chg);
->> +
->> +/*
->>    * hex2bitmap() - parse hex mask string and set bitmap.
->>    * Valid strings are "0x012345678" with at least one valid hex number.
->>    * Rest of the bitmap to the right is padded with 0. No spaces allowed
-> 
+Cong Wang now comes up with a different patch proposal, which makes sense in my eyes.
