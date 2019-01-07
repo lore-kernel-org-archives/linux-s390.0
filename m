@@ -1,17 +1,16 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM is
- clean
-Date: Mon, 7 Jan 2019 19:17:15 +0100
-Message-ID: <d1046c6b-5013-e79e-7af9-ad8c11903af4@linux.ibm.com>
+Subject: Re: [PATCH v5 13/15] KVM: s390: add function process_gib_alert_list()
+Date: Mon, 7 Jan 2019 20:18:03 +0100
+Message-ID: <1889d0a2-d22a-1170-10bd-0bfc91549388@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-12-mimu@linux.ibm.com>
- <08327d88-388e-2ffe-9bd0-b0de2e0a0ff3@linux.ibm.com>
+ <20181219191756.57973-14-mimu@linux.ibm.com>
+ <645d74cf-7448-f143-c899-bdcf290dac59@linux.ibm.com>
 Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <08327d88-388e-2ffe-9bd0-b0de2e0a0ff3@linux.ibm.com>
+In-Reply-To: <645d74cf-7448-f143-c899-bdcf290dac59@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -22,127 +21,235 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 03.01.19 16:06, Pierre Morel wrote:
+On 03.01.19 15:43, Pierre Morel wrote:
 > On 19/12/2018 20:17, Michael Mueller wrote:
->> The patch adds the parameter irq_flags and allows to
->> restore the Interruption Alert Mask (IAM) in the GISA
->> atomically while guaranteeing the IPM is clean.
+>> This function processes the Gib Alert List (GAL). It is required
+>> to run when either a gib alert interruption has been received or
+>> a gisa that is in the alert list is cleared or dropped.
 >>
->> The function returns the IPM of the GISA. If the returned
->> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
->> been restored.
->>
->> New irq flag:
->>    IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
->>            is set in the IPM, i.e. no new airqs are
->>         pending. The test and restore operations
->>         are done atomically.
+>> The GAL is build up by millicode, when the respective ISC bit is
+>> set in the Interruption Alert Mask (IAM) and an interruption of
+>> that class is observed.
 >>
 >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >> ---
->>   arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
->>   1 file changed, 29 insertions(+), 5 deletions(-)
+>>   arch/s390/kvm/interrupt.c | 140 
+>> ++++++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 140 insertions(+)
 >>
 >> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 1cc3ad2e6c7e..8307717e3caf 100644
+>> index 48a93f5e5333..03e7ba4f215a 100644
 >> --- a/arch/s390/kvm/interrupt.c
 >> +++ b/arch/s390/kvm/interrupt.c
->> @@ -37,6 +37,7 @@
->>   #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption 
->> pending mask */
->>   #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption 
->> pending mask */
->>   #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption 
->> pending mask */
->> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
->>   #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | 
->> IRQ_FLAG_GISA)
->>   #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
->> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct 
->> kvm_s390_gisa *gisa, u32 gisc)
->>       set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+>> @@ -2941,6 +2941,146 @@ int kvm_s390_get_irq_state(struct kvm_vcpu 
+>> *vcpu, __u8 __user *buf, int len)
+>>       return n;
 >>   }
->> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
->> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
->>   {
->> -    return READ_ONCE(gisa->ipm);
->> +    u64 word, _word;
->> +    u8 ipm;
+>> +static int __try_airqs_kick(struct kvm *kvm, u8 ipm)
+> 
+> static inline ?
+> 
+>> +{
+>> +    struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
+>> +    struct kvm_vcpu *vcpu = NULL, *kick_vcpu[MAX_ISC + 1];
+>> +    int online_vcpus = atomic_read(&kvm->online_vcpus);
+>> +    u8 ioint_mask, isc_mask, kick_mask = 0x00;
+>> +    int vcpu_id, kicked = 0;
 >> +
->> +    if (!(irq_flags & IRQ_FLAG_IAM))
->> +        return READ_ONCE(gisa->ipm);
+>> +    /* Loop over vcpus in WAIT state. */
+>> +    for (vcpu_id = find_first_bit(fi->idle_mask, online_vcpus);
+>> +         /* Until all pending ISCs have a vcpu open for airqs. */
+>> +         (~kick_mask & ipm) && vcpu_id < online_vcpus;
+>> +         vcpu_id = find_next_bit(fi->idle_mask, online_vcpus, 
+>> vcpu_id)) {
+>> +        vcpu = kvm_get_vcpu(kvm, vcpu_id);
+>> +        if (psw_ioint_disabled(vcpu))
+>> +            continue;
+>> +        ioint_mask = (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+>> +        for (isc_mask = 0x80; isc_mask; isc_mask >>= 1) {
+>> +            /* ISC pending in IPM ? */
+>> +            if (!(ipm & isc_mask))
+>> +                continue;
+>> +            /* vcpu for this ISC already found ? */
+>> +            if (kick_mask & isc_mask)
+>> +                continue;
+>> +            /* vcpu open for airq of this ISC ? */
+>> +            if (!(ioint_mask & isc_mask))
+>> +                continue;
+>> +            /* use this vcpu (for all ISCs in ioint_mask) */
+>> +            kick_mask |= ioint_mask; > +            
+>> kick_vcpu[kicked++] = vcpu;
+>> +        }
+>> +    }
+>> +
+>> +    if (vcpu && ~kick_mask & ipm)
+>> +        VM_EVENT(kvm, 4, "gib alert undeliverable isc mask 0x%02x",
+>> +             ~kick_mask & ipm);
+>> +
+>> +    for (vcpu_id = 0; vcpu_id < kicked; vcpu_id++)
+>> +        kvm_s390_vcpu_wakeup(kick_vcpu[vcpu_id]);
+>> +
+>> +    return (online_vcpus != 0) ? kicked : -ENODEV;
+>> +}
+>> +
+>> +static void __floating_airqs_kick(struct kvm *kvm)
+> static inline ?
+> 
+>> +{
+>> +    struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
+>> +    int online_vcpus, kicked;
+>> +    u8 ipm_t0, ipm;
+>> +
+>> +    /* Get IPM and return if clean, IAM has been restored. */
+>> +    ipm = get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM);
+> 
+> If we do not get an IPM here, it must have been stolen by the firmware 
+> for delivery to the guest.
+
+Yes, a running SIE instance took it before we were able to. But is
+it still running now? It could have gone to WAIT before we see
+that the IPM is clean. Then it was restored already. Otherwise,
+it is still running and will go WAIT and then restore the IAM.
+
+I will do some tests on this.
+
+> Then why restoring the IAM?
+> 
+> Or do I miss something?
+> 
+>> +    if (!ipm)
+>> +        return;
+>> +retry:
+>> +    ipm_t0 = ipm;
+>> +
+>> +    /* Try to kick some vcpus in WAIT state. */
+>> +    kicked = __try_airqs_kick(kvm, ipm);
+>> +    if (kicked < 0)
+>> +        return;
+>> +
+>> +    /* Get IPM and return if clean, IAM has been restored. */
+>> +    ipm = get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM);
+>> +    if (!ipm)
+>> +        return;
+>> +
+>> +    /* Start over, if new ISC bits are pending in IPM. */
+>> +    if ((ipm_t0 ^ ipm) & ~ipm_t0)
+>> +        goto retry;
+>> +
+>> +    /*
+>> +     * Return as we just kicked at least one vcpu in WAIT state
+>> +     * open for airqs. The IAM will be restored latest when one
+>> +     * of them goes into WAIT or STOP state.
+>> +     */
+>> +    if (kicked > 0)
+>> +        return;
+>> +
+>> +    /*
+>> +     * No vcpu was kicked either because no vcpu was in WAIT state
+>> +     * or none of the vcpus in WAIT state are open for airqs.
+>> +     * Return immediately if no vcpus are in WAIT state.
+>> +     * There are vcpus in RUN state. They will process the airqs
+>> +     * if not closed for airqs as well. In that case the system will
+>> +     * delay airqs until a vcpu decides to take airqs again.
+>> +     */
+>> +    online_vcpus = atomic_read(&kvm->online_vcpus);
+>> +    if (!bitmap_weight(fi->idle_mask, online_vcpus))
+>> +        return;
+>> +
+>> +    /*
+>> +     * None of the vcpus in WAIT state take airqs and we might
+>> +     * have no running vcpus as at least one vcpu is in WAIT state
+>> +     * and IPM is dirty.
+>> +     */
+>> +    set_iam(kvm->arch.gisa, kvm->arch.iam);
+> 
+> I do not understand why we need to set IAM here.
+> The interrupt will be delivered by the firmware as soon as the PSW or 
+> CR6 is changed by any vCPU.
+> ...and if this does not happen we can not deliver the interrupt anyway.
+> 
+>> +}
+>> +
+>> +#define NULL_GISA_ADDR 0x00000000UL
+>> +#define NONE_GISA_ADDR 0x00000001UL
+>> +#define GISA_ADDR_MASK 0xfffff000UL
+>> +
+>> +static void __maybe_unused process_gib_alert_list(void)
+>> +{
+>> +    u32 final, next_alert, origin = 0UL;
+>> +    struct kvm_s390_gisa *gisa;
+>> +    struct kvm *kvm;
 >> +
 >> +    do {
->> +        word = READ_ONCE(gisa->u64.word[0]);
->> +        ipm = word >> 24;
->> +        /* If the GISA is in the alert list, return the IPM. */
->> +        if ((u64)gisa != word >> 32)
->> +            return ipm;
->> +        /* If the IPM is dirty, return the IPM. */
->> +        if (ipm)
->> +            return ipm;
 >> +        /*
->> +         * Try to restore the IAM or loop, if the IPM is dirty
->> +         * again or the GISA has been inserted into the alert list.
+>> +         * If the NONE_GISA_ADDR is still stored in the alert list
+>> +         * origin, we will leave the outer loop. No further GISA has
+>> +         * been added to the alert list by millicode while processing
+>> +         * the current alert list.
 >> +         */
->> +        _word = (word & ~0xffUL) |
->> +            container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
->> +    } while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
+>> +        final = (origin & NONE_GISA_ADDR);
+>> +        /*
+>> +         * Cut off the alert list and store the NONE_GISA_ADDR in the
+>> +         * alert list origin to avoid further GAL interruptions.
+>> +         * A new alert list can be build up by millicode in parallel
+>> +         * for guests not in the yet cut-off alert list. When in the
+>> +         * final loop, store the NULL_GISA_ADDR instead. This will re-
+>> +         * enable GAL interruptions on the host again.
+>> +         */
+>> +        origin = xchg(&gib->alert_list_origin,
+>> +                  (!final) ? NONE_GISA_ADDR : NULL_GISA_ADDR);
+>> +        /* Loop through the just cut-off alert list. */
+>> +        while (origin & GISA_ADDR_MASK) {
+>> +            gisa = (struct kvm_s390_gisa *)(u64)origin;
+>> +            next_alert = gisa->next_alert;
+>> +            /* Unlink the GISA from the alert list. */
+>> +            gisa->next_alert = origin;
+> 
+> AFAIU this enable GISA interrupt for the guest...
+
+Only together with the IAM being set what could happen if
+__floating_airqs_kick() calls get_ipm and the IPM is clean already. :(
+
+> 
+>> +            kvm = container_of(gisa, struct sie_page2, gisa)->kvm;
+>> +            /* Kick suitable vcpus */
+>> +            __floating_airqs_kick(kvm);
+> 
+> ...and here we kick a VCPU for the guest.
+> 
+> Logically I would do it in the otherway, first kicking the vCPU then 
+> enabling the GISA interruption again.
+> 
+> If the IPM bit is cleared by the firmware during delivering the 
+> interrupt to the guest before we enter get_ipm() called by 
+> __floating_airqs_kick() we will set the IAM despite we have a running 
+> CPU handling the IRQ.
+
+I will move the unlink below the kick that will assure get_ipm will 
+never take the IAM restore path.
+
+> In the worst case we can also set the IAM with the GISA in the alert list.
+> Or we must accept that the firmware can deliver the IPM as soon as we 
+> reset the GISA next field.
+
+See statement above.
+
+> 
+>> +            origin = next_alert;
+>> +        }
+>> +    } while (!final);
+>> +}
 >> +
->> +    return 0;
->>   }
-> 
-> Personal opinion, but this function do more than just getting the IPM, 
-> shouldn't it be reflected in the function name?
-
-The main task of this function is to fetch the IPM. The additional
-functionality is expressed in the flags.
-
-A call like get_ipm_try_iam_restore(kvm, 0) would be more confusing.
-
-> 
->>   static inline void clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->> @@ -277,7 +301,7 @@ static inline unsigned long pending_irqs(struct 
->> kvm_vcpu *vcpu, u16 irq_flags)
->>       if (irq_flags & IRQ_FLAG_FLOATING)
->>           pending_irqs |= vcpu->kvm->arch.float_int.pending_irqs;
->>       if (irq_flags & IRQ_FLAG_GISA)
->> -        pending_irqs |= get_ipm(vcpu->kvm->arch.gisa) <<
->> +        pending_irqs |= get_ipm(vcpu->kvm->arch.gisa, irq_flags) <<
->>               IRQ_PEND_IO_ISC_7;
->>       return pending_irqs;
->>   }
->> @@ -1574,7 +1598,7 @@ static int get_top_gisa_isc(struct kvm *kvm, u64 
->> isc_mask, u32 schid)
->>       if (!kvm->arch.gisa)
->>           goto out;
->> -    active_mask = (isc_mask & get_ipm(kvm->arch.gisa) << 24) << 32;
->> +    active_mask = (isc_mask & get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM) 
->> << 24) << 32;
-> 
-> why do we need to set the IAM here?
-
-Yes, it should not be required, only when a vcpu goes into wait state.
-
-> 
->>       while (active_mask) {
->>           isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
->>           if (tac_ipm_gisc(kvm->arch.gisa, isc))
->> @@ -2060,7 +2084,7 @@ static int get_all_floating_irqs(struct kvm 
->> *kvm, u8 __user *usrbuf, u64 len)
->>       max_irqs = len / sizeof(struct kvm_s390_irq);
->>       if (kvm->arch.gisa &&
->> -        get_ipm(kvm->arch.gisa)) {
->> +        get_ipm(kvm->arch.gisa, IRQ_FLAG_IAM)) {
-> 
-> and here?
-
-Yes, it should not be required, only when a vcpu goes into wait state.
-
-> 
->>           for (i = 0; i <= MAX_ISC; i++) {
->>               if (n == max_irqs) {
->>                   /* signal userspace to try again */
+>>   static void nullify_gisa(struct kvm_s390_gisa *gisa)
+>>   {
+>>       memset(gisa, 0, sizeof(struct kvm_s390_gisa));
 >>
+> 
+> I think that avoiding to restore the IAM during the call to get_ipm 
+> inside __floating_airqs_kick() would good.
+> 
+> If you agree, with that:
+> 
+> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
 > 
 > 
