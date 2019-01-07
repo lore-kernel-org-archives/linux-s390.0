@@ -1,90 +1,50 @@
-From: David Hildenbrand <david@redhat.com>
-Date: Mon, 07 Jan 2019 11:41:15 +0000
-Subject: Re: [kvm-unit-tests PATCH v4 05/13] s390x: Add BSS clearing for non ELF boot
-Message-Id: <303a4573-c7c3-324c-865d-28c514b20639@redhat.com>
-In-Reply-To: <20190103100806.9039-6-frankja@linux.ibm.com>
-References: <20190103100806.9039-6-frankja@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Mon, 07 Jan 2019 15:33:50 +0000
+Subject: Re: [PATCH 1/1] s390/virtio: handle find on invalid queue gracefully
+Message-Id: <20190107163350.3f220041@oc2783563651>
+In-Reply-To: <20190107160632.06b6f624.cohuck@redhat.com>
+References: <20190107160632.06b6f624.cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03.01.19 11:07, Janosch Frank wrote:
-> When doing an IPL normal the memory will not be zeroed and hence the
-> BSS section can have any value. We need to clear it by ourselves.
+On Mon, 7 Jan 2019 16:06:32 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> On Mon,  7 Jan 2019 13:31:46 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> ---
->  s390x/cstart64.S | 22 ++++++++++++++++++++--
->  s390x/flat.lds   |  2 ++
->  2 files changed, 22 insertions(+), 2 deletions(-)
+> > A queue with a capacity of zero is clearly not a valid virtio queue.
+> > Some emulators report zero queue size if queried with an invalid queue
+> > index. Instead of crashing in this case let us just return -EINVAL. To
 > 
-> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index 6622633..dedfe80 100644
-> --- a/s390x/cstart64.S
-> +++ b/s390x/cstart64.S
-> @@ -39,7 +39,22 @@ start:
->  	/* setup initial PSW mask + control registers*/
->  	larl	%r1, initial_psw
->  	lpswe	0(%r1)
-> -init_psw_cont:
-> +clear_bss_start:
-> +	larl 	%r2, __bss_start
-> +	larl 	%r3, __bss_end
-> +	slgr 	%r3, %r2		# Get sizeof bss
-> +	aghi 	%r3,-1
-> +	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
-> +	ltgr 	%r4,%r4
-> +	lgr 	%r1,%r2
-> +	jz	clear_bss_remainder		# If none, clear remaining bytes
-> +clear_bss_loop:
-> +	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
-> +	la	%r1, 256(%r1)
-> +	brctg 	%r4, clear_bss_loop
-> +clear_bss_remainder:
-> +	larl	%r2, memsetxc
-> +	ex 	%r3, 0(%r2)
->  	/* setup pgm interrupt handler */
->  	larl	%r1, pgm_int_psw
->  	mvc	GEN_LC_PGM_NEW_PSW(16), 0(%r1)
-> @@ -71,6 +86,9 @@ init_psw_cont:
->  	/* call exit() */
->  	j exit
->  
-> +memsetxc:
-> +	xc 0(1,%r1),0(%r1)
-> +
->  	.macro SAVE_REGS
->  	/* save grs 0-15 */
->  	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
-> @@ -159,7 +177,7 @@ svc_int:
->  
->  	.align	8
->  initial_psw:
-> -	.quad	0x0000000180000000, init_psw_cont
-> +	.quad	0x0000000180000000, clear_bss_start
->  pgm_int_psw:
->  	.quad	0x0000000180000000, pgm_int
->  ext_int_psw:
-> diff --git a/s390x/flat.lds b/s390x/flat.lds
-> index 977af7c..403d967 100644
-> --- a/s390x/flat.lds
-> +++ b/s390x/flat.lds
-> @@ -40,7 +40,9 @@ SECTIONS
->  	. = ALIGN(16);
->  	.rodata : { *(.rodata) *(.rodata.*) }
->  	. = ALIGN(16);
-> +	__bss_start = .;
->  	.bss : { *(.bss) }
-> +	__bss_end = .;
->  	. = ALIGN(64K);
->  	edata = .;
->  	. += 64K;
+> s/-EINVAL/-ENOENT/
 > 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+So I did forget something, again. :/ Thanks for spotting it!
 
--- 
+> > make that work properly, let us fix the notifier cleanup logic as well.
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > ---
+> > This patch is motivated by commit 86a5597 "virtio-balloon:
+> > VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
+> > the described scenario.  The emulator in question is the current QEMU.
+> > The problem we run into is the underflow in the following loop
+> > in  __vring_new_virtqueue():
+> > for (i = 0; i < vring.num-1; i++)
+> > 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
+> > Namely vring.num is an unsigned int.
+> > 
+> > RFC --> v1:
+> > * Change error code from -EINVAL to -ENOENT, so we are in line with the
+> > other transports.
+> > * Push down the detection of the error into virtio_ccw_read_vq_conf().
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> Thanks, applied.
+> 
 
-Thanks,
-
-David / dhildenb
+Thanks!
+Halil
