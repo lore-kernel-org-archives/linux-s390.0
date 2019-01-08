@@ -1,14 +1,15 @@
 Return-Path: <SRS0=tBLO=PQ=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Date: Tue, 8 Jan 2019 16:23:41 +0200
+From: Mike Rapoport <rppt@linux.ibm.com>
 Subject: Re: [PATCH v4 1/6] powerpc: prefer memblock APIs returning virtual
  address
 References: <1546248566-14910-1-git-send-email-rppt@linux.ibm.com>
  <1546248566-14910-2-git-send-email-rppt@linux.ibm.com>
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Message-ID: <282fd5d1-24b5-81ac-b7ff-7329fe3c0fe1@c-s.fr>
-Date: Tue, 8 Jan 2019 11:02:24 +0100
+ <282fd5d1-24b5-81ac-b7ff-7329fe3c0fe1@c-s.fr>
 MIME-Version: 1.0
-In-Reply-To: <1546248566-14910-2-git-send-email-rppt@linux.ibm.com>
-Content-Language: fr
+Content-Disposition: inline
+In-Reply-To: <282fd5d1-24b5-81ac-b7ff-7329fe3c0fe1@c-s.fr>
+Message-Id: <20190108142341.GA14063@rapoport-lnx>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,230 +17,350 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Russell King <linux@armlinux.org.uk>, Mark Salter <msalter@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+To: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>, Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Russell King <linux@armlinux.org.uk>, Mark Salter <msalter@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, openrisc@lists.librecores.org, Greentime Hu <green.hu@gmail.com>, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-CgpMZSAzMS8xMi8yMDE4IMOgIDEwOjI5LCBNaWtlIFJhcG9wb3J0IGEgw6ljcml0wqA6Cj4gVGhl
-cmUgYXJlIGEgc2V2ZXJhbCBwbGFjZXMgdGhhdCBhbGxvY2F0ZSBtZW1vcnkgdXNpbmcgbWVtYmxv
-Y2sgQVBJcyB0aGF0Cj4gcmV0dXJuIGEgcGh5c2ljYWwgYWRkcmVzcywgY29udmVydCB0aGUgcmV0
-dXJuZWQgYWRkcmVzcyB0byB0aGUgdmlydHVhbAo+IGFkZHJlc3MgYW5kIGZyZXF1ZW50bHkgYWxz
-byBtZW1zZXQoMCkgdGhlIGFsbG9jYXRlZCByYW5nZS4KPiAKPiBVcGRhdGUgdGhlc2UgcGxhY2Vz
-IHRvIHVzZSBtZW1ibG9jayBhbGxvY2F0b3JzIGFscmVhZHkgcmV0dXJuaW5nIGEgdmlydHVhbAo+
-IGFkZHJlc3MuIFVzZSBtZW1ibG9jayBmdW5jdGlvbnMgdGhhdCBjbGVhciB0aGUgYWxsb2NhdGVk
-IG1lbW9yeSBpbnN0ZWFkIG9mCj4gY2FsbGluZyBtZW1zZXQoMCkgd2hlcmUgYXBwcm9wcmlhdGUu
-Cj4gCj4gVGhlIGNhbGxzIHRvIG1lbWJsb2NrX2FsbG9jX2Jhc2UoKSB0aGF0IHdlcmUgbm90IGZv
-bGxvd2VkIGJ5IG1lbXNldCgwKSBhcmUKPiByZXBsYWNlZCB3aXRoIG1lbWJsb2NrX2FsbG9jX3Ry
-eV9uaWRfcmF3KCkuIFNpbmNlIHRoZSBsYXR0ZXIgZG9lcyBub3QKPiBwYW5pYygpIHdoZW4gdGhl
-IGFsbG9jYXRpb24gZmFpbHMsIHRoZSBhcHByb3ByaWF0ZSBwYW5pYygpIGNhbGxzIGFyZSBhZGRl
-ZAo+IHRvIHRoZSBjYWxsIHNpdGVzLgo+IAo+IFNpZ25lZC1vZmYtYnk6IE1pa2UgUmFwb3BvcnQg
-PHJwcHRAbGludXguaWJtLmNvbT4KPiAtLS0KPiAgIGFyY2gvcG93ZXJwYy9rZXJuZWwvcGFjYS5j
-ICAgICAgICAgICAgIHwgMTYgKysrKysrLS0tLS0tLS0tLQo+ICAgYXJjaC9wb3dlcnBjL2tlcm5l
-bC9zZXR1cF82NC5jICAgICAgICAgfCAyNCArKysrKysrKysrLS0tLS0tLS0tLS0tLS0KPiAgIGFy
-Y2gvcG93ZXJwYy9tbS9oYXNoX3V0aWxzXzY0LmMgICAgICAgIHwgIDYgKysrLS0tCj4gICBhcmNo
-L3Bvd2VycGMvbW0vcGd0YWJsZS1ib29rM2UuYyAgICAgICB8ICA4ICsrLS0tLS0tCj4gICBhcmNo
-L3Bvd2VycGMvbW0vcGd0YWJsZS1ib29rM3M2NC5jICAgICB8ICA1ICstLS0tCj4gICBhcmNoL3Bv
-d2VycGMvbW0vcGd0YWJsZS1yYWRpeC5jICAgICAgICB8IDI1ICsrKysrKystLS0tLS0tLS0tLS0t
-LS0tLS0KPiAgIGFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcGFzZW1pL2lvbW11LmMgIHwgIDUgKysr
-LS0KPiAgIGFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9zZXR1cC5jIHwgMTggKysrKysr
-KysrKysrKystLS0tCj4gICBhcmNoL3Bvd2VycGMvc3lzZGV2L2RhcnRfaW9tbXUuYyAgICAgICB8
-ICA3ICsrKysrLS0KPiAgIDkgZmlsZXMgY2hhbmdlZCwgNTEgaW5zZXJ0aW9ucygrKSwgNjMgZGVs
-ZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvcGFjYS5jIGIv
-YXJjaC9wb3dlcnBjL2tlcm5lbC9wYWNhLmMKPiBpbmRleCA5MTNiZmNhLi4yNzZkMzZkNCAxMDA2
-NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMva2VybmVsL3BhY2EuYwo+ICsrKyBiL2FyY2gvcG93ZXJw
-Yy9rZXJuZWwvcGFjYS5jCj4gQEAgLTI3LDcgKzI3LDcgQEAKPiAgIHN0YXRpYyB2b2lkICpfX2lu
-aXQgYWxsb2NfcGFjYV9kYXRhKHVuc2lnbmVkIGxvbmcgc2l6ZSwgdW5zaWduZWQgbG9uZyBhbGln
-biwKPiAgIAkJCQl1bnNpZ25lZCBsb25nIGxpbWl0LCBpbnQgY3B1KQo+ICAgewo+IC0JdW5zaWdu
-ZWQgbG9uZyBwYTsKPiArCXZvaWQgKnB0cjsKPiAgIAlpbnQgbmlkOwo+ICAgCj4gICAJLyoKPiBA
-QCAtNDIsMTcgKzQyLDE1IEBAIHN0YXRpYyB2b2lkICpfX2luaXQgYWxsb2NfcGFjYV9kYXRhKHVu
-c2lnbmVkIGxvbmcgc2l6ZSwgdW5zaWduZWQgbG9uZyBhbGlnbiwKPiAgIAkJbmlkID0gZWFybHlf
-Y3B1X3RvX25vZGUoY3B1KTsKPiAgIAl9Cj4gICAKPiAtCXBhID0gbWVtYmxvY2tfYWxsb2NfYmFz
-ZV9uaWQoc2l6ZSwgYWxpZ24sIGxpbWl0LCBuaWQsIE1FTUJMT0NLX05PTkUpOwo+IC0JaWYgKCFw
-YSkgewo+IC0JCXBhID0gbWVtYmxvY2tfYWxsb2NfYmFzZShzaXplLCBhbGlnbiwgbGltaXQpOwo+
-IC0JCWlmICghcGEpCj4gLQkJCXBhbmljKCJjYW5ub3QgYWxsb2NhdGUgcGFjYSBkYXRhIik7Cj4g
-LQl9Cj4gKwlwdHIgPSBtZW1ibG9ja19hbGxvY190cnlfbmlkKHNpemUsIGFsaWduLCBNRU1CTE9D
-S19MT1dfTElNSVQsCj4gKwkJCQkgICAgIGxpbWl0LCBuaWQpOwo+ICsJaWYgKCFwdHIpCj4gKwkJ
-cGFuaWMoImNhbm5vdCBhbGxvY2F0ZSBwYWNhIGRhdGEiKTsKCkFGQUlLUywgbWVtYmxvY2tfYWxs
-b2NfdHJ5X25pZCgpIHBhbmljcyBpZiBtZW1ibG9ja19hbGxvY19pbnRlcm5hbCgpIApyZXR1cm5z
-IE5VTEwsIHNvIHRoZSBhYm92ZSBwYW5pYyBpcyB1c2VsZXNzLCBpc24ndCBpdCA/Cgo+ICAgCj4g
-ICAJaWYgKGNwdSA9PSBib290X2NwdWlkKQo+ICAgCQltZW1ibG9ja19zZXRfYm90dG9tX3VwKGZh
-bHNlKTsKPiAgIAo+IC0JcmV0dXJuIF9fdmEocGEpOwo+ICsJcmV0dXJuIHB0cjsKPiAgIH0KPiAg
-IAo+ICAgI2lmZGVmIENPTkZJR19QUENfUFNFUklFUwo+IEBAIC0xMTgsNyArMTE2LDYgQEAgc3Rh
-dGljIHN0cnVjdCBzbGJfc2hhZG93ICogX19pbml0IG5ld19zbGJfc2hhZG93KGludCBjcHUsIHVu
-c2lnbmVkIGxvbmcgbGltaXQpCj4gICAJfQo+ICAgCj4gICAJcyA9IGFsbG9jX3BhY2FfZGF0YShz
-aXplb2YoKnMpLCBMMV9DQUNIRV9CWVRFUywgbGltaXQsIGNwdSk7Cj4gLQltZW1zZXQocywgMCwg
-c2l6ZW9mKCpzKSk7Cj4gICAKPiAgIAlzLT5wZXJzaXN0ZW50ID0gY3B1X3RvX2JlMzIoU0xCX05V
-TV9CT0xURUQpOwo+ICAgCXMtPmJ1ZmZlcl9sZW5ndGggPSBjcHVfdG9fYmUzMihzaXplb2YoKnMp
-KTsKPiBAQCAtMjIyLDcgKzIxOSw2IEBAIHZvaWQgX19pbml0IGFsbG9jYXRlX3BhY2EoaW50IGNw
-dSkKPiAgIAlwYWNhID0gYWxsb2NfcGFjYV9kYXRhKHNpemVvZihzdHJ1Y3QgcGFjYV9zdHJ1Y3Qp
-LCBMMV9DQUNIRV9CWVRFUywKPiAgIAkJCQlsaW1pdCwgY3B1KTsKPiAgIAlwYWNhX3B0cnNbY3B1
-XSA9IHBhY2E7Cj4gLQltZW1zZXQocGFjYSwgMCwgc2l6ZW9mKHN0cnVjdCBwYWNhX3N0cnVjdCkp
-Owo+ICAgCj4gICAJaW5pdGlhbGlzZV9wYWNhKHBhY2EsIGNwdSk7Cj4gICAjaWZkZWYgQ09ORklH
-X1BQQ19QU0VSSUVTCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvc2V0dXBfNjQu
-YyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvc2V0dXBfNjQuYwo+IGluZGV4IDIzNmMxMTUuLjNkY2Q3
-NzkgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF82NC5jCj4gKysrIGIv
-YXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF82NC5jCj4gQEAgLTYzNCwxOSArNjM0LDE3IEBAIF9f
-aW5pdCB1NjQgcHBjNjRfYm9sdGVkX3NpemUodm9pZCkKPiAgIAo+ICAgc3RhdGljIHZvaWQgKl9f
-aW5pdCBhbGxvY19zdGFjayh1bnNpZ25lZCBsb25nIGxpbWl0LCBpbnQgY3B1KQo+ICAgewo+IC0J
-dW5zaWduZWQgbG9uZyBwYTsKPiArCXZvaWQgKnB0cjsKPiAgIAo+ICAgCUJVSUxEX0JVR19PTihT
-VEFDS19JTlRfRlJBTUVfU0laRSAlIDE2KTsKPiAgIAo+IC0JcGEgPSBtZW1ibG9ja19hbGxvY19i
-YXNlX25pZChUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUsIGxpbWl0LAo+IC0JCQkJCWVhcmx5X2Nw
-dV90b19ub2RlKGNwdSksIE1FTUJMT0NLX05PTkUpOwo+IC0JaWYgKCFwYSkgewo+IC0JCXBhID0g
-bWVtYmxvY2tfYWxsb2NfYmFzZShUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUsIGxpbWl0KTsKPiAt
-CQlpZiAoIXBhKQo+IC0JCQlwYW5pYygiY2Fubm90IGFsbG9jYXRlIHN0YWNrcyIpOwo+IC0JfQo+
-ICsJcHRyID0gbWVtYmxvY2tfYWxsb2NfdHJ5X25pZChUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUs
-Cj4gKwkJCQkgICAgIE1FTUJMT0NLX0xPV19MSU1JVCwgbGltaXQsCj4gKwkJCQkgICAgIGVhcmx5
-X2NwdV90b19ub2RlKGNwdSkpOwo+ICsJaWYgKCFwdHIpCj4gKwkJcGFuaWMoImNhbm5vdCBhbGxv
-Y2F0ZSBzdGFja3MiKTsKClNhbWUgPwoKQ2hyaXN0b3BoZQoKPiAgIAo+IC0JcmV0dXJuIF9fdmEo
-cGEpOwo+ICsJcmV0dXJuIHB0cjsKPiAgIH0KPiAgIAo+ICAgdm9pZCBfX2luaXQgaXJxc3RhY2tf
-ZWFybHlfaW5pdCh2b2lkKQo+IEBAIC03MzksMjAgKzczNywxNyBAQCB2b2lkIF9faW5pdCBlbWVy
-Z2VuY3lfc3RhY2tfaW5pdCh2b2lkKQo+ICAgCQlzdHJ1Y3QgdGhyZWFkX2luZm8gKnRpOwo+ICAg
-Cj4gICAJCXRpID0gYWxsb2Nfc3RhY2sobGltaXQsIGkpOwo+IC0JCW1lbXNldCh0aSwgMCwgVEhS
-RUFEX1NJWkUpOwo+ICAgCQllbWVyZ19zdGFja19pbml0X3RocmVhZF9pbmZvKHRpLCBpKTsKPiAg
-IAkJcGFjYV9wdHJzW2ldLT5lbWVyZ2VuY3lfc3AgPSAodm9pZCAqKXRpICsgVEhSRUFEX1NJWkU7
-Cj4gICAKPiAgICNpZmRlZiBDT05GSUdfUFBDX0JPT0szU182NAo+ICAgCQkvKiBlbWVyZ2VuY3kg
-c3RhY2sgZm9yIE5NSSBleGNlcHRpb24gaGFuZGxpbmcuICovCj4gICAJCXRpID0gYWxsb2Nfc3Rh
-Y2sobGltaXQsIGkpOwo+IC0JCW1lbXNldCh0aSwgMCwgVEhSRUFEX1NJWkUpOwo+ICAgCQllbWVy
-Z19zdGFja19pbml0X3RocmVhZF9pbmZvKHRpLCBpKTsKPiAgIAkJcGFjYV9wdHJzW2ldLT5ubWlf
-ZW1lcmdlbmN5X3NwID0gKHZvaWQgKil0aSArIFRIUkVBRF9TSVpFOwo+ICAgCj4gICAJCS8qIGVt
-ZXJnZW5jeSBzdGFjayBmb3IgbWFjaGluZSBjaGVjayBleGNlcHRpb24gaGFuZGxpbmcuICovCj4g
-ICAJCXRpID0gYWxsb2Nfc3RhY2sobGltaXQsIGkpOwo+IC0JCW1lbXNldCh0aSwgMCwgVEhSRUFE
-X1NJWkUpOwo+ICAgCQllbWVyZ19zdGFja19pbml0X3RocmVhZF9pbmZvKHRpLCBpKTsKPiAgIAkJ
-cGFjYV9wdHJzW2ldLT5tY19lbWVyZ2VuY3lfc3AgPSAodm9pZCAqKXRpICsgVEhSRUFEX1NJWkU7
-Cj4gICAjZW5kaWYKPiBAQCAtOTMzLDggKzkyOCw5IEBAIHN0YXRpYyB2b2lkIF9fcmVmIGluaXRf
-ZmFsbGJhY2tfZmx1c2godm9pZCkKPiAgIAkgKiBoYXJkd2FyZSBwcmVmZXRjaCBydW5vZmYuIFdl
-IGRvbid0IGhhdmUgYSByZWNpcGUgZm9yIGxvYWQgcGF0dGVybnMgdG8KPiAgIAkgKiByZWxpYWJs
-eSBhdm9pZCB0aGUgcHJlZmV0Y2hlci4KPiAgIAkgKi8KPiAtCWwxZF9mbHVzaF9mYWxsYmFja19h
-cmVhID0gX192YShtZW1ibG9ja19hbGxvY19iYXNlKGwxZF9zaXplICogMiwgbDFkX3NpemUsIGxp
-bWl0KSk7Cj4gLQltZW1zZXQobDFkX2ZsdXNoX2ZhbGxiYWNrX2FyZWEsIDAsIGwxZF9zaXplICog
-Mik7Cj4gKwlsMWRfZmx1c2hfZmFsbGJhY2tfYXJlYSA9IG1lbWJsb2NrX2FsbG9jX3RyeV9uaWQo
-bDFkX3NpemUgKiAyLAo+ICsJCQkJCQlsMWRfc2l6ZSwgTUVNQkxPQ0tfTE9XX0xJTUlULAo+ICsJ
-CQkJCQlsaW1pdCwgTlVNQV9OT19OT0RFKTsKPiAgIAo+ICAgCWZvcl9lYWNoX3Bvc3NpYmxlX2Nw
-dShjcHUpIHsKPiAgIAkJc3RydWN0IHBhY2Ffc3RydWN0ICpwYWNhID0gcGFjYV9wdHJzW2NwdV07
-Cj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9tbS9oYXNoX3V0aWxzXzY0LmMgYi9hcmNoL3Bv
-d2VycGMvbW0vaGFzaF91dGlsc182NC5jCj4gaW5kZXggMGNjN2ZiYy4uYmM2YmU0NCAxMDA2NDQK
-PiAtLS0gYS9hcmNoL3Bvd2VycGMvbW0vaGFzaF91dGlsc182NC5jCj4gKysrIGIvYXJjaC9wb3dl
-cnBjL21tL2hhc2hfdXRpbHNfNjQuYwo+IEBAIC05MDgsOSArOTA4LDkgQEAgc3RhdGljIHZvaWQg
-X19pbml0IGh0YWJfaW5pdGlhbGl6ZSh2b2lkKQo+ICAgI2lmZGVmIENPTkZJR19ERUJVR19QQUdF
-QUxMT0MKPiAgIAlpZiAoZGVidWdfcGFnZWFsbG9jX2VuYWJsZWQoKSkgewo+ICAgCQlsaW5lYXJf
-bWFwX2hhc2hfY291bnQgPSBtZW1ibG9ja19lbmRfb2ZfRFJBTSgpID4+IFBBR0VfU0hJRlQ7Cj4g
-LQkJbGluZWFyX21hcF9oYXNoX3Nsb3RzID0gX192YShtZW1ibG9ja19hbGxvY19iYXNlKAo+IC0J
-CQkJbGluZWFyX21hcF9oYXNoX2NvdW50LCAxLCBwcGM2NF9ybWFfc2l6ZSkpOwo+IC0JCW1lbXNl
-dChsaW5lYXJfbWFwX2hhc2hfc2xvdHMsIDAsIGxpbmVhcl9tYXBfaGFzaF9jb3VudCk7Cj4gKwkJ
-bGluZWFyX21hcF9oYXNoX3Nsb3RzID0gbWVtYmxvY2tfYWxsb2NfdHJ5X25pZCgKPiArCQkJCWxp
-bmVhcl9tYXBfaGFzaF9jb3VudCwgMSwgTUVNQkxPQ0tfTE9XX0xJTUlULAo+ICsJCQkJcHBjNjRf
-cm1hX3NpemUsCU5VTUFfTk9fTk9ERSk7Cj4gICAJfQo+ICAgI2VuZGlmIC8qIENPTkZJR19ERUJV
-R19QQUdFQUxMT0MgKi8KPiAgIAo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvbW0vcGd0YWJs
-ZS1ib29rM2UuYyBiL2FyY2gvcG93ZXJwYy9tbS9wZ3RhYmxlLWJvb2szZS5jCj4gaW5kZXggZTBj
-Y2YzNi4uNTNjYmM3ZCAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvbW0vcGd0YWJsZS1ib29r
-M2UuYwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9tbS9wZ3RhYmxlLWJvb2szZS5jCj4gQEAgLTU3LDEy
-ICs1Nyw4IEBAIHZvaWQgdm1lbW1hcF9yZW1vdmVfbWFwcGluZyh1bnNpZ25lZCBsb25nIHN0YXJ0
-LAo+ICAgCj4gICBzdGF0aWMgX19yZWYgdm9pZCAqZWFybHlfYWxsb2NfcGd0YWJsZSh1bnNpZ25l
-ZCBsb25nIHNpemUpCj4gICB7Cj4gLQl2b2lkICpwdDsKPiAtCj4gLQlwdCA9IF9fdmEobWVtYmxv
-Y2tfYWxsb2NfYmFzZShzaXplLCBzaXplLCBfX3BhKE1BWF9ETUFfQUREUkVTUykpKTsKPiAtCW1l
-bXNldChwdCwgMCwgc2l6ZSk7Cj4gLQo+IC0JcmV0dXJuIHB0Owo+ICsJcmV0dXJuIG1lbWJsb2Nr
-X2FsbG9jX3RyeV9uaWQoc2l6ZSwgc2l6ZSwgTUVNQkxPQ0tfTE9XX0xJTUlULAo+ICsJCQkJICAg
-ICAgX19wYShNQVhfRE1BX0FERFJFU1MpLCBOVU1BX05PX05PREUpOwo+ICAgfQo+ICAgCj4gICAv
-Kgo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvbW0vcGd0YWJsZS1ib29rM3M2NC5jIGIvYXJj
-aC9wb3dlcnBjL21tL3BndGFibGUtYm9vazNzNjQuYwo+IGluZGV4IGYzYzMxZjUuLjU1ODc2Yjcg
-MTAwNjQ0Cj4gLS0tIGEvYXJjaC9wb3dlcnBjL21tL3BndGFibGUtYm9vazNzNjQuYwo+ICsrKyBi
-L2FyY2gvcG93ZXJwYy9tbS9wZ3RhYmxlLWJvb2szczY0LmMKPiBAQCAtMTk1LDExICsxOTUsOCBA
-QCB2b2lkIF9faW5pdCBtbXVfcGFydGl0aW9uX3RhYmxlX2luaXQodm9pZCkKPiAgIAl1bnNpZ25l
-ZCBsb25nIHB0Y3I7Cj4gICAKPiAgIAlCVUlMRF9CVUdfT05fTVNHKChQQVRCX1NJWkVfU0hJRlQg
-PiAzNiksICJQYXJ0aXRpb24gdGFibGUgc2l6ZSB0b28gbGFyZ2UuIik7Cj4gLQlwYXJ0aXRpb25f
-dGIgPSBfX3ZhKG1lbWJsb2NrX2FsbG9jX2Jhc2UocGF0Yl9zaXplLCBwYXRiX3NpemUsCj4gLQkJ
-CQkJCU1FTUJMT0NLX0FMTE9DX0FOWVdIRVJFKSk7Cj4gLQo+ICAgCS8qIEluaXRpYWxpemUgdGhl
-IFBhcnRpdGlvbiBUYWJsZSB3aXRoIG5vIGVudHJpZXMgKi8KPiAtCW1lbXNldCgodm9pZCAqKXBh
-cnRpdGlvbl90YiwgMCwgcGF0Yl9zaXplKTsKPiArCXBhcnRpdGlvbl90YiA9IG1lbWJsb2NrX2Fs
-bG9jKHBhdGJfc2l6ZSwgcGF0Yl9zaXplKTsKPiAgIAo+ICAgCS8qCj4gICAJICogdXBkYXRlIHBh
-cnRpdGlvbiB0YWJsZSBjb250cm9sIHJlZ2lzdGVyLAo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2Vy
-cGMvbW0vcGd0YWJsZS1yYWRpeC5jIGIvYXJjaC9wb3dlcnBjL21tL3BndGFibGUtcmFkaXguYwo+
-IGluZGV4IDkzMTE1NjAuLjI5YmNlYTUgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9wb3dlcnBjL21tL3Bn
-dGFibGUtcmFkaXguYwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9tbS9wZ3RhYmxlLXJhZGl4LmMKPiBA
-QCAtNTEsMjYgKzUxLDE1IEBAIHN0YXRpYyBpbnQgbmF0aXZlX3JlZ2lzdGVyX3Byb2Nlc3NfdGFi
-bGUodW5zaWduZWQgbG9uZyBiYXNlLCB1bnNpZ25lZCBsb25nIHBnX3N6Cj4gICBzdGF0aWMgX19y
-ZWYgdm9pZCAqZWFybHlfYWxsb2NfcGd0YWJsZSh1bnNpZ25lZCBsb25nIHNpemUsIGludCBuaWQs
-Cj4gICAJCQl1bnNpZ25lZCBsb25nIHJlZ2lvbl9zdGFydCwgdW5zaWduZWQgbG9uZyByZWdpb25f
-ZW5kKQo+ICAgewo+IC0JdW5zaWduZWQgbG9uZyBwYSA9IDA7Cj4gLQl2b2lkICpwdDsKPiArCXBo
-eXNfYWRkcl90IG1pbl9hZGRyID0gTUVNQkxPQ0tfTE9XX0xJTUlUOwo+ICsJcGh5c19hZGRyX3Qg
-bWF4X2FkZHIgPSBNRU1CTE9DS19BTExPQ19BTllXSEVSRTsKPiAgIAo+IC0JaWYgKHJlZ2lvbl9z
-dGFydCB8fCByZWdpb25fZW5kKSAvKiBoYXMgcmVnaW9uIGhpbnQgKi8KPiAtCQlwYSA9IG1lbWJs
-b2NrX2FsbG9jX3JhbmdlKHNpemUsIHNpemUsIHJlZ2lvbl9zdGFydCwgcmVnaW9uX2VuZCwKPiAt
-CQkJCQkJTUVNQkxPQ0tfTk9ORSk7Cj4gLQllbHNlIGlmIChuaWQgIT0gLTEpIC8qIGhhcyBub2Rl
-IGhpbnQgKi8KPiAtCQlwYSA9IG1lbWJsb2NrX2FsbG9jX2Jhc2VfbmlkKHNpemUsIHNpemUsCj4g
-LQkJCQkJCU1FTUJMT0NLX0FMTE9DX0FOWVdIRVJFLAo+IC0JCQkJCQluaWQsIE1FTUJMT0NLX05P
-TkUpOwo+ICsJaWYgKHJlZ2lvbl9zdGFydCkKPiArCQltaW5fYWRkciA9IHJlZ2lvbl9zdGFydDsK
-PiArCWlmIChyZWdpb25fZW5kKQo+ICsJCW1heF9hZGRyID0gcmVnaW9uX2VuZDsKPiAgIAo+IC0J
-aWYgKCFwYSkKPiAtCQlwYSA9IG1lbWJsb2NrX2FsbG9jX2Jhc2Uoc2l6ZSwgc2l6ZSwgTUVNQkxP
-Q0tfQUxMT0NfQU5ZV0hFUkUpOwo+IC0KPiAtCUJVR19PTighcGEpOwo+IC0KPiAtCXB0ID0gX192
-YShwYSk7Cj4gLQltZW1zZXQocHQsIDAsIHNpemUpOwo+IC0KPiAtCXJldHVybiBwdDsKPiArCXJl
-dHVybiBtZW1ibG9ja19hbGxvY190cnlfbmlkKHNpemUsIHNpemUsIG1pbl9hZGRyLCBtYXhfYWRk
-ciwgbmlkKTsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIGludCBlYXJseV9tYXBfa2VybmVsX3BhZ2Uo
-dW5zaWduZWQgbG9uZyBlYSwgdW5zaWduZWQgbG9uZyBwYSwKPiBkaWZmIC0tZ2l0IGEvYXJjaC9w
-b3dlcnBjL3BsYXRmb3Jtcy9wYXNlbWkvaW9tbXUuYyBiL2FyY2gvcG93ZXJwYy9wbGF0Zm9ybXMv
-cGFzZW1pL2lvbW11LmMKPiBpbmRleCBmMjk3MTUyLi5mNjI5MzBmIDEwMDY0NAo+IC0tLSBhL2Fy
-Y2gvcG93ZXJwYy9wbGF0Zm9ybXMvcGFzZW1pL2lvbW11LmMKPiArKysgYi9hcmNoL3Bvd2VycGMv
-cGxhdGZvcm1zL3Bhc2VtaS9pb21tdS5jCj4gQEAgLTIwOCw3ICsyMDgsOSBAQCBzdGF0aWMgaW50
-IF9faW5pdCBpb2JfaW5pdChzdHJ1Y3QgZGV2aWNlX25vZGUgKmRuKQo+ICAgCXByX2RlYnVnKCIg
-LT4gJXNcbiIsIF9fZnVuY19fKTsKPiAgIAo+ICAgCS8qIEZvciAyRyBzcGFjZSwgOHg2NCBwYWdl
-cyAoMl4yMSBieXRlcykgaXMgbWF4IHRvdGFsIGwyIHNpemUgKi8KPiAtCWlvYl9sMl9iYXNlID0g
-KHUzMiAqKV9fdmEobWVtYmxvY2tfYWxsb2NfYmFzZSgxVUw8PDIxLCAxVUw8PDIxLCAweDgwMDAw
-MDAwKSk7Cj4gKwlpb2JfbDJfYmFzZSA9IG1lbWJsb2NrX2FsbG9jX3RyeV9uaWRfcmF3KDFVTCA8
-PCAyMSwgMVVMIDw8IDIxLAo+ICsJCQkJCU1FTUJMT0NLX0xPV19MSU1JVCwgMHg4MDAwMDAwMCwK
-PiArCQkJCQlOVU1BX05PX05PREUpOwo+ICAgCj4gICAJcHJfaW5mbygiSU9CTUFQIEwyIGFsbG9j
-YXRlZCBhdDogJXBcbiIsIGlvYl9sMl9iYXNlKTsKPiAgIAo+IEBAIC0yNjksNCArMjcxLDMgQEAg
-dm9pZCBfX2luaXQgaW9tbXVfaW5pdF9lYXJseV9wYXNlbWkodm9pZCkKPiAgIAlwYXNlbWlfcGNp
-X2NvbnRyb2xsZXJfb3BzLmRtYV9idXNfc2V0dXAgPSBwY2lfZG1hX2J1c19zZXR1cF9wYXNlbWk7
-Cj4gICAJc2V0X3BjaV9kbWFfb3BzKCZkbWFfaW9tbXVfb3BzKTsKPiAgIH0KPiAtCj4gZGlmZiAt
-LWdpdCBhL2FyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9zZXR1cC5jIGIvYXJjaC9wb3dl
-cnBjL3BsYXRmb3Jtcy9wc2VyaWVzL3NldHVwLmMKPiBpbmRleCA0MWY2MmNhMi4uZTRmMGRmZCAx
-MDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvcGxhdGZvcm1zL3BzZXJpZXMvc2V0dXAuYwo+ICsr
-KyBiL2FyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9zZXR1cC5jCj4gQEAgLTEzMCw4ICsx
-MzAsMTMgQEAgc3RhdGljIHZvaWQgX19pbml0IGZ3bm1pX2luaXQodm9pZCkKPiAgIAkgKiBJdCB3
-aWxsIGJlIHVzZWQgaW4gcmVhbCBtb2RlIG1jZSBoYW5kbGVyLCBoZW5jZSBpdCBuZWVkcyB0byBi
-ZQo+ICAgCSAqIGJlbG93IFJNQS4KPiAgIAkgKi8KPiAtCW1jZV9kYXRhX2J1ZiA9IF9fdmEobWVt
-YmxvY2tfYWxsb2NfYmFzZShSVEFTX0VSUk9SX0xPR19NQVggKiBucl9jcHVzLAo+IC0JCQkJCVJU
-QVNfRVJST1JfTE9HX01BWCwgcHBjNjRfcm1hX3NpemUpKTsKPiArCW1jZV9kYXRhX2J1ZiA9IG1l
-bWJsb2NrX2FsbG9jX3RyeV9uaWRfcmF3KFJUQVNfRVJST1JfTE9HX01BWCAqIG5yX2NwdXMsCj4g
-KwkJCQkJUlRBU19FUlJPUl9MT0dfTUFYLCBNRU1CTE9DS19MT1dfTElNSVQsCj4gKwkJCQkJcHBj
-NjRfcm1hX3NpemUsIE5VTUFfTk9fTk9ERSk7Cj4gKwlpZiAoIW1jZV9kYXRhX2J1ZikKPiArCQlw
-YW5pYygiRmFpbGVkIHRvIGFsbG9jYXRlICVkIGJ5dGVzIGJlbG93ICVwYSBmb3IgTUNFIGJ1ZmZl
-clxuIiwKPiArCQkgICAgICBSVEFTX0VSUk9SX0xPR19NQVggKiBucl9jcHVzLCAmcHBjNjRfcm1h
-X3NpemUpOwo+ICsKPiAgIAlmb3JfZWFjaF9wb3NzaWJsZV9jcHUoaSkgewo+ICAgCQlwYWNhX3B0
-cnNbaV0tPm1jZV9kYXRhX2J1ZiA9IG1jZV9kYXRhX2J1ZiArCj4gICAJCQkJCQkoUlRBU19FUlJP
-Ul9MT0dfTUFYICogaSk7Cj4gQEAgLTE0MCw4ICsxNDUsMTMgQEAgc3RhdGljIHZvaWQgX19pbml0
-IGZ3bm1pX2luaXQodm9pZCkKPiAgICNpZmRlZiBDT05GSUdfUFBDX0JPT0szU182NAo+ICAgCS8q
-IEFsbG9jYXRlIHBlciBjcHUgc2xiIGFyZWEgdG8gc2F2ZSBvbGQgc2xiIGNvbnRlbnRzIGR1cmlu
-ZyBNQ0UgKi8KPiAgIAlzaXplID0gc2l6ZW9mKHN0cnVjdCBzbGJfZW50cnkpICogbW11X3NsYl9z
-aXplICogbnJfY3B1czsKPiAtCXNsYl9wdHIgPSBfX3ZhKG1lbWJsb2NrX2FsbG9jX2Jhc2Uoc2l6
-ZSwgc2l6ZW9mKHN0cnVjdCBzbGJfZW50cnkpLAo+IC0JCQkJCSAgIHBwYzY0X3JtYV9zaXplKSk7
-Cj4gKwlzbGJfcHRyID0gbWVtYmxvY2tfYWxsb2NfdHJ5X25pZF9yYXcoc2l6ZSwgc2l6ZW9mKHN0
-cnVjdCBzbGJfZW50cnkpLAo+ICsJCQkJCU1FTUJMT0NLX0xPV19MSU1JVCwgcHBjNjRfcm1hX3Np
-emUsCj4gKwkJCQkJTlVNQV9OT19OT0RFKTsKPiArCWlmICghc2xiX3B0cikKPiArCQlwYW5pYygi
-RmFpbGVkIHRvIGFsbG9jYXRlICV6dSBieXRlcyBiZWxvdyAlcGEgZm9yIHNsYiBhcmVhXG4iLAo+
-ICsJCSAgICAgIHNpemUsICZwcGM2NF9ybWFfc2l6ZSk7Cj4gKwo+ICAgCWZvcl9lYWNoX3Bvc3Np
-YmxlX2NwdShpKQo+ICAgCQlwYWNhX3B0cnNbaV0tPm1jZV9mYXVsdHlfc2xicyA9IHNsYl9wdHIg
-KyAobW11X3NsYl9zaXplICogaSk7Cj4gICAjZW5kaWYKPiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dl
-cnBjL3N5c2Rldi9kYXJ0X2lvbW11LmMgYi9hcmNoL3Bvd2VycGMvc3lzZGV2L2RhcnRfaW9tbXUu
-Ywo+IGluZGV4IGE1YjQwZDEuLjI1YmMyNWYgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9wb3dlcnBjL3N5
-c2Rldi9kYXJ0X2lvbW11LmMKPiArKysgYi9hcmNoL3Bvd2VycGMvc3lzZGV2L2RhcnRfaW9tbXUu
-Ywo+IEBAIC0yNTEsOCArMjUxLDExIEBAIHN0YXRpYyB2b2lkIGFsbG9jYXRlX2RhcnQodm9pZCkK
-PiAgIAkgKiAxNk1CICgxIDw8IDI0KSBhbGlnbm1lbnQuIFdlIGFsbG9jYXRlIGEgZnVsbCAxNk1i
-IGNodWNrIHNpbmNlIHdlCj4gICAJICogd2lsbCBibG93IHVwIGFuIGVudGlyZSBsYXJnZSBwYWdl
-IGFueXdheSBpbiB0aGUga2VybmVsIG1hcHBpbmcuCj4gICAJICovCj4gLQlkYXJ0X3RhYmxlYmFz
-ZSA9IF9fdmEobWVtYmxvY2tfYWxsb2NfYmFzZSgxVUw8PDI0LAo+IC0JCQkJCQkgIDFVTDw8MjQs
-IDB4ODAwMDAwMDBMKSk7Cj4gKwlkYXJ0X3RhYmxlYmFzZSA9IG1lbWJsb2NrX2FsbG9jX3RyeV9u
-aWRfcmF3KFNaXzE2TSwgU1pfMTZNLAo+ICsJCQkJCU1FTUJMT0NLX0xPV19MSU1JVCwgU1pfMkcs
-Cj4gKwkJCQkJTlVNQV9OT19OT0RFKTsKPiArCWlmICghZGFydF90YWJsZWJhc2UpCj4gKwkJcGFu
-aWMoIkZhaWxlZCB0byBhbGxvY2F0ZSAxNk1CIGJlbG93IDJHQiBmb3IgREFSVCB0YWJsZVxuIik7
-Cj4gICAKPiAgIAkvKiBUaGVyZSBpcyBubyBwb2ludCBzY2FubmluZyB0aGUgREFSVCBzcGFjZSBm
-b3IgbGVha3MqLwo+ICAgCWttZW1sZWFrX25vX3NjYW4oKHZvaWQgKilkYXJ0X3RhYmxlYmFzZSk7
-Cj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51
-eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVh
-ZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1h
-cm0ta2VybmVsCg==
+Hi,
+
+On Tue, Jan 08, 2019 at 11:02:24AM +0100, Christophe Leroy wrote:
+> =
+
+> Le 31/12/2018 =E0 10:29, Mike Rapoport a =E9crit=A0:
+> >There are a several places that allocate memory using memblock APIs that
+> >return a physical address, convert the returned address to the virtual
+> >address and frequently also memset(0) the allocated range.
+> >
+> >Update these places to use memblock allocators already returning a virtu=
+al
+> >address. Use memblock functions that clear the allocated memory instead =
+of
+> >calling memset(0) where appropriate.
+> >
+> >The calls to memblock_alloc_base() that were not followed by memset(0) a=
+re
+> >replaced with memblock_alloc_try_nid_raw(). Since the latter does not
+> >panic() when the allocation fails, the appropriate panic() calls are add=
+ed
+> >to the call sites.
+> >
+> >Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> >---
+> >  arch/powerpc/kernel/paca.c             | 16 ++++++----------
+> >  arch/powerpc/kernel/setup_64.c         | 24 ++++++++++--------------
+> >  arch/powerpc/mm/hash_utils_64.c        |  6 +++---
+> >  arch/powerpc/mm/pgtable-book3e.c       |  8 ++------
+> >  arch/powerpc/mm/pgtable-book3s64.c     |  5 +----
+> >  arch/powerpc/mm/pgtable-radix.c        | 25 +++++++------------------
+> >  arch/powerpc/platforms/pasemi/iommu.c  |  5 +++--
+> >  arch/powerpc/platforms/pseries/setup.c | 18 ++++++++++++++----
+> >  arch/powerpc/sysdev/dart_iommu.c       |  7 +++++--
+> >  9 files changed, 51 insertions(+), 63 deletions(-)
+> >
+> >diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
+> >index 913bfca..276d36d4 100644
+> >--- a/arch/powerpc/kernel/paca.c
+> >+++ b/arch/powerpc/kernel/paca.c
+> >@@ -27,7 +27,7 @@
+> >  static void *__init alloc_paca_data(unsigned long size, unsigned long =
+align,
+> >  				unsigned long limit, int cpu)
+> >  {
+> >-	unsigned long pa;
+> >+	void *ptr;
+> >  	int nid;
+> >  	/*
+> >@@ -42,17 +42,15 @@ static void *__init alloc_paca_data(unsigned long si=
+ze, unsigned long align,
+> >  		nid =3D early_cpu_to_node(cpu);
+> >  	}
+> >-	pa =3D memblock_alloc_base_nid(size, align, limit, nid, MEMBLOCK_NONE);
+> >-	if (!pa) {
+> >-		pa =3D memblock_alloc_base(size, align, limit);
+> >-		if (!pa)
+> >-			panic("cannot allocate paca data");
+> >-	}
+> >+	ptr =3D memblock_alloc_try_nid(size, align, MEMBLOCK_LOW_LIMIT,
+> >+				     limit, nid);
+> >+	if (!ptr)
+> >+		panic("cannot allocate paca data");
+> =
+
+> AFAIKS, memblock_alloc_try_nid() panics if memblock_alloc_internal() retu=
+rns
+> NULL, so the above panic is useless, isn't it ?
+ =
+
+My plan is to make all memblock_alloc() APIs to return NULL rather then
+panic and then get rid of _nopanic variants. It's currently WIP and
+hopefully I'll have the patches ready next week.
+
+> >  	if (cpu =3D=3D boot_cpuid)
+> >  		memblock_set_bottom_up(false);
+> >-	return __va(pa);
+> >+	return ptr;
+> >  }
+> >  #ifdef CONFIG_PPC_PSERIES
+> >@@ -118,7 +116,6 @@ static struct slb_shadow * __init new_slb_shadow(int=
+ cpu, unsigned long limit)
+> >  	}
+> >  	s =3D alloc_paca_data(sizeof(*s), L1_CACHE_BYTES, limit, cpu);
+> >-	memset(s, 0, sizeof(*s));
+> >  	s->persistent =3D cpu_to_be32(SLB_NUM_BOLTED);
+> >  	s->buffer_length =3D cpu_to_be32(sizeof(*s));
+> >@@ -222,7 +219,6 @@ void __init allocate_paca(int cpu)
+> >  	paca =3D alloc_paca_data(sizeof(struct paca_struct), L1_CACHE_BYTES,
+> >  				limit, cpu);
+> >  	paca_ptrs[cpu] =3D paca;
+> >-	memset(paca, 0, sizeof(struct paca_struct));
+> >  	initialise_paca(paca, cpu);
+> >  #ifdef CONFIG_PPC_PSERIES
+> >diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_=
+64.c
+> >index 236c115..3dcd779 100644
+> >--- a/arch/powerpc/kernel/setup_64.c
+> >+++ b/arch/powerpc/kernel/setup_64.c
+> >@@ -634,19 +634,17 @@ __init u64 ppc64_bolted_size(void)
+> >  static void *__init alloc_stack(unsigned long limit, int cpu)
+> >  {
+> >-	unsigned long pa;
+> >+	void *ptr;
+> >  	BUILD_BUG_ON(STACK_INT_FRAME_SIZE % 16);
+> >-	pa =3D memblock_alloc_base_nid(THREAD_SIZE, THREAD_SIZE, limit,
+> >-					early_cpu_to_node(cpu), MEMBLOCK_NONE);
+> >-	if (!pa) {
+> >-		pa =3D memblock_alloc_base(THREAD_SIZE, THREAD_SIZE, limit);
+> >-		if (!pa)
+> >-			panic("cannot allocate stacks");
+> >-	}
+> >+	ptr =3D memblock_alloc_try_nid(THREAD_SIZE, THREAD_SIZE,
+> >+				     MEMBLOCK_LOW_LIMIT, limit,
+> >+				     early_cpu_to_node(cpu));
+> >+	if (!ptr)
+> >+		panic("cannot allocate stacks");
+> =
+
+> Same ?
+> =
+
+> Christophe
+> =
+
+> >-	return __va(pa);
+> >+	return ptr;
+> >  }
+> >  void __init irqstack_early_init(void)
+> >@@ -739,20 +737,17 @@ void __init emergency_stack_init(void)
+> >  		struct thread_info *ti;
+> >  		ti =3D alloc_stack(limit, i);
+> >-		memset(ti, 0, THREAD_SIZE);
+> >  		emerg_stack_init_thread_info(ti, i);
+> >  		paca_ptrs[i]->emergency_sp =3D (void *)ti + THREAD_SIZE;
+> >  #ifdef CONFIG_PPC_BOOK3S_64
+> >  		/* emergency stack for NMI exception handling. */
+> >  		ti =3D alloc_stack(limit, i);
+> >-		memset(ti, 0, THREAD_SIZE);
+> >  		emerg_stack_init_thread_info(ti, i);
+> >  		paca_ptrs[i]->nmi_emergency_sp =3D (void *)ti + THREAD_SIZE;
+> >  		/* emergency stack for machine check exception handling. */
+> >  		ti =3D alloc_stack(limit, i);
+> >-		memset(ti, 0, THREAD_SIZE);
+> >  		emerg_stack_init_thread_info(ti, i);
+> >  		paca_ptrs[i]->mc_emergency_sp =3D (void *)ti + THREAD_SIZE;
+> >  #endif
+> >@@ -933,8 +928,9 @@ static void __ref init_fallback_flush(void)
+> >  	 * hardware prefetch runoff. We don't have a recipe for load patterns=
+ to
+> >  	 * reliably avoid the prefetcher.
+> >  	 */
+> >-	l1d_flush_fallback_area =3D __va(memblock_alloc_base(l1d_size * 2, l1d=
+_size, limit));
+> >-	memset(l1d_flush_fallback_area, 0, l1d_size * 2);
+> >+	l1d_flush_fallback_area =3D memblock_alloc_try_nid(l1d_size * 2,
+> >+						l1d_size, MEMBLOCK_LOW_LIMIT,
+> >+						limit, NUMA_NO_NODE);
+> >  	for_each_possible_cpu(cpu) {
+> >  		struct paca_struct *paca =3D paca_ptrs[cpu];
+> >diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_util=
+s_64.c
+> >index 0cc7fbc..bc6be44 100644
+> >--- a/arch/powerpc/mm/hash_utils_64.c
+> >+++ b/arch/powerpc/mm/hash_utils_64.c
+> >@@ -908,9 +908,9 @@ static void __init htab_initialize(void)
+> >  #ifdef CONFIG_DEBUG_PAGEALLOC
+> >  	if (debug_pagealloc_enabled()) {
+> >  		linear_map_hash_count =3D memblock_end_of_DRAM() >> PAGE_SHIFT;
+> >-		linear_map_hash_slots =3D __va(memblock_alloc_base(
+> >-				linear_map_hash_count, 1, ppc64_rma_size));
+> >-		memset(linear_map_hash_slots, 0, linear_map_hash_count);
+> >+		linear_map_hash_slots =3D memblock_alloc_try_nid(
+> >+				linear_map_hash_count, 1, MEMBLOCK_LOW_LIMIT,
+> >+				ppc64_rma_size,	NUMA_NO_NODE);
+> >  	}
+> >  #endif /* CONFIG_DEBUG_PAGEALLOC */
+> >diff --git a/arch/powerpc/mm/pgtable-book3e.c b/arch/powerpc/mm/pgtable-=
+book3e.c
+> >index e0ccf36..53cbc7d 100644
+> >--- a/arch/powerpc/mm/pgtable-book3e.c
+> >+++ b/arch/powerpc/mm/pgtable-book3e.c
+> >@@ -57,12 +57,8 @@ void vmemmap_remove_mapping(unsigned long start,
+> >  static __ref void *early_alloc_pgtable(unsigned long size)
+> >  {
+> >-	void *pt;
+> >-
+> >-	pt =3D __va(memblock_alloc_base(size, size, __pa(MAX_DMA_ADDRESS)));
+> >-	memset(pt, 0, size);
+> >-
+> >-	return pt;
+> >+	return memblock_alloc_try_nid(size, size, MEMBLOCK_LOW_LIMIT,
+> >+				      __pa(MAX_DMA_ADDRESS), NUMA_NO_NODE);
+> >  }
+> >  /*
+> >diff --git a/arch/powerpc/mm/pgtable-book3s64.c b/arch/powerpc/mm/pgtabl=
+e-book3s64.c
+> >index f3c31f5..55876b7 100644
+> >--- a/arch/powerpc/mm/pgtable-book3s64.c
+> >+++ b/arch/powerpc/mm/pgtable-book3s64.c
+> >@@ -195,11 +195,8 @@ void __init mmu_partition_table_init(void)
+> >  	unsigned long ptcr;
+> >  	BUILD_BUG_ON_MSG((PATB_SIZE_SHIFT > 36), "Partition table size too la=
+rge.");
+> >-	partition_tb =3D __va(memblock_alloc_base(patb_size, patb_size,
+> >-						MEMBLOCK_ALLOC_ANYWHERE));
+> >-
+> >  	/* Initialize the Partition Table with no entries */
+> >-	memset((void *)partition_tb, 0, patb_size);
+> >+	partition_tb =3D memblock_alloc(patb_size, patb_size);
+> >  	/*
+> >  	 * update partition table control register,
+> >diff --git a/arch/powerpc/mm/pgtable-radix.c b/arch/powerpc/mm/pgtable-r=
+adix.c
+> >index 9311560..29bcea5 100644
+> >--- a/arch/powerpc/mm/pgtable-radix.c
+> >+++ b/arch/powerpc/mm/pgtable-radix.c
+> >@@ -51,26 +51,15 @@ static int native_register_process_table(unsigned lo=
+ng base, unsigned long pg_sz
+> >  static __ref void *early_alloc_pgtable(unsigned long size, int nid,
+> >  			unsigned long region_start, unsigned long region_end)
+> >  {
+> >-	unsigned long pa =3D 0;
+> >-	void *pt;
+> >+	phys_addr_t min_addr =3D MEMBLOCK_LOW_LIMIT;
+> >+	phys_addr_t max_addr =3D MEMBLOCK_ALLOC_ANYWHERE;
+> >-	if (region_start || region_end) /* has region hint */
+> >-		pa =3D memblock_alloc_range(size, size, region_start, region_end,
+> >-						MEMBLOCK_NONE);
+> >-	else if (nid !=3D -1) /* has node hint */
+> >-		pa =3D memblock_alloc_base_nid(size, size,
+> >-						MEMBLOCK_ALLOC_ANYWHERE,
+> >-						nid, MEMBLOCK_NONE);
+> >+	if (region_start)
+> >+		min_addr =3D region_start;
+> >+	if (region_end)
+> >+		max_addr =3D region_end;
+> >-	if (!pa)
+> >-		pa =3D memblock_alloc_base(size, size, MEMBLOCK_ALLOC_ANYWHERE);
+> >-
+> >-	BUG_ON(!pa);
+> >-
+> >-	pt =3D __va(pa);
+> >-	memset(pt, 0, size);
+> >-
+> >-	return pt;
+> >+	return memblock_alloc_try_nid(size, size, min_addr, max_addr, nid);
+> >  }
+> >  static int early_map_kernel_page(unsigned long ea, unsigned long pa,
+> >diff --git a/arch/powerpc/platforms/pasemi/iommu.c b/arch/powerpc/platfo=
+rms/pasemi/iommu.c
+> >index f297152..f62930f 100644
+> >--- a/arch/powerpc/platforms/pasemi/iommu.c
+> >+++ b/arch/powerpc/platforms/pasemi/iommu.c
+> >@@ -208,7 +208,9 @@ static int __init iob_init(struct device_node *dn)
+> >  	pr_debug(" -> %s\n", __func__);
+> >  	/* For 2G space, 8x64 pages (2^21 bytes) is max total l2 size */
+> >-	iob_l2_base =3D (u32 *)__va(memblock_alloc_base(1UL<<21, 1UL<<21, 0x80=
+000000));
+> >+	iob_l2_base =3D memblock_alloc_try_nid_raw(1UL << 21, 1UL << 21,
+> >+					MEMBLOCK_LOW_LIMIT, 0x80000000,
+> >+					NUMA_NO_NODE);
+> >  	pr_info("IOBMAP L2 allocated at: %p\n", iob_l2_base);
+> >@@ -269,4 +271,3 @@ void __init iommu_init_early_pasemi(void)
+> >  	pasemi_pci_controller_ops.dma_bus_setup =3D pci_dma_bus_setup_pasemi;
+> >  	set_pci_dma_ops(&dma_iommu_ops);
+> >  }
+> >-
+> >diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platf=
+orms/pseries/setup.c
+> >index 41f62ca2..e4f0dfd 100644
+> >--- a/arch/powerpc/platforms/pseries/setup.c
+> >+++ b/arch/powerpc/platforms/pseries/setup.c
+> >@@ -130,8 +130,13 @@ static void __init fwnmi_init(void)
+> >  	 * It will be used in real mode mce handler, hence it needs to be
+> >  	 * below RMA.
+> >  	 */
+> >-	mce_data_buf =3D __va(memblock_alloc_base(RTAS_ERROR_LOG_MAX * nr_cpus,
+> >-					RTAS_ERROR_LOG_MAX, ppc64_rma_size));
+> >+	mce_data_buf =3D memblock_alloc_try_nid_raw(RTAS_ERROR_LOG_MAX * nr_cp=
+us,
+> >+					RTAS_ERROR_LOG_MAX, MEMBLOCK_LOW_LIMIT,
+> >+					ppc64_rma_size, NUMA_NO_NODE);
+> >+	if (!mce_data_buf)
+> >+		panic("Failed to allocate %d bytes below %pa for MCE buffer\n",
+> >+		      RTAS_ERROR_LOG_MAX * nr_cpus, &ppc64_rma_size);
+> >+
+> >  	for_each_possible_cpu(i) {
+> >  		paca_ptrs[i]->mce_data_buf =3D mce_data_buf +
+> >  						(RTAS_ERROR_LOG_MAX * i);
+> >@@ -140,8 +145,13 @@ static void __init fwnmi_init(void)
+> >  #ifdef CONFIG_PPC_BOOK3S_64
+> >  	/* Allocate per cpu slb area to save old slb contents during MCE */
+> >  	size =3D sizeof(struct slb_entry) * mmu_slb_size * nr_cpus;
+> >-	slb_ptr =3D __va(memblock_alloc_base(size, sizeof(struct slb_entry),
+> >-					   ppc64_rma_size));
+> >+	slb_ptr =3D memblock_alloc_try_nid_raw(size, sizeof(struct slb_entry),
+> >+					MEMBLOCK_LOW_LIMIT, ppc64_rma_size,
+> >+					NUMA_NO_NODE);
+> >+	if (!slb_ptr)
+> >+		panic("Failed to allocate %zu bytes below %pa for slb area\n",
+> >+		      size, &ppc64_rma_size);
+> >+
+> >  	for_each_possible_cpu(i)
+> >  		paca_ptrs[i]->mce_faulty_slbs =3D slb_ptr + (mmu_slb_size * i);
+> >  #endif
+> >diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart=
+_iommu.c
+> >index a5b40d1..25bc25f 100644
+> >--- a/arch/powerpc/sysdev/dart_iommu.c
+> >+++ b/arch/powerpc/sysdev/dart_iommu.c
+> >@@ -251,8 +251,11 @@ static void allocate_dart(void)
+> >  	 * 16MB (1 << 24) alignment. We allocate a full 16Mb chuck since we
+> >  	 * will blow up an entire large page anyway in the kernel mapping.
+> >  	 */
+> >-	dart_tablebase =3D __va(memblock_alloc_base(1UL<<24,
+> >-						  1UL<<24, 0x80000000L));
+> >+	dart_tablebase =3D memblock_alloc_try_nid_raw(SZ_16M, SZ_16M,
+> >+					MEMBLOCK_LOW_LIMIT, SZ_2G,
+> >+					NUMA_NO_NODE);
+> >+	if (!dart_tablebase)
+> >+		panic("Failed to allocate 16MB below 2GB for DART table\n");
+> >  	/* There is no point scanning the DART space for leaks*/
+> >  	kmemleak_no_scan((void *)dart_tablebase);
+> >
+> =
+
+
+-- =
+
+Sincerely yours,
+Mike.
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
