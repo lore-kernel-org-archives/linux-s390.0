@@ -1,70 +1,52 @@
 Return-Path: <SRS0=iEdC=PQ=vger.kernel.org=linux-kernel-owner@kernel.org>
 MIME-Version: 1.0
-References: <20190108032657.8331-1-deepa.kernel@gmail.com>
-In-Reply-To: <20190108032657.8331-1-deepa.kernel@gmail.com>
+References: <20190108032657.8331-1-deepa.kernel@gmail.com> <20190108032657.8331-8-deepa.kernel@gmail.com>
+In-Reply-To: <20190108032657.8331-8-deepa.kernel@gmail.com>
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 8 Jan 2019 08:37:07 -0500
-Message-ID: <CAF=yD-JuXHnp-5TvPSq87PDvHD1hkrUEWHQ9Uxwhbsd08vszHw@mail.gmail.com>
-Subject: Re: [PATCH v3 0/8] net: y2038-safe socket timestamps
+Date: Tue, 8 Jan 2019 08:40:18 -0500
+Message-ID: <CAF=yD-Jy7kyNtae7QpHgn6kJtmmYCngNdzF3K5DqVJBTHOUfqA@mail.gmail.com>
+Subject: Re: [PATCH v3 7/8] socket: Add SO_TIMESTAMPING_NEW
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: David Miller <davem@davemloft.net>, LKML <linux-kernel@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>, Chris Zankel <chris@zankel.net>, Helge Deller <deller@gmx.de>, David Howells <dhowells@redhat.com>, fenghua.yu@intel.com, isdn@linux-pingi.de, "James E.J. Bottomley" <jejb@parisc-linux.org>, linux-afs@lists.infradead.org, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org, "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, Parisc List <linux-parisc@vger.kernel.org>, linux-rdma@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Ralf Baechle <ralf@linux-mips.org>, rth@twiddle.net, schwidefsky@de.ibm.com, sparclinux <sparclinux@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, ubraun@linux.ibm.com
+Cc: David Miller <davem@davemloft.net>, LKML <linux-kernel@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>, Chris Zankel <chris@zankel.net>, fenghua.yu@intel.com, rth@twiddle.net, Thomas Gleixner <tglx@linutronix.de>, ubraun@linux.ibm.com, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org, "open list:RALINK MIPS ARCHITECTURE" <linux-mips@linux-mips.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-xtensa@linux-xtensa.org, sparclinux <sparclinux@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Mon, Jan 7, 2019 at 10:29 PM Deepa Dinamani <deepa.kernel@gmail.com> wrote:
 >
-> The series introduces new socket timestamps that are
-> y2038 safe.
+> Add SO_TIMESTAMPING_NEW variant of socket timestamp options.
+> This is the y2038 safe versions of the SO_TIMESTAMPING_OLD
+> for all architectures.
 >
-> The time data types used for the existing socket timestamp
-> options: SO_TIMESTAMP, SO_TIMESTAMPNS and SO_TIMESTAMPING
-> are not y2038 safe. The series introduces SO_TIMESTAMP_NEW,
-> SO_TIMESTAMPNS_NEW and SO_TIMESTAMPING_NEW to replace these.
-> These new timestamps can be used on all architectures.
->
-> The alternative considered was to extend the sys_setsockopt()
-> by using the flags. We did not receive any strong opinions about
-> either of the approaches. Hence, this was chosen, as glibc folks
-> preferred this.
->
-> The series does not deal with updating the internal kernel socket
-> calls like rxrpc to make them y2038 safe. This will be dealt
-> with separately.
->
-> Note that the timestamps behavior already does not match the
-> man page specific behavior:
-> SIOCGSTAMP
->     This ioctl should only be used if the socket option SO_TIMESTAMP
->         is not set on the socket. Otherwise, it returns the timestamp of
->         the last packet that was received while SO_TIMESTAMP was not set,
->         or it fails if no such packet has been received,
->         (i.e., ioctl(2) returns -1 with errno set to ENOENT).
->
-> The recommendation is to update the man page to remove the above statement.
->
-> The overview of the series is as below:
-> 1. Delete asm specific socket.h when possible.
-> 2. Support SO/SCM_TIMESTAMP* options only in userspace.
-> 3. Rename current SO/SCM_TIMESTAMP* to SO/SCM_TIMESTAMP*_OLD.
-> 3. Alter socket options so that SOCK_RCVTSTAMPNS does
->    not rely on SOCK_RCVTSTAMP.
-> 4. Introduce y2038 safe types for socket timestamp.
-> 5. Introduce new y2038 safe socket options SO/SCM_TIMESTAMP*_NEW.
->
-> Changes since v2:
-> * Removed extra functions to reduce diff churn as per code review
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> Cc: chris@zankel.net
+> Cc: fenghua.yu@intel.com
+> Cc: rth@twiddle.net
+> Cc: tglx@linutronix.de
+> Cc: ubraun@linux.ibm.com
+> Cc: linux-alpha@vger.kernel.org
+> Cc: linux-arch@vger.kernel.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linux-mips@linux-mips.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-xtensa@linux-xtensa.org
+> Cc: sparclinux@vger.kernel.org
+> ---
 
-Thanks, Deepa. This set looks great to me.
+> --- a/arch/sparc/include/uapi/asm/socket.h
+> +++ b/arch/sparc/include/uapi/asm/socket.h
+> @@ -106,20 +106,22 @@
+>  #define SO_TIMESTAMPNS_OLD       0x0021
+>  #define SO_TIMESTAMPING_OLD      0x0023
+>
+> -#define SO_TIMESTAMP_NEW         0x0040
+> -#define SO_TIMESTAMPNS_NEW       0x0041
+> +#define SO_TIMESTAMP_NEW         0x0041
+> +#define SO_TIMESTAMPNS_NEW       0x0042
+> +#define SO_TIMESTAMPING_NEW      0x0043
 
-One issue, it does not apply cleanly to current davem-net-next/master
-for me. A conflict on patch 7. It does apply cleanly on davem-net
-master. Please rebase and also send with [PATCH net-next].
-
-Perhaps also run the selftests in
-tools/testing/selftests/networking/timestamping/txtimestamp.sh, just
-to be sure.
-
-Since you have a to resend anyway, a few minor nits inline, as well.
+nit: unnecessary? perhaps need to get indentation consistent
+immediately in the previous patch in this series that introduces
+SO_TIMESTAMP_NEW
