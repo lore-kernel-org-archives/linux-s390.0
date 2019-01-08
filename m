@@ -1,481 +1,428 @@
 Return-Path: <SRS0=iEdC=PQ=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v3 1/8] arch: Use asm-generic/socket.h when possible
-Date: Mon,  7 Jan 2019 19:26:50 -0800
-Message-Id: <20190108032657.8331-2-deepa.kernel@gmail.com>
+Subject: [PATCH v3 7/8] socket: Add SO_TIMESTAMPING_NEW
+Date: Mon,  7 Jan 2019 19:26:56 -0800
+Message-Id: <20190108032657.8331-8-deepa.kernel@gmail.com>
 In-Reply-To: <20190108032657.8331-1-deepa.kernel@gmail.com>
 References: <20190108032657.8331-1-deepa.kernel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: davem@davemloft.net, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, chris@zankel.net, fenghua.yu@intel.com, tglx@linutronix.de, schwidefsky@de.ibm.com, linux-ia64@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org, chris@zankel.net, fenghua.yu@intel.com, rth@twiddle.net, tglx@linutronix.de, ubraun@linux.ibm.com, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Many architectures maintain an arch specific copy of the
-file even though there are no differences with the asm-generic
-one. Allow these architectures to use the generic one instead.
+Add SO_TIMESTAMPING_NEW variant of socket timestamp options.
+This is the y2038 safe versions of the SO_TIMESTAMPING_OLD
+for all architectures.
 
 Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
 Cc: chris@zankel.net
 Cc: fenghua.yu@intel.com
+Cc: rth@twiddle.net
 Cc: tglx@linutronix.de
-Cc: schwidefsky@de.ibm.com
+Cc: ubraun@linux.ibm.com
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
 Cc: linux-ia64@vger.kernel.org
-Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-mips@linux-mips.org
 Cc: linux-s390@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: sparclinux@vger.kernel.org
 ---
- arch/ia64/include/uapi/asm/Kbuild     |   1 +
- arch/ia64/include/uapi/asm/socket.h   | 120 -------------------------
- arch/s390/include/uapi/asm/Kbuild     |   1 +
- arch/s390/include/uapi/asm/socket.h   | 117 ------------------------
- arch/x86/include/uapi/asm/Kbuild      |   1 +
- arch/x86/include/uapi/asm/socket.h    |   1 -
- arch/xtensa/include/asm/Kbuild        |   1 +
- arch/xtensa/include/uapi/asm/Kbuild   |   1 +
- arch/xtensa/include/uapi/asm/socket.h | 122 --------------------------
- 9 files changed, 5 insertions(+), 360 deletions(-)
- delete mode 100644 arch/ia64/include/uapi/asm/socket.h
- delete mode 100644 arch/s390/include/uapi/asm/socket.h
- delete mode 100644 arch/x86/include/uapi/asm/socket.h
- delete mode 100644 arch/xtensa/include/uapi/asm/socket.h
+ arch/alpha/include/uapi/asm/socket.h  |  5 +++--
+ arch/mips/include/uapi/asm/socket.h   |  5 +++--
+ arch/parisc/include/uapi/asm/socket.h |  5 +++--
+ arch/sparc/include/uapi/asm/socket.h  |  8 +++++---
+ include/linux/socket.h                |  8 ++++++++
+ include/uapi/asm-generic/socket.h     |  5 +++--
+ include/uapi/linux/errqueue.h         |  4 ++++
+ net/core/scm.c                        | 27 ++++++++++++++++++++++++++
+ net/core/sock.c                       |  8 +++++++-
+ net/ipv4/tcp.c                        | 28 ++++++++++++++-------------
+ net/smc/af_smc.c                      |  3 ++-
+ net/socket.c                          | 13 ++++++++-----
+ 12 files changed, 88 insertions(+), 31 deletions(-)
 
-diff --git a/arch/ia64/include/uapi/asm/Kbuild b/arch/ia64/include/uapi/asm/Kbuild
-index ccce0ea65e05..37ea5ec1b94d 100644
---- a/arch/ia64/include/uapi/asm/Kbuild
-+++ b/arch/ia64/include/uapi/asm/Kbuild
-@@ -9,3 +9,4 @@ generic-y += msgbuf.h
- generic-y += poll.h
- generic-y += sembuf.h
- generic-y += shmbuf.h
-+generic-y += socket.h
-diff --git a/arch/ia64/include/uapi/asm/socket.h b/arch/ia64/include/uapi/asm/socket.h
-deleted file mode 100644
-index c872c4e6bafb..000000000000
---- a/arch/ia64/include/uapi/asm/socket.h
-+++ /dev/null
-@@ -1,120 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--#ifndef _ASM_IA64_SOCKET_H
--#define _ASM_IA64_SOCKET_H
--
--/*
-- * Socket related defines.
-- *
-- * Based on <asm-i386/socket.h>.
-- *
-- * Modified 1998-2000
-- *	David Mosberger-Tang <davidm@hpl.hp.com>, Hewlett-Packard Co
-- */
--
--#include <asm/sockios.h>
--
--/* For setsockopt(2) */
--#define SOL_SOCKET	1
--
--#define SO_DEBUG	1
--#define SO_REUSEADDR	2
--#define SO_TYPE		3
--#define SO_ERROR	4
--#define SO_DONTROUTE	5
--#define SO_BROADCAST	6
--#define SO_SNDBUF	7
--#define SO_RCVBUF	8
--#define SO_SNDBUFFORCE	32
--#define SO_RCVBUFFORCE	33
--#define SO_KEEPALIVE	9
--#define SO_OOBINLINE	10
--#define SO_NO_CHECK	11
--#define SO_PRIORITY	12
--#define SO_LINGER	13
--#define SO_BSDCOMPAT	14
--#define SO_REUSEPORT	15
--#define SO_PASSCRED	16
--#define SO_PEERCRED	17
--#define SO_RCVLOWAT	18
--#define SO_SNDLOWAT	19
--#define SO_RCVTIMEO	20
--#define SO_SNDTIMEO	21
--
--/* Security levels - as per NRL IPv6 - don't actually do anything */
--#define SO_SECURITY_AUTHENTICATION		22
--#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
--#define SO_SECURITY_ENCRYPTION_NETWORK		24
--
--#define SO_BINDTODEVICE		25
--
--/* Socket filtering */
--#define SO_ATTACH_FILTER	26
--#define SO_DETACH_FILTER	27
--#define SO_GET_FILTER		SO_ATTACH_FILTER
--
--#define SO_PEERNAME		28
--#define SO_TIMESTAMP		29
--#define SCM_TIMESTAMP		SO_TIMESTAMP
--
--#define SO_ACCEPTCONN		30
--
--#define SO_PEERSEC             31
--#define SO_PASSSEC		34
--#define SO_TIMESTAMPNS		35
--#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
--
--#define SO_MARK			36
--
--#define SO_TIMESTAMPING		37
--#define SCM_TIMESTAMPING	SO_TIMESTAMPING
--
--#define SO_PROTOCOL		38
--#define SO_DOMAIN		39
--
--#define SO_RXQ_OVFL             40
--
--#define SO_WIFI_STATUS		41
--#define SCM_WIFI_STATUS		SO_WIFI_STATUS
--#define SO_PEEK_OFF		42
--
--/* Instruct lower device to use last 4-bytes of skb data as FCS */
--#define SO_NOFCS		43
--
--#define SO_LOCK_FILTER		44
--
--#define SO_SELECT_ERR_QUEUE	45
--
--#define SO_BUSY_POLL		46
--
--#define SO_MAX_PACING_RATE	47
--
--#define SO_BPF_EXTENSIONS	48
--
--#define SO_INCOMING_CPU		49
--
--#define SO_ATTACH_BPF		50
--#define SO_DETACH_BPF		SO_DETACH_FILTER
--
--#define SO_ATTACH_REUSEPORT_CBPF	51
--#define SO_ATTACH_REUSEPORT_EBPF	52
--
--#define SO_CNX_ADVICE		53
--
--#define SCM_TIMESTAMPING_OPT_STATS	54
--
--#define SO_MEMINFO		55
--
--#define SO_INCOMING_NAPI_ID	56
--
--#define SO_COOKIE		57
--
--#define SCM_TIMESTAMPING_PKTINFO	58
--
--#define SO_PEERGROUPS		59
--
--#define SO_ZEROCOPY		60
--
--#define SO_TXTIME		61
--#define SCM_TXTIME		SO_TXTIME
--
--#endif /* _ASM_IA64_SOCKET_H */
-diff --git a/arch/s390/include/uapi/asm/Kbuild b/arch/s390/include/uapi/asm/Kbuild
-index dc38a90cf091..15bb61228b74 100644
---- a/arch/s390/include/uapi/asm/Kbuild
-+++ b/arch/s390/include/uapi/asm/Kbuild
-@@ -15,6 +15,7 @@ generic-y += poll.h
- generic-y += resource.h
- generic-y += sembuf.h
- generic-y += shmbuf.h
-+generic-y += socket.h
- generic-y += sockios.h
- generic-y += swab.h
- generic-y += termbits.h
-diff --git a/arch/s390/include/uapi/asm/socket.h b/arch/s390/include/uapi/asm/socket.h
-deleted file mode 100644
-index 39d901476ee5..000000000000
---- a/arch/s390/include/uapi/asm/socket.h
-+++ /dev/null
-@@ -1,117 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--/*
-- *  S390 version
-- *
-- *  Derived from "include/asm-i386/socket.h"
-- */
--
--#ifndef _ASM_SOCKET_H
--#define _ASM_SOCKET_H
--
--#include <asm/sockios.h>
--
--/* For setsockopt(2) */
--#define SOL_SOCKET	1
--
--#define SO_DEBUG	1
--#define SO_REUSEADDR	2
--#define SO_TYPE		3
--#define SO_ERROR	4
--#define SO_DONTROUTE	5
--#define SO_BROADCAST	6
--#define SO_SNDBUF	7
--#define SO_RCVBUF	8
--#define SO_SNDBUFFORCE	32
--#define SO_RCVBUFFORCE	33
--#define SO_KEEPALIVE	9
--#define SO_OOBINLINE	10
--#define SO_NO_CHECK	11
--#define SO_PRIORITY	12
--#define SO_LINGER	13
--#define SO_BSDCOMPAT	14
--#define SO_REUSEPORT	15
--#define SO_PASSCRED	16
--#define SO_PEERCRED	17
--#define SO_RCVLOWAT	18
--#define SO_SNDLOWAT	19
--#define SO_RCVTIMEO	20
--#define SO_SNDTIMEO	21
--
--/* Security levels - as per NRL IPv6 - don't actually do anything */
--#define SO_SECURITY_AUTHENTICATION		22
--#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
--#define SO_SECURITY_ENCRYPTION_NETWORK		24
--
--#define SO_BINDTODEVICE	25
--
--/* Socket filtering */
--#define SO_ATTACH_FILTER        26
--#define SO_DETACH_FILTER        27
--#define SO_GET_FILTER		SO_ATTACH_FILTER
--
--#define SO_PEERNAME		28
--#define SO_TIMESTAMP		29
--#define SCM_TIMESTAMP		SO_TIMESTAMP
--
--#define SO_ACCEPTCONN		30
--
--#define SO_PEERSEC		31
--#define SO_PASSSEC		34
--#define SO_TIMESTAMPNS		35
--#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
--
--#define SO_MARK			36
--
--#define SO_TIMESTAMPING		37
--#define SCM_TIMESTAMPING	SO_TIMESTAMPING
--
--#define SO_PROTOCOL		38
--#define SO_DOMAIN		39
--
--#define SO_RXQ_OVFL             40
--
--#define SO_WIFI_STATUS		41
--#define SCM_WIFI_STATUS		SO_WIFI_STATUS
--#define SO_PEEK_OFF		42
--
--/* Instruct lower device to use last 4-bytes of skb data as FCS */
--#define SO_NOFCS		43
--
--#define SO_LOCK_FILTER		44
--
--#define SO_SELECT_ERR_QUEUE	45
--
--#define SO_BUSY_POLL		46
--
--#define SO_MAX_PACING_RATE	47
--
--#define SO_BPF_EXTENSIONS	48
--
--#define SO_INCOMING_CPU		49
--
--#define SO_ATTACH_BPF		50
--#define SO_DETACH_BPF		SO_DETACH_FILTER
--
--#define SO_ATTACH_REUSEPORT_CBPF	51
--#define SO_ATTACH_REUSEPORT_EBPF	52
--
--#define SO_CNX_ADVICE		53
--
--#define SCM_TIMESTAMPING_OPT_STATS	54
--
--#define	SO_MEMINFO		55
--
--#define SO_INCOMING_NAPI_ID	56
--
--#define SO_COOKIE		57
--
--#define SCM_TIMESTAMPING_PKTINFO	58
--
--#define SO_PEERGROUPS		59
--
--#define SO_ZEROCOPY		60
--
--#define SO_TXTIME		61
--#define SCM_TXTIME		SO_TXTIME
--
--#endif /* _ASM_SOCKET_H */
-diff --git a/arch/x86/include/uapi/asm/Kbuild b/arch/x86/include/uapi/asm/Kbuild
-index 322681622d1e..a400e71a13ce 100644
---- a/arch/x86/include/uapi/asm/Kbuild
-+++ b/arch/x86/include/uapi/asm/Kbuild
-@@ -6,3 +6,4 @@ generated-y += unistd_32.h
- generated-y += unistd_64.h
- generated-y += unistd_x32.h
- generic-y += poll.h
-+generic-y += socket.h
-diff --git a/arch/x86/include/uapi/asm/socket.h b/arch/x86/include/uapi/asm/socket.h
-deleted file mode 100644
-index 6b71384b9d8b..000000000000
---- a/arch/x86/include/uapi/asm/socket.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/socket.h>
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index e255683cd520..809f39ce08c0 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -25,6 +25,7 @@ generic-y += percpu.h
- generic-y += preempt.h
- generic-y += rwsem.h
- generic-y += sections.h
-+generic-y += socket.h
- generic-y += topology.h
- generic-y += trace_clock.h
- generic-y += vga.h
-diff --git a/arch/xtensa/include/uapi/asm/Kbuild b/arch/xtensa/include/uapi/asm/Kbuild
-index f95cad300369..fc2680dace55 100644
---- a/arch/xtensa/include/uapi/asm/Kbuild
-+++ b/arch/xtensa/include/uapi/asm/Kbuild
-@@ -10,5 +10,6 @@ generic-y += ioctl.h
- generic-y += kvm_para.h
- generic-y += resource.h
- generic-y += siginfo.h
-+generic-y += socket.h
- generic-y += statfs.h
- generic-y += termios.h
-diff --git a/arch/xtensa/include/uapi/asm/socket.h b/arch/xtensa/include/uapi/asm/socket.h
-deleted file mode 100644
-index 1de07a7f7680..000000000000
---- a/arch/xtensa/include/uapi/asm/socket.h
-+++ /dev/null
-@@ -1,122 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
--/*
-- * include/asm-xtensa/socket.h
-- *
-- * Copied from i386.
-- *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file "COPYING" in the main directory of this archive
-- * for more details.
-- */
--
--#ifndef _XTENSA_SOCKET_H
--#define _XTENSA_SOCKET_H
--
--#include <asm/sockios.h>
--
--/* For setsockoptions(2) */
--#define SOL_SOCKET	1
--
--#define SO_DEBUG	1
--#define SO_REUSEADDR	2
--#define SO_TYPE		3
--#define SO_ERROR	4
--#define SO_DONTROUTE	5
--#define SO_BROADCAST	6
--#define SO_SNDBUF	7
--#define SO_RCVBUF	8
--#define SO_SNDBUFFORCE	32
--#define SO_RCVBUFFORCE	33
--#define SO_KEEPALIVE	9
--#define SO_OOBINLINE	10
--#define SO_NO_CHECK	11
--#define SO_PRIORITY	12
--#define SO_LINGER	13
--#define SO_BSDCOMPAT	14
--#define SO_REUSEPORT	15
--#define SO_PASSCRED	16
--#define SO_PEERCRED	17
--#define SO_RCVLOWAT	18
--#define SO_SNDLOWAT	19
--#define SO_RCVTIMEO	20
--#define SO_SNDTIMEO	21
--
--/* Security levels - as per NRL IPv6 - don't actually do anything */
--
--#define SO_SECURITY_AUTHENTICATION		22
--#define SO_SECURITY_ENCRYPTION_TRANSPORT	23
--#define SO_SECURITY_ENCRYPTION_NETWORK		24
--
--#define SO_BINDTODEVICE	25
--
--/* Socket filtering */
--
--#define SO_ATTACH_FILTER        26
--#define SO_DETACH_FILTER        27
--#define SO_GET_FILTER		SO_ATTACH_FILTER
--
--#define SO_PEERNAME		28
--#define SO_TIMESTAMP		29
--#define SCM_TIMESTAMP		SO_TIMESTAMP
--
--#define SO_ACCEPTCONN		30
--#define SO_PEERSEC		31
--#define SO_PASSSEC		34
--#define SO_TIMESTAMPNS		35
--#define SCM_TIMESTAMPNS		SO_TIMESTAMPNS
--
--#define SO_MARK			36
--
--#define SO_TIMESTAMPING		37
--#define SCM_TIMESTAMPING	SO_TIMESTAMPING
--
--#define SO_PROTOCOL		38
--#define SO_DOMAIN		39
--
--#define SO_RXQ_OVFL             40
--
--#define SO_WIFI_STATUS		41
--#define SCM_WIFI_STATUS		SO_WIFI_STATUS
--#define SO_PEEK_OFF		42
--
--/* Instruct lower device to use last 4-bytes of skb data as FCS */
--#define SO_NOFCS		43
--
--#define SO_LOCK_FILTER		44
--
--#define SO_SELECT_ERR_QUEUE	45
--
--#define SO_BUSY_POLL		46
--
--#define SO_MAX_PACING_RATE	47
--
--#define SO_BPF_EXTENSIONS	48
--
--#define SO_INCOMING_CPU		49
--
--#define SO_ATTACH_BPF		50
--#define SO_DETACH_BPF		SO_DETACH_FILTER
--
--#define SO_ATTACH_REUSEPORT_CBPF	51
--#define SO_ATTACH_REUSEPORT_EBPF	52
--
--#define SO_CNX_ADVICE		53
--
--#define SCM_TIMESTAMPING_OPT_STATS	54
--
--#define SO_MEMINFO		55
--
--#define SO_INCOMING_NAPI_ID	56
--
--#define SO_COOKIE		57
--
--#define SCM_TIMESTAMPING_PKTINFO	58
--
--#define SO_PEERGROUPS		59
--
--#define SO_ZEROCOPY		60
--
--#define SO_TXTIME		61
--#define SCM_TXTIME		SO_TXTIME
--
--#endif	/* _XTENSA_SOCKET_H */
+diff --git a/arch/alpha/include/uapi/asm/socket.h b/arch/alpha/include/uapi/asm/socket.h
+index 352e3dc0b3d9..da08412bd49f 100644
+--- a/arch/alpha/include/uapi/asm/socket.h
++++ b/arch/alpha/include/uapi/asm/socket.h
+@@ -116,19 +116,20 @@
+ 
+ #define SO_TIMESTAMP_NEW         62
+ #define SO_TIMESTAMPNS_NEW       63
++#define SO_TIMESTAMPING_NEW      64
+ 
+ #if !defined(__KERNEL__)
+ 
+ #if __BITS_PER_LONG == 64
+ #define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+ #define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
++#define SO_TIMESTAMPING	SO_TIMESTAMPING_OLD
+ #else
+ #define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+ #define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
++#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+ #endif
+ 
+-#define SO_TIMESTAMPING        SO_TIMESTAMPING_OLD
+-
+ #define SCM_TIMESTAMP          SO_TIMESTAMP
+ #define SCM_TIMESTAMPNS        SO_TIMESTAMPNS
+ #define SCM_TIMESTAMPING       SO_TIMESTAMPING
+diff --git a/arch/mips/include/uapi/asm/socket.h b/arch/mips/include/uapi/asm/socket.h
+index d1752e3f1248..1e48f67f1052 100644
+--- a/arch/mips/include/uapi/asm/socket.h
++++ b/arch/mips/include/uapi/asm/socket.h
+@@ -126,19 +126,20 @@
+ 
+ #define SO_TIMESTAMP_NEW         62
+ #define SO_TIMESTAMPNS_NEW       63
++#define SO_TIMESTAMPING_NEW      64
+ 
+ #if !defined(__KERNEL__)
+ 
+ #if __BITS_PER_LONG == 64
+ #define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+ #define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
++#define SO_TIMESTAMPING	SO_TIMESTAMPING_OLD
+ #else
+ #define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+ #define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
++#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+ #endif
+ 
+-#define SO_TIMESTAMPING        SO_TIMESTAMPING_OLD
+-
+ #define SCM_TIMESTAMP          SO_TIMESTAMP
+ #define SCM_TIMESTAMPNS        SO_TIMESTAMPNS
+ #define SCM_TIMESTAMPING       SO_TIMESTAMPING
+diff --git a/arch/parisc/include/uapi/asm/socket.h b/arch/parisc/include/uapi/asm/socket.h
+index 0a45b668abd1..e8d6cf20f9a4 100644
+--- a/arch/parisc/include/uapi/asm/socket.h
++++ b/arch/parisc/include/uapi/asm/socket.h
+@@ -107,19 +107,20 @@
+ 
+ #define SO_TIMESTAMP_NEW         0x4037
+ #define SO_TIMESTAMPNS_NEW       0x4038
++#define SO_TIMESTAMPING_NEW      0x4039
+ 
+ #if !defined(__KERNEL__)
+ 
+ #if __BITS_PER_LONG == 64
+ #define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+ #define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
++#define SO_TIMESTAMPING	SO_TIMESTAMPING_OLD
+ #else
+ #define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+ #define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
++#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+ #endif
+ 
+-#define SO_TIMESTAMPING        SO_TIMESTAMPING_OLD
+-
+ #define SCM_TIMESTAMP          SO_TIMESTAMP
+ #define SCM_TIMESTAMPNS        SO_TIMESTAMPNS
+ #define SCM_TIMESTAMPING       SO_TIMESTAMPING
+diff --git a/arch/sparc/include/uapi/asm/socket.h b/arch/sparc/include/uapi/asm/socket.h
+index dc8527cae5a7..fc65bf6b6440 100644
+--- a/arch/sparc/include/uapi/asm/socket.h
++++ b/arch/sparc/include/uapi/asm/socket.h
+@@ -106,20 +106,22 @@
+ #define SO_TIMESTAMPNS_OLD       0x0021
+ #define SO_TIMESTAMPING_OLD      0x0023
+ 
+-#define SO_TIMESTAMP_NEW         0x0040
+-#define SO_TIMESTAMPNS_NEW       0x0041
++#define SO_TIMESTAMP_NEW         0x0041
++#define SO_TIMESTAMPNS_NEW       0x0042
++#define SO_TIMESTAMPING_NEW      0x0043
+ 
+ #if !defined(__KERNEL__)
+ 
+ #if __BITS_PER_LONG == 64
+ #define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+ #define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
++#define SO_TIMESTAMPING	SO_TIMESTAMPING_OLD
+ #else
+ #define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+ #define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
++#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+ #endif
+ 
+-#define SO_TIMESTAMPING        SO_TIMESTAMPING_OLD
+ 
+ #define SCM_TIMESTAMP          SO_TIMESTAMP
+ #define SCM_TIMESTAMPNS        SO_TIMESTAMPNS
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index ab2041a00e01..a47e60a1cfdf 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -351,6 +351,14 @@ extern int put_cmsg(struct msghdr*, int level, int type, int len, void *data);
+ 
+ struct __kernel_timespec;
+ struct old_timespec32;
++struct timespec64;
++
++struct scm_timestamping_internal {
++	struct timespec64 ts[3];
++};
++
++extern void put_cmsg_scm_timestamping64(struct msghdr *msg, struct scm_timestamping_internal *tss);
++extern void put_cmsg_scm_timestamping(struct msghdr *msg, struct scm_timestamping_internal *tss);
+ 
+ /* The __sys_...msg variants allow MSG_CMSG_COMPAT iff
+  * forbid_cmsg_compat==false
+diff --git a/include/uapi/asm-generic/socket.h b/include/uapi/asm-generic/socket.h
+index 0b0fae6b57a9..94e618a4a43f 100644
+--- a/include/uapi/asm-generic/socket.h
++++ b/include/uapi/asm-generic/socket.h
+@@ -110,6 +110,7 @@
+ 
+ #define SO_TIMESTAMP_NEW         62
+ #define SO_TIMESTAMPNS_NEW       63
++#define SO_TIMESTAMPING_NEW      64
+ 
+ #if !defined(__KERNEL__)
+ 
+@@ -117,13 +118,13 @@
+ /* on 64-bit and x32, avoid the ?: operator */
+ #define SO_TIMESTAMP		SO_TIMESTAMP_OLD
+ #define SO_TIMESTAMPNS		SO_TIMESTAMPNS_OLD
++#define SO_TIMESTAMPING	SO_TIMESTAMPING_OLD
+ #else
+ #define SO_TIMESTAMP (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMP_OLD : SO_TIMESTAMP_NEW)
+ #define SO_TIMESTAMPNS (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPNS_OLD : SO_TIMESTAMPNS_NEW)
++#define SO_TIMESTAMPING (sizeof(time_t) == sizeof(__kernel_long_t) ? SO_TIMESTAMPING_OLD : SO_TIMESTAMPING_NEW)
+ #endif
+ 
+-#define SO_TIMESTAMPING        SO_TIMESTAMPING_OLD
+-
+ #define SCM_TIMESTAMP          SO_TIMESTAMP
+ #define SCM_TIMESTAMPNS        SO_TIMESTAMPNS
+ #define SCM_TIMESTAMPING       SO_TIMESTAMPING
+diff --git a/include/uapi/linux/errqueue.h b/include/uapi/linux/errqueue.h
+index c0151200f7d1..d955b9e32288 100644
+--- a/include/uapi/linux/errqueue.h
++++ b/include/uapi/linux/errqueue.h
+@@ -41,6 +41,10 @@ struct scm_timestamping {
+ 	struct timespec ts[3];
+ };
+ 
++struct scm_timestamping64 {
++	struct __kernel_timespec ts[3];
++};
++
+ /* The type of scm_timestamping, passed in sock_extended_err ee_info.
+  * This defines the type of ts[0]. For SCM_TSTAMP_SND only, if ts[0]
+  * is zero, then this is a hardware timestamp and recorded in ts[2].
+diff --git a/net/core/scm.c b/net/core/scm.c
+index b1ff8a441748..52ef219cf6df 100644
+--- a/net/core/scm.c
++++ b/net/core/scm.c
+@@ -29,6 +29,7 @@
+ #include <linux/pid.h>
+ #include <linux/nsproxy.h>
+ #include <linux/slab.h>
++#include <linux/errqueue.h>
+ 
+ #include <linux/uaccess.h>
+ 
+@@ -252,6 +253,32 @@ int put_cmsg(struct msghdr * msg, int level, int type, int len, void *data)
+ }
+ EXPORT_SYMBOL(put_cmsg);
+ 
++void put_cmsg_scm_timestamping64(struct msghdr *msg, struct scm_timestamping_internal *tss_internal)
++{
++	struct scm_timestamping64 tss;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(tss.ts); i++) {
++		tss.ts[i].tv_sec = tss_internal->ts[i].tv_sec;
++		tss.ts[i].tv_nsec = tss_internal->ts[i].tv_nsec;
++	}
++
++	put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPING_NEW, sizeof(tss), &tss);
++}
++EXPORT_SYMBOL(put_cmsg_scm_timestamping64);
++
++void put_cmsg_scm_timestamping(struct msghdr *msg, struct scm_timestamping_internal *tss_internal)
++{
++	struct scm_timestamping tss;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(tss.ts); i++)
++		tss.ts[i] = timespec64_to_timespec(tss_internal->ts[i]);
++
++	put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPING_OLD, sizeof(tss), &tss);
++}
++EXPORT_SYMBOL(put_cmsg_scm_timestamping);
++
+ void scm_detach_fds(struct msghdr *msg, struct scm_cookie *scm)
+ {
+ 	struct cmsghdr __user *cm
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 35c7cd9b2793..78df5228ffbd 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -838,6 +838,8 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ 		}
+ 		break;
+ 
++	case SO_TIMESTAMPING_NEW:
++		sock_set_flag(sk, SOCK_TSTAMP_NEW);
+ 	case SO_TIMESTAMPING_OLD:
+ 		if (val & ~SOF_TIMESTAMPING_MASK) {
+ 			ret = -EINVAL;
+@@ -869,9 +871,13 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ 		if (val & SOF_TIMESTAMPING_RX_SOFTWARE)
+ 			sock_enable_timestamp(sk,
+ 					      SOCK_TIMESTAMPING_RX_SOFTWARE);
+-		else
++		else {
++			if (optname == SO_TIMESTAMPING_NEW)
++				sock_reset_flag(sk, SOCK_TSTAMP_NEW);
++
+ 			sock_disable_timestamp(sk,
+ 					       (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE));
++		}
+ 		break;
+ 
+ 	case SO_RCVLOWAT:
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 44fe307af09c..9cdd3d72aecd 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1847,22 +1847,22 @@ static int tcp_zerocopy_receive(struct sock *sk,
+ #endif
+ 
+ static void tcp_update_recv_tstamps(struct sk_buff *skb,
+-				    struct scm_timestamping *tss)
++				    struct scm_timestamping_internal *tss)
+ {
+ 	if (skb->tstamp)
+-		tss->ts[0] = ktime_to_timespec(skb->tstamp);
++		tss->ts[0] = ktime_to_timespec64(skb->tstamp);
+ 	else
+-		tss->ts[0] = (struct timespec) {0};
++		tss->ts[0] = (struct timespec64) {0};
+ 
+ 	if (skb_hwtstamps(skb)->hwtstamp)
+-		tss->ts[2] = ktime_to_timespec(skb_hwtstamps(skb)->hwtstamp);
++		tss->ts[2] = ktime_to_timespec64(skb_hwtstamps(skb)->hwtstamp);
+ 	else
+-		tss->ts[2] = (struct timespec) {0};
++		tss->ts[2] = (struct timespec64) {0};
+ }
+ 
+ /* Similar to __sock_recv_timestamp, but does not require an skb */
+ static void tcp_recv_timestamp(struct msghdr *msg, const struct sock *sk,
+-			       struct scm_timestamping *tss)
++			       struct scm_timestamping_internal *tss)
+ {
+ 	bool has_timestamping = false;
+ 	int new_tstamp = sock_flag(sk, SOCK_TSTAMP_NEW);
+@@ -1876,7 +1876,7 @@ static void tcp_recv_timestamp(struct msghdr *msg, const struct sock *sk,
+ 					put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPNS_NEW,
+ 						 sizeof(kts), &kts);
+ 				} else {
+-					struct timespec ts_old = tss->ts[0];
++					struct timespec ts_old = timespec64_to_timespec(tss->ts[0]);
+ 
+ 					put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPNS_OLD,
+ 						 sizeof(ts_old), &ts_old);
+@@ -1903,20 +1903,22 @@ static void tcp_recv_timestamp(struct msghdr *msg, const struct sock *sk,
+ 		if (sk->sk_tsflags & SOF_TIMESTAMPING_SOFTWARE)
+ 			has_timestamping = true;
+ 		else
+-			tss->ts[0] = (struct timespec) {0};
++			tss->ts[0] = (struct timespec64) {0};
+ 	}
+ 
+ 	if (tss->ts[2].tv_sec || tss->ts[2].tv_nsec) {
+ 		if (sk->sk_tsflags & SOF_TIMESTAMPING_RAW_HARDWARE)
+ 			has_timestamping = true;
+ 		else
+-			tss->ts[2] = (struct timespec) {0};
++			tss->ts[2] = (struct timespec64) {0};
+ 	}
+ 
+ 	if (has_timestamping) {
+-		tss->ts[1] = (struct timespec) {0};
+-		put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMPING_OLD,
+-			 sizeof(*tss), tss);
++		tss->ts[1] = (struct timespec64) {0};
++		if (sock_flag(sk, SOCK_TSTAMP_NEW))
++			put_cmsg_scm_timestamping64(msg, tss);
++		else
++			put_cmsg_scm_timestamping(msg, tss);
+ 	}
+ }
+ 
+@@ -1957,7 +1959,7 @@ int tcp_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int nonblock,
+ 	long timeo;
+ 	struct sk_buff *skb, *last;
+ 	u32 urg_hole = 0;
+-	struct scm_timestamping tss;
++	struct scm_timestamping_internal tss;
+ 	bool has_tss = false;
+ 	bool has_cmsg;
+ 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index c4da4a78d369..c1ce35d36eef 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -289,7 +289,8 @@ static void smc_copy_sock_settings(struct sock *nsk, struct sock *osk,
+ 			     (1UL << SOCK_RXQ_OVFL) | \
+ 			     (1UL << SOCK_WIFI_STATUS) | \
+ 			     (1UL << SOCK_NOFCS) | \
+-			     (1UL << SOCK_FILTER_LOCKED))
++			     (1UL << SOCK_FILTER_LOCKED) | \
++			     (1UL << SOCK_TSTAMP_NEW))
+ /* copy only relevant settings and flags of SOL_SOCKET level from smc to
+  * clc socket (since smc is not called for these options from net/core)
+  */
+diff --git a/net/socket.c b/net/socket.c
+index 1de96abd78d3..d51930689b98 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -706,7 +706,8 @@ void __sock_recv_timestamp(struct msghdr *msg, struct sock *sk,
+ {
+ 	int need_software_tstamp = sock_flag(sk, SOCK_RCVTSTAMP);
+ 	int new_tstamp = sock_flag(sk, SOCK_TSTAMP_NEW);
+-	struct scm_timestamping tss;
++	struct scm_timestamping_internal tss;
++
+ 	int empty = 1, false_tstamp = 0;
+ 	struct skb_shared_hwtstamps *shhwtstamps =
+ 		skb_hwtstamps(skb);
+@@ -752,20 +753,22 @@ void __sock_recv_timestamp(struct msghdr *msg, struct sock *sk,
+ 
+ 	memset(&tss, 0, sizeof(tss));
+ 	if ((sk->sk_tsflags & SOF_TIMESTAMPING_SOFTWARE) &&
+-	    ktime_to_timespec_cond(skb->tstamp, tss.ts + 0))
++	    ktime_to_timespec64_cond(skb->tstamp, tss.ts + 0))
+ 		empty = 0;
+ 	if (shhwtstamps &&
+ 	    (sk->sk_tsflags & SOF_TIMESTAMPING_RAW_HARDWARE) &&
+ 	    !skb_is_swtx_tstamp(skb, false_tstamp) &&
+-	    ktime_to_timespec_cond(shhwtstamps->hwtstamp, tss.ts + 2)) {
++	    ktime_to_timespec64_cond(shhwtstamps->hwtstamp, tss.ts + 2)) {
+ 		empty = 0;
+ 		if ((sk->sk_tsflags & SOF_TIMESTAMPING_OPT_PKTINFO) &&
+ 		    !skb_is_err_queue(skb))
+ 			put_ts_pktinfo(msg, skb);
+ 	}
+ 	if (!empty) {
+-		put_cmsg(msg, SOL_SOCKET,
+-			 SO_TIMESTAMPING_OLD, sizeof(tss), &tss);
++		if (sock_flag(sk, SOCK_TSTAMP_NEW))
++			put_cmsg_scm_timestamping64(msg, &tss);
++		else
++			put_cmsg_scm_timestamping(msg, &tss);
+ 
+ 		if (skb_is_err_queue(skb) && skb->len &&
+ 		    SKB_EXT_ERR(skb)->opt_stats)
 -- 
 2.17.1
