@@ -1,103 +1,77 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM is
- clean
-Date: Tue, 8 Jan 2019 09:06:59 +0100
-Message-ID: <9a114fdc-0924-9730-7ca4-c483ed2c4eb7@linux.ibm.com>
+Subject: Re: [PATCH v5 15/15] KVM: s390: start using the GIB
+Date: Tue, 8 Jan 2019 10:03:20 +0100
+Message-ID: <df42626b-425e-7971-a4b7-98e58dfac512@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-12-mimu@linux.ibm.com>
- <20190107003244.219e873e@oc2783563651>
+ <20181219191756.57973-16-mimu@linux.ibm.com>
+ <e04efde8-47bf-72e9-6215-8e7cd0a08310@linux.ibm.com>
 Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190107003244.219e873e@oc2783563651>
+In-Reply-To: <e04efde8-47bf-72e9-6215-8e7cd0a08310@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: pmorel@linux.ibm.com, KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 07.01.19 00:32, Halil Pasic wrote:
-> On Wed, 19 Dec 2018 20:17:52 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
->> The patch adds the parameter irq_flags and allows to
->> restore the Interruption Alert Mask (IAM) in the GISA
->> atomically while guaranteeing the IPM is clean.
->>
->> The function returns the IPM of the GISA. If the returned
->> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
->> been restored.
->>
->> New irq flag:
->>    IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
->>    		is set in the IPM, i.e. no new airqs are
->> 		pending. The test and restore operations
->> 		are done atomically.
+On 02.01.19 18:45, Pierre Morel wrote:
+> On 19/12/2018 20:17, Michael Mueller wrote:
+>> By initializing the GIB, it will be used by the kvm host.
 >>
 >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >> ---
->>   arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
->>   1 file changed, 29 insertions(+), 5 deletions(-)
+>>   arch/s390/kvm/kvm-s390.c | 8 +++++++-
+>>   1 file changed, 7 insertions(+), 1 deletion(-)
 >>
->> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
->> index 1cc3ad2e6c7e..8307717e3caf 100644
->> --- a/arch/s390/kvm/interrupt.c
->> +++ b/arch/s390/kvm/interrupt.c
->> @@ -37,6 +37,7 @@
->>   #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption pending mask */
->>   #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption pending mask */
->>   #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption pending mask */
->> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
->>   
->>   #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | IRQ_FLAG_GISA)
->>   #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
->> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
->>   	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
->>   }
->>   
->> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
->> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
->>   {
->> -	return READ_ONCE(gisa->ipm);
->> +	u64 word, _word;
->> +	u8 ipm;
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 2d10e175862c..777c8a87d81c 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -428,16 +428,22 @@ int kvm_arch_init(void *opaque)
+>>           goto out_debug_unreg;
+>>       }
+>> +    rc = kvm_s390_gib_init(GAL_ISC);
+>> +    if (rc)
+>> +        goto out_debug_unreg;
 >> +
->> +	if (!(irq_flags & IRQ_FLAG_IAM))
->> +		return READ_ONCE(gisa->ipm);
->> +
->> +	do {
->> +		word = READ_ONCE(gisa->u64.word[0]);
->> +		ipm = word >> 24;
->> +		/* If the GISA is in the alert list, return the IPM. */
->> +		if ((u64)gisa != word >> 32)
->> +			return ipm;
->> +		/* If the IPM is dirty, return the IPM. */
->> +		if (ipm)
->> +			return ipm;
->> +		/*
->> +		 * Try to restore the IAM or loop, if the IPM is dirty
->> +		 * again or the GISA has been inserted into the alert list.
->> +		 */
->> +		_word = (word & ~0xffUL) |
->> +			container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
->> +	} while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
->                                                               ^^
 > 
-> Shouldn't this rather be:
-> 	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+> Since it is the last introduced I have a preference to put the gib 
+> initialization after any existing initialization.
+> it does not have influence them.
+> 
+>>       kvm_s390_cpu_feat_init();
+>>       /* Register floating interrupt controller interface. */
+>>       rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
+>>       if (rc) {
+>>           pr_err("Failed to register FLIC rc=%d\n", rc);
+>> -        goto out_debug_unreg;
+>> +        goto out_gib_destroy;
+> 
+> It is not a big problem but would make the patch more smaller by 
+> gathering all changes.
 
-Yes, the comparison needs to be done against the old value of
-the memory region.
+I will move that behind the FLIC registraion.
 
 > 
-> Regards,
-> Halil
->> +
->> +	return 0;
->>   }
+>>       }
+>>       return 0;
+>> +out_gib_destroy:
+>> +    kvm_s390_gib_destroy();
+>>   out_debug_unreg:
+>>       debug_unregister(kvm_s390_dbf);
+>>       return rc;
+>>
+> 
+> with these changes.
+> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
+> 
+> 
+> 
+> 
