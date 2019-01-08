@@ -1,36 +1,91 @@
-Return-Path: <SRS0=hqs4=PW=vger.kernel.org=linux-pci-owner@kernel.org>
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: Kconfig label updates
-In-Reply-To: <20190111112024.GD14180@gate.crashing.org>
-References: <20190108223024.GA147017@google.com> <87tviiroqy.fsf@concordia.ellerman.id.au> <83241c8b-8f44-162b-b42a-0f4f9bb858e7@linux.vnet.ibm.com> <874lafg23v.fsf@concordia.ellerman.id.au> <20190111112024.GD14180@gate.crashing.org>
-Date: Mon, 14 Jan 2019 21:42:48 +1100
-Message-ID: <87muo3zfiv.fsf@concordia.ellerman.id.au>
+Return-Path: <SRS0=3dpc=PQ=vger.kernel.org=linux-pci-owner@kernel.org>
+Date: Tue, 8 Jan 2019 16:30:24 -0600
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Kconfig label updates
+Message-ID: <20190108223024.GA147017@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-pci-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-pci/>
 List-Post: <mailto:linux-pci@vger.kernel.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>, Bjorn Helgaas <helgaas@kernel.org>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>, linux-pci@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Segher Boessenkool <segher@kernel.crashing.org> writes:
+Hi,
 
-> On Fri, Jan 11, 2019 at 05:06:12PM +1100, Michael Ellerman wrote:
->> Tyrel Datwyler <tyreld@linux.vnet.ibm.com> writes:
->> > It is basically the predecessor to PAPR "Power Architecture Platform Reference".
->> > Which the LoPAPR document is available through power.org. Not sure if there is
->> > any desire to adopt PAPR in place of RPA. It is the platform reference doc that
->> > outlines how we do DLPAR and PCI Hotplug.
->> 
->> True. But a user is unlikely to know "PAPR" either, and it googles badly.
->
-> Googling for "powerpc papr" works fine afais?  With a working link to a
-> pdf on the first page and all!
+I want to update the PCI Kconfig labels so they're more consistent and
+useful to users, something like the patch below.  IIUC, the items
+below are all IBM-related; please correct me if not.
 
-True if you know to add "powerpc".
+I'd also like to expand (or remove) "RPA" because Google doesn't find
+anything about "IBM RPA", except Robotic Process Automation, which I
+think must be something else.
 
-I only get a link to LoPAPR, which is similar but not identical. If
-there's a link to PAPR then someone is in trouble :)
+Is there some text expansion of RPA that we could use that would be
+meaningful to a user, i.e., something he/she might find on a nameplate
+or in a user manual?
 
-cheers
+Ideally the PCI Kconfig labels would match the terms used in
+arch/.../Kconfig, e.g.,
+
+  config PPC_POWERNV
+    bool "IBM PowerNV (Non-Virtualized) platform support"
+
+  config PPC_PSERIES
+    bool "IBM pSeries & new (POWER5-based) iSeries"
+
+  config MARCH_Z900
+    bool "IBM zSeries model z800 and z900"
+
+  config MARCH_Z9_109
+    bool "IBM System z9"
+
+Bjorn
+
+
+diff --git a/drivers/pci/hotplug/Kconfig b/drivers/pci/hotplug/Kconfig
+index e9f78eb390d2..1c1d145bfd84 100644
+--- a/drivers/pci/hotplug/Kconfig
++++ b/drivers/pci/hotplug/Kconfig
+@@ -112,7 +112,7 @@ config HOTPLUG_PCI_SHPC
+ 	  When in doubt, say N.
+ 
+ config HOTPLUG_PCI_POWERNV
+-	tristate "PowerPC PowerNV PCI Hotplug driver"
++	tristate "IBM PowerNV PCI Hotplug driver"
+ 	depends on PPC_POWERNV && EEH
+ 	select OF_DYNAMIC
+ 	help
+@@ -125,10 +125,11 @@ config HOTPLUG_PCI_POWERNV
+ 	  When in doubt, say N.
+ 
+ config HOTPLUG_PCI_RPA
+-	tristate "RPA PCI Hotplug driver"
++	tristate "IBM Power Systems RPA PCI Hotplug driver"
+ 	depends on PPC_PSERIES && EEH
+ 	help
+ 	  Say Y here if you have a RPA system that supports PCI Hotplug.
++	  This includes the earlier pSeries and iSeries.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rpaphp.
+@@ -136,7 +137,7 @@ config HOTPLUG_PCI_RPA
+ 	  When in doubt, say N.
+ 
+ config HOTPLUG_PCI_RPA_DLPAR
+-	tristate "RPA Dynamic Logical Partitioning for I/O slots"
++	tristate "IBM RPA Dynamic Logical Partitioning for I/O slots"
+ 	depends on HOTPLUG_PCI_RPA
+ 	help
+ 	  Say Y here if your system supports Dynamic Logical Partitioning
+@@ -157,7 +158,7 @@ config HOTPLUG_PCI_SGI
+ 	  When in doubt, say N.
+ 
+ config HOTPLUG_PCI_S390
+-	bool "System z PCI Hotplug Support"
++	bool "IBM System z PCI Hotplug Support"
+ 	depends on S390 && 64BIT
+ 	help
+ 	  Say Y here if you want to use the System z PCI Hotplug
