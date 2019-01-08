@@ -1,16 +1,17 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: Re: [PATCH v5 15/15] KVM: s390: start using the GIB
-Date: Tue, 8 Jan 2019 10:03:20 +0100
-Message-ID: <df42626b-425e-7971-a4b7-98e58dfac512@linux.ibm.com>
+Subject: Re: [PATCH v5 14/15] KVM: s390: add and wire function
+ gib_alert_irq_handler()
+Date: Tue, 8 Jan 2019 11:06:04 +0100
+Message-ID: <fd2efaed-24d5-4397-b79c-1f64dc80a9e4@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-16-mimu@linux.ibm.com>
- <e04efde8-47bf-72e9-6215-8e7cd0a08310@linux.ibm.com>
+ <20181219191756.57973-15-mimu@linux.ibm.com>
+ <7dfe72db-97d2-9f33-68f7-acf8ec5ddc5e@linux.ibm.com>
 Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e04efde8-47bf-72e9-6215-8e7cd0a08310@linux.ibm.com>
+In-Reply-To: <7dfe72db-97d2-9f33-68f7-acf8ec5ddc5e@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -21,57 +22,132 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 02.01.19 18:45, Pierre Morel wrote:
+On 03.01.19 16:16, Pierre Morel wrote:
 > On 19/12/2018 20:17, Michael Mueller wrote:
->> By initializing the GIB, it will be used by the kvm host.
+>> The patch implements a handler for GIB alert interruptions
+>> on the host. Its task is to alert guests that interrupts are
+>> pending for them.
+>>
+>> A GIB alert interrupt statistic counter is added as well:
+>>
+>> $ cat /proc/interrupts
+>>            CPU0       CPU1
+>>    ...
+>>    GAL:      23         37   [I/O] GIB Alert
+>>    ...
 >>
 >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >> ---
->>   arch/s390/kvm/kvm-s390.c | 8 +++++++-
->>   1 file changed, 7 insertions(+), 1 deletion(-)
+>>   arch/s390/include/asm/irq.h |  1 +
+>>   arch/s390/include/asm/isc.h |  1 +
+>>   arch/s390/kernel/irq.c      |  1 +
+>>   arch/s390/kvm/interrupt.c   | 36 ++++++++++++++++++++++++++++++++++--
+>>   4 files changed, 37 insertions(+), 2 deletions(-)
 >>
->> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->> index 2d10e175862c..777c8a87d81c 100644
->> --- a/arch/s390/kvm/kvm-s390.c
->> +++ b/arch/s390/kvm/kvm-s390.c
->> @@ -428,16 +428,22 @@ int kvm_arch_init(void *opaque)
->>           goto out_debug_unreg;
->>       }
->> +    rc = kvm_s390_gib_init(GAL_ISC);
->> +    if (rc)
->> +        goto out_debug_unreg;
+>> diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
+>> index 2f7f27e5493f..afaf5e3c57fd 100644
+>> --- a/arch/s390/include/asm/irq.h
+>> +++ b/arch/s390/include/asm/irq.h
+>> @@ -62,6 +62,7 @@ enum interruption_class {
+>>       IRQIO_MSI,
+>>       IRQIO_VIR,
+>>       IRQIO_VAI,
+>> +    IRQIO_GAL,
+>>       NMI_NMI,
+>>       CPU_RST,
+>>       NR_ARCH_IRQS
+>> diff --git a/arch/s390/include/asm/isc.h b/arch/s390/include/asm/isc.h
+>> index 6cb9e2ed05b6..b2cc1ec78d06 100644
+>> --- a/arch/s390/include/asm/isc.h
+>> +++ b/arch/s390/include/asm/isc.h
+>> @@ -21,6 +21,7 @@
+>>   /* Adapter interrupts. */
+>>   #define QDIO_AIRQ_ISC IO_SCH_ISC    /* I/O subchannel in qdio mode */
+>>   #define PCI_ISC 2            /* PCI I/O subchannels */
+>> +#define GAL_ISC 5            /* GIB alert */
+>>   #define AP_ISC 6            /* adjunct processor (crypto) devices */
+>>   /* Functions for registration of I/O interruption subclasses */
+>> diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+>> index 0e8d68bac82c..0cd5a5f96729 100644
+>> --- a/arch/s390/kernel/irq.c
+>> +++ b/arch/s390/kernel/irq.c
+>> @@ -88,6 +88,7 @@ static const struct irq_class irqclass_sub_desc[] = {
+>>       {.irq = IRQIO_MSI,  .name = "MSI", .desc = "[I/O] MSI Interrupt" },
+>>       {.irq = IRQIO_VIR,  .name = "VIR", .desc = "[I/O] Virtual I/O 
+>> Devices"},
+>>       {.irq = IRQIO_VAI,  .name = "VAI", .desc = "[I/O] Virtual I/O 
+>> Devices AI"},
+>> +    {.irq = IRQIO_GAL,  .name = "GAL", .desc = "[I/O] GIB Alert"},
+>>       {.irq = NMI_NMI,    .name = "NMI", .desc = "[NMI] Machine Check"},
+>>       {.irq = CPU_RST,    .name = "RST", .desc = "[CPU] CPU Restart"},
+>>   };
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index 03e7ba4f215a..79b9c262479b 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -26,6 +26,7 @@
+>>   #include <asm/gmap.h>
+>>   #include <asm/switch_to.h>
+>>   #include <asm/nmi.h>
+>> +#include <asm/airq.h>
+>>   #include "kvm-s390.h"
+>>   #include "gaccess.h"
+>>   #include "trace-s390.h"
+>> @@ -3043,7 +3044,7 @@ static void __floating_airqs_kick(struct kvm *kvm)
+>>   #define NONE_GISA_ADDR 0x00000001UL
+>>   #define GISA_ADDR_MASK 0xfffff000UL
+>> -static void __maybe_unused process_gib_alert_list(void)
+>> +static void process_gib_alert_list(void)
+>>   {
+>>       u32 final, next_alert, origin = 0UL;
+>>       struct kvm_s390_gisa *gisa;
+>> @@ -3091,7 +3092,10 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
+>>   {
+>>       if (!kvm->arch.gisa)
+>>           return;
+>> +    if (set_iam(kvm->arch.gisa, 0) == -EBUSY)
+>> +        process_gib_alert_list();
+> 
+> We call process_gib_alert_list() from different contexts shouldn't we 
+> protect the calls?
+
+That should not be necessary as the xcgh() guarantees that both
+instances will work on gib alert lists with disjunctive gisas.
+
+> 
+> 
+>>       nullify_gisa(kvm->arch.gisa);
+>> +    set_iam(kvm->arch.gisa, kvm->arch.iam);
+>>       VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
+>>   }
+>> @@ -3111,6 +3115,8 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>>   {
+>>       if (!kvm->arch.gisa)
+>>           return;
+>> +    if (set_iam(kvm->arch.gisa, 0) == -EBUSY)
+>> +        process_gib_alert_list();
+> 
+> idem.
+> 
+>>       kvm->arch.gisa = NULL;
+>>   }
+>> @@ -3159,11 +3165,23 @@ int kvm_s390_gisc_unregister(struct kvm *kvm, 
+>> u32 gisc)
+>>   }
+>>   EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
+>> +static void gib_alert_irq_handler(struct airq_struct *airq)
+>> +{
+>> +    inc_irq_stat(IRQIO_GAL);
+>> +    process_gib_alert_list();
+> 
+> idem.
+> 
+>> +}
 >> +
-> 
-> Since it is the last introduced I have a preference to put the gib 
-> initialization after any existing initialization.
-> it does not have influence them.
-> 
->>       kvm_s390_cpu_feat_init();
->>       /* Register floating interrupt controller interface. */
->>       rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
->>       if (rc) {
->>           pr_err("Failed to register FLIC rc=%d\n", rc);
->> -        goto out_debug_unreg;
->> +        goto out_gib_destroy;
-> 
-> It is not a big problem but would make the patch more smaller by 
-> gathering all changes.
+>> +static struct airq_struct gib_alert_irq = {
+>> +    .handler = gib_alert_irq_handler,
+>> +    .lsi_ptr = &gib_alert_irq.lsi_mask,
+>> +};
+>> +
 
-I will move that behind the FLIC registraion.
-
-> 
->>       }
->>       return 0;
->> +out_gib_destroy:
->> +    kvm_s390_gib_destroy();
->>   out_debug_unreg:
->>       debug_unregister(kvm_s390_dbf);
->>       return rc;
->>
-> 
-> with these changes.
-> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
-> 
-> 
-> 
 > 
