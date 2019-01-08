@@ -1,56 +1,103 @@
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH v5 13/15] KVM: s390: add function process_gib_alert_list()
-Date: Tue, 8 Jan 2019 07:37:57 +0100
-Message-ID: <20190108063757.GA3766@osiris>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: Re: [PATCH v5 11/15] KVM: s390: restore IAM in get_ipm() when IPM is
+ clean
+Date: Tue, 8 Jan 2019 09:06:59 +0100
+Message-ID: <9a114fdc-0924-9730-7ca4-c483ed2c4eb7@linux.ibm.com>
 References: <20181219191756.57973-1-mimu@linux.ibm.com>
- <20181219191756.57973-14-mimu@linux.ibm.com>
- <645d74cf-7448-f143-c899-bdcf290dac59@linux.ibm.com>
- <ae479e60-d235-acf3-55cc-afd875644a19@linux.ibm.com>
+ <20181219191756.57973-12-mimu@linux.ibm.com>
+ <20190107003244.219e873e@oc2783563651>
+Reply-To: mimu@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ae479e60-d235-acf3-55cc-afd875644a19@linux.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <20190107003244.219e873e@oc2783563651>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com
-Cc: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, kvm390-list@tuxmaker.boeblingen.de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Jan 07, 2019 at 08:19:26PM +0100, Michael Mueller wrote:
->=20
-> On 03.01.19 15:43, Pierre Morel wrote:
-> >On 19/12/2018 20:17, Michael Mueller wrote:
-> >>This function processes the Gib Alert List (GAL). It is required
-> >>to run when either a gib alert interruption has been received or
-> >>a gisa that is in the alert list is cleared or dropped.
-> >>
-> >>The GAL is build up by millicode, when the respective ISC bit is
-> >>set in the Interruption Alert Mask (IAM) and an interruption of
-> >>that class is observed.
-> >>
-> >>Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-> >>---
-> >>=A0 arch/s390/kvm/interrupt.c | 140
-> >>++++++++++++++++++++++++++++++++++++++++++++++
-> >>=A0 1 file changed, 140 insertions(+)
-> >>
-> >>diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> >>index 48a93f5e5333..03e7ba4f215a 100644
-> >>--- a/arch/s390/kvm/interrupt.c
-> >>+++ b/arch/s390/kvm/interrupt.c
-> >>@@ -2941,6 +2941,146 @@ int kvm_s390_get_irq_state(struct kvm_vcpu
-> >>*vcpu, __u8 __user *buf, int len)
-> >>=A0=A0=A0=A0=A0 return n;
-> >>=A0 }
-> >>=A0 +static int __try_airqs_kick(struct kvm *kvm, u8 ipm)
-> >
-> >static inline ?
 
-Why?
 
-In general it is a good idea to leave it up to the compiler to decide
-if it is worth to inline a function or not, unless you have a good
-reason to force inlining.
+On 07.01.19 00:32, Halil Pasic wrote:
+> On Wed, 19 Dec 2018 20:17:52 +0100
+> Michael Mueller <mimu@linux.ibm.com> wrote:
+> 
+>> The patch adds the parameter irq_flags and allows to
+>> restore the Interruption Alert Mask (IAM) in the GISA
+>> atomically while guaranteeing the IPM is clean.
+>>
+>> The function returns the IPM of the GISA. If the returned
+>> value is 0x00 and the IRQ_FLAG_IAM was set, the IAM has
+>> been restored.
+>>
+>> New irq flag:
+>>    IRQ_FLAG_IAM: When set, the IAM is restored if no ISC bit
+>>    		is set in the IPM, i.e. no new airqs are
+>> 		pending. The test and restore operations
+>> 		are done atomically.
+>>
+>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/interrupt.c | 34 +++++++++++++++++++++++++++++-----
+>>   1 file changed, 29 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index 1cc3ad2e6c7e..8307717e3caf 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -37,6 +37,7 @@
+>>   #define IRQ_FLAG_LOCAL    0x8000 /* include local interruption pending mask */
+>>   #define IRQ_FLAG_FLOATING 0x4000 /* include float interruption pending mask */
+>>   #define IRQ_FLAG_GISA     0x2000 /* include GISA interruption pending mask */
+>> +#define IRQ_FLAG_IAM      0x0080 /* when set try to restore IAM */
+>>   
+>>   #define IRQ_MASK_ALL      (IRQ_FLAG_LOCAL | IRQ_FLAG_FLOATING | IRQ_FLAG_GISA)
+>>   #define IRQ_MASK_NO_GISA  (IRQ_MASK_ALL & ~IRQ_FLAG_GISA)
+>> @@ -253,9 +254,32 @@ static inline void set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+>>   	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+>>   }
+>>   
+>> -static inline u8 get_ipm(struct kvm_s390_gisa *gisa)
+>> +static inline u8 get_ipm(struct kvm_s390_gisa *gisa, u16 irq_flags)
+>>   {
+>> -	return READ_ONCE(gisa->ipm);
+>> +	u64 word, _word;
+>> +	u8 ipm;
+>> +
+>> +	if (!(irq_flags & IRQ_FLAG_IAM))
+>> +		return READ_ONCE(gisa->ipm);
+>> +
+>> +	do {
+>> +		word = READ_ONCE(gisa->u64.word[0]);
+>> +		ipm = word >> 24;
+>> +		/* If the GISA is in the alert list, return the IPM. */
+>> +		if ((u64)gisa != word >> 32)
+>> +			return ipm;
+>> +		/* If the IPM is dirty, return the IPM. */
+>> +		if (ipm)
+>> +			return ipm;
+>> +		/*
+>> +		 * Try to restore the IAM or loop, if the IPM is dirty
+>> +		 * again or the GISA has been inserted into the alert list.
+>> +		 */
+>> +		_word = (word & ~0xffUL) |
+>> +			container_of(gisa, struct sie_page2, gisa)->kvm->arch.iam;
+>> +	} while (cmpxchg(&gisa->u64.word[0], word, _word) != _word);
+>                                                               ^^
+> 
+> Shouldn't this rather be:
+> 	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
+
+Yes, the comparison needs to be done against the old value of
+the memory region.
+
+> 
+> Regards,
+> Halil
+>> +
+>> +	return 0;
+>>   }
