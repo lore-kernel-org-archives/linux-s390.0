@@ -1,59 +1,43 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] virtio-ccw: wire up ->bus_name callback
-Date: Thu,  3 Jan 2019 15:11:45 +0100
-Message-ID: <20190103141145.14554-1-cohuck@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Return-Path: <SRS0=lBHl=PS=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 10 Jan 2019 07:59:08 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/hypfs: Use struct_size() in kzalloc()
+References: <20190109173541.GA16953@embeddedor>
+MIME-Version: 1.0
+In-Reply-To: <20190109173541.GA16953@embeddedor>
+Message-Id: <20190110065908.GA7756@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Return the bus id of the ccw proxy device. This makes 'ethtool -i'
-show a more useful value than 'virtio' in the bus-info field.
+On Wed, Jan 09, 2019 at 11:35:41AM -0600, Gustavo A. R. Silva wrote:
+> One of the more common cases of allocation size calculations is finding the
+> size of a structure that has a zero-sized array at the end, along with memory
+> for some number of elements for that array. For example:
+> 
+> struct foo {
+>     int stuff;
+>     void *entry[];
+> };
+> 
+> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+> 
+> Instead of leaving these open-coded and prone to type mistakes, we can now
+> use the new struct_size() helper:
+> 
+> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+> 
+> This code was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  arch/s390/hypfs/hypfs_diag0c.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/virtio/virtio_ccw.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index fc9dbad476c0..689aec54bfcf 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -967,6 +967,13 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	kfree(ccw);
- }
- 
-+static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-+
-+	return dev_name(&vcdev->cdev->dev);
-+}
-+
- static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
-@@ -977,6 +984,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
- 	.reset = virtio_ccw_reset,
- 	.find_vqs = virtio_ccw_find_vqs,
- 	.del_vqs = virtio_ccw_del_vqs,
-+	.bus_name = virtio_ccw_bus_name,
- };
- 
- 
--- 
-2.17.2
+Applied, thanks!
