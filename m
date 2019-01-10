@@ -1,72 +1,54 @@
 From: David Hildenbrand <david@redhat.com>
-Date: Thu, 10 Jan 2019 12:11:57 +0000
-Subject: Re: [kvm-unit-tests PATCH v4 11/13] s390x: Add sclp busy indication locking
-Message-Id: <3c8eb265-dbe0-dab1-af9c-f4d65980a569@redhat.com>
-In-Reply-To: <20190103100806.9039-12-frankja@linux.ibm.com>
-References: <20190103100806.9039-12-frankja@linux.ibm.com>
+Date: Thu, 10 Jan 2019 12:13:53 +0000
+Subject: Re: [kvm-unit-tests PATCH v4 09/13] s390x: Add binary generation to makefile
+Message-Id: <63633355-278a-022c-f7a0-a5782ab86888@redhat.com>
+In-Reply-To: <78583bcd-ce90-89be-2328-524c8cdf75d3@linux.ibm.com>
+References: <78583bcd-ce90-89be-2328-524c8cdf75d3@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 03.01.19 11:08, Janosch Frank wrote:
-> With smp CPUs have to compete for sclp. Let's add some locking, so
-> they execute sclp calls in an orderly fashion.
+On 03.01.19 14:12, Thomas Huth wrote:
+> On 2019-01-03 11:08, Janosch Frank wrote:
+>> make bin will now generate binaries that can be booted from disk or as
+>> a non ELF kernel boot.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  s390x/Makefile | 9 +++++++--
+>>  1 file changed, 7 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/s390x/Makefile b/s390x/Makefile
+>> index ede2961..82c4f15 100644
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -10,10 +10,12 @@ tests += $(TEST_DIR)/cmm.elf
+>>  tests += $(TEST_DIR)/vector.elf
+>>  tests += $(TEST_DIR)/gs.elf
+>>  tests += $(TEST_DIR)/iep.elf
+>> +tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>  
+>> -all: directories test_cases
+>> +all: directories test_cases test_cases_binary
+>>  
+>>  test_cases: $(tests)
+>> +test_cases_binary: $(tests_binary)
+>>  
+>>  CFLAGS += -std=gnu99
+>>  CFLAGS += -ffreestanding
+>> @@ -55,8 +57,11 @@ FLATLIBS = $(libcflat)
+>>  	$(RM) $(@:.elf=.aux.o)
+>>  	@chmod a-x $@
+>>  
+>> +%.bin: %.elf
+>> +	objcopy -O binary  $< $@
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/sclp.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
+> Please use $(OBJCOPY) instead, otherwise this won't work when
+> cross-compiling.
 > 
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 817c692..947a533 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -15,6 +15,7 @@
->  #include <asm/arch_def.h>
->  #include <asm/interrupt.h>
->  #include <asm/barrier.h>
-> +#include <asm/spinlock.h>
->  #include "sclp.h"
->  #include <alloc_phys.h>
->  
-> @@ -26,6 +27,7 @@ static uint64_t ram_size;
->  
->  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
->  static volatile bool sclp_busy;
-> +static struct spinlock sclp_lock;
->  
->  static void mem_init(phys_addr_t mem_end)
->  {
-> @@ -48,7 +50,9 @@ static void sclp_setup_int(void)
->  void sclp_handle_ext(void)
->  {
->  	ctl_clear_bit(0, 9);
-> +	spin_lock(&sclp_lock);
->  	sclp_busy = false;
-> +	spin_unlock(&sclp_lock);
->  }
->  
->  void sclp_wait_busy(void)
-> @@ -59,7 +63,19 @@ void sclp_wait_busy(void)
->  
->  void sclp_mark_busy(void)
->  {
-> +	/*
-> +	 * With multiple CPUs we might need to wait for another CPU's
-> +	 * request before grabbing the busy indication.
-> +	 */
-> +retry_wait:
-> +	sclp_wait_busy();
-> +	spin_lock(&sclp_lock);
-> +	if (sclp_busy) {
-> +		spin_unlock(&sclp_lock);
-> +		goto retry_wait;
-> +	}
->  	sclp_busy = true;
-> +	spin_unlock(&sclp_lock);
->  }
->  
->  static void sclp_read_scp_info(ReadInfo *ri, int length)
+>  Thomas
 > 
+
+With that
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
