@@ -1,60 +1,74 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 11/15] mips: fix n32 compat_ipc_parse_version
-Date: Thu, 10 Jan 2019 17:24:31 +0100
-Message-ID: <20190110162435.309262-12-arnd@arndb.de>
+Subject: [PATCH 06/15] ARM: add migrate_pages() system call
+Date: Thu, 10 Jan 2019 17:24:26 +0100
+Message-ID: <20190110162435.309262-7-arnd@arndb.de>
 References: <20190110162435.309262-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
 In-Reply-To: <20190110162435.309262-1-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, linux@dominikbrodowski.net, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-m68k@lists.linux-m68k.org, ink@jurassic.park.msu.ru, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, stable@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foun
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, linux@dominikbrodowski.net, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-m68k@lists.linux-m68k.org, ink@jurassic.park.msu.ru, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foundation.org, linuxppc-dev
 List-ID: <linux-s390.vger.kernel.org>
 
-While reading through the sysvipc implementation, I noticed that the n32
-semctl/shmctl/msgctl system calls behave differently based on whether
-o32 support is enabled or not: Without o32, the IPC_64 flag passed by
-user space is rejected but calls without that flag get IPC_64 behavior.
-
-As far as I can tell, this was inadvertently changed by a cleanup patch
-but never noticed by anyone, possibly nobody has tried using sysvipc
-on n32 after linux-3.19.
-
-Change it back to the old behavior now.
-
-Fixes: 78aaf956ba3a ("MIPS: Compat: Fix build error if CONFIG_MIPS32_COMPAT but no compat ABI.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-As stated above, this was only found by inspection, the patch is not
-tested. Please review accordingly.
----
- arch/mips/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 787290781b8c..0d14f51d0002 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -3155,6 +3155,7 @@ config MIPS32_O32
- config MIPS32_N32
- 	bool "Kernel support for n32 binaries"
- 	depends on 64BIT
-+	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
- 	select COMPAT
- 	select MIPS32_COMPAT
- 	select SYSVIPC_COMPAT if SYSVIPC
--- 
-2.20.0
+VGhlIG1pZ3JhdGVfcGFnZXMgc3lzdGVtIGNhbGwgaGFzIGFuIGFzc2lnbmVkIG51bWJlciBvbiBh
+bGwgYXJjaGl0ZWN0dXJlcwpleGNlcHQgQVJNLiBXaGVuIGl0IGdvdCBhZGRlZCBpbml0aWFsbHkg
+aW4gY29tbWl0IGQ4MGFkZTdiMzIzMSAoIkFSTToKRml4IHdhcm5pbmc6ICN3YXJuaW5nIHN5c2Nh
+bGwgbWlncmF0ZV9wYWdlcyBub3QgaW1wbGVtZW50ZWQiKSwgaXQgd2FzCmludGVudGlvbmFsbHkg
+bGVmdCBvdXQgYmFzZWQgb24gdGhlIG9ic2VydmF0aW9uIHRoYXQgdGhlcmUgYXJlIG5vIDMyLWJp
+dApBUk0gTlVNQSBzeXN0ZW1zLgoKSG93ZXZlciwgdGhlcmUgYXJlIG5vdyBhcm02NCBOVU1BIG1h
+Y2hpbmVzIHRoYXQgY2FuIGluIHRoZW9yeSBydW4gMzItYml0Cmtlcm5lbHMgKGFjdHVhbGx5IGVu
+YWJsaW5nIE5VTUEgdGhlcmUgd291bGQgcmVxdWlyZSBhZGRpdGlvbmFsIHdvcmspCmFzIHdlbGwg
+YXMgMzItYml0IHVzZXIgc3BhY2Ugb24gNjQtYml0IGtlcm5lbHMsIHNvIHRoYXQgYXJndW1lbnQg
+aXMgbm8KbG9uZ2VyIHZlcnkgc3Ryb25nLgoKQXNzaWduaW5nIHRoZSBudW1iZXIgbGV0cyB1cyB1
+c2UgdGhlIHN5c3RlbSBjYWxsIG9uIDY0LWJpdCBrZXJuZWxzIGFzIHdlbGwKYXMgcHJvdmlkaW5n
+IGEgbW9yZSBjb25zaXN0ZW50IHNldCBvZiBzeXNjYWxscyBhY3Jvc3MgYXJjaGl0ZWN0dXJlcy4K
+ClNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+Ci0tLQogYXJjaC9h
+cm0vaW5jbHVkZS9hc20vdW5pc3RkLmggICAgIHwgMSAtCiBhcmNoL2FybS90b29scy9zeXNjYWxs
+LnRibCAgICAgICAgfCAxICsKIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkLmggICB8IDIg
+Ky0KIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkMzIuaCB8IDIgKysKIDQgZmlsZXMgY2hh
+bmdlZCwgNCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2FyY2gv
+YXJtL2luY2x1ZGUvYXNtL3VuaXN0ZC5oIGIvYXJjaC9hcm0vaW5jbHVkZS9hc20vdW5pc3RkLmgK
+aW5kZXggODhlZjJjZTFmNjlhLi5kNzEzNTg3ZGZjZjQgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL2lu
+Y2x1ZGUvYXNtL3VuaXN0ZC5oCisrKyBiL2FyY2gvYXJtL2luY2x1ZGUvYXNtL3VuaXN0ZC5oCkBA
+IC00NSw3ICs0NSw2IEBACiAgKiBVbmltcGxlbWVudGVkIChvciBhbHRlcm5hdGl2ZWx5IGltcGxl
+bWVudGVkKSBzeXNjYWxscwogICovCiAjZGVmaW5lIF9fSUdOT1JFX2ZhZHZpc2U2NF82NAotI2Rl
+ZmluZSBfX0lHTk9SRV9taWdyYXRlX3BhZ2VzCiAKICNpZmRlZiBfX0FSTV9FQUJJX18KIC8qCmRp
+ZmYgLS1naXQgYS9hcmNoL2FybS90b29scy9zeXNjYWxsLnRibCBiL2FyY2gvYXJtL3Rvb2xzL3N5
+c2NhbGwudGJsCmluZGV4IDhlZGY5M2I0NDkwZi4uODZkZTllYjM0Mjk2IDEwMDY0NAotLS0gYS9h
+cmNoL2FybS90b29scy9zeXNjYWxsLnRibAorKysgYi9hcmNoL2FybS90b29scy9zeXNjYWxsLnRi
+bApAQCAtNDE0LDMgKzQxNCw0IEBACiAzOTcJY29tbW9uCXN0YXR4CQkJc3lzX3N0YXR4CiAzOTgJ
+Y29tbW9uCXJzZXEJCQlzeXNfcnNlcQogMzk5CWNvbW1vbglpb19wZ2V0ZXZlbnRzCQlzeXNfaW9f
+cGdldGV2ZW50cworNDAwCWNvbW1vbgltaWdyYXRlX3BhZ2VzCQlzeXNfbWlncmF0ZV9wYWdlcwpk
+aWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS91bmlzdGQuaCBiL2FyY2gvYXJtNjQv
+aW5jbHVkZS9hc20vdW5pc3RkLmgKaW5kZXggYTdiMWZjNThmZmRmLi4yNjEyMTZjMzMzNmUgMTAw
+NjQ0Ci0tLSBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkLmgKKysrIGIvYXJjaC9hcm02
+NC9pbmNsdWRlL2FzbS91bmlzdGQuaApAQCAtNDQsNyArNDQsNyBAQAogI2RlZmluZSBfX0FSTV9O
+Ul9jb21wYXRfc2V0X3RscwkJKF9fQVJNX05SX0NPTVBBVF9CQVNFICsgNSkKICNkZWZpbmUgX19B
+Uk1fTlJfQ09NUEFUX0VORAkJKF9fQVJNX05SX0NPTVBBVF9CQVNFICsgMHg4MDApCiAKLSNkZWZp
+bmUgX19OUl9jb21wYXRfc3lzY2FsbHMJCTQwMAorI2RlZmluZSBfX05SX2NvbXBhdF9zeXNjYWxs
+cwkJNDAxCiAjZW5kaWYKIAogI2RlZmluZSBfX0FSQ0hfV0FOVF9TWVNfQ0xPTkUKZGlmZiAtLWdp
+dCBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkMzIuaCBiL2FyY2gvYXJtNjQvaW5jbHVk
+ZS9hc20vdW5pc3RkMzIuaAppbmRleCAwNGVlMTkwYjkwZmUuLjM1NWZlMmJjMDM1YiAxMDA2NDQK
+LS0tIGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS91bmlzdGQzMi5oCisrKyBiL2FyY2gvYXJtNjQv
+aW5jbHVkZS9hc20vdW5pc3RkMzIuaApAQCAtODIxLDYgKzgyMSw4IEBAIF9fU1lTQ0FMTChfX05S
+X3N0YXR4LCBzeXNfc3RhdHgpCiBfX1NZU0NBTEwoX19OUl9yc2VxLCBzeXNfcnNlcSkKICNkZWZp
+bmUgX19OUl9pb19wZ2V0ZXZlbnRzIDM5OQogX19TWVNDQUxMKF9fTlJfaW9fcGdldGV2ZW50cywg
+Y29tcGF0X3N5c19pb19wZ2V0ZXZlbnRzKQorI2RlZmluZSBfX05SX21pZ3JhdGVfcGFnZXMgNDAw
+CitfX1NZU0NBTEwoX19OUl9taWdyYXRlX3BhZ2VzLCBzeXNfbWlncmF0ZV9wYWdlcykKIAogLyoK
+ICAqIFBsZWFzZSBhZGQgbmV3IGNvbXBhdCBzeXNjYWxscyBhYm92ZSB0aGlzIGNvbW1lbnQgYW5k
+IHVwZGF0ZQotLSAKMi4yMC4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMubGluYXJvLm9yZwpodHRw
+czovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAzOAo=
