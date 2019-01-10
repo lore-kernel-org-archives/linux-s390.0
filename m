@@ -1,54 +1,60 @@
-Return-Path: <SRS0=Tk4m=PR=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 9 Jan 2019 11:35:41 -0600
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] s390/hypfs: Use struct_size() in kzalloc()
-Message-ID: <20190109173541.GA16953@embeddedor>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 11/15] mips: fix n32 compat_ipc_parse_version
+Date: Thu, 10 Jan 2019 17:24:31 +0100
+Message-ID: <20190110162435.309262-12-arnd@arndb.de>
+References: <20190110162435.309262-1-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190110162435.309262-1-arnd@arndb.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, linux@dominikbrodowski.net, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-m68k@lists.linux-m68k.org, ink@jurassic.park.msu.ru, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, stable@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foun
 List-ID: <linux-s390.vger.kernel.org>
 
-One of the more common cases of allocation size calculations is finding the
-size of a structure that has a zero-sized array at the end, along with memory
-for some number of elements for that array. For example:
+While reading through the sysvipc implementation, I noticed that the n32
+semctl/shmctl/msgctl system calls behave differently based on whether
+o32 support is enabled or not: Without o32, the IPC_64 flag passed by
+user space is rejected but calls without that flag get IPC_64 behavior.
 
-struct foo {
-    int stuff;
-    void *entry[];
-};
+As far as I can tell, this was inadvertently changed by a cleanup patch
+but never noticed by anyone, possibly nobody has tried using sysvipc
+on n32 after linux-3.19.
 
-instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+Change it back to the old behavior now.
 
-Instead of leaving these open-coded and prone to type mistakes, we can now
-use the new struct_size() helper:
-
-instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Fixes: 78aaf956ba3a ("MIPS: Compat: Fix build error if CONFIG_MIPS32_COMPAT but no compat ABI.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/s390/hypfs/hypfs_diag0c.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+As stated above, this was only found by inspection, the patch is not
+tested. Please review accordingly.
+---
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/hypfs/hypfs_diag0c.c b/arch/s390/hypfs/hypfs_diag0c.c
-index cebf05150cc1..9c398bf0ddc6 100644
---- a/arch/s390/hypfs/hypfs_diag0c.c
-+++ b/arch/s390/hypfs/hypfs_diag0c.c
-@@ -54,8 +54,7 @@ static void *diag0c_store(unsigned int *count)
- 	if (!cpu_vec)
- 		goto fail_put_online_cpus;
- 	/* Note: Diag 0c needs 8 byte alignment and real storage */
--	diag0c_data = kzalloc(sizeof(struct hypfs_diag0c_hdr) +
--			      cpu_count * sizeof(struct hypfs_diag0c_entry),
-+	diag0c_data = kzalloc(struct_size(diag0c_data, entry, cpu_count),
- 			      GFP_KERNEL | GFP_DMA);
- 	if (!diag0c_data)
- 		goto fail_kfree_cpu_vec;
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 787290781b8c..0d14f51d0002 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -3155,6 +3155,7 @@ config MIPS32_O32
+ config MIPS32_N32
+ 	bool "Kernel support for n32 binaries"
+ 	depends on 64BIT
++	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION
+ 	select COMPAT
+ 	select MIPS32_COMPAT
+ 	select SYSVIPC_COMPAT if SYSVIPC
 -- 
-2.20.1
+2.20.0
