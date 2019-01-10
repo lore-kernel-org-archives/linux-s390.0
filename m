@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 01/11] time: make adjtime compat handling available for 32 bit
-Date: Thu, 10 Jan 2019 18:22:06 +0100
-Message-ID: <20190110172216.313063-2-arnd@arndb.de>
+Subject: [PATCH 06/11] timex: change syscalls to use struct __kernel_timex
+Date: Thu, 10 Jan 2019 18:22:11 +0100
+Message-ID: <20190110172216.313063-7-arnd@arndb.de>
 References: <20190110172216.313063-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,355 +23,87 @@ To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.
 Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, benh@kernel.crashing.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-fsdevel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akp
 List-ID: <linux-s390.vger.kernel.org>
 
-We want to reuse the compat_timex handling on 32-bit architectures the
-same way we are using the compat handling for timespec when moving to
-64-bit time_t.
+From: Deepa Dinamani <deepa.kernel@gmail.com>
 
-Move all definitions related to compat_timex out of the compat code
-into the normal timekeeping code, along with a rename to old_timex32,
-corresponding to the timespec/timeval structures, and make it controlled
-by CONFIG_COMPAT_32BIT_TIME, which 32-bit architectures will then select.
+struct timex is not y2038 safe.
+Switch all the syscall apis to use y2038 safe __kernel_timex.
 
+Note that sys_adjtimex() does not have a y2038 safe solution.  C libraries
+can implement it by calling clock_adjtime(CLOCK_REALTIME, ...).
+
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- include/linux/compat.h     | 35 ++-----------------
- include/linux/time32.h     | 32 ++++++++++++++++-
- kernel/compat.c            | 64 ----------------------------------
- kernel/time/posix-timers.c | 14 ++------
- kernel/time/time.c         | 70 +++++++++++++++++++++++++++++++++++---
- 5 files changed, 102 insertions(+), 113 deletions(-)
+ include/linux/syscalls.h   | 6 +++---
+ kernel/time/posix-timers.c | 2 +-
+ kernel/time/time.c         | 4 +++-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 056be0d03722..657ca6abd855 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -132,37 +132,6 @@ struct compat_tms {
- 	compat_clock_t		tms_cstime;
- };
- 
--struct compat_timex {
--	compat_uint_t modes;
--	compat_long_t offset;
--	compat_long_t freq;
--	compat_long_t maxerror;
--	compat_long_t esterror;
--	compat_int_t status;
--	compat_long_t constant;
--	compat_long_t precision;
--	compat_long_t tolerance;
--	struct old_timeval32 time;
--	compat_long_t tick;
--	compat_long_t ppsfreq;
--	compat_long_t jitter;
--	compat_int_t shift;
--	compat_long_t stabil;
--	compat_long_t jitcnt;
--	compat_long_t calcnt;
--	compat_long_t errcnt;
--	compat_long_t stbcnt;
--	compat_int_t tai;
--
--	compat_int_t:32; compat_int_t:32; compat_int_t:32; compat_int_t:32;
--	compat_int_t:32; compat_int_t:32; compat_int_t:32; compat_int_t:32;
--	compat_int_t:32; compat_int_t:32; compat_int_t:32;
--};
--
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 8e86d9623d4e..394e8db7e57e 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -54,7 +54,7 @@ struct __sysctl_args;
+ struct sysinfo;
+ struct timespec;
+ struct timeval;
 -struct timex;
--int compat_get_timex(struct timex *, const struct compat_timex __user *);
--int compat_put_timex(struct compat_timex __user *, const struct timex *);
--
- #define _COMPAT_NSIG_WORDS	(_COMPAT_NSIG / _COMPAT_NSIG_BPW)
- 
- typedef struct {
-@@ -808,7 +777,7 @@ asmlinkage long compat_sys_gettimeofday(struct old_timeval32 __user *tv,
- 		struct timezone __user *tz);
- asmlinkage long compat_sys_settimeofday(struct old_timeval32 __user *tv,
- 		struct timezone __user *tz);
--asmlinkage long compat_sys_adjtimex(struct compat_timex __user *utp);
-+asmlinkage long compat_sys_adjtimex(struct old_timex32 __user *utp);
++struct __kernel_timex;
+ struct timezone;
+ struct tms;
+ struct utimbuf;
+@@ -695,7 +695,7 @@ asmlinkage long sys_gettimeofday(struct timeval __user *tv,
+ 				struct timezone __user *tz);
+ asmlinkage long sys_settimeofday(struct timeval __user *tv,
+ 				struct timezone __user *tz);
+-asmlinkage long sys_adjtimex(struct timex __user *txc_p);
++asmlinkage long sys_adjtimex(struct __kernel_timex __user *txc_p);
  
  /* kernel/timer.c */
- asmlinkage long compat_sys_sysinfo(struct compat_sysinfo __user *info);
-@@ -911,7 +880,7 @@ asmlinkage long compat_sys_open_by_handle_at(int mountdirfd,
- 					     struct file_handle __user *handle,
- 					     int flags);
- asmlinkage long compat_sys_clock_adjtime(clockid_t which_clock,
--					 struct compat_timex __user *tp);
-+					 struct old_timex32 __user *tp);
- asmlinkage long compat_sys_sendmmsg(int fd, struct compat_mmsghdr __user *mmsg,
- 				    unsigned vlen, unsigned int flags);
- asmlinkage ssize_t compat_sys_process_vm_readv(compat_pid_t pid,
-diff --git a/include/linux/time32.h b/include/linux/time32.h
-index 118b9977080c..820a22e2b98b 100644
---- a/include/linux/time32.h
-+++ b/include/linux/time32.h
-@@ -10,6 +10,7 @@
-  */
- 
- #include <linux/time64.h>
-+#include <linux/timex.h>
- 
- #define TIME_T_MAX	(time_t)((1UL << ((sizeof(time_t) << 3) - 1)) - 1)
- 
-@@ -35,13 +36,42 @@ struct old_utimbuf32 {
- 	old_time32_t	modtime;
- };
- 
-+struct old_timex32 {
-+	u32 modes;
-+	s32 offset;
-+	s32 freq;
-+	s32 maxerror;
-+	s32 esterror;
-+	s32 status;
-+	s32 constant;
-+	s32 precision;
-+	s32 tolerance;
-+	struct old_timeval32 time;
-+	s32 tick;
-+	s32 ppsfreq;
-+	s32 jitter;
-+	s32 shift;
-+	s32 stabil;
-+	s32 jitcnt;
-+	s32 calcnt;
-+	s32 errcnt;
-+	s32 stbcnt;
-+	s32 tai;
-+
-+	s32:32; s32:32; s32:32; s32:32;
-+	s32:32; s32:32; s32:32; s32:32;
-+	s32:32; s32:32; s32:32;
-+};
-+
- extern int get_old_timespec32(struct timespec64 *, const void __user *);
- extern int put_old_timespec32(const struct timespec64 *, void __user *);
- extern int get_old_itimerspec32(struct itimerspec64 *its,
- 			const struct old_itimerspec32 __user *uits);
- extern int put_old_itimerspec32(const struct itimerspec64 *its,
- 			struct old_itimerspec32 __user *uits);
--
-+struct timex;
-+int get_old_timex32(struct timex *, const struct old_timex32 __user *);
-+int put_old_timex32(struct old_timex32 __user *, const struct timex *);
- 
- #if __BITS_PER_LONG == 64
- 
-diff --git a/kernel/compat.c b/kernel/compat.c
-index f01affa17e22..d8a36c6ad7c9 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -20,7 +20,6 @@
- #include <linux/syscalls.h>
- #include <linux/unistd.h>
- #include <linux/security.h>
--#include <linux/timex.h>
- #include <linux/export.h>
- #include <linux/migrate.h>
- #include <linux/posix-timers.h>
-@@ -30,69 +29,6 @@
- 
- #include <linux/uaccess.h>
- 
--int compat_get_timex(struct timex *txc, const struct compat_timex __user *utp)
--{
--	struct compat_timex tx32;
--
--	memset(txc, 0, sizeof(struct timex));
--	if (copy_from_user(&tx32, utp, sizeof(struct compat_timex)))
--		return -EFAULT;
--
--	txc->modes = tx32.modes;
--	txc->offset = tx32.offset;
--	txc->freq = tx32.freq;
--	txc->maxerror = tx32.maxerror;
--	txc->esterror = tx32.esterror;
--	txc->status = tx32.status;
--	txc->constant = tx32.constant;
--	txc->precision = tx32.precision;
--	txc->tolerance = tx32.tolerance;
--	txc->time.tv_sec = tx32.time.tv_sec;
--	txc->time.tv_usec = tx32.time.tv_usec;
--	txc->tick = tx32.tick;
--	txc->ppsfreq = tx32.ppsfreq;
--	txc->jitter = tx32.jitter;
--	txc->shift = tx32.shift;
--	txc->stabil = tx32.stabil;
--	txc->jitcnt = tx32.jitcnt;
--	txc->calcnt = tx32.calcnt;
--	txc->errcnt = tx32.errcnt;
--	txc->stbcnt = tx32.stbcnt;
--
--	return 0;
--}
--
--int compat_put_timex(struct compat_timex __user *utp, const struct timex *txc)
--{
--	struct compat_timex tx32;
--
--	memset(&tx32, 0, sizeof(struct compat_timex));
--	tx32.modes = txc->modes;
--	tx32.offset = txc->offset;
--	tx32.freq = txc->freq;
--	tx32.maxerror = txc->maxerror;
--	tx32.esterror = txc->esterror;
--	tx32.status = txc->status;
--	tx32.constant = txc->constant;
--	tx32.precision = txc->precision;
--	tx32.tolerance = txc->tolerance;
--	tx32.time.tv_sec = txc->time.tv_sec;
--	tx32.time.tv_usec = txc->time.tv_usec;
--	tx32.tick = txc->tick;
--	tx32.ppsfreq = txc->ppsfreq;
--	tx32.jitter = txc->jitter;
--	tx32.shift = txc->shift;
--	tx32.stabil = txc->stabil;
--	tx32.jitcnt = txc->jitcnt;
--	tx32.calcnt = txc->calcnt;
--	tx32.errcnt = txc->errcnt;
--	tx32.stbcnt = txc->stbcnt;
--	tx32.tai = txc->tai;
--	if (copy_to_user(utp, &tx32, sizeof(struct compat_timex)))
--		return -EFAULT;
--	return 0;
--}
--
- static int __compat_get_timeval(struct timeval *tv, const struct old_timeval32 __user *ctv)
- {
- 	return (!access_ok(ctv, sizeof(*ctv)) ||
+ asmlinkage long sys_getpid(void);
+@@ -870,7 +870,7 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
+ 				      struct file_handle __user *handle,
+ 				      int flags);
+ asmlinkage long sys_clock_adjtime(clockid_t which_clock,
+-				struct timex __user *tx);
++				struct __kernel_timex __user *tx);
+ asmlinkage long sys_syncfs(int fd);
+ asmlinkage long sys_setns(int fd, int nstype);
+ asmlinkage long sys_sendmmsg(int fd, struct mmsghdr __user *msg,
 diff --git a/kernel/time/posix-timers.c b/kernel/time/posix-timers.c
-index 0e84bb72a3da..8955f32f2a36 100644
+index 2d84b3db1ade..de79f85ae14f 100644
 --- a/kernel/time/posix-timers.c
 +++ b/kernel/time/posix-timers.c
-@@ -1123,12 +1123,8 @@ COMPAT_SYSCALL_DEFINE2(clock_gettime, clockid_t, which_clock,
- 	return err;
+@@ -1060,7 +1060,7 @@ int do_clock_adjtime(const clockid_t which_clock, struct __kernel_timex * ktx)
  }
  
--#endif
--
--#ifdef CONFIG_COMPAT
--
- COMPAT_SYSCALL_DEFINE2(clock_adjtime, clockid_t, which_clock,
--		       struct compat_timex __user *, utp)
-+		       struct old_timex32 __user *, utp)
+ SYSCALL_DEFINE2(clock_adjtime, const clockid_t, which_clock,
+-		struct timex __user *, utx)
++		struct __kernel_timex __user *, utx)
  {
- 	const struct k_clock *kc = clockid_to_kclock(which_clock);
- 	struct timex ktx;
-@@ -1139,22 +1135,18 @@ COMPAT_SYSCALL_DEFINE2(clock_adjtime, clockid_t, which_clock,
- 	if (!kc->clock_adj)
- 		return -EOPNOTSUPP;
- 
--	err = compat_get_timex(&ktx, utp);
-+	err = get_old_timex32(&ktx, utp);
- 	if (err)
- 		return err;
- 
- 	err = kc->clock_adj(which_clock, &ktx);
- 
- 	if (err >= 0)
--		err = compat_put_timex(utp, &ktx);
-+		err = put_old_timex32(utp, &ktx);
- 
- 	return err;
- }
- 
--#endif
--
--#ifdef CONFIG_COMPAT_32BIT_TIME
--
- COMPAT_SYSCALL_DEFINE2(clock_getres, clockid_t, which_clock,
- 		       struct old_timespec32 __user *, tp)
- {
+ 	struct __kernel_timex ktx;
+ 	int err;
 diff --git a/kernel/time/time.c b/kernel/time/time.c
-index 2edb5088a70b..2d013bc2b271 100644
+index d179d33f639a..78b5c8f1495a 100644
 --- a/kernel/time/time.c
 +++ b/kernel/time/time.c
-@@ -278,20 +278,82 @@ SYSCALL_DEFINE1(adjtimex, struct timex __user *, txc_p)
- 	return copy_to_user(txc_p, &txc, sizeof(struct timex)) ? -EFAULT : ret;
+@@ -263,7 +263,8 @@ COMPAT_SYSCALL_DEFINE2(settimeofday, struct old_timeval32 __user *, tv,
  }
+ #endif
  
--#ifdef CONFIG_COMPAT
-+#ifdef CONFIG_COMPAT_32BIT_TIME
-+int get_old_timex32(struct timex *txc, const struct old_timex32 __user *utp)
-+{
-+	struct old_timex32 tx32;
-+
-+	memset(txc, 0, sizeof(struct timex));
-+	if (copy_from_user(&tx32, utp, sizeof(struct old_timex32)))
-+		return -EFAULT;
-+
-+	txc->modes = tx32.modes;
-+	txc->offset = tx32.offset;
-+	txc->freq = tx32.freq;
-+	txc->maxerror = tx32.maxerror;
-+	txc->esterror = tx32.esterror;
-+	txc->status = tx32.status;
-+	txc->constant = tx32.constant;
-+	txc->precision = tx32.precision;
-+	txc->tolerance = tx32.tolerance;
-+	txc->time.tv_sec = tx32.time.tv_sec;
-+	txc->time.tv_usec = tx32.time.tv_usec;
-+	txc->tick = tx32.tick;
-+	txc->ppsfreq = tx32.ppsfreq;
-+	txc->jitter = tx32.jitter;
-+	txc->shift = tx32.shift;
-+	txc->stabil = tx32.stabil;
-+	txc->jitcnt = tx32.jitcnt;
-+	txc->calcnt = tx32.calcnt;
-+	txc->errcnt = tx32.errcnt;
-+	txc->stbcnt = tx32.stbcnt;
-+
-+	return 0;
-+}
-+
-+int put_old_timex32(struct old_timex32 __user *utp, const struct timex *txc)
-+{
-+	struct old_timex32 tx32;
-+
-+	memset(&tx32, 0, sizeof(struct old_timex32));
-+	tx32.modes = txc->modes;
-+	tx32.offset = txc->offset;
-+	tx32.freq = txc->freq;
-+	tx32.maxerror = txc->maxerror;
-+	tx32.esterror = txc->esterror;
-+	tx32.status = txc->status;
-+	tx32.constant = txc->constant;
-+	tx32.precision = txc->precision;
-+	tx32.tolerance = txc->tolerance;
-+	tx32.time.tv_sec = txc->time.tv_sec;
-+	tx32.time.tv_usec = txc->time.tv_usec;
-+	tx32.tick = txc->tick;
-+	tx32.ppsfreq = txc->ppsfreq;
-+	tx32.jitter = txc->jitter;
-+	tx32.shift = txc->shift;
-+	tx32.stabil = txc->stabil;
-+	tx32.jitcnt = txc->jitcnt;
-+	tx32.calcnt = txc->calcnt;
-+	tx32.errcnt = txc->errcnt;
-+	tx32.stbcnt = txc->stbcnt;
-+	tx32.tai = txc->tai;
-+	if (copy_to_user(utp, &tx32, sizeof(struct old_timex32)))
-+		return -EFAULT;
-+	return 0;
-+}
- 
--COMPAT_SYSCALL_DEFINE1(adjtimex, struct compat_timex __user *, utp)
-+COMPAT_SYSCALL_DEFINE1(adjtimex, struct old_timex32 __user *, utp)
+-SYSCALL_DEFINE1(adjtimex, struct timex __user *, txc_p)
++#if !defined(CONFIG_64BIT_TIME) || defined(CONFIG_64BIT)
++SYSCALL_DEFINE1(adjtimex, struct __kernel_timex __user *, txc_p)
  {
- 	struct timex txc;
- 	int err, ret;
- 
--	err = compat_get_timex(&txc, utp);
-+	err = get_old_timex32(&txc, utp);
- 	if (err)
- 		return err;
- 
+ 	struct __kernel_timex txc;		/* Local copy of parameter */
+ 	int ret;
+@@ -277,6 +278,7 @@ SYSCALL_DEFINE1(adjtimex, struct timex __user *, txc_p)
  	ret = do_adjtimex(&txc);
+ 	return copy_to_user(txc_p, &txc, sizeof(struct __kernel_timex)) ? -EFAULT : ret;
+ }
++#endif
  
--	err = compat_put_timex(utp, &txc);
-+	err = put_old_timex32(utp, &txc);
- 	if (err)
- 		return err;
- 
+ #ifdef CONFIG_COMPAT_32BIT_TIME
+ int get_old_timex32(struct __kernel_timex *txc, const struct old_timex32 __user *utp)
 -- 
 2.20.0
