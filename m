@@ -1,16 +1,13 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 14/15] arch: add split IPC system calls where needed
-Date: Wed, 16 Jan 2019 11:10:16 +1100
-Message-ID: <871s5dzclz.fsf@concordia.ellerman.id.au>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 01/15] ia64: add __NR_umount2 definition
+Date: Thu, 10 Jan 2019 17:24:21 +0100
+Message-ID: <20190110162435.309262-2-arnd@arndb.de>
 References: <20190110162435.309262-1-arnd@arndb.de>
- <20190110162435.309262-15-arnd@arndb.de>
- <87pnsz28k2.fsf@concordia.ellerman.id.au>
- <CAK8P3a0uas76i2W1yjFvxHT-2=A8_egUZeAUM-Vya6386+87Xg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAK8P3a0uas76i2W1yjFvxHT-2=A8_egUZeAUM-Vya6386+87Xg@mail.gmail.com>
+In-Reply-To: <20190110162435.309262-1-arnd@arndb.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,75 +19,75 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Dominik Brodowski <linux@dominikbrodowski.net>, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Deepa Dinamani <deepa.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Davidlohr Bueso <dave@stgolabs.net>, y2038 Mailman List <y2038@lists.linaro.org>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Firoz Khan <firoz.khan@linaro.org>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>linux-
+To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, linux@dominikbrodowski.net, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, dave@stgolabs.net, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-m68k@lists.linux-m68k.org, ink@jurassic.park.msu.ru, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foundation.org, linuxppc-dev
 List-ID: <linux-s390.vger.kernel.org>
 
-Arnd Bergmann <arnd@arndb.de> writes:
-> On Mon, Jan 14, 2019 at 4:59 AM Michael Ellerman <mpe@ellerman.id.au> wrote:
->> Arnd Bergmann <arnd@arndb.de> writes:
->> >  arch/m68k/kernel/syscalls/syscall.tbl     | 11 +++++++++++
->> >  arch/mips/kernel/syscalls/syscall_o32.tbl | 11 +++++++++++
->> >  arch/powerpc/kernel/syscalls/syscall.tbl  | 12 ++++++++++++
->>
->> I have some changes I'd like to make to our syscall table that will
->> clash with this.
->>
->> I'll try and send them today.
->
-> Ok. Are those for 5.0 or 5.1? If they are intended for 5.0, it would be
-> nice for me to have a branch based on 5.0-rc1 that I can put
-> the other patches on top of.
+Other architectures commonly use __NR_umount2 for sys_umount,
+only ia64 and alpha use __NR_umount here. In order to synchronize
+the generated tables, use umount2 like everyone else, and add back
+the old name from asm/unistd.h for compatibility.
 
-For 5.1.
+The __IGNORE_* lines are now all obsolete and can be removed as
+a side-effect.
 
-I can put them in a topic branch for you.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/ia64/include/asm/unistd.h        | 14 --------------
+ arch/ia64/include/uapi/asm/unistd.h   |  2 ++
+ arch/ia64/kernel/syscalls/syscall.tbl |  2 +-
+ 3 files changed, 3 insertions(+), 15 deletions(-)
 
->> > diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
->> > index db3bbb8744af..1bffab54ff35 100644
->> > --- a/arch/powerpc/kernel/syscalls/syscall.tbl
->> > +++ b/arch/powerpc/kernel/syscalls/syscall.tbl
->> > @@ -425,3 +425,15 @@
->> >  386  nospu   pkey_mprotect                   sys_pkey_mprotect
->> >  387  nospu   rseq                            sys_rseq
->> >  388  nospu   io_pgetevents                   sys_io_pgetevents               compat_sys_io_pgetevents
->> > +# room for arch specific syscalls
->> > +392  64      semtimedop                      sys_semtimedop
->> > +393  common  semget                          sys_semget
->> > +394  common  semctl                          sys_semctl                      compat_sys_semctl
->> > +395  common  shmget                          sys_shmget
->> > +396  common  shmctl                          sys_shmctl                      compat_sys_shmctl
->> > +397  common  shmat                           sys_shmat                       compat_sys_shmat
->> > +398  common  shmdt                           sys_shmdt
->> > +399  common  msgget                          sys_msgget
->> > +400  common  msgsnd                          sys_msgsnd                      compat_sys_msgsnd
->> > +401  common  msgrcv                          sys_msgrcv                      compat_sys_msgrcv
->> > +402  common  msgctl                          sys_msgctl                      compat_sys_msgctl
->>
->> We already have a gap at 366-377 from when we tried to add the split IPC
->> calls a few years back.
->>
->> I guess I don't mind leaving that gap and using the common numbers as
->> you've done here.
->>
->> But it would be good to add a comment pointing out that we have room
->> at 366 for more arch specific syscalls as well.
->
-> Ah, I missed that. I've added this to my patch now:
->
-> index 5c0936d862fc..2ddfba536d5f 100644
-> --- a/arch/powerpc/kernel/syscalls/syscall.tbl
-> +++ b/arch/powerpc/kernel/syscalls/syscall.tbl
-> @@ -460,6 +460,7 @@
->  363    spu     switch_endian                   sys_ni_syscall
->  364    common  userfaultfd                     sys_userfaultfd
->  365    common  membarrier                      sys_membarrier
-> +# 366-377 originally left for IPC, now unused
->  378    nospu   mlock2                          sys_mlock2
->  379    nospu   copy_file_range                 sys_copy_file_range
->  380    common  preadv2                         sys_preadv2
->          compat_sys_preadv2
-
-Thanks.
-
-cheers
+diff --git a/arch/ia64/include/asm/unistd.h b/arch/ia64/include/asm/unistd.h
+index 0b08ebd2dfde..9ba6110b10b9 100644
+--- a/arch/ia64/include/asm/unistd.h
++++ b/arch/ia64/include/asm/unistd.h
+@@ -12,20 +12,6 @@
+ 
+ #define NR_syscalls		__NR_syscalls /* length of syscall table */
+ 
+-/*
+- * The following defines stop scripts/checksyscalls.sh from complaining about
+- * unimplemented system calls.  Glibc provides for each of these by using
+- * more modern equivalent system calls.
+- */
+-#define __IGNORE_fork		/* clone() */
+-#define __IGNORE_time		/* gettimeofday() */
+-#define __IGNORE_alarm		/* setitimer(ITIMER_REAL, ... */
+-#define __IGNORE_pause		/* rt_sigprocmask(), rt_sigsuspend() */
+-#define __IGNORE_utime		/* utimes() */
+-#define __IGNORE_getpgrp	/* getpgid() */
+-#define __IGNORE_vfork		/* clone() */
+-#define __IGNORE_umount2	/* umount() */
+-
+ #define __ARCH_WANT_NEW_STAT
+ #define __ARCH_WANT_SYS_UTIME
+ 
+diff --git a/arch/ia64/include/uapi/asm/unistd.h b/arch/ia64/include/uapi/asm/unistd.h
+index b2513922dcb5..013e0bcacc39 100644
+--- a/arch/ia64/include/uapi/asm/unistd.h
++++ b/arch/ia64/include/uapi/asm/unistd.h
+@@ -15,6 +15,8 @@
+ 
+ #define __NR_Linux      1024
+ 
++#define __NR_umount __NR_umount2
++
+ #include <asm/unistd_64.h>
+ 
+ #endif /* _UAPI_ASM_IA64_UNISTD_H */
+diff --git a/arch/ia64/kernel/syscalls/syscall.tbl b/arch/ia64/kernel/syscalls/syscall.tbl
+index b22203b40bfe..e97caf51be42 100644
+--- a/arch/ia64/kernel/syscalls/syscall.tbl
++++ b/arch/ia64/kernel/syscalls/syscall.tbl
+@@ -29,7 +29,7 @@
+ 17	common	getpid				sys_getpid
+ 18	common	getppid				sys_getppid
+ 19	common	mount				sys_mount
+-20	common	umount				sys_umount
++20	common	umount2				sys_umount
+ 21	common	setuid				sys_setuid
+ 22	common	getuid				sys_getuid
+ 23	common	geteuid				sys_geteuid
+-- 
+2.20.0
