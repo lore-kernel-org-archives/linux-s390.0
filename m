@@ -1,72 +1,123 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Thu, 10 Jan 2019 15:41:40 +0000
-Subject: [kvm-unit-tests PATCH v5 00/11] s390x: Add cross hypervisor and disk boot
-Message-Id: <20190110154151.24233-1-frankja@linux.ibm.com>
+Date: Thu, 10 Jan 2019 15:41:42 +0000
+Subject: [kvm-unit-tests PATCH v5 02/11] s390x: Rename and cleanup sclp-ascii.c
+Message-Id: <20190110154151.24233-3-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-With these patches kvm unit tests are now bootable under LPAR and
-z/VM, as well as from KVM disks.
+Let's rename to the more fitting name sclp-console.c and fix some
+indentation problems.
 
-For this to work we added:
-    * Initial PSW in lowcore
-    * Switch to 64 bit and z/Arch
-    * SCLP linemode console
-    * Binary generation in Makefile
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+---
+ lib/s390x/io.c                             |  2 +-
+ lib/s390x/{sclp-ascii.c => sclp-console.c} | 38 +++++++++++++++---------------
+ lib/s390x/sclp.h                           |  2 +-
+ s390x/Makefile                             |  2 +-
+ 4 files changed, 22 insertions(+), 22 deletions(-)
+ rename lib/s390x/{sclp-ascii.c => sclp-console.c} (54%)
 
-v5:
-	* Cleaned up linemode
-	* Minor fixups and squash of sclp int and lock patches
-	* Removed time patches, added phys alloc setup
-
-v4:
-	* Added sigp header file
-	* Moved clearing to xgr instead of lm
-	* Minor renames, comment additions
-
-v3:
-	* Rebased on David's SCLP fixes
-	* Added binary generation make command
-	* Split up cleanup and sclp common movement
-	* Fixed whitespace problems
-	* Added more comments
-	* Added linemode buffer to get rid of line splits
-
-v2:
-	* Moved cleanup to the front and broadened patch
-	* Split up SCLP patch into interrupt and linemode
-	* Removed unneeded instructions
-	* Improved comments and commit messages
-
-Janosch Frank (11):
-  s390x: Add Sigp header file
-  s390x: Rename and cleanup sclp-ascii.c
-  s390x: Make tests bootable from disk
-  s390x: Switch to z/Arch and enable 64 bit addressing mode
-  s390x: Add BSS clearing for non ELF boot
-  s390x: Move common sclp data and functions to sclp.c
-  s390x: Use interrupts in SCLP and add locking
-  s390x: Add linemode console
-  s390x: Add binary generation to makefile
-  s390x: Add linemode buffer to fix newline on every print
-  s390x: Initialize the physical allocator on mem init
-
- lib/s390x/asm/arch_def.h  |   1 +
- lib/s390x/asm/interrupt.h |   2 +
- lib/s390x/asm/sigp.h      |  60 +++++++++++++
- lib/s390x/interrupt.c     |  12 ++-
- lib/s390x/io.c            |  13 +--
- lib/s390x/sclp-ascii.c    |  68 --------------
- lib/s390x/sclp-console.c  | 225 ++++++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/sclp.c          |  83 ++++++++++++++++-
- lib/s390x/sclp.h          |  62 ++++++++++++-
- s390x/Makefile            |  11 ++-
- s390x/cstart64.S          |  41 ++++++++-
- s390x/flat.lds            |  15 +++-
- 12 files changed, 500 insertions(+), 93 deletions(-)
- create mode 100644 lib/s390x/asm/sigp.h
- delete mode 100644 lib/s390x/sclp-ascii.c
- create mode 100644 lib/s390x/sclp-console.c
-
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index fd33623..becadfc 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -35,7 +35,7 @@ void setup(void)
+ {
+ 	setup_args_progname(ipl_args);
+ 	setup_facilities();
+-	sclp_ascii_setup();
++	sclp_console_setup();
+ 	sclp_memory_setup();
+ }
+ 
+diff --git a/lib/s390x/sclp-ascii.c b/lib/s390x/sclp-console.c
+similarity index 54%
+rename from lib/s390x/sclp-ascii.c
+rename to lib/s390x/sclp-console.c
+index 893ca17..deacbde 100644
+--- a/lib/s390x/sclp-ascii.c
++++ b/lib/s390x/sclp-console.c
+@@ -35,34 +35,34 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 
+ static void sclp_set_write_mask(void)
+ {
+-    WriteEventMask *sccb = (void *)_sccb;
++	WriteEventMask *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventMask);
+-    sccb->mask_length = sizeof(unsigned int);
+-    sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->h.length = sizeof(WriteEventMask);
++	sccb->mask_length = sizeof(unsigned int);
++	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
+ }
+ 
+-void sclp_ascii_setup(void)
++void sclp_console_setup(void)
+ {
+-    sclp_set_write_mask();
++	sclp_set_write_mask();
+ }
+ 
+ void sclp_print(const char *str)
+ {
+-    int len = strlen(str);
+-    WriteEventData *sccb = (void *)_sccb;
++	int len = strlen(str);
++	WriteEventData *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventData) + len;
+-    sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+-    sccb->ebh.length = sizeof(EventBufferHeader) + len;
+-    sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
+-    sccb->ebh.flags = 0;
+-    memcpy(sccb->data, str, len);
++	sccb->h.length = sizeof(WriteEventData) + len;
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->ebh.length = sizeof(EventBufferHeader) + len;
++	sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
++	sccb->ebh.flags = 0;
++	memcpy(sccb->data, str, len);
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
+ }
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 629e9e2..4c60061 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -212,7 +212,7 @@ typedef struct ReadEventData {
+     uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
+-void sclp_ascii_setup(void);
++void sclp_console_setup(void);
+ void sclp_print(const char *str);
+ extern char _sccb[];
+ int sclp_service_call(unsigned int command, void *sccb);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 8ba2b92..ede2961 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -38,7 +38,7 @@ cflatobjs += lib/alloc_phys.o
+ cflatobjs += lib/s390x/io.o
+ cflatobjs += lib/s390x/stack.o
+ cflatobjs += lib/s390x/sclp.o
+-cflatobjs += lib/s390x/sclp-ascii.o
++cflatobjs += lib/s390x/sclp-console.o
+ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ 
 -- 
 2.14.3
