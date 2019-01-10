@@ -1,50 +1,77 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Date: Mon, 07 Jan 2019 15:33:50 +0000
-Subject: Re: [PATCH 1/1] s390/virtio: handle find on invalid queue gracefully
-Message-Id: <20190107163350.3f220041@oc2783563651>
-In-Reply-To: <20190107160632.06b6f624.cohuck@redhat.com>
-References: <20190107160632.06b6f624.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Date: Thu, 10 Jan 2019 12:11:57 +0000
+Subject: Re: [kvm-unit-tests PATCH v4 11/13] s390x: Add sclp busy indication locking
+Message-Id: <3c8eb265-dbe0-dab1-af9c-f4d65980a569@redhat.com>
+In-Reply-To: <20190103100806.9039-12-frankja@linux.ibm.com>
+References: <20190103100806.9039-12-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 7 Jan 2019 16:06:32 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+On 03.01.19 11:08, Janosch Frank wrote:
+> With smp CPUs have to compete for sclp. Let's add some locking, so
+> they execute sclp calls in an orderly fashion.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/sclp.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 817c692..947a533 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -15,6 +15,7 @@
+>  #include <asm/arch_def.h>
+>  #include <asm/interrupt.h>
+>  #include <asm/barrier.h>
+> +#include <asm/spinlock.h>
+>  #include "sclp.h"
+>  #include <alloc_phys.h>
+>  
+> @@ -26,6 +27,7 @@ static uint64_t ram_size;
+>  
+>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>  static volatile bool sclp_busy;
+> +static struct spinlock sclp_lock;
+>  
+>  static void mem_init(phys_addr_t mem_end)
+>  {
+> @@ -48,7 +50,9 @@ static void sclp_setup_int(void)
+>  void sclp_handle_ext(void)
+>  {
+>  	ctl_clear_bit(0, 9);
+> +	spin_lock(&sclp_lock);
+>  	sclp_busy = false;
+> +	spin_unlock(&sclp_lock);
+>  }
+>  
+>  void sclp_wait_busy(void)
+> @@ -59,7 +63,19 @@ void sclp_wait_busy(void)
+>  
+>  void sclp_mark_busy(void)
+>  {
+> +	/*
+> +	 * With multiple CPUs we might need to wait for another CPU's
+> +	 * request before grabbing the busy indication.
+> +	 */
+> +retry_wait:
+> +	sclp_wait_busy();
+> +	spin_lock(&sclp_lock);
+> +	if (sclp_busy) {
+> +		spin_unlock(&sclp_lock);
+> +		goto retry_wait;
+> +	}
+>  	sclp_busy = true;
+> +	spin_unlock(&sclp_lock);
+>  }
+>  
+>  static void sclp_read_scp_info(ReadInfo *ri, int length)
+> 
 
-> On Mon,  7 Jan 2019 13:31:46 +0100
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
-> > A queue with a capacity of zero is clearly not a valid virtio queue.
-> > Some emulators report zero queue size if queried with an invalid queue
-> > index. Instead of crashing in this case let us just return -EINVAL. To
-> 
-> s/-EINVAL/-ENOENT/
-> 
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-So I did forget something, again. :/ Thanks for spotting it!
+-- 
 
-> > make that work properly, let us fix the notifier cleanup logic as well.
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> > This patch is motivated by commit 86a5597 "virtio-balloon:
-> > VIRTIO_BALLOON_F_FREE_PAGE_HINT" (Wei Wang, 2018-08-27) which triggered
-> > the described scenario.  The emulator in question is the current QEMU.
-> > The problem we run into is the underflow in the following loop
-> > in  __vring_new_virtqueue():
-> > for (i = 0; i < vring.num-1; i++)
-> > 	vq->vring.desc[i].next = cpu_to_virtio16(vdev, i + 1)
-> > Namely vring.num is an unsigned int.
-> > 
-> > RFC --> v1:
-> > * Change error code from -EINVAL to -ENOENT, so we are in line with the
-> > other transports.
-> > * Push down the detection of the error into virtio_ccw_read_vq_conf().
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> Thanks, applied.
-> 
+Thanks,
 
-Thanks!
-Halil
+David / dhildenb
