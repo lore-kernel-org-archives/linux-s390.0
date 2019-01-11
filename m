@@ -1,69 +1,228 @@
-From: Thomas Huth <thuth@redhat.com>
-Date: Fri, 11 Jan 2019 09:02:56 +0000
-Subject: Re: [kvm-unit-tests PATCH v5 03/11] s390x: Make tests bootable from disk
-Message-Id: <39a186ed-e7f3-e33b-9cef-38ddc11ea424@redhat.com>
-In-Reply-To: <20190110154151.24233-4-frankja@linux.ibm.com>
-References: <20190110154151.24233-4-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Date: Fri, 11 Jan 2019 09:11:00 +0000
+Subject: Re: [kvm-unit-tests PATCH v5 07/11] s390x: Use interrupts in SCLP and add locking
+Message-Id: <453589d1-56b0-44cf-d02f-00bda6c15a30@redhat.com>
+In-Reply-To: <20190110154151.24233-8-frankja@linux.ibm.com>
+References: <20190110154151.24233-8-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2019-01-10 16:41, Janosch Frank wrote:
-> Currently tests are run with the --kernel option of Qemu, which will
-> load the ELF file and jump to the start address. When booting from
-> disk, we need to specify a start address. This is done by setting the
-> initial short PSW at 0x0.
+On 10.01.19 16:41, Janosch Frank wrote:
+> We need to properly implement interrupt handling for SCLP, because on
+> z/VM and LPAR SCLP calls are not synchronous!
 > 
-> .text was moved to 0x11000 because the bootloader can write from
-> 0x10480 until 0x11000 if it has a lot to write. 0x10480 to 0x10600 was
-> not enough safe space.
+> Also with smp CPUs have to compete for sclp. Let's add some locking,
+> so they execute sclp calls in an orderly fashion and don't compete for
+> the data buffer.
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
 > ---
->  s390x/cstart64.S |  8 +++++++-
->  s390x/flat.lds   | 13 ++++++++++++-
->  2 files changed, 19 insertions(+), 2 deletions(-)
+>  lib/s390x/asm/arch_def.h  |  1 +
+>  lib/s390x/asm/interrupt.h |  2 ++
+>  lib/s390x/interrupt.c     | 12 +++++++++--
+>  lib/s390x/sclp-console.c  |  2 ++
+>  lib/s390x/sclp.c          | 54 +++++++++++++++++++++++++++++++++++++++++++++--
+>  lib/s390x/sclp.h          |  3 +++
+>  6 files changed, 70 insertions(+), 4 deletions(-)
 > 
-> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index dc7ddd6..385915e 100644
-> --- a/s390x/cstart64.S
-> +++ b/s390x/cstart64.S
-> @@ -14,7 +14,13 @@
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index d2cd727..4bbb428 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -15,6 +15,7 @@ struct psw {
+>  	uint64_t	addr;
+>  };
 >  
->  .section .init
+> +#define PSW_MASK_EXT			0x0100000000000000UL
+>  #define PSW_MASK_DAT			0x0400000000000000UL
+>  #define PSW_MASK_PSTATE			0x0001000000000000UL
 >  
-> -/* entry point - for KVM + TCG we directly start in 64 bit mode */
-> +/*
-> + * Short init between 0x10000 and 0x10480 and then jump to 0x11000.
-> + * 0x10480 - 0x11000 are written to by bootloader.
-> + *
-> + * For KVM and TCG kernel boot we are in 64 bit z/Arch mode.
-> + * When booting from disk the initial short psw is in 31 bit mode.
-> + */
->  	.globl start
->  start:
->  	/* setup stack */
-> diff --git a/s390x/flat.lds b/s390x/flat.lds
-> index b6e2172..977af7c 100644
-> --- a/s390x/flat.lds
-> +++ b/s390x/flat.lds
-> @@ -1,10 +1,21 @@
->  SECTIONS
+> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> index 013709f..f485e96 100644
+> --- a/lib/s390x/asm/interrupt.h
+> +++ b/lib/s390x/asm/interrupt.h
+> @@ -11,6 +11,8 @@
+>  #define _ASMS390X_IRQ_H_
+>  #include <asm/arch_def.h>
+>  
+> +#define EXT_IRQ_SERVICE_SIG	0x2401
+> +
+>  void handle_pgm_int(void);
+>  void handle_ext_int(void);
+>  void handle_mcck_int(void);
+> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> index cf0a794..7832711 100644
+> --- a/lib/s390x/interrupt.c
+> +++ b/lib/s390x/interrupt.c
+> @@ -12,6 +12,7 @@
+>  #include <libcflat.h>
+>  #include <asm/interrupt.h>
+>  #include <asm/barrier.h>
+> +#include <sclp.h>
+>  
+>  static bool pgm_int_expected;
+>  static struct lowcore *lc;
+> @@ -107,8 +108,15 @@ void handle_pgm_int(void)
+>  
+>  void handle_ext_int(void)
 >  {
-> +	/*
-> +	 * Initial short psw for disk boot, with 31 bit addressing for
-> +	 * non z/Arch environment compatibility and the instruction
-> +	 * address 0x10000 (cstart64.S .init).
-> +	 */
-> +	.lowcore : {
-> +		. = 0;
-> +		 LONG(0x00080000)
-> +		 LONG(0x80010000)
+> -	report_abort("Unexpected external call interrupt: at %#lx",
+> -		     lc->ext_old_psw.addr);
+> +	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+> +		report_abort("Unexpected external call interrupt: at %#lx",
+> +			     lc->ext_old_psw.addr);
+> +	} else {
+> +		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+> +		lc->sw_int_cr0 &= ~(1UL << 9);
+> +		sclp_handle_ext();
+> +		lc->ext_int_code = 0;
 > +	}
-> +	. = 0x10000;
+>  }
+>  
+>  void handle_mcck_int(void)
+> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+> index bc01f41..a5ef45f 100644
+> --- a/lib/s390x/sclp-console.c
+> +++ b/lib/s390x/sclp-console.c
+> @@ -17,6 +17,7 @@ static void sclp_set_write_mask(void)
+>  {
+>  	WriteEventMask *sccb = (void *)_sccb;
+>  
+> +	sclp_mark_busy();
+>  	sccb->h.length = sizeof(WriteEventMask);
+>  	sccb->mask_length = sizeof(unsigned int);
+>  	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+> @@ -37,6 +38,7 @@ void sclp_print(const char *str)
+>  	int len = strlen(str);
+>  	WriteEventData *sccb = (void *)_sccb;
+>  
+> +	sclp_mark_busy();
+>  	sccb->h.length = sizeof(WriteEventData) + len;
+>  	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+>  	sccb->ebh.length = sizeof(EventBufferHeader) + len;
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 7f556e5..e14f25d 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -14,6 +14,8 @@
+>  #include <asm/page.h>
+>  #include <asm/arch_def.h>
+>  #include <asm/interrupt.h>
+> +#include <asm/barrier.h>
+> +#include <asm/spinlock.h>
+>  #include "sclp.h"
+>  #include <alloc_phys.h>
+>  
+> @@ -24,6 +26,8 @@ static uint64_t max_ram_size;
+>  static uint64_t ram_size;
+>  
+>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+> +static volatile bool sclp_busy;
+> +static struct spinlock sclp_lock;
+>  
+>  static void mem_init(phys_addr_t mem_end)
+>  {
+> @@ -32,17 +36,61 @@ static void mem_init(phys_addr_t mem_end)
+>  	phys_alloc_init(freemem_start, mem_end - freemem_start);
+>  }
+>  
+> +static void sclp_setup_int(void)
+> +{
+> +	uint64_t mask;
+> +
+> +	ctl_set_bit(0, 9);
+> +
+> +	mask = extract_psw_mask();
+> +	mask |= PSW_MASK_EXT;
+> +	load_psw_mask(mask);
+> +}
+> +
+> +void sclp_handle_ext(void)
+> +{
+> +	ctl_clear_bit(0, 9);
+> +	spin_lock(&sclp_lock);
+> +	sclp_busy = false;
+> +	spin_unlock(&sclp_lock);
+> +}
+> +
+> +void sclp_wait_busy(void)
+> +{
+> +	while (sclp_busy)
+> +		mb();
+> +}
+> +
+> +void sclp_mark_busy(void)
+> +{
+> +	/*
+> +	 * With multiple CPUs we might need to wait for another CPU's
+> +	 * request before grabbing the busy indication.
+> +	 */
+> +retry_wait:
+> +	sclp_wait_busy();
+> +	spin_lock(&sclp_lock);
+> +	if (sclp_busy) {
+> +		spin_unlock(&sclp_lock);
+> +		goto retry_wait;
+> +	}
+> +	sclp_busy = true;
+> +	spin_unlock(&sclp_lock);
+> +}
+> +
+>  static void sclp_read_scp_info(ReadInfo *ri, int length)
+>  {
+>  	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
+>  				    SCLP_CMDW_READ_SCP_INFO };
+> -	int i;
+> +	int i, cc;
+>  
+>  	for (i = 0; i < ARRAY_SIZE(commands); i++) {
+>  		memset(&ri->h, 0, sizeof(ri->h));
+>  		ri->h.length = length;
 
-In case you respin: I think we could/should remove the "-Ttext=0x10000"
-from the s390x/Makefile now.
+We already write to the sccb although we haven't marked it busy yet.
 
- Thomas
+>  
+> -		if (sclp_service_call(commands[i], ri))
+> +		sclp_mark_busy();
+> +		cc = sclp_service_call(commands[i], ri);
+> +		if (cc)
+>  			break;
+>  		if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
+>  			return;
+> @@ -57,12 +105,14 @@ int sclp_service_call(unsigned int command, void *sccb)
+>  {
+>  	int cc;
+>  
+> +	sclp_setup_int();
+>  	asm volatile(
+>  		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+>  		"       ipm     %0\n"
+>  		"       srl     %0,28"
+>  		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+>  		: "cc", "memory");
+> +	sclp_wait_busy();
+>  	if (cc == 3)
+>  		return -1;
+>  	if (cc == 2)
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 583c4e5..63cf609 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -213,6 +213,9 @@ typedef struct ReadEventData {
+>  } __attribute__((packed)) ReadEventData;
+>  
+>  extern char _sccb[];
+> +void sclp_handle_ext(void);
+> +void sclp_wait_busy(void);
+> +void sclp_mark_busy(void);
+>  void sclp_console_setup(void);
+>  void sclp_print(const char *str);
+>  int sclp_service_call(unsigned int command, void *sccb);
+> 
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
