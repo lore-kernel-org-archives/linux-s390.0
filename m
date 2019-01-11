@@ -1,109 +1,102 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 06/11] timex: change syscalls to use struct __kernel_timex
-Date: Thu, 10 Jan 2019 18:22:11 +0100
-Message-ID: <20190110172216.313063-7-arnd@arndb.de>
-References: <20190110172216.313063-1-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190110172216.313063-1-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-api/>
-List-Post: <mailto:linux-api@vger.kernel.org>
-To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, benh@kernel.crashing.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-fsdevel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akp
+Return-Path: <SRS0=uvhX=PT=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 11 Jan 2019 17:07:11 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH v1] s390/smp: Fix calling smp_call_ipl_cpu() from ipl
+ CPU
+In-Reply-To: <20190111141822.17262-1-david@redhat.com>
+References: <20190111141822.17262-1-david@redhat.com>
+MIME-Version: 1.0
+Message-Id: <20190111170711.21059fe7@mschwideX1>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Cornelia Huck <cohuck@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Deepa Dinamani <deepa.kernel@gmail.com>
+On Fri, 11 Jan 2019 15:18:22 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-struct timex is not y2038 safe.
-Switch all the syscall apis to use y2038 safe __kernel_timex.
+> When calling smp_call_ipl_cpu() from the IPL CPU, we will try to read
+> from pcpu_devices->lowcore. However, due to prefixing, that will result
+> in reading from absolute address 0 on that CPU. We have to go via the
+> actual lowcore instead.
+> 
+> This means that right now, we will read lc->nodat_stack == 0 and
+> therfore work on a very wrong stack.
+> 
+> This BUG essentially broke rebooting under QEMU TCG (which will report
+> a low address protection exception). And checking under KVM, it is
+> also broken under KVM. With 1 VCPU it can be easily triggered.
+> 
+> :/# echo 1 > /proc/sys/kernel/sysrq
+> :/# echo b > /proc/sysrq-trigger
+> [   28.476745] sysrq: SysRq : Resetting
+> [   28.476793] Kernel stack overflow.
+> [   28.476817] CPU: 0 PID: 424 Comm: sh Not tainted 5.0.0-rc1+ #13
+> [   28.476820] Hardware name: IBM 2964 NE1 716 (KVM/Linux)
+> [   28.476826] Krnl PSW : 0400c00180000000 0000000000115c0c (pcpu_delegate+0x12c/0x140)
+> [   28.476861]            R:0 T:1 IO:0 EX:0 Key:0 M:0 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+> [   28.476863] Krnl GPRS: ffffffffffffffff 0000000000000000 000000000010dff8 0000000000000000
+> [   28.476864]            0000000000000000 0000000000000000 0000000000ab7090 000003e0006efbf0
+> [   28.476864]            000000000010dff8 0000000000000000 0000000000000000 0000000000000000
+> [   28.476865]            000000007fffc000 0000000000730408 000003e0006efc58 0000000000000000
+> [   28.476887] Krnl Code: 0000000000115bfe: 4170f000            la      %r7,0(%r15)
+> [   28.476887]            0000000000115c02: 41f0a000            la      %r15,0(%r10)
+> [   28.476887]           #0000000000115c06: e370f0980024        stg     %r7,152(%r15)
+> [   28.476887]           >0000000000115c0c: c0e5fffff86e        brasl   %r14,114ce8
+> [   28.476887]            0000000000115c12: 41f07000            la      %r15,0(%r7)
+> [   28.476887]            0000000000115c16: a7f4ffa8            brc     15,115b66
+> [   28.476887]            0000000000115c1a: 0707                bcr     0,%r7
+> [   28.476887]            0000000000115c1c: 0707                bcr     0,%r7
+> [   28.476901] Call Trace:
+> [   28.476902] Last Breaking-Event-Address:
+> [   28.476920]  [<0000000000a01c4a>] arch_call_rest_init+0x22/0x80
+> [   28.476927] Kernel panic - not syncing: Corrupt kernel stack, can't continue.
+> [   28.476930] CPU: 0 PID: 424 Comm: sh Not tainted 5.0.0-rc1+ #13
+> [   28.476932] Hardware name: IBM 2964 NE1 716 (KVM/Linux)
+> [   28.476932] Call Trace:
+> 
+> Reported-by: Cornelia Huck <cohuck@redhat.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/kernel/smp.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+> index f82b3d3c36e2..be32dd0b4191 100644
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -381,8 +381,13 @@ void smp_call_online_cpu(void (*func)(void *), void *data)
+>   */
+>  void smp_call_ipl_cpu(void (*func)(void *), void *data)
+>  {
+> +	struct lowcore *lc = pcpu_devices->lowcore;
+> +
+> +	if (pcpu_devices[0].address == stap())
+> +		lc = &S390_lowcore;
+> +
+>  	pcpu_delegate(&pcpu_devices[0], func, data,
+> -		      pcpu_devices->lowcore->nodat_stack);
+> +		      lc->nodat_stack);
+>  }
+> 
+>  int smp_find_processor_id(u16 address)
 
-Note that sys_adjtimex() does not have a y2038 safe solution.  C libraries
-can implement it by calling clock_adjtime(CLOCK_REALTIME, ...).
+Uhh, subtle. With EDAT-1 this sort of works because the lowcore of CPU #0
+is allocated in an area of the kernel address space that is backed with 1M
+pages. It is nevertheless broken.
 
-Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- include/linux/syscalls.h   | 6 +++---
- kernel/time/posix-timers.c | 2 +-
- kernel/time/time.c         | 4 +++-
- 3 files changed, 7 insertions(+), 5 deletions(-)
+I have added
+Fixes: 2f859d0dad81 ("s390/smp: reduce size of struct pcpu")                    
+Cc: stable@vger.kernel.org # 4.0+                                               
 
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 8e86d9623d4e..394e8db7e57e 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -54,7 +54,7 @@ struct __sysctl_args;
- struct sysinfo;
- struct timespec;
- struct timeval;
--struct timex;
-+struct __kernel_timex;
- struct timezone;
- struct tms;
- struct utimbuf;
-@@ -695,7 +695,7 @@ asmlinkage long sys_gettimeofday(struct timeval __user *tv,
- 				struct timezone __user *tz);
- asmlinkage long sys_settimeofday(struct timeval __user *tv,
- 				struct timezone __user *tz);
--asmlinkage long sys_adjtimex(struct timex __user *txc_p);
-+asmlinkage long sys_adjtimex(struct __kernel_timex __user *txc_p);
- 
- /* kernel/timer.c */
- asmlinkage long sys_getpid(void);
-@@ -870,7 +870,7 @@ asmlinkage long sys_open_by_handle_at(int mountdirfd,
- 				      struct file_handle __user *handle,
- 				      int flags);
- asmlinkage long sys_clock_adjtime(clockid_t which_clock,
--				struct timex __user *tx);
-+				struct __kernel_timex __user *tx);
- asmlinkage long sys_syncfs(int fd);
- asmlinkage long sys_setns(int fd, int nstype);
- asmlinkage long sys_sendmmsg(int fd, struct mmsghdr __user *msg,
-diff --git a/kernel/time/posix-timers.c b/kernel/time/posix-timers.c
-index 2d84b3db1ade..de79f85ae14f 100644
---- a/kernel/time/posix-timers.c
-+++ b/kernel/time/posix-timers.c
-@@ -1060,7 +1060,7 @@ int do_clock_adjtime(const clockid_t which_clock, struct __kernel_timex * ktx)
- }
- 
- SYSCALL_DEFINE2(clock_adjtime, const clockid_t, which_clock,
--		struct timex __user *, utx)
-+		struct __kernel_timex __user *, utx)
- {
- 	struct __kernel_timex ktx;
- 	int err;
-diff --git a/kernel/time/time.c b/kernel/time/time.c
-index d179d33f639a..78b5c8f1495a 100644
---- a/kernel/time/time.c
-+++ b/kernel/time/time.c
-@@ -263,7 +263,8 @@ COMPAT_SYSCALL_DEFINE2(settimeofday, struct old_timeval32 __user *, tv,
- }
- #endif
- 
--SYSCALL_DEFINE1(adjtimex, struct timex __user *, txc_p)
-+#if !defined(CONFIG_64BIT_TIME) || defined(CONFIG_64BIT)
-+SYSCALL_DEFINE1(adjtimex, struct __kernel_timex __user *, txc_p)
- {
- 	struct __kernel_timex txc;		/* Local copy of parameter */
- 	int ret;
-@@ -277,6 +278,7 @@ SYSCALL_DEFINE1(adjtimex, struct timex __user *, txc_p)
- 	ret = do_adjtimex(&txc);
- 	return copy_to_user(txc_p, &txc, sizeof(struct __kernel_timex)) ? -EFAULT : ret;
- }
-+#endif
- 
- #ifdef CONFIG_COMPAT_32BIT_TIME
- int get_old_timex32(struct __kernel_timex *txc, const struct old_timex32 __user *utp)
+and will queue the patch for the next pull. Thanks!
+
 -- 
-2.20.0
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
