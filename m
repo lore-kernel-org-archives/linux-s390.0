@@ -1,223 +1,97 @@
 From: David Hildenbrand <david@redhat.com>
-Date: Fri, 11 Jan 2019 09:11:00 +0000
-Subject: Re: [kvm-unit-tests PATCH v5 07/11] s390x: Use interrupts in SCLP and add locking
-Message-Id: <453589d1-56b0-44cf-d02f-00bda6c15a30@redhat.com>
-In-Reply-To: <20190110154151.24233-8-frankja@linux.ibm.com>
-References: <20190110154151.24233-8-frankja@linux.ibm.com>
+Date: Fri, 11 Jan 2019 09:15:37 +0000
+Subject: Re: [kvm-unit-tests PATCH v5 10/11] s390x: Add linemode buffer to fix newline on every print
+Message-Id: <32098a92-5eb6-a788-9917-3613009100dc@redhat.com>
+In-Reply-To: <20190110154151.24233-11-frankja@linux.ibm.com>
+References: <20190110154151.24233-11-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On 10.01.19 16:41, Janosch Frank wrote:
-> We need to properly implement interrupt handling for SCLP, because on
-> z/VM and LPAR SCLP calls are not synchronous!
-> 
-> Also with smp CPUs have to compete for sclp. Let's add some locking,
-> so they execute sclp calls in an orderly fashion and don't compete for
-> the data buffer.
+> Linemode seems to add a newline for each sent message which makes
+> reading rather hard. Hence we add a small buffer that and only print
+> if it's full or a newline is encountered.
+
+This sentence is broken. (e.g. remove the "that")
+
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 > ---
->  lib/s390x/asm/arch_def.h  |  1 +
->  lib/s390x/asm/interrupt.h |  2 ++
->  lib/s390x/interrupt.c     | 12 +++++++++--
->  lib/s390x/sclp-console.c  |  2 ++
->  lib/s390x/sclp.c          | 54 +++++++++++++++++++++++++++++++++++++++++++++--
->  lib/s390x/sclp.h          |  3 +++
->  6 files changed, 70 insertions(+), 4 deletions(-)
+>  lib/s390x/sclp-console.c | 32 ++++++++++++++++++++++++++++++--
+>  1 file changed, 30 insertions(+), 2 deletions(-)
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index d2cd727..4bbb428 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -15,6 +15,7 @@ struct psw {
->  	uint64_t	addr;
->  };
->  
-> +#define PSW_MASK_EXT			0x0100000000000000UL
->  #define PSW_MASK_DAT			0x0400000000000000UL
->  #define PSW_MASK_PSTATE			0x0001000000000000UL
->  
-> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-> index 013709f..f485e96 100644
-> --- a/lib/s390x/asm/interrupt.h
-> +++ b/lib/s390x/asm/interrupt.h
-> @@ -11,6 +11,8 @@
->  #define _ASMS390X_IRQ_H_
->  #include <asm/arch_def.h>
->  
-> +#define EXT_IRQ_SERVICE_SIG	0x2401
-> +
->  void handle_pgm_int(void);
->  void handle_ext_int(void);
->  void handle_mcck_int(void);
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index cf0a794..7832711 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -12,6 +12,7 @@
->  #include <libcflat.h>
->  #include <asm/interrupt.h>
->  #include <asm/barrier.h>
-> +#include <sclp.h>
->  
->  static bool pgm_int_expected;
->  static struct lowcore *lc;
-> @@ -107,8 +108,15 @@ void handle_pgm_int(void)
->  
->  void handle_ext_int(void)
->  {
-> -	report_abort("Unexpected external call interrupt: at %#lx",
-> -		     lc->ext_old_psw.addr);
-> +	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
-> +		report_abort("Unexpected external call interrupt: at %#lx",
-> +			     lc->ext_old_psw.addr);
-> +	} else {
-> +		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
-> +		lc->sw_int_cr0 &= ~(1UL << 9);
-> +		sclp_handle_ext();
-> +		lc->ext_int_code = 0;
-> +	}
->  }
->  
->  void handle_mcck_int(void)
 > diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
-> index bc01f41..a5ef45f 100644
+> index 3f97653..8e352a0 100644
 > --- a/lib/s390x/sclp-console.c
 > +++ b/lib/s390x/sclp-console.c
-> @@ -17,6 +17,7 @@ static void sclp_set_write_mask(void)
->  {
->  	WriteEventMask *sccb = (void *)_sccb;
+> @@ -87,6 +87,9 @@ static uint8_t _ascebc[256] = {
+>       0x90, 0x3F, 0x3F, 0x3F, 0x3F, 0xEA, 0x3F, 0xFF
+>  };
 >  
-> +	sclp_mark_busy();
->  	sccb->h.length = sizeof(WriteEventMask);
->  	sccb->mask_length = sizeof(unsigned int);
->  	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
-> @@ -37,6 +38,7 @@ void sclp_print(const char *str)
+> +static char lm_buff[120];
+> +static unsigned char lm_buff_off;
+> +
+>  static void sclp_print_ascii(const char *str)
+>  {
 >  	int len = strlen(str);
->  	WriteEventData *sccb = (void *)_sccb;
+> @@ -111,17 +114,40 @@ static void sclp_print_lm(const char *str)
+>  	struct mdb *mdb;
+>  	struct mto *mto;
+>  	struct go *go;
+> +	char *nl;
+> +
+> +	/*
+> +	 * In contrast to the ascii console, linemode produces a new
+> +	 * line with every write of data. The report() function uses
+> +	 * several printf() calls to generate a line of data which
+> +	 * would all end up on different lines.
+> +	 *
+> +	 * Hence we buffer here until we encounter a \n or the buffer
+> +	 * is full. That means that linemode output can look a bit
+> +	 * different from ascii and that it takes a bit longer for
+> +	 * lines to appear.
+> +	 */
+> +	len = strlen(str);
+> +	len = len < (sizeof(lm_buff) - lm_buff_off) ? len : (sizeof(lm_buff) - lm_buff_off);
+> +	nl = strchr(str, '\n');
+> +	if ((lm_buff_off < sizeof(lm_buff) - 1)) {
+> +		memcpy(&lm_buff[lm_buff_off], str, len);
+> +		lm_buff_off += len;
+> +	}
+> +	/* Buffer not full and no newline */
+> +	if (lm_buff_off != sizeof(lm_buff) - 1 && !nl)
+> +		return;
 >  
-> +	sclp_mark_busy();
->  	sccb->h.length = sizeof(WriteEventData) + len;
->  	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
->  	sccb->ebh.length = sizeof(EventBufferHeader) + len;
-> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-> index 7f556e5..e14f25d 100644
-> --- a/lib/s390x/sclp.c
-> +++ b/lib/s390x/sclp.c
-> @@ -14,6 +14,8 @@
->  #include <asm/page.h>
->  #include <asm/arch_def.h>
->  #include <asm/interrupt.h>
-> +#include <asm/barrier.h>
-> +#include <asm/spinlock.h>
->  #include "sclp.h"
->  #include <alloc_phys.h>
->  
-> @@ -24,6 +26,8 @@ static uint64_t max_ram_size;
->  static uint64_t ram_size;
->  
->  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
-> +static volatile bool sclp_busy;
-> +static struct spinlock sclp_lock;
->  
->  static void mem_init(phys_addr_t mem_end)
->  {
-> @@ -32,17 +36,61 @@ static void mem_init(phys_addr_t mem_end)
->  	phys_alloc_init(freemem_start, mem_end - freemem_start);
+
+As we accept strings up to 2k, shouldn't there be some kind of loop?
+(e.g. move the actual printing to a separate function and keep the
+string magic + looping here)
+
+>  	sclp_mark_busy();
+>  	sccb = (struct WriteEventData *) _sccb;
+>  	end = (unsigned char *) sccb + 4096 - 1;
+>  	memset(sccb, 0, sizeof(*sccb));
+>  	ptr = (unsigned char *) &sccb->msg.mdb.mto;
+> -	len = strlen(str);
+> +	len = strlen(lm_buff);
+>  	offset = 0;
+>  	do {
+>  		for (count = sizeof(*mto); offset < len; count++) {
+> -			ch = str[offset++];
+> +			ch = lm_buff[offset++];
+>  			if ((ch == 0x0a) || (ptr + count > end))
+>  				break;
+>  			ptr[count] = _ascebc[ch];
+> @@ -146,6 +172,8 @@ static void sclp_print_lm(const char *str)
+>  	go->length = sizeof(*go);
+>  	go->type = 1;
+>  	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
+> +	memset(lm_buff, 0 , sizeof(lm_buff));
+> +	lm_buff_off = 0;
 >  }
 >  
-> +static void sclp_setup_int(void)
-> +{
-> +	uint64_t mask;
-> +
-> +	ctl_set_bit(0, 9);
-> +
-> +	mask = extract_psw_mask();
-> +	mask |= PSW_MASK_EXT;
-> +	load_psw_mask(mask);
-> +}
-> +
-> +void sclp_handle_ext(void)
-> +{
-> +	ctl_clear_bit(0, 9);
-> +	spin_lock(&sclp_lock);
-> +	sclp_busy = false;
-> +	spin_unlock(&sclp_lock);
-> +}
-> +
-> +void sclp_wait_busy(void)
-> +{
-> +	while (sclp_busy)
-> +		mb();
-> +}
-> +
-> +void sclp_mark_busy(void)
-> +{
-> +	/*
-> +	 * With multiple CPUs we might need to wait for another CPU's
-> +	 * request before grabbing the busy indication.
-> +	 */
-> +retry_wait:
-> +	sclp_wait_busy();
-> +	spin_lock(&sclp_lock);
-> +	if (sclp_busy) {
-> +		spin_unlock(&sclp_lock);
-> +		goto retry_wait;
-> +	}
-> +	sclp_busy = true;
-> +	spin_unlock(&sclp_lock);
-> +}
-> +
->  static void sclp_read_scp_info(ReadInfo *ri, int length)
->  {
->  	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
->  				    SCLP_CMDW_READ_SCP_INFO };
-> -	int i;
-> +	int i, cc;
->  
->  	for (i = 0; i < ARRAY_SIZE(commands); i++) {
->  		memset(&ri->h, 0, sizeof(ri->h));
->  		ri->h.length = length;
-
-We already write to the sccb although we haven't marked it busy yet.
-
->  
-> -		if (sclp_service_call(commands[i], ri))
-> +		sclp_mark_busy();
-> +		cc = sclp_service_call(commands[i], ri);
-> +		if (cc)
->  			break;
->  		if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
->  			return;
-> @@ -57,12 +105,14 @@ int sclp_service_call(unsigned int command, void *sccb)
->  {
->  	int cc;
->  
-> +	sclp_setup_int();
->  	asm volatile(
->  		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
->  		"       ipm     %0\n"
->  		"       srl     %0,28"
->  		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
->  		: "cc", "memory");
-> +	sclp_wait_busy();
->  	if (cc == 3)
->  		return -1;
->  	if (cc == 2)
-> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-> index 583c4e5..63cf609 100644
-> --- a/lib/s390x/sclp.h
-> +++ b/lib/s390x/sclp.h
-> @@ -213,6 +213,9 @@ typedef struct ReadEventData {
->  } __attribute__((packed)) ReadEventData;
->  
->  extern char _sccb[];
-> +void sclp_handle_ext(void);
-> +void sclp_wait_busy(void);
-> +void sclp_mark_busy(void);
->  void sclp_console_setup(void);
->  void sclp_print(const char *str);
->  int sclp_service_call(unsigned int command, void *sccb);
+>  /*
 > 
 
 
