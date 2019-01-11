@@ -1,22 +1,24 @@
 Return-Path: <SRS0=uvhX=PT=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH v1] s390/smp: Fix calling smp_call_ipl_cpu() from ipl CPU
-References: <20190111141822.17262-1-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <3107a059-0117-fe29-05d6-4cba539a113d@redhat.com>
-Date: Fri, 11 Jan 2019 16:25:52 +0100
-MIME-Version: 1.0
+Date: Fri, 11 Jan 2019 16:47:46 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v1] s390/smp: Fix calling smp_call_ipl_cpu() from ipl
+ CPU
+Message-ID: <20190111164746.015e16da.cohuck@redhat.com>
 In-Reply-To: <20190111141822.17262-1-david@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20190111141822.17262-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Cornelia Huck <cohuck@redhat.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 11.01.19 15:18, David Hildenbrand wrote:
+On Fri, 11 Jan 2019 15:18:22 +0100
+David Hildenbrand <david@redhat.com> wrote:
+
 > When calling smp_call_ipl_cpu() from the IPL CPU, we will try to read
 > from pcpu_devices->lowcore. However, due to prefixing, that will result
 > in reading from absolute address 0 on that CPU. We have to go via the
@@ -57,56 +59,13 @@ On 11.01.19 15:18, David Hildenbrand wrote:
 > [   28.476932] Hardware name: IBM 2964 NE1 716 (KVM/Linux)
 > [   28.476932] Call Trace:
 > 
-
-I guess this has been broken for a long time. Most probably
-ce3dc447493f ("s390: add support for virtually mapped kernel stacks")
-finally made it trigger the low address protection.
-
-@@ -372,8 +382,7 @@ void smp_call_online_cpu(void (*func)(void *), void
-*data)
- void smp_call_ipl_cpu(void (*func)(void *), void *data)
- {
-        pcpu_delegate(&pcpu_devices[0], func, data,
--                     pcpu_devices->lowcore->panic_stack -
--                     PANIC_FRAME_OFFSET + PAGE_SIZE);
-+                     pcpu_devices->lowcore->nodat_stack);
- }
-
-The old "- PANIC_FRAME_OFFSET + PAGE_SIZE" Made sure that we were not
-trying to write at absolute address 0, but instead something >= 512,
-whereby low address protection would not trigger.
-
-
 > Reported-by: Cornelia Huck <cohuck@redhat.com>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 > ---
 >  arch/s390/kernel/smp.c | 7 ++++++-
 >  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-> index f82b3d3c36e2..be32dd0b4191 100644
-> --- a/arch/s390/kernel/smp.c
-> +++ b/arch/s390/kernel/smp.c
-> @@ -381,8 +381,13 @@ void smp_call_online_cpu(void (*func)(void *), void *data)
->   */
->  void smp_call_ipl_cpu(void (*func)(void *), void *data)
->  {
-> +	struct lowcore *lc = pcpu_devices->lowcore;
-> +
-> +	if (pcpu_devices[0].address == stap())
-> +		lc = &S390_lowcore;
-> +
->  	pcpu_delegate(&pcpu_devices[0], func, data,
-> -		      pcpu_devices->lowcore->nodat_stack);
-> +		      lc->nodat_stack);
->  }
->  
->  int smp_find_processor_id(u16 address)
-> 
 
+I can confirm that this patch fixes rebooting for me, both under
+QEMU/TCG and under QEMU/KVM (1 vcpu).
 
--- 
-
-Thanks,
-
-David / dhildenb
+Tested-by: Cornelia Huck <cohuck@redhat.com>
