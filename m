@@ -1,71 +1,103 @@
-Return-Path: <SRS0=uvhX=PT=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 11 Jan 2019 16:47:46 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v1] s390/smp: Fix calling smp_call_ipl_cpu() from ipl
- CPU
-Message-ID: <20190111164746.015e16da.cohuck@redhat.com>
-In-Reply-To: <20190111141822.17262-1-david@redhat.com>
-References: <20190111141822.17262-1-david@redhat.com>
+Return-Path: <SRS0=baBj=PW=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 9/9] mm: better document PG_reserved
+Date: Mon, 14 Jan 2019 13:59:03 +0100
+Message-Id: <20190114125903.24845-10-david@redhat.com>
+In-Reply-To: <20190114125903.24845-1-david@redhat.com>
+References: <20190114125903.24845-1-david@redhat.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: linux-mm@kvack.org
+Cc: linux-s390@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Miles Chen <miles.chen@mediatek.com>, David Hildenbrand <david@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Randy Dunlap <rdunlap@infradead.org>, Dan Williams <dan.j.williams@intel.com>, linux-kernel@vger.kernel.org, Matthew Wilcox <willy@infradead.org>, Pavel Tatashin <pasha.tatashin@oracle.com>, yi.z.zhang@linux.intel.com, linux-m68k@lists.linux-m68k.org, linux-mediatek@lists.infradead.org, Anthony Yznaga <anthony.yznaga@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 11 Jan 2019 15:18:22 +0100
-David Hildenbrand <david@redhat.com> wrote:
+The usage of PG_reserved and how PG_reserved pages are to be treated is
+buried deep down in different parts of the kernel. Let's shine some light
+onto these details by documenting current users and expected
+behavior.
 
-> When calling smp_call_ipl_cpu() from the IPL CPU, we will try to read
-> from pcpu_devices->lowcore. However, due to prefixing, that will result
-> in reading from absolute address 0 on that CPU. We have to go via the
-> actual lowcore instead.
-> 
-> This means that right now, we will read lc->nodat_stack == 0 and
-> therfore work on a very wrong stack.
-> 
-> This BUG essentially broke rebooting under QEMU TCG (which will report
-> a low address protection exception). And checking under KVM, it is
-> also broken under KVM. With 1 VCPU it can be easily triggered.
-> 
-> :/# echo 1 > /proc/sys/kernel/sysrq
-> :/# echo b > /proc/sysrq-trigger
-> [   28.476745] sysrq: SysRq : Resetting
-> [   28.476793] Kernel stack overflow.
-> [   28.476817] CPU: 0 PID: 424 Comm: sh Not tainted 5.0.0-rc1+ #13
-> [   28.476820] Hardware name: IBM 2964 NE1 716 (KVM/Linux)
-> [   28.476826] Krnl PSW : 0400c00180000000 0000000000115c0c (pcpu_delegate+0x12c/0x140)
-> [   28.476861]            R:0 T:1 IO:0 EX:0 Key:0 M:0 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-> [   28.476863] Krnl GPRS: ffffffffffffffff 0000000000000000 000000000010dff8 0000000000000000
-> [   28.476864]            0000000000000000 0000000000000000 0000000000ab7090 000003e0006efbf0
-> [   28.476864]            000000000010dff8 0000000000000000 0000000000000000 0000000000000000
-> [   28.476865]            000000007fffc000 0000000000730408 000003e0006efc58 0000000000000000
-> [   28.476887] Krnl Code: 0000000000115bfe: 4170f000            la      %r7,0(%r15)
-> [   28.476887]            0000000000115c02: 41f0a000            la      %r15,0(%r10)
-> [   28.476887]           #0000000000115c06: e370f0980024        stg     %r7,152(%r15)
-> [   28.476887]           >0000000000115c0c: c0e5fffff86e        brasl   %r14,114ce8
-> [   28.476887]            0000000000115c12: 41f07000            la      %r15,0(%r7)
-> [   28.476887]            0000000000115c16: a7f4ffa8            brc     15,115b66
-> [   28.476887]            0000000000115c1a: 0707                bcr     0,%r7
-> [   28.476887]            0000000000115c1c: 0707                bcr     0,%r7
-> [   28.476901] Call Trace:
-> [   28.476902] Last Breaking-Event-Address:
-> [   28.476920]  [<0000000000a01c4a>] arch_call_rest_init+0x22/0x80
-> [   28.476927] Kernel panic - not syncing: Corrupt kernel stack, can't continue.
-> [   28.476930] CPU: 0 PID: 424 Comm: sh Not tainted 5.0.0-rc1+ #13
-> [   28.476932] Hardware name: IBM 2964 NE1 716 (KVM/Linux)
-> [   28.476932] Call Trace:
-> 
-> Reported-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/kernel/smp.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+Especially, clarify on the "Some of them might not even exist" case.
+These are physical memory gaps that will never be dumped as they
+are not marked as IORESOURCE_SYSRAM. PG_reserved does in general not
+hinder anybody from dumping or swapping. In some cases, these pages
+will not be stored in the hibernation image.
 
-I can confirm that this patch fixes rebooting for me, both under
-QEMU/TCG and under QEMU/KVM (1 vcpu).
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Anthony Yznaga <anthony.yznaga@oracle.com>
+Cc: Miles Chen <miles.chen@mediatek.com>
+Cc: yi.z.zhang@linux.intel.com
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ include/linux/page-flags.h | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-Tested-by: Cornelia Huck <cohuck@redhat.com>
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index 808b4183e30d..9f8712a4b1a5 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -17,8 +17,37 @@
+ /*
+  * Various page->flags bits:
+  *
+- * PG_reserved is set for special pages, which can never be swapped out. Some
+- * of them might not even exist...
++ * PG_reserved is set for special pages. The "struct page" of such a page
++ * should in general not be touched (e.g. set dirty) except by its owner.
++ * Pages marked as PG_reserved include:
++ * - Pages part of the kernel image (including vDSO) and similar (e.g. BIOS,
++ *   initrd, HW tables)
++ * - Pages reserved or allocated early during boot (before the page allocator
++ *   was initialized). This includes (depending on the architecture) the
++ *   initial vmemmap, initial page tables, crashkernel, elfcorehdr, and much
++ *   much more. Once (if ever) freed, PG_reserved is cleared and they will
++ *   be given to the page allocator.
++ * - Pages falling into physical memory gaps - not IORESOURCE_SYSRAM. Trying
++ *   to read/write these pages might end badly. Don't touch!
++ * - The zero page(s)
++ * - Pages not added to the page allocator when onlining a section because
++ *   they were excluded via the online_page_callback() or because they are
++ *   PG_hwpoison.
++ * - Pages allocated in the context of kexec/kdump (loaded kernel image,
++ *   control pages, vmcoreinfo)
++ * - MMIO/DMA pages. Some architectures don't allow to ioremap pages that are
++ *   not marked PG_reserved (as they might be in use by somebody else who does
++ *   not respect the caching strategy).
++ * - Pages part of an offline section (struct pages of offline sections should
++ *   not be trusted as they will be initialized when first onlined).
++ * - MCA pages on ia64
++ * - Pages holding CPU notes for POWER Firmware Assisted Dump
++ * - Device memory (e.g. PMEM, DAX, HMM)
++ * Some PG_reserved pages will be excluded from the hibernation image.
++ * PG_reserved does in general not hinder anybody from dumping or swapping
++ * and is no longer required for remap_pfn_range(). ioremap might require it.
++ * Consequently, PG_reserved for a page mapped into user space can indicate
++ * the zero page, the vDSO, MMIO pages or device memory.
+  *
+  * The PG_private bitflag is set on pagecache pages if they contain filesystem
+  * specific data (which is normally at page->private). It can be used by
+-- 
+2.17.2
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
