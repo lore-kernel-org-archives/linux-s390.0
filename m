@@ -1,10 +1,11 @@
-Return-Path: <SRS0=baBj=PW=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 8/9] ia64: perfmon: Don't mark buffer pages as PG_reserved
-Date: Mon, 14 Jan 2019 13:59:02 +0100
-Message-Id: <20190114125903.24845-9-david@redhat.com>
-In-Reply-To: <20190114125903.24845-1-david@redhat.com>
-References: <20190114125903.24845-1-david@redhat.com>
+Return-Path: <SRS0=3lKL=PX=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4/7] perf pmu: Moving EVENT_SOURCE_DEVICE_PATH to PMU header
+ file
+Date: Tue, 15 Jan 2019 16:07:39 -0700
+Message-Id: <20190115230742.13730-5-mathieu.poirier@linaro.org>
+In-Reply-To: <20190115230742.13730-1-mathieu.poirier@linaro.org>
+References: <20190115230742.13730-1-mathieu.poirier@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,146 +19,48 @@ Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: linux-mm@kvack.org
-Cc: linux-s390@vger.kernel.org, Tony Luck <tony.luck@intel.com>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, linux-kernel@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>, Oleg Nesterov <oleg@redhat.com>, David Howells <dhowells@redhat.com>, linux-m68k@lists.linux-m68k.org, Mike Rapoport <rppt@linux.vnet.ibm.com>, linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+To: acme@kernel.org, peterz@infradead.org, gregkh@linuxfoundation.org
+Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, suzuki.poulose@arm.com, alexander.shishkin@linux.intel.com, will.deacon@arm.com, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In the old days, remap_pfn_range() required pages to be marked as
-PG_reserved, so they would e.g. never get swapped out. This was required
-for special mappings. Nowadays, this is fully handled via the VMA
-(VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP inside remap_pfn_range()
-to be precise). PG_reserved is no longer required but only a relict from
-the past.
+From: linaro <linaro@localhost.localdomain>
 
-So only architecture specific MM handling might require it (e.g. to
-detect them as MMIO pages). As there are no architecture specific checks
-for PageReserved() apart from MCA handling in ia64code, this can go. Use
-simple vzalloc()/vfree() instead.
+Moving definition of EVENT_SOURCE_DEVICE_PATH to pmu.h so that it can be
+used by other files than pmu.c
 
-Note that before calling vzalloc(), size has already been aligned to
-PAGE_SIZE, no need to align again.
-
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: linaro <linaro@localhost.localdomain>
 ---
- arch/ia64/kernel/perfmon.c | 59 +++-----------------------------------
- 1 file changed, 4 insertions(+), 55 deletions(-)
+ tools/perf/util/pmu.c | 2 --
+ tools/perf/util/pmu.h | 1 +
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/ia64/kernel/perfmon.c b/arch/ia64/kernel/perfmon.c
-index 46bff1661836..7a969f4c3534 100644
---- a/arch/ia64/kernel/perfmon.c
-+++ b/arch/ia64/kernel/perfmon.c
-@@ -583,17 +583,6 @@ pfm_put_task(struct task_struct *task)
- 	if (task != current) put_task_struct(task);
- }
+diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
+index 11a234740632..51d437f55d18 100644
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -29,8 +29,6 @@ struct perf_pmu_format {
+ 	struct list_head list;
+ };
  
--static inline void
--pfm_reserve_page(unsigned long a)
--{
--	SetPageReserved(vmalloc_to_page((void *)a));
--}
--static inline void
--pfm_unreserve_page(unsigned long a)
--{
--	ClearPageReserved(vmalloc_to_page((void*)a));
--}
+-#define EVENT_SOURCE_DEVICE_PATH "/bus/event_source/devices/"
 -
- static inline unsigned long
- pfm_protect_ctx_ctxsw(pfm_context_t *x)
- {
-@@ -816,44 +805,6 @@ pfm_reset_msgq(pfm_context_t *ctx)
- 	DPRINT(("ctx=%p msgq reset\n", ctx));
- }
+ int perf_pmu_parse(struct list_head *list, char *name);
+ extern FILE *perf_pmu_in;
  
--static void *
--pfm_rvmalloc(unsigned long size)
--{
--	void *mem;
--	unsigned long addr;
--
--	size = PAGE_ALIGN(size);
--	mem  = vzalloc(size);
--	if (mem) {
--		//printk("perfmon: CPU%d pfm_rvmalloc(%ld)=%p\n", smp_processor_id(), size, mem);
--		addr = (unsigned long)mem;
--		while (size > 0) {
--			pfm_reserve_page(addr);
--			addr+=PAGE_SIZE;
--			size-=PAGE_SIZE;
--		}
--	}
--	return mem;
--}
--
--static void
--pfm_rvfree(void *mem, unsigned long size)
--{
--	unsigned long addr;
--
--	if (mem) {
--		DPRINT(("freeing physical buffer @%p size=%lu\n", mem, size));
--		addr = (unsigned long) mem;
--		while ((long) size > 0) {
--			pfm_unreserve_page(addr);
--			addr+=PAGE_SIZE;
--			size-=PAGE_SIZE;
--		}
--		vfree(mem);
--	}
--	return;
--}
--
- static pfm_context_t *
- pfm_context_alloc(int ctx_flags)
- {
-@@ -1498,7 +1449,7 @@ pfm_free_smpl_buffer(pfm_context_t *ctx)
- 	/*
- 	 * free the buffer
- 	 */
--	pfm_rvfree(ctx->ctx_smpl_hdr, ctx->ctx_smpl_size);
-+	vfree(ctx->ctx_smpl_hdr);
+diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
+index 76fecec7b3f9..350c54e0bd3d 100644
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -16,6 +16,7 @@ enum {
+ };
  
- 	ctx->ctx_smpl_hdr  = NULL;
- 	ctx->ctx_smpl_size = 0UL;
-@@ -2137,7 +2088,7 @@ pfm_close(struct inode *inode, struct file *filp)
- 	 * All memory free operations (especially for vmalloc'ed memory)
- 	 * MUST be done with interrupts ENABLED.
- 	 */
--	if (smpl_buf_addr)  pfm_rvfree(smpl_buf_addr, smpl_buf_size);
-+	vfree(smpl_buf_addr);
+ #define PERF_PMU_FORMAT_BITS 64
++#define EVENT_SOURCE_DEVICE_PATH "/bus/event_source/devices/"
  
- 	/*
- 	 * return the memory used by the context
-@@ -2266,10 +2217,8 @@ pfm_smpl_buffer_alloc(struct task_struct *task, struct file *filp, pfm_context_t
+ struct perf_event_attr;
  
- 	/*
- 	 * We do the easy to undo allocations first.
-- 	 *
--	 * pfm_rvmalloc(), clears the buffer, so there is no leak
- 	 */
--	smpl_buf = pfm_rvmalloc(size);
-+	smpl_buf = vzalloc(size);
- 	if (smpl_buf == NULL) {
- 		DPRINT(("Can't allocate sampling buffer\n"));
- 		return -ENOMEM;
-@@ -2346,7 +2295,7 @@ pfm_smpl_buffer_alloc(struct task_struct *task, struct file *filp, pfm_context_t
- error:
- 	vm_area_free(vma);
- error_kmem:
--	pfm_rvfree(smpl_buf, size);
-+	vfree(smpl_buf);
- 
- 	return -ENOMEM;
- }
 -- 
-2.17.2
+2.17.1
 
 
 _______________________________________________
