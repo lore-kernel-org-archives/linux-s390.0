@@ -1,11 +1,10 @@
 Return-Path: <SRS0=Ql45=PY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 05/21] memblock: emphasize that memblock_alloc_range() returns
- a physical address
-Date: Wed, 16 Jan 2019 15:44:05 +0200
+Subject: [PATCH 07/21] memblock: memblock_phys_alloc(): don't panic
+Date: Wed, 16 Jan 2019 15:44:07 +0200
 In-Reply-To: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
 References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
-Message-Id: <1547646261-32535-6-git-send-email-rppt@linux.ibm.com>
+Message-Id: <1547646261-32535-8-git-send-email-rppt@linux.ibm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,89 +22,231 @@ To: linux-mm@kvack.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, Vineet Gupta <vgupta@synopsys.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, openrisc@lists.librecores.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Rename memblock_alloc_range() to memblock_phys_alloc_range() to emphasize
-that it returns a physical address.
-While on it, remove the 'enum memblock_flags' parameter from this function
-as its only user anyway sets it to MEMBLOCK_NONE, which is the default for
-the most of memblock allocations.
+Make the memblock_phys_alloc() function an inline wrapper for
+memblock_phys_alloc_range() and update the memblock_phys_alloc() callers to
+check the returned value and panic in case of error.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- include/linux/memblock.h |  5 ++---
- mm/cma.c                 | 10 ++++------
- mm/memblock.c            |  9 +++++----
- 3 files changed, 11 insertions(+), 13 deletions(-)
+ arch/arm/mm/init.c                   | 4 ++++
+ arch/arm64/mm/mmu.c                  | 2 ++
+ arch/powerpc/sysdev/dart_iommu.c     | 3 +++
+ arch/s390/kernel/crash_dump.c        | 3 +++
+ arch/s390/kernel/setup.c             | 3 +++
+ arch/sh/boards/mach-ap325rxa/setup.c | 3 +++
+ arch/sh/boards/mach-ecovec24/setup.c | 6 ++++++
+ arch/sh/boards/mach-kfr2r09/setup.c  | 3 +++
+ arch/sh/boards/mach-migor/setup.c    | 3 +++
+ arch/sh/boards/mach-se/7724/setup.c  | 6 ++++++
+ arch/xtensa/mm/kasan_init.c          | 3 +++
+ include/linux/memblock.h             | 7 ++++++-
+ mm/memblock.c                        | 5 -----
+ 13 files changed, 45 insertions(+), 6 deletions(-)
 
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index b76b90e..15dddfe 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -206,6 +206,10 @@ phys_addr_t __init arm_memblock_steal(phys_addr_t size, phys_addr_t align)
+ 	BUG_ON(!arm_memblock_steal_permitted);
+ 
+ 	phys = memblock_phys_alloc(size, align);
++	if (!phys)
++		panic("Failed to steal %pa bytes at %pS\n",
++		      &size, (void *)_RET_IP_);
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index b6f5aa5..a74e4be 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -104,6 +104,8 @@ static phys_addr_t __init early_pgtable_alloc(void)
+ 	void *ptr;
+ 
+ 	phys = memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate page table page\n");
+ 
+ 	/*
+ 	 * The FIX_{PGD,PUD,PMD} slots may be in active use, but the FIX_PTE
+diff --git a/arch/powerpc/sysdev/dart_iommu.c b/arch/powerpc/sysdev/dart_iommu.c
+index 25bc25f..b82c9ff 100644
+--- a/arch/powerpc/sysdev/dart_iommu.c
++++ b/arch/powerpc/sysdev/dart_iommu.c
+@@ -265,6 +265,9 @@ static void allocate_dart(void)
+ 	 * prefetching into invalid pages and corrupting data
+ 	 */
+ 	tmp = memblock_phys_alloc(DART_PAGE_SIZE, DART_PAGE_SIZE);
++	if (!tmp)
++		panic("DART: table allocation failed\n");
++
+ 	dart_emptyval = DARTMAP_VALID | ((tmp >> DART_PAGE_SHIFT) &
+ 					 DARTMAP_RPNMASK);
+ 
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 97eae38..f96a585 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -61,6 +61,9 @@ struct save_area * __init save_area_alloc(bool is_boot_cpu)
+ 	struct save_area *sa;
+ 
+ 	sa = (void *) memblock_phys_alloc(sizeof(*sa), 8);
++	if (!sa)
++		panic("Failed to allocate save area\n");
++
+ 	if (is_boot_cpu)
+ 		list_add(&sa->list, &dump_save_areas);
+ 	else
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 72dd23e..da48397 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -968,6 +968,9 @@ static void __init setup_randomness(void)
+ 
+ 	vmms = (struct sysinfo_3_2_2 *) memblock_phys_alloc(PAGE_SIZE,
+ 							    PAGE_SIZE);
++	if (!vmms)
++		panic("Failed to allocate memory for sysinfo structure\n");
++
+ 	if (stsi(vmms, 3, 2, 2) == 0 && vmms->count)
+ 		add_device_randomness(&vmms->vm, sizeof(vmms->vm[0]) * vmms->count);
+ 	memblock_free((unsigned long) vmms, PAGE_SIZE);
+diff --git a/arch/sh/boards/mach-ap325rxa/setup.c b/arch/sh/boards/mach-ap325rxa/setup.c
+index d7ceab6..08a0cc9 100644
+--- a/arch/sh/boards/mach-ap325rxa/setup.c
++++ b/arch/sh/boards/mach-ap325rxa/setup.c
+@@ -558,6 +558,9 @@ static void __init ap325rxa_mv_mem_reserve(void)
+ 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 
+diff --git a/arch/sh/boards/mach-ecovec24/setup.c b/arch/sh/boards/mach-ecovec24/setup.c
+index a3901806..fd264a6 100644
+--- a/arch/sh/boards/mach-ecovec24/setup.c
++++ b/arch/sh/boards/mach-ecovec24/setup.c
+@@ -1481,11 +1481,17 @@ static void __init ecovec_mv_mem_reserve(void)
+ 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU0 memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 	ceu0_dma_membase = phys;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU1 memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 	ceu1_dma_membase = phys;
+diff --git a/arch/sh/boards/mach-kfr2r09/setup.c b/arch/sh/boards/mach-kfr2r09/setup.c
+index 55bdf4a..ebe90d06 100644
+--- a/arch/sh/boards/mach-kfr2r09/setup.c
++++ b/arch/sh/boards/mach-kfr2r09/setup.c
+@@ -632,6 +632,9 @@ static void __init kfr2r09_mv_mem_reserve(void)
+ 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 
+diff --git a/arch/sh/boards/mach-migor/setup.c b/arch/sh/boards/mach-migor/setup.c
+index ba7eee6..1adff09 100644
+--- a/arch/sh/boards/mach-migor/setup.c
++++ b/arch/sh/boards/mach-migor/setup.c
+@@ -631,6 +631,9 @@ static void __init migor_mv_mem_reserve(void)
+ 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 
+diff --git a/arch/sh/boards/mach-se/7724/setup.c b/arch/sh/boards/mach-se/7724/setup.c
+index 4696e10..201631a 100644
+--- a/arch/sh/boards/mach-se/7724/setup.c
++++ b/arch/sh/boards/mach-se/7724/setup.c
+@@ -966,11 +966,17 @@ static void __init ms7724se_mv_mem_reserve(void)
+ 	phys_addr_t size = CEU_BUFFER_MEMORY_SIZE;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU0 memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 	ceu0_dma_membase = phys;
+ 
+ 	phys = memblock_phys_alloc(size, PAGE_SIZE);
++	if (!phys)
++		panic("Failed to allocate CEU1 memory\n");
++
+ 	memblock_free(phys, size);
+ 	memblock_remove(phys, size);
+ 	ceu1_dma_membase = phys;
+diff --git a/arch/xtensa/mm/kasan_init.c b/arch/xtensa/mm/kasan_init.c
+index 48dbb03..4852848 100644
+--- a/arch/xtensa/mm/kasan_init.c
++++ b/arch/xtensa/mm/kasan_init.c
+@@ -54,6 +54,9 @@ static void __init populate(void *start, void *end)
+ 			phys_addr_t phys =
+ 				memblock_phys_alloc(PAGE_SIZE, PAGE_SIZE);
+ 
++			if (!phys)
++				panic("Failed to allocate page table page\n");
++
+ 			set_pte(pte + j, pfn_pte(PHYS_PFN(phys), PAGE_KERNEL));
+ 		}
+ 	}
 diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index f7ef313..66dfdb3 100644
+index 66dfdb3..7883c74 100644
 --- a/include/linux/memblock.h
 +++ b/include/linux/memblock.h
-@@ -369,6 +369,8 @@ static inline int memblock_get_region_node(const struct memblock_region *r)
- #define ARCH_LOW_ADDRESS_LIMIT  0xffffffffUL
- #endif
- 
-+phys_addr_t memblock_phys_alloc_range(phys_addr_t size, phys_addr_t align,
-+				      phys_addr_t start, phys_addr_t end);
+@@ -374,7 +374,12 @@ phys_addr_t memblock_phys_alloc_range(phys_addr_t size, phys_addr_t align,
  phys_addr_t memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align, int nid);
  phys_addr_t memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid);
  
-@@ -487,9 +489,6 @@ static inline bool memblock_bottom_up(void)
- 	return memblock.bottom_up;
- }
+-phys_addr_t memblock_phys_alloc(phys_addr_t size, phys_addr_t align);
++static inline phys_addr_t memblock_phys_alloc(phys_addr_t size,
++					      phys_addr_t align)
++{
++	return memblock_phys_alloc_range(size, align, 0,
++					 MEMBLOCK_ALLOC_ACCESSIBLE);
++}
  
--phys_addr_t __init memblock_alloc_range(phys_addr_t size, phys_addr_t align,
--					phys_addr_t start, phys_addr_t end,
--					enum memblock_flags flags);
- phys_addr_t memblock_alloc_base(phys_addr_t size, phys_addr_t align,
- 				phys_addr_t max_addr);
- phys_addr_t __memblock_alloc_base(phys_addr_t size, phys_addr_t align,
-diff --git a/mm/cma.c b/mm/cma.c
-index c7b39dd..e4530ae 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -327,16 +327,14 @@ int __init cma_declare_contiguous(phys_addr_t base,
- 		 * memory in case of failure.
- 		 */
- 		if (base < highmem_start && limit > highmem_start) {
--			addr = memblock_alloc_range(size, alignment,
--						    highmem_start, limit,
--						    MEMBLOCK_NONE);
-+			addr = memblock_phys_alloc_range(size, alignment,
-+							 highmem_start, limit);
- 			limit = highmem_start;
- 		}
- 
- 		if (!addr) {
--			addr = memblock_alloc_range(size, alignment, base,
--						    limit,
--						    MEMBLOCK_NONE);
-+			addr = memblock_phys_alloc_range(size, alignment, base,
-+							 limit);
- 			if (!addr) {
- 				ret = -ENOMEM;
- 				goto err;
+ void *memblock_alloc_try_nid_raw(phys_addr_t size, phys_addr_t align,
+ 				 phys_addr_t min_addr, phys_addr_t max_addr,
 diff --git a/mm/memblock.c b/mm/memblock.c
-index c80029e..f019aee 100644
+index 8aabb1b..461e40a3 100644
 --- a/mm/memblock.c
 +++ b/mm/memblock.c
-@@ -1338,12 +1338,13 @@ static phys_addr_t __init memblock_alloc_range_nid(phys_addr_t size,
- 	return 0;
+@@ -1382,11 +1382,6 @@ phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys
+ 	return alloc;
  }
  
--phys_addr_t __init memblock_alloc_range(phys_addr_t size, phys_addr_t align,
--					phys_addr_t start, phys_addr_t end,
--					enum memblock_flags flags)
-+phys_addr_t __init memblock_phys_alloc_range(phys_addr_t size,
-+					     phys_addr_t align,
-+					     phys_addr_t start,
-+					     phys_addr_t end)
+-phys_addr_t __init memblock_phys_alloc(phys_addr_t size, phys_addr_t align)
+-{
+-	return memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
+-}
+-
+ phys_addr_t __init memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid)
  {
- 	return memblock_alloc_range_nid(size, align, start, end, NUMA_NO_NODE,
--					flags);
-+					MEMBLOCK_NONE);
- }
- 
- phys_addr_t __init memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align, int nid)
+ 	phys_addr_t res = memblock_phys_alloc_nid(size, align, nid);
 -- 
 2.7.4
 
