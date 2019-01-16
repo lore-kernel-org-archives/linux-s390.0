@@ -1,155 +1,126 @@
-Return-Path: <SRS0=Ql45=PY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 08/21] memblock: drop __memblock_alloc_base()
-Date: Wed, 16 Jan 2019 15:44:08 +0200
-In-Reply-To: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
+Subject: [PATCH 02/21] powerpc: use memblock functions returning
+ virtual address
+Date: Wed, 16 Jan 2019 15:44:02 +0200
+Message-ID: <1547646261-32535-3-git-send-email-rppt@linux.ibm.com>
 References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
-Message-Id: <1547646261-32535-9-git-send-email-rppt@linux.ibm.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+List-Archive: <https://lore.kernel.org/linux-devicetree/>
+List-Post: <mailto:devicetree@vger.kernel.org>
 To: linux-mm@kvack.org
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, Vineet Gupta <vgupta@synopsys.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, openrisc@lists.librecores.org
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xten
 List-ID: <linux-s390.vger.kernel.org>
 
-The __memblock_alloc_base() function tries to allocate a memory up to the
-limit specified by its max_addr parameter. Depending on the value of this
-parameter, the __memblock_alloc_base() can is replaced with the appropriate
-memblock_phys_alloc*() variant.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/sh/kernel/machine_kexec.c |  3 ++-
- arch/x86/kernel/e820.c         |  2 +-
- arch/x86/mm/numa.c             | 12 ++++--------
- drivers/of/of_reserved_mem.c   |  7 ++-----
- include/linux/memblock.h       |  2 --
- mm/memblock.c                  |  9 ++-------
- 6 files changed, 11 insertions(+), 24 deletions(-)
-
-diff --git a/arch/sh/kernel/machine_kexec.c b/arch/sh/kernel/machine_kexec.c
-index b9f9f1a..63d63a3 100644
---- a/arch/sh/kernel/machine_kexec.c
-+++ b/arch/sh/kernel/machine_kexec.c
-@@ -168,7 +168,8 @@ void __init reserve_crashkernel(void)
- 	crash_size = PAGE_ALIGN(resource_size(&crashk_res));
- 	if (!crashk_res.start) {
- 		unsigned long max = memblock_end_of_DRAM() - memory_limit;
--		crashk_res.start = __memblock_alloc_base(crash_size, PAGE_SIZE, max);
-+		crashk_res.start = memblock_phys_alloc_range(crash_size,
-+							     PAGE_SIZE, 0, max);
- 		if (!crashk_res.start) {
- 			pr_err("crashkernel allocation failed\n");
- 			goto disable;
-diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
-index 50895c2..9c0eb54 100644
---- a/arch/x86/kernel/e820.c
-+++ b/arch/x86/kernel/e820.c
-@@ -778,7 +778,7 @@ u64 __init e820__memblock_alloc_reserved(u64 size, u64 align)
- {
- 	u64 addr;
- 
--	addr = __memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
-+	addr = memblock_phys_alloc(size, align);
- 	if (addr) {
- 		e820__range_update_kexec(addr, size, E820_TYPE_RAM, E820_TYPE_RESERVED);
- 		pr_info("update e820_table_kexec for e820__memblock_alloc_reserved()\n");
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index 1308f54..f85ae42 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -195,15 +195,11 @@ static void __init alloc_node_data(int nid)
- 	 * Allocate node data.  Try node-local memory and then any node.
- 	 * Never allocate in DMA zone.
- 	 */
--	nd_pa = memblock_phys_alloc_nid(nd_size, SMP_CACHE_BYTES, nid);
-+	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
- 	if (!nd_pa) {
--		nd_pa = __memblock_alloc_base(nd_size, SMP_CACHE_BYTES,
--					      MEMBLOCK_ALLOC_ACCESSIBLE);
--		if (!nd_pa) {
--			pr_err("Cannot find %zu bytes in any node (initial node: %d)\n",
--			       nd_size, nid);
--			return;
--		}
-+		pr_err("Cannot find %zu bytes in any node (initial node: %d)\n",
-+		       nd_size, nid);
-+		return;
- 	}
- 	nd = __va(nd_pa);
- 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 1977ee0..499f16d 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -31,13 +31,10 @@ int __init __weak early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
- 	phys_addr_t *res_base)
- {
- 	phys_addr_t base;
--	/*
--	 * We use __memblock_alloc_base() because memblock_alloc_base()
--	 * panic()s on allocation failure.
--	 */
-+
- 	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
- 	align = !align ? SMP_CACHE_BYTES : align;
--	base = __memblock_alloc_base(size, align, end);
-+	base = memblock_phys_alloc_range(size, align, 0, end);
- 	if (!base)
- 		return -ENOMEM;
- 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 7883c74..768e2b4 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -496,8 +496,6 @@ static inline bool memblock_bottom_up(void)
- 
- phys_addr_t memblock_alloc_base(phys_addr_t size, phys_addr_t align,
- 				phys_addr_t max_addr);
--phys_addr_t __memblock_alloc_base(phys_addr_t size, phys_addr_t align,
--				  phys_addr_t max_addr);
- phys_addr_t memblock_phys_mem_size(void);
- phys_addr_t memblock_reserved_size(void);
- phys_addr_t memblock_mem_size(unsigned long limit_pfn);
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 461e40a3..e5ffdcd 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1363,17 +1363,12 @@ phys_addr_t __init memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align,
- 	return ret;
- }
- 
--phys_addr_t __init __memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys_addr_t max_addr)
--{
--	return memblock_alloc_range_nid(size, align, 0, max_addr, NUMA_NO_NODE,
--					MEMBLOCK_NONE);
--}
--
- phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys_addr_t max_addr)
- {
- 	phys_addr_t alloc;
- 
--	alloc = __memblock_alloc_base(size, align, max_addr);
-+	alloc = memblock_alloc_range_nid(size, align, 0, max_addr, NUMA_NO_NODE,
-+					MEMBLOCK_NONE);
- 
- 	if (alloc == 0)
- 		panic("ERROR: Failed to allocate %pa bytes below %pa.\n",
--- 
-2.7.4
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+RnJvbTogQ2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3BoZS5sZXJveUBjLXMuZnI+CgpTaW5jZSBv
+bmx5IHRoZSB2aXJ0dWFsIGFkZHJlc3Mgb2YgYWxsb2NhdGVkIGJsb2NrcyBpcyB1c2VkLApsZXRz
+IHVzZSBmdW5jdGlvbnMgcmV0dXJuaW5nIGRpcmVjdGx5IHZpcnR1YWwgYWRkcmVzcy4KClRob3Nl
+IGZ1bmN0aW9ucyBoYXZlIHRoZSBhZHZhbnRhZ2Ugb2YgYWxzbyB6ZXJvaW5nIHRoZSBibG9jay4K
+ClsgTVI6CiAtIHVwZGF0ZWQgZXJyb3IgbWVzc2FnZSBpbiBhbGxvY19zdGFjaygpIHRvIGJlIG1v
+cmUgdmVyYm9zZQogLSBjb252ZXJldGVkIHNldmVyYWwgYWRkaXRpb25hbCBjYWxsIHNpdGVzIF0K
+ClNpZ25lZC1vZmYtYnk6IENocmlzdG9waGUgTGVyb3kgPGNocmlzdG9waGUubGVyb3lAYy1zLmZy
+PgpTaWduZWQtb2ZmLWJ5OiBNaWtlIFJhcG9wb3J0IDxycHB0QGxpbnV4LmlibS5jb20+Ci0tLQog
+YXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVfZnRycy5jIHwgIDMgKy0tCiBhcmNoL3Bvd2VycGMv
+a2VybmVsL2lycS5jICAgICAgICAgfCAgNSAtLS0tLQogYXJjaC9wb3dlcnBjL2tlcm5lbC9wYWNh
+LmMgICAgICAgIHwgIDYgKysrKystCiBhcmNoL3Bvd2VycGMva2VybmVsL3Byb20uYyAgICAgICAg
+fCAgNSArKysrLQogYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF8zMi5jICAgIHwgMjYgKysrKysr
+KysrKysrKysrKy0tLS0tLS0tLS0KIDUgZmlsZXMgY2hhbmdlZCwgMjYgaW5zZXJ0aW9ucygrKSwg
+MTkgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVf
+ZnRycy5jIGIvYXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVfZnRycy5jCmluZGV4IDhiZTM3MjEu
+LjI1NTQ4MjQgMTAwNjQ0Ci0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvZHRfY3B1X2Z0cnMuYwor
+KysgYi9hcmNoL3Bvd2VycGMva2VybmVsL2R0X2NwdV9mdHJzLmMKQEAgLTgxMyw3ICs4MTMsNiBA
+QCBzdGF0aWMgaW50IF9faW5pdCBwcm9jZXNzX2NwdWZlYXR1cmVzX25vZGUodW5zaWduZWQgbG9u
+ZyBub2RlLAogCWludCBsZW47CiAKIAlmID0gJmR0X2NwdV9mZWF0dXJlc1tpXTsKLQltZW1zZXQo
+ZiwgMCwgc2l6ZW9mKHN0cnVjdCBkdF9jcHVfZmVhdHVyZSkpOwogCiAJZi0+bm9kZSA9IG5vZGU7
+CiAKQEAgLTEwMDgsNyArMTAwNyw3IEBAIHN0YXRpYyBpbnQgX19pbml0IGR0X2NwdV9mdHJzX3Nj
+YW5fY2FsbGJhY2sodW5zaWduZWQgbG9uZyBub2RlLCBjb25zdCBjaGFyCiAJLyogQ291bnQgYW5k
+IGFsbG9jYXRlIHNwYWNlIGZvciBjcHUgZmVhdHVyZXMgKi8KIAlvZl9zY2FuX2ZsYXRfZHRfc3Vi
+bm9kZXMobm9kZSwgY291bnRfY3B1ZmVhdHVyZXNfc3Vibm9kZXMsCiAJCQkJCQkmbnJfZHRfY3B1
+X2ZlYXR1cmVzKTsKLQlkdF9jcHVfZmVhdHVyZXMgPSBfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2Mo
+c2l6ZW9mKHN0cnVjdCBkdF9jcHVfZmVhdHVyZSkgKiBucl9kdF9jcHVfZmVhdHVyZXMsIFBBR0Vf
+U0laRSkpOworCWR0X2NwdV9mZWF0dXJlcyA9IG1lbWJsb2NrX2FsbG9jKHNpemVvZihzdHJ1Y3Qg
+ZHRfY3B1X2ZlYXR1cmUpICogbnJfZHRfY3B1X2ZlYXR1cmVzLCBQQUdFX1NJWkUpOwogCiAJY3B1
+ZmVhdHVyZXNfc2V0dXBfc3RhcnQoaXNhKTsKIApkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tl
+cm5lbC9pcnEuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvaXJxLmMKaW5kZXggOTE2ZGRjNC4uNGE0
+NGJjMyAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9pcnEuYworKysgYi9hcmNoL3Bv
+d2VycGMva2VybmVsL2lycS5jCkBAIC03MjUsMTggKzcyNSwxNSBAQCB2b2lkIGV4Y19sdmxfY3R4
+X2luaXQodm9pZCkKICNlbmRpZgogI2VuZGlmCiAKLQkJbWVtc2V0KCh2b2lkICopY3JpdGlycV9j
+dHhbY3B1X25yXSwgMCwgVEhSRUFEX1NJWkUpOwogCQl0cCA9IGNyaXRpcnFfY3R4W2NwdV9ucl07
+CiAJCXRwLT5jcHUgPSBjcHVfbnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gMDsKIAogI2lmZGVm
+IENPTkZJR19CT09LRQotCQltZW1zZXQoKHZvaWQgKilkYmdpcnFfY3R4W2NwdV9ucl0sIDAsIFRI
+UkVBRF9TSVpFKTsKIAkJdHAgPSBkYmdpcnFfY3R4W2NwdV9ucl07CiAJCXRwLT5jcHUgPSBjcHVf
+bnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gMDsKIAotCQltZW1zZXQoKHZvaWQgKiltY2hlY2tp
+cnFfY3R4W2NwdV9ucl0sIDAsIFRIUkVBRF9TSVpFKTsKIAkJdHAgPSBtY2hlY2tpcnFfY3R4W2Nw
+dV9ucl07CiAJCXRwLT5jcHUgPSBjcHVfbnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gSEFSRElS
+UV9PRkZTRVQ7CkBAIC03NTQsMTIgKzc1MSwxMCBAQCB2b2lkIGlycV9jdHhfaW5pdCh2b2lkKQog
+CWludCBpOwogCiAJZm9yX2VhY2hfcG9zc2libGVfY3B1KGkpIHsKLQkJbWVtc2V0KCh2b2lkICop
+c29mdGlycV9jdHhbaV0sIDAsIFRIUkVBRF9TSVpFKTsKIAkJdHAgPSBzb2Z0aXJxX2N0eFtpXTsK
+IAkJdHAtPmNwdSA9IGk7CiAJCWtscF9pbml0X3RocmVhZF9pbmZvKHRwKTsKIAotCQltZW1zZXQo
+KHZvaWQgKiloYXJkaXJxX2N0eFtpXSwgMCwgVEhSRUFEX1NJWkUpOwogCQl0cCA9IGhhcmRpcnFf
+Y3R4W2ldOwogCQl0cC0+Y3B1ID0gaTsKIAkJa2xwX2luaXRfdGhyZWFkX2luZm8odHApOwpkaWZm
+IC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9wYWNhLmMgYi9hcmNoL3Bvd2VycGMva2VybmVs
+L3BhY2EuYwppbmRleCA4Yzg5MGM2Li5lNzM4MmFiIDEwMDY0NAotLS0gYS9hcmNoL3Bvd2VycGMv
+a2VybmVsL3BhY2EuYworKysgYi9hcmNoL3Bvd2VycGMva2VybmVsL3BhY2EuYwpAQCAtMTk2LDcg
+KzE5NiwxMSBAQCB2b2lkIF9faW5pdCBhbGxvY2F0ZV9wYWNhX3B0cnModm9pZCkKIAlwYWNhX25y
+X2NwdV9pZHMgPSBucl9jcHVfaWRzOwogCiAJcGFjYV9wdHJzX3NpemUgPSBzaXplb2Yoc3RydWN0
+IHBhY2Ffc3RydWN0ICopICogbnJfY3B1X2lkczsKLQlwYWNhX3B0cnMgPSBfX3ZhKG1lbWJsb2Nr
+X3BoeXNfYWxsb2MocGFjYV9wdHJzX3NpemUsIFNNUF9DQUNIRV9CWVRFUykpOworCXBhY2FfcHRy
+cyA9IG1lbWJsb2NrX2FsbG9jX3JhdyhwYWNhX3B0cnNfc2l6ZSwgU01QX0NBQ0hFX0JZVEVTKTsK
+KwlpZiAoIXBhY2FfcHRycykKKwkJcGFuaWMoIkZhaWxlZCB0byBhbGxvY2F0ZSAlZCBieXRlcyBm
+b3IgcGFjYSBwb2ludGVyc1xuIiwKKwkJICAgICAgcGFjYV9wdHJzX3NpemUpOworCiAJbWVtc2V0
+KHBhY2FfcHRycywgMHg4OCwgcGFjYV9wdHJzX3NpemUpOwogfQogCmRpZmYgLS1naXQgYS9hcmNo
+L3Bvd2VycGMva2VybmVsL3Byb20uYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5jCmluZGV4
+IGU5N2FhZjIuLmMwZWQ0ZmEgMTAwNjQ0Ci0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5j
+CisrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5jCkBAIC0xMjcsNyArMTI3LDEwIEBAIHN0
+YXRpYyB2b2lkIF9faW5pdCBtb3ZlX2RldmljZV90cmVlKHZvaWQpCiAJaWYgKChtZW1vcnlfbGlt
+aXQgJiYgKHN0YXJ0ICsgc2l6ZSkgPiBQSFlTSUNBTF9TVEFSVCArIG1lbW9yeV9saW1pdCkgfHwK
+IAkgICAgIW1lbWJsb2NrX2lzX21lbW9yeShzdGFydCArIHNpemUgLSAxKSB8fAogCSAgICBvdmVy
+bGFwc19jcmFzaGtlcm5lbChzdGFydCwgc2l6ZSkgfHwgb3ZlcmxhcHNfaW5pdHJkKHN0YXJ0LCBz
+aXplKSkgewotCQlwID0gX192YShtZW1ibG9ja19waHlzX2FsbG9jKHNpemUsIFBBR0VfU0laRSkp
+OworCQlwID0gbWVtYmxvY2tfYWxsb2NfcmF3KHNpemUsIFBBR0VfU0laRSk7CisJCWlmICghcCkK
+KwkJCXBhbmljKCJGYWlsZWQgdG8gYWxsb2NhdGUgJWx1IGJ5dGVzIHRvIG1vdmUgZGV2aWNlIHRy
+ZWVcbiIsCisJCQkgICAgICBzaXplKTsKIAkJbWVtY3B5KHAsIGluaXRpYWxfYm9vdF9wYXJhbXMs
+IHNpemUpOwogCQlpbml0aWFsX2Jvb3RfcGFyYW1zID0gcDsKIAkJREJHKCJNb3ZlZCBkZXZpY2Ug
+dHJlZSB0byAweCVweFxuIiwgcCk7CmRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMva2VybmVsL3Nl
+dHVwXzMyLmMgYi9hcmNoL3Bvd2VycGMva2VybmVsL3NldHVwXzMyLmMKaW5kZXggOTQ3ZjkwNC4u
+MWYwYjc2MiAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF8zMi5jCisrKyBi
+L2FyY2gvcG93ZXJwYy9rZXJuZWwvc2V0dXBfMzIuYwpAQCAtMTk2LDYgKzE5NiwxNyBAQCBzdGF0
+aWMgaW50IF9faW5pdCBwcGNfaW5pdCh2b2lkKQogfQogYXJjaF9pbml0Y2FsbChwcGNfaW5pdCk7
+CiAKK3N0YXRpYyB2b2lkICpfX2luaXQgYWxsb2Nfc3RhY2sodm9pZCkKK3sKKwl2b2lkICpwdHIg
+PSBtZW1ibG9ja19hbGxvYyhUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUpOworCisJaWYgKCFwdHIp
+CisJCXBhbmljKCJjYW5ub3QgYWxsb2NhdGUgJWQgYnl0ZXMgZm9yIHN0YWNrIGF0ICVwU1xuIiwK
+KwkJICAgICAgVEhSRUFEX1NJWkUsICh2b2lkICopX1JFVF9JUF8pOworCisJcmV0dXJuIHB0cjsK
+K30KKwogdm9pZCBfX2luaXQgaXJxc3RhY2tfZWFybHlfaW5pdCh2b2lkKQogewogCXVuc2lnbmVk
+IGludCBpOwpAQCAtMjAzLDEwICsyMTQsOCBAQCB2b2lkIF9faW5pdCBpcnFzdGFja19lYXJseV9p
+bml0KHZvaWQpCiAJLyogaW50ZXJydXB0IHN0YWNrcyBtdXN0IGJlIGluIGxvd21lbSwgd2UgZ2V0
+IHRoYXQgZm9yIGZyZWUgb24gcHBjMzIKIAkgKiBhcyB0aGUgbWVtYmxvY2sgaXMgbGltaXRlZCB0
+byBsb3dtZW0gYnkgZGVmYXVsdCAqLwogCWZvcl9lYWNoX3Bvc3NpYmxlX2NwdShpKSB7Ci0JCXNv
+ZnRpcnFfY3R4W2ldID0gKHN0cnVjdCB0aHJlYWRfaW5mbyAqKQotCQkJX192YShtZW1ibG9ja19w
+aHlzX2FsbG9jKFRIUkVBRF9TSVpFLCBUSFJFQURfU0laRSkpOwotCQloYXJkaXJxX2N0eFtpXSA9
+IChzdHJ1Y3QgdGhyZWFkX2luZm8gKikKLQkJCV9fdmEobWVtYmxvY2tfcGh5c19hbGxvYyhUSFJF
+QURfU0laRSwgVEhSRUFEX1NJWkUpKTsKKwkJc29mdGlycV9jdHhbaV0gPSBhbGxvY19zdGFjaygp
+OworCQloYXJkaXJxX2N0eFtpXSA9IGFsbG9jX3N0YWNrKCk7CiAJfQogfQogCkBAIC0yMjQsMTMg
+KzIzMywxMCBAQCB2b2lkIF9faW5pdCBleGNfbHZsX2Vhcmx5X2luaXQodm9pZCkKIAkJaHdfY3B1
+ID0gMDsKICNlbmRpZgogCi0JCWNyaXRpcnFfY3R4W2h3X2NwdV0gPSAoc3RydWN0IHRocmVhZF9p
+bmZvICopCi0JCQlfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2MoVEhSRUFEX1NJWkUsIFRIUkVBRF9T
+SVpFKSk7CisJCWNyaXRpcnFfY3R4W2h3X2NwdV0gPSBhbGxvY19zdGFjaygpOwogI2lmZGVmIENP
+TkZJR19CT09LRQotCQlkYmdpcnFfY3R4W2h3X2NwdV0gPSAoc3RydWN0IHRocmVhZF9pbmZvICop
+Ci0JCQlfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2MoVEhSRUFEX1NJWkUsIFRIUkVBRF9TSVpFKSk7
+Ci0JCW1jaGVja2lycV9jdHhbaHdfY3B1XSA9IChzdHJ1Y3QgdGhyZWFkX2luZm8gKikKLQkJCV9f
+dmEobWVtYmxvY2tfcGh5c19hbGxvYyhUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUpKTsKKwkJZGJn
+aXJxX2N0eFtod19jcHVdID0gYWxsb2Nfc3RhY2soKTsKKwkJbWNoZWNraXJxX2N0eFtod19jcHVd
+ID0gYWxsb2Nfc3RhY2soKTsKICNlbmRpZgogCX0KIH0KLS0gCjIuNy40CgoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlz
+dApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==
