@@ -1,11 +1,10 @@
 Return-Path: <SRS0=Ql45=PY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 11/21] memblock: make memblock_find_in_range_node() and
- choose_memblock_flags() static
-Date: Wed, 16 Jan 2019 15:44:11 +0200
+Subject: [PATCH 20/21] memblock: memblock_alloc_try_nid: don't panic
+Date: Wed, 16 Jan 2019 15:44:20 +0200
 In-Reply-To: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
 References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
-Message-Id: <1547646261-32535-12-git-send-email-rppt@linux.ibm.com>
+Message-Id: <1547646261-32535-21-git-send-email-rppt@linux.ibm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,58 +22,57 @@ To: linux-mm@kvack.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, Vineet Gupta <vgupta@synopsys.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, openrisc@lists.librecores.org
 List-ID: <linux-s390.vger.kernel.org>
 
-These functions are not used outside memblock. Make them static.
+As all the memblock_alloc*() users are now checking the return value and
+panic() in case of error, the panic() call can be removed from the core
+memblock allocator, namely memblock_alloc_try_nid().
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- include/linux/memblock.h | 4 ----
- mm/memblock.c            | 4 ++--
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ mm/memblock.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index cf4cd9c..f5a83a1 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -111,9 +111,6 @@ void memblock_discard(void);
- #define memblock_dbg(fmt, ...) \
- 	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
- 
--phys_addr_t memblock_find_in_range_node(phys_addr_t size, phys_addr_t align,
--					phys_addr_t start, phys_addr_t end,
--					int nid, enum memblock_flags flags);
- phys_addr_t memblock_find_in_range(phys_addr_t start, phys_addr_t end,
- 				   phys_addr_t size, phys_addr_t align);
- void memblock_allow_resize(void);
-@@ -130,7 +127,6 @@ int memblock_clear_hotplug(phys_addr_t base, phys_addr_t size);
- int memblock_mark_mirror(phys_addr_t base, phys_addr_t size);
- int memblock_mark_nomap(phys_addr_t base, phys_addr_t size);
- int memblock_clear_nomap(phys_addr_t base, phys_addr_t size);
--enum memblock_flags choose_memblock_flags(void);
- 
- unsigned long memblock_free_all(void);
- void reset_node_managed_pages(pg_data_t *pgdat);
 diff --git a/mm/memblock.c b/mm/memblock.c
-index 739f769..03b3929 100644
+index 03b3929..7164275 100644
 --- a/mm/memblock.c
 +++ b/mm/memblock.c
-@@ -125,7 +125,7 @@ static int memblock_can_resize __initdata_memblock;
- static int memblock_memory_in_slab __initdata_memblock = 0;
- static int memblock_reserved_in_slab __initdata_memblock = 0;
- 
--enum memblock_flags __init_memblock choose_memblock_flags(void)
-+static enum memblock_flags __init_memblock choose_memblock_flags(void)
- {
- 	return system_has_some_mirror ? MEMBLOCK_MIRROR : MEMBLOCK_NONE;
+@@ -1526,7 +1526,7 @@ void * __init memblock_alloc_try_nid_nopanic(
  }
-@@ -254,7 +254,7 @@ __memblock_find_range_top_down(phys_addr_t start, phys_addr_t end,
+ 
+ /**
+- * memblock_alloc_try_nid - allocate boot memory block with panicking
++ * memblock_alloc_try_nid - allocate boot memory block
+  * @size: size of memory block to be allocated in bytes
+  * @align: alignment of the region and block's size
+  * @min_addr: the lower bound of the memory region from where the allocation
+@@ -1536,9 +1536,8 @@ void * __init memblock_alloc_try_nid_nopanic(
+  *	      allocate only from memory limited by memblock.current_limit value
+  * @nid: nid of the free area to find, %NUMA_NO_NODE for any node
+  *
+- * Public panicking version of memblock_alloc_try_nid_nopanic()
+- * which provides debug information (including caller info), if enabled,
+- * and panics if the request can not be satisfied.
++ * Public function, provides additional debug information (including caller
++ * info), if enabled. This function zeroes the allocated memory.
+  *
   * Return:
-  * Found address on success, 0 on failure.
-  */
--phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
-+static phys_addr_t __init_memblock memblock_find_in_range_node(phys_addr_t size,
- 					phys_addr_t align, phys_addr_t start,
- 					phys_addr_t end, int nid,
- 					enum memblock_flags flags)
+  * Virtual address of allocated memory block on success, NULL on failure.
+@@ -1555,14 +1554,10 @@ void * __init memblock_alloc_try_nid(
+ 		     &max_addr, (void *)_RET_IP_);
+ 	ptr = memblock_alloc_internal(size, align,
+ 					   min_addr, max_addr, nid);
+-	if (ptr) {
++	if (ptr)
+ 		memset(ptr, 0, size);
+-		return ptr;
+-	}
+ 
+-	panic("%s: Failed to allocate %llu bytes align=0x%llx nid=%d from=%pa max_addr=%pa\n",
+-	      __func__, (u64)size, (u64)align, nid, &min_addr, &max_addr);
+-	return NULL;
++	return ptr;
+ }
+ 
+ /**
 -- 
 2.7.4
 
