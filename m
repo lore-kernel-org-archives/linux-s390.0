@@ -1,44 +1,50 @@
-Return-Path: <SRS0=uP4V=P7=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Date: Wed, 23 Jan 2019 22:05:07 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 3/7] coresight: Use event attributes for sink selection
-Message-ID: <20190123210507.GA17767@hirez.programming.kicks-ass.net>
-References: <20190115230742.13730-1-mathieu.poirier@linaro.org>
- <20190115230742.13730-4-mathieu.poirier@linaro.org>
- <20190123210333.GZ27931@hirez.programming.kicks-ass.net>
+Return-Path: <SRS0=1Lvk=PY=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 1/5] s390: open-code s390_personality syscall
+Date: Wed, 16 Jan 2019 14:15:19 +0100
+Message-Id: <20190116131527.2071570-2-arnd@arndb.de>
+In-Reply-To: <20190116131527.2071570-1-arnd@arndb.de>
+References: <20190116131527.2071570-1-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20190123210333.GZ27931@hirez.programming.kicks-ass.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, suzuki.poulose@arm.com, alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, acme@kernel.org, ast@kernel.org, mingo@redhat.com, will.deacon@arm.com, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 23, 2019 at 10:03:33PM +0100, Peter Zijlstra wrote:
-> On Tue, Jan 15, 2019 at 04:07:38PM -0700, Mathieu Poirier wrote:
-> > +	/* First get the selected sink from user space. */
-> > +	sink = coresight_get_sink_by_id(event->attr.config2);
-> 
-> (I know there's a new version out, I'll go look there shortly)
-> 
-> should this patch not also have something like:
-> 
-> PMU_FORMAT_ATTR(sinkid, "config2:0-63");
+The sys_personality function is not meant to be called from other system
+calls. We could introduce an intermediate ksys_personality function,
+but it does almost nothing, so this just moves the implementation into
+the caller.
 
-n/m, I see it's already there.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/s390/kernel/sys_s390.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
+index 31cefe0c28c0..560bdaf8a74f 100644
+--- a/arch/s390/kernel/sys_s390.c
++++ b/arch/s390/kernel/sys_s390.c
+@@ -79,12 +79,15 @@ SYSCALL_DEFINE5(s390_ipc, uint, call, int, first, unsigned long, second,
+ 
+ SYSCALL_DEFINE1(s390_personality, unsigned int, personality)
+ {
+-	unsigned int ret;
++	unsigned int ret = current->personality;
+ 
+ 	if (personality(current->personality) == PER_LINUX32 &&
+ 	    personality(personality) == PER_LINUX)
+ 		personality |= PER_LINUX32;
+-	ret = sys_personality(personality);
++
++	if (personality != 0xffffffff)
++		set_personality(personality);
++
+ 	if (personality(ret) == PER_LINUX32)
+ 		ret &= ~PER_LINUX32;
+ 
+-- 
+2.20.0
