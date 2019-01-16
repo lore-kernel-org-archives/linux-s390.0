@@ -1,8 +1,8 @@
 Return-Path: <SRS0=1Lvk=PY=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4/5] s390: autogenerate compat syscall wrappers
-Date: Wed, 16 Jan 2019 14:15:22 +0100
-Message-Id: <20190116131527.2071570-5-arnd@arndb.de>
+Subject: [PATCH 5/5] s390: remove compat_wrapper.c
+Date: Wed, 16 Jan 2019 14:15:23 +0100
+Message-Id: <20190116131527.2071570-6-arnd@arndb.de>
 In-Reply-To: <20190116131527.2071570-1-arnd@arndb.de>
 References: <20190116131527.2071570-1-arnd@arndb.de>
 MIME-Version: 1.0
@@ -11,271 +11,721 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andrew Morton <akpm@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Any system call that takes a pointer argument on s390 requires
-a wrapper function to do a 31-to-64 zero-extension, these are
-currently generated in arch/s390/kernel/compat_wrapper.c.
+Now that all these wrappers are automatically generated, we can
+remove the entire file, and instead point to the regualar syscalls
+like all other architectures do.
 
-On arm64 and x86, we already generate similar wrappers for all
-system calls in the place of their definition, just for a different
-purpose (they load the arguments from pt_regs).
-
-We can do the same thing here, by adding an asm/syscall_wrapper.h
-file with a copy of all the relevant macros to override the generic
-version. Besides the addition of the compat entry point, these also
-rename the entry points with a __s390_ or __s390x_ prefix, similar
-to what we do on arm64 and x86. This in turn requires renaming
-a few things, and adding a proper ni_syscall() entry point.
-
-In order to still compile system call definitions that pass an
-loff_t argument, the __SC_COMPAT_CAST() macro checks for that
-and forces an -ENOSYS error, which was the best I could come up
-with. Those functions must obviously not get called from user
-space, but instead require hand-written compat_sys_*() handlers,
-which fortunately already exist.
+The 31-bit pointer extension is now handled in the __s390_sys_*()
+wrappers.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/s390/Kconfig                       |   1 +
- arch/s390/include/asm/syscall_wrapper.h | 136 ++++++++++++++++++++++++
- arch/s390/kernel/compat_wrapper.c       |  23 +---
- arch/s390/kernel/entry.S                |   4 +-
- arch/s390/kernel/sys_s390.c             |   5 +
- 5 files changed, 148 insertions(+), 21 deletions(-)
- create mode 100644 arch/s390/include/asm/syscall_wrapper.h
+ arch/s390/kernel/Makefile             |   2 +-
+ arch/s390/kernel/compat_wrapper.c     | 186 -----------------
+ arch/s390/kernel/syscalls/syscall.tbl | 278 +++++++++++++-------------
+ 3 files changed, 140 insertions(+), 326 deletions(-)
+ delete mode 100644 arch/s390/kernel/compat_wrapper.c
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 41cafd245bbc..b6e3d0653002 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -75,6 +75,7 @@ config S390
- 	select ARCH_HAS_SET_MEMORY
- 	select ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_HAS_STRICT_MODULE_RWX
-+	select ARCH_HAS_SYSCALL_WRAPPER
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select ARCH_INLINE_READ_LOCK
-diff --git a/arch/s390/include/asm/syscall_wrapper.h b/arch/s390/include/asm/syscall_wrapper.h
-new file mode 100644
-index 000000000000..27ebe871692f
---- /dev/null
-+++ b/arch/s390/include/asm/syscall_wrapper.h
-@@ -0,0 +1,136 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * syscall_wrapper.h - s390 specific wrappers to syscall definitions
-+ *
-+ */
-+
-+#ifndef _ASM_S390_SYSCALL_WRAPPER_H
-+#define _ASM_S390_SYSCALL_WRAPPER_H
-+
-+#ifdef CONFIG_COMPAT
-+#define __SC_COMPAT_TYPE(t, a) \
-+	__typeof(__builtin_choose_expr(sizeof(t) > 4, 0L, (t)0)) a
-+
-+#define __SC_COMPAT_CAST(t, a)						\
-+({									\
-+	long __ReS = a;							\
-+									\
-+	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
-+		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t) &&		\
-+		     !__TYPE_IS_LL(t));					\
-+	if (__TYPE_IS_L(t))						\
-+		__ReS = (s32)a;						\
-+	if (__TYPE_IS_UL(t))						\
-+		__ReS = (u32)a;						\
-+	if (__TYPE_IS_PTR(t))						\
-+		__ReS = a & 0x7fffffff;					\
-+	if (__TYPE_IS_LL(t))						\
-+		return -ENOSYS;						\
-+	(t)__ReS;							\
-+})
-+
-+#define __S390_SYS_STUBx(x, name, ...)					\
-+	asmlinkage long __s390_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__))\
-+	ALLOW_ERROR_INJECTION(__s390_sys##name, ERRNO);			\
-+	asmlinkage long __s390_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__))\
-+	{								\
-+		long ret = __s390x_sys##name(__MAP(x,__SC_COMPAT_CAST,__VA_ARGS__));\
-+		__MAP(x,__SC_TEST,__VA_ARGS__);				\
-+		return ret;						\
-+	}
-+
-+/*
-+ * To keep the naming coherent, re-define SYSCALL_DEFINE0 to create an alias
-+ * named __s390x_sys_*()
-+ */
-+#define COMPAT_SYSCALL_DEFINE0(sname)					\
-+	SYSCALL_METADATA(_##sname, 0);					\
-+	asmlinkage long __s390_compat_sys_##sname(void);		\
-+	ALLOW_ERROR_INJECTION(__s390_compat__sys_##sname, ERRNO);	\
-+	asmlinkage long __s390_compat_sys_##sname(void)
-+
-+#define SYSCALL_DEFINE0(sname)						\
-+	SYSCALL_METADATA(_##sname, 0);					\
-+	asmlinkage long __s390x_sys_##sname(void);			\
-+	ALLOW_ERROR_INJECTION(__s390x_sys_##sname, ERRNO);		\
-+	asmlinkage long __s390_sys_##sname(void)			\
-+		__attribute__((alias(__stringify(__s390x_sys_##sname)))); \
-+	asmlinkage long __s390x_sys_##sname(void)
-+
-+#define COND_SYSCALL(name)						\
-+	cond_syscall(__s390x_sys_##name);				\
-+	cond_syscall(__s390_sys_##name)
-+
-+#define SYS_NI(name)							\
-+	SYSCALL_ALIAS(__s390x_sys_##name, sys_ni_posix_timers);		\
-+	SYSCALL_ALIAS(__s390_sys_##name, sys_ni_posix_timers)
-+
-+#define COMPAT_SYSCALL_DEFINEx(x, name, ...)					\
-+	__diag_push();								\
-+	__diag_ignore(GCC, 8, "-Wattribute-alias",				\
-+		      "Type aliasing is used to sanitize syscall arguments");\
-+	asmlinkage long __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));	\
-+	asmlinkage long __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
-+		__attribute__((alias(__stringify(__se_compat_sys##name))));	\
-+	ALLOW_ERROR_INJECTION(compat_sys##name, ERRNO);				\
-+	static inline long __do_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));\
-+	asmlinkage long __se_compat_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__));	\
-+	asmlinkage long __se_compat_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__))	\
-+	{									\
-+		long ret = __do_compat_sys##name(__MAP(x,__SC_DELOUSE,__VA_ARGS__));\
-+		__MAP(x,__SC_TEST,__VA_ARGS__);					\
-+		return ret;							\
-+	}									\
-+	__diag_pop();								\
-+	static inline long __do_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
-+
-+/*
-+ * As some compat syscalls may not be implemented, we need to expand
-+ * COND_SYSCALL_COMPAT in kernel/sys_ni.c and COMPAT_SYS_NI in
-+ * kernel/time/posix-stubs.c to cover this case as well.
-+ */
-+#define COND_SYSCALL_COMPAT(name) 					\
-+	cond_syscall(__s390_compat_sys_##name)
-+
-+#define COMPAT_SYS_NI(name)						\
-+	SYSCALL_ALIAS(__s390_compat_sys_##name, sys_ni_posix_timers)
-+
-+#else /* CONFIG_COMPAT */
-+
-+#define __S390_SYS_STUBx(x, fullname, name, ...)
-+
-+#define SYSCALL_DEFINE0(sname)						\
-+	SYSCALL_METADATA(_##sname, 0);					\
-+	asmlinkage long __s390x_sys_##sname(void);			\
-+	ALLOW_ERROR_INJECTION(__s390x_sys_##sname, ERRNO);		\
-+	asmlinkage long __s390x_sys_##sname(void)
-+
-+#define COND_SYSCALL(name)						\
-+	cond_syscall(__s390x_sys_##name)				\
-+	cond_syscall(__s390_sys_##name)
-+
-+#define SYS_NI(name)							\
-+	SYSCALL_ALIAS(__s390_sys_##name, sys_ni_posix_timers);
-+
-+#endif /* CONFIG_COMPAT */
-+
-+#define __SYSCALL_DEFINEx(x, name, ...)						\
-+	__diag_push();								\
-+	__diag_ignore(GCC, 8, "-Wattribute-alias",				\
-+		      "Type aliasing is used to sanitize syscall arguments");\
-+	asmlinkage long __s390x_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
-+		__attribute__((alias(__stringify(__se_sys##name))));		\
-+	ALLOW_ERROR_INJECTION(__s390x_sys##name, ERRNO);				\
-+	static long __se_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__));		\
-+	static inline long __do_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));	\
-+	__S390_SYS_STUBx(x, name, __VA_ARGS__)					\
-+	asmlinkage long __se_sys##name(__MAP(x,__SC_LONG,__VA_ARGS__))		\
-+	{									\
-+		long ret = __do_sys##name(__MAP(x,__SC_CAST,__VA_ARGS__));	\
-+		__MAP(x,__SC_TEST,__VA_ARGS__);					\
-+		return ret;							\
-+	}									\
-+	__diag_pop();								\
-+	static inline long __do_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
-+
-+#endif /* _ASM_X86_SYSCALL_WRAPPER_H */
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index e216e116a9a9..4e188a7be501 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -65,7 +65,7 @@ obj-$(CONFIG_HIBERNATION)	+= suspend.o swsusp.o
+ obj-$(CONFIG_AUDIT)		+= audit.o
+ compat-obj-$(CONFIG_AUDIT)	+= compat_audit.o
+ obj-$(CONFIG_COMPAT)		+= compat_linux.o compat_signal.o
+-obj-$(CONFIG_COMPAT)		+= compat_wrapper.o $(compat-obj-y)
++obj-$(CONFIG_COMPAT)		+= $(compat-obj-y)
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
 diff --git a/arch/s390/kernel/compat_wrapper.c b/arch/s390/kernel/compat_wrapper.c
-index f54b7b73f316..9d07cd553fc7 100644
+deleted file mode 100644
+index 9d07cd553fc7..000000000000
 --- a/arch/s390/kernel/compat_wrapper.c
-+++ b/arch/s390/kernel/compat_wrapper.c
-@@ -25,21 +25,6 @@
- #define __SC_COMPAT_TYPE(t, a) \
- 	__typeof(__builtin_choose_expr(sizeof(t) > 4, 0L, (t)0)) a
- 
--#define __SC_COMPAT_CAST(t, a)						\
--({									\
--	long __ReS = a;							\
--									\
--	BUILD_BUG_ON((sizeof(t) > 4) && !__TYPE_IS_L(t) &&		\
--		     !__TYPE_IS_UL(t) && !__TYPE_IS_PTR(t));		\
--	if (__TYPE_IS_L(t))						\
--		__ReS = (s32)a;						\
--	if (__TYPE_IS_UL(t))						\
--		__ReS = (u32)a;						\
--	if (__TYPE_IS_PTR(t))						\
--		__ReS = a & 0x7fffffff;					\
--	(t)__ReS;							\
--})
++++ /dev/null
+@@ -1,186 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *  Compat system call wrappers.
+- *
+- *    Copyright IBM Corp. 2014
+- */
 -
- /*
-  * The COMPAT_SYSCALL_WRAP macro generates system call wrappers to be used by
-  * compat tasks. These wrappers will only be used for system calls where only
-@@ -53,11 +38,11 @@
-  * the regular system call wrappers.
-  */
- #define COMPAT_SYSCALL_WRAPx(x, name, ...)					\
--asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));			\
--asmlinkage long notrace compat_sys##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__));\
--asmlinkage long notrace compat_sys##name(__MAP(x,__SC_COMPAT_TYPE,__VA_ARGS__))	\
-+asmlinkage long __s390_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));		\
-+asmlinkage long notrace __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));\
-+asmlinkage long notrace __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
- {										\
--	return sys##name(__MAP(x,__SC_COMPAT_CAST,__VA_ARGS__));		\
-+	return __s390_sys##name(__MAP(x,__SC_ARGS,__VA_ARGS__));		\
- }
- 
- COMPAT_SYSCALL_WRAP2(creat, const char __user *, pathname, umode_t, mode);
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 39191a0feed1..583d65ef5007 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -1512,7 +1512,7 @@ cleanup_critical:
- 	.quad   .Lsie_skip - .Lsie_entry
- #endif
- 	.section .rodata, "a"
--#define SYSCALL(esame,emu)	.long esame
-+#define SYSCALL(esame,emu)	.long __s390x_ ## esame
- 	.globl	sys_call_table
- sys_call_table:
- #include "asm/syscall_table.h"
-@@ -1520,7 +1520,7 @@ sys_call_table:
- 
- #ifdef CONFIG_COMPAT
- 
--#define SYSCALL(esame,emu)	.long emu
-+#define SYSCALL(esame,emu)	.long __s390_ ## emu
- 	.globl	sys_call_table_emu
- sys_call_table_emu:
- #include "asm/syscall_table.h"
-diff --git a/arch/s390/kernel/sys_s390.c b/arch/s390/kernel/sys_s390.c
-index 6aa8fe00b39e..a8c2cc858864 100644
---- a/arch/s390/kernel/sys_s390.c
-+++ b/arch/s390/kernel/sys_s390.c
-@@ -93,3 +93,8 @@ SYSCALL_DEFINE1(s390_personality, unsigned int, personality)
- 
- 	return ret;
- }
-+
-+SYSCALL_DEFINE0(ni_syscall)
-+{
-+	return -ENOSYS;
-+}
+-#include <linux/syscalls.h>
+-#include <linux/compat.h>
+-#include "entry.h"
+-
+-#define COMPAT_SYSCALL_WRAP1(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(1, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP2(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(2, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP3(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(3, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP4(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(4, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP5(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(5, _##name, __VA_ARGS__)
+-#define COMPAT_SYSCALL_WRAP6(name, ...) \
+-	COMPAT_SYSCALL_WRAPx(6, _##name, __VA_ARGS__)
+-
+-#define __SC_COMPAT_TYPE(t, a) \
+-	__typeof(__builtin_choose_expr(sizeof(t) > 4, 0L, (t)0)) a
+-
+-/*
+- * The COMPAT_SYSCALL_WRAP macro generates system call wrappers to be used by
+- * compat tasks. These wrappers will only be used for system calls where only
+- * the system call arguments need sign or zero extension or zeroing of the upper
+- * 33 bits of pointers.
+- * Note: since the wrapper function will afterwards call a system call which
+- * again performs zero and sign extension for all system call arguments with
+- * a size of less than eight bytes, these compat wrappers only touch those
+- * system call arguments with a size of eight bytes ((unsigned) long and
+- * pointers). Zero and sign extension for e.g. int parameters will be done by
+- * the regular system call wrappers.
+- */
+-#define COMPAT_SYSCALL_WRAPx(x, name, ...)					\
+-asmlinkage long __s390_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));		\
+-asmlinkage long notrace __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__));\
+-asmlinkage long notrace __s390_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))	\
+-{										\
+-	return __s390_sys##name(__MAP(x,__SC_ARGS,__VA_ARGS__));		\
+-}
+-
+-COMPAT_SYSCALL_WRAP2(creat, const char __user *, pathname, umode_t, mode);
+-COMPAT_SYSCALL_WRAP2(link, const char __user *, oldname, const char __user *, newname);
+-COMPAT_SYSCALL_WRAP1(unlink, const char __user *, pathname);
+-COMPAT_SYSCALL_WRAP1(chdir, const char __user *, filename);
+-COMPAT_SYSCALL_WRAP3(mknod, const char __user *, filename, umode_t, mode, unsigned, dev);
+-COMPAT_SYSCALL_WRAP2(chmod, const char __user *, filename, umode_t, mode);
+-COMPAT_SYSCALL_WRAP1(oldumount, char __user *, name);
+-COMPAT_SYSCALL_WRAP2(access, const char __user *, filename, int, mode);
+-COMPAT_SYSCALL_WRAP2(rename, const char __user *, oldname, const char __user *, newname);
+-COMPAT_SYSCALL_WRAP2(mkdir, const char __user *, pathname, umode_t, mode);
+-COMPAT_SYSCALL_WRAP1(rmdir, const char __user *, pathname);
+-COMPAT_SYSCALL_WRAP1(pipe, int __user *, fildes);
+-COMPAT_SYSCALL_WRAP1(brk, unsigned long, brk);
+-COMPAT_SYSCALL_WRAP2(signal, int, sig, __sighandler_t, handler);
+-COMPAT_SYSCALL_WRAP1(acct, const char __user *, name);
+-COMPAT_SYSCALL_WRAP2(umount, char __user *, name, int, flags);
+-COMPAT_SYSCALL_WRAP1(chroot, const char __user *, filename);
+-COMPAT_SYSCALL_WRAP3(sigsuspend, int, unused1, int, unused2, old_sigset_t, mask);
+-COMPAT_SYSCALL_WRAP2(sethostname, char __user *, name, int, len);
+-COMPAT_SYSCALL_WRAP2(symlink, const char __user *, old, const char __user *, new);
+-COMPAT_SYSCALL_WRAP3(readlink, const char __user *, path, char __user *, buf, int, bufsiz);
+-COMPAT_SYSCALL_WRAP1(uselib, const char __user *, library);
+-COMPAT_SYSCALL_WRAP2(swapon, const char __user *, specialfile, int, swap_flags);
+-COMPAT_SYSCALL_WRAP4(reboot, int, magic1, int, magic2, unsigned int, cmd, void __user *, arg);
+-COMPAT_SYSCALL_WRAP2(munmap, unsigned long, addr, size_t, len);
+-COMPAT_SYSCALL_WRAP3(syslog, int, type, char __user *, buf, int, len);
+-COMPAT_SYSCALL_WRAP1(swapoff, const char __user *, specialfile);
+-COMPAT_SYSCALL_WRAP2(setdomainname, char __user *, name, int, len);
+-COMPAT_SYSCALL_WRAP1(newuname, struct new_utsname __user *, name);
+-COMPAT_SYSCALL_WRAP3(mprotect, unsigned long, start, size_t, len, unsigned long, prot);
+-COMPAT_SYSCALL_WRAP3(init_module, void __user *, umod, unsigned long, len, const char __user *, uargs);
+-COMPAT_SYSCALL_WRAP2(delete_module, const char __user *, name_user, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP4(quotactl, unsigned int, cmd, const char __user *, special, qid_t, id, void __user *, addr);
+-COMPAT_SYSCALL_WRAP2(bdflush, int, func, long, data);
+-COMPAT_SYSCALL_WRAP3(sysfs, int, option, unsigned long, arg1, unsigned long, arg2);
+-COMPAT_SYSCALL_WRAP5(llseek, unsigned int, fd, unsigned long, high, unsigned long, low, loff_t __user *, result, unsigned int, whence);
+-COMPAT_SYSCALL_WRAP3(msync, unsigned long, start, size_t, len, int, flags);
+-COMPAT_SYSCALL_WRAP2(mlock, unsigned long, start, size_t, len);
+-COMPAT_SYSCALL_WRAP2(munlock, unsigned long, start, size_t, len);
+-COMPAT_SYSCALL_WRAP2(sched_setparam, pid_t, pid, struct sched_param __user *, param);
+-COMPAT_SYSCALL_WRAP2(sched_getparam, pid_t, pid, struct sched_param __user *, param);
+-COMPAT_SYSCALL_WRAP3(sched_setscheduler, pid_t, pid, int, policy, struct sched_param __user *, param);
+-COMPAT_SYSCALL_WRAP5(mremap, unsigned long, addr, unsigned long, old_len, unsigned long, new_len, unsigned long, flags, unsigned long, new_addr);
+-COMPAT_SYSCALL_WRAP3(poll, struct pollfd __user *, ufds, unsigned int, nfds, int, timeout);
+-COMPAT_SYSCALL_WRAP5(prctl, int, option, unsigned long, arg2, unsigned long, arg3, unsigned long, arg4, unsigned long, arg5);
+-COMPAT_SYSCALL_WRAP2(getcwd, char __user *, buf, unsigned long, size);
+-COMPAT_SYSCALL_WRAP2(capget, cap_user_header_t, header, cap_user_data_t, dataptr);
+-COMPAT_SYSCALL_WRAP2(capset, cap_user_header_t, header, const cap_user_data_t, data);
+-COMPAT_SYSCALL_WRAP3(lchown, const char __user *, filename, uid_t, user, gid_t, group);
+-COMPAT_SYSCALL_WRAP2(getgroups, int, gidsetsize, gid_t __user *, grouplist);
+-COMPAT_SYSCALL_WRAP2(setgroups, int, gidsetsize, gid_t __user *, grouplist);
+-COMPAT_SYSCALL_WRAP3(getresuid, uid_t __user *, ruid, uid_t __user *, euid, uid_t __user *, suid);
+-COMPAT_SYSCALL_WRAP3(getresgid, gid_t __user *, rgid, gid_t __user *, egid, gid_t __user *, sgid);
+-COMPAT_SYSCALL_WRAP3(chown, const char __user *, filename, uid_t, user, gid_t, group);
+-COMPAT_SYSCALL_WRAP2(pivot_root, const char __user *, new_root, const char __user *, put_old);
+-COMPAT_SYSCALL_WRAP3(mincore, unsigned long, start, size_t, len, unsigned char __user *, vec);
+-COMPAT_SYSCALL_WRAP3(madvise, unsigned long, start, size_t, len, int, behavior);
+-COMPAT_SYSCALL_WRAP5(setxattr, const char __user *, path, const char __user *, name, const void __user *, value, size_t, size, int, flags);
+-COMPAT_SYSCALL_WRAP5(lsetxattr, const char __user *, path, const char __user *, name, const void __user *, value, size_t, size, int, flags);
+-COMPAT_SYSCALL_WRAP5(fsetxattr, int, fd, const char __user *, name, const void __user *, value, size_t, size, int, flags);
+-COMPAT_SYSCALL_WRAP3(getdents64, unsigned int, fd, struct linux_dirent64 __user *, dirent, unsigned int, count);
+-COMPAT_SYSCALL_WRAP4(getxattr, const char __user *, path, const char __user *, name, void __user *, value, size_t, size);
+-COMPAT_SYSCALL_WRAP4(lgetxattr, const char __user *, path, const char __user *, name, void __user *, value, size_t, size);
+-COMPAT_SYSCALL_WRAP4(fgetxattr, int, fd, const char __user *, name, void __user *, value, size_t, size);
+-COMPAT_SYSCALL_WRAP3(listxattr, const char __user *, path, char __user *, list, size_t, size);
+-COMPAT_SYSCALL_WRAP3(llistxattr, const char __user *, path, char __user *, list, size_t, size);
+-COMPAT_SYSCALL_WRAP3(flistxattr, int, fd, char __user *, list, size_t, size);
+-COMPAT_SYSCALL_WRAP2(removexattr, const char __user *, path, const char __user *, name);
+-COMPAT_SYSCALL_WRAP2(lremovexattr, const char __user *, path, const char __user *, name);
+-COMPAT_SYSCALL_WRAP2(fremovexattr, int, fd, const char __user *, name);
+-COMPAT_SYSCALL_WRAP1(set_tid_address, int __user *, tidptr);
+-COMPAT_SYSCALL_WRAP4(epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event __user *, event);
+-COMPAT_SYSCALL_WRAP4(epoll_wait, int, epfd, struct epoll_event __user *, events, int, maxevents, int, timeout);
+-COMPAT_SYSCALL_WRAP1(io_destroy, aio_context_t, ctx);
+-COMPAT_SYSCALL_WRAP3(io_cancel, aio_context_t, ctx_id, struct iocb __user *, iocb, struct io_event __user *, result);
+-COMPAT_SYSCALL_WRAP1(mq_unlink, const char __user *, name);
+-COMPAT_SYSCALL_WRAP5(add_key, const char __user *, tp, const char __user *, dsc, const void __user *, pld, size_t, len, key_serial_t, id);
+-COMPAT_SYSCALL_WRAP4(request_key, const char __user *, tp, const char __user *, dsc, const char __user *, info, key_serial_t, id);
+-COMPAT_SYSCALL_WRAP5(remap_file_pages, unsigned long, start, unsigned long, size, unsigned long, prot, unsigned long, pgoff, unsigned long, flags);
+-COMPAT_SYSCALL_WRAP3(inotify_add_watch, int, fd, const char __user *, path, u32, mask);
+-COMPAT_SYSCALL_WRAP3(mkdirat, int, dfd, const char __user *, pathname, umode_t, mode);
+-COMPAT_SYSCALL_WRAP4(mknodat, int, dfd, const char __user *, filename, umode_t, mode, unsigned, dev);
+-COMPAT_SYSCALL_WRAP5(fchownat, int, dfd, const char __user *, filename, uid_t, user, gid_t, group, int, flag);
+-COMPAT_SYSCALL_WRAP3(unlinkat, int, dfd, const char __user *, pathname, int, flag);
+-COMPAT_SYSCALL_WRAP4(renameat, int, olddfd, const char __user *, oldname, int, newdfd, const char __user *, newname);
+-COMPAT_SYSCALL_WRAP5(linkat, int, olddfd, const char __user *, oldname, int, newdfd, const char __user *, newname, int, flags);
+-COMPAT_SYSCALL_WRAP3(symlinkat, const char __user *, oldname, int, newdfd, const char __user *, newname);
+-COMPAT_SYSCALL_WRAP4(readlinkat, int, dfd, const char __user *, path, char __user *, buf, int, bufsiz);
+-COMPAT_SYSCALL_WRAP3(fchmodat, int, dfd, const char __user *, filename, umode_t, mode);
+-COMPAT_SYSCALL_WRAP3(faccessat, int, dfd, const char __user *, filename, int, mode);
+-COMPAT_SYSCALL_WRAP1(unshare, unsigned long, unshare_flags);
+-COMPAT_SYSCALL_WRAP6(splice, int, fd_in, loff_t __user *, off_in, int, fd_out, loff_t __user *, off_out, size_t, len, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP4(tee, int, fdin, int, fdout, size_t, len, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP3(getcpu, unsigned __user *, cpu, unsigned __user *, node, struct getcpu_cache __user *, cache);
+-COMPAT_SYSCALL_WRAP2(pipe2, int __user *, fildes, int, flags);
+-COMPAT_SYSCALL_WRAP5(perf_event_open, struct perf_event_attr __user *, attr_uptr, pid_t, pid, int, cpu, int, group_fd, unsigned long, flags);
+-COMPAT_SYSCALL_WRAP5(clone, unsigned long, newsp, unsigned long, clone_flags, int __user *, parent_tidptr, int __user *, child_tidptr, unsigned long, tls);
+-COMPAT_SYSCALL_WRAP4(prlimit64, pid_t, pid, unsigned int, resource, const struct rlimit64 __user *, new_rlim, struct rlimit64 __user *, old_rlim);
+-COMPAT_SYSCALL_WRAP5(name_to_handle_at, int, dfd, const char __user *, name, struct file_handle __user *, handle, int __user *, mnt_id, int, flag);
+-COMPAT_SYSCALL_WRAP5(kcmp, pid_t, pid1, pid_t, pid2, int, type, unsigned long, idx1, unsigned long, idx2);
+-COMPAT_SYSCALL_WRAP3(finit_module, int, fd, const char __user *, uargs, int, flags);
+-COMPAT_SYSCALL_WRAP3(sched_setattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP4(sched_getattr, pid_t, pid, struct sched_attr __user *, attr, unsigned int, size, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP5(renameat2, int, olddfd, const char __user *, oldname, int, newdfd, const char __user *, newname, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP3(seccomp, unsigned int, op, unsigned int, flags, void __user *, uargs)
+-COMPAT_SYSCALL_WRAP3(getrandom, char __user *, buf, size_t, count, unsigned int, flags)
+-COMPAT_SYSCALL_WRAP2(memfd_create, const char __user *, uname, unsigned int, flags)
+-COMPAT_SYSCALL_WRAP3(bpf, int, cmd, union bpf_attr *, attr, unsigned int, size);
+-COMPAT_SYSCALL_WRAP3(s390_pci_mmio_write, const unsigned long, mmio_addr, const void __user *, user_buffer, const size_t, length);
+-COMPAT_SYSCALL_WRAP3(s390_pci_mmio_read, const unsigned long, mmio_addr, void __user *, user_buffer, const size_t, length);
+-COMPAT_SYSCALL_WRAP4(socketpair, int, family, int, type, int, protocol, int __user *, usockvec);
+-COMPAT_SYSCALL_WRAP3(bind, int, fd, struct sockaddr __user *, umyaddr, int, addrlen);
+-COMPAT_SYSCALL_WRAP3(connect, int, fd, struct sockaddr __user *, uservaddr, int, addrlen);
+-COMPAT_SYSCALL_WRAP4(accept4, int, fd, struct sockaddr __user *, upeer_sockaddr, int __user *, upeer_addrlen, int, flags);
+-COMPAT_SYSCALL_WRAP3(getsockname, int, fd, struct sockaddr __user *, usockaddr, int __user *, usockaddr_len);
+-COMPAT_SYSCALL_WRAP3(getpeername, int, fd, struct sockaddr __user *, usockaddr, int __user *, usockaddr_len);
+-COMPAT_SYSCALL_WRAP6(sendto, int, fd, void __user *, buff, size_t, len, unsigned int, flags, struct sockaddr __user *, addr, int, addr_len);
+-COMPAT_SYSCALL_WRAP3(mlock2, unsigned long, start, size_t, len, int, flags);
+-COMPAT_SYSCALL_WRAP6(copy_file_range, int, fd_in, loff_t __user *, off_in, int, fd_out, loff_t __user *, off_out, size_t, len, unsigned int, flags);
+-COMPAT_SYSCALL_WRAP2(s390_guarded_storage, int, command, struct gs_cb *, gs_cb);
+-COMPAT_SYSCALL_WRAP5(statx, int, dfd, const char __user *, path, unsigned, flags, unsigned, mask, struct statx __user *, buffer);
+-COMPAT_SYSCALL_WRAP4(s390_sthyi, unsigned long, code, void __user *, info, u64 __user *, rc, unsigned long, flags);
+-COMPAT_SYSCALL_WRAP5(kexec_file_load, int, kernel_fd, int, initrd_fd, unsigned long, cmdline_len, const char __user *, cmdline_ptr, unsigned long, flags)
+-COMPAT_SYSCALL_WRAP4(rseq, struct rseq __user *, rseq, u32, rseq_len, int, flags, u32, sig)
+-COMPAT_SYSCALL_WRAP3(chown16, const char __user *, filename, u16, user, u16, group);
+-COMPAT_SYSCALL_WRAP3(lchown16, const char __user *, filename, u16, user, u16, group);
+-COMPAT_SYSCALL_WRAP3(fchown16, unsigned int, fd, u16, user, u16, group);
+-COMPAT_SYSCALL_WRAP2(setregid16, u16, rgid, u16, egid);
+-COMPAT_SYSCALL_WRAP1(setgid16, u16, gid);
+-COMPAT_SYSCALL_WRAP2(setreuid16, u16, ruid, u16, euid);
+-COMPAT_SYSCALL_WRAP1(setuid16, u16, uid);
+-COMPAT_SYSCALL_WRAP3(setresuid16, u16, ruid, u16, euid, u16, suid);
+-COMPAT_SYSCALL_WRAP3(getresuid16, u16 __user *, ruidp, u16 __user *, euidp, u16 __user *, suidp);
+-COMPAT_SYSCALL_WRAP3(setresgid16, u16, rgid, u16, egid, u16, sgid);
+-COMPAT_SYSCALL_WRAP3(getresgid16, u16 __user *, rgidp, u16 __user *, egidp, u16 __user *, sgidp);
+-COMPAT_SYSCALL_WRAP1(setfsuid16, u16, uid);
+-COMPAT_SYSCALL_WRAP1(setfsgid16, u16, gid);
+-COMPAT_SYSCALL_WRAP2(getgroups16, int, gidsetsize, u16 __user *, grouplist);
+-COMPAT_SYSCALL_WRAP2(setgroups16, int, gidsetsize, u16 __user *, grouplist);
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index f878f74c42fd..7413fd318e2a 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -15,86 +15,86 @@
+ 5    common	open			sys_open			compat_sys_open
+ 6    common	close			sys_close			sys_close
+ 7    common	restart_syscall		sys_restart_syscall		sys_restart_syscall
+-8    common	creat			sys_creat			compat_sys_creat
+-9    common	link			sys_link			compat_sys_link
+-10   common	unlink			sys_unlink			compat_sys_unlink
++8    common	creat			sys_creat			sys_creat
++9    common	link			sys_link			sys_link
++10   common	unlink			sys_unlink			sys_unlink
+ 11   common	execve			sys_execve			compat_sys_execve
+-12   common	chdir			sys_chdir			compat_sys_chdir
++12   common	chdir			sys_chdir			sys_chdir
+ 13   32		time			-				compat_sys_time
+-14   common	mknod			sys_mknod			compat_sys_mknod
+-15   common	chmod			sys_chmod			compat_sys_chmod
+-16   32		lchown			-				compat_sys_lchown16
++14   common	mknod			sys_mknod			sys_mknod
++15   common	chmod			sys_chmod			sys_chmod
++16   32		lchown			-				sys_lchown16
+ 19   common	lseek			sys_lseek			compat_sys_lseek
+ 20   common	getpid			sys_getpid			sys_getpid
+ 21   common	mount			sys_mount			compat_sys_mount
+-22   common	umount			sys_oldumount			compat_sys_oldumount
+-23   32		setuid			-				compat_sys_setuid16
++22   common	umount			sys_oldumount			sys_oldumount
++23   32		setuid			-				sys_setuid16
+ 24   32		getuid			-				sys_getuid16
+ 25   32		stime			-				compat_sys_stime
+ 26   common	ptrace			sys_ptrace			compat_sys_ptrace
+ 27   common	alarm			sys_alarm			sys_alarm
+ 29   common	pause			sys_pause			sys_pause
+ 30   common	utime			sys_utime			compat_sys_utime
+-33   common	access			sys_access			compat_sys_access
++33   common	access			sys_access			sys_access
+ 34   common	nice			sys_nice			sys_nice
+ 36   common	sync			sys_sync			sys_sync
+ 37   common	kill			sys_kill			sys_kill
+-38   common	rename			sys_rename			compat_sys_rename
+-39   common	mkdir			sys_mkdir			compat_sys_mkdir
+-40   common	rmdir			sys_rmdir			compat_sys_rmdir
++38   common	rename			sys_rename			sys_rename
++39   common	mkdir			sys_mkdir			sys_mkdir
++40   common	rmdir			sys_rmdir			sys_rmdir
+ 41   common	dup			sys_dup				sys_dup
+-42   common	pipe			sys_pipe			compat_sys_pipe
++42   common	pipe			sys_pipe			sys_pipe
+ 43   common	times			sys_times			compat_sys_times
+-45   common	brk			sys_brk				compat_sys_brk
+-46   32		setgid			-				compat_sys_setgid16
++45   common	brk			sys_brk				sys_brk
++46   32		setgid			-				sys_setgid16
+ 47   32		getgid			-				sys_getgid16
+-48   common	signal			sys_signal			compat_sys_signal
++48   common	signal			sys_signal			sys_signal
+ 49   32		geteuid			-				sys_geteuid16
+ 50   32		getegid			-				sys_getegid16
+-51   common	acct			sys_acct			compat_sys_acct
+-52   common	umount2			sys_umount			compat_sys_umount
++51   common	acct			sys_acct			sys_acct
++52   common	umount2			sys_umount			sys_umount
+ 54   common	ioctl			sys_ioctl			compat_sys_ioctl
+ 55   common	fcntl			sys_fcntl			compat_sys_fcntl
+ 57   common	setpgid			sys_setpgid			sys_setpgid
+ 60   common	umask			sys_umask			sys_umask
+-61   common	chroot			sys_chroot			compat_sys_chroot
++61   common	chroot			sys_chroot			sys_chroot
+ 62   common	ustat			sys_ustat			compat_sys_ustat
+ 63   common	dup2			sys_dup2			sys_dup2
+ 64   common	getppid			sys_getppid			sys_getppid
+ 65   common	getpgrp			sys_getpgrp			sys_getpgrp
+ 66   common	setsid			sys_setsid			sys_setsid
+ 67   common	sigaction		sys_sigaction			compat_sys_sigaction
+-70   32		setreuid		-				compat_sys_setreuid16
+-71   32		setregid		-				compat_sys_setregid16
+-72   common	sigsuspend		sys_sigsuspend			compat_sys_sigsuspend
++70   32		setreuid		-				sys_setreuid16
++71   32		setregid		-				sys_setregid16
++72   common	sigsuspend		sys_sigsuspend			sys_sigsuspend
+ 73   common	sigpending		sys_sigpending			compat_sys_sigpending
+-74   common	sethostname		sys_sethostname			compat_sys_sethostname
++74   common	sethostname		sys_sethostname			sys_sethostname
+ 75   common	setrlimit		sys_setrlimit			compat_sys_setrlimit
+ 76   32		getrlimit		-				compat_sys_old_getrlimit
+ 77   common	getrusage		sys_getrusage			compat_sys_getrusage
+ 78   common	gettimeofday		sys_gettimeofday		compat_sys_gettimeofday
+ 79   common	settimeofday		sys_settimeofday		compat_sys_settimeofday
+-80   32		getgroups		-				compat_sys_getgroups16
+-81   32		setgroups		-				compat_sys_setgroups16
+-83   common	symlink			sys_symlink			compat_sys_symlink
+-85   common	readlink		sys_readlink			compat_sys_readlink
+-86   common	uselib			sys_uselib			compat_sys_uselib
+-87   common	swapon			sys_swapon			compat_sys_swapon
+-88   common	reboot			sys_reboot			compat_sys_reboot
++80   32		getgroups		-				sys_getgroups16
++81   32		setgroups		-				sys_setgroups16
++83   common	symlink			sys_symlink			sys_symlink
++85   common	readlink		sys_readlink			sys_readlink
++86   common	uselib			sys_uselib			sys_uselib
++87   common	swapon			sys_swapon			sys_swapon
++88   common	reboot			sys_reboot			sys_reboot
+ 89   common	readdir			-				compat_sys_old_readdir
+ 90   common	mmap			sys_old_mmap			compat_sys_s390_old_mmap
+-91   common	munmap			sys_munmap			compat_sys_munmap
++91   common	munmap			sys_munmap			sys_munmap
+ 92   common	truncate		sys_truncate			compat_sys_truncate
+ 93   common	ftruncate		sys_ftruncate			compat_sys_ftruncate
+ 94   common	fchmod			sys_fchmod			sys_fchmod
+-95   32		fchown			-				compat_sys_fchown16
++95   32		fchown			-				sys_fchown16
+ 96   common	getpriority		sys_getpriority			sys_getpriority
+ 97   common	setpriority		sys_setpriority			sys_setpriority
+ 99   common	statfs			sys_statfs			compat_sys_statfs
+ 100  common	fstatfs			sys_fstatfs			compat_sys_fstatfs
+ 101  32		ioperm			-				-
+ 102  common	socketcall		sys_socketcall			compat_sys_socketcall
+-103  common	syslog			sys_syslog			compat_sys_syslog
++103  common	syslog			sys_syslog			sys_syslog
+ 104  common	setitimer		sys_setitimer			compat_sys_setitimer
+ 105  common	getitimer		sys_getitimer			compat_sys_getitimer
+ 106  common	stat			sys_newstat			compat_sys_newstat
+@@ -104,63 +104,63 @@
+ 111  common	vhangup			sys_vhangup			sys_vhangup
+ 112  common	idle			-				-
+ 114  common	wait4			sys_wait4			compat_sys_wait4
+-115  common	swapoff			sys_swapoff			compat_sys_swapoff
++115  common	swapoff			sys_swapoff			sys_swapoff
+ 116  common	sysinfo			sys_sysinfo			compat_sys_sysinfo
+ 117  common	ipc			sys_s390_ipc			compat_sys_s390_ipc
+ 118  common	fsync			sys_fsync			sys_fsync
+ 119  common	sigreturn		sys_sigreturn			compat_sys_sigreturn
+-120  common	clone			sys_clone			compat_sys_clone
+-121  common	setdomainname		sys_setdomainname		compat_sys_setdomainname
+-122  common	uname			sys_newuname			compat_sys_newuname
++120  common	clone			sys_clone			sys_clone
++121  common	setdomainname		sys_setdomainname		sys_setdomainname
++122  common	uname			sys_newuname			sys_newuname
+ 124  common	adjtimex		sys_adjtimex			compat_sys_adjtimex
+-125  common	mprotect		sys_mprotect			compat_sys_mprotect
++125  common	mprotect		sys_mprotect			sys_mprotect
+ 126  common	sigprocmask		sys_sigprocmask			compat_sys_sigprocmask
+ 127  common	create_module		-				-
+-128  common	init_module		sys_init_module			compat_sys_init_module
+-129  common	delete_module		sys_delete_module		compat_sys_delete_module
++128  common	init_module		sys_init_module			sys_init_module
++129  common	delete_module		sys_delete_module		sys_delete_module
+ 130  common	get_kernel_syms		-				-
+-131  common	quotactl		sys_quotactl			compat_sys_quotactl
++131  common	quotactl		sys_quotactl			sys_quotactl
+ 132  common	getpgid			sys_getpgid			sys_getpgid
+ 133  common	fchdir			sys_fchdir			sys_fchdir
+-134  common	bdflush			sys_bdflush			compat_sys_bdflush
+-135  common	sysfs			sys_sysfs			compat_sys_sysfs
++134  common	bdflush			sys_bdflush			sys_bdflush
++135  common	sysfs			sys_sysfs			sys_sysfs
+ 136  common	personality		sys_s390_personality		sys_s390_personality
+ 137  common	afs_syscall		-				-
+-138  32		setfsuid		-				compat_sys_setfsuid16
+-139  32		setfsgid		-				compat_sys_setfsgid16
+-140  32		_llseek			-				compat_sys_llseek
++138  32		setfsuid		-				sys_setfsuid16
++139  32		setfsgid		-				sys_setfsgid16
++140  32		_llseek			-				sys_llseek
+ 141  common	getdents		sys_getdents			compat_sys_getdents
+ 142  32		_newselect		-				compat_sys_select
+ 142  64		select			sys_select			-
+ 143  common	flock			sys_flock			sys_flock
+-144  common	msync			sys_msync			compat_sys_msync
++144  common	msync			sys_msync			sys_msync
+ 145  common	readv			sys_readv			compat_sys_readv
+ 146  common	writev			sys_writev			compat_sys_writev
+ 147  common	getsid			sys_getsid			sys_getsid
+ 148  common	fdatasync		sys_fdatasync			sys_fdatasync
+ 149  common	_sysctl			sys_sysctl			compat_sys_sysctl
+-150  common	mlock			sys_mlock			compat_sys_mlock
+-151  common	munlock			sys_munlock			compat_sys_munlock
++150  common	mlock			sys_mlock			sys_mlock
++151  common	munlock			sys_munlock			sys_munlock
+ 152  common	mlockall		sys_mlockall			sys_mlockall
+ 153  common	munlockall		sys_munlockall			sys_munlockall
+-154  common	sched_setparam		sys_sched_setparam		compat_sys_sched_setparam
+-155  common	sched_getparam		sys_sched_getparam		compat_sys_sched_getparam
+-156  common	sched_setscheduler	sys_sched_setscheduler		compat_sys_sched_setscheduler
++154  common	sched_setparam		sys_sched_setparam		sys_sched_setparam
++155  common	sched_getparam		sys_sched_getparam		sys_sched_getparam
++156  common	sched_setscheduler	sys_sched_setscheduler		sys_sched_setscheduler
+ 157  common	sched_getscheduler	sys_sched_getscheduler		sys_sched_getscheduler
+ 158  common	sched_yield		sys_sched_yield			sys_sched_yield
+ 159  common	sched_get_priority_max	sys_sched_get_priority_max	sys_sched_get_priority_max
+ 160  common	sched_get_priority_min	sys_sched_get_priority_min	sys_sched_get_priority_min
+ 161  common	sched_rr_get_interval	sys_sched_rr_get_interval	compat_sys_sched_rr_get_interval
+ 162  common	nanosleep		sys_nanosleep			compat_sys_nanosleep
+-163  common	mremap			sys_mremap			compat_sys_mremap
+-164  32		setresuid		-				compat_sys_setresuid16
+-165  32		getresuid		-				compat_sys_getresuid16
++163  common	mremap			sys_mremap			sys_mremap
++164  32		setresuid		-				sys_setresuid16
++165  32		getresuid		-				sys_getresuid16
+ 167  common	query_module		-				-
+-168  common	poll			sys_poll			compat_sys_poll
++168  common	poll			sys_poll			sys_poll
+ 169  common	nfsservctl		-				-
+-170  32		setresgid		-				compat_sys_setresgid16
+-171  32		getresgid		-				compat_sys_getresgid16
+-172  common	prctl			sys_prctl			compat_sys_prctl
++170  32		setresgid		-				sys_setresgid16
++171  32		getresgid		-				sys_getresgid16
++172  common	prctl			sys_prctl			sys_prctl
+ 173  common	rt_sigreturn		sys_rt_sigreturn		compat_sys_rt_sigreturn
+ 174  common	rt_sigaction		sys_rt_sigaction		compat_sys_rt_sigaction
+ 175  common	rt_sigprocmask		sys_rt_sigprocmask		compat_sys_rt_sigprocmask
+@@ -170,10 +170,10 @@
+ 179  common	rt_sigsuspend		sys_rt_sigsuspend		compat_sys_rt_sigsuspend
+ 180  common	pread64			sys_pread64			compat_sys_s390_pread64
+ 181  common	pwrite64		sys_pwrite64			compat_sys_s390_pwrite64
+-182  32		chown			-				compat_sys_chown16
+-183  common	getcwd			sys_getcwd			compat_sys_getcwd
+-184  common	capget			sys_capget			compat_sys_capget
+-185  common	capset			sys_capset			compat_sys_capset
++182  32		chown			-				sys_chown16
++183  common	getcwd			sys_getcwd			sys_getcwd
++184  common	capget			sys_capget			sys_capget
++185  common	capset			sys_capset			sys_capset
+ 186  common	sigaltstack		sys_sigaltstack			compat_sys_sigaltstack
+ 187  common	sendfile		sys_sendfile64			compat_sys_sendfile
+ 188  common	getpmsg			-				-
+@@ -187,7 +187,7 @@
+ 195  32		stat64			-				compat_sys_s390_stat64
+ 196  32		lstat64			-				compat_sys_s390_lstat64
+ 197  32		fstat64			-				compat_sys_s390_fstat64
+-198  32		lchown32		-				compat_sys_lchown
++198  32		lchown32		-				sys_lchown
+ 198  64		lchown			sys_lchown			-
+ 199  32		getuid32		-				sys_getuid
+ 199  64		getuid			sys_getuid			-
+@@ -201,21 +201,21 @@
+ 203  64		setreuid		sys_setreuid			-
+ 204  32		setregid32		-				sys_setregid
+ 204  64		setregid		sys_setregid			-
+-205  32		getgroups32		-				compat_sys_getgroups
++205  32		getgroups32		-				sys_getgroups
+ 205  64		getgroups		sys_getgroups			-
+-206  32		setgroups32		-				compat_sys_setgroups
++206  32		setgroups32		-				sys_setgroups
+ 206  64		setgroups		sys_setgroups			-
+ 207  32		fchown32		-				sys_fchown
+ 207  64		fchown			sys_fchown			-
+ 208  32		setresuid32		-				sys_setresuid
+ 208  64		setresuid		sys_setresuid			-
+-209  32		getresuid32		-				compat_sys_getresuid
++209  32		getresuid32		-				sys_getresuid
+ 209  64		getresuid		sys_getresuid			-
+ 210  32		setresgid32		-				sys_setresgid
+ 210  64		setresgid		sys_setresgid			-
+-211  32		getresgid32		-				compat_sys_getresgid
++211  32		getresgid32		-				sys_getresgid
+ 211  64		getresgid		sys_getresgid			-
+-212  32		chown32			-				compat_sys_chown
++212  32		chown32			-				sys_chown
+ 212  64		chown			sys_chown			-
+ 213  32		setuid32		-				sys_setuid
+ 213  64		setuid			sys_setuid			-
+@@ -225,25 +225,25 @@
+ 215  64		setfsuid		sys_setfsuid			-
+ 216  32		setfsgid32		-				sys_setfsgid
+ 216  64		setfsgid		sys_setfsgid			-
+-217  common	pivot_root		sys_pivot_root			compat_sys_pivot_root
+-218  common	mincore			sys_mincore			compat_sys_mincore
+-219  common	madvise			sys_madvise			compat_sys_madvise
+-220  common	getdents64		sys_getdents64			compat_sys_getdents64
++217  common	pivot_root		sys_pivot_root			sys_pivot_root
++218  common	mincore			sys_mincore			sys_mincore
++219  common	madvise			sys_madvise			sys_madvise
++220  common	getdents64		sys_getdents64			sys_getdents64
+ 221  32		fcntl64			-				compat_sys_fcntl64
+ 222  common	readahead		sys_readahead			compat_sys_s390_readahead
+ 223  32		sendfile64		-				compat_sys_sendfile64
+-224  common	setxattr		sys_setxattr			compat_sys_setxattr
+-225  common	lsetxattr		sys_lsetxattr			compat_sys_lsetxattr
+-226  common	fsetxattr		sys_fsetxattr			compat_sys_fsetxattr
+-227  common	getxattr		sys_getxattr			compat_sys_getxattr
+-228  common	lgetxattr		sys_lgetxattr			compat_sys_lgetxattr
+-229  common	fgetxattr		sys_fgetxattr			compat_sys_fgetxattr
+-230  common	listxattr		sys_listxattr			compat_sys_listxattr
+-231  common	llistxattr		sys_llistxattr			compat_sys_llistxattr
+-232  common	flistxattr		sys_flistxattr			compat_sys_flistxattr
+-233  common	removexattr		sys_removexattr			compat_sys_removexattr
+-234  common	lremovexattr		sys_lremovexattr		compat_sys_lremovexattr
+-235  common	fremovexattr		sys_fremovexattr		compat_sys_fremovexattr
++224  common	setxattr		sys_setxattr			sys_setxattr
++225  common	lsetxattr		sys_lsetxattr			sys_lsetxattr
++226  common	fsetxattr		sys_fsetxattr			sys_fsetxattr
++227  common	getxattr		sys_getxattr			sys_getxattr
++228  common	lgetxattr		sys_lgetxattr			sys_lgetxattr
++229  common	fgetxattr		sys_fgetxattr			sys_fgetxattr
++230  common	listxattr		sys_listxattr			sys_listxattr
++231  common	llistxattr		sys_llistxattr			sys_llistxattr
++232  common	flistxattr		sys_flistxattr			sys_flistxattr
++233  common	removexattr		sys_removexattr			sys_removexattr
++234  common	lremovexattr		sys_lremovexattr		sys_lremovexattr
++235  common	fremovexattr		sys_fremovexattr		sys_fremovexattr
+ 236  common	gettid			sys_gettid			sys_gettid
+ 237  common	tkill			sys_tkill			sys_tkill
+ 238  common	futex			sys_futex			compat_sys_futex
+@@ -251,15 +251,15 @@
+ 240  common	sched_getaffinity	sys_sched_getaffinity		compat_sys_sched_getaffinity
+ 241  common	tgkill			sys_tgkill			sys_tgkill
+ 243  common	io_setup		sys_io_setup			compat_sys_io_setup
+-244  common	io_destroy		sys_io_destroy			compat_sys_io_destroy
++244  common	io_destroy		sys_io_destroy			sys_io_destroy
+ 245  common	io_getevents		sys_io_getevents		compat_sys_io_getevents
+ 246  common	io_submit		sys_io_submit			compat_sys_io_submit
+-247  common	io_cancel		sys_io_cancel			compat_sys_io_cancel
++247  common	io_cancel		sys_io_cancel			sys_io_cancel
+ 248  common	exit_group		sys_exit_group			sys_exit_group
+ 249  common	epoll_create		sys_epoll_create		sys_epoll_create
+-250  common	epoll_ctl		sys_epoll_ctl			compat_sys_epoll_ctl
+-251  common	epoll_wait		sys_epoll_wait			compat_sys_epoll_wait
+-252  common	set_tid_address		sys_set_tid_address		compat_sys_set_tid_address
++250  common	epoll_ctl		sys_epoll_ctl			sys_epoll_ctl
++251  common	epoll_wait		sys_epoll_wait			sys_epoll_wait
++252  common	set_tid_address		sys_set_tid_address		sys_set_tid_address
+ 253  common	fadvise64		sys_fadvise64_64		compat_sys_s390_fadvise64
+ 254  common	timer_create		sys_timer_create		compat_sys_timer_create
+ 255  common	timer_settime		sys_timer_settime		compat_sys_timer_settime
+@@ -273,52 +273,52 @@
+ 264  32		fadvise64_64		-				compat_sys_s390_fadvise64_64
+ 265  common	statfs64		sys_statfs64			compat_sys_statfs64
+ 266  common	fstatfs64		sys_fstatfs64			compat_sys_fstatfs64
+-267  common	remap_file_pages	sys_remap_file_pages		compat_sys_remap_file_pages
++267  common	remap_file_pages	sys_remap_file_pages		sys_remap_file_pages
+ 268  common	mbind			sys_mbind			compat_sys_mbind
+ 269  common	get_mempolicy		sys_get_mempolicy		compat_sys_get_mempolicy
+ 270  common	set_mempolicy		sys_set_mempolicy		compat_sys_set_mempolicy
+ 271  common	mq_open			sys_mq_open			compat_sys_mq_open
+-272  common	mq_unlink		sys_mq_unlink			compat_sys_mq_unlink
++272  common	mq_unlink		sys_mq_unlink			sys_mq_unlink
+ 273  common	mq_timedsend		sys_mq_timedsend		compat_sys_mq_timedsend
+ 274  common	mq_timedreceive		sys_mq_timedreceive		compat_sys_mq_timedreceive
+ 275  common	mq_notify		sys_mq_notify			compat_sys_mq_notify
+ 276  common	mq_getsetattr		sys_mq_getsetattr		compat_sys_mq_getsetattr
+ 277  common	kexec_load		sys_kexec_load			compat_sys_kexec_load
+-278  common	add_key			sys_add_key			compat_sys_add_key
+-279  common	request_key		sys_request_key			compat_sys_request_key
++278  common	add_key			sys_add_key			sys_add_key
++279  common	request_key		sys_request_key			sys_request_key
+ 280  common	keyctl			sys_keyctl			compat_sys_keyctl
+ 281  common	waitid			sys_waitid			compat_sys_waitid
+ 282  common	ioprio_set		sys_ioprio_set			sys_ioprio_set
+ 283  common	ioprio_get		sys_ioprio_get			sys_ioprio_get
+ 284  common	inotify_init		sys_inotify_init		sys_inotify_init
+-285  common	inotify_add_watch	sys_inotify_add_watch		compat_sys_inotify_add_watch
++285  common	inotify_add_watch	sys_inotify_add_watch		sys_inotify_add_watch
+ 286  common	inotify_rm_watch	sys_inotify_rm_watch		sys_inotify_rm_watch
+ 287  common	migrate_pages		sys_migrate_pages		compat_sys_migrate_pages
+ 288  common	openat			sys_openat			compat_sys_openat
+-289  common	mkdirat			sys_mkdirat			compat_sys_mkdirat
+-290  common	mknodat			sys_mknodat			compat_sys_mknodat
+-291  common	fchownat		sys_fchownat			compat_sys_fchownat
++289  common	mkdirat			sys_mkdirat			sys_mkdirat
++290  common	mknodat			sys_mknodat			sys_mknodat
++291  common	fchownat		sys_fchownat			sys_fchownat
+ 292  common	futimesat		sys_futimesat			compat_sys_futimesat
+ 293  32		fstatat64		-				compat_sys_s390_fstatat64
+ 293  64		newfstatat		sys_newfstatat			-
+-294  common	unlinkat		sys_unlinkat			compat_sys_unlinkat
+-295  common	renameat		sys_renameat			compat_sys_renameat
+-296  common	linkat			sys_linkat			compat_sys_linkat
+-297  common	symlinkat		sys_symlinkat			compat_sys_symlinkat
+-298  common	readlinkat		sys_readlinkat			compat_sys_readlinkat
+-299  common	fchmodat		sys_fchmodat			compat_sys_fchmodat
+-300  common	faccessat		sys_faccessat			compat_sys_faccessat
++294  common	unlinkat		sys_unlinkat			sys_unlinkat
++295  common	renameat		sys_renameat			sys_renameat
++296  common	linkat			sys_linkat			sys_linkat
++297  common	symlinkat		sys_symlinkat			sys_symlinkat
++298  common	readlinkat		sys_readlinkat			sys_readlinkat
++299  common	fchmodat		sys_fchmodat			sys_fchmodat
++300  common	faccessat		sys_faccessat			sys_faccessat
+ 301  common	pselect6		sys_pselect6			compat_sys_pselect6
+ 302  common	ppoll			sys_ppoll			compat_sys_ppoll
+-303  common	unshare			sys_unshare			compat_sys_unshare
++303  common	unshare			sys_unshare			sys_unshare
+ 304  common	set_robust_list		sys_set_robust_list		compat_sys_set_robust_list
+ 305  common	get_robust_list		sys_get_robust_list		compat_sys_get_robust_list
+-306  common	splice			sys_splice			compat_sys_splice
++306  common	splice			sys_splice			sys_splice
+ 307  common	sync_file_range		sys_sync_file_range		compat_sys_s390_sync_file_range
+-308  common	tee			sys_tee				compat_sys_tee
++308  common	tee			sys_tee				sys_tee
+ 309  common	vmsplice		sys_vmsplice			compat_sys_vmsplice
+ 310  common	move_pages		sys_move_pages			compat_sys_move_pages
+-311  common	getcpu			sys_getcpu			compat_sys_getcpu
++311  common	getcpu			sys_getcpu			sys_getcpu
+ 312  common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
+ 313  common	utimes			sys_utimes			compat_sys_utimes
+ 314  common	fallocate		sys_fallocate			compat_sys_s390_fallocate
+@@ -332,17 +332,17 @@
+ 322  common	signalfd4		sys_signalfd4			compat_sys_signalfd4
+ 323  common	eventfd2		sys_eventfd2			sys_eventfd2
+ 324  common	inotify_init1		sys_inotify_init1		sys_inotify_init1
+-325  common	pipe2			sys_pipe2			compat_sys_pipe2
++325  common	pipe2			sys_pipe2			sys_pipe2
+ 326  common	dup3			sys_dup3			sys_dup3
+ 327  common	epoll_create1		sys_epoll_create1		sys_epoll_create1
+ 328  common	preadv			sys_preadv			compat_sys_preadv
+ 329  common	pwritev			sys_pwritev			compat_sys_pwritev
+ 330  common	rt_tgsigqueueinfo	sys_rt_tgsigqueueinfo		compat_sys_rt_tgsigqueueinfo
+-331  common	perf_event_open		sys_perf_event_open		compat_sys_perf_event_open
++331  common	perf_event_open		sys_perf_event_open		sys_perf_event_open
+ 332  common	fanotify_init		sys_fanotify_init		sys_fanotify_init
+ 333  common	fanotify_mark		sys_fanotify_mark		compat_sys_fanotify_mark
+-334  common	prlimit64		sys_prlimit64			compat_sys_prlimit64
+-335  common	name_to_handle_at	sys_name_to_handle_at		compat_sys_name_to_handle_at
++334  common	prlimit64		sys_prlimit64			sys_prlimit64
++335  common	name_to_handle_at	sys_name_to_handle_at		sys_name_to_handle_at
+ 336  common	open_by_handle_at	sys_open_by_handle_at		compat_sys_open_by_handle_at
+ 337  common	clock_adjtime		sys_clock_adjtime		compat_sys_clock_adjtime
+ 338  common	syncfs			sys_syncfs			sys_syncfs
+@@ -350,44 +350,44 @@
+ 340  common	process_vm_readv	sys_process_vm_readv		compat_sys_process_vm_readv
+ 341  common	process_vm_writev	sys_process_vm_writev		compat_sys_process_vm_writev
+ 342  common	s390_runtime_instr	sys_s390_runtime_instr		sys_s390_runtime_instr
+-343  common	kcmp			sys_kcmp			compat_sys_kcmp
+-344  common	finit_module		sys_finit_module		compat_sys_finit_module
+-345  common	sched_setattr		sys_sched_setattr		compat_sys_sched_setattr
+-346  common	sched_getattr		sys_sched_getattr		compat_sys_sched_getattr
+-347  common	renameat2		sys_renameat2			compat_sys_renameat2
+-348  common	seccomp			sys_seccomp			compat_sys_seccomp
+-349  common	getrandom		sys_getrandom			compat_sys_getrandom
+-350  common	memfd_create		sys_memfd_create		compat_sys_memfd_create
+-351  common	bpf			sys_bpf				compat_sys_bpf
+-352  common	s390_pci_mmio_write	sys_s390_pci_mmio_write		compat_sys_s390_pci_mmio_write
+-353  common	s390_pci_mmio_read	sys_s390_pci_mmio_read		compat_sys_s390_pci_mmio_read
++343  common	kcmp			sys_kcmp			sys_kcmp
++344  common	finit_module		sys_finit_module		sys_finit_module
++345  common	sched_setattr		sys_sched_setattr		sys_sched_setattr
++346  common	sched_getattr		sys_sched_getattr		sys_sched_getattr
++347  common	renameat2		sys_renameat2			sys_renameat2
++348  common	seccomp			sys_seccomp			sys_seccomp
++349  common	getrandom		sys_getrandom			sys_getrandom
++350  common	memfd_create		sys_memfd_create		sys_memfd_create
++351  common	bpf			sys_bpf				sys_bpf
++352  common	s390_pci_mmio_write	sys_s390_pci_mmio_write		sys_s390_pci_mmio_write
++353  common	s390_pci_mmio_read	sys_s390_pci_mmio_read		sys_s390_pci_mmio_read
+ 354  common	execveat		sys_execveat			compat_sys_execveat
+ 355  common	userfaultfd		sys_userfaultfd			sys_userfaultfd
+ 356  common	membarrier		sys_membarrier			sys_membarrier
+ 357  common	recvmmsg		sys_recvmmsg			compat_sys_recvmmsg
+ 358  common	sendmmsg		sys_sendmmsg			compat_sys_sendmmsg
+ 359  common	socket			sys_socket			sys_socket
+-360  common	socketpair		sys_socketpair			compat_sys_socketpair
+-361  common	bind			sys_bind			compat_sys_bind
+-362  common	connect			sys_connect			compat_sys_connect
++360  common	socketpair		sys_socketpair			sys_socketpair
++361  common	bind			sys_bind			sys_bind
++362  common	connect			sys_connect			sys_connect
+ 363  common	listen			sys_listen			sys_listen
+-364  common	accept4			sys_accept4			compat_sys_accept4
++364  common	accept4			sys_accept4			sys_accept4
+ 365  common	getsockopt		sys_getsockopt			compat_sys_getsockopt
+ 366  common	setsockopt		sys_setsockopt			compat_sys_setsockopt
+-367  common	getsockname		sys_getsockname			compat_sys_getsockname
+-368  common	getpeername		sys_getpeername			compat_sys_getpeername
+-369  common	sendto			sys_sendto			compat_sys_sendto
++367  common	getsockname		sys_getsockname			sys_getsockname
++368  common	getpeername		sys_getpeername			sys_getpeername
++369  common	sendto			sys_sendto			sys_sendto
+ 370  common	sendmsg			sys_sendmsg			compat_sys_sendmsg
+ 371  common	recvfrom		sys_recvfrom			compat_sys_recvfrom
+ 372  common	recvmsg			sys_recvmsg			compat_sys_recvmsg
+ 373  common	shutdown		sys_shutdown			sys_shutdown
+-374  common	mlock2			sys_mlock2			compat_sys_mlock2
+-375  common	copy_file_range		sys_copy_file_range		compat_sys_copy_file_range
++374  common	mlock2			sys_mlock2			sys_mlock2
++375  common	copy_file_range		sys_copy_file_range		sys_copy_file_range
+ 376  common	preadv2			sys_preadv2			compat_sys_preadv2
+ 377  common	pwritev2		sys_pwritev2			compat_sys_pwritev2
+-378  common	s390_guarded_storage	sys_s390_guarded_storage	compat_sys_s390_guarded_storage
+-379  common	statx			sys_statx			compat_sys_statx
+-380  common	s390_sthyi		sys_s390_sthyi			compat_sys_s390_sthyi
+-381  common	kexec_file_load		sys_kexec_file_load		compat_sys_kexec_file_load
++378  common	s390_guarded_storage	sys_s390_guarded_storage	sys_s390_guarded_storage
++379  common	statx			sys_statx			sys_statx
++380  common	s390_sthyi		sys_s390_sthyi			sys_s390_sthyi
++381  common	kexec_file_load		sys_kexec_file_load		sys_kexec_file_load
+ 382  common	io_pgetevents		sys_io_pgetevents		compat_sys_io_pgetevents
+-383  common	rseq			sys_rseq			compat_sys_rseq
++383  common	rseq			sys_rseq			sys_rseq
 -- 
 2.20.0
