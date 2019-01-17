@@ -1,120 +1,59 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v1] iommu/s390: Declare s390 iommu reserved regions
-Date: Wed, 16 Jan 2019 10:33:52 +0100
-Message-ID: <c7bd79f9-85f4-6fa7-8f4e-20eb3ed87d46@linux.ibm.com>
+From: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+Subject: RE: [PATCH v1] iommu/s390: Declare s390 iommu reserved regions
+Date: Thu, 17 Jan 2019 09:23:55 +0000
+Message-ID: <5FC3163CFD30C246ABAA99954A238FA83928BF16@lhreml524-mbs.china.huawei.com>
 References: <1547573850-9459-1-git-send-email-pmorel@linux.ibm.com>
- <1547573850-9459-2-git-send-email-pmorel@linux.ibm.com>
- <20190115203335.111bfcdc@thinkpad>
-Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190115203335.111bfcdc@thinkpad>
+In-Reply-To: <1547573850-9459-1-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-iommu/>
 List-Post: <mailto:iommu@lists.linux-foundation.org>
-To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: joro@8bytes.org, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, shameerali.kolothum.thodi@huawei.com, walling@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>, "gerald.schaefer@de.ibm.com" <gerald.schaefer@de.ibm.com>
+Cc: "joro@8bytes.org" <joro@8bytes.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "walling@linux.ibm.com" <walling@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15/01/2019 20:33, Gerald Schaefer wrote:
-> On Tue, 15 Jan 2019 18:37:30 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> The s390 iommu can only allow DMA transactions between the zPCI device
->> entries start_dma and end_dma.
->>
->> Let's declare the regions before start_dma and after end_dma as
->> reserved regions using the appropriate callback in iommu_ops.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   drivers/iommu/s390-iommu.c | 29 +++++++++++++++++++++++++++++
->>   1 file changed, 29 insertions(+)
->>
->> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
->> index 22d4db3..5ca91a1 100644
->> --- a/drivers/iommu/s390-iommu.c
->> +++ b/drivers/iommu/s390-iommu.c
->> @@ -363,6 +363,33 @@ void zpci_destroy_iommu(struct zpci_dev *zdev)
->>   	iommu_device_sysfs_remove(&zdev->iommu_dev);
->>   }
->>
->> +static void s390_get_resv_regions(struct device *dev, struct list_head *head)
->> +{
->> +	struct iommu_resv_region *region;
->> +	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
->> +
->> +	region = iommu_alloc_resv_region(0, zdev->start_dma,
->> +					 0, IOMMU_RESV_RESERVED);
->> +	if (!region)
->> +		return;
->> +	list_add_tail(&region->list, head);
->> +
->> +	region = iommu_alloc_resv_region(zdev->end_dma + 1,
->> +					 ~0UL - zdev->end_dma,
->> +					 0, IOMMU_RESV_RESERVED);
-> 
-> Can you guarantee that start_dma will never be 0 and end_dma never ~0UL,
-> even with future HW?
-> 
-> In any of these cases, your code would reserve strange ranges, and sysfs
-> would report broken reserved ranges.
-> 
-> Maybe add a check for start_dma > 0 and end_dma < ULONG_MAX?
+Hi Pierre,
 
-Yes, thanks.
-
+> -----Original Message-----
+> From: Pierre Morel [mailto:pmorel@linux.ibm.com]
+> Sent: 15 January 2019 17:37
+> To: gerald.schaefer@de.ibm.com
+> Cc: joro@8bytes.org; linux-s390@vger.kernel.org;
+> iommu@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
+> alex.williamson@redhat.com; Shameerali Kolothum Thodi
+> <shameerali.kolothum.thodi@huawei.com>; walling@linux.ibm.com
+> Subject: [PATCH v1] iommu/s390: Declare s390 iommu reserved regions
 > 
->> +	if (!region)
->> +		return;
->> +	list_add_tail(&region->list, head);
->> +}
->> +
->> +static void s390_put_resv_regions(struct device *dev, struct list_head *head)
->> +{
->> +	struct iommu_resv_region *entry, *next;
->> +
->> +	list_for_each_entry_safe(entry, next, head, list)
->> +		kfree(entry);
->> +}
+> The s390 iommu can only allow DMA transactions between the zPCI device
+> entries start_dma and end_dma.
 > 
-> It looks very wrong that there is no matching list_del() for the previous
-> list_add_tail(). However, it seems to be done like this everywhere else,
-> and the calling functions (currently) only use temporary list_heads as
-> far as I can see, so I guess it should be OK (for now).
+> Let's declare the regions before start_dma and after end_dma as
+> reserved regions using the appropriate callback in iommu_ops.
 > 
-> Still, a list_del() would be nice :-)
+> The reserved region may later be retrieved from sysfs or from
+> the vfio iommu internal interface.
 
-hum.
-right.
+Just in case you are planning to use the sysfs interface to retrieve the valid 
+regions, and intend to use that in Qemu vfio path, please see the discussion
+here [1] (If you haven't seen this already)
 
+Thanks,
+Shameer
+
+[1] https://lists.gnu.org/archive/html/qemu-devel/2017-11/msg03651.html
+ 
+> This seems to me related with the work Shameer has started on
+> vfio_iommu_type1 so I add Alex and Shameer to the CC list.
 > 
->> +
->>   static const struct iommu_ops s390_iommu_ops = {
->>   	.capable = s390_iommu_capable,
->>   	.domain_alloc = s390_domain_alloc,
->> @@ -376,6 +403,8 @@ static const struct iommu_ops s390_iommu_ops = {
->>   	.remove_device = s390_iommu_remove_device,
->>   	.device_group = generic_device_group,
->>   	.pgsize_bitmap = S390_IOMMU_PGSIZES,
->> +	.get_resv_regions = s390_get_resv_regions,
->> +	.put_resv_regions = s390_put_resv_regions,
->>   };
->>
->>   static int __init s390_iommu_init(void)
+> Pierre Morel (1):
+>   iommu/s390: Declare s390 iommu reserved regions
 > 
-> With the start/end_dma issue addressed (if necessary):
-> Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+>  drivers/iommu/s390-iommu.c | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
 > 
-
-Thanks.
-
-Regards,
-Pierre
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> --
+> 2.7.4
