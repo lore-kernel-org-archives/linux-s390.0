@@ -1,126 +1,133 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 02/21] powerpc: use memblock functions returning
- virtual address
-Date: Wed, 16 Jan 2019 15:44:02 +0200
-Message-ID: <1547646261-32535-3-git-send-email-rppt@linux.ibm.com>
-References: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <1547646261-32535-1-git-send-email-rppt@linux.ibm.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-List-Archive: <https://lore.kernel.org/linux-devicetree/>
-List-Post: <mailto:devicetree@vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xten
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH v2 4/4] kbuild: remove unnecessary in-subshell execution
+Date: Thu, 17 Jan 2019 19:02:44 +0900
+Message-Id: <1547719364-18849-4-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1547719364-18849-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1547719364-18849-1-git-send-email-yamada.masahiro@socionext.com>
+Sender: linux-kbuild-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-kbuild/>
+List-Post: <mailto:linux-kbuild@vger.kernel.org>
+To: linux-kbuild@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Michal Marek <michal.lkml@markovi.net>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-RnJvbTogQ2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3BoZS5sZXJveUBjLXMuZnI+CgpTaW5jZSBv
-bmx5IHRoZSB2aXJ0dWFsIGFkZHJlc3Mgb2YgYWxsb2NhdGVkIGJsb2NrcyBpcyB1c2VkLApsZXRz
-IHVzZSBmdW5jdGlvbnMgcmV0dXJuaW5nIGRpcmVjdGx5IHZpcnR1YWwgYWRkcmVzcy4KClRob3Nl
-IGZ1bmN0aW9ucyBoYXZlIHRoZSBhZHZhbnRhZ2Ugb2YgYWxzbyB6ZXJvaW5nIHRoZSBibG9jay4K
-ClsgTVI6CiAtIHVwZGF0ZWQgZXJyb3IgbWVzc2FnZSBpbiBhbGxvY19zdGFjaygpIHRvIGJlIG1v
-cmUgdmVyYm9zZQogLSBjb252ZXJldGVkIHNldmVyYWwgYWRkaXRpb25hbCBjYWxsIHNpdGVzIF0K
-ClNpZ25lZC1vZmYtYnk6IENocmlzdG9waGUgTGVyb3kgPGNocmlzdG9waGUubGVyb3lAYy1zLmZy
-PgpTaWduZWQtb2ZmLWJ5OiBNaWtlIFJhcG9wb3J0IDxycHB0QGxpbnV4LmlibS5jb20+Ci0tLQog
-YXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVfZnRycy5jIHwgIDMgKy0tCiBhcmNoL3Bvd2VycGMv
-a2VybmVsL2lycS5jICAgICAgICAgfCAgNSAtLS0tLQogYXJjaC9wb3dlcnBjL2tlcm5lbC9wYWNh
-LmMgICAgICAgIHwgIDYgKysrKystCiBhcmNoL3Bvd2VycGMva2VybmVsL3Byb20uYyAgICAgICAg
-fCAgNSArKysrLQogYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF8zMi5jICAgIHwgMjYgKysrKysr
-KysrKysrKysrKy0tLS0tLS0tLS0KIDUgZmlsZXMgY2hhbmdlZCwgMjYgaW5zZXJ0aW9ucygrKSwg
-MTkgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVf
-ZnRycy5jIGIvYXJjaC9wb3dlcnBjL2tlcm5lbC9kdF9jcHVfZnRycy5jCmluZGV4IDhiZTM3MjEu
-LjI1NTQ4MjQgMTAwNjQ0Ci0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvZHRfY3B1X2Z0cnMuYwor
-KysgYi9hcmNoL3Bvd2VycGMva2VybmVsL2R0X2NwdV9mdHJzLmMKQEAgLTgxMyw3ICs4MTMsNiBA
-QCBzdGF0aWMgaW50IF9faW5pdCBwcm9jZXNzX2NwdWZlYXR1cmVzX25vZGUodW5zaWduZWQgbG9u
-ZyBub2RlLAogCWludCBsZW47CiAKIAlmID0gJmR0X2NwdV9mZWF0dXJlc1tpXTsKLQltZW1zZXQo
-ZiwgMCwgc2l6ZW9mKHN0cnVjdCBkdF9jcHVfZmVhdHVyZSkpOwogCiAJZi0+bm9kZSA9IG5vZGU7
-CiAKQEAgLTEwMDgsNyArMTAwNyw3IEBAIHN0YXRpYyBpbnQgX19pbml0IGR0X2NwdV9mdHJzX3Nj
-YW5fY2FsbGJhY2sodW5zaWduZWQgbG9uZyBub2RlLCBjb25zdCBjaGFyCiAJLyogQ291bnQgYW5k
-IGFsbG9jYXRlIHNwYWNlIGZvciBjcHUgZmVhdHVyZXMgKi8KIAlvZl9zY2FuX2ZsYXRfZHRfc3Vi
-bm9kZXMobm9kZSwgY291bnRfY3B1ZmVhdHVyZXNfc3Vibm9kZXMsCiAJCQkJCQkmbnJfZHRfY3B1
-X2ZlYXR1cmVzKTsKLQlkdF9jcHVfZmVhdHVyZXMgPSBfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2Mo
-c2l6ZW9mKHN0cnVjdCBkdF9jcHVfZmVhdHVyZSkgKiBucl9kdF9jcHVfZmVhdHVyZXMsIFBBR0Vf
-U0laRSkpOworCWR0X2NwdV9mZWF0dXJlcyA9IG1lbWJsb2NrX2FsbG9jKHNpemVvZihzdHJ1Y3Qg
-ZHRfY3B1X2ZlYXR1cmUpICogbnJfZHRfY3B1X2ZlYXR1cmVzLCBQQUdFX1NJWkUpOwogCiAJY3B1
-ZmVhdHVyZXNfc2V0dXBfc3RhcnQoaXNhKTsKIApkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tl
-cm5lbC9pcnEuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvaXJxLmMKaW5kZXggOTE2ZGRjNC4uNGE0
-NGJjMyAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9pcnEuYworKysgYi9hcmNoL3Bv
-d2VycGMva2VybmVsL2lycS5jCkBAIC03MjUsMTggKzcyNSwxNSBAQCB2b2lkIGV4Y19sdmxfY3R4
-X2luaXQodm9pZCkKICNlbmRpZgogI2VuZGlmCiAKLQkJbWVtc2V0KCh2b2lkICopY3JpdGlycV9j
-dHhbY3B1X25yXSwgMCwgVEhSRUFEX1NJWkUpOwogCQl0cCA9IGNyaXRpcnFfY3R4W2NwdV9ucl07
-CiAJCXRwLT5jcHUgPSBjcHVfbnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gMDsKIAogI2lmZGVm
-IENPTkZJR19CT09LRQotCQltZW1zZXQoKHZvaWQgKilkYmdpcnFfY3R4W2NwdV9ucl0sIDAsIFRI
-UkVBRF9TSVpFKTsKIAkJdHAgPSBkYmdpcnFfY3R4W2NwdV9ucl07CiAJCXRwLT5jcHUgPSBjcHVf
-bnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gMDsKIAotCQltZW1zZXQoKHZvaWQgKiltY2hlY2tp
-cnFfY3R4W2NwdV9ucl0sIDAsIFRIUkVBRF9TSVpFKTsKIAkJdHAgPSBtY2hlY2tpcnFfY3R4W2Nw
-dV9ucl07CiAJCXRwLT5jcHUgPSBjcHVfbnI7CiAJCXRwLT5wcmVlbXB0X2NvdW50ID0gSEFSRElS
-UV9PRkZTRVQ7CkBAIC03NTQsMTIgKzc1MSwxMCBAQCB2b2lkIGlycV9jdHhfaW5pdCh2b2lkKQog
-CWludCBpOwogCiAJZm9yX2VhY2hfcG9zc2libGVfY3B1KGkpIHsKLQkJbWVtc2V0KCh2b2lkICop
-c29mdGlycV9jdHhbaV0sIDAsIFRIUkVBRF9TSVpFKTsKIAkJdHAgPSBzb2Z0aXJxX2N0eFtpXTsK
-IAkJdHAtPmNwdSA9IGk7CiAJCWtscF9pbml0X3RocmVhZF9pbmZvKHRwKTsKIAotCQltZW1zZXQo
-KHZvaWQgKiloYXJkaXJxX2N0eFtpXSwgMCwgVEhSRUFEX1NJWkUpOwogCQl0cCA9IGhhcmRpcnFf
-Y3R4W2ldOwogCQl0cC0+Y3B1ID0gaTsKIAkJa2xwX2luaXRfdGhyZWFkX2luZm8odHApOwpkaWZm
-IC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9wYWNhLmMgYi9hcmNoL3Bvd2VycGMva2VybmVs
-L3BhY2EuYwppbmRleCA4Yzg5MGM2Li5lNzM4MmFiIDEwMDY0NAotLS0gYS9hcmNoL3Bvd2VycGMv
-a2VybmVsL3BhY2EuYworKysgYi9hcmNoL3Bvd2VycGMva2VybmVsL3BhY2EuYwpAQCAtMTk2LDcg
-KzE5NiwxMSBAQCB2b2lkIF9faW5pdCBhbGxvY2F0ZV9wYWNhX3B0cnModm9pZCkKIAlwYWNhX25y
-X2NwdV9pZHMgPSBucl9jcHVfaWRzOwogCiAJcGFjYV9wdHJzX3NpemUgPSBzaXplb2Yoc3RydWN0
-IHBhY2Ffc3RydWN0ICopICogbnJfY3B1X2lkczsKLQlwYWNhX3B0cnMgPSBfX3ZhKG1lbWJsb2Nr
-X3BoeXNfYWxsb2MocGFjYV9wdHJzX3NpemUsIFNNUF9DQUNIRV9CWVRFUykpOworCXBhY2FfcHRy
-cyA9IG1lbWJsb2NrX2FsbG9jX3JhdyhwYWNhX3B0cnNfc2l6ZSwgU01QX0NBQ0hFX0JZVEVTKTsK
-KwlpZiAoIXBhY2FfcHRycykKKwkJcGFuaWMoIkZhaWxlZCB0byBhbGxvY2F0ZSAlZCBieXRlcyBm
-b3IgcGFjYSBwb2ludGVyc1xuIiwKKwkJICAgICAgcGFjYV9wdHJzX3NpemUpOworCiAJbWVtc2V0
-KHBhY2FfcHRycywgMHg4OCwgcGFjYV9wdHJzX3NpemUpOwogfQogCmRpZmYgLS1naXQgYS9hcmNo
-L3Bvd2VycGMva2VybmVsL3Byb20uYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5jCmluZGV4
-IGU5N2FhZjIuLmMwZWQ0ZmEgMTAwNjQ0Ci0tLSBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5j
-CisrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvcHJvbS5jCkBAIC0xMjcsNyArMTI3LDEwIEBAIHN0
-YXRpYyB2b2lkIF9faW5pdCBtb3ZlX2RldmljZV90cmVlKHZvaWQpCiAJaWYgKChtZW1vcnlfbGlt
-aXQgJiYgKHN0YXJ0ICsgc2l6ZSkgPiBQSFlTSUNBTF9TVEFSVCArIG1lbW9yeV9saW1pdCkgfHwK
-IAkgICAgIW1lbWJsb2NrX2lzX21lbW9yeShzdGFydCArIHNpemUgLSAxKSB8fAogCSAgICBvdmVy
-bGFwc19jcmFzaGtlcm5lbChzdGFydCwgc2l6ZSkgfHwgb3ZlcmxhcHNfaW5pdHJkKHN0YXJ0LCBz
-aXplKSkgewotCQlwID0gX192YShtZW1ibG9ja19waHlzX2FsbG9jKHNpemUsIFBBR0VfU0laRSkp
-OworCQlwID0gbWVtYmxvY2tfYWxsb2NfcmF3KHNpemUsIFBBR0VfU0laRSk7CisJCWlmICghcCkK
-KwkJCXBhbmljKCJGYWlsZWQgdG8gYWxsb2NhdGUgJWx1IGJ5dGVzIHRvIG1vdmUgZGV2aWNlIHRy
-ZWVcbiIsCisJCQkgICAgICBzaXplKTsKIAkJbWVtY3B5KHAsIGluaXRpYWxfYm9vdF9wYXJhbXMs
-IHNpemUpOwogCQlpbml0aWFsX2Jvb3RfcGFyYW1zID0gcDsKIAkJREJHKCJNb3ZlZCBkZXZpY2Ug
-dHJlZSB0byAweCVweFxuIiwgcCk7CmRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMva2VybmVsL3Nl
-dHVwXzMyLmMgYi9hcmNoL3Bvd2VycGMva2VybmVsL3NldHVwXzMyLmMKaW5kZXggOTQ3ZjkwNC4u
-MWYwYjc2MiAxMDA2NDQKLS0tIGEvYXJjaC9wb3dlcnBjL2tlcm5lbC9zZXR1cF8zMi5jCisrKyBi
-L2FyY2gvcG93ZXJwYy9rZXJuZWwvc2V0dXBfMzIuYwpAQCAtMTk2LDYgKzE5NiwxNyBAQCBzdGF0
-aWMgaW50IF9faW5pdCBwcGNfaW5pdCh2b2lkKQogfQogYXJjaF9pbml0Y2FsbChwcGNfaW5pdCk7
-CiAKK3N0YXRpYyB2b2lkICpfX2luaXQgYWxsb2Nfc3RhY2sodm9pZCkKK3sKKwl2b2lkICpwdHIg
-PSBtZW1ibG9ja19hbGxvYyhUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUpOworCisJaWYgKCFwdHIp
-CisJCXBhbmljKCJjYW5ub3QgYWxsb2NhdGUgJWQgYnl0ZXMgZm9yIHN0YWNrIGF0ICVwU1xuIiwK
-KwkJICAgICAgVEhSRUFEX1NJWkUsICh2b2lkICopX1JFVF9JUF8pOworCisJcmV0dXJuIHB0cjsK
-K30KKwogdm9pZCBfX2luaXQgaXJxc3RhY2tfZWFybHlfaW5pdCh2b2lkKQogewogCXVuc2lnbmVk
-IGludCBpOwpAQCAtMjAzLDEwICsyMTQsOCBAQCB2b2lkIF9faW5pdCBpcnFzdGFja19lYXJseV9p
-bml0KHZvaWQpCiAJLyogaW50ZXJydXB0IHN0YWNrcyBtdXN0IGJlIGluIGxvd21lbSwgd2UgZ2V0
-IHRoYXQgZm9yIGZyZWUgb24gcHBjMzIKIAkgKiBhcyB0aGUgbWVtYmxvY2sgaXMgbGltaXRlZCB0
-byBsb3dtZW0gYnkgZGVmYXVsdCAqLwogCWZvcl9lYWNoX3Bvc3NpYmxlX2NwdShpKSB7Ci0JCXNv
-ZnRpcnFfY3R4W2ldID0gKHN0cnVjdCB0aHJlYWRfaW5mbyAqKQotCQkJX192YShtZW1ibG9ja19w
-aHlzX2FsbG9jKFRIUkVBRF9TSVpFLCBUSFJFQURfU0laRSkpOwotCQloYXJkaXJxX2N0eFtpXSA9
-IChzdHJ1Y3QgdGhyZWFkX2luZm8gKikKLQkJCV9fdmEobWVtYmxvY2tfcGh5c19hbGxvYyhUSFJF
-QURfU0laRSwgVEhSRUFEX1NJWkUpKTsKKwkJc29mdGlycV9jdHhbaV0gPSBhbGxvY19zdGFjaygp
-OworCQloYXJkaXJxX2N0eFtpXSA9IGFsbG9jX3N0YWNrKCk7CiAJfQogfQogCkBAIC0yMjQsMTMg
-KzIzMywxMCBAQCB2b2lkIF9faW5pdCBleGNfbHZsX2Vhcmx5X2luaXQodm9pZCkKIAkJaHdfY3B1
-ID0gMDsKICNlbmRpZgogCi0JCWNyaXRpcnFfY3R4W2h3X2NwdV0gPSAoc3RydWN0IHRocmVhZF9p
-bmZvICopCi0JCQlfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2MoVEhSRUFEX1NJWkUsIFRIUkVBRF9T
-SVpFKSk7CisJCWNyaXRpcnFfY3R4W2h3X2NwdV0gPSBhbGxvY19zdGFjaygpOwogI2lmZGVmIENP
-TkZJR19CT09LRQotCQlkYmdpcnFfY3R4W2h3X2NwdV0gPSAoc3RydWN0IHRocmVhZF9pbmZvICop
-Ci0JCQlfX3ZhKG1lbWJsb2NrX3BoeXNfYWxsb2MoVEhSRUFEX1NJWkUsIFRIUkVBRF9TSVpFKSk7
-Ci0JCW1jaGVja2lycV9jdHhbaHdfY3B1XSA9IChzdHJ1Y3QgdGhyZWFkX2luZm8gKikKLQkJCV9f
-dmEobWVtYmxvY2tfcGh5c19hbGxvYyhUSFJFQURfU0laRSwgVEhSRUFEX1NJWkUpKTsKKwkJZGJn
-aXJxX2N0eFtod19jcHVdID0gYWxsb2Nfc3RhY2soKTsKKwkJbWNoZWNraXJxX2N0eFtod19jcHVd
-ID0gYWxsb2Nfc3RhY2soKTsKICNlbmRpZgogCX0KIH0KLS0gCjIuNy40CgoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlz
-dApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==
+The commands surrounded by ( ) are executed in a subshell, but in
+most cases, we do not need to spawn an extra subshell.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+Changes in v2: None
+
+ scripts/Makefile.build |  4 ++--
+ scripts/Makefile.lib   | 21 ++++++++++-----------
+ scripts/mkcompile_h    |  4 ++--
+ 3 files changed, 14 insertions(+), 15 deletions(-)
+
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 9800178..f8e2794 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -312,11 +312,11 @@ $(real-obj-m:.o=.s): modkern_aflags := $(KBUILD_AFLAGS_MODULE) $(AFLAGS_MODULE)
+ #
+ # These mirror gensymtypes_c and co above, keep them in synch.
+ cmd_gensymtypes_S =                                                         \
+-    (echo "\#include <linux/kernel.h>" ;                                    \
++   { echo "\#include <linux/kernel.h>" ;                                    \
+      echo "\#include <asm/asm-prototypes.h>" ;                              \
+     $(CPP) $(a_flags) $< |                                                  \
+      grep "\<___EXPORT_SYMBOL\>" |                                          \
+-     sed 's/.*___EXPORT_SYMBOL[[:space:]]*\([a-zA-Z0-9_]*\)[[:space:]]*,.*/EXPORT_SYMBOL(\1);/' ) | \
++     sed 's/.*___EXPORT_SYMBOL[[:space:]]*\([a-zA-Z0-9_]*\)[[:space:]]*,.*/EXPORT_SYMBOL(\1);/' ; } | \
+     $(CPP) -D__GENKSYMS__ $(c_flags) -xc - |                                \
+     $(GENKSYMS) $(if $(1), -T $(2))                                         \
+      $(patsubst y,-R,$(CONFIG_MODULE_REL_CRCS))                             \
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index c6fc295..c0abd9a 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -271,7 +271,7 @@ DTC_FLAGS += $(DTC_FLAGS_$(basetarget))
+ # Generate an assembly file to wrap the output of the device tree compiler
+ quiet_cmd_dt_S_dtb= DTB     $@
+ cmd_dt_S_dtb=						\
+-(							\
++{							\
+ 	echo '\#include <asm-generic/vmlinux.lds.h>'; 	\
+ 	echo '.section .dtb.init.rodata,"a"';		\
+ 	echo '.balign STRUCT_ALIGNMENT';		\
+@@ -281,7 +281,7 @@ cmd_dt_S_dtb=						\
+ 	echo '__dtb_$(subst -,_,$(*F))_end:';		\
+ 	echo '.global __dtb_$(subst -,_,$(*F))_end';	\
+ 	echo '.balign STRUCT_ALIGNMENT'; 		\
+-) > $@
++} > $@
+ 
+ $(obj)/%.dtb.S: $(obj)/%.dtb FORCE
+ 	$(call if_changed,dt_S_dtb)
+@@ -335,20 +335,20 @@ printf "%08x\n" $$dec_size |						\
+ )
+ 
+ quiet_cmd_bzip2 = BZIP2   $@
+-      cmd_bzip2 = (cat $(real-prereqs) | bzip2 -9 && $(size_append)) > $@
++      cmd_bzip2 = { cat $(real-prereqs) | bzip2 -9 && $(size_append); } > $@
+ 
+ # Lzma
+ # ---------------------------------------------------------------------------
+ 
+ quiet_cmd_lzma = LZMA    $@
+-      cmd_lzma = (cat $(real-prereqs) | lzma -9 && $(size_append)) > $@
++      cmd_lzma = { cat $(real-prereqs) | lzma -9 && $(size_append); } > $@
+ 
+ quiet_cmd_lzo = LZO     $@
+-      cmd_lzo = (cat $(real-prereqs) | lzop -9 && $(size_append)) > $@
++      cmd_lzo = { cat $(real-prereqs) | lzop -9 && $(size_append); } > $@
+ 
+ quiet_cmd_lz4 = LZ4     $@
+-      cmd_lz4 = (cat $(real-prereqs) | lz4c -l -c1 stdin stdout && \
+-                  $(size_append)) > $@
++      cmd_lz4 = { cat $(real-prereqs) | lz4c -l -c1 stdin stdout && \
++                  $(size_append); } > $@
+ 
+ # U-Boot mkimage
+ # ---------------------------------------------------------------------------
+@@ -390,12 +390,11 @@ quiet_cmd_uimage = UIMAGE  $@
+ # big dictionary would increase the memory usage too much in the multi-call
+ # decompression mode. A BCJ filter isn't used either.
+ quiet_cmd_xzkern = XZKERN  $@
+-      cmd_xzkern = (cat $(real-prereqs) | \
+-	sh $(srctree)/scripts/xz_wrap.sh && $(size_append)) > $@
++      cmd_xzkern = { cat $(real-prereqs) | sh $(srctree)/scripts/xz_wrap.sh && \
++                     $(size_append); } > $@
+ 
+ quiet_cmd_xzmisc = XZMISC  $@
+-      cmd_xzmisc = (cat $(real-prereqs) | \
+-	xz --check=crc32 --lzma2=dict=1MiB) > $@
++      cmd_xzmisc = cat $(real-prereqs) | xz --check=crc32 --lzma2=dict=1MiB > $@
+ 
+ # ASM offsets
+ # ---------------------------------------------------------------------------
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index 87f1fc9..2339f86 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -62,7 +62,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ 
+ # Generate a temporary compile.h
+ 
+-( echo /\* This file is auto generated, version $VERSION \*/
++{ echo /\* This file is auto generated, version $VERSION \*/
+   if [ -n "$CONFIG_FLAGS" ] ; then echo "/* $CONFIG_FLAGS */"; fi
+ 
+   echo \#define UTS_MACHINE \"$ARCH\"
+@@ -73,7 +73,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+   echo \#define LINUX_COMPILE_HOST \"`echo $LINUX_COMPILE_HOST | $UTS_TRUNCATE`\"
+ 
+   echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | grep ' version ' | sed 's/[[:space:]]*$//'`\"
+-) > .tmpcompile
++} > .tmpcompile
+ 
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+-- 
+2.7.4
