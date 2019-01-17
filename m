@@ -1,14 +1,13 @@
 Return-Path: <SRS0=R5eS=PZ=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 17 Jan 2019 21:13:42 +0100
+Date: Thu, 17 Jan 2019 21:19:20 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 2/5] ipc: introduce ksys_ipc()/compat_ksys_ipc() for s390
+Subject: Re: [PATCH 0/5] s390: rework compat wrapper generation
 References: <20190116131527.2071570-1-arnd@arndb.de>
- <20190116131527.2071570-3-arnd@arndb.de>
- <20190117132906.GB18351@osiris>
- <CAK8P3a1u0OJKPnuBHVy4WSFy6T04kfNw5BwkpsLmkEU4KQD5eQ@mail.gmail.com>
+ <20190117133619.GD18351@osiris>
+ <CAK8P3a2KvCwAa5yp+f_cZOX4Osd_tvwfBto=aMEMW9TNbePQ9w@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAK8P3a1u0OJKPnuBHVy4WSFy6T04kfNw5BwkpsLmkEU4KQD5eQ@mail.gmail.com>
-Message-Id: <20190117201342.GA3687@osiris>
+In-Reply-To: <CAK8P3a2KvCwAa5yp+f_cZOX4Osd_tvwfBto=aMEMW9TNbePQ9w@mail.gmail.com>
+Message-Id: <20190117201920.GB3687@osiris>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
@@ -16,31 +15,41 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>, Linux API <linux-api@vger.kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Jan 17, 2019 at 05:29:55PM +0100, Arnd Bergmann wrote:
-> On Thu, Jan 17, 2019 at 2:29 PM Heiko Carstens
-> >  SYSCALL_DEFINE1(s390_personality, unsigned int, personality)
-> >  {
-> > diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
-> > index ab9d0e3c6d50..ad016a7db0ea 100644
-> > --- a/kernel/sys_ni.c
-> > +++ b/kernel/sys_ni.c
-> > @@ -366,7 +366,7 @@ COND_SYSCALL(kexec_file_load);
-> >  /* s390 */
-> >  COND_SYSCALL(s390_pci_mmio_read);
-> >  COND_SYSCALL(s390_pci_mmio_write);
-> > -COND_SYSCALL_COMPAT(s390_ipc);
-> > +COND_SYSCALL(s390_ipc);
+On Thu, Jan 17, 2019 at 05:21:50PM +0100, Arnd Bergmann wrote:
+> On Thu, Jan 17, 2019 at 2:36 PM Heiko Carstens
+> <heiko.carstens@de.ibm.com> wrote:
 > >
-> >  /* powerpc */
-> >  COND_SYSCALL(rtas);
+> > On Wed, Jan 16, 2019 at 02:15:18PM +0100, Arnd Bergmann wrote:
 > 
-> I think you need to keep the
+> > > I did not test the changes at runtime, but I looked at the
+> > > generated object code, which seems fine here and includes
+> > > the same conversions as before.
+> >
+> > All looks good and seems to work fine. This is a very nice
+> > simplification of our compat code, even if it adds some dead code to
+> > the kernel image.
+> >
+> > I did some tests and it all looks good. Also the generated code looks
+> > fine. So, if nothing breaks, this will go upstream with next merge
+> > window via the s390 tree.
+> >
+> > Thanks again for your work!
 > 
-> COND_SYSCALL_COMPAT(s390_ipc);
+> Awesome, thanks for testing it so quickly and agreeing to merge it!
 > 
-> here, otherwise it still fails with CONFIG_SYSV_IPC=n, CONFIG_COMPAT=y, right?
+> There is a dependency that I now have for my y2038 syscall series
+> of course, so I'd need to have those patches on top of the s390 series.
+> 
+> I think we can either have a shared git branch that gets merged both
+> into your s390 tree and my y2038 tree, or we merge it only through
+> my tree, with your Ack.
+> 
+> Does that work for you?
 
-Yes, you're right.
+I'll discuss this with Martin tomorrow, however I think a shared git
+branch would be the best solution. I want to get as much testing as
+possible for this patch set, which means this must also be in the s390
+tree.
