@@ -1,12 +1,11 @@
 Return-Path: <SRS0=R5eS=PZ=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 17 Jan 2019 14:31:15 +0100
+Date: Thu, 17 Jan 2019 14:36:19 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH 4/5] s390: autogenerate compat syscall wrappers
+Subject: Re: [PATCH 0/5] s390: rework compat wrapper generation
 References: <20190116131527.2071570-1-arnd@arndb.de>
- <20190116131527.2071570-5-arnd@arndb.de>
 MIME-Version: 1.0
-In-Reply-To: <20190116131527.2071570-5-arnd@arndb.de>
-Message-Id: <20190117133115.GC18351@osiris>
+In-Reply-To: <20190116131527.2071570-1-arnd@arndb.de>
+Message-Id: <20190117133619.GD18351@osiris>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
@@ -14,60 +13,50 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andrew Morton <akpm@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 16, 2019 at 02:15:22PM +0100, Arnd Bergmann wrote:
-> Any system call that takes a pointer argument on s390 requires
-> a wrapper function to do a 31-to-64 zero-extension, these are
-> currently generated in arch/s390/kernel/compat_wrapper.c.
+On Wed, Jan 16, 2019 at 02:15:18PM +0100, Arnd Bergmann wrote:
+> Hi Heiko and Martin,
 > 
-> On arm64 and x86, we already generate similar wrappers for all
-> system calls in the place of their definition, just for a different
-> purpose (they load the arguments from pt_regs).
+> As promised, I gave this a go and changed the SYSCALL_DEFINEx()
+> infrastructure to always include the wrappers for doing the
+> 31-bit argument conversion on s390 compat mode.
 > 
-> We can do the same thing here, by adding an asm/syscall_wrapper.h
-> file with a copy of all the relevant macros to override the generic
-> version. Besides the addition of the compat entry point, these also
-> rename the entry points with a __s390_ or __s390x_ prefix, similar
-> to what we do on arm64 and x86. This in turn requires renaming
-> a few things, and adding a proper ni_syscall() entry point.
+> This does three main things:
 > 
-> In order to still compile system call definitions that pass an
-> loff_t argument, the __SC_COMPAT_CAST() macro checks for that
-> and forces an -ENOSYS error, which was the best I could come up
-> with. Those functions must obviously not get called from user
-> space, but instead require hand-written compat_sys_*() handlers,
-> which fortunately already exist.
+> - The UID16 rework saved a lot of duplicated code, and would
+>   probably make sense by itself, but is also required as
+>   we can no longer call sys_*() functions directly after the
+>   last step.
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  arch/s390/Kconfig                       |   1 +
->  arch/s390/include/asm/syscall_wrapper.h | 136 ++++++++++++++++++++++++
->  arch/s390/kernel/compat_wrapper.c       |  23 +---
->  arch/s390/kernel/entry.S                |   4 +-
->  arch/s390/kernel/sys_s390.c             |   5 +
->  5 files changed, 148 insertions(+), 21 deletions(-)
->  create mode 100644 arch/s390/include/asm/syscall_wrapper.h
+> - Removing the compat_wrapper.c file is of course the main
+>   goal here, in order to remove the need to maintain the
+>   compat_wrapper.c file when new system calls get added.
+>   Unfortunately, this requires adding some complexity in
+>   syscall_wrapper.h, and trades a small reduction in source
+>   code lines for a small increase in binary size for
+>   unused wrappers.
+> 
+> - As an added benefit, the use of syscall_wrapper.h now makes
+>   it easy to change the syscall wrappers so they no longer
+>   see all user space register contents, similar to changes
+>   done in commits fa697140f9a2 ("syscalls/x86: Use 'struct pt_regs'
+>   based syscall calling convention for 64-bit syscalls") and
+>   4378a7d4be30 ("arm64: implement syscall wrappers").
+>   I leave the actual implementation of this for you, if you
+>   want to do it later.
+> 
+> I did not test the changes at runtime, but I looked at the
+> generated object code, which seems fine here and includes
+> the same conversions as before.
 
-The patch below is needed as compile fix (allnoconfig).
-I will add this to your patch, no resend needed.
+All looks good and seems to work fine. This is a very nice
+simplification of our compat code, even if it adds some dead code to
+the kernel image.
 
-diff --git a/arch/s390/include/asm/syscall_wrapper.h b/arch/s390/include/asm/syscall_wrapper.h
-index 27ebe871692f..873e7a7794b3 100644
---- a/arch/s390/include/asm/syscall_wrapper.h
-+++ b/arch/s390/include/asm/syscall_wrapper.h
-@@ -106,11 +106,10 @@
- 	asmlinkage long __s390x_sys_##sname(void)
- 
- #define COND_SYSCALL(name)						\
--	cond_syscall(__s390x_sys_##name)				\
--	cond_syscall(__s390_sys_##name)
-+	cond_syscall(__s390x_sys_##name)
- 
- #define SYS_NI(name)							\
--	SYSCALL_ALIAS(__s390_sys_##name, sys_ni_posix_timers);
-+	SYSCALL_ALIAS(__s390x_sys_##name, sys_ni_posix_timers);
- 
- #endif /* CONFIG_COMPAT */
- 
+I did some tests and it all looks good. Also the generated code looks
+fine. So, if nothing breaks, this will go upstream with next merge
+window via the s390 tree.
+
+Thanks again for your work!
