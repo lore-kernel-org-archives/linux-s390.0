@@ -1,157 +1,211 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 14/29] arch: add pkey and rseq syscall numbers
-	everywhere
-Date: Fri, 18 Jan 2019 17:18:20 +0100
-Message-ID: <20190118161835.2259170-15-arnd@arndb.de>
+Subject: [PATCH v2 13/29] arch: add split IPC system calls where needed
+Date: Fri, 18 Jan 2019 17:18:19 +0100
+Message-ID: <20190118161835.2259170-14-arnd@arndb.de>
 References: <20190118161835.2259170-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20190118161835.2259170-1-arnd@arndb.de>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
 Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, benh@kernel.crashing.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-fsdevel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foundation.orglinu
 List-ID: <linux-s390.vger.kernel.org>
 
-TW9zdCBhcmNoaXRlY3R1cmVzIGRlZmluZSBzeXN0ZW0gY2FsbCBudW1iZXJzIGZvciB0aGUgcnNl
-cSBhbmQgcGtleSBzeXN0ZW0KY2FsbHMsIGV2ZW4gd2hlbiB0aGV5IGRvbid0IHN1cHBvcnQgdGhl
-IGZlYXR1cmVzLCBhbmQgcGVyaGFwcyBuZXZlciB3aWxsLgoKT25seSBhIGZldyBhcmNoaXRlY3R1
-cmVzIGFyZSBtaXNzaW5nIHRoZXNlLCBzbyBqdXN0IGRlZmluZSB0aGVtIGFueXdheQpmb3IgY29u
-c2lzdGVuY3kuIElmIHdlIGRlY2lkZSB0byBhZGQgdGhlbSBsYXRlciB0byBvbmUgb2YgdGhlc2Us
-IHRoZQpzeXN0ZW0gY2FsbCBudW1iZXJzIHdvbid0IGdldCBvdXQgb2Ygc3luYyB0aGVuLgoKU2ln
-bmVkLW9mZi1ieTogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KLS0tCiBhcmNoL2FscGhh
-L2luY2x1ZGUvYXNtL3VuaXN0ZC5oICAgICAgICAgfCA0IC0tLS0KIGFyY2gvYWxwaGEva2VybmVs
-L3N5c2NhbGxzL3N5c2NhbGwudGJsICB8IDQgKysrKwogYXJjaC9pYTY0L2tlcm5lbC9zeXNjYWxs
-cy9zeXNjYWxsLnRibCAgIHwgNCArKysrCiBhcmNoL202OGsva2VybmVsL3N5c2NhbGxzL3N5c2Nh
-bGwudGJsICAgfCA0ICsrKysKIGFyY2gvcGFyaXNjL2luY2x1ZGUvYXNtL3VuaXN0ZC5oICAgICAg
-ICB8IDMgLS0tCiBhcmNoL3BhcmlzYy9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwgfCA0ICsr
-KysKIGFyY2gvczM5MC9pbmNsdWRlL2FzbS91bmlzdGQuaCAgICAgICAgICB8IDMgLS0tCiBhcmNo
-L3MzOTAva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsICAgfCAzICsrKwogYXJjaC9zaC9rZXJu
-ZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwgICAgIHwgNCArKysrCiBhcmNoL3NwYXJjL2luY2x1ZGUv
-YXNtL3VuaXN0ZC5oICAgICAgICAgfCA1IC0tLS0tCiBhcmNoL3NwYXJjL2tlcm5lbC9zeXNjYWxs
-cy9zeXNjYWxsLnRibCAgfCA0ICsrKysKIGFyY2gveHRlbnNhL2tlcm5lbC9zeXNjYWxscy9zeXNj
-YWxsLnRibCB8IDEgKwogMTIgZmlsZXMgY2hhbmdlZCwgMjggaW5zZXJ0aW9ucygrKSwgMTUgZGVs
-ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9hbHBoYS9pbmNsdWRlL2FzbS91bmlzdGQuaCBi
-L2FyY2gvYWxwaGEvaW5jbHVkZS9hc20vdW5pc3RkLmgKaW5kZXggNTY0YmE4N2JkYzM4Li4zMWFk
-MzUwYjU4YTAgMTAwNjQ0Ci0tLSBhL2FyY2gvYWxwaGEvaW5jbHVkZS9hc20vdW5pc3RkLmgKKysr
-IGIvYXJjaC9hbHBoYS9pbmNsdWRlL2FzbS91bmlzdGQuaApAQCAtMjksOSArMjksNSBAQAogI2Rl
-ZmluZSBfX0lHTk9SRV9nZXRwcGlkCiAjZGVmaW5lIF9fSUdOT1JFX2dldHVpZAogCi0vKiBBbHBo
-YSBkb2Vzbid0IGhhdmUgcHJvdGVjdGlvbiBrZXlzLiAqLwotI2RlZmluZSBfX0lHTk9SRV9wa2V5
-X21wcm90ZWN0Ci0jZGVmaW5lIF9fSUdOT1JFX3BrZXlfYWxsb2MKLSNkZWZpbmUgX19JR05PUkVf
-cGtleV9mcmVlCiAKICNlbmRpZiAvKiBfQUxQSEFfVU5JU1REX0ggKi8KZGlmZiAtLWdpdCBhL2Fy
-Y2gvYWxwaGEva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsIGIvYXJjaC9hbHBoYS9rZXJuZWwv
-c3lzY2FsbHMvc3lzY2FsbC50YmwKaW5kZXggYjBlMjQ3Mjg3OTA4Li4yNWI0YTdlNzY5NDMgMTAw
-NjQ0Ci0tLSBhL2FyY2gvYWxwaGEva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCisrKyBiL2Fy
-Y2gvYWxwaGEva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCkBAIC00NTIsMyArNDUyLDcgQEAK
-IDUyMQljb21tb24JcHdyaXRldjIJCQlzeXNfcHdyaXRldjIKIDUyMgljb21tb24Jc3RhdHgJCQkJ
-c3lzX3N0YXR4CiA1MjMJY29tbW9uCWlvX3BnZXRldmVudHMJCQlzeXNfaW9fcGdldGV2ZW50cwor
-NTI0CWNvbW1vbglwa2V5X2FsbG9jCQkJc3lzX3BrZXlfYWxsb2MKKzUyNQljb21tb24JcGtleV9m
-cmVlCQkJc3lzX3BrZXlfZnJlZQorNTI2CWNvbW1vbglwa2V5X21wcm90ZWN0CQkJc3lzX3BrZXlf
-bXByb3RlY3QKKzUyNwljb21tb24JcnNlcQkJCQlzeXNfcnNlcQpkaWZmIC0tZ2l0IGEvYXJjaC9p
-YTY0L2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibCBiL2FyY2gvaWE2NC9rZXJuZWwvc3lzY2Fs
-bHMvc3lzY2FsbC50YmwKaW5kZXggMmU5M2RiZGNkYjgwLi44NGUwM2RlMDAxNzcgMTAwNjQ0Ci0t
-LSBhL2FyY2gvaWE2NC9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKKysrIGIvYXJjaC9pYTY0
-L2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibApAQCAtMzM5LDMgKzMzOSw3IEBACiAzMjcJY29t
-bW9uCWlvX3BnZXRldmVudHMJCQlzeXNfaW9fcGdldGV2ZW50cwogMzI4CWNvbW1vbglwZXJmX2V2
-ZW50X29wZW4JCQlzeXNfcGVyZl9ldmVudF9vcGVuCiAzMjkJY29tbW9uCXNlY2NvbXAJCQkJc3lz
-X3NlY2NvbXAKKzMzMAljb21tb24JcGtleV9hbGxvYwkJCXN5c19wa2V5X2FsbG9jCiszMzEJY29t
-bW9uCXBrZXlfZnJlZQkJCXN5c19wa2V5X2ZyZWUKKzMzMgljb21tb24JcGtleV9tcHJvdGVjdAkJ
-CXN5c19wa2V5X21wcm90ZWN0CiszMzMJY29tbW9uCXJzZXEJCQkJc3lzX3JzZXEKZGlmZiAtLWdp
-dCBhL2FyY2gvbTY4ay9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwgYi9hcmNoL202OGsva2Vy
-bmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCmluZGV4IDUzNTRiYTAyZWVkMi4uYWU4OGI4NWQwNjhl
-IDEwMDY0NAotLS0gYS9hcmNoL202OGsva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCisrKyBi
-L2FyY2gvbTY4ay9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKQEAgLTM4OCw2ICszODgsMTAg
-QEAKIDM3OAljb21tb24JcHdyaXRldjIJCQlzeXNfcHdyaXRldjIKIDM3OQljb21tb24Jc3RhdHgJ
-CQkJc3lzX3N0YXR4CiAzODAJY29tbW9uCXNlY2NvbXAJCQkJc3lzX3NlY2NvbXAKKzM4MQljb21t
-b24JcGtleV9hbGxvYwkJCXN5c19wa2V5X2FsbG9jCiszODIJY29tbW9uCXBrZXlfZnJlZQkJCXN5
-c19wa2V5X2ZyZWUKKzM4Mwljb21tb24JcGtleV9tcHJvdGVjdAkJCXN5c19wa2V5X21wcm90ZWN0
-CiszODQJY29tbW9uCXJzZXEJCQkJc3lzX3JzZXEKICMgcm9vbSBmb3IgYXJjaCBzcGVjaWZpYyBj
-YWxscwogMzkzCWNvbW1vbglzZW1nZXQJCQkJc3lzX3NlbWdldAogMzk0CWNvbW1vbglzZW1jdGwJ
-CQkJc3lzX3NlbWN0bApkaWZmIC0tZ2l0IGEvYXJjaC9wYXJpc2MvaW5jbHVkZS9hc20vdW5pc3Rk
-LmggYi9hcmNoL3BhcmlzYy9pbmNsdWRlL2FzbS91bmlzdGQuaAppbmRleCBjMmMyYWZiMjg5NDEu
-LjllYzEwMjZhZjg3NyAxMDA2NDQKLS0tIGEvYXJjaC9wYXJpc2MvaW5jbHVkZS9hc20vdW5pc3Rk
-LmgKKysrIGIvYXJjaC9wYXJpc2MvaW5jbHVkZS9hc20vdW5pc3RkLmgKQEAgLTEyLDkgKzEyLDYg
-QEAKIAogI2RlZmluZSBfX0lHTk9SRV9zZWxlY3QJCQkvKiBuZXdzZWxlY3QgKi8KICNkZWZpbmUg
-X19JR05PUkVfZmFkdmlzZTY0CQkvKiBmYWR2aXNlNjRfNjQgKi8KLSNkZWZpbmUgX19JR05PUkVf
-cGtleV9tcHJvdGVjdAotI2RlZmluZSBfX0lHTk9SRV9wa2V5X2FsbG9jCi0jZGVmaW5lIF9fSUdO
-T1JFX3BrZXlfZnJlZQogCiAjaWZuZGVmIEFTTV9MSU5FX1NFUAogIyBkZWZpbmUgQVNNX0xJTkVf
-U0VQIDsKZGlmZiAtLWdpdCBhL2FyY2gvcGFyaXNjL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRi
-bCBiL2FyY2gvcGFyaXNjL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAppbmRleCA5YmJkMmY5
-ZjU2YzguLmUwNzIzMWRlMzU5NyAxMDA2NDQKLS0tIGEvYXJjaC9wYXJpc2Mva2VybmVsL3N5c2Nh
-bGxzL3N5c2NhbGwudGJsCisrKyBiL2FyY2gvcGFyaXNjL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxs
-LnRibApAQCAtMzY3LDMgKzM2Nyw3IEBACiAzNDgJY29tbW9uCXB3cml0ZXYyCQlzeXNfcHdyaXRl
-djIJCQljb21wYXRfc3lzX3B3cml0ZXYyCiAzNDkJY29tbW9uCXN0YXR4CQkJc3lzX3N0YXR4CiAz
-NTAJY29tbW9uCWlvX3BnZXRldmVudHMJCXN5c19pb19wZ2V0ZXZlbnRzCQljb21wYXRfc3lzX2lv
-X3BnZXRldmVudHMKKzM1MQljb21tb24JcGtleV9hbGxvYwkJc3lzX3BrZXlfYWxsb2MKKzM1Mglj
-b21tb24JcGtleV9mcmVlCQlzeXNfcGtleV9mcmVlCiszNTMJY29tbW9uCXBrZXlfbXByb3RlY3QJ
-CXN5c19wa2V5X21wcm90ZWN0CiszNTQJY29tbW9uCXJzZXEJCQlzeXNfcnNlcQpkaWZmIC0tZ2l0
-IGEvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL3VuaXN0ZC5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNt
-L3VuaXN0ZC5oCmluZGV4IGExZmJmMTVkNTNhYS4uZWQwOGYxMTRlZTkxIDEwMDY0NAotLS0gYS9h
-cmNoL3MzOTAvaW5jbHVkZS9hc20vdW5pc3RkLmgKKysrIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNt
-L3VuaXN0ZC5oCkBAIC0xMSw5ICsxMSw2IEBACiAjaW5jbHVkZSA8YXNtL3VuaXN0ZF9uci5oPgog
-CiAjZGVmaW5lIF9fSUdOT1JFX3RpbWUKLSNkZWZpbmUgX19JR05PUkVfcGtleV9tcHJvdGVjdAot
-I2RlZmluZSBfX0lHTk9SRV9wa2V5X2FsbG9jCi0jZGVmaW5lIF9fSUdOT1JFX3BrZXlfZnJlZQog
-CiAjZGVmaW5lIF9fQVJDSF9XQU5UX05FV19TVEFUCiAjZGVmaW5lIF9fQVJDSF9XQU5UX09MRF9S
-RUFERElSCmRpZmYgLS1naXQgYS9hcmNoL3MzOTAva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJs
-IGIvYXJjaC9zMzkwL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAppbmRleCAwYmNjYjAxYzYy
-MDIuLjE0MTQyZWIyMWY4ZiAxMDA2NDQKLS0tIGEvYXJjaC9zMzkwL2tlcm5lbC9zeXNjYWxscy9z
-eXNjYWxsLnRibAorKysgYi9hcmNoL3MzOTAva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCkBA
-IC0zOTEsNiArMzkxLDkgQEAKIDM4MSAgY29tbW9uCWtleGVjX2ZpbGVfbG9hZAkJc3lzX2tleGVj
-X2ZpbGVfbG9hZAkJc3lzX2tleGVjX2ZpbGVfbG9hZAogMzgyICBjb21tb24JaW9fcGdldGV2ZW50
-cwkJc3lzX2lvX3BnZXRldmVudHMJCWNvbXBhdF9zeXNfaW9fcGdldGV2ZW50cwogMzgzICBjb21t
-b24JcnNlcQkJCXN5c19yc2VxCQkJc3lzX3JzZXEKKzM4NCAgY29tbW9uCXBrZXlfYWxsb2MJCXN5
-c19wa2V5X2FsbG9jCQkJc3lzX3BrZXlfYWxsb2MKKzM4NSAgY29tbW9uCXBrZXlfZnJlZQkJc3lz
-X3BrZXlfZnJlZQkJCXN5c19wa2V5X2ZyZWUKKzM4NiAgY29tbW9uCXBrZXlfbXByb3RlY3QJCXN5
-c19wa2V5X21wcm90ZWN0CQlzeXNfcGtleV9tcHJvdGVjdAogIyByb29tIGZvciBhcmNoIHNwZWNp
-ZmljIHN5c2NhbGxzCiAzOTIJNjQJc2VtdGltZWRvcAkJc3lzX3NlbXRpbWVkb3AJCQktCiAzOTMg
-IGNvbW1vbglzZW1nZXQJCQlzeXNfc2VtZ2V0CQkJc3lzX3NlbWdldApkaWZmIC0tZ2l0IGEvYXJj
-aC9zaC9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwgYi9hcmNoL3NoL2tlcm5lbC9zeXNjYWxs
-cy9zeXNjYWxsLnRibAppbmRleCA2ZDBiODRlM2VmMmQuLjNmOTZhZDA0MjRlMSAxMDA2NDQKLS0t
-IGEvYXJjaC9zaC9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKKysrIGIvYXJjaC9zaC9rZXJu
-ZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKQEAgLTM5MSw2ICszOTEsMTAgQEAKIDM4MQljb21tb24J
-cHJlYWR2MgkJCQlzeXNfcHJlYWR2MgogMzgyCWNvbW1vbglwd3JpdGV2MgkJCXN5c19wd3JpdGV2
-MgogMzgzCWNvbW1vbglzdGF0eAkJCQlzeXNfc3RhdHgKKzM4NAljb21tb24JcGtleV9hbGxvYwkJ
-CXN5c19wa2V5X2FsbG9jCiszODUJY29tbW9uCXBrZXlfZnJlZQkJCXN5c19wa2V5X2ZyZWUKKzM4
-Ngljb21tb24JcGtleV9tcHJvdGVjdAkJCXN5c19wa2V5X21wcm90ZWN0CiszODcJY29tbW9uCXJz
-ZXEJCQkJc3lzX3JzZXEKICMgcm9vbSBmb3IgYXJjaCBzcGVjaWZpYyBzeXNjYWxscwogMzkzCWNv
-bW1vbglzZW1nZXQJCQkJc3lzX3NlbWdldAogMzk0CWNvbW1vbglzZW1jdGwJCQkJc3lzX3NlbWN0
-bApkaWZmIC0tZ2l0IGEvYXJjaC9zcGFyYy9pbmNsdWRlL2FzbS91bmlzdGQuaCBiL2FyY2gvc3Bh
-cmMvaW5jbHVkZS9hc20vdW5pc3RkLmgKaW5kZXggNTE5NGQ4NmVmNzJkLi4wODY5NmVhNWRjYTgg
-MTAwNjQ0Ci0tLSBhL2FyY2gvc3BhcmMvaW5jbHVkZS9hc20vdW5pc3RkLmgKKysrIGIvYXJjaC9z
-cGFyYy9pbmNsdWRlL2FzbS91bmlzdGQuaApAQCAtNTksOSArNTksNCBAQAogI2RlZmluZSBfX0lH
-Tk9SRV9nZXRyZXNnaWQKICNlbmRpZgogCi0vKiBTcGFyYyBkb2Vzbid0IGhhdmUgcHJvdGVjdGlv
-biBrZXlzLiAqLwotI2RlZmluZSBfX0lHTk9SRV9wa2V5X21wcm90ZWN0Ci0jZGVmaW5lIF9fSUdO
-T1JFX3BrZXlfYWxsb2MKLSNkZWZpbmUgX19JR05PUkVfcGtleV9mcmVlCi0KICNlbmRpZiAvKiBf
-U1BBUkNfVU5JU1REX0ggKi8KZGlmZiAtLWdpdCBhL2FyY2gvc3BhcmMva2VybmVsL3N5c2NhbGxz
-L3N5c2NhbGwudGJsIGIvYXJjaC9zcGFyYy9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKaW5k
-ZXggOGM5NTgwMzAyNDIyLi4yNGViZWY2NzUxODQgMTAwNjQ0Ci0tLSBhL2FyY2gvc3BhcmMva2Vy
-bmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCisrKyBiL2FyY2gvc3BhcmMva2VybmVsL3N5c2NhbGxz
-L3N5c2NhbGwudGJsCkBAIC00MDcsNiArNDA3LDEwIEBACiAzNTkJY29tbW9uCXB3cml0ZXYyCQlz
-eXNfcHdyaXRldjIJCQljb21wYXRfc3lzX3B3cml0ZXYyCiAzNjAJY29tbW9uCXN0YXR4CQkJc3lz
-X3N0YXR4CiAzNjEJY29tbW9uCWlvX3BnZXRldmVudHMJCXN5c19pb19wZ2V0ZXZlbnRzCQljb21w
-YXRfc3lzX2lvX3BnZXRldmVudHMKKzM2Mgljb21tb24JcGtleV9hbGxvYwkJc3lzX3BrZXlfYWxs
-b2MKKzM2Mwljb21tb24JcGtleV9mcmVlCQlzeXNfcGtleV9mcmVlCiszNjQJY29tbW9uCXBrZXlf
-bXByb3RlY3QJCXN5c19wa2V5X21wcm90ZWN0CiszNjUJY29tbW9uCXJzZXEJCQlzeXNfcnNlcQog
-IyByb29tIGZvciBhcmNoIHNwZWNpZmljIHN5c2NhbGxzCiAzOTIJNjQJc2VtdGltZWRvcAkJCXN5
-c19zZW10aW1lZG9wCiAzOTMJY29tbW9uCXNlbWdldAkJCXN5c19zZW1nZXQKZGlmZiAtLWdpdCBh
-L2FyY2gveHRlbnNhL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibCBiL2FyY2gveHRlbnNhL2tl
-cm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAppbmRleCBmOGJlZmExMWIwYzQuLmM2OTllMDE0ZTBk
-ZCAxMDA2NDQKLS0tIGEvYXJjaC94dGVuc2Eva2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCisr
-KyBiL2FyY2gveHRlbnNhL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibApAQCAtMzcyLDMgKzM3
-Miw0IEBACiAzNDkJY29tbW9uCXBrZXlfYWxsb2MJCQlzeXNfcGtleV9hbGxvYwogMzUwCWNvbW1v
-bglwa2V5X2ZyZWUJCQlzeXNfcGtleV9mcmVlCiAzNTEJY29tbW9uCXN0YXR4CQkJCXN5c19zdGF0
-eAorMzUyCWNvbW1vbglyc2VxCQkJCXN5c19yc2VxCi0tIAoyLjIwLjAKCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAz
-OEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3kyMDM4Cg==
+The IPC system call handling is highly inconsistent across architectures,
+some use sys_ipc, some use separate calls, and some use both.  We also
+have some architectures that require passing IPC_64 in the flags, and
+others that set it implicitly.
+
+For the additon of a y2083 safe semtimedop() system call, I chose to only
+support the separate entry points, but that requires first supporting
+the regular ones with their own syscall numbers.
+
+The IPC_64 is now implied by the new semctl/shmctl/msgctl system
+calls even on the architectures that require passing it with the ipc()
+multiplexer.
+
+I'm not adding the new semtimedop() or semop() on 32-bit architectures,
+those will get implemented using the new semtimedop_time64() version
+that gets added along with the other time64 calls.
+Three 64-bit architectures (powerpc, s390 and sparc) get semtimedop().
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+One aspect here that might be a bit controversial is the use of
+the same system call numbers across all architectures, synchronizing
+all of them with the x86-32 numbers. With the new syscall.tbl
+files, I hope we can just keep doing that in the future, and no
+longer require the architecture maintainers to assign a number.
+
+This is mainly useful for implementers of the C libraries: if
+we can add future system calls everywhere at the same time, using
+a particular version of the kernel headers also guarantees that
+the system call number macro is visible.
+---
+ arch/m68k/kernel/syscalls/syscall.tbl     | 11 +++++++++++
+ arch/mips/kernel/syscalls/syscall_o32.tbl | 11 +++++++++++
+ arch/powerpc/kernel/syscalls/syscall.tbl  | 13 +++++++++++++
+ arch/s390/kernel/syscalls/syscall.tbl     | 12 ++++++++++++
+ arch/sh/kernel/syscalls/syscall.tbl       | 11 +++++++++++
+ arch/sparc/kernel/syscalls/syscall.tbl    | 12 ++++++++++++
+ arch/x86/entry/syscalls/syscall_32.tbl    | 11 +++++++++++
+ 7 files changed, 81 insertions(+)
+
+diff --git a/arch/m68k/kernel/syscalls/syscall.tbl b/arch/m68k/kernel/syscalls/syscall.tbl
+index 85779d6ef935..5354ba02eed2 100644
+--- a/arch/m68k/kernel/syscalls/syscall.tbl
++++ b/arch/m68k/kernel/syscalls/syscall.tbl
+@@ -388,3 +388,14 @@
+ 378	common	pwritev2			sys_pwritev2
+ 379	common	statx				sys_statx
+ 380	common	seccomp				sys_seccomp
++# room for arch specific calls
++393	common	semget				sys_semget
++394	common	semctl				sys_semctl
++395	common	shmget				sys_shmget
++396	common	shmctl				sys_shmctl
++397	common	shmat				sys_shmat
++398	common	shmdt				sys_shmdt
++399	common	msgget				sys_msgget
++400	common	msgsnd				sys_msgsnd
++401	common	msgrcv				sys_msgrcv
++402	common	msgctl				sys_msgctl
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 3d5a47b80d2b..fa47ea8cc6ef 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -380,3 +380,14 @@
+ 366	o32	statx				sys_statx
+ 367	o32	rseq				sys_rseq
+ 368	o32	io_pgetevents			sys_io_pgetevents		compat_sys_io_pgetevents
++# room for arch specific calls
++393	o32	semget				sys_semget
++394	o32	semctl				sys_semctl			compat_sys_semctl
++395	o32	shmget				sys_shmget
++396	o32	shmctl				sys_shmctl			compat_sys_shmctl
++397	o32	shmat				sys_shmat			compat_sys_shmat
++398	o32	shmdt				sys_shmdt
++399	o32	msgget				sys_msgget
++400	o32	msgsnd				sys_msgsnd			compat_sys_msgsnd
++401	o32	msgrcv				sys_msgrcv			compat_sys_msgrcv
++402	o32	msgctl				sys_msgctl			compat_sys_msgctl
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index db3bbb8744af..7555874ce39c 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -414,6 +414,7 @@
+ 363	spu	switch_endian			sys_ni_syscall
+ 364	common	userfaultfd			sys_userfaultfd
+ 365	common	membarrier			sys_membarrier
++# 366-377 originally left for IPC, now unused
+ 378	nospu	mlock2				sys_mlock2
+ 379	nospu	copy_file_range			sys_copy_file_range
+ 380	common	preadv2				sys_preadv2			compat_sys_preadv2
+@@ -425,3 +426,15 @@
+ 386	nospu	pkey_mprotect			sys_pkey_mprotect
+ 387	nospu	rseq				sys_rseq
+ 388	nospu	io_pgetevents			sys_io_pgetevents		compat_sys_io_pgetevents
++# room for arch specific syscalls
++392	64	semtimedop			sys_semtimedop
++393	common	semget				sys_semget
++394	common	semctl				sys_semctl			compat_sys_semctl
++395	common	shmget				sys_shmget
++396	common	shmctl				sys_shmctl			compat_sys_shmctl
++397	common	shmat				sys_shmat			compat_sys_shmat
++398	common	shmdt				sys_shmdt
++399	common	msgget				sys_msgget
++400	common	msgsnd				sys_msgsnd			compat_sys_msgsnd
++401	common	msgrcv				sys_msgrcv			compat_sys_msgrcv
++402	common	msgctl				sys_msgctl			compat_sys_msgctl
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 7413fd318e2a..0bccb01c6202 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -391,3 +391,15 @@
+ 381  common	kexec_file_load		sys_kexec_file_load		sys_kexec_file_load
+ 382  common	io_pgetevents		sys_io_pgetevents		compat_sys_io_pgetevents
+ 383  common	rseq			sys_rseq			sys_rseq
++# room for arch specific syscalls
++392	64	semtimedop		sys_semtimedop			-
++393  common	semget			sys_semget			sys_semget
++394  common	semctl			sys_semctl			compat_sys_semctl
++395  common	shmget			sys_shmget			sys_shmget
++396  common	shmctl			sys_shmctl			compat_sys_shmctl
++397  common	shmat			sys_shmat			compat_sys_shmat
++398  common	shmdt			sys_shmdt 			sys_shmdt
++399  common	msgget			sys_msgget			sys_msgget
++400  common	msgsnd			sys_msgsnd			compat_sys_msgsnd
++401  common	msgrcv			sys_msgrcv			compat_sys_msgrcv
++402  common	msgctl			sys_msgctl			compat_sys_msgctl
+diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
+index a70db013dbc7..6d0b84e3ef2d 100644
+--- a/arch/sh/kernel/syscalls/syscall.tbl
++++ b/arch/sh/kernel/syscalls/syscall.tbl
+@@ -391,3 +391,14 @@
+ 381	common	preadv2				sys_preadv2
+ 382	common	pwritev2			sys_pwritev2
+ 383	common	statx				sys_statx
++# room for arch specific syscalls
++393	common	semget				sys_semget
++394	common	semctl				sys_semctl
++395	common	shmget				sys_shmget
++396	common	shmctl				sys_shmctl
++397	common	shmat				sys_shmat
++398	common	shmdt				sys_shmdt
++399	common	msgget				sys_msgget
++400	common	msgsnd				sys_msgsnd
++401	common	msgrcv				sys_msgrcv
++402	common	msgctl				sys_msgctl
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index c8c77c05ea97..8c9580302422 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -407,3 +407,15 @@
+ 359	common	pwritev2		sys_pwritev2			compat_sys_pwritev2
+ 360	common	statx			sys_statx
+ 361	common	io_pgetevents		sys_io_pgetevents		compat_sys_io_pgetevents
++# room for arch specific syscalls
++392	64	semtimedop			sys_semtimedop
++393	common	semget			sys_semget
++394	common	semctl			sys_semctl			compat_sys_semctl
++395	common	shmget			sys_shmget
++396	common	shmctl			sys_shmctl			compat_sys_shmctl
++397	common	shmat			sys_shmat			compat_sys_shmat
++398	common	shmdt			sys_shmdt
++399	common	msgget			sys_msgget
++400	common	msgsnd			sys_msgsnd			compat_sys_msgsnd
++401	common	msgrcv			sys_msgrcv			compat_sys_msgrcv
++402	common	msgctl			sys_msgctl			compat_sys_msgctl
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 3cf7b533b3d1..fef80b92eb7e 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -398,3 +398,14 @@
+ 384	i386	arch_prctl		sys_arch_prctl			__ia32_compat_sys_arch_prctl
+ 385	i386	io_pgetevents		sys_io_pgetevents		__ia32_compat_sys_io_pgetevents
+ 386	i386	rseq			sys_rseq			__ia32_sys_rseq
++# room for arch specific syscalls
++393	i386	semget			sys_semget    			__ia32_sys_semget
++394	i386	semctl			sys_semctl    			__ia32_compat_sys_semctl
++395	i386	shmget			sys_shmget    			__ia32_sys_shmget
++396	i386	shmctl			sys_shmctl    			__ia32_compat_sys_shmctl
++397	i386	shmat			sys_shmat     			__ia32_compat_sys_shmat
++398	i386	shmdt			sys_shmdt     			__ia32_sys_shmdt
++399	i386	msgget			sys_msgget    			__ia32_sys_msgget
++400	i386	msgsnd			sys_msgsnd    			__ia32_compat_sys_msgsnd
++401	i386	msgrcv			sys_msgrcv    			__ia32_compat_sys_msgrcv
++402	i386	msgctl			sys_msgctl    			__ia32_compat_sys_msgctl
+-- 
+2.20.0
