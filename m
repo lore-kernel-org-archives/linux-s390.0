@@ -1,57 +1,149 @@
-Return-Path: <SRS0=RQnK=QC=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sat, 26 Jan 2019 16:11:37 +0000
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Subject: Re: [PATCH v15 23/26] sched: early boot clock
-Message-ID: <20190126161137.gme4vsrz3xmncbkx@soleen.tm1wkky2jk1uhgkn0ivaxijq1c.bx.internal.cloudapp.net>
-References: <20180719205545.16512-24-pasha.tatashin@oracle.com>
- <20181106054212.GA31768@nautica>
- <95c3920e-bf80-0c7e-7854-01a1c3189c23@oracle.com>
- <20190102202032.GA1034@eldamar.local>
- <CA+CK2bC70pnL0Wimb0xt99J4nNfi8W3zuUHgAk-jsPuOP9jpHA@mail.gmail.com>
- <20190103234339.GA17457@nautica>
- <CA+CK2bDj1f=VpT+k-e8kSSaoLJ3W9-JPPq9udFdDwd6ijXi28g@mail.gmail.com>
- <20190107234839.GA15269@nautica>
- <CA+CK2bD3kbcNvkVf2kiKQYs+srcw7BdWngqt_wM7Z-QsBJyH6w@mail.gmail.com>
- <20190126020410.GB3796@feynman.vault24.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190126020410.GB3796@feynman.vault24.org>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Dominique Martinet <asmadeus@codewreck.org>, Salvatore Bonaccorso <carnil@debian.org>, Steven Sistare <steven.sistare@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Daniel Jordan <daniel.m.jordan@oracle.com>, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, John Stultz <john.stultz@linaro.org>, sboyd@codeaurora.org, x86@kernel.org, LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com, Thomas Gleixner <tglx@linutronix.de>, hpa@zytor.com, douly.fnst@cn.fujitsu.com, Peter Zijlstra <peterz@infradead.org>, prarit@redhat.com, feng.tang@intel.com, Petr Mladek <pmladek@suse.com>, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 3/3] vfio-ccw: add handling for asnyc
+ channel instructions
+Date: Fri, 18 Jan 2019 14:53:23 +0100
+Message-ID: <20190118145323.0734fdaa.cohuck@redhat.com>
+References: <20181122165432.4437-1-cohuck@redhat.com>
+	<20181122165432.4437-4-cohuck@redhat.com>
+	<b5066f7a-7024-ac3e-a91d-938fd845e1d9@linux.ibm.com>
+	<20181128100249.72d4299a.cohuck@redhat.com>
+	<25021742-a7a8-a90c-a2a3-eb8a78bf1fb0@linux.ibm.com>
+	<20181128155201.5be1d582.cohuck@redhat.com>
+	<1feb66c0-ce80-2853-1522-e7d787471fd3@linux.ibm.com>
+	<20181128163547.7eb33873.cohuck@redhat.com>
+	<a9eb4e42-536e-efa4-7097-c05492078fb0@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <a9eb4e42-536e-efa4-7097-c05492078fb0@linux.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19-01-25 21:04:10, Jon DeVree wrote:
-> 
-> * KVM_FEATURE_CLOCKSOURCE_STABLE_BIT is always set by the hypervisor
->   starting with Linux v2.6.35 - 371bcf646d17 ("KVM: x86: Tell the guest
->   we'll warn it about tsc stability")
-> * PVCLOCK_TSC_STABLE_BIT is set starting in Linux v3.8 but only if the
->   clocksource is the TSC - d828199e8444 ("KVM: x86: implement
->   PVCLOCK_TSC_STABLE_BIT pvclock flag")
-> 
-> I changed the clocksource of a hypervisor that wasn't having issues from
-> TSC to HPET and when I started up a guest VM the bug suddenly appeared.
-> I shut down the guest, set the hypervisor's clocksource back to TSC,
-> started up the guest and the bug went away again.
-> 
-> You don't actually have to reboot the guest before the bug is visible
-> either, just letting the guest sit at the GRUB menu for a minute or two
-> before loading Linux is enough to make the bug plainly visible in the
-> printk timestamps.
-> 
-> I don't know enough to actually fix the bug, but hopefully this is
-> enough to allow everyone else to reproduce it and come up with a fix.
+On Wed, 28 Nov 2018 10:55:11 -0500
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Thank you very much for your analysis, I am now able to reproduce the
-problem by setting clocksource on my machine to hpet. I will soon submit a
-patch with a fix.
+> On 11/28/2018 10:35 AM, Cornelia Huck wrote:
 
-Pasha
+> > I hacked up the following (still untested):
+> > 
+> >  From e771c8dc5abbfbd19688b452096bab9d032e0df5 Mon Sep 17 00:00:00 2001
+> > From: Cornelia Huck <cohuck@redhat.com>
+> > Date: Wed, 28 Nov 2018 16:30:51 +0100
+> > Subject: [PATCH] vfio-ccw: make it safe to access channel programs
+> > 
+> > When we get a solicited interrupt, the start function may have
+> > been cleared by a csch, but we still have a channel program
+> > structure allocated. Make it safe to call the cp accessors in
+> > any case, so we can call them unconditionally.
+> > 
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> > ---
+> >   drivers/s390/cio/vfio_ccw_cp.c  | 9 ++++++++-
+> >   drivers/s390/cio/vfio_ccw_cp.h  | 2 ++
+> >   drivers/s390/cio/vfio_ccw_drv.c | 3 +--
+> >   3 files changed, 11 insertions(+), 3 deletions(-)
+
+Hm, this one seems to have fallen through the cracks; but it still does
+look useful, especially if we want to allow concurrent handling of
+channel operations.
+
+> > 
+> > diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> > index 70a006ba4d05..35f87514276b 100644
+> > --- a/drivers/s390/cio/vfio_ccw_cp.c
+> > +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> > @@ -335,6 +335,7 @@ static void cp_unpin_free(struct channel_program *cp)
+> >   	struct ccwchain *chain, *temp;
+> >   	int i;
+> >   
+> > +	cp->initialized = false;
+> >   	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+> >   		for (i = 0; i < chain->ch_len; i++) {
+> >   			pfn_array_table_unpin_free(chain->ch_pat + i,
+> > @@ -701,6 +702,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+> >   	 */
+> >   	cp->orb.cmd.c64 = 1;
+> >   
+> > +	cp->initialized = true;
+> > +
+> >   	return ret;
+> >   }
+> >   
+> > @@ -715,7 +718,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+> >    */
+> >   void cp_free(struct channel_program *cp)
+> >   {
+> > -	cp_unpin_free(cp);
+> > +	if (cp->initialized)
+> > +		cp_unpin_free(cp);
+> >   }
+> >   
+> >   /**
+> > @@ -831,6 +835,9 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
+> >   	u32 cpa = scsw->cmd.cpa;
+> >   	u32 ccw_head, ccw_tail;
+> >   
+> > +	if (!cp->initialized)
+> > +		return;
+> > +
+> >   	/*
+> >   	 * LATER:
+> >   	 * For now, only update the cmd.cpa part. We may need to deal with
+> > diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+> > index a4b74fb1aa57..3c20cd208da5 100644
+> > --- a/drivers/s390/cio/vfio_ccw_cp.h
+> > +++ b/drivers/s390/cio/vfio_ccw_cp.h
+> > @@ -21,6 +21,7 @@
+> >    * @ccwchain_list: list head of ccwchains
+> >    * @orb: orb for the currently processed ssch request
+> >    * @mdev: the mediated device to perform page pinning/unpinning
+> > + * @initialized: whether this instance is actually initialized
+> >    *
+> >    * @ccwchain_list is the head of a ccwchain list, that contents the
+> >    * translated result of the guest channel program that pointed out by
+> > @@ -30,6 +31,7 @@ struct channel_program {
+> >   	struct list_head ccwchain_list;
+> >   	union orb orb;
+> >   	struct device *mdev;
+> > +	bool initialized;
+> >   };
+> >   
+> >   extern int cp_init(struct channel_program *cp, struct device *mdev,
+> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> > index 890c588a3a61..83d6f43792b6 100644
+> > --- a/drivers/s390/cio/vfio_ccw_drv.c
+> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> > @@ -79,8 +79,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+> >   	private = container_of(work, struct vfio_ccw_private, io_work);
+> >   	irb = &private->irb;
+> >   
+> > -	if (scsw_is_solicited(&irb->scsw) &&
+> > -	    (scsw_fctl(&irb->scsw) & SCSW_FCTL_START_FUNC)) {
+> > +	if (scsw_is_solicited(&irb->scsw)) {
+> >   		cp_update_scsw(&private->cp, &irb->scsw);
+> >   		cp_free(&private->cp);
+> >   	}
+> >   
+> 
+> The changes look good to me.
+
+Thanks!
 
 > 
-> -- 
-> Jon
-> X(7): A program for managing terminal windows. See also screen(1) and tmux(1).
+> Thanks
+> Farhan
+> 
