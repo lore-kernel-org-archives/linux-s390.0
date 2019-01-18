@@ -1,57 +1,81 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Fri, 18 Jan 2019 11:41:57 +0000
-Subject: [kvm-unit-tests PATCH v6 04/11] s390x: Switch to z/Arch and enable 64 bit addressing mode
-Message-Id: <20190118114204.147868-5-frankja@linux.ibm.com>
+Date: Fri, 18 Jan 2019 11:41:58 +0000
+Subject: [kvm-unit-tests PATCH v6 05/11] s390x: Add BSS clearing for non ELF boot
+Message-Id: <20190118114204.147868-6-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-LPAR and z/VM start in esam mode depending on the hardware (CZAM
-facility and others affect this), so we need to switch to z/Arch and
-set 64 bit addressing.
-
-Under Qemu/KVM we already start out with both when being run with the
-Qemu --kernel argument or we lack 64 bit when booting from disk
-because of the initial psw specifying 31 bit for z/VM and lpar
-compatibility.
+When doing an IPL normal the memory will not be zeroed and hence the
+BSS section can have any value. We need to clear it by ourselves.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- s390x/cstart64.S | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ s390x/cstart64.S | 22 ++++++++++++++++++++--
+ s390x/flat.lds   |  2 ++
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 385915e..6622633 100644
+index 6622633..dedfe80 100644
 --- a/s390x/cstart64.S
 +++ b/s390x/cstart64.S
-@@ -11,6 +11,7 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <asm/asm-offsets.h>
-+#include <asm/sigp.h>
- 
- .section .init
- 
-@@ -20,9 +21,19 @@
-  *
-  * For KVM and TCG kernel boot we are in 64 bit z/Arch mode.
-  * When booting from disk the initial short psw is in 31 bit mode.
-+ * When running under LPAR or z/VM, we might start in 31 bit and esam mode.
-  */
- 	.globl start
- start:
-+	/* Switch to z/Architecture mode and 64-bit */
-+	slr     %r0, %r0		# Set cpuid to zero
-+	lhi     %r1, 2			# mode 2 = esame
-+	sigp    %r1, %r0, SIGP_SET_ARCHITECTURE
-+	/* XOR all registers with themselves to clear them fully. */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	xgr \i,\i
-+	.endr
-+	sam64				# Set addressing mode to 64 bit
- 	/* setup stack */
- 	larl	%r15, stackptr
+@@ -39,7 +39,22 @@ start:
  	/* setup initial PSW mask + control registers*/
+ 	larl	%r1, initial_psw
+ 	lpswe	0(%r1)
+-init_psw_cont:
++clear_bss_start:
++	larl 	%r2, __bss_start
++	larl 	%r3, __bss_end
++	slgr 	%r3, %r2		# Get sizeof bss
++	aghi 	%r3,-1
++	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
++	ltgr 	%r4,%r4
++	lgr 	%r1,%r2
++	jz	clear_bss_remainder		# If none, clear remaining bytes
++clear_bss_loop:
++	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
++	la	%r1, 256(%r1)
++	brctg 	%r4, clear_bss_loop
++clear_bss_remainder:
++	larl	%r2, memsetxc
++	ex 	%r3, 0(%r2)
+ 	/* setup pgm interrupt handler */
+ 	larl	%r1, pgm_int_psw
+ 	mvc	GEN_LC_PGM_NEW_PSW(16), 0(%r1)
+@@ -71,6 +86,9 @@ init_psw_cont:
+ 	/* call exit() */
+ 	j exit
+ 
++memsetxc:
++	xc 0(1,%r1),0(%r1)
++
+ 	.macro SAVE_REGS
+ 	/* save grs 0-15 */
+ 	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+@@ -159,7 +177,7 @@ svc_int:
+ 
+ 	.align	8
+ initial_psw:
+-	.quad	0x0000000180000000, init_psw_cont
++	.quad	0x0000000180000000, clear_bss_start
+ pgm_int_psw:
+ 	.quad	0x0000000180000000, pgm_int
+ ext_int_psw:
+diff --git a/s390x/flat.lds b/s390x/flat.lds
+index 977af7c..403d967 100644
+--- a/s390x/flat.lds
++++ b/s390x/flat.lds
+@@ -40,7 +40,9 @@ SECTIONS
+ 	. = ALIGN(16);
+ 	.rodata : { *(.rodata) *(.rodata.*) }
+ 	. = ALIGN(16);
++	__bss_start = .;
+ 	.bss : { *(.bss) }
++	__bss_end = .;
+ 	. = ALIGN(64K);
+ 	edata = .;
+ 	. += 64K;
 -- 
 2.14.3
