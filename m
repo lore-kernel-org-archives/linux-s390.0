@@ -1,49 +1,65 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 04/29] alpha: wire up io_pgetevents system call
-Date: Fri, 18 Jan 2019 17:18:10 +0100
-Message-ID: <20190118161835.2259170-5-arnd@arndb.de>
+Subject: [PATCH v2 07/29] ARM: add kexec_file_load system call number
+Date: Fri, 18 Jan 2019 17:18:13 +0100
+Message-ID: <20190118161835.2259170-8-arnd@arndb.de>
 References: <20190118161835.2259170-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
 In-Reply-To: <20190118161835.2259170-1-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, benh@kernel.crashing.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-fsdevel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-mips@vger.kernel.org, stable@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@li
+Cc: dalias@libc.org, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, will.deacon@arm.com, jcmvbkbc@gmail.com, deepa.kernel@gmail.com, hpa@zytor.com, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, mpe@ellerman.id.au, deller@gmx.de, x86@kernel.org, linux@armlinux.org.uk, mingo@redhat.com, geert@linux-m68k.org, benh@kernel.crashing.org, firoz.khan@linaro.org, mattst88@gmail.com, fenghua.yu@intel.com, Arnd Bergmann <arnd@arndb.de>, heiko.carstens@de.ibm.com, linux-fsdevel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, luto@kernel.org, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, monstr@monstr.eu, tony.luck@intel.com, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, linux-mips@vger.kernel.org, paul.burton@mips.com, ebiederm@xmission.com, linux-alpha@vger.kernel.org, schwidefsky@de.ibm.com, akpm@linux-foundation.orglinu
 List-ID: <linux-s390.vger.kernel.org>
 
-The io_pgetevents system call was added in linux-4.18 but has
-no entry for alpha:
-
-warning: #warning syscall io_pgetevents not implemented [-Wcpp]
-
-Assign a the next system call number here.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/alpha/kernel/syscalls/syscall.tbl | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
-index 7b56a53be5e3..e09558edae73 100644
---- a/arch/alpha/kernel/syscalls/syscall.tbl
-+++ b/arch/alpha/kernel/syscalls/syscall.tbl
-@@ -451,3 +451,4 @@
- 520	common	preadv2				sys_preadv2
- 521	common	pwritev2			sys_pwritev2
- 522	common	statx				sys_statx
-+523	common	io_pgetevents			sys_io_pgetevents
--- 
-2.20.0
+QSBjb3VwbGUgb2YgYXJjaGl0ZWN0dXJlcyBpbmNsdWRpbmcgYXJtNjQgYWxyZWFkeSBpbXBsZW1l
+bnQgdGhlCmtleGVjX2ZpbGVfbG9hZCBzeXN0ZW0gY2FsbCwgb24gbWFueSBvdGhlcnMgd2UgaGF2
+ZSBhc3NpZ25lZCBhIHN5c3RlbQpjYWxsIG51bWJlciBmb3IgaXQsIGJ1dCBub3QgaW1wbGVtZW50
+ZWQgaXQgeWV0LgoKQWRkaW5nIHRoZSBudW1iZXIgaW4gYXJjaC9hcm0vIGxldHMgdXMgdXNlIHRo
+ZSBzeXN0ZW0gY2FsbCBvbiBhcm02NApzeXN0ZW1zIGluIGNvbXBhdCBtb2RlLCBhbmQgYWxzbyBy
+ZWR1Y2VzIHRoZSBudW1iZXIgb2YgZGlmZmVyZW5jZXMKYmV0d2VlbiBhcmNoaXRlY3R1cmVzLiBJ
+ZiB3ZSB3YW50IHRvIGltcGxlbWVudCBrZXhlY19maWxlX2xvYWQgb24gQVJNCmluIHRoZSBmdXR1
+cmUsIHRoZSBudW1iZXIgYXNzaWdubWVudCBtZWFucyB0aGF0IGtleGVjIHRvb2xzIGNhbiBhbHJl
+YWR5CmJlIGJ1aWx0IHdpdGggdGhlIG5vdyBjdXJyZW50IHNldCBvZiBrZXJuZWwgaGVhZGVycy4K
+ClNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+Ci0tLQogYXJjaC9h
+cm0vdG9vbHMvc3lzY2FsbC50YmwgICAgICAgIHwgMSArCiBhcmNoL2FybTY0L2luY2x1ZGUvYXNt
+L3VuaXN0ZC5oICAgfCAyICstCiBhcmNoL2FybTY0L2luY2x1ZGUvYXNtL3VuaXN0ZDMyLmggfCAy
+ICsrCiAzIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlm
+ZiAtLWdpdCBhL2FyY2gvYXJtL3Rvb2xzL3N5c2NhbGwudGJsIGIvYXJjaC9hcm0vdG9vbHMvc3lz
+Y2FsbC50YmwKaW5kZXggODZkZTllYjM0Mjk2Li4yMGVkN2UwMjY3MjMgMTAwNjQ0Ci0tLSBhL2Fy
+Y2gvYXJtL3Rvb2xzL3N5c2NhbGwudGJsCisrKyBiL2FyY2gvYXJtL3Rvb2xzL3N5c2NhbGwudGJs
+CkBAIC00MTUsMyArNDE1LDQgQEAKIDM5OAljb21tb24JcnNlcQkJCXN5c19yc2VxCiAzOTkJY29t
+bW9uCWlvX3BnZXRldmVudHMJCXN5c19pb19wZ2V0ZXZlbnRzCiA0MDAJY29tbW9uCW1pZ3JhdGVf
+cGFnZXMJCXN5c19taWdyYXRlX3BhZ2VzCis0MDEJY29tbW9uCWtleGVjX2ZpbGVfbG9hZAkJc3lz
+X2tleGVjX2ZpbGVfbG9hZApkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS91bmlz
+dGQuaCBiL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkLmgKaW5kZXggMjYxMjE2YzMzMzZl
+Li4yYzMwZTZmMTQ1ZmYgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3Rk
+LmgKKysrIGIvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS91bmlzdGQuaApAQCAtNDQsNyArNDQsNyBA
+QAogI2RlZmluZSBfX0FSTV9OUl9jb21wYXRfc2V0X3RscwkJKF9fQVJNX05SX0NPTVBBVF9CQVNF
+ICsgNSkKICNkZWZpbmUgX19BUk1fTlJfQ09NUEFUX0VORAkJKF9fQVJNX05SX0NPTVBBVF9CQVNF
+ICsgMHg4MDApCiAKLSNkZWZpbmUgX19OUl9jb21wYXRfc3lzY2FsbHMJCTQwMQorI2RlZmluZSBf
+X05SX2NvbXBhdF9zeXNjYWxscwkJNDAyCiAjZW5kaWYKIAogI2RlZmluZSBfX0FSQ0hfV0FOVF9T
+WVNfQ0xPTkUKZGlmZiAtLWdpdCBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkMzIuaCBi
+L2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkMzIuaAppbmRleCBmMTViY2JhY2I4ZjYuLjhj
+YTFkNGMzMDRmNCAxMDA2NDQKLS0tIGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS91bmlzdGQzMi5o
+CisrKyBiL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vdW5pc3RkMzIuaApAQCAtODIzLDYgKzgyMyw4
+IEBAIF9fU1lTQ0FMTChfX05SX3JzZXEsIHN5c19yc2VxKQogX19TWVNDQUxMKF9fTlJfaW9fcGdl
+dGV2ZW50cywgY29tcGF0X3N5c19pb19wZ2V0ZXZlbnRzKQogI2RlZmluZSBfX05SX21pZ3JhdGVf
+cGFnZXMgNDAwCiBfX1NZU0NBTEwoX19OUl9taWdyYXRlX3BhZ2VzLCBjb21wYXRfc3lzX21pZ3Jh
+dGVfcGFnZXMpCisjZGVmaW5lIF9fTlJfa2V4ZWNfZmlsZV9sb2FkIDQwMQorX19TWVNDQUxMKF9f
+TlJfa2V4ZWNfZmlsZV9sb2FkLCBzeXNfa2V4ZWNfZmlsZV9sb2FkKQogCiAvKgogICogUGxlYXNl
+IGFkZCBuZXcgY29tcGF0IHN5c2NhbGxzIGFib3ZlIHRoaXMgY29tbWVudCBhbmQgdXBkYXRlCi0t
+IAoyLjIwLjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMu
+bGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==
