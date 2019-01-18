@@ -1,106 +1,41 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v2 2/4] s390: make thin archives not directly depend on *.o.chkbss files
-Date: Thu, 17 Jan 2019 19:02:42 +0900
-Message-Id: <1547719364-18849-2-git-send-email-yamada.masahiro@socionext.com>
-In-Reply-To: <1547719364-18849-1-git-send-email-yamada.masahiro@socionext.com>
-References: <1547719364-18849-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kbuild-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-kbuild/>
-List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH v2 00/29] y2038: add time64 syscalls
+Date: Fri, 18 Jan 2019 09:45:18 -0800
+Message-ID: <1547833518.2794.36.camel@HansenPartnership.com>
+References: <20190118161835.2259170-1-arnd@arndb.de>
+         <be3863ae-d903-8e9e-5e6c-e4a58fac189d@blastwave.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <be3863ae-d903-8e9e-5e6c-e4a58fac189d@blastwave.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Dennis Clarke <dclarke@blastwave.org>, Arnd Bergmann <arnd@arndb.de>, y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, paul.burton@mips.com, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, dalias@libc.org, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jcmvbkbc@gmail.com, akpm@linux-foundation.org, deepa.kernel@gmail.com, ebiederm@xmission.com, firoz.khan@linaro.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When I was refactoring cmd_ar_builtin in scripts/Makefile.build,
-I noticed the build breakage of s390.
+On Fri, 2019-01-18 at 11:57 -0500, Dennis Clarke wrote:
+> On 1/18/19 11:18 AM, Arnd Bergmann wrote:
+> > This is a minor update of the patches I posted last week, I
+> > would like to add this into linux-next now, but would still do
+> > changes if there are concerns about the contents. The first
+> > version did not see a lot of replies, which could mean that
+> > either everyone is happy with it, or that it was largely ignored.
+> > 
+> > See also the article at https://lwn.net/Articles/776435/.
+> 
+> I would be happy to read "Approaching the kernel year-2038 end game"
+> however it is behind a pay wall.  Perhaps it may be best to just
+> host interesting articles about open source idea elsewhere.
 
-Some Makefiles of s390 add extra dependencies to built-in.a;
-built-in.a depends on timestamp files *.o.chkbss, but $(AR) does
-not want to include them into built-in.a.
+Hey, this is an unfair characterization: lwn.net operates an early
+access subscription model, so you can't read the above for 14 days
+after publication without paying for an lwn.net subscription, but by
+the time these patches are upstream there will be no paywall because it
+will expire on 24 January and that URL will then be readable by all. 
+That makes LWN.net a nice, reliable resource for us while still
+supporting some business model to keep it going.
 
-Insert a phony target 'chkbss' in between so that $(AR) can take
-$(filter-out $(PHONY), $^) as input.
-
-While I was here, I refactored Makefile.chkbss a little bit.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-I want Acked-by from a s390 maintainer so this series can go
-into kbuild tree.
-
-Changes in v2:
- - New patch
-
- arch/s390/boot/Makefile            |  4 ++--
- arch/s390/boot/compressed/Makefile |  4 ++--
- arch/s390/scripts/Makefile.chkbss  | 25 +++++++++++--------------
- 3 files changed, 15 insertions(+), 18 deletions(-)
-
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index d5ad724..b4d8a42 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -67,6 +67,6 @@ install: $(CONFIGURE) $(obj)/bzImage
- 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
- 	      System.map "$(INSTALL_PATH)"
- 
--chkbss := $(OBJECTS)
--chkbss-target := $(obj)/startup.a
-+chkbss := $(obj-y)
-+chkbss-target := startup.a
- include $(srctree)/arch/s390/scripts/Makefile.chkbss
-diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
-index b1bdd15..fa529c5 100644
---- a/arch/s390/boot/compressed/Makefile
-+++ b/arch/s390/boot/compressed/Makefile
-@@ -63,6 +63,6 @@ OBJCOPYFLAGS_piggy.o := -I binary -O elf64-s390 -B s390:64-bit --rename-section
- $(obj)/piggy.o: $(obj)/vmlinux.bin$(suffix-y) FORCE
- 	$(call if_changed,objcopy)
- 
--chkbss := $(filter-out $(obj)/piggy.o $(obj)/info.o,$(OBJECTS))
--chkbss-target := $(obj)/vmlinux.bin
-+chkbss := $(filter-out piggy.o info.o, $(obj-y))
-+chkbss-target := vmlinux.bin
- include $(srctree)/arch/s390/scripts/Makefile.chkbss
-diff --git a/arch/s390/scripts/Makefile.chkbss b/arch/s390/scripts/Makefile.chkbss
-index 9bba2c1..cd7e8f44 100644
---- a/arch/s390/scripts/Makefile.chkbss
-+++ b/arch/s390/scripts/Makefile.chkbss
-@@ -1,23 +1,20 @@
- # SPDX-License-Identifier: GPL-2.0
- 
-+chkbss-target ?= built-in.a
-+$(obj)/$(chkbss-target): chkbss
-+
-+chkbss-files := $(addsuffix .chkbss, $(chkbss))
-+clean-files += $(chkbss-files)
-+
-+PHONY += chkbss
-+chkbss: $(addprefix $(obj)/, $(chkbss-files))
-+
- quiet_cmd_chkbss = CHKBSS  $<
--define cmd_chkbss
--	rm -f $@; \
-+      cmd_chkbss = \
- 	if ! $(OBJDUMP) -j .bss -w -h $< | awk 'END { if ($$3) exit 1 }'; then \
- 		echo "error: $< .bss section is not empty" >&2; exit 1; \
- 	fi; \
- 	touch $@;
--endef
--
--chkbss-target ?= $(obj)/built-in.a
--ifneq (,$(findstring /,$(chkbss)))
--chkbss-files := $(patsubst %, %.chkbss, $(chkbss))
--else
--chkbss-files := $(patsubst %, $(obj)/%.chkbss, $(chkbss))
--endif
--
--$(chkbss-target): $(chkbss-files)
--targets += $(notdir $(chkbss-files))
- 
--%.o.chkbss: %.o
-+$(obj)/%.o.chkbss: $(obj)/%.o
- 	$(call cmd,chkbss)
--- 
-2.7.4
+James
