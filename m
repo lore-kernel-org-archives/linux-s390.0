@@ -1,93 +1,117 @@
-From: Stefan Haberland <sth@linux.ibm.com>
-Date: Fri, 18 Jan 2019 10:26:26 +0000
-Subject: [PATCH 1/1] s390/dasd: fix using offset into zero size array error
-Message-Id: <20190118102626.63773-2-sth@linux.ibm.com>
-To: linux-s390@vger.kernel.org
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Fri, 18 Jan 2019 11:41:54 +0000
+Subject: [kvm-unit-tests PATCH v6 01/11] s390x: Add Sigp header file
+Message-Id: <20190118114204.147868-2-frankja@linux.ibm.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Dan Carpenter reported the following:
+The magic numbers for SIGP are not nice to read, so let's put them in
+a new header file. Also move sigp_stop() there, it will later be
+joined by more sigp functions and definitions.
 
-The patch 52898025cf7d: "[S390] dasd: security and PSF update patch
-for EMC CKD ioctl" from Mar 8, 2010, leads to the following static
-checker warning:
-
-	drivers/s390/block/dasd_eckd.c:4486 dasd_symm_io()
-	error: using offset into zero size array 'psf_data[]'
-
-drivers/s390/block/dasd_eckd.c
-  4458          /* Copy parms from caller */
-  4459          rc = -EFAULT;
-  4460          if (copy_from_user(&usrparm, argp, sizeof(usrparm)))
-                                    ^^^^^^^
-The user can specify any "usrparm.psf_data_len".  They choose zero by
-mistake.
-
-  4461                  goto out;
-  4462          if (is_compat_task()) {
-  4463                  /* Make sure pointers are sane even on 31 bit. */
-  4464                  rc = -EINVAL;
-  4465                  if ((usrparm.psf_data >> 32) != 0)
-  4466                          goto out;
-  4467                  if ((usrparm.rssd_result >> 32) != 0)
-  4468                          goto out;
-  4469                  usrparm.psf_data &= 0x7fffffffULL;
-  4470                  usrparm.rssd_result &= 0x7fffffffULL;
-  4471          }
-  4472          /* alloc I/O data area */
-  4473          psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL
-  			   				 | GFP_DMA);
-  4474          rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL
-							       | GFP_DMA);
-  4475          if (!psf_data || !rssd_result) {
-
-kzalloc() returns a ZERO_SIZE_PTR (0x16).
-
-  4476                  rc = -ENOMEM;
-  4477                  goto out_free;
-  4478          }
-  4479
-  4480          /* get syscall header from user space */
-  4481          rc = -EFAULT;
-  4482          if (copy_from_user(psf_data,
-  4483                             (void __user *)(unsigned long)
-  				   	 		 usrparm.psf_data,
-  4484                             usrparm.psf_data_len))
-
-That all works great.
-
-  4485                  goto out_free;
-  4486          psf0 = psf_data[0];
-  4487          psf1 = psf_data[1];
-
-But now we're assuming that "->psf_data_len" was at least 2 bytes.
-
-Fix this by checking the user specified length psf_data_len.
-
-Fixes: 52898025cf7d ("[S390] dasd: security and PSF update patch for EMC CKD ioctl")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- drivers/s390/block/dasd_eckd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ lib/s390x/asm/sigp.h | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/io.c       | 11 +---------
+ 2 files changed, 61 insertions(+), 10 deletions(-)
+ create mode 100644 lib/s390x/asm/sigp.h
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 4e7b55a14b1a..6e294b4d3635 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -4469,6 +4469,14 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
- 		usrparm.psf_data &= 0x7fffffffULL;
- 		usrparm.rssd_result &= 0x7fffffffULL;
- 	}
-+	/* at least 2 bytes are accessed and should be allocated */
-+	if (usrparm.psf_data_len < 2) {
-+		DBF_DEV_EVENT(DBF_WARNING, device,
-+			      "Symmetrix ioctl invalid data length %d",
-+			      usrparm.psf_data_len);
-+		rc = -EINVAL;
-+		goto out;
-+	}
- 	/* alloc I/O data area */
- 	psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL | GFP_DMA);
- 	rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL | GFP_DMA);
+diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
+new file mode 100644
+index 0000000..fbd94fc
+--- /dev/null
++++ b/lib/s390x/asm/sigp.h
+@@ -0,0 +1,60 @@
++/*
++ * SIGP related definitions.
++ *
++ * Copied from the Linux kernel file arch/s390/include/asm/sigp.h
++ *
++ * This work is licensed under the terms of the GNU GPL, version
++ * 2.
++ */
++
++#ifndef ASM_S390X_SIGP_H
++#define ASM_S390X_SIGP_H
++
++/* SIGP order codes */
++#define SIGP_SENSE			1
++#define SIGP_EXTERNAL_CALL		2
++#define SIGP_EMERGENCY_SIGNAL		3
++#define SIGP_START			4
++#define SIGP_STOP			5
++#define SIGP_RESTART			6
++#define SIGP_STOP_AND_STORE_STATUS	9
++#define SIGP_INITIAL_CPU_RESET		11
++#define SIGP_CPU_RESET			12
++#define SIGP_SET_PREFIX			13
++#define SIGP_STORE_STATUS_AT_ADDRESS	14
++#define SIGP_SET_ARCHITECTURE		18
++#define SIGP_COND_EMERGENCY_SIGNAL	19
++#define SIGP_SENSE_RUNNING		21
++#define SIGP_SET_MULTI_THREADING	22
++#define SIGP_STORE_ADDITIONAL_STATUS	23
++
++/* SIGP condition codes */
++#define SIGP_CC_ORDER_CODE_ACCEPTED 0
++#define SIGP_CC_STATUS_STORED	    1
++#define SIGP_CC_BUSY		    2
++#define SIGP_CC_NOT_OPERATIONAL	    3
++
++/* SIGP cpu status bits */
++
++#define SIGP_STATUS_INVALID_ORDER	0x00000002UL
++#define SIGP_STATUS_CHECK_STOP		0x00000010UL
++#define SIGP_STATUS_STOPPED		0x00000040UL
++#define SIGP_STATUS_EXT_CALL_PENDING	0x00000080UL
++#define SIGP_STATUS_INVALID_PARAMETER	0x00000100UL
++#define SIGP_STATUS_INCORRECT_STATE	0x00000200UL
++#define SIGP_STATUS_NOT_RUNNING		0x00000400UL
++
++#ifndef __ASSEMBLER__
++
++static inline void sigp_stop(void)
++{
++	register unsigned long status asm ("1") = 0;
++	register unsigned long cpu asm ("2") = 0;
++
++	asm volatile(
++		"	sigp %0,%1,0(%2)\n"
++		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
++}
++
++#endif /* __ASSEMBLER__ */
++#endif /* ASM_S390X_SIGP_H */
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index 7bca637..fd33623 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -14,6 +14,7 @@
+ #include <argv.h>
+ #include <asm/spinlock.h>
+ #include <asm/facility.h>
++#include <asm/sigp.h>
+ #include "sclp.h"
+ 
+ extern char ipl_args[];
+@@ -30,16 +31,6 @@ void puts(const char *s)
+ 	spin_unlock(&lock);
+ }
+ 
+-static void sigp_stop(void)
+-{
+-	register unsigned long status asm ("1") = 0;
+-	register unsigned long cpu asm ("2") = 0;
+-
+-	asm volatile(
+-		"	sigp %0,%1,0(%2)\n"
+-		: "+d" (status)  : "d" (cpu), "d" (5) : "cc");
+-}
+-
+ void setup(void)
+ {
+ 	setup_args_progname(ipl_args);
 -- 
-2.16.4
+2.14.3
