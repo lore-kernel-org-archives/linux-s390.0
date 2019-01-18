@@ -1,41 +1,34 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-Subject: Re: [PATCH v2 00/29] y2038: add time64 syscalls
-Date: Fri, 18 Jan 2019 09:45:18 -0800
-Message-ID: <1547833518.2794.36.camel@HansenPartnership.com>
-References: <20190118161835.2259170-1-arnd@arndb.de>
-         <be3863ae-d903-8e9e-5e6c-e4a58fac189d@blastwave.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 13/29] arch: add split IPC system calls where needed
+Date: Fri, 18 Jan 2019 20:30:57 +0100
+Message-ID: <CAK8P3a1R8BfAnNGvBa-hoQBL3uJQ5bJ0_YO91YLv8pp3-nAe3Q@mail.gmail.com>
+References: <20190118161835.2259170-1-arnd@arndb.de> <20190118161835.2259170-14-arnd@arndb.de>
+ <20190118171830.quvvwdgbuhq2nqrh@lt-gp.iram.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <be3863ae-d903-8e9e-5e6c-e4a58fac189d@blastwave.org>
+In-Reply-To: <20190118171830.quvvwdgbuhq2nqrh@lt-gp.iram.es>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Dennis Clarke <dclarke@blastwave.org>, Arnd Bergmann <arnd@arndb.de>, y2038@lists.linaro.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Cc: mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will.deacon@arm.com, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, paul.burton@mips.com, deller@gmx.de, benh@kernel.crashing.org, mpe@ellerman.id.au, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, dalias@libc.org, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jcmvbkbc@gmail.com, akpm@linux-foundation.org, deepa.kernel@gmail.com, ebiederm@xmission.com, firoz.khan@linaro.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: Gabriel Paubert <paubert@iram.es>
+Cc: y2038 Mailman List <y2038@lists.linaro.org>, Linux API <linux-api@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Max Filippov <jcmvbkbc@gmail.com>, Deepa Dinamani <deepa.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 2019-01-18 at 11:57 -0500, Dennis Clarke wrote:
-> On 1/18/19 11:18 AM, Arnd Bergmann wrote:
-> > This is a minor update of the patches I posted last week, I
-> > would like to add this into linux-next now, but would still do
-> > changes if there are concerns about the contents. The first
-> > version did not see a lot of replies, which could mean that
-> > either everyone is happy with it, or that it was largely ignored.
-> > 
-> > See also the article at https://lwn.net/Articles/776435/.
-> 
-> I would be happy to read "Approaching the kernel year-2038 end game"
-> however it is behind a pay wall.  Perhaps it may be best to just
-> host interesting articles about open source idea elsewhere.
+On Fri, Jan 18, 2019 at 6:20 PM Gabriel Paubert <paubert@iram.es> wrote:
+>
+> On Fri, Jan 18, 2019 at 05:18:19PM +0100, Arnd Bergmann wrote:
+> > The IPC system call handling is highly inconsistent across architectures,
+> > some use sys_ipc, some use separate calls, and some use both.  We also
+> > have some architectures that require passing IPC_64 in the flags, and
+> > others that set it implicitly.
+> >
+> > For the additon of a y2083 safe semtimedop() system call, I chose to only
+>
+> It's not critical, but there are two typos in that line:
+> additon -> addition
+> 2083 -> 2038
 
-Hey, this is an unfair characterization: lwn.net operates an early
-access subscription model, so you can't read the above for 14 days
-after publication without paying for an lwn.net subscription, but by
-the time these patches are upstream there will be no paywall because it
-will expire on 24 January and that URL will then be readable by all. 
-That makes LWN.net a nice, reliable resource for us while still
-supporting some business model to keep it going.
+Fixed both, thanks!
 
-James
+     Arnd
