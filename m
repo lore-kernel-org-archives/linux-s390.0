@@ -1,50 +1,47 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Fri, 18 Jan 2019 11:42:03 +0000
-Subject: [kvm-unit-tests PATCH v6 10/11] s390x: Add binary generation to makefile
-Message-Id: <20190118114204.147868-11-frankja@linux.ibm.com>
+Date: Fri, 18 Jan 2019 11:42:04 +0000
+Subject: [kvm-unit-tests PATCH v6 11/11] s390x: Initialize the physical allocator on mem init
+Message-Id: <20190118114204.147868-12-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-"make test_cases_binary" will now generate binaries that can be booted
-from disk or as a non ELF kernel boot.
+The physical and virtual allocators can coexist, so we can initialize
+the former and allocate pages without breaking VM alloc.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 ---
- s390x/Makefile | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ lib/s390x/sclp.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index ed6ef0b..af40fd4 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -10,10 +10,12 @@ tests += $(TEST_DIR)/cmm.elf
- tests += $(TEST_DIR)/vector.elf
- tests += $(TEST_DIR)/gs.elf
- tests += $(TEST_DIR)/iep.elf
-+tests_binary = $(patsubst %.elf,%.bin,$(tests))
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 9876db3..257eb02 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -18,6 +18,7 @@
+ #include <asm/spinlock.h>
+ #include "sclp.h"
+ #include <alloc_phys.h>
++#include <alloc_page.h>
  
--all: directories test_cases
-+all: directories test_cases test_cases_binary
+ extern unsigned long stacktop;
  
- test_cases: $(tests)
-+test_cases_binary: $(tests_binary)
+@@ -32,8 +33,16 @@ static struct spinlock sclp_lock;
+ static void mem_init(phys_addr_t mem_end)
+ {
+ 	phys_addr_t freemem_start = (phys_addr_t)&stacktop;
++	phys_addr_t base, top;
  
- CFLAGS += -std=gnu99
- CFLAGS += -ffreestanding
-@@ -55,8 +57,11 @@ FLATLIBS = $(libcflat)
- 	$(RM) $(@:.elf=.aux.o)
- 	@chmod a-x $@
- 
-+%.bin: %.elf
-+	$(OBJCOPY) -O binary  $< $@
+ 	phys_alloc_init(freemem_start, mem_end - freemem_start);
++	phys_alloc_get_unused(&base, &top);
++	base = (base + PAGE_SIZE - 1) & -PAGE_SIZE;
++	top = top & -PAGE_SIZE;
 +
- arch_clean: asm_offsets_clean
--	$(RM) $(TEST_DIR)/*.{o,elf} $(TEST_DIR)/.*.d lib/s390x/.*.d
-+	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d lib/s390x/.*.d
++	/* Make the pages available to the physical allocator */
++	free_pages((void *)(unsigned long)base, top - base);
++	page_alloc_ops_enable();
+ }
  
- generated-files = $(asm-offsets)
- $(tests:.elf=.o) $(cstart.o) $(cflatobjs): $(generated-files)
+ static void sclp_setup_int(void)
 -- 
 2.14.3
