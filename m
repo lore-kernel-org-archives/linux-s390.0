@@ -1,117 +1,123 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Fri, 18 Jan 2019 11:41:54 +0000
-Subject: [kvm-unit-tests PATCH v6 01/11] s390x: Add Sigp header file
-Message-Id: <20190118114204.147868-2-frankja@linux.ibm.com>
+Date: Fri, 18 Jan 2019 11:41:55 +0000
+Subject: [kvm-unit-tests PATCH v6 02/11] s390x: Rename and cleanup sclp-ascii.c
+Message-Id: <20190118114204.147868-3-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The magic numbers for SIGP are not nice to read, so let's put them in
-a new header file. Also move sigp_stop() there, it will later be
-joined by more sigp functions and definitions.
+Let's rename to the more fitting name sclp-console.c and fix some
+indentation problems.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/asm/sigp.h | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/io.c       | 11 +---------
- 2 files changed, 61 insertions(+), 10 deletions(-)
- create mode 100644 lib/s390x/asm/sigp.h
+ lib/s390x/io.c                             |  2 +-
+ lib/s390x/{sclp-ascii.c => sclp-console.c} | 38 +++++++++++++++---------------
+ lib/s390x/sclp.h                           |  2 +-
+ s390x/Makefile                             |  2 +-
+ 4 files changed, 22 insertions(+), 22 deletions(-)
+ rename lib/s390x/{sclp-ascii.c => sclp-console.c} (54%)
 
-diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
-new file mode 100644
-index 0000000..fbd94fc
---- /dev/null
-+++ b/lib/s390x/asm/sigp.h
-@@ -0,0 +1,60 @@
-+/*
-+ * SIGP related definitions.
-+ *
-+ * Copied from the Linux kernel file arch/s390/include/asm/sigp.h
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version
-+ * 2.
-+ */
-+
-+#ifndef ASM_S390X_SIGP_H
-+#define ASM_S390X_SIGP_H
-+
-+/* SIGP order codes */
-+#define SIGP_SENSE			1
-+#define SIGP_EXTERNAL_CALL		2
-+#define SIGP_EMERGENCY_SIGNAL		3
-+#define SIGP_START			4
-+#define SIGP_STOP			5
-+#define SIGP_RESTART			6
-+#define SIGP_STOP_AND_STORE_STATUS	9
-+#define SIGP_INITIAL_CPU_RESET		11
-+#define SIGP_CPU_RESET			12
-+#define SIGP_SET_PREFIX			13
-+#define SIGP_STORE_STATUS_AT_ADDRESS	14
-+#define SIGP_SET_ARCHITECTURE		18
-+#define SIGP_COND_EMERGENCY_SIGNAL	19
-+#define SIGP_SENSE_RUNNING		21
-+#define SIGP_SET_MULTI_THREADING	22
-+#define SIGP_STORE_ADDITIONAL_STATUS	23
-+
-+/* SIGP condition codes */
-+#define SIGP_CC_ORDER_CODE_ACCEPTED 0
-+#define SIGP_CC_STATUS_STORED	    1
-+#define SIGP_CC_BUSY		    2
-+#define SIGP_CC_NOT_OPERATIONAL	    3
-+
-+/* SIGP cpu status bits */
-+
-+#define SIGP_STATUS_INVALID_ORDER	0x00000002UL
-+#define SIGP_STATUS_CHECK_STOP		0x00000010UL
-+#define SIGP_STATUS_STOPPED		0x00000040UL
-+#define SIGP_STATUS_EXT_CALL_PENDING	0x00000080UL
-+#define SIGP_STATUS_INVALID_PARAMETER	0x00000100UL
-+#define SIGP_STATUS_INCORRECT_STATE	0x00000200UL
-+#define SIGP_STATUS_NOT_RUNNING		0x00000400UL
-+
-+#ifndef __ASSEMBLER__
-+
-+static inline void sigp_stop(void)
-+{
-+	register unsigned long status asm ("1") = 0;
-+	register unsigned long cpu asm ("2") = 0;
-+
-+	asm volatile(
-+		"	sigp %0,%1,0(%2)\n"
-+		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
-+}
-+
-+#endif /* __ASSEMBLER__ */
-+#endif /* ASM_S390X_SIGP_H */
 diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index 7bca637..fd33623 100644
+index fd33623..becadfc 100644
 --- a/lib/s390x/io.c
 +++ b/lib/s390x/io.c
-@@ -14,6 +14,7 @@
- #include <argv.h>
- #include <asm/spinlock.h>
- #include <asm/facility.h>
-+#include <asm/sigp.h>
- #include "sclp.h"
- 
- extern char ipl_args[];
-@@ -30,16 +31,6 @@ void puts(const char *s)
- 	spin_unlock(&lock);
- }
- 
--static void sigp_stop(void)
--{
--	register unsigned long status asm ("1") = 0;
--	register unsigned long cpu asm ("2") = 0;
--
--	asm volatile(
--		"	sigp %0,%1,0(%2)\n"
--		: "+d" (status)  : "d" (cpu), "d" (5) : "cc");
--}
--
- void setup(void)
+@@ -35,7 +35,7 @@ void setup(void)
  {
  	setup_args_progname(ipl_args);
+ 	setup_facilities();
+-	sclp_ascii_setup();
++	sclp_console_setup();
+ 	sclp_memory_setup();
+ }
+ 
+diff --git a/lib/s390x/sclp-ascii.c b/lib/s390x/sclp-console.c
+similarity index 54%
+rename from lib/s390x/sclp-ascii.c
+rename to lib/s390x/sclp-console.c
+index 893ca17..deacbde 100644
+--- a/lib/s390x/sclp-ascii.c
++++ b/lib/s390x/sclp-console.c
+@@ -35,34 +35,34 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 
+ static void sclp_set_write_mask(void)
+ {
+-    WriteEventMask *sccb = (void *)_sccb;
++	WriteEventMask *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventMask);
+-    sccb->mask_length = sizeof(unsigned int);
+-    sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-    sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->h.length = sizeof(WriteEventMask);
++	sccb->mask_length = sizeof(unsigned int);
++	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
+ }
+ 
+-void sclp_ascii_setup(void)
++void sclp_console_setup(void)
+ {
+-    sclp_set_write_mask();
++	sclp_set_write_mask();
+ }
+ 
+ void sclp_print(const char *str)
+ {
+-    int len = strlen(str);
+-    WriteEventData *sccb = (void *)_sccb;
++	int len = strlen(str);
++	WriteEventData *sccb = (void *)_sccb;
+ 
+-    sccb->h.length = sizeof(WriteEventData) + len;
+-    sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+-    sccb->ebh.length = sizeof(EventBufferHeader) + len;
+-    sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
+-    sccb->ebh.flags = 0;
+-    memcpy(sccb->data, str, len);
++	sccb->h.length = sizeof(WriteEventData) + len;
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->ebh.length = sizeof(EventBufferHeader) + len;
++	sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
++	sccb->ebh.flags = 0;
++	memcpy(sccb->data, str, len);
+ 
+-    sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
+ }
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 629e9e2..4c60061 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -212,7 +212,7 @@ typedef struct ReadEventData {
+     uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
+-void sclp_ascii_setup(void);
++void sclp_console_setup(void);
+ void sclp_print(const char *str);
+ extern char _sccb[];
+ int sclp_service_call(unsigned int command, void *sccb);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 8ba2b92..ede2961 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -38,7 +38,7 @@ cflatobjs += lib/alloc_phys.o
+ cflatobjs += lib/s390x/io.o
+ cflatobjs += lib/s390x/stack.o
+ cflatobjs += lib/s390x/sclp.o
+-cflatobjs += lib/s390x/sclp-ascii.o
++cflatobjs += lib/s390x/sclp-console.o
+ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ 
 -- 
 2.14.3
