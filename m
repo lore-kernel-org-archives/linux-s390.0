@@ -1,81 +1,105 @@
 From: Janosch Frank <frankja@linux.ibm.com>
-Date: Fri, 18 Jan 2019 11:41:58 +0000
-Subject: [kvm-unit-tests PATCH v6 05/11] s390x: Add BSS clearing for non ELF boot
-Message-Id: <20190118114204.147868-6-frankja@linux.ibm.com>
+Date: Fri, 18 Jan 2019 11:41:59 +0000
+Subject: [kvm-unit-tests PATCH v6 06/11] s390x: Move common sclp data and functions to sclp.c
+Message-Id: <20190118114204.147868-7-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When doing an IPL normal the memory will not be zeroed and hence the
-BSS section can have any value. We need to clear it by ourselves.
+sclp.c will provide the common functionality in the future and the
+base memory detection as it is quite small.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- s390x/cstart64.S | 22 ++++++++++++++++++++--
- s390x/flat.lds   |  2 ++
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ lib/s390x/sclp-console.c | 20 --------------------
+ lib/s390x/sclp.c         | 20 ++++++++++++++++++++
+ lib/s390x/sclp.h         |  2 +-
+ 3 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 6622633..dedfe80 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -39,7 +39,22 @@ start:
- 	/* setup initial PSW mask + control registers*/
- 	larl	%r1, initial_psw
- 	lpswe	0(%r1)
--init_psw_cont:
-+clear_bss_start:
-+	larl 	%r2, __bss_start
-+	larl 	%r3, __bss_end
-+	slgr 	%r3, %r2		# Get sizeof bss
-+	aghi 	%r3,-1
-+	srlg 	%r4,%r3,8		# Calc number of 256 byte chunks
-+	ltgr 	%r4,%r4
-+	lgr 	%r1,%r2
-+	jz	clear_bss_remainder		# If none, clear remaining bytes
-+clear_bss_loop:
-+	xc	0(256,%r1), 0(%r1)	# Clear 256 byte chunks via xor
-+	la	%r1, 256(%r1)
-+	brctg 	%r4, clear_bss_loop
-+clear_bss_remainder:
-+	larl	%r2, memsetxc
-+	ex 	%r3, 0(%r2)
- 	/* setup pgm interrupt handler */
- 	larl	%r1, pgm_int_psw
- 	mvc	GEN_LC_PGM_NEW_PSW(16), 0(%r1)
-@@ -71,6 +86,9 @@ init_psw_cont:
- 	/* call exit() */
- 	j exit
+diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+index deacbde..bc01f41 100644
+--- a/lib/s390x/sclp-console.c
++++ b/lib/s390x/sclp-console.c
+@@ -13,26 +13,6 @@
+ #include <asm/page.h>
+ #include "sclp.h"
  
-+memsetxc:
-+	xc 0(1,%r1),0(%r1)
+-char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+-
+-/* Perform service call. Return 0 on success, non-zero otherwise. */
+-int sclp_service_call(unsigned int command, void *sccb)
+-{
+-        int cc;
+-
+-        asm volatile(
+-                "       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+-                "       ipm     %0\n"
+-                "       srl     %0,28"
+-                : "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+-                : "cc", "memory");
+-        if (cc == 3)
+-                return -1;
+-        if (cc == 2)
+-                return -1;
+-        return 0;
+-}
+-
+ static void sclp_set_write_mask(void)
+ {
+ 	WriteEventMask *sccb = (void *)_sccb;
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index cccfdc2..7f556e5 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -23,6 +23,8 @@ static uint64_t storage_increment_size;
+ static uint64_t max_ram_size;
+ static uint64_t ram_size;
+ 
++char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
 +
- 	.macro SAVE_REGS
- 	/* save grs 0-15 */
- 	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
-@@ -159,7 +177,7 @@ svc_int:
+ static void mem_init(phys_addr_t mem_end)
+ {
+ 	phys_addr_t freemem_start = (phys_addr_t)&stacktop;
+@@ -50,6 +52,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
+ 	report_abort("READ_SCP_INFO failed");
+ }
  
- 	.align	8
- initial_psw:
--	.quad	0x0000000180000000, init_psw_cont
-+	.quad	0x0000000180000000, clear_bss_start
- pgm_int_psw:
- 	.quad	0x0000000180000000, pgm_int
- ext_int_psw:
-diff --git a/s390x/flat.lds b/s390x/flat.lds
-index 977af7c..403d967 100644
---- a/s390x/flat.lds
-+++ b/s390x/flat.lds
-@@ -40,7 +40,9 @@ SECTIONS
- 	. = ALIGN(16);
- 	.rodata : { *(.rodata) *(.rodata.*) }
- 	. = ALIGN(16);
-+	__bss_start = .;
- 	.bss : { *(.bss) }
-+	__bss_end = .;
- 	. = ALIGN(64K);
- 	edata = .;
- 	. += 64K;
++/* Perform service call. Return 0 on success, non-zero otherwise. */
++int sclp_service_call(unsigned int command, void *sccb)
++{
++	int cc;
++
++	asm volatile(
++		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
++		"       ipm     %0\n"
++		"       srl     %0,28"
++		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
++		: "cc", "memory");
++	if (cc == 3)
++		return -1;
++	if (cc == 2)
++		return -1;
++	return 0;
++}
++
+ void sclp_memory_setup(void)
+ {
+ 	ReadInfo *ri = (void *)_sccb;
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 4c60061..583c4e5 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -212,9 +212,9 @@ typedef struct ReadEventData {
+     uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
++extern char _sccb[];
+ void sclp_console_setup(void);
+ void sclp_print(const char *str);
+-extern char _sccb[];
+ int sclp_service_call(unsigned int command, void *sccb);
+ void sclp_memory_setup(void);
+ 
 -- 
 2.14.3
