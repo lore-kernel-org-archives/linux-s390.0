@@ -1,10 +1,8 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v2 1/2] vfio-ccw: new capability chain support
-Date: Mon, 21 Jan 2019 12:05:07 +0100
-Message-ID: <20190121110508.2320-2-cohuck@redhat.com>
-References: <20190121110508.2320-1-cohuck@redhat.com>
+Subject: [PATCH v2 0/2] vfio-ccw: support hsch/csch (QEMU part)
+Date: Mon, 21 Jan 2019 12:05:06 +0100
+Message-ID: <20190121110508.2320-1-cohuck@redhat.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190121110508.2320-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -21,56 +19,46 @@ To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farha
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-To be replaced with a real linux-headers update.
+[This is the QEMU part, git tree is available at
+https://github.com/cohuck/qemu vfio-ccw-caps
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- linux-headers/linux/vfio.h     |  4 ++++
- linux-headers/linux/vfio_ccw.h | 12 ++++++++++++
- 2 files changed, 16 insertions(+)
+The companion Linux kernel patches are available at
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps]
 
-diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
-index ceb6453394..2965c9fbd7 100644
---- a/linux-headers/linux/vfio.h
-+++ b/linux-headers/linux/vfio.h
-@@ -303,6 +303,10 @@ struct vfio_region_info_cap_type {
- #define VFIO_REGION_SUBTYPE_INTEL_IGD_HOST_CFG	(2)
- #define VFIO_REGION_SUBTYPE_INTEL_IGD_LPC_CFG	(3)
- 
-+#define VFIO_REGION_TYPE_CCW			(2)
-+/* ccw sub-types */
-+#define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
-+
- /*
-  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
-  * which allows direct access to non-MSIX registers which happened to be within
-diff --git a/linux-headers/linux/vfio_ccw.h b/linux-headers/linux/vfio_ccw.h
-index 5bf96c3812..fcc3e69ef5 100644
---- a/linux-headers/linux/vfio_ccw.h
-+++ b/linux-headers/linux/vfio_ccw.h
-@@ -12,6 +12,7 @@
- 
- #include <linux/types.h>
- 
-+/* used for START SUBCHANNEL, always present */
- struct ccw_io_region {
- #define ORB_AREA_SIZE 12
- 	__u8	orb_area[ORB_AREA_SIZE];
-@@ -22,4 +23,15 @@ struct ccw_io_region {
- 	__u32	ret_code;
- } __attribute__((packed));
- 
-+/*
-+ * used for processing commands that trigger asynchronous actions
-+ * Note: this is controlled by a capability
-+ */
-+#define VFIO_CCW_ASYNC_CMD_HSCH (1 << 0)
-+#define VFIO_CCW_ASYNC_CMD_CSCH (1 << 1)
-+struct ccw_cmd_region {
-+	__u32 command;
-+	__u32 ret_code;
-+} __attribute__((packed));
-+
- #endif
+Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
+device. This tends to work well for the most common 'good path' scenarios;
+however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
+clearing pending requests at the device is currently not supported.
+This may be a problem for e.g. error recovery.
+
+This patch series makes use of the newly introduced async command region
+to issue hsch/csch; if it is not present, continue to emulate hsch/csch,
+as before.
+
+Note that the kernel side now returns -EAGAIN to trigger a retry in more
+cases; QEMU should already be fine with that.
+
+[I'm not quite happy with how this async processing hooks up in css.c;
+ideas welcome.]
+
+Lightly tested (I can interact with a dasd as before, and reserve/release
+seems to work well.) Not sure if there is a better way to test this, ideas
+welcome.
+
+Changes v1->v2:
+- update kernel header to v2 of kernel patches
+- rebased on master
+
+Cornelia Huck (2):
+  vfio-ccw: new capability chain support
+  vfio-ccw: support async command subregion
+
+ hw/s390x/css.c                 |  27 ++++++--
+ hw/vfio/ccw.c                  | 109 ++++++++++++++++++++++++++++++++-
+ include/hw/s390x/s390-ccw.h    |   3 +
+ linux-headers/linux/vfio.h     |   4 ++
+ linux-headers/linux/vfio_ccw.h |  12 ++++
+ 5 files changed, 149 insertions(+), 6 deletions(-)
+
 -- 
 2.17.2
