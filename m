@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 1/3] virtio-ccw: diag 500 may return a negative cookie
-Date: Mon, 21 Jan 2019 13:19:42 +0100
-Message-ID: <20190121121944.12309-2-cohuck@redhat.com>
+Subject: [PATCH 2/3] s390/virtio: handle find on invalid queue gracefully
+Date: Mon, 21 Jan 2019 13:19:43 +0100
+Message-ID: <20190121121944.12309-3-cohuck@redhat.com>
 References: <20190121121944.12309-1-cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,30 +23,41 @@ To: "Michael S . Tsirkin" <mst@redhat.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-If something goes wrong in the kvm io bus handling, the virtio-ccw
-diagnose may return a negative error value in the cookie gpr.
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Document this.
+A queue with a capacity of zero is clearly not a valid virtio queue.
+Some emulators report zero queue size if queried with an invalid queue
+index. Instead of crashing in this case let us just return -ENOENT. To
+make that work properly, let us fix the notifier cleanup logic as well.
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Message-Id: <20190107123147.97038-1-pasic@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- Documentation/virtual/kvm/s390-diag.txt | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/virtio/virtio_ccw.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/virtual/kvm/s390-diag.txt b/Documentation/virtual/kvm/s390-diag.txt
-index 48c4921794ed..7c52e5f8b210 100644
---- a/Documentation/virtual/kvm/s390-diag.txt
-+++ b/Documentation/virtual/kvm/s390-diag.txt
-@@ -68,7 +68,8 @@ Subcode 3 - virtio-ccw notification
-     identifier, it is ignored.
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index ae1d56da671d..1a738fe9f26b 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -272,6 +272,8 @@ static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
+ {
+ 	struct virtio_ccw_vq_info *info;
  
-     After completion of the DIAGNOSE call, general register 2 may contain
--    a 64bit identifier (in the kvm_io_bus cookie case).
-+    a 64bit identifier (in the kvm_io_bus cookie case), or a negative
-+    error value, if an internal error occurred.
++	if (!vcdev->airq_info)
++		return;
+ 	list_for_each_entry(info, &vcdev->virtqueues, node)
+ 		drop_airq_indicator(info->vq, vcdev->airq_info);
+ }
+@@ -413,7 +415,7 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+ 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
+ 	if (ret)
+ 		return ret;
+-	return vcdev->config_block->num;
++	return vcdev->config_block->num ?: -ENOENT;
+ }
  
-     See also the virtio standard for a discussion of this hypercall.
- 
+ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
 -- 
 2.17.2
