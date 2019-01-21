@@ -1,110 +1,76 @@
-Return-Path: <SRS0=6Gta=PZ=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH] hugetlb: allow to free gigantic pages regardless of the
- configuration
-References: <20190117183953.5990-1-aghiti@upmem.com>
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <5e02e9c1-efd5-fc1e-c658-5a11f6291bcd@oracle.com>
-Date: Thu, 17 Jan 2019 12:09:11 -0800
-MIME-Version: 1.0
-In-Reply-To: <20190117183953.5990-1-aghiti@upmem.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Alexandre Ghiti <aghiti@upmem.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Cc: hch@infradead.org, linux-riscv@lists.infradead.org, Alexandre Ghiti <alex@ghiti.fr>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH v2 1/2] vfio-ccw: new capability chain support
+Date: Mon, 21 Jan 2019 12:05:07 +0100
+Message-ID: <20190121110508.2320-2-cohuck@redhat.com>
+References: <20190121110508.2320-1-cohuck@redhat.com>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <20190121110508.2320-1-cohuck@redhat.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 1/17/19 10:39 AM, Alexandre Ghiti wrote:
-> From: Alexandre Ghiti <alex@ghiti.fr>
-> 
-> On systems without CMA or (MEMORY_ISOLATION && COMPACTION) activated but
-> that support gigantic pages, boottime reserved gigantic pages can not be
-> freed at all. This patchs simply enables the possibility to hand back
-> those pages to memory allocator.
-> 
-> This commit then renames gigantic_page_supported and
-> ARCH_HAS_GIGANTIC_PAGE to make them more accurate. Indeed, those values
-> being false does not mean that the system cannot use gigantic pages: it
-> just means that runtime allocation of gigantic pages is not supported,
-> one can still allocate boottime gigantic pages if the architecture supports
-> it.
-> 
-> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+To be replaced with a real linux-headers update.
 
-Thank you for doing this!
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ linux-headers/linux/vfio.h     |  4 ++++
+ linux-headers/linux/vfio_ccw.h | 12 ++++++++++++
+ 2 files changed, 16 insertions(+)
 
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-
-> --- a/include/linux/gfp.h
-> +++ b/include/linux/gfp.h
-> @@ -589,8 +589,8 @@ static inline bool pm_suspended_storage(void)
->  /* The below functions must be run on a range from a single zone. */
->  extern int alloc_contig_range(unsigned long start, unsigned long end,
->  			      unsigned migratetype, gfp_t gfp_mask);
-> -extern void free_contig_range(unsigned long pfn, unsigned nr_pages);
->  #endif
-> +extern void free_contig_range(unsigned long pfn, unsigned int nr_pages);
-
-I think nr_pages should be an unsigned long in cma_release() and here
-as well, but that is beyond the scope of this patch.  Most callers of
-cma_release pass in a truncated unsigned long.  The truncation is unlikely
-to cause any issues, just would be nice if types were consistent.  I have
-a patch to do that as part of a contiguous allocation series that I will
-get back to someday.
-
-> @@ -2350,9 +2355,10 @@ static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
->  			break;
->  	}
->  out:
-> -	ret = persistent_huge_pages(h);
-> +	h->max_huge_pages = persistent_huge_pages(h);
->  	spin_unlock(&hugetlb_lock);
-> -	return ret;
-> +
-> +	return 0;
->  }
->  
->  #define HSTATE_ATTR_RO(_name) \
-> @@ -2404,11 +2410,6 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
->  	int err;
->  	NODEMASK_ALLOC(nodemask_t, nodes_allowed, GFP_KERNEL | __GFP_NORETRY);
->  
-> -	if (hstate_is_gigantic(h) && !gigantic_page_supported()) {
-> -		err = -EINVAL;
-> -		goto out;
-> -	}
-> -
->  	if (nid == NUMA_NO_NODE) {
->  		/*
->  		 * global hstate attribute
-> @@ -2428,7 +2429,9 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
->  	} else
->  		nodes_allowed = &node_states[N_MEMORY];
->  
-> -	h->max_huge_pages = set_max_huge_pages(h, count, nodes_allowed);
-> +	err = set_max_huge_pages(h, count, nodes_allowed);
-> +	if (err)
-> +		goto out;
->  
->  	if (nodes_allowed != &node_states[N_MEMORY])
->  		NODEMASK_FREE(nodes_allowed);
-
-Yeah!  Those changes causes max_huge_pages to be modified while holding
-hugetlb_lock as it should be.
+diff --git a/linux-headers/linux/vfio.h b/linux-headers/linux/vfio.h
+index ceb6453394..2965c9fbd7 100644
+--- a/linux-headers/linux/vfio.h
++++ b/linux-headers/linux/vfio.h
+@@ -303,6 +303,10 @@ struct vfio_region_info_cap_type {
+ #define VFIO_REGION_SUBTYPE_INTEL_IGD_HOST_CFG	(2)
+ #define VFIO_REGION_SUBTYPE_INTEL_IGD_LPC_CFG	(3)
+ 
++#define VFIO_REGION_TYPE_CCW			(2)
++/* ccw sub-types */
++#define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
++
+ /*
+  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
+  * which allows direct access to non-MSIX registers which happened to be within
+diff --git a/linux-headers/linux/vfio_ccw.h b/linux-headers/linux/vfio_ccw.h
+index 5bf96c3812..fcc3e69ef5 100644
+--- a/linux-headers/linux/vfio_ccw.h
++++ b/linux-headers/linux/vfio_ccw.h
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/types.h>
+ 
++/* used for START SUBCHANNEL, always present */
+ struct ccw_io_region {
+ #define ORB_AREA_SIZE 12
+ 	__u8	orb_area[ORB_AREA_SIZE];
+@@ -22,4 +23,15 @@ struct ccw_io_region {
+ 	__u32	ret_code;
+ } __attribute__((packed));
+ 
++/*
++ * used for processing commands that trigger asynchronous actions
++ * Note: this is controlled by a capability
++ */
++#define VFIO_CCW_ASYNC_CMD_HSCH (1 << 0)
++#define VFIO_CCW_ASYNC_CMD_CSCH (1 << 1)
++struct ccw_cmd_region {
++	__u32 command;
++	__u32 ret_code;
++} __attribute__((packed));
++
+ #endif
 -- 
-Mike Kravetz
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+2.17.2
