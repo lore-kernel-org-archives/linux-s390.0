@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 2/3] s390/virtio: handle find on invalid queue gracefully
-Date: Mon, 21 Jan 2019 13:19:43 +0100
-Message-ID: <20190121121944.12309-3-cohuck@redhat.com>
+Subject: [PATCH 3/3] virtio-ccw: wire up ->bus_name callback
+Date: Mon, 21 Jan 2019 13:19:44 +0100
+Message-ID: <20190121121944.12309-4-cohuck@redhat.com>
 References: <20190121121944.12309-1-cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,41 +23,40 @@ To: "Michael S . Tsirkin" <mst@redhat.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Halil Pasic <pasic@linux.ibm.com>
+Return the bus id of the ccw proxy device. This makes 'ethtool -i'
+show a more useful value than 'virtio' in the bus-info field.
 
-A queue with a capacity of zero is clearly not a valid virtio queue.
-Some emulators report zero queue size if queried with an invalid queue
-index. Instead of crashing in this case let us just return -ENOENT. To
-make that work properly, let us fix the notifier cleanup logic as well.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Message-Id: <20190107123147.97038-1-pasic@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/virtio/virtio_ccw.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index ae1d56da671d..1a738fe9f26b 100644
+index 1a738fe9f26b..74c328321889 100644
 --- a/drivers/s390/virtio/virtio_ccw.c
 +++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -272,6 +272,8 @@ static void virtio_ccw_drop_indicators(struct virtio_ccw_device *vcdev)
- {
- 	struct virtio_ccw_vq_info *info;
- 
-+	if (!vcdev->airq_info)
-+		return;
- 	list_for_each_entry(info, &vcdev->virtqueues, node)
- 		drop_airq_indicator(info->vq, vcdev->airq_info);
- }
-@@ -413,7 +415,7 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
- 	if (ret)
- 		return ret;
--	return vcdev->config_block->num;
-+	return vcdev->config_block->num ?: -ENOENT;
+@@ -975,6 +975,13 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+ 	kfree(ccw);
  }
  
- static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
++static const char *virtio_ccw_bus_name(struct virtio_device *vdev)
++{
++	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
++
++	return dev_name(&vcdev->cdev->dev);
++}
++
+ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.get_features = virtio_ccw_get_features,
+ 	.finalize_features = virtio_ccw_finalize_features,
+@@ -985,6 +992,7 @@ static const struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.reset = virtio_ccw_reset,
+ 	.find_vqs = virtio_ccw_find_vqs,
+ 	.del_vqs = virtio_ccw_del_vqs,
++	.bus_name = virtio_ccw_bus_name,
+ };
+ 
+ 
 -- 
 2.17.2
