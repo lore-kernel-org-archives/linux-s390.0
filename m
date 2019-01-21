@@ -1,73 +1,112 @@
-Return-Path: <SRS0=4HPh=P2=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 18 Jan 2019 09:48:50 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 0/5] s390: rework compat wrapper generation
-In-Reply-To: <20190117201920.GB3687@osiris>
+Return-Path: <SRS0=RWde=P5=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 21 Jan 2019 10:43:54 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 4/5] s390: autogenerate compat syscall wrappers
 References: <20190116131527.2071570-1-arnd@arndb.de>
-        <20190117133619.GD18351@osiris>
-        <CAK8P3a2KvCwAa5yp+f_cZOX4Osd_tvwfBto=aMEMW9TNbePQ9w@mail.gmail.com>
-        <20190117201920.GB3687@osiris>
+ <20190116131527.2071570-5-arnd@arndb.de>
 MIME-Version: 1.0
-Message-Id: <20190118094850.07f84efc@mschwideX1>
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190116131527.2071570-5-arnd@arndb.de>
+Message-Id: <20190121094354.GA3932@osiris>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, y2038@lists.linaro.org, Dominik Brodowski <linux@dominikbrodowski.net>, Mark Rutland <mark.rutland@arm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andrew Morton <akpm@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Thomas Richter <tmricht@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 17 Jan 2019 21:19:20 +0100
-Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-
-> On Thu, Jan 17, 2019 at 05:21:50PM +0100, Arnd Bergmann wrote:
-> > On Thu, Jan 17, 2019 at 2:36 PM Heiko Carstens
-> > <heiko.carstens@de.ibm.com> wrote:  
-> > >
-> > > On Wed, Jan 16, 2019 at 02:15:18PM +0100, Arnd Bergmann wrote:  
-> >   
-> > > > I did not test the changes at runtime, but I looked at the
-> > > > generated object code, which seems fine here and includes
-> > > > the same conversions as before.  
-> > >
-> > > All looks good and seems to work fine. This is a very nice
-> > > simplification of our compat code, even if it adds some dead code to
-> > > the kernel image.
-> > >
-> > > I did some tests and it all looks good. Also the generated code looks
-> > > fine. So, if nothing breaks, this will go upstream with next merge
-> > > window via the s390 tree.
-> > >
-> > > Thanks again for your work!  
-> > 
-> > Awesome, thanks for testing it so quickly and agreeing to merge it!
-> > 
-> > There is a dependency that I now have for my y2038 syscall series
-> > of course, so I'd need to have those patches on top of the s390 series.
-> > 
-> > I think we can either have a shared git branch that gets merged both
-> > into your s390 tree and my y2038 tree, or we merge it only through
-> > my tree, with your Ack.
-> > 
-> > Does that work for you?  
+On Wed, Jan 16, 2019 at 02:15:22PM +0100, Arnd Bergmann wrote:
+> Any system call that takes a pointer argument on s390 requires
+> a wrapper function to do a 31-to-64 zero-extension, these are
+> currently generated in arch/s390/kernel/compat_wrapper.c.
 > 
-> I'll discuss this with Martin tomorrow, however I think a shared git
-> branch would be the best solution. I want to get as much testing as
-> possible for this patch set, which means this must also be in the s390
-> tree.
+> On arm64 and x86, we already generate similar wrappers for all
+> system calls in the place of their definition, just for a different
+> purpose (they load the arguments from pt_regs).
+> 
+> We can do the same thing here, by adding an asm/syscall_wrapper.h
+> file with a copy of all the relevant macros to override the generic
+> version. Besides the addition of the compat entry point, these also
+> rename the entry points with a __s390_ or __s390x_ prefix, similar
+> to what we do on arm64 and x86. This in turn requires renaming
+> a few things, and adding a proper ni_syscall() entry point.
+> 
+> In order to still compile system call definitions that pass an
+> loff_t argument, the __SC_COMPAT_CAST() macro checks for that
+> and forces an -ENOSYS error, which was the best I could come up
+> with. Those functions must obviously not get called from user
+> space, but instead require hand-written compat_sys_*() handlers,
+> which fortunately already exist.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/s390/Kconfig                       |   1 +
+>  arch/s390/include/asm/syscall_wrapper.h | 136 ++++++++++++++++++++++++
+>  arch/s390/kernel/compat_wrapper.c       |  23 +---
+>  arch/s390/kernel/entry.S                |   4 +-
+>  arch/s390/kernel/sys_s390.c             |   5 +
+>  5 files changed, 148 insertions(+), 21 deletions(-)
+>  create mode 100644 arch/s390/include/asm/syscall_wrapper.h
 
-Yes, a shared git branch seems like the best solutoin, this is now
-available as a topic branch on the s390/linux:
+This broke system call tracing. We also need the patch below. If there
+aren't any objections this should be added to Martin's 'compat' branch.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git compat
+From 71880dcdc62e2f89dc206a4e46c1c60e59ce3b0d Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Mon, 21 Jan 2019 10:30:44 +0100
+Subject: [PATCH] s390: fix system call tracing
 
-The branch has been merged to the features branch for v5.1.
+When converting to autogenerated compat syscall wrappers all system
+call entry points got a different symbol name: they all got a __s390x_
+prefix.
 
-Thanks for the work on the compat code, good stuff!
+This caused breakage with system call tracing, since an appropriate
+arch_syscall_match_sym_name() was not provided. Add this function, and
+while at it also add code to avoid compat system call tracing. s390
+has different system call tables for native 64 bit system calls and
+compat system calls. This isn't really supported in the common
+code. However there are hardly any compat binaries left, therefore
+just ignore compat system calls, like x86 and arm64 also do for the
+same reason.
 
+Fixes: aa0d6e70d3b3 ("s390: autogenerate compat syscall wrappers")
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ arch/s390/include/asm/ftrace.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
+index 8ea270fdc7fb..1e14341201c5 100644
+--- a/arch/s390/include/asm/ftrace.h
++++ b/arch/s390/include/asm/ftrace.h
+@@ -81,5 +81,26 @@ static inline void ftrace_generate_call_insn(struct ftrace_insn *insn,
+ #endif
+ }
+ 
++/*
++ * Even though the system call numbers are identical for s390/s390x a
++ * different system call table is used for compat tasks. This may lead
++ * to e.g. incorrect or missing trace event sysfs files.
++ * Therefore simply do not trace compat system calls at all.
++ * See kernel/trace/trace_syscalls.c.
++ */
++#define ARCH_TRACE_IGNORE_COMPAT_SYSCALLS
++static inline bool arch_trace_is_compat_syscall(struct pt_regs *regs)
++{
++	return is_compat_task();
++}
++
++#define ARCH_HAS_SYSCALL_MATCH_SYM_NAME
++static inline bool arch_syscall_match_sym_name(const char *sym,
++					       const char *name)
++{
++	/* skip __s390x_ prefix */
++	return !strcmp(sym + 8, name);
++}
++
+ #endif /* __ASSEMBLY__ */
+ #endif /* _ASM_S390_FTRACE_H */
 -- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+2.16.4
