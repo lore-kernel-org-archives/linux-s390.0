@@ -1,10 +1,10 @@
 Return-Path: <SRS0=flTa=P5=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH v2 08/21] memblock: drop __memblock_alloc_base()
-Date: Mon, 21 Jan 2019 10:03:55 +0200
+Subject: [PATCH v2 09/21] memblock: drop memblock_alloc_base()
+Date: Mon, 21 Jan 2019 10:03:56 +0200
 In-Reply-To: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
 References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
-Message-Id: <1548057848-15136-9-git-send-email-rppt@linux.ibm.com>
+Message-Id: <1548057848-15136-10-git-send-email-rppt@linux.ibm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,130 +22,125 @@ To: linux-mm@kvack.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, Vineet Gupta <vgupta@synopsys.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, openrisc@lists.librecores.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The __memblock_alloc_base() function tries to allocate a memory up to the
-limit specified by its max_addr parameter. Depending on the value of this
-parameter, the __memblock_alloc_base() can is replaced with the appropriate
-memblock_phys_alloc*() variant.
+The memblock_alloc_base() function tries to allocate a memory up to the
+limit specified by its max_addr parameter and panics if the allocation
+fails. Replace its usage with memblock_phys_alloc_range() and make the
+callers check the return value and panic in case of error.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- arch/sh/kernel/machine_kexec.c |  3 ++-
- arch/x86/kernel/e820.c         |  2 +-
- arch/x86/mm/numa.c             | 12 ++++--------
- drivers/of/of_reserved_mem.c   |  7 ++-----
- include/linux/memblock.h       |  2 --
- mm/memblock.c                  |  9 ++-------
- 6 files changed, 11 insertions(+), 24 deletions(-)
+ arch/powerpc/kernel/rtas.c      |  6 +++++-
+ arch/powerpc/mm/hash_utils_64.c |  8 ++++++--
+ arch/s390/kernel/smp.c          |  6 +++++-
+ drivers/macintosh/smu.c         |  2 +-
+ include/linux/memblock.h        |  2 --
+ mm/memblock.c                   | 14 --------------
+ 6 files changed, 17 insertions(+), 21 deletions(-)
 
-diff --git a/arch/sh/kernel/machine_kexec.c b/arch/sh/kernel/machine_kexec.c
-index b9f9f1a..63d63a3 100644
---- a/arch/sh/kernel/machine_kexec.c
-+++ b/arch/sh/kernel/machine_kexec.c
-@@ -168,7 +168,8 @@ void __init reserve_crashkernel(void)
- 	crash_size = PAGE_ALIGN(resource_size(&crashk_res));
- 	if (!crashk_res.start) {
- 		unsigned long max = memblock_end_of_DRAM() - memory_limit;
--		crashk_res.start = __memblock_alloc_base(crash_size, PAGE_SIZE, max);
-+		crashk_res.start = memblock_phys_alloc_range(crash_size,
-+							     PAGE_SIZE, 0, max);
- 		if (!crashk_res.start) {
- 			pr_err("crashkernel allocation failed\n");
- 			goto disable;
-diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
-index 50895c2..9c0eb54 100644
---- a/arch/x86/kernel/e820.c
-+++ b/arch/x86/kernel/e820.c
-@@ -778,7 +778,7 @@ u64 __init e820__memblock_alloc_reserved(u64 size, u64 align)
- {
- 	u64 addr;
- 
--	addr = __memblock_alloc_base(size, align, MEMBLOCK_ALLOC_ACCESSIBLE);
-+	addr = memblock_phys_alloc(size, align);
- 	if (addr) {
- 		e820__range_update_kexec(addr, size, E820_TYPE_RAM, E820_TYPE_RESERVED);
- 		pr_info("update e820_table_kexec for e820__memblock_alloc_reserved()\n");
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index 1308f54..f85ae42 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -195,15 +195,11 @@ static void __init alloc_node_data(int nid)
- 	 * Allocate node data.  Try node-local memory and then any node.
- 	 * Never allocate in DMA zone.
- 	 */
--	nd_pa = memblock_phys_alloc_nid(nd_size, SMP_CACHE_BYTES, nid);
-+	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
- 	if (!nd_pa) {
--		nd_pa = __memblock_alloc_base(nd_size, SMP_CACHE_BYTES,
--					      MEMBLOCK_ALLOC_ACCESSIBLE);
--		if (!nd_pa) {
--			pr_err("Cannot find %zu bytes in any node (initial node: %d)\n",
--			       nd_size, nid);
--			return;
--		}
-+		pr_err("Cannot find %zu bytes in any node (initial node: %d)\n",
-+		       nd_size, nid);
-+		return;
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index de35bd8f..fbc6761 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1187,7 +1187,11 @@ void __init rtas_initialize(void)
+ 		ibm_suspend_me_token = rtas_token("ibm,suspend-me");
  	}
- 	nd = __va(nd_pa);
+ #endif
+-	rtas_rmo_buf = memblock_alloc_base(RTAS_RMOBUF_MAX, PAGE_SIZE, rtas_region);
++	rtas_rmo_buf = memblock_phys_alloc_range(RTAS_RMOBUF_MAX, PAGE_SIZE,
++						 0, rtas_region);
++	if (!rtas_rmo_buf)
++		panic("ERROR: RTAS: Failed to allocate %lx bytes below %pa\n",
++		      PAGE_SIZE, &rtas_region);
  
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 1977ee0..499f16d 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -31,13 +31,10 @@ int __init __weak early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
- 	phys_addr_t *res_base)
- {
- 	phys_addr_t base;
--	/*
--	 * We use __memblock_alloc_base() because memblock_alloc_base()
--	 * panic()s on allocation failure.
--	 */
+ #ifdef CONFIG_RTAS_ERROR_LOGGING
+ 	rtas_last_error_token = rtas_token("rtas-last-error");
+diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
+index bc6be44..c7d5f48 100644
+--- a/arch/powerpc/mm/hash_utils_64.c
++++ b/arch/powerpc/mm/hash_utils_64.c
+@@ -882,8 +882,12 @@ static void __init htab_initialize(void)
+ 		}
+ #endif /* CONFIG_PPC_CELL */
+ 
+-		table = memblock_alloc_base(htab_size_bytes, htab_size_bytes,
+-					    limit);
++		table = memblock_phys_alloc_range(htab_size_bytes,
++						  htab_size_bytes,
++						  0, limit);
++		if (!table)
++			panic("ERROR: Failed to allocate %pa bytes below %pa\n",
++			      &htab_size_bytes, &limit);
+ 
+ 		DBG("Hash table allocated at %lx, size: %lx\n", table,
+ 		    htab_size_bytes);
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index f82b3d3..9061597 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -651,7 +651,11 @@ void __init smp_save_dump_cpus(void)
+ 		/* No previous system present, normal boot. */
+ 		return;
+ 	/* Allocate a page as dumping area for the store status sigps */
+-	page = memblock_alloc_base(PAGE_SIZE, PAGE_SIZE, 1UL << 31);
++	page = memblock_phys_alloc_range(PAGE_SIZE, PAGE_SIZE, 0, 1UL << 31);
++	if (!page)
++		panic("ERROR: Failed to allocate %x bytes below %lx\n",
++		      PAGE_SIZE, 1UL << 31);
 +
- 	end = !end ? MEMBLOCK_ALLOC_ANYWHERE : end;
- 	align = !align ? SMP_CACHE_BYTES : align;
--	base = __memblock_alloc_base(size, align, end);
-+	base = memblock_phys_alloc_range(size, align, 0, end);
- 	if (!base)
- 		return -ENOMEM;
- 
+ 	/* Set multi-threading state to the previous system. */
+ 	pcpu_set_smt(sclp.mtid_prev);
+ 	boot_cpu_addr = stap();
+diff --git a/drivers/macintosh/smu.c b/drivers/macintosh/smu.c
+index 0a0b8e1..42cf68d 100644
+--- a/drivers/macintosh/smu.c
++++ b/drivers/macintosh/smu.c
+@@ -485,7 +485,7 @@ int __init smu_init (void)
+ 	 * SMU based G5s need some memory below 2Gb. Thankfully this is
+ 	 * called at a time where memblock is still available.
+ 	 */
+-	smu_cmdbuf_abs = memblock_alloc_base(4096, 4096, 0x80000000UL);
++	smu_cmdbuf_abs = memblock_phys_alloc_range(4096, 4096, 0, 0x80000000UL);
+ 	if (smu_cmdbuf_abs == 0) {
+ 		printk(KERN_ERR "SMU: Command buffer allocation failed !\n");
+ 		ret = -EINVAL;
 diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 7883c74..768e2b4 100644
+index 768e2b4..6874fdc 100644
 --- a/include/linux/memblock.h
 +++ b/include/linux/memblock.h
-@@ -496,8 +496,6 @@ static inline bool memblock_bottom_up(void)
+@@ -494,8 +494,6 @@ static inline bool memblock_bottom_up(void)
+ 	return memblock.bottom_up;
+ }
  
- phys_addr_t memblock_alloc_base(phys_addr_t size, phys_addr_t align,
- 				phys_addr_t max_addr);
--phys_addr_t __memblock_alloc_base(phys_addr_t size, phys_addr_t align,
--				  phys_addr_t max_addr);
+-phys_addr_t memblock_alloc_base(phys_addr_t size, phys_addr_t align,
+-				phys_addr_t max_addr);
  phys_addr_t memblock_phys_mem_size(void);
  phys_addr_t memblock_reserved_size(void);
  phys_addr_t memblock_mem_size(unsigned long limit_pfn);
 diff --git a/mm/memblock.c b/mm/memblock.c
-index 461e40a3..e5ffdcd 100644
+index e5ffdcd..531fa77 100644
 --- a/mm/memblock.c
 +++ b/mm/memblock.c
-@@ -1363,17 +1363,12 @@ phys_addr_t __init memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align,
+@@ -1363,20 +1363,6 @@ phys_addr_t __init memblock_phys_alloc_nid(phys_addr_t size, phys_addr_t align,
  	return ret;
  }
  
--phys_addr_t __init __memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys_addr_t max_addr)
+-phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys_addr_t max_addr)
 -{
--	return memblock_alloc_range_nid(size, align, 0, max_addr, NUMA_NO_NODE,
+-	phys_addr_t alloc;
+-
+-	alloc = memblock_alloc_range_nid(size, align, 0, max_addr, NUMA_NO_NODE,
 -					MEMBLOCK_NONE);
+-
+-	if (alloc == 0)
+-		panic("ERROR: Failed to allocate %pa bytes below %pa.\n",
+-		      &size, &max_addr);
+-
+-	return alloc;
 -}
 -
- phys_addr_t __init memblock_alloc_base(phys_addr_t size, phys_addr_t align, phys_addr_t max_addr)
+ phys_addr_t __init memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid)
  {
- 	phys_addr_t alloc;
- 
--	alloc = __memblock_alloc_base(size, align, max_addr);
-+	alloc = memblock_alloc_range_nid(size, align, 0, max_addr, NUMA_NO_NODE,
-+					MEMBLOCK_NONE);
- 
- 	if (alloc == 0)
- 		panic("ERROR: Failed to allocate %pa bytes below %pa.\n",
+ 	phys_addr_t res = memblock_phys_alloc_nid(size, align, nid);
 -- 
 2.7.4
 
