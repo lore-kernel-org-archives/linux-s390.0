@@ -1,8 +1,11 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v2 0/2] vfio-ccw: support hsch/csch (QEMU part)
-Date: Mon, 21 Jan 2019 12:05:06 +0100
-Message-ID: <20190121110508.2320-1-cohuck@redhat.com>
+Subject: [PATCH v2 2/2] vfio-ccw: support async command
+ subregion
+Date: Mon, 21 Jan 2019 12:05:08 +0100
+Message-ID: <20190121110508.2320-3-cohuck@redhat.com>
+References: <20190121110508.2320-1-cohuck@redhat.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <20190121110508.2320-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -19,46 +22,234 @@ To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farha
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-[This is the QEMU part, git tree is available at
-https://github.com/cohuck/qemu vfio-ccw-caps
+A vfio-ccw device may provide an async command subregion for
+issuing halt/clear subchannel requests. If it is present, use
+it for sending halt/clear request to the device; if not, fall
+back to emulation (as done today).
 
-The companion Linux kernel patches are available at
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps]
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ hw/s390x/css.c              |  27 +++++++--
+ hw/vfio/ccw.c               | 109 +++++++++++++++++++++++++++++++++++-
+ include/hw/s390x/s390-ccw.h |   3 +
+ 3 files changed, 133 insertions(+), 6 deletions(-)
 
-Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
-device. This tends to work well for the most common 'good path' scenarios;
-however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
-clearing pending requests at the device is currently not supported.
-This may be a problem for e.g. error recovery.
-
-This patch series makes use of the newly introduced async command region
-to issue hsch/csch; if it is not present, continue to emulate hsch/csch,
-as before.
-
-Note that the kernel side now returns -EAGAIN to trigger a retry in more
-cases; QEMU should already be fine with that.
-
-[I'm not quite happy with how this async processing hooks up in css.c;
-ideas welcome.]
-
-Lightly tested (I can interact with a dasd as before, and reserve/release
-seems to work well.) Not sure if there is a better way to test this, ideas
-welcome.
-
-Changes v1->v2:
-- update kernel header to v2 of kernel patches
-- rebased on master
-
-Cornelia Huck (2):
-  vfio-ccw: new capability chain support
-  vfio-ccw: support async command subregion
-
- hw/s390x/css.c                 |  27 ++++++--
- hw/vfio/ccw.c                  | 109 ++++++++++++++++++++++++++++++++-
- include/hw/s390x/s390-ccw.h    |   3 +
- linux-headers/linux/vfio.h     |   4 ++
- linux-headers/linux/vfio_ccw.h |  12 ++++
- 5 files changed, 149 insertions(+), 6 deletions(-)
-
+diff --git a/hw/s390x/css.c b/hw/s390x/css.c
+index f92b046cd3..32e6980496 100644
+--- a/hw/s390x/css.c
++++ b/hw/s390x/css.c
+@@ -22,6 +22,7 @@
+ #include "trace.h"
+ #include "hw/s390x/s390_flic.h"
+ #include "hw/s390x/s390-virtio-ccw.h"
++#include "hw/s390x/s390-ccw.h"
+ 
+ typedef struct CrwContainer {
+     CRW crw;
+@@ -1194,6 +1195,26 @@ static void sch_handle_start_func_virtual(SubchDev *sch)
+ 
+ }
+ 
++static void sch_handle_halt_func_passthrough(SubchDev *sch)
++{
++    int ret;
++
++    ret = vfio_ccw_handle_halt(sch);
++    if (ret == -ENOSYS) {
++        sch_handle_halt_func(sch);
++    }
++}
++
++static void sch_handle_clear_func_passthrough(SubchDev *sch)
++{
++    int ret;
++
++    ret = vfio_ccw_handle_clear(sch);
++    if (ret == -ENOSYS) {
++        sch_handle_clear_func(sch);
++    }
++}
++
+ static IOInstEnding sch_handle_start_func_passthrough(SubchDev *sch)
+ {
+ 
+@@ -1237,11 +1258,9 @@ IOInstEnding do_subchannel_work_passthrough(SubchDev *sch)
+     SCSW *s = &sch->curr_status.scsw;
+ 
+     if (s->ctrl & SCSW_FCTL_CLEAR_FUNC) {
+-        /* TODO: Clear handling */
+-        sch_handle_clear_func(sch);
++        sch_handle_clear_func_passthrough(sch);
+     } else if (s->ctrl & SCSW_FCTL_HALT_FUNC) {
+-        /* TODO: Halt handling */
+-        sch_handle_halt_func(sch);
++        sch_handle_halt_func_passthrough(sch);
+     } else if (s->ctrl & SCSW_FCTL_START_FUNC) {
+         return sch_handle_start_func_passthrough(sch);
+     }
+diff --git a/hw/vfio/ccw.c b/hw/vfio/ccw.c
+index 9246729a75..633dbbce36 100644
+--- a/hw/vfio/ccw.c
++++ b/hw/vfio/ccw.c
+@@ -2,9 +2,12 @@
+  * vfio based subchannel assignment support
+  *
+  * Copyright 2017 IBM Corp.
++ * Copyright 2019 Red Hat, Inc.
++ *
+  * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+  *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+  *            Pierre Morel <pmorel@linux.vnet.ibm.com>
++ *            Cornelia Huck <cohuck@redhat.com>
+  *
+  * This work is licensed under the terms of the GNU GPL, version 2 or (at
+  * your option) any later version. See the COPYING file in the top-level
+@@ -32,6 +35,9 @@ typedef struct VFIOCCWDevice {
+     uint64_t io_region_size;
+     uint64_t io_region_offset;
+     struct ccw_io_region *io_region;
++    uint64_t async_cmd_region_size;
++    uint64_t async_cmd_region_offset;
++    struct ccw_cmd_region *async_cmd_region;
+     EventNotifier io_notifier;
+     bool force_orb_pfch;
+     bool warned_orb_pfch;
+@@ -114,6 +120,87 @@ again:
+     }
+ }
+ 
++int vfio_ccw_handle_clear(SubchDev *sch)
++{
++    S390CCWDevice *cdev = sch->driver_data;
++    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
++    struct ccw_cmd_region *region = vcdev->async_cmd_region;
++    int ret;
++
++    if (!vcdev->async_cmd_region) {
++        /* Async command region not available, fall back to emulation */
++        return -ENOSYS;
++    }
++
++    memset(region, 0, sizeof(*region));
++    region->command = VFIO_CCW_ASYNC_CMD_CSCH;
++
++again:
++    ret = pwrite(vcdev->vdev.fd, region,
++                 vcdev->async_cmd_region_size, vcdev->async_cmd_region_offset);
++    if (ret != vcdev->async_cmd_region_size) {
++        if (errno == EAGAIN) {
++            goto again;
++        }
++        error_report("vfio-ccw: write cmd region failed with errno=%d", errno);
++        ret = -errno;
++    } else {
++        ret = region->ret_code;
++    }
++    switch (ret) {
++    case 0:
++    case -ENODEV:
++    case -EACCES:
++        return 0;
++    case -EFAULT:
++    default:
++        sch_gen_unit_exception(sch);
++        css_inject_io_interrupt(sch);
++        return 0;
++    }
++}
++
++int vfio_ccw_handle_halt(SubchDev *sch)
++{
++    S390CCWDevice *cdev = sch->driver_data;
++    VFIOCCWDevice *vcdev = DO_UPCAST(VFIOCCWDevice, cdev, cdev);
++    struct ccw_cmd_region *region = vcdev->async_cmd_region;
++    int ret;
++
++    if (!vcdev->async_cmd_region) {
++        /* Async command region not available, fall back to emulation */
++        return -ENOSYS;
++    }
++
++    memset(region, 0, sizeof(*region));
++    region->command = VFIO_CCW_ASYNC_CMD_HSCH;
++
++again:
++    ret = pwrite(vcdev->vdev.fd, region,
++                 vcdev->async_cmd_region_size, vcdev->async_cmd_region_offset);
++    if (ret != vcdev->async_cmd_region_size) {
++        if (errno == EAGAIN) {
++            goto again;
++        }
++        error_report("vfio-ccw: write cmd region failed with errno=%d", errno);
++        ret = -errno;
++    } else {
++        ret = region->ret_code;
++    }
++    switch (ret) {
++    case 0:
++    case -EBUSY:
++    case -ENODEV:
++    case -EACCES:
++        return 0;
++    case -EFAULT:
++    default:
++        sch_gen_unit_exception(sch);
++        css_inject_io_interrupt(sch);
++        return 0;
++    }
++}
++
+ static void vfio_ccw_reset(DeviceState *dev)
+ {
+     CcwDevice *ccw_dev = DO_UPCAST(CcwDevice, parent_obj, dev);
+@@ -285,9 +372,13 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
+         return;
+     }
+ 
++    /*
++     * We always expect at least the I/O region to be present. We also
++     * may have a variable number of regions governed by capabilities.
++     */
+     if (vdev->num_regions < VFIO_CCW_CONFIG_REGION_INDEX + 1) {
+-        error_setg(errp, "vfio: Unexpected number of the I/O region %u",
+-                   vdev->num_regions);
++        error_setg(errp, "vfio: too few regions (%u), expected at least %u",
++                   vdev->num_regions, VFIO_CCW_CONFIG_REGION_INDEX + 1);
+         return;
+     }
+ 
+@@ -307,6 +398,20 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
+     vcdev->io_region_offset = info->offset;
+     vcdev->io_region = g_malloc0(info->size);
+ 
++    /* check for the optional async command region */
++    ret = vfio_get_dev_region_info(vdev, VFIO_REGION_TYPE_CCW,
++                                   VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD, &info);
++    if (!ret) {
++        vcdev->async_cmd_region_size = info->size;
++        if (sizeof(*vcdev->async_cmd_region) != vcdev->async_cmd_region_size) {
++            error_setg(errp, "vfio: Unexpected size of the async cmd region");
++            g_free(info);
++            return;
++        }
++        vcdev->async_cmd_region_offset = info->offset;
++        vcdev->async_cmd_region = g_malloc0(info->size);
++    }
++
+     g_free(info);
+ }
+ 
+diff --git a/include/hw/s390x/s390-ccw.h b/include/hw/s390x/s390-ccw.h
+index 7d15a1a5d4..38d54a7a69 100644
+--- a/include/hw/s390x/s390-ccw.h
++++ b/include/hw/s390x/s390-ccw.h
+@@ -36,4 +36,7 @@ typedef struct S390CCWDeviceClass {
+     IOInstEnding (*handle_request) (SubchDev *sch);
+ } S390CCWDeviceClass;
+ 
++int vfio_ccw_handle_clear(SubchDev *sch);
++int vfio_ccw_handle_halt(SubchDev *sch);
++
+ #endif
 -- 
 2.17.2
