@@ -1,65 +1,74 @@
-Return-Path: <SRS0=IQwf=QG=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 30 Jan 2019 14:25:20 +0100 (CET)
-From: Thomas Gleixner <tglx@linutronix.de>
+Return-Path: <SRS0=RWde=P5=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 21 Jan 2019 13:21:31 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: WARN_ON_ONCE(!new_owner) within wake_futex_pi() triggered
-In-Reply-To: <20190130125955.GD5299@osiris>
-Message-ID: <alpine.DEB.2.21.1901301423130.5537@nanos.tec.linutronix.de>
-References: <20190129090108.GA26906@osiris> <alpine.DEB.2.21.1901291012330.1669@nanos.tec.linutronix.de> <20190129102409.GB26906@osiris> <20190129103557.GF28485@hirez.programming.kicks-ass.net> <alpine.DEB.2.21.1901291402410.1513@nanos.tec.linutronix.de>
- <20190129132303.GE26906@osiris> <20190129151058.GG26906@osiris> <20190129171653.ycl64psq2liy5o5c@linutronix.de> <20190130094913.GC5299@osiris> <alpine.DEB.2.21.1901301303320.5537@nanos.tec.linutronix.de> <20190130125955.GD5299@osiris>
+References: <20181127081115.GB3625@osiris>
+ <alpine.DEB.2.21.1811281526430.1532@nanos.tec.linutronix.de>
+ <20181129112321.GB3449@osiris>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20181129112321.GB3449@osiris>
+Message-Id: <20190121122131.GG4020@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sebastian Sewior <bigeasy@linutronix.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 30 Jan 2019, Heiko Carstens wrote:
-> On Wed, Jan 30, 2019 at 01:15:18PM +0100, Thomas Gleixner wrote:
-> > On Wed, 30 Jan 2019, Heiko Carstens wrote:
-> > > On Tue, Jan 29, 2019 at 06:16:53PM +0100, Sebastian Sewior wrote:
-> > > >  	if (unlikely(p->flags & PF_KTHREAD)) {
-> > > >  		put_task_struct(p);
-> > > 
-> > > Last lines of the trace with your additional patch (full log attached):
-> > > 
-> > >            <...>-50539 [003] ....  2376.398223: sys_futex -> 0x0
-> > >            <...>-50539 [003] ....  2376.398223: sys_futex(uaddr: 3ffb7700208, op: 6, val: 1, utime: 0, uaddr2: 3, val3: 0)
-> > >            <...>-50539 [003] ....  2376.398225: attach_to_pi_owner: Missing pid 50734
-> > >            <...>-50539 [003] ....  2376.398226: handle_exit_race: uval2 vs uval 8000c62e vs 8000c62e (-1)
+Hi Thomas,
+
+[full quote below]
+
+Did you have any time to look into this yet? :)
+
+The warning is still reproducible.
+
+On Thu, Nov 29, 2018 at 12:23:21PM +0100, Heiko Carstens wrote:
+> On Wed, Nov 28, 2018 at 03:32:45PM +0100, Thomas Gleixner wrote:
+> > Heiko,
 > > 
-> > So the user space value is: 8000c62e. FUTEX_WAITER bit is set and the owner
-> > of the futex is PID 50734, which exited long time ago:
+> > On Tue, 27 Nov 2018, Heiko Carstens wrote:
 > > 
-> >            <...>-50734 [000] ....  2376.394936: sched_process_exit: comm=ld64.so.1 pid=50734 prio=120
+> > > with the glibc self-tests I was able to trigger the "this should not
+> > > happen" warning ;) below on s390 (with panic_on_warn=1 set). It looks
+> > > like it is hardly reproducible.
 > > 
-> > But at least from the kernel view 50734 has released it last:
+> > Any idea which self-test triggered that?
 > > 
-> >            <...>-50734 [000] ....  2376.394930: sys_futex(uaddr: 3ffb7700208, op: 7, val: 3ff00000007, utime: 3ffb3ef8910, uaddr2: 3ffb3ef8910, val3: 3ffc0afe987)
-> >            <...>-50539 [003] ....  2376.398223: sys_futex(uaddr: 3ffb7700208, op: 6, val: 1, utime: 0, uaddr2: 3, val3: 0)
+> > > This one happened with commit d146194f31c9 for compiling the kernel.
+> > > Config can be re-created with "make ARCH=s390 performance_defconfig".
 > > 
-> > Now, if it would have acquired it in userspace again before exiting, then
-> > the robust list exit code should have set the OWNER_DIED bit as well, but
-> > that's not set....
+> > Which is not really helpful for people who do not own a s390. And no, I
+> > don't want one unless IBM pays the power bill as well :)
 > > 
-> > debug patch for the robust list exit handling below.
+> > > [  649.596938] WARNING: CPU: 0 PID: 58886 at kernel/futex.c:1418 do_futex+0xa9a/0xc50
+> > > [  649.596946] Kernel panic - not syncing: panic_on_warn set ...
+> > > [  649.596951] CPU: 0 PID: 58886 Comm: ld64.so.1 Not tainted 4.20.0-20181125.rc3.git0.d146194f31c9.300.fc29.s390x+git #1
+> > 
+> > That's ld64.so.1. Weird, but what do I know about glibc self tests.
+> > 
+> > I still fail to see how that can happen, but I usually page out the futex
+> > horrors immediately. I'll keep staring at the code...
 > 
-> Last lines of trace below (full log attached):
-
-SNIP...
-
-It's the same picture as last time and the only occurence of the futex in
-question in the context of the dead task is:
-
-           <...>-56956 [007] ....   658.804018: sys_futex(uaddr: 3ff9e880050, op: 7, val: 3ff00000007, utime: 3ff9b078910, uaddr2: 3ff9b078910, val3: 3ffea67e3f7)
-
-The robust list exit of that task does not contain the user space address 3ff9e880050.
-
-Confused and of course the problem does not reproduce on x86. Sigh.
-
-I'll think about it some more.
-
-Thanks,
-
-	tglx
+> I looked into the system dumps, and if I didn't screw up, then the
+> command line for both occurrences was
+> 
+> /root/glibc-build/nptl/tst-robustpi8
+> 
+> And indeed, if I run only this test case in an endless loop and do
+> some parallel work (like kernel compile) it currently seems to be
+> possible to reproduce the warning:
+> 
+> while true; do time ./testrun.sh nptl/tst-robustpi8 --direct ; done
+> 
+> within the build directory of glibc (2.28).
+> 
+> See
+> https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/tst-robustpi8.c;h=cbea3d6d77abb00be05ec7b466d8339c26dd2efb;hb=3c03baca37fdcb52c3881e653ca392bba7a99c2b
+> 
+> which includes this one:
+> 
+> https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/tst-robust8.c;h=9c636250d4cb0bcd6d802910e8f9ea31568bb73f;hb=3c03baca37fdcb52c3881e653ca392bba7a99c2b
+> 
