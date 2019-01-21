@@ -1,11 +1,11 @@
 Return-Path: <SRS0=flTa=P5=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH v2 15/21] sparc: add checks for the return value of
+Subject: [PATCH v2 16/21] mm/percpu: add checks for the return value of
  memblock_alloc*()
-Date: Mon, 21 Jan 2019 10:04:02 +0200
+Date: Mon, 21 Jan 2019 10:04:03 +0200
 In-Reply-To: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
 References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
-Message-Id: <1548057848-15136-16-git-send-email-rppt@linux.ibm.com>
+Message-Id: <1548057848-15136-17-git-send-email-rppt@linux.ibm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,173 +23,143 @@ To: linux-mm@kvack.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Mike Rapoport <rppt@linux.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, Vineet Gupta <vgupta@synopsys.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>, openrisc@lists.librecores.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Add panic() calls if memblock_alloc*() returns NULL.
+Add panic() calls if memblock_alloc() returns NULL.
 
-Most of the changes are simply addition of
-
-        if(!ptr)
-                panic();
-
-statements after the calls to memblock_alloc*() variants.
-
-Exceptions are pcpu_populate_pte() and kernel_map_range() that were
-slightly refactored to accommodate the change.
+The panic() format duplicates the one used by memblock itself and in order
+to avoid explosion with long parameters list replace open coded allocation
+size calculations with a local variable.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: David S. Miller <davem@davemloft.net>
 ---
- arch/sparc/kernel/prom_32.c  |  2 ++
- arch/sparc/kernel/setup_64.c |  6 ++++++
- arch/sparc/kernel/smp_64.c   | 12 ++++++++++++
- arch/sparc/mm/init_64.c      | 11 +++++++++++
- arch/sparc/mm/srmmu.c        |  8 ++++++++
- 5 files changed, 39 insertions(+)
+ mm/percpu.c | 73 +++++++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 56 insertions(+), 17 deletions(-)
 
-diff --git a/arch/sparc/kernel/prom_32.c b/arch/sparc/kernel/prom_32.c
-index e7126ca..869b16c 100644
---- a/arch/sparc/kernel/prom_32.c
-+++ b/arch/sparc/kernel/prom_32.c
-@@ -33,6 +33,8 @@ void * __init prom_early_alloc(unsigned long size)
- 	void *ret;
+diff --git a/mm/percpu.c b/mm/percpu.c
+index db86282..5998b03 100644
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -1086,6 +1086,7 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
+ 	struct pcpu_chunk *chunk;
+ 	unsigned long aligned_addr, lcm_align;
+ 	int start_offset, offset_bits, region_size, region_bits;
++	size_t alloc_size;
  
- 	ret = memblock_alloc(size, SMP_CACHE_BYTES);
-+	if (!ret)
-+		panic("%s: Failed to allocate %lu bytes\n", __func__, size);
+ 	/* region calculations */
+ 	aligned_addr = tmp_addr & PAGE_MASK;
+@@ -1101,9 +1102,12 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
+ 	region_size = ALIGN(start_offset + map_size, lcm_align);
  
- 	prom_early_allocated += size;
- 
-diff --git a/arch/sparc/kernel/setup_64.c b/arch/sparc/kernel/setup_64.c
-index 51c4d12..fd2182a 100644
---- a/arch/sparc/kernel/setup_64.c
-+++ b/arch/sparc/kernel/setup_64.c
-@@ -624,8 +624,14 @@ void __init alloc_irqstack_bootmem(void)
- 
- 		softirq_stack[i] = memblock_alloc_node(THREAD_SIZE,
- 						       THREAD_SIZE, node);
-+		if (!softirq_stack[i])
-+			panic("%s: Failed to allocate %lu bytes align=%lx nid=%d\n",
-+			      __func__, THREAD_SIZE, THREAD_SIZE, node);
- 		hardirq_stack[i] = memblock_alloc_node(THREAD_SIZE,
- 						       THREAD_SIZE, node);
-+		if (!hardirq_stack[i])
-+			panic("%s: Failed to allocate %lu bytes align=%lx nid=%d\n",
-+			      __func__, THREAD_SIZE, THREAD_SIZE, node);
- 	}
- }
- 
-diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-index f45d876..a8275fe 100644
---- a/arch/sparc/kernel/smp_64.c
-+++ b/arch/sparc/kernel/smp_64.c
-@@ -1628,6 +1628,8 @@ static void __init pcpu_populate_pte(unsigned long addr)
- 		pud_t *new;
- 
- 		new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
-+		if (!new)
-+			goto err_alloc;
- 		pgd_populate(&init_mm, pgd, new);
- 	}
- 
-@@ -1636,6 +1638,8 @@ static void __init pcpu_populate_pte(unsigned long addr)
- 		pmd_t *new;
- 
- 		new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
-+		if (!new)
-+			goto err_alloc;
- 		pud_populate(&init_mm, pud, new);
- 	}
- 
-@@ -1644,8 +1648,16 @@ static void __init pcpu_populate_pte(unsigned long addr)
- 		pte_t *new;
- 
- 		new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
-+		if (!new)
-+			goto err_alloc;
- 		pmd_populate_kernel(&init_mm, pmd, new);
- 	}
-+
-+	return;
-+
-+err_alloc:
-+	panic("%s: Failed to allocate %lu bytes align=%lx from=%lx\n",
-+	      __func__, PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
- }
- 
- void __init setup_per_cpu_areas(void)
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index ef340e8..f2d70ff 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -1809,6 +1809,8 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
- 
- 			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
- 						  PAGE_SIZE);
-+			if (!new)
-+				goto err_alloc;
- 			alloc_bytes += PAGE_SIZE;
- 			pgd_populate(&init_mm, pgd, new);
- 		}
-@@ -1822,6 +1824,8 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
- 			}
- 			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
- 						  PAGE_SIZE);
-+			if (!new)
-+				goto err_alloc;
- 			alloc_bytes += PAGE_SIZE;
- 			pud_populate(&init_mm, pud, new);
- 		}
-@@ -1836,6 +1840,8 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
- 			}
- 			new = memblock_alloc_from(PAGE_SIZE, PAGE_SIZE,
- 						  PAGE_SIZE);
-+			if (!new)
-+				goto err_alloc;
- 			alloc_bytes += PAGE_SIZE;
- 			pmd_populate_kernel(&init_mm, pmd, new);
- 		}
-@@ -1855,6 +1861,11 @@ static unsigned long __ref kernel_map_range(unsigned long pstart,
- 	}
- 
- 	return alloc_bytes;
-+
-+err_alloc:
-+	panic("%s: Failed to allocate %lu bytes align=%lx from=%lx\n",
-+	      __func__, PAGE_SIZE, PAGE_SIZE, PAGE_SIZE);
-+	return -ENOMEM;
- }
- 
- static void __init flush_all_kernel_tsbs(void)
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index a400ec3..aaebbc0 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -305,11 +305,17 @@ static void __init srmmu_nocache_init(void)
- 
- 	srmmu_nocache_pool = memblock_alloc(srmmu_nocache_size,
- 					    SRMMU_NOCACHE_ALIGN_MAX);
-+	if (!srmmu_nocache_pool)
-+		panic("%s: Failed to allocate %lu bytes align=0x%x\n",
-+		      __func__, srmmu_nocache_size, SRMMU_NOCACHE_ALIGN_MAX);
- 	memset(srmmu_nocache_pool, 0, srmmu_nocache_size);
- 
- 	srmmu_nocache_bitmap =
- 		memblock_alloc(BITS_TO_LONGS(bitmap_bits) * sizeof(long),
- 			       SMP_CACHE_BYTES);
-+	if (!srmmu_nocache_bitmap)
+ 	/* allocate chunk */
+-	chunk = memblock_alloc(sizeof(struct pcpu_chunk) +
+-			       BITS_TO_LONGS(region_size >> PAGE_SHIFT),
+-			       SMP_CACHE_BYTES);
++	alloc_size = sizeof(struct pcpu_chunk) +
++		BITS_TO_LONGS(region_size >> PAGE_SHIFT);
++	chunk = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!chunk)
 +		panic("%s: Failed to allocate %zu bytes\n", __func__,
-+		      BITS_TO_LONGS(bitmap_bits) * sizeof(long));
- 	bit_map_init(&srmmu_nocache_map, srmmu_nocache_bitmap, bitmap_bits);
++		      alloc_size);
  
- 	srmmu_swapper_pg_dir = __srmmu_get_nocache(SRMMU_PGD_TABLE_SIZE, SRMMU_PGD_TABLE_SIZE);
-@@ -468,6 +474,8 @@ static void __init sparc_context_init(int numctx)
+ 	INIT_LIST_HEAD(&chunk->list);
  
- 	size = numctx * sizeof(struct ctx_list);
- 	ctx_list_pool = memblock_alloc(size, SMP_CACHE_BYTES);
-+	if (!ctx_list_pool)
-+		panic("%s: Failed to allocate %lu bytes\n", __func__, size);
+@@ -1114,12 +1118,25 @@ static struct pcpu_chunk * __init pcpu_alloc_first_chunk(unsigned long tmp_addr,
+ 	chunk->nr_pages = region_size >> PAGE_SHIFT;
+ 	region_bits = pcpu_chunk_map_bits(chunk);
  
- 	for (ctx = 0; ctx < numctx; ctx++) {
- 		struct ctx_list *clist;
+-	chunk->alloc_map = memblock_alloc(BITS_TO_LONGS(region_bits) * sizeof(chunk->alloc_map[0]),
+-					  SMP_CACHE_BYTES);
+-	chunk->bound_map = memblock_alloc(BITS_TO_LONGS(region_bits + 1) * sizeof(chunk->bound_map[0]),
+-					  SMP_CACHE_BYTES);
+-	chunk->md_blocks = memblock_alloc(pcpu_chunk_nr_blocks(chunk) * sizeof(chunk->md_blocks[0]),
+-					  SMP_CACHE_BYTES);
++	alloc_size = BITS_TO_LONGS(region_bits) * sizeof(chunk->alloc_map[0]);
++	chunk->alloc_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!chunk->alloc_map)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
++	alloc_size =
++		BITS_TO_LONGS(region_bits + 1) * sizeof(chunk->bound_map[0]);
++	chunk->bound_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!chunk->bound_map)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
++	alloc_size = pcpu_chunk_nr_blocks(chunk) * sizeof(chunk->md_blocks[0]);
++	chunk->md_blocks = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!chunk->md_blocks)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
+ 	pcpu_init_md_blocks(chunk);
+ 
+ 	/* manage populated page bitmap */
+@@ -2044,6 +2061,7 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
+ 	int group, unit, i;
+ 	int map_size;
+ 	unsigned long tmp_addr;
++	size_t alloc_size;
+ 
+ #define PCPU_SETUP_BUG_ON(cond)	do {					\
+ 	if (unlikely(cond)) {						\
+@@ -2075,14 +2093,29 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
+ 	PCPU_SETUP_BUG_ON(pcpu_verify_alloc_info(ai) < 0);
+ 
+ 	/* process group information and build config tables accordingly */
+-	group_offsets = memblock_alloc(ai->nr_groups * sizeof(group_offsets[0]),
+-				       SMP_CACHE_BYTES);
+-	group_sizes = memblock_alloc(ai->nr_groups * sizeof(group_sizes[0]),
+-				     SMP_CACHE_BYTES);
+-	unit_map = memblock_alloc(nr_cpu_ids * sizeof(unit_map[0]),
+-				  SMP_CACHE_BYTES);
+-	unit_off = memblock_alloc(nr_cpu_ids * sizeof(unit_off[0]),
+-				  SMP_CACHE_BYTES);
++	alloc_size = ai->nr_groups * sizeof(group_offsets[0]);
++	group_offsets = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!group_offsets)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
++	alloc_size = ai->nr_groups * sizeof(group_sizes[0]);
++	group_sizes = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!group_sizes)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
++	alloc_size = nr_cpu_ids * sizeof(unit_map[0]);
++	unit_map = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!unit_map)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
++
++	alloc_size = nr_cpu_ids * sizeof(unit_off[0]);
++	unit_off = memblock_alloc(alloc_size, SMP_CACHE_BYTES);
++	if (!unit_off)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      alloc_size);
+ 
+ 	for (cpu = 0; cpu < nr_cpu_ids; cpu++)
+ 		unit_map[cpu] = UINT_MAX;
+@@ -2148,6 +2181,9 @@ int __init pcpu_setup_first_chunk(const struct pcpu_alloc_info *ai,
+ 	pcpu_nr_slots = __pcpu_size_to_slot(pcpu_unit_size) + 2;
+ 	pcpu_slot = memblock_alloc(pcpu_nr_slots * sizeof(pcpu_slot[0]),
+ 				   SMP_CACHE_BYTES);
++	if (!pcpu_slot)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      pcpu_nr_slots * sizeof(pcpu_slot[0]));
+ 	for (i = 0; i < pcpu_nr_slots; i++)
+ 		INIT_LIST_HEAD(&pcpu_slot[i]);
+ 
+@@ -2602,6 +2638,9 @@ int __init pcpu_page_first_chunk(size_t reserved_size,
+ 	pages_size = PFN_ALIGN(unit_pages * num_possible_cpus() *
+ 			       sizeof(pages[0]));
+ 	pages = memblock_alloc(pages_size, SMP_CACHE_BYTES);
++	if (!pages)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      pages_size);
+ 
+ 	/* allocate pages */
+ 	j = 0;
 -- 
 2.7.4
 
