@@ -1,107 +1,178 @@
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Subject: Re: [PATCH v1] iommu/s390: Declare s390 iommu reserved regions
-Date: Mon, 21 Jan 2019 15:50:48 +0000
-Message-ID: <c189fe32-3cbe-0294-8950-e29bce606679@arm.com>
-References: <1547573850-9459-1-git-send-email-pmorel@linux.ibm.com>
- <cc070df1-e7dc-8cce-f443-879e0e5e2903@arm.com>
- <3cd790d6-aa6f-e817-27ce-56d7a9b6b6e5@linux.ibm.com>
- <668fe734-e4bf-0342-ab8c-df54d9022db4@arm.com>
- <d180bb2d-354f-0d05-8773-7a196a4de3cb@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Return-Path: <SRS0=B2vk=P6=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH v2 1/7] perf/aux: Make perf_event accessible to setup_aux()
+Date: Tue, 22 Jan 2019 11:11:38 -0700
+Message-Id: <20190122181144.26645-2-mathieu.poirier@linaro.org>
+In-Reply-To: <20190122181144.26645-1-mathieu.poirier@linaro.org>
+References: <20190122181144.26645-1-mathieu.poirier@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d180bb2d-354f-0d05-8773-7a196a4de3cb@linux.ibm.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-iommu/>
-List-Post: <mailto:iommu@lists.linux-foundation.org>
-To: pmorel@linux.ibm.com, Robin Murphy <robin.murphy@arm.com>, gerald.schaefer@de.ibm.com
-Cc: linux-s390@vger.kernel.org, walling@linux.ibm.com, alex.williamson@redhat.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "eric.auger@redhat.com" <eric.auger@redhat.com>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: acme@kernel.org, peterz@infradead.org
+Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, suzuki.poulose@arm.com, alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, will.deacon@arm.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21/01/2019 11:51, Pierre Morel wrote:
-> On 18/01/2019 14:51, Jean-Philippe Brucker wrote:
->> Hi Pierre,
->>
->> On 18/01/2019 13:29, Pierre Morel wrote:
->>> On 17/01/2019 14:02, Robin Murphy wrote:
->>>> On 15/01/2019 17:37, Pierre Morel wrote:
->>>>> The s390 iommu can only allow DMA transactions between the zPCI device
->>>>> entries start_dma and end_dma.
->>>>>
-> 
-> ...
-> 
->>>
->>> I already posted a patch retrieving the geometry through
->>> VFIO_IOMMU_GET_INFO using a specific capability for the geometry [1],
->>> and AFAIU, Alex did not agree with this.
->>
->> On arm we also need to report the IOMMU geometry to userspace (max IOVA
->> size in particular). Shameer has been working on a solution [2] that
->> presents a unified view of both geometry and reserved regions into the
->> VFIO_IOMMU_GET_INFO call, and I think we should go with that. If I
->> understand correctly it's currently blocked on the RMRR problem and
->> we're waiting for Jacob or Ashok to take a look at it, as Kevin pinged
->> them on thread [1]?
->>
->> [2] https://lkml.org/lkml/2018/4/18/293
->>
->> Thanks,
->> Jean
->>
-> 
-> Hi Jean,
-> 
-> I hopped that this proposition went in the same direction based on the
-> following assumptions:
-> 
-> 
-> - The goal of the get_resv_region is defined in iommu.h as:
-> -----
-> * @get_resv_regions: Request list of reserved regions for a device
-> -----
-> 
-> - A iommu reserve region is a region which should not be mapped.
-> Isn't it exactly what happens outside the aperture?
-> Shouldn't it be reported by the iommu reserved region?
-> 
-> - If we use VFIO and want to get all reserved region we will have the
-> VFIO_IOMMU_GET_INFO call provided by Shameer and it can get all reserved
-> regions depending from the iommu driver itself at once by calling the
-> get_reserved_region callback instead of having to merge them with the
-> aperture.
-> 
-> - If there are other reserved region, depending on the system
-> configuration and not on the IOMMU itself, the VFIO_IOMMU_GET_INFO call
-> will have to merge them with the region gotten from the iommu driver.
+When pmu::setup_aux() is called the coresight PMU needs to know which
+sink to use for the session by looking up the information in the
+event's attr::config2 field.
 
-I guess that would only happen if VFIO wanted to reserve IOVA regions
-for its own use. But I don't see how that relates to the aperture
+As such simply replace the cpu information by the complete perf_event
+structure and change all affected customers.
 
-> - If we do not use QEMU nor VFIO at all, AFAIU, the standard way to
-> retrieve the reserved regions associated with a device is to call the
-> get_reserved_region callback from the associated iommu.
-> 
-> Please tell me were I am wrong.
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ arch/s390/kernel/perf_cpum_sf.c                  | 6 +++---
+ arch/x86/events/intel/bts.c                      | 4 +++-
+ arch/x86/events/intel/pt.c                       | 5 +++--
+ drivers/hwtracing/coresight/coresight-etm-perf.c | 6 +++---
+ drivers/perf/arm_spe_pmu.c                       | 6 +++---
+ include/linux/perf_event.h                       | 2 +-
+ kernel/events/ring_buffer.c                      | 2 +-
+ 7 files changed, 17 insertions(+), 14 deletions(-)
 
-Those are good points in my opinion (assuming the new reserved regions
-for aperture is done in the core API)
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index bfabeb1889cc..1266194afb02 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1600,7 +1600,7 @@ static void aux_sdb_init(unsigned long sdb)
+ 
+ /*
+  * aux_buffer_setup() - Setup AUX buffer for diagnostic mode sampling
+- * @cpu:	On which to allocate, -1 means current
++ * @event:	Event the buffer is setup for, event->cpu == -1 means current
+  * @pages:	Array of pointers to buffer pages passed from perf core
+  * @nr_pages:	Total pages
+  * @snapshot:	Flag for snapshot mode
+@@ -1612,8 +1612,8 @@ static void aux_sdb_init(unsigned long sdb)
+  *
+  * Return the private AUX buffer structure if success or NULL if fails.
+  */
+-static void *aux_buffer_setup(int cpu, void **pages, int nr_pages,
+-			      bool snapshot)
++static void *aux_buffer_setup(struct perf_event *event, void **pages,
++			      int nr_pages, bool snapshot)
+ {
+ 	struct sf_buffer *sfb;
+ 	struct aux_buffer *aux;
+diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
+index a01ef1b0f883..7cdd7b13bbda 100644
+--- a/arch/x86/events/intel/bts.c
++++ b/arch/x86/events/intel/bts.c
+@@ -77,10 +77,12 @@ static size_t buf_size(struct page *page)
+ }
+ 
+ static void *
+-bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
++bts_buffer_setup_aux(struct perf_event *event, void **pages,
++		     int nr_pages, bool overwrite)
+ {
+ 	struct bts_buffer *buf;
+ 	struct page *page;
++	int cpu = event->cpu;
+ 	int node = (cpu == -1) ? cpu : cpu_to_node(cpu);
+ 	unsigned long offset;
+ 	size_t size = nr_pages << PAGE_SHIFT;
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 9494ca68fd9d..c0e86ff21f81 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -1114,10 +1114,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
+  * Return:	Our private PT buffer structure.
+  */
+ static void *
+-pt_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool snapshot)
++pt_buffer_setup_aux(struct perf_event *event, void **pages,
++		    int nr_pages, bool snapshot)
+ {
+ 	struct pt_buffer *buf;
+-	int node, ret;
++	int node, ret, cpu = event->cpu;
+ 
+ 	if (!nr_pages)
+ 		return NULL;
+diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+index abe8249b893b..f21eb28b6782 100644
+--- a/drivers/hwtracing/coresight/coresight-etm-perf.c
++++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+@@ -177,15 +177,15 @@ static void etm_free_aux(void *data)
+ 	schedule_work(&event_data->work);
+ }
+ 
+-static void *etm_setup_aux(int event_cpu, void **pages,
++static void *etm_setup_aux(struct perf_event *event, void **pages,
+ 			   int nr_pages, bool overwrite)
+ {
+-	int cpu;
++	int cpu = event->cpu;
+ 	cpumask_t *mask;
+ 	struct coresight_device *sink;
+ 	struct etm_event_data *event_data = NULL;
+ 
+-	event_data = alloc_event_data(event_cpu);
++	event_data = alloc_event_data(cpu);
+ 	if (!event_data)
+ 		return NULL;
+ 	INIT_WORK(&event_data->work, free_event_data);
+diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
+index 8e46a9dad2fa..7cb766dafe85 100644
+--- a/drivers/perf/arm_spe_pmu.c
++++ b/drivers/perf/arm_spe_pmu.c
+@@ -824,10 +824,10 @@ static void arm_spe_pmu_read(struct perf_event *event)
+ {
+ }
+ 
+-static void *arm_spe_pmu_setup_aux(int cpu, void **pages, int nr_pages,
+-				   bool snapshot)
++static void *arm_spe_pmu_setup_aux(struct perf_event *event, void **pages,
++				   int nr_pages, bool snapshot)
+ {
+-	int i;
++	int i, cpu = event->cpu;
+ 	struct page **pglist;
+ 	struct arm_spe_pmu_buf *buf;
+ 
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 1d5c551a5add..3e49b2144808 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -409,7 +409,7 @@ struct pmu {
+ 	/*
+ 	 * Set up pmu-private data structures for an AUX area
+ 	 */
+-	void *(*setup_aux)		(int cpu, void **pages,
++	void *(*setup_aux)		(struct perf_event *event, void **pages,
+ 					 int nr_pages, bool overwrite);
+ 					/* optional */
+ 
+diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
+index 4a9937076331..857308295f63 100644
+--- a/kernel/events/ring_buffer.c
++++ b/kernel/events/ring_buffer.c
+@@ -658,7 +658,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
+ 			goto out;
+ 	}
+ 
+-	rb->aux_priv = event->pmu->setup_aux(event->cpu, rb->aux_pages, nr_pages,
++	rb->aux_priv = event->pmu->setup_aux(event, rb->aux_pages, nr_pages,
+ 					     overwrite);
+ 	if (!rb->aux_priv)
+ 		goto out;
+-- 
+2.17.1
 
-To be reliable though, userspace can't get the aperture from sysfs
-reserved_regions, it will have to get it from VFIO. If a new application
-expects the aperture to be described in reserved_regions but is running
-under an old kernel, it will just assume a 64-bit aperture by mistake.
-Unless we introduce a new IOMMU_RESV_* type to distinguish the aperture?
 
-Another thing to note is that we're currently adding nested support to
-VFIO for Arm and x86 archs. It requires providing low-level and
-sometimes arch-specific information about the IOMMU to userspace,
-information that is easier to describe using sysfs (e.g.
-/sys/class/iommu/<iommu>/*) than a VFIO ioctl. Among them is the input
-address size of the IOMMU, so we'll end up with redundant information in
-sysfs on x86 and Arm sides, but that's probably harmless.
-
-Thanks,
-Jean
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
