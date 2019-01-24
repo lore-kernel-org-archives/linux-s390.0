@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v6 04/13] KVM: s390: coding style kvm_s390_gisa_init/clear()
-Date: Thu, 24 Jan 2019 13:59:30 +0100
-Message-ID: <20190124125939.130763-5-mimu@linux.ibm.com>
+Subject: [PATCH v6 05/13] KVM: s390: use pending_irqs_no_gisa() where appropriate
+Date: Thu, 24 Jan 2019 13:59:31 +0100
+Message-ID: <20190124125939.130763-6-mimu@linux.ibm.com>
 References: <20190124125939.130763-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190124125939.130763-1-mimu@linux.ibm.com>
@@ -12,50 +12,37 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The change helps to reduce line length and
-increases code readability.
+Interruption types that are not represented in GISA shall
+use pending_irqs_no_gisa() to test pending interruptions.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/s390/kvm/interrupt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2a3eb9f076c3..005dbe7252e7 100644
+index 005dbe7252e7..cb48736867ed 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -2885,20 +2885,20 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+@@ -353,7 +353,7 @@ static void set_intercept_indicators_io(struct kvm_vcpu *vcpu)
  
- void kvm_s390_gisa_clear(struct kvm *kvm)
+ static void set_intercept_indicators_ext(struct kvm_vcpu *vcpu)
  {
--	if (kvm->arch.gisa) {
--		memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
--		kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
--		VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
--	}
-+	if (!kvm->arch.gisa)
-+		return;
-+	memset(kvm->arch.gisa, 0, sizeof(struct kvm_s390_gisa));
-+	kvm->arch.gisa->next_alert = (u32)(u64)kvm->arch.gisa;
-+	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", kvm->arch.gisa);
- }
+-	if (!(pending_irqs(vcpu) & IRQ_PEND_EXT_MASK))
++	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_EXT_MASK))
+ 		return;
+ 	if (psw_extint_disabled(vcpu))
+ 		kvm_s390_set_cpuflags(vcpu, CPUSTAT_EXT_INT);
+@@ -363,7 +363,7 @@ static void set_intercept_indicators_ext(struct kvm_vcpu *vcpu)
  
- void kvm_s390_gisa_init(struct kvm *kvm)
+ static void set_intercept_indicators_mchk(struct kvm_vcpu *vcpu)
  {
--	if (css_general_characteristics.aiv) {
--		kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
--		VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
--		kvm_s390_gisa_clear(kvm);
--	}
-+	if (!css_general_characteristics.aiv)
-+		return;
-+	kvm->arch.gisa = &kvm->arch.sie_page2->gisa;
-+	kvm_s390_gisa_clear(kvm);
-+	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", kvm->arch.gisa);
- }
- 
- void kvm_s390_gisa_destroy(struct kvm *kvm)
+-	if (!(pending_irqs(vcpu) & IRQ_PEND_MCHK_MASK))
++	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_MCHK_MASK))
+ 		return;
+ 	if (psw_mchk_disabled(vcpu))
+ 		vcpu->arch.sie_block->ictl |= ICTL_LPSW;
 -- 
 2.13.4
