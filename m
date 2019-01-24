@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v6 11/13] KVM: s390: add functions to (un)register GISC with GISA
-Date: Thu, 24 Jan 2019 13:59:37 +0100
-Message-ID: <20190124125939.130763-12-mimu@linux.ibm.com>
+Subject: [PATCH v6 08/13] s390/cio: add function chsc_sgib()
+Date: Thu, 24 Jan 2019 13:59:34 +0100
+Message-ID: <20190124125939.130763-9-mimu@linux.ibm.com>
 References: <20190124125939.130763-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190124125939.130763-1-mimu@linux.ibm.com>
@@ -12,208 +12,92 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Add the Interruption Alert Mask (IAM) to the architecture specific
-kvm struct. This mask in the GISA is used to define for which ISC
-a GIB alert will be issued.
-
-The functions kvm_s390_gisc_register() and kvm_s390_gisc_unregister()
-are used to (un)register a GISC (guest ISC) with a virtual machine and
-its GISA.
-
-Upon successful completion, kvm_s390_gisc_register() returns the
-ISC to be used for GIB alert interruptions. A negative return code
-indicates an error during registration.
-
-Theses functions will be used by other adapter types like AP and PCI to
-request pass-through interruption support.
+This patch implements the Set Guest Information Block operation
+to request association or disassociation of a Guest Information
+Block (GIB) with the Adapter Interruption Facility. The operation
+is required to receive GIB alert interrupts for guest adapters
+in conjunction with AIV and GISA.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/include/asm/kvm_host.h |  13 +++++
- arch/s390/kvm/interrupt.c        | 117 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 130 insertions(+)
+ arch/s390/include/asm/cio.h |  1 +
+ drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
+ drivers/s390/cio/chsc.h     |  1 +
+ 3 files changed, 39 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 7077762ab460..2cfff617cb21 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -781,6 +781,9 @@ struct kvm_s390_gisa {
- 			u8  reserved03[11];
- 			u32 airq_count;
- 		} g1;
-+		struct {
-+			u64 word[4];
-+		} u64;
- 	};
- };
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 225667652069..1727180e8ca1 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
++int chsc_sgib(u32 origin);
  
-@@ -813,8 +816,15 @@ struct kvm_s390_vsie {
- 	struct page *pages[KVM_MAX_VCPUS];
- };
- 
-+struct kvm_s390_gisa_iam {
-+	u8 mask;
-+	spinlock_t ref_lock;
-+	u32 ref_count[MAX_ISC + 1];
-+};
-+
- struct kvm_s390_gisa_interrupt {
- 	struct kvm_s390_gisa *origin;
-+	struct kvm_s390_gisa_iam alert;
- };
- 
- struct kvm_arch{
-@@ -885,6 +895,9 @@ void kvm_arch_crypto_set_masks(struct kvm *kvm, unsigned long *apm,
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
- extern char sie_exit;
- 
-+extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
-+extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
-+
- static inline void kvm_arch_hardware_disable(void) {}
- static inline void kvm_arch_check_processor_compat(void *rtn) {}
- static inline void kvm_arch_sync_events(struct kvm *kvm) {}
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 5efcd9e2cf8f..6bc9dab6d352 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -222,6 +222,33 @@ static inline u8 int_word_to_isc(u32 int_word)
-  */
- #define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
- 
-+/**
-+ * gisa_set_iam - change the GISA interruption alert mask
-+ *
-+ * @gisa: gisa to operate on
-+ * @iam: new IAM value to use
-+ *
-+ * Change the IAM atomically with the next alert address and the IPM
-+ * of the GISA if the GISA is not part of the GIB alert list. All three
-+ * fields are located in the first long word of the GISA.
-+ *
-+ * Returns: 0 on success
-+ *          -EBUSY in case the gisa is part of the alert list
-+ */
-+static inline int gisa_set_iam(struct kvm_s390_gisa *gisa, u8 iam)
-+{
-+	u64 word, _word;
-+
-+	do {
-+		word = READ_ONCE(gisa->u64.word[0]);
-+		if ((u64)gisa != word >> 32)
-+			return -EBUSY;
-+		_word = (word & ~0xffUL) | iam;
-+	} while (cmpxchg(&gisa->u64.word[0], word, _word) != word);
-+
-+	return 0;
-+}
-+
- static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
- 	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
-@@ -2911,6 +2938,8 @@ void kvm_s390_gisa_init(struct kvm *kvm)
- 	if (!css_general_characteristics.aiv)
- 		return;
- 	gi->origin = &kvm->arch.sie_page2->gisa;
-+	gi->alert.mask = 0;
-+	spin_lock_init(&gi->alert.ref_lock);
- 	kvm_s390_gisa_clear(kvm);
- 	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
+ #endif
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index a0baee25134c..4159c63a5fd2 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
+ 	return chsc_error_from_response(brinfo_area->response.code);
  }
-@@ -2920,6 +2949,94 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
- 	kvm->arch.gisa_int.origin = NULL;
- }
+ EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
++
++int chsc_sgib(u32 origin)
++{
++	struct {
++		struct chsc_header request;
++		u16 op;
++		u8  reserved01[2];
++		u8  reserved02:4;
++		u8  fmt:4;
++		u8  reserved03[7];
++		/* operation data area begin */
++		u8  reserved04[4];
++		u32 gib_origin;
++		u8  reserved05[10];
++		u8  aix;
++		u8  reserved06[4029];
++		struct chsc_header response;
++		u8  reserved07[4];
++	} *sgib_area;
++	int ret;
++
++	spin_lock_irq(&chsc_page_lock);
++	memset(chsc_page, 0, PAGE_SIZE);
++	sgib_area = chsc_page;
++	sgib_area->request.length = 0x0fe0;
++	sgib_area->request.code = 0x0021;
++	sgib_area->op = 0x1;
++	sgib_area->gib_origin = origin;
++
++	ret = chsc(sgib_area);
++	if (ret == 0)
++		ret = chsc_error_from_response(sgib_area->response.code);
++	spin_unlock_irq(&chsc_page_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(chsc_sgib);
+diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
+index 78aba8d94eec..e57d68e325a3 100644
+--- a/drivers/s390/cio/chsc.h
++++ b/drivers/s390/cio/chsc.h
+@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
+ int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
+ int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
+ 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
++int chsc_sgib(u32 origin);
+ int chsc_error_from_response(int response);
  
-+/**
-+ * kvm_s390_gisc_register - register a guest ISC
-+ *
-+ * @kvm:  the kernel vm to work with
-+ * @gisc: the guest interruption sub class to register
-+ *
-+ * The function extends the vm specific alert mask to use.
-+ * The effectve IAM mask in the GISA is updated as well
-+ * in case the GISA is not part of the GIB alert list.
-+ * It will be updated latest when the IAM gets restored
-+ * by gisa_get_ipm_or_restore_iam().
-+ *
-+ * Returns: the nonspecific ISC (NISC) the gib alert mechanism
-+ *          has registered with the channel subsystem.
-+ *          -ENODEV in case the vm uses no GISA
-+ *          -ERANGE in case the guest ISC is invalid
-+ */
-+int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	u8 alert_mask;
-+
-+	if (!gi->origin)
-+		return -ENODEV;
-+	if (gisc > MAX_ISC)
-+		return -ERANGE;
-+
-+	spin_lock(&gi->alert.ref_lock);
-+	if (gi->alert.ref_count[gisc] == 0) {
-+		alert_mask = gi->alert.mask | 0x80 >> gisc;
-+		WRITE_ONCE(gi->alert.mask, alert_mask);
-+	}
-+	gi->alert.ref_count[gisc]++;
-+	if (gi->alert.ref_count[gisc] == 1)
-+		gisa_set_iam(gi->origin, alert_mask);
-+	spin_unlock(&gi->alert.ref_lock);
-+
-+	return gib->nisc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_gisc_register);
-+
-+/**
-+ * kvm_s390_gisc_unregister - unregister a guest ISC
-+ *
-+ * @kvm:  the kernel vm to work with
-+ * @gisc: the guest interruption sub class to register
-+ *
-+ * The function reduces the vm specific alert mask to use.
-+ * The effectve IAM mask in the GISA is updated as well
-+ * in case the GISA is not part of the GIB alert list.
-+ * It will be updated latest when the IAM gets restored
-+ * by gisa_get_ipm_or_restore_iam().
-+ *
-+ * Returns: the nonspecific ISC (NISC) the gib alert mechanism
-+ *          has registered with the channel subsystem.
-+ *          -ENODEV in case the vm uses no GISA
-+ *          -ERANGE in case the guest ISC is invalid
-+ *          -EINVAL in case the guest ISC is not registered
-+ */
-+int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc)
-+{
-+	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-+	u8 alert_mask;
-+	int rc = 0;
-+
-+	if (!gi->origin)
-+		return -ENODEV;
-+	if (gisc > MAX_ISC)
-+		return -ERANGE;
-+
-+	spin_lock(&gi->alert.ref_lock);
-+	if (gi->alert.ref_count[gisc] == 0) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+	gi->alert.ref_count[gisc]--;
-+	if (gi->alert.ref_count[gisc] == 0) {
-+		alert_mask = gi->alert.mask & ~(0x80 >> gisc);
-+		WRITE_ONCE(gi->alert.mask, alert_mask);
-+		gisa_set_iam(gi->origin, alert_mask);
-+	}
-+out:
-+	spin_unlock(&gi->alert.ref_lock);
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_gisc_unregister);
-+
- void kvm_s390_gib_destroy(void)
- {
- 	if (!gib)
+ int chsc_siosl(struct subchannel_id schid);
 -- 
 2.13.4
