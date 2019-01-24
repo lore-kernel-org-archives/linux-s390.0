@@ -1,18 +1,17 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
-Date: Thu, 24 Jan 2019 11:08:02 +0100
-Message-ID: <42264dd9-86d7-8994-8c25-bc688067725d@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v2 5/5] vfio-ccw: add handling for async
+ channel instructions
+Date: Thu, 24 Jan 2019 11:37:08 +0100
+Message-ID: <20190124113708.2b024784@oc2783563651>
 References: <20190121110354.2247-1-cohuck@redhat.com>
-	<20190121110354.2247-3-cohuck@redhat.com>
-	<20190122193346.4e23e018@oc2783563651>
-	<20190123112112.7822b237.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+	<20190121110354.2247-6-cohuck@redhat.com>
+	<20190123165148.55aba88b@oc2783563651>
+	<20190124110637.2e2e3c4c.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190123112112.7822b237.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190124110637.2e2e3c4c.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -25,48 +24,42 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, kvm@vger.kernel.org, qemu-s390x@nongnu.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 23/01/2019 11:21, Cornelia Huck wrote:
-> On Tue, 22 Jan 2019 19:33:46 +0100
+On Thu, 24 Jan 2019 11:06:37 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> On Wed, 23 Jan 2019 16:51:48 +0100
 > Halil Pasic <pasic@linux.ibm.com> wrote:
->=20
->> On Mon, 21 Jan 2019 12:03:51 +0100
->> Cornelia Huck <cohuck@redhat.com> wrote:
->>
->>> --- a/drivers/s390/cio/vfio_ccw_private.h
->>> +++ b/drivers/s390/cio/vfio_ccw_private.h
->>> @@ -28,6 +28,7 @@
->>>    * @mdev: pointer to the mediated device
->>>    * @nb: notifier for vfio events
->>>    * @io_region: MMIO region to input/output I/O arguments/results
->>> + * @io_mutex: protect against concurrent update of I/O structures
->>
->> We could be a bit more specific about what does this mutex guard.
->> Is it only io_region, or cp, irb and the new regions a well? ->state d=
-oes
->> not seem to be covered, but should need some sort of synchronisation
->> too, or?
->=20
-> I'm not sure. IIRC Pierre had some ideas about locking in the fsm?
->=20
+> 
+> > On Mon, 21 Jan 2019 12:03:54 +0100
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > Add a region to the vfio-ccw device that can be used to submit
+> > > asynchronous I/O instructions. ssch continues to be handled by the
+> > > existing I/O region; the new region handles hsch and csch.
+> > > 
+> > > Interrupt status continues to be reported through the same channels
+> > > as for ssch.
+> > > 
+> > > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> > 
+> > I had a look, and I don't have any new concerns.(New like not raised
+> > before.)
+> 
+> So, what was raised before that I did not address?
+> 
 
-Yes I postponed this work to not collide with your patch series.
+I had the cp->initialized in mind here. My understanding is that this is
+the point at which safe accessors are necessary. But I consider that
+addressed.
 
-Do you think I should provide a new version of the FSM reworking series=20
-based on the last comment I got?
-
-I would take into account that the asynchronous commands will come with=20
-your patch series and only provide the framework changes.
-
+I'm still not a fan of this try_lock() and -EAGAIN in write (and just
+lock() in read approach), for the reasons I stated before. But it ain't
+a deal-breaker for me. It is just that I don't get the benefit of the
+busy looping userspace.
 
 Regards,
-Pierre
-
-
-
---=20
-Pierre Morel
-Linux/KVM/QEMU in B=C3=B6blingen - Germany
+Halil
