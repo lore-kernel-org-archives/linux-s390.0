@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v6 06/13] KVM: s390: remove kvm_s390_ from gisa static inline functions
-Date: Thu, 24 Jan 2019 13:59:32 +0100
-Message-ID: <20190124125939.130763-7-mimu@linux.ibm.com>
+Subject: [PATCH v6 09/13] KVM: s390: add the GIB and its related life-cyle functions
+Date: Thu, 24 Jan 2019 13:59:35 +0100
+Message-ID: <20190124125939.130763-10-mimu@linux.ibm.com>
 References: <20190124125939.130763-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190124125939.130763-1-mimu@linux.ibm.com>
@@ -12,120 +12,144 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This will shorten the length of code lines. All GISA related
-static inline functions are local to interrupt.c.
+The Guest Information Block (GIB) links the GISA of all guests
+that have adapter interrupts pending. These interrupts cannot be
+delivered because all vcpus of these guests are currently in WAIT
+state or have masked the respective Innterruption Sub Class (ISC).
+If enabled, a GIB alert is issued on the host to schedule these
+guests to run suitable vcpus to consume the pending interruptions.
+
+This mechanism allows to process adapter interrupts for currently
+not running guests.
+
+The GIB is created during host initialization and associated with
+the Adapter Interruption Facility in case an Adapter Interruption
+Virtualization Facility is available.
+
+The GIB initialization and thus the activation of the related code
+will be done in an upcoming patch of this series.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  9 +++++++++
+ arch/s390/kvm/interrupt.c        | 43 ++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.c         |  1 +
+ arch/s390/kvm/kvm-s390.h         |  2 ++
+ 4 files changed, 55 insertions(+)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 0941571d34eb..397af0d33539 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -784,6 +784,15 @@ struct kvm_s390_gisa {
+ 	};
+ };
+ 
++struct kvm_s390_gib {
++	u32 alert_list_origin;
++	u32 reserved01;
++	u8:5;
++	u8  nisc:3;
++	u8  reserved03[3];
++	u32 reserved04[5];
++};
++
+ /*
+  * sie_page2 has to be allocated as DMA because fac_list, crycb and
+  * gisa need 31bit addresses in the sie control block.
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index cb48736867ed..942cc7d33766 100644
+index ee91d1de0036..5efcd9e2cf8f 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -217,22 +217,22 @@ static inline u8 int_word_to_isc(u32 int_word)
+@@ -7,6 +7,9 @@
+  *    Author(s): Carsten Otte <cotte@de.ibm.com>
   */
- #define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
  
--static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
-+static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++#define KMSG_COMPONENT "kvm-s390"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
+ #include <linux/interrupt.h>
+ #include <linux/kvm_host.h>
+ #include <linux/hrtimer.h>
+@@ -31,6 +34,8 @@
+ #define PFAULT_DONE 0x0680
+ #define VIRTIO_PARAM 0x0d00
+ 
++static struct kvm_s390_gib *gib;
++
+ /* handle external calls via sigp interpretation facility */
+ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
  {
- 	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
- }
- 
--static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
-+static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
+@@ -2914,3 +2919,41 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
  {
- 	return READ_ONCE(gisa->ipm);
+ 	kvm->arch.gisa_int.origin = NULL;
  }
++
++void kvm_s390_gib_destroy(void)
++{
++	if (!gib)
++		return;
++	chsc_sgib(0);
++	free_page((unsigned long)gib);
++	gib = NULL;
++}
++
++int kvm_s390_gib_init(u8 nisc)
++{
++	int rc = 0;
++
++	if (!css_general_characteristics.aiv) {
++		KVM_EVENT(3, "%s", "gib not initialized, no AIV facility");
++		goto out;
++	}
++
++	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!gib) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	gib->nisc = nisc;
++	if (chsc_sgib((u32)(u64)gib)) {
++		pr_err("Associating the GIB with the AIV facility failed\n");
++		free_page((unsigned long)gib);
++		gib = NULL;
++		rc = -EIO;
++		goto out;
++	}
++
++	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
++out:
++	return rc;
++}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 4c855cb67699..118d4c0bbb8e 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -444,6 +444,7 @@ int kvm_arch_init(void *opaque)
  
--static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
-+static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+ void kvm_arch_exit(void)
  {
- 	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
++	kvm_s390_gib_destroy();
+ 	debug_unregister(kvm_s390_dbf);
  }
  
--static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
-+static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- {
- 	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
- }
-@@ -246,7 +246,7 @@ static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
- static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
- {
- 	return pending_irqs_no_gisa(vcpu) |
--		kvm_s390_gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
-+		gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
- }
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 72ef87799593..6d9448dbd052 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -381,6 +381,8 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu,
+ void kvm_s390_gisa_init(struct kvm *kvm);
+ void kvm_s390_gisa_clear(struct kvm *kvm);
+ void kvm_s390_gisa_destroy(struct kvm *kvm);
++int kvm_s390_gib_init(u8 nisc);
++void kvm_s390_gib_destroy(void);
  
- static inline int isc_to_irq_type(unsigned long isc)
-@@ -999,7 +999,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
- 	}
- 
- 	if (vcpu->kvm->arch.gisa &&
--	    kvm_s390_gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
-+	    gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
- 		/*
- 		 * in case an adapter interrupt was not delivered
- 		 * in SIE context KVM will handle the delivery
-@@ -1541,10 +1541,10 @@ static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
- 	if (!kvm->arch.gisa)
- 		goto out;
- 
--	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
-+	active_mask = (isc_mask & gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
- 	while (active_mask) {
- 		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
--		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
-+		if (gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
- 			return isc;
- 		clear_bit_inv(isc, &active_mask);
- 	}
-@@ -1584,7 +1584,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 	/* both types of interrupts present */
- 	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
- 		/* classical IO int with higher priority */
--		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
- 		goto out;
- 	}
- gisa_out:
-@@ -1596,7 +1596,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 			kvm_s390_reinject_io_int(kvm, inti);
- 		inti = tmp_inti;
- 	} else
--		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
- out:
- 	return inti;
- }
-@@ -1694,7 +1694,7 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 
- 	if (kvm->arch.gisa && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
--		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
-+		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
- 		kfree(inti);
- 		return 0;
- 	}
-@@ -2025,15 +2025,14 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 
- 	max_irqs = len / sizeof(struct kvm_s390_irq);
- 
--	if (kvm->arch.gisa &&
--	    kvm_s390_gisa_get_ipm(kvm->arch.gisa)) {
-+	if (kvm->arch.gisa && gisa_get_ipm(kvm->arch.gisa)) {
- 		for (i = 0; i <= MAX_ISC; i++) {
- 			if (n == max_irqs) {
- 				/* signal userspace to try again */
- 				ret = -ENOMEM;
- 				goto out_nolock;
- 			}
--			if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
-+			if (gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
- 				irq = (struct kvm_s390_irq *) &buf[n];
- 				irq->type = KVM_S390_INT_IO(1, 0, 0, 0);
- 				irq->u.io.io_int_word = isc_to_int_word(i);
+ /* implemented in guestdbg.c */
+ void kvm_s390_backup_guest_per_regs(struct kvm_vcpu *vcpu);
 -- 
 2.13.4
