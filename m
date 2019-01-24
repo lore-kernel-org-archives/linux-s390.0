@@ -1,88 +1,38 @@
-Return-Path: <SRS0=B2vk=P6=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH v2 0/7] perf: Communicate sink via event::attr:config2
-Date: Tue, 22 Jan 2019 11:11:37 -0700
-Message-Id: <20190122181144.26645-1-mathieu.poirier@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: acme@kernel.org, peterz@infradead.org
-Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, suzuki.poulose@arm.com, alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, will.deacon@arm.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH v6 01/13] KVM: s390: drop obsolete else path
+Date: Thu, 24 Jan 2019 13:59:27 +0100
+Message-ID: <20190124125939.130763-2-mimu@linux.ibm.com>
+References: <20190124125939.130763-1-mimu@linux.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190124125939.130763-1-mimu@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This is the second revision of a patchset allowing multiple sources to select
-the same sink for a session which is a prerequisite for the support of CoreSight
-CPU-wide trace scenarios.
+The explicit else path specified in set_intercept_indicators_io
+is not required as the function returns in case the first branch
+is taken anyway.
 
-The sink ID is communicated to the kernel by way of the event's configuration
-attribute (event::attr:config2).  The ID itself is an hash of the sink's name,
-something that is readily available and doesn't require the addition of a new
-information field in the coresight_device structure.
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-With this set the mechanic to communicate sink selection to the kernel via
-sysfs is no longer needed and removed.
-
-Applies cleanly and tested on 5.0-rc3.
-
-Thanks,
-Mathieu
-
-Changes for V2:
-* Addressed memory leak in etm_perf_add_symlink_sink()
-* Keep track of device attribute for future removal.
-* Added PMU attribure for config2.
-* Fixed email address signature.
-
-Mathieu Poirier (7):
-  perf/aux: Make perf_event accessible to setup_aux()
-  coresight: perf: Add "sinks" group to PMU directory
-  coresight: Use event attributes for sink selection
-  perf pmu: Moving EVENT_SOURCE_DEVICE_PATH to PMU header file
-  perf tools: Use event attributes to send sink information to kernel
-  perf tools: Removing CoreSight set_drv_config() API
-  perf tools: Remove PMU::set_drv_config API
-
- arch/s390/kernel/perf_cpum_sf.c               |   6 +-
- arch/x86/events/intel/bts.c                   |   4 +-
- arch/x86/events/intel/pt.c                    |   5 +-
- .../hwtracing/coresight/coresight-etm-perf.c  | 106 +++++++++++++++---
- .../hwtracing/coresight/coresight-etm-perf.h  |   6 +-
- drivers/hwtracing/coresight/coresight-priv.h  |   1 +
- drivers/hwtracing/coresight/coresight.c       |  57 ++++++++++
- drivers/perf/arm_spe_pmu.c                    |   6 +-
- include/linux/coresight.h                     |   7 +-
- include/linux/perf_event.h                    |   2 +-
- kernel/events/ring_buffer.c                   |   2 +-
- tools/perf/arch/arm/util/cs-etm.c             |  94 +++++++---------
- tools/perf/arch/arm/util/cs-etm.h             |   3 -
- tools/perf/arch/arm/util/pmu.c                |   2 -
- tools/perf/builtin-record.c                   |  10 --
- tools/perf/builtin-stat.c                     |   9 --
- tools/perf/builtin-top.c                      |  13 ---
- tools/perf/util/Build                         |   1 -
- tools/perf/util/drv_configs.c                 |  78 -------------
- tools/perf/util/drv_configs.h                 |  26 -----
- tools/perf/util/pmu.c                         |   2 -
- tools/perf/util/pmu.h                         |   2 +-
- 22 files changed, 214 insertions(+), 228 deletions(-)
- delete mode 100644 tools/perf/util/drv_configs.c
- delete mode 100644 tools/perf/util/drv_configs.h
-
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index fcb55b02990e..19d556512452 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -345,7 +345,7 @@ static void set_intercept_indicators_io(struct kvm_vcpu *vcpu)
+ {
+ 	if (!(pending_irqs_no_gisa(vcpu) & IRQ_PEND_IO_MASK))
+ 		return;
+-	else if (psw_ioint_disabled(vcpu))
++	if (psw_ioint_disabled(vcpu))
+ 		kvm_s390_set_cpuflags(vcpu, CPUSTAT_IO_INT);
+ 	else
+ 		vcpu->arch.sie_block->lctl |= LCTL_CR6;
 -- 
-2.17.1
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+2.13.4
