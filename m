@@ -1,25 +1,15 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
-Date: Fri, 25 Jan 2019 11:13:02 +0100
-Message-ID: <20190125111302.6dc95f70.cohuck@redhat.com>
+Date: Fri, 25 Jan 2019 13:58:07 +0100
+Message-ID: <20190125135807.17c59cdd@oc2783563651>
 References: <20190121110354.2247-1-cohuck@redhat.com>
 	<20190121110354.2247-3-cohuck@redhat.com>
-	<20190121212018.4e377e59@oc2783563651>
-	<20190122112926.4ff54f9f.cohuck@redhat.com>
-	<20190122121737.49c3f900@oc2783563651>
-	<20190122125322.4bb04921.cohuck@redhat.com>
-	<20190122134612.40a7745e@oc2783563651>
-	<20190122182617.23fab5e9.cohuck@redhat.com>
-	<20190122200331.14ff2818@oc2783563651>
-	<20190123113447.04354ae4.cohuck@redhat.com>
-	<20190123140601.54b2c768@oc2783563651>
-	<20190123143429.7a8da112.cohuck@redhat.com>
-	<b1f0a5f6-51b0-0986-00dd-51bdd79a4779@linux.ibm.com>
+	<2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <b1f0a5f6-51b0-0986-00dd-51bdd79a4779@linux.ibm.com>
+In-Reply-To: <2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -33,97 +23,61 @@ Sender: "Qemu-devel"
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Eric Farman <farman@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-s390x@nongnu.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 24 Jan 2019 14:16:21 -0500
+On Thu, 24 Jan 2019 21:25:10 -0500
 Eric Farman <farman@linux.ibm.com> wrote:
 
-> On 01/23/2019 08:34 AM, Cornelia Huck wrote:
-> > On Wed, 23 Jan 2019 14:06:01 +0100
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> >> On Wed, 23 Jan 2019 11:34:47 +0100
-> >> Cornelia Huck <cohuck@redhat.com> wrote:  
-> >   
-> >> Yes, one can usually think of interfaces as contracts: both sides need
-> >> to keep their end for things to work as intended. Unfortunately the
-> >> vfio-ccw iterface is not a very well specified one, and that makes
-> >> reasoning about right order so much harder.  
-> > 
-> > That's probably where our disconnect comes from.
-> >   
-> >>
-> >> I was under the impression that the right ordering is dictated by the
-> >> SCSW in userspace. E.g. if there is an FC bit set there userspace is not
-> >> ought to issue a SSCH request (write to the io_region). The kernel part
-> >> however may say 'userspace read the actual SCSW' by signaling
-> >> the io_trigger eventfd. Userspace is supposed to read the IRB from the
-> >> region and update it's SCSW.
-> >>
-> >> Now if userspace reads a broken SCSW from the IRB, because of a race
-> >> (due to poorly written kernel part -- userspace not at fault), it is
-> >> going to make wrong assumptions about currently legal and illegal
-> >> operations (ordering).  
-> > 
-> > My understanding of the interface was that writing to the I/O region
-> > triggers a ssch (unless rejected with error) and that reading it just
-> > gets whatever the kernel wrote there the last time it updated its
-> > internal structures. The eventfd simply triggers to say "the region has
-> > been updated with an IRB", not to say "userspace, read this".
-> >   
-> >>
-> >> Previously I described a scenario where IRB can break without userspace
-> >> being at fault (race between unsolicited interrupt -- can happen at any
-> >> time -- and a legit io request). I was under the impression we agreed on
-> >> this.  
-> > 
-> > There is a bug in there (clearing the cp for non-final interrupts), and
-> > it needs to be fixed. I'm not so sure if the unsolicited interrupt
-> > thing is a bug (beyond that the internal state machine is confused).
-> >   
-> >>
-> >> This in turn could lead to userspace violating the contract, as perceived
-> >> by the kernel side.  
-> > 
-> > Which contract? ;)
-> > 
-> > Also, I'm not sure if we'd rather get a deferred cc 1?  
+> >   	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> > -	if (private->state != VFIO_CCW_STATE_IDLE)
+> > +	if (private->state == VFIO_CCW_STATE_NOT_OPER ||
+> > +	    private->state == VFIO_CCW_STATE_STANDBY)
+> >   		return -EACCES;
+> > +	if (!mutex_trylock(&private->io_mutex))
+> > +		return -EAGAIN;  
 > 
-> As I'm encountering dcc=1 quite regularly lately, it's a nice error. 
-> But we don't have a good way of recovering from it, and so my test tends 
-> to go down in a heap quite quickly.  This patch set will probably help; 
-> I should really get it applied and try it out.
-
-The deferred cc 1 is probably more likely simply due to the overhead we
-get from intercepting the I/O calls.
-
+> Ah, I see Halil's difficulty here.
 > 
+> It is true there is a race condition today, and that this doesn't 
+> address it.  That's fine, add it to the todo list.  But even with that, 
+> I don't see what the mutex is enforcing?  
+
+It is protecting the io regions. AFAIU the idea was that only one
+thread is accessing the io region(s) at a time to prevent corruption and
+reading half-morphed data.
+
+> Two simultaneous SSCHs will be 
+> serialized (one will get kicked out with a failed trylock() call), while 
+> still leaving the window open between cc=0 on the SSCH and the 
+> subsequent interrupt.  In the latter case, a second SSCH will come 
+> through here, do the copy_from_user below, and then jump to fsm_io_busy 
+> to return EAGAIN.  Do we really want to stomp on io_region in that case?
+
+I'm not sure I understood you correctly. The interrupt handler does not
+take the lock before writing to the io_region. That is one race but it is
+easy to fix.
+
+The bigger problem is that between the interrupt handler has written IRB
+area and userspace has read it we may end up destroying it by stomping on
+it (to use your words). The userspace reading a wrong (given todays qemu
+zeroed out) IRB could lead to follow on problems.
+ 
+>   Why can't we simply return EAGAIN if state==BUSY?
+> 
+
+Sure we can. That would essentially go back to the old way of things:
+if not idle return with error. Just the error code returned would change
+form EACCESS to EAGAIN. Which Isn't necessarily a win, because
+conceptually here should be never two interleaved io_requests/start
+commands hitting the module.
+
+
 > >   
-> >>  
-> >>> At this point, I'm mostly confused... I'd prefer to simply fix things
-> >>> as they come up so that we can finally move forward with the halt/clear
-> >>> handling (and probably rework the state machine on top of that.)  
-> 
-> +1 for fixing things as we go.  I hear the complaints about this code 
-> (and probably say them too), but remain convinced that a large rewrite 
-> is unnecessary.  Lots of opportunities for improvement, with lots of 
-> willing and motivated participants, means it can only get better!
-
-Yeah, the code would probably look a bit different if I started writing
-it from scratch now, but I don't think the basic design is unfixably
-broken.
-
-> 
-> >>>      
-> >>
-> >> I understand. I guess you will want to send a new version because of the
-> >> stuff that got lost in the rebase, or?  
-> > 
-> > Yes, I'll send a new version; but I'll wait for more feedback for a bit.
-> >   
-> 
-> I'll try to provide some now.  Still digging through the emails marked 
-> "todo" :)
-
-Ok, I'll wait for a bit more :)
+> >   	region = private->io_region;
+> > -	if (copy_from_user((void *)region + *ppos, buf, count))
+> > -		return -EFAULT;
+> > +	if (copy_from_user((void *)region + *ppos, buf, count)) {
+> > +		ret = -EFAULT;
+> > +		goto out_unlock;
+> > +	}
