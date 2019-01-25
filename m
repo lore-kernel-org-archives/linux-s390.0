@@ -1,14 +1,16 @@
 From: Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH v2 3/5] vfio-ccw: add capabilities chain
-Date: Fri, 25 Jan 2019 11:19:56 -0500
-Message-ID: <74c910bf-d34b-b798-db9d-da29787f0a9e@linux.ibm.com>
+Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
+Date: Fri, 25 Jan 2019 15:21:55 -0500
+Message-ID: <cf22b682-199e-f314-244e-81b1c39b5f8c@linux.ibm.com>
 References: <20190121110354.2247-1-cohuck@redhat.com>
-	<20190121110354.2247-4-cohuck@redhat.com>
+	<20190121110354.2247-3-cohuck@redhat.com>
+	<2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
+	<20190125135807.17c59cdd@oc2783563651>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190121110354.2247-4-cohuck@redhat.com>
+In-Reply-To: <20190125135807.17c59cdd@oc2783563651>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
@@ -22,403 +24,84 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 01/21/2019 06:03 AM, Cornelia Huck wrote:
-> Allow to extend the regions used by vfio-ccw. The first user will be
-> handling of halt and clear subchannel.
+On 01/25/2019 07:58 AM, Halil Pasic wrote:
+> On Thu, 24 Jan 2019 21:25:10 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   drivers/s390/cio/vfio_ccw_ops.c     | 181 ++++++++++++++++++++++++----
->   drivers/s390/cio/vfio_ccw_private.h |  38 ++++++
->   include/uapi/linux/vfio.h           |   2 +
->   3 files changed, 195 insertions(+), 26 deletions(-)
+>>>    	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>>> -	if (private->state != VFIO_CCW_STATE_IDLE)
+>>> +	if (private->state == VFIO_CCW_STATE_NOT_OPER ||
+>>> +	    private->state == VFIO_CCW_STATE_STANDBY)
+>>>    		return -EACCES;
+>>> +	if (!mutex_trylock(&private->io_mutex))
+>>> +		return -EAGAIN;
+>>
+>> Ah, I see Halil's difficulty here.
+>>
+>> It is true there is a race condition today, and that this doesn't
+>> address it.  That's fine, add it to the todo list.  But even with that,
+>> I don't see what the mutex is enforcing?
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 3fa9fc570400..5a89d09f9271 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -3,9 +3,11 @@
->    * Physical device callbacks for vfio_ccw
->    *
->    * Copyright IBM Corp. 2017
-> + * Copyright Red Hat, Inc. 2019
->    *
->    * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->    *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> + *            Cornelia Huck <cohuck@redhat.com>
->    */
->   
->   #include <linux/vfio.h>
-> @@ -157,27 +159,33 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
->   {
->   	struct vfio_ccw_private *private =
->   		dev_get_drvdata(mdev_parent_dev(mdev));
-> +	int i;
->   
->   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
->   				 &private->nb);
-> +
-> +	for (i = 0; i < private->num_regions; i++)
-> +		private->region[i].ops->release(private, &private->region[i]);
-> +
-> +	private->num_regions = 0;
-> +	kfree(private->region);
-> +	private->region = NULL;
->   }
->   
-> -static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
-> -				  char __user *buf,
-> -				  size_t count,
-> -				  loff_t *ppos)
-> +static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
-> +					    char __user *buf, size_t count,
-> +					    loff_t *ppos)
->   {
-> -	struct vfio_ccw_private *private;
-> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
->   	struct ccw_io_region *region;
->   	int ret;
->   
-> -	if (*ppos + count > sizeof(*region))
-> +	if (pos + count > sizeof(*region))
->   		return -EINVAL;
->   
-> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
->   	mutex_lock(&private->io_mutex);
->   	region = private->io_region;
-> -	if (copy_to_user(buf, (void *)region + *ppos, count))
-> +	if (copy_to_user(buf, (void *)region + pos, count))
->   		ret = -EFAULT;
->   	else
->   		ret = count;
-> @@ -185,19 +193,42 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
->   	return ret;
->   }
->   
-> -static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
-> -				   const char __user *buf,
-> -				   size_t count,
-> -				   loff_t *ppos)
-> +static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
-> +				  char __user *buf,
-> +				  size_t count,
-> +				  loff_t *ppos)
->   {
-> +	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
->   	struct vfio_ccw_private *private;
-> +
-> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
-> +
-> +	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
-> +		return -EINVAL;
-> +
-> +	switch (index) {
-> +	case VFIO_CCW_CONFIG_REGION_INDEX:
-> +		return vfio_ccw_mdev_read_io_region(private, buf, count, ppos);
-> +	default:
-> +		index -= VFIO_CCW_NUM_REGIONS;
-> +		return private->region[index].ops->read(private, buf, count,
-> +							ppos);
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
-> +					     const char __user *buf,
-> +					     size_t count, loff_t *ppos)
-> +{
-> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
->   	struct ccw_io_region *region;
->   	int ret;
->   
-> -	if (*ppos + count > sizeof(*region))
-> +	if (pos + count > sizeof(*region))
->   		return -EINVAL;
->   
-> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
->   	if (private->state == VFIO_CCW_STATE_NOT_OPER ||
->   	    private->state == VFIO_CCW_STATE_STANDBY)
->   		return -EACCES;
-> @@ -205,7 +236,7 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->   		return -EAGAIN;
->   
->   	region = private->io_region;
-> -	if (copy_from_user((void *)region + *ppos, buf, count)) {
-> +	if (copy_from_user((void *)region + pos, buf, count)) {
->   		ret = -EFAULT;
->   		goto out_unlock;
->   	}
-> @@ -218,19 +249,52 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->   	return ret;
->   }
->   
-> -static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
-> +static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
-> +				   const char __user *buf,
-> +				   size_t count,
-> +				   loff_t *ppos)
-> +{
-> +	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
-> +	struct vfio_ccw_private *private;
-> +
-> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
-> +
-> +	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
-> +		return -EINVAL;
-> +
-> +	switch (index) {
-> +	case VFIO_CCW_CONFIG_REGION_INDEX:
-> +		return vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
-> +	default:
-> +		index -= VFIO_CCW_NUM_REGIONS;
-> +		return private->region[index].ops->write(private, buf, count,
-> +							 ppos);
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info,
-> +					 struct mdev_device *mdev)
->   {
-> +	struct vfio_ccw_private *private;
-> +
-> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
->   	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
-> -	info->num_regions = VFIO_CCW_NUM_REGIONS;
-> +	info->num_regions = VFIO_CCW_NUM_REGIONS + private->num_regions;
->   	info->num_irqs = VFIO_CCW_NUM_IRQS;
->   
->   	return 0;
->   }
->   
->   static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
-> -					 u16 *cap_type_id,
-> -					 void **cap_type)
-> +					 struct mdev_device *mdev,
-> +					 unsigned long arg)
->   {
-> +	struct vfio_ccw_private *private;
-> +	int i;
-> +
-> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
->   	switch (info->index) {
->   	case VFIO_CCW_CONFIG_REGION_INDEX:
->   		info->offset = 0;
-> @@ -238,9 +302,51 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
->   		info->flags = VFIO_REGION_INFO_FLAG_READ
->   			      | VFIO_REGION_INFO_FLAG_WRITE;
->   		return 0;
-> -	default:
-> -		return -EINVAL;
-> +	default: /* all other regions are handled via capability chain */
-> +	{
-> +		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-> +		struct vfio_region_info_cap_type cap_type = {
-> +			.header.id = VFIO_REGION_INFO_CAP_TYPE,
-> +			.header.version = 1 };
-> +		int ret;
-> +
-> +		if (info->index >=
-> +		    VFIO_CCW_NUM_REGIONS + private->num_regions)
-> +			return -EINVAL;
-> +
-> +		i = info->index - VFIO_CCW_NUM_REGIONS;
-> +
-> +		info->offset = VFIO_CCW_INDEX_TO_OFFSET(info->index);
-> +		info->size = private->region[i].size;
-> +		info->flags = private->region[i].flags;
-> +
-> +		cap_type.type = private->region[i].type;
-> +		cap_type.subtype = private->region[i].subtype;
-> +
-> +		ret = vfio_info_add_capability(&caps, &cap_type.header,
-> +					       sizeof(cap_type));
-> +		if (ret)
-> +			return ret;
-> +
-> +		info->flags |= VFIO_REGION_INFO_FLAG_CAPS;
-> +		if (info->argsz < sizeof(*info) + caps.size) {
-> +			info->argsz = sizeof(*info) + caps.size;
-> +			info->cap_offset = 0;
-> +		} else {
-> +			vfio_info_cap_shift(&caps, sizeof(*info));
-> +			if (copy_to_user((void __user *)arg + sizeof(*info),
-> +					 caps.buf, caps.size)) {
-> +				kfree(caps.buf);
-> +				return -EFAULT;
-> +			}
-> +			info->cap_offset = sizeof(*info);
-> +		}
-> +
-> +		kfree(caps.buf);
-> +
-> +	}
->   	}
-> +	return 0;
->   }
->   
->   static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
-> @@ -317,6 +423,32 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
->   	}
->   }
->   
-> +int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
-> +				 unsigned int subtype,
-> +				 const struct vfio_ccw_regops *ops,
-> +				 size_t size, u32 flags, void *data)
-> +{
-> +	struct vfio_ccw_region *region;
-> +
-> +	region = krealloc(private->region,
-> +			  (private->num_regions + 1) * sizeof(*region),
-> +			  GFP_KERNEL);
-> +	if (!region)
-> +		return -ENOMEM;
-> +
-> +	private->region = region;
-> +	private->region[private->num_regions].type = VFIO_REGION_TYPE_CCW;
-> +	private->region[private->num_regions].subtype = subtype;
-> +	private->region[private->num_regions].ops = ops;
-> +	private->region[private->num_regions].size = size;
-> +	private->region[private->num_regions].flags = flags;
-> +	private->region[private->num_regions].data = data;
-> +
-> +	private->num_regions++;
-> +
-> +	return 0;
-> +}
-> +
->   static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->   				   unsigned int cmd,
->   				   unsigned long arg)
-> @@ -337,7 +469,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->   		if (info.argsz < minsz)
->   			return -EINVAL;
->   
-> -		ret = vfio_ccw_mdev_get_device_info(&info);
-> +		ret = vfio_ccw_mdev_get_device_info(&info, mdev);
->   		if (ret)
->   			return ret;
->   
-> @@ -346,8 +478,6 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->   	case VFIO_DEVICE_GET_REGION_INFO:
->   	{
->   		struct vfio_region_info info;
-> -		u16 cap_type_id = 0;
-> -		void *cap_type = NULL;
->   
->   		minsz = offsetofend(struct vfio_region_info, offset);
->   
-> @@ -357,8 +487,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
->   		if (info.argsz < minsz)
->   			return -EINVAL;
->   
-> -		ret = vfio_ccw_mdev_get_region_info(&info, &cap_type_id,
-> -						    &cap_type);
-> +		ret = vfio_ccw_mdev_get_region_info(&info, mdev, arg);
->   		if (ret)
->   			return ret;
->   
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index e88237697f83..20e75f4f3695 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -3,9 +3,11 @@
->    * Private stuff for vfio_ccw driver
->    *
->    * Copyright IBM Corp. 2017
-> + * Copyright Red Hat, Inc. 2019
->    *
->    * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
->    *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-> + *            Cornelia Huck <cohuck@redhat.com>
->    */
->   
->   #ifndef _VFIO_CCW_PRIVATE_H_
-> @@ -19,6 +21,38 @@
->   #include "css.h"
->   #include "vfio_ccw_cp.h"
->   
-> +#define VFIO_CCW_OFFSET_SHIFT   40
-> +#define VFIO_CCW_OFFSET_TO_INDEX(off)	(off >> VFIO_CCW_OFFSET_SHIFT)
-> +#define VFIO_CCW_INDEX_TO_OFFSET(index)	((u64)(index) << VFIO_CCW_OFFSET_SHIFT)
-> +#define VFIO_CCW_OFFSET_MASK	(((u64)(1) << VFIO_CCW_OFFSET_SHIFT) - 1)
-> +
-> +/* capability chain handling similar to vfio-pci */
-> +struct vfio_ccw_private;
-> +struct vfio_ccw_region;
-> +
-> +struct vfio_ccw_regops {
-> +	size_t	(*read)(struct vfio_ccw_private *private, char __user *buf,
-> +			size_t count, loff_t *ppos);
-> +	size_t	(*write)(struct vfio_ccw_private *private,
-> +			 const char __user *buf, size_t count, loff_t *ppos);
-> +	void	(*release)(struct vfio_ccw_private *private,
-> +			   struct vfio_ccw_region *region);
-> +};
-> +
-> +struct vfio_ccw_region {
-> +	u32				type;
-> +	u32				subtype;
-> +	const struct vfio_ccw_regops	*ops;
-> +	void				*data;
-> +	size_t				size;
-> +	u32				flags;
-> +};
-> +
-> +int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
-> +				 unsigned int subtype,
-> +				 const struct vfio_ccw_regops *ops,
-> +				 size_t size, u32 flags, void *data);
-> +
->   /**
->    * struct vfio_ccw_private
->    * @sch: pointer to the subchannel
-> @@ -29,6 +63,8 @@
->    * @nb: notifier for vfio events
->    * @io_region: MMIO region to input/output I/O arguments/results
->    * @io_mutex: protect against concurrent update of I/O structures
-> + * @region: additional regions for other subchannel operations
-> + * @num_regions: number of additional regions
->    * @cp: channel program for the current I/O operation
->    * @irb: irb info received from interrupt
->    * @scsw: scsw info
-> @@ -44,6 +80,8 @@ struct vfio_ccw_private {
->   	struct notifier_block	nb;
->   	struct ccw_io_region	*io_region;
->   	struct mutex		io_mutex;
-> +	struct vfio_ccw_region *region;
-> +	int num_regions;
->   
->   	struct channel_program	cp;
->   	struct irb		irb;
-> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> index 02bb7ad6e986..56e2413d3e00 100644
-> --- a/include/uapi/linux/vfio.h
-> +++ b/include/uapi/linux/vfio.h
-> @@ -353,6 +353,8 @@ struct vfio_region_gfx_edid {
->   #define VFIO_DEVICE_GFX_LINK_STATE_DOWN  2
->   };
->   
-> +#define VFIO_REGION_TYPE_CCW			(2)
-> +
-
-Cool.  :)
-
->   /*
->    * 10de vendor sub-type
->    *
+> It is protecting the io regions. AFAIU the idea was that only one
+> thread is accessing the io region(s) at a time to prevent corruption and
+> reading half-morphed data.
 > 
+>> Two simultaneous SSCHs will be
+>> serialized (one will get kicked out with a failed trylock() call), while
+>> still leaving the window open between cc=0 on the SSCH and the
+>> subsequent interrupt.  In the latter case, a second SSCH will come
+>> through here, do the copy_from_user below, and then jump to fsm_io_busy
+>> to return EAGAIN.  Do we really want to stomp on io_region in that case?
+> 
+> I'm not sure I understood you correctly. The interrupt handler does not
+> take the lock before writing to the io_region. That is one race but it is
+> easy to fix.
+> 
+> The bigger problem is that between the interrupt handler has written IRB
+> area and userspace has read it we may end up destroying it by stomping on
+> it (to use your words). The userspace reading a wrong (given todays qemu
+> zeroed out) IRB could lead to follow on problems.
 
-Looks fine to me.  I'd love to think there was a way to generalize this 
-for other vfio drivers, but man that's a tall task.  So...
+I wasn't thinking about a race between the start and interrupt handler, 
+but rather between two near-simultaneous starts.  Looking at it more 
+closely, the orb and scsw structs as well as the ret_code field in 
+ccw_io_region are only referenced under the protection of the new mutex 
+(within fsm_io_request, for example), which I guess is the point.
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+So that leaves us with just the irb fields, which you'd mentioned a 
+couple days ago (and which I was trying to ignore since it'd seems to 
+have been discussed enough at the time).  So I withdraw my concerns on 
+this point.  For now.  ;-)
+
+>   
+>>    Why can't we simply return EAGAIN if state==BUSY?
+>>
+> 
+> Sure we can. That would essentially go back to the old way of things:
+> if not idle return with error. 
+
+I think this happens both before and after this series.  With this 
+series, we just update the io_region with things that are never used 
+because we're busy.
+
+Just the error code returned would change
+> form EACCESS to EAGAIN. Which Isn't necessarily a win, because
+> conceptually here should be never two interleaved io_requests/start
+> commands hitting the module.
+> 
+> 
+>>>    
+>>>    	region = private->io_region;
+>>> -	if (copy_from_user((void *)region + *ppos, buf, count))
+>>> -		return -EFAULT;
+>>> +	if (copy_from_user((void *)region + *ppos, buf, count)) {
+>>> +		ret = -EFAULT;
+>>> +		goto out_unlock;
+>>> +	}
+> 
