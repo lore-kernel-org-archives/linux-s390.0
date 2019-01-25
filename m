@@ -1,15 +1,17 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
-Date: Fri, 25 Jan 2019 13:58:07 +0100
-Message-ID: <20190125135807.17c59cdd@oc2783563651>
+Date: Fri, 25 Jan 2019 13:58:35 +0100
+Message-ID: <20190125135835.2d59b511.cohuck@redhat.com>
 References: <20190121110354.2247-1-cohuck@redhat.com>
 	<20190121110354.2247-3-cohuck@redhat.com>
 	<2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
+	<5627cb78-22b3-0557-7972-256bc9560d86@linux.ibm.com>
+	<20190125112437.2c06fac6.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
+In-Reply-To: <20190125112437.2c06fac6.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -23,61 +25,67 @@ Sender: "Qemu-devel"
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Eric Farman <farman@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 24 Jan 2019 21:25:10 -0500
-Eric Farman <farman@linux.ibm.com> wrote:
+On Fri, 25 Jan 2019 11:24:37 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> >   	private = dev_get_drvdata(mdev_parent_dev(mdev));
-> > -	if (private->state != VFIO_CCW_STATE_IDLE)
-> > +	if (private->state == VFIO_CCW_STATE_NOT_OPER ||
-> > +	    private->state == VFIO_CCW_STATE_STANDBY)
-> >   		return -EACCES;
-> > +	if (!mutex_trylock(&private->io_mutex))
-> > +		return -EAGAIN;  
-> 
-> Ah, I see Halil's difficulty here.
-> 
-> It is true there is a race condition today, and that this doesn't 
-> address it.  That's fine, add it to the todo list.  But even with that, 
-> I don't see what the mutex is enforcing?  
+> On Thu, 24 Jan 2019 21:37:44 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
+>=20
+> > On 01/24/2019 09:25 PM, Eric Farman wrote: =20
+> > >=20
+> > >=20
+> > > On 01/21/2019 06:03 AM, Cornelia Huck wrote:   =20
+>=20
+> > > [1] I think these changes are cool.=C2=A0 We end up going into (and s=
+taying=20
+> > > in) state=3DBUSY if we get cc=3D0 on the SSCH, rather than in/out as =
+we=20
+> > > bumble along.
+> > >=20
+> > > But why can't these be separated out from this patch?=C2=A0 It does c=
+hange=20
+> > > the behavior of the state machine, and seem distinct from the additio=
+n=20
+> > > of the mutex you otherwise add here?=C2=A0 At the very least, this be=
+havior=20
+> > > change should be documented in the commit since it's otherwise lost i=
+n=20
+> > > the mutex/EAGAIN stuff. =20
+>=20
+> That's a very good idea. I'll factor them out into a separate patch.
 
-It is protecting the io regions. AFAIU the idea was that only one
-thread is accessing the io region(s) at a time to prevent corruption and
-reading half-morphed data.
+And now that I've factored it out, I noticed some more problems.
 
-> Two simultaneous SSCHs will be 
-> serialized (one will get kicked out with a failed trylock() call), while 
-> still leaving the window open between cc=0 on the SSCH and the 
-> subsequent interrupt.  In the latter case, a second SSCH will come 
-> through here, do the copy_from_user below, and then jump to fsm_io_busy 
-> to return EAGAIN.  Do we really want to stomp on io_region in that case?
+What we basically need is the following, I think:
 
-I'm not sure I understood you correctly. The interrupt handler does not
-take the lock before writing to the io_region. That is one race but it is
-easy to fix.
+- The code should not be interrupted while we process the channel
+  program, do the ssch etc. We want the caller to try again later (i.e.
+  return -EAGAIN)
+- We currently do not want the user space to submit another channel
+  program while the first one is still in flight. As submitting another
+  one is a valid request, however, we should allow this in the future
+  (once we have the code to handle that in place).
+- With the async interface, we want user space to be able to submit a
+  halt/clear while a start request is still in flight, but not while
+  we're processing a start request with translation etc. We probably
+  want to do -EAGAIN in that case.
 
-The bigger problem is that between the interrupt handler has written IRB
-area and userspace has read it we may end up destroying it by stomping on
-it (to use your words). The userspace reading a wrong (given todays qemu
-zeroed out) IRB could lead to follow on problems.
- 
->   Why can't we simply return EAGAIN if state==BUSY?
-> 
+My idea would be:
 
-Sure we can. That would essentially go back to the old way of things:
-if not idle return with error. Just the error code returned would change
-form EACCESS to EAGAIN. Which Isn't necessarily a win, because
-conceptually here should be never two interleaved io_requests/start
-commands hitting the module.
+- The BUSY state denotes "I'm busy processing a request right now, try
+  again". We hold it while processing the cp and doing the ssch and
+  leave it afterwards (i.e., while the start request is processed by
+  the hardware). I/O requests and async requests get -EAGAIN in that
+  state.
+- A new state (CP_PENDING?) is entered after ssch returned with cc 0
+  (from the BUSY state). We stay in there as long as no final state for
+  that request has been received and delivered. (This may be final
+  interrupt for that request, a deferred cc, or successful halt/clear.)
+  I/O requests get -EBUSY, async requests are processed. This state can
+  be removed again once we are able to handle more than one outstanding
+  cp.
 
-
-> >   
-> >   	region = private->io_region;
-> > -	if (copy_from_user((void *)region + *ppos, buf, count))
-> > -		return -EFAULT;
-> > +	if (copy_from_user((void *)region + *ppos, buf, count)) {
-> > +		ret = -EFAULT;
-> > +		goto out_unlock;
-> > +	}
+Does that make sense?
