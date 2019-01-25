@@ -1,24 +1,14 @@
 From: Eric Farman <farman@linux.ibm.com>
 Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
-Date: Thu, 24 Jan 2019 14:16:21 -0500
-Message-ID: <b1f0a5f6-51b0-0986-00dd-51bdd79a4779@linux.ibm.com>
+Date: Thu, 24 Jan 2019 21:25:10 -0500
+Message-ID: <2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
 References: <20190121110354.2247-1-cohuck@redhat.com>
 	<20190121110354.2247-3-cohuck@redhat.com>
-	<20190121212018.4e377e59@oc2783563651>
-	<20190122112926.4ff54f9f.cohuck@redhat.com>
-	<20190122121737.49c3f900@oc2783563651>
-	<20190122125322.4bb04921.cohuck@redhat.com>
-	<20190122134612.40a7745e@oc2783563651>
-	<20190122182617.23fab5e9.cohuck@redhat.com>
-	<20190122200331.14ff2818@oc2783563651>
-	<20190123113447.04354ae4.cohuck@redhat.com>
-	<20190123140601.54b2c768@oc2783563651>
-	<20190123143429.7a8da112.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190123143429.7a8da112.cohuck@redhat.com>
+In-Reply-To: <20190121110354.2247-3-cohuck@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
@@ -32,88 +22,212 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-s390x@nongnu.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 01/23/2019 08:34 AM, Cornelia Huck wrote:
-> On Wed, 23 Jan 2019 14:06:01 +0100
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+On 01/21/2019 06:03 AM, Cornelia Huck wrote:
+> Rework handling of multiple I/O requests to return -EAGAIN if
+> we are already processing an I/O request. Introduce a mutex
+> to disallow concurrent writes to the I/O region.
 > 
->> On Wed, 23 Jan 2019 11:34:47 +0100
->> Cornelia Huck <cohuck@redhat.com> wrote:
+> The expectation is that userspace simply retries the operation
+> if it gets -EAGAIN.
 > 
->> Yes, one can usually think of interfaces as contracts: both sides need
->> to keep their end for things to work as intended. Unfortunately the
->> vfio-ccw iterface is not a very well specified one, and that makes
->> reasoning about right order so much harder.
+> We currently don't allow multiple ssch requests at the same
+> time, as we don't have support for keeping channel programs
+> around for more than one request.
 > 
-> That's probably where our disconnect comes from.
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_drv.c     |  1 +
+>   drivers/s390/cio/vfio_ccw_fsm.c     |  8 +++-----
+>   drivers/s390/cio/vfio_ccw_ops.c     | 31 +++++++++++++++++++----------
+>   drivers/s390/cio/vfio_ccw_private.h |  2 ++
+>   4 files changed, 26 insertions(+), 16 deletions(-)
 > 
->>
->> I was under the impression that the right ordering is dictated by the
->> SCSW in userspace. E.g. if there is an FC bit set there userspace is not
->> ought to issue a SSCH request (write to the io_region). The kernel part
->> however may say 'userspace read the actual SCSW' by signaling
->> the io_trigger eventfd. Userspace is supposed to read the IRB from the
->> region and update it's SCSW.
->>
->> Now if userspace reads a broken SCSW from the IRB, because of a race
->> (due to poorly written kernel part -- userspace not at fault), it is
->> going to make wrong assumptions about currently legal and illegal
->> operations (ordering).
-> 
-> My understanding of the interface was that writing to the I/O region
-> triggers a ssch (unless rejected with error) and that reading it just
-> gets whatever the kernel wrote there the last time it updated its
-> internal structures. The eventfd simply triggers to say "the region has
-> been updated with an IRB", not to say "userspace, read this".
-> 
->>
->> Previously I described a scenario where IRB can break without userspace
->> being at fault (race between unsolicited interrupt -- can happen at any
->> time -- and a legit io request). I was under the impression we agreed on
->> this.
-> 
-> There is a bug in there (clearing the cp for non-final interrupts), and
-> it needs to be fixed. I'm not so sure if the unsolicited interrupt
-> thing is a bug (beyond that the internal state machine is confused).
-> 
->>
->> This in turn could lead to userspace violating the contract, as perceived
->> by the kernel side.
-> 
-> Which contract? ;)
-> 
-> Also, I'm not sure if we'd rather get a deferred cc 1?
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index a10cec0e86eb..2ef189fe45ed 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -125,6 +125,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>   
+>   	private->sch = sch;
+>   	dev_set_drvdata(&sch->dev, private);
+> +	mutex_init(&private->io_mutex);
+>   
+>   	spin_lock_irq(sch->lock);
+>   	private->state = VFIO_CCW_STATE_NOT_OPER;
+> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+> index cab17865aafe..f6ed934cc565 100644
+> --- a/drivers/s390/cio/vfio_ccw_fsm.c
+> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
+> @@ -28,7 +28,6 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+>   	sch = private->sch;
+>   
+>   	spin_lock_irqsave(sch->lock, flags);
+> -	private->state = VFIO_CCW_STATE_BUSY;
 
-As I'm encountering dcc=1 quite regularly lately, it's a nice error. 
-But we don't have a good way of recovering from it, and so my test tends 
-to go down in a heap quite quickly.  This patch set will probably help; 
-I should really get it applied and try it out.
+[1]
 
+>   
+>   	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
+>   
+> @@ -42,6 +41,8 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+>   		 */
+>   		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
+>   		ret = 0;
+> +		/* Don't allow another ssch for now */
+> +		private->state = VFIO_CCW_STATE_BUSY;
+
+[1]
+
+>   		break;
+>   	case 1:		/* Status pending */
+>   	case 2:		/* Busy */
+> @@ -99,7 +100,7 @@ static void fsm_io_error(struct vfio_ccw_private *private,
+>   static void fsm_io_busy(struct vfio_ccw_private *private,
+>   			enum vfio_ccw_event event)
+>   {
+> -	private->io_region->ret_code = -EBUSY;
+> +	private->io_region->ret_code = -EAGAIN;
+>   }
+>   
+>   static void fsm_disabled_irq(struct vfio_ccw_private *private,
+> @@ -130,8 +131,6 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+>   	struct mdev_device *mdev = private->mdev;
+>   	char *errstr = "request";
+>   
+> -	private->state = VFIO_CCW_STATE_BUSY;
+> -
+
+[1]
+
+>   	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
+>   
+>   	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
+> @@ -176,7 +175,6 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+>   	}
+>   
+>   err_out:
+> -	private->state = VFIO_CCW_STATE_IDLE;
+
+[1] I think these changes are cool.  We end up going into (and staying 
+in) state=BUSY if we get cc=0 on the SSCH, rather than in/out as we 
+bumble along.
+
+But why can't these be separated out from this patch?  It does change 
+the behavior of the state machine, and seem distinct from the addition 
+of the mutex you otherwise add here?  At the very least, this behavior 
+change should be documented in the commit since it's otherwise lost in 
+the mutex/EAGAIN stuff.
+
+>   	trace_vfio_ccw_io_fctl(scsw->cmd.fctl, get_schid(private),
+>   			       io_region->ret_code, errstr);
+>   }
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index f673e106c041..3fa9fc570400 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -169,16 +169,20 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+>   {
+>   	struct vfio_ccw_private *private;
+>   	struct ccw_io_region *region;
+> +	int ret;
+>   
+>   	if (*ppos + count > sizeof(*region))
+>   		return -EINVAL;
+>   
+>   	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> +	mutex_lock(&private->io_mutex);
+>   	region = private->io_region;
+>   	if (copy_to_user(buf, (void *)region + *ppos, count))
+> -		return -EFAULT;
+> -
+> -	return count;
+> +		ret = -EFAULT;
+> +	else
+> +		ret = count;
+> +	mutex_unlock(&private->io_mutex);
+> +	return ret;
+>   }
+>   
+>   static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+> @@ -188,25 +192,30 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+>   {
+>   	struct vfio_ccw_private *private;
+>   	struct ccw_io_region *region;
+> +	int ret;
+>   
+>   	if (*ppos + count > sizeof(*region))
+>   		return -EINVAL;
+>   
+>   	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> -	if (private->state != VFIO_CCW_STATE_IDLE)
+> +	if (private->state == VFIO_CCW_STATE_NOT_OPER ||
+> +	    private->state == VFIO_CCW_STATE_STANDBY)
+>   		return -EACCES;
+> +	if (!mutex_trylock(&private->io_mutex))
+> +		return -EAGAIN;
+
+Ah, I see Halil's difficulty here.
+
+It is true there is a race condition today, and that this doesn't 
+address it.  That's fine, add it to the todo list.  But even with that, 
+I don't see what the mutex is enforcing?  Two simultaneous SSCHs will be 
+serialized (one will get kicked out with a failed trylock() call), while 
+still leaving the window open between cc=0 on the SSCH and the 
+subsequent interrupt.  In the latter case, a second SSCH will come 
+through here, do the copy_from_user below, and then jump to fsm_io_busy 
+to return EAGAIN.  Do we really want to stomp on io_region in that case? 
+  Why can't we simply return EAGAIN if state==BUSY?
+
+>   
+>   	region = private->io_region;
+> -	if (copy_from_user((void *)region + *ppos, buf, count))
+> -		return -EFAULT;
+> +	if (copy_from_user((void *)region + *ppos, buf, count)) {
+> +		ret = -EFAULT;
+> +		goto out_unlock;
+> +	}
+>   
+>   	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ)
+> -	if (region->ret_code != 0) {
+> -		private->state = VFIO_CCW_STATE_IDLE;
+
+[1] (above)
+
+> -		return region->ret_code;
+> -	}
+> +	ret = (region->ret_code != 0) ? region->ret_code : count;
+>   
+> -	return count;
+> +out_unlock:
+> +	mutex_unlock(&private->io_mutex);
+> +	return ret;
+>   }
+>   
+>   static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> index 08e9a7dc9176..e88237697f83 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -28,6 +28,7 @@
+>    * @mdev: pointer to the mediated device
+>    * @nb: notifier for vfio events
+>    * @io_region: MMIO region to input/output I/O arguments/results
+> + * @io_mutex: protect against concurrent update of I/O structures
+>    * @cp: channel program for the current I/O operation
+>    * @irb: irb info received from interrupt
+>    * @scsw: scsw info
+> @@ -42,6 +43,7 @@ struct vfio_ccw_private {
+>   	struct mdev_device	*mdev;
+>   	struct notifier_block	nb;
+>   	struct ccw_io_region	*io_region;
+> +	struct mutex		io_mutex;
+>   
+>   	struct channel_program	cp;
+>   	struct irb		irb;
 > 
->>
->>> At this point, I'm mostly confused... I'd prefer to simply fix things
->>> as they come up so that we can finally move forward with the halt/clear
->>> handling (and probably rework the state machine on top of that.)
-
-+1 for fixing things as we go.  I hear the complaints about this code 
-(and probably say them too), but remain convinced that a large rewrite 
-is unnecessary.  Lots of opportunities for improvement, with lots of 
-willing and motivated participants, means it can only get better!
-
->>>    
->>
->> I understand. I guess you will want to send a new version because of the
->> stuff that got lost in the rebase, or?
-> 
-> Yes, I'll send a new version; but I'll wait for more feedback for a bit.
-> 
-
-I'll try to provide some now.  Still digging through the emails marked 
-"todo" :)
-
-  - Eric
