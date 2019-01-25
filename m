@@ -1,87 +1,43 @@
-Return-Path: <SRS0=drEb=P7=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 23 Jan 2019 10:35:08 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: kernel: no need to check return value of
- debugfs_create functions
-References: <20190122152151.16139-3-gregkh@linuxfoundation.org>
- <20190122162454.GA31034@osiris>
- <20190122163337.GB23510@kroah.com>
-MIME-Version: 1.0
-In-Reply-To: <20190122163337.GB23510@kroah.com>
-Message-Id: <20190123093508.GB3424@osiris>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Kees Cook <keescook@chromium.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Hendrik Brueckner <brueckner@linux.vnet.ibm.com>, linux-s390@vger.kernel.org
+Return-Path: <SRS0=Yw43=QB=vger.kernel.org=netdev-owner@kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 0/8] s390/qeth: updates 2019-01-25
+Date: Fri, 25 Jan 2019 15:44:15 +0100
+Message-Id: <20190125144423.81443-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 22, 2019 at 05:33:37PM +0100, Greg Kroah-Hartman wrote:
-> On Tue, Jan 22, 2019 at 05:24:54PM +0100, Heiko Carstens wrote:
-> > On Tue, Jan 22, 2019 at 04:21:02PM +0100, Greg Kroah-Hartman wrote:
-> > > When calling debugfs functions, there is no need to ever check the
-> > > return value.  The function can work or not, but the code logic should
-> > > never do something different based on this.
-> > > 
-> > > Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> > > Cc: Kees Cook <keescook@chromium.org>
-> > > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> > > Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-> > > Cc: linux-s390@vger.kernel.org
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >  arch/s390/kernel/debug.c    | 6 ------
-> > >  arch/s390/kernel/kdebugfs.c | 2 --
-> > >  arch/s390/kernel/sysinfo.c  | 2 --
-> > >  3 files changed, 10 deletions(-)
-> > > diff --git a/arch/s390/kernel/sysinfo.c b/arch/s390/kernel/sysinfo.c
-> > > index 12f80d1f0415..2ac3c9b56a13 100644
-> > > --- a/arch/s390/kernel/sysinfo.c
-> > > +++ b/arch/s390/kernel/sysinfo.c
-> > > @@ -545,8 +545,6 @@ static __init int stsi_init_debugfs(void)
-> > >  	int lvl, i;
-> > > 
-> > >  	stsi_root = debugfs_create_dir("stsi", arch_debugfs_dir);
-> > > -	if (IS_ERR_OR_NULL(stsi_root))
-> > > -		return 0;
-> > 
-> > No objections, however will you also change the odd behaviour that
-> > e.g. debugfs_create_file() returns -ENODEV instead of (the expected)
-> > NULL pointer if CONFIG_DEBUGFS is disabled?
-> 
-> Nope.  That is intentional.
-> 
-> > I do remember this since it caused at least one crash ;)
-> 
-> Which is why you shouldn't care about the return value of these
-> functions :)
-> 
-> > 19cdd08ba155 ("[S390] qdio: fix broken pointer in case of CONFIG_DEBUG_FS is disabled").
-> 
-> Odd, what crashes when passed an error pointer?  What was someone trying
-> to do with those pointers?  The only thing you can do with a return
-> value from a debugfs function is to pass it back into another debugfs
-> call.  Sounds like someone wasn't doing that :(
+Hi Dave,
 
-I think it used to be this code that crashed:
+please apply a first batch of qeth patches for net-next, primarily touching the
+net_device parts of the driver.
+In addition to the usual refactoring & code consolidation, patch 7 makes use of
+netif_device_detach() to let the stack know when our control plane is down. This
+helps quite a bit wrt to overall locking and proper init/shutdown sequencing.
 
-static void remove_debugfs_entry(struct qdio_q *q)
-{
-	int i;
+Thanks,
+Julian
 
-	for (i = 0; i < MAX_DEBUGFS_QUEUES; i++) {
-		if (!debugfs_queues[i])
-			continue;
------>		if (debugfs_queues[i]->d_inode->i_private == q) {
-			debugfs_remove(debugfs_queues[i]);
-			debugfs_queues[i] = NULL;
-		}
-	}
-}
 
-Which looks like a layering violation anyway. However this code is
-gone, so everything should be fine.
+Julian Wiedmann (8):
+  s390/qeth: streamline TX buffer management
+  s390/qeth: remove bogus netif_wake_queue()
+  s390/qeth: consolidate open/stop netdev ops
+  s390/qeth: register MAC address earlier
+  s390/qeth: remove TX disable from online path
+  s390/qeth: delay netdevice registration
+  s390/qeth: detach netdevice while card is offline
+  s390/qeth: remove VLAN tracking for L2 devices
+
+ drivers/s390/net/qeth_core.h      |  14 +--
+ drivers/s390/net/qeth_core_main.c | 132 ++++++++++-----------
+ drivers/s390/net/qeth_core_mpc.h  |   1 +
+ drivers/s390/net/qeth_l2_main.c   | 244 +++++++++++---------------------------
+ drivers/s390/net/qeth_l3_main.c   | 113 +++++-------------
+ 5 files changed, 167 insertions(+), 337 deletions(-)
+
+-- 
+2.16.4
