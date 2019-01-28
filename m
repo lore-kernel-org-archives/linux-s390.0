@@ -1,10 +1,10 @@
 Return-Path: <SRS0=I/I1=QE=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 062/107] KVM: s390: unregister debug feature on failing arch init
-Date: Mon, 28 Jan 2019 11:19:02 -0500
-Message-Id: <20190128161947.57405-62-sashal@kernel.org>
-In-Reply-To: <20190128161947.57405-1-sashal@kernel.org>
-References: <20190128161947.57405-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 46/80] KVM: s390: unregister debug feature on failing arch init
+Date: Mon, 28 Jan 2019 11:23:27 -0500
+Message-Id: <20190128162401.58841-46-sashal@kernel.org>
+In-Reply-To: <20190128162401.58841-1-sashal@kernel.org>
+References: <20190128162401.58841-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -36,10 +36,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2032ab81b2d7..c82b73f111b5 100644
+index 5ddb1debba95..2b967f81c58e 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -319,19 +319,30 @@ static void kvm_s390_cpu_feat_init(void)
+@@ -185,17 +185,28 @@ void kvm_arch_hardware_unsetup(void)
  
  int kvm_arch_init(void *opaque)
  {
@@ -55,8 +55,6 @@ index 2032ab81b2d7..c82b73f111b5 100644
 +		rc = -ENOMEM;
 +		goto out_debug_unreg;
  	}
- 
- 	kvm_s390_cpu_feat_init();
  
  	/* Register floating interrupt controller interface. */
 -	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
