@@ -1,160 +1,77 @@
 Return-Path: <SRS0=I/I1=QE=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 031/304] s390/qeth: utilize virtual MAC for Layer2 OSD devices
-Date: Mon, 28 Jan 2019 10:39:08 -0500
-Message-Id: <20190128154341.47195-31-sashal@kernel.org>
-In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
-References: <20190128154341.47195-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 172/258] KVM: s390: unregister debug feature on failing arch init
+Date: Mon, 28 Jan 2019 10:57:58 -0500
+Message-Id: <20190128155924.51521-172-sashal@kernel.org>
+In-Reply-To: <20190128155924.51521-1-sashal@kernel.org>
+References: <20190128155924.51521-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Michael Mueller <mimu@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit b144b99fff69a5bc0d34c8e168bedb88c68ca23d ]
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-By default, READ MAC on a Layer2 OSD device returns the adapter's
-burnt-in MAC address. Given the default scenario of many virtual devices
-on the same adapter, qeth can't make any use of this address and
-therefore skips the READ MAC call for this device type.
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-But in some configurations, the READ MAC command for a Layer2 OSD device
-actually returns a pre-provisioned, virtual MAC address. So enable the
-READ MAC code to detect this situation, and let the L2 subdriver
-call READ MAC for OSD devices.
+A related indication of the issue will be reported as kernel
+message.
 
-This also removes the QETH_LAYER2_MAC_READ flag, which protects L2
-devices against calling READ MAC multiple times. Instead protect the
-whole call to qeth_l2_request_initial_mac().
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c | 12 +++++++-----
- drivers/s390/net/qeth_core_mpc.h  | 25 +++++++++++++++----------
- drivers/s390/net/qeth_l2_main.c   | 10 ++++------
- 4 files changed, 26 insertions(+), 22 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 04e294d1d16d..99af1a0a3314 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -665,7 +665,6 @@ struct qeth_card_blkt {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ac5da6b0b862..6aacb8d3dd9e 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -416,19 +416,30 @@ static void kvm_s390_cpu_feat_init(void)
  
- #define QETH_BROADCAST_WITH_ECHO    0x01
- #define QETH_BROADCAST_WITHOUT_ECHO 0x02
--#define QETH_LAYER2_MAC_READ	    0x01
- #define QETH_LAYER2_MAC_REGISTERED  0x02
- struct qeth_card_info {
- 	unsigned short unit_addr2;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 254065271867..0c9a5250dd93 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4235,16 +4235,18 @@ static int qeth_setadpparms_change_macaddr_cb(struct qeth_card *card,
- 		struct qeth_reply *reply, unsigned long data)
+ int kvm_arch_init(void *opaque)
  {
- 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
-+	struct qeth_ipacmd_setadpparms *adp_cmd;
- 
- 	QETH_CARD_TEXT(card, 4, "chgmaccb");
- 	if (qeth_setadpparms_inspect_rc(cmd))
- 		return 0;
- 
--	if (IS_LAYER3(card) || !(card->info.mac_bits & QETH_LAYER2_MAC_READ)) {
--		ether_addr_copy(card->dev->dev_addr,
--				cmd->data.setadapterparms.data.change_addr.addr);
--		card->info.mac_bits |= QETH_LAYER2_MAC_READ;
--	}
-+	adp_cmd = &cmd->data.setadapterparms;
-+	if (IS_LAYER2(card) && IS_OSD(card) && !IS_VM_NIC(card) &&
-+	    !(adp_cmd->hdr.flags & QETH_SETADP_FLAGS_VIRTUAL_MAC))
-+		return 0;
++	int rc;
 +
-+	ether_addr_copy(card->dev->dev_addr, adp_cmd->data.change_addr.addr);
- 	return 0;
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
+ 
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
++
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
  }
  
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 3e54be201b27..10cc487c16d6 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -80,7 +80,9 @@ enum qeth_card_types {
- };
- 
- #define IS_IQD(card)	((card)->info.type == QETH_CARD_TYPE_IQD)
-+#define IS_OSD(card)	((card)->info.type == QETH_CARD_TYPE_OSD)
- #define IS_OSN(card)	((card)->info.type == QETH_CARD_TYPE_OSN)
-+#define IS_VM_NIC(card)	((card)->info.guestlan)
- 
- #define QETH_MPC_DIFINFO_LEN_INDICATES_LINK_TYPE 0x18
- /* only the first two bytes are looked at in qeth_get_cardname_short */
-@@ -529,17 +531,20 @@ struct qeth_query_switch_attributes {
- 	__u8  reserved3[8];
- };
- 
-+#define QETH_SETADP_FLAGS_VIRTUAL_MAC	0x80	/* for CHANGE_ADDR_READ_MAC */
-+
- struct qeth_ipacmd_setadpparms_hdr {
--	__u32 supp_hw_cmds;
--	__u32 reserved1;
--	__u16 cmdlength;
--	__u16 reserved2;
--	__u32 command_code;
--	__u16 return_code;
--	__u8  used_total;
--	__u8  seq_no;
--	__u32 reserved3;
--} __attribute__ ((packed));
-+	u32 supp_hw_cmds;
-+	u32 reserved1;
-+	u16 cmdlength;
-+	u16 reserved2;
-+	u32 command_code;
-+	u16 return_code;
-+	u8 used_total;
-+	u8 seq_no;
-+	u8 flags;
-+	u8 reserved3[3];
-+};
- 
- struct qeth_ipacmd_setadpparms {
- 	struct qeth_ipacmd_setadpparms_hdr hdr;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 2914a1a69f83..8d3601891c62 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -461,12 +461,9 @@ static int qeth_l2_request_initial_mac(struct qeth_card *card)
- 		/* fall back to alternative mechanism: */
- 	}
- 
--	if (card->info.type == QETH_CARD_TYPE_IQD ||
--	    card->info.type == QETH_CARD_TYPE_OSM ||
--	    card->info.type == QETH_CARD_TYPE_OSX ||
--	    card->info.guestlan) {
-+	if (!IS_OSN(card)) {
- 		rc = qeth_setadpparms_change_macaddr(card);
--		if (!rc)
-+		if (!rc && is_valid_ether_addr(card->dev->dev_addr))
- 			goto out;
- 		QETH_DBF_MESSAGE(2, "READ_MAC Assist failed on device %x: %#x\n",
- 				 CARD_DEVID(card), rc);
-@@ -917,7 +914,8 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
- 				       PAGE_SIZE * (QDIO_MAX_ELEMENTS_PER_BUFFER - 1));
- 	}
- 
--	qeth_l2_request_initial_mac(card);
-+	if (!is_valid_ether_addr(card->dev->dev_addr))
-+		qeth_l2_request_initial_mac(card);
- 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
- 	rc = register_netdev(card->dev);
- 	if (!rc && carrier_ok)
+ void kvm_arch_exit(void)
 -- 
 2.19.1
