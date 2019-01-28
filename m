@@ -1,77 +1,72 @@
-Return-Path: <SRS0=drEb=P7=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 23 Jan 2019 13:40:47 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: <SRS0=I/I1=QE=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 28 Jan 2019 14:44:10 +0100
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: WARN_ON_ONCE(!new_owner) within wake_futex_pi() triggered
+Message-ID: <20190128134410.GA28485@hirez.programming.kicks-ass.net>
 References: <20181127081115.GB3625@osiris>
  <alpine.DEB.2.21.1811281526430.1532@nanos.tec.linutronix.de>
  <20181129112321.GB3449@osiris>
- <20190121122131.GG4020@osiris>
- <alpine.DEB.2.21.1901211411290.1582@nanos.tec.linutronix.de>
- <alpine.DEB.2.21.1901222212490.1628@nanos.tec.linutronix.de>
- <20190123092443.GA3424@osiris>
- <alpine.DEB.2.21.1901231330460.1628@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.21.1901231330460.1628@nanos.tec.linutronix.de>
-Message-Id: <20190123124047.GE3424@osiris>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
+In-Reply-To: <20181129112321.GB3449@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Jan 23, 2019 at 01:33:15PM +0100, Thomas Gleixner wrote:
-> Heiko,
+On Thu, Nov 29, 2018 at 12:23:21PM +0100, Heiko Carstens wrote:
+
+> And indeed, if I run only this test case in an endless loop and do
+> some parallel work (like kernel compile) it currently seems to be
+> possible to reproduce the warning:
 > 
-> On Wed, 23 Jan 2019, Heiko Carstens wrote:
-> > It doesn't look like it does. One occurrence was the one below when
-> > using commit 7939f8beecf1 (which is post 5.0-rc2) for building the
-> > kernel:
-> >
-> >  WARNING: CPU: 14 PID: 23505 at kernel/futex.c:1483 do_futex+0xa9a/0xc50
-> >  Kernel panic - not syncing: panic_on_warn set ...
-> >  CPU: 14 PID: 23505 Comm: ld.so.1 Not tainted 5.0.0-20190116.rc2.git0.7939f8beecf1.300.fc29.s390x+git #1
-> >  Hardware name: IBM 3906 M04 704 (LPAR)
-> >  Call Trace:
-> >  ([<0000000000112e60>] show_stack+0x58/0x70)
-> >   [<0000000000a671fa>] dump_stack+0x7a/0xa8
-> >   [<0000000000143f52>] panic+0x11a/0x2d0
-> >   [<0000000000143db0>] __warn+0xf8/0x118
-> >   [<0000000000a662f8>] report_bug+0xd8/0x150
-> >   [<00000000001014ac>] do_report_trap+0xc4/0xe0
-> >   [<0000000000101680>] illegal_op+0x138/0x150
-> >   [<0000000000a87270>] pgm_check_handler+0x1c8/0x220
-> >   [<00000000001e9aea>] do_futex+0xa9a/0xc50
-> >  ([<00000000001e9c4e>] do_futex+0xbfe/0xc50)
-> >   [<00000000001ea13c>] compat_sys_futex+0xe4/0x170
-> >   [<0000000000a86e84>] system_call+0xd8/0x2c8 
+> while true; do time ./testrun.sh nptl/tst-robustpi8 --direct ; done
 > 
-> Ok. That's another one which I can't spot yet.
-> 
->     Is that only on S390?
->     What's the test which explodes? Kernel build?
+> within the build directory of glibc (2.28).
 
-No, it's the tst-robustpi8 glibc 2.28 selftest. Let me quote myself
-from earlier in this thread:
+Right; so that reproduces for me.
 
-"
-... tst-robustpi8
+After staring at all that for a while; trying to remember how it all
+worked (or supposed to work rather), I became suspiscous of commit:
 
-And indeed, if I run only this test case in an endless loop and do
-some parallel work (like kernel compile) it currently seems to be
-possible to reproduce the warning:
+  56222b212e8e ("futex: Drop hb->lock before enqueueing on the rtmutex")
 
-while true; do time ./testrun.sh nptl/tst-robustpi8 --direct ; done
+And indeed, when I revert that; the above reproducer no longer works (as
+in, it no longer triggers in minutes and has -- so far -- held up for an
+hour+ or so).
 
-within the build directory of glibc (2.28).
+That patch in particular allows futex_unlock_pi() to 'start' early:
 
-See
-https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/tst-robustpi8.c;h=cbea3d6d77abb00be05ec7b466d8339c26dd2efb;hb=3c03baca37fdcb52c3881e653ca392bba7a99c2b
 
-which includes this one:
+futex_lock_pi()				futex_unlock_pi()
+  lock hb
+  queue
+  lock wait_lock
+  unlock hb
+					lock hb
+					futex_top_waiter
+					get_pi_state
+					lock wait_lock
+  rt_mutex_proxy_start // fail
+  unlock wait_lock
+					// acquired wait_lock
+					wake_futex_pi()
+					rt_mutex_next_owner() // whoops, no waiter
+					WARN
 
-https://sourceware.org/git/?p=glibc.git;a=blob;f=nptl/tst-robust8.c;h=9c636250d4cb0bcd6d802910e8f9ea31568bb73f;hb=3c03baca37fdcb52c3881e653ca392bba7a99c2b
-"
+  lock hb
+  unqueue_me_pi
+
+
+
+So reverting that patch should cure things, because then there is no hb
+lock break between queue/unqueue and futex_unlock_pi() cannot observe
+this half-arsed state.
+
+Now obviously reverting that makes RT unhappy; let me see what the
+options are.
+
+(concurrently tglx generated a trace that corroborates)
