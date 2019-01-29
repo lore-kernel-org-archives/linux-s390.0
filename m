@@ -1,75 +1,107 @@
-Return-Path: <SRS0=I/I1=QE=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 46/80] KVM: s390: unregister debug feature on failing arch init
-Date: Mon, 28 Jan 2019 11:23:27 -0500
-Message-Id: <20190128162401.58841-46-sashal@kernel.org>
-In-Reply-To: <20190128162401.58841-1-sashal@kernel.org>
-References: <20190128162401.58841-1-sashal@kernel.org>
+Return-Path: <SRS0=gcLq=QF=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 64/68] x86/xen/time: Output xen sched_clock time from 0
+Date: Tue, 29 Jan 2019 12:36:26 +0100
+Message-Id: <20190129113137.917364608@linuxfoundation.org>
+In-Reply-To: <20190129113131.751891514@linuxfoundation.org>
+References: <20190129113131.751891514@linuxfoundation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Michael Mueller <mimu@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, steven.sistare@oracle.com, daniel.m.jordan@oracle.com, linux@armlinux.org.uk, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, john.stultz@linaro.org, sboyd@codeaurora.org, hpa@zytor.com, douly.fnst@cn.fujitsu.com, peterz@infradead.org, prarit@redhat.com, feng.tang@intel.com, pmladek@suse.com, gnomes@lxorguk.ukuu.org.uk, linux-s390@vger.kernel.org, boris.ostrovsky@oracle.com, jgross@suse.com, pbonzini@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Michael Mueller <mimu@linux.ibm.com>
+4.14-stable review patch.  If anyone has any objections, please let me know.
 
-[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
+------------------
 
-Make sure the debug feature and its allocated resources get
-released upon unsuccessful architecture initialization.
+From: Pavel Tatashin <pasha.tatashin@oracle.com>
 
-A related indication of the issue will be reported as kernel
-message.
+commit 38669ba205d178d2d38bfd194a196d65a44d5af2 upstream.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is expected for sched_clock() to output data from 0, when system boots.
+
+Add an offset xen_sched_clock_offset (similarly how it is done in other
+hypervisors i.e. kvm_sched_clock_offset) to count sched_clock() from 0,
+when time is first initialized.
+
+Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: steven.sistare@oracle.com
+Cc: daniel.m.jordan@oracle.com
+Cc: linux@armlinux.org.uk
+Cc: schwidefsky@de.ibm.com
+Cc: heiko.carstens@de.ibm.com
+Cc: john.stultz@linaro.org
+Cc: sboyd@codeaurora.org
+Cc: hpa@zytor.com
+Cc: douly.fnst@cn.fujitsu.com
+Cc: peterz@infradead.org
+Cc: prarit@redhat.com
+Cc: feng.tang@intel.com
+Cc: pmladek@suse.com
+Cc: gnomes@lxorguk.ukuu.org.uk
+Cc: linux-s390@vger.kernel.org
+Cc: boris.ostrovsky@oracle.com
+Cc: jgross@suse.com
+Cc: pbonzini@redhat.com
+Link: https://lkml.kernel.org/r/20180719205545.16512-14-pasha.tatashin@oracle.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ arch/x86/xen/time.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5ddb1debba95..2b967f81c58e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -185,17 +185,28 @@ void kvm_arch_hardware_unsetup(void)
+--- a/arch/x86/xen/time.c
++++ b/arch/x86/xen/time.c
+@@ -31,6 +31,8 @@
+ /* Xen may fire a timer up to this many ns early */
+ #define TIMER_SLOP	100000
  
- int kvm_arch_init(void *opaque)
++static u64 xen_sched_clock_offset __read_mostly;
++
+ /* Get the TSC speed from Xen */
+ static unsigned long xen_tsc_khz(void)
  {
-+	int rc;
-+
- 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
- 
- 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
--		debug_unregister(kvm_s390_dbf);
--		return -ENOMEM;
-+		rc = -ENOMEM;
-+		goto out_debug_unreg;
- 	}
- 
- 	/* Register floating interrupt controller interface. */
--	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	if (rc) {
-+		pr_err("Failed to register FLIC rc=%d\n", rc);
-+		goto out_debug_unreg;
-+	}
-+	return 0;
-+
-+out_debug_unreg:
-+	debug_unregister(kvm_s390_dbf);
-+	return rc;
+@@ -57,6 +59,11 @@ static u64 xen_clocksource_get_cycles(st
+ 	return xen_clocksource_read();
  }
  
- void kvm_arch_exit(void)
--- 
-2.19.1
++static u64 xen_sched_clock(void)
++{
++	return xen_clocksource_read() - xen_sched_clock_offset;
++}
++
+ static void xen_read_wallclock(struct timespec *ts)
+ {
+ 	struct shared_info *s = HYPERVISOR_shared_info;
+@@ -367,7 +374,7 @@ void xen_timer_resume(void)
+ }
+ 
+ static const struct pv_time_ops xen_time_ops __initconst = {
+-	.sched_clock = xen_clocksource_read,
++	.sched_clock = xen_sched_clock,
+ 	.steal_clock = xen_steal_clock,
+ };
+ 
+@@ -505,6 +512,7 @@ static void __init xen_time_init(void)
+ 
+ void __ref xen_init_time_ops(void)
+ {
++	xen_sched_clock_offset = xen_clocksource_read();
+ 	pv_time_ops = xen_time_ops;
+ 
+ 	x86_init.timers.timer_init = xen_time_init;
+@@ -547,6 +555,7 @@ void __init xen_hvm_init_time_ops(void)
+ 		return;
+ 	}
+ 
++	xen_sched_clock_offset = xen_clocksource_read();
+ 	pv_time_ops = xen_time_ops;
+ 	x86_init.timers.setup_percpu_clockev = xen_time_init;
+ 	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
