@@ -1,97 +1,227 @@
 Return-Path: <SRS0=gcLq=QF=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Tue, 29 Jan 2019 22:45:52 +0100 (CET)
+Date: Tue, 29 Jan 2019 23:15:12 +0100 (CET)
 From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: WARN_ON_ONCE(!new_owner) within wake_futex_pi() triggered
-In-Reply-To: <20190129171653.ycl64psq2liy5o5c@linutronix.de>
-Message-ID: <alpine.DEB.2.21.1901292230430.1950@nanos.tec.linutronix.de>
-References: <20190128134410.GA28485@hirez.programming.kicks-ass.net> <20190128135804.GB28878@hirez.programming.kicks-ass.net> <alpine.DEB.2.21.1901281650310.1582@nanos.tec.linutronix.de> <20190129090108.GA26906@osiris> <alpine.DEB.2.21.1901291012330.1669@nanos.tec.linutronix.de>
- <20190129102409.GB26906@osiris> <20190129103557.GF28485@hirez.programming.kicks-ass.net> <alpine.DEB.2.21.1901291402410.1513@nanos.tec.linutronix.de> <20190129132303.GE26906@osiris> <20190129151058.GG26906@osiris>
- <20190129171653.ycl64psq2liy5o5c@linutronix.de>
+Subject: [PATCH] futex: Handle early deadlock return correctly
+In-Reply-To: <20190129084904.GB28485@hirez.programming.kicks-ass.net>
+Message-ID: <alpine.DEB.2.21.1901292311410.1950@nanos.tec.linutronix.de>
+References: <20181127081115.GB3625@osiris> <alpine.DEB.2.21.1811281526430.1532@nanos.tec.linutronix.de> <20181129112321.GB3449@osiris> <20190128134410.GA28485@hirez.programming.kicks-ass.net> <20190128135804.GB28878@hirez.programming.kicks-ass.net>
+ <alpine.DEB.2.21.1901281650310.1582@nanos.tec.linutronix.de> <20190129084904.GB28485@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-1399204439-1548798352=:1950"
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sebastian Sewior <bigeasy@linutronix.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>, Sebastian Sewior <bigeasy@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+commit 56222b212e8e ("futex: Drop hb->lock before enqueueing on the
+rtmutex") changed the locking rules in the futex code so that the hash
+bucket lock is not longer held while the waiter is enqueued into the
+rtmutex wait list. This made the lock and the unlock path symmetric, but
+unfortunately the possible early exit from __rt_mutex_proxy_start() due to
+a detected deadlock was not updated accordingly. That allows a concurrent
+unlocker to observe inconsitent state which triggers the warning in the
+unlock path.
 
---8323329-1399204439-1548798352=:1950
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+futex_lock_pi()                         futex_unlock_pi()
+  lock(hb->lock)
+  queue(hb_waiter)				lock(hb->lock)
+  lock(rtmutex->wait_lock)
+  unlock(hb->lock)
+                                        // acquired hb->lock
+                                        hb_waiter = futex_top_waiter()
+                                        lock(rtmutex->wait_lock)
+  __rt_mutex_proxy_start()
+     ---> fail
+          remove(rtmutex_waiter);
+     ---> returns -EDEADLOCK
+  unlock(rtmutex->wait_lock)
+                                        // acquired wait_lock
+                                        wake_futex_pi()
+                                        rt_mutex_next_owner()
+					  --> returns NULL
+                                          --> WARN
 
-On Tue, 29 Jan 2019, Sebastian Sewior wrote:
+  lock(hb->lock)
+  unqueue(hb_waiter)
 
-> On 2019-01-29 16:10:58 [+0100], Heiko Carstens wrote:
-> > Finally... the trace output is quite large with 26 MB... Therefore an
-> > xz compressed attachment. Hope that's ok.
-> > 
-> > The kernel used was linux-next 20190129 + your patch.
-> |        ld64.so.1-10237 [006] .... 14232.031726: sys_futex(uaddr: 3ff88e80618, op: 7, val: 3ff00000007, utime: 3ff88e7f910, uaddr2: 3ff88e7f910, val3: 3ffc167e8d7)
-> FUTEX_UNLOCK_PI | SHARED
-> 
-> |        ld64.so.1-10237 [006] .... 14232.031726: sys_futex -> 0x0
-> …
-> |        ld64.so.1-10237 [006] .... 14232.051751: sched_process_exit: comm=ld64.so.1 pid=10237 prio=120
-> …
-> |        ld64.so.1-10148 [006] .... 14232.061826: sys_futex(uaddr: 3ff88e80618, op: 6, val: 1, utime: 0, uaddr2: 2, val3: 0)
-> FUTEX_LOCK_PI | SHARED
-> 
-> |        ld64.so.1-10148 [006] .... 14232.061826: sys_futex -> 0xfffffffffffffffd
-> 
-> So there got to be another task that acquired the lock in userland and
-> left since the last in kernel-user unlocked it. This might bring more
+The problem is caused by the remove(rtmutex_waiter) in the failure case of
+__rt_mutex_proxy_start() as this lets the unlocker observe a waiter in the
+hash bucket but no waiter on the rtmutex, i.e. inconsistent state.
 
-Well, that would mean that this very task did not have a valid robust list,
-which is very unlikely according to the test case.
+The original commit handles this correctly for the other early return cases
+(timeout, signal) by delaying the removal of the rtmutex waiter until the
+returning task reacquired the hash bucket lock.
 
-We might actually stick a trace point into the robust list code as well.
+Treat the failure case of __rt_mutex_proxy_start() in the same way and let
+the existing cleanup code handle the eventual handover of the rtmutex
+gracefully. The regular rt_mutex_proxy_start() gains the rtmutex waiter
+removal for the failure case, so that the other callsites are still
+operating correctly.
 
-> light to it:
-> 
-> diff --git a/kernel/futex.c b/kernel/futex.c
-> index 599da35c2768..aaa782a8a115 100644
-> --- a/kernel/futex.c
-> +++ b/kernel/futex.c
-> @@ -1209,6 +1209,9 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
->  	 * corrupted or the user space value in *uaddr is simply bogus.
->  	 * Give up and tell user space.
->  	 */
-> +	trace_printk("uval2 vs uval %08x vs %08x (%d)\n", uval2, uval,
-> +		     tsk ? tsk->pid : -1);
-> +	__WARN();
->  	return -ESRCH;
->  }
->  
-> @@ -1233,8 +1236,10 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
->  	if (!pid)
->  		return -EAGAIN;
->  	p = find_get_task_by_vpid(pid);
-> -	if (!p)
-> +	if (!p) {
-> +		trace_printk("Missing pid %d\n", pid);
->  		return handle_exit_race(uaddr, uval, NULL);
-> +	}
->  
->  	if (unlikely(p->flags & PF_KTHREAD)) {
->  		put_task_struct(p);
+Add proper comments to the code so all these details are fully documented.
 
-Yep, that should give us some more clue.
+Thanks to Peter for helping with the analysis and writing the really
+valuable code comments.
 
-> I am not sure, but isn't this the "known" issue where the kernel drops
-> ESRCH in a valid case and glibc upstream does not recognize it because
-> it is not a valid /POSIX-defined error code? (I *think* same is true for
-> -ENOMEM) If it is, the following C snippet is a small tc:
+Fixes: 56222b212e8e ("futex: Drop hb->lock before enqueueing on the rtmutex")
+Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Co-developed-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: stable@vger.kernel.org
+---
+ kernel/futex.c           |   28 ++++++++++++++++++----------
+ kernel/locking/rtmutex.c |   37 ++++++++++++++++++++++++++++++++-----
+ 2 files changed, 50 insertions(+), 15 deletions(-)
 
-That testcase is not using robust futexes, but yes it's demonstrating the
-glibc does not handle all documented error codes. But I don't think it has
-anything to do with the problem at hand. Famous last words....
-
-Thanks,
-
-	tglx
-
---8323329-1399204439-1548798352=:1950--
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2861,35 +2861,39 @@ static int futex_lock_pi(u32 __user *uad
+ 	 * and BUG when futex_unlock_pi() interleaves with this.
+ 	 *
+ 	 * Therefore acquire wait_lock while holding hb->lock, but drop the
+-	 * latter before calling rt_mutex_start_proxy_lock(). This still fully
+-	 * serializes against futex_unlock_pi() as that does the exact same
+-	 * lock handoff sequence.
++	 * latter before calling __rt_mutex_start_proxy_lock(). This
++	 * interleaves with futex_unlock_pi() -- which does a similar lock
++	 * handoff -- such that the latter can observe the futex_q::pi_state
++	 * before __rt_mutex_start_proxy_lock() is done.
+ 	 */
+ 	raw_spin_lock_irq(&q.pi_state->pi_mutex.wait_lock);
+ 	spin_unlock(q.lock_ptr);
++	/*
++	 * __rt_mutex_start_proxy_lock() unconditionally enqueues the @rt_waiter
++	 * such that futex_unlock_pi() is guaranteed to observe the waiter when
++	 * it sees the futex_q::pi_state.
++	 */
+ 	ret = __rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, current);
+ 	raw_spin_unlock_irq(&q.pi_state->pi_mutex.wait_lock);
+ 
+ 	if (ret) {
+ 		if (ret == 1)
+ 			ret = 0;
+-
+-		spin_lock(q.lock_ptr);
+-		goto no_block;
++		goto cleanup;
+ 	}
+ 
+-
+ 	if (unlikely(to))
+ 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
+ 
+ 	ret = rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
+ 
++cleanup:
+ 	spin_lock(q.lock_ptr);
+ 	/*
+-	 * If we failed to acquire the lock (signal/timeout), we must
++	 * If we failed to acquire the lock (deadlock/signal/timeout), we must
+ 	 * first acquire the hb->lock before removing the lock from the
+-	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
+-	 * wait lists consistent.
++	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex wait
++	 * lists consistent.
+ 	 *
+ 	 * In particular; it is important that futex_unlock_pi() can not
+ 	 * observe this inconsistency.
+@@ -3013,6 +3017,10 @@ static int futex_unlock_pi(u32 __user *u
+ 		 * there is no point where we hold neither; and therefore
+ 		 * wake_futex_pi() must observe a state consistent with what we
+ 		 * observed.
++		 *
++		 * In particular; this forces __rt_mutex_start_proxy() to
++		 * complete such that we're guaranteed to observe the
++		 * rt_waiter. Also see the WARN in wake_futex_pi().
+ 		 */
+ 		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 		spin_unlock(&hb->lock);
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1726,12 +1726,33 @@ void rt_mutex_proxy_unlock(struct rt_mut
+ 	rt_mutex_set_owner(lock, NULL);
+ }
+ 
++/**
++ * __rt_mutex_start_proxy_lock() - Start lock acquisition for another task
++ * @lock:		the rt_mutex to take
++ * @waiter:		the pre-initialized rt_mutex_waiter
++ * @task:		the task to prepare
++ *
++ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
++ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
++ *
++ * NOTE: does _NOT_ remove the @waiter on failure; must either call
++ * rt_mutex_wait_proxy_lock() or rt_mutex_cleanup_proxy_lock() after this.
++ *
++ * Returns:
++ *  0 - task blocked on lock
++ *  1 - acquired the lock for task, caller should wake it up
++ * <0 - error
++ *
++ * Special API call for PI-futex support.
++ */
+ int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+ 			      struct task_struct *task)
+ {
+ 	int ret;
+ 
++	lockdep_asssert_held(&lock->wait_lock);
++
+ 	if (try_to_take_rt_mutex(lock, task, NULL))
+ 		return 1;
+ 
+@@ -1749,9 +1770,6 @@ int __rt_mutex_start_proxy_lock(struct r
+ 		ret = 0;
+ 	}
+ 
+-	if (unlikely(ret))
+-		remove_waiter(lock, waiter);
+-
+ 	debug_rt_mutex_print_deadlock(waiter);
+ 
+ 	return ret;
+@@ -1763,12 +1781,18 @@ int __rt_mutex_start_proxy_lock(struct r
+  * @waiter:		the pre-initialized rt_mutex_waiter
+  * @task:		the task to prepare
+  *
++ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
++ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
++ *
++ * NOTE: unlike __rt_mutex_start_proxy_lock this _DOES_ remove the @waiter
++ * on failure.
++ *
+  * Returns:
+  *  0 - task blocked on lock
+  *  1 - acquired the lock for task, caller should wake it up
+  * <0 - error
+  *
+- * Special API call for FUTEX_REQUEUE_PI support.
++ * Special API call for PI-futex support.
+  */
+ int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
+ 			      struct rt_mutex_waiter *waiter,
+@@ -1778,6 +1802,8 @@ int rt_mutex_start_proxy_lock(struct rt_
+ 
+ 	raw_spin_lock_irq(&lock->wait_lock);
+ 	ret = __rt_mutex_start_proxy_lock(lock, waiter, task);
++	if (unlikely(ret))
++		remove_waiter(lock, waiter);
+ 	raw_spin_unlock_irq(&lock->wait_lock);
+ 
+ 	return ret;
+@@ -1845,7 +1871,8 @@ int rt_mutex_wait_proxy_lock(struct rt_m
+  * @lock:		the rt_mutex we were woken on
+  * @waiter:		the pre-initialized rt_mutex_waiter
+  *
+- * Attempt to clean up after a failed rt_mutex_wait_proxy_lock().
++ * Attempt to clean up after a failed __rt_mutex_start_proxy_lock() or
++ * rt_mutex_wait_proxy_lock().
+  *
+  * Unless we acquired the lock; we're still enqueued on the wait-list and can
+  * in fact still be granted ownership until we're removed. Therefore we can
