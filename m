@@ -1,7 +1,7 @@
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
-Date: Tue, 29 Jan 2019 11:10:22 +0100
-Message-ID: <20190129111022.538bea51.cohuck@redhat.com>
+Date: Tue, 29 Jan 2019 11:20:24 +0100
+Message-ID: <20190129112024.401b8184.cohuck@redhat.com>
 References: <20190121110354.2247-1-cohuck@redhat.com>
 	<20190121110354.2247-3-cohuck@redhat.com>
 	<2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
@@ -11,11 +11,12 @@ References: <20190121110354.2247-1-cohuck@redhat.com>
 	<20190125150101.3b61f0a1@oc2783563651>
 	<20190128180948.506a9695.cohuck@redhat.com>
 	<20190128201548.1ecfb84f@oc2783563651>
+	<d43e273d-ef90-9a1e-c87a-1365718d8978@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190128201548.1ecfb84f@oc2783563651>
+In-Reply-To: <d43e273d-ef90-9a1e-c87a-1365718d8978@linux.ibm.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -28,105 +29,78 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 28 Jan 2019 20:15:48 +0100
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Mon, 28 Jan 2019 16:48:10 -0500
+Eric Farman <farman@linux.ibm.com> wrote:
 
-> On Mon, 28 Jan 2019 18:09:48 +0100
-> Cornelia Huck <cohuck@redhat.com> wrote:
+> On 01/28/2019 02:15 PM, Halil Pasic wrote:
+> > On Mon, 28 Jan 2019 18:09:48 +0100
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+
+> I guess if
+> > the ssch() returns with non cc == 0 the CP_PENDING ---IRQ---> IDLE
+> > transition
+> > won't take place. And I guess the IRQ is a final one.  
 > 
-> > On Fri, 25 Jan 2019 15:01:01 +0100
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> Yes this is the one point I hadn't seen explicitly stated.  We shouldn't 
+> remain in state=BUSY if the ssch got cc!=0, and probably return to IDLE 
+> when processing the failure.  In Connie's response (Mon, 28 Jan 2019 
+> 18:24:24 +0100) to my note, she expressed some agreement to that.
+
+Yes, I think that's what should happen.
+
+
+> >> state for I/O)
+> >> (normal ssch)
+> >>
+> >> BUSY --- IO_REQ ---> return -EAGAIN, stay in BUSY
+> >> (user space is supposed to retry, as we'll eventually progress from
+> >> BUSY)
+> >>
+> >> CP_PENDING --- IO_REQ ---> return -EBUSY, stay in CP_PENDING
+> >> (user space is supposed to map this to the appropriate cc for the guest)  
+> > 
+> >  From this it seems you don't intend to issue the second  requested ssch()
+> > any more (and don't want to do any translation). Is that right? (If it
+> > is, that what I was asking for for a while, but then it's a pity for the
+> > retries.)
 > >   
-> > > On Fri, 25 Jan 2019 13:58:35 +0100
-> > > Cornelia Huck <cohuck@redhat.com> wrote:  
+> >>
+> >> IDLE --- ASYNC_REQ ---> IDLE
+> >> (user space is welcome to do anything else right away)  
+> > 
+> > Your idea is to not issue a requested hsch() if we think we are IDLE
+> > it seems. Do I understand this right? We would end up with a different
+> > semantic for hsch()/and csch() (compared to PoP) in the guest with this
+> > (AFAICT).
 > >   
-> > > > - The code should not be interrupted while we process the channel
-> > > >   program, do the ssch etc. We want the caller to try again later (i.e.
-> > > >   return -EAGAIN)    
+> >>
+> >> BUSY --- ASYNC_REQ ---> return -EAGAIN, stay in BUSY
+> >> (user space is supposed to retry, as above)
+> >>
+> >> CP_PENDING --- ASYNC_REQ ---> return success, stay in CP_PENDING
+> >> (the interrupt will get us out of CP_PENDING eventually)  
 > > 
-> > (...)
-> >   
-> > > > - With the async interface, we want user space to be able to submit a
-> > > >   halt/clear while a start request is still in flight, but not while
-> > > >   we're processing a start request with translation etc. We probably
-> > > >   want to do -EAGAIN in that case.    
-> > > 
-> > > This reads very similar to your first point.  
-> > 
-> > Not quite. ssch() means that we have a cp around; for hsch()/csch() we
-> > don't have such a thing. So we want to protect the process of
-> > translating the cp etc., but we don't need such protection for the
-> > halt/clear processing.
-> >   
+> > Issue (c|h)sch() is an action that is done on this internal
+> > transition (within CP_PENDING).  
 > 
-> What does this don't 'need such protection' mean in terms of code,
-> moving the unlock of the io_mutex upward (in
-> vfio_ccw_async_region_write())?
+> These three do read like CSCH/HSCH are subject to the same rules as 
+> SSCH, when in fact they would be (among other reasons) issued to clean 
+> up a lost interrupt from a previous SSCH.  So maybe return -EAGAIN on 
+> state=BUSY (don't race ourselves with the start), but issue to hardware 
+> if CP_PENDING.
 
-We don't have a cp that we need to process, so we don't need protection
-for that.
-
-> > 
-> > IDLE --- IO_REQ --> BUSY ---> CP_PENDING --- IRQ ---> IDLE (if final  
-> 
-> There ain't no trigger/action list  between BUSY and CP_PENDING.
-> I'm also in the  dark about where the issuing of the ssch() happen
-> here (is it an internal transition within CP_PENDING?). I guess if
-> the ssch() returns with non cc == 0 the CP_PENDING ---IRQ---> IDLE
-> transition
-> won't take place. And I guess the IRQ is a final one.
-
-Please refer to the original ideas. This is obviously not supposed to
-be a complete description of every case we might encounter.
-
-> > state for I/O)
-> > (normal ssch)
-> > 
-> > BUSY --- IO_REQ ---> return -EAGAIN, stay in BUSY
-> > (user space is supposed to retry, as we'll eventually progress from
-> > BUSY)
-> > 
-> > CP_PENDING --- IO_REQ ---> return -EBUSY, stay in CP_PENDING
-> > (user space is supposed to map this to the appropriate cc for the guest)  
-> 
-> From this it seems you don't intend to issue the second  requested ssch()
-> any more (and don't want to do any translation). Is that right? (If it
-> is, that what I was asking for for a while, but then it's a pity for the
-> retries.)
-
-Which "second requested ssch"? In the first case, user space is
-supposed to retry; in the second case, it should map it to a cc (and
-the guest does whatever it does on busy conditions). We can't issue a
-ssch if we're not able to handle multiple cps.
+I think there are some devices which require a certain hsch/csch
+sequence during device bringup, so it's not just cleaning up after a
+ssch. Therefore, we should always try to do the requested hsch/csch,
+unless things like "we're in the process of translating a cp, and can't
+deal with another request right now" prevent it.
 
 > 
-> > 
-> > IDLE --- ASYNC_REQ ---> IDLE
-> > (user space is welcome to do anything else right away)  
-> 
-> Your idea is to not issue a requested hsch() if we think we are IDLE
-> it seems. Do I understand this right? We would end up with a different
-> semantic for hsch()/and csch() (compared to PoP) in the guest with this
-> (AFAICT).
+> If we get an async request when state=IDLE, then maybe just issue it for 
+> fun, as if it were an SSCH?
 
-Nope, we're doing hsch/csch. We're just not moving out of IDLE, as we
-(a) don't have any cp processing we need to protect and (b) no need to
-fence of multiple attempts of hsch/csch.
-
-> 
-> > 
-> > BUSY --- ASYNC_REQ ---> return -EAGAIN, stay in BUSY
-> > (user space is supposed to retry, as above)
-> > 
-> > CP_PENDING --- ASYNC_REQ ---> return success, stay in CP_PENDING
-> > (the interrupt will get us out of CP_PENDING eventually)  
-> 
-> Issue (c|h)sch() is an action that is done on this internal 
-> transition (within CP_PENDING).
-
-Yes. hsch/csch do not trigger a state change (other than possibly
-dropping into NOT_OPER for cc 3).
+For fun, but mainly because the guest wants it :)
