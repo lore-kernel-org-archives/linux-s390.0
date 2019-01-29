@@ -1,13 +1,11 @@
 Return-Path: <SRS0=P47x=QF=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v2 06/21] memblock: memblock_phys_alloc_try_nid(): don't
- panic
-In-Reply-To: <87y373rdll.fsf@concordia.ellerman.id.au>
+Subject: Re: [PATCH v2 09/21] memblock: drop memblock_alloc_base()
+In-Reply-To: <1548057848-15136-10-git-send-email-rppt@linux.ibm.com>
 References: <1548057848-15136-1-git-send-email-rppt@linux.ibm.com>
- <1548057848-15136-7-git-send-email-rppt@linux.ibm.com>
- <87y373rdll.fsf@concordia.ellerman.id.au>
-Date: Tue, 29 Jan 2019 20:58:13 +1100
-Message-ID: <87va27rdje.fsf@concordia.ellerman.id.au>
+ <1548057848-15136-10-git-send-email-rppt@linux.ibm.com>
+Date: Tue, 29 Jan 2019 21:29:19 +1100
+Message-ID: <87sgxbrc3k.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -25,29 +23,24 @@ To: Mike Rapoport <rppt@linux.ibm.com>, linux-mm@kvack.org
 Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, devicetree@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, linux-mips@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>, sparclinux@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Richard Weinberger <richard@nod.at>, linux-sh@vger.kernel.org, Russell King <linux@armlinux.org.uk>, kasan-dev@googlegroups.com, Geert Uytterhoeven <geert@linux-m68k.org>, Mark Salter <msalter@redhat.com>, Dennis Zhou <dennis@kernel.org>, Matt Turner <mattst88@gmail.com>, linux-snps-arc@lists.infradead.org, uclinux-h8-devel@lists.sourceforge.jp, Petr Mladek <pmladek@suse.com>, linux-xtensa@linux-xtensa.org, linux-alpha@vger.kernel.org, linux-um@lists.infradead.org, linux-m68k@lists.linux-m68k.org, Rob Herring <robh+dt@kernel.org>, Greentime Hu <green.hu@gmail.com>, xen-devel@lists.xenproject.org, Stafford Horne <shorne@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, linux-arm-kernel@lists.infradead.org, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@mips.com>, openrisc@lists.librecores.org, Vineet Gupta <vgupta@synopsys.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-Michael Ellerman <mpe@ellerman.id.au> writes:
+Mike Rapoport <rppt@linux.ibm.com> writes:
 
-> Mike Rapoport <rppt@linux.ibm.com> writes:
+> The memblock_alloc_base() function tries to allocate a memory up to the
+> limit specified by its max_addr parameter and panics if the allocation
+> fails. Replace its usage with memblock_phys_alloc_range() and make the
+> callers check the return value and panic in case of error.
 >
->> diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
->> index ae34e3a..2c61ea4 100644
->> --- a/arch/arm64/mm/numa.c
->> +++ b/arch/arm64/mm/numa.c
->> @@ -237,6 +237,10 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
->>  		pr_info("Initmem setup node %d [<memory-less node>]\n", nid);
->>  
->>  	nd_pa = memblock_phys_alloc_try_nid(nd_size, SMP_CACHE_BYTES, nid);
->> +	if (!nd_pa)
->> +		panic("Cannot allocate %zu bytes for node %d data\n",
->> +		      nd_size, nid);
->> +
->>  	nd = __va(nd_pa);
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/powerpc/kernel/rtas.c      |  6 +++++-
+>  arch/powerpc/mm/hash_utils_64.c |  8 ++++++--
+>  arch/s390/kernel/smp.c          |  6 +++++-
+>  drivers/macintosh/smu.c         |  2 +-
+>  include/linux/memblock.h        |  2 --
+>  mm/memblock.c                   | 14 --------------
+>  6 files changed, 17 insertions(+), 21 deletions(-)
 
-Wrong hunk, O_o
-
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-
-You know what I mean though :)
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
 cheers
 
