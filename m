@@ -1,295 +1,118 @@
-Return-Path: <SRS0=sKCI=QH=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH v3 7/7] perf tools: Remove PMU::set_drv_config API
-Date: Thu, 31 Jan 2019 11:47:14 -0700
-Message-Id: <20190131184714.20388-8-mathieu.poirier@linaro.org>
-In-Reply-To: <20190131184714.20388-1-mathieu.poirier@linaro.org>
-References: <20190131184714.20388-1-mathieu.poirier@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: acme@kernel.org, peterz@infradead.org
-Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, suzuki.poulose@arm.com, alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, will.deacon@arm.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
+From: Farhan Ali <alifm@linux.ibm.com>
+Subject: Re: [PATCH v2 2/5] vfio-ccw: concurrent I/O handling
+Date: Wed, 30 Jan 2019 09:32:50 -0500
+Message-ID: <12c10ee1-2ef4-313f-459a-132f4e7900d8@linux.ibm.com>
+References: <20190121110354.2247-1-cohuck@redhat.com>
+	<20190121110354.2247-3-cohuck@redhat.com>
+	<2dac6201-9e71-b188-0385-d09d05071a1c@linux.ibm.com>
+	<5627cb78-22b3-0557-7972-256bc9560d86@linux.ibm.com>
+	<20190125112437.2c06fac6.cohuck@redhat.com>
+	<20190125135835.2d59b511.cohuck@redhat.com>
+	<20190125150101.3b61f0a1@oc2783563651>
+	<20190125152154.05120461.cohuck@redhat.com>
+	<20190125170404.28c61eab@oc2783563651>
+	<20190128181355.2d79cae7.cohuck@redhat.com>
+	<20190128203000.6dbf7ba3@oc2783563651>
+	<20190129105840.1bf46c3b.cohuck@redhat.com>
+	<20190129203933.4e57cd91@oc2783563651>
+	<20190130142956.57f9eff3.cohuck@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <20190130142956.57f9eff3.cohuck@redhat.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, kvm@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, qemu-s390x@nongnu.org, qemu-devel@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-CoreSight was the only client of the PMU's set_drv_config() API.  Now
-that it is no longer needed by CoreSight remove it from the code base.
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
----
- tools/perf/builtin-record.c   | 10 -----
- tools/perf/builtin-stat.c     |  9 ----
- tools/perf/builtin-top.c      | 13 ------
- tools/perf/util/Build         |  1 -
- tools/perf/util/drv_configs.c | 78 -----------------------------------
- tools/perf/util/drv_configs.h | 26 ------------
- tools/perf/util/pmu.h         |  1 -
- 7 files changed, 138 deletions(-)
- delete mode 100644 tools/perf/util/drv_configs.c
- delete mode 100644 tools/perf/util/drv_configs.h
-
-diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index 882285fb9f64..b637c37b8479 100644
---- a/tools/perf/builtin-record.c
-+++ b/tools/perf/builtin-record.c
-@@ -23,7 +23,6 @@
- #include "util/evlist.h"
- #include "util/evsel.h"
- #include "util/debug.h"
--#include "util/drv_configs.h"
- #include "util/session.h"
- #include "util/tool.h"
- #include "util/symbol.h"
-@@ -566,7 +565,6 @@ static int record__open(struct record *rec)
- 	struct perf_evlist *evlist = rec->evlist;
- 	struct perf_session *session = rec->session;
- 	struct record_opts *opts = &rec->opts;
--	struct perf_evsel_config_term *err_term;
- 	int rc = 0;
- 
- 	/*
-@@ -619,14 +617,6 @@ static int record__open(struct record *rec)
- 		goto out;
- 	}
- 
--	if (perf_evlist__apply_drv_configs(evlist, &pos, &err_term)) {
--		pr_err("failed to set config \"%s\" on event %s with %d (%s)\n",
--		      err_term->val.drv_cfg, perf_evsel__name(pos), errno,
--		      str_error_r(errno, msg, sizeof(msg)));
--		rc = -1;
--		goto out;
--	}
--
- 	rc = record__mmap(rec);
- 	if (rc)
- 		goto out;
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 63a3afc7f32b..9c5b3b94bb38 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -52,7 +52,6 @@
- #include "util/evlist.h"
- #include "util/evsel.h"
- #include "util/debug.h"
--#include "util/drv_configs.h"
- #include "util/color.h"
- #include "util/stat.h"
- #include "util/header.h"
-@@ -418,7 +417,6 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 	int status = 0;
- 	const bool forks = (argc > 0);
- 	bool is_pipe = STAT_RECORD ? perf_stat.data.is_pipe : false;
--	struct perf_evsel_config_term *err_term;
- 
- 	if (interval) {
- 		ts.tv_sec  = interval / USEC_PER_MSEC;
-@@ -515,13 +513,6 @@ static int __run_perf_stat(int argc, const char **argv, int run_idx)
- 		return -1;
- 	}
- 
--	if (perf_evlist__apply_drv_configs(evsel_list, &counter, &err_term)) {
--		pr_err("failed to set config \"%s\" on event %s with %d (%s)\n",
--		      err_term->val.drv_cfg, perf_evsel__name(counter), errno,
--		      str_error_r(errno, msg, sizeof(msg)));
--		return -1;
--	}
--
- 	if (STAT_RECORD) {
- 		int err, fd = perf_data__fd(&perf_stat.data);
- 
-diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-index f64e312db787..33e448f702b6 100644
---- a/tools/perf/builtin-top.c
-+++ b/tools/perf/builtin-top.c
-@@ -24,7 +24,6 @@
- #include "util/annotate.h"
- #include "util/config.h"
- #include "util/color.h"
--#include "util/drv_configs.h"
- #include "util/evlist.h"
- #include "util/evsel.h"
- #include "util/event.h"
-@@ -1184,10 +1183,6 @@ static void init_process_thread(struct perf_top *top)
- 
- static int __cmd_top(struct perf_top *top)
- {
--	char msg[512];
--	struct perf_evsel *pos;
--	struct perf_evsel_config_term *err_term;
--	struct perf_evlist *evlist = top->evlist;
- 	struct record_opts *opts = &top->record_opts;
- 	pthread_t thread, thread_process;
- 	int ret;
-@@ -1232,14 +1227,6 @@ static int __cmd_top(struct perf_top *top)
- 	if (ret)
- 		goto out_delete;
- 
--	ret = perf_evlist__apply_drv_configs(evlist, &pos, &err_term);
--	if (ret) {
--		pr_err("failed to set config \"%s\" on event %s with %d (%s)\n",
--			err_term->val.drv_cfg, perf_evsel__name(pos), errno,
--			str_error_r(errno, msg, sizeof(msg)));
--		goto out_delete;
--	}
--
- 	top->session->evlist = top->evlist;
- 	perf_session__set_id_hdr_size(top->session);
- 
-diff --git a/tools/perf/util/Build b/tools/perf/util/Build
-index af72be7f5b3b..71e697e7df2d 100644
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -104,7 +104,6 @@ libperf-y += term.o
- libperf-y += help-unknown-cmd.o
- libperf-y += mem-events.o
- libperf-y += vsprintf.o
--libperf-y += drv_configs.o
- libperf-y += units.o
- libperf-y += time-utils.o
- libperf-y += expr-bison.o
-diff --git a/tools/perf/util/drv_configs.c b/tools/perf/util/drv_configs.c
-deleted file mode 100644
-index eec754243f4d..000000000000
---- a/tools/perf/util/drv_configs.c
-+++ /dev/null
-@@ -1,78 +0,0 @@
--/*
-- * drv_configs.h: Interface to apply PMU specific configuration
-- * Copyright (c) 2016-2018, Linaro Ltd.
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- *
-- */
--
--#include "drv_configs.h"
--#include "evlist.h"
--#include "evsel.h"
--#include "pmu.h"
--#include <errno.h>
--
--static int
--perf_evsel__apply_drv_configs(struct perf_evsel *evsel,
--			      struct perf_evsel_config_term **err_term)
--{
--	bool found = false;
--	int err = 0;
--	struct perf_evsel_config_term *term;
--	struct perf_pmu *pmu = NULL;
--
--	while ((pmu = perf_pmu__scan(pmu)) != NULL)
--		if (pmu->type == evsel->attr.type) {
--			found = true;
--			break;
--		}
--
--	list_for_each_entry(term, &evsel->config_terms, list) {
--		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
--			continue;
--
--		/*
--		 * We have a configuration term, report an error if we
--		 * can't find the PMU or if the PMU driver doesn't support
--		 * cmd line driver configuration.
--		 */
--		if (!found || !pmu->set_drv_config) {
--			err = -EINVAL;
--			*err_term = term;
--			break;
--		}
--
--		err = pmu->set_drv_config(term);
--		if (err) {
--			*err_term = term;
--			break;
--		}
--	}
--
--	return err;
--}
--
--int perf_evlist__apply_drv_configs(struct perf_evlist *evlist,
--				   struct perf_evsel **err_evsel,
--				   struct perf_evsel_config_term **err_term)
--{
--	struct perf_evsel *evsel;
--	int err = 0;
--
--	evlist__for_each_entry(evlist, evsel) {
--		err = perf_evsel__apply_drv_configs(evsel, err_term);
--		if (err) {
--			*err_evsel = evsel;
--			break;
--		}
--	}
--
--	return err;
--}
-diff --git a/tools/perf/util/drv_configs.h b/tools/perf/util/drv_configs.h
-deleted file mode 100644
-index 32bc9babc2e0..000000000000
---- a/tools/perf/util/drv_configs.h
-+++ /dev/null
-@@ -1,26 +0,0 @@
--/*
-- * drv_configs.h: Interface to apply PMU specific configuration
-- * Copyright (c) 2016-2018, Linaro Ltd.
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms and conditions of the GNU General Public License,
-- * version 2, as published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope it will be useful, but WITHOUT
-- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-- * more details.
-- *
-- */
--
--#ifndef __PERF_DRV_CONFIGS_H
--#define __PERF_DRV_CONFIGS_H
--
--#include "drv_configs.h"
--#include "evlist.h"
--#include "evsel.h"
--
--int perf_evlist__apply_drv_configs(struct perf_evlist *evlist,
--				   struct perf_evsel **err_evsel,
--				   struct perf_evsel_config_term **term);
--#endif
-diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index 350c54e0bd3d..569a6cbffd5a 100644
---- a/tools/perf/util/pmu.h
-+++ b/tools/perf/util/pmu.h
-@@ -30,7 +30,6 @@ struct perf_pmu {
- 	struct list_head format;  /* HEAD struct perf_pmu_format -> list */
- 	struct list_head aliases; /* HEAD struct perf_pmu_alias -> list */
- 	struct list_head list;    /* ELEM */
--	int (*set_drv_config)	(struct perf_evsel_config_term *term);
- };
- 
- struct perf_pmu_info {
--- 
-2.17.1
 
 
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+On 01/30/2019 08:29 AM, Cornelia Huck wrote:
+> On Tue, 29 Jan 2019 20:39:33 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+>=20
+>> On Tue, 29 Jan 2019 10:58:40 +0100
+>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>
+>>>>>> The problem I see with the let the hardware sort it out is that, f=
+or
+>>>>>> that to work, we need to juggle multiple translations simultaneous=
+ly
+>>>>>> (or am I wrong?). Doing that does not appear particularly simple t=
+o
+>>>>>> me.
+>>>>>
+>>>>> None in the first stage, at most two in the second stage, I guess.
+>>>>>       =20
+>>>>
+>>>> Expected benefit of the second stage over the first stage? (I see no=
+ne.)
+>>>
+>>> Making something possible that is allowed by the architecture. Not
+>>> really important, though.
+>>>   =20
+>>
+>> I had a chat with Farhan, and he suggested that by 'allowed by
+>> architecture' you mean " You can submit a new request if the subchanne=
+l
+>> is pending with primary, but not with secondary state." (from Message-=
+ID:
+>> <20190125152154.05120461.cohuck@redhat.com>).
+>=20
+> Yes. I might have mixed things up, though.
+>=20
+>>
+>> So I re-read the PoP.
+>>
+>>  From the description of the start subchannel instruction:
+>> """
+>> Special Conditions
+>>
+>> Condition code 1 is set, and no other action is
+>> taken, when the subchannel is status pending when
+>> START SUBCHANNEL is executed. On some mod-
+>> els, condition code 1 is not set when the subchannel
+>> is status pending with only secondary status; instead,
+>> the status-pending condition is discarded.
+>>
+>> Condition code 2 is set, and no other action is
+>> taken, when a start, halt, or clear function is currently
+>> in progress at the subchannel (see =E2=80=9CFunction Control
+>> (FC)=E2=80=9D on page 13).
+>>
+>> """
+>>
+>> So I guess you mixed primary and secondary up and wanted to say:
+>> "You can submit a new request if the subchannel
+>> is pending with _secondary_, but not with _primary_ _status_."
+>>
+>> But does that really mean architecture allows the subchannel
+>> to accept multiple ssch() instructions so that it ends up processing
+>> two or more channel programs in parallel.
+>=20
+> That's not what I meant. The vfio-ccw driver still holds on to one cp,
+> while a second one could be submitted.
+>=20
+> But let's just end discussing this here, and continue with discussing
+> the reworked state machine, ok? It's not really relevant for going
+> forward with halt/clear.
+>=20
+>=20
++1
+  I think we should move forward with halt/clear.
+
+Thanks
+Farhan
