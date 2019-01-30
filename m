@@ -1,125 +1,66 @@
 Return-Path: <SRS0=IQwf=QG=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
-Date: Wed, 30 Jan 2019 12:48:46 -0500
-Message-Id: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+Date: Wed, 30 Jan 2019 19:32:53 +0100 (CET)
+From: Sebastian Ott <sebott@linux.ibm.com>
+Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI
+ command
+In-Reply-To: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <alpine.LFD.2.21.1901301912380.2372@schleppi>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, cohuck@redhat.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The current AP bus implementation periodically polls the AP configuration
-to detect changes. When the AP configuration is dynamically changed via the
-SE or an SCLP instruction, the changes will not be reflected to sysfs until
-the next time the AP configuration is polled. The CHSC architecture
-provides a Store Event Information (SEI)command to make notification of an
-AP configuration change. This patch introduces a handler to process
-notification from the CHSC SEI command BY immediately kickING off an AP bus
-scan.
+On Wed, 30 Jan 2019, Tony Krowiak wrote:
+> +#if IS_ENABLED(CONFIG_ZCRYPT)
+> +void ap_bus_cfg_chg(void);
+> +#else
+> +#error "no CONFIG_ZCRYPT"
+   ^
+I don't think that's the right thing to do here.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
----
- arch/s390/include/asm/ap.h   | 12 ++++++++++++
- drivers/s390/cio/chsc.c      | 12 ++++++++++++
- drivers/s390/cio/chsc.h      |  1 +
- drivers/s390/crypto/ap_bus.c | 12 ++++++++++++
- 4 files changed, 37 insertions(+)
 
-diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
-index 1a6a7092d942..c778593d509f 100644
---- a/arch/s390/include/asm/ap.h
-+++ b/arch/s390/include/asm/ap.h
-@@ -360,4 +360,16 @@ static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
- 	return reg1;
- }
- 
-+/*
-+ * Interface to tell the AP bus code that a configuration
-+ * change has happened. The bus code should at least do
-+ * an ap bus resource rescan.
-+ */
-+#if IS_ENABLED(CONFIG_ZCRYPT)
-+void ap_bus_cfg_chg(void);
-+#else
-+#error "no CONFIG_ZCRYPT"
-+static void ap_bus_cfg_chg(void){};
-+#endif
-+
- #endif /* _ASM_S390_AP_H_ */
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index a0baee25134c..dccccc337078 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -586,6 +586,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
- 			      " failed (rc=%d).\n", ret);
- }
- 
-+static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
-+{
-+	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
-+	if (sei_area->rs != 5)
-+		return;
-+
-+	ap_bus_cfg_chg();
-+}
-+
- static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
- {
- 	switch (sei_area->cc) {
-@@ -612,6 +621,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
- 	case 2: /* i/o resource accessibility */
- 		chsc_process_sei_res_acc(sei_area);
- 		break;
-+	case 3: /* ap config changed */
-+		chsc_process_sei_ap_cfg_chg(sei_area);
-+		break;
- 	case 7: /* channel-path-availability information */
- 		chsc_process_sei_chp_avail(sei_area);
- 		break;
-diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-index 78aba8d94eec..5651066c46e3 100644
---- a/drivers/s390/cio/chsc.h
-+++ b/drivers/s390/cio/chsc.h
-@@ -9,6 +9,7 @@
- #include <asm/chsc.h>
- #include <asm/schid.h>
- #include <asm/qdio.h>
-+#include <asm/ap.h>
- 
- #define CHSC_SDA_OC_MSS   0x2
- 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 48ea0004a56d..94f621783d6b 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <asm/crw.h>
- 
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -860,6 +861,17 @@ void ap_bus_force_rescan(void)
- EXPORT_SYMBOL(ap_bus_force_rescan);
- 
- /*
-+* A config change has happened, Force an ap bus rescan.
-+*/
-+void ap_bus_cfg_chg(void)
-+{
-+	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
-+
-+	ap_bus_force_rescan();
-+}
-+EXPORT_SYMBOL(ap_bus_cfg_chg);
-+
-+/*
-  * hex2bitmap() - parse hex mask string and set bitmap.
-  * Valid strings are "0x012345678" with at least one valid hex number.
-  * Rest of the bitmap to the right is padded with 0. No spaces allowed
--- 
-2.7.4
+> +++ b/drivers/s390/cio/chsc.h
+> @@ -9,6 +9,7 @@
+>  #include <asm/chsc.h>
+>  #include <asm/schid.h>
+>  #include <asm/qdio.h>
+> +#include <asm/ap.h>
+
+This should be moved to chsc.c
+
+
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -35,6 +35,7 @@
+>  #include <linux/mod_devicetable.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/ctype.h>
+> +#include <asm/crw.h>
+
+This is not needed here.
+
+
+>  /*
+> +* A config change has happened, Force an ap bus rescan.
+> +*/
+> +void ap_bus_cfg_chg(void)
+> +{
+> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
+> +
+> +	ap_bus_force_rescan();
+> +}
+> +EXPORT_SYMBOL(ap_bus_cfg_chg);
+
+There is no need for the export symbol - you don't call that function
+from module code.
+As an unrelated question, just to be sure: ap_bus.c is compiled as
+built-in even with ZCRYPT=m, right?
+
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+
+Regards,
+Sebastian
