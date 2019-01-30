@@ -1,43 +1,125 @@
-Return-Path: <SRS0=gcLq=QF=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Tue, 29 Jan 2019 10:33:27 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: WARN_ON_ONCE(!new_owner) within wake_futex_pi() triggered
-Message-ID: <20190129093327.GE28485@hirez.programming.kicks-ass.net>
-References: <20181127081115.GB3625@osiris>
- <alpine.DEB.2.21.1811281526430.1532@nanos.tec.linutronix.de>
- <20181129112321.GB3449@osiris>
- <20190128134410.GA28485@hirez.programming.kicks-ass.net>
- <20190128135804.GB28878@hirez.programming.kicks-ass.net>
- <alpine.DEB.2.21.1901281650310.1582@nanos.tec.linutronix.de>
- <20190129090108.GA26906@osiris>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190129090108.GA26906@osiris>
+Return-Path: <SRS0=IQwf=QG=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
+Date: Wed, 30 Jan 2019 12:48:46 -0500
+Message-Id: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>, Sebastian Sewior <bigeasy@linutronix.de>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, cohuck@redhat.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Jan 29, 2019 at 10:01:08AM +0100, Heiko Carstens wrote:
+The current AP bus implementation periodically polls the AP configuration
+to detect changes. When the AP configuration is dynamically changed via the
+SE or an SCLP instruction, the changes will not be reflected to sysfs until
+the next time the AP configuration is polled. The CHSC architecture
+provides a Store Event Information (SEI)command to make notification of an
+AP configuration change. This patch introduces a handler to process
+notification from the CHSC SEI command BY immediately kickING off an AP bus
+scan.
 
-> However now I see every now and then the following failure from the
-> same test case:
-> 
-> tst-robustpi8: ../nptl/pthread_mutex_lock.c:425: __pthread_mutex_lock_full: Assertion `INTERNAL_SYSCALL_ERRNO (e, __err) != ESRCH || !robust' failed.
-> 
-> 		/* ESRCH can happen only for non-robust PI mutexes where
-> 		   the owner of the lock died.	*/
-> 		assert (INTERNAL_SYSCALL_ERRNO (e, __err) != ESRCH || !robust);
-> 
-> I just verified that this happened also without your patch, I just
-> didn't see it since I started my tests with panic_on_warn=1 and the
-> warning triggered always earlier.
-> So, this seems to be something different.
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+---
+ arch/s390/include/asm/ap.h   | 12 ++++++++++++
+ drivers/s390/cio/chsc.c      | 12 ++++++++++++
+ drivers/s390/cio/chsc.h      |  1 +
+ drivers/s390/crypto/ap_bus.c | 12 ++++++++++++
+ 4 files changed, 37 insertions(+)
 
-*groan*... so while the other thing reproduced, I've not seen this
-happen and I ran the test for hours.
-
-I'll start it up again, see what happens..
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index 1a6a7092d942..c778593d509f 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -360,4 +360,16 @@ static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
+ 	return reg1;
+ }
+ 
++/*
++ * Interface to tell the AP bus code that a configuration
++ * change has happened. The bus code should at least do
++ * an ap bus resource rescan.
++ */
++#if IS_ENABLED(CONFIG_ZCRYPT)
++void ap_bus_cfg_chg(void);
++#else
++#error "no CONFIG_ZCRYPT"
++static void ap_bus_cfg_chg(void){};
++#endif
++
+ #endif /* _ASM_S390_AP_H_ */
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index a0baee25134c..dccccc337078 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -586,6 +586,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
+ 			      " failed (rc=%d).\n", ret);
+ }
+ 
++static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
++{
++	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
++	if (sei_area->rs != 5)
++		return;
++
++	ap_bus_cfg_chg();
++}
++
+ static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
+ {
+ 	switch (sei_area->cc) {
+@@ -612,6 +621,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
+ 	case 2: /* i/o resource accessibility */
+ 		chsc_process_sei_res_acc(sei_area);
+ 		break;
++	case 3: /* ap config changed */
++		chsc_process_sei_ap_cfg_chg(sei_area);
++		break;
+ 	case 7: /* channel-path-availability information */
+ 		chsc_process_sei_chp_avail(sei_area);
+ 		break;
+diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
+index 78aba8d94eec..5651066c46e3 100644
+--- a/drivers/s390/cio/chsc.h
++++ b/drivers/s390/cio/chsc.h
+@@ -9,6 +9,7 @@
+ #include <asm/chsc.h>
+ #include <asm/schid.h>
+ #include <asm/qdio.h>
++#include <asm/ap.h>
+ 
+ #define CHSC_SDA_OC_MSS   0x2
+ 
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 48ea0004a56d..94f621783d6b 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -35,6 +35,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/debugfs.h>
+ #include <linux/ctype.h>
++#include <asm/crw.h>
+ 
+ #include "ap_bus.h"
+ #include "ap_debug.h"
+@@ -860,6 +861,17 @@ void ap_bus_force_rescan(void)
+ EXPORT_SYMBOL(ap_bus_force_rescan);
+ 
+ /*
++* A config change has happened, Force an ap bus rescan.
++*/
++void ap_bus_cfg_chg(void)
++{
++	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
++
++	ap_bus_force_rescan();
++}
++EXPORT_SYMBOL(ap_bus_cfg_chg);
++
++/*
+  * hex2bitmap() - parse hex mask string and set bitmap.
+  * Valid strings are "0x012345678" with at least one valid hex number.
+  * Rest of the bitmap to the right is padded with 0. No spaces allowed
+-- 
+2.7.4
