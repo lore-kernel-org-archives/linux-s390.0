@@ -1,10 +1,10 @@
 Return-Path: <SRS0=auZG=QG=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 7/9] net/smc: call smc_cdc_msg_send() under send_lock
-Date: Wed, 30 Jan 2019 18:51:06 +0100
+Subject: [PATCH net 5/9] net/smc: recvmsg and splice_read should return 0 after shutdown
+Date: Wed, 30 Jan 2019 18:51:04 +0100
 In-Reply-To: <20190130175108.103221-1-ubraun@linux.ibm.com>
 References: <20190130175108.103221-1-ubraun@linux.ibm.com>
-Message-Id: <20190130175108.103221-8-ubraun@linux.ibm.com>
+Message-Id: <20190130175108.103221-6-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,30 +14,44 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-Call smc_cdc_msg_send() under the connection send_lock to make sure all
-send operations for one connection are serialized.
+When a socket was connected and is now shut down for read, return 0 to
+indicate end of data in recvmsg and splice_read (like TCP) and do not
+return ENOTCONN. This behavior is required by the socket api.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_cdc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index db83332ac1c8..1c5333d494e9 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -125,7 +125,10 @@ static int smcr_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- 	if (rc)
- 		return rc;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index c4e56602e0c6..b04a813fc865 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1505,6 +1505,11 @@ static int smc_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
  
--	return smc_cdc_msg_send(conn, wr_buf, pend);
-+	spin_lock_bh(&conn->send_lock);
-+	rc = smc_cdc_msg_send(conn, wr_buf, pend);
-+	spin_unlock_bh(&conn->send_lock);
-+	return rc;
- }
+ 	smc = smc_sk(sk);
+ 	lock_sock(sk);
++	if (sk->sk_state == SMC_CLOSED && (sk->sk_shutdown & RCV_SHUTDOWN)) {
++		/* socket was connected before, no more data to read */
++		rc = 0;
++		goto out;
++	}
+ 	if ((sk->sk_state == SMC_INIT) ||
+ 	    (sk->sk_state == SMC_LISTEN) ||
+ 	    (sk->sk_state == SMC_CLOSED))
+@@ -1840,7 +1845,11 @@ static ssize_t smc_splice_read(struct socket *sock, loff_t *ppos,
  
- int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
+ 	smc = smc_sk(sk);
+ 	lock_sock(sk);
+-
++	if (sk->sk_state == SMC_CLOSED && (sk->sk_shutdown & RCV_SHUTDOWN)) {
++		/* socket was connected before, no more data to read */
++		rc = 0;
++		goto out;
++	}
+ 	if (sk->sk_state == SMC_INIT ||
+ 	    sk->sk_state == SMC_LISTEN ||
+ 	    sk->sk_state == SMC_CLOSED)
 -- 
 2.16.4
