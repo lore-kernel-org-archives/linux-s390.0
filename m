@@ -1,74 +1,89 @@
-Return-Path: <SRS0=gcLq=QF=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH] s390/jump_label: Correct asm contraint
-References: <20190123125513.20210-1-labbott@redhat.com>
- <20190123132401.GG3424@osiris>
-From: Laura Abbott <labbott@redhat.com>
-Message-ID: <898d52cc-fa76-0888-429f-27446190653b@redhat.com>
-Date: Tue, 29 Jan 2019 08:25:58 +0100
-MIME-Version: 1.0
-In-Reply-To: <20190123132401.GG3424@osiris>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Andreas Krebbel <krebbel@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH v3 0/6] vfio-ccw: support hsch/csch (kernel
+ part)
+Date: Wed, 30 Jan 2019 14:22:06 +0100
+Message-ID: <20190130132212.7376-1-cohuck@redhat.com>
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 1/23/19 5:24 AM, Heiko Carstens wrote:
-> On Wed, Jan 23, 2019 at 01:55:13PM +0100, Laura Abbott wrote:
->> There's a build failure with gcc9:
->>
->>   ./arch/s390/include/asm/jump_label.h: Assembler messages:
->>   ./arch/s390/include/asm/jump_label.h:23: Error: bad expression
->>   ./arch/s390/include/asm/jump_label.h:23: Error: junk at end of line, first unrecognized character is `r'
->>   make[1]: *** [scripts/Makefile.build:277: init/main.o] Error 1
->>
->> According to the toolchain people, the actual issue is the use of
->> "X" constraint which is too permissive. Switch to using "i" instead.
->>
->> Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1668703
->> Signed-off-by: Laura Abbott <labbott@redhat.com>
->> ---
->>   arch/s390/include/asm/jump_label.h | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
->> index e2d3e6c43395..41dabfd8518d 100644
->> --- a/arch/s390/include/asm/jump_label.h
->> +++ b/arch/s390/include/asm/jump_label.h
->> @@ -22,7 +22,7 @@ static inline bool arch_static_branch(struct static_key *key, bool branch)
->>   			  ".long	0b-.,%l[label]-.\n"
->>   			  ".quad	%0-.\n"
->>   			  ".popsection\n"
->> -			  : : "X" (&((char *)key)[branch]) : : label);
->> +			  : : "i" (&((char *)key)[branch]) : : label);
->>   	return false;
->>   label:
->>   	return true;
-> 
-> Hmmm, this works only for the kernel image, but not for modules, which
-> we compile with "-fPIC", which again doesn't work as described in the
-> referenced bugzilla:
-> 
-> In file included from ././include/linux/compiler_types.h:68,
->                   from <command-line>:
-> ./arch/s390/include/asm/jump_label.h: In function 'kvm_vcpu_ioctl':
-> ./include/linux/compiler-gcc.h:124:38: warning: asm operand 0 probably doesn't match constraints
->   #define asm_volatile_goto(x...) do { asm goto(x); asm (""); } while (0)
->                                        ^~~
-> ./arch/s390/include/asm/jump_label.h:19:2: note: in expansion of macro 'asm_volatile_goto'
->    asm_volatile_goto("0: brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
->    ^~~~~~~~~~~~~~~~~
-> ./include/linux/compiler-gcc.h:124:38: error: impossible constraint in 'asm'
->   #define asm_volatile_goto(x...) do { asm goto(x); asm (""); } while (0)
->                                        ^~~
-> ./arch/s390/include/asm/jump_label.h:19:2: note: in expansion of macro 'asm_volatile_goto'
->    asm_volatile_goto("0: brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
-> 
-> Andreas, Ilya, any idea how to fix this?
-> 
+[This is the Linux kernel part, git tree is available at
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3
 
-I've had to turn off s390 in Fedora until this gets fixed :(
+The companion QEMU patches are available at
+https://github.com/cohuck/qemu vfio-ccw-caps
+This is the previously posted v2 version, which should continue to work.]
+
+Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
+device. This tends to work well for the most common 'good path' scenarios;
+however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
+clearing pending requests at the device is currently not supported.
+This may be a problem for e.g. error recovery.
+
+This patch series introduces capabilities (similar to what vfio-pci uses)
+and exposes a new async region for handling hsch/csch.
+
+Lightly tested (I can interact with a dasd as before, and reserve/release
+seems to work well.) Not sure if there is a better way to test this, ideas
+welcome.
+
+Changes v2->v3:
+- Unb0rked patch 1, improved scope
+- Split out the new mutex from patch 2 into new patch 3; added missing
+  locking and hopefully improved description
+- Patch 2 now reworks the state handling by splitting the BUSY state
+  into CP_PROCESSING and CP_PENDING
+- Patches 3 and 5 adapted on top of the reworked patches; hsch/csch
+  are allowed in CP_PENDING, but not in CP_PROCESSING (did not add
+  any R-b due to that)
+- Added missing free in patch 5
+- Probably some small changes I forgot to note down
+
+Changes v1->v2:
+- New patch 1: make it safe to use the cp accessors at any time; this
+  should avoid problems with unsolicited interrupt handling
+- New patch 2: handle concurrent accesses to the io region; the idea is
+  to return -EAGAIN to userspace more often (so it can simply retry)
+- also handle concurrent accesses to the async io region
+- change VFIO_REGION_TYPE_CCW
+- merge events for halt and clear to a single async event; this turned out
+  to make the code quite a bit simpler
+- probably some small changes I forgot to note down
+
+Cornelia Huck (6):
+  vfio-ccw: make it safe to access channel programs
+  vfio-ccw: rework ssch state handling
+  vfio-ccw: protect the I/O region
+  vfio-ccw: add capabilities chain
+  s390/cio: export hsch to modules
+  vfio-ccw: add handling for async channel instructions
+
+ drivers/s390/cio/Makefile           |   3 +-
+ drivers/s390/cio/ioasm.c            |   1 +
+ drivers/s390/cio/vfio_ccw_async.c   |  88 ++++++++++++
+ drivers/s390/cio/vfio_ccw_cp.c      |  20 ++-
+ drivers/s390/cio/vfio_ccw_cp.h      |   2 +
+ drivers/s390/cio/vfio_ccw_drv.c     |  57 ++++++--
+ drivers/s390/cio/vfio_ccw_fsm.c     | 143 ++++++++++++++++++-
+ drivers/s390/cio/vfio_ccw_ops.c     | 210 +++++++++++++++++++++++-----
+ drivers/s390/cio/vfio_ccw_private.h |  48 ++++++-
+ include/uapi/linux/vfio.h           |   4 +
+ include/uapi/linux/vfio_ccw.h       |  12 ++
+ 11 files changed, 531 insertions(+), 57 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_async.c
+
+-- 
+2.17.2
