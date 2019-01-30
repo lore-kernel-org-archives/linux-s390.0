@@ -1,10 +1,10 @@
 Return-Path: <SRS0=auZG=QG=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 4/9] net/smc: don't wait for send buffer space when data was already sent
-Date: Wed, 30 Jan 2019 18:51:03 +0100
+Subject: [PATCH net 6/9] net/smc: do not wait under send_lock
+Date: Wed, 30 Jan 2019 18:51:05 +0100
 In-Reply-To: <20190130175108.103221-1-ubraun@linux.ibm.com>
 References: <20190130175108.103221-1-ubraun@linux.ibm.com>
-Message-Id: <20190130175108.103221-5-ubraun@linux.ibm.com>
+Message-Id: <20190130175108.103221-7-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,40 +14,50 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-When there is no more send buffer space and at least 1 byte was already
-sent then return to user space. The wait is only done when no data was
-sent by the sendmsg() call.
-This fixes smc_tx_sendmsg() which tried to always send all user data and
-started to wait for free send buffer space when needed. During this wait
-the user space program was blocked in the sendmsg() call and hence not
-able to receive incoming data. When both sides were in such a situation
-then the connection stalled forever.
+smc_cdc_get_free_slot() might wait for free transfer buffers when using
+SMC-R. This wait should not be done under the send_lock, which is a
+spin_lock. This fixes a cpu loop in parallel threads waiting for the
+send_lock.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_tx.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/smc/smc_tx.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index d8366ed51757..f99951f3f7fd 100644
+index f99951f3f7fd..36af3de731b9 100644
 --- a/net/smc/smc_tx.c
 +++ b/net/smc/smc_tx.c
-@@ -165,12 +165,11 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 			conn->local_tx_ctrl.prod_flags.urg_data_pending = 1;
+@@ -488,25 +488,23 @@ static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
+ 	struct smc_wr_buf *wr_buf;
+ 	int rc;
  
- 		if (!atomic_read(&conn->sndbuf_space) || conn->urg_tx_pend) {
-+			if (send_done)
-+				return send_done;
- 			rc = smc_tx_wait(smc, msg->msg_flags);
--			if (rc) {
--				if (send_done)
--					return send_done;
-+			if (rc)
- 				goto out_err;
+-	spin_lock_bh(&conn->send_lock);
+ 	rc = smc_cdc_get_free_slot(conn, &wr_buf, &pend);
+ 	if (rc < 0) {
+ 		if (rc == -EBUSY) {
+ 			struct smc_sock *smc =
+ 				container_of(conn, struct smc_sock, conn);
+ 
+-			if (smc->sk.sk_err == ECONNABORTED) {
+-				rc = sock_error(&smc->sk);
+-				goto out_unlock;
 -			}
- 			continue;
++			if (smc->sk.sk_err == ECONNABORTED)
++				return sock_error(&smc->sk);
+ 			rc = 0;
+ 			if (conn->alert_token_local) /* connection healthy */
+ 				mod_delayed_work(system_wq, &conn->tx_work,
+ 						 SMC_TX_WORK_DELAY);
  		}
+-		goto out_unlock;
++		return rc;
+ 	}
  
++	spin_lock_bh(&conn->send_lock);
+ 	if (!conn->local_tx_ctrl.prod_flags.urg_data_present) {
+ 		rc = smc_tx_rdma_writes(conn);
+ 		if (rc) {
 -- 
 2.16.4
