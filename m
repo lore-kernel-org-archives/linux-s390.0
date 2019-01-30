@@ -1,12 +1,12 @@
 Return-Path: <SRS0=csPt=QG=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH v2 2/7] coresight: perf: Add "sinks" group to PMU directory
+Subject: Re: [PATCH v2 3/7] coresight: Use event attributes for sink selection
 References: <20190122181144.26645-1-mathieu.poirier@linaro.org>
- <20190122181144.26645-3-mathieu.poirier@linaro.org>
+ <20190122181144.26645-4-mathieu.poirier@linaro.org>
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <aed8011b-5487-a30a-559f-e0daf2867f67@arm.com>
-Date: Wed, 30 Jan 2019 17:44:42 +0000
+Message-ID: <5ce969d1-847f-cc89-a074-1697e21ce6e5@arm.com>
+Date: Wed, 30 Jan 2019 17:49:12 +0000
 MIME-Version: 1.0
-In-Reply-To: <20190122181144.26645-3-mathieu.poirier@linaro.org>
+In-Reply-To: <20190122181144.26645-4-mathieu.poirier@linaro.org>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -24,194 +24,145 @@ To: mathieu.poirier@linaro.org, acme@kernel.org, peterz@infradead.org
 Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, will.deacon@arm.com, ast@kernel.org, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Mathieu,
-
-
 On 01/22/2019 06:11 PM, Mathieu Poirier wrote:
-> Add a "sinks" directory entry so that users can see all the sinks
-> available in the system in a single place.  Individual sink are added
-> as they are registered with the coresight bus.
-
-A couple of minor comments.
-
+> This patch uses the information conveyed by perf_event::attr::config2
+> to select a sink to use for the session.  That way a sink can easily be
+> selected to be used by more than one source, something that isn't currently
+> possible with the sysfs implementation.
 > 
 > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 > ---
->   .../hwtracing/coresight/coresight-etm-perf.c  | 76 +++++++++++++++++++
->   .../hwtracing/coresight/coresight-etm-perf.h  |  6 +-
->   drivers/hwtracing/coresight/coresight.c       | 18 +++++
->   include/linux/coresight.h                     |  7 +-
->   4 files changed, 104 insertions(+), 3 deletions(-)
+>   .../hwtracing/coresight/coresight-etm-perf.c  | 24 ++++++------
+>   drivers/hwtracing/coresight/coresight-priv.h  |  1 +
+>   drivers/hwtracing/coresight/coresight.c       | 39 +++++++++++++++++++
+>   3 files changed, 52 insertions(+), 12 deletions(-)
 > 
 > diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-> index f21eb28b6782..c68a0036532c 100644
+> index c68a0036532c..ea031eb673b3 100644
 > --- a/drivers/hwtracing/coresight/coresight-etm-perf.c
 > +++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-> @@ -14,6 +14,7 @@
->   #include <linux/perf_event.h>
->   #include <linux/percpu-defs.h>
->   #include <linux/slab.h>
-> +#include <linux/stringhash.h>
->   #include <linux/types.h>
->   #include <linux/workqueue.h>
+> @@ -31,11 +31,14 @@ static DEFINE_PER_CPU(struct coresight_device *, csdev_src);
+>   PMU_FORMAT_ATTR(cycacc,		"config:" __stringify(ETM_OPT_CYCACC));
+>   PMU_FORMAT_ATTR(timestamp,	"config:" __stringify(ETM_OPT_TS));
+>   PMU_FORMAT_ATTR(retstack,	"config:" __stringify(ETM_OPT_RETSTK));
+> +/* Sink ID - same for all ETMs */
+> +PMU_FORMAT_ATTR(sinkid,		"config2:0-31");
 >   
-> @@ -43,8 +44,18 @@ static const struct attribute_group etm_pmu_format_group = {
->   	.attrs  = etm_config_formats_attr,
->   };
->   
-> +static struct attribute *etm_config_sinks_attr[] = {
-> +	NULL,
-> +};
-> +
-> +static const struct attribute_group etm_pmu_sinks_group = {
-> +	.name   = "sinks",
-> +	.attrs  = etm_config_sinks_attr,
-> +};
-> +
->   static const struct attribute_group *etm_pmu_attr_groups[] = {
->   	&etm_pmu_format_group,
-> +	&etm_pmu_sinks_group,
+>   static struct attribute *etm_config_formats_attr[] = {
+>   	&format_attr_cycacc.attr,
+>   	&format_attr_timestamp.attr,
+>   	&format_attr_retstack.attr,
+> +	&format_attr_sinkid.attr,
 >   	NULL,
 >   };
-
-I was thinking if this could be the "events" directory for ETM pmu. We
-don't have any other event codes. Even if we get in the future, we could
-expose them here. But from a quick try it looks like the event names
-cannot start with a number (e.g, 2007000.etr wouldn't parse as an event
-name). So we could leave this as above and switch when we get generic
-naming scheme.
-
 >   
-> @@ -479,6 +490,71 @@ int etm_perf_symlink(struct coresight_device *csdev, bool link)
->   	return 0;
+> @@ -191,6 +194,7 @@ static void etm_free_aux(void *data)
+>   static void *etm_setup_aux(struct perf_event *event, void **pages,
+>   			   int nr_pages, bool overwrite)
+>   {
+> +	u32 id;
+>   	int cpu = event->cpu;
+>   	cpumask_t *mask;
+>   	struct coresight_device *sink;
+> @@ -201,18 +205,14 @@ static void *etm_setup_aux(struct perf_event *event, void **pages,
+>   		return NULL;
+>   	INIT_WORK(&event_data->work, free_event_data);
+>   
+> -	/*
+> -	 * In theory nothing prevent tracers in a trace session from being
+> -	 * associated with different sinks, nor having a sink per tracer.  But
+> -	 * until we have HW with this kind of topology we need to assume tracers
+> -	 * in a trace session are using the same sink.  Therefore go through
+> -	 * the coresight bus and pick the first enabled sink.
+> -	 *
+> -	 * When operated from sysFS users are responsible to enable the sink
+> -	 * while from perf, the perf tools will do it based on the choice made
+> -	 * on the cmd line.  As such the "enable_sink" flag in sysFS is reset.
+> -	 */
+> -	sink = coresight_get_enabled_sink(true);
+> +	/* First get the selected sink from user space. */
+> +	if (event->attr.config2) {
+> +		id = (u32)event->attr.config2;
+> +		sink = coresight_get_sink_by_id(id);
+> +	} else {
+> +		sink = coresight_get_enabled_sink(true);
+> +	}
+> +
+>   	if (!sink || !sink_ops(sink)->alloc_buffer)
+>   		goto err;
+>   
+> diff --git a/drivers/hwtracing/coresight/coresight-priv.h b/drivers/hwtracing/coresight/coresight-priv.h
+> index 579f34943bf1..b936c6d7e13f 100644
+> --- a/drivers/hwtracing/coresight/coresight-priv.h
+> +++ b/drivers/hwtracing/coresight/coresight-priv.h
+> @@ -147,6 +147,7 @@ void coresight_disable_path(struct list_head *path);
+>   int coresight_enable_path(struct list_head *path, u32 mode, void *sink_data);
+>   struct coresight_device *coresight_get_sink(struct list_head *path);
+>   struct coresight_device *coresight_get_enabled_sink(bool reset);
+> +struct coresight_device *coresight_get_sink_by_id(u32 id);
+>   struct list_head *coresight_build_path(struct coresight_device *csdev,
+>   				       struct coresight_device *sink);
+>   void coresight_release_path(struct list_head *path);
+> diff --git a/drivers/hwtracing/coresight/coresight.c b/drivers/hwtracing/coresight/coresight.c
+> index d7fa90be6f42..c5f2df186a19 100644
+> --- a/drivers/hwtracing/coresight/coresight.c
+> +++ b/drivers/hwtracing/coresight/coresight.c
+> @@ -11,6 +11,7 @@
+>   #include <linux/err.h>
+>   #include <linux/export.h>
+>   #include <linux/slab.h>
+> +#include <linux/stringhash.h>
+>   #include <linux/mutex.h>
+>   #include <linux/clk.h>
+>   #include <linux/coresight.h>
+> @@ -541,6 +542,44 @@ struct coresight_device *coresight_get_enabled_sink(bool deactivate)
+>   	return dev ? to_coresight_device(dev) : NULL;
 >   }
 >   
-> +static ssize_t etm_perf_sink_name_show(struct device *dev,
-> +				       struct device_attribute *dattr,
-> +				       char *buf)
+> +static int coresight_sink_by_id(struct device *dev, void *data)
 > +{
-> +	/* See function coresight_get_sink_by_id() to know where this is used */
-> +	u32 hash = hashlen_hash(hashlen_string(NULL, dattr->attr.name));
+> +	struct coresight_device *csdev = to_coresight_device(dev);
+> +	u32 hash;
 > +
-> +	return scnprintf(buf, PAGE_SIZE, "%x\n", hash);
-> +}
-
-You may need "0x%x" to avoid confusions interpreting the data.
-
+> +	if (csdev->type == CORESIGHT_DEV_TYPE_SINK ||
+> +	     csdev->type == CORESIGHT_DEV_TYPE_LINKSINK) {
+> +		/*
+> +		 * See function etm_perf_sink_name_show() to know where this
+> +		 * comes from.
+> +		 */
+> +		hash = hashlen_hash(hashlen_string(NULL, dev_name(dev)));
 > +
-> +int etm_perf_add_symlink_sink(struct coresight_device *csdev)
-> +{
-> +	int ret;
-> +	struct device *pmu_dev = etm_pmu.dev;
-> +	struct device *pdev = csdev->dev.parent;
-> +	struct device_attribute *dattr;
-
-If we make this a struct dev_ext_attribute(), you get a space to
-store the "id" in the "var" field. This can be used for
-
-1) name_show() above
-
-we could do :
-	struct dev_ext_attribute *eattr = container_of(attr,
-					struct dev_ext_attribute, attr);
-
-	return scnprintf(bu, PAGE_SIZE, "0x%x\n", (u32)eattr->var);
-
-2) Matching the ID of a sink device in lookup by simply doing :
-	(u32)csdev->dattr.var == (u32)(void *)data
-
-and can avoid computing the hash all the time.
-
+> +		if (hash == (*(u32 *)data))
+> +			return 1;
+> +	}
 > +
-> +	if (csdev->type != CORESIGHT_DEV_TYPE_SINK &&
-> +	    csdev->type != CORESIGHT_DEV_TYPE_LINKSINK)
-> +		return -EINVAL;
-> +
-> +	if (csdev->dattr != NULL)
-> +		return -EINVAL;
-> +
-> +	if (!etm_perf_up)
-> +		return -EPROBE_DEFER;
-> +
-> +	dattr = kzalloc(sizeof(*dattr), GFP_KERNEL);
-
-nit: Could we use devm_kzalloc(pdev, ...) ?
-
-> +	dattr->attr.name = kstrdup(dev_name(pdev), GFP_KERNEL);.
-
-
-similarly here : devm_kstrdup()
-
-> +	dattr->attr.mode = 0444;
-> +	dattr->show = etm_perf_sink_name_show;
-> +	csdev->dattr = dattr;
-> +
-> +	ret = sysfs_add_file_to_group(&pmu_dev->kobj,
-> +				      &dattr->attr, "sinks");
-> +
-> +	if (!ret)
-> +		return 0;
-> +
-> +	csdev->dattr = NULL;
-> +	kfree(dattr->attr.name);
-> +	kfree(dattr);
-
-And we could get rid of these ^
-
-> +
-> +	return ret;
+> +	return 0;
 > +}
 > +
-> +void etm_perf_del_symlink_sink(struct coresight_device *csdev)
+> +/**
+> + * coresight_get_sink_by_id - returns the sink that matches the id
+> + * @id: Id of the sink to match
+> + *
+> + * The name of a sink is unique, whether it is found on the AMBA bus or
+> + * otherwise.  As such the hash of that name can easily be used to identify
+> + * a sink.
+> + */
+> +struct coresight_device *coresight_get_sink_by_id(u32 id)
 > +{
-> +	struct device *pmu_dev = etm_pmu.dev;
-> +	struct device_attribute *dattr = csdev->dattr;
+> +	struct device *dev = NULL;
 > +
-> +	if (csdev->type != CORESIGHT_DEV_TYPE_SINK &&
-> +	    csdev->type != CORESIGHT_DEV_TYPE_LINKSINK)
-> +		return;
+> +	dev = bus_find_device(&coresight_bustype, NULL, &id,
+> +			      coresight_sink_by_id);
 > +
-> +	if (!dattr)
-> +		return;
-> +
-> +	sysfs_remove_file_from_group(&pmu_dev->kobj,
-> +				     &dattr->attr, "sinks");
-> +	csdev->dattr = NULL;
-> +	kfree(dattr->attr.name);
-> +	kfree(dattr);ext
-
-And these ^^
-
+> +	return dev ? to_coresight_device(dev) : NULL;
 > +}
+> +
 
+The patch looks good to me. As mentioned in the previous patch, we may
+be able to optimize the look up a bit using dev_ext_attribute. Either
+way,
 
-> diff --git a/include/linux/coresight.h b/include/linux/coresight.h
-> index 46c67a764877..a42fac83eac9 100644
-> --- a/include/linux/coresight.h
-> +++ b/include/linux/coresight.h
-> @@ -154,8 +154,9 @@ struct coresight_connection {
->    * @orphan:	true if the component has connections that haven't been linked.
->    * @enable:	'true' if component is currently part of an active path.
->    * @activated:	'true' only if a _sink_ has been activated.  A sink can be
-> -		activated but not yet enabled.  Enabling for a _sink_
-> -		happens when a source has been selected for that it.
-> + *		activated but not yet enabled.  Enabling for a _sink_
-> + *		appens when a source has been selected for that it.
-> + * @dattr:	Device attribute for sink representation under PMU directory.
->    */
->   struct coresight_device {
->   	struct coresight_connection *conns;
-> @@ -168,7 +169,9 @@ struct coresight_device {
->   	atomic_t *refcnt;
->   	bool orphan;
->   	bool enable;	/* true only if configured as part of a path */
-> +	/* sink specific fields */
->   	bool activated;	/* true only if a sink is part of a path */
-> +	struct device_attribute *dattr;
-
-See my comment above about switching to struct dev_ext_attribute *.
-
-Suzuki
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 
 _______________________________________________
 linux-arm-kernel mailing list
