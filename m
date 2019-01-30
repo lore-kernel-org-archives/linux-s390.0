@@ -1,7 +1,8 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v3 3/6] vfio-ccw: protect the I/O region
-Date: Wed, 30 Jan 2019 14:22:09 +0100
-Message-ID: <20190130132212.7376-4-cohuck@redhat.com>
+Subject: [PATCH v3 1/6] vfio-ccw: make it safe to access
+ channel programs
+Date: Wed, 30 Jan 2019 14:22:07 +0100
+Message-ID: <20190130132212.7376-2-cohuck@redhat.com>
 References: <20190130132212.7376-1-cohuck@redhat.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 In-Reply-To: <20190130132212.7376-1-cohuck@redhat.com>
@@ -21,124 +22,137 @@ To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farha
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Introduce a mutex to disallow concurrent reads or writes to the
-I/O region. This makes sure that the data the kernel or user
-space see is always consistent.
+When we get a solicited interrupt, the start function may have
+been cleared by a csch, but we still have a channel program
+structure allocated. Make it safe to call the cp accessors in
+any case, so we can call them unconditionally.
 
-The same mutex will be used to protect the async region as well.
+While at it, also make sure that functions called from other parts
+of the code return gracefully if the channel program structure
+has not been initialized (even though that is a bug in the caller).
 
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c     |  3 +++
- drivers/s390/cio/vfio_ccw_ops.c     | 28 +++++++++++++++++++---------
- drivers/s390/cio/vfio_ccw_private.h |  2 ++
- 3 files changed, 24 insertions(+), 9 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c  | 20 +++++++++++++++++++-
+ drivers/s390/cio/vfio_ccw_cp.h  |  2 ++
+ drivers/s390/cio/vfio_ccw_fsm.c |  5 +++++
+ 3 files changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 0b3b9de45c60..5ea0da1dd954 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -84,7 +84,9 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		if (is_final)
- 			cp_free(&private->cp);
- 	}
-+	mutex_lock(&private->io_mutex);
- 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
-+	mutex_unlock(&private->io_mutex);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index ba08fe137c2e..0bc0c38edda7 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -335,6 +335,7 @@ static void cp_unpin_free(struct channel_program *cp)
+ 	struct ccwchain *chain, *temp;
+ 	int i;
  
- 	if (private->io_trigger)
- 		eventfd_signal(private->io_trigger, 1);
-@@ -129,6 +131,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
++	cp->initialized = false;
+ 	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++) {
+ 			pfn_array_table_unpin_free(chain->ch_pat + i,
+@@ -701,6 +702,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	 */
+ 	cp->orb.cmd.c64 = 1;
  
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
-+	mutex_init(&private->io_mutex);
- 
- 	spin_lock_irq(sch->lock);
- 	private->state = VFIO_CCW_STATE_NOT_OPER;
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 3fdcc6dfe0bf..025c8a832bc8 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -169,16 +169,20 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
- {
- 	struct vfio_ccw_private *private;
- 	struct ccw_io_region *region;
-+	int ret;
- 
- 	if (*ppos + count > sizeof(*region))
- 		return -EINVAL;
- 
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
-+	mutex_lock(&private->io_mutex);
- 	region = private->io_region;
- 	if (copy_to_user(buf, (void *)region + *ppos, count))
--		return -EFAULT;
--
--	return count;
-+		ret = -EFAULT;
-+	else
-+		ret = count;
-+	mutex_unlock(&private->io_mutex);
-+	return ret;
++	cp->initialized = true;
++
+ 	return ret;
  }
  
- static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
-@@ -188,23 +192,29 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+@@ -715,7 +718,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+  */
+ void cp_free(struct channel_program *cp)
  {
- 	struct vfio_ccw_private *private;
- 	struct ccw_io_region *region;
-+	int ret;
+-	cp_unpin_free(cp);
++	if (cp->initialized)
++		cp_unpin_free(cp);
+ }
  
- 	if (*ppos + count > sizeof(*region))
- 		return -EINVAL;
+ /**
+@@ -760,6 +764,10 @@ int cp_prefetch(struct channel_program *cp)
+ 	struct ccwchain *chain;
+ 	int len, idx, ret;
  
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
-+	if (!mutex_trylock(&private->io_mutex))
-+		return -EAGAIN;
++	/* this is an error in the caller */
++	if (!cp || !cp->initialized)
++		return -EINVAL;
++
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		len = chain->ch_len;
+ 		for (idx = 0; idx < len; idx++) {
+@@ -795,6 +803,10 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
+ 	struct ccwchain *chain;
+ 	struct ccw1 *cpa;
  
- 	region = private->io_region;
--	if (copy_from_user((void *)region + *ppos, buf, count))
--		return -EFAULT;
-+	if (copy_from_user((void *)region + *ppos, buf, count)) {
-+		ret = -EFAULT;
-+		goto out_unlock;
++	/* this is an error in the caller */
++	if (!cp || !cp->initialized)
++		return NULL;
++
+ 	orb = &cp->orb;
+ 
+ 	orb->cmd.intparm = intparm;
+@@ -831,6 +843,9 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
+ 	u32 cpa = scsw->cmd.cpa;
+ 	u32 ccw_head, ccw_tail;
+ 
++	if (!cp->initialized)
++		return;
++
+ 	/*
+ 	 * LATER:
+ 	 * For now, only update the cmd.cpa part. We may need to deal with
+@@ -869,6 +884,9 @@ bool cp_iova_pinned(struct channel_program *cp, u64 iova)
+ 	struct ccwchain *chain;
+ 	int i;
+ 
++	if (!cp->initialized)
++		return false;
++
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++)
+ 			if (pfn_array_table_iova_pinned(chain->ch_pat + i,
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index a4b74fb1aa57..3c20cd208da5 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -21,6 +21,7 @@
+  * @ccwchain_list: list head of ccwchains
+  * @orb: orb for the currently processed ssch request
+  * @mdev: the mediated device to perform page pinning/unpinning
++ * @initialized: whether this instance is actually initialized
+  *
+  * @ccwchain_list is the head of a ccwchain list, that contents the
+  * translated result of the guest channel program that pointed out by
+@@ -30,6 +31,7 @@ struct channel_program {
+ 	struct list_head ccwchain_list;
+ 	union orb orb;
+ 	struct device *mdev;
++	bool initialized;
+ };
+ 
+ extern int cp_init(struct channel_program *cp, struct device *mdev,
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index cab17865aafe..e7c9877c9f1e 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -31,6 +31,10 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	private->state = VFIO_CCW_STATE_BUSY;
+ 
+ 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
++	if (!orb) {
++		ret = -EIO;
++		goto out;
 +	}
  
- 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
--	if (region->ret_code != 0) {
-+	if (region->ret_code != 0)
- 		private->state = VFIO_CCW_STATE_IDLE;
--		return region->ret_code;
--	}
-+	ret = (region->ret_code != 0) ? region->ret_code : count;
- 
--	return count;
-+out_unlock:
-+	mutex_unlock(&private->io_mutex);
-+	return ret;
+ 	/* Issue "Start Subchannel" */
+ 	ccode = ssch(sch->schid, orb);
+@@ -64,6 +68,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	default:
+ 		ret = ccode;
+ 	}
++out:
+ 	spin_unlock_irqrestore(sch->lock, flags);
+ 	return ret;
  }
- 
- static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 50c52efb4fcb..32173cbd838d 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -28,6 +28,7 @@
-  * @mdev: pointer to the mediated device
-  * @nb: notifier for vfio events
-  * @io_region: MMIO region to input/output I/O arguments/results
-+ * @io_mutex: protect against concurrent update of I/O regions
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-  * @scsw: scsw info
-@@ -42,6 +43,7 @@ struct vfio_ccw_private {
- 	struct mdev_device	*mdev;
- 	struct notifier_block	nb;
- 	struct ccw_io_region	*io_region;
-+	struct mutex		io_mutex;
- 
- 	struct channel_program	cp;
- 	struct irb		irb;
 -- 
 2.17.2
