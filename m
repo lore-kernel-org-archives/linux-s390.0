@@ -1,167 +1,87 @@
 Return-Path: <SRS0=Wtxu=QH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 31 Jan 2019 10:55:55 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI
- command
-Message-ID: <20190131105555.4af6d8ea.cohuck@redhat.com>
-In-Reply-To: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
 References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+ <alpine.LFD.2.21.1901301912380.2372@schleppi>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Date: Thu, 31 Jan 2019 18:28:39 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <alpine.LFD.2.21.1901301912380.2372@schleppi>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <88b72363-9dca-4653-c326-9c37b6349a32@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com
+To: Sebastian Ott <sebott@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, oberpar@linux.ibm.com, freude@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 30 Jan 2019 12:48:46 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On 1/30/19 1:32 PM, Sebastian Ott wrote:
+> On Wed, 30 Jan 2019, Tony Krowiak wrote:
+>> +#if IS_ENABLED(CONFIG_ZCRYPT)
+>> +void ap_bus_cfg_chg(void);
+>> +#else
+>> +#error "no CONFIG_ZCRYPT"
+>     ^
+> I don't think that's the right thing to do here.
 
-> The current AP bus implementation periodically polls the AP configuration
-> to detect changes. When the AP configuration is dynamically changed via the
-> SE or an SCLP instruction, the changes will not be reflected to sysfs until
-> the next time the AP configuration is polled. The CHSC architecture
-> provides a Store Event Information (SEI)command to make notification of an
-
-missing blank ---------------------------^
-
-> AP configuration change. This patch introduces a handler to process
-> notification from the CHSC SEI command BY immediately kickING off an AP bus
-
-s/BY/by/
-
-s/kickING/kicking/
-
-> scan.
-
-Scan-after-event sounds useful, yeah.
-
-Two questions:
-- Does the event cover _any_ change to the AP configuration, or can the
-  periodic scan detect changes that are not signaled?
-- Do we want to generate such an event in QEMU on plugging/unplugging
-  the vfio-ap device?
+I'd like to leave it. If somebody edits .config
+and sets CONFIG_ZCRYPT=n, then the build will
+fail. The preprocessor error above tells them
+why.
 
 > 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  arch/s390/include/asm/ap.h   | 12 ++++++++++++
->  drivers/s390/cio/chsc.c      | 12 ++++++++++++
->  drivers/s390/cio/chsc.h      |  1 +
->  drivers/s390/crypto/ap_bus.c | 12 ++++++++++++
->  4 files changed, 37 insertions(+)
 > 
-> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
-> index 1a6a7092d942..c778593d509f 100644
-> --- a/arch/s390/include/asm/ap.h
-> +++ b/arch/s390/include/asm/ap.h
-> @@ -360,4 +360,16 @@ static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
->  	return reg1;
->  }
->  
-> +/*
-> + * Interface to tell the AP bus code that a configuration
-> + * change has happened. The bus code should at least do
-> + * an ap bus resource rescan.
-> + */
-> +#if IS_ENABLED(CONFIG_ZCRYPT)
-> +void ap_bus_cfg_chg(void);
-> +#else
-> +#error "no CONFIG_ZCRYPT"
+>> +++ b/drivers/s390/cio/chsc.h
+>> @@ -9,6 +9,7 @@
+>>   #include <asm/chsc.h>
+>>   #include <asm/schid.h>
+>>   #include <asm/qdio.h>
+>> +#include <asm/ap.h>
+> 
+> This should be moved to chsc.c
 
-That #error looks like a development debugging leftover.
+I can do that, but I'm curious why.
 
-> +static void ap_bus_cfg_chg(void){};
-> +#endif
-> +
->  #endif /* _ASM_S390_AP_H_ */
-> diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-> index a0baee25134c..dccccc337078 100644
-> --- a/drivers/s390/cio/chsc.c
-> +++ b/drivers/s390/cio/chsc.c
-> @@ -586,6 +586,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
->  			      " failed (rc=%d).\n", ret);
->  }
->  
-> +static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
-> +{
-> +	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
-> +	if (sei_area->rs != 5)
-> +		return;
+> 
+> 
+>> +++ b/drivers/s390/crypto/ap_bus.c
+>> @@ -35,6 +35,7 @@
+>>   #include <linux/mod_devicetable.h>
+>>   #include <linux/debugfs.h>
+>>   #include <linux/ctype.h>
+>> +#include <asm/crw.h>
+> 
+> This is not needed here.
 
-I'm guessing that a reporting source of 5 means ap, right? (The code is
-silent on all those magic rs values :/)
+I'll remove it.
 
-If so, should the debug logging be moved after the check?
+> 
+> 
+>>   /*
+>> +* A config change has happened, Force an ap bus rescan.
+>> +*/
+>> +void ap_bus_cfg_chg(void)
+>> +{
+>> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
+>> +
+>> +	ap_bus_force_rescan();
+>> +}
+>> +EXPORT_SYMBOL(ap_bus_cfg_chg);
+> 
+> There is no need for the export symbol - you don't call that function
+> from module code.
+> As an unrelated question, just to be sure: ap_bus.c is compiled as
+> built-in even with ZCRYPT=m, right?
 
-> +
-> +	ap_bus_cfg_chg();
-> +}
-> +
->  static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
->  {
->  	switch (sei_area->cc) {
-> @@ -612,6 +621,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
->  	case 2: /* i/o resource accessibility */
->  		chsc_process_sei_res_acc(sei_area);
->  		break;
-> +	case 3: /* ap config changed */
-> +		chsc_process_sei_ap_cfg_chg(sei_area);
-> +		break;
->  	case 7: /* channel-path-availability information */
->  		chsc_process_sei_chp_avail(sei_area);
->  		break;
-> diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-> index 78aba8d94eec..5651066c46e3 100644
-> --- a/drivers/s390/cio/chsc.h
-> +++ b/drivers/s390/cio/chsc.h
-> @@ -9,6 +9,7 @@
->  #include <asm/chsc.h>
->  #include <asm/schid.h>
->  #include <asm/qdio.h>
-> +#include <asm/ap.h>
+No. If you edit .config and set CONFIG_ZCRYPT=m, ap_bus.c will be built
+into the zcrypt.ko module. Through some other magic, the zcrypt module
+is loaded when linux boots.
 
-I would probably include this in chsc.c instead.
-
->  
->  #define CHSC_SDA_OC_MSS   0x2
->  
-> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-> index 48ea0004a56d..94f621783d6b 100644
-> --- a/drivers/s390/crypto/ap_bus.c
-> +++ b/drivers/s390/crypto/ap_bus.c
-> @@ -35,6 +35,7 @@
->  #include <linux/mod_devicetable.h>
->  #include <linux/debugfs.h>
->  #include <linux/ctype.h>
-> +#include <asm/crw.h>
-
-Why are you adding this #include?
-
->  
->  #include "ap_bus.h"
->  #include "ap_debug.h"
-> @@ -860,6 +861,17 @@ void ap_bus_force_rescan(void)
->  EXPORT_SYMBOL(ap_bus_force_rescan);
->  
->  /*
-> +* A config change has happened, Force an ap bus rescan.
-
-s/Force/force/
-
-> +*/
-> +void ap_bus_cfg_chg(void)
-> +{
-> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
-> +
-> +	ap_bus_force_rescan();
-> +}
-> +EXPORT_SYMBOL(ap_bus_cfg_chg);
-> +
-> +/*
->   * hex2bitmap() - parse hex mask string and set bitmap.
->   * Valid strings are "0x012345678" with at least one valid hex number.
->   * Rest of the bitmap to the right is padded with 0. No spaces allowed
+> 
+> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+> 
+> Regards,
+> Sebastian
+> 
