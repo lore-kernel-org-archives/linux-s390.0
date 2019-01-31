@@ -1,36 +1,52 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v7 15/15] KVM: s390: fix possible null pointer
- dereference in pending_irqs()
-Date: Thu, 31 Jan 2019 18:47:12 +0100
-Message-ID: <20190131184712.3fcd8c36.cohuck@redhat.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Subject: [PATCH v7 02/15] KVM: s390: make bitmap declaration consistent
+Date: Thu, 31 Jan 2019 09:52:33 +0100
+Message-ID: <20190131085247.13826-3-mimu@linux.ibm.com>
 References: <20190131085247.13826-1-mimu@linux.ibm.com>
-        <20190131085247.13826-16-mimu@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190131085247.13826-16-mimu@linux.ibm.com>
+In-Reply-To: <20190131085247.13826-1-mimu@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 31 Jan 2019 09:52:46 +0100
-Michael Mueller <mimu@linux.ibm.com> wrote:
+Use a consistent bitmap declaration throughout the code.
 
-> Assure a GISA is in use before accessing the IPM to avoid a
-> null pointer dereference issue.
-
-This series can hopefully make it into the next merge window;
-otherwise, queuing a patch fixing up the original code would be good.
-
-> 
-> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-> Reported-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 2 +-
+ arch/s390/kvm/interrupt.c        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index d5d24889c3bc..3cba08f73dc6 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -591,7 +591,7 @@ struct kvm_s390_float_interrupt {
+ 	struct kvm_s390_mchk_info mchk;
+ 	struct kvm_s390_ext_info srv_signal;
+ 	int next_rr_cpu;
+-	unsigned long idle_mask[BITS_TO_LONGS(KVM_MAX_VCPUS)];
++	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
+ 	struct mutex ais_lock;
+ 	u8 simm;
+ 	u8 nimm;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 19d556512452..167a3068ef84 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2831,7 +2831,7 @@ static void store_local_irq(struct kvm_s390_local_interrupt *li,
+ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+ {
+ 	int scn;
+-	unsigned long sigp_emerg_pending[BITS_TO_LONGS(KVM_MAX_VCPUS)];
++	DECLARE_BITMAP(sigp_emerg_pending, KVM_MAX_VCPUS);
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	unsigned long pending_irqs;
+ 	struct kvm_s390_irq irq;
+-- 
+2.13.4
