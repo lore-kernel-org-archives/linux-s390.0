@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v7 08/15] s390/cio: add function chsc_sgib()
-Date: Thu, 31 Jan 2019 09:52:39 +0100
-Message-ID: <20190131085247.13826-9-mimu@linux.ibm.com>
+Subject: [PATCH v7 06/15] KVM: s390: remove kvm_s390_ from gisa static inline functions
+Date: Thu, 31 Jan 2019 09:52:37 +0100
+Message-ID: <20190131085247.13826-7-mimu@linux.ibm.com>
 References: <20190131085247.13826-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190131085247.13826-1-mimu@linux.ibm.com>
@@ -12,92 +12,123 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implements the Set Guest Information Block operation
-to request association or disassociation of a Guest Information
-Block (GIB) with the Adapter Interruption Facility. The operation
-is required to receive GIB alert interrupts for guest adapters
-in conjunction with AIV and GISA.
+This will shorten the length of code lines. All GISA related
+static inline functions are local to interrupt.c.
 
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/s390/include/asm/cio.h |  1 +
- drivers/s390/cio/chsc.c     | 37 +++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/chsc.h     |  1 +
- 3 files changed, 39 insertions(+)
+ arch/s390/kvm/interrupt.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 225667652069..1727180e8ca1 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -331,5 +331,6 @@ extern void css_schedule_reprobe(void);
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
-+int chsc_sgib(u32 origin);
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index cb48736867ed..942cc7d33766 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -217,22 +217,22 @@ static inline u8 int_word_to_isc(u32 int_word)
+  */
+ #define IPM_BIT_OFFSET (offsetof(struct kvm_s390_gisa, ipm) * BITS_PER_BYTE)
  
- #endif
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index a0baee25134c..4159c63a5fd2 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1382,3 +1382,40 @@ int chsc_pnso_brinfo(struct subchannel_id schid,
- 	return chsc_error_from_response(brinfo_area->response.code);
+-static inline void kvm_s390_gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++static inline void gisa_set_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+ {
+ 	set_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
  }
- EXPORT_SYMBOL_GPL(chsc_pnso_brinfo);
-+
-+int chsc_sgib(u32 origin)
-+{
-+	struct {
-+		struct chsc_header request;
-+		u16 op;
-+		u8  reserved01[2];
-+		u8  reserved02:4;
-+		u8  fmt:4;
-+		u8  reserved03[7];
-+		/* operation data area begin */
-+		u8  reserved04[4];
-+		u32 gib_origin;
-+		u8  reserved05[10];
-+		u8  aix;
-+		u8  reserved06[4029];
-+		struct chsc_header response;
-+		u8  reserved07[4];
-+	} *sgib_area;
-+	int ret;
-+
-+	spin_lock_irq(&chsc_page_lock);
-+	memset(chsc_page, 0, PAGE_SIZE);
-+	sgib_area = chsc_page;
-+	sgib_area->request.length = 0x0fe0;
-+	sgib_area->request.code = 0x0021;
-+	sgib_area->op = 0x1;
-+	sgib_area->gib_origin = origin;
-+
-+	ret = chsc(sgib_area);
-+	if (ret == 0)
-+		ret = chsc_error_from_response(sgib_area->response.code);
-+	spin_unlock_irq(&chsc_page_lock);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(chsc_sgib);
-diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-index 78aba8d94eec..e57d68e325a3 100644
---- a/drivers/s390/cio/chsc.h
-+++ b/drivers/s390/cio/chsc.h
-@@ -164,6 +164,7 @@ int chsc_get_channel_measurement_chars(struct channel_path *chp);
- int chsc_ssqd(struct subchannel_id schid, struct chsc_ssqd_area *ssqd);
- int chsc_sadc(struct subchannel_id schid, struct chsc_scssc_area *scssc,
- 	      u64 summary_indicator_addr, u64 subchannel_indicator_addr);
-+int chsc_sgib(u32 origin);
- int chsc_error_from_response(int response);
  
- int chsc_siosl(struct subchannel_id schid);
+-static inline u8 kvm_s390_gisa_get_ipm(struct kvm_s390_gisa *gisa)
++static inline u8 gisa_get_ipm(struct kvm_s390_gisa *gisa)
+ {
+ 	return READ_ONCE(gisa->ipm);
+ }
+ 
+-static inline void kvm_s390_gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++static inline void gisa_clear_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+ {
+ 	clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+ }
+ 
+-static inline int kvm_s390_gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
++static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+ {
+ 	return test_and_clear_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+ }
+@@ -246,7 +246,7 @@ static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
+ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
+ {
+ 	return pending_irqs_no_gisa(vcpu) |
+-		kvm_s390_gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
++		gisa_get_ipm(vcpu->kvm->arch.gisa) << IRQ_PEND_IO_ISC_7;
+ }
+ 
+ static inline int isc_to_irq_type(unsigned long isc)
+@@ -999,7 +999,7 @@ static int __must_check __deliver_io(struct kvm_vcpu *vcpu,
+ 	}
+ 
+ 	if (vcpu->kvm->arch.gisa &&
+-	    kvm_s390_gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
++	    gisa_tac_ipm_gisc(vcpu->kvm->arch.gisa, isc)) {
+ 		/*
+ 		 * in case an adapter interrupt was not delivered
+ 		 * in SIE context KVM will handle the delivery
+@@ -1541,10 +1541,10 @@ static int get_top_gisa_isc(struct kvm *kvm, u64 isc_mask, u32 schid)
+ 	if (!kvm->arch.gisa)
+ 		goto out;
+ 
+-	active_mask = (isc_mask & kvm_s390_gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
++	active_mask = (isc_mask & gisa_get_ipm(kvm->arch.gisa) << 24) << 32;
+ 	while (active_mask) {
+ 		isc = __fls(active_mask) ^ (BITS_PER_LONG - 1);
+-		if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
++		if (gisa_tac_ipm_gisc(kvm->arch.gisa, isc))
+ 			return isc;
+ 		clear_bit_inv(isc, &active_mask);
+ 	}
+@@ -1584,7 +1584,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 	/* both types of interrupts present */
+ 	if (int_word_to_isc(inti->io.io_int_word) <= isc) {
+ 		/* classical IO int with higher priority */
+-		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
++		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
+ 		goto out;
+ 	}
+ gisa_out:
+@@ -1596,7 +1596,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 			kvm_s390_reinject_io_int(kvm, inti);
+ 		inti = tmp_inti;
+ 	} else
+-		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
++		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
+ out:
+ 	return inti;
+ }
+@@ -1694,7 +1694,7 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 
+ 	if (kvm->arch.gisa && inti->type & KVM_S390_INT_IO_AI_MASK) {
+ 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
+-		kvm_s390_gisa_set_ipm_gisc(kvm->arch.gisa, isc);
++		gisa_set_ipm_gisc(kvm->arch.gisa, isc);
+ 		kfree(inti);
+ 		return 0;
+ 	}
+@@ -2025,15 +2025,14 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
+ 
+ 	max_irqs = len / sizeof(struct kvm_s390_irq);
+ 
+-	if (kvm->arch.gisa &&
+-	    kvm_s390_gisa_get_ipm(kvm->arch.gisa)) {
++	if (kvm->arch.gisa && gisa_get_ipm(kvm->arch.gisa)) {
+ 		for (i = 0; i <= MAX_ISC; i++) {
+ 			if (n == max_irqs) {
+ 				/* signal userspace to try again */
+ 				ret = -ENOMEM;
+ 				goto out_nolock;
+ 			}
+-			if (kvm_s390_gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
++			if (gisa_tac_ipm_gisc(kvm->arch.gisa, i)) {
+ 				irq = (struct kvm_s390_irq *) &buf[n];
+ 				irq->type = KVM_S390_INT_IO(1, 0, 0, 0);
+ 				irq->u.io.io_int_word = isc_to_int_word(i);
 -- 
 2.13.4
