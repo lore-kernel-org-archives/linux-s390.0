@@ -1,54 +1,48 @@
-Return-Path: <SRS0=auZG=QG=vger.kernel.org=netdev-owner@kernel.org>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 8/9] net/smc: use device link provided in qp_context
-Date: Wed, 30 Jan 2019 18:51:07 +0100
-In-Reply-To: <20190130175108.103221-1-ubraun@linux.ibm.com>
-References: <20190130175108.103221-1-ubraun@linux.ibm.com>
-Message-Id: <20190130175108.103221-9-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+Return-Path: <SRS0=Wtxu=QH=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 31 Jan 2019 16:41:46 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH RFC] virtio: hint if callbacks surprisingly might sleep
+Message-ID: <20190131164146.285c69d1.cohuck@redhat.com>
+In-Reply-To: <20190131102713-mutt-send-email-mst@kernel.org>
+References: <20190131125314.29647-1-cohuck@redhat.com>
+        <20190131102713-mutt-send-email-mst@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+On Thu, 31 Jan 2019 10:27:53 -0500
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-The device field of the IB event structure does not always point to the
-SMC IB device. Load the pointer from the qp_context which is always
-provided to smc_ib_qp_event_handler() in the priv field. And for qp
-events the affected port is given in the qp structure of the ibevent,
-derive it from there.
+> On Thu, Jan 31, 2019 at 01:53:14PM +0100, Cornelia Huck wrote:
+> > A virtio transport is free to implement some of the callbacks in
+> > virtio_config_ops in a matter that they cannot be called from
+> > atomic context (e.g. virtio-ccw, which maps a lot of the callbacks
+> > to channel I/O, which is an inherently asynchronous mechanism).
+> > This can be very surprising for developers using the much more
+> > common virtio-pci transport, just to find out that things break
+> > when used on s390.
+> > 
+> > The documentation for virtio_config_ops now contains a comment
+> > explaining this, but it makes sense to add a might_sleep() annotation
+> > to various wrapper functions in the virtio core to avoid surprises
+> > later.
+> > 
+> > Note that annotations are NOT added to two classes of calls:
+> > - direct calls from device drivers (all current callers should be
+> >   fine, however)
+> > - calls which clearly won't be made from atomic context (such as
+> >   those ultimately coming in via the driver core)
+> > 
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> 
+> 
+> Makes sense to me. I don't think we should push our luck in
+> this release though, better defer until the merge window.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_ib.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index e519ef29c0ff..76487a16934e 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -289,8 +289,8 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
- 
- static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- {
--	struct smc_ib_device *smcibdev =
--		(struct smc_ib_device *)ibevent->device;
-+	struct smc_link *lnk = (struct smc_link *)priv;
-+	struct smc_ib_device *smcibdev = lnk->smcibdev;
- 	u8 port_idx;
- 
- 	switch (ibevent->event) {
-@@ -298,7 +298,7 @@ static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- 	case IB_EVENT_GID_CHANGE:
- 	case IB_EVENT_PORT_ERR:
- 	case IB_EVENT_QP_ACCESS_ERR:
--		port_idx = ibevent->element.port_num - 1;
-+		port_idx = ibevent->element.qp->port - 1;
- 		set_bit(port_idx, &smcibdev->port_event_mask);
- 		schedule_work(&smcibdev->port_event_work);
- 		break;
--- 
-2.16.4
+Nod, that's definitely something for the next release.
