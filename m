@@ -1,7 +1,7 @@
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v7 15/15] KVM: s390: test for non NULL gisa origin in pending_irqs()
-Date: Thu, 31 Jan 2019 09:52:47 +0100
-Message-ID: <20190131085247.13826-17-mimu@linux.ibm.com>
+Subject: [PATCH v7 15/15] KVM: s390: fix possible null pointer dereference in pending_irqs()
+Date: Thu, 31 Jan 2019 09:52:46 +0100
+Message-ID: <20190131085247.13826-16-mimu@linux.ibm.com>
 References: <20190131085247.13826-1-mimu@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190131085247.13826-1-mimu@linux.ibm.com>
@@ -12,11 +12,11 @@ To: KVM Mailing List <kvm@vger.kernel.org>
 Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Assure a GISA is in use before accessing the IPM to avoid
-a NULL pointer de-referencing issue.
+Assure a GISA is in use before accessing the IPM to avoid a
+null pointer dereference issue.
 
-Reported-by: Halil Pasic <pasic@linux.ibm.com>
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reported-by: Halil Pasic <pasic@linux.ibm.com>
 ---
  arch/s390/kvm/interrupt.c | 10 +++++++---
  1 file changed, 7 insertions(+), 3 deletions(-)
