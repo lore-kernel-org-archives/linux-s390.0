@@ -1,23 +1,31 @@
 Return-Path: <SRS0=Wtxu=QH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 31 Jan 2019 01:27:25 +0100 (CET)
-From: Thomas Gleixner <tglx@linutronix.de>
+Date: Wed, 30 Jan 2019 17:44:42 -0800
+From: "Paul E. McKenney" <paulmck@linux.ibm.com>
 Subject: Re: WARN_ON_ONCE(!new_owner) within wake_futex_pi() triggerede
-In-Reply-To: <alpine.DEB.2.21.1901310049440.8200@nanos.tec.linutronix.de>
-Message-ID: <alpine.DEB.2.21.1901310117110.8200@nanos.tec.linutronix.de>
-References: <20190129171653.ycl64psq2liy5o5c@linutronix.de> <20190130094913.GC5299@osiris> <alpine.DEB.2.21.1901301303320.5537@nanos.tec.linutronix.de> <20190130125955.GD5299@osiris> <20190130132420.spwrq2d4oxeydk5s@linutronix.de>
- <alpine.DEB.2.21.1901301428390.5537@nanos.tec.linutronix.de> <alpine.DEB.2.21.1901301517220.1950@nanos.tec.linutronix.de> <alpine.DEB.2.21.1901301853290.1622@nanos.tec.linutronix.de> <20190130210733.mg6aascw2gzl3oqz@linutronix.de>
- <alpine.DEB.2.21.1901302314590.8200@nanos.tec.linutronix.de> <20190130233557.GA4240@linux.ibm.com> <alpine.DEB.2.21.1901310049440.8200@nanos.tec.linutronix.de>
+Reply-To: paulmck@linux.ibm.com
+References: <alpine.DEB.2.21.1901301303320.5537@nanos.tec.linutronix.de>
+ <20190130125955.GD5299@osiris>
+ <20190130132420.spwrq2d4oxeydk5s@linutronix.de>
+ <alpine.DEB.2.21.1901301428390.5537@nanos.tec.linutronix.de>
+ <alpine.DEB.2.21.1901301517220.1950@nanos.tec.linutronix.de>
+ <alpine.DEB.2.21.1901301853290.1622@nanos.tec.linutronix.de>
+ <20190130210733.mg6aascw2gzl3oqz@linutronix.de>
+ <alpine.DEB.2.21.1901302314590.8200@nanos.tec.linutronix.de>
+ <20190130233557.GA4240@linux.ibm.com>
+ <alpine.DEB.2.21.1901310049440.8200@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.1901310049440.8200@nanos.tec.linutronix.de>
+Message-Id: <20190131014442.GB4240@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Paul E. McKenney" <paulmck@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
 Cc: Sebastian Sewior <bigeasy@linutronix.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 31 Jan 2019, Thomas Gleixner wrote:
-
+On Thu, Jan 31, 2019 at 12:55:18AM +0100, Thomas Gleixner wrote:
 > On Wed, 30 Jan 2019, Paul E. McKenney wrote:
 > > On Thu, Jan 31, 2019 at 12:13:51AM +0100, Thomas Gleixner wrote:
 > > > I might be wrong as usual, but this would definitely explain the fail very
@@ -44,13 +52,15 @@ On Thu, 31 Jan 2019, Thomas Gleixner wrote:
 > 8f9450a0b7a9 ("Add compiler barriers around modifications of the robust mutex list.")
 > 
 > in the glibc repository, There since Dec 24 2016 ...
+> 
+> So the question is whether this is sufficient. That ordering only only
+> matters vs. the thread itself and not for others.
 
-And of course, I'm using the latest greatest glibc for testing that, so I'm
-not at all surprised that it just does not reproduce on my tests.
+Ah, in that case you can use __atomic_signal_fence(__ATOMIC_RELEASE)
+instead of the __atomic_thread_fence(__ATOMIC_RELEASE).
 
-I just hacked the ordering and restarted the test. If the theory holds,
-then this should die sooner than later.
+The __atomic_thread_fence(__ATOMIC_RELEASE) provides ordering between
+threads, but __atomic_signal_fence(__ATOMIC_RELEASE) only does so
+within a thread.
 
-Thanks,
-
-	tglx
+							Thanx, Paul
