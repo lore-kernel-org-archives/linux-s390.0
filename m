@@ -1,15 +1,15 @@
 Return-Path: <SRS0=Wtxu=QH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
-References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 31 Jan 2019 10:09:40 +0100
+Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
+Reply-To: pmorel@linux.ibm.com
+References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+Date: Thu, 31 Jan 2019 10:23:53 +0100
 MIME-Version: 1.0
 In-Reply-To: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <95a29dd5-11d5-0984-ffbd-73ef92ed1aba@linux.ibm.com>
+Message-Id: <a6d62c9d-f171-a45a-35c5-ffa87cd74479@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
