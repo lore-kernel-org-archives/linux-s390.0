@@ -1,12 +1,12 @@
 Return-Path: <SRS0=sKCI=QH=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH v3 3/7] coresight: Use event attributes for sink selection
+Subject: Re: [PATCH v3 7/7] perf tools: Remove PMU::set_drv_config API
 References: <20190131184714.20388-1-mathieu.poirier@linaro.org>
- <20190131184714.20388-4-mathieu.poirier@linaro.org>
+ <20190131184714.20388-8-mathieu.poirier@linaro.org>
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <6fa9c1f9-2952-f758-851d-4fe4335d561b@arm.com>
-Date: Thu, 31 Jan 2019 18:58:50 +0000
+Message-ID: <695e25a7-d1f0-d764-493e-4c64310ef16b@arm.com>
+Date: Thu, 31 Jan 2019 19:03:48 +0000
 MIME-Version: 1.0
-In-Reply-To: <20190131184714.20388-4-mathieu.poirier@linaro.org>
+In-Reply-To: <20190131184714.20388-8-mathieu.poirier@linaro.org>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -27,16 +27,25 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 On 31/01/2019 18:47, Mathieu Poirier wrote:
-> This patch uses the information conveyed by perf_event::attr::config2
-> to select a sink to use for the session.  That way a sink can easily be
-> selected to be used by more than one source, something that isn't currently
-> possible with the sysfs implementation.
+> CoreSight was the only client of the PMU's set_drv_config() API.  Now
+> that it is no longer needed by CoreSight remove it from the code base.
 > 
 > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 > ---
+>   tools/perf/builtin-record.c   | 10 -----
+>   tools/perf/builtin-stat.c     |  9 ----
+>   tools/perf/builtin-top.c      | 13 ------
+>   tools/perf/util/Build         |  1 -
+>   tools/perf/util/drv_configs.c | 78 -----------------------------------
+>   tools/perf/util/drv_configs.h | 26 ------------
+>   tools/perf/util/pmu.h         |  1 -
+>   7 files changed, 138 deletions(-)
+>   delete mode 100644 tools/perf/util/drv_configs.c
+>   delete mode 100644 tools/perf/util/drv_configs.h
 
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Nice !
+
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 
 _______________________________________________
 linux-arm-kernel mailing list
