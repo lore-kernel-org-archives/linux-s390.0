@@ -1,24 +1,23 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH v1] KVM: s390: vsie: fix Do the CRYCB validation first
-Date: Fri, 1 Feb 2019 11:50:41 +0100
-Message-ID: <20190201115041.04797c4c.cohuck@redhat.com>
+Date: Fri, 1 Feb 2019 11:56:55 +0100
+Message-ID: <ccdc89cd-5299-e674-3329-74e9131dd874@redhat.com>
 References: <1549014725-28216-1-git-send-email-pmorel@linux.ibm.com>
-        <1549014725-28216-2-git-send-email-pmorel@linux.ibm.com>
+ <1549014725-28216-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1549014725-28216-2-git-send-email-pmorel@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, david@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri,  1 Feb 2019 10:52:05 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
+On 01.02.19 10:52, Pierre Morel wrote:
 > The case when the SIE for guest3 is not setup for using
 > encryption keys nor Adjunct processor but the guest2
 > does use these features was not properly handled.
@@ -33,22 +32,11 @@ Pierre Morel <pmorel@linux.ibm.com> wrote:
 > on SIE entry.
 > 
 > Let's allow the CRYCD designation to be ignored when the
-
-s/CRYCD/CRYCB/
-
 > SIE for guest3 is not initialized for encryption key usage
 > nor AP.
 > 
 > Fixup: d6f6959 (KVM: s390: vsie: Do the CRYCB validation first)
-
-I think the canonical format is
-
-Fixes: d6f6959ac587 ("KVM: s390: vsie: Do the CRYCB validation first")
-
 > 
-
-CC: stable@vger.kernel.org # 4.20+
-
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > ---
@@ -69,5 +57,19 @@ CC: stable@vger.kernel.org # 4.20+
 >  	if (!crycb_addr)
 >  		return set_validity_icpt(scb_s, 0x0039U);
 >  
+> 
 
-Looks sane to me, but I'll let vsie experts comment.
+The original patch said
+
+"We need to handle the validity checks for the crycb, no matter what the
+ settings for the keywrappings are. So lets move the keywrapping checks
+ after we have done the validy checks."
+
+Can you explain why keywrapping now is important? These patches seem to
+contradict.
+
+-- 
+
+Thanks,
+
+David / dhildenb
