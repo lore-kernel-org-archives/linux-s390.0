@@ -1,146 +1,42 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v1] KVM: s390: vsie: fix Do the CRYCB validation first
-Date: Mon, 4 Feb 2019 17:17:30 +0100
-Message-ID: <206f8cb5-2be8-9c54-eafb-1a050e71aebc@linux.ibm.com>
-References: <1549014725-28216-1-git-send-email-pmorel@linux.ibm.com>
- <1549014725-28216-2-git-send-email-pmorel@linux.ibm.com>
- <ccdc89cd-5299-e674-3329-74e9131dd874@redhat.com>
- <3bb397e9-d679-1152-1b42-d633682b3272@linux.ibm.com>
- <4d3977bf-63ec-5732-b2fc-ea8654f444e3@redhat.com>
-Reply-To: pmorel@linux.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4d3977bf-63ec-5732-b2fc-ea8654f444e3@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, borntraeger@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, Claudio Imbrenda <imbrenda@linux.ibm.com>
+Return-Path: <SRS0=JyYb=QI=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Date: Fri, 1 Feb 2019 17:03:59 +0100
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Subject: Re: [PATCH v3 7/7] perf tools: Remove PMU::set_drv_config API
+Message-ID: <20190201160359.GB8839@kernel.org>
+References: <20190131184714.20388-1-mathieu.poirier@linaro.org>
+ <20190131184714.20388-8-mathieu.poirier@linaro.org>
+ <695e25a7-d1f0-d764-493e-4c64310ef16b@arm.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <695e25a7-d1f0-d764-493e-4c64310ef16b@arm.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: mark.rutland@arm.com, linux-s390@vger.kernel.org, mathieu.poirier@linaro.org, peterz@infradead.org, gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com, adrian.hunter@intel.com, will.deacon@arm.com, ast@kernel.org, alexander.shishkin@linux.intel.com, mingo@redhat.com, linux-arm-kernel@lists.infradead.org, hpa@zytor.com, schwidefsky@de.ibm.com, namhyung@kernel.org, tglx@linutronix.de, jolsa@redhat.com, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 04/02/2019 16:15, David Hildenbrand wrote:
-> On 01.02.19 14:37, Pierre Morel wrote:
->> On 01/02/2019 11:56, David Hildenbrand wrote:
->>> On 01.02.19 10:52, Pierre Morel wrote:
->>>> The case when the SIE for guest3 is not setup for using
->>>> encryption keys nor Adjunct processor but the guest2
->>>> does use these features was not properly handled.
->>>>
->>>> This leads SIE entry for guest3 to crash with validity intercept
->>>> because the guest2, not having the use of encryption keys nor
->>>> Adjunct Processor did not initialize the CRYCB designation.
->>>>
->>>> In the case where none of ECA_APIE, ECB3_AES or ECB3_DEA
->>>> are set in guest3 a format 0 CRYCB is allowed for guest3
->>>> and the CRYCB designation in the SIE for guest3 is not checked
->>>> on SIE entry.
->>>>
->>>> Let's allow the CRYCD designation to be ignored when the
->>>> SIE for guest3 is not initialized for encryption key usage
->>>> nor AP.
->>>>
->>>> Fixup: d6f6959 (KVM: s390: vsie: Do the CRYCB validation first)
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>> Reported-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>>> ---
->>>>    arch/s390/kvm/vsie.c | 3 +++
->>>>    1 file changed, 3 insertions(+)
->>>>
->>>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>>> index a153257..a748f76 100644
->>>> --- a/arch/s390/kvm/vsie.c
->>>> +++ b/arch/s390/kvm/vsie.c
->>>> @@ -300,6 +300,9 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>>    	if (!apie_h && !key_msk)
->>>>    		return 0;
->>>>    
->>>> +	if (!(scb_o->eca & ECA_APIE) && !(scb_o->ecb3 & (ECB3_AES | ECB3_DEA)))
->>>> +		return 0;
->>>> +
->>>>    	if (!crycb_addr)
->>>>    		return set_validity_icpt(scb_s, 0x0039U);
->>>>    
->>>>
->>>
->>> The original patch said
->>>
->>> "We need to handle the validity checks for the crycb, no matter what the
->>>    settings for the keywrappings are. So lets move the keywrapping checks
->>>    after we have done the validy checks."
->>>
->>> Can you explain why keywrapping now is important? These patches seem to
->>> contradict.
->>>
->>
->> No it does not, having the flags set or not is part of the validity check.
->> but, I acted too fast.
->>
->> The problem seems to be even clearer:
->> key_msk is defined as
->>      int key_msk = test_kvm_facility(vcpu->kvm, 76);
->>
->> If it is defined, as it should for a mask, as
->> 	(scb_o->ecb3 & (ECB3_AES | ECB3_DEA))
->>
->> all is clear..., key_msk is not use but for this test, so I do not
->> understand why it is set as facility 76.
->>
->> so I think I better do:
->>
->>
->> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->> index a153257..30843a8 100644
->> --- a/arch/s390/kvm/vsie.c
->> +++ b/arch/s390/kvm/vsie.c
->> @@ -289,7 +289,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu,
->> struct vsie_page *vsie_page)
->>           unsigned long *b1, *b2;
->>           u8 ecb3_flags;
->>           int apie_h;
->> -       int key_msk = test_kvm_facility(vcpu->kvm, 76);
->> +       int key_msk = scb_o->ecb3 & (ECB3_AES | ECB3_DEA);
->>           int fmt_o = crycbd_o & CRYCB_FORMAT_MASK;
->>           int fmt_h = vcpu->arch.sie_block->crycbd & CRYCB_FORMAT_MASK;
->>           int ret = 0;
->>
->>
->> So just define a mask a mask.
->> I verify the functionality and test on Monday  and if in between it
->> seems better to you so too I post the patch.
-> 
-> Without documentation at hand I cannot really judge what is the right
-> approach. You have to read the architecture description very carefully
-> and thimk about the different scenarios. I cannot help here.
-> 
-> test_kvm_facility(vcpu->kvm, 76) means "hardware knows key wrapping exists"
-> 
-> scb_o->ecb3 & (ECB3_AES | ECB3_DEA) means "key wrapping was actually
-> enabled for AES or DEA"
+Em Thu, Jan 31, 2019 at 07:03:48PM +0000, Suzuki K Poulose escreveu:
+> On 31/01/2019 18:47, Mathieu Poirier wrote:
+> > CoreSight was the only client of the PMU's set_drv_config() API.  Now
+> > that it is no longer needed by CoreSight remove it from the code base.
+> > 
+> > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 
+I'm processing the patchkit, test building it on a cross arch64 build.
 
-Right.
-We also must take care of the format.
-So not sure my propositions are right.
-And helas I have the documentation :)
-So ... I have to read it again again.
+- Arnaldo
 
-
-Regards,
-Pierre
-
-> 
->>
->> Thanks,
->> Pierre
->>
-> 
-> 
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
