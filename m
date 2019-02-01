@@ -1,41 +1,28 @@
-Return-Path: <SRS0=VkHl=QP=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 8 Feb 2019 09:38:08 +0100
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] Use ARRAY_SIZE instead of dividing sizeof array with
- sizeof an element.
-References: <20190208024110.8021-1-allen.lkml@gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <20190208024110.8021-1-allen.lkml@gmail.com>
-Message-Id: <20190208083808.GB2803@osiris>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Allen <allen.lkml@gmail.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Fri, 01 Feb 2019 11:53:00 +0000
+Subject: Re: [PATCH -next] s390: remove unused including <linux/version.h>
+Message-Id: <20190201115300.GD3770@osiris>
+In-Reply-To: <20190201020252.127647-1-yuehaibing@huawei.com>
+References: <20190201020252.127647-1-yuehaibing@huawei.com>
+To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Feb 08, 2019 at 08:11:10AM +0530, Allen wrote:
-> From: Allen Pais <allen.lkml@gmail.com>
+On Fri, Feb 01, 2019 at 02:02:52AM +0000, YueHaibing wrote:
+> Remove including <linux/version.h> that don't need it.
 > 
-> This issue was detected with the help of Coccinelle.
-> 
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 > ---
->  arch/s390/tools/gen_opcode_table.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/s390/kernel/setup.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/arch/s390/tools/gen_opcode_table.c b/arch/s390/tools/gen_opcode_table.c
-> index a1bc02b29c81..468b70c85f62 100644
-> --- a/arch/s390/tools/gen_opcode_table.c
-> +++ b/arch/s390/tools/gen_opcode_table.c
-> @@ -138,7 +138,7 @@ static struct insn_type *insn_format_to_type(char *format)
->  	strcpy(tmp, format);
->  	base_format = tmp;
->  	base_format = strsep(&base_format, "_");
-> -	for (i = 0; i < sizeof(insn_type_table) / sizeof(insn_type_table[0]); i++) {
-> +	for (i = 0; i < ARRAY_SIZE(insn_type_table); i++) {
+> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> index 3b416599f6ca..5e707eaa0b31 100644
+> --- a/arch/s390/kernel/setup.c
+> +++ b/arch/s390/kernel/setup.c
+> @@ -49,7 +49,6 @@
+>  #include <linux/memory.h>
+>  #include <linux/compat.h>
+>  #include <linux/start_kernel.h>
+> -#include <linux/version.h>
 
-This does not compile.
+Applied, thanks.
