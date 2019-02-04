@@ -1,66 +1,39 @@
 Return-Path: <SRS0=ZPcH=QL=vger.kernel.org=netdev-owner@kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 3/4] s390/qeth: cancel close_dev work before removing a card
-Date: Mon,  4 Feb 2019 17:40:08 +0100
-In-Reply-To: <20190204164009.7245-1-jwi@linux.ibm.com>
-References: <20190204164009.7245-1-jwi@linux.ibm.com>
-Message-Id: <20190204164009.7245-4-jwi@linux.ibm.com>
+Date: Mon, 4 Feb 2019 09:46:58 -0800
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Subject: Re: [PATCH] s390: bpf: fix JMP32 code-gen
+Message-ID: <20190204174657.txmeyjiezdatwzyw@ast-mbp.dhcp.thefacebook.com>
+References: <20190204154455.88687-1-heiko.carstens@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190204154455.88687-1-heiko.carstens@de.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Alexei Starovoitov <ast@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Jiong Wang <jiong.wang@netronome.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-A card's close_dev work is scheduled on a driver-wide workqueue. If the
-card is removed and freed while the work is still active, this causes a
-use-after-free.
-So make sure that the work is completed before freeing the card.
+On Mon, Feb 04, 2019 at 04:44:55PM +0100, Heiko Carstens wrote:
+> Commit 626a5f66da0d19 ("s390: bpf: implement jitting of JMP32") added
+> JMP32 code-gen support for s390. However it triggers the warning below
+> due to some unusual gotos in the original s390 bpf jit code.
+> 
+> Add a couple of additional "is_jmp32" initializations to fix this.
+> Also fix the wrong opcode for the "llilf" instruction that was
+> introduced with the same commit.
+> 
+> arch/s390/net/bpf_jit_comp.c: In function 'bpf_jit_insn':
+> arch/s390/net/bpf_jit_comp.c:248:55: warning: 'is_jmp32' may be used uninitialized in this function [-Wmaybe-uninitialized]
+>   _EMIT6(op1 | reg(b1, b2) << 16 | (rel & 0xffff), op2 | mask); \
+>                                                        ^
+> arch/s390/net/bpf_jit_comp.c:1211:8: note: 'is_jmp32' was declared here
+>    bool is_jmp32 = BPF_CLASS(insn->code) == BPF_JMP32;
+> 
+> Fixes: 626a5f66da0d19 ("s390: bpf: implement jitting of JMP32")
+> Cc: Jiong Wang <jiong.wang@netronome.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Fixes: 0f54761d167f ("qeth: Support VEPA mode")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h    | 1 +
- drivers/s390/net/qeth_l2_main.c | 2 ++
- drivers/s390/net/qeth_l3_main.c | 1 +
- 3 files changed, 4 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 0ee026947f20..1cf45ace0dd0 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -22,6 +22,7 @@
- #include <linux/hashtable.h>
- #include <linux/ip.h>
- #include <linux/refcount.h>
-+#include <linux/workqueue.h>
- 
- #include <net/ipv6.h>
- #include <net/if_inet6.h>
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index f108d4b44605..9fec0117fc00 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -801,6 +801,8 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
- 
- 	if (cgdev->state == CCWGROUP_ONLINE)
- 		qeth_l2_set_offline(cgdev);
-+
-+	cancel_work_sync(&card->close_dev_work);
- 	if (qeth_netdev_is_registered(card->dev))
- 		unregister_netdev(card->dev);
- }
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 42a7cdc59b76..5e810561cb12 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2338,6 +2338,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 	if (cgdev->state == CCWGROUP_ONLINE)
- 		qeth_l3_set_offline(cgdev);
- 
-+	cancel_work_sync(&card->close_dev_work);
- 	if (qeth_netdev_is_registered(card->dev))
- 		unregister_netdev(card->dev);
- 	qeth_l3_clear_ip_htable(card, 0);
--- 
-2.16.4
+Applied to bpf-next. Thanks!
