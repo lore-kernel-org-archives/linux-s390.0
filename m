@@ -1,15 +1,19 @@
-From: Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH v3 2/6] vfio-ccw: rework ssch state handling
-Date: Mon, 4 Feb 2019 16:29:40 -0500
-Message-ID: <55d9fc3d-12ec-9ad7-cdaa-72c5dbb65aca@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v3 1/6] vfio-ccw: make it safe to access
+ channel programs
+Date: Tue, 5 Feb 2019 12:52:29 +0100
+Message-ID: <20190205125229.56c6e252@oc2783563651>
 References: <20190130132212.7376-1-cohuck@redhat.com>
-	<20190130132212.7376-3-cohuck@redhat.com>
+	<20190130132212.7376-2-cohuck@redhat.com>
+	<20190130195127.5ff3c849@oc2783563651>
+	<20190131125220.285a4bc8.cohuck@redhat.com>
+	<20190131133455.3097613f@oc2783563651>
+	<20190204163102.33d744d8.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190130132212.7376-3-cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20190204163102.33d744d8.cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -22,182 +26,65 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, kvm@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, qemu-s390x@nongnu.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 4 Feb 2019 16:31:02 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-
-On 01/30/2019 08:22 AM, Cornelia Huck wrote:
-> The flow for processing ssch requests can be improved by splitting
-> the BUSY state:
+> On Thu, 31 Jan 2019 13:34:55 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> - CP_PROCESSING: We reject any user space requests while we are in
->    the process of translating a channel program and submitting it to
->    the hardware. Use -EAGAIN to signal user space that it should
->    retry the request.
-> - CP_PENDING: We have successfully submitted a request with ssch and
->    are now expecting an interrupt. As we can't handle more than one
->    channel program being processed, reject any further requests with
->    -EBUSY. A final interrupt will move us out of this state; this also
->    fixes a latent bug where a non-final interrupt might have freed up
->    a channel program that still was in progress.
->    By making this a separate state, we make it possible to issue a
->    halt or a clear while we're still waiting for the final interrupt
->    for the ssch (in a follow-on patch).
+> > On Thu, 31 Jan 2019 12:52:20 +0100
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > On Wed, 30 Jan 2019 19:51:27 +0100
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >   
+> > > > On Wed, 30 Jan 2019 14:22:07 +0100
+> > > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > > >   
+> > > > > When we get a solicited interrupt, the start function may have
+> > > > > been cleared by a csch, but we still have a channel program
+> > > > > structure allocated. Make it safe to call the cp accessors in
+> > > > > any case, so we can call them unconditionally.    
+> > > > 
+> > > > I read this like it is supposed to be safe regardless of
+> > > > parallelism and threads. However I don't see any explicit
+> > > > synchronization done for cp->initialized.
+> > > > 
+> > > > I've managed to figure out how is that supposed to be safe
+> > > > for the cp_free() (which is probably our main concern) in
+> > > > vfio_ccw_sch_io_todo(), but if fail when it comes to the one
+> > > > in vfio_ccw_mdev_notifier().
+> > > > 
+> > > > Can you explain us how does the synchronization work?  
+> > > 
+> > > You read that wrong, I don't add synchronization, I just add a check.
+> > >   
+> > 
+> > Now I'm confused. Does that mean we don't need synchronization for this?
 > 
-> It also makes a lot of sense not to preemptively filter out writes to
-> the io_region if we're in an incorrect state: the state machine will
-> handle this correctly.
+> If we lack synchronization (that is not provided by the current state
+> machine handling, or the rework here), we should do a patch on top
+> (preferably on top of the whole series, so this does not get even more
+> tangled up.) This is really just about the extra check.
 > 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   drivers/s390/cio/vfio_ccw_drv.c     |  8 ++++++--
->   drivers/s390/cio/vfio_ccw_fsm.c     | 19 ++++++++++++++-----
->   drivers/s390/cio/vfio_ccw_ops.c     |  2 --
->   drivers/s390/cio/vfio_ccw_private.h |  3 ++-
->   4 files changed, 22 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index a10cec0e86eb..0b3b9de45c60 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -72,20 +72,24 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
->   {
->   	struct vfio_ccw_private *private;
->   	struct irb *irb;
-> +	bool is_final;
->   
->   	private = container_of(work, struct vfio_ccw_private, io_work);
->   	irb = &private->irb;
->   
-> +	is_final = !(scsw_actl(&irb->scsw) &
-> +		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
->   	if (scsw_is_solicited(&irb->scsw)) {
->   		cp_update_scsw(&private->cp, &irb->scsw);
-> -		cp_free(&private->cp);
-> +		if (is_final)
-> +			cp_free(&private->cp);
->   	}
->   	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
->   
->   	if (private->io_trigger)
->   		eventfd_signal(private->io_trigger, 1);
->   
-> -	if (private->mdev)
-> +	if (private->mdev && is_final)
->   		private->state = VFIO_CCW_STATE_IDLE;
->   }
->   
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index e7c9877c9f1e..b4a141fbd1a8 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -28,7 +28,6 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->   	sch = private->sch;
->   
->   	spin_lock_irqsave(sch->lock, flags);
-> -	private->state = VFIO_CCW_STATE_BUSY;
->   
->   	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
->   	if (!orb) {
-> @@ -46,6 +45,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->   		 */
->   		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
->   		ret = 0;
-> +		private->state = VFIO_CCW_STATE_CP_PENDING;
 
-[1]
+I'm not a huge fan of keeping or introducing races -- it makes things
+difficult to reason about, but I do have some understanging your
+position.
 
->   		break;
->   	case 1:		/* Status pending */
->   	case 2:		/* Busy */
-> @@ -107,6 +107,12 @@ static void fsm_io_busy(struct vfio_ccw_private *private,
->   	private->io_region->ret_code = -EBUSY;
->   }
->   
-> +static void fsm_io_retry(struct vfio_ccw_private *private,
-> +			 enum vfio_ccw_event event)
-> +{
-> +	private->io_region->ret_code = -EAGAIN;
-> +}
-> +
->   static void fsm_disabled_irq(struct vfio_ccw_private *private,
->   			     enum vfio_ccw_event event)
->   {
-> @@ -135,8 +141,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   	struct mdev_device *mdev = private->mdev;
->   	char *errstr = "request";
->   
-> -	private->state = VFIO_CCW_STATE_BUSY;
-> -
-> +	private->state = VFIO_CCW_STATE_CP_PROCESSING;
+This patch-series is AFAICT a big improvement over what we have. I would
+like Farhan confirming that it makes these hick-ups when he used to hit
+BUSY with another ssch request disappear. If it does (I hope it does)
+it's definitely a good thing for anybody who wants to use vfio-ccw.
 
-[1]
+Yet I find it difficult to slap my r-b over racy code, or partial
+solutions. In the latter case, when I lack conceptual clarity, I find it
+difficult to tell if we are heading into the right direction, or is what
+we build today going to turn against us tomorrow. Sorry for being a drag.
 
->   	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
->   
->   	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
-> @@ -181,7 +186,6 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->   	}
->   
->   err_out:
-> -	private->state = VFIO_CCW_STATE_IDLE;
-
-[1] Revisiting these locations as from an earlier discussion [2]... 
-These go IDLE->CP_PROCESSING->CP_PENDING if we get a cc=0 on the SSCH, 
-but we stop in CP_PROCESSING if the SSCH gets a nonzero cc.  Shouldn't 
-we cleanup and go back to IDLE in this scenario, rather than forcing 
-userspace to escalate to CSCH/HSCH after some number of retries (via FSM)?
-
-[2] https://patchwork.kernel.org/patch/10773611/#22447997
-
-Besides that, I think this looks good to me.
-
-  - Eric
-
->   	trace_vfio_ccw_io_fctl(scsw->cmd.fctl, get_schid(private),
->   			       io_region->ret_code, errstr);
->   }
-> @@ -221,7 +225,12 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
->   		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
->   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
->   	},
-> -	[VFIO_CCW_STATE_BUSY] = {
-> +	[VFIO_CCW_STATE_CP_PROCESSING] = {
-> +		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
-> +		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_retry,
-> +		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> +	},
-> +	[VFIO_CCW_STATE_CP_PENDING] = {
->   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->   		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
->   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index f673e106c041..3fdcc6dfe0bf 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -193,8 +193,6 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
->   		return -EINVAL;
->   
->   	private = dev_get_drvdata(mdev_parent_dev(mdev));
-> -	if (private->state != VFIO_CCW_STATE_IDLE)
-> -		return -EACCES;
->   
->   	region = private->io_region;
->   	if (copy_from_user((void *)region + *ppos, buf, count))
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index 08e9a7dc9176..50c52efb4fcb 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -63,7 +63,8 @@ enum vfio_ccw_state {
->   	VFIO_CCW_STATE_NOT_OPER,
->   	VFIO_CCW_STATE_STANDBY,
->   	VFIO_CCW_STATE_IDLE,
-> -	VFIO_CCW_STATE_BUSY,
-> +	VFIO_CCW_STATE_CP_PROCESSING,
-> +	VFIO_CCW_STATE_CP_PENDING,
->   	/* last element! */
->   	NR_VFIO_CCW_STATES
->   };
-> 
+Regards,
+Halil
