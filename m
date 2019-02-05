@@ -1,45 +1,37 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v7 15/15] KVM: s390: fix possible null pointer dereference
- in pending_irqs()
-Date: Tue, 5 Feb 2019 09:57:47 +0100
-Message-ID: <9fb5481b-fa4e-e63c-2017-a10875a5587e@de.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v7 12/15] KVM: s390: kvm_s390_gisa_clear() now clears the
+ IPM only
+Date: Tue, 5 Feb 2019 11:05:43 +0100
+Message-ID: <a0a9510d-c399-6f7f-36bf-3610abebfeae@linux.ibm.com>
 References: <20190131085247.13826-1-mimu@linux.ibm.com>
- <20190131085247.13826-16-mimu@linux.ibm.com>
- <20190131184712.3fcd8c36.cohuck@redhat.com>
+ <20190131085247.13826-13-mimu@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190131184712.3fcd8c36.cohuck@redhat.com>
+In-Reply-To: <20190131085247.13826-13-mimu@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>
+Cc: Linux-S390 Mailing List <linux-s390@vger.kernel.org>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On 31/01/2019 09:52, Michael Mueller wrote:
+> Function kvm_s390_gisa_clear() now clears the Interruption
+> Pending Mask of the GISA asap. If the GISA is in the alert
+> list at this time it stays in the list but is removed by
+> process_gib_alert_list().
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 
 
-On 31.01.2019 18:47, Cornelia Huck wrote:
-> On Thu, 31 Jan 2019 09:52:46 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
->> Assure a GISA is in use before accessing the IPM to avoid a
->> null pointer dereference issue.
-> 
-> This series can hopefully make it into the next merge window;
-> otherwise, queuing a patch fixing up the original code would be good.
+I would have written "will be removed by ...." however
 
+Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
 
-Yes, I plan to apply this series today.
-> 
->>
->> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->> Reported-by: Halil Pasic <pasic@linux.ibm.com>
->> ---
->>  arch/s390/kvm/interrupt.c | 10 +++++++---
->>  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
