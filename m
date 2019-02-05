@@ -1,17 +1,22 @@
-From: Eric Farman <farman@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
 Subject: Re: [PATCH v3 1/6] vfio-ccw: make it safe to access
  channel programs
-Date: Tue, 5 Feb 2019 09:41:15 -0500
-Message-ID: <34836353-1c5b-4013-f0ff-6172bf493618@linux.ibm.com>
+Date: Tue, 5 Feb 2019 10:14:46 -0500
+Message-ID: <56301fff-3643-516b-a475-0f39b6221c5f@linux.ibm.com>
 References: <20190130132212.7376-1-cohuck@redhat.com>
 	<20190130132212.7376-2-cohuck@redhat.com>
-	<9b35717e-8994-cde9-2afe-243ab80c371a@linux.ibm.com>
-	<20190205130344.30b8279f.cohuck@redhat.com>
+	<20190130195127.5ff3c849@oc2783563651>
+	<20190131125220.285a4bc8.cohuck@redhat.com>
+	<20190131133455.3097613f@oc2783563651>
+	<20190204163102.33d744d8.cohuck@redhat.com>
+	<20190205125229.56c6e252@oc2783563651>
+	<20190205133540.573902d8.cohuck@redhat.com>
+	<ad60e2d5-f222-da38-41fd-bcbd7c9965a0@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190205130344.30b8279f.cohuck@redhat.com>
+In-Reply-To: <ad60e2d5-f222-da38-41fd-bcbd7c9965a0@linux.ibm.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
@@ -25,147 +30,104 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
+To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 02/05/2019 07:03 AM, Cornelia Huck wrote:
-> On Mon, 4 Feb 2019 14:25:34 -0500
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
->> On 01/30/2019 08:22 AM, Cornelia Huck wrote:
->>> When we get a solicited interrupt, the start function may have
->>> been cleared by a csch, but we still have a channel program
->>> structure allocated. Make it safe to call the cp accessors in
->>> any case, so we can call them unconditionally.
+On 02/05/2019 09:48 AM, Eric Farman wrote:
+>=20
+>=20
+> On 02/05/2019 07:35 AM, Cornelia Huck wrote:
+>> On Tue, 5 Feb 2019 12:52:29 +0100
+>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>
+>>> On Mon, 4 Feb 2019 16:31:02 +0100
+>>> Cornelia Huck <cohuck@redhat.com> wrote:
 >>>
->>> While at it, also make sure that functions called from other parts
->>> of the code return gracefully if the channel program structure
->>> has not been initialized (even though that is a bug in the caller).
+>>>> On Thu, 31 Jan 2019 13:34:55 +0100
+>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>> On Thu, 31 Jan 2019 12:52:20 +0100
+>>>>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>>>>> On Wed, 30 Jan 2019 19:51:27 +0100
+>>>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>>> On Wed, 30 Jan 2019 14:22:07 +0100
+>>>>>>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>>>>>>> When we get a solicited interrupt, the start function may have
+>>>>>>>> been cleared by a csch, but we still have a channel program
+>>>>>>>> structure allocated. Make it safe to call the cp accessors in
+>>>>>>>> any case, so we can call them unconditionally.
+>>>>>>>
+>>>>>>> I read this like it is supposed to be safe regardless of
+>>>>>>> parallelism and threads. However I don't see any explicit
+>>>>>>> synchronization done for cp->initialized.
+>>>>>>>
+>>>>>>> I've managed to figure out how is that supposed to be safe
+>>>>>>> for the cp_free() (which is probably our main concern) in
+>>>>>>> vfio_ccw_sch_io_todo(), but if fail when it comes to the one
+>>>>>>> in vfio_ccw_mdev_notifier().
+>>>>>>>
+>>>>>>> Can you explain us how does the synchronization work?
+>>>>>>
+>>>>>> You read that wrong, I don't add synchronization, I just add a che=
+ck.
+>>>>>
+>>>>> Now I'm confused. Does that mean we don't need synchronization for=20
+>>>>> this?
+>>>>
+>>>> If we lack synchronization (that is not provided by the current stat=
+e
+>>>> machine handling, or the rework here), we should do a patch on top
+>>>> (preferably on top of the whole series, so this does not get even mo=
+re
+>>>> tangled up.) This is really just about the extra check.
 >>>
->>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->>> ---
->>>    drivers/s390/cio/vfio_ccw_cp.c  | 20 +++++++++++++++++++-
->>>    drivers/s390/cio/vfio_ccw_cp.h  |  2 ++
->>>    drivers/s390/cio/vfio_ccw_fsm.c |  5 +++++
->>>    3 files changed, 26 insertions(+), 1 deletion(-)
+>>> I'm not a huge fan of keeping or introducing races -- it makes things
+>>> difficult to reason about, but I do have some understanging your
+>>> position.
+>>
+>> The only thing I want to avoid is knowingly making things worse than
+>> before, and I don't think this patch does that.
+>>
 >>>
->>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
->>> index ba08fe137c2e..0bc0c38edda7 100644
->>> --- a/drivers/s390/cio/vfio_ccw_cp.c
->>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
->>> @@ -335,6 +335,7 @@ static void cp_unpin_free(struct channel_program *cp)
->>>    	struct ccwchain *chain, *temp;
->>>    	int i;
->>>    
->>> +	cp->initialized = false;
->>>    	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
->>>    		for (i = 0; i < chain->ch_len; i++) {
->>>    			pfn_array_table_unpin_free(chain->ch_pat + i,
->>> @@ -701,6 +702,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
->>>    	 */
->>>    	cp->orb.cmd.c64 = 1;
->>>    
->>> +	cp->initialized = true;
->>> +
+>>> This patch-series is AFAICT a big improvement over what we have. I wo=
+uld
+>>> like Farhan confirming that it makes these hick-ups when he used to h=
+it
+>>> BUSY with another ssch request disappear. If it does (I hope it does)
+>>> it's definitely a good thing for anybody who wants to use vfio-ccw.
 >>
->> Not seen in this hunk, but we call ccwchain_loop_tic() just prior to
->> this point.  If that returns non-zero, we call cp_unpin_free()[1] (and
->> set initailized to false), and then fall through to here.  So this is
->> going to set initialized to true, even though we're taking an error
->> path.  :-(
-> 
-> Eek, setting c64 unconditionally threw me off. This needs to check
-> for !ret, of course.
-> 
->>
->> [1] Wait, why is it calling cp_unpin_free()?  Oh, I had proposed
->> squashing cp_free() and cp_unpin_free() back in November[2], got an r-b
->> from Pierre but haven't gotten back to tidy up the series for a v2.
->> Okay, I'll try to do that again soon.  :-)
-> 
-> :)
-> 
->> [2] https://patchwork.kernel.org/patch/10675261/
->>
->>>    	return ret;
->>>    }
->>>    
->>> @@ -715,7 +718,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
->>>     */
->>>    void cp_free(struct channel_program *cp)
->>>    {
->>> -	cp_unpin_free(cp);
->>> +	if (cp->initialized)
->>> +		cp_unpin_free(cp);
->>>    }
->>>    
->>>    /**
->>> @@ -760,6 +764,10 @@ int cp_prefetch(struct channel_program *cp)
->>>    	struct ccwchain *chain;
->>>    	int len, idx, ret;
->>>    
->>> +	/* this is an error in the caller */
->>> +	if (!cp || !cp->initialized)
->>> +		return -EINVAL;
->>> +
->>>    	list_for_each_entry(chain, &cp->ccwchain_list, next) {
->>>    		len = chain->ch_len;
->>>    		for (idx = 0; idx < len; idx++) {
->>> @@ -795,6 +803,10 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
->>>    	struct ccwchain *chain;
->>>    	struct ccw1 *cpa;
->>>    
->>> +	/* this is an error in the caller */
->>> +	if (!cp || !cp->initialized)
->>> +		return NULL;
->>> +
->>>    	orb = &cp->orb;
->>>    
->>>    	orb->cmd.intparm = intparm;
->>> @@ -831,6 +843,9 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
->>>    	u32 cpa = scsw->cmd.cpa;
->>>    	u32 ccw_head, ccw_tail;
->>>    
->>> +	if (!cp->initialized)
->>> +		return;
->>> +
->>>    	/*
->>>    	 * LATER:
->>>    	 * For now, only update the cmd.cpa part. We may need to deal with
->>> @@ -869,6 +884,9 @@ bool cp_iova_pinned(struct channel_program *cp, u64 iova)
->>>    	struct ccwchain *chain;
->>>    	int i;
->>>    
->>> +	if (!cp->initialized)
->>
->> So, two of the checks added above look for a nonzero cp pointer prior to
->> checking initialized, while two don't.  I guess cp can't be NULL, since
->> it's embedded in the private struct directly and that's only free'd when
->> we do vfio_ccw_sch_remove() ... But I guess some consistency in how we
->> look would be nice.
-> 
-> The idea was: In which context is this called? Is there a legitimate
-> reason for the caller to pass in an uninitialized cp, or would that
-> mean the caller had messed up (and we should not trust cp to be !NULL
-> either?)
-> 
-> But you're right, that does look inconsistent. Always checking for
-> cp != NULL probably looks least odd, although it is overkill. Opinions?
+>> Yep. There remains a lot to be done, but it's a first step.
+>=20
+> s/a first step/an excellent first step/=C2=A0 :)
+>=20
+> Can't speak for Farhan, but this makes things somewhat better for me.=20
+> I'm still getting some periodic errors, but they happen infrequently=20
+> enough now that debugging them is frustrating.=C2=A0 ;-)
+>=20
+>  =C2=A0- Eric
+>=20
 
-My opinion?  Since cp is embedded in vfio_ccw_private, rather than a 
-pointer to a separately malloc'd struct, we pass &private->cp to those 
-functions.  So a check for !cp doesn't really buy us anything because 
-what we are actually concerned about is whether or not private is NULL, 
-which only changes on the probe/remove boundaries.
+I ran the my workloads/tests with the patches and like Eric I notice the=20
+errors I previously hit less frequently.
 
-> 
+
 >>
->>> +		return false;
->>> +
->>>    	list_for_each_entry(chain, &cp->ccwchain_list, next) {
->>>    		for (i = 0; i < chain->ch_len; i++)
->>>    			if (pfn_array_table_iova_pinned(chain->ch_pat + i,
-> 
+>>>
+>>> Yet I find it difficult to slap my r-b over racy code, or partial
+>>> solutions. In the latter case, when I lack conceptual clarity, I find=
+ it
+>>> difficult to tell if we are heading into the right direction, or is w=
+hat
+>>> we build today going to turn against us tomorrow. Sorry for being a=20
+>>> drag.
+>>
+>> As long as we don't introduce bad user space interfaces we have to dra=
+g
+>> around forever, I think anything is fair game if we think it's a good
+>> idea at that moment. We can rewrite things if it turned out to be a ba=
+d
+>> idea (although I'm not arguing for doing random crap, of course :)
+>>
+>=20
