@@ -1,16 +1,21 @@
 From: Eric Farman <farman@linux.ibm.com>
-Subject: Re: [PATCH v3 2/6] vfio-ccw: rework ssch state handling
-Date: Tue, 5 Feb 2019 09:31:55 -0500
-Message-ID: <bd078c02-e08a-545f-3c17-52e291ef60ad@linux.ibm.com>
+Subject: Re: [PATCH v3 1/6] vfio-ccw: make it safe to access
+ channel programs
+Date: Tue, 5 Feb 2019 09:48:23 -0500
+Message-ID: <ad60e2d5-f222-da38-41fd-bcbd7c9965a0@linux.ibm.com>
 References: <20190130132212.7376-1-cohuck@redhat.com>
-	<20190130132212.7376-3-cohuck@redhat.com>
-	<55d9fc3d-12ec-9ad7-cdaa-72c5dbb65aca@linux.ibm.com>
-	<20190205131047.32f7c7a1.cohuck@redhat.com>
+	<20190130132212.7376-2-cohuck@redhat.com>
+	<20190130195127.5ff3c849@oc2783563651>
+	<20190131125220.285a4bc8.cohuck@redhat.com>
+	<20190131133455.3097613f@oc2783563651>
+	<20190204163102.33d744d8.cohuck@redhat.com>
+	<20190205125229.56c6e252@oc2783563651>
+	<20190205133540.573902d8.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190205131047.32f7c7a1.cohuck@redhat.com>
+In-Reply-To: <20190205133540.573902d8.cohuck@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
@@ -24,127 +29,90 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-s390x@nongnu.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 02/05/2019 07:10 AM, Cornelia Huck wrote:
-> On Mon, 4 Feb 2019 16:29:40 -0500
-> Eric Farman <farman@linux.ibm.com> wrote:
+On 02/05/2019 07:35 AM, Cornelia Huck wrote:
+> On Tue, 5 Feb 2019 12:52:29 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
->> On 01/30/2019 08:22 AM, Cornelia Huck wrote:
->>> The flow for processing ssch requests can be improved by splitting
->>> the BUSY state:
+>> On Mon, 4 Feb 2019 16:31:02 +0100
+>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>
+>>> On Thu, 31 Jan 2019 13:34:55 +0100
+>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>    
+>>>> On Thu, 31 Jan 2019 12:52:20 +0100
+>>>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>>>    
+>>>>> On Wed, 30 Jan 2019 19:51:27 +0100
+>>>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>      
+>>>>>> On Wed, 30 Jan 2019 14:22:07 +0100
+>>>>>> Cornelia Huck <cohuck@redhat.com> wrote:
+>>>>>>      
+>>>>>>> When we get a solicited interrupt, the start function may have
+>>>>>>> been cleared by a csch, but we still have a channel program
+>>>>>>> structure allocated. Make it safe to call the cp accessors in
+>>>>>>> any case, so we can call them unconditionally.
+>>>>>>
+>>>>>> I read this like it is supposed to be safe regardless of
+>>>>>> parallelism and threads. However I don't see any explicit
+>>>>>> synchronization done for cp->initialized.
+>>>>>>
+>>>>>> I've managed to figure out how is that supposed to be safe
+>>>>>> for the cp_free() (which is probably our main concern) in
+>>>>>> vfio_ccw_sch_io_todo(), but if fail when it comes to the one
+>>>>>> in vfio_ccw_mdev_notifier().
+>>>>>>
+>>>>>> Can you explain us how does the synchronization work?
+>>>>>
+>>>>> You read that wrong, I don't add synchronization, I just add a check.
+>>>>>      
+>>>>
+>>>> Now I'm confused. Does that mean we don't need synchronization for this?
 >>>
->>> - CP_PROCESSING: We reject any user space requests while we are in
->>>     the process of translating a channel program and submitting it to
->>>     the hardware. Use -EAGAIN to signal user space that it should
->>>     retry the request.
->>> - CP_PENDING: We have successfully submitted a request with ssch and
->>>     are now expecting an interrupt. As we can't handle more than one
->>>     channel program being processed, reject any further requests with
->>>     -EBUSY. A final interrupt will move us out of this state; this also
->>>     fixes a latent bug where a non-final interrupt might have freed up
->>>     a channel program that still was in progress.
->>>     By making this a separate state, we make it possible to issue a
->>>     halt or a clear while we're still waiting for the final interrupt
->>>     for the ssch (in a follow-on patch).
->>>
->>> It also makes a lot of sense not to preemptively filter out writes to
->>> the io_region if we're in an incorrect state: the state machine will
->>> handle this correctly.
->>>
->>> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
->>> ---
->>>    drivers/s390/cio/vfio_ccw_drv.c     |  8 ++++++--
->>>    drivers/s390/cio/vfio_ccw_fsm.c     | 19 ++++++++++++++-----
->>>    drivers/s390/cio/vfio_ccw_ops.c     |  2 --
->>>    drivers/s390/cio/vfio_ccw_private.h |  3 ++-
->>>    4 files changed, 22 insertions(+), 10 deletions(-)
+>>> If we lack synchronization (that is not provided by the current state
+>>> machine handling, or the rework here), we should do a patch on top
+>>> (preferably on top of the whole series, so this does not get even more
+>>> tangled up.) This is really just about the extra check.
+>>>    
+>>
+>> I'm not a huge fan of keeping or introducing races -- it makes things
+>> difficult to reason about, but I do have some understanging your
+>> position.
 > 
->>> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
->>> index e7c9877c9f1e..b4a141fbd1a8 100644
->>> --- a/drivers/s390/cio/vfio_ccw_fsm.c
->>> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
->>> @@ -28,7 +28,6 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->>>    	sch = private->sch;
->>>    
->>>    	spin_lock_irqsave(sch->lock, flags);
->>> -	private->state = VFIO_CCW_STATE_BUSY;
->>>    
->>>    	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
->>>    	if (!orb) {
->>> @@ -46,6 +45,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
->>>    		 */
->>>    		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
->>>    		ret = 0;
->>> +		private->state = VFIO_CCW_STATE_CP_PENDING;
->>
->> [1]
->>
->>>    		break;
->>>    	case 1:		/* Status pending */
->>>    	case 2:		/* Busy */
->>> @@ -107,6 +107,12 @@ static void fsm_io_busy(struct vfio_ccw_private *private,
->>>    	private->io_region->ret_code = -EBUSY;
->>>    }
->>>    
->>> +static void fsm_io_retry(struct vfio_ccw_private *private,
->>> +			 enum vfio_ccw_event event)
->>> +{
->>> +	private->io_region->ret_code = -EAGAIN;
->>> +}
->>> +
->>>    static void fsm_disabled_irq(struct vfio_ccw_private *private,
->>>    			     enum vfio_ccw_event event)
->>>    {
->>> @@ -135,8 +141,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->>>    	struct mdev_device *mdev = private->mdev;
->>>    	char *errstr = "request";
->>>    
->>> -	private->state = VFIO_CCW_STATE_BUSY;
->>> -
->>> +	private->state = VFIO_CCW_STATE_CP_PROCESSING;
->>
->> [1]
->>
->>>    	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
->>>    
->>>    	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
->>> @@ -181,7 +186,6 @@ static void fsm_io_request(struct vfio_ccw_private *private,
->>>    	}
->>>    
->>>    err_out:
->>> -	private->state = VFIO_CCW_STATE_IDLE;
->>
->> [1] Revisiting these locations as from an earlier discussion [2]...
->> These go IDLE->CP_PROCESSING->CP_PENDING if we get a cc=0 on the SSCH,
->> but we stop in CP_PROCESSING if the SSCH gets a nonzero cc.  Shouldn't
->> we cleanup and go back to IDLE in this scenario, rather than forcing
->> userspace to escalate to CSCH/HSCH after some number of retries (via FSM)?
->>
->> [2] https://patchwork.kernel.org/patch/10773611/#22447997
+> The only thing I want to avoid is knowingly making things worse than
+> before, and I don't think this patch does that.
 > 
-> It does do that (in vfio_ccw_mdev_write), it was not needed here. Or do
-> you think doing it here would be more obvious?
+>>
+>> This patch-series is AFAICT a big improvement over what we have. I would
+>> like Farhan confirming that it makes these hick-ups when he used to hit
+>> BUSY with another ssch request disappear. If it does (I hope it does)
+>> it's definitely a good thing for anybody who wants to use vfio-ccw.
+> 
+> Yep. There remains a lot to be done, but it's a first step.
 
-Ah, my mistake, I missed that.  (That function is renamed to 
-vfio_ccw_mdev_write_io_region in patch 4.)
+s/a first step/an excellent first step/  :)
 
-I don't think keeping it here is necessary then.  I got too focused 
-looking at what you ripped out that I lost the things that stayed.  Once 
-this series gets in its entirety, and Pierre has a chance to rebase his 
-FSM series on top of it all, this should be in great shape.
+Can't speak for Farhan, but this makes things somewhat better for me. 
+I'm still getting some periodic errors, but they happen infrequently 
+enough now that debugging them is frustrating.  ;-)
+
+  - Eric
 
 > 
 >>
->> Besides that, I think this looks good to me.
+>> Yet I find it difficult to slap my r-b over racy code, or partial
+>> solutions. In the latter case, when I lack conceptual clarity, I find it
+>> difficult to tell if we are heading into the right direction, or is what
+>> we build today going to turn against us tomorrow. Sorry for being a drag.
 > 
-> Thanks!
+> As long as we don't introduce bad user space interfaces we have to drag
+> around forever, I think anything is fair game if we think it's a good
+> idea at that moment. We can rewrite things if it turned out to be a bad
+> idea (although I'm not arguing for doing random crap, of course :)
 > 
-
-You're welcome!  Here, have a thing to add to this patch:
-
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
