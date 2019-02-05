@@ -1,11 +1,14 @@
 From: Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH v2 00/27] KVM: x86/mmu: Remove fast invalidate mechanism
-Date: Tue,  5 Feb 2019 12:54:16 -0800
-Message-ID: <20190205205443.1059-1-sean.j.christopherson@intel.com>
+Subject: [PATCH v2 01/27] KVM: Call kvm_arch_memslots_updated() before
+ updating memslots
+Date: Tue,  5 Feb 2019 12:54:17 -0800
+Message-ID: <20190205205443.1059-2-sean.j.christopherson@intel.com>
+References: <20190205205443.1059-1-sean.j.christopherson@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190205205443.1059-1-sean.j.christopherson@intel.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,160 +24,181 @@ To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, Xiao Guangrong <guangrong.xiao@gmail.com>, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-...and clean up the MMIO spte generation code.
+kvm_arch_memslots_updated() is at this point in time an x86-specific
+hook for handling MMIO generation wraparound.  x86 stashes 19 bits of
+the memslots generation number in its MMIO sptes in order to avoid
+full page fault walks for repeat faults on emulated MMIO addresses.
+Because only 19 bits are used, wrapping the MMIO generation number is
+possible, if unlikely.  kvm_arch_memslots_updated() alerts x86 that
+the generation has changed so that it can invalidate all MMIO sptes in
+case the effective MMIO generation has wrapped so as to avoid using a
+stale spte, e.g. a (very) old spte that was created with generation==0.
 
-=== Non-x86 Folks ===
-Patch 01/27 (which you should also be cc'd on) changes the prototype for
-a function that is defined by all architectures but only actually used
-by x86.  Feel free to skip the rest of this cover letter.
+Given that the purpose of kvm_arch_memslots_updated() is to prevent
+consuming stale entries, it needs to be called before the new generation
+is propagated to memslots.  Invalidating the MMIO sptes after updating
+memslots means that there is a window where a vCPU could dereference
+the new memslots generation, e.g. 0, and incorrectly reuse an old MMIO
+spte that was created with (pre-wrap) generation==0.
 
-=== x86 Folks ===
-Though not explicitly stated, for all intents and purposes the fast
-invalidate mechanism was added to speed up the scenario where removing
-a memslot, e.g. when accessing PCI ROM, caused KVM to flush all shadow
-entries[1].
+Fixes: e59dbe09f8e6 ("KVM: Introduce kvm_arch_memslots_updated()")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+---
+ arch/mips/include/asm/kvm_host.h    | 2 +-
+ arch/powerpc/include/asm/kvm_host.h | 2 +-
+ arch/s390/include/asm/kvm_host.h    | 2 +-
+ arch/x86/include/asm/kvm_host.h     | 2 +-
+ arch/x86/kvm/mmu.c                  | 4 ++--
+ arch/x86/kvm/x86.c                  | 4 ++--
+ include/linux/kvm_host.h            | 2 +-
+ virt/kvm/arm/mmu.c                  | 2 +-
+ virt/kvm/kvm_main.c                 | 7 +++++--
+ 9 files changed, 15 insertions(+), 12 deletions(-)
 
-The other use cases of "flush everything" are VM teardown and handling
-MMIO generation overflow, neither of which is a performance critial
-path (see "Other Uses" below).
-
-For the memslot case, zapping all shadow entries is overkill, i.e. KVM
-only needs to zap the entries associated with the memslot, but KVM has
-historically used a big hammer because if all you have is a hammer,
-everything looks like a nail.
-
-Rather than zap all pages when removing a memslot, zap only the shadow
-entries associated with said memslot.  I see a performance improvement
-of ~5% when zapping only the pages for the deleted memslot when using a
-slightly modified version of the original benchmark[2][3][4] (I don't
-have easy access to a system with hundreds of gigs of memory).
-
-$ cat shell.sh
-        #!/bin/sh
-
-        echo 3 > /proc/sys/vm/drop_caches
-        ./mmtest -c 8 -m 2000 -e ./rom.sh
-
-I.e. running 8 threads and 2gb of memory per thread, time in milliseconds:
-
-Before: 89.117
-After:  84.768
-
-
-With the memslot use case gone, maintaining the fast invalidate path
-adds a moderate amount of complexity but provides little to no value.
-Furhtermore, its existence may give the impression that it's "ok" to zap
-all shadow pages.  Remove the fast invalidate mechanism to simplify the
-code and to discourage future code from zapping all pages as using such
-a big hammer should be a last resort.
-
-Unfortunately, simply reverting the fast invalidate code re-introduces
-shortcomings in the previous code, notably that KVM may hold a spinlock
-and not schedule for an extended period of time.  Releasing the lock to
-voluntarily reschedule is perfectly doable, and for the VM teardown case
-of "zap everything" it can be added with no additional changes since KVM
-doesn't need to provide any ordering guarantees about sptes in that case.
-
-For the MMIO case, KVM needs to prevent vCPUs from consuming stale sptes
-created with an old generation number.  This should be a non-issue as
-KVM is supposed to prevent consuming stale MMIO sptes regardless of the
-zapping mechanism employed, releasing mmu_lock while zapping simply
-makes it much more likely to hit any bug leading to stale spte usage.
-As luck would have it, there are a number of corner cases in the MMIO
-spte invalidation flow that could theoretically result in reusing stale
-sptes.  So before reworking memslot zapping and reverting to the slow
-invalidate mechanism, fix a number of bugs related to MMIO generations
-and opportunistically clean up the memslots/MMIO generation code.
-
-
-=== History ===
-Flushing of shadow pages when removing a memslot was originally added
-by commit 34d4cb8fca1f ("KVM: MMU: nuke shadowed pgtable pages and ptes
-on memslot destruction"), and obviously emphasized functionality over
-performance.  Commit 2df72e9bc4c5 ("KVM: split kvm_arch_flush_shadow")
-added a path to allow flushing only the removed slot's shadow pages,
-but x86 just redirected to the "zap all" flow.
-
-Eventually, it became evident that zapping everything is slow, and so
-x86 developed a more efficient hammer in the form of the fast invalidate
-mechanism.
-
-=== Other Uses ===
-When a VM is being destroyed, either there are no active vcpus, i.e.
-there's no lock contention, or the VM has ungracefully terminated, in
-which case we want to reclaim its pages as quickly as possible, i.e.
-not release the MMU lock if there are still CPUs executing in the VM.
-
-The MMIO generation scenario is almost literally a one-in-a-million
-occurrence, i.e. is not a performance sensitive scenario.
-
-It's worth noting that prior to the "fast invalidate" series being
-applied, there was actually another use case of kvm_mmu_zap_all() in
-emulator_fix_hypercall() whose existence may have contributed to
-improving the performance of "zap all" instead of avoiding it altogether.
-But that usage was removed by the series itself in commit 758ccc89b83c
-("KVM: x86: drop calling kvm_mmu_zap_all in emulator_fix_hypercall").
-
-[1] https://lkml.kernel.org/r/1369960590-14138-1-git-send-email-xiaoguangrong@linux.vnet.ibm.com
-[2] https://lkml.kernel.org/r/1368706673-8530-1-git-send-email-xiaoguangrong@linux.vnet.ibm.com
-[3] http://lkml.iu.edu/hypermail/linux/kernel/1305.2/00277.html
-[4] http://lkml.iu.edu/hypermail/linux/kernel/1305.2/00277/mmtest.tar.bz2
-
-v1: https://patchwork.kernel.org/cover/10756579/
-v2:
-  - Fix a zap vs flush priority bug in kvm_mmu_remote_flush_or_zap() [me]
-  - Voluntarily reschedule and/or drop mmu_lock as needed when zapping
-    all sptes or all MMIO sptes [Paolo]
-  - Add patches to clean up the memslots/MMIO generation code and fix
-    a variety of theoretically corner case bugs
-
-
-Sean Christopherson (27):
-  KVM: Call kvm_arch_memslots_updated() before updating memslots
-  KVM: x86/mmu: Detect MMIO generation wrap in any address space
-  KVM: x86/mmu: Do not cache MMIO accesses while memslots are in flux
-  KVM: Explicitly define the "memslot update in-progress" bit
-  KVM: x86: Use a u64 when passing the MMIO gen around
-  KVM: x86: Refactor the MMIO SPTE generation handling
-  KVM: Remove the hack to trigger memslot generation wraparound
-  KVM: Move the memslot update in-progress flag to bit 63
-  KVM: x86/mmu: Move slot_level_*() helper functions up a few lines
-  KVM: x86/mmu: Split remote_flush+zap case out of
-    kvm_mmu_flush_or_zap()
-  KVM: x86/mmu: Zap only the relevant pages when removing a memslot
-  Revert "KVM: MMU: document fast invalidate all pages"
-  Revert "KVM: MMU: drop kvm_mmu_zap_mmio_sptes"
-  KVM: x86/mmu: Voluntarily reschedule as needed when zapping MMIO sptes
-  KVM: x86/mmu: Remove is_obsolete() call
-  Revert "KVM: MMU: reclaim the zapped-obsolete page first"
-  Revert "KVM: MMU: collapse TLB flushes when zap all pages"
-  Revert "KVM: MMU: zap pages in batch"
-  Revert "KVM: MMU: add tracepoint for kvm_mmu_invalidate_all_pages"
-  Revert "KVM: MMU: show mmu_valid_gen in shadow page related
-    tracepoints"
-  Revert "KVM: x86: use the fast way to invalidate all pages"
-  KVM: x86/mmu: skip over invalid root pages when zapping all sptes
-  KVM: x86/mmu: Voluntarily reschedule as needed when zapping all sptes
-  Revert "KVM: MMU: fast invalidate all pages"
-  KVM: x86/mmu: Differentiate between nr zapped and list unstable
-  KVM: x86/mmu: WARN if zapping a MMIO spte results in zapping children
-  KVM: x86/mmu: Consolidate kvm_mmu_zap_all() and
-    kvm_mmu_zap_mmio_sptes()
-
- Documentation/virtual/kvm/mmu.txt   |  41 +--
- arch/mips/include/asm/kvm_host.h    |   2 +-
- arch/powerpc/include/asm/kvm_host.h |   2 +-
- arch/s390/include/asm/kvm_host.h    |   2 +-
- arch/x86/include/asm/kvm_host.h     |   9 +-
- arch/x86/kvm/mmu.c                  | 442 +++++++++++++---------------
- arch/x86/kvm/mmu.h                  |   1 -
- arch/x86/kvm/mmutrace.h             |  42 +--
- arch/x86/kvm/x86.c                  |   7 +-
- arch/x86/kvm/x86.h                  |   7 +-
- include/linux/kvm_host.h            |  23 +-
- virt/kvm/arm/mmu.c                  |   2 +-
- virt/kvm/kvm_main.c                 |  39 ++-
- 13 files changed, 286 insertions(+), 333 deletions(-)
-
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 71c3f21d80d5..f764a2de68e2 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -1131,7 +1131,7 @@ static inline void kvm_arch_hardware_unsetup(void) {}
+ static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+ static inline void kvm_arch_free_memslot(struct kvm *kvm,
+ 		struct kvm_memory_slot *free, struct kvm_memory_slot *dont) {}
+-static inline void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots) {}
++static inline void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen) {}
+ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+ static inline void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index 0f98f00da2ea..19693b8add93 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -837,7 +837,7 @@ struct kvm_vcpu_arch {
+ static inline void kvm_arch_hardware_disable(void) {}
+ static inline void kvm_arch_hardware_unsetup(void) {}
+ static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+-static inline void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots) {}
++static inline void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen) {}
+ static inline void kvm_arch_flush_shadow_all(struct kvm *kvm) {}
+ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+ static inline void kvm_arch_exit(void) {}
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index d5d24889c3bc..c2b8c8c6c9be 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -878,7 +878,7 @@ static inline void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+ static inline void kvm_arch_free_memslot(struct kvm *kvm,
+ 		struct kvm_memory_slot *free, struct kvm_memory_slot *dont) {}
+-static inline void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots) {}
++static inline void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen) {}
+ static inline void kvm_arch_flush_shadow_all(struct kvm *kvm) {}
+ static inline void kvm_arch_flush_shadow_memslot(struct kvm *kvm,
+ 		struct kvm_memory_slot *slot) {}
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 4660ce90de7f..1c7f726e3ad5 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1253,7 +1253,7 @@ void kvm_mmu_clear_dirty_pt_masked(struct kvm *kvm,
+ 				   struct kvm_memory_slot *slot,
+ 				   gfn_t gfn_offset, unsigned long mask);
+ void kvm_mmu_zap_all(struct kvm *kvm);
+-void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm, struct kvm_memslots *slots);
++void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm, u64 gen);
+ unsigned int kvm_mmu_calculate_mmu_pages(struct kvm *kvm);
+ void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned int kvm_nr_mmu_pages);
+ 
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index ce770b446238..fb040ea42454 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -5890,13 +5890,13 @@ static bool kvm_has_zapped_obsolete_pages(struct kvm *kvm)
+ 	return unlikely(!list_empty_careful(&kvm->arch.zapped_obsolete_pages));
+ }
+ 
+-void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm, struct kvm_memslots *slots)
++void kvm_mmu_invalidate_mmio_sptes(struct kvm *kvm, u64 gen)
+ {
+ 	/*
+ 	 * The very rare case: if the generation-number is round,
+ 	 * zap all shadow pages.
+ 	 */
+-	if (unlikely((slots->generation & MMIO_GEN_MASK) == 0)) {
++	if (unlikely((gen & MMIO_GEN_MASK) == 0)) {
+ 		kvm_debug_ratelimited("kvm: zapping shadow pages for mmio generation wraparound\n");
+ 		kvm_mmu_invalidate_zap_all_pages(kvm);
+ 	}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 9ce1b8e2d3b9..4d05fca04fe1 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9337,13 +9337,13 @@ int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 	return -ENOMEM;
+ }
+ 
+-void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots)
++void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen)
+ {
+ 	/*
+ 	 * memslots->generation has been incremented.
+ 	 * mmio generation may have reached its maximum value.
+ 	 */
+-	kvm_mmu_invalidate_mmio_sptes(kvm, slots);
++	kvm_mmu_invalidate_mmio_sptes(kvm, gen);
+ }
+ 
+ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index c38cc5eb7e73..cf761ff58224 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -634,7 +634,7 @@ void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *free,
+ 			   struct kvm_memory_slot *dont);
+ int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 			    unsigned long npages);
+-void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots);
++void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen);
+ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+ 				struct kvm_memory_slot *memslot,
+ 				const struct kvm_userspace_memory_region *mem,
+diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
+index 3053bf2584f8..3ab0daee3fea 100644
+--- a/virt/kvm/arm/mmu.c
++++ b/virt/kvm/arm/mmu.c
+@@ -2350,7 +2350,7 @@ int kvm_arch_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 	return 0;
+ }
+ 
+-void kvm_arch_memslots_updated(struct kvm *kvm, struct kvm_memslots *slots)
++void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen)
+ {
+ }
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index cf7cc0554094..df5dc7224f02 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -878,6 +878,7 @@ static struct kvm_memslots *install_new_memslots(struct kvm *kvm,
+ 		int as_id, struct kvm_memslots *slots)
+ {
+ 	struct kvm_memslots *old_memslots = __kvm_memslots(kvm, as_id);
++	u64 gen;
+ 
+ 	/*
+ 	 * Set the low bit in the generation, which disables SPTE caching
+@@ -900,9 +901,11 @@ static struct kvm_memslots *install_new_memslots(struct kvm *kvm,
+ 	 * space 0 will use generations 0, 4, 8, ... while * address space 1 will
+ 	 * use generations 2, 6, 10, 14, ...
+ 	 */
+-	slots->generation += KVM_ADDRESS_SPACE_NUM * 2 - 1;
++	gen = slots->generation + KVM_ADDRESS_SPACE_NUM * 2 - 1;
+ 
+-	kvm_arch_memslots_updated(kvm, slots);
++	kvm_arch_memslots_updated(kvm, gen);
++
++	slots->generation = gen;
+ 
+ 	return old_memslots;
+ }
 -- 
 2.20.1
