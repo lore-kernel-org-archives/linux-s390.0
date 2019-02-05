@@ -1,100 +1,77 @@
-Return-Path: <SRS0=x1Tr=QU=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH] hugetlb: allow to free gigantic pages regardless of the
- configuration
-References: <20190117183953.5990-1-aghiti@upmem.com>
- <16a6209c-868b-8fd5-a70a-6e0e1ecb62d4@suse.cz>
-From: Alex Ghiti <alex@ghiti.fr>
-Message-ID: <7801de9c-9a8c-fb56-442a-6e530e52e0d8@ghiti.fr>
-Date: Wed, 13 Feb 2019 14:22:18 -0500
+Return-Path: <SRS0=cBqk=QM=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Tue, 5 Feb 2019 13:43:49 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/jump_label: Correct asm contraint
+References: <20190123125513.20210-1-labbott@redhat.com>
+ <20190123132401.GG3424@osiris>
+ <898d52cc-fa76-0888-429f-27446190653b@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <16a6209c-868b-8fd5-a70a-6e0e1ecb62d4@suse.cz>
-Content-Language: sv-FI
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Cc: hch@infradead.org, linux-riscv@lists.infradead.org
+In-Reply-To: <898d52cc-fa76-0888-429f-27446190653b@redhat.com>
+Message-Id: <20190205124349.GA10167@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Laura Abbott <labbott@redhat.com>
+Cc: Andreas Krebbel <krebbel@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, Jan 29, 2019 at 08:25:58AM +0100, Laura Abbott wrote:
+> On 1/23/19 5:24 AM, Heiko Carstens wrote:
+> >On Wed, Jan 23, 2019 at 01:55:13PM +0100, Laura Abbott wrote:
+> >>There's a build failure with gcc9:
+> >>
+> >>  ./arch/s390/include/asm/jump_label.h: Assembler messages:
+> >>  ./arch/s390/include/asm/jump_label.h:23: Error: bad expression
+> >>  ./arch/s390/include/asm/jump_label.h:23: Error: junk at end of line, first unrecognized character is `r'
+> >>  make[1]: *** [scripts/Makefile.build:277: init/main.o] Error 1
+...
+> I've had to turn off s390 in Fedora until this gets fixed :(
 
-On 2/13/19 6:27 AM, Vlastimil Babka wrote:
-> On 1/17/19 7:39 PM, Alexandre Ghiti wrote:
->> From: Alexandre Ghiti <alex@ghiti.fr>
->>
->> On systems without CMA or (MEMORY_ISOLATION && COMPACTION) activated but
->> that support gigantic pages, boottime reserved gigantic pages can not be
->> freed at all. This patchs simply enables the possibility to hand back
->> those pages to memory allocator.
->>
->> This commit then renames gigantic_page_supported and
->> ARCH_HAS_GIGANTIC_PAGE to make them more accurate. Indeed, those values
->> being false does not mean that the system cannot use gigantic pages: it
->> just means that runtime allocation of gigantic pages is not supported,
->> one can still allocate boottime gigantic pages if the architecture supports
->> it.
->>
->> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-> I'm fine with the change, but wonder if this can be structured better in a way
-> which would remove the duplicated "if (MEMORY_ISOLATION && COMPACTION) || CMA"
-> from all arches, as well as the duplicated
-> gigantic_page_runtime_allocation_supported()
+Laura, the patch below should fix this (temporarily). If possible,
+could you give it a try? It seems to work for me.
 
+rom 4067027c2ccc8d3f1dc3bb19fe2d00da0c65bcd8 Mon Sep 17 00:00:00 2001
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Date: Tue, 5 Feb 2019 13:21:56 +0100
+Subject: [PATCH] s390: disable section anchors
 
-Yeah, totally, we can factorize more than what I did. I prepared a v2 of 
-this
-patch that does exactly that: remove the triplet from arch specific code
-and the duplicated gigantic_page_runtime_allocation_supported.
+Disable section anchors to allow to compile with the current gcc 9
+experimental version. The section anchors is a new feature for s390
+with gcc 9, however it breaks our current usage of the 'X' constraint
+within the asm goto construct within our jump label implementation.
 
+Fixing this seems to be non-trivial, therefore (hopefully) temporarily
+disable section anchors. We will hopefully have a better solution
+before gcc 9 is released, so that this can be removed again.
 
-> something like:
->
-> - "select ARCH_HAS_GIGANTIC_PAGE" has no conditions, it just says the arch can
-> support them either at boottime or runtime (but runtime is usable only if other
-> conditions are met)
+Reported-by: Laura Abbott <labbott@redhat.com>
+Suggested-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
+ arch/s390/Makefile | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-
-And the v2 gets rid of ARCH_HAS_GIGANTIC_PAGE totally since it
-is not needed by arch to advertise the fact they support gigantic page,
-actually, when selected, it really just means that an arch has the means
-to allocate runtime gigantic page: it is equivalent to
-(MEMORY_ISOLATION && COMPACTION) || CMA.
-
-
-> - gigantic_page_runtime_allocation_supported() is a function that returns true
-> if ARCH_HAS_GIGANTIC_PAGE && ((MEMORY_ISOLATION && COMPACTION) || CMA) and
-> there's a single instance, not per-arch.
-> - code for freeing gigantic pages can probably still be conditional on
-> ARCH_HAS_GIGANTIC_PAGE
->
-> BTW I wanted also to do something about the "(MEMORY_ISOLATION && COMPACTION) ||
-> CMA" ugliness itself, i.e. put the common parts behind some new kconfig
-> (COMPACTION_CORE ?) and expose it better to users, but I can take a stab on that
-> once the above part is settled.
-> Vlastimil
-
-
-I send the v2 right away, if you can take a look Vlastimil, that would 
-be great.
-Note that Andrew already picked this patch in its tree, I'm not sure how to
-proceed.
-
-
-Thanks for your remarks !
-
-
-Alex
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index e21053e5e0da..1eac75bc3a29 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -62,6 +62,14 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
+ #
+ cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
+ 
++#
++# Disable section anchors. This gcc 9 feature currently breaks the 'X'
++# constraint like it is used in the asm goto construct.
++#
++ifeq ($(call cc-option-yn,-fno-section-anchors),y)
++cflags-y += -fno-section-anchors
++endif
++
+ ifeq ($(call cc-option-yn,-mpacked-stack),y)
+ cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
+ aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
+-- 
+2.16.4
