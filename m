@@ -1,9 +1,8 @@
 Return-Path: <SRS0=SkGj=QN=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 24/53] perf arm cs-etm: Use event attributes to send sink
- information to kernel
-Date: Wed,  6 Feb 2019 15:48:34 -0300
-Message-Id: <20190206184903.24054-25-acme@kernel.org>
+Subject: [PATCH 25/53] perf coresight: Remove set_drv_config() API
+Date: Wed,  6 Feb 2019 15:48:35 -0300
+Message-Id: <20190206184903.24054-26-acme@kernel.org>
 In-Reply-To: <20190206184903.24054-1-acme@kernel.org>
 References: <20190206184903.24054-1-acme@kernel.org>
 MIME-Version: 1.0
@@ -25,12 +24,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-The communication of sink information for a trace session doesn't work
-when more than on CPU is involved in the scenario due to the static
-nature of sysfs.  As such communicate the sink information to each event
-by using the perf_event::attr:config2 attribute.  The information sent
-to the kernel is an hash of the sink's name, which is unique in a
-system.
+Now that the event's config2 attribute is used to communicate sink
+selection to the kernel, remove the old set_drv_config() implementation
+since it is no longer needed.
 
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Acked-by: Suzuki K Poulouse <suzuki.poulose@arm.com>
@@ -49,92 +45,117 @@ Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Will Deacon <will.deacon@arm.com>
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-s390@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190131184714.20388-6-mathieu.poirier@linaro.org
+Link: http://lkml.kernel.org/r/20190131184714.20388-7-mathieu.poirier@linaro.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/arch/arm/util/cs-etm.c | 44 +++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ tools/perf/arch/arm/util/cs-etm.c | 54 -------------------------------
+ tools/perf/arch/arm/util/cs-etm.h |  3 --
+ tools/perf/arch/arm/util/pmu.c    |  2 --
+ 3 files changed, 59 deletions(-)
 
 diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index 2f595cd73da6..4f31cf0d1e6d 100644
+index 4f31cf0d1e6d..911426721170 100644
 --- a/tools/perf/arch/arm/util/cs-etm.c
 +++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -5,6 +5,7 @@
-  */
- 
- #include <api/fs/fs.h>
-+#include <linux/bits.h>
- #include <linux/bitops.h>
- #include <linux/compiler.h>
- #include <linux/coresight-pmu.h>
-@@ -22,6 +23,7 @@
- #include "../../util/thread_map.h"
- #include "../../util/cs-etm.h"
- 
-+#include <errno.h>
+@@ -27,9 +27,6 @@
  #include <stdlib.h>
  #include <sys/stat.h>
  
-@@ -60,10 +62,48 @@ static int cs_etm_parse_snapshot_options(struct auxtrace_record *itr,
- 	return 0;
+-#define ENABLE_SINK_MAX	128
+-#define CS_BUS_DEVICE_PATH "/bus/coresight/devices/"
+-
+ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+ 	struct perf_pmu		*cs_etm_pmu;
+@@ -642,54 +639,3 @@ struct auxtrace_record *cs_etm_record_init(int *err)
+ out:
+ 	return NULL;
  }
+-
+-static FILE *cs_device__open_file(const char *name)
+-{
+-	struct stat st;
+-	char path[PATH_MAX];
+-	const char *sysfs;
+-
+-	sysfs = sysfs__mountpoint();
+-	if (!sysfs)
+-		return NULL;
+-
+-	snprintf(path, PATH_MAX,
+-		 "%s" CS_BUS_DEVICE_PATH "%s", sysfs, name);
+-
+-	if (stat(path, &st) < 0)
+-		return NULL;
+-
+-	return fopen(path, "w");
+-
+-}
+-
+-static int __printf(2, 3) cs_device__print_file(const char *name, const char *fmt, ...)
+-{
+-	va_list args;
+-	FILE *file;
+-	int ret = -EINVAL;
+-
+-	va_start(args, fmt);
+-	file = cs_device__open_file(name);
+-	if (file) {
+-		ret = vfprintf(file, fmt, args);
+-		fclose(file);
+-	}
+-	va_end(args);
+-	return ret;
+-}
+-
+-int cs_etm_set_drv_config(struct perf_evsel_config_term *term)
+-{
+-	int ret;
+-	char enable_sink[ENABLE_SINK_MAX];
+-
+-	snprintf(enable_sink, ENABLE_SINK_MAX, "%s/%s",
+-		 term->val.drv_cfg, "enable_sink");
+-
+-	ret = cs_device__print_file(enable_sink, "%d", 1);
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
+-}
+diff --git a/tools/perf/arch/arm/util/cs-etm.h b/tools/perf/arch/arm/util/cs-etm.h
+index 1a12e64f5127..a3354bda4fe8 100644
+--- a/tools/perf/arch/arm/util/cs-etm.h
++++ b/tools/perf/arch/arm/util/cs-etm.h
+@@ -7,9 +7,6 @@
+ #ifndef INCLUDE__PERF_CS_ETM_H__
+ #define INCLUDE__PERF_CS_ETM_H__
  
-+static int cs_etm_set_sink_attr(struct perf_pmu *pmu,
-+				struct perf_evsel *evsel)
-+{
-+	char msg[BUFSIZ], path[PATH_MAX], *sink;
-+	struct perf_evsel_config_term *term;
-+	int ret = -EINVAL;
-+	u32 hash;
-+
-+	if (evsel->attr.config2 & GENMASK(31, 0))
-+		return 0;
-+
-+	list_for_each_entry(term, &evsel->config_terms, list) {
-+		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
-+			continue;
-+
-+		sink = term->val.drv_cfg;
-+		snprintf(path, PATH_MAX, "sinks/%s", sink);
-+
-+		ret = perf_pmu__scan_file(pmu, path, "%x", &hash);
-+		if (ret != 1) {
-+			pr_err("failed to set sink \"%s\" on event %s with %d (%s)\n",
-+			       sink, perf_evsel__name(evsel), errno,
-+			       str_error_r(errno, msg, sizeof(msg)));
-+			return ret;
-+		}
-+
-+		evsel->attr.config2 |= hash;
-+		return 0;
-+	}
-+
-+	/*
-+	 * No sink was provided on the command line - for _now_ treat
-+	 * this as an error.
-+	 */
-+	return ret;
-+}
-+
- static int cs_etm_recording_options(struct auxtrace_record *itr,
- 				    struct perf_evlist *evlist,
- 				    struct record_opts *opts)
- {
-+	int ret;
- 	struct cs_etm_recording *ptr =
- 				container_of(itr, struct cs_etm_recording, itr);
- 	struct perf_pmu *cs_etm_pmu = ptr->cs_etm_pmu;
-@@ -92,6 +132,10 @@ static int cs_etm_recording_options(struct auxtrace_record *itr,
- 	if (!cs_etm_evsel)
- 		return 0;
+-#include "../../util/evsel.h"
+-
+ struct auxtrace_record *cs_etm_record_init(int *err);
+-int cs_etm_set_drv_config(struct perf_evsel_config_term *term);
  
-+	ret = cs_etm_set_sink_attr(cs_etm_pmu, cs_etm_evsel);
-+	if (ret)
-+		return ret;
-+
- 	if (opts->use_clockid) {
- 		pr_err("Cannot use clockid (-k option) with %s\n",
- 		       CORESIGHT_ETM_PMU_NAME);
+ #endif
+diff --git a/tools/perf/arch/arm/util/pmu.c b/tools/perf/arch/arm/util/pmu.c
+index 64a677b518d0..bbc297a7e2e3 100644
+--- a/tools/perf/arch/arm/util/pmu.c
++++ b/tools/perf/arch/arm/util/pmu.c
+@@ -9,7 +9,6 @@
+ #include <linux/perf_event.h>
+ #include <linux/string.h>
+ 
+-#include "cs-etm.h"
+ #include "arm-spe.h"
+ #include "../../util/pmu.h"
+ 
+@@ -20,7 +19,6 @@ struct perf_event_attr
+ 	if (!strcmp(pmu->name, CORESIGHT_ETM_PMU_NAME)) {
+ 		/* add ETM default config here */
+ 		pmu->selectable = true;
+-		pmu->set_drv_config = cs_etm_set_drv_config;
+ #if defined(__aarch64__)
+ 	} else if (strstarts(pmu->name, ARM_SPE_PMU_NAME)) {
+ 		return arm_spe_pmu_default_config(pmu);
 -- 
 2.20.1
 
