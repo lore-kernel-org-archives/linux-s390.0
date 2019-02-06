@@ -1,9 +1,9 @@
 Return-Path: <SRS0=SkGj=QN=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Subject: [PATCH 23/53] perf pmu: Move EVENT_SOURCE_DEVICE_PATH to PMU header
- file
-Date: Wed,  6 Feb 2019 15:48:33 -0300
-Message-Id: <20190206184903.24054-24-acme@kernel.org>
+Subject: [PATCH 24/53] perf arm cs-etm: Use event attributes to send sink
+ information to kernel
+Date: Wed,  6 Feb 2019 15:48:34 -0300
+Message-Id: <20190206184903.24054-25-acme@kernel.org>
 In-Reply-To: <20190206184903.24054-1-acme@kernel.org>
 References: <20190206184903.24054-1-acme@kernel.org>
 MIME-Version: 1.0
@@ -25,8 +25,12 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-Move definition of EVENT_SOURCE_DEVICE_PATH to pmu.h so that it can be
-used by other files than pmu.c
+The communication of sink information for a trace session doesn't work
+when more than on CPU is involved in the scenario due to the static
+nature of sysfs.  As such communicate the sink information to each event
+by using the perf_event::attr:config2 attribute.  The information sent
+to the kernel is an hash of the sink's name, which is unique in a
+system.
 
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Acked-by: Suzuki K Poulouse <suzuki.poulose@arm.com>
@@ -45,38 +49,92 @@ Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Will Deacon <will.deacon@arm.com>
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-s390@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190131184714.20388-5-mathieu.poirier@linaro.org
+Link: http://lkml.kernel.org/r/20190131184714.20388-6-mathieu.poirier@linaro.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/util/pmu.c | 2 --
- tools/perf/util/pmu.h | 1 +
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ tools/perf/arch/arm/util/cs-etm.c | 44 +++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index 11a234740632..51d437f55d18 100644
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -29,8 +29,6 @@ struct perf_pmu_format {
- 	struct list_head list;
- };
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index 2f595cd73da6..4f31cf0d1e6d 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -5,6 +5,7 @@
+  */
  
--#define EVENT_SOURCE_DEVICE_PATH "/bus/event_source/devices/"
--
- int perf_pmu_parse(struct list_head *list, char *name);
- extern FILE *perf_pmu_in;
+ #include <api/fs/fs.h>
++#include <linux/bits.h>
+ #include <linux/bitops.h>
+ #include <linux/compiler.h>
+ #include <linux/coresight-pmu.h>
+@@ -22,6 +23,7 @@
+ #include "../../util/thread_map.h"
+ #include "../../util/cs-etm.h"
  
-diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index ffed23fb920a..1c12a61ed0dc 100644
---- a/tools/perf/util/pmu.h
-+++ b/tools/perf/util/pmu.h
-@@ -17,6 +17,7 @@ enum {
- };
++#include <errno.h>
+ #include <stdlib.h>
+ #include <sys/stat.h>
  
- #define PERF_PMU_FORMAT_BITS 64
-+#define EVENT_SOURCE_DEVICE_PATH "/bus/event_source/devices/"
+@@ -60,10 +62,48 @@ static int cs_etm_parse_snapshot_options(struct auxtrace_record *itr,
+ 	return 0;
+ }
  
- struct perf_event_attr;
++static int cs_etm_set_sink_attr(struct perf_pmu *pmu,
++				struct perf_evsel *evsel)
++{
++	char msg[BUFSIZ], path[PATH_MAX], *sink;
++	struct perf_evsel_config_term *term;
++	int ret = -EINVAL;
++	u32 hash;
++
++	if (evsel->attr.config2 & GENMASK(31, 0))
++		return 0;
++
++	list_for_each_entry(term, &evsel->config_terms, list) {
++		if (term->type != PERF_EVSEL__CONFIG_TERM_DRV_CFG)
++			continue;
++
++		sink = term->val.drv_cfg;
++		snprintf(path, PATH_MAX, "sinks/%s", sink);
++
++		ret = perf_pmu__scan_file(pmu, path, "%x", &hash);
++		if (ret != 1) {
++			pr_err("failed to set sink \"%s\" on event %s with %d (%s)\n",
++			       sink, perf_evsel__name(evsel), errno,
++			       str_error_r(errno, msg, sizeof(msg)));
++			return ret;
++		}
++
++		evsel->attr.config2 |= hash;
++		return 0;
++	}
++
++	/*
++	 * No sink was provided on the command line - for _now_ treat
++	 * this as an error.
++	 */
++	return ret;
++}
++
+ static int cs_etm_recording_options(struct auxtrace_record *itr,
+ 				    struct perf_evlist *evlist,
+ 				    struct record_opts *opts)
+ {
++	int ret;
+ 	struct cs_etm_recording *ptr =
+ 				container_of(itr, struct cs_etm_recording, itr);
+ 	struct perf_pmu *cs_etm_pmu = ptr->cs_etm_pmu;
+@@ -92,6 +132,10 @@ static int cs_etm_recording_options(struct auxtrace_record *itr,
+ 	if (!cs_etm_evsel)
+ 		return 0;
  
++	ret = cs_etm_set_sink_attr(cs_etm_pmu, cs_etm_evsel);
++	if (ret)
++		return ret;
++
+ 	if (opts->use_clockid) {
+ 		pr_err("Cannot use clockid (-k option) with %s\n",
+ 		       CORESIGHT_ETM_PMU_NAME);
 -- 
 2.20.1
 
