@@ -1,8 +1,10 @@
 Return-Path: <SRS0=t9U+=QO=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 0/7] net/smc: patches 2019-02-07
-Date: Thu,  7 Feb 2019 15:56:13 +0100
-Message-Id: <20190207145620.92811-1-ubraun@linux.ibm.com>
+Subject: [PATCH net-next 5/7] net/smc: use client and server LGR pending locks for SMC-R
+Date: Thu,  7 Feb 2019 15:56:18 +0100
+In-Reply-To: <20190207145620.92811-1-ubraun@linux.ibm.com>
+References: <20190207145620.92811-1-ubraun@linux.ibm.com>
+Message-Id: <20190207145620.92811-6-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -10,37 +12,162 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+From: Hans Wippel <hwippel@linux.ibm.com>
 
-here are patches for SMC:
-* patches 1, 3, and 6 are cleanups without functional change
-* patch 2 postpones closing of internal clcsock
-* patches 4 and 5 improve link group creation locking
-* patch 7 restores AF_SMC as diag_family field
+If SMC client and server connections are both established at the same
+time, smc_connect_rdma() cannot send a CLC confirm message while
+smc_listen_work() is waiting for one due to lock contention. This can
+result in timeouts in smc_clc_wait_msg() and failed SMC connections.
 
-Thanks, Ursula
+In case of SMC-R, there are two types of LGRs (client and server LGRs)
+which can be protected by separate locks. So, this patch splits the LGR
+pending lock into two separate locks for client and server to avoid the
+locking issue for SMC-R.
 
-Hans Wippel (2):
-  net/smc: unlock LGR pending lock earlier for SMC-D
-  net/smc: use client and server LGR pending locks for SMC-R
+Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 44 ++++++++++++++++++++++++++++----------------
+ 1 file changed, 28 insertions(+), 16 deletions(-)
 
-Karsten Graul (2):
-  net/smc: move code to clear the conn->lgr field
-  net/smc: original socket family in inet_sock_diag
-
-Ursula Braun (3):
-  s390/net: move pnet constants
-  net/smc: postpone release of clcsock
-  net/smc: use smc_curs_copy() for SMC-D
-
- arch/s390/include/asm/pnet.h |  8 -----
- arch/s390/net/pnet.c         |  8 +++++
- net/smc/af_smc.c             | 85 ++++++++++++++++++++++++++------------------
- net/smc/smc_cdc.h            |  9 ++---
- net/smc/smc_close.c          |  7 +++-
- net/smc/smc_core.c           |  5 +--
- net/smc/smc_diag.c           |  3 +-
- 7 files changed, 74 insertions(+), 51 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index cf49ed05007b..48ea7669161f 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -42,8 +42,11 @@
+ #include "smc_rx.h"
+ #include "smc_close.h"
+ 
+-static DEFINE_MUTEX(smc_create_lgr_pending);	/* serialize link group
+-						 * creation
++static DEFINE_MUTEX(smc_server_lgr_pending);	/* serialize link group
++						 * creation on server
++						 */
++static DEFINE_MUTEX(smc_client_lgr_pending);	/* serialize link group
++						 * creation on client
+ 						 */
+ 
+ static void smc_tcp_listen_work(struct work_struct *);
+@@ -477,7 +480,12 @@ static int smc_connect_abort(struct smc_sock *smc, int reason_code,
+ {
+ 	if (local_contact == SMC_FIRST_CONTACT)
+ 		smc_lgr_forget(smc->conn.lgr);
+-	mutex_unlock(&smc_create_lgr_pending);
++	if (smc->conn.lgr->is_smcd)
++		/* there is only one lgr role for SMC-D; use server lock */
++		mutex_unlock(&smc_server_lgr_pending);
++	else
++		mutex_unlock(&smc_client_lgr_pending);
++
+ 	smc_conn_free(&smc->conn);
+ 	return reason_code;
+ }
+@@ -562,7 +570,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 	struct smc_link *link;
+ 	int reason_code = 0;
+ 
+-	mutex_lock(&smc_create_lgr_pending);
++	mutex_lock(&smc_client_lgr_pending);
+ 	local_contact = smc_conn_create(smc, false, aclc->hdr.flag, ibdev,
+ 					ibport, ntoh24(aclc->qpn), &aclc->lcl,
+ 					NULL, 0);
+@@ -573,7 +581,8 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 			reason_code = SMC_CLC_DECL_SYNCERR; /* synchr. error */
+ 		else
+ 			reason_code = SMC_CLC_DECL_INTERR; /* other error */
+-		return smc_connect_abort(smc, reason_code, 0);
++		mutex_unlock(&smc_client_lgr_pending);
++		return reason_code;
+ 	}
+ 	link = &smc->conn.lgr->lnk[SMC_SINGLE_LINK];
+ 
+@@ -617,7 +626,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 			return smc_connect_abort(smc, reason_code,
+ 						 local_contact);
+ 	}
+-	mutex_unlock(&smc_create_lgr_pending);
++	mutex_unlock(&smc_client_lgr_pending);
+ 
+ 	smc_copy_sock_settings_to_clc(smc);
+ 	if (smc->sk.sk_state == SMC_INIT)
+@@ -634,11 +643,14 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	int local_contact = SMC_FIRST_CONTACT;
+ 	int rc = 0;
+ 
+-	mutex_lock(&smc_create_lgr_pending);
++	/* there is only one lgr role for SMC-D; use server lock */
++	mutex_lock(&smc_server_lgr_pending);
+ 	local_contact = smc_conn_create(smc, true, aclc->hdr.flag, NULL, 0, 0,
+ 					NULL, ismdev, aclc->gid);
+-	if (local_contact < 0)
+-		return smc_connect_abort(smc, SMC_CLC_DECL_MEM, 0);
++	if (local_contact < 0) {
++		mutex_unlock(&smc_server_lgr_pending);
++		return SMC_CLC_DECL_MEM;
++	}
+ 
+ 	/* Create send and receive buffers */
+ 	if (smc_buf_create(smc, true))
+@@ -652,7 +664,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	rc = smc_clc_send_confirm(smc);
+ 	if (rc)
+ 		return smc_connect_abort(smc, rc, local_contact);
+-	mutex_unlock(&smc_create_lgr_pending);
++	mutex_unlock(&smc_server_lgr_pending);
+ 
+ 	smc_copy_sock_settings_to_clc(smc);
+ 	if (smc->sk.sk_state == SMC_INIT)
+@@ -1251,7 +1263,7 @@ static void smc_listen_work(struct work_struct *work)
+ 		return;
+ 	}
+ 
+-	mutex_lock(&smc_create_lgr_pending);
++	mutex_lock(&smc_server_lgr_pending);
+ 	smc_close_init(new_smc);
+ 	smc_rx_init(new_smc);
+ 	smc_tx_init(new_smc);
+@@ -1273,7 +1285,7 @@ static void smc_listen_work(struct work_struct *work)
+ 				  &local_contact) ||
+ 	     smc_listen_rdma_reg(new_smc, local_contact))) {
+ 		/* SMC not supported, decline */
+-		mutex_unlock(&smc_create_lgr_pending);
++		mutex_unlock(&smc_server_lgr_pending);
+ 		smc_listen_decline(new_smc, SMC_CLC_DECL_MODEUNSUPP,
+ 				   local_contact);
+ 		return;
+@@ -1282,21 +1294,21 @@ static void smc_listen_work(struct work_struct *work)
+ 	/* send SMC Accept CLC message */
+ 	rc = smc_clc_send_accept(new_smc, local_contact);
+ 	if (rc) {
+-		mutex_unlock(&smc_create_lgr_pending);
++		mutex_unlock(&smc_server_lgr_pending);
+ 		smc_listen_decline(new_smc, rc, local_contact);
+ 		return;
+ 	}
+ 
+ 	/* SMC-D does not need this lock any more */
+ 	if (ism_supported)
+-		mutex_unlock(&smc_create_lgr_pending);
++		mutex_unlock(&smc_server_lgr_pending);
+ 
+ 	/* receive SMC Confirm CLC message */
+ 	reason_code = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
+ 				       SMC_CLC_CONFIRM, CLC_WAIT_TIME);
+ 	if (reason_code) {
+ 		if (!ism_supported)
+-			mutex_unlock(&smc_create_lgr_pending);
++			mutex_unlock(&smc_server_lgr_pending);
+ 		smc_listen_decline(new_smc, reason_code, local_contact);
+ 		return;
+ 	}
+@@ -1304,7 +1316,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	/* finish worker */
+ 	if (!ism_supported) {
+ 		rc = smc_listen_rdma_finish(new_smc, &cclc, local_contact);
+-		mutex_unlock(&smc_create_lgr_pending);
++		mutex_unlock(&smc_server_lgr_pending);
+ 		if (rc)
+ 			return;
+ 	}
 -- 
 2.16.4
