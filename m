@@ -1,81 +1,63 @@
+Return-Path: <SRS0=t9U+=QO=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 1/1] net/smc: fix byte_order for rx_curs_confirmed
-Date: Thu,  7 Feb 2019 14:52:54 +0100
-Message-ID: <20190207135254.5799-1-ubraun@linux.ibm.com>
-Return-path: <netdev-owner@vger.kernel.org>
+Subject: [PATCH net-next 1/7] s390/net: move pnet constants
+Date: Thu,  7 Feb 2019 15:56:14 +0100
+In-Reply-To: <20190207145620.92811-1-ubraun@linux.ibm.com>
+References: <20190207145620.92811-1-ubraun@linux.ibm.com>
+Message-Id: <20190207145620.92811-2-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-rdma/>
-List-Post: <mailto:linux-rdma@vger.kernel.org>
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
 To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The recent change in the rx_curs_confirmed assignment disregards
-byte order, which causes problems on little endian architectures.
-This patch fixes it.
+There is no need to define these PNETID related constants in
+the pnet.h file, since they are just used locally within pnet.c.
+Just code cleanup, no functional change.
 
-Fixes: b8649efad879 ("net/smc: fix sender_free computation") (net-tree)
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_cdc.c |  4 +---
- net/smc/smc_cdc.h | 19 ++++++++++---------
- 2 files changed, 11 insertions(+), 12 deletions(-)
+ arch/s390/include/asm/pnet.h | 8 --------
+ arch/s390/net/pnet.c         | 8 ++++++++
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index a712c9f8699b..fb07ad8d69a6 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -101,9 +101,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+diff --git a/arch/s390/include/asm/pnet.h b/arch/s390/include/asm/pnet.h
+index 6e278584f8f1..5739276b458d 100644
+--- a/arch/s390/include/asm/pnet.h
++++ b/arch/s390/include/asm/pnet.h
+@@ -11,13 +11,5 @@
+ #include <linux/device.h>
+ #include <linux/types.h>
  
- 	conn->tx_cdc_seq++;
- 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
--	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
--			    &conn->local_tx_ctrl, conn);
--	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
-+	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
- 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
- 	if (!rc)
- 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 271e2524dc8f..f1cdde9d4b89 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -211,26 +211,27 @@ static inline int smc_curs_diff_large(unsigned int size,
- 
- static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
- 					  union smc_host_cursor *local,
-+					  union smc_host_cursor *save,
- 					  struct smc_connection *conn)
- {
--	union smc_host_cursor temp;
+-#define PNETIDS_LEN		64	/* Total utility string length in bytes
+-					 * to cover up to 4 PNETIDs of 16 bytes
+-					 * for up to 4 device ports
+-					 */
+-#define MAX_PNETID_LEN		16	/* Max.length of a single port PNETID */
+-#define MAX_PNETID_PORTS	(PNETIDS_LEN / MAX_PNETID_LEN)
+-					/* Max. # of ports with a PNETID */
 -
--	smc_curs_copy(&temp, local, conn);
--	peer->count = htonl(temp.count);
--	peer->wrap = htons(temp.wrap);
-+	smc_curs_copy(save, local, conn);
-+	peer->count = htonl(save->count);
-+	peer->wrap = htons(save->wrap);
- 	/* peer->reserved = htons(0); must be ensured by caller */
- }
+ int pnet_id_by_dev_port(struct device *dev, unsigned short port, u8 *pnetid);
+ #endif /* _ASM_S390_PNET_H */
+diff --git a/arch/s390/net/pnet.c b/arch/s390/net/pnet.c
+index e22f1b10a6c7..9ecdbdf59781 100644
+--- a/arch/s390/net/pnet.c
++++ b/arch/s390/net/pnet.c
+@@ -13,6 +13,14 @@
+ #include <asm/ccwdev.h>
+ #include <asm/pnet.h>
  
- static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
--				       struct smc_host_cdc_msg *local,
--				       struct smc_connection *conn)
-+				       struct smc_connection *conn,
-+				       union smc_host_cursor *save)
- {
-+	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
++#define PNETIDS_LEN		64	/* Total utility string length in bytes
++					 * to cover up to 4 PNETIDs of 16 bytes
++					 * for up to 4 device ports
++					 */
++#define MAX_PNETID_LEN		16	/* Max.length of a single port PNETID */
++#define MAX_PNETID_PORTS	(PNETIDS_LEN / MAX_PNETID_LEN)
++					/* Max. # of ports with a PNETID */
 +
- 	peer->common.type = local->common.type;
- 	peer->len = local->len;
- 	peer->seqno = htons(local->seqno);
- 	peer->token = htonl(local->token);
--	smc_host_cursor_to_cdc(&peer->prod, &local->prod, conn);
--	smc_host_cursor_to_cdc(&peer->cons, &local->cons, conn);
-+	smc_host_cursor_to_cdc(&peer->prod, &local->prod, save, conn);
-+	smc_host_cursor_to_cdc(&peer->cons, &local->cons, save, conn);
- 	peer->prod_flags = local->prod_flags;
- 	peer->conn_state_flags = local->conn_state_flags;
- }
+ /*
+  * Get the PNETIDs from a device.
+  * s390 hardware supports the definition of a so-called Physical Network
 -- 
 2.16.4
