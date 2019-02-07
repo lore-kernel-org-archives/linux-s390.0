@@ -1,10 +1,10 @@
 Return-Path: <SRS0=t9U+=QO=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 1/7] s390/net: move pnet constants
-Date: Thu,  7 Feb 2019 15:56:14 +0100
+Subject: [PATCH net-next 2/7] net/smc: postpone release of clcsock
+Date: Thu,  7 Feb 2019 15:56:15 +0100
 In-Reply-To: <20190207145620.92811-1-ubraun@linux.ibm.com>
 References: <20190207145620.92811-1-ubraun@linux.ibm.com>
-Message-Id: <20190207145620.92811-2-ubraun@linux.ibm.com>
+Message-Id: <20190207145620.92811-3-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,52 +12,90 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-There is no need to define these PNETID related constants in
-the pnet.h file, since they are just used locally within pnet.c.
-Just code cleanup, no functional change.
+According to RFC7609 (http://www.rfc-editor.org/info/rfc7609)
+first the SMC-R connection is shut down and then the normal TCP
+connection FIN processing drives cleanup of the internal TCP connection.
+The unconditional release of the clcsock during active socket closing
+has to be postponed if the peer has not yet signalled socket closing.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- arch/s390/include/asm/pnet.h | 8 --------
- arch/s390/net/pnet.c         | 8 ++++++++
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ net/smc/af_smc.c    | 33 +++++++++++++++++----------------
+ net/smc/smc_close.c |  7 ++++++-
+ 2 files changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/include/asm/pnet.h b/arch/s390/include/asm/pnet.h
-index 6e278584f8f1..5739276b458d 100644
---- a/arch/s390/include/asm/pnet.h
-+++ b/arch/s390/include/asm/pnet.h
-@@ -11,13 +11,5 @@
- #include <linux/device.h>
- #include <linux/types.h>
- 
--#define PNETIDS_LEN		64	/* Total utility string length in bytes
--					 * to cover up to 4 PNETIDs of 16 bytes
--					 * for up to 4 device ports
--					 */
--#define MAX_PNETID_LEN		16	/* Max.length of a single port PNETID */
--#define MAX_PNETID_PORTS	(PNETIDS_LEN / MAX_PNETID_LEN)
--					/* Max. # of ports with a PNETID */
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 369870b0ef79..60ccc8f50368 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -145,32 +145,33 @@ static int smc_release(struct socket *sock)
+ 		rc = smc_close_active(smc);
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		sk->sk_shutdown |= SHUTDOWN_MASK;
+-	}
 -
- int pnet_id_by_dev_port(struct device *dev, unsigned short port, u8 *pnetid);
- #endif /* _ASM_S390_PNET_H */
-diff --git a/arch/s390/net/pnet.c b/arch/s390/net/pnet.c
-index e22f1b10a6c7..9ecdbdf59781 100644
---- a/arch/s390/net/pnet.c
-+++ b/arch/s390/net/pnet.c
-@@ -13,6 +13,14 @@
- #include <asm/ccwdev.h>
- #include <asm/pnet.h>
+-	sk->sk_prot->unhash(sk);
+-
+-	if (smc->clcsock) {
+-		if (smc->use_fallback && sk->sk_state == SMC_LISTEN) {
++	} else {
++		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
++			sock_put(sk); /* passive closing */
++		if (sk->sk_state == SMC_LISTEN) {
+ 			/* wake up clcsock accept */
+ 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
+ 		}
+-		mutex_lock(&smc->clcsock_release_lock);
+-		sock_release(smc->clcsock);
+-		smc->clcsock = NULL;
+-		mutex_unlock(&smc->clcsock_release_lock);
+-	}
+-	if (smc->use_fallback) {
+-		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
+-			sock_put(sk); /* passive closing */
+ 		sk->sk_state = SMC_CLOSED;
+ 		sk->sk_state_change(sk);
+ 	}
  
-+#define PNETIDS_LEN		64	/* Total utility string length in bytes
-+					 * to cover up to 4 PNETIDs of 16 bytes
-+					 * for up to 4 device ports
-+					 */
-+#define MAX_PNETID_LEN		16	/* Max.length of a single port PNETID */
-+#define MAX_PNETID_PORTS	(PNETIDS_LEN / MAX_PNETID_LEN)
-+					/* Max. # of ports with a PNETID */
++	sk->sk_prot->unhash(sk);
 +
- /*
-  * Get the PNETIDs from a device.
-  * s390 hardware supports the definition of a so-called Physical Network
++	if (sk->sk_state == SMC_CLOSED) {
++		if (smc->clcsock) {
++			mutex_lock(&smc->clcsock_release_lock);
++			sock_release(smc->clcsock);
++			smc->clcsock = NULL;
++			mutex_unlock(&smc->clcsock_release_lock);
++		}
++		if (!smc->use_fallback)
++			smc_conn_free(&smc->conn);
++	}
++
+ 	/* detach socket */
+ 	sock_orphan(sk);
+ 	sock->sk = NULL;
+-	if (!smc->use_fallback && sk->sk_state == SMC_CLOSED)
+-		smc_conn_free(&smc->conn);
+ 	release_sock(sk);
+ 
+ 	sock_put(sk); /* final sock_put */
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index ea2b87f29469..0e60dd741698 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -405,8 +405,13 @@ static void smc_close_passive_work(struct work_struct *work)
+ 	if (old_state != sk->sk_state) {
+ 		sk->sk_state_change(sk);
+ 		if ((sk->sk_state == SMC_CLOSED) &&
+-		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket))
++		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
+ 			smc_conn_free(conn);
++			if (smc->clcsock) {
++				sock_release(smc->clcsock);
++				smc->clcsock = NULL;
++			}
++		}
+ 	}
+ 	release_sock(sk);
+ 	sock_put(sk); /* sock_hold done by schedulers of close_work */
 -- 
 2.16.4
