@@ -1,77 +1,37 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] kbuild: move archive command to scripts/Makefile.lib
-Date: Tue,  5 Feb 2019 16:33:37 +0900
-Message-Id: <1549352017-3503-1-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kbuild-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-kbuild/>
-List-Post: <mailto:linux-kbuild@vger.kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Return-Path: <SRS0=VkHl=QP=vger.kernel.org=linux-kernel-owner@kernel.org>
+MIME-Version: 1.0
+References: <20190208024110.8021-1-allen.lkml@gmail.com> <20190208083808.GB2803@osiris>
+In-Reply-To: <20190208083808.GB2803@osiris>
+From: Allen <allen.lkml@gmail.com>
+Date: Fri, 8 Feb 2019 16:35:42 +0530
+Message-ID: <CAOMdWSK=JOQkS+nce+1YXZQFoYE5OgJTb2QuoWN_iP8tHvE3Pw@mail.gmail.com>
+Subject: Re: [PATCH] Use ARRAY_SIZE instead of dividing sizeof array with
+ sizeof an element.
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-scripts/Makefile.build and arch/s390/boot/Makefile use the same
-command (thin archiving with symbol table creation).
+> >
+> > diff --git a/arch/s390/tools/gen_opcode_table.c b/arch/s390/tools/gen_opcode_table.c
+> > index a1bc02b29c81..468b70c85f62 100644
+> > --- a/arch/s390/tools/gen_opcode_table.c
+> > +++ b/arch/s390/tools/gen_opcode_table.c
+> > @@ -138,7 +138,7 @@ static struct insn_type *insn_format_to_type(char *format)
+> >       strcpy(tmp, format);
+> >       base_format = tmp;
+> >       base_format = strsep(&base_format, "_");
+> > -     for (i = 0; i < sizeof(insn_type_table) / sizeof(insn_type_table[0]); i++) {
+> > +     for (i = 0; i < ARRAY_SIZE(insn_type_table); i++) {
+>
+> This does not compile.
+>
+   Surprising. I try it out again.
 
-Avoid the code duplication, and move it to scripts/Makefile.lib.
+Thanks.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
- arch/s390/boot/Makefile | 3 ---
- scripts/Makefile.build  | 6 +-----
- scripts/Makefile.lib    | 6 ++++++
- 3 files changed, 7 insertions(+), 8 deletions(-)
-
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index 11ca879..c844eaf 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -57,9 +57,6 @@ $(obj)/section_cmp%: vmlinux $(obj)/compressed/vmlinux FORCE
- $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
- 	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
- 
--quiet_cmd_ar = AR      $@
--      cmd_ar = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
--
- $(obj)/startup.a: $(OBJECTS) FORCE
- 	$(call if_changed,ar)
- 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index f8e2794..99be01c 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -424,13 +424,9 @@ $(modorder-target): $(subdir-ym) FORCE
- # Rule to compile a set of .o files into one .a file (with symbol table)
- #
- ifdef lib-target
--quiet_cmd_link_l_target = AR      $@
--
--# lib target archives do get a symbol table and index
--cmd_link_l_target = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
- 
- $(lib-target): $(lib-y) FORCE
--	$(call if_changed,link_l_target)
-+	$(call if_changed,ar)
- 
- targets += $(lib-target)
- 
-diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index c0abd9a..8a1f64f 100644
---- a/scripts/Makefile.lib
-+++ b/scripts/Makefile.lib
-@@ -233,6 +233,12 @@ $(obj)/%: $(src)/%_shipped
- quiet_cmd_ld = LD      $@
-       cmd_ld = $(LD) $(ld_flags) $(real-prereqs) -o $@
- 
-+# Archive
-+# ---------------------------------------------------------------------------
-+
-+quiet_cmd_ar = AR      $@
-+      cmd_ar = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
-+
- # Objcopy
- # ---------------------------------------------------------------------------
- 
 -- 
-2.7.4
+       - Allen
