@@ -1,10 +1,10 @@
 Return-Path: <SRS0=Yeso=QS=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.20 328/352] futex: Handle early deadlock return correctly
-Date: Mon, 11 Feb 2019 15:19:15 +0100
-Message-Id: <20190211141907.746487189@linuxfoundation.org>
-In-Reply-To: <20190211141846.543045703@linuxfoundation.org>
-References: <20190211141846.543045703@linuxfoundation.org>
+Subject: [PATCH 4.19 291/313] futex: Handle early deadlock return correctly
+Date: Mon, 11 Feb 2019 15:19:31 +0100
+Message-Id: <20190211141912.517008376@linuxfoundation.org>
+In-Reply-To: <20190211141852.749630980@linuxfoundation.org>
+References: <20190211141852.749630980@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -15,7 +15,7 @@ To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>, Sebastian Sewior <bigeasy@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-4.20-stable review patch.  If anyone has any objections, please let me know.
+4.19-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
