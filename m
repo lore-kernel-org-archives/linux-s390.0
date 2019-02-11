@@ -1,10 +1,10 @@
 Return-Path: <SRS0=Yeso=QS=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 183/205] futex: Handle early deadlock return correctly
-Date: Mon, 11 Feb 2019 15:19:41 +0100
-Message-Id: <20190211141840.358126079@linuxfoundation.org>
-In-Reply-To: <20190211141827.214852402@linuxfoundation.org>
-References: <20190211141827.214852402@linuxfoundation.org>
+Subject: [PATCH 4.20 328/352] futex: Handle early deadlock return correctly
+Date: Mon, 11 Feb 2019 15:19:15 +0100
+Message-Id: <20190211141907.746487189@linuxfoundation.org>
+In-Reply-To: <20190211141846.543045703@linuxfoundation.org>
+References: <20190211141846.543045703@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -15,7 +15,7 @@ To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>, Sebastian Sewior <bigeasy@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
 
-4.14-stable review patch.  If anyone has any objections, please let me know.
+4.20-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -94,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/futex.c
 +++ b/kernel/futex.c
-@@ -2811,35 +2811,39 @@ retry_private:
+@@ -2850,35 +2850,39 @@ retry_private:
  	 * and BUG when futex_unlock_pi() interleaves with this.
  	 *
  	 * Therefore acquire wait_lock while holding hb->lock, but drop the
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	 *
  	 * In particular; it is important that futex_unlock_pi() can not
  	 * observe this inconsistency.
-@@ -2963,6 +2967,10 @@ retry:
+@@ -3002,6 +3006,10 @@ retry:
  		 * there is no point where we hold neither; and therefore
  		 * wake_futex_pi() must observe a state consistent with what we
  		 * observed.
