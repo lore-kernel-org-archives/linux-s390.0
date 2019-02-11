@@ -1,15 +1,16 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 3/6] vfio-ccw: protect the I/O region
-Date: Mon, 11 Feb 2019 16:57:04 +0100
-Message-ID: <20190211165704.42090ae6.cohuck@redhat.com>
+Subject: Re: [PATCH v3 0/6] vfio-ccw: support hsch/csch (kernel
+ part)
+Date: Mon, 11 Feb 2019 17:13:54 +0100
+Message-ID: <20190211171354.40be0856.cohuck@redhat.com>
 References: <20190130132212.7376-1-cohuck@redhat.com>
-	<20190130132212.7376-4-cohuck@redhat.com>
-	<9ae9987a-f48d-9f35-9320-b9cfde6b2bad@linux.ibm.com>
+	<20190206150016.6fdfaf8f.cohuck@redhat.com>
+	<1981d9bc-e950-62ef-d2d2-66a17771c8f4@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <9ae9987a-f48d-9f35-9320-b9cfde6b2bad@linux.ibm.com>
+In-Reply-To: <1981d9bc-e950-62ef-d2d2-66a17771c8f4@linux.ibm.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -26,33 +27,47 @@ To: Eric Farman <farman@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 8 Feb 2019 16:26:06 -0500
+On Fri, 8 Feb 2019 16:19:58 -0500
 Eric Farman <farman@linux.ibm.com> wrote:
 
-> On 01/30/2019 08:22 AM, Cornelia Huck wrote:
-> > Introduce a mutex to disallow concurrent reads or writes to the
-> > I/O region. This makes sure that the data the kernel or user
-> > space see is always consistent.
+> On 02/06/2019 09:00 AM, Cornelia Huck wrote:
+> > On Wed, 30 Jan 2019 14:22:06 +0100
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >   
+> >> [This is the Linux kernel part, git tree is available at
+> >> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3  
 > > 
-> > The same mutex will be used to protect the async region as well.
-> > 
-> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> > I've pushed out the changes I've made so far (patch 1) to
+> > vfio-ccw-eagain-caps-v3.5. I'll wait a bit for more comments before
+> > sending a new version.
+> >   
 > 
-> I keep wondering how the FSM could provide this, but I end up getting 
-> into chicken/egg rabbit holes.
-
-Yes, if the fsm is able to provide this, it is probably not in an
-easy-to-understand way...
-
-> So, until my brain becomes wiser...
+> Thanks for that branch...  For patch 1 in v3.5:
 > 
 > Reviewed-by: Eric Farman <farman@linux.ibm.com>
 
 Thanks!
 
 > 
-> > ---
-> >   drivers/s390/cio/vfio_ccw_drv.c     |  3 +++
-> >   drivers/s390/cio/vfio_ccw_ops.c     | 28 +++++++++++++++++++---------
-> >   drivers/s390/cio/vfio_ccw_private.h |  2 ++
-> >   3 files changed, 24 insertions(+), 9 deletions(-)
+> >>
+> >> The companion QEMU patches are available at
+> >> https://github.com/cohuck/qemu vfio-ccw-caps
+> >> This is the previously posted v2 version, which should continue to work.]  
+> > 
+> > I would not mind if somebody looked at those as well :)  
+> 
+> Not precluding anyone else from doing so :) ... I'd planned on looking 
+> at them as I get into the meat of patches 4-6 on the kernel side, where 
+> the overlap occurs.  I'm getting close.  :)
+
+Cool :) I'll wait a bit more before resending, then. (I'll probably
+rebase the QEMU side as well when I do resend.)
+
+> 
+> FWIW, I've been running with both series for the last week or two, along 
+> with some host kernel traces to prove things got executed the way I 
+> thought, and it's seemed to be working well.  So that makes me 
+> optimistic for the later patches.
+
+That's good news, thanks for testing. Do you have a special test load
+that you run in the guest that you can share?
