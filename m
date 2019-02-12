@@ -1,242 +1,28 @@
-Return-Path: <SRS0=Yeso=QS=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 291/313] futex: Handle early deadlock return correctly
-Date: Mon, 11 Feb 2019 15:19:31 +0100
-Message-Id: <20190211141912.517008376@linuxfoundation.org>
-In-Reply-To: <20190211141852.749630980@linuxfoundation.org>
-References: <20190211141852.749630980@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Stefan Liebler <stli@linux.ibm.com>, Sebastian Sewior <bigeasy@linutronix.de>
+Return-Path: <SRS0=RTe9=QT=vger.kernel.org=netdev-owner@kernel.org>
+Date: Tue, 12 Feb 2019 09:00:06 -0800 (PST)
+Message-Id: <20190212.090006.1101016125749809787.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/7] net/smc: patches 2019-02-12
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190212152956.71041-1-ubraun@linux.ibm.com>
+References: <20190212152956.71041-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Tue, 12 Feb 2019 16:29:49 +0100
 
-------------------
+> here are patches for SMC:
+> * patches 1 and 3 optimize SMC-R tx logic
+> * patch 2 is a cleanup without functional change
+> * patch 4 optimizes rx logic
+> * patches 5 and 6 improve robustness in link group and IB event handling
+> * patch 7 establishes Karsten Graul as another SMC maintainer
 
-From: Thomas Gleixner <tglx@linutronix.de>
-
-commit 1a1fb985f2e2b85ec0d3dc2e519ee48389ec2434 upstream.
-
-commit 56222b212e8e ("futex: Drop hb->lock before enqueueing on the
-rtmutex") changed the locking rules in the futex code so that the hash
-bucket lock is not longer held while the waiter is enqueued into the
-rtmutex wait list. This made the lock and the unlock path symmetric, but
-unfortunately the possible early exit from __rt_mutex_proxy_start() due to
-a detected deadlock was not updated accordingly. That allows a concurrent
-unlocker to observe inconsitent state which triggers the warning in the
-unlock path.
-
-futex_lock_pi()                         futex_unlock_pi()
-  lock(hb->lock)
-  queue(hb_waiter)				lock(hb->lock)
-  lock(rtmutex->wait_lock)
-  unlock(hb->lock)
-                                        // acquired hb->lock
-                                        hb_waiter = futex_top_waiter()
-                                        lock(rtmutex->wait_lock)
-  __rt_mutex_proxy_start()
-     ---> fail
-          remove(rtmutex_waiter);
-     ---> returns -EDEADLOCK
-  unlock(rtmutex->wait_lock)
-                                        // acquired wait_lock
-                                        wake_futex_pi()
-                                        rt_mutex_next_owner()
-					  --> returns NULL
-                                          --> WARN
-
-  lock(hb->lock)
-  unqueue(hb_waiter)
-
-The problem is caused by the remove(rtmutex_waiter) in the failure case of
-__rt_mutex_proxy_start() as this lets the unlocker observe a waiter in the
-hash bucket but no waiter on the rtmutex, i.e. inconsistent state.
-
-The original commit handles this correctly for the other early return cases
-(timeout, signal) by delaying the removal of the rtmutex waiter until the
-returning task reacquired the hash bucket lock.
-
-Treat the failure case of __rt_mutex_proxy_start() in the same way and let
-the existing cleanup code handle the eventual handover of the rtmutex
-gracefully. The regular rt_mutex_proxy_start() gains the rtmutex waiter
-removal for the failure case, so that the other callsites are still
-operating correctly.
-
-Add proper comments to the code so all these details are fully documented.
-
-Thanks to Peter for helping with the analysis and writing the really
-valuable code comments.
-
-Fixes: 56222b212e8e ("futex: Drop hb->lock before enqueueing on the rtmutex")
-Reported-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Co-developed-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Stefan Liebler <stli@linux.ibm.com>
-Cc: Sebastian Sewior <bigeasy@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1901292311410.1950@nanos.tec.linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- kernel/futex.c           |   28 ++++++++++++++++++----------
- kernel/locking/rtmutex.c |   37 ++++++++++++++++++++++++++++++++-----
- 2 files changed, 50 insertions(+), 15 deletions(-)
-
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2850,35 +2850,39 @@ retry_private:
- 	 * and BUG when futex_unlock_pi() interleaves with this.
- 	 *
- 	 * Therefore acquire wait_lock while holding hb->lock, but drop the
--	 * latter before calling rt_mutex_start_proxy_lock(). This still fully
--	 * serializes against futex_unlock_pi() as that does the exact same
--	 * lock handoff sequence.
-+	 * latter before calling __rt_mutex_start_proxy_lock(). This
-+	 * interleaves with futex_unlock_pi() -- which does a similar lock
-+	 * handoff -- such that the latter can observe the futex_q::pi_state
-+	 * before __rt_mutex_start_proxy_lock() is done.
- 	 */
- 	raw_spin_lock_irq(&q.pi_state->pi_mutex.wait_lock);
- 	spin_unlock(q.lock_ptr);
-+	/*
-+	 * __rt_mutex_start_proxy_lock() unconditionally enqueues the @rt_waiter
-+	 * such that futex_unlock_pi() is guaranteed to observe the waiter when
-+	 * it sees the futex_q::pi_state.
-+	 */
- 	ret = __rt_mutex_start_proxy_lock(&q.pi_state->pi_mutex, &rt_waiter, current);
- 	raw_spin_unlock_irq(&q.pi_state->pi_mutex.wait_lock);
- 
- 	if (ret) {
- 		if (ret == 1)
- 			ret = 0;
--
--		spin_lock(q.lock_ptr);
--		goto no_block;
-+		goto cleanup;
- 	}
- 
--
- 	if (unlikely(to))
- 		hrtimer_start_expires(&to->timer, HRTIMER_MODE_ABS);
- 
- 	ret = rt_mutex_wait_proxy_lock(&q.pi_state->pi_mutex, to, &rt_waiter);
- 
-+cleanup:
- 	spin_lock(q.lock_ptr);
- 	/*
--	 * If we failed to acquire the lock (signal/timeout), we must
-+	 * If we failed to acquire the lock (deadlock/signal/timeout), we must
- 	 * first acquire the hb->lock before removing the lock from the
--	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex
--	 * wait lists consistent.
-+	 * rt_mutex waitqueue, such that we can keep the hb and rt_mutex wait
-+	 * lists consistent.
- 	 *
- 	 * In particular; it is important that futex_unlock_pi() can not
- 	 * observe this inconsistency.
-@@ -3002,6 +3006,10 @@ retry:
- 		 * there is no point where we hold neither; and therefore
- 		 * wake_futex_pi() must observe a state consistent with what we
- 		 * observed.
-+		 *
-+		 * In particular; this forces __rt_mutex_start_proxy() to
-+		 * complete such that we're guaranteed to observe the
-+		 * rt_waiter. Also see the WARN in wake_futex_pi().
- 		 */
- 		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
- 		spin_unlock(&hb->lock);
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -1726,12 +1726,33 @@ void rt_mutex_proxy_unlock(struct rt_mut
- 	rt_mutex_set_owner(lock, NULL);
- }
- 
-+/**
-+ * __rt_mutex_start_proxy_lock() - Start lock acquisition for another task
-+ * @lock:		the rt_mutex to take
-+ * @waiter:		the pre-initialized rt_mutex_waiter
-+ * @task:		the task to prepare
-+ *
-+ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
-+ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
-+ *
-+ * NOTE: does _NOT_ remove the @waiter on failure; must either call
-+ * rt_mutex_wait_proxy_lock() or rt_mutex_cleanup_proxy_lock() after this.
-+ *
-+ * Returns:
-+ *  0 - task blocked on lock
-+ *  1 - acquired the lock for task, caller should wake it up
-+ * <0 - error
-+ *
-+ * Special API call for PI-futex support.
-+ */
- int __rt_mutex_start_proxy_lock(struct rt_mutex *lock,
- 			      struct rt_mutex_waiter *waiter,
- 			      struct task_struct *task)
- {
- 	int ret;
- 
-+	lockdep_assert_held(&lock->wait_lock);
-+
- 	if (try_to_take_rt_mutex(lock, task, NULL))
- 		return 1;
- 
-@@ -1749,9 +1770,6 @@ int __rt_mutex_start_proxy_lock(struct r
- 		ret = 0;
- 	}
- 
--	if (unlikely(ret))
--		remove_waiter(lock, waiter);
--
- 	debug_rt_mutex_print_deadlock(waiter);
- 
- 	return ret;
-@@ -1763,12 +1781,18 @@ int __rt_mutex_start_proxy_lock(struct r
-  * @waiter:		the pre-initialized rt_mutex_waiter
-  * @task:		the task to prepare
-  *
-+ * Starts the rt_mutex acquire; it enqueues the @waiter and does deadlock
-+ * detection. It does not wait, see rt_mutex_wait_proxy_lock() for that.
-+ *
-+ * NOTE: unlike __rt_mutex_start_proxy_lock this _DOES_ remove the @waiter
-+ * on failure.
-+ *
-  * Returns:
-  *  0 - task blocked on lock
-  *  1 - acquired the lock for task, caller should wake it up
-  * <0 - error
-  *
-- * Special API call for FUTEX_REQUEUE_PI support.
-+ * Special API call for PI-futex support.
-  */
- int rt_mutex_start_proxy_lock(struct rt_mutex *lock,
- 			      struct rt_mutex_waiter *waiter,
-@@ -1778,6 +1802,8 @@ int rt_mutex_start_proxy_lock(struct rt_
- 
- 	raw_spin_lock_irq(&lock->wait_lock);
- 	ret = __rt_mutex_start_proxy_lock(lock, waiter, task);
-+	if (unlikely(ret))
-+		remove_waiter(lock, waiter);
- 	raw_spin_unlock_irq(&lock->wait_lock);
- 
- 	return ret;
-@@ -1845,7 +1871,8 @@ int rt_mutex_wait_proxy_lock(struct rt_m
-  * @lock:		the rt_mutex we were woken on
-  * @waiter:		the pre-initialized rt_mutex_waiter
-  *
-- * Attempt to clean up after a failed rt_mutex_wait_proxy_lock().
-+ * Attempt to clean up after a failed __rt_mutex_start_proxy_lock() or
-+ * rt_mutex_wait_proxy_lock().
-  *
-  * Unless we acquired the lock; we're still enqueued on the wait-list and can
-  * in fact still be granted ownership until we're removed. Therefore we can
+Series applied, thanks.
