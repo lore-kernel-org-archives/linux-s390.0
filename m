@@ -1,10 +1,10 @@
 Return-Path: <SRS0=RTe9=QT=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 6/7] net/smc: check port_idx of ib event
-Date: Tue, 12 Feb 2019 16:29:55 +0100
+Subject: [PATCH net-next 7/7] MAINTAINERS: add Karsten as SMC maintainer
+Date: Tue, 12 Feb 2019 16:29:56 +0100
 In-Reply-To: <20190212152956.71041-1-ubraun@linux.ibm.com>
 References: <20190212152956.71041-1-ubraun@linux.ibm.com>
-Message-Id: <20190212152956.71041-7-ubraun@linux.ibm.com>
+Message-Id: <20190212152956.71041-8-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,66 +12,26 @@ To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+Add Karsten as additional maintainer for Shared Memory Communications
+(SMC) Sockets.
 
-For robustness protect of higher port numbers than expected to avoid
-setting bits behind our port_event_mask. In case of an DEVICE_FATAL
-event all ports must be checked. The IB_EVENT_GID_CHANGE event is
-provided in the global event handler, so handle it there. And handle a
-QP_FATAL event instead of an DEVICE_FATAL event in the qp handler.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_ib.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 76487a16934e..0b244be24fe0 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -257,12 +257,20 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 	smcibdev = container_of(handler, struct smc_ib_device, event_handler);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 604bca2fc05d..f3af5cde6456 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13760,6 +13760,7 @@ F:	drivers/misc/sgi-xp/
  
- 	switch (ibevent->event) {
--	case IB_EVENT_PORT_ERR:
- 	case IB_EVENT_DEVICE_FATAL:
-+		/* terminate all ports on device */
-+		for (port_idx = 0; port_idx < SMC_MAX_PORTS; port_idx++)
-+			set_bit(port_idx, &smcibdev->port_event_mask);
-+		schedule_work(&smcibdev->port_event_work);
-+		break;
-+	case IB_EVENT_PORT_ERR:
- 	case IB_EVENT_PORT_ACTIVE:
-+	case IB_EVENT_GID_CHANGE:
- 		port_idx = ibevent->element.port_num - 1;
--		set_bit(port_idx, &smcibdev->port_event_mask);
--		schedule_work(&smcibdev->port_event_work);
-+		if (port_idx < SMC_MAX_PORTS) {
-+			set_bit(port_idx, &smcibdev->port_event_mask);
-+			schedule_work(&smcibdev->port_event_work);
-+		}
- 		break;
- 	default:
- 		break;
-@@ -294,13 +302,13 @@ static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- 	u8 port_idx;
- 
- 	switch (ibevent->event) {
--	case IB_EVENT_DEVICE_FATAL:
--	case IB_EVENT_GID_CHANGE:
--	case IB_EVENT_PORT_ERR:
-+	case IB_EVENT_QP_FATAL:
- 	case IB_EVENT_QP_ACCESS_ERR:
- 		port_idx = ibevent->element.qp->port - 1;
--		set_bit(port_idx, &smcibdev->port_event_mask);
--		schedule_work(&smcibdev->port_event_work);
-+		if (port_idx < SMC_MAX_PORTS) {
-+			set_bit(port_idx, &smcibdev->port_event_mask);
-+			schedule_work(&smcibdev->port_event_work);
-+		}
- 		break;
- 	default:
- 		break;
+ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+ M:	Ursula Braun <ubraun@linux.ibm.com>
++M:	Karsten Graul <kgraul@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ W:	http://www.ibm.com/developerworks/linux/linux390/
+ S:	Supported
 -- 
 2.16.4
