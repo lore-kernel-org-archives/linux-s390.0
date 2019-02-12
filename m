@@ -1,10 +1,10 @@
 Return-Path: <SRS0=RTe9=QT=vger.kernel.org=netdev-owner@kernel.org>
 From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 3/7] net/smc: no delay for free tx buffer wait
-Date: Tue, 12 Feb 2019 16:29:52 +0100
+Subject: [PATCH net-next 4/7] net/smc: reduce amount of status updates to peer
+Date: Tue, 12 Feb 2019 16:29:53 +0100
 In-Reply-To: <20190212152956.71041-1-ubraun@linux.ibm.com>
 References: <20190212152956.71041-1-ubraun@linux.ibm.com>
-Message-Id: <20190212152956.71041-4-ubraun@linux.ibm.com>
+Message-Id: <20190212152956.71041-5-ubraun@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -14,30 +14,54 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-When no free transfer buffers are available then a work to call
-smc_tx_work() is scheduled. Set the schedule delay to zero, because for
-the out-of-buffers condition the work can start immediately and will
-block in the called function smc_wr_tx_get_free_slot(), waiting for free
-buffers.
+In smc_cdc_msg_recv_action() the received cdc message is evaluated.
+To reduce the number of messaged triggered by this evaluation the logic
+is streamlined. For the write_blocked condition we do not need to send
+a response immediately. The remaining conditions can be put together
+into one if clause.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/smc_cdc.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index dd10a913b38e..a3bff08ff8c8 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -28,7 +28,7 @@
- #include "smc_ism.h"
- #include "smc_tx.h"
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 780b36c69292..28bbdb04bc35 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -273,24 +273,18 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 		smp_mb__after_atomic();
+ 		smc->sk.sk_data_ready(&smc->sk);
+ 	} else {
+-		if (conn->local_rx_ctrl.prod_flags.write_blocked ||
+-		    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
+-		    conn->local_rx_ctrl.prod_flags.urg_data_pending) {
+-			if (conn->local_rx_ctrl.prod_flags.urg_data_pending)
+-				conn->urg_state = SMC_URG_NOTYET;
+-			/* force immediate tx of current consumer cursor, but
+-			 * under send_lock to guarantee arrival in seqno-order
+-			 */
+-			if (smc->sk.sk_state != SMC_INIT)
+-				smc_tx_sndbuf_nonempty(conn);
+-		}
++		if (conn->local_rx_ctrl.prod_flags.write_blocked)
++			smc->sk.sk_data_ready(&smc->sk);
++		if (conn->local_rx_ctrl.prod_flags.urg_data_pending)
++			conn->urg_state = SMC_URG_NOTYET;
+ 	}
  
--#define SMC_TX_WORK_DELAY	HZ
-+#define SMC_TX_WORK_DELAY	0
- #define SMC_TX_CORK_DELAY	(HZ >> 2)	/* 250 ms */
- 
- /***************************** sndbuf producer *******************************/
+-	/* piggy backed tx info */
+ 	/* trigger sndbuf consumer: RDMA write into peer RMBE and CDC */
+-	if (diff_cons && smc_tx_prepared_sends(conn)) {
++	if ((diff_cons && smc_tx_prepared_sends(conn)) ||
++	    conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
++	    conn->local_rx_ctrl.prod_flags.urg_data_pending)
+ 		smc_tx_sndbuf_nonempty(conn);
+-	}
++
+ 	if (diff_cons && conn->urg_tx_pend &&
+ 	    atomic_read(&conn->peer_rmbe_space) == conn->peer_rmbe_size) {
+ 		/* urg data confirmed by peer, indicate we're ready for more */
 -- 
 2.16.4
