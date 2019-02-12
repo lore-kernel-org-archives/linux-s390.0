@@ -1,10 +1,10 @@
 Return-Path: <SRS0=RTe9=QT=vger.kernel.org=netdev-owner@kernel.org>
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 01/10] s390/qeth: reduce data length for ARP cache query
-Date: Tue, 12 Feb 2019 18:33:16 +0100
+Subject: [PATCH net-next 03/10] s390/qeth: enable only required csum offload features
+Date: Tue, 12 Feb 2019 18:33:18 +0100
 In-Reply-To: <20190212173325.36555-1-jwi@linux.ibm.com>
 References: <20190212173325.36555-1-jwi@linux.ibm.com>
-Message-Id: <20190212173325.36555-2-jwi@linux.ibm.com>
+Message-Id: <20190212173325.36555-4-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,102 +12,46 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-qeth_l3_query_arp_cache_info() indicates a data length that's much
-larger than the actual length of its request (ie. the value passed to
-qeth_get_setassparms_cmd()). The confusion presumably comes from the
-fact that the cmd _response_ can be quite large - but that's no concern
-for the initial request IO.
+Current code attempts to enable all advertised HW csum offload features.
+Future-proof this by enabling only those features that we actually use.
 
-Fixing this up allows us to use the generic qeth_send_ipa_cmd()
-infrastructure.
+Also, the IPv4 header csum feature is only needed for TX on L3 devices.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  3 ---
- drivers/s390/net/qeth_core_main.c | 13 ++++++-------
- drivers/s390/net/qeth_core_mpc.h  |  5 -----
- drivers/s390/net/qeth_l3_main.c   |  4 +---
- 4 files changed, 7 insertions(+), 18 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 71d27a804920..f35e0b58ba4e 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1004,9 +1004,6 @@ void qeth_prepare_ipa_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob);
- struct qeth_cmd_buffer *qeth_wait_for_buffer(struct qeth_channel *);
- int qeth_query_switch_attributes(struct qeth_card *card,
- 				  struct qeth_switch_info *sw_info);
--int qeth_send_control_data(struct qeth_card *, int, struct qeth_cmd_buffer *,
--	int (*reply_cb)(struct qeth_card *, struct qeth_reply*, unsigned long),
--	void *reply_param);
- unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset);
- int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
- 			struct sk_buff *skb, struct qeth_hdr *hdr,
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6ef0c89370b5..47927613d43c 100644
+index 5f450df886c6..31720044656a 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -2020,12 +2020,12 @@ EXPORT_SYMBOL_GPL(qeth_prepare_control_data);
-  * field 'param' of the structure qeth_reply.
-  */
- 
--int qeth_send_control_data(struct qeth_card *card, int len,
--		struct qeth_cmd_buffer *iob,
--		int (*reply_cb)(struct qeth_card *cb_card,
--				struct qeth_reply *cb_reply,
--				unsigned long cb_cmd),
--		void *reply_param)
-+static int qeth_send_control_data(struct qeth_card *card, int len,
-+				  struct qeth_cmd_buffer *iob,
-+				  int (*reply_cb)(struct qeth_card *cb_card,
-+						  struct qeth_reply *cb_reply,
-+						  unsigned long cb_cmd),
-+				  void *reply_param)
- {
- 	struct qeth_channel *channel = iob->channel;
+@@ -6329,8 +6329,11 @@ static int qeth_send_checksum_on(struct qeth_card *card, int cstype,
+ 	struct qeth_checksum_cmd chksum_cb;
  	int rc;
-@@ -2116,7 +2116,6 @@ int qeth_send_control_data(struct qeth_card *card, int len,
- 	qeth_put_reply(reply);
- 	return rc;
- }
--EXPORT_SYMBOL_GPL(qeth_send_control_data);
  
- static int qeth_cm_enable_cb(struct qeth_card *card, struct qeth_reply *reply,
- 		unsigned long data)
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index c7fb14a61eed..07a48ee95dba 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -834,15 +834,10 @@ enum qeth_ipa_arp_return_codes {
- extern const char *qeth_get_ipa_msg(enum qeth_ipa_return_codes rc);
- extern const char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
- 
--#define QETH_SETASS_BASE_LEN (IPA_PDU_HEADER_SIZE + \
--			      sizeof(struct qeth_ipacmd_hdr) + \
--			      sizeof(struct qeth_ipacmd_setassparms_hdr))
- #define QETH_SETADP_BASE_LEN (sizeof(struct qeth_ipacmd_hdr) + \
- 			      sizeof(struct qeth_ipacmd_setadpparms_hdr))
- #define QETH_SNMP_SETADP_CMDLENGTH 16
- 
--#define QETH_ARP_DATA_SIZE 3968
--#define QETH_ARP_CMD_LEN (QETH_ARP_DATA_SIZE + 8)
- /* Helper functions */
- #define IS_IPA_REPLY(cmd) ((cmd->hdr.initiator == IPA_CMD_INITIATOR_HOST) || \
- 			   (cmd->hdr.initiator == IPA_CMD_INITIATOR_OSA_REPLY))
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index f7d0623999ba..f0b790810ebc 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1696,9 +1696,7 @@ static int qeth_l3_query_arp_cache_info(struct qeth_card *card,
- 		return -ENOMEM;
- 	cmd = __ipa_cmd(iob);
- 	cmd->data.setassparms.data.query_arp.request_bits = 0x000F;
--	rc = qeth_send_control_data(card,
--				    QETH_SETASS_BASE_LEN + QETH_ARP_CMD_LEN,
--				    iob, qeth_l3_arp_query_cb, qinfo);
-+	rc = qeth_send_ipa_cmd(card, iob, qeth_l3_arp_query_cb, qinfo);
- 	if (rc)
- 		QETH_DBF_MESSAGE(2, "Error while querying ARP cache on device %x: %#x\n",
- 				 CARD_DEVID(card), rc);
+-	if (prot == QETH_PROT_IPV4)
++	/* some L3 HW requires combined L3+L4 csum offload: */
++	if (IS_LAYER3(card) && prot == QETH_PROT_IPV4 &&
++	    cstype == IPA_OUTBOUND_CHECKSUM)
+ 		required_features |= QETH_IPA_CHECKSUM_IP_HDR;
++
+ 	rc = qeth_ipa_checksum_run_cmd(card, cstype, IPA_CMD_ASS_START, 0,
+ 				       &chksum_cb, prot);
+ 	if (!rc) {
+@@ -6351,8 +6354,12 @@ static int qeth_send_checksum_on(struct qeth_card *card, int cstype,
+ 			 prot, QETH_CARD_IFNAME(card));
+ 		return rc;
+ 	}
++
++	if (chksum_cb.supported & QETH_IPA_CHECKSUM_LP2LP)
++		required_features |= QETH_IPA_CHECKSUM_LP2LP;
++
+ 	rc = qeth_ipa_checksum_run_cmd(card, cstype, IPA_CMD_ASS_ENABLE,
+-				       chksum_cb.supported, &chksum_cb,
++				       required_features, &chksum_cb,
+ 				       prot);
+ 	if (!rc) {
+ 		if ((required_features & chksum_cb.enabled) !=
 -- 
 2.16.4
