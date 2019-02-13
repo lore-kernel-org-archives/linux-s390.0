@@ -1,78 +1,92 @@
-From: Ira Weiny via dri-devel <dri-devel@lists.freedesktop.org>
-Subject: Re: [PATCH V2 3/7] mm/gup: Change GUP fast to use flags rather than
- a write 'bool'
-Date: Wed, 13 Feb 2019 15:52:01 -0800
-Message-ID: <20190213235200.GA1151@iweiny-DESK2.sc.intel.com>
+From: ira.weiny@intel.com
+Subject: [PATCH V2 0/7] Add FOLL_LONGTERM to GUP fast and use it
+Date: Wed, 13 Feb 2019 15:04:48 -0800
+Message-ID: <20190213230455.5605-1-ira.weiny@intel.com>
 References: <20190211201643.7599-1-ira.weiny@intel.com>
- <20190213230455.5605-1-ira.weiny@intel.com>
- <20190213230455.5605-4-ira.weiny@intel.com>
- <20190213231110.GD24692@ziepe.ca>
-Reply-To: Ira Weiny <ira.weiny@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20190213231110.GD24692@ziepe.ca>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20190211201643.7599-1-ira.weiny@intel.com>
+Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/ceph-devel/>
 List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Martin Brandenburg <martin@omnibond.com>, linux-fbdev@vger.kernel.org, Rich Felker <dalias@libc.org>, kvm@vger.kernel.org, linux-sh@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-fpga@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Michal Hocko <mhocko@suse.com>, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, David Hildenbrand <david@redhat.com>, Rob Springer <rspringer@google.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Matt Porter <mporter@kernel.crashing.org>, Jason Wang <jasowang@redhat.com>, devel@lists.orangefs.org, linux-media@vger.kernel.org
+To: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, kvm@vger.kernel.org, linux-fpga@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, linux-scsi@vger.kernel.org, devel@driverdev.osuosl.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-fbdev@vger.kernel.org, xen-devel@lists.xenproject.org, devel@lists.orangefs.org, linux-mm@kvack.org, ceph-devel@vger.kernel.org, rds-devel@oss.oracle.com
+Cc: Ira Weiny <ira.weiny@intel.com>, John Hubbard <jhubbard@nvidia.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>, Wu Hao <hao.wu@intel.com>, Alan Tull <atull@kernel.org>, Moritz Fischer <mdf@kernel.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Christian Benvenuti <benve@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Matt Porter <mporter@kernel.crashing.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gV2VkLCBGZWIgMTMsIDIwMTkgYXQgMDQ6MTE6MTBQTSAtMDcwMCwgSmFzb24gR3VudGhvcnBl
-IHdyb3RlOgo+IE9uIFdlZCwgRmViIDEzLCAyMDE5IGF0IDAzOjA0OjUxUE0gLTA4MDAsIGlyYS53
-ZWlueUBpbnRlbC5jb20gd3JvdGU6Cj4gPiBGcm9tOiBJcmEgV2VpbnkgPGlyYS53ZWlueUBpbnRl
-bC5jb20+Cj4gPiAKPiA+IFRvIGZhY2lsaXRhdGUgYWRkaXRpb25hbCBvcHRpb25zIHRvIGdldF91
-c2VyX3BhZ2VzX2Zhc3QoKSBjaGFuZ2UgdGhlCj4gPiBzaW5ndWxhciB3cml0ZSBwYXJhbWV0ZXIg
-dG8gYmUgZ3VwX2ZsYWdzLgo+IAo+IFNvIG5vdyB3ZSBoYXZlOgo+IAo+IGxvbmcgZ2V0X3VzZXJf
-cGFnZXNfdW5sb2NrZWQodW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBucl9wYWdl
-cywKPiAJCSAgICBzdHJ1Y3QgcGFnZSAqKnBhZ2VzLCB1bnNpZ25lZCBpbnQgZ3VwX2ZsYWdzKTsK
-PiAKPiBhbmQgCj4gCj4gaW50IGdldF91c2VyX3BhZ2VzX2Zhc3QodW5zaWduZWQgbG9uZyBzdGFy
-dCwgaW50IG5yX3BhZ2VzLAo+IAkJCXVuc2lnbmVkIGludCBndXBfZmxhZ3MsIHN0cnVjdCBwYWdl
-ICoqcGFnZXMpCj4gCj4gRG9lcyB0aGlzIG1ha2UgYW55IHNlbnNlPyBBdCBsZWFzdCB0aGUgYXJn
-dW1lbnRzIHNob3VsZCBiZSBpbiB0aGUgc2FtZQo+IG9yZGVyLCBJIHRoaW5rLgoKWWVzLi4uICBh
-bmQgbm8uICBzZWUgYmVsb3cuCgo+IAo+IEFsc28gdGhpcyBjb21tZW50Ogo+IC8qCj4gICogZ2V0
-X3VzZXJfcGFnZXNfdW5sb2NrZWQoKSBpcyBzdWl0YWJsZSB0byByZXBsYWNlIHRoZSBmb3JtOgo+
-ICAqCj4gICogICAgICBkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7Cj4gICogICAgICBnZXRfdXNl
-cl9wYWdlcyh0c2ssIG1tLCAuLi4sIHBhZ2VzLCBOVUxMKTsKPiAgKiAgICAgIHVwX3JlYWQoJm1t
-LT5tbWFwX3NlbSk7Cj4gICoKPiAgKiAgd2l0aDoKPiAgKgo+ICAqICAgICAgZ2V0X3VzZXJfcGFn
-ZXNfdW5sb2NrZWQodHNrLCBtbSwgLi4uLCBwYWdlcyk7Cj4gICoKPiAgKiBJdCBpcyBmdW5jdGlv
-bmFsbHkgZXF1aXZhbGVudCB0byBnZXRfdXNlcl9wYWdlc19mYXN0IHNvCj4gICogZ2V0X3VzZXJf
-cGFnZXNfZmFzdCBzaG91bGQgYmUgdXNlZCBpbnN0ZWFkIGlmIHNwZWNpZmljIGd1cF9mbGFncwo+
-ICAqIChlLmcuIEZPTExfRk9SQ0UpIGFyZSBub3QgcmVxdWlyZWQuCj4gICovCj4gCj4gTmVlZHMg
-c29tZSBhdHRlbnRpb24gYXMgdGhlIHJlY29tbWVuZGF0aW9uIGlzIG5vdyBub25zZW5zZS4KCklN
-TyB0aGV5IGFyZSBub3QgZnVuY3Rpb25hbGx5IGVxdWl2YWxlbnQuCgpXZSBjYW4ndCByZW1vdmUg
-Kl91bmxvY2tlZCgpIGFzIGl0IGlzIHVzZWQgYXMgYm90aCBhIGhlbHBlciBmb3IgdGhlIGFyY2gK
-c3BlY2lmaWMgKl9mYXN0KCkgY2FsbHMsIF9hbmRfIGluIGRyaXZlcnMuICBBZ2FpbiBJIGRvbid0
-IGtub3cgdGhlIGhpc3RvcnkgaGVyZQpidXQgaXQgY291bGQgYmUgdGhhdCB0aGUgZHJpdmVycyBz
-aG91bGQgbmV2ZXIgaGF2ZSB1c2VkIHRoZSBjYWxsIGluIHRoZSBmaXJzdApwbGFjZT8/PyAgT3Ig
-YmVlbiBjb252ZXJ0ZWQgYXQgc29tZSBwb2ludD8KCkkgY291bGQgY2hhbmdlIHRoZSBjb21tZW50
-IHRvIGJlIHNvbWV0aGluZyBsaWtlCgovKgogKiBnZXRfdXNlcl9wYWdlc191bmxvY2tlZCgpIGlz
-IG9ubHkgdG8gYmUgdXNlZCBieSBhcmNoIHNwZWNpZmljCiAqIGdldF91c2VyX3BhZ2VzX2Zhc3Qo
-KSBjYWxscy4gIERyaXZlcnMgc2hvdWxkIGJlIGNhbGxpbmcKICogZ2V0X3VzZXJfcGFnZXNfZmFz
-dCgpCiAqLwoKSW5zdGVhZCBvZiB0aGUgY3VycmVudCBjb21tZW50LgoKQW5kIGNoYW5nZSB0aGUg
-ZHJpdmVycyB0byBnZXRfdXNlcl9wYWdlc19mYXN0KCkuCgpIb3dldmVyLCBJJ20gbm90IHN1cmUg
-aWYgdGhlc2UgZHJpdmVycyBuZWVkIHRoZSBGT0xMX1RPVUNIIGZsYWcgd2hpY2gKKl91bmxvY2tl
-ZCgpIGFkZHMgZm9yIHRoZW0uICBBbmQgYWRkaW5nIEZPTExfVE9VQ0ggdG8gKl9mYXN0KCkgaXMg
-bm90IGdvaW5nIHRvCmdpdmUgdGhlIHNhbWUgZnVuY3Rpb25hbGl0eS4KCkl0IF9sb29rc18gbGlr
-ZSB3ZSBjYW4gYWRkIEZPTExfVE9VQ0ggZnVuY3Rpb25hbGl0eSB0byB0aGUgZmFzdCBwYXRoIGlu
-IHRoZQpnZW5lcmljIGNvZGUuICBJJ20gbm90IHN1cmUgYWJvdXQgdGhlIGFyY2gncy4KCklmIHdl
-IGRpZCB0aGF0IHRoZW4gd2UgY2FuIGhhdmUgdGhvc2UgZHJpdmVycyB1c2UgRk9MTF9UT1VDSCBv
-ciBub3QgaW4gKl9mYXN0KCkKaWYgdGhleSB3YW50L25lZWQuCgo+IAo+IEhvbmVzdGx5IGEgcHJv
-cGVyIGV4cGxhbmF0aW9uIG9mIHdoeSB0d28gZnVuY3Rpb25zIGV4aXN0IHdvdWxkIGJlCj4gZ3Jl
-YXQgYXQgdGhpcyBwb2ludCA6KQoKSSd2ZSBub3QgcmVzZWFyY2hlZCBpdC4gIEkgZG8gYWdyZWUg
-dGhhdCB0aGVyZSBzZWVtcyB0byBiZSBhIGxvdCBvZiBjYWxscyBpbgp0aGlzIGZpbGUgYW5kIHRo
-ZSBkaWZmZXJlbmNlcyBhcmUgc3VidGxlLgoKSXJhCgo+IAo+IEphc29uCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QK
-ZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9w
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbA==
+From: Ira Weiny <ira.weiny@intel.com>
+
+NOTE: This series depends on my clean up patch to remove the write parameter
+from gup_fast_permitted()[1]
+
+HFI1, qib, and mthca, use get_user_pages_fast() due to it performance
+advantages.  These pages can be held for a significant time.  But
+get_user_pages_fast() does not protect against mapping of FS DAX pages.
+
+Introduce FOLL_LONGTERM and use this flag in get_user_pages_fast() which
+retains the performance while also adding the FS DAX checks.  XDP has also
+shown interest in using this functionality.[2]
+
+In addition we change get_user_pages() to use the new FOLL_LONGTERM flag and
+remove the specialized get_user_pages_longterm call.
+
+[1] https://lkml.org/lkml/2019/2/11/237
+[2] https://lkml.org/lkml/2019/2/11/1789
+
+Ira Weiny (7):
+  mm/gup: Replace get_user_pages_longterm() with FOLL_LONGTERM
+  mm/gup: Change write parameter to flags in fast walk
+  mm/gup: Change GUP fast to use flags rather than a write 'bool'
+  mm/gup: Add FOLL_LONGTERM capability to GUP fast
+  IB/hfi1: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+  IB/qib: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+  IB/mthca: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+
+ arch/mips/mm/gup.c                          |  11 +-
+ arch/powerpc/kvm/book3s_64_mmu_hv.c         |   4 +-
+ arch/powerpc/kvm/e500_mmu.c                 |   2 +-
+ arch/powerpc/mm/mmu_context_iommu.c         |   4 +-
+ arch/s390/kvm/interrupt.c                   |   2 +-
+ arch/s390/mm/gup.c                          |  12 +-
+ arch/sh/mm/gup.c                            |  11 +-
+ arch/sparc/mm/gup.c                         |   9 +-
+ arch/x86/kvm/paging_tmpl.h                  |   2 +-
+ arch/x86/kvm/svm.c                          |   2 +-
+ drivers/fpga/dfl-afu-dma-region.c           |   2 +-
+ drivers/gpu/drm/via/via_dmablit.c           |   3 +-
+ drivers/infiniband/core/umem.c              |   5 +-
+ drivers/infiniband/hw/hfi1/user_pages.c     |   5 +-
+ drivers/infiniband/hw/mthca/mthca_memfree.c |   3 +-
+ drivers/infiniband/hw/qib/qib_user_pages.c  |   8 +-
+ drivers/infiniband/hw/qib/qib_user_sdma.c   |   2 +-
+ drivers/infiniband/hw/usnic/usnic_uiom.c    |   9 +-
+ drivers/media/v4l2-core/videobuf-dma-sg.c   |   6 +-
+ drivers/misc/genwqe/card_utils.c            |   2 +-
+ drivers/misc/vmw_vmci/vmci_host.c           |   2 +-
+ drivers/misc/vmw_vmci/vmci_queue_pair.c     |   6 +-
+ drivers/platform/goldfish/goldfish_pipe.c   |   3 +-
+ drivers/rapidio/devices/rio_mport_cdev.c    |   4 +-
+ drivers/sbus/char/oradax.c                  |   2 +-
+ drivers/scsi/st.c                           |   3 +-
+ drivers/staging/gasket/gasket_page_table.c  |   4 +-
+ drivers/tee/tee_shm.c                       |   2 +-
+ drivers/vfio/vfio_iommu_spapr_tce.c         |   3 +-
+ drivers/vfio/vfio_iommu_type1.c             |   3 +-
+ drivers/vhost/vhost.c                       |   2 +-
+ drivers/video/fbdev/pvr2fb.c                |   2 +-
+ drivers/virt/fsl_hypervisor.c               |   2 +-
+ drivers/xen/gntdev.c                        |   2 +-
+ fs/orangefs/orangefs-bufmap.c               |   2 +-
+ include/linux/mm.h                          |  17 +-
+ kernel/futex.c                              |   2 +-
+ lib/iov_iter.c                              |   7 +-
+ mm/gup.c                                    | 220 ++++++++++++--------
+ mm/gup_benchmark.c                          |   5 +-
+ mm/util.c                                   |   8 +-
+ net/ceph/pagevec.c                          |   2 +-
+ net/rds/info.c                              |   2 +-
+ net/rds/rdma.c                              |   3 +-
+ 44 files changed, 232 insertions(+), 180 deletions(-)
+
+-- 
+2.20.1
