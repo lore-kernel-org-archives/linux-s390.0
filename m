@@ -1,32 +1,55 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Date: Tue, 19 Feb 2019 13:55:58 -0800 (PST)
-Subject: Re: [PATCH 02/11] riscv: remove the HAVE_KPROBES option
-In-Reply-To: <20190219151759.GD4121@lst.de>
-From: Palmer Dabbelt <palmer@sifive.com>
-Message-ID: <mhng-a73ea6c9-683c-4ee0-991e-24a6608b6887@palmer-si-x1c4>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 01/11] powerpc: remove dead ifdefs in <asm/checksum.h>
+Date: Wed, 13 Feb 2019 18:39:55 +0100
+Message-Id: <20190213174005.28785-2-hch@lst.de>
+In-Reply-To: <20190213174005.28785-1-hch@lst.de>
+References: <20190213174005.28785-1-hch@lst.de>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
-Cc: yamada.masahiro@socionext.com, Christoph Hellwig <hch@lst.de>, linux-xtensa@linux-xtensa.org, linux-s390@vger.kernel.org, linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-kbuild@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 19 Feb 2019 07:17:59 PST (-0800), Christoph Hellwig wrote:
-> On Fri, Feb 15, 2019 at 06:32:07PM +0900, Masahiro Yamada wrote:
->> On Thu, Feb 14, 2019 at 2:40 AM Christoph Hellwig <hch@lst.de> wrote:
->> >
->> > HAVE_KPROBES is defined genericly in arch/Kconfig and architectures
->> > should just select it if supported.
->> >
->> > Signed-off-by: Christoph Hellwig <hch@lst.de>
->>
->> Do you want this patch picked up by me?
->>
->> Or, by Palmer?
->
-> Given that I don't think I'll have the rest of this series respun in time
-> for this merge window:  Palmer, can you pick it up?
+__KERNEL__ is never not defined for non-uapi headers, and GENERIC_CSUM
+isn't ever set for powerpc either.
 
-It's on my for-next.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/powerpc/include/asm/checksum.h | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/checksum.h b/arch/powerpc/include/asm/checksum.h
+index a78a57e5058d..37c309500260 100644
+--- a/arch/powerpc/include/asm/checksum.h
++++ b/arch/powerpc/include/asm/checksum.h
+@@ -1,6 +1,5 @@
+ #ifndef _ASM_POWERPC_CHECKSUM_H
+ #define _ASM_POWERPC_CHECKSUM_H
+-#ifdef __KERNEL__
+ 
+ /*
+  * This program is free software; you can redistribute it and/or
+@@ -9,9 +8,6 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
+-#ifdef CONFIG_GENERIC_CSUM
+-#include <asm-generic/checksum.h>
+-#else
+ #include <linux/bitops.h>
+ #include <linux/in6.h>
+ /*
+@@ -217,6 +213,4 @@ __sum16 csum_ipv6_magic(const struct in6_addr *saddr,
+ 			const struct in6_addr *daddr,
+ 			__u32 len, __u8 proto, __wsum sum);
+ 
+-#endif
+-#endif /* __KERNEL__ */
+-#endif
++#endif /* _ASM_POWERPC_CHECKSUM_H */
+-- 
+2.20.1
