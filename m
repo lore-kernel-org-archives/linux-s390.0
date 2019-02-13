@@ -1,8 +1,8 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/11] lockdep: consolidate the LOCKDEP_SUPPORT symbol
-Date: Wed, 13 Feb 2019 18:40:00 +0100
-Message-Id: <20190213174005.28785-7-hch@lst.de>
+Subject: [PATCH 08/11] lib: consolidate the GENERIC_BUG symbol
+Date: Wed, 13 Feb 2019 18:40:02 +0100
+Message-Id: <20190213174005.28785-9-hch@lst.de>
 In-Reply-To: <20190213174005.28785-1-hch@lst.de>
 References: <20190213174005.28785-1-hch@lst.de>
 MIME-Version: 1.0
@@ -14,377 +14,290 @@ To: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: linux-kbuild@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Add one definition to lib/Kconfig.debug and let the architectures
-select if it supported.
+And just let the architectures that want it select the symbol.
+Same for GENERIC_BUG_RELATIVE_POINTERS.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arc/Kconfig        | 4 +---
- arch/arm/Kconfig        | 5 +----
- arch/arm64/Kconfig      | 4 +---
- arch/hexagon/Kconfig    | 4 +---
- arch/microblaze/Kconfig | 4 +---
- arch/mips/Kconfig       | 5 +----
- arch/openrisc/Kconfig   | 4 +---
- arch/powerpc/Kconfig    | 5 +----
- arch/s390/Kconfig       | 4 +---
- arch/sh/Kconfig         | 4 +---
- arch/sparc/Kconfig      | 5 +----
- arch/um/Kconfig         | 5 +----
- arch/unicore32/Kconfig  | 4 +---
- arch/x86/Kconfig        | 4 +---
- arch/xtensa/Kconfig     | 4 +---
- lib/Kconfig.debug       | 3 +++
- 16 files changed, 18 insertions(+), 50 deletions(-)
+ arch/arm/Kconfig     |  5 +----
+ arch/arm64/Kconfig   | 10 ++--------
+ arch/c6x/Kconfig     |  5 +----
+ arch/hexagon/Kconfig |  5 +----
+ arch/parisc/Kconfig  |  6 +-----
+ arch/powerpc/Kconfig |  6 +-----
+ arch/riscv/Kconfig   | 10 ++--------
+ arch/s390/Kconfig    |  8 ++------
+ arch/sh/Kconfig      |  5 +----
+ arch/x86/Kconfig     | 10 ++--------
+ lib/Kconfig          |  6 ++++++
+ 11 files changed, 20 insertions(+), 56 deletions(-)
 
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index 065fbd55dcc4..b1d6f297e448 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -42,6 +42,7 @@ config ARC
- 	select HANDLE_DOMAIN_IRQ
- 	select IRQ_DOMAIN
- 	select MODULES_USE_ELF_RELA
-+	select LOCKDEP_SUPPORT
- 	select OF
- 	select OF_EARLY_FLATTREE
- 	select OF_RESERVED_MEM
-@@ -54,9 +55,6 @@ config ARC
- config ARCH_HAS_CACHE_LINE_SIZE
- 	def_bool y
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config SCHED_OMIT_FRAME_POINTER
- 	def_bool y
- 
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 1995e1b24506..d6e7713a71ae 100644
+index 96780ab64a2e..c230fb1e09ba 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -98,6 +98,7 @@ config ARM
- 	select HAVE_UID16
- 	select HAVE_VIRT_CPU_ACCOUNTING_GEN
- 	select IRQ_FORCED_THREADING
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_REL
- 	select NEED_DMA_MAP_STATE
- 	select OF_EARLY_FLATTREE if OF
-@@ -167,10 +168,6 @@ config NO_IOPORT_MAP
- config SBUS
- 	bool
+@@ -36,6 +36,7 @@ config ARM
+ 	select GENERIC_ALLOCATOR
+ 	select GENERIC_ARCH_TOPOLOGY if ARM_CPU_TOPOLOGY
+ 	select GENERIC_ATOMIC64 if CPU_V7M || CPU_V6 || !CPU_32v6K || !AEABI
++	select GENERIC_BUG if BUG
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_CLOCKEVENTS_BROADCAST if SMP
+ 	select GENERIC_CPU_AUTOPROBE
+@@ -256,10 +257,6 @@ config PHYS_OFFSET
+ 	  Please provide the physical address corresponding to the
+ 	  location of main memory in your system.
  
--config LOCKDEP_SUPPORT
--	bool
--	default y
+-config GENERIC_BUG
+-	def_bool y
+-	depends on BUG
 -
- config ARCH_HAS_ILOG2_U32
- 	bool
- 
+ config PGTABLE_LEVELS
+ 	int
+ 	default 3 if ARM_LPAE
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index ecbe481ce064..f3d3e48aff26 100644
+index c39dac831f08..913b2ca7ec22 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -157,6 +157,7 @@ config ARM64
- 	select IOMMU_DMA if IOMMU_SUPPORT
- 	select IRQ_DOMAIN
- 	select IRQ_FORCED_THREADING
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_RELA
- 	select MULTI_IRQ_HANDLER
- 	select NEED_DMA_MAP_STATE
-@@ -232,9 +233,6 @@ config ILLEGAL_POINTER_VALUE
+@@ -85,6 +85,8 @@ config ARM64
+ 	select FRAME_POINTER
+ 	select GENERIC_ALLOCATOR
+ 	select GENERIC_ARCH_TOPOLOGY
++	select GENERIC_BUG if BUG
++	select GENERIC_BUG_RELATIVE_POINTERS
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CLOCKEVENTS_BROADCAST
+@@ -234,14 +236,6 @@ config ILLEGAL_POINTER_VALUE
  	hex
  	default 0xdead000000000000
  
--config LOCKDEP_SUPPORT
+-config GENERIC_BUG
 -	def_bool y
+-	depends on BUG
 -
- config GENERIC_BUG
+-config GENERIC_BUG_RELATIVE_POINTERS
+-	def_bool y
+-	depends on GENERIC_BUG
+-
+ config GENERIC_HWEIGHT
  	def_bool y
- 	depends on BUG
+ 
+diff --git a/arch/c6x/Kconfig b/arch/c6x/Kconfig
+index d5f382830f49..19b145ef7d92 100644
+--- a/arch/c6x/Kconfig
++++ b/arch/c6x/Kconfig
+@@ -10,6 +10,7 @@ config C6X
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select CLKDEV_LOOKUP
+ 	select GENERIC_ATOMIC64
++	select GENERIC_BUG if BUG
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_IRQ_SHOW
+ 	select HAVE_ARCH_TRACEHOOK
+@@ -30,10 +31,6 @@ config FPU
+ config GENERIC_HWEIGHT
+ 	def_bool y
+ 
+-config GENERIC_BUG
+-	def_bool y
+-	depends on BUG
+-
+ config C6X_BIG_KERNEL
+ 	bool "Build a big kernel"
+ 	help
 diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index b6c3111ec5f9..425217c98a77 100644
+index 425217c98a77..5eb4f48506b6 100644
 --- a/arch/hexagon/Kconfig
 +++ b/arch/hexagon/Kconfig
-@@ -21,6 +21,7 @@ config HEXAGON
- 	select GENERIC_IRQ_SHOW
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_TRACEHOOK
-+	select LOCKDEP_SUPPORT
- 	select ARCH_DISCARD_MEMBLOCK
- 	select NEED_SG_DMA_LENGTH
- 	select NO_IOPORT_MAP
-@@ -46,9 +47,6 @@ config HEXAGON_PHYS_OFFSET
- config FRAME_POINTER
+@@ -14,6 +14,7 @@ config HEXAGON
+ 	# select GPIOLIB
+ 	# select HAVE_CLK
+ 	# select GENERIC_PENDING_IRQ if SMP
++	select GENERIC_BUG if BUG
+ 	select GENERIC_ATOMIC64
+ 	select HAVE_PERF_EVENTS
+ 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
+@@ -65,10 +66,6 @@ config GENERIC_IRQ_PROBE
+ config GENERIC_HWEIGHT
  	def_bool y
  
--config LOCKDEP_SUPPORT
+-config GENERIC_BUG
 -	def_bool y
+-	depends on BUG
 -
- config EARLY_PRINTK
- 	def_bool y
+ menu "Machine selection"
  
-diff --git a/arch/microblaze/Kconfig b/arch/microblaze/Kconfig
-index 238f8b410331..1989ba1d1798 100644
---- a/arch/microblaze/Kconfig
-+++ b/arch/microblaze/Kconfig
-@@ -31,6 +31,7 @@ config MICROBLAZE
- 	select HAVE_OPROFILE
- 	select HAVE_PCI
- 	select IRQ_DOMAIN
-+	select LOCKDEP_SUPPORT
- 	select XILINX_INTC
- 	select MODULES_USE_ELF_RELA
- 	select OF
-@@ -77,9 +78,6 @@ config GENERIC_CALIBRATE_DELAY
+ choice
+diff --git a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+index fcbc67b6b830..42282b8e086d 100644
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -27,6 +27,7 @@ config PARISC
+ 	select HAVE_KERNEL_LZO
+ 	select HAVE_KERNEL_XZ
+ 	select GENERIC_ATOMIC64 if !64BIT
++	select GENERIC_BUG if BUG
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_PCI_IOMAP
+@@ -85,11 +86,6 @@ config ARCH_HAS_ILOG2_U64
+ 	bool
+ 	default n
+ 
+-config GENERIC_BUG
+-	bool
+-	default y
+-	depends on BUG
+-
+ config GENERIC_HWEIGHT
+ 	bool
+ 	default y
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 8b9f3639555f..1684017fa496 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -142,6 +142,7 @@ config PPC
+ 	select EDAC_ATOMIC_SCRUB
+ 	select EDAC_SUPPORT
+ 	select GENERIC_ATOMIC64			if PPC32
++	select GENERIC_BUG			if BUG
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CLOCKEVENTS_BROADCAST	if SMP
+ 	select GENERIC_CMOS_UPDATE
+@@ -283,11 +284,6 @@ config AUDIT_ARCH
+ 	bool
+ 	default y
+ 
+-config GENERIC_BUG
+-	bool
+-	default y
+-	depends on BUG
+-
+ config SYS_SUPPORTS_APM_EMULATION
+ 	default y if PMAC_APM_EMU
+ 	bool
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 732614eb3683..c410ed896567 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -19,6 +19,8 @@ config RISCV
+ 	select ARCH_WANT_FRAME_POINTERS
+ 	select CLONE_BACKWARDS
+ 	select COMMON_CLK
++	select GENERIC_BUG if BUG
++	select GENERIC_BUG_RELATIVE_POINTERS if 64BIT
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CPU_DEVICES
+@@ -66,14 +68,6 @@ config PAGE_OFFSET
+ 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
+ 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
+ 
+-config GENERIC_BUG
+-	def_bool y
+-	depends on BUG
+-	select GENERIC_BUG_RELATIVE_POINTERS if 64BIT
+-
+-config GENERIC_BUG_RELATIVE_POINTERS
+-	bool
+-
  config GENERIC_CSUM
  	def_bool y
  
--config LOCKDEP_SUPPORT
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 15ccdd04814e..2a5c12be633e 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -17,12 +17,6 @@ config ARCH_HAS_ILOG2_U64
+ config GENERIC_HWEIGHT
+ 	def_bool y
+ 
+-config GENERIC_BUG
+-	def_bool y if BUG
+-
+-config GENERIC_BUG_RELATIVE_POINTERS
 -	def_bool y
 -
- source "arch/microblaze/Kconfig.platform"
+ config GENERIC_LOCKBREAK
+ 	def_bool y if SMP && PREEMPT
  
- menu "Processor type and features"
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index d1c89635a459..88792685687c 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -76,6 +76,7 @@ config MIPS
- 	select HAVE_VIRT_CPU_ACCOUNTING_GEN if 64BIT || !SMP
- 	select IRQ_FORCED_THREADING
- 	select ISA if EISA
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_RELA if MODULES && 64BIT
- 	select MODULES_USE_ELF_REL if MODULES
- 	select PERF_USE_VMALLOC
-@@ -3051,10 +3052,6 @@ endchoice
+@@ -103,6 +97,8 @@ config S390
+ 	select BUILDTIME_EXTABLE_SORT
+ 	select CLONE_BACKWARDS2
+ 	select DYNAMIC_FTRACE if FUNCTION_TRACER
++	select GENERIC_BUG if BUG
++	select GENERIC_BUG_RELATIVE_POINTERS
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CPU_AUTOPROBE
+ 	select GENERIC_CPU_DEVICES if !SMP
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 01d09a4637d9..92d16cab61f3 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -35,6 +35,7 @@ config SUPERH
+ 	select LOCKDEP_SUPPORT
+ 	select RTC_LIB
+ 	select GENERIC_ATOMIC64
++	select GENERIC_BUG if BUG && SUPERH32
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_IDLE_POLL_SETUP
+@@ -92,10 +93,6 @@ config ARCH_DEFCONFIG
+ 	default "arch/sh/configs/shx3_defconfig" if SUPERH32
+ 	default "arch/sh/configs/cayman_defconfig" if SUPERH64
+ 
+-config GENERIC_BUG
+-	def_bool y
+-	depends on BUG && SUPERH32
+-
+ config GENERIC_CSUM
+ 	def_bool y
+ 	depends on SUPERH64
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 1bd4f19b6b28..f4cb31174e1b 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -91,6 +91,8 @@ config X86
+ 	select DCACHE_WORD_ACCESS
+ 	select EDAC_ATOMIC_SCRUB
+ 	select EDAC_SUPPORT
++	select GENERIC_BUG			if BUG
++	select GENERIC_BUG_RELATIVE_POINTERS	if X86_64
+ 	select GENERIC_CALIBRATE_DELAY
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_CLOCKEVENTS_BROADCAST	if X86_64 || (X86_32 && X86_LOCAL_APIC)
+@@ -253,14 +255,6 @@ config GENERIC_ISA_DMA
+ 	def_bool y
+ 	depends on ISA_DMA_API
+ 
+-config GENERIC_BUG
+-	def_bool y
+-	depends on BUG
+-	select GENERIC_BUG_RELATIVE_POINTERS if X86_64
+-
+-config GENERIC_BUG_RELATIVE_POINTERS
+-	bool
+-
+ config GENERIC_HWEIGHT
+ 	def_bool y
+ 
+diff --git a/lib/Kconfig b/lib/Kconfig
+index a9e56539bd11..a827d214d866 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -615,6 +615,12 @@ config STRING_SELFTEST
  
  endmenu
  
--config LOCKDEP_SUPPORT
--	bool
--	default y
--
- config HAVE_LATENCYTOP_SUPPORT
- 	bool
- 	default y
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 514787c0c469..6cb7632fa5b0 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -28,6 +28,7 @@ config OPENRISC
- 	select GENERIC_SMP_IDLE_THREAD
- 	select MODULES_USE_ELF_RELA
- 	select HAVE_DEBUG_STACKOVERFLOW
-+	select LOCKDEP_SUPPORT
- 	select OR1K_PIC
- 	select CPU_NO_EFFICIENT_FFS if !OPENRISC_HAVE_INST_FF1
- 	select ARCH_USE_QUEUED_SPINLOCKS
-@@ -55,9 +56,6 @@ config NO_IOPORT_MAP
- config GENERIC_CSUM
-         def_bool y
- 
--config LOCKDEP_SUPPORT
--	def_bool  y
--
- menu "Processor type and features"
- 
- choice
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 1156021fd4a8..8b9f3639555f 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -91,10 +91,6 @@ config PPC_WATCHDOG
- 	  seleted via the generic lockup detector menu which is why we
- 	  have no standalone config option for it here.
- 
--config LOCKDEP_SUPPORT
--	bool
--	default y
--
- config GENERIC_LOCKBREAK
- 	bool
- 	default y
-@@ -213,6 +209,7 @@ config PPC
- 	select IOMMU_HELPER			if PPC64
- 	select IRQ_DOMAIN
- 	select IRQ_FORCED_THREADING
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_RELA
- 	select NEED_DMA_MAP_STATE		if PPC64 || NOT_COHERENT_CACHE
- 	select NEED_SG_DMA_LENGTH
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 662acc163019..15ccdd04814e 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -8,9 +8,6 @@ config ZONE_DMA
- config CPU_BIG_ENDIAN
- 	def_bool y
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config ARCH_HAS_ILOG2_U32
- 	def_bool n
- 
-@@ -165,6 +162,7 @@ config S390
- 	select HAVE_VIRT_CPU_ACCOUNTING
- 	select IOMMU_HELPER		if PCI
- 	select IOMMU_SUPPORT		if PCI
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_RELA
- 	select NEED_DMA_MAP_STATE	if PCI
- 	select NEED_SG_DMA_LENGTH	if PCI
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index 840c33df6f0e..932f9329cc5f 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -32,6 +32,7 @@ config SUPERH
- 	select HAVE_REGS_AND_STACK_ACCESS_API
- 	select MAY_HAVE_SPARSE_IRQ
- 	select IRQ_FORCED_THREADING
-+	select LOCKDEP_SUPPORT
- 	select RTC_LIB
- 	select GENERIC_ATOMIC64
- 	select GENERIC_IRQ_SHOW
-@@ -128,9 +129,6 @@ config SYS_SUPPORTS_SMP
- config SYS_SUPPORTS_NUMA
- 	bool
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config ARCH_HAS_ILOG2_U32
- 	def_bool n
- 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 4f8c3f9dd2c6..e7ded2147230 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -85,6 +85,7 @@ config SPARC64
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select HAVE_NMI
- 	select HAVE_REGS_AND_STACK_ACCESS_API
-+	select LOCKDEP_SUPPORT
- 	select ARCH_USE_QUEUED_RWLOCKS
- 	select ARCH_USE_QUEUED_SPINLOCKS
- 	select GENERIC_TIME_VSYSCALL
-@@ -109,10 +110,6 @@ config ARCH_ATU
- 	bool
- 	default y if SPARC64
- 
--config LOCKDEP_SUPPORT
--	bool
--	default y if SPARC64
--
- config ARCH_HIBERNATION_POSSIBLE
- 	def_bool y if SPARC64
- 
-diff --git a/arch/um/Kconfig b/arch/um/Kconfig
-index f1b7bf7cc66e..49c289cb95e8 100644
---- a/arch/um/Kconfig
-+++ b/arch/um/Kconfig
-@@ -17,6 +17,7 @@ config UML
- 	select GENERIC_CPU_DEVICES
- 	select GENERIC_CLOCKEVENTS
- 	select HAVE_GCC_PLUGINS
-+	select LOCKDEP_SUPPORT
- 	select STACKTRACE
- 	select STACKTRACE_SUPPORT
- 	select TRACE_IRQFLAGS_SUPPORT
-@@ -35,10 +36,6 @@ config ISA
- config SBUS
- 	bool
- 
--config LOCKDEP_SUPPORT
--	bool
--	default y
--
- config GENERIC_CALIBRATE_DELAY
- 	bool
- 	default y
-diff --git a/arch/unicore32/Kconfig b/arch/unicore32/Kconfig
-index d7dccc247301..7dd2b9f690b1 100644
---- a/arch/unicore32/Kconfig
-+++ b/arch/unicore32/Kconfig
-@@ -11,6 +11,7 @@ config UNICORE32
- 	select HAVE_KERNEL_LZO
- 	select HAVE_KERNEL_LZMA
- 	select HAVE_PCI
-+	select LOCKDEP_SUPPORT
- 	select VIRT_TO_BUS
- 	select ARCH_HAVE_CUSTOM_GPIO_H
- 	select GENERIC_FIND_FIRST_BIT
-@@ -33,9 +34,6 @@ config GENERIC_CSUM
- config NO_IOPORT_MAP
- 	bool
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config ARCH_HAS_ILOG2_U32
- 	bool
- 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index a53d7a4ffd09..aa72acc7f537 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -196,6 +196,7 @@ config X86
- 	select HAVE_USER_RETURN_NOTIFIER
- 	select HOTPLUG_SMT			if SMP
- 	select IRQ_FORCED_THREADING
-+	select LOCKDEP_SUPPORT
- 	select NEED_SG_DMA_LENGTH
- 	select PCI_DOMAINS			if PCI
- 	select PCI_LOCKLESS_CONFIG		if PCI
-@@ -227,9 +228,6 @@ config ARCH_DEFCONFIG
- 	default "arch/x86/configs/i386_defconfig" if X86_32
- 	default "arch/x86/configs/x86_64_defconfig" if X86_64
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config MMU
- 	def_bool y
- 
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 2c4bb92df487..b264a4dff465 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -32,6 +32,7 @@ config XTENSA
- 	select HAVE_STACKPROTECTOR
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select IRQ_DOMAIN
-+	select LOCKDEP_SUPPORT
- 	select MODULES_USE_ELF_RELA
- 	select PERF_USE_VMALLOC
- 	select RWSEM_XCHGADD_ALGORITHM
-@@ -62,9 +63,6 @@ config HZ
- 	int
- 	default 100
- 
--config LOCKDEP_SUPPORT
--	def_bool y
--
- config MMU
- 	def_bool n
- 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index d4df5b24d75e..9331914f9598 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1054,6 +1054,9 @@ config DEBUG_PREEMPT
- 
- menu "Lock Debugging (spinlocks, mutexes, etc...)"
- 
-+config LOCKDEP_SUPPORT
++config GENERIC_BUG
 +	bool
 +
- config LOCK_DEBUGGING_SUPPORT
++config GENERIC_BUG_RELATIVE_POINTERS
++	bool
++
+ config GENERIC_LIB_ASHLDI3
  	bool
- 	depends on TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+ 
 -- 
 2.20.1
