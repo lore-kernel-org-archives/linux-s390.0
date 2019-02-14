@@ -1,33 +1,30 @@
-From: Cornelia Huck <cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
  vfio_ap bus subsystem
-Date: Thu, 14 Feb 2019 15:54:41 +0100
-Message-ID: <20190214155441.087d2a68.cohuck@redhat.com>
+Date: Thu, 14 Feb 2019 16:01:14 +0100
+Message-ID: <8d4a76f9-9cc8-691f-b1ae-ec6e95324e74@de.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+ <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 14 Feb 2019 14:51:01 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
 
+
+On 14.02.2019 14:51, Pierre Morel wrote:
 > Libudev relies on having a subsystem link for non-root devices. To
 > avoid libudev (and potentially other userspace tools) choking on the
 > matrix device let us introduce a vfio_ap bus and with that the vfio_ap
 > bus subsytem, and make the matrix device reside within it.
-
-How does libudev choke on this? It feels wrong to introduce a bus that
-basically does nothing...
-
 > 
 > We restrict the number of allowed devices to a single one.
 > 
@@ -40,7 +37,11 @@ basically does nothing...
 > the function vfio_ap_verify_queue_reserved.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+
+Didnt you want to a add a reported-by?
 > ---
+
+
 >  drivers/s390/crypto/vfio_ap_drv.c     | 63 +++++++++++++++++++++++++++++++----
 >  drivers/s390/crypto/vfio_ap_ops.c     |  4 +--
 >  drivers/s390/crypto/vfio_ap_private.h |  1 +
@@ -59,10 +60,6 @@ basically does nothing...
 > +struct matrix_driver {
 > +	struct device_driver drv;
 > +	int device_count;
-
-This counter basically ensures that at most one device may bind with
-this driver... you'd still have that device on the bus, though.
-
 >  };
 >  
 >  struct ap_matrix_dev *matrix_dev;
@@ -130,10 +127,6 @@ this driver... you'd still have that device on the bus, though.
 >  	matrix_dev->device.release = vfio_ap_matrix_dev_release;
 > -	matrix_dev->device.driver = &vfio_ap_drv.driver;
 > +	matrix_dev->vfio_ap_drv = &vfio_ap_drv;
-
-Can't you get that structure through matrix_dev->device.driver instead
-when you need it in the function below?
-
 >  
 >  	ret = device_register(&matrix_dev->device);
 >  	if (ret)
@@ -143,11 +136,6 @@ when you need it in the function below?
 > +	if (ret)
 > +		goto matrix_drv_err;
 > +
-
-As you already have several structures that can be registered exactly
-once (the root device, the bus, the driver, ...), you can already be
-sure that there's only one device on the bus, can't you?
-
 >  	return 0;
 >  
 > +matrix_drv_err:
@@ -201,7 +189,4 @@ sure that there's only one device on the bus, can't you?
 >  };
 >  
 >  extern struct ap_matrix_dev *matrix_dev;
-
-This feels like a lot of boilerplate code, just to create a bus that
-basically doesn't do anything. I'm surprised that libudev can't deal
-with bus-less devices properly...
+> 
