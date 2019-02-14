@@ -1,241 +1,119 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
  vfio_ap bus subsystem
-Date: Thu, 14 Feb 2019 18:35:41 +0100
-Message-ID: <9b3f6efb-a975-f954-5d02-d39f4e99b439@linux.ibm.com>
+Date: Thu, 14 Feb 2019 18:36:46 +0100
+Message-ID: <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
  <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
  <20190214155441.087d2a68.cohuck@redhat.com>
- <6147f1ce-fd8b-1ec2-30ce-7ac68f3d8e27@de.ibm.com>
+ <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
+ <20190214175730.4ab609ae.cohuck@redhat.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6147f1ce-fd8b-1ec2-30ce-7ac68f3d8e27@de.ibm.com>
+In-Reply-To: <20190214175730.4ab609ae.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 14/02/2019 16:05, Christian Borntraeger wrote:
-> On 14.02.2019 15:54, Cornelia Huck wrote:
->> On Thu, 14 Feb 2019 14:51:01 +0100
->> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 14/02/2019 17:57, Cornelia Huck wrote:
+> On Thu, 14 Feb 2019 16:47:30 +0100 Pierre Morel
+> <pmorel@linux.ibm.com> wrote:
 > 
-> Pierre,
-> this is independent from this series and should have been sent separately.
-> In the end (when we have the final solution) this will require cc stable.
+>> On 14/02/2019 15:54, Cornelia Huck wrote:
+>>> On Thu, 14 Feb 2019 14:51:01 +0100 Pierre Morel
+>>> <pmorel@linux.ibm.com> wrote:
+> 
+>>>> +++ b/drivers/s390/crypto/vfio_ap_drv.c @@ -24,8 +24,9 @@
+>>>> MODULE_LICENSE("GPL v2");
+>>>> 
+>>>> static struct ap_driver vfio_ap_drv;
+>>>> 
+>>>> -static struct device_type vfio_ap_dev_type = { -	.name =
+>>>> VFIO_AP_DEV_TYPE_NAME, +struct matrix_driver { +	struct
+>>>> device_driver drv; +	int device_count;
+>>> 
+>>> This counter basically ensures that at most one device may bind
+>>> with this driver... you'd still have that device on the bus,
+>>> though.
+>> 
+>> yes, this is what is wanted: this driver can only support one
+>> device. May be another matrix driver can support one or more other
+>> devices.
+>> 
+>> I should update comment message my be.
+>> 
+>>> 
+>>>> };
+>>>> 
+>>>> struct ap_matrix_dev *matrix_dev;
+>> 
+>>>> 
+>>>> -	matrix_dev->device.type = &vfio_ap_dev_type; 
+>>>> dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME); 
+>>>> matrix_dev->device.parent = root_device; +
+>>>> matrix_dev->device.bus = &matrix_bus; 
+>>>> matrix_dev->device.release = vfio_ap_matrix_dev_release; -
+>>>> matrix_dev->device.driver = &vfio_ap_drv.driver; +
+>>>> matrix_dev->vfio_ap_drv = &vfio_ap_drv;
+>>> 
+>>> Can't you get that structure through matrix_dev->device.driver
+>>> instead when you need it in the function below?
+>> 
+>> Not anymore. We have two different drivers and devices matrix_drv
+>> <-> matrix_dev and vfio_ap_drv <-> ap_devices
+>> 
+>> The driver behind the matrix_dev->dev->driver is matrix_drv what is
+>> needed here is vfio_ap_drv.
+> 
+> Wait, we had tacked a driver for ap devices unto a matrix device,
+> which is not on the ap bus?
 
-Yes, I will wait until tomorrow for more feed back and I will send a 
-separate v2 for this patch.
+...yes -(
+
+> Maybe that's what trips libudev? >
+> (And reading further in the current code, it seems we clear that 
+> structure _after_ the matrix device had been setup, so how can that 
+> even work? Where am I confused?)
+
+On device_register there were no bus, so the core just do not look for a 
+driver and this field was nor tested nor overwritten.
+
+> 
+>> 
+>>> 
+>>>> 
+>>>> ret = device_register(&matrix_dev->device); if (ret) goto
+>>>> matrix_reg_err;
+>>>> 
+>>>> +	ret = driver_register(&matrix_driver.drv); +	if (ret) +		goto
+>>>> matrix_drv_err; +
+>>> 
+>>> As you already have several structures that can be registered
+>>> exactly once (the root device, the bus, the driver, ...), you can
+>>> already be sure that there's only one device on the bus, can't
+>>> you?
+>> 
+>> hum, no I don't think so, no device can register before this module
+>> is loaded, but what does prevent a device to register later from
+>> another module?
+> 
+> Not unless you export the interface, I guess.
+> 
+
+:) definitively right
+thanks, this will simplify the code in the next version.
+I will take the patch away from this series to get the way to stable as 
+Christian requested.
 
 Regards,
 Pierre
-
->>
->>> Libudev relies on having a subsystem link for non-root devices. To
->>> avoid libudev (and potentially other userspace tools) choking on the
->>> matrix device let us introduce a vfio_ap bus and with that the vfio_ap
->>> bus subsytem, and make the matrix device reside within it.
->>
->> How does libudev choke on this? It feels wrong to introduce a bus that
->> basically does nothing...
-> 
-> I have seen libvirt looping when a matrix device was available before the
-> libvirt start.
-> Marc Hartmayer debugged this and circumvented this in libvirt:
-> https://www.redhat.com/archives/libvir-list/2019-February/msg00837.html
-> 
-> Still libudev expects a subsystem link in the matrix folder when doing the
-> udev_enumerate_scan_devices call.
-> 
-> Having a bus is one way of adding a subsystem link.
-> 
->>
->>>
->>> We restrict the number of allowed devices to a single one.
->>>
->>> Doing this we need to suppress the forced link from the matrix device to
->>> the vfio_ap driver and we suppress the device_type we do not need
->>> anymore.
->>>
->>> Since the associated matrix driver is not the vfio_ap driver any more,
->>> we have to change the search for the devices on the vfio_ap driver in
->>> the function vfio_ap_verify_queue_reserved.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   drivers/s390/crypto/vfio_ap_drv.c     | 63 +++++++++++++++++++++++++++++++----
->>>   drivers/s390/crypto/vfio_ap_ops.c     |  4 +--
->>>   drivers/s390/crypto/vfio_ap_private.h |  1 +
->>>   3 files changed, 60 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->>> index 31c6c84..1fd5fe6 100644
->>> --- a/drivers/s390/crypto/vfio_ap_drv.c
->>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->>> @@ -24,8 +24,9 @@ MODULE_LICENSE("GPL v2");
->>>   
->>>   static struct ap_driver vfio_ap_drv;
->>>   
->>> -static struct device_type vfio_ap_dev_type = {
->>> -	.name = VFIO_AP_DEV_TYPE_NAME,
->>> +struct matrix_driver {
->>> +	struct device_driver drv;
->>> +	int device_count;
->>
->> This counter basically ensures that at most one device may bind with
->> this driver... you'd still have that device on the bus, though.
->>
->>>   };
->>>   
->>>   struct ap_matrix_dev *matrix_dev;
->>> @@ -62,6 +63,41 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
->>>   	kfree(matrix_dev);
->>>   }
->>>   
->>> +static int matrix_bus_match(struct device *dev, struct device_driver *drv)
->>> +{
->>> +	return 1;
->>> +}
->>> +
->>> +static struct bus_type matrix_bus = {
->>> +	.name = "vfio_ap",
->>> +	.match = &matrix_bus_match,
->>> +};
->>> +
->>> +static int matrix_probe(struct device *dev);
->>> +static int matrix_remove(struct device *dev);
->>> +static struct matrix_driver matrix_driver = {
->>> +	.drv = {
->>> +		.name = "vfio_ap",
->>> +		.bus = &matrix_bus,
->>> +		.probe = matrix_probe,
->>> +		.remove = matrix_remove,
->>> +	},
->>> +};
->>> +
->>> +static int matrix_probe(struct device *dev)
->>> +{
->>> +	if (matrix_driver.device_count)
->>> +		return -EEXIST;
->>> +	matrix_driver.device_count++;
->>> +	return 0;
->>> +}
->>> +
->>> +static int matrix_remove(struct device *dev)
->>> +{
->>> +	matrix_driver.device_count--;
->>> +	return 0;
->>> +}
->>> +
->>>   static int vfio_ap_matrix_dev_create(void)
->>>   {
->>>   	int ret;
->>> @@ -71,6 +107,10 @@ static int vfio_ap_matrix_dev_create(void)
->>>   	if (IS_ERR(root_device))
->>>   		return PTR_ERR(root_device);
->>>   
->>> +	ret = bus_register(&matrix_bus);
->>> +	if (ret)
->>> +		goto bus_register_err;
->>> +
->>>   	matrix_dev = kzalloc(sizeof(*matrix_dev), GFP_KERNEL);
->>>   	if (!matrix_dev) {
->>>   		ret = -ENOMEM;
->>> @@ -87,30 +127,41 @@ static int vfio_ap_matrix_dev_create(void)
->>>   	mutex_init(&matrix_dev->lock);
->>>   	INIT_LIST_HEAD(&matrix_dev->mdev_list);
->>>   
->>> -	matrix_dev->device.type = &vfio_ap_dev_type;
->>>   	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
->>>   	matrix_dev->device.parent = root_device;
->>> +	matrix_dev->device.bus = &matrix_bus;
->>>   	matrix_dev->device.release = vfio_ap_matrix_dev_release;
->>> -	matrix_dev->device.driver = &vfio_ap_drv.driver;
->>> +	matrix_dev->vfio_ap_drv = &vfio_ap_drv;
->>
->> Can't you get that structure through matrix_dev->device.driver instead
->> when you need it in the function below?
->>
->>>   
->>>   	ret = device_register(&matrix_dev->device);
->>>   	if (ret)
->>>   		goto matrix_reg_err;
->>>   
->>> +	ret = driver_register(&matrix_driver.drv);
->>> +	if (ret)
->>> +		goto matrix_drv_err;
->>> +
->>
->> As you already have several structures that can be registered exactly
->> once (the root device, the bus, the driver, ...), you can already be
->> sure that there's only one device on the bus, can't you?
->>
->>>   	return 0;
->>>   
->>> +matrix_drv_err:
->>> +	device_unregister(&matrix_dev->device);
->>>   matrix_reg_err:
->>>   	put_device(&matrix_dev->device);
->>>   matrix_alloc_err:
->>> +	bus_unregister(&matrix_bus);
->>> +bus_register_err:
->>>   	root_device_unregister(root_device);
->>> -
->>>   	return ret;
->>>   }
->>>   
->>>   static void vfio_ap_matrix_dev_destroy(void)
->>>   {
->>> +	struct device *root_device = matrix_dev->device.parent;
->>> +
->>> +	driver_unregister(&matrix_driver.drv);
->>>   	device_unregister(&matrix_dev->device);
->>> -	root_device_unregister(matrix_dev->device.parent);
->>> +	bus_unregister(&matrix_bus);
->>> +	root_device_unregister(root_device);
->>>   }
->>>   
->>>   static int __init vfio_ap_init(void)
->>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->>> index 272ef42..900b9cf 100644
->>> --- a/drivers/s390/crypto/vfio_ap_ops.c
->>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->>> @@ -198,8 +198,8 @@ static int vfio_ap_verify_queue_reserved(unsigned long *apid,
->>>   	qres.apqi = apqi;
->>>   	qres.reserved = false;
->>>   
->>> -	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &qres,
->>> -				     vfio_ap_has_queue);
->>> +	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
->>> +				     &qres, vfio_ap_has_queue);
->>>   	if (ret)
->>>   		return ret;
->>>   
->>> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
->>> index 5675492..76b7f98 100644
->>> --- a/drivers/s390/crypto/vfio_ap_private.h
->>> +++ b/drivers/s390/crypto/vfio_ap_private.h
->>> @@ -40,6 +40,7 @@ struct ap_matrix_dev {
->>>   	struct ap_config_info info;
->>>   	struct list_head mdev_list;
->>>   	struct mutex lock;
->>> +	struct ap_driver  *vfio_ap_drv;
->>>   };
->>>   
->>>   extern struct ap_matrix_dev *matrix_dev;
->>
->> This feels like a lot of boilerplate code, just to create a bus that
->> basically doesn't do anything. I'm surprised that libudev can't deal
->> with bus-less devices properly...
->>
-> 
-
 
 -- 
 Pierre Morel
