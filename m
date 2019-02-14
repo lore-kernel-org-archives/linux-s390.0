@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 8/9] s390: ap: Cleanup on removing the AP device
-Date: Thu, 14 Feb 2019 14:51:08 +0100
-Message-ID: <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v3 4/9] s390: ap: tools to find a queue with a specific APQN
+Date: Thu, 14 Feb 2019 14:51:04 +0100
+Message-ID: <1550152269-6317-5-git-send-email-pmorel@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,172 +12,94 @@ To: borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-When the device is remove, we must make sure to
-clear the interruption and reset the AP device.
+We need to find the queue with a specific APQN during the
+handling of the interception of the PQAP/AQIC instruction.
 
-We also need to clear the CRYCB of the guest.
+To handle the AP associated device reference count we keep
+track of it in the vfio_ap_queue until we put the device.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     | 92 +++++++++++++++++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_ops.c     |  2 +-
- drivers/s390/crypto/vfio_ap_private.h |  2 +
- 3 files changed, 95 insertions(+), 1 deletion(-)
+ drivers/s390/crypto/vfio_ap_ops.c     | 54 +++++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |  1 +
+ 2 files changed, 55 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 03153e6..50428be 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -5,6 +5,7 @@
-  * Copyright IBM Corp. 2018
-  *
-  * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-+ *	      Pierre Morel <pmorel@linux.ibm.com>
-  */
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 900b9cf..2a52c9b 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -24,6 +24,60 @@
+ #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
+ #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
  
- #include <linux/module.h>
-@@ -12,6 +13,8 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <asm/facility.h>
-+#include <linux/bitops.h>
-+#include <linux/kvm_host.h>
- #include "vfio_ap_private.h"
- 
- #define VFIO_AP_ROOT_NAME "vfio_ap"
-@@ -64,6 +67,88 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
- 	return 0;
- }
- 
-+/*
-+ * vfio_ap_drain_queue
-+ * @q: the queue to drain
++/**
++ * vfio_ap_check_apqn: check if a ap_queue is of a given APQN
 + *
-+ * This function waits until the queue is empty.
++ * Returns 1 if we have a match.
++ * Otherwise returns 0.
 + */
-+static void vfio_ap_drain_queue(struct vfio_ap_queue *q)
++static int vfio_ap_check_apqn(struct device *dev, void *data)
 +{
-+	struct ap_queue_status status;
-+	int retry = 20;
++	struct vfio_ap_queue *q = dev_get_drvdata(dev);
 +
-+	status = ap_tapq(q->apqn, NULL);
-+	while (!status.queue_empty && retry--)  {
-+		msleep(200);
-+		status = ap_tapq(q->apqn, NULL);
-+	}
-+	if (retry <= 0) {
-+		pr_warn("%s: queue not empty after zapq on apqn 0x%04x\n",
-+			__func__, q->apqn);
-+	}
-+}
-+
-+/*
-+ * vfio_ap_zapq
-+ * @q: The queue to zerro
-+ *
-+ * It is best effort, no return value is done, however on success
-+ * we will drain the queue before getting the queue back to the
-+ * AP bus.
-+ */
-+static void vfio_ap_zapq(struct vfio_ap_queue *q)
-+{
-+	struct ap_queue_status status;
-+	int retry = 20;
-+
-+	do {
-+		status = ap_zapq(q->apqn);
-+		switch (status.response_code) {
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			pr_warn("%s: zapq error %02x on apqn 0x%04x\n",
-+				__func__, status.response_code, q->apqn);
-+			return;
-+		case AP_RESPONSE_NORMAL:
-+			vfio_ap_drain_queue(q);
-+			return;
-+		}
-+	} while (retry--);
-+	pr_warn("%s: zapq retry count exceeded code %02x on apqn 0x%04x\n",
-+		__func__, status.response_code, q->apqn);
++	return (q->apqn == *(int *)data);
 +}
 +
 +/**
-+ * vfio_ap_update_crycb
-+ * @q: A pointer to the queue being removed
++ * vfio_ap_get_queue: Retrieve a queue with a specific APQN
++ * @apqn: The queue APQN
 + *
-+ * We clear the APID of the queue, making this queue unusable for the guest.
-+ * After this function we can reset the queue without to fear a race with
-+ * the guest to access the queue again.
-+ * We do not fear race with the host as we still get the device.
++ * Retrieve a queue with a specific APQN from the list of the
++ * devices associated to the vfio_ap_driver.
++ *
++ * The vfio_ap_queue has been already associated with the device
++ * during the probe.
++ * Store the associated device for reference counting
++ *
++ * Returns the pointer to the associated vfio_ap_queue
 + */
-+static void vfio_ap_update_crycb(struct vfio_ap_queue *q)
++static  __attribute__((unused))
++	struct vfio_ap_queue *vfio_ap_get_queue(int apqn)
 +{
-+	struct ap_matrix_mdev *matrix_mdev = q->matrix;
++	struct device *dev;
++	struct vfio_ap_queue *q;
 +
-+	if (!matrix_mdev)
-+		return;
-+
-+	clear_bit_inv(AP_QID_CARD(q->apqn), matrix_mdev->matrix.apm);
-+
-+	if (!matrix_mdev->kvm)
-+		return;
-+
-+	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-+				  matrix_mdev->matrix.apm,
-+				  matrix_mdev->matrix.aqm,
-+				  matrix_mdev->matrix.adm);
++	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL, &apqn,
++				 vfio_ap_check_apqn);
++	if (!dev)
++		return NULL;
++	q = dev_get_drvdata(dev);
++	q->dev = dev;
++	return q;
 +}
 +
- /**
-  * vfio_ap_queue_dev_remove:
-  *
-@@ -74,6 +159,13 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- 	struct vfio_ap_queue *q;
- 
- 	q = dev_get_drvdata(&apdev->device);
-+	if (!q)
-+		return;
++/**
++ * vfio_ap_put_queue: lower device reference count for a queue
++ * @q: The queue
++ *
++ * put the associated device
++ *
++ */
++static  __attribute__((unused)) void vfio_ap_put_queue(struct vfio_ap_queue *q)
++{
++	put_device(q->dev);
++	q->dev = NULL;
++}
 +
-+	vfio_ap_update_crycb(q);
-+	vfio_ap_zapq(q);
-+
-+	vfio_ap_free_irq(q);
- 	kfree(q);
- }
- 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 5664cf3..7ec957c 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -85,7 +85,7 @@ static void vfio_ap_put_queue(struct vfio_ap_queue *q)
-  * Unregister the ISC from the GIB alert
-  * Clear the vfio_ap_queue intern fields
-  */
--static void vfio_ap_free_irq(struct vfio_ap_queue *q)
-+void vfio_ap_free_irq(struct vfio_ap_queue *q)
+ static void vfio_ap_matrix_init(struct ap_config_info *info,
+ 				struct ap_matrix *matrix)
  {
- 	unsigned long pfn = q->nib >> PAGE_SHIFT;
- 
 diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 16c99e9..d108c6d 100644
+index 8836f01..081f0d7 100644
 --- a/drivers/s390/crypto/vfio_ap_private.h
 +++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -4,6 +4,7 @@
-  *
-  * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-  *	      Halil Pasic <pasic@linux.ibm.com>
-+ *	      Pierre Morel <pmorel@linux.ibm.com>
-  *
-  * Copyright IBM Corp. 2018
-  */
-@@ -95,4 +96,5 @@ struct vfio_ap_queue {
- 	unsigned long nib;
- 	unsigned char isc;
+@@ -87,6 +87,7 @@ extern int vfio_ap_mdev_register(void);
+ extern void vfio_ap_mdev_unregister(void);
+ 
+ struct vfio_ap_queue {
++	struct device *dev;
+ 	int	apqn;
  };
-+void vfio_ap_free_irq(struct vfio_ap_queue *q);
  #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
 2.7.4
