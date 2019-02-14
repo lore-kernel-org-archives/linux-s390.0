@@ -1,111 +1,145 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
- vfio_ap bus subsystem
-Date: Thu, 14 Feb 2019 16:47:30 +0100
-Message-ID: <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Thu, 14 Feb 2019 16:54:07 +0100
+Message-ID: <20190214165407.335b4ec0.cohuck@redhat.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
- <20190214155441.087d2a68.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+        <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190214155441.087d2a68.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 14/02/2019 15:54, Cornelia Huck wrote:
-> On Thu, 14 Feb 2019 14:51:01 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Thu, 14 Feb 2019 14:51:02 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> This patch adds interception code for the PQAP instructions,
+> and a callback inside the KVM arch structure for s390.
 > 
->> Libudev relies on having a subsystem link for non-root devices. To
->> avoid libudev (and potentially other userspace tools) choking on the
->> matrix device let us introduce a vfio_ap bus and with that the vfio_ap
->> bus subsytem, and make the matrix device reside within it.
+> If a VFIO-AP drivers needs to intercept PQAP/AQIC or PQAP/TAPQ
+
+s/drivers/driver/
+
+> instructions, the driver will initialize the callback inside
+> the kvm_arch structure to be called when the interception of a
+> PQAP instruction occurs.
 > 
-> How does libudev choke on this? It feels wrong to introduce a bus that
-> basically does nothing...
-
-Christian answered this in another thread, so I don't answer.
-
+> If the callback is not initialized, the code still returns
+> -EOPNOTSUPP to let userland handle the instruction as it used to.
 > 
->>
->> We restrict the number of allowed devices to a single one.
->>
-...snip...
-
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -24,8 +24,9 @@ MODULE_LICENSE("GPL v2");
->>   
->>   static struct ap_driver vfio_ap_drv;
->>   
->> -static struct device_type vfio_ap_dev_type = {
->> -	.name = VFIO_AP_DEV_TYPE_NAME,
->> +struct matrix_driver {
->> +	struct device_driver drv;
->> +	int device_count;
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h |  1 +
+>  arch/s390/kvm/priv.c             | 50 ++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 51 insertions(+)
 > 
-> This counter basically ensures that at most one device may bind with
-> this driver... you'd still have that device on the bus, though.
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index c5f5156..49cc8b0 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -719,6 +719,7 @@ struct kvm_s390_cpu_model {
+>  
+>  struct kvm_s390_crypto {
+>  	struct kvm_s390_crypto_cb *crycb;
+> +	int (*pqap_hook)(struct kvm_vcpu *vcpu);
+>  	__u32 crycbd;
+>  	__u8 aes_kw;
+>  	__u8 dea_kw;
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 8679bd7..72fdc21 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -27,6 +27,7 @@
+>  #include <asm/io.h>
+>  #include <asm/ptrace.h>
+>  #include <asm/sclp.h>
+> +#include <asm/ap.h>
+>  #include "gaccess.h"
+>  #include "kvm-s390.h"
+>  #include "trace.h"
+> @@ -592,6 +593,53 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+>  	}
+>  }
+>  
+> +/*
+> + * handle_pqap: Handling pqap interception
+> + * @vcpu: the vcpu having issue the pqap instruction
 
-yes, this is what is wanted: this driver can only support one device.
-May be another matrix driver can support one or more other devices.
+s/issue/issued/
 
-I should update comment message my be.
+> + *
+> + * This callback only handles PQAP/AQIC instruction and
 
-> 
->>   };
->>   
->>   struct ap_matrix_dev *matrix_dev;
+Here you only talk about PQAP/AQIC, what about PQAP/TAPQ mentioned in
+the patch description?
 
->>   
->> -	matrix_dev->device.type = &vfio_ap_dev_type;
->>   	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
->>   	matrix_dev->device.parent = root_device;
->> +	matrix_dev->device.bus = &matrix_bus;
->>   	matrix_dev->device.release = vfio_ap_matrix_dev_release;
->> -	matrix_dev->device.driver = &vfio_ap_drv.driver;
->> +	matrix_dev->vfio_ap_drv = &vfio_ap_drv;
-> 
-> Can't you get that structure through matrix_dev->device.driver instead
-> when you need it in the function below?
+> + * calls a dedicated callback for this instruction if
+> + * a driver did register one in the CRYPTO satellite of the
+> + * SIE block.
+> + *
+> + * Do not change the behavior if, return -EOPNOTSUPP if:
+> + * - the hook is not used do not change the behavior.
 
-Not anymore.
-We have two different drivers and devices
-matrix_drv <-> matrix_dev
-and
-vfio_ap_drv <-> ap_devices
+The hook is not used? Or not set? (I don't think you need to repeat "do
+not change the behavior".)
 
-The driver behind the matrix_dev->dev->driver is matrix_drv
-what is needed here is vfio_ap_drv.
+> + * - AP instructions are not available or not available to the guest
+> + * - the instruction is not PQAP with function code indicating
+> + *   AQIC do not change the previous behavior.
+> + *
+> + * For PQAP/AQIC instruction, verify privilege and specifications
+> + *
+> + * return the value returned by the callback.
+> + */
+> +static int handle_pqap(struct kvm_vcpu *vcpu)
+> +{
+> +	uint8_t fc;
+> +
+> +	/* Verify that the hook callback is registered */
+> +	if (!vcpu->kvm->arch.crypto.pqap_hook)
+> +		return -EOPNOTSUPP;
+> +	/* Verify that the AP instruction are available */
+> +	if (!ap_instructions_available())
+> +		return -EOPNOTSUPP;
+> +	/* Verify that the guest is allowed to use AP instructions */
+> +	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+> +		return -EOPNOTSUPP;
+> +	/* Verify that the function code is AQIC */
+> +	fc = vcpu->run->s.regs.gprs[0] >> 24;
+> +	if (fc != 0x03)
+> +		return -EOPNOTSUPP;
+> +
+> +	/* PQAP instructions are allowed for guest kernel only */
+> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+> +		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> +	/* AQIC instruction is allowed only if facility 65 is available */
+> +	if (!test_kvm_facility(vcpu->kvm, 65))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> +	/* All right, call the callback */
+> +	return vcpu->kvm->arch.crypto.pqap_hook(vcpu);
 
-> 
->>   
->>   	ret = device_register(&matrix_dev->device);
->>   	if (ret)
->>   		goto matrix_reg_err;
->>   
->> +	ret = driver_register(&matrix_driver.drv);
->> +	if (ret)
->> +		goto matrix_drv_err;
->> +
-> 
-> As you already have several structures that can be registered exactly
-> once (the root device, the bus, the driver, ...), you can already be
-> sure that there's only one device on the bus, can't you?
+Can that callback also return -EOPNOTSUPP to order to drop to user
+space?
 
-hum, no I don't think so, no device can register before this module is 
-loaded, but what does prevent a device to register later from another 
-module?
-
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> +}
+> +
+>  static int handle_stfl(struct kvm_vcpu *vcpu)
+>  {
+>  	int rc;
+> @@ -878,6 +926,8 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+>  		return handle_sthyi(vcpu);
+>  	case 0x7d:
+>  		return handle_stsi(vcpu);
+> +	case 0xaf:
+> +		return handle_pqap(vcpu);
+>  	case 0xb1:
+>  		return handle_stfl(vcpu);
+>  	case 0xb2:
