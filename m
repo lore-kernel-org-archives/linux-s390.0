@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the vfio_ap bus subsystem
-Date: Thu, 14 Feb 2019 14:51:01 +0100
-Message-ID: <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v3 6/9] vfio: ap: register IOMMU VFIO notifier
+Date: Thu, 14 Feb 2019 14:51:06 +0100
+Message-ID: <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,169 +12,127 @@ To: borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Libudev relies on having a subsystem link for non-root devices. To
-avoid libudev (and potentially other userspace tools) choking on the
-matrix device let us introduce a vfio_ap bus and with that the vfio_ap
-bus subsytem, and make the matrix device reside within it.
-
-We restrict the number of allowed devices to a single one.
-
-Doing this we need to suppress the forced link from the matrix device to
-the vfio_ap driver and we suppress the device_type we do not need
-anymore.
-
-Since the associated matrix driver is not the vfio_ap driver any more,
-we have to change the search for the devices on the vfio_ap driver in
-the function vfio_ap_verify_queue_reserved.
+To be able to use the VFIO interface to facilitate the
+mediated device memory pining/unpining we need to register
+a notifier for IOMMU.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     | 63 +++++++++++++++++++++++++++++++----
- drivers/s390/crypto/vfio_ap_ops.c     |  4 +--
- drivers/s390/crypto/vfio_ap_private.h |  1 +
- 3 files changed, 60 insertions(+), 8 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c     | 64 +++++++++++++++++++++++++++++++----
+ drivers/s390/crypto/vfio_ap_private.h |  2 ++
+ 2 files changed, 60 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 31c6c84..1fd5fe6 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -24,8 +24,9 @@ MODULE_LICENSE("GPL v2");
- 
- static struct ap_driver vfio_ap_drv;
- 
--static struct device_type vfio_ap_dev_type = {
--	.name = VFIO_AP_DEV_TYPE_NAME,
-+struct matrix_driver {
-+	struct device_driver drv;
-+	int device_count;
- };
- 
- struct ap_matrix_dev *matrix_dev;
-@@ -62,6 +63,41 @@ static void vfio_ap_matrix_dev_release(struct device *dev)
- 	kfree(matrix_dev);
- }
- 
-+static int matrix_bus_match(struct device *dev, struct device_driver *drv)
-+{
-+	return 1;
-+}
-+
-+static struct bus_type matrix_bus = {
-+	.name = "vfio_ap",
-+	.match = &matrix_bus_match,
-+};
-+
-+static int matrix_probe(struct device *dev);
-+static int matrix_remove(struct device *dev);
-+static struct matrix_driver matrix_driver = {
-+	.drv = {
-+		.name = "vfio_ap",
-+		.bus = &matrix_bus,
-+		.probe = matrix_probe,
-+		.remove = matrix_remove,
-+	},
-+};
-+
-+static int matrix_probe(struct device *dev)
-+{
-+	if (matrix_driver.device_count)
-+		return -EEXIST;
-+	matrix_driver.device_count++;
-+	return 0;
-+}
-+
-+static int matrix_remove(struct device *dev)
-+{
-+	matrix_driver.device_count--;
-+	return 0;
-+}
-+
- static int vfio_ap_matrix_dev_create(void)
- {
- 	int ret;
-@@ -71,6 +107,10 @@ static int vfio_ap_matrix_dev_create(void)
- 	if (IS_ERR(root_device))
- 		return PTR_ERR(root_device);
- 
-+	ret = bus_register(&matrix_bus);
-+	if (ret)
-+		goto bus_register_err;
-+
- 	matrix_dev = kzalloc(sizeof(*matrix_dev), GFP_KERNEL);
- 	if (!matrix_dev) {
- 		ret = -ENOMEM;
-@@ -87,30 +127,41 @@ static int vfio_ap_matrix_dev_create(void)
- 	mutex_init(&matrix_dev->lock);
- 	INIT_LIST_HEAD(&matrix_dev->mdev_list);
- 
--	matrix_dev->device.type = &vfio_ap_dev_type;
- 	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
- 	matrix_dev->device.parent = root_device;
-+	matrix_dev->device.bus = &matrix_bus;
- 	matrix_dev->device.release = vfio_ap_matrix_dev_release;
--	matrix_dev->device.driver = &vfio_ap_drv.driver;
-+	matrix_dev->vfio_ap_drv = &vfio_ap_drv;
- 
- 	ret = device_register(&matrix_dev->device);
- 	if (ret)
- 		goto matrix_reg_err;
- 
-+	ret = driver_register(&matrix_driver.drv);
-+	if (ret)
-+		goto matrix_drv_err;
-+
- 	return 0;
- 
-+matrix_drv_err:
-+	device_unregister(&matrix_dev->device);
- matrix_reg_err:
- 	put_device(&matrix_dev->device);
- matrix_alloc_err:
-+	bus_unregister(&matrix_bus);
-+bus_register_err:
- 	root_device_unregister(root_device);
--
- 	return ret;
- }
- 
- static void vfio_ap_matrix_dev_destroy(void)
- {
-+	struct device *root_device = matrix_dev->device.parent;
-+
-+	driver_unregister(&matrix_driver.drv);
- 	device_unregister(&matrix_dev->device);
--	root_device_unregister(matrix_dev->device.parent);
-+	bus_unregister(&matrix_bus);
-+	root_device_unregister(root_device);
- }
- 
- static int __init vfio_ap_init(void)
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 272ef42..900b9cf 100644
+index 1851b24..6eddc2c 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -198,8 +198,8 @@ static int vfio_ap_verify_queue_reserved(unsigned long *apid,
- 	qres.apqi = apqi;
- 	qres.reserved = false;
- 
--	ret = driver_for_each_device(matrix_dev->device.driver, NULL, &qres,
--				     vfio_ap_has_queue);
-+	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
-+				     &qres, vfio_ap_has_queue);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 5675492..76b7f98 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -40,6 +40,7 @@ struct ap_matrix_dev {
- 	struct ap_config_info info;
- 	struct list_head mdev_list;
- 	struct mutex lock;
-+	struct ap_driver  *vfio_ap_drv;
+@@ -781,6 +781,36 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
  };
  
- extern struct ap_matrix_dev *matrix_dev;
+ /**
++ * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
++ *
++ * @nb: The notifier block
++ * @action: Action to be taken (VFIO_IOMMU_NOTIFY_DMA_UNMAP)
++ * @data: the specific unmap structure for vfio_iommu_type1
++ *
++ * Unpins the guest IOVA. (The NIB guest address we pinned before).
++ * Return NOTIFY_OK after unpining on a UNMAP request.
++ * otherwise, returns NOTIFY_DONE .
++ */
++static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
++				       unsigned long action, void *data)
++{
++	struct ap_matrix_mdev *matrix_mdev;
++
++	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
++
++	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
++		struct vfio_iommu_type1_dma_unmap *unmap = data;
++		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
++
++		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
++		return NOTIFY_OK;
++	}
++
++	return NOTIFY_DONE;
++}
++
++
++/**
+  * vfio_ap_mdev_set_kvm
+  *
+  * @matrix_mdev: a mediated matrix device
+@@ -904,8 +934,7 @@ static void vfio_ap_dissociate_queues(struct ap_matrix_mdev *matrix_mdev)
+  * In the case a queue could not be found return -ENODEV.
+  * Otherwise return 0.
+  */
+-static __attribute__((unused))
+-	int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
++static int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
+ {
+ 	unsigned long apid, apqi;
+ 	struct vfio_ap_queue *q;
+@@ -967,12 +996,32 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+ 
+ 	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+ 				     &events, &matrix_mdev->group_notifier);
+-	if (ret) {
+-		module_put(THIS_MODULE);
+-		return ret;
+-	}
++	if (ret)
++		goto err_group;
++
++	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
++	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
++
++	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++				     &events, &matrix_mdev->iommu_notifier);
++	if (ret)
++		goto err_iommu;
++
++	ret = vfio_ap_associate_queues(matrix_mdev);
++	if (ret)
++		goto err_associate;
+ 
+ 	return 0;
++
++err_associate:
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++				 &matrix_mdev->iommu_notifier);
++err_iommu:
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
++				 &matrix_mdev->group_notifier);
++err_group:
++	module_put(THIS_MODULE);
++	return ret;
+ }
+ 
+ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+@@ -985,6 +1034,9 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	vfio_ap_mdev_reset_queues(mdev);
+ 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+ 				 &matrix_mdev->group_notifier);
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++				 &matrix_mdev->iommu_notifier);
++	vfio_ap_dissociate_queues(matrix_mdev);
+ 	matrix_mdev->kvm = NULL;
+ 	module_put(THIS_MODULE);
+ }
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 10bc8b5..2781720 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -80,7 +80,9 @@ struct ap_matrix_mdev {
+ 	struct list_head node;
+ 	struct ap_matrix matrix;
+ 	struct notifier_block group_notifier;
++	struct notifier_block iommu_notifier;
+ 	struct kvm *kvm;
++	struct mdev_device *mdev;
+ };
+ 
+ extern int vfio_ap_mdev_register(void);
 -- 
 2.7.4
