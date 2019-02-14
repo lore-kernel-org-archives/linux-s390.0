@@ -1,11 +1,11 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-References: <20190213174005.28785-1-hch@lst.de> <20190213174005.28785-8-hch@lst.de>
-In-Reply-To: <20190213174005.28785-8-hch@lst.de>
+References: <20190213174005.28785-1-hch@lst.de> <20190213174005.28785-10-hch@lst.de>
+In-Reply-To: <20190213174005.28785-10-hch@lst.de>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 14 Feb 2019 09:11:12 +0100
-Message-ID: <CAMuHMdWDBaz1hLxmeGa7k3mzt-8GAoGVEQVSfeVX2CCpqrY-KA@mail.gmail.com>
-Subject: Re: [PATCH 07/11] init: consolidate the GENERIC_CALIBRATE_DELAY symbol
+Date: Thu, 14 Feb 2019 09:12:07 +0100
+Message-ID: <CAMuHMdUX=dq49b08UUxkLCn+HikUBOEs29314fYbwregfrSEqg@mail.gmail.com>
+Subject: Re: [PATCH 09/11] lib: consolidate the GENERIC_CSUM symbol
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
@@ -15,14 +15,12 @@ Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kbuild <linux-kbuild@
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, Feb 14, 2019 at 3:25 AM Christoph Hellwig <hch@lst.de> wrote:
-> Add one definition to init/Kconfig and let the architectures select it
-> if supported.  The only complication is xtensa, where it is a user
-> visible option - we introduce a xtensa-specific symbol instead to work
-> around this.
+> Add one definition to lib/Kconfig and let the architectures
+> select if it supported.
 >
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 
->  arch/m68k/Kconfig       | 5 +----
+>  arch/m68k/Kconfig       | 3 ---
 
 Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
