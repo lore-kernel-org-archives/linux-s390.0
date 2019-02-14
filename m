@@ -1,26 +1,27 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
  vfio_ap bus subsystem
-Date: Thu, 14 Feb 2019 12:12:31 -0500
-Message-ID: <25a8cfb4-f432-8bde-bec9-1187c7705084@linux.ibm.com>
+Date: Thu, 14 Feb 2019 18:35:41 +0100
+Message-ID: <9b3f6efb-a975-f954-5d02-d39f4e99b439@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
  <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
  <20190214155441.087d2a68.cohuck@redhat.com>
  <6147f1ce-fd8b-1ec2-30ce-7ac68f3d8e27@de.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <6147f1ce-fd8b-1ec2-30ce-7ac68f3d8e27@de.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2/14/19 10:05 AM, Christian Borntraeger wrote:
+On 14/02/2019 16:05, Christian Borntraeger wrote:
 > On 14.02.2019 15:54, Cornelia Huck wrote:
 >> On Thu, 14 Feb 2019 14:51:01 +0100
 >> Pierre Morel <pmorel@linux.ibm.com> wrote:
@@ -29,8 +30,11 @@ On 2/14/19 10:05 AM, Christian Borntraeger wrote:
 > this is independent from this series and should have been sent separately.
 > In the end (when we have the final solution) this will require cc stable.
 
-I agree wholeheartedly with this statement. It has nothing to do with
-interrupt processing.
+Yes, I will wait until tomorrow for more feed back and I will send a 
+separate v2 for this patch.
+
+Regards,
+Pierre
 
 >>
 >>> Libudev relies on having a subsystem link for non-root devices. To
@@ -231,3 +235,8 @@ interrupt processing.
 >> with bus-less devices properly...
 >>
 > 
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
