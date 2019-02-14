@@ -1,29 +1,94 @@
-Return-Path: <SRS0=4Txr=QO=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 7 Feb 2019 11:24:52 +0100 (CET)
-From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [PATCH v2] zcrypt: handle AP Info notification from CHSC SEI
- command
-In-Reply-To: <1549488686-3746-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1549488686-3746-1-git-send-email-akrowiak@linux.ibm.com>
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <alpine.LFD.2.21.1902071120580.7264@schleppi>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, freude@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, borntraeger@de.ibm.com, cohuck@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, akrowiak@linux.vnet.ibm.com, oberpar@linux.ibm.com
+References: <1549352017-3503-1-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1549352017-3503-1-git-send-email-yamada.masahiro@socionext.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Thu, 14 Feb 2019 11:09:47 +0900
+Message-ID: <CAK7LNATM-A_+KE59Q2oJTsvd_sgYnkuN4QqXjWdZrB_zxT94MA@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: move archive command to scripts/Makefile.lib
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kbuild-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-kbuild/>
+List-Post: <mailto:linux-kbuild@vger.kernel.org>
+To: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Michal Marek <michal.lkml@markovi.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 6 Feb 2019, Tony Krowiak wrote:
-> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-> +void ap_bus_cfg_chg(void)
-> +{
-> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
-> +
-> +	ap_bus_force_rescan();
-> +}
-> +EXPORT_SYMBOL(ap_bus_cfg_chg);
+On Tue, Feb 5, 2019 at 4:34 PM Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+>
+> scripts/Makefile.build and arch/s390/boot/Makefile use the same
+> command (thin archiving with symbol table creation).
+>
+> Avoid the code duplication, and move it to scripts/Makefile.lib.
+>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
 
-There is still no need for the EXPORT_SYMBOL. You only call that function
-from chsc.c which is always build in.
+Applied to linux-kbuild.
+
+
+
+>  arch/s390/boot/Makefile | 3 ---
+>  scripts/Makefile.build  | 6 +-----
+>  scripts/Makefile.lib    | 6 ++++++
+>  3 files changed, 7 insertions(+), 8 deletions(-)
+>
+> diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+> index 11ca879..c844eaf 100644
+> --- a/arch/s390/boot/Makefile
+> +++ b/arch/s390/boot/Makefile
+> @@ -57,9 +57,6 @@ $(obj)/section_cmp%: vmlinux $(obj)/compressed/vmlinux FORCE
+>  $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
+>         $(Q)$(MAKE) $(build)=$(obj)/compressed $@
+>
+> -quiet_cmd_ar = AR      $@
+> -      cmd_ar = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
+> -
+>  $(obj)/startup.a: $(OBJECTS) FORCE
+>         $(call if_changed,ar)
+>
+> diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+> index f8e2794..99be01c 100644
+> --- a/scripts/Makefile.build
+> +++ b/scripts/Makefile.build
+> @@ -424,13 +424,9 @@ $(modorder-target): $(subdir-ym) FORCE
+>  # Rule to compile a set of .o files into one .a file (with symbol table)
+>  #
+>  ifdef lib-target
+> -quiet_cmd_link_l_target = AR      $@
+> -
+> -# lib target archives do get a symbol table and index
+> -cmd_link_l_target = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
+>
+>  $(lib-target): $(lib-y) FORCE
+> -       $(call if_changed,link_l_target)
+> +       $(call if_changed,ar)
+>
+>  targets += $(lib-target)
+>
+> diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+> index c0abd9a..8a1f64f 100644
+> --- a/scripts/Makefile.lib
+> +++ b/scripts/Makefile.lib
+> @@ -233,6 +233,12 @@ $(obj)/%: $(src)/%_shipped
+>  quiet_cmd_ld = LD      $@
+>        cmd_ld = $(LD) $(ld_flags) $(real-prereqs) -o $@
+>
+> +# Archive
+> +# ---------------------------------------------------------------------------
+> +
+> +quiet_cmd_ar = AR      $@
+> +      cmd_ar = rm -f $@; $(AR) rcsTP$(KBUILD_ARFLAGS) $@ $(real-prereqs)
+> +
+>  # Objcopy
+>  # ---------------------------------------------------------------------------
+>
+> --
+> 2.7.4
+>
+
+
+-- 
+Best Regards
+Masahiro Yamada
