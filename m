@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 6/9] vfio: ap: register IOMMU VFIO notifier
-Date: Thu, 14 Feb 2019 14:51:06 +0100
-Message-ID: <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP instructions
+Date: Thu, 14 Feb 2019 14:51:02 +0100
+Message-ID: <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,127 +12,110 @@ To: borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-To be able to use the VFIO interface to facilitate the
-mediated device memory pining/unpining we need to register
-a notifier for IOMMU.
+This patch adds interception code for the PQAP instructions,
+and a callback inside the KVM arch structure for s390.
+
+If a VFIO-AP drivers needs to intercept PQAP/AQIC or PQAP/TAPQ
+instructions, the driver will initialize the callback inside
+the kvm_arch structure to be called when the interception of a
+PQAP instruction occurs.
+
+If the callback is not initialized, the code still returns
+-EOPNOTSUPP to let userland handle the instruction as it used to.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 64 +++++++++++++++++++++++++++++++----
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 2 files changed, 60 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  1 +
+ arch/s390/kvm/priv.c             | 50 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 1851b24..6eddc2c 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -781,6 +781,36 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
- };
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index c5f5156..49cc8b0 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -719,6 +719,7 @@ struct kvm_s390_cpu_model {
  
- /**
-+ * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
+ struct kvm_s390_crypto {
+ 	struct kvm_s390_crypto_cb *crycb;
++	int (*pqap_hook)(struct kvm_vcpu *vcpu);
+ 	__u32 crycbd;
+ 	__u8 aes_kw;
+ 	__u8 dea_kw;
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 8679bd7..72fdc21 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -27,6 +27,7 @@
+ #include <asm/io.h>
+ #include <asm/ptrace.h>
+ #include <asm/sclp.h>
++#include <asm/ap.h>
+ #include "gaccess.h"
+ #include "kvm-s390.h"
+ #include "trace.h"
+@@ -592,6 +593,53 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+ 	}
+ }
+ 
++/*
++ * handle_pqap: Handling pqap interception
++ * @vcpu: the vcpu having issue the pqap instruction
 + *
-+ * @nb: The notifier block
-+ * @action: Action to be taken (VFIO_IOMMU_NOTIFY_DMA_UNMAP)
-+ * @data: the specific unmap structure for vfio_iommu_type1
++ * This callback only handles PQAP/AQIC instruction and
++ * calls a dedicated callback for this instruction if
++ * a driver did register one in the CRYPTO satellite of the
++ * SIE block.
 + *
-+ * Unpins the guest IOVA. (The NIB guest address we pinned before).
-+ * Return NOTIFY_OK after unpining on a UNMAP request.
-+ * otherwise, returns NOTIFY_DONE .
++ * Do not change the behavior if, return -EOPNOTSUPP if:
++ * - the hook is not used do not change the behavior.
++ * - AP instructions are not available or not available to the guest
++ * - the instruction is not PQAP with function code indicating
++ *   AQIC do not change the previous behavior.
++ *
++ * For PQAP/AQIC instruction, verify privilege and specifications
++ *
++ * return the value returned by the callback.
 + */
-+static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
-+				       unsigned long action, void *data)
++static int handle_pqap(struct kvm_vcpu *vcpu)
 +{
-+	struct ap_matrix_mdev *matrix_mdev;
++	uint8_t fc;
 +
-+	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
++	/* Verify that the hook callback is registered */
++	if (!vcpu->kvm->arch.crypto.pqap_hook)
++		return -EOPNOTSUPP;
++	/* Verify that the AP instruction are available */
++	if (!ap_instructions_available())
++		return -EOPNOTSUPP;
++	/* Verify that the guest is allowed to use AP instructions */
++	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
++		return -EOPNOTSUPP;
++	/* Verify that the function code is AQIC */
++	fc = vcpu->run->s.regs.gprs[0] >> 24;
++	if (fc != 0x03)
++		return -EOPNOTSUPP;
 +
-+	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
-+		struct vfio_iommu_type1_dma_unmap *unmap = data;
-+		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
-+
-+		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
-+		return NOTIFY_OK;
-+	}
-+
-+	return NOTIFY_DONE;
++	/* PQAP instructions are allowed for guest kernel only */
++	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
++		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
++	/* AQIC instruction is allowed only if facility 65 is available */
++	if (!test_kvm_facility(vcpu->kvm, 65))
++		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++	/* All right, call the callback */
++	return vcpu->kvm->arch.crypto.pqap_hook(vcpu);
 +}
 +
-+
-+/**
-  * vfio_ap_mdev_set_kvm
-  *
-  * @matrix_mdev: a mediated matrix device
-@@ -904,8 +934,7 @@ static void vfio_ap_dissociate_queues(struct ap_matrix_mdev *matrix_mdev)
-  * In the case a queue could not be found return -ENODEV.
-  * Otherwise return 0.
-  */
--static __attribute__((unused))
--	int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
+ static int handle_stfl(struct kvm_vcpu *vcpu)
  {
- 	unsigned long apid, apqi;
- 	struct vfio_ap_queue *q;
-@@ -967,12 +996,32 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
- 
- 	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				     &events, &matrix_mdev->group_notifier);
--	if (ret) {
--		module_put(THIS_MODULE);
--		return ret;
--	}
-+	if (ret)
-+		goto err_group;
-+
-+	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
-+	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
-+
-+	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				     &events, &matrix_mdev->iommu_notifier);
-+	if (ret)
-+		goto err_iommu;
-+
-+	ret = vfio_ap_associate_queues(matrix_mdev);
-+	if (ret)
-+		goto err_associate;
- 
- 	return 0;
-+
-+err_associate:
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				 &matrix_mdev->iommu_notifier);
-+err_iommu:
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+				 &matrix_mdev->group_notifier);
-+err_group:
-+	module_put(THIS_MODULE);
-+	return ret;
- }
- 
- static void vfio_ap_mdev_release(struct mdev_device *mdev)
-@@ -985,6 +1034,9 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	vfio_ap_mdev_reset_queues(mdev);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				 &matrix_mdev->iommu_notifier);
-+	vfio_ap_dissociate_queues(matrix_mdev);
- 	matrix_mdev->kvm = NULL;
- 	module_put(THIS_MODULE);
- }
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 10bc8b5..2781720 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -80,7 +80,9 @@ struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
- 	struct notifier_block group_notifier;
-+	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
-+	struct mdev_device *mdev;
- };
- 
- extern int vfio_ap_mdev_register(void);
+ 	int rc;
+@@ -878,6 +926,8 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+ 		return handle_sthyi(vcpu);
+ 	case 0x7d:
+ 		return handle_stsi(vcpu);
++	case 0xaf:
++		return handle_pqap(vcpu);
+ 	case 0xb1:
+ 		return handle_stfl(vcpu);
+ 	case 0xb2:
 -- 
 2.7.4
