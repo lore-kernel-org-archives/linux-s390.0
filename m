@@ -1,121 +1,115 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
- vfio_ap bus subsystem
-Date: Fri, 15 Feb 2019 10:11:18 +0100
-Message-ID: <20190215101118.5417d725.cohuck@redhat.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Fri, 15 Feb 2019 10:26:27 +0100
+Message-ID: <20190215102627.6e300e28.cohuck@redhat.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
-        <20190214155441.087d2a68.cohuck@redhat.com>
-        <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
-        <20190214175730.4ab609ae.cohuck@redhat.com>
-        <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
-        <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
+        <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
+        <20190214165407.335b4ec0.cohuck@redhat.com>
+        <2609f072-ab16-429e-8aba-e1af20757c25@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
+In-Reply-To: <2609f072-ab16-429e-8aba-e1af20757c25@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 14 Feb 2019 13:30:59 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Thu, 14 Feb 2019 17:45:06 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> On 2/14/19 12:36 PM, Pierre Morel wrote:
-> > On 14/02/2019 17:57, Cornelia Huck wrote:  
-> >> On Thu, 14 Feb 2019 16:47:30 +0100 Pierre Morel
-> >> <pmorel@linux.ibm.com> wrote:
-> >>  
-> >>> On 14/02/2019 15:54, Cornelia Huck wrote:  
-> >>>> On Thu, 14 Feb 2019 14:51:01 +0100 Pierre Morel
-> >>>> <pmorel@linux.ibm.com> wrote:  
-
-> >>>>> -    matrix_dev->device.type = &vfio_ap_dev_type; 
-> >>>>> dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME); 
-> >>>>> matrix_dev->device.parent = root_device; +
-> >>>>> matrix_dev->device.bus = &matrix_bus; matrix_dev->device.release = 
-> >>>>> vfio_ap_matrix_dev_release; -
-> >>>>> matrix_dev->device.driver = &vfio_ap_drv.driver; +
-> >>>>> matrix_dev->vfio_ap_drv = &vfio_ap_drv;  
-> >>>>
-> >>>> Can't you get that structure through matrix_dev->device.driver
-> >>>> instead when you need it in the function below?  
-> >>>
-> >>> Not anymore. We have two different drivers and devices matrix_drv
-> >>> <-> matrix_dev and vfio_ap_drv <-> ap_devices
-> >>>
-> >>> The driver behind the matrix_dev->dev->driver is matrix_drv what is
-> >>> needed here is vfio_ap_drv.  
+> On 14/02/2019 16:54, Cornelia Huck wrote:
+> > On Thu, 14 Feb 2019 14:51:02 +0100
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >   
+> >> This patch adds interception code for the PQAP instructions,
+> >> and a callback inside the KVM arch structure for s390.
 > >>
-> >> Wait, we had tacked a driver for ap devices unto a matrix device,
-> >> which is not on the ap bus?  
+> >> If a VFIO-AP drivers needs to intercept PQAP/AQIC or PQAP/TAPQ  
+> > 
+> > s/drivers/driver/  
 > 
-> It's really a bit more complicated than that. Without going into a
-> lengthy description of the history of AP passthrough support, suffice it
-> to say that we needed a device to serve as the parent of each mediated
-> device used to configure a matrix of AP adapter IDs and domain indexes
-> identifying the devices to which a guest would be granted access. The
-> AP devices themselves are attached to the AP bus, but the matrix device
-> is an artificial (virtual?) device whose sole purpose in life is to
-> serve as an anchor for the mediated devices whose sysfs interfaces are
-> created and managed by the vfio_ap device driver. The matrix device
-> itself is created by the vfio_ap device driver - when it is initialized 
-> - for that purpose. In hindsight, maybe there was a better way to
-> implement this, but neither this patch nor this discussion belongs in
-> this series. It distracts from discussion of interrupt support which is
-> the sole purpose of the patch series.
+> thanks. OK
+> 
 
-The we-need-a-parent part is fine; but whatever we're doing with that
-driver just looks wrong, so that even the new bus that basically does
-nothing looks better...
+> >> + *
+> >> + * This callback only handles PQAP/AQIC instruction and  
+> > 
+> > Here you only talk about PQAP/AQIC, what about PQAP/TAPQ mentioned in
+> > the patch description?  
+> 
+> I can add "for now" or "in this patch" or suppress the reference to 
+> PAPQ/TAPQ
+
+I'd just add a note to the patch description that this patch only
+handles PQAP/AQCI and that handling PQAP/TAPQ is something for a
+follow-on patch.
 
 > 
-> > 
-> > ...yes -(
 > >   
-> >> Maybe that's what trips libudev? >
-> >> (And reading further in the current code, it seems we clear that 
-> >> structure _after_ the matrix device had been setup, so how can that 
-> >> even work? Where am I confused?)  
+> >> + * calls a dedicated callback for this instruction if
+> >> + * a driver did register one in the CRYPTO satellite of the
+> >> + * SIE block.
+> >> + *
+> >> + * Do not change the behavior if, return -EOPNOTSUPP if:
+> >> + * - the hook is not used do not change the behavior.  
 > > 
-> > On device_register there were no bus, so the core just do not look for a 
-> > driver and this field was nor tested nor overwritten.
+> > The hook is not used? Or not set?  
+> 
+> I think "is not set" is better.
 
-Hm... so has the callback in driver_for_each_device() in
-vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
-patch fixes more than just libudev issues...
+Ok.
 
+> 
+> > (I don't think you need to repeat "do
+> > not change the behavior".)  
+> 
+> OK
+> 
 > >   
-> >>  
-> >>>  
-> >>>>  
-> >>>>>
-> >>>>> ret = device_register(&matrix_dev->device); if (ret) goto
-> >>>>> matrix_reg_err;
-> >>>>>
-> >>>>> +    ret = driver_register(&matrix_driver.drv); +    if (ret) 
-> >>>>> +        goto
-> >>>>> matrix_drv_err; +  
-> >>>>
-> >>>> As you already have several structures that can be registered
-> >>>> exactly once (the root device, the bus, the driver, ...), you can
-> >>>> already be sure that there's only one device on the bus, can't
-> >>>> you?  
-> >>>
-> >>> hum, no I don't think so, no device can register before this module
-> >>> is loaded, but what does prevent a device to register later from
-> >>> another module?  
-> >>
-> >> Not unless you export the interface, I guess.
-> >>  
+> >> + * - AP instructions are not available or not available to the guest
+> >> + * - the instruction is not PQAP with function code indicating
+> >> + *   AQIC do not change the previous behavior.
+> >> + *
+> >> + * For PQAP/AQIC instruction, verify privilege and specifications
+> >> + *
+> >> + * return the value returned by the callback.
+> >> + */
+> >> +static int handle_pqap(struct kvm_vcpu *vcpu)
+> >> +{
+> >> +	uint8_t fc;
+> >> +
+> >> +	/* Verify that the hook callback is registered */
+> >> +	if (!vcpu->kvm->arch.crypto.pqap_hook)
+> >> +		return -EOPNOTSUPP;
+> >> +	/* Verify that the AP instruction are available */
+> >> +	if (!ap_instructions_available())
+> >> +		return -EOPNOTSUPP;
+> >> +	/* Verify that the guest is allowed to use AP instructions */
+> >> +	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+> >> +		return -EOPNOTSUPP;
+> >> +	/* Verify that the function code is AQIC */
+> >> +	fc = vcpu->run->s.regs.gprs[0] >> 24;
+> >> +	if (fc != 0x03)
+> >> +		return -EOPNOTSUPP;
+> >> +
+> >> +	/* PQAP instructions are allowed for guest kernel only */
+> >> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+> >> +		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> >> +	/* AQIC instruction is allowed only if facility 65 is available */
+> >> +	if (!test_kvm_facility(vcpu->kvm, 65))
+> >> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> >> +	/* All right, call the callback */
+> >> +	return vcpu->kvm->arch.crypto.pqap_hook(vcpu);  
 > > 
-> > :) definitively right
-> > thanks, this will simplify the code in the next version.
-> > I will take the patch away from this series to get the way to stable as 
-> > Christian requested.
+> > Can that callback also return -EOPNOTSUPP to order to drop to user
+> > space?  
+> 
+> Yes.
+> Why not?
 
-Yeah, makes sense.
+Maybe also mention that in the function description?
