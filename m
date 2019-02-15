@@ -1,7 +1,7 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v3 8/9] s390: ap: Cleanup on removing the AP device
-Date: Fri, 15 Feb 2019 18:29:04 -0500
-Message-ID: <f60b520b-7342-da0d-48cb-5a16190b7f40@linux.ibm.com>
+Date: Fri, 15 Feb 2019 18:36:17 -0500
+Message-ID: <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
  <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
@@ -103,24 +103,6 @@ On 2/14/19 8:51 AM, Pierre Morel wrote:
 > +			return;
 > +		case AP_RESPONSE_NORMAL:
 > +			vfio_ap_drain_queue(q);
-
-I don't think this is necessary. The zeroize is performed on
-each AP-queue entry in an AP queue. My understanding is that when a
-reset or zeroize is pending, any AP instructions subsequently issued
-are rejected with condition-code 3 indicating an AP queue reset is in
-progress. It is also my understanding that once the AP commands 
-currently executing in a given AP queue entry complete, the queue
-entry will be zeroized. So it seems to me that there is no need to
-"drain" the queue, it will have already been done by the zeroize.
-
-If you agree we don't need to "drain" the queue, then I'd rather just
-make the zapq function in the vfio_ap_ops.c non-static and make it
-available to the driver. There is no sense in duplicating this code. In
-fact, even if you keep the draining function, you still don't need to
-duplicate a zaapq instruction here, you can just call the vfio_ap_ops.c
-version and then drain the queue on AP_RESPONSE_NORMAL.
-
-
 > +			return;
 > +		}
 > +	} while (retry--);
@@ -166,15 +148,29 @@ version and then drain the queue on AP_RESPONSE_NORMAL.
 > +		return;
 > +
 > +	vfio_ap_update_crycb(q);
+
+The root user is warned in the Limitations section of the vfio-ap.txt
+doc delivered with the AP pass-through support warns that the
+administrator (i.e., root user) should ensure that AP devices are not
+removed without taking proper care to ensure they are not in use by a
+guest. I am currently working on a patch set to handle this, so this
+may simply get ripped out when those patches are integrated. That may
+very well be simultaneously with this patch series as I plan on posting
+those soon.
+
+If this call is to remain, then you ought to update the vfio-ap.txt
+document to let users know that when queues are unbound, the guests
+will lose access to them unbeknown to the admin of the guest.
+
 > +	vfio_ap_zapq(q);
+
+One last thing. I've explained before that prior to the AP bus
+invoking this remove callback, it flushes and zeroizes the
+queue. Why do you insist it needs to be done again in the remove
+callback?
+
 > +
 > +	vfio_ap_free_irq(q);
-
-If you make the zapq function in vfio_ap_ops.c available to the driver
-rather than duplicating it in this file, you won't need this call
-to vfio_ap_free_irq because it is done as part of the zapq in
-vfio_ap_ops.c.
-
 >   	kfree(q);
 >   }
 >   
