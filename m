@@ -1,16 +1,17 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 3/9] s390: ap: new vfio_ap_queue structure
-Date: Fri, 15 Feb 2019 10:58:17 +0100
-Message-ID: <019ca60e-996a-bd02-c859-3f9891083d0c@linux.ibm.com>
+Subject: Re: [PATCH v3 4/9] s390: ap: tools to find a queue with a specific
+ APQN
+Date: Fri, 15 Feb 2019 11:10:43 +0100
+Message-ID: <423e3f5b-dbbe-92b1-cfd3-d5a6f4e38f37@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-4-git-send-email-pmorel@linux.ibm.com>
- <20190215103716.00cd40db.cohuck@redhat.com>
+ <1550152269-6317-5-git-send-email-pmorel@linux.ibm.com>
+ <20190215104904.5cbe31bb.cohuck@redhat.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190215103716.00cd40db.cohuck@redhat.com>
+In-Reply-To: <20190215104904.5cbe31bb.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,56 +20,86 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15/02/2019 10:37, Cornelia Huck wrote:
-> On Thu, 14 Feb 2019 14:51:03 +0100
+On 15/02/2019 10:49, Cornelia Huck wrote:
+> On Thu, 14 Feb 2019 14:51:04 +0100
 > Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
->> The AP interruptions are assigned on a queue basis
->> and we need some information neloging to the queue
-> 
-> s/neloging/belonging/
-> 
->> to handle interuptions.
-> 
-> s/interuptions/interruptions/
-> 
+>> We need to find the queue with a specific APQN during the
+>> handling of the interception of the PQAP/AQIC instruction.
 >>
->> We add a new structure vfio_ap_queue, to hold per
->> queue information useful to handle interruptions.
->>
->> - apqn: AP queue number (defined here)
->> - isc : Interrupt subclass (defined later)
->> - nib : notification information byte (defined later)
+>> To handle the AP associated device reference count we keep
+>> track of it in the vfio_ap_queue until we put the device.
 > 
-> So, you basically simply want quick access to these? Makes sense.
+> So, the relationship is
+> (struct ap_device)--(driver_data)-->(struct vfio_ap_queue)--(pointer)-->(struct ap_device)
+> ? IOW, a backlink?
 > 
->>
->> The vfio_ap_queue structure is allocated when the vfio_ap_driver
->> is probed and added as driver data to the ap_queue device.
->> It is free on remove.
-> 
-> s/free/freed/
-> 
->>
->> The structure is linked to the matrix_dev host device.
-> 
-> Hm, I don't quite follow?
+> If so, can't you already set that up during probe?
 
-Sorry, do not try to, this has been left from a previous internal version.
-I will suppress this
+Will do.
+
+> 
+> Or am I confused by the various similar devices again? Maybe a diagram
+> would help...
+
+No you are right.
+
 
 > 
 >>
 >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
 >> ---
->>   drivers/s390/crypto/vfio_ap_drv.c     | 23 ++++++++++++++++++++++-
->>   drivers/s390/crypto/vfio_ap_private.h |  3 +++
->>   2 files changed, 25 insertions(+), 1 deletion(-)
+>>   drivers/s390/crypto/vfio_ap_ops.c     | 54 +++++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |  1 +
+>>   2 files changed, 55 insertions(+)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 900b9cf..2a52c9b 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -24,6 +24,60 @@
+>>   #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
+>>   #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
+>>   
+>> +/**
+>> + * vfio_ap_check_apqn: check if a ap_queue is of a given APQN
+>> + *
+>> + * Returns 1 if we have a match.
+>> + * Otherwise returns 0.
+>> + */
+>> +static int vfio_ap_check_apqn(struct device *dev, void *data)
+>> +{
+>> +	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+>> +
+>> +	return (q->apqn == *(int *)data);
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN
+>> + * @apqn: The queue APQN
+>> + *
+>> + * Retrieve a queue with a specific APQN from the list of the
+>> + * devices associated to the vfio_ap_driver.
+>> + *
+>> + * The vfio_ap_queue has been already associated with the device
+>> + * during the probe.
+>> + * Store the associated device for reference counting
+>> + *
+>> + * Returns the pointer to the associated vfio_ap_queue
+>> + */
+>> +static  __attribute__((unused))
 > 
-> Patch looks reasonable; might make sense to squash it with later
-> patches (still need to read).
-> 
+> Eww. Can you get rid of that by reordering or squashing patches?
+
+I did this to avoid posting a very big patch.
+I will of course squash 4 and 5 with patch 6, when the two patches 4 and 
+5 are reviewed.
+
+If you think it brings more clarity to squash all for the next iteration 
+I will do.
+
+Regards,
+Pierre
 
 
 -- 
