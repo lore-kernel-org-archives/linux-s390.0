@@ -1,14 +1,14 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v3 5/9] s390: ap: tools to associate a queue to a matrix
-Date: Fri, 15 Feb 2019 17:30:39 -0500
-Message-ID: <061c4900-03fa-8320-c3a0-c832ccd152aa@linux.ibm.com>
+Subject: Re: [PATCH v3 6/9] vfio: ap: register IOMMU VFIO notifier
+Date: Fri, 15 Feb 2019 17:55:35 -0500
+Message-ID: <3ce0a3a0-22fb-c418-321d-7e6e3af5b66c@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-6-git-send-email-pmorel@linux.ibm.com>
+ <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550152269-6317-6-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,189 +18,154 @@ Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 On 2/14/19 8:51 AM, Pierre Morel wrote:
-> We need tools to associate a queue and a matrix to be able
-> later to find the matrix associated with the queue for which
-> we got the APQN in the register 1 during a PQAP/AQIC instruction
-> interception.
+> To be able to use the VFIO interface to facilitate the
+> mediated device memory pining/unpining we need to register
+> a notifier for IOMMU.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->   drivers/s390/crypto/vfio_ap_ops.c     | 66 +++++++++++++++++++++++++++++++++--
->   drivers/s390/crypto/vfio_ap_private.h |  1 +
->   2 files changed, 64 insertions(+), 3 deletions(-)
+>   drivers/s390/crypto/vfio_ap_ops.c     | 64 +++++++++++++++++++++++++++++++----
+>   drivers/s390/crypto/vfio_ap_private.h |  2 ++
+>   2 files changed, 60 insertions(+), 6 deletions(-)
 > 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 2a52c9b..1851b24 100644
+> index 1851b24..6eddc2c 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -50,8 +50,7 @@ static int vfio_ap_check_apqn(struct device *dev, void *data)
+> @@ -781,6 +781,36 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
+>   };
+>   
+>   /**
+> + * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
+> + *
+> + * @nb: The notifier block
+> + * @action: Action to be taken (VFIO_IOMMU_NOTIFY_DMA_UNMAP)
+> + * @data: the specific unmap structure for vfio_iommu_type1
+> + *
+> + * Unpins the guest IOVA. (The NIB guest address we pinned before).
+> + * Return NOTIFY_OK after unpining on a UNMAP request.
+> + * otherwise, returns NOTIFY_DONE .
+> + */
+> +static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+> +				       unsigned long action, void *data)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
+> +
+> +	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+> +		struct vfio_iommu_type1_dma_unmap *unmap = data;
+> +		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
+> +
+> +		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
+> +		return NOTIFY_OK;
+> +	}
+> +
+> +	return NOTIFY_DONE;
+> +}
+> +
+> +
+> +/**
+>    * vfio_ap_mdev_set_kvm
 >    *
->    * Returns the pointer to the associated vfio_ap_queue
+>    * @matrix_mdev: a mediated matrix device
+> @@ -904,8 +934,7 @@ static void vfio_ap_dissociate_queues(struct ap_matrix_mdev *matrix_mdev)
+>    * In the case a queue could not be found return -ENODEV.
+>    * Otherwise return 0.
 >    */
-> -static  __attribute__((unused))
-> -	struct vfio_ap_queue *vfio_ap_get_queue(int apqn)
+> -static __attribute__((unused))
+> -	int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
+> +static int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
 
-I don't like this, it indicates to me that this and the previous
-patch should have been squashed together. I realize your intent
-was to make the patches smaller, but I don't think this makes it
-any easier to review them. In fact, it makes it harder IMHO, because
-you have to flip back and forth between patches to fully comprehend
-the usage.
+Maybe this function should be introduced in this patch instead?
 
-> +static struct vfio_ap_queue *vfio_ap_get_queue(int apqn)
 >   {
->   	struct device *dev;
+>   	unsigned long apid, apqi;
 >   	struct vfio_ap_queue *q;
-> @@ -72,7 +71,7 @@ static  __attribute__((unused))
->    * put the associated device
->    *
->    */
-> -static  __attribute__((unused)) void vfio_ap_put_queue(struct vfio_ap_queue *q)
+> @@ -967,12 +996,32 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>   
+>   	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>   				     &events, &matrix_mdev->group_notifier);
+> -	if (ret) {
+> -		module_put(THIS_MODULE);
+> -		return ret;
+> -	}
+> +	if (ret)
+> +		goto err_group;
+> +
+> +	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
+> +	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+> +
+> +	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> +				     &events, &matrix_mdev->iommu_notifier);
+> +	if (ret)
+> +		goto err_iommu;
+> +
+> +	ret = vfio_ap_associate_queues(matrix_mdev);
+> +	if (ret)
+> +		goto err_associate;
 
-Ditto for this.
+I think the matrix_mdev should be associated with queues when an 
+assignment of an adapter or domain is made to the mdev device via its
+sysfs interfaces. I say this because assigning an adapter or domain to
+an mdev device effectively grants ownership of any additional AP queues 
+added to the mdev device's AP matrix as a result of the assignment. It
+only makes sense to assign ownership to the vfio_ap_queue objects
+representing the queues at that time. If an adapter or domain is
+dynamically assigned while a guest is using the affected queues, then
+the associations will have to be made at that time and this code will
+likely go bye bye.
 
-> +static void vfio_ap_put_queue(struct vfio_ap_queue *q)
->   {
->   	put_device(q->dev);
->   	q->dev = NULL;
-> @@ -867,6 +866,67 @@ static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
->   	return -EBUSY;
+>   
+>   	return 0;
+> +
+> +err_associate:
+> +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> +				 &matrix_mdev->iommu_notifier);
+> +err_iommu:
+> +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> +				 &matrix_mdev->group_notifier);
+> +err_group:
+> +	module_put(THIS_MODULE);
+> +	return ret;
 >   }
 >   
-> +/**
-> + * vfio_ap_dissociate_queues: Dissociate a matrix mediated device to a queue
-> + *
-> + * Go through all bits in the AQM and APM and dissociate the queue
-> + * from the matrix device.
-> + *
-> + * No return value we are throwing the mediated device anyway.
-> + */
-> +static void vfio_ap_dissociate_queues(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	unsigned long apid, apqi;
-
-The changes I recommend here are based on the comments in my
-response to patch 4.
-
-> +	struct vfio_ap_queue *q;
-
-Add this:
-
-	struct device *qdev;
-
-> +
-> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-> +			     matrix_mdev->matrix.apm_max + 1) {
-> +		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-> +				     matrix_mdev->matrix.aqm_max + 1) {
-> +			q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-
-Replace with:
-	qdev = vfio_ap_get_queue_dev(AP_MKQID(apid, apqi);
-
-> +			if (q) {
-
-Replace with:
-	if (qdev) {
-
-Add this:
-	q = dev_get_drvdata(qdev);
-
-> +				vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> +				q->matrix = NULL;
-> +				vfio_ap_put_queue(q);
-
-Replace with:
-	put_device(qdev)
-
-> +			} else
-> +				pr_err("%s: no queue for %02lx.%04lx\n",
-> +				       __func__, apid, apqi);
-> +		}
-> +	}
-> +}
-> +
-> +/**
-> + * vfio_ap_associate_queues: Associate a matrix mediated device to a queue
-> + *
-> + * Go through all bits in the AQM and APM and calculate the APQN, and find
-> + * the matching queue to associate with the matrix device.
-> + *
-> + * In the case a queue could not be found return -ENODEV.
-> + * Otherwise return 0.
-> + */
-> +static __attribute__((unused))
-
-This indicates this patch should be squashed with the patch that
-introduces this function. Why have a patch that introduces a function
-that is not used and put and artificially specify an attribute just to
-keep the compiler from issuing a warning?
-
-> +	int vfio_ap_associate_queues(struct ap_matrix_mdev *matrix_mdev)
-> +{
-
-The same as above, the changes I recommend here are based on the
-comments in my response to patch 4.
-
-> +	unsigned long apid, apqi;
-> +	struct vfio_ap_queue *q;
-
-Add:
-	struct device *qdev;
-
-> +
-> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-> +			     matrix_mdev->matrix.apm_max + 1) {
-> +		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-> +				     matrix_mdev->matrix.aqm_max + 1) {
-> +			q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-
-Replace with:
-	qdev = vfio_ap_get_queue_dev(AP_MKQID(apid, apqi));
-> +			if (!q)
-
-Replace with:
-	if (!qdev)
-
-> +				goto error;
-
-Add:
-	q = dev_get_drvdata(qdev);
-
-> +			q->matrix = matrix_mdev;
-> +			vfio_ap_put_queue(q);
-
-
-Replace with:
-	put_device(qdev);
-
-
-
-> +		}
-> +	}
-> +	return 0;
-> +error:
-> +	pr_err("%s: no queue for %02lx.%04lx\n", __func__, apid, apqi);
+>   static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> @@ -985,6 +1034,9 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>   	vfio_ap_mdev_reset_queues(mdev);
+>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>   				 &matrix_mdev->group_notifier);
+> +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> +				 &matrix_mdev->iommu_notifier);
 > +	vfio_ap_dissociate_queues(matrix_mdev);
-> +	return -ENODEV;
-> +}
->   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->   {
->   	int ret;
+
+I think the matrix_mdev should be dissociated from queues when an
+adapter or domain is unassigned from the mdev device via its
+sysfs interfaces. I say this because unassigning an adapter or domain 
+from an mdev device effectively takes away ownership of any AP queues
+removed from the mdev device's AP matrix as a result of the
+unassignment. It only makes sense to remove ownership from the
+vfio_ap_queue objects representing the queues at that time. This will
+become necessary for the forthcoming dynamic configuration patches.
+If an adapter or domain is dynamically unassigned while a guest is
+using the affected queues, then the dissociation will have to be made
+at that time and this code will likely go bye bye.
+
+>   	matrix_mdev->kvm = NULL;
+>   	module_put(THIS_MODULE);
+>   }
 > diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 081f0d7..10bc8b5 100644
+> index 10bc8b5..2781720 100644
 > --- a/drivers/s390/crypto/vfio_ap_private.h
 > +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -89,5 +89,6 @@ extern void vfio_ap_mdev_unregister(void);
->   struct vfio_ap_queue {
->   	struct device *dev;
->   	int	apqn;
-> +	struct ap_matrix_mdev *matrix;
-
-Can you rename this variable matrix_mdev?
-* That is how struct ap_matrix_mdev vars are named everywhere else
-* It prevents confusing it with naming of vars for struct ap_matrix.
-
+> @@ -80,7 +80,9 @@ struct ap_matrix_mdev {
+>   	struct list_head node;
+>   	struct ap_matrix matrix;
+>   	struct notifier_block group_notifier;
+> +	struct notifier_block iommu_notifier;
+>   	struct kvm *kvm;
+> +	struct mdev_device *mdev;
 >   };
->   #endif /* _VFIO_AP_PRIVATE_H_ */
+>   
+>   extern int vfio_ap_mdev_register(void);
 > 
