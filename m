@@ -1,29 +1,54 @@
 Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Subject: Re: [PATCH 03/11] kernel/locks: consolidate RWSEM_GENERIC_* options
-References: <20190213174005.28785-1-hch@lst.de>
- <20190213174005.28785-4-hch@lst.de>
- <CAMuHMdW4C1McxL-e7ZSiSOiiE5D=xbBK8FZOwuJ1w0kK3CR1Hg@mail.gmail.com>
- <d9aeeedd-ce72-f58f-d858-3e340c073414@redhat.com>
- <20190214170440.GB32441@lst.de>
-From: Waiman Long <longman@redhat.com>
-Message-ID: <ac30d526-eb58-a95a-0e7f-e9da5f5cd64a@redhat.com>
-Date: Thu, 14 Feb 2019 12:24:41 -0500
 MIME-Version: 1.0
-In-Reply-To: <20190214170440.GB32441@lst.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <20190213174005.28785-1-hch@lst.de> <20190213174005.28785-7-hch@lst.de>
+In-Reply-To: <20190213174005.28785-7-hch@lst.de>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Fri, 15 Feb 2019 16:16:49 +0900
+Message-ID: <CAK7LNAQZm2TXO1gxif2LZQzwYae2AiqgZnNGJBxBjiPwoZLqig@mail.gmail.com>
+Subject: Re: [PATCH 06/11] lockdep: consolidate the LOCKDEP_SUPPORT symbol
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kbuild-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-kbuild/>
 List-Post: <mailto:linux-kbuild@vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kbuild <linux-kbuild@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, linux-xtensa@linux-xtensa.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>
+Cc: linux-xtensa@linux-xtensa.org, linux-s390 <linux-s390@vger.kernel.org>, Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-riscv@lists.infradead.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 02/14/2019 12:04 PM, Christoph Hellwig wrote:
-> On Thu, Feb 14, 2019 at 10:26:52AM -0500, Waiman Long wrote:
->> Would you mind dropping just patch 3 from your series?
-> Sure, we can just drop this patch.
++CC Greentime Hu
++CC Vincent Chen
 
-Thanks,
-Longman
+
+On Thu, Feb 14, 2019 at 2:40 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Add one definition to lib/Kconfig.debug and let the architectures
+> select if it supported.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+
+This changes the behavior of nds32.
+
+So please leave a note in the commit description.
+(Ideally, we want Ack of a NDS32 maintainer)
+
+Also, please do compile test for NDS32.
+
+
+-------------------------
+This commit changes CONFIG_LOCKDEP_SUPPORT to y for nds32.
+
+NDS32 selects LOCKEP_SUPPORT, but there was previously
+no config entry of LOCKDEP_SUPPORT in nds32.
+
+It is now available in lib/Kconfig.debug,
+so this commit enables LOCKDEP_SUPPORT for nds32.
+-------------------------
+
+
+
+
+
+
+--
+Best Regards
+Masahiro Yamada
