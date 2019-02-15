@@ -1,10 +1,10 @@
 Return-Path: <SRS0=4yje=QW=vger.kernel.org=netdev-owner@kernel.org>
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/7] s390/qeth: reduce ethtool statistics
-Date: Fri, 15 Feb 2019 19:22:27 +0100
+Subject: [PATCH net-next 4/7] s390/qeth: move ethtool code into its own file
+Date: Fri, 15 Feb 2019 19:22:28 +0100
 In-Reply-To: <20190215182231.90709-1-jwi@linux.ibm.com>
 References: <20190215182231.90709-1-jwi@linux.ibm.com>
-Message-Id: <20190215182231.90709-4-jwi@linux.ibm.com>
+Message-Id: <20190215182231.90709-5-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
@@ -12,292 +12,827 @@ To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Counting the number of function calls and the time spent in functions
-is best left to proper tracing facilities.
+Most of this is self-contained code.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      | 29 -------------
- drivers/s390/net/qeth_core_main.c | 85 ++++-----------------------------------
- drivers/s390/net/qeth_l2_main.c   |  8 ----
- drivers/s390/net/qeth_l3_main.c   |  8 ----
- 4 files changed, 7 insertions(+), 123 deletions(-)
+ drivers/s390/net/Makefile         |   2 +-
+ drivers/s390/net/qeth_core.h      |  12 +-
+ drivers/s390/net/qeth_core_main.c | 317 +-----------------------------------
+ drivers/s390/net/qeth_ethtool.c   | 333 ++++++++++++++++++++++++++++++++++++++
+ drivers/s390/net/qeth_l2_main.c   |  23 +--
+ drivers/s390/net/qeth_l3_main.c   |  10 --
+ 6 files changed, 346 insertions(+), 351 deletions(-)
+ create mode 100644 drivers/s390/net/qeth_ethtool.c
 
+diff --git a/drivers/s390/net/Makefile b/drivers/s390/net/Makefile
+index f2d6bbe57a6f..bc55ec316adb 100644
+--- a/drivers/s390/net/Makefile
++++ b/drivers/s390/net/Makefile
+@@ -9,7 +9,7 @@ obj-$(CONFIG_NETIUCV) += netiucv.o fsm.o
+ obj-$(CONFIG_SMSGIUCV) += smsgiucv.o
+ obj-$(CONFIG_SMSGIUCV_EVENT) += smsgiucv_app.o
+ obj-$(CONFIG_LCS) += lcs.o
+-qeth-y += qeth_core_sys.o qeth_core_main.o qeth_core_mpc.o
++qeth-y += qeth_core_sys.o qeth_core_main.o qeth_core_mpc.o qeth_ethtool.o
+ obj-$(CONFIG_QETH) += qeth.o
+ qeth_l2-y += qeth_l2_main.o qeth_l2_sys.o
+ obj-$(CONFIG_QETH_L2) += qeth_l2.o
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 2ea5d7c0b94c..9928728649eb 100644
+index 9928728649eb..5e08f112db13 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -126,30 +126,6 @@ struct qeth_perf_stats {
+@@ -18,7 +18,6 @@
+ #include <linux/in6.h>
+ #include <linux/bitops.h>
+ #include <linux/seq_file.h>
+-#include <linux/ethtool.h>
+ #include <linux/hashtable.h>
+ #include <linux/ip.h>
+ #include <linux/refcount.h>
+@@ -922,6 +921,8 @@ static inline struct qeth_qdio_out_q *qeth_get_tx_queue(struct qeth_card *card,
  
- 	unsigned int sc_dp_p;
- 	unsigned int sc_p_dp;
--	/* qdio_cq_handler: number of times called, time spent in */
--	__u64 cq_start_time;
--	unsigned int cq_cnt;
--	unsigned int cq_time;
--	/* qdio_input_handler: number of times called, time spent in */
--	__u64 inbound_start_time;
--	unsigned int inbound_cnt;
--	unsigned int inbound_time;
--	/* qeth_send_packet: number of times called, time spent in */
--	__u64 outbound_start_time;
--	unsigned int outbound_cnt;
--	unsigned int outbound_time;
--	/* qdio_output_handler: number of times called, time spent in */
--	__u64 outbound_handler_start_time;
--	unsigned int outbound_handler_cnt;
--	unsigned int outbound_handler_time;
--	/* number of calls to and time spent in do_QDIO for inbound queue */
--	__u64 inbound_do_qdio_start_time;
--	unsigned int inbound_do_qdio_cnt;
--	unsigned int inbound_do_qdio_time;
--	/* number of calls to and time spent in do_QDIO for outbound queues */
--	__u64 outbound_do_qdio_start_time;
--	unsigned int outbound_do_qdio_cnt;
--	unsigned int outbound_do_qdio_time;
- 	unsigned int large_send_bytes;
- 	unsigned int large_send_cnt;
- 	unsigned int sg_skbs_sent;
-@@ -859,11 +835,6 @@ static inline int qeth_get_elements_for_range(addr_t start, addr_t end)
- 	return PFN_UP(end) - PFN_DOWN(start);
- }
- 
--static inline int qeth_get_micros(void)
--{
--	return (int) (get_tod_clock() >> 12);
--}
--
- static inline int qeth_get_ip_version(struct sk_buff *skb)
- {
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
+ extern struct qeth_discipline qeth_l2_discipline;
+ extern struct qeth_discipline qeth_l3_discipline;
++extern const struct ethtool_ops qeth_ethtool_ops;
++extern const struct ethtool_ops qeth_osn_ethtool_ops;
+ extern const struct attribute_group *qeth_generic_attr_groups[];
+ extern const struct attribute_group *qeth_osn_attr_groups[];
+ extern const struct attribute_group qeth_device_attr_group;
+@@ -976,20 +977,15 @@ void qeth_prepare_ipa_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
+ struct qeth_cmd_buffer *qeth_wait_for_buffer(struct qeth_channel *);
+ int qeth_query_switch_attributes(struct qeth_card *card,
+ 				  struct qeth_switch_info *sw_info);
++int qeth_query_card_info(struct qeth_card *card,
++			 struct carrier_info *carrier_info);
+ unsigned int qeth_count_elements(struct sk_buff *skb, unsigned int data_offset);
+ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 			struct sk_buff *skb, struct qeth_hdr *hdr,
+ 			unsigned int offset, unsigned int hd_len,
+ 			int elements_needed);
+ int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+-int qeth_core_get_sset_count(struct net_device *, int);
+-void qeth_core_get_ethtool_stats(struct net_device *,
+-				struct ethtool_stats *, u64 *);
+-void qeth_core_get_strings(struct net_device *, u32, u8 *);
+-void qeth_core_get_drvinfo(struct net_device *, struct ethtool_drvinfo *);
+ void qeth_dbf_longtext(debug_info_t *id, int level, char *text, ...);
+-int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
+-					 struct ethtool_link_ksettings *cmd);
+ int qeth_set_access_ctrl_online(struct qeth_card *card, int fallback);
+ int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
+ int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index d01a4aded4cc..e3127e232fb2 100644
+index e3127e232fb2..96e4876a4daa 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -3244,17 +3244,8 @@ static void qeth_queue_input_buffer(struct qeth_card *card, int index)
- 		 * 'index') un-requeued -> this buffer is the first buffer that
- 		 * will be requeued the next time
- 		 */
--		if (card->options.performance_stats) {
--			card->perf_stats.inbound_do_qdio_cnt++;
--			card->perf_stats.inbound_do_qdio_start_time =
--				qeth_get_micros();
--		}
- 		rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0,
- 			     queue->next_buf_to_init, count);
--		if (card->options.performance_stats)
--			card->perf_stats.inbound_do_qdio_time +=
--				qeth_get_micros() -
--				card->perf_stats.inbound_do_qdio_start_time;
- 		if (rc) {
- 			QETH_CARD_TEXT(card, 2, "qinberr");
- 		}
-@@ -3407,22 +3398,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 	}
- 
- 	netif_trans_update(queue->card->dev);
--	if (queue->card->options.performance_stats) {
--		queue->card->perf_stats.outbound_do_qdio_cnt++;
--		queue->card->perf_stats.outbound_do_qdio_start_time =
--			qeth_get_micros();
--	}
- 	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
- 	if (atomic_read(&queue->set_pci_flags_count))
- 		qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	atomic_add(count, &queue->used_buffers);
--
- 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
- 		     queue->queue_no, index, count);
--	if (queue->card->options.performance_stats)
--		queue->card->perf_stats.outbound_do_qdio_time +=
--			qeth_get_micros() -
--			queue->card->perf_stats.outbound_do_qdio_start_time;
- 	if (rc) {
- 		queue->card->stats.tx_errors += count;
- 		/* ignore temporary SIGA errors without busy condition */
-@@ -3529,7 +3510,7 @@ static void qeth_qdio_cq_handler(struct qeth_card *card, unsigned int qdio_err,
- 	int rc;
- 
- 	if (!qeth_is_cq(card, queue))
--		goto out;
-+		return;
- 
- 	QETH_CARD_TEXT_(card, 5, "qcqhe%d", first_element);
- 	QETH_CARD_TEXT_(card, 5, "qcqhc%d", count);
-@@ -3538,12 +3519,7 @@ static void qeth_qdio_cq_handler(struct qeth_card *card, unsigned int qdio_err,
- 	if (qdio_err) {
- 		netif_stop_queue(card->dev);
- 		qeth_schedule_recovery(card);
--		goto out;
--	}
--
--	if (card->options.performance_stats) {
--		card->perf_stats.cq_cnt++;
--		card->perf_stats.cq_start_time = qeth_get_micros();
-+		return;
- 	}
- 
- 	for (i = first_element; i < first_element + count; ++i) {
-@@ -3571,14 +3547,6 @@ static void qeth_qdio_cq_handler(struct qeth_card *card, unsigned int qdio_err,
- 	}
- 	card->qdio.c_q->next_buf_to_init = (card->qdio.c_q->next_buf_to_init
- 				   + count) % QDIO_MAX_BUFFERS_PER_Q;
--
--	if (card->options.performance_stats) {
--		int delta_t = qeth_get_micros();
--		delta_t -= card->perf_stats.cq_start_time;
--		card->perf_stats.cq_time += delta_t;
--	}
--out:
--	return;
+@@ -4698,8 +4698,8 @@ static int qeth_query_card_info_cb(struct qeth_card *card,
+ 	return 0;
  }
  
- static void qeth_qdio_input_handler(struct ccw_device *ccwdev,
-@@ -3614,11 +3582,7 @@ static void qeth_qdio_output_handler(struct ccw_device *ccwdev,
- 		qeth_schedule_recovery(card);
- 		return;
- 	}
--	if (card->options.performance_stats) {
--		card->perf_stats.outbound_handler_cnt++;
--		card->perf_stats.outbound_handler_start_time =
--			qeth_get_micros();
+-static int qeth_query_card_info(struct qeth_card *card,
+-				struct carrier_info *carrier_info)
++int qeth_query_card_info(struct qeth_card *card,
++			 struct carrier_info *carrier_info)
+ {
+ 	struct qeth_cmd_buffer *iob;
+ 
+@@ -5623,7 +5623,10 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
+ 	SET_NETDEV_DEV(dev, &card->gdev->dev);
+ 	netif_carrier_off(dev);
+ 
+-	if (!IS_OSN(card)) {
++	if (IS_OSN(card)) {
++		dev->ethtool_ops = &qeth_osn_ethtool_ops;
++	} else {
++		dev->ethtool_ops = &qeth_ethtool_ops;
+ 		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 		dev->hw_features |= NETIF_F_SG;
+ 		dev->vlan_features |= NETIF_F_SG;
+@@ -5911,314 +5914,6 @@ int qeth_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ }
+ EXPORT_SYMBOL_GPL(qeth_do_ioctl);
+ 
+-static struct {
+-	const char str[ETH_GSTRING_LEN];
+-} qeth_ethtool_stats_keys[] = {
+-/*  0 */{"rx skbs"},
+-	{"rx buffers"},
+-	{"tx skbs"},
+-	{"tx buffers"},
+-	{"tx skbs no packing"},
+-	{"tx buffers no packing"},
+-	{"tx skbs packing"},
+-	{"tx buffers packing"},
+-	{"tx sg skbs"},
+-	{"tx buffer elements"},
+-/* 10 */{"rx sg skbs"},
+-	{"rx sg frags"},
+-	{"rx sg page allocs"},
+-	{"tx large kbytes"},
+-	{"tx large count"},
+-	{"tx pk state ch n->p"},
+-	{"tx pk state ch p->n"},
+-	{"tx pk watermark low"},
+-	{"tx pk watermark high"},
+-	{"queue 0 buffer usage"},
+-/* 20 */{"queue 1 buffer usage"},
+-	{"queue 2 buffer usage"},
+-	{"queue 3 buffer usage"},
+-	{"tx csum"},
+-	{"tx lin"},
+-	{"tx linfail"},
+-	{"rx csum"}
+-};
+-
+-int qeth_core_get_sset_count(struct net_device *dev, int stringset)
+-{
+-	switch (stringset) {
+-	case ETH_SS_STATS:
+-		return (sizeof(qeth_ethtool_stats_keys) / ETH_GSTRING_LEN);
+-	default:
+-		return -EINVAL;
 -	}
+-}
+-EXPORT_SYMBOL_GPL(qeth_core_get_sset_count);
+-
+-void qeth_core_get_ethtool_stats(struct net_device *dev,
+-		struct ethtool_stats *stats, u64 *data)
+-{
+-	struct qeth_card *card = dev->ml_priv;
+-	data[0] = card->stats.rx_packets -
+-				card->perf_stats.initial_rx_packets;
+-	data[1] = card->perf_stats.bufs_rec;
+-	data[2] = card->stats.tx_packets -
+-				card->perf_stats.initial_tx_packets;
+-	data[3] = card->perf_stats.bufs_sent;
+-	data[4] = card->stats.tx_packets - card->perf_stats.initial_tx_packets
+-			- card->perf_stats.skbs_sent_pack;
+-	data[5] = card->perf_stats.bufs_sent - card->perf_stats.bufs_sent_pack;
+-	data[6] = card->perf_stats.skbs_sent_pack;
+-	data[7] = card->perf_stats.bufs_sent_pack;
+-	data[8] = card->perf_stats.sg_skbs_sent;
+-	data[9] = card->perf_stats.buf_elements_sent;
+-	data[10] = card->perf_stats.sg_skbs_rx;
+-	data[11] = card->perf_stats.sg_frags_rx;
+-	data[12] = card->perf_stats.sg_alloc_page_rx;
+-	data[13] = (card->perf_stats.large_send_bytes >> 10);
+-	data[14] = card->perf_stats.large_send_cnt;
+-	data[15] = card->perf_stats.sc_dp_p;
+-	data[16] = card->perf_stats.sc_p_dp;
+-	data[17] = QETH_LOW_WATERMARK_PACK;
+-	data[18] = QETH_HIGH_WATERMARK_PACK;
+-	data[19] = atomic_read(&card->qdio.out_qs[0]->used_buffers);
+-	data[20] = (card->qdio.no_out_queues > 1) ?
+-			atomic_read(&card->qdio.out_qs[1]->used_buffers) : 0;
+-	data[21] = (card->qdio.no_out_queues > 2) ?
+-			atomic_read(&card->qdio.out_qs[2]->used_buffers) : 0;
+-	data[22] = (card->qdio.no_out_queues > 3) ?
+-			atomic_read(&card->qdio.out_qs[3]->used_buffers) : 0;
+-	data[23] = card->perf_stats.tx_csum;
+-	data[24] = card->perf_stats.tx_lin;
+-	data[25] = card->perf_stats.tx_linfail;
+-	data[26] = card->perf_stats.rx_csum;
+-}
+-EXPORT_SYMBOL_GPL(qeth_core_get_ethtool_stats);
+-
+-void qeth_core_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+-{
+-	switch (stringset) {
+-	case ETH_SS_STATS:
+-		memcpy(data, &qeth_ethtool_stats_keys,
+-			sizeof(qeth_ethtool_stats_keys));
+-		break;
+-	default:
+-		WARN_ON(1);
+-		break;
+-	}
+-}
+-EXPORT_SYMBOL_GPL(qeth_core_get_strings);
+-
+-void qeth_core_get_drvinfo(struct net_device *dev,
+-		struct ethtool_drvinfo *info)
+-{
+-	struct qeth_card *card = dev->ml_priv;
+-
+-	strlcpy(info->driver, IS_LAYER2(card) ? "qeth_l2" : "qeth_l3",
+-		sizeof(info->driver));
+-	strlcpy(info->version, "1.0", sizeof(info->version));
+-	strlcpy(info->fw_version, card->info.mcl_level,
+-		sizeof(info->fw_version));
+-	snprintf(info->bus_info, sizeof(info->bus_info), "%s/%s/%s",
+-		 CARD_RDEV_ID(card), CARD_WDEV_ID(card), CARD_DDEV_ID(card));
+-}
+-EXPORT_SYMBOL_GPL(qeth_core_get_drvinfo);
+-
+-/* Helper function to fill 'advertising' and 'supported' which are the same. */
+-/* Autoneg and full-duplex are supported and advertised unconditionally.     */
+-/* Always advertise and support all speeds up to specified, and only one     */
+-/* specified port type.							     */
+-static void qeth_set_cmd_adv_sup(struct ethtool_link_ksettings *cmd,
+-				int maxspeed, int porttype)
+-{
+-	ethtool_link_ksettings_zero_link_mode(cmd, supported);
+-	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
+-	ethtool_link_ksettings_zero_link_mode(cmd, lp_advertising);
+-
+-	ethtool_link_ksettings_add_link_mode(cmd, supported, Autoneg);
+-	ethtool_link_ksettings_add_link_mode(cmd, advertising, Autoneg);
+-
+-	switch (porttype) {
+-	case PORT_TP:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+-		break;
+-	case PORT_FIBRE:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
+-		break;
+-	default:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+-		WARN_ON_ONCE(1);
+-	}
+-
+-	/* partially does fall through, to also select lower speeds */
+-	switch (maxspeed) {
+-	case SPEED_25000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     25000baseSR_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     25000baseSR_Full);
+-		break;
+-	case SPEED_10000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10000baseT_Full);
+-	case SPEED_1000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     1000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     1000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     1000baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     1000baseT_Half);
+-	case SPEED_100:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     100baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     100baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     100baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     100baseT_Half);
+-	case SPEED_10:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Half);
+-		/* end fallthrough */
+-		break;
+-	default:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Half);
+-		WARN_ON_ONCE(1);
+-	}
+-}
+-
+-int qeth_core_ethtool_get_link_ksettings(struct net_device *netdev,
+-		struct ethtool_link_ksettings *cmd)
+-{
+-	struct qeth_card *card = netdev->ml_priv;
+-	enum qeth_link_types link_type;
+-	struct carrier_info carrier_info;
+-	int rc;
+-
+-	if ((card->info.type == QETH_CARD_TYPE_IQD) || (card->info.guestlan))
+-		link_type = QETH_LINK_TYPE_10GBIT_ETH;
+-	else
+-		link_type = card->info.link_type;
+-
+-	cmd->base.duplex = DUPLEX_FULL;
+-	cmd->base.autoneg = AUTONEG_ENABLE;
+-	cmd->base.phy_address = 0;
+-	cmd->base.mdio_support = 0;
+-	cmd->base.eth_tp_mdix = ETH_TP_MDI_INVALID;
+-	cmd->base.eth_tp_mdix_ctrl = ETH_TP_MDI_INVALID;
+-
+-	switch (link_type) {
+-	case QETH_LINK_TYPE_FAST_ETH:
+-	case QETH_LINK_TYPE_LANE_ETH100:
+-		cmd->base.speed = SPEED_100;
+-		cmd->base.port = PORT_TP;
+-		break;
+-	case QETH_LINK_TYPE_GBIT_ETH:
+-	case QETH_LINK_TYPE_LANE_ETH1000:
+-		cmd->base.speed = SPEED_1000;
+-		cmd->base.port = PORT_FIBRE;
+-		break;
+-	case QETH_LINK_TYPE_10GBIT_ETH:
+-		cmd->base.speed = SPEED_10000;
+-		cmd->base.port = PORT_FIBRE;
+-		break;
+-	case QETH_LINK_TYPE_25GBIT_ETH:
+-		cmd->base.speed = SPEED_25000;
+-		cmd->base.port = PORT_FIBRE;
+-		break;
+-	default:
+-		cmd->base.speed = SPEED_10;
+-		cmd->base.port = PORT_TP;
+-	}
+-	qeth_set_cmd_adv_sup(cmd, cmd->base.speed, cmd->base.port);
+-
+-	/* Check if we can obtain more accurate information.	 */
+-	/* If QUERY_CARD_INFO command is not supported or fails, */
+-	/* just return the heuristics that was filled above.	 */
+-	rc = qeth_query_card_info(card, &carrier_info);
+-	if (rc == -EOPNOTSUPP) /* for old hardware, return heuristic */
+-		return 0;
+-	if (rc) /* report error from the hardware operation */
+-		return rc;
+-	/* on success, fill in the information got from the hardware */
+-
+-	netdev_dbg(netdev,
+-	"card info: card_type=0x%02x, port_mode=0x%04x, port_speed=0x%08x\n",
+-			carrier_info.card_type,
+-			carrier_info.port_mode,
+-			carrier_info.port_speed);
+-
+-	/* Update attributes for which we've obtained more authoritative */
+-	/* information, leave the rest the way they where filled above.  */
+-	switch (carrier_info.card_type) {
+-	case CARD_INFO_TYPE_1G_COPPER_A:
+-	case CARD_INFO_TYPE_1G_COPPER_B:
+-		cmd->base.port = PORT_TP;
+-		qeth_set_cmd_adv_sup(cmd, SPEED_1000, cmd->base.port);
+-		break;
+-	case CARD_INFO_TYPE_1G_FIBRE_A:
+-	case CARD_INFO_TYPE_1G_FIBRE_B:
+-		cmd->base.port = PORT_FIBRE;
+-		qeth_set_cmd_adv_sup(cmd, SPEED_1000, cmd->base.port);
+-		break;
+-	case CARD_INFO_TYPE_10G_FIBRE_A:
+-	case CARD_INFO_TYPE_10G_FIBRE_B:
+-		cmd->base.port = PORT_FIBRE;
+-		qeth_set_cmd_adv_sup(cmd, SPEED_10000, cmd->base.port);
+-		break;
+-	}
+-
+-	switch (carrier_info.port_mode) {
+-	case CARD_INFO_PORTM_FULLDUPLEX:
+-		cmd->base.duplex = DUPLEX_FULL;
+-		break;
+-	case CARD_INFO_PORTM_HALFDUPLEX:
+-		cmd->base.duplex = DUPLEX_HALF;
+-		break;
+-	}
+-
+-	switch (carrier_info.port_speed) {
+-	case CARD_INFO_PORTS_10M:
+-		cmd->base.speed = SPEED_10;
+-		break;
+-	case CARD_INFO_PORTS_100M:
+-		cmd->base.speed = SPEED_100;
+-		break;
+-	case CARD_INFO_PORTS_1G:
+-		cmd->base.speed = SPEED_1000;
+-		break;
+-	case CARD_INFO_PORTS_10G:
+-		cmd->base.speed = SPEED_10000;
+-		break;
+-	case CARD_INFO_PORTS_25G:
+-		cmd->base.speed = SPEED_25000;
+-		break;
+-	}
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(qeth_core_ethtool_get_link_ksettings);
+-
+ static int qeth_start_csum_cb(struct qeth_card *card, struct qeth_reply *reply,
+ 			      unsigned long data)
+ {
+diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
+new file mode 100644
+index 000000000000..a275f31150b2
+--- /dev/null
++++ b/drivers/s390/net/qeth_ethtool.c
+@@ -0,0 +1,333 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright IBM Corp. 2018
++ */
 +
- 	for (i = first_element; i < (first_element + count); ++i) {
- 		int bidx = i % QDIO_MAX_BUFFERS_PER_Q;
- 		buffer = queue->bufs[bidx];
-@@ -3664,9 +3628,6 @@ static void qeth_qdio_output_handler(struct ccw_device *ccwdev,
- 		qeth_check_outbound_queue(queue);
- 
- 	netif_wake_queue(queue->card->dev);
--	if (card->options.performance_stats)
--		card->perf_stats.outbound_handler_time += qeth_get_micros() -
--			card->perf_stats.outbound_handler_start_time;
- }
- 
- /* We cannot use outbound queue 3 for unicast packets on HiperSockets */
-@@ -5319,11 +5280,6 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 	int done;
- 	int new_budget = budget;
- 
--	if (card->options.performance_stats) {
--		card->perf_stats.inbound_cnt++;
--		card->perf_stats.inbound_start_time = qeth_get_micros();
--	}
--
- 	while (1) {
- 		if (!card->rx.b_count) {
- 			card->rx.qdio_err = 0;
-@@ -5381,9 +5337,6 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 	if (qdio_start_irq(card->data.ccwdev, 0))
- 		napi_schedule(&card->napi);
- out:
--	if (card->options.performance_stats)
--		card->perf_stats.inbound_time += qeth_get_micros() -
--			card->perf_stats.inbound_start_time;
- 	return work_done;
- }
- EXPORT_SYMBOL_GPL(qeth_poll);
-@@ -5984,21 +5937,9 @@ static struct {
- /* 20 */{"queue 1 buffer usage"},
- 	{"queue 2 buffer usage"},
- 	{"queue 3 buffer usage"},
--	{"rx poll time"},
--	{"rx poll count"},
--	{"rx do_QDIO time"},
--	{"rx do_QDIO count"},
--	{"tx handler time"},
--	{"tx handler count"},
--	{"tx time"},
--/* 30 */{"tx count"},
--	{"tx do_QDIO time"},
--	{"tx do_QDIO count"},
- 	{"tx csum"},
- 	{"tx lin"},
- 	{"tx linfail"},
--	{"cq handler count"},
--	{"cq handler time"},
- 	{"rx csum"}
- };
- 
-@@ -6046,22 +5987,10 @@ void qeth_core_get_ethtool_stats(struct net_device *dev,
- 			atomic_read(&card->qdio.out_qs[2]->used_buffers) : 0;
- 	data[22] = (card->qdio.no_out_queues > 3) ?
- 			atomic_read(&card->qdio.out_qs[3]->used_buffers) : 0;
--	data[23] = card->perf_stats.inbound_time;
--	data[24] = card->perf_stats.inbound_cnt;
--	data[25] = card->perf_stats.inbound_do_qdio_time;
--	data[26] = card->perf_stats.inbound_do_qdio_cnt;
--	data[27] = card->perf_stats.outbound_handler_time;
--	data[28] = card->perf_stats.outbound_handler_cnt;
--	data[29] = card->perf_stats.outbound_time;
--	data[30] = card->perf_stats.outbound_cnt;
--	data[31] = card->perf_stats.outbound_do_qdio_time;
--	data[32] = card->perf_stats.outbound_do_qdio_cnt;
--	data[33] = card->perf_stats.tx_csum;
--	data[34] = card->perf_stats.tx_lin;
--	data[35] = card->perf_stats.tx_linfail;
--	data[36] = card->perf_stats.cq_cnt;
--	data[37] = card->perf_stats.cq_time;
--	data[38] = card->perf_stats.rx_csum;
++#define KMSG_COMPONENT "qeth"
++#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
++
++#include <linux/ethtool.h>
++#include "qeth_core.h"
++
++static struct {
++	const char str[ETH_GSTRING_LEN];
++} qeth_ethtool_stats_keys[] = {
++/*  0 */{"rx skbs"},
++	{"rx buffers"},
++	{"tx skbs"},
++	{"tx buffers"},
++	{"tx skbs no packing"},
++	{"tx buffers no packing"},
++	{"tx skbs packing"},
++	{"tx buffers packing"},
++	{"tx sg skbs"},
++	{"tx buffer elements"},
++/* 10 */{"rx sg skbs"},
++	{"rx sg frags"},
++	{"rx sg page allocs"},
++	{"tx large kbytes"},
++	{"tx large count"},
++	{"tx pk state ch n->p"},
++	{"tx pk state ch p->n"},
++	{"tx pk watermark low"},
++	{"tx pk watermark high"},
++	{"queue 0 buffer usage"},
++/* 20 */{"queue 1 buffer usage"},
++	{"queue 2 buffer usage"},
++	{"queue 3 buffer usage"},
++	{"tx csum"},
++	{"tx lin"},
++	{"tx linfail"},
++	{"rx csum"}
++};
++
++static int qeth_get_sset_count(struct net_device *dev, int stringset)
++{
++	switch (stringset) {
++	case ETH_SS_STATS:
++		return (sizeof(qeth_ethtool_stats_keys) / ETH_GSTRING_LEN);
++	default:
++		return -EINVAL;
++	}
++}
++
++static void qeth_get_ethtool_stats(struct net_device *dev,
++				   struct ethtool_stats *stats, u64 *data)
++{
++	struct qeth_card *card = dev->ml_priv;
++
++	data[0] = card->stats.rx_packets -
++				card->perf_stats.initial_rx_packets;
++	data[1] = card->perf_stats.bufs_rec;
++	data[2] = card->stats.tx_packets -
++				card->perf_stats.initial_tx_packets;
++	data[3] = card->perf_stats.bufs_sent;
++	data[4] = card->stats.tx_packets - card->perf_stats.initial_tx_packets
++			- card->perf_stats.skbs_sent_pack;
++	data[5] = card->perf_stats.bufs_sent - card->perf_stats.bufs_sent_pack;
++	data[6] = card->perf_stats.skbs_sent_pack;
++	data[7] = card->perf_stats.bufs_sent_pack;
++	data[8] = card->perf_stats.sg_skbs_sent;
++	data[9] = card->perf_stats.buf_elements_sent;
++	data[10] = card->perf_stats.sg_skbs_rx;
++	data[11] = card->perf_stats.sg_frags_rx;
++	data[12] = card->perf_stats.sg_alloc_page_rx;
++	data[13] = (card->perf_stats.large_send_bytes >> 10);
++	data[14] = card->perf_stats.large_send_cnt;
++	data[15] = card->perf_stats.sc_dp_p;
++	data[16] = card->perf_stats.sc_p_dp;
++	data[17] = QETH_LOW_WATERMARK_PACK;
++	data[18] = QETH_HIGH_WATERMARK_PACK;
++	data[19] = atomic_read(&card->qdio.out_qs[0]->used_buffers);
++	data[20] = (card->qdio.no_out_queues > 1) ?
++			atomic_read(&card->qdio.out_qs[1]->used_buffers) : 0;
++	data[21] = (card->qdio.no_out_queues > 2) ?
++			atomic_read(&card->qdio.out_qs[2]->used_buffers) : 0;
++	data[22] = (card->qdio.no_out_queues > 3) ?
++			atomic_read(&card->qdio.out_qs[3]->used_buffers) : 0;
 +	data[23] = card->perf_stats.tx_csum;
 +	data[24] = card->perf_stats.tx_lin;
 +	data[25] = card->perf_stats.tx_linfail;
 +	data[26] = card->perf_stats.rx_csum;
- }
- EXPORT_SYMBOL_GPL(qeth_core_get_ethtool_stats);
- 
++}
++
++static void qeth_get_strings(struct net_device *dev, u32 stringset, u8 *data)
++{
++	switch (stringset) {
++	case ETH_SS_STATS:
++		memcpy(data, &qeth_ethtool_stats_keys,
++			sizeof(qeth_ethtool_stats_keys));
++		break;
++	default:
++		WARN_ON(1);
++		break;
++	}
++}
++
++static void qeth_get_drvinfo(struct net_device *dev,
++			     struct ethtool_drvinfo *info)
++{
++	struct qeth_card *card = dev->ml_priv;
++
++	strlcpy(info->driver, IS_LAYER2(card) ? "qeth_l2" : "qeth_l3",
++		sizeof(info->driver));
++	strlcpy(info->version, "1.0", sizeof(info->version));
++	strlcpy(info->fw_version, card->info.mcl_level,
++		sizeof(info->fw_version));
++	snprintf(info->bus_info, sizeof(info->bus_info), "%s/%s/%s",
++		 CARD_RDEV_ID(card), CARD_WDEV_ID(card), CARD_DDEV_ID(card));
++}
++
++/* Helper function to fill 'advertising' and 'supported' which are the same. */
++/* Autoneg and full-duplex are supported and advertised unconditionally.     */
++/* Always advertise and support all speeds up to specified, and only one     */
++/* specified port type.							     */
++static void qeth_set_cmd_adv_sup(struct ethtool_link_ksettings *cmd,
++				int maxspeed, int porttype)
++{
++	ethtool_link_ksettings_zero_link_mode(cmd, supported);
++	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
++	ethtool_link_ksettings_zero_link_mode(cmd, lp_advertising);
++
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Autoneg);
++	ethtool_link_ksettings_add_link_mode(cmd, advertising, Autoneg);
++
++	switch (porttype) {
++	case PORT_TP:
++		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
++		break;
++	case PORT_FIBRE:
++		ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
++		break;
++	default:
++		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
++		WARN_ON_ONCE(1);
++	}
++
++	/* partially does fall through, to also select lower speeds */
++	switch (maxspeed) {
++	case SPEED_25000:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     25000baseSR_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     25000baseSR_Full);
++		break;
++	case SPEED_10000:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10000baseT_Full);
++		/* fall through */
++	case SPEED_1000:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     1000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     1000baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     1000baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     1000baseT_Half);
++		/* fall through */
++	case SPEED_100:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     100baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     100baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     100baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     100baseT_Half);
++		/* fall through */
++	case SPEED_10:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Half);
++		break;
++	default:
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Full);
++		ethtool_link_ksettings_add_link_mode(cmd, supported,
++						     10baseT_Half);
++		ethtool_link_ksettings_add_link_mode(cmd, advertising,
++						     10baseT_Half);
++		WARN_ON_ONCE(1);
++	}
++}
++
++
++static int qeth_get_link_ksettings(struct net_device *netdev,
++				   struct ethtool_link_ksettings *cmd)
++{
++	struct qeth_card *card = netdev->ml_priv;
++	enum qeth_link_types link_type;
++	struct carrier_info carrier_info;
++	int rc;
++
++	if (IS_IQD(card) || IS_VM_NIC(card))
++		link_type = QETH_LINK_TYPE_10GBIT_ETH;
++	else
++		link_type = card->info.link_type;
++
++	cmd->base.duplex = DUPLEX_FULL;
++	cmd->base.autoneg = AUTONEG_ENABLE;
++	cmd->base.phy_address = 0;
++	cmd->base.mdio_support = 0;
++	cmd->base.eth_tp_mdix = ETH_TP_MDI_INVALID;
++	cmd->base.eth_tp_mdix_ctrl = ETH_TP_MDI_INVALID;
++
++	switch (link_type) {
++	case QETH_LINK_TYPE_FAST_ETH:
++	case QETH_LINK_TYPE_LANE_ETH100:
++		cmd->base.speed = SPEED_100;
++		cmd->base.port = PORT_TP;
++		break;
++	case QETH_LINK_TYPE_GBIT_ETH:
++	case QETH_LINK_TYPE_LANE_ETH1000:
++		cmd->base.speed = SPEED_1000;
++		cmd->base.port = PORT_FIBRE;
++		break;
++	case QETH_LINK_TYPE_10GBIT_ETH:
++		cmd->base.speed = SPEED_10000;
++		cmd->base.port = PORT_FIBRE;
++		break;
++	case QETH_LINK_TYPE_25GBIT_ETH:
++		cmd->base.speed = SPEED_25000;
++		cmd->base.port = PORT_FIBRE;
++		break;
++	default:
++		cmd->base.speed = SPEED_10;
++		cmd->base.port = PORT_TP;
++	}
++	qeth_set_cmd_adv_sup(cmd, cmd->base.speed, cmd->base.port);
++
++	/* Check if we can obtain more accurate information.	 */
++	/* If QUERY_CARD_INFO command is not supported or fails, */
++	/* just return the heuristics that was filled above.	 */
++	rc = qeth_query_card_info(card, &carrier_info);
++	if (rc == -EOPNOTSUPP) /* for old hardware, return heuristic */
++		return 0;
++	if (rc) /* report error from the hardware operation */
++		return rc;
++	/* on success, fill in the information got from the hardware */
++
++	netdev_dbg(netdev,
++	"card info: card_type=0x%02x, port_mode=0x%04x, port_speed=0x%08x\n",
++			carrier_info.card_type,
++			carrier_info.port_mode,
++			carrier_info.port_speed);
++
++	/* Update attributes for which we've obtained more authoritative */
++	/* information, leave the rest the way they where filled above.  */
++	switch (carrier_info.card_type) {
++	case CARD_INFO_TYPE_1G_COPPER_A:
++	case CARD_INFO_TYPE_1G_COPPER_B:
++		cmd->base.port = PORT_TP;
++		qeth_set_cmd_adv_sup(cmd, SPEED_1000, cmd->base.port);
++		break;
++	case CARD_INFO_TYPE_1G_FIBRE_A:
++	case CARD_INFO_TYPE_1G_FIBRE_B:
++		cmd->base.port = PORT_FIBRE;
++		qeth_set_cmd_adv_sup(cmd, SPEED_1000, cmd->base.port);
++		break;
++	case CARD_INFO_TYPE_10G_FIBRE_A:
++	case CARD_INFO_TYPE_10G_FIBRE_B:
++		cmd->base.port = PORT_FIBRE;
++		qeth_set_cmd_adv_sup(cmd, SPEED_10000, cmd->base.port);
++		break;
++	}
++
++	switch (carrier_info.port_mode) {
++	case CARD_INFO_PORTM_FULLDUPLEX:
++		cmd->base.duplex = DUPLEX_FULL;
++		break;
++	case CARD_INFO_PORTM_HALFDUPLEX:
++		cmd->base.duplex = DUPLEX_HALF;
++		break;
++	}
++
++	switch (carrier_info.port_speed) {
++	case CARD_INFO_PORTS_10M:
++		cmd->base.speed = SPEED_10;
++		break;
++	case CARD_INFO_PORTS_100M:
++		cmd->base.speed = SPEED_100;
++		break;
++	case CARD_INFO_PORTS_1G:
++		cmd->base.speed = SPEED_1000;
++		break;
++	case CARD_INFO_PORTS_10G:
++		cmd->base.speed = SPEED_10000;
++		break;
++	case CARD_INFO_PORTS_25G:
++		cmd->base.speed = SPEED_25000;
++		break;
++	}
++
++	return 0;
++}
++
++const struct ethtool_ops qeth_ethtool_ops = {
++	.get_link = ethtool_op_get_link,
++	.get_strings = qeth_get_strings,
++	.get_ethtool_stats = qeth_get_ethtool_stats,
++	.get_sset_count = qeth_get_sset_count,
++	.get_drvinfo = qeth_get_drvinfo,
++	.get_link_ksettings = qeth_get_link_ksettings,
++};
++
++const struct ethtool_ops qeth_osn_ethtool_ops = {
++	.get_strings = qeth_get_strings,
++	.get_ethtool_stats = qeth_get_ethtool_stats,
++	.get_sset_count = qeth_get_sset_count,
++	.get_drvinfo = qeth_get_drvinfo,
++};
 diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index c566139da43d..8931dd6e2caa 100644
+index 8931dd6e2caa..dbcba77fd94c 100644
 --- a/drivers/s390/net/qeth_l2_main.c
 +++ b/drivers/s390/net/qeth_l2_main.c
-@@ -632,11 +632,6 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 	}
+@@ -696,22 +696,6 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
+ 		unregister_netdev(card->dev);
+ }
  
- 	queue = qeth_get_tx_queue(card, skb, ipv, cast_type);
+-static const struct ethtool_ops qeth_l2_ethtool_ops = {
+-	.get_link = ethtool_op_get_link,
+-	.get_strings = qeth_core_get_strings,
+-	.get_ethtool_stats = qeth_core_get_ethtool_stats,
+-	.get_sset_count = qeth_core_get_sset_count,
+-	.get_drvinfo = qeth_core_get_drvinfo,
+-	.get_link_ksettings = qeth_core_ethtool_get_link_ksettings,
+-};
 -
--	if (card->options.performance_stats) {
--		card->perf_stats.outbound_cnt++;
--		card->perf_stats.outbound_start_time = qeth_get_micros();
--	}
- 	netif_stop_queue(dev);
+-static const struct ethtool_ops qeth_l2_osn_ops = {
+-	.get_strings = qeth_core_get_strings,
+-	.get_ethtool_stats = qeth_core_get_ethtool_stats,
+-	.get_sset_count = qeth_core_get_sset_count,
+-	.get_drvinfo = qeth_core_get_drvinfo,
+-};
+-
+ static const struct net_device_ops qeth_l2_netdev_ops = {
+ 	.ndo_open		= qeth_open,
+ 	.ndo_stop		= qeth_stop,
+@@ -735,13 +719,10 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
  
- 	if (IS_OSN(card))
-@@ -648,9 +643,6 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 	if (!rc) {
- 		card->stats.tx_packets++;
- 		card->stats.tx_bytes += tx_bytes;
--		if (card->options.performance_stats)
--			card->perf_stats.outbound_time += qeth_get_micros() -
--				card->perf_stats.outbound_start_time;
- 		netif_wake_queue(dev);
- 		return NETDEV_TX_OK;
- 	} else if (rc == -EBUSY) {
+ 	card->dev->priv_flags |= IFF_UNICAST_FLT;
+ 	card->dev->netdev_ops = &qeth_l2_netdev_ops;
+-	if (card->info.type == QETH_CARD_TYPE_OSN) {
+-		card->dev->ethtool_ops = &qeth_l2_osn_ops;
++	if (IS_OSN(card))
+ 		card->dev->flags |= IFF_NOARP;
+-	} else {
+-		card->dev->ethtool_ops = &qeth_l2_ethtool_ops;
++	else
+ 		card->dev->needed_headroom = sizeof(struct qeth_hdr);
+-	}
+ 
+ 	if (IS_OSM(card)) {
+ 		card->dev->features |= NETIF_F_VLAN_CHALLENGED;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 8eb24c7f2750..012a290f1f4b 100644
+index 012a290f1f4b..40c7d53f5512 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2092,11 +2092,6 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 		goto tx_drop;
+@@ -2117,15 +2117,6 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
+ 	return NETDEV_TX_OK;
+ }
  
- 	queue = qeth_get_tx_queue(card, skb, ipv, cast_type);
+-static const struct ethtool_ops qeth_l3_ethtool_ops = {
+-	.get_link = ethtool_op_get_link,
+-	.get_strings = qeth_core_get_strings,
+-	.get_ethtool_stats = qeth_core_get_ethtool_stats,
+-	.get_sset_count = qeth_core_get_sset_count,
+-	.get_drvinfo = qeth_core_get_drvinfo,
+-	.get_link_ksettings = qeth_core_ethtool_get_link_ksettings,
+-};
 -
--	if (card->options.performance_stats) {
--		card->perf_stats.outbound_cnt++;
--		card->perf_stats.outbound_start_time = qeth_get_micros();
--	}
- 	netif_stop_queue(dev);
+ /*
+  * we need NOARP for IPv4 but we want neighbor solicitation for IPv6. Setting
+  * NOARP on the netdevice is no option because it also turns off neighbor
+@@ -2247,7 +2238,6 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 		return -ENODEV;
  
- 	if (ipv == 4 || IS_IQD(card))
-@@ -2108,9 +2103,6 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	if (!rc) {
- 		card->stats.tx_packets++;
- 		card->stats.tx_bytes += tx_bytes;
--		if (card->options.performance_stats)
--			card->perf_stats.outbound_time += qeth_get_micros() -
--				card->perf_stats.outbound_start_time;
- 		netif_wake_queue(dev);
- 		return NETDEV_TX_OK;
- 	} else if (rc == -EBUSY) {
+ 	card->dev->needed_headroom = headroom;
+-	card->dev->ethtool_ops = &qeth_l3_ethtool_ops;
+ 	card->dev->features |=	NETIF_F_HW_VLAN_CTAG_TX |
+ 				NETIF_F_HW_VLAN_CTAG_RX |
+ 				NETIF_F_HW_VLAN_CTAG_FILTER;
 -- 
 2.16.4
