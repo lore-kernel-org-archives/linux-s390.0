@@ -1,124 +1,91 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 4/9] s390: ap: tools to find a queue with a specific
- APQN
-Date: Fri, 15 Feb 2019 10:49:04 +0100
-Message-ID: <20190215104904.5cbe31bb.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Fri, 15 Feb 2019 10:55:57 +0100
+Message-ID: <336a22e1-5b42-5dd8-f771-e417bda05342@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-5-git-send-email-pmorel@linux.ibm.com>
+ <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
+ <20190214165407.335b4ec0.cohuck@redhat.com>
+ <2609f072-ab16-429e-8aba-e1af20757c25@linux.ibm.com>
+ <20190215102627.6e300e28.cohuck@redhat.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550152269-6317-5-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <20190215102627.6e300e28.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 14 Feb 2019 14:51:04 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> We need to find the queue with a specific APQN during the
-> handling of the interception of the PQAP/AQIC instruction.
+On 15/02/2019 10:26, Cornelia Huck wrote:
+> On Thu, 14 Feb 2019 17:45:06 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> To handle the AP associated device reference count we keep
-> track of it in the vfio_ap_queue until we put the device.
+>> On 14/02/2019 16:54, Cornelia Huck wrote:
+>>> On Thu, 14 Feb 2019 14:51:02 +0100
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> This patch adds interception code for the PQAP instructions,
+>>>> and a callback inside the KVM arch structure for s390.
+>>>>
+>>>> If a VFIO-AP drivers needs to intercept PQAP/AQIC or PQAP/TAPQ
+>>>
+>>> s/drivers/driver/
+>>
+>> thanks. OK
+>>
+> 
+>>>> + *
+>>>> + * This callback only handles PQAP/AQIC instruction and
+>>>
+>>> Here you only talk about PQAP/AQIC, what about PQAP/TAPQ mentioned in
+>>> the patch description?
+>>
+>> I can add "for now" or "in this patch" or suppress the reference to
+>> PAPQ/TAPQ
+> 
+> I'd just add a note to the patch description that this patch only
+> handles PQAP/AQCI and that handling PQAP/TAPQ is something for a
+> follow-on patch.
 
-So, the relationship is
-(struct ap_device)--(driver_data)-->(struct vfio_ap_queue)--(pointer)-->(struct ap_device)
-? IOW, a backlink?
+OK, I will clear this.
+Thanks
 
-If so, can't you already set that up during probe?
-
-Or am I confused by the various similar devices again? Maybe a diagram
-would help...
 
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c     | 54 +++++++++++++++++++++++++++++++++++
->  drivers/s390/crypto/vfio_ap_private.h |  1 +
->  2 files changed, 55 insertions(+)
+>>
+>>>   
+
+...snip...
+
+>>>> +	/* PQAP instructions are allowed for guest kernel only */
+>>>> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>>>> +		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>>>> +	/* AQIC instruction is allowed only if facility 65 is available */
+>>>> +	if (!test_kvm_facility(vcpu->kvm, 65))
+>>>> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+>>>> +	/* All right, call the callback */
+>>>> +	return vcpu->kvm->arch.crypto.pqap_hook(vcpu);
+>>>
+>>> Can that callback also return -EOPNOTSUPP to order to drop to user
+>>> space?
+>>
+>> Yes.
+>> Why not?
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 900b9cf..2a52c9b 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -24,6 +24,60 @@
->  #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
->  #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
->  
-> +/**
-> + * vfio_ap_check_apqn: check if a ap_queue is of a given APQN
-> + *
-> + * Returns 1 if we have a match.
-> + * Otherwise returns 0.
-> + */
-> +static int vfio_ap_check_apqn(struct device *dev, void *data)
-> +{
-> +	struct vfio_ap_queue *q = dev_get_drvdata(dev);
-> +
-> +	return (q->apqn == *(int *)data);
-> +}
-> +
-> +/**
-> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN
-> + * @apqn: The queue APQN
-> + *
-> + * Retrieve a queue with a specific APQN from the list of the
-> + * devices associated to the vfio_ap_driver.
-> + *
-> + * The vfio_ap_queue has been already associated with the device
-> + * during the probe.
-> + * Store the associated device for reference counting
-> + *
-> + * Returns the pointer to the associated vfio_ap_queue
-> + */
-> +static  __attribute__((unused))
+> Maybe also mention that in the function description?
+> 
 
-Eww. Can you get rid of that by reordering or squashing patches?
+Will do thanks.
 
-> +	struct vfio_ap_queue *vfio_ap_get_queue(int apqn)
-> +{
-> +	struct device *dev;
-> +	struct vfio_ap_queue *q;
-> +
-> +	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL, &apqn,
-> +				 vfio_ap_check_apqn);
-> +	if (!dev)
-> +		return NULL;
-> +	q = dev_get_drvdata(dev);
-> +	q->dev = dev;
-> +	return q;
-> +}
-> +
-> +/**
-> + * vfio_ap_put_queue: lower device reference count for a queue
-> + * @q: The queue
-> + *
-> + * put the associated device
-> + *
-> + */
-> +static  __attribute__((unused)) void vfio_ap_put_queue(struct vfio_ap_queue *q)
-> +{
-> +	put_device(q->dev);
-> +	q->dev = NULL;
-> +}
-> +
->  static void vfio_ap_matrix_init(struct ap_config_info *info,
->  				struct ap_matrix *matrix)
->  {
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 8836f01..081f0d7 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -87,6 +87,7 @@ extern int vfio_ap_mdev_register(void);
->  extern void vfio_ap_mdev_unregister(void);
->  
->  struct vfio_ap_queue {
-> +	struct device *dev;
->  	int	apqn;
->  };
->  #endif /* _VFIO_AP_PRIVATE_H_ */
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
