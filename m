@@ -1,82 +1,70 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 4/9] s390: ap: tools to find a queue with a specific
- APQN
-Date: Mon, 18 Feb 2019 13:21:11 +0100
-Message-ID: <20190218132111.3684b1f1.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
+ vfio_ap bus subsystem
+Date: Mon, 18 Feb 2019 11:35:45 -0500
+Message-ID: <602fd1f8-0ac1-42dc-30fd-ea16bb7bbc99@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-5-git-send-email-pmorel@linux.ibm.com>
-        <56f583e7-fb41-ec54-ccf9-585a3e51b1c4@linux.ibm.com>
+ <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+ <20190214155441.087d2a68.cohuck@redhat.com>
+ <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
+ <20190214175730.4ab609ae.cohuck@redhat.com>
+ <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
+ <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
+ <20190215101118.5417d725.cohuck@redhat.com>
+ <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
+ <20190218130147.5ed3edbe.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <56f583e7-fb41-ec54-ccf9-585a3e51b1c4@linux.ibm.com>
+In-Reply-To: <20190218130147.5ed3edbe.cohuck@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 15 Feb 2019 17:13:21 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> On 2/14/19 8:51 AM, Pierre Morel wrote:
-> > We need to find the queue with a specific APQN during the
-> > handling of the interception of the PQAP/AQIC instruction.
-> > 
-> > To handle the AP associated device reference count we keep
-> > track of it in the vfio_ap_queue until we put the device.
-> > 
-> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> > ---
-> >   drivers/s390/crypto/vfio_ap_ops.c     | 54 +++++++++++++++++++++++++++++++++++
-> >   drivers/s390/crypto/vfio_ap_private.h |  1 +
-> >   2 files changed, 55 insertions(+)
-
-> > +/**
-> > + * vfio_ap_get_queue: Retrieve a queue with a specific APQN
-> > + * @apqn: The queue APQN
-> > + *
-> > + * Retrieve a queue with a specific APQN from the list of the
-> > + * devices associated to the vfio_ap_driver.
-> > + *
-> > + * The vfio_ap_queue has been already associated with the device
-> > + * during the probe.
-> > + * Store the associated device for reference counting
-> > + *
-> > + * Returns the pointer to the associated vfio_ap_queue
-> > + */
-> > +static  __attribute__((unused))
-> > +	struct vfio_ap_queue *vfio_ap_get_queue(int apqn)  
+On 2/18/19 7:01 AM, Cornelia Huck wrote:
+> On Fri, 15 Feb 2019 16:59:33 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 > 
-> I think you should change this signature for the reasons I stated
-> below:
+>> On 2/15/19 4:11 AM, Cornelia Huck wrote:
+>>> On Thu, 14 Feb 2019 13:30:59 -0500
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>    
+>>>> On 2/14/19 12:36 PM, Pierre Morel wrote:
+>>>>> On 14/02/2019 17:57, Cornelia Huck wrote:
 > 
-> struct device *vfio_ap_get_queue_dev(int apqn)
+>>>>>> (And reading further in the current code, it seems we clear that
+>>>>>> structure _after_ the matrix device had been setup, so how can that
+>>>>>> even work? Where am I confused?)
+>>>>>
+>>>>> On device_register there were no bus, so the core just do not look for a
+>>>>> driver and this field was nor tested nor overwritten.
+>>>
+>>> Hm... so has the callback in driver_for_each_device() in
+>>> vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
+>>> patch fixes more than just libudev issues...
+>>
+>> It is this patch that rendered the driver_for_each_device() in
+>> vfio_ap_verify_queue_reserved() erroneous. That function gets called
+>> every time an adapter or domain is assigned to the mdev. This patch
+>> introduced the problem with driver_for_each_device().
 > 
-> > +{
-> > +	struct device *dev;
-> > +	struct vfio_ap_queue *q;
-> > +
-> > +	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL, &apqn,
-> > +				 vfio_ap_check_apqn);
-> > +	if (!dev)
-> > +		return NULL;
-> > +	q = dev_get_drvdata(dev);
-> > +	q->dev = dev;  
-> 
-> Why store the device with the vfio_ap_queue object? Why not just return
-> the device. The caller can get the vfio_ap_queue from the device's
-> driver data. It seems the only reason for the 'dev' field is to
-> temporarily hold a ref to the device so it can be put later. Why not
-> just put the device.
+> So, does this function need to be removed or called from another place,
+> then? (It looks like it was dead code before.)
 
-Having looked at the remainder of the patches, I tend to agree that we
-don't really need the backlink; we walk the driver's list of devices in
-any case IIUC.
+I don't see why you think it's dead code:
 
-We *might* want a mechanism to grab the queue quickly (i.e. without
-walking the list) if there's anything performance sensitive in there;
-but from the patch descriptions, I don't think anything is done in a
-hot path, so it should be fine.
+assign_adapter_store
+==> vfio_ap_mdev_verify_queues_reserved_for_apid
+     ==> vfio_ap_verify_queue_reserved
+         ==> driver_for_each_device
+
+The only way that the vfio_ap_verify_queue_reserved - the function that
+calls driver_for_each_device - does not get called is if no bits have
+yet been set in matrix_mdev->matrix.aqm.
+
+> 
