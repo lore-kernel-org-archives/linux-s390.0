@@ -1,208 +1,54 @@
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v3 8/9] s390: ap: Cleanup on removing the AP device
-Date: Fri, 15 Feb 2019 18:36:17 -0500
-Message-ID: <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
+ vfio_ap bus subsystem
+Date: Mon, 18 Feb 2019 13:01:47 +0100
+Message-ID: <20190218130147.5ed3edbe.cohuck@redhat.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
+        <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+        <20190214155441.087d2a68.cohuck@redhat.com>
+        <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
+        <20190214175730.4ab609ae.cohuck@redhat.com>
+        <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
+        <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
+        <20190215101118.5417d725.cohuck@redhat.com>
+        <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
-Content-Language: en-US
+In-Reply-To: <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2/14/19 8:51 AM, Pierre Morel wrote:
-> When the device is remove, we must make sure to
-> clear the interruption and reset the AP device.
+On Fri, 15 Feb 2019 16:59:33 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+
+> On 2/15/19 4:11 AM, Cornelia Huck wrote:
+> > On Thu, 14 Feb 2019 13:30:59 -0500
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >   
+> >> On 2/14/19 12:36 PM, Pierre Morel wrote:  
+> >>> On 14/02/2019 17:57, Cornelia Huck wrote:  
+
+> >>>> (And reading further in the current code, it seems we clear that
+> >>>> structure _after_ the matrix device had been setup, so how can that
+> >>>> even work? Where am I confused?)  
+> >>>
+> >>> On device_register there were no bus, so the core just do not look for a
+> >>> driver and this field was nor tested nor overwritten.  
+> > 
+> > Hm... so has the callback in driver_for_each_device() in
+> > vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
+> > patch fixes more than just libudev issues...  
 > 
-> We also need to clear the CRYCB of the guest.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->   drivers/s390/crypto/vfio_ap_drv.c     | 92 +++++++++++++++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_ops.c     |  2 +-
->   drivers/s390/crypto/vfio_ap_private.h |  2 +
->   3 files changed, 95 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 03153e6..50428be 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -5,6 +5,7 @@
->    * Copyright IBM Corp. 2018
->    *
->    * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
-> + *	      Pierre Morel <pmorel@linux.ibm.com>
->    */
->   
->   #include <linux/module.h>
-> @@ -12,6 +13,8 @@
->   #include <linux/slab.h>
->   #include <linux/string.h>
->   #include <asm/facility.h>
-> +#include <linux/bitops.h>
-> +#include <linux/kvm_host.h>
->   #include "vfio_ap_private.h"
->   
->   #define VFIO_AP_ROOT_NAME "vfio_ap"
-> @@ -64,6 +67,88 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
->   	return 0;
->   }
->   
-> +/*
-> + * vfio_ap_drain_queue
-> + * @q: the queue to drain
-> + *
-> + * This function waits until the queue is empty.
-> + */
-> +static void vfio_ap_drain_queue(struct vfio_ap_queue *q)
-> +{
-> +	struct ap_queue_status status;
-> +	int retry = 20;
-> +
-> +	status = ap_tapq(q->apqn, NULL);
-> +	while (!status.queue_empty && retry--)  {
-> +		msleep(200);
-> +		status = ap_tapq(q->apqn, NULL);
-> +	}
-> +	if (retry <= 0) {
-> +		pr_warn("%s: queue not empty after zapq on apqn 0x%04x\n",
-> +			__func__, q->apqn);
-> +	}
-> +}
-> +
-> +/*
-> + * vfio_ap_zapq
-> + * @q: The queue to zerro
-> + *
-> + * It is best effort, no return value is done, however on success
-> + * we will drain the queue before getting the queue back to the
-> + * AP bus.
-> + */
-> +static void vfio_ap_zapq(struct vfio_ap_queue *q)
-> +{
-> +	struct ap_queue_status status;
-> +	int retry = 20;
-> +
-> +	do {
-> +		status = ap_zapq(q->apqn);
-> +		switch (status.response_code) {
-> +		case AP_RESPONSE_RESET_IN_PROGRESS:
-> +		case AP_RESPONSE_BUSY:
-> +			msleep(20);
-> +			break;
-> +		default:
-> +			pr_warn("%s: zapq error %02x on apqn 0x%04x\n",
-> +				__func__, status.response_code, q->apqn);
-> +			return;
-> +		case AP_RESPONSE_NORMAL:
-> +			vfio_ap_drain_queue(q);
-> +			return;
-> +		}
-> +	} while (retry--);
-> +	pr_warn("%s: zapq retry count exceeded code %02x on apqn 0x%04x\n",
-> +		__func__, status.response_code, q->apqn);
-> +}
-> +
-> +/**
-> + * vfio_ap_update_crycb
-> + * @q: A pointer to the queue being removed
-> + *
-> + * We clear the APID of the queue, making this queue unusable for the guest.
-> + * After this function we can reset the queue without to fear a race with
-> + * the guest to access the queue again.
-> + * We do not fear race with the host as we still get the device.
-> + */
-> +static void vfio_ap_update_crycb(struct vfio_ap_queue *q)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev = q->matrix;
-> +
-> +	if (!matrix_mdev)
-> +		return;
-> +
-> +	clear_bit_inv(AP_QID_CARD(q->apqn), matrix_mdev->matrix.apm);
-> +
-> +	if (!matrix_mdev->kvm)
-> +		return;
-> +
-> +	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-> +				  matrix_mdev->matrix.apm,
-> +				  matrix_mdev->matrix.aqm,
-> +				  matrix_mdev->matrix.adm);
-> +}
-> +
->   /**
->    * vfio_ap_queue_dev_remove:
->    *
-> @@ -74,6 +159,13 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
->   	struct vfio_ap_queue *q;
->   
->   	q = dev_get_drvdata(&apdev->device);
-> +	if (!q)
-> +		return;
-> +
-> +	vfio_ap_update_crycb(q);
+> It is this patch that rendered the driver_for_each_device() in
+> vfio_ap_verify_queue_reserved() erroneous. That function gets called
+> every time an adapter or domain is assigned to the mdev. This patch
+> introduced the problem with driver_for_each_device().
 
-The root user is warned in the Limitations section of the vfio-ap.txt
-doc delivered with the AP pass-through support warns that the
-administrator (i.e., root user) should ensure that AP devices are not
-removed without taking proper care to ensure they are not in use by a
-guest. I am currently working on a patch set to handle this, so this
-may simply get ripped out when those patches are integrated. That may
-very well be simultaneously with this patch series as I plan on posting
-those soon.
-
-If this call is to remain, then you ought to update the vfio-ap.txt
-document to let users know that when queues are unbound, the guests
-will lose access to them unbeknown to the admin of the guest.
-
-> +	vfio_ap_zapq(q);
-
-One last thing. I've explained before that prior to the AP bus
-invoking this remove callback, it flushes and zeroizes the
-queue. Why do you insist it needs to be done again in the remove
-callback?
-
-> +
-> +	vfio_ap_free_irq(q);
->   	kfree(q);
->   }
->   
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 5664cf3..7ec957c 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -85,7 +85,7 @@ static void vfio_ap_put_queue(struct vfio_ap_queue *q)
->    * Unregister the ISC from the GIB alert
->    * Clear the vfio_ap_queue intern fields
->    */
-> -static void vfio_ap_free_irq(struct vfio_ap_queue *q)
-> +void vfio_ap_free_irq(struct vfio_ap_queue *q)
->   {
->   	unsigned long pfn = q->nib >> PAGE_SHIFT;
->   
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 16c99e9..d108c6d 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -4,6 +4,7 @@
->    *
->    * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
->    *	      Halil Pasic <pasic@linux.ibm.com>
-> + *	      Pierre Morel <pmorel@linux.ibm.com>
->    *
->    * Copyright IBM Corp. 2018
->    */
-> @@ -95,4 +96,5 @@ struct vfio_ap_queue {
->   	unsigned long nib;
->   	unsigned char isc;
->   };
-> +void vfio_ap_free_irq(struct vfio_ap_queue *q);
->   #endif /* _VFIO_AP_PRIVATE_H_ */
-> 
+So, does this function need to be removed or called from another place,
+then? (It looks like it was dead code before.)
