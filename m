@@ -1,94 +1,96 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v3 6/9] vfio: ap: register IOMMU VFIO notifier
-Date: Tue, 19 Feb 2019 16:33:59 -0500
-Message-ID: <ef8ac760-8da9-6f79-ac26-933d998f4c3a@linux.ibm.com>
+Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
+ vfio_ap bus subsystem
+Date: Tue, 19 Feb 2019 17:27:05 -0500
+Message-ID: <f95dec76-ba2e-38b2-64f3-9abe4ca6a501@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
- <3ce0a3a0-22fb-c418-321d-7e6e3af5b66c@linux.ibm.com>
- <20190219105946.29e510a6@oc2783563651>
+ <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
+ <20190214155441.087d2a68.cohuck@redhat.com>
+ <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
+ <20190214175730.4ab609ae.cohuck@redhat.com>
+ <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
+ <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
+ <20190215101118.5417d725.cohuck@redhat.com>
+ <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
+ <20190218130147.5ed3edbe.cohuck@redhat.com>
+ <602fd1f8-0ac1-42dc-30fd-ea16bb7bbc99@linux.ibm.com>
+ <20190218175747.53212f95.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190219105946.29e510a6@oc2783563651>
+In-Reply-To: <20190218175747.53212f95.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2/19/19 4:59 AM, Halil Pasic wrote:
-> On Fri, 15 Feb 2019 17:55:35 -0500
+On 2/18/19 11:57 AM, Cornelia Huck wrote:
+> On Mon, 18 Feb 2019 11:35:45 -0500
 > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 > 
->> On 2/14/19 8:51 AM, Pierre Morel wrote:
->>> To be able to use the VFIO interface to facilitate the
->>> mediated device memory pining/unpining we need to register
->>> a notifier for IOMMU.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>    drivers/s390/crypto/vfio_ap_ops.c     | 64 +++++++++++++++++++++++++++++++----
->>>    drivers/s390/crypto/vfio_ap_private.h |  2 ++
->>>    2 files changed, 60 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->>> index 1851b24..6eddc2c 100644
->>> --- a/drivers/s390/crypto/vfio_ap_ops.c
->>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> 
-> [..]
->    	struct vfio_ap_queue *q;
->>> @@ -967,12 +996,32 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>> On 2/18/19 7:01 AM, Cornelia Huck wrote:
+>>> On Fri, 15 Feb 2019 16:59:33 -0500
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 >>>    
->>>    	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->>>    				     &events, &matrix_mdev->group_notifier);
->>> -	if (ret) {
->>> -		module_put(THIS_MODULE);
->>> -		return ret;
->>> -	}
->>> +	if (ret)
->>> +		goto err_group;
->>> +
->>> +	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
->>> +	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
->>> +
->>> +	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
->>> +				     &events, &matrix_mdev->iommu_notifier);
->>> +	if (ret)
->>> +		goto err_iommu;
->>> +
->>> +	ret = vfio_ap_associate_queues(matrix_mdev);
->>> +	if (ret)
->>> +		goto err_associate;
+>>>> On 2/15/19 4:11 AM, Cornelia Huck wrote:
+>>>>> On Thu, 14 Feb 2019 13:30:59 -0500
+>>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>>>       
+>>>>>> On 2/14/19 12:36 PM, Pierre Morel wrote:
+>>>>>>> On 14/02/2019 17:57, Cornelia Huck wrote:
+>>>    
+>>>>>>>> (And reading further in the current code, it seems we clear that
+>>>>>>>> structure _after_ the matrix device had been setup, so how can that
+>>>>>>>> even work? Where am I confused?)
+>>>>>>>
+>>>>>>> On device_register there were no bus, so the core just do not look for a
+>>>>>>> driver and this field was nor tested nor overwritten.
+>>>>>
+>>>>> Hm... so has the callback in driver_for_each_device() in
+>>>>> vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
+>>>>> patch fixes more than just libudev issues...
+>>>>
+>>>> It is this patch that rendered the driver_for_each_device() in
+>>>> vfio_ap_verify_queue_reserved() erroneous. That function gets called
+>>>> every time an adapter or domain is assigned to the mdev. This patch
+>>>> introduced the problem with driver_for_each_device().
+>>>
+>>> So, does this function need to be removed or called from another place,
+>>> then? (It looks like it was dead code before.)
 >>
->> I think the matrix_mdev should be associated with queues when an
->> assignment of an adapter or domain is made to the mdev device via its
->> sysfs interfaces. I say this because assigning an adapter or domain to
->> an mdev device effectively grants ownership of any additional AP queues
->> added to the mdev device's AP matrix as a result of the assignment. It
->> only makes sense to assign ownership to the vfio_ap_queue objects
->> representing the queues at that time. If an adapter or domain is
->> dynamically assigned while a guest is using the affected queues, then
->> the associations will have to be made at that time and this code will
->> likely go bye bye.
+>> I don't see why you think it's dead code:
 >>
+>> assign_adapter_store
+>> ==> vfio_ap_mdev_verify_queues_reserved_for_apid
+>>       ==> vfio_ap_verify_queue_reserved
+>>           ==> driver_for_each_device
+>>
+>> The only way that the vfio_ap_verify_queue_reserved - the function that
+>> calls driver_for_each_device - does not get called is if no bits have
+>> yet been set in matrix_mdev->matrix.aqm.
 > 
-> 
-> Actually, we need the stuff in vfio_ap_queues only if the guest is
-> offered to  decides to use AP adaper interrupts. I would prefer to have
-> it around only when needed: as long as we have the nib pinned for any
-> given queue. Is there a reason why not to do so?
+> What I don't see is how this can be called if no device has been, in
+> fact, bound to the driver in the driver core...
 
-Even if we keep the vfio_ap_queue around for the life of a guest,
-association/dissociation will have to be done when an adapter or domain
-is dynamically assigned.
+Let's start with the fact that one can create an mdev device regardless
+of whether a queue has been bound to the vfio_ap driver. Once an mdev
+device is created, one can start assigning adapters, domains and control
+domains to it. Let's say the admin now attempts to assign an adapter, in
+which case the assign_adapter_store() function is invoked. After
+verifying that the APID passed in is a valid adapter number, the
+vfio_ap_mdev_verify_queues_reserved_for_apid() function is called.
+This function first checks if any domains have been assigned and if not,
+calls vfio_ap_verify_queue_reserved(&apid, NULL). It is in this function
+that the driver_for_each_device() function is called. Since there are
+no devices bound to the vfio_ap device driver, the callback passed in to
+the driver_for_each_device() function will never get called, so the
+vfio_ap_mdev_verify_queues_reserved_for_apid() function will return
+-EADDRNOTAVAIL. A similar flow will occur if the first assignment is for
+a domain. The bottom line is, the driver_for_each_device() function is
+called every time an adapter or domain is assigned.
 
-> 
-> Regards,
-> Halil
->   
-> [..]
 > 
