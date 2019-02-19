@@ -1,81 +1,99 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 8/9] s390: ap: Cleanup on removing the AP device
-Date: Tue, 19 Feb 2019 20:41:32 +0100
-Message-ID: <263d3aa9-700e-ad6e-0dfa-69190611d9c0@linux.ibm.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Tue, 19 Feb 2019 20:50:58 +0100
+Message-ID: <74d812c6-bf83-0fb0-8fc3-af1341b0ae3c@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
- <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
+ <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
+ <4b21f059-1d37-f341-bac7-5b1fe0d06521@linux.ibm.com>
+ <ee84fc90-e158-9c36-b56f-67fe7777f683@linux.ibm.com>
+ <20190218234235.7d9f547c.cohuck@redhat.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
+In-Reply-To: <20190218234235.7d9f547c.cohuck@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 16/02/2019 00:36, Tony Krowiak wrote:
-> On 2/14/19 8:51 AM, Pierre Morel wrote:
->> When the device is remove, we must make sure to
->> clear the interruption and reset the AP device.
+On 18/02/2019 23:42, Cornelia Huck wrote:
+> On Mon, 18 Feb 2019 19:29:10 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 15/02/2019 23:02, Tony Krowiak wrote:
+>>> On 2/14/19 8:51 AM, Pierre Morel wrote:
+> 
+>>>> +/*
+>>>> + * handle_pqap: Handling pqap interception
+>>>> + * @vcpu: the vcpu having issue the pqap instruction
+>>>> + *
+>>>> + * This callback only handles PQAP/AQIC instruction and
+>>>> + * calls a dedicated callback for this instruction if
+>>>> + * a driver did register one in the CRYPTO satellite of the
+>>>> + * SIE block.
+>>>> + *
+>>>> + * Do not change the behavior if, return -EOPNOTSUPP if:
+>>>> + * - the hook is not used do not change the behavior.
+>>>> + * - AP instructions are not available or not available to the guest
+>>>> + * - the instruction is not PQAP with function code indicating
+>>>> + *   AQIC do not change the previous behavior.
+>>>> + *
+>>>> + * For PQAP/AQIC instruction, verify privilege and specifications
+>>>> + *
+>>>> + * return the value returned by the callback.
+>>>> + */
+>>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
+>>>> +{
+>>>> +    uint8_t fc;
+>>>> +
+>>>> +    /* Verify that the hook callback is registered */
+>>>> +    if (!vcpu->kvm->arch.crypto.pqap_hook)
+>>>> +        return -EOPNOTSUPP;
+>>>> +    /* Verify that the AP instruction are available */
+>>>> +    if (!ap_instructions_available())
+>>>> +        return -EOPNOTSUPP;
+>>>> +    /* Verify that the guest is allowed to use AP instructions */
+>>>> +    if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+>>>> +        return -EOPNOTSUPP;
+>>>> +    /* Verify that the function code is AQIC */
+>>>> +    fc = vcpu->run->s.regs.gprs[0] >> 24;
+>>>> +    if (fc != 0x03)
+>>>> +        return -EOPNOTSUPP;
+>>>
+>>> This does not belong here. Function code 3 is one of 7 function codes
+>>> that can be sent with the PQAP instruction. This belongs in the PQAP
+>>> hook code.
 >>
-...snip...
-
->> @@ -74,6 +159,13 @@ static void vfio_ap_queue_dev_remove(struct 
->> ap_device *apdev)
->>       struct vfio_ap_queue *q;
->>       q = dev_get_drvdata(&apdev->device);
->> +    if (!q)
->> +        return;
->> +
->> +    vfio_ap_update_crycb(q);
+>> On one hand, effectively I would prefer to put the code in the VFIO
+>> driver code.
+>> On the other hand, doing this would lead to export the code for
+>> test_kvm_facility() and kvm_s390_inject_program_int() from the kvm-s390.h
+>>
+>> I choose not to export these functions from the KVM code.
+>>
+>> Would like opinion from KVM maintainers?
 > 
-> The root user is warned in the Limitations section of the vfio-ap.txt
-> doc delivered with the AP pass-through support warns that the
-> administrator (i.e., root user) should ensure that AP devices are not
-> removed without taking proper care to ensure they are not in use by a
-> guest. I am currently working on a patch set to handle this, so this
-> may simply get ripped out when those patches are integrated. That may
-> very well be simultaneously with this patch series as I plan on posting
-> those soon.
+> Looking at this (and without access to the specification...), I think
+> the check for problem state makes sense in here (if this applies to all
+> PQAP functions equally, which seems likely). The check for the facility
+> makes more sense in the handler. You can probably still inject the
+> specification exception here if you use a clever return code.
 > 
-> If this call is to remain, then you ought to update the vfio-ap.txt
-> document to let users know that when queues are unbound, the guests
-> will lose access to them unbeknown to the admin of the guest.
 
-I do not see where is the problem, the admin should still take care the 
-APQN are not in use by the guest when he does an unbind.
+If there is no objection on exporting the KVM functions... I can do this.
 
-This just makes sure it is not used anymore by the guest when the admin 
-rebound it to the host or another guest.
+> Another option: Provide a way to register a callback per function code;
+> this allows you to still do the check here and extend it later for
+> other function codes (which will probably be indicated by another
+> facility).
 
-> 
->> +    vfio_ap_zapq(q);
-> 
-> One last thing. I've explained before that prior to the AP bus
-> invoking this remove callback, it flushes and zeroizes the
-> queue. Why do you insist it needs to be done again in the remove
-> callback?
-
-The problem is that the AP_BUS is not aware from the CRYCB and let the 
-guest play with the queue.
-
-The sequence an be like:
-
--> AP_BUS remove RESET the queue and zeroes with ZAPQ
--> AP_BUS call remove from driver
-	- the APQN still belong to the guest !
-		-> the guest issue a NQAP
-===> We need to take the queue away from the guest
-===> and we need to RESET the queue with ZAPQ and wait
-      until no more message is in the queue
--> driver remove ends
-
+I like this option even better.
 
 Regards,
 Pierre
