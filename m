@@ -1,96 +1,116 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
- vfio_ap bus subsystem
-Date: Tue, 19 Feb 2019 17:27:05 -0500
-Message-ID: <f95dec76-ba2e-38b2-64f3-9abe4ca6a501@linux.ibm.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Tue, 19 Feb 2019 17:36:38 -0500
+Message-ID: <e04f0c8b-2fd9-1846-334a-faa48e0e051e@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
- <20190214155441.087d2a68.cohuck@redhat.com>
- <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
- <20190214175730.4ab609ae.cohuck@redhat.com>
- <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
- <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
- <20190215101118.5417d725.cohuck@redhat.com>
- <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
- <20190218130147.5ed3edbe.cohuck@redhat.com>
- <602fd1f8-0ac1-42dc-30fd-ea16bb7bbc99@linux.ibm.com>
- <20190218175747.53212f95.cohuck@redhat.com>
+ <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
+ <4b21f059-1d37-f341-bac7-5b1fe0d06521@linux.ibm.com>
+ <ee84fc90-e158-9c36-b56f-67fe7777f683@linux.ibm.com>
+ <20190218234235.7d9f547c.cohuck@redhat.com>
+ <74d812c6-bf83-0fb0-8fc3-af1341b0ae3c@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218175747.53212f95.cohuck@redhat.com>
+In-Reply-To: <74d812c6-bf83-0fb0-8fc3-af1341b0ae3c@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: pmorel@linux.ibm.com, Cornelia Huck <cohuck@redhat.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2/18/19 11:57 AM, Cornelia Huck wrote:
-> On Mon, 18 Feb 2019 11:35:45 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> 
->> On 2/18/19 7:01 AM, Cornelia Huck wrote:
->>> On Fri, 15 Feb 2019 16:59:33 -0500
->>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>    
->>>> On 2/15/19 4:11 AM, Cornelia Huck wrote:
->>>>> On Thu, 14 Feb 2019 13:30:59 -0500
->>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>>>       
->>>>>> On 2/14/19 12:36 PM, Pierre Morel wrote:
->>>>>>> On 14/02/2019 17:57, Cornelia Huck wrote:
->>>    
->>>>>>>> (And reading further in the current code, it seems we clear that
->>>>>>>> structure _after_ the matrix device had been setup, so how can that
->>>>>>>> even work? Where am I confused?)
->>>>>>>
->>>>>>> On device_register there were no bus, so the core just do not look for a
->>>>>>> driver and this field was nor tested nor overwritten.
->>>>>
->>>>> Hm... so has the callback in driver_for_each_device() in
->>>>> vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
->>>>> patch fixes more than just libudev issues...
+On 2/19/19 2:50 PM, Pierre Morel wrote:
+> On 18/02/2019 23:42, Cornelia Huck wrote:
+>> On Mon, 18 Feb 2019 19:29:10 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> On 15/02/2019 23:02, Tony Krowiak wrote:
+>>>> On 2/14/19 8:51 AM, Pierre Morel wrote:
+>>
+>>>>> +/*
+>>>>> + * handle_pqap: Handling pqap interception
+>>>>> + * @vcpu: the vcpu having issue the pqap instruction
+>>>>> + *
+>>>>> + * This callback only handles PQAP/AQIC instruction and
+>>>>> + * calls a dedicated callback for this instruction if
+>>>>> + * a driver did register one in the CRYPTO satellite of the
+>>>>> + * SIE block.
+>>>>> + *
+>>>>> + * Do not change the behavior if, return -EOPNOTSUPP if:
+>>>>> + * - the hook is not used do not change the behavior.
+>>>>> + * - AP instructions are not available or not available to the guest
+>>>>> + * - the instruction is not PQAP with function code indicating
+>>>>> + *   AQIC do not change the previous behavior.
+>>>>> + *
+>>>>> + * For PQAP/AQIC instruction, verify privilege and specifications
+>>>>> + *
+>>>>> + * return the value returned by the callback.
+>>>>> + */
+>>>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
+>>>>> +{
+>>>>> +    uint8_t fc;
+>>>>> +
+>>>>> +    /* Verify that the hook callback is registered */
+>>>>> +    if (!vcpu->kvm->arch.crypto.pqap_hook)
+>>>>> +        return -EOPNOTSUPP;
+>>>>> +    /* Verify that the AP instruction are available */
+>>>>> +    if (!ap_instructions_available())
+>>>>> +        return -EOPNOTSUPP;
+>>>>> +    /* Verify that the guest is allowed to use AP instructions */
+>>>>> +    if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+>>>>> +        return -EOPNOTSUPP;
+>>>>> +    /* Verify that the function code is AQIC */
+>>>>> +    fc = vcpu->run->s.regs.gprs[0] >> 24;
+>>>>> +    if (fc != 0x03)
+>>>>> +        return -EOPNOTSUPP;
 >>>>
->>>> It is this patch that rendered the driver_for_each_device() in
->>>> vfio_ap_verify_queue_reserved() erroneous. That function gets called
->>>> every time an adapter or domain is assigned to the mdev. This patch
->>>> introduced the problem with driver_for_each_device().
+>>>> This does not belong here. Function code 3 is one of 7 function codes
+>>>> that can be sent with the PQAP instruction. This belongs in the PQAP
+>>>> hook code.
 >>>
->>> So, does this function need to be removed or called from another place,
->>> then? (It looks like it was dead code before.)
+>>> On one hand, effectively I would prefer to put the code in the VFIO
+>>> driver code.
+>>> On the other hand, doing this would lead to export the code for
+>>> test_kvm_facility() and kvm_s390_inject_program_int() from the 
+>>> kvm-s390.h
+>>>
+>>> I choose not to export these functions from the KVM code.
+>>>
+>>> Would like opinion from KVM maintainers?
 >>
->> I don't see why you think it's dead code:
+>> Looking at this (and without access to the specification...), I think
+>> the check for problem state makes sense in here (if this applies to all
+>> PQAP functions equally, which seems likely). The check for the facility
+>> makes more sense in the handler. You can probably still inject the
+>> specification exception here if you use a clever return code.
 >>
->> assign_adapter_store
->> ==> vfio_ap_mdev_verify_queues_reserved_for_apid
->>       ==> vfio_ap_verify_queue_reserved
->>           ==> driver_for_each_device
->>
->> The only way that the vfio_ap_verify_queue_reserved - the function that
->> calls driver_for_each_device - does not get called is if no bits have
->> yet been set in matrix_mdev->matrix.aqm.
 > 
-> What I don't see is how this can be called if no device has been, in
-> fact, bound to the driver in the driver core...
+> If there is no objection on exporting the KVM functions... I can do this.
 
-Let's start with the fact that one can create an mdev device regardless
-of whether a queue has been bound to the vfio_ap driver. Once an mdev
-device is created, one can start assigning adapters, domains and control
-domains to it. Let's say the admin now attempts to assign an adapter, in
-which case the assign_adapter_store() function is invoked. After
-verifying that the APID passed in is a valid adapter number, the
-vfio_ap_mdev_verify_queues_reserved_for_apid() function is called.
-This function first checks if any domains have been assigned and if not,
-calls vfio_ap_verify_queue_reserved(&apid, NULL). It is in this function
-that the driver_for_each_device() function is called. Since there are
-no devices bound to the vfio_ap device driver, the callback passed in to
-the driver_for_each_device() function will never get called, so the
-vfio_ap_mdev_verify_queues_reserved_for_apid() function will return
--EADDRNOTAVAIL. A similar flow will occur if the first assignment is for
-a domain. The bottom line is, the driver_for_each_device() function is
-called every time an adapter or domain is assigned.
+I do not understand why you would have to export KVM functions to place
+the check for FC 0x03 in the pqap hook? What am I missing here? Maybe
+you misunderstood my comment? The following is the only code I suggested
+you move:
 
++    fc = vcpu->run->s.regs.gprs[0] >> 24;
++    if (fc != 0x03)
++        return -EOPNOTSUPP;
+
+What does that have to do with test_kvm_facility() and
+kvm_s390_inject_program_int()? Please explain.
+
+> 
+>> Another option: Provide a way to register a callback per function code;
+>> this allows you to still do the check here and extend it later for
+>> other function codes (which will probably be indicated by another
+>> facility).
+> 
+> I like this option even better.
+> 
+> Regards,
+> Pierre
+> 
 > 
