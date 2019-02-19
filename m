@@ -1,16 +1,16 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v3 8/9] s390: ap: Cleanup on removing the AP device
-Date: Tue, 19 Feb 2019 20:29:56 +0100
-Message-ID: <2b6a07ac-b999-b7d0-81de-273abfcb7c00@linux.ibm.com>
+Date: Tue, 19 Feb 2019 20:41:32 +0100
+Message-ID: <263d3aa9-700e-ad6e-0dfa-69190611d9c0@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
  <1550152269-6317-9-git-send-email-pmorel@linux.ibm.com>
- <f60b520b-7342-da0d-48cb-5a16190b7f40@linux.ibm.com>
+ <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f60b520b-7342-da0d-48cb-5a16190b7f40@linux.ibm.com>
+In-Reply-To: <e5c18c62-97bd-95d7-1fa4-8b149bd62e6d@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -19,134 +19,65 @@ To: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 16/02/2019 00:29, Tony Krowiak wrote:
+On 16/02/2019 00:36, Tony Krowiak wrote:
 > On 2/14/19 8:51 AM, Pierre Morel wrote:
 >> When the device is remove, we must make sure to
 >> clear the interruption and reset the AP device.
 >>
->> We also need to clear the CRYCB of the guest.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_drv.c     | 92 
->> +++++++++++++++++++++++++++++++++++
->>   drivers/s390/crypto/vfio_ap_ops.c     |  2 +-
->>   drivers/s390/crypto/vfio_ap_private.h |  2 +
->>   3 files changed, 95 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c 
->> b/drivers/s390/crypto/vfio_ap_drv.c
->> index 03153e6..50428be 100644
->> --- a/drivers/s390/crypto/vfio_ap_drv.c
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -5,6 +5,7 @@
->>    * Copyright IBM Corp. 2018
->>    *
->>    * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
->> + *          Pierre Morel <pmorel@linux.ibm.com>
->>    */
->>   #include <linux/module.h>
->> @@ -12,6 +13,8 @@
->>   #include <linux/slab.h>
->>   #include <linux/string.h>
->>   #include <asm/facility.h>
->> +#include <linux/bitops.h>
->> +#include <linux/kvm_host.h>
->>   #include "vfio_ap_private.h"
->>   #define VFIO_AP_ROOT_NAME "vfio_ap"
->> @@ -64,6 +67,88 @@ static int vfio_ap_queue_dev_probe(struct ap_device 
->> *apdev)
->>       return 0;
->>   }
->> +/*
->> + * vfio_ap_drain_queue
->> + * @q: the queue to drain
->> + *
->> + * This function waits until the queue is empty.
->> + */
->> +static void vfio_ap_drain_queue(struct vfio_ap_queue *q)
->> +{
->> +    struct ap_queue_status status;
->> +    int retry = 20;
->> +
->> +    status = ap_tapq(q->apqn, NULL);
->> +    while (!status.queue_empty && retry--)  {
->> +        msleep(200);
->> +        status = ap_tapq(q->apqn, NULL);
->> +    }
->> +    if (retry <= 0) {
->> +        pr_warn("%s: queue not empty after zapq on apqn 0x%04x\n",
->> +            __func__, q->apqn);
->> +    }
->> +}
->> +
->> +/*
->> + * vfio_ap_zapq
->> + * @q: The queue to zerro
->> + *
->> + * It is best effort, no return value is done, however on success
->> + * we will drain the queue before getting the queue back to the
->> + * AP bus.
->> + */
->> +static void vfio_ap_zapq(struct vfio_ap_queue *q)
->> +{
->> +    struct ap_queue_status status;
->> +    int retry = 20;
->> +
->> +    do {
->> +        status = ap_zapq(q->apqn);
->> +        switch (status.response_code) {
->> +        case AP_RESPONSE_RESET_IN_PROGRESS:
->> +        case AP_RESPONSE_BUSY:
->> +            msleep(20);
->> +            break;
->> +        default:
->> +            pr_warn("%s: zapq error %02x on apqn 0x%04x\n",
->> +                __func__, status.response_code, q->apqn);
->> +            return;
->> +        case AP_RESPONSE_NORMAL:
->> +            vfio_ap_drain_queue(q);
-> 
-> I don't think this is necessary. The zeroize is performed on
-> each AP-queue entry in an AP queue. My understanding is that when a
-> reset or zeroize is pending, any AP instructions subsequently issued
-> are rejected with condition-code 3 indicating an AP queue reset is in
-> progress. It is also my understanding that once the AP commands 
-> currently executing in a given AP queue entry complete, the queue
-> entry will be zeroized. So it seems to me that there is no need to
-> "drain" the queue, it will have already been done by the zeroize.
+...snip...
 
-My understanding from the specifications is that after a RAPQ or a ZAPQ
-we should wait for the queue to be really empty.
-
-> 
-> If you agree we don't need to "drain" the queue, then I'd rather just
-> make the zapq function in the vfio_ap_ops.c non-static and make it
-> available to the driver. There is no sense in duplicating this code. In
-> fact, even if you keep the draining function, you still don't need to
-> duplicate a zaapq instruction here, you can just call the vfio_ap_ops.c
-> version and then drain the queue on AP_RESPONSE_NORMAL.
-
-OK I will see how to optimize this.
-
-
-
+>> @@ -74,6 +159,13 @@ static void vfio_ap_queue_dev_remove(struct 
+>> ap_device *apdev)
+>>       struct vfio_ap_queue *q;
+>>       q = dev_get_drvdata(&apdev->device);
+>> +    if (!q)
 >> +        return;
 >> +
 >> +    vfio_ap_update_crycb(q);
->> +    vfio_ap_zapq(q);
->> +
->> +    vfio_ap_free_irq(q);
 > 
-> If you make the zapq function in vfio_ap_ops.c available to the driver
-> rather than duplicating it in this file, you won't need this call
-> to vfio_ap_free_irq because it is done as part of the zapq in
-> vfio_ap_ops.c.
+> The root user is warned in the Limitations section of the vfio-ap.txt
+> doc delivered with the AP pass-through support warns that the
+> administrator (i.e., root user) should ensure that AP devices are not
+> removed without taking proper care to ensure they are not in use by a
+> guest. I am currently working on a patch set to handle this, so this
+> may simply get ripped out when those patches are integrated. That may
+> very well be simultaneously with this patch series as I plan on posting
+> those soon.
+> 
+> If this call is to remain, then you ought to update the vfio-ap.txt
+> document to let users know that when queues are unbound, the guests
+> will lose access to them unbeknown to the admin of the guest.
 
-Another solution.
-OK I will look at this.
+I do not see where is the problem, the admin should still take care the 
+APQN are not in use by the guest when he does an unbind.
 
-Thanks,
+This just makes sure it is not used anymore by the guest when the admin 
+rebound it to the host or another guest.
+
+> 
+>> +    vfio_ap_zapq(q);
+> 
+> One last thing. I've explained before that prior to the AP bus
+> invoking this remove callback, it flushes and zeroizes the
+> queue. Why do you insist it needs to be done again in the remove
+> callback?
+
+The problem is that the AP_BUS is not aware from the CRYCB and let the 
+guest play with the queue.
+
+The sequence an be like:
+
+-> AP_BUS remove RESET the queue and zeroes with ZAPQ
+-> AP_BUS call remove from driver
+	- the APQN still belong to the guest !
+		-> the guest issue a NQAP
+===> We need to take the queue away from the guest
+===> and we need to RESET the queue with ZAPQ and wait
+      until no more message is in the queue
+-> driver remove ends
+
+
+Regards,
 Pierre
 
 
