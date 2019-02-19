@@ -1,104 +1,94 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
- instructions
-Date: Tue, 19 Feb 2019 20:50:58 +0100
-Message-ID: <74d812c6-bf83-0fb0-8fc3-af1341b0ae3c@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v3 6/9] vfio: ap: register IOMMU VFIO notifier
+Date: Tue, 19 Feb 2019 16:33:59 -0500
+Message-ID: <ef8ac760-8da9-6f79-ac26-933d998f4c3a@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
- <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
- <4b21f059-1d37-f341-bac7-5b1fe0d06521@linux.ibm.com>
- <ee84fc90-e158-9c36-b56f-67fe7777f683@linux.ibm.com>
- <20190218234235.7d9f547c.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+ <1550152269-6317-7-git-send-email-pmorel@linux.ibm.com>
+ <3ce0a3a0-22fb-c418-321d-7e6e3af5b66c@linux.ibm.com>
+ <20190219105946.29e510a6@oc2783563651>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218234235.7d9f547c.cohuck@redhat.com>
+In-Reply-To: <20190219105946.29e510a6@oc2783563651>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 18/02/2019 23:42, Cornelia Huck wrote:
-> On Mon, 18 Feb 2019 19:29:10 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 2/19/19 4:59 AM, Halil Pasic wrote:
+> On Fri, 15 Feb 2019 17:55:35 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 > 
->> On 15/02/2019 23:02, Tony Krowiak wrote:
->>> On 2/14/19 8:51 AM, Pierre Morel wrote:
-> 
->>>> +/*
->>>> + * handle_pqap: Handling pqap interception
->>>> + * @vcpu: the vcpu having issue the pqap instruction
->>>> + *
->>>> + * This callback only handles PQAP/AQIC instruction and
->>>> + * calls a dedicated callback for this instruction if
->>>> + * a driver did register one in the CRYPTO satellite of the
->>>> + * SIE block.
->>>> + *
->>>> + * Do not change the behavior if, return -EOPNOTSUPP if:
->>>> + * - the hook is not used do not change the behavior.
->>>> + * - AP instructions are not available or not available to the guest
->>>> + * - the instruction is not PQAP with function code indicating
->>>> + *   AQIC do not change the previous behavior.
->>>> + *
->>>> + * For PQAP/AQIC instruction, verify privilege and specifications
->>>> + *
->>>> + * return the value returned by the callback.
->>>> + */
->>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
->>>> +{
->>>> +    uint8_t fc;
->>>> +
->>>> +    /* Verify that the hook callback is registered */
->>>> +    if (!vcpu->kvm->arch.crypto.pqap_hook)
->>>> +        return -EOPNOTSUPP;
->>>> +    /* Verify that the AP instruction are available */
->>>> +    if (!ap_instructions_available())
->>>> +        return -EOPNOTSUPP;
->>>> +    /* Verify that the guest is allowed to use AP instructions */
->>>> +    if (!(vcpu->arch.sie_block->eca & ECA_APIE))
->>>> +        return -EOPNOTSUPP;
->>>> +    /* Verify that the function code is AQIC */
->>>> +    fc = vcpu->run->s.regs.gprs[0] >> 24;
->>>> +    if (fc != 0x03)
->>>> +        return -EOPNOTSUPP;
+>> On 2/14/19 8:51 AM, Pierre Morel wrote:
+>>> To be able to use the VFIO interface to facilitate the
+>>> mediated device memory pining/unpining we need to register
+>>> a notifier for IOMMU.
 >>>
->>> This does not belong here. Function code 3 is one of 7 function codes
->>> that can be sent with the PQAP instruction. This belongs in the PQAP
->>> hook code.
->>
->> On one hand, effectively I would prefer to put the code in the VFIO
->> driver code.
->> On the other hand, doing this would lead to export the code for
->> test_kvm_facility() and kvm_s390_inject_program_int() from the kvm-s390.h
->>
->> I choose not to export these functions from the KVM code.
->>
->> Would like opinion from KVM maintainers?
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> ---
+>>>    drivers/s390/crypto/vfio_ap_ops.c     | 64 +++++++++++++++++++++++++++++++----
+>>>    drivers/s390/crypto/vfio_ap_private.h |  2 ++
+>>>    2 files changed, 60 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>> index 1851b24..6eddc2c 100644
+>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
 > 
-> Looking at this (and without access to the specification...), I think
-> the check for problem state makes sense in here (if this applies to all
-> PQAP functions equally, which seems likely). The check for the facility
-> makes more sense in the handler. You can probably still inject the
-> specification exception here if you use a clever return code.
+> [..]
+>    	struct vfio_ap_queue *q;
+>>> @@ -967,12 +996,32 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>>>    
+>>>    	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>>>    				     &events, &matrix_mdev->group_notifier);
+>>> -	if (ret) {
+>>> -		module_put(THIS_MODULE);
+>>> -		return ret;
+>>> -	}
+>>> +	if (ret)
+>>> +		goto err_group;
+>>> +
+>>> +	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
+>>> +	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+>>> +
+>>> +	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+>>> +				     &events, &matrix_mdev->iommu_notifier);
+>>> +	if (ret)
+>>> +		goto err_iommu;
+>>> +
+>>> +	ret = vfio_ap_associate_queues(matrix_mdev);
+>>> +	if (ret)
+>>> +		goto err_associate;
+>>
+>> I think the matrix_mdev should be associated with queues when an
+>> assignment of an adapter or domain is made to the mdev device via its
+>> sysfs interfaces. I say this because assigning an adapter or domain to
+>> an mdev device effectively grants ownership of any additional AP queues
+>> added to the mdev device's AP matrix as a result of the assignment. It
+>> only makes sense to assign ownership to the vfio_ap_queue objects
+>> representing the queues at that time. If an adapter or domain is
+>> dynamically assigned while a guest is using the affected queues, then
+>> the associations will have to be made at that time and this code will
+>> likely go bye bye.
+>>
 > 
+> 
+> Actually, we need the stuff in vfio_ap_queues only if the guest is
+> offered to  decides to use AP adaper interrupts. I would prefer to have
+> it around only when needed: as long as we have the nib pinned for any
+> given queue. Is there a reason why not to do so?
 
-If there is no objection on exporting the KVM functions... I can do this.
+Even if we keep the vfio_ap_queue around for the life of a guest,
+association/dissociation will have to be done when an adapter or domain
+is dynamically assigned.
 
-> Another option: Provide a way to register a callback per function code;
-> this allows you to still do the check here and extend it later for
-> other function codes (which will probably be indicated by another
-> facility).
-
-I like this option even better.
-
-Regards,
-Pierre
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> 
+> Regards,
+> Halil
+>   
+> [..]
+> 
