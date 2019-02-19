@@ -1,8 +1,8 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
 Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
  instructions
-Date: Tue, 19 Feb 2019 17:36:38 -0500
-Message-ID: <e04f0c8b-2fd9-1846-334a-faa48e0e051e@linux.ibm.com>
+Date: Tue, 19 Feb 2019 17:50:56 -0500
+Message-ID: <342ffd56-b73a-b1f4-004d-de2c4aeef729@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
  <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
  <4b21f059-1d37-f341-bac7-5b1fe0d06521@linux.ibm.com>
@@ -90,17 +90,15 @@ On 2/19/19 2:50 PM, Pierre Morel wrote:
 > 
 > If there is no objection on exporting the KVM functions... I can do this.
 
-I do not understand why you would have to export KVM functions to place
-the check for FC 0x03 in the pqap hook? What am I missing here? Maybe
-you misunderstood my comment? The following is the only code I suggested
-you move:
+I think I understand where you are coming from. In looking back at the
+original patch, I see there are checks using the test_kvm_facility and
+kvm_s390_inject_program_int functions placed after your check for
+fc != 0x03. You clearly misunderstood what I was asking you to do.
+I was suggesting that ONLY the check for 'fc != 0x03' be done in the
+hook. I was NOT suggesting the instructions following the check for
+fc != 0x03 be done in the hook, so there is no need to export any KVM
+functions.
 
-+    fc = vcpu->run->s.regs.gprs[0] >> 24;
-+    if (fc != 0x03)
-+        return -EOPNOTSUPP;
-
-What does that have to do with test_kvm_facility() and
-kvm_s390_inject_program_int()? Please explain.
 
 > 
 >> Another option: Provide a way to register a callback per function code;
