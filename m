@@ -1,51 +1,55 @@
-From: ira.weiny@intel.com
-Subject: [RESEND PATCH 6/7] IB/qib: Use the new FOLL_LONGTERM flag to
- get_user_pages_fast()
-Date: Tue, 19 Feb 2019 21:30:39 -0800
-Message-ID: <20190220053040.10831-7-ira.weiny@intel.com>
-References: <20190220053040.10831-1-ira.weiny@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Return-Path: <SRS0=sczE=Q3=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Wed, 20 Feb 2019 10:22:52 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390/setup: fix early warning messages
+Message-ID: <20190220102252.43dd10a4.cohuck@redhat.com>
+In-Reply-To: <eca82ff3-bc07-ee2f-b67a-91425fe1ace0@roeck-us.net>
+References: <20190218154640.GA27699@roeck-us.net>
+        <20190218180146.79930fe6@mschwideX1>
+        <20190218182106.61b10ee4@mschwideX1>
+        <20190218191655.103c81ca.cohuck@redhat.com>
+        <05e78442-07e1-9783-965f-b3d64a2c5e99@roeck-us.net>
+        <20190218233021.368bb475.cohuck@redhat.com>
+        <eca82ff3-bc07-ee2f-b67a-91425fe1ace0@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20190220053040.10831-1-ira.weiny@intel.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-List-Archive: <https://lore.kernel.org/ceph-devel/>
-List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: John Hubbard <jhubbard@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>
-Cc: linux-fbdev@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, linux-fpga@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, sparclinux@vger.kernel.org, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, xen-devel@lists.xenproject.org, devel@lists.orangefs.org, linux-media@vger.kernel.org, kvm-ppc@vger.kernel.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Ira Weiny <ira.weiny@intel.com>
+On Tue, 19 Feb 2019 10:47:38 -0800
+Guenter Roeck <linux@roeck-us.net> wrote:
 
-Use the new FOLL_LONGTERM to get_user_pages_fast() to protect against
-FS DAX pages being mapped.
+> Hi Cornelia,
+> 
+> On 2/18/19 2:30 PM, Cornelia Huck wrote:
+> 
+> >> What is your qemu command line ?  
+> > 
+> > Ignoring any additional devices:
+> > 
+> > s390x-softmmu/qemu-system-s390x -M s390-ccw-virtio,accel=tcg -cpu max  -m 1024 -nographic -device virtio-scsi-ccw,id=scsi0,devno=fe.0.0001 -drive file=/home/cohuck/vm-images/vm1.qcow2,format=qcow2,if=none,id=drive-scsi0-0-0-0 -device scsi-hd,bus=scsi0.0,channel=0,scsi-id=0,lun=0,drive=drive-scsi0-0-0-0,id=scsi0-0-0-0,bootindex=1 -sandbox on -kernel ~/git/linux/arch/s390/boot/bzImage -append "root=/dev/sda3"
+> >   
+> 
+> Is "accel=tcg" and "-cpu max" expected to make any difference ? CPU consumption
+> on my system seems to be identical to the default (no -M or -cpu on command line).
+> This is with qemu 3.1.
 
-Signed-off-by: Ira Weiny <ira.weiny@intel.com>
----
- drivers/infiniband/hw/qib/qib_user_sdma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+If you're not running on a s390x, QEMU will pick tcg even if not
+specified (as it needs to emulate anyway), so that should not make any
+difference. The 'max' cpu model was is not yet available with 3.1
+(merged in the current development cycle); it will not make much
+difference in practice (a few more cpu features are currently provided
+with it over the default 'qemu' cpu model).
 
-diff --git a/drivers/infiniband/hw/qib/qib_user_sdma.c b/drivers/infiniband/hw/qib/qib_user_sdma.c
-index 31c523b2a9f5..b53cc0240e02 100644
---- a/drivers/infiniband/hw/qib/qib_user_sdma.c
-+++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
-@@ -673,7 +673,7 @@ static int qib_user_sdma_pin_pages(const struct qib_devdata *dd,
- 		else
- 			j = npages;
- 
--		ret = get_user_pages_fast(addr, j, 0, pages);
-+		ret = get_user_pages_fast(addr, j, FOLL_LONGTERM, pages);
- 		if (ret != j) {
- 			i = 0;
- 			j = ret;
--- 
-2.20.1
+As I'm testing various combinations (tcg vs. kvm on an s390x host,
+different cpu models) when I'm queuing patches, my command line is not
+necessarily exactly the same every time (this was just the one I
+happened to be testing the kernel patch with). If you simply want to be
+able to boot a test kernel on a non-s390x host, relying on the default
+accelerator (tcg) and the default cpu model (qemu) being picked should
+be completely fine.
