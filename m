@@ -1,100 +1,142 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 1/9] s390: vfio_ap: link the vfio_ap devices to the
- vfio_ap bus subsystem
-Date: Wed, 20 Feb 2019 10:05:03 +0100
-Message-ID: <20190220100503.4036e8dd.cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v3 7/9] s390: ap: implement PAPQ AQIC interception in
+ kernel
+Date: Wed, 20 Feb 2019 12:54:20 +0100
+Message-ID: <20190220125420.04984405@oc2783563651>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-2-git-send-email-pmorel@linux.ibm.com>
-        <20190214155441.087d2a68.cohuck@redhat.com>
-        <9403117a-04a6-8f69-2a61-f96d35a59555@linux.ibm.com>
-        <20190214175730.4ab609ae.cohuck@redhat.com>
-        <9200b1f8-874f-ffa7-bef0-19ca570d7ac1@linux.ibm.com>
-        <eac03540-a499-fa0f-1a4a-b5cc99030775@linux.ibm.com>
-        <20190215101118.5417d725.cohuck@redhat.com>
-        <f38c99e6-bb25-9179-e4cd-20ba8482111f@linux.ibm.com>
-        <20190218130147.5ed3edbe.cohuck@redhat.com>
-        <602fd1f8-0ac1-42dc-30fd-ea16bb7bbc99@linux.ibm.com>
-        <20190218175747.53212f95.cohuck@redhat.com>
-        <f95dec76-ba2e-38b2-64f3-9abe4ca6a501@linux.ibm.com>
+        <1550152269-6317-8-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f95dec76-ba2e-38b2-64f3-9abe4ca6a501@linux.ibm.com>
+In-Reply-To: <1550152269-6317-8-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 19 Feb 2019 17:27:05 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Thu, 14 Feb 2019 14:51:07 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> On 2/18/19 11:57 AM, Cornelia Huck wrote:
-> > On Mon, 18 Feb 2019 11:35:45 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >   
-> >> On 2/18/19 7:01 AM, Cornelia Huck wrote:  
-> >>> On Fri, 15 Feb 2019 16:59:33 -0500
-> >>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >>>      
-> >>>> On 2/15/19 4:11 AM, Cornelia Huck wrote:  
-> >>>>> On Thu, 14 Feb 2019 13:30:59 -0500
-> >>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> >>>>>         
-> >>>>>> On 2/14/19 12:36 PM, Pierre Morel wrote:  
-> >>>>>>> On 14/02/2019 17:57, Cornelia Huck wrote:  
-> >>>      
-> >>>>>>>> (And reading further in the current code, it seems we clear that
-> >>>>>>>> structure _after_ the matrix device had been setup, so how can that
-> >>>>>>>> even work? Where am I confused?)  
-> >>>>>>>
-> >>>>>>> On device_register there were no bus, so the core just do not look for a
-> >>>>>>> driver and this field was nor tested nor overwritten.  
-> >>>>>
-> >>>>> Hm... so has the callback in driver_for_each_device() in
-> >>>>> vfio_ap_verify_queue_reserved() ever been invoked at all? It seems this
-> >>>>> patch fixes more than just libudev issues...  
-> >>>>
-> >>>> It is this patch that rendered the driver_for_each_device() in
-> >>>> vfio_ap_verify_queue_reserved() erroneous. That function gets called
-> >>>> every time an adapter or domain is assigned to the mdev. This patch
-> >>>> introduced the problem with driver_for_each_device().  
-> >>>
-> >>> So, does this function need to be removed or called from another place,
-> >>> then? (It looks like it was dead code before.)  
-> >>
-> >> I don't see why you think it's dead code:
-> >>
-> >> assign_adapter_store  
-> >> ==> vfio_ap_mdev_verify_queues_reserved_for_apid
-> >>       ==> vfio_ap_verify_queue_reserved
-> >>           ==> driver_for_each_device  
-> >>
-> >> The only way that the vfio_ap_verify_queue_reserved - the function that
-> >> calls driver_for_each_device - does not get called is if no bits have
-> >> yet been set in matrix_mdev->matrix.aqm.  
-> > 
-> > What I don't see is how this can be called if no device has been, in
-> > fact, bound to the driver in the driver core...  
+> We register the AP PQAP instruction hook during the open
+> of the mediated device. And unregister it on release.
 > 
-> Let's start with the fact that one can create an mdev device regardless
-> of whether a queue has been bound to the vfio_ap driver. Once an mdev
-> device is created, one can start assigning adapters, domains and control
-> domains to it. Let's say the admin now attempts to assign an adapter, in
-> which case the assign_adapter_store() function is invoked. After
-> verifying that the APID passed in is a valid adapter number, the
-> vfio_ap_mdev_verify_queues_reserved_for_apid() function is called.
-> This function first checks if any domains have been assigned and if not,
-> calls vfio_ap_verify_queue_reserved(&apid, NULL). It is in this function
-> that the driver_for_each_device() function is called. Since there are
-> no devices bound to the vfio_ap device driver, the callback passed in to
-> the driver_for_each_device() function will never get called, so the
-> vfio_ap_mdev_verify_queues_reserved_for_apid() function will return
-> -EADDRNOTAVAIL. A similar flow will occur if the first assignment is for
-> a domain. The bottom line is, the driver_for_each_device() function is
-> called every time an adapter or domain is assigned.
+> In the AP PQAP instruction hook, if we receive a demand to
+> enable IRQs,
+> - we retrieve the vfio_ap_queue based on the APQN we receive
+>   in REG1,
+> - we retrieve the page of the guest address, (NIB), from
+>   register REG2
+> - we the mediated device to use the VFIO pinning infratrsucture
+>   to pin the page of the guest address,
+> - we retrieve the pointer to KVM to register the guest ISC
+>   and retrieve the host ISC
+> - finaly we activate GISA
+> 
+> If we receive a demand to disable IRQs,
+> - we deactivate GISA
+> - unregister from the GIB
+> - unping the NIB
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
 
-Indeed. I just got lost with the various drivers and devices in play
-here :(
+[..]
+
+> +static int handle_pqap(struct kvm_vcpu *vcpu)
+> +{
+> +	uint64_t status;
+> +	uint16_t apqn;
+> +	struct vfio_ap_queue *q;
+> +	struct ap_queue_status qstatus = {};
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	/* If we do not use the AIV facility just go to userland */
+> +	if (!(vcpu->arch.sie_block->eca & ECA_AIV))
+> +		return -EOPNOTSUPP;
+> +
+> +	apqn = vcpu->run->s.regs.gprs[0] & 0xffff;
+> +	q = vfio_ap_get_queue(apqn);
+> +	if (!q) {
+> +		qstatus.response_code = AP_RESPONSE_Q_NOT_AVAIL;
+> +		goto out;
+> +	}
+> +
+> +	/* Check if the queue is associated with a guest matrix */
+> +	matrix_mdev = q->matrix;
+> +	if (!matrix_mdev || !matrix_mdev->kvm) {
+> +		qstatus.response_code = AP_RESPONSE_DECONFIGURED;
+> +		goto out;
+> +	}
+> +
+> +	status = vcpu->run->s.regs.gprs[1];
+> +
+> +	/* If IR bit(16) is set we enable the interrupt */
+> +	if ((status >> (63 - 16)) & 0x01) {
+> +		q->isc = status & 0x07;
+> +		q->nib = vcpu->run->s.regs.gprs[2];
+
+Careful! You may already have q->nib set (may or may not be a 0x07
+scenario). You should unpin the old nib if set interruption controls
+works out, if we get 0x07 response then you unpin the new one.
+
+
+> +		qstatus = vfio_ap_setirq(q);
+> +		if (qstatus.response_code) {
+> +			q->nib = 0;
+> +			q->isc = 0;
+> +		}
+> +	} else
+> +		qstatus = vfio_ap_clrirq(q);
+> +
+> +out:
+> +	memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus));
+> +	vfio_ap_put_queue(q);
+> +	return 0;
+> +}
+
+[..]
+
+>  
+> @@ -877,11 +1052,15 @@ static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+>  				    unsigned int retry)
+>  {
+>  	struct ap_queue_status status;
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+>  
+>  	do {
+>  		status = ap_zapq(AP_MKQID(apid, apqi));
+>  		switch (status.response_code) {
+>  		case AP_RESPONSE_NORMAL:
+
+You could do the get queue here
+
+> +			vfio_ap_free_irq(q);
+
+And the put here.
+
+
+Regards,
+Halil
+
+>  			return 0;
+>  		case AP_RESPONSE_RESET_IN_PROGRESS:
+>  		case AP_RESPONSE_BUSY:
+> @@ -999,6 +1178,11 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>  	if (ret)
+>  		goto err_group;
+>  
+> +	if (!matrix_mdev->kvm) {
+> +		ret = -ENODEV;
+> +		goto err_iommu;
+> +	}
+> +
+>  	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
+>  	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+>  
+
+[..]
