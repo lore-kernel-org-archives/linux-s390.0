@@ -1,142 +1,118 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v3 7/9] s390: ap: implement PAPQ AQIC interception in
- kernel
-Date: Wed, 20 Feb 2019 12:54:20 +0100
-Message-ID: <20190220125420.04984405@oc2783563651>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v3 2/9] s390: ap: kvm: setting a hook for PQAP
+ instructions
+Date: Thu, 21 Feb 2019 13:40:33 +0100
+Message-ID: <50339bc0-50da-1a38-53a4-cf173fc387ea@linux.ibm.com>
 References: <1550152269-6317-1-git-send-email-pmorel@linux.ibm.com>
-        <1550152269-6317-8-git-send-email-pmorel@linux.ibm.com>
+ <1550152269-6317-3-git-send-email-pmorel@linux.ibm.com>
+ <4b21f059-1d37-f341-bac7-5b1fe0d06521@linux.ibm.com>
+ <ee84fc90-e158-9c36-b56f-67fe7777f683@linux.ibm.com>
+ <20190218234235.7d9f547c.cohuck@redhat.com>
+ <74d812c6-bf83-0fb0-8fc3-af1341b0ae3c@linux.ibm.com>
+ <e04f0c8b-2fd9-1846-334a-faa48e0e051e@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550152269-6317-8-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <e04f0c8b-2fd9-1846-334a-faa48e0e051e@linux.ibm.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Tony Krowiak <akrowiak@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 14 Feb 2019 14:51:07 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> We register the AP PQAP instruction hook during the open
-> of the mediated device. And unregister it on release.
+On 19/02/2019 23:36, Tony Krowiak wrote:
+> On 2/19/19 2:50 PM, Pierre Morel wrote:
+>> On 18/02/2019 23:42, Cornelia Huck wrote:
+>>> On Mon, 18 Feb 2019 19:29:10 +0100
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>
+>>>> On 15/02/2019 23:02, Tony Krowiak wrote:
+>>>>> On 2/14/19 8:51 AM, Pierre Morel wrote:
+>>>
+>>>>>> +/*
+>>>>>> + * handle_pqap: Handling pqap interception
+>>>>>> + * @vcpu: the vcpu having issue the pqap instruction
+>>>>>> + *
+>>>>>> + * This callback only handles PQAP/AQIC instruction and
+>>>>>> + * calls a dedicated callback for this instruction if
+>>>>>> + * a driver did register one in the CRYPTO satellite of the
+>>>>>> + * SIE block.
+>>>>>> + *
+>>>>>> + * Do not change the behavior if, return -EOPNOTSUPP if:
+>>>>>> + * - the hook is not used do not change the behavior.
+>>>>>> + * - AP instructions are not available or not available to the guest
+>>>>>> + * - the instruction is not PQAP with function code indicating
+>>>>>> + *   AQIC do not change the previous behavior.
+>>>>>> + *
+>>>>>> + * For PQAP/AQIC instruction, verify privilege and specifications
+>>>>>> + *
+>>>>>> + * return the value returned by the callback.
+>>>>>> + */
+>>>>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
+>>>>>> +{
+>>>>>> +    uint8_t fc;
+>>>>>> +
+>>>>>> +    /* Verify that the hook callback is registered */
+>>>>>> +    if (!vcpu->kvm->arch.crypto.pqap_hook)
+>>>>>> +        return -EOPNOTSUPP;
+>>>>>> +    /* Verify that the AP instruction are available */
+>>>>>> +    if (!ap_instructions_available())
+>>>>>> +        return -EOPNOTSUPP;
+>>>>>> +    /* Verify that the guest is allowed to use AP instructions */
+>>>>>> +    if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+>>>>>> +        return -EOPNOTSUPP;
+>>>>>> +    /* Verify that the function code is AQIC */
+>>>>>> +    fc = vcpu->run->s.regs.gprs[0] >> 24;
+>>>>>> +    if (fc != 0x03)
+>>>>>> +        return -EOPNOTSUPP;
+>>>>>
+>>>>> This does not belong here. Function code 3 is one of 7 function codes
+>>>>> that can be sent with the PQAP instruction. This belongs in the PQAP
+>>>>> hook code.
+>>>>
+>>>> On one hand, effectively I would prefer to put the code in the VFIO
+>>>> driver code.
+>>>> On the other hand, doing this would lead to export the code for
+>>>> test_kvm_facility() and kvm_s390_inject_program_int() from the 
+>>>> kvm-s390.h
+>>>>
+>>>> I choose not to export these functions from the KVM code.
+>>>>
+>>>> Would like opinion from KVM maintainers?
+>>>
+>>> Looking at this (and without access to the specification...), I think
+>>> the check for problem state makes sense in here (if this applies to all
+>>> PQAP functions equally, which seems likely). The check for the facility
+>>> makes more sense in the handler. You can probably still inject the
+>>> specification exception here if you use a clever return code.
+>>>
+>>
+>> If there is no objection on exporting the KVM functions... I can do this.
 > 
-> In the AP PQAP instruction hook, if we receive a demand to
-> enable IRQs,
-> - we retrieve the vfio_ap_queue based on the APQN we receive
->   in REG1,
-> - we retrieve the page of the guest address, (NIB), from
->   register REG2
-> - we the mediated device to use the VFIO pinning infratrsucture
->   to pin the page of the guest address,
-> - we retrieve the pointer to KVM to register the guest ISC
->   and retrieve the host ISC
-> - finaly we activate GISA
-> 
-> If we receive a demand to disable IRQs,
-> - we deactivate GISA
-> - unregister from the GIB
-> - unping the NIB
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
+> I do not understand why you would have to export KVM functions to place
+> the check for FC 0x03 in the pqap hook? What am I missing here? Maybe
+> you misunderstood my comment?
 
-[..]
+No I did not but in between I discovered an error in the handling of the 
+interception of PQAP/AQIC.
 
-> +static int handle_pqap(struct kvm_vcpu *vcpu)
-> +{
-> +	uint64_t status;
-> +	uint16_t apqn;
-> +	struct vfio_ap_queue *q;
-> +	struct ap_queue_status qstatus = {};
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +
-> +	/* If we do not use the AIV facility just go to userland */
-> +	if (!(vcpu->arch.sie_block->eca & ECA_AIV))
-> +		return -EOPNOTSUPP;
-> +
-> +	apqn = vcpu->run->s.regs.gprs[0] & 0xffff;
-> +	q = vfio_ap_get_queue(apqn);
-> +	if (!q) {
-> +		qstatus.response_code = AP_RESPONSE_Q_NOT_AVAIL;
-> +		goto out;
-> +	}
-> +
-> +	/* Check if the queue is associated with a guest matrix */
-> +	matrix_mdev = q->matrix;
-> +	if (!matrix_mdev || !matrix_mdev->kvm) {
-> +		qstatus.response_code = AP_RESPONSE_DECONFIGURED;
-> +		goto out;
-> +	}
-> +
-> +	status = vcpu->run->s.regs.gprs[1];
-> +
-> +	/* If IR bit(16) is set we enable the interrupt */
-> +	if ((status >> (63 - 16)) & 0x01) {
-> +		q->isc = status & 0x07;
-> +		q->nib = vcpu->run->s.regs.gprs[2];
+QEMU and KVM can both accept PQAP/AQIC even if the vfio_ap driver is not 
+loaded.
+However now that the guest officially get the PQAP/AQIC instruction we 
+need to handle the specification and operation exceptions inside KVM
+_before_ testing and even calling the driver hook.
 
-Careful! You may already have q->nib set (may or may not be a 0x07
-scenario). You should unpin the old nib if set interruption controls
-works out, if we get 0x07 response then you unpin the new one.
-
-
-> +		qstatus = vfio_ap_setirq(q);
-> +		if (qstatus.response_code) {
-> +			q->nib = 0;
-> +			q->isc = 0;
-> +		}
-> +	} else
-> +		qstatus = vfio_ap_clrirq(q);
-> +
-> +out:
-> +	memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus));
-> +	vfio_ap_put_queue(q);
-> +	return 0;
-> +}
-
-[..]
-
->  
-> @@ -877,11 +1052,15 @@ static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
->  				    unsigned int retry)
->  {
->  	struct ap_queue_status status;
-> +	struct vfio_ap_queue *q;
-> +
-> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
->  
->  	do {
->  		status = ap_zapq(AP_MKQID(apid, apqi));
->  		switch (status.response_code) {
->  		case AP_RESPONSE_NORMAL:
-
-You could do the get queue here
-
-> +			vfio_ap_free_irq(q);
-
-And the put here.
-
+I will make the changes in the next iteration.
 
 Regards,
-Halil
+Pierre
 
->  			return 0;
->  		case AP_RESPONSE_RESET_IN_PROGRESS:
->  		case AP_RESPONSE_BUSY:
-> @@ -999,6 +1178,11 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
->  	if (ret)
->  		goto err_group;
->  
-> +	if (!matrix_mdev->kvm) {
-> +		ret = -ENODEV;
-> +		goto err_iommu;
-> +	}
-> +
->  	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
->  	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
->  
 
-[..]
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
