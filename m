@@ -1,30 +1,32 @@
-From: Bart Van Assche <bvanassche@acm.org>
-Subject: Re: [PATCH] scsi: replace GFP_ATOMIC with GFP_KERNEL for sdev
- allocation
-Date: Wed, 20 Feb 2019 11:11:31 -0800
-Message-ID: <1550689891.93548.31.camel@acm.org>
-References: <20190220184847.24640-1-bblock@linux.ibm.com>
+Return-Path: <SRS0=K4f4=Q4=vger.kernel.org=netdev-owner@kernel.org>
+Date: Thu, 21 Feb 2019 10:20:55 -0800 (PST)
+Message-Id: <20190221.102055.331192649932336315.davem@davemloft.net>
+Subject: Re: [PATCH net 1/1] net/smc: fix smc_poll in SMC_INIT state
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190221115654.3889-1-ubraun@linux.ibm.com>
+References: <20190221115654.3889-1-ubraun@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-7"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190220184847.24640-1-bblock@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: Benjamin Block <bblock@linux.ibm.com>, "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Steffen Maier <maier@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/netdev/>
+List-Post: <mailto:netdev@vger.kernel.org>
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 2019-02-20 at 19:48 +-0100, Benjamin Block wrote:
-+AD4 We had a test-report where, under memory pressure, adding LUNs to the
-+AD4 systems would fail (the tests add LUNs strictly in sequence):
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Thu, 21 Feb 2019 12:56:54 +0100
 
-Hi Benjamin,
+> smc_poll() returns with mask bit EPOLLPRI if the connection urg_state
+> is SMC_URG_VALID. Since SMC_URG_VALID is zero, smc_poll signals
+> EPOLLPRI errorneously if called in state SMC_INIT before the connection
+> is created, for instance in a non-blocking connect scenario.
+> 
+> This patch switches to non-zero values for the urg states.
+> 
+> Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+> Fixes: de8474eb9d50 ("net/smc: urgent data support")
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 
-There are two more instances of GFP+AF8-ATOMIC in scsi+AF8-scan.c. Have you verified
-whether or not it is safe to change these into GFP+AF8-KERNEL too?
-
-Thanks,
-
-Bart.
+Applied and queued up for -stable.
