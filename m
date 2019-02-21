@@ -1,4 +1,5 @@
 Return-Path: <SRS0=r0+/=Q4=vger.kernel.org=linux-kernel-owner@kernel.org>
+Reply-To: pmorel@linux.ibm.com
 Subject: Re: [PATCH v2 1/1] s390: vfio_ap: link the vfio_ap devices to the
  vfio_ap bus subsystem
 References: <1550513328-12646-1-git-send-email-pmorel@linux.ibm.com>
@@ -10,31 +11,43 @@ References: <1550513328-12646-1-git-send-email-pmorel@linux.ibm.com>
  <fd574b7b-7c2f-eeea-1d53-caadcd2fed48@linux.ibm.com>
  <d2eb352c-274b-5c1d-0c3c-33e13eff2c88@de.ibm.com>
  <d9158e3f-e2c2-bb65-c9e9-a342fa2518d7@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 21 Feb 2019 14:01:12 +0100
+ <6c01a5e2-3a51-4300-5960-441ff7c4b820@de.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 21 Feb 2019 14:20:52 +0100
 MIME-Version: 1.0
-In-Reply-To: <d9158e3f-e2c2-bb65-c9e9-a342fa2518d7@linux.ibm.com>
+In-Reply-To: <6c01a5e2-3a51-4300-5960-441ff7c4b820@de.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
-Message-Id: <6c01a5e2-3a51-4300-5960-441ff7c4b820@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Message-Id: <817666da-1615-5874-0c50-3b9c6f8b07ad@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: pmorel@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 Cc: Tony Krowiak <akrowiak@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21.02.2019 13:51, Pierre Morel wrote:
-> On 21/02/2019 13:35, Christian Borntraeger wrote:
->>
->>
-[..]
-
->> Go ahead and send this as v3?
->>
+On 21/02/2019 14:01, Christian Borntraeger wrote:
+> On 21.02.2019 13:51, Pierre Morel wrote:
+>> On 21/02/2019 13:35, Christian Borntraeger wrote:
+>>>
+>>>
+> [..]
 > 
-> OK
-> CC stable ?
+>>> Go ahead and send this as v3?
+>>>
+>>
+>> OK
+>> CC stable ?
+> 
+> Yes, also add a "Fixes:" tag.
+> 
 
-Yes, also add a "Fixes:" tag.
+Yes, I will not forget this time :)
+
+Thanks
+Pierre
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
