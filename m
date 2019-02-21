@@ -1,86 +1,80 @@
-Return-Path: <SRS0=cBqk=QM=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=r0+/=Q4=vger.kernel.org=linux-kernel-owner@kernel.org>
 Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
 References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
- <20190131105555.4af6d8ea.cohuck@redhat.com>
- <2bb57977-bf03-f0c9-abd9-8baa74d31f8a@linux.ibm.com>
- <20190201153522.4f72cf00.cohuck@redhat.com>
- <26ec5e3e-de2c-ad82-825d-d20ba52c8937@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Date: Tue, 5 Feb 2019 15:30:45 -0500
+ <alpine.LFD.2.21.1901301912380.2372@schleppi>
+From: Harald Freudenberger <freude@linux.ibm.com>
+Date: Thu, 21 Feb 2019 11:42:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <26ec5e3e-de2c-ad82-825d-d20ba52c8937@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <alpine.LFD.2.21.1901301912380.2372@schleppi>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <13b5a2b8-3deb-174f-660c-78282bda3f36@linux.ibm.com>
+Content-Language: en-US
+Message-Id: <d0e1ef87-8fc7-ea13-3dba-6abf1a28a446@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com
+To: Sebastian Ott <sebott@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, oberpar@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, cohuck@redhat.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 2/4/19 5:15 AM, Harald Freudenberger wrote:
-> On 01.02.19 15:35, Cornelia Huck wrote:
->> On Thu, 31 Jan 2019 18:50:57 -0500
->> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>
->>> On 1/31/19 4:55 AM, Cornelia Huck wrote:
->>>> On Wed, 30 Jan 2019 12:48:46 -0500
->>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>> Two questions:
->>>> - Does the event cover _any_ change to the AP configuration, or can the
->>>>     periodic scan detect changes that are not signaled?
->>> It can detect any change, such as a change to the CRYCB masks.
->> Nice. I suppose we can not rely on those messages being generated,
->> though, and therefore need to keep the periodic scan...
-> As you wrote, I am not sure if the ap bus code can rely on this to
-> cover all changes. For kvm guests I think it is currently not working
-> as there is no such notification generated at all. So I'd like to
-> have the periodic scan in place.
+On 30.01.19 19:32, Sebastian Ott wrote:
+> On Wed, 30 Jan 2019, Tony Krowiak wrote:
+>> +#if IS_ENABLED(CONFIG_ZCRYPT)
+>> +void ap_bus_cfg_chg(void);
+>> +#else
+>> +#error "no CONFIG_ZCRYPT"
+>    ^
+> I don't think that's the right thing to do here.
+>
+>
+>> +++ b/drivers/s390/cio/chsc.h
+>> @@ -9,6 +9,7 @@
+>>  #include <asm/chsc.h>
+>>  #include <asm/schid.h>
+>>  #include <asm/qdio.h>
+>> +#include <asm/ap.h>
+> This should be moved to chsc.c
+>
+>
+>> +++ b/drivers/s390/crypto/ap_bus.c
+>> @@ -35,6 +35,7 @@
+>>  #include <linux/mod_devicetable.h>
+>>  #include <linux/debugfs.h>
+>>  #include <linux/ctype.h>
+>> +#include <asm/crw.h>
+> This is not needed here.
+>
+>
+>>  /*
+>> +* A config change has happened, Force an ap bus rescan.
+>> +*/
+>> +void ap_bus_cfg_chg(void)
+>> +{
+>> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
+>> +
+>> +	ap_bus_force_rescan();
+>> +}
+>> +EXPORT_SYMBOL(ap_bus_cfg_chg);
+> There is no need for the export symbol - you don't call that function
+> from module code.
+That's what I have learned now: You don't need to export a symbol
+as long as the symbol is only called in static code parts of the kernel.
+But you need to export it when it is intended to be used by code
+which sits in a kernel module. So now the big question:
+How does a provider of a function in the kernel know, if the caller is in static
+code or in module code ? And ... maybe this may even change over
+the time. So my recommendation is to always export the symbol with
+the EXPORT_SYMBOL macro. This way you don't need to change the
+code providing a function when the caller code changes or additional
+code uses the symbol.
 
-I verified that a dynamic change to the CRYCB (via the SE) is not
-signaled by CHSC Adjunct Processor changed notification. Apparently only
-configuration changes are signaled, so we will definitely need to keep
-the scan unless somebody knows otherwise.
+Other opinions ?
 
-Tony K
 
->>
->>>> - Do we want to generate such an event in QEMU on plugging/unplugging
->>>>     the vfio-ap device?
->>> We've discussed this quite a bit internally and decided not to implement
->>> that at this time. We will address it as a future enhancement.
->> Ok, but I think it would be nice to have.
->>
->>>>> diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
->>>>> index a0baee25134c..dccccc337078 100644
->>>>> --- a/drivers/s390/cio/chsc.c
->>>>> +++ b/drivers/s390/cio/chsc.c
->>>>> @@ -586,6 +586,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
->>>>>    			      " failed (rc=%d).\n", ret);
->>>>>    }
->>>>>    
->>>>> +static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
->>>>> +{
->>>>> +	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
->>>>> +	if (sei_area->rs != 5)
->>>>> +		return;
->>>> I'm guessing that a reporting source of 5 means ap, right? (The code is
->>>> silent on all those magic rs values :/)
->>> The 5 indicates the accessibility of one or more adjunct processors has
->>> changed. The reason this gets called is because the CC sent with the
->>> instruction indicates the AP configuration has changed, so the reporting
->>> belongs where it is. There is only one RS associated with it.
->> So if we'd ever get there anything but rs == 5, it would be a hardware
->> or hypervisor bug? Then the code makes sense, I guess.
->>
->>>> If so, should the debug logging be moved after the check?
->>> covered in the response above.
->>>
->>>>    
->>>>> +
->>>>> +	ap_bus_cfg_chg();
->>>>> +}
->>>>> +
-> 
+> As an unrelated question, just to be sure: ap_bus.c is compiled as
+> built-in even with ZCRYPT=m, right?
+>
+> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+>
+> Regards,
+> Sebastian
