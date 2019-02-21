@@ -1,45 +1,25 @@
 Return-Path: <SRS0=K4f4=Q4=vger.kernel.org=netdev-owner@kernel.org>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 1/1] net/smc: fix smc_poll in SMC_INIT state
-Date: Thu, 21 Feb 2019 12:56:54 +0100
-Message-Id: <20190221115654.3889-1-ubraun@linux.ibm.com>
+Date: Thu, 21 Feb 2019 10:36:37 -0800 (PST)
+Message-Id: <20190221.103637.275426241274530601.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/6] net/smc: patches 2019-02-21
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190221120103.10866-1-ubraun@linux.ibm.com>
+References: <20190221120103.10866-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-smc_poll() returns with mask bit EPOLLPRI if the connection urg_state
-is SMC_URG_VALID. Since SMC_URG_VALID is zero, smc_poll signals
-EPOLLPRI errorneously if called in state SMC_INIT before the connection
-is created, for instance in a non-blocking connect scenario.
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Thu, 21 Feb 2019 13:00:57 +0100
 
-This patch switches to non-zero values for the urg states.
+> here are patches for SMC:
+> * patch 1 is a cleanup without functional change
+> * patches 2-6 enhance SMC pnetid support
 
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Fixes: de8474eb9d50 ("net/smc: urgent data support")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 5721416d0605..adbdf195eb08 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -113,9 +113,9 @@ struct smc_host_cdc_msg {		/* Connection Data Control message */
- } __aligned(8);
- 
- enum smc_urg_state {
--	SMC_URG_VALID,			/* data present */
--	SMC_URG_NOTYET,			/* data pending */
--	SMC_URG_READ			/* data was already read */
-+	SMC_URG_VALID	= 1,			/* data present */
-+	SMC_URG_NOTYET	= 2,			/* data pending */
-+	SMC_URG_READ	= 3,			/* data was already read */
- };
- 
- struct smc_connection {
--- 
-2.16.4
+Series applied, thanks.
