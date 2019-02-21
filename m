@@ -1,5 +1,4 @@
 Return-Path: <SRS0=r0+/=Q4=vger.kernel.org=linux-kernel-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
 Subject: Re: [PATCH v2 1/1] s390: vfio_ap: link the vfio_ap devices to the
  vfio_ap bus subsystem
 References: <1550513328-12646-1-git-send-email-pmorel@linux.ibm.com>
@@ -10,101 +9,32 @@ References: <1550513328-12646-1-git-send-email-pmorel@linux.ibm.com>
  <20190220135108.49f8f891@oc2783563651>
  <fd574b7b-7c2f-eeea-1d53-caadcd2fed48@linux.ibm.com>
  <d2eb352c-274b-5c1d-0c3c-33e13eff2c88@de.ibm.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 21 Feb 2019 13:51:24 +0100
+ <d9158e3f-e2c2-bb65-c9e9-a342fa2518d7@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 21 Feb 2019 14:01:12 +0100
 MIME-Version: 1.0
-In-Reply-To: <d2eb352c-274b-5c1d-0c3c-33e13eff2c88@de.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+In-Reply-To: <d9158e3f-e2c2-bb65-c9e9-a342fa2518d7@linux.ibm.com>
 Content-Language: en-US
+Message-Id: <6c01a5e2-3a51-4300-5960-441ff7c4b820@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <d9158e3f-e2c2-bb65-c9e9-a342fa2518d7@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: pmorel@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 Cc: Tony Krowiak <akrowiak@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 21/02/2019 13:35, Christian Borntraeger wrote:
-> 
-> 
-> On 21.02.2019 13:10, Pierre Morel wrote:
->> On 20/02/2019 13:51, Halil Pasic wrote:
->>> On Wed, 20 Feb 2019 10:27:31 +0100
->>> Cornelia Huck <cohuck@redhat.com> wrote:
->>>
->>>> On Tue, 19 Feb 2019 22:31:17 +0100
->>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>>
->>>>> On 19/02/2019 19:52, Tony Krowiak wrote:
->>>>>> On 2/18/19 1:08 PM, Pierre Morel wrote:
->>>>>>> Libudev relies on having a subsystem link for non-root devices. To
+On 21.02.2019 13:51, Pierre Morel wrote:
+> On 21/02/2019 13:35, Christian Borntraeger wrote:
 >>
->> ...snip...
 >>
->>>>>>> +
->>>>>>> +static struct device_driver matrix_driver = {
->>>>>>> +    .name = "vfio_ap",
->>>>>>
->>>>>> This is the same name used for the original device driver. I think
->>>>>> this driver ought to have a different name to avoid confusion.
->>>>>> How about vfio_ap_matrix or some other name to differentiate the
->>>>>> two.
->>>>>
->>>>> I would like too, but changing this will change the path to the mediated
->>>>> device supported type.
->>>>
->>>> Yes, we don't want to change that.
->>>>
->>>
->>> Nod.
->>
->> However if I cannot change the driver name, I can change the bus name to matrix.
->> At least one less "vfio_ap" name
->>
->>>
->>>>>
->>>>>
->>>>>>    
->>>>>>> +    .bus = &matrix_bus,
->>>>>>> +    .probe = matrix_probe,
->>>>>>
->>>>>> I would add:
->>>>>>        .suppress_bind_attrs = true;
->>>>>>
->>>>>> This will remove the sysfs bind/unbind interfaces. Since there is only
->>>>>> one matrix device and it's lifecycle is controlled herein, there is no
->>>>>> sense in allowing a root user to bind/unbind it.
->>>>>>     
->>>>>
->>>>> OTOH bind/unbind has no impact.
->>>>> If no one else ask for this I will not change what has already been
->>>>> reviewed by Conny and Christian.
->>>>
->>>> As we only have one driver, it does not really make sense anyway.
->>>>
->>>
->>> I see this as a reason to suppress_bind_attrs. It is much easier than to
->>> think about what should happen when one unbinds the matrix device from
->>> the vfio_ap driver on the vfio_ap bus. With the code as is it seems to
->>> just keep working as if nothing happened.
->>> And /sys/devices/vfio_ap/matrix/mdev_supported_types/ referencing the
->>> name of the driver that is already gone sounds a bit weird.
->>>
->>> Regards,
->>> Halil
->>>
->>
->> If there is no objection I will do this,
->> It seems more logical to me too.
-> 
-> Go ahead and send this as v3?
-> 
+[..]
 
-OK
-CC stable ?
+>> Go ahead and send this as v3?
+>>
+> 
+> OK
+> CC stable ?
 
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Yes, also add a "Fixes:" tag.
