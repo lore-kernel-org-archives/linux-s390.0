@@ -1,242 +1,67 @@
-Return-Path: <SRS0=K4f4=Q4=vger.kernel.org=netdev-owner@kernel.org>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 4/6] net/smc: add smcd support to the pnet table
-Date: Thu, 21 Feb 2019 13:01:01 +0100
-In-Reply-To: <20190221120103.10866-1-ubraun@linux.ibm.com>
-References: <20190221120103.10866-1-ubraun@linux.ibm.com>
-Message-Id: <20190221120103.10866-5-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
+Return-Path: <SRS0=r0+/=Q4=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Thu, 21 Feb 2019 13:55:02 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] zcrypt: handle AP Info notification from CHSC SEI command
+References: <1548870526-30595-1-git-send-email-akrowiak@linux.ibm.com>
+ <alpine.LFD.2.21.1901301912380.2372@schleppi>
+ <d0e1ef87-8fc7-ea13-3dba-6abf1a28a446@linux.ibm.com>
+ <20190221131240.0ab463d1.cohuck@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <20190221131240.0ab463d1.cohuck@redhat.com>
+Message-Id: <20190221125502.GB4221@osiris>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, oberpar@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Hans Wippel <hwippel@linux.ibm.com>
+On Thu, Feb 21, 2019 at 01:12:40PM +0100, Cornelia Huck wrote:
+> On Thu, 21 Feb 2019 11:42:25 +0100
+> Harald Freudenberger <freude@linux.ibm.com> wrote:
+> 
+> > On 30.01.19 19:32, Sebastian Ott wrote:
+> > > On Wed, 30 Jan 2019, Tony Krowiak wrote:  
+> 
+> > >>  /*
+> > >> +* A config change has happened, Force an ap bus rescan.
+> > >> +*/
+> > >> +void ap_bus_cfg_chg(void)
+> > >> +{
+> > >> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
+> > >> +
+> > >> +	ap_bus_force_rescan();
+> > >> +}
+> > >> +EXPORT_SYMBOL(ap_bus_cfg_chg);  
+> > > There is no need for the export symbol - you don't call that function
+> > > from module code.  
+> > That's what I have learned now: You don't need to export a symbol
+> > as long as the symbol is only called in static code parts of the kernel.
+> > But you need to export it when it is intended to be used by code
+> > which sits in a kernel module. So now the big question:
+> > How does a provider of a function in the kernel know, if the caller is in static
+> > code or in module code ? And ... maybe this may even change over
+> > the time. So my recommendation is to always export the symbol with
+> > the EXPORT_SYMBOL macro. This way you don't need to change the
+> > code providing a function when the caller code changes or additional
+> > code uses the symbol.
+> > 
+> > Other opinions ?
+> 
+> Well, if you know it will be called from module code in upcoming
+> patches, export it. If not, I consider it the choice of the maintainer.
+> You can easily add the export later on, if needed, anyway, and I don't
+> consider changing the code a problem.
+> 
+> In this particular case, both exporting and not exporting looked like
+> reasonable choices to me.
 
-Currently, users can only set pnetids for netdevs and ib devices in the
-pnet table. This patch adds support for smcd devices to the pnet table.
+The number of exported symbols should be as small as possible. Each
+exported symbol eats up extra memory for meta information, plus I
+really do not want to deal with semi-automated bots sending patches to
+remove not needed exported symbols.
 
-Signed-off-by: Hans Wippel <hwippel@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- include/net/smc.h  |  1 +
- net/smc/smc_pnet.c | 87 +++++++++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 81 insertions(+), 7 deletions(-)
-
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 9ef49f8b1002..bd9c0fb3b577 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -74,6 +74,7 @@ struct smcd_dev {
- 	struct list_head vlan;
- 	struct workqueue_struct *event_wq;
- 	u8 pnetid[SMC_MAX_PNETID_LEN];
-+	bool pnetid_by_user;
- };
- 
- struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 327bf2afe820..5497a8b44287 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -66,6 +66,7 @@ static struct smc_pnettable {
-  * @ndev: pointer to network device.
-  * @smcibdev: Pointer to IB device.
-  * @ib_port: Port of IB device.
-+ * @smcd_dev: Pointer to smcd device.
-  */
- struct smc_user_pnetentry {
- 	struct list_head list;
-@@ -73,6 +74,7 @@ struct smc_user_pnetentry {
- 	struct net_device *ndev;
- 	struct smc_ib_device *smcibdev;
- 	u8 ib_port;
-+	struct smcd_dev *smcd_dev;
- };
- 
- /* pnet entry stored in pnet table */
-@@ -103,6 +105,7 @@ static int smc_pnet_remove_by_pnetid(char *pnet_name)
- {
- 	struct smc_pnetentry *pnetelem, *tmp_pe;
- 	struct smc_ib_device *ibdev;
-+	struct smcd_dev *smcd_dev;
- 	int rc = -ENOENT;
- 	int ibport;
- 
-@@ -135,6 +138,18 @@ static int smc_pnet_remove_by_pnetid(char *pnet_name)
- 		}
- 	}
- 	spin_unlock(&smc_ib_devices.lock);
-+	/* remove smcd devices */
-+	spin_lock(&smcd_dev_list.lock);
-+	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
-+		if (smcd_dev->pnetid_by_user &&
-+		    (!pnet_name ||
-+		     smc_pnet_match(pnet_name, smcd_dev->pnetid))) {
-+			memset(smcd_dev->pnetid, 0, SMC_MAX_PNETID_LEN);
-+			smcd_dev->pnetid_by_user = false;
-+			rc = 0;
-+		}
-+	}
-+	spin_unlock(&smcd_dev_list.lock);
- 	return rc;
- }
- 
-@@ -168,6 +183,7 @@ static int smc_pnet_enter(struct smc_user_pnetentry *new_pnetelem)
- 	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
- 	struct smc_pnetentry *tmp_pnetelem;
- 	struct smc_pnetentry *pnetelem;
-+	bool new_smcddev = false;
- 	struct net_device *ndev;
- 	bool new_netdev = true;
- 	bool new_ibdev = false;
-@@ -185,9 +201,21 @@ static int smc_pnet_enter(struct smc_user_pnetentry *new_pnetelem)
- 		}
- 		spin_unlock(&smc_ib_devices.lock);
- 	}
-+	if (new_pnetelem->smcd_dev) {
-+		struct smcd_dev *smcd_dev = new_pnetelem->smcd_dev;
-+
-+		spin_lock(&smcd_dev_list.lock);
-+		if (smc_pnet_match(smcd_dev->pnetid, pnet_null)) {
-+			memcpy(smcd_dev->pnetid, new_pnetelem->pnet_name,
-+			       SMC_MAX_PNETID_LEN);
-+			smcd_dev->pnetid_by_user = true;
-+			new_smcddev = true;
-+		}
-+		spin_unlock(&smcd_dev_list.lock);
-+	}
- 
- 	if (!new_pnetelem->ndev)
--		return new_ibdev ? 0 : -EEXIST;
-+		return (new_ibdev || new_smcddev) ? 0 : -EEXIST;
- 
- 	/* check if (base) netdev already has a pnetid. If there is one, we do
- 	 * not want to add a pnet table entry
-@@ -195,7 +223,7 @@ static int smc_pnet_enter(struct smc_user_pnetentry *new_pnetelem)
- 	ndev = pnet_find_base_ndev(new_pnetelem->ndev);
- 	if (!smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
- 				    ndev_pnetid))
--		return new_ibdev ? 0 : -EEXIST;
-+		return (new_ibdev || new_smcddev) ? 0 : -EEXIST;
- 
- 	/* add a new netdev entry to the pnet table if there isn't one */
- 	tmp_pnetelem = kzalloc(sizeof(*pnetelem), GFP_KERNEL);
-@@ -219,7 +247,7 @@ static int smc_pnet_enter(struct smc_user_pnetentry *new_pnetelem)
- 		kfree(tmp_pnetelem);
- 	}
- 
--	return (new_netdev || new_ibdev) ? 0 : -EEXIST;
-+	return (new_netdev || new_ibdev || new_smcddev) ? 0 : -EEXIST;
- }
- 
- /* The limit for pnetid is 16 characters.
-@@ -267,6 +295,23 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
- 	return ibdev;
- }
- 
-+/* Find an smcd device by a given name. The device might not exist. */
-+static struct smcd_dev *smc_pnet_find_smcd(char *smcd_name)
-+{
-+	struct smcd_dev *smcd_dev;
-+
-+	spin_lock(&smcd_dev_list.lock);
-+	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
-+		if (!strncmp(dev_name(&smcd_dev->dev), smcd_name,
-+			     IB_DEVICE_NAME_MAX - 1))
-+			goto out;
-+	}
-+	smcd_dev = NULL;
-+out:
-+	spin_unlock(&smcd_dev_list.lock);
-+	return smcd_dev;
-+}
-+
- /* Parse the supplied netlink attributes and fill a pnetentry structure.
-  * For ethernet and infiniband device names verify that the devices exist.
-  */
-@@ -300,7 +345,8 @@ static int smc_pnet_fill_entry(struct net *net,
- 		ibname = (char *)nla_data(tb[SMC_PNETID_IBNAME]);
- 		ibname = strim(ibname);
- 		pnetelem->smcibdev = smc_pnet_find_ib(ibname);
--		if (!pnetelem->smcibdev)
-+		pnetelem->smcd_dev = smc_pnet_find_smcd(ibname);
-+		if (!pnetelem->smcibdev && !pnetelem->smcd_dev)
- 			goto error;
- 		if (pnetelem->smcibdev) {
- 			if (!tb[SMC_PNETID_IBPORT])
-@@ -339,6 +385,11 @@ static int smc_pnet_set_nla(struct sk_buff *msg,
- 				   pnetelem->smcibdev->ibdev->name) ||
- 		    nla_put_u8(msg, SMC_PNETID_IBPORT, pnetelem->ib_port))
- 			return -1;
-+	} else if (pnetelem->smcd_dev) {
-+		if (nla_put_string(msg, SMC_PNETID_IBNAME,
-+				   dev_name(&pnetelem->smcd_dev->dev)) ||
-+		    nla_put_u8(msg, SMC_PNETID_IBPORT, 1))
-+			return -1;
- 	} else {
- 		if (nla_put_string(msg, SMC_PNETID_IBNAME, "n/a") ||
- 		    nla_put_u8(msg, SMC_PNETID_IBPORT, 0xff))
-@@ -400,6 +451,7 @@ static int _smc_pnet_dump(struct sk_buff *skb, u32 portid, u32 seq, u8 *pnetid,
- 	struct smc_user_pnetentry tmp_entry;
- 	struct smc_pnetentry *pnetelem;
- 	struct smc_ib_device *ibdev;
-+	struct smcd_dev *smcd_dev;
- 	int idx = 0;
- 	int ibport;
- 
-@@ -450,6 +502,27 @@ static int _smc_pnet_dump(struct sk_buff *skb, u32 portid, u32 seq, u8 *pnetid,
- 	}
- 	spin_unlock(&smc_ib_devices.lock);
- 
-+	/* dump smcd devices */
-+	spin_lock(&smcd_dev_list.lock);
-+	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
-+		if (smcd_dev->pnetid_by_user) {
-+			if (pnetid && !smc_pnet_match(smcd_dev->pnetid, pnetid))
-+				continue;
-+			if (idx++ < start_idx)
-+				continue;
-+			memset(&tmp_entry, 0, sizeof(tmp_entry));
-+			memcpy(&tmp_entry.pnet_name, smcd_dev->pnetid,
-+			       SMC_MAX_PNETID_LEN);
-+			tmp_entry.smcd_dev = smcd_dev;
-+			if (smc_pnet_dumpinfo(skb, portid, seq, NLM_F_MULTI,
-+					      &tmp_entry)) {
-+				--idx;
-+				break;
-+			}
-+		}
-+	}
-+	spin_unlock(&smcd_dev_list.lock);
-+
- 	return idx;
- }
- 
-@@ -666,12 +739,13 @@ static void smc_pnet_find_ism_by_pnetid(struct net_device *ndev,
- 
- 	ndev = pnet_find_base_ndev(ndev);
- 	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
--				   ndev_pnetid))
-+				   ndev_pnetid) &&
-+	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid))
- 		return; /* pnetid could not be determined */
- 
- 	spin_lock(&smcd_dev_list.lock);
- 	list_for_each_entry(ismdev, &smcd_dev_list.list, list) {
--		if (!memcmp(ismdev->pnetid, ndev_pnetid, SMC_MAX_PNETID_LEN)) {
-+		if (smc_pnet_match(ismdev->pnetid, ndev_pnetid)) {
- 			*smcismdev = ismdev;
- 			break;
- 		}
-@@ -715,7 +789,6 @@ void smc_pnet_find_ism_resource(struct sock *sk, struct smcd_dev **smcismdev)
- 	if (!dst->dev)
- 		goto out_rel;
- 
--	/* if possible, lookup via hardware-defined pnetid */
- 	smc_pnet_find_ism_by_pnetid(dst->dev, smcismdev);
- 
- out_rel:
--- 
-2.16.4
+You can check usage of exported symbols with "make export_report".
