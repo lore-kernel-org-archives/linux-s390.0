@@ -1,74 +1,34 @@
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH v2 2/2] scsi: whitespace cleanup in scsi_scan.c
-Date: Thu, 21 Feb 2019 10:18:01 +0100
-Message-ID: <b6078c66923536b3086a8b9ca528ac0711ae8139.1550740533.git.bblock@linux.ibm.com>
-References: <20190220184847.24640-1-bblock@linux.ibm.com> <c5bd5a82d1250471822cbf5891ea1866166cd9e6.1550740533.git.bblock@linux.ibm.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [PATCH v2 1/2] scsi: replace GFP_ATOMIC with GFP_KERNEL for
+ allocations in scsi_scan.c
+Date: Thu, 21 Feb 2019 10:45:19 -0800
+Message-ID: <1550774719.31902.137.camel@acm.org>
+References: <20190220184847.24640-1-bblock@linux.ibm.com>
+         <c5bd5a82d1250471822cbf5891ea1866166cd9e6.1550740533.git.bblock@linux.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-7"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <c5bd5a82d1250471822cbf5891ea1866166cd9e6.1550740533.git.bblock@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-scsi/>
 List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
+To: Benjamin Block <bblock@linux.ibm.com>, "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Noticed during editing that vim would remove some trailing spaces.
+On Thu, 2019-02-21 at 10:18 +-0100, Benjamin Block wrote:
++AD4 Looking at the code of scsi+AF8-alloc+AF8-sdev(), and all the calling contexts,
++AD4 there seems to be no reason to use GFP+AF8-ATMOIC here. All the different
++AD4 call-contexts use a mutex at some point, and nothing in between that
++AD4 requires no sleeping, as far as I could see. Additionally, the code that
++AD4 later allocates the block queue for the device (scsi+AF8-mq+AF8-alloc+AF8-queue())
++AD4 already uses GFP+AF8-KERNEL.
++AD4 
++AD4 
++AD4 +AFs ... +AF0
++AD4
++AD4 So replace all these, and give them a bit of a better chance to succeed,
++AD4 with more chances of reclaim.
 
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- drivers/scsi/scsi_scan.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 53380e07b40e..7e1a6c3dd42c 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -108,7 +108,7 @@ MODULE_PARM_DESC(scan, "sync, async, manual, or none. "
- static unsigned int scsi_inq_timeout = SCSI_TIMEOUT/HZ + 18;
- 
- module_param_named(inq_timeout, scsi_inq_timeout, uint, S_IRUGO|S_IWUSR);
--MODULE_PARM_DESC(inq_timeout, 
-+MODULE_PARM_DESC(inq_timeout,
- 		 "Timeout (in seconds) waiting for devices to answer INQUIRY."
- 		 " Default is 20. Some devices may need more; most need less.");
- 
-@@ -604,7 +604,7 @@ static int scsi_probe_lun(struct scsi_device *sdev, unsigned char *inq_result,
- 			 * not-ready to ready transition [asc/ascq=0x28/0x0]
- 			 * or power-on, reset [asc/ascq=0x29/0x0], continue.
- 			 * INQUIRY should not yield UNIT_ATTENTION
--			 * but many buggy devices do so anyway. 
-+			 * but many buggy devices do so anyway.
- 			 */
- 			if (driver_byte(result) == DRIVER_SENSE &&
- 			    scsi_sense_valid(&sshdr)) {
-@@ -850,7 +850,7 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
- 	 * Don't set the device offline here; rather let the upper
- 	 * level drivers eval the PQ to decide whether they should
- 	 * attach. So remove ((inq_result[0] >> 5) & 7) == 1 check.
--	 */ 
-+	 */
- 
- 	sdev->inq_periph_qual = (inq_result[0] >> 5) & 7;
- 	sdev->lockable = sdev->removable;
-@@ -994,7 +994,7 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
- }
- 
- #ifdef CONFIG_SCSI_LOGGING
--/** 
-+/**
-  * scsi_inq_str - print INQUIRY data from min to max index, strip trailing whitespace
-  * @buf:   Output buffer with at least end-first+1 bytes of space
-  * @inq:   Inquiry buffer (input)
-@@ -1495,7 +1495,7 @@ EXPORT_SYMBOL(__scsi_add_device);
- int scsi_add_device(struct Scsi_Host *host, uint channel,
- 		    uint target, u64 lun)
- {
--	struct scsi_device *sdev = 
-+	struct scsi_device *sdev =
- 		__scsi_add_device(host, channel, target, lun, NULL);
- 	if (IS_ERR(sdev))
- 		return PTR_ERR(sdev);
--- 
-2.20.1
+Reviewed-by: Bart Van Assche +ADw-bvanassche+AEA-acm.org+AD4
