@@ -1,82 +1,109 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 22 Feb 2019 16:44:34 +0000
-Subject: Re: [GIT PULL 00/18] KVM: s390: Features for 5.1
-Message-Id: <4a1c37ee-82bc-55d1-0b3e-8c8e3af692a7@redhat.com>
-In-Reply-To: <1550835749-26436-1-git-send-email-frankja@linux.ibm.com>
-References: <1550835749-26436-1-git-send-email-frankja@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+Date: Fri, 22 Feb 2019 17:02:18 +0000
+Subject: Re: [PULL 1/1] vfio-ccw: Don't assume there are more ccws after a TIC
+Message-Id: <4c5be18d-5e01-4b4d-64ef-59d149272dd8@linux.ibm.com>
+In-Reply-To: <7bca96ab-ad5f-519b-792d-ebcd9124e31c@linux.ibm.com>
+References: <7bca96ab-ad5f-519b-792d-ebcd9124e31c@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 22/02/19 12:42, Janosch Frank wrote:
-> Paolo, Radim,
+
+
+On 02/22/2019 09:56 AM, Eric Farman wrote:
 > 
-> here are the s390 updates for KVM for 5.1. The largest change is the
-> introduction of the GIB, which stores interruptions for guests that
-> have no running vcpu.
-> The "s390/cio: add function chsc_sgib()" patch has been reviewed by
-> our s390 IO maintainer.
 > 
-> The rest is a bit of cleanup and a preparation for processor
-> subfunction cpu model management usage. Some of our instructions
-> indicate, which functions they provide, like different crypto
-> algorithms that are added with new machines.
+> On 02/22/2019 03:27 AM, Cornelia Huck wrote:
+>> On Thu, 21 Feb 2019 20:09:16 +0100
+>> Halil Pasic <pasic@linux.ibm.com> wrote:
+>>
+>>> On Thu, 21 Feb 2019 12:10:32 -0500
+>>> Eric Farman <farman@linux.ibm.com> wrote:
+>>
+>>>> Well, taking the TIC-boundary logic from tic_target_chain_exists() and
+>>>> stuffing it into ccwchain_calc_length() seems to do the trick for 
+>>>> seeing
+>>>> if we're sending a TIC back into our current chain, and makes the dasd
+>>>> boot work again (the following is built on top of this patch, and is
+>>>> surely whitespace damaged):
+>>>>
+>>>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c 
+>>>> b/drivers/s390/cio/vfio_ccw_cp.c
+>>>> index ba08fe137c2e..a4abe7519b7e 100644
+>>>> --- a/drivers/s390/cio/vfio_ccw_cp.c
+>>>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+>>>> @@ -362,6 +362,7 @@ static int ccwchain_calc_length(u64 iova, struct
+>>>> channel_program *cp)
+>>>> �� {
+>>>> ��������� struct ccw1 *ccw, *p;
+>>>> ��������� int cnt;
+>>>> +������ u64 tail;
+>>>>
+>>>> ��������� /*
+>>>> ���������� * Copy current chain from guest to host kernel.
+>>>> @@ -392,7 +393,9 @@ static int ccwchain_calc_length(u64 iova, struct
+>>>> channel_program *cp)
+>>>> ������������������������� return -EOPNOTSUPP;
+>>>> ����������������� }
+>>>>
+>>>> -�������������� if (!ccw_is_chain(ccw))
+>>>> +�������������� tail = iova + (cnt - 1) * sizeof(struct ccw1);
+>>>> +
+>>>> +�������������� if (!(ccw_is_chain(ccw) || (ccw_is_tic(ccw) && iova <=
+>>>> ccw->cda && ccw->cda <= tail)))
+>>>
+>>> After De Morgan this looks like
+>>>
+>>>
+>>> !ccw_is_chain(ccw)) && !(ccw_is_tic(ccw) && tic_points_in_this_chain())
+>>>
+>>> which only differs form the state without the Farhan fix by not carrying
+>>> on for tic's that point outside of this chain.
+>>>
+>>> Would certainly catch the problem you discovered.
+>>>
+>>> Of course there is no guarantee that this covers all the theoretically
+>>> possible cases where we could skip over a ccw that would terminate a 
+>>> chain
+>>> (tic or not chaining) if there was no status modifier. If you like I can
+>>> construct an example where this heuristic fails (at least I think so).
+>>>
+>>> If this is the direction we are going to take I think "vfio-ccw: Don't
+>>> assume there are more ccws after a TIC" should be superseded by this. 
+>>> And
+>>> we need a comment that explains the second part of the expression.
+>>
+>> As that patch is already queued, I think we should do that change with
+>> 'fixes' on top.
+>>
+>> There are probably more corner cases that we're missing, but this fixes
+>> a problem that can be hit today (well, with some posted patches...), so
+>> I'd go ahead and queue it and go through the code and maybe fix/rework
+>> on top.
 > 
-> The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
-> 
->   Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-5.1-1
-> 
-> for you to fetch changes up to 11ba5961a2156a4f210627ed8421387e2531b100:
-> 
->   KVM: s390: add debug logging for cpu model subfunctions (2019-02-22 11:04:35 +0100)
-> 
-> ----------------------------------------------------------------
-> KVM: s390: Features for 5.1
-> 
-> - Clarify KVM related kernel messages
-> - Interrupt cleanup
-> - Introduction of the Guest Information Block (GIB)
-> - Preparation for processor subfunctions in cpu model
-> 
-> ----------------------------------------------------------------
-> Christian Borntraeger (2):
->       KVM: s390: implement subfunction processor calls
->       KVM: s390: add debug logging for cpu model subfunctions
-> 
-> Michael Mueller (16):
->       KVM: s390: clarify kvm related kernel message
->       KVM: s390: drop obsolete else path
->       KVM: s390: make bitmap declaration consistent
->       KVM: s390: move bitmap idle_mask into arch struct top level
->       KVM: s390: coding style kvm_s390_gisa_init/clear()
->       KVM: s390: use pending_irqs_no_gisa() where appropriate
->       KVM: s390: remove kvm_s390_ from gisa static inline functions
->       KVM: s390: introduce struct kvm_s390_gisa_interrupt
->       s390/cio: add function chsc_sgib()
->       KVM: s390: add the GIB and its related life-cyle functions
->       KVM: s390: add kvm reference to struct sie_page2
->       KVM: s390: add functions to (un)register GISC with GISA
->       KVM: s390: kvm_s390_gisa_clear() now clears the IPM only
->       KVM: s390: add gib_alert_irq_handler()
->       KVM: s390: start using the GIB
->       KVM: s390: fix possible null pointer dereference in pending_irqs()
-> 
->  arch/s390/include/asm/cio.h      |   1 +
->  arch/s390/include/asm/irq.h      |   1 +
->  arch/s390/include/asm/isc.h      |   1 +
->  arch/s390/include/asm/kvm_host.h |  37 +++-
->  arch/s390/kernel/irq.c           |   1 +
->  arch/s390/kvm/interrupt.c        | 431 +++++++++++++++++++++++++++++++++++----
->  arch/s390/kvm/kvm-s390.c         | 190 +++++++++++++++--
->  arch/s390/kvm/kvm-s390.h         |   4 +-
->  drivers/s390/cio/chsc.c          |  37 ++++
->  drivers/s390/cio/chsc.h          |   1 +
->  10 files changed, 642 insertions(+), 62 deletions(-)
+> Sounds good.� I will get that posted so we can look it over with fresh 
+> eyes.
 > 
 
-Pulled, thanks.
+Just catching up with my email backlog. This fix will solve the DASD ipl 
+issue and should supersede my patch.
 
-Paolo
+
+>>
+>> Did any of you do any stress testing of that change yet?
+>>
+> 
+> I've been running fio since yesterday after my last email (and 
+> subsequent lunch), and haven't seen any further errors.� It's still 
+> running today, and knock on wood it'll keep going nicely.
+> 
+> It just occurred to me that I was trying to run a different set of tests 
+> when I bumped into this.� I think they are a different set of disks, so 
+> I should go back and try that while fio runs.
+> 
+>  �- Eric
+> 
+
+I will try to test this patch as well.
+
+Thanks
+Farhan
