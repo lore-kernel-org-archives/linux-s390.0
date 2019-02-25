@@ -1,27 +1,45 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Mon, 25 Feb 2019 09:20:31 +0000
-Subject: Re: [PATCH 2/2] s390/cio: Use cpa range elsewhere within vfio-ccw
-Message-Id: <20190225102031.5f7429d2.cohuck@redhat.com>
-In-Reply-To: <20190222183941.29596-3-farman@linux.ibm.com>
-References: <20190222183941.29596-3-farman@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Date: Mon, 25 Feb 2019 12:42:44 +0000
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Add prefix for dxc afp emulator test
+Message-Id: <b8402382-b3a8-131e-764d-b3fcefab6749@redhat.com>
+In-Reply-To: <20190219084913.198737-4-frankja@linux.ibm.com>
+References: <20190219084913.198737-4-frankja@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 22 Feb 2019 19:39:41 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
-
-> Since we have a little function to see whether a channel
-> program address falls within a range of CCWs, let's use
-> it in the other places of code that make these checks.
+On 19/02/2019 09.49, Janosch Frank wrote:
+> Without it we have two reports that look the same, but don't have the
+> same control register state for the test.
 > 
-> (Why isn't ccw_head fully removed?  Well, because this
-> way some longs lines don't have to be reflowed.)
-> 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
->  drivers/s390/cio/vfio_ccw_cp.c | 18 ++++++------------
->  1 file changed, 6 insertions(+), 12 deletions(-)
+>  s390x/emulator.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/s390x/emulator.c b/s390x/emulator.c
+> index f49c414..4c26b80 100644
+> --- a/s390x/emulator.c
+> +++ b/s390x/emulator.c
+> @@ -266,6 +266,7 @@ static void test_dxc(void)
+>  	lc->dxc_vxc = 0x12345678;
+>  	set_fpc_dxc(0);
+>  
+> +	report_prefix_push("afp");
+>  	expect_pgm_int();
+>  	asm volatile("	.insn	rrf,0xb9600000,%0,%0,8,0\n"
+>  		     : : "r"(0) : "memory");
+> @@ -273,7 +274,7 @@ static void test_dxc(void)
+>  
+>  	report("dxc in LC", lc->dxc_vxc == 0xff);
+>  	report("dxc in FPC", get_fpc_dxc() == 0xff);
+> -
+> +	report_prefix_pop();
+>  
+>  	/* DXC (0xff) is to be stored in LC only on a trap (CRT) without AFP */
+>  	lc->dxc_vxc = 0x12345678;
 
-Also looks good to me.
+Maybe add a prefix a la "no-afp" for the second test, too?
 
-I'll be happy to queue these (but would like another R-b or so.)
+Anyway:
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
