@@ -1,39 +1,75 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Tue, 26 Feb 2019 18:13:34 +0000
-Subject: Re: [PATCH 0/2] Fix vfio-ccw handling of TIC recursion
-Message-Id: <20190226191334.32945589.cohuck@redhat.com>
-In-Reply-To: <45702003-613f-92f7-ee4f-b2cf572bb446@linux.ibm.com>
-References: <45702003-613f-92f7-ee4f-b2cf572bb446@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Date: Tue, 26 Feb 2019 18:42:07 +0000
+Subject: Re: [PATCH 1/2] s390/cio: Fix vfio-ccw handling of recursive TICs
+Message-Id: <a876e299-1119-b1ab-bdb7-671b8c7f426c@linux.ibm.com>
+In-Reply-To: <20190226193821.12bb526b@oc2783563651>
+References: <20190226193821.12bb526b@oc2783563651>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 22 Feb 2019 19:39:39 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
 
-> Per the discussion [1] about a problem with how vfio-ccw calculates
-> the length of a channel program (specifically when using the
-> forthcoming QEMU BIOS code for DASD IPL), I present this fix.
+
+On 02/26/2019 12:26 PM, Cornelia Huck wrote:
+> On Mon, 25 Feb 2019 21:43:31 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> Patch 1 fixes the problem, and is over-engineered
-> for readability sake.
+>> On 02/25/2019 12:56 PM, Halil Pasic wrote:
+>>> On Fri, 22 Feb 2019 19:39:40 +0100
+>>> Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> Patch 2 takes the functions from Patch 1, and refactors the
-> existing code to make other areas a little easier to understand.
-> (I hope.)
+>>>> @@ -392,7 +419,15 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+>>>>    			return -EOPNOTSUPP;
+>>>>    		}
+>>>>    
+>>>> -		if (!ccw_is_chain(ccw))
+>>>> +		/*
+>>>> +		 * We want to keep counting if the current CCW has the
+>>>> +		 * command-chaining flag enabled, or if it is a TIC CCW
+>>>> +		 * that loops back into the current chain.  The latter
+>>>> +		 * is used for device orientation, where the CCW PRIOR to
+>>>> +		 * the TIC can either jump to the TIC or a CCW immediately
+>>>> +		 * after the TIC, depending on the results of its operation.
+>>>> +		 */
+>>>> +		if (!ccw_is_chain(ccw) && !is_tic_within_range(ccw, iova, cnt))
+>>>
+>>> AFAIU this is a heuristic. I would prefer this being a heuristics
+>>> pointed out clearly, along with the explanation of what happens if the
+>>> heuristics fails.
+>> I don't agree that this as a heuristic and I don't see the value of
+>> including "what happens" when that answer comes from decades worth of
+>> books of various classifications.  Furthermore, I don't see anything in
+>> POPS (SA22-7832-11 pp. 15-60 and 15-76/77) that implies we're excluding
+>> something.
+>>
+>> Perhaps I misunderstand you.  Could you please explain your continued
+>> concern about Status Modifier, because the above academic statement
+>> combined with your earlier comment that "all the theoretically possible
+>> cases where we could skip over a ccw that would terminate a chain (tic
+>> or not chaining) if there was no status modifier" does not help me
+>> understand the "heuristic" problem you have here.
+>>
+>> A theoretically possible combination of CCWs is nice in, well, theory.
+>> But the examples I discussed with you offline are more likely to result
+>> in a Command Reject due to an invalid sequence (or other more painful
+>> errors) than a useful channel program for a device to operate upon.
+>> Hardly a heuristic.
+>>
+>>>
+>>> Your comment is suggesting that the case we care about is TIC pointing
+>>> to the CCW that immediately precedes it. The code however considers the
+>>> whole current chain.
+>>
+>> In practical usage, a backwards TIC of just one CCW is common.  But I'm
+>> not aware of anything architecturally that prevents us from jumping
+>> farther up the chain via a TIC if we wanted, which is why I looked at
+>> the entire range.  If we did go back farther, we would still be most
+>> interested in the CCW prior to the TIC because of the possible SM jump.
 > 
-> I've been running fio for over 24 hours now, and have seen
-> zero hours.  Previously, I would have probably seen "a few"
-> errors by now, where prior to the original fix I would've seen
-> "many" errors.  Further tests are still ongoing.
+> FWIW, I consider the comment to be fine as-is, and I'd prefer not to
+> over-complicate the description here.
 > 
-> [1] https://marc.info/?l=linux-s390&m=155063096321940&w=2
-> 
-> Eric Farman (2):
->   s390/cio: Fix vfio-ccw handling of recursive TICs
->   s390/cio: Use cpa range elsewhere within vfio-ccw
-> 
->  drivers/s390/cio/vfio_ccw_cp.c | 55 ++++++++++++++++++++++++++++++++----------
->  1 file changed, 42 insertions(+), 13 deletions(-)
+> I'm going to queue this and send a pull request, unless someone points
+> out something obviously wrong to me.
 > 
 
-Thanks, applied.
+Thanks, Connie.
