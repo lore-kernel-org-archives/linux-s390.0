@@ -1,70 +1,112 @@
-From: Thomas Huth <thuth@redhat.com>
-Date: Mon, 25 Feb 2019 14:33:11 +0000
-Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Beautify sthyi report strings
-Message-Id: <d8f3e60d-c9bd-d6eb-63e6-086703339e20@redhat.com>
-In-Reply-To: <ce77130c-5cb9-97aa-88c7-9c0c2e0fe5ad@redhat.com>
-References: <ce77130c-5cb9-97aa-88c7-9c0c2e0fe5ad@redhat.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Tue, 26 Feb 2019 11:05:03 +0000
+Subject: Re: Mapping memory regions on s390
+Message-Id: <20190226120503.7bd9f699.cohuck@redhat.com>
+In-Reply-To: <20190221171747.64181ee8@oc2783563651>
+References: <20190221171747.64181ee8@oc2783563651>
+To: linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 25/02/2019 15.27, David Hildenbrand wrote:
-> On 25.02.19 15:22, Janosch Frank wrote:
->> On 25.02.19 13:54, Thomas Huth wrote:
->>> On 19/02/2019 09.49, Janosch Frank wrote:
->>>> Tests like the register odd check in r1 and r2 were not
->>>> destinguishable and the reports were hard to read in total.
->>>
->>> distinguishable
->>>
->>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->>>> ---
->>>>  s390x/sthyi.c | 45 +++++++++++++++++++++++++++++----------------
->>>>  1 file changed, 29 insertions(+), 16 deletions(-)
->>>>
->>>> diff --git a/s390x/sthyi.c b/s390x/sthyi.c
->>>> index 16b8c14..aaf13af 100644
->>>> --- a/s390x/sthyi.c
->>>> +++ b/s390x/sthyi.c
->>>> @@ -52,10 +52,12 @@ static void test_exception_addr(void)
->>>>  
->>>>  static void test_exception_reg_odd(void)
->>>>  {
->>>> -	report_prefix_push("Register check odd");
->>>> +	report_prefix_push("Register check odd R1");
->>>>  	expect_pgm_int();
->>>>  	sthyi((uint64_t)pagebuf, 0, NULL, 1, 2);
->>>>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
->>>> +	report_prefix_pop();
->>>> +	report_prefix_push("Register check odd R2");
->>>>  	expect_pgm_int();
->>>>  	sthyi((uint64_t)pagebuf, 0, NULL, 0, 3);
->>>>  	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
->>>> @@ -76,52 +78,59 @@ static void test_function_code(uint64_t addr)
->>>>  	uint64_t urc = 0;
->>>>  	int cc = sthyi((uint64_t)pagebuf, 42, &urc, 0, 2);
->>>>  
->>>> -	report("Ill. fcode", cc == 3 && urc == CODE_UNSUPP);
->>>> +	report("Illegal fcode", cc == 3 && urc == CODE_UNSUPP);
->>>>  }
->>>>  
->>>>  static void test_fcode0_hdr(struct sthyi_hdr_sctn *hdr)
->>>>  {
->>>> -	report("HDR length", (hdr->INFHDLN >= sizeof(*hdr)
->>>> +	report_prefix_push("Header");
->>>> +
->>>> +	report("length", (hdr->INFHDLN >= sizeof(*hdr)
->>>>  			      && !(hdr->INFHDLN % 8)));
->>>
->>> That fits into one line now (especially if you also remove the redundant
->>> parentheses around the conditional expression).
->>
->> You and your hate for parentheses... :-)
->> Fixed all of the problems.
->>
+On Thu, 21 Feb 2019 17:17:47 +0100
+Halil Pasic <pasic@linux.ibm.com> wrote:
+
+> On Thu, 21 Feb 2019 15:46:08 +0000
+> "Dr. David Alan Gilbert" <dgilbert@redhat.com> wrote:
 > 
-> Maybe he's traumatized by LISP ... just like me ;)
+> > * Cornelia Huck (cohuck@redhat.com) wrote:  
+> > > On Thu, 21 Feb 2019 15:11:50 +0000
+> > > "Dr. David Alan Gilbert" <dgilbert@redhat.com> wrote:
+> > >   
+> > > > * Cornelia Huck (cohuck@redhat.com) wrote:  
+> > > > > On Thu, 21 Feb 2019 13:39:46 +0000
+> > > > > "Dr. David Alan Gilbert" <dgilbert@redhat.com> wrote:
+> > > > >     
+> > > > > > * Cornelia Huck (cohuck@redhat.com) wrote:    
+> > > > > > > On Mon, 18 Feb 2019 15:41:07 +0000
+> > > > > > > "Dr. David Alan Gilbert" <dgilbert@redhat.com> wrote:
+> > > > > > >       
+> > > > > > > > * Cornelia Huck (cohuck@redhat.com) wrote:      
+> > > > > > >       
+> > > > > > > > > > >> We can of course switch the order of mappings
+> > > > > > > > > > >>
+> > > > > > > > > > >> [0x000000000000000      ]
+> > > > > > > > > > >> ... Memory region containing RAM
+> > > > > > > > > > >> [ram_size         	]
+> > > > > > > > > > >> ... Memory region for memory devices (virtio-pmem, virtio-mem ...)
+> > > > > > > > > > >> [maxram_size - ram_size ]
+> > > > > > > > > > >> ... Memory region for e.g. special PCI/CCW devices
+> > > > > > > > > > >> [                    TBD]
+> > > > > > > > > > >>
+> > > > > > > > > > >> We can size TBD in a way that we e.g. max out the current page table
+> > > > > > > > > > >> size before having to switch to more levels.          
+> > > > > > > > > > > 
+> > > > > > > > > > > Yes, that's fine to set some upper limit; you've just got to make sure
+> > > > > > > > > > > that the hypervisor knows where it can put stuff and if the guest
+> > > > > > > > > > > does PCI that it knows where it's allowed to put stuff and as long
+> > > > > > > > > > > as the two don't overlap everyone is happy.        
+> > > > > > > > > 
+> > > > > > > > > Hm... is that an issue for pci? Do we need to care, as s390 uses
+> > > > > > > > > special instructions anyway? Or do we want to avoid going through them,
+> > > > > > > > > so that the guest can use normal read/write?        
+> > > > > > > > 
+> > > > > > > > That depends.
+> > > > > > > > The stuff we use for virtio-fs we need the shared region to be
+> > > > > > > > accessible by the guest via normal instructions because we're using for
+> > > > > > > > DAX.  For PCI you might be able to avoid it for most other PCI cases.      
+> > > > > > > 
+> > > > > > > So,
+> > > > > > > - virtio-fs regions need to be accessible like normal memory, so they
+> > > > > > >   need to show up in the region labeled 'TBD' above       
+> > > > > > 
+> > > > > > Yes.
+> > > > > >     
+> > > > > > >  (it would fine to
+> > > > > > >   communicate the 'where' through pci structures)      
+> > > > > > 
+> > > > > > Hmm, mixing PCI structures into something you're not treating as PCI
+> > > > > > seems weird to me.    
+> > > > > 
+> > > > > I was thinking about the addresses in the TBD area... they need to go
+> > > > > through _some_ pci structure, I assume?    
+> > > > 
+> > > > Well I think it depends how you make it work with CCW;
+> > > > 
+> > > > if the addresses being assigned are assigned by the host then I believe you should use
+> > > > the CCW mechanism you suggested to discover the addresses in the guest.
+> > > > 
+> > > > If the host is going to allocate a block of PCI space and the guest is
+> > > > going to allocate the use within that space and access it with normal
+> > > > instructions then I think it should go via PCI.  
+> > > 
+> > > This is getting a bit confusing... let me try to summarize:
+> > > 
+> > > - We introduce a special area where shared memory areas are supposed to
+> > >   live.
+> > > - If a virtio device accessed via ccw defines shared regions, the
+> > >   driver can discover them via a new ccw that indicates an address in
+> > >   that special area.  
+> > 
+> > Right.
+> >   
+> > > - If a virtio device accessed via pci defines shared regions, the
+> > >   driver will want to discover them via the same mechanism as on other
+> > >   platforms. If I read
+> > >   https://lists.oasis-open.org/archives/virtio-comment/201901/msg00003.html
+> > >   correctly, this will mean an offset into a BAR. This will be a normal
+> > >   pci memory region.  
+> > 
+> > Right; note that like any other BAR it's upto the guest to write the BAR
+> > to select which area of GPA it wants the BAR to map to.
+> >   
+> > > Now, this sounds to me that we'll have regions in different memory
+> > > regions, depending on whether they are accessed via ccw or via pci. Not
+> > > sure if that's a problem.  
+> > 
+> > As long as they stay out of each others way it shouldn't be.
+> >   
+> 
+> I'm not sure. What I'm concerted about is:
+> * if it is a virtio-ccw device it would need to access the shared memory via
+> normal memory access instructions.
 
-Yes, I took a LISP course at the university once ... I never overcame
-that trauma... ;-)
-
- Thomas
+Just for reference, my current draft for the ccw spec looks as follows:
