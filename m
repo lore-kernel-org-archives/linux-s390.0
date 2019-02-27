@@ -1,8 +1,8 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v4 3/7] s390: ap: associate a ap_vfio_queue and a matrix
  mdev
-Date: Wed, 27 Feb 2019 11:21:32 +0100
-Message-ID: <d1d19f9e-40c1-e648-fcfb-4f05c75961e9@linux.ibm.com>
+Date: Wed, 27 Feb 2019 11:44:17 +0100
+Message-ID: <d72343b0-4431-a686-07f3-4b3f916729d8@linux.ibm.com>
 References: <1550849400-27152-1-git-send-email-pmorel@linux.ibm.com>
  <1550849400-27152-4-git-send-email-pmorel@linux.ibm.com>
  <20190227103211.5e4d63b2.cohuck@redhat.com>
@@ -45,19 +45,26 @@ On 27/02/2019 10:32, Cornelia Huck wrote:
 > 
 > I'm a bit confused about the context where that list moving etc. is
 > supposed to take place.
+
+You are confused because... it is confuse.
+
 > 
 > When are we assigning/deassigning? Is there even supposed to be any
 > activity that we need to zap on the queues?
-> 
-> Do we need any serialization/locking on the lists?
 
-Did I really forget this!?
+No I mixed two functionalities here. It is not right.
 
-Yes, thanks.
+I think I must:
+
+- separate the simplification for the reset may be move the chunks to 
+the previous patch as it is a simplification coming with the use of the 
+lists or move them to a separate patch.
+
+- make the commit message less confuse :)
+
 
 Regards,
 Pierre
-
 
 -- 
 Pierre Morel
