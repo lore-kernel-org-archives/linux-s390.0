@@ -1,17 +1,16 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v4 5/7] s390: ap: implement PAPQ AQIC interception in
- kernel
-Date: Wed, 27 Feb 2019 10:54:04 +0100
-Message-ID: <57819262-9e59-6f81-b8c4-22bbb1f952c7@linux.ibm.com>
+Subject: Re: [PATCH v4 6/7] s390: ap: Cleanup on removing the AP device
+Date: Wed, 27 Feb 2019 10:58:22 +0100
+Message-ID: <97bd632b-87a6-fa23-d4db-7ccdec877831@linux.ibm.com>
 References: <1550849400-27152-1-git-send-email-pmorel@linux.ibm.com>
- <1550849400-27152-6-git-send-email-pmorel@linux.ibm.com>
- <d8eead83-6d93-4213-c702-c7e684142ff2@linux.ibm.com>
+ <1550849400-27152-7-git-send-email-pmorel@linux.ibm.com>
+ <3f15bd09-8a90-ed8a-e15a-0f3bac1a3528@linux.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d8eead83-6d93-4213-c702-c7e684142ff2@linux.ibm.com>
+In-Reply-To: <3f15bd09-8a90-ed8a-e15a-0f3bac1a3528@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -20,168 +19,103 @@ To: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 26/02/2019 19:23, Tony Krowiak wrote:
+On 26/02/2019 19:27, Tony Krowiak wrote:
 > On 2/22/19 10:29 AM, Pierre Morel wrote:
->> We register the AP PQAP instruction hook during the open
->> of the mediated device. And unregister it on release.
+>> When the device is remove, we must make sure to
+>> clear the interruption and reset the AP device.
 >>
->> In the AP PQAP instruction hook, if we receive a demand to
->> enable IRQs,
->> - we retrieve the vfio_ap_queue based on the APQN we receive
->>    in REG1,
->> - we retrieve the page of the guest address, (NIB), from
->>    register REG2
->> - we the mediated device to use the VFIO pinning infratrsucture
->>    to pin the page of the guest address,
->> - we retrieve the pointer to KVM to register the guest ISC
->>    and retrieve the host ISC
->> - finaly we activate GISA
->>
->> If we receive a demand to disable IRQs,
->> - we deactivate GISA
->> - unregister from the GIB
->> - unping the NIB
+>> We also need to clear the CRYCB of the guest.
 >>
 >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 >> ---
->>   arch/s390/include/asm/kvm_host.h      |   1 +
->>   drivers/s390/crypto/ap_bus.h          |   1 +
->>   drivers/s390/crypto/vfio_ap_ops.c     | 199 
->> +++++++++++++++++++++++++++++++++-
->>   drivers/s390/crypto/vfio_ap_private.h |   1 +
->>   4 files changed, 199 insertions(+), 3 deletions(-)
+>>   drivers/s390/crypto/vfio_ap_drv.c     | 35 
+>> +++++++++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_ops.c     |  3 ++-
+>>   drivers/s390/crypto/vfio_ap_private.h |  3 +++
+>>   3 files changed, 40 insertions(+), 1 deletion(-)
 >>
->> diff --git a/arch/s390/include/asm/kvm_host.h 
->> b/arch/s390/include/asm/kvm_host.h
->> index 49cc8b0..5f3bb8c 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -720,6 +720,7 @@ struct kvm_s390_cpu_model {
->>   struct kvm_s390_crypto {
->>       struct kvm_s390_crypto_cb *crycb;
->>       int (*pqap_hook)(struct kvm_vcpu *vcpu);
->> +    void *vfio_private;
-
-...snip...
-
-
->> + *
->> + * Return 0 if we could handle the request inside KVM.
->> + * otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
->> + */
->> +static int handle_pqap(struct kvm_vcpu *vcpu)
-> 
-> Change this function name to handle_pqap_aqic
-
-Since we only intercept AQIC, why not.
-
-> 
->> +{
->> +}
-> 
-> Add this function:
-> 
-> static int handle_pqap(struct kvm_vcpu *vcpu)
-> {
->      int ret;
->      uint8_t fc;
-> 
->      fc = vcpu->run->s.regs.gprs[0] >> 24;
->      switch (fc) {
->      case 0x03:
->          ret = handle_pqap_aqic(vcpu);
->          break;
->      default:
->          ret = -EOPNOTSUPP;
->          break;
->      }
-> 
->      return ret;
-> }
-
-It is of no use for now, we only intercept AQIC, why introduce this now?
-
-We can introduce a trampoline when we intercept TAPQ. If we do.
-
-
-> 
->> +
->> + /*
->>    * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
+>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c 
+>> b/drivers/s390/crypto/vfio_ap_drv.c
+>> index eca0ffc..e5d91ff 100644
+>> --- a/drivers/s390/crypto/vfio_ap_drv.c
+>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>> @@ -5,6 +5,7 @@
+>>    * Copyright IBM Corp. 2018
 >>    *
->>    * @nb: The notifier block
->> @@ -767,9 +950,10 @@ static int vfio_ap_mdev_iommu_notifier(struct 
->> notifier_block *nb,
->>       if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
->>           struct vfio_iommu_type1_dma_unmap *unmap = data;
->> -        unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
->> +        unsigned long pfn = unmap->iova >> PAGE_SHIFT;
->> -        vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
->> +        if (matrix_mdev->mdev)
->> +            vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &pfn, 1);
->>           return NOTIFY_OK;
->>       }
->> @@ -879,6 +1063,11 @@ static int vfio_ap_mdev_open(struct mdev_device 
->> *mdev)
->>       if (ret)
->>           goto err_group;
->> +    if (!matrix_mdev->kvm) {
->> +        ret = -ENODEV;
->> +        goto err_iommu;
->> +    }
+>>    * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
+>> + *          Pierre Morel <pmorel@linux.ibm.com>
+>>    */
+>>   #include <linux/module.h>
+>> @@ -12,6 +13,8 @@
+>>   #include <linux/slab.h>
+>>   #include <linux/string.h>
+>>   #include <asm/facility.h>
+>> +#include <linux/bitops.h>
+>> +#include <linux/kvm_host.h>
+>>   #include "vfio_ap_private.h"
+>>   #define VFIO_AP_ROOT_NAME "vfio_ap"
+>> @@ -61,6 +64,33 @@ static int vfio_ap_queue_dev_probe(struct ap_device 
+>> *apdev)
+>>   }
+>>   /**
+>> + * vfio_ap_update_crycb
+>> + * @q: A pointer to the queue being removed
+>> + *
+>> + * We clear the APID of the queue, making this queue unusable for the 
+>> guest.
+>> + * After this function we can reset the queue without to fear a race 
+>> with
+>> + * the guest to access the queue again.
+>> + * We do not fear race with the host as we still get the device.
+>> + */
+>> +static void vfio_ap_update_crycb(struct vfio_ap_queue *q)
+>> +{
+>> +    struct ap_matrix_mdev *matrix_mdev = q->matrix_mdev;
 >> +
->>       matrix_mdev->iommu_notifier.notifier_call = 
->> vfio_ap_mdev_iommu_notifier;
->>       events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
->> @@ -887,6 +1076,8 @@ static int vfio_ap_mdev_open(struct mdev_device 
->> *mdev)
->>       if (ret)
->>           goto err_iommu;
->> +    matrix_mdev->kvm->arch.crypto.pqap_hook = handle_pqap;
->> +    matrix_mdev->kvm->arch.crypto.vfio_private = matrix_mdev;
+>> +    if (!matrix_mdev)
+>> +        return;
+>> +
+>> +    clear_bit_inv(AP_QID_CARD(q->apqn), matrix_mdev->matrix.apm);
+>> +
+>> +    if (!matrix_mdev->kvm)
+>> +        return;
+>> +
+>> +    kvm_arch_crypto_set_masks(matrix_mdev->kvm,
+>> +                  matrix_mdev->matrix.apm,
+>> +                  matrix_mdev->matrix.aqm,
+>> +                  matrix_mdev->matrix.adm);
+>> +}
+>> +
+>> +/**
+>>    * vfio_ap_queue_dev_remove:
+>>    *
+>>    * Free the associated vfio_ap_queue structure
+>> @@ -70,6 +100,11 @@ static void vfio_ap_queue_dev_remove(struct 
+>> ap_device *apdev)
+>>       struct vfio_ap_queue *q;
+>>       q = dev_get_drvdata(&apdev->device);
+>> +    if (!q)
+>> +        return;
+>> +
+>> +    vfio_ap_update_crycb(q);
+>> +    vfio_ap_mdev_reset_queue(q);
 > 
-> I do not see this used anywhere, why do we need it?
+> The reset is unnecessary because once the card is removed from the
+> CRYCB, the ZAPQ may fail with because the queue may not exist anymore.
 
-In handle_papq to retrieve the associated mediated device
+The code here is run inside the host. So the queue is still available 
+for ZAPQ.
 
-> 
->>       return 0;
->>   err_iommu:
->> @@ -905,6 +1096,8 @@ static void vfio_ap_mdev_release(struct 
->> mdev_device *mdev)
->>           kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
->>       vfio_ap_mdev_reset_queues(mdev);
->> +    matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
->> +    matrix_mdev->kvm->arch.crypto.vfio_private = NULL;
-> 
-> Ditto
 
-ditto
+> Besides, once the card is removed from the guest's CRYCB, the bus
+> running in the guest will do a reset.
 
-> 
->>       vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->>                    &matrix_mdev->group_notifier);
->>       vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
->> diff --git a/drivers/s390/crypto/vfio_ap_private.h 
->> b/drivers/s390/crypto/vfio_ap_private.h
->> index e535735..e2fd2c0 100644
->> --- a/drivers/s390/crypto/vfio_ap_private.h
->> +++ b/drivers/s390/crypto/vfio_ap_private.h
->> @@ -94,6 +94,7 @@ struct vfio_ap_queue {
->>       struct list_head list;
->>       struct ap_matrix_mdev *matrix_mdev;
->>       unsigned long nib;
->> +    unsigned long g_pfn;
-> 
-> Can't this be calculated from the nib?
-
-It is.
-It is initialized during the IRQ enabling with the current pinned NIB.
-While the nib is initialised with the NIB to be use.
-
-This allows to unpin the previous pinned NIB in the case the guest reset 
-the queue, which automatically disable interrupt, because in this case 
-the guest will not explicitely disable IRQ by using AQIC.
+I already answered this:
+- The AP bus reset the queue before calling the driver probe
+- which means that the guest can still access the queue after the reset 
+done by the bus.
+- we need to first clear the CRYCB to remove the queue from the guest 
+before we reset the queue.
 
 
 Regards,
