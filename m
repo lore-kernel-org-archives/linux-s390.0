@@ -1,82 +1,44 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Date: Wed, 27 Feb 2019 10:57:10 +0000
-Subject: [PULL 2/2] s390/cio: Use cpa range elsewhere within vfio-ccw
-Message-Id: <20190227105710.20030-3-cohuck@redhat.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Wed, 27 Feb 2019 12:22:06 +0000
+Subject: Re: [PULL 0/2] vfio-ccw: further patches for 5.1
+Message-Id: <20190227132206.71623e28@mschwideX1>
+In-Reply-To: <20190227105710.20030-1-cohuck@redhat.com>
+References: <20190227105710.20030-1-cohuck@redhat.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Farman <farman@linux.ibm.com>
+On Wed, 27 Feb 2019 11:57:08 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Since we have a little function to see whether a channel
-program address falls within a range of CCWs, let's use
-it in the other places of code that make these checks.
+> The following changes since commit 36360658eb5a6cf04bb9f2704d1e4ce54037ec99:
+> 
+>   s390: vfio_ap: link the vfio_ap devices to the vfio_ap bus subsystem (2019-02-22 09:20:01 +0100)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20190227
+> 
+> for you to fetch changes up to 2904337fd981217784c2820abdee537aa0c70330:
+> 
+>   s390/cio: Use cpa range elsewhere within vfio-ccw (2019-02-26 18:30:13 +0100)
+> 
+> ----------------------------------------------------------------
+> Further fixes in TIC handling.
+> 
+> ----------------------------------------------------------------
+> 
+> Eric Farman (2):
+>   s390/cio: Fix vfio-ccw handling of recursive TICs
+>   s390/cio: Use cpa range elsewhere within vfio-ccw
+> 
+>  drivers/s390/cio/vfio_ccw_cp.c | 55 ++++++++++++++++++++++++++--------
+>  1 file changed, 42 insertions(+), 13 deletions(-)
+> 
 
-(Why isn't ccw_head fully removed?  Well, because this
-way some longs lines don't have to be reflowed.)
+Pull and pushed to s390/linux:features. Thanks.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20190222183941.29596-3-farman@linux.ibm.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 488b76cd6fb9..384b3987eeb4 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -443,13 +443,11 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- static int tic_target_chain_exists(struct ccw1 *tic, struct channel_program *cp)
- {
- 	struct ccwchain *chain;
--	u32 ccw_head, ccw_tail;
-+	u32 ccw_head;
- 
- 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
- 		ccw_head = chain->ch_iova;
--		ccw_tail = ccw_head + (chain->ch_len - 1) * sizeof(struct ccw1);
--
--		if ((ccw_head <= tic->cda) && (tic->cda <= ccw_tail))
-+		if (is_cpa_within_range(tic->cda, ccw_head, chain->ch_len))
- 			return 1;
- 	}
- 
-@@ -516,13 +514,11 @@ static int ccwchain_fetch_tic(struct ccwchain *chain,
- {
- 	struct ccw1 *ccw = chain->ch_ccw + idx;
- 	struct ccwchain *iter;
--	u32 ccw_head, ccw_tail;
-+	u32 ccw_head;
- 
- 	list_for_each_entry(iter, &cp->ccwchain_list, next) {
- 		ccw_head = iter->ch_iova;
--		ccw_tail = ccw_head + (iter->ch_len - 1) * sizeof(struct ccw1);
--
--		if ((ccw_head <= ccw->cda) && (ccw->cda <= ccw_tail)) {
-+		if (is_cpa_within_range(ccw->cda, ccw_head, iter->ch_len)) {
- 			ccw->cda = (__u32) (addr_t) (((char *)iter->ch_ccw) +
- 						     (ccw->cda - ccw_head));
- 			return 0;
-@@ -864,7 +860,7 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
- {
- 	struct ccwchain *chain;
- 	u32 cpa = scsw->cmd.cpa;
--	u32 ccw_head, ccw_tail;
-+	u32 ccw_head;
- 
- 	/*
- 	 * LATER:
-@@ -874,9 +870,7 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
- 	 */
- 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
- 		ccw_head = (u32)(u64)chain->ch_ccw;
--		ccw_tail = (u32)(u64)(chain->ch_ccw + chain->ch_len - 1);
--
--		if ((ccw_head <= cpa) && (cpa <= ccw_tail)) {
-+		if (is_cpa_within_range(cpa, ccw_head, chain->ch_len)) {
- 			/*
- 			 * (cpa - ccw_head) is the offset value of the host
- 			 * physical ccw to its chain head.
 -- 
-2.17.2
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
