@@ -1,74 +1,106 @@
 From: Ira Weiny <ira.weiny@intel.com>
 Subject: Re: [RESEND PATCH 0/7] Add FOLL_LONGTERM to GUP fast and use it
-Date: Wed, 20 Feb 2019 10:02:56 -0800
-Message-ID: <20190220180255.GA12020@iweiny-DESK2.sc.intel.com>
+Date: Wed, 27 Feb 2019 11:14:42 -0800
+Message-ID: <20190227191442.GB31669@iweiny-DESK2.sc.intel.com>
 References: <20190220053040.10831-1-ira.weiny@intel.com>
- <20190220151930.GB11695@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20190220151930.GB11695@infradead.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20190220053040.10831-1-ira.weiny@intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 List-Archive: <https://lore.kernel.org/ceph-devel/>
 List-Post: <mailto:ceph-devel@vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-fbdev@vger.kernel.org, Michal Hocko <mhocko@suse.com>, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, James Hogan <jhogan@kernel.org>, linux-fpga@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, Rich Felker <dalias@libc.org>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, ceph-devel@vger.kernel.org, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-rdma@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>, Ingo Molnar <mingo@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, devel@lists.orangefs.org, linux-media@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>, kvm-ppc@vger.kernel.org, Borislav
+To: John Hubbard <jhubbard@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>
+Cc: linux-fbdev@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, linux-fpga@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, sparclinux@vger.kernel.org, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org, xen-devel@lists.xenproject.org, devel@lists.orangefs.org, linux-media@vger.kernel.org, kvm-ppc@vger.kernel.org, ceph-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Feb 20, 2019 at 07:19:30AM -0800, Christoph Hellwig wrote:
-> On Tue, Feb 19, 2019 at 09:30:33PM -0800, ira.weiny@intel.com wrote:
-> > From: Ira Weiny <ira.weiny@intel.com>
-> > 
-> > Resending these as I had only 1 minor comment which I believe we have covered
-> > in this series.  I was anticipating these going through the mm tree as they
-> > depend on a cleanup patch there and the IB changes are very minor.  But they
-> > could just as well go through the IB tree.
-> > 
-> > NOTE: This series depends on my clean up patch to remove the write parameter
-> > from gup_fast_permitted()[1]
-> > 
-> > HFI1, qib, and mthca, use get_user_pages_fast() due to it performance
-> > advantages.  These pages can be held for a significant time.  But
-> > get_user_pages_fast() does not protect against mapping of FS DAX pages.
-> 
-> This I don't get - if you do lock down long term mappings performance
-> of the actual get_user_pages call shouldn't matter to start with.
-> 
-> What do I miss?
-
-A couple of points.
-
-First "longterm" is a relative thing and at this point is probably a misnomer.
-This is really flagging a pin which is going to be given to hardware and can't
-move.  I've thought of a couple of alternative names but I think we have to
-settle on if we are going to use FL_LAYOUT or something else to solve the
-"longterm" problem.  Then I think we can change the flag to a better name.
-
-Second, It depends on how often you are registering memory.  I have spoken with
-some RDMA users who consider MR in the performance path...  For the overall
-application performance.  I don't have the numbers as the tests for HFI1 were
-done a long time ago.  But there was a significant advantage.  Some of which is
-probably due to the fact that you don't have to hold mmap_sem.
-
-Finally, architecturally I think it would be good for everyone to use *_fast.
-There are patches submitted to the RDMA list which would allow the use of
-*_fast (they reworking the use of mmap_sem) and as soon as they are accepted
-I'll submit a patch to convert the RDMA core as well.  Also to this point
-others are looking to use *_fast.[2]
-
-As an asside, Jasons pointed out in my previous submission that *_fast and
-*_unlocked look very much the same.  I agree and I think further cleanup will
-be coming.  But I'm focused on getting the final solution for DAX at the
-moment.
-
-Ira
+T24gVHVlLCBGZWIgMTksIDIwMTkgYXQgMDk6MzA6MzNQTSAtMDgwMCwgJ0lyYSBXZWlueScgd3Jv
+dGU6Cj4gRnJvbTogSXJhIFdlaW55IDxpcmEud2VpbnlAaW50ZWwuY29tPgo+IAo+IFJlc2VuZGlu
+ZyB0aGVzZSBhcyBJIGhhZCBvbmx5IDEgbWlub3IgY29tbWVudCB3aGljaCBJIGJlbGlldmUgd2Ug
+aGF2ZSBjb3ZlcmVkCj4gaW4gdGhpcyBzZXJpZXMuICBJIHdhcyBhbnRpY2lwYXRpbmcgdGhlc2Ug
+Z29pbmcgdGhyb3VnaCB0aGUgbW0gdHJlZSBhcyB0aGV5Cj4gZGVwZW5kIG9uIGEgY2xlYW51cCBw
+YXRjaCB0aGVyZSBhbmQgdGhlIElCIGNoYW5nZXMgYXJlIHZlcnkgbWlub3IuICBCdXQgdGhleQo+
+IGNvdWxkIGp1c3QgYXMgd2VsbCBnbyB0aHJvdWdoIHRoZSBJQiB0cmVlLgo+IAo+IE5PVEU6IFRo
+aXMgc2VyaWVzIGRlcGVuZHMgb24gbXkgY2xlYW4gdXAgcGF0Y2ggdG8gcmVtb3ZlIHRoZSB3cml0
+ZSBwYXJhbWV0ZXIKPiBmcm9tIGd1cF9mYXN0X3Blcm1pdHRlZCgpWzFdCj4gCj4gSEZJMSwgcWli
+LCBhbmQgbXRoY2EsIHVzZSBnZXRfdXNlcl9wYWdlc19mYXN0KCkgZHVlIHRvIGl0IHBlcmZvcm1h
+bmNlCj4gYWR2YW50YWdlcy4gIFRoZXNlIHBhZ2VzIGNhbiBiZSBoZWxkIGZvciBhIHNpZ25pZmlj
+YW50IHRpbWUuICBCdXQKPiBnZXRfdXNlcl9wYWdlc19mYXN0KCkgZG9lcyBub3QgcHJvdGVjdCBh
+Z2FpbnN0IG1hcHBpbmcgb2YgRlMgREFYIHBhZ2VzLgo+IAo+IEludHJvZHVjZSBGT0xMX0xPTkdU
+RVJNIGFuZCB1c2UgdGhpcyBmbGFnIGluIGdldF91c2VyX3BhZ2VzX2Zhc3QoKSB3aGljaAo+IHJl
+dGFpbnMgdGhlIHBlcmZvcm1hbmNlIHdoaWxlIGFsc28gYWRkaW5nIHRoZSBGUyBEQVggY2hlY2tz
+LiAgWERQIGhhcyBhbHNvCj4gc2hvd24gaW50ZXJlc3QgaW4gdXNpbmcgdGhpcyBmdW5jdGlvbmFs
+aXR5LlsyXQo+IAo+IEluIGFkZGl0aW9uIHdlIGNoYW5nZSBnZXRfdXNlcl9wYWdlcygpIHRvIHVz
+ZSB0aGUgbmV3IEZPTExfTE9OR1RFUk0gZmxhZyBhbmQKPiByZW1vdmUgdGhlIHNwZWNpYWxpemVk
+IGdldF91c2VyX3BhZ2VzX2xvbmd0ZXJtIGNhbGwuCj4gCj4gWzFdIGh0dHBzOi8vbGttbC5vcmcv
+bGttbC8yMDE5LzIvMTEvMjM3Cj4gWzJdIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE5LzIvMTEv
+MTc4OQoKSXMgdGhlcmUgYW55dGhpbmcgSSBuZWVkIHRvIGRvIG9uIHRoaXMgc2VyaWVzIG9yIGRv
+ZXMgYW55b25lIGhhdmUgYW55Cm9iamVjdGlvbnMgdG8gaXQgZ29pbmcgaW50byA1LjE/ICBBbmQg
+aWYgc28gd2hvJ3MgdHJlZSBpcyBpdCBnb2luZyB0byBnbwp0aHJvdWdoPwoKVGhhbmtzLApJcmEK
+Cj4gCj4gSXJhIFdlaW55ICg3KToKPiAgIG1tL2d1cDogUmVwbGFjZSBnZXRfdXNlcl9wYWdlc19s
+b25ndGVybSgpIHdpdGggRk9MTF9MT05HVEVSTQo+ICAgbW0vZ3VwOiBDaGFuZ2Ugd3JpdGUgcGFy
+YW1ldGVyIHRvIGZsYWdzIGluIGZhc3Qgd2Fsawo+ICAgbW0vZ3VwOiBDaGFuZ2UgR1VQIGZhc3Qg
+dG8gdXNlIGZsYWdzIHJhdGhlciB0aGFuIGEgd3JpdGUgJ2Jvb2wnCj4gICBtbS9ndXA6IEFkZCBG
+T0xMX0xPTkdURVJNIGNhcGFiaWxpdHkgdG8gR1VQIGZhc3QKPiAgIElCL2hmaTE6IFVzZSB0aGUg
+bmV3IEZPTExfTE9OR1RFUk0gZmxhZyB0byBnZXRfdXNlcl9wYWdlc19mYXN0KCkKPiAgIElCL3Fp
+YjogVXNlIHRoZSBuZXcgRk9MTF9MT05HVEVSTSBmbGFnIHRvIGdldF91c2VyX3BhZ2VzX2Zhc3Qo
+KQo+ICAgSUIvbXRoY2E6IFVzZSB0aGUgbmV3IEZPTExfTE9OR1RFUk0gZmxhZyB0byBnZXRfdXNl
+cl9wYWdlc19mYXN0KCkKPiAKPiAgYXJjaC9taXBzL21tL2d1cC5jICAgICAgICAgICAgICAgICAg
+ICAgICAgICB8ICAxMSArLQo+ICBhcmNoL3Bvd2VycGMva3ZtL2Jvb2szc182NF9tbXVfaHYuYyAg
+ICAgICAgIHwgICA0ICstCj4gIGFyY2gvcG93ZXJwYy9rdm0vZTUwMF9tbXUuYyAgICAgICAgICAg
+ICAgICAgfCAgIDIgKy0KPiAgYXJjaC9wb3dlcnBjL21tL21tdV9jb250ZXh0X2lvbW11LmMgICAg
+ICAgICB8ICAgNCArLQo+ICBhcmNoL3MzOTAva3ZtL2ludGVycnVwdC5jICAgICAgICAgICAgICAg
+ICAgIHwgICAyICstCj4gIGFyY2gvczM5MC9tbS9ndXAuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgMTIgKy0KPiAgYXJjaC9zaC9tbS9ndXAuYyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAxMSArLQo+ICBhcmNoL3NwYXJjL21tL2d1cC5jICAgICAgICAgICAgICAgICAgICAgICAg
+IHwgICA5ICstCj4gIGFyY2gveDg2L2t2bS9wYWdpbmdfdG1wbC5oICAgICAgICAgICAgICAgICAg
+fCAgIDIgKy0KPiAgYXJjaC94ODYva3ZtL3N2bS5jICAgICAgICAgICAgICAgICAgICAgICAgICB8
+ICAgMiArLQo+ICBkcml2ZXJzL2ZwZ2EvZGZsLWFmdS1kbWEtcmVnaW9uLmMgICAgICAgICAgIHwg
+ICAyICstCj4gIGRyaXZlcnMvZ3B1L2RybS92aWEvdmlhX2RtYWJsaXQuYyAgICAgICAgICAgfCAg
+IDMgKy0KPiAgZHJpdmVycy9pbmZpbmliYW5kL2NvcmUvdW1lbS5jICAgICAgICAgICAgICB8ICAg
+NSArLQo+ICBkcml2ZXJzL2luZmluaWJhbmQvaHcvaGZpMS91c2VyX3BhZ2VzLmMgICAgIHwgICA1
+ICstCj4gIGRyaXZlcnMvaW5maW5pYmFuZC9ody9tdGhjYS9tdGhjYV9tZW1mcmVlLmMgfCAgIDMg
+Ky0KPiAgZHJpdmVycy9pbmZpbmliYW5kL2h3L3FpYi9xaWJfdXNlcl9wYWdlcy5jICB8ICAgOCAr
+LQo+ICBkcml2ZXJzL2luZmluaWJhbmQvaHcvcWliL3FpYl91c2VyX3NkbWEuYyAgIHwgICAyICst
+Cj4gIGRyaXZlcnMvaW5maW5pYmFuZC9ody91c25pYy91c25pY191aW9tLmMgICAgfCAgIDkgKy0K
+PiAgZHJpdmVycy9tZWRpYS92NGwyLWNvcmUvdmlkZW9idWYtZG1hLXNnLmMgICB8ICAgNiArLQo+
+ICBkcml2ZXJzL21pc2MvZ2Vud3FlL2NhcmRfdXRpbHMuYyAgICAgICAgICAgIHwgICAyICstCj4g
+IGRyaXZlcnMvbWlzYy92bXdfdm1jaS92bWNpX2hvc3QuYyAgICAgICAgICAgfCAgIDIgKy0KPiAg
+ZHJpdmVycy9taXNjL3Ztd192bWNpL3ZtY2lfcXVldWVfcGFpci5jICAgICB8ICAgNiArLQo+ICBk
+cml2ZXJzL3BsYXRmb3JtL2dvbGRmaXNoL2dvbGRmaXNoX3BpcGUuYyAgIHwgICAzICstCj4gIGRy
+aXZlcnMvcmFwaWRpby9kZXZpY2VzL3Jpb19tcG9ydF9jZGV2LmMgICAgfCAgIDQgKy0KPiAgZHJp
+dmVycy9zYnVzL2NoYXIvb3JhZGF4LmMgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBkcml2
+ZXJzL3Njc2kvc3QuYyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAzICstCj4gIGRyaXZl
+cnMvc3RhZ2luZy9nYXNrZXQvZ2Fza2V0X3BhZ2VfdGFibGUuYyAgfCAgIDQgKy0KPiAgZHJpdmVy
+cy90ZWUvdGVlX3NobS5jICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBkcml2ZXJz
+L3ZmaW8vdmZpb19pb21tdV9zcGFwcl90Y2UuYyAgICAgICAgIHwgICAzICstCj4gIGRyaXZlcnMv
+dmZpby92ZmlvX2lvbW11X3R5cGUxLmMgICAgICAgICAgICAgfCAgIDMgKy0KPiAgZHJpdmVycy92
+aG9zdC92aG9zdC5jICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBkcml2ZXJzL3Zp
+ZGVvL2ZiZGV2L3B2cjJmYi5jICAgICAgICAgICAgICAgIHwgICAyICstCj4gIGRyaXZlcnMvdmly
+dC9mc2xfaHlwZXJ2aXNvci5jICAgICAgICAgICAgICAgfCAgIDIgKy0KPiAgZHJpdmVycy94ZW4v
+Z250ZGV2LmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBmcy9vcmFuZ2Vmcy9v
+cmFuZ2Vmcy1idWZtYXAuYyAgICAgICAgICAgICAgIHwgICAyICstCj4gIGluY2x1ZGUvbGludXgv
+bW0uaCAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMTcgKy0KPiAga2VybmVsL2Z1dGV4LmMg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBsaWIvaW92X2l0ZXIuYyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA3ICstCj4gIG1tL2d1cC5jICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAyMjAgKysrKysrKysrKysrLS0tLS0tLS0KPiAg
+bW0vZ3VwX2JlbmNobWFyay5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNSArLQo+ICBt
+bS91dGlsLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA4ICstCj4gIG5l
+dC9jZXBoL3BhZ2V2ZWMuYyAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KPiAgbmV0
+L3Jkcy9pbmZvLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQo+ICBuZXQv
+cmRzL3JkbWEuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAzICstCj4gIDQ0IGZp
+bGVzIGNoYW5nZWQsIDIzMiBpbnNlcnRpb25zKCspLCAxODAgZGVsZXRpb25zKC0pCj4gCj4gLS0g
+Cj4gMi4yMC4xCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9y
+ZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZl
+bA==
