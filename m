@@ -1,8 +1,8 @@
 Return-Path: <SRS0=g5d9=RD=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 61/81] s390/qeth: release cmd buffer in error paths
-Date: Thu, 28 Feb 2019 10:07:53 -0500
-Message-Id: <20190228150813.10256-61-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 63/81] s390/qeth: cancel close_dev work before removing a card
+Date: Thu, 28 Feb 2019 10:07:55 -0500
+Message-Id: <20190228150813.10256-63-sashal@kernel.org>
 In-Reply-To: <20190228150813.10256-1-sashal@kernel.org>
 References: <20190228150813.10256-1-sashal@kernel.org>
 MIME-Version: 1.0
@@ -16,63 +16,59 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 5065b2dd3e5f9247a6c9d67974bc0472bf561b9d ]
+[ Upstream commit c2780c1a3fb724560b1d44f7976e0de17bf153c7 ]
 
-Whenever we fail before/while starting an IO, make sure to release the
-IO buffer. Usually qeth_irq() would do this for us, but if the IO
-doesn't even start we obviously won't get an interrupt for it either.
+A card's close_dev work is scheduled on a driver-wide workqueue. If the
+card is removed and freed while the work is still active, this causes a
+use-after-free.
+So make sure that the work is completed before freeing the card.
 
+Fixes: 0f54761d167f ("qeth: Support VEPA mode")
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/s390/net/qeth_core.h    | 1 +
+ drivers/s390/net/qeth_l2_main.c | 2 ++
+ drivers/s390/net/qeth_l3_main.c | 1 +
+ 3 files changed, 4 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 0c9a5250dd93f..623ddda5d2ba8 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -568,6 +568,7 @@ static int __qeth_issue_next_read(struct qeth_card *card)
- 		QETH_DBF_MESSAGE(2, "error %i on device %x when starting next read ccw!\n",
- 				 rc, CARD_DEVID(card));
- 		atomic_set(&channel->irq_pending, 0);
-+		qeth_release_buffer(channel, iob);
- 		card->read_or_write_problem = 1;
- 		qeth_schedule_recovery(card);
- 		wake_up(&card->wait_q);
-@@ -1129,6 +1130,8 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
- 		rc = qeth_get_problem(card, cdev, irb);
- 		if (rc) {
- 			card->read_or_write_problem = 1;
-+			if (iob)
-+				qeth_release_buffer(iob->channel, iob);
- 			qeth_clear_ipacmd_list(card);
- 			qeth_schedule_recovery(card);
- 			goto out;
-@@ -1811,6 +1814,7 @@ static int qeth_idx_activate_get_answer(struct qeth_card *card,
- 		QETH_DBF_MESSAGE(2, "Error2 in activating channel rc=%d\n", rc);
- 		QETH_DBF_TEXT_(SETUP, 2, "2err%d", rc);
- 		atomic_set(&channel->irq_pending, 0);
-+		qeth_release_buffer(channel, iob);
- 		wake_up(&card->wait_q);
- 		return rc;
- 	}
-@@ -1880,6 +1884,7 @@ static int qeth_idx_activate_channel(struct qeth_card *card,
- 			rc);
- 		QETH_DBF_TEXT_(SETUP, 2, "1err%d", rc);
- 		atomic_set(&channel->irq_pending, 0);
-+		qeth_release_buffer(channel, iob);
- 		wake_up(&card->wait_q);
- 		return rc;
- 	}
-@@ -2060,6 +2065,7 @@ int qeth_send_control_data(struct qeth_card *card, int len,
- 	}
- 	reply = qeth_alloc_reply(card);
- 	if (!reply) {
-+		qeth_release_buffer(channel, iob);
- 		return -ENOMEM;
- 	}
- 	reply->callback = reply_cb;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 99af1a0a33147..8999be74c5451 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -22,6 +22,7 @@
+ #include <linux/hashtable.h>
+ #include <linux/ip.h>
+ #include <linux/refcount.h>
++#include <linux/workqueue.h>
+ 
+ #include <net/ipv6.h>
+ #include <net/if_inet6.h>
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 8d3601891c62d..49fa09c67d49f 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -823,6 +823,8 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
+ 
+ 	if (cgdev->state == CCWGROUP_ONLINE)
+ 		qeth_l2_set_offline(cgdev);
++
++	cancel_work_sync(&card->close_dev_work);
+ 	if (qeth_netdev_is_registered(card->dev))
+ 		unregister_netdev(card->dev);
+ }
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index f08b745c20073..d1bf55b5c8e1b 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2428,6 +2428,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 	if (cgdev->state == CCWGROUP_ONLINE)
+ 		qeth_l3_set_offline(cgdev);
+ 
++	cancel_work_sync(&card->close_dev_work);
+ 	if (qeth_netdev_is_registered(card->dev))
+ 		unregister_netdev(card->dev);
+ 	qeth_l3_clear_ip_htable(card, 0);
 -- 
 2.19.1
