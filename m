@@ -1,8 +1,8 @@
 Return-Path: <SRS0=g5d9=RD=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 64/81] s390/qeth: conclude all event processing before offlining a card
-Date: Thu, 28 Feb 2019 10:07:56 -0500
-Message-Id: <20190228150813.10256-64-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 62/81] s390/qeth: fix use-after-free in error path
+Date: Thu, 28 Feb 2019 10:07:54 -0500
+Message-Id: <20190228150813.10256-62-sashal@kernel.org>
 In-Reply-To: <20190228150813.10256-1-sashal@kernel.org>
 References: <20190228150813.10256-1-sashal@kernel.org>
 MIME-Version: 1.0
@@ -16,131 +16,67 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit c0a2e4d10d9366ada133a8ae4ff2f32397f8b15b ]
+[ Upstream commit afa0c5904ba16d59b0454f7ee4c807dae350f432 ]
 
-Work for Bridgeport events is currently placed on a driver-wide
-workqueue. If the card is removed and freed while any such work is still
-active, this causes a use-after-free.
-So put the events on a per-card queue, where we can control their
-lifetime. As we also don't want stale events to last beyond an
-offline & online cycle, flush this queue when setting the card offline.
+The error path in qeth_alloc_qdio_buffers() that takes care of
+cleaning up the Output Queues is buggy. It first frees the queue, but
+then calls qeth_clear_outq_buffers() with that very queue struct.
 
-Fixes: b4d72c08b358 ("qeth: bridgeport support - basic control")
+Make the call to qeth_clear_outq_buffers() part of the free action
+(in the correct order), and while at it fix the naming of the helper.
+
+Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c | 10 ++++++++--
- drivers/s390/net/qeth_l2_main.c   |  6 ++++--
- drivers/s390/net/qeth_l3_main.c   |  2 ++
- 4 files changed, 15 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 8999be74c5451..8f2af450152fb 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -791,6 +791,7 @@ struct qeth_card {
- 	struct qeth_seqno seqno;
- 	struct qeth_card_options options;
- 
-+	struct workqueue_struct *event_wq;
- 	wait_queue_head_t wait_q;
- 	spinlock_t mclock;
- 	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
-@@ -969,7 +970,6 @@ extern const struct attribute_group *qeth_osn_attr_groups[];
- extern const struct attribute_group qeth_device_attr_group;
- extern const struct attribute_group qeth_device_blkt_group;
- extern const struct device_type qeth_generic_devtype;
--extern struct workqueue_struct *qeth_wq;
- 
- int qeth_card_hw_is_reachable(struct qeth_card *);
- const char *qeth_get_cardname_short(struct qeth_card *);
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 89cc172820ca4..ebbc3ad504f9e 100644
+index 623ddda5d2ba8..89cc172820ca4 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -76,8 +76,7 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
- static void qeth_release_skbs(struct qeth_qdio_out_buffer *buf);
- static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *, int);
+@@ -2397,11 +2397,12 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
+ 	return 0;
+ }
  
--struct workqueue_struct *qeth_wq;
--EXPORT_SYMBOL_GPL(qeth_wq);
-+static struct workqueue_struct *qeth_wq;
- 
- int qeth_card_hw_is_reachable(struct qeth_card *card)
+-static void qeth_free_qdio_out_buf(struct qeth_qdio_out_q *q)
++static void qeth_free_output_queue(struct qeth_qdio_out_q *q)
  {
-@@ -1471,6 +1470,10 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
- 	CARD_RDEV(card) = gdev->cdev[0];
- 	CARD_WDEV(card) = gdev->cdev[1];
- 	CARD_DDEV(card) = gdev->cdev[2];
-+
-+	card->event_wq = alloc_ordered_workqueue("%s", 0, dev_name(&gdev->dev));
-+	if (!card->event_wq)
-+		goto out_wq;
- 	if (qeth_setup_channel(&card->read, true))
- 		goto out_ip;
- 	if (qeth_setup_channel(&card->write, true))
-@@ -1486,6 +1489,8 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
- out_channel:
- 	qeth_clean_channel(&card->read);
- out_ip:
-+	destroy_workqueue(card->event_wq);
-+out_wq:
- 	dev_set_drvdata(&gdev->dev, NULL);
- 	kfree(card);
- out:
-@@ -5038,6 +5043,7 @@ static void qeth_core_free_card(struct qeth_card *card)
- 	qeth_clean_channel(&card->read);
- 	qeth_clean_channel(&card->write);
- 	qeth_clean_channel(&card->data);
-+	destroy_workqueue(card->event_wq);
- 	qeth_free_qdio_buffers(card);
- 	unregister_service_level(&card->qeth_service_level);
- 	dev_set_drvdata(&card->gdev->dev, NULL);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 49fa09c67d49f..a6c55cbf3d69c 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -391,6 +391,8 @@ static void qeth_l2_stop_card(struct qeth_card *card, int recovery_mode)
- 		qeth_clear_cmd_buffers(&card->read);
- 		qeth_clear_cmd_buffers(&card->write);
+ 	if (!q)
+ 		return;
+ 
++	qeth_clear_outq_buffers(q, 1);
+ 	qdio_free_buffers(q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
+ 	kfree(q);
+ }
+@@ -2475,10 +2476,8 @@ static int qeth_alloc_qdio_buffers(struct qeth_card *card)
+ 		card->qdio.out_qs[i]->bufs[j] = NULL;
  	}
-+
-+	flush_workqueue(card->event_wq);
- }
- 
- static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
-@@ -1455,7 +1457,7 @@ static void qeth_bridge_state_change(struct qeth_card *card,
- 	data->card = card;
- 	memcpy(&data->qports, qports,
- 			sizeof(struct qeth_sbp_state_change) + extrasize);
--	queue_work(qeth_wq, &data->worker);
-+	queue_work(card->event_wq, &data->worker);
- }
- 
- struct qeth_bridge_host_data {
-@@ -1527,7 +1529,7 @@ static void qeth_bridge_host_event(struct qeth_card *card,
- 	data->card = card;
- 	memcpy(&data->hostevs, hostevs,
- 			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
--	queue_work(qeth_wq, &data->worker);
-+	queue_work(card->event_wq, &data->worker);
- }
- 
- /* SETBRIDGEPORT support; sending commands */
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index d1bf55b5c8e1b..29a2408b9282e 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1436,6 +1436,8 @@ static void qeth_l3_stop_card(struct qeth_card *card, int recovery_mode)
- 		qeth_clear_cmd_buffers(&card->read);
- 		qeth_clear_cmd_buffers(&card->write);
+ out_freeoutq:
+-	while (i > 0) {
+-		qeth_free_qdio_out_buf(card->qdio.out_qs[--i]);
+-		qeth_clear_outq_buffers(card->qdio.out_qs[i], 1);
+-	}
++	while (i > 0)
++		qeth_free_output_queue(card->qdio.out_qs[--i]);
+ 	kfree(card->qdio.out_qs);
+ 	card->qdio.out_qs = NULL;
+ out_freepool:
+@@ -2511,10 +2510,8 @@ static void qeth_free_qdio_buffers(struct qeth_card *card)
+ 	qeth_free_buffer_pool(card);
+ 	/* free outbound qdio_qs */
+ 	if (card->qdio.out_qs) {
+-		for (i = 0; i < card->qdio.no_out_queues; ++i) {
+-			qeth_clear_outq_buffers(card->qdio.out_qs[i], 1);
+-			qeth_free_qdio_out_buf(card->qdio.out_qs[i]);
+-		}
++		for (i = 0; i < card->qdio.no_out_queues; i++)
++			qeth_free_output_queue(card->qdio.out_qs[i]);
+ 		kfree(card->qdio.out_qs);
+ 		card->qdio.out_qs = NULL;
  	}
-+
-+	flush_workqueue(card->event_wq);
- }
- 
- /*
 -- 
 2.19.1
