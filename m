@@ -1,10 +1,10 @@
 Return-Path: <SRS0=g5d9=RD=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 14/19] s390/qeth: fix use-after-free in error path
-Date: Thu, 28 Feb 2019 10:15:10 -0500
-Message-Id: <20190228151517.12705-14-sashal@kernel.org>
-In-Reply-To: <20190228151517.12705-1-sashal@kernel.org>
-References: <20190228151517.12705-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 5/8] s390/qeth: fix use-after-free in error path
+Date: Thu, 28 Feb 2019 10:16:09 -0500
+Message-Id: <20190228151614.13022-5-sashal@kernel.org>
+In-Reply-To: <20190228151614.13022-1-sashal@kernel.org>
+References: <20190228151614.13022-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,10 +35,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 8f77fc0630ce0..86a02592b982c 100644
+index 533bd2467910b..b40604d0126f8 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -2449,11 +2449,12 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
+@@ -2452,11 +2452,12 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
  	return rc;
  }
  
@@ -52,7 +52,7 @@ index 8f77fc0630ce0..86a02592b982c 100644
  	qdio_free_buffers(q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
  	kfree(q);
  }
-@@ -2526,10 +2527,8 @@ static int qeth_alloc_qdio_buffers(struct qeth_card *card)
+@@ -2529,10 +2530,8 @@ static int qeth_alloc_qdio_buffers(struct qeth_card *card)
  		card->qdio.out_qs[i]->bufs[j] = NULL;
  	}
  out_freeoutq:
@@ -65,7 +65,7 @@ index 8f77fc0630ce0..86a02592b982c 100644
  	kfree(card->qdio.out_qs);
  	card->qdio.out_qs = NULL;
  out_freepool:
-@@ -2562,10 +2561,8 @@ static void qeth_free_qdio_buffers(struct qeth_card *card)
+@@ -2565,10 +2564,8 @@ static void qeth_free_qdio_buffers(struct qeth_card *card)
  	qeth_free_buffer_pool(card);
  	/* free outbound qdio_qs */
  	if (card->qdio.out_qs) {
