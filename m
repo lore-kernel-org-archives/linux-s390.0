@@ -1,138 +1,81 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v4 0/7] vfio: ap: AP Queue Interrupt Control
-Date: Fri, 1 Mar 2019 10:40:46 +0100
-Message-ID: <b2606279-649c-29e7-dfa4-68f0ee01059f@linux.ibm.com>
+Subject: Re: [PATCH v4 1/7] s390: ap: kvm: add PQAP interception for AQIC
+Date: Fri, 1 Mar 2019 13:03:40 +0100
+Message-ID: <3fedbde5-ef83-c67e-6352-fd492f258009@linux.ibm.com>
 References: <1550849400-27152-1-git-send-email-pmorel@linux.ibm.com>
- <20190228160805.3fcc126b@oc2783563651>
+ <1550849400-27152-2-git-send-email-pmorel@linux.ibm.com>
+ <babf7884-35f1-2f2e-34dc-96d9190fd15b@linux.ibm.com>
+ <e7ba5cb0-b254-7f73-bc59-ca2456ce7951@linux.ibm.com>
+ <9f1d9241-39b9-adbc-d0e9-cb702e609cbc@linux.ibm.com>
+ <4dc59125-7f96-cba8-651b-382ed8f8bff8@linux.ibm.com>
+ <8526f468-9a4d-68d2-3868-0dad5ce16f46@linux.ibm.com>
+ <6058a017-6404-af3c-62ef-2452214ac97c@de.ibm.com>
+ <2391adc2-6611-034c-61c5-feb46e2a751b@de.ibm.com>
+ <20190228122251.75b31f62.cohuck@redhat.com>
+ <be69498a-c4d3-81e7-b8bf-6931058cee74@linux.ibm.com>
+ <20190228145254.2909425e.cohuck@redhat.com>
+ <261a1e22-3703-21a4-e33d-e737651e7d89@linux.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190228160805.3fcc126b@oc2783563651>
+In-Reply-To: <261a1e22-3703-21a4-e33d-e737651e7d89@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 28/02/2019 16:08, Halil Pasic wrote:
-> On Fri, 22 Feb 2019 16:29:53 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 28/02/2019 15:14, Pierre Morel wrote:
+> On 28/02/2019 14:52, Cornelia Huck wrote:
+>> On Thu, 28 Feb 2019 14:16:09 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> On 28/02/2019 12:22, Cornelia Huck wrote:
+>>
+>>>> So, to summarize, the function should do:
+>>>> - Is userspace supposed to emulate everything (!ECA_APIE)? Return
+>>>>     -EOPNOTSUPP to hand control to it.
+>>>> - We are now interpreting the instruction in KVM. Do common checks
+>>>>     (PSTATE etc.) and inject exceptions, if needed.
+>>>> - Now look at the fc; if there's a handler for it, call that; if not
+>>>>     (case does not attempt to call a specific handler, or no handler
+>>>>     registered), inject a specification exception. (Do we want 
+>>>> pre-checks
+>>>>     like for facility 65 here, or in the handler?)
+>>>>
+>>>> That response code 0x01 thingy probably needs to go into the specific
+>>>> handler function, if anywhere (don't know the semantics, sorry).
+>>>
+>>> What do you mean with specific handler function?
+>>>
+>>> If you mean a switch around the FC with static function's call, I agree,
+>>> if you mean a jump into a hook I do not agree.
+>>
+>> Ah, ok; so each case (that we want to handle) should call into a
+>> subhandler that does
+>> {
+>>     (... check things like facilities ...)
+>>     if (!specific_hook)
+>>         inject_specif_excp_and_return();
+>>     ret = specific_hook();
+>>     if (ret)
+>>         set_resp_code_0x01(); // or in specific_hook()?
+>> }
+>>
+>> ?
 > 
->> This patch implement PQAP/AQIC interception in KVM.
->>
->> To implement this we need to add a new structure, vfio_ap_queue,to be
->> able to retrieve the mediated device associated with a queue and specific
->> values needed to register/unregister the interrupt structures:
->>   - APQN: to be able to issue the commands and search for queue structures
->>   - NIB : to unpin the NIB on clear IRQ
->>   - ISC : to unregister with the GIB interface
->>   - MATRIX: a pointer to the matrix mediated device
->>   - LIST: the list_head to handle the vfio_queue life cycle
->>
->> Having this structure and the list management greatly ease the handling
->> of the AP queues and diminues the LOCs needed in the vfio_ap driver by
->> more than 150 lines in comparison with the previous version.
->>
->>
->> 0) Queues life cycle
->>
->> vfio_ap_queues are created on probe
->>
->> We define one bucket on the matrix device to store the free vfio_ap_queues,
->> the queues not assign to any matrix mediated device.
->>
->> We define one bucket on each matrix mediated device to hold the
->> vfio_ap_queues belonging to it.
->>
->> vfio_ap_queues are deleted on remove
->>
->> This makes the search for a queue easy and the detection of assignent
->> incoherency obvious (the queue is not avilable) and simplifies assignment.
->>
->>
->> 1) Phase 1, probe and remove from vfio_ap_queue
->>
->> The vfio_ap_queue structures are dynamically allocated and setup
->> when a queue is probed by the ap_vfio_driver.
->> The vfio_ap_queue is linked to the ap_queue device as the driver data.
->>
->> The new The vfio_ap_queue is put on a free_list belonging to the
->> matrix device.
->>
->> The vfio_ap_queue are free during remove.
->>
->>
->> 2) Phase 2, assignment of vfio_ap_queue to a mediated device
->>
->> When a APID is assigned we look for APQI already assigned to
->> the matrix mediated device and associate all the queue with the
->> APQN = (APID,APQI) to the mediated device by adding them to
->> the mediated device queue list.
->> We do the same when a APQI is assigned.
->>
->> If any queue with a matching APQN can not be found on the matrix
->> device free list it means it is already associated to another matrix
->> mediated device and no queue is added to the matrix mediated device.
->>
->> 3) Phase 3, starting the guest
->>
->> When the VFIO device is opened the PQAP callback and a pointer to
->> the matrix mediated device are set inside KVM during the open callback.
->>
->> When the device is closed or if a queue is removed, the vfio_ap_queue is
->> dissociated from the mediated device.
->>
->>
->> 4) Phase 3 intercepting the PQAP/AQIC instruction
->>
->> On interception of the PQAP/AQIC instruction, the interception code
->> makes sure the pqap_hook is initialized and allowed to be called
->> and call it.
->> Otherwise it reports the usual -EOPNOTSUPP return code to let
->> QEMU handle the fault.
->>    
->> the pqap callback search for the queue asociated with the APQN
->> stored in the register 0, setting the code to "illegal APQN"
->> if the vfio_ap_queue can not be found.
->>
->> Depending on the "i" bit of the register 1, the pqap callback
->> setup or clear the interruption by calling the host format PQAP/AQIC
->> instruction.
->> When seting up the interruption it uses the NIB and the guest ISC
->> provided by the guest and the host ISC provided by the registration
->> to the GIB code, pin the NIB and also stores ISC and NIB inside
->> the vfio_ap_queue structure.
->> When clearing the interrupt it retrieves the host ISC to unregister
->> with the GIB code and unpin the NIB.
->>
->> We take care when enabling GISA that the guest may have issued a
->> reset and will not need to disable the interuptions before
->> re-enabling interruptions.
-> 
-> Please let us know what guarantees, that we will disable the
-> interruptions we previously enabled using AQIC (and generally facilitate
-> proper cleanup) *before* kvm_s390_gisa_destroy() makes the gisa and
-> with that the IPM go away!
-> 
-> Please note that IMHO this needs to be guaranteed by the kernel
-> regardless of what userspace (QEMU) or the guest does.
-> 
-> (I've asked this question before during our internal review but I could
-> not find the answer if there was one after going trough my mails.)
-> 
-> Regards,
-> Halil
-> 
+> Yes something in this direction.
 
-You are right.
-I will investigate this too.
+Sorry, after reflection, no, we do not want to change the previous 
+behavior so we only handle the AQIC case.
 
 Regards,
 Pierre
+
 
 -- 
 Pierre Morel
