@@ -1,6 +1,7 @@
 Return-Path: <SRS0=/L37=RE=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 Subject: Re: [PATCH v4 4/4] hugetlb: allow to free gigantic pages regardless
  of the configuration
+From: Alexandre Ghiti <alex@ghiti.fr>
 References: <20190228063604.15298-1-alex@ghiti.fr>
  <20190228063604.15298-5-alex@ghiti.fr>
  <9a385cc8-581c-55cf-4a85-10b5c4dd178c@intel.com>
@@ -8,12 +9,10 @@ References: <20190228063604.15298-1-alex@ghiti.fr>
  <6c842251-1bed-4d79-bf6d-997006ec72e2@intel.com>
  <6ea4119a-0ecb-511d-3aab-269004245a08@oracle.com>
  <1cfaca88-a219-d057-3ab8-37fb1c1687d6@ghiti.fr>
- <f7c94eb5-d496-7e24-d44f-17eaff287012@ghiti.fr>
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <0d3de196-bd71-3ec9-00cd-f8274c9c5f53@oracle.com>
-Date: Fri, 1 Mar 2019 09:51:50 -0800
+Message-ID: <f7c94eb5-d496-7e24-d44f-17eaff287012@ghiti.fr>
+Date: Fri, 1 Mar 2019 14:21:06 +0100
 MIME-Version: 1.0
-In-Reply-To: <f7c94eb5-d496-7e24-d44f-17eaff287012@ghiti.fr>
+In-Reply-To: <1cfaca88-a219-d057-3ab8-37fb1c1687d6@ghiti.fr>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -22,93 +21,99 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Alexandre Ghiti <alex@ghiti.fr>
+To: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Dave Hansen <dave.hansen@intel.com>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, "David S . Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 3/1/19 5:21 AM, Alexandre Ghiti wrote:
-> On 03/01/2019 07:25 AM, Alex Ghiti wrote:
->> On 2/28/19 5:26 PM, Mike Kravetz wrote:
->>> On 2/28/19 12:23 PM, Dave Hansen wrote:
->>>> On 2/28/19 11:50 AM, Mike Kravetz wrote:
->>>>> On 2/28/19 11:13 AM, Dave Hansen wrote:
->>>>>>> +    if (hstate_is_gigantic(h) && !IS_ENABLED(CONFIG_CONTIG_ALLOC)) {
->>>>>>> +        spin_lock(&hugetlb_lock);
->>>>>>> +        if (count > persistent_huge_pages(h)) {
->>>>>>> +            spin_unlock(&hugetlb_lock);
->>>>>>> +            return -EINVAL;
->>>>>>> +        }
->>>>>>> +        goto decrease_pool;
->>>>>>> +    }
->>>>>> This choice confuses me.  The "Decrease the pool size" code already
->>>>>> works and the code just falls through to it after skipping all the
->>>>>> "Increase the pool size" code.
->>>>>>
->>>>>> Why did did you need to add this case so early?  Why not just let it
->>>>>> fall through like before?
->>>>> I assume you are questioning the goto, right?  You are correct in that
->>>>> it is unnecessary and we could just fall through.
->>>> Yeah, it just looked odd to me.
-> 
->> I'd rather avoid useless checks when we already know they won't
->> be met and I think that makes the code more understandable.
->>
->> But that's up to you for the next version.
-
-I too find some value in the goto.  It tells me this !CONFIG_CONTIG_ALLOC
-case is special and we are skipping the normal checks.  But, removing the
-goto is not a requirement for me.
-
->>>>> However, I wonder if we might want to consider a wacky condition that the
->>>>> above check would prevent.  Consider a system/configuration with 5 gigantic
-...
->>
->> If I may, I think that this is the kind of info the user wants to have and we should
->> return an error when it is not possible to allocate runtime huge pages.
->> I already noticed that if someone asks for 10 huge pages, and only 5 are allocated,
->> no error is returned to the user and I found that surprising.
-
-Upon further thought, let's not consider this wacky permanent -> surplus ->
-permanent case.  I just can't see it being an actual use case.
-
-IIUC, that 'no error' behavior is somewhat expected.  I seem to recall previous
-discussions about changing with the end result to leave as is.
-
->>>> @@ -2428,7 +2442,9 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
->>>>       } else
->>>>           nodes_allowed = &node_states[N_MEMORY];
->>>>   -    h->max_huge_pages = set_max_huge_pages(h, count, nodes_allowed);
->>>> +    err = set_max_huge_pages(h, count, nodes_allowed);
->>>> +    if (err)
->>>> +        goto out;
->>>>         if (nodes_allowed != &node_states[N_MEMORY])
->>>>           NODEMASK_FREE(nodes_allowed);
->>> Do note that I beleive there is a bug the above change.  The code after
->>> the out label is:
->>>
->>> out:
->>>          NODEMASK_FREE(nodes_allowed);
->>>          return err;
->>> }
->>>
->>> With the new goto, we need the same
->>> if (nodes_allowed != &node_states[N_MEMORY]) before NODEMASK_FREE().
->>>
->>> Sorry, I missed this in previous versions.
->>
->> Oh right, I'm really sorry I missed that, thank you for noticing.
-
-This is the only issue I have with the code in hugetlb.c.  For me, the
-goto can stay or go.  End result is the same.
--- 
-Mike Kravetz
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+T24gMDMvMDEvMjAxOSAwNzoyNSBBTSwgQWxleCBHaGl0aSB3cm90ZToKPiBPbiAyLzI4LzE5IDU6
+MjYgUE0sIE1pa2UgS3JhdmV0eiB3cm90ZToKPj4gT24gMi8yOC8xOSAxMjoyMyBQTSwgRGF2ZSBI
+YW5zZW4gd3JvdGU6Cj4+PiBPbiAyLzI4LzE5IDExOjUwIEFNLCBNaWtlIEtyYXZldHogd3JvdGU6
+Cj4+Pj4gT24gMi8yOC8xOSAxMToxMyBBTSwgRGF2ZSBIYW5zZW4gd3JvdGU6Cj4+Pj4+PiArwqDC
+oMKgIGlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkgJiYgCj4+Pj4+PiAhSVNfRU5BQkxFRChDT05G
+SUdfQ09OVElHX0FMTE9DKSkgewo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHNwaW5fbG9jaygmaHVn
+ZXRsYl9sb2NrKTsKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAoY291bnQgPiBwZXJzaXN0ZW50
+X2h1Z2VfcGFnZXMoaCkpIHsKPj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHNwaW5fdW5s
+b2NrKCZodWdldGxiX2xvY2spOwo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJu
+IC1FSU5WQUw7Cj4+Pj4+PiArwqDCoMKgwqDCoMKgwqAgfQo+Pj4+Pj4gK8KgwqDCoMKgwqDCoMKg
+IGdvdG8gZGVjcmVhc2VfcG9vbDsKPj4+Pj4+ICvCoMKgwqAgfQo+Pj4+PiBUaGlzIGNob2ljZSBj
+b25mdXNlcyBtZS7CoCBUaGUgIkRlY3JlYXNlIHRoZSBwb29sIHNpemUiIGNvZGUgYWxyZWFkeQo+
+Pj4+PiB3b3JrcyBhbmQgdGhlIGNvZGUganVzdCBmYWxscyB0aHJvdWdoIHRvIGl0IGFmdGVyIHNr
+aXBwaW5nIGFsbCB0aGUKPj4+Pj4gIkluY3JlYXNlIHRoZSBwb29sIHNpemUiIGNvZGUuCj4+Pj4+
+Cj4+Pj4+IFdoeSBkaWQgZGlkIHlvdSBuZWVkIHRvIGFkZCB0aGlzIGNhc2Ugc28gZWFybHk/wqAg
+V2h5IG5vdCBqdXN0IGxldCBpdAo+Pj4+PiBmYWxsIHRocm91Z2ggbGlrZSBiZWZvcmU/Cj4+Pj4g
+SSBhc3N1bWUgeW91IGFyZSBxdWVzdGlvbmluZyB0aGUgZ290bywgcmlnaHQ/wqAgWW91IGFyZSBj
+b3JyZWN0IGluIHRoYXQKPj4+PiBpdCBpcyB1bm5lY2Vzc2FyeSBhbmQgd2UgY291bGQganVzdCBm
+YWxsIHRocm91Z2guCj4+PiBZZWFoLCBpdCBqdXN0IGxvb2tlZCBvZGQgdG8gbWUuCj4KPiAoRGF2
+ZSBJIGRvIG5vdCByZWNlaXZlIHlvdXIgYW5zd2VycywgSSBkb24ndCBrbm93IHdoeSkuCgpJIGNv
+bGxlY3RlZCBtaXN0YWtlcyBoZXJlOiBkb21haW4gbmFtZSBleHBpcmVkIGFuZCBubyBtYWlsaW5n
+IGxpc3QgYWRkZWQgOikKUmVhbGx5IHNvcnJ5IGFib3V0IHRoYXQsIEkgbWlzc2VkIHRoZSB3aG9s
+ZSBkaXNjdXNzaW9uIChpZiBhbnkpLgpDb3VsZCBzb21lb25lIGZvcndhcmQgaXQgdG8gbWUgKGlm
+IGFueSkgPyBUaGFua3MgIQoKPiBJJ2QgcmF0aGVyIGF2b2lkIHVzZWxlc3MgY2hlY2tzIHdoZW4g
+d2UgYWxyZWFkeSBrbm93IHRoZXkgd29uJ3QKPiBiZSBtZXQgYW5kIEkgdGhpbmsgdGhhdCBtYWtl
+cyB0aGUgY29kZSBtb3JlIHVuZGVyc3RhbmRhYmxlLgo+Cj4gQnV0IHRoYXQncyB1cCB0byB5b3Ug
+Zm9yIHRoZSBuZXh0IHZlcnNpb24uCj4KPiBUaGFua3MKPj4+Cj4+Pj4gSG93ZXZlciwgSSB3b25k
+ZXIgaWYgd2UgbWlnaHQgd2FudCB0byBjb25zaWRlciBhIHdhY2t5IGNvbmRpdGlvbiAKPj4+PiB0
+aGF0IHRoZQo+Pj4+IGFib3ZlIGNoZWNrIHdvdWxkIHByZXZlbnQuwqAgQ29uc2lkZXIgYSBzeXN0
+ZW0vY29uZmlndXJhdGlvbiB3aXRoIDUgCj4+Pj4gZ2lnYW50aWMKPj4+PiBwYWdlcyBhbGxvY2F0
+ZWQgYXQgYm9vdCB0aW1lLsKgIEFsc28gQ09ORklHX0NPTlRJR19BTExPQyBpcyBub3QgCj4+Pj4g
+ZW5hYmxlZCwgc28KPj4+PiBpdCBpcyBub3QgcG9zc2libGUgdG8gYWxsb2NhdGUgZ2lnYW50aWMg
+cGFnZXMgYWZ0ZXIgYm9vdC4KPj4+Pgo+Pj4+IFN1cHBvc2UgdGhlIGFkbWluIGRlY3JlYXNlZCB0
+aGUgbnVtYmVyIG9mIGdpZ2FudGljIHBhZ2VzIHRvIDMuwqAgCj4+Pj4gSG93ZXZlciwgYWxsCj4+
+Pj4gZ2lnYW50aWMgcGFnZXMgd2VyZSBpbiB1c2UuwqAgU28sIDIgZ2lnYW50aWMgcGFnZXMgYXJl
+IG5vdyAnc3VycGx1cycuCj4+Pj4gaC0+bnJfaHVnZV9wYWdlcyA9PSA1IGFuZCBoLT5zdXJwbHVz
+X2h1Z2VfcGFnZXMgPT0gMiwgc28KPj4+PiBwZXJzaXN0ZW50X2h1Z2VfcGFnZXMoKSA9PSAzLgo+
+Pj4+Cj4+Pj4gTm93IHN1cHBvc2UgdGhlIGFkbWluIHdhbnRlZCB0byBpbmNyZWFzZSB0aGUgbnVt
+YmVyIG9mIGdpZ2FudGljIAo+Pj4+IHBhZ2VzIHRvIDUuCj4+Pj4gVGhlIGFib3ZlIGNoZWNrIHdv
+dWxkIHByZXZlbnQgdGhpcy7CoCBIb3dldmVyLCB3ZSBkbyBub3QgbmVlZCB0byByZWFsbHkKPj4+
+PiAnYWxsb2NhdGUnIHR3byBnaWdhbnRpYyBwYWdlcy7CoCBXZSBjYW4gc2ltcGx5IGNvbnZlcnQg
+dGhlIHN1cnBsdXMgCj4+Pj4gcGFnZXMuCj4+Pj4KPj4+PiBJIGFkbWl0IHRoaXMgaXMgYSB3YWNr
+eSBjb25kaXRpb24uwqAgVGhlIGFiaWxpdHkgdG8gJ2ZyZWUnIGdpZ2FudGljIAo+Pj4+IHBhZ2Vz
+Cj4+Pj4gYXQgcnVudGltZSBpZiAhQ09ORklHX0NPTlRJR19BTExPQyBtYWtlcyBpdCBwb3NzaWJs
+ZS7CoCBJIGRvbid0IAo+Pj4+IG5lY2Vzc2Fpcmx5Cj4+Pj4gdGhpbmsgd2Ugc2hvdWxkIGNvbnNp
+ZGVyIHRoaXMuwqAgaHVnZXRsYmZzIGNvZGUganVzdCBtYWtlcyBtZSB0aGluayBvZgo+Pj4+IHdh
+Y2t5IHRoaW5ncy4gOikKPj4+IEkgdGhpbmsgeW91J3JlIHNheWluZyB0aGF0IHRoZSBuZXdseS1h
+ZGRlZCBjaGVjayBpcyBvdmVybHktcmVzdHJpY3RpdmUuCj4+PiDCoCBJZiB3ZSAiZmVsbCB0aHJv
+dWdoIiBsaWtlIEkgd2FzIHN1Z2dlc3Rpbmcgd2Ugd291bGQgZ2V0IGJldHRlciAKPj4+IGJlaGF2
+aW9yLgo+PiBBdCBmaXJzdCwgSSBkaWQgbm90IHRoaW5rIGl0IG92ZXJseSByZXN0cmljdGl2ZS7C
+oCBCdXQsIEkgYmVsaWV2ZSB3ZSBjYW4KPj4ganVzdCBlbGltaW5hdGUgdGhhdCBjaGVjayBmb3Ig
+Z2lnYW50aWMgcGFnZXMuwqAgSWYgCj4+ICFDT05GSUdfQ09OVElHX0FMTE9DIGFuZAo+PiB0aGlz
+IGlzIGEgcmVxdWVzdCB0byBhbGxvY2F0ZSBtb3JlIGdpZ2FudGljIHBhZ2VzLCAKPj4gYWxsb2Nf
+cG9vbF9odWdlX3BhZ2UoKQo+PiBzaG91bGQgcmV0dXJuIE5VTEwuCj4+Cj4+IFRoZSBvbmx5IHBv
+dGVudGlhbCBpc3N1ZSBJIHNlZSBpcyB0aGF0IGluIHRoZSBwYXN0IHdlIGhhdmUgcmV0dXJuZWQg
+Cj4+IEVJTlZBTAo+PiBpZiAhQ09ORklHX0NPTlRJR19BTExPQyBhbmQgc29tZW9uZSBhdHRlbXB0
+ZWQgdG8gaW5jcmVhc2UgdGhlIHBvb2wgc2l6ZS4KPj4gTm93LCB3ZSB3aWxsIG5vdCBpbmNyZWFz
+ZSB0aGUgcG9vbCBhbmQgd2lsbCBub3QgcmV0dXJuIGFuIGVycm9yLsKgIE5vdCAKPj4gc3VyZQo+
+PiBpZiB0aGF0IGlzIGFuIGFjY2VwdGFibGUgY2hhbmdlIGluIHVzZXIgYmVoYXZpb3IuCj4KPiBJ
+ZiBJIG1heSwgSSB0aGluayB0aGF0IHRoaXMgaXMgdGhlIGtpbmQgb2YgaW5mbyB0aGUgdXNlciB3
+YW50cyB0byBoYXZlIAo+IGFuZCB3ZSBzaG91bGQKPiByZXR1cm4gYW4gZXJyb3Igd2hlbiBpdCBp
+cyBub3QgcG9zc2libGUgdG8gYWxsb2NhdGUgcnVudGltZSBodWdlIHBhZ2VzLgo+IEkgYWxyZWFk
+eSBub3RpY2VkIHRoYXQgaWYgc29tZW9uZSBhc2tzIGZvciAxMCBodWdlIHBhZ2VzLCBhbmQgb25s
+eSA1IAo+IGFyZSBhbGxvY2F0ZWQsCj4gbm8gZXJyb3IgaXMgcmV0dXJuZWQgdG8gdGhlIHVzZXIg
+YW5kIEkgZm91bmQgdGhhdCBzdXJwcmlzaW5nLgo+Cj4+Cj4+IElmIHdlIGdvIGRvd24gdGhpcyBw
+YXRoLCB0aGVuIHdlIGNvdWxkIHJlbW92ZSB0aGlzIGNoYW5nZSBhcyB3ZWxsOgo+Cj4gSSBhZ3Jl
+ZSB0aGF0IGluIHRoYXQgcGF0aCwgd2UgZG8gbm90IG5lZWQgdGhlIGZvbGxvd2luZyBjaGFuZ2Ug
+bmVpdGhlci4KPgo+Pgo+Pj4gQEAgLTI0MjgsNyArMjQ0Miw5IEBAIHN0YXRpYyBzc2l6ZV90IAo+
+Pj4gX19ucl9odWdlcGFnZXNfc3RvcmVfY29tbW9uKGJvb2wgb2JleV9tZW1wb2xpY3ksCj4+PiDC
+oMKgwqDCoMKgIH0gZWxzZQo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgIG5vZGVzX2FsbG93ZWQgPSAm
+bm9kZV9zdGF0ZXNbTl9NRU1PUlldOwo+Pj4gwqAgLcKgwqDCoCBoLT5tYXhfaHVnZV9wYWdlcyA9
+IHNldF9tYXhfaHVnZV9wYWdlcyhoLCBjb3VudCwgbm9kZXNfYWxsb3dlZCk7Cj4+PiArwqDCoMKg
+IGVyciA9IHNldF9tYXhfaHVnZV9wYWdlcyhoLCBjb3VudCwgbm9kZXNfYWxsb3dlZCk7Cj4+PiAr
+wqDCoMKgIGlmIChlcnIpCj4+PiArwqDCoMKgwqDCoMKgwqAgZ290byBvdXQ7Cj4+PiDCoCDCoMKg
+wqDCoMKgIGlmIChub2Rlc19hbGxvd2VkICE9ICZub2RlX3N0YXRlc1tOX01FTU9SWV0pCj4+PiDC
+oMKgwqDCoMKgwqDCoMKgwqAgTk9ERU1BU0tfRlJFRShub2Rlc19hbGxvd2VkKTsKPj4gRG8gbm90
+ZSB0aGF0IEkgYmVsZWl2ZSB0aGVyZSBpcyBhIGJ1ZyB0aGUgYWJvdmUgY2hhbmdlLsKgIFRoZSBj
+b2RlIGFmdGVyCj4+IHRoZSBvdXQgbGFiZWwgaXM6Cj4+Cj4+IG91dDoKPj4gwqDCoMKgwqDCoMKg
+wqDCoCBOT0RFTUFTS19GUkVFKG5vZGVzX2FsbG93ZWQpOwo+PiDCoMKgwqDCoMKgwqDCoMKgIHJl
+dHVybiBlcnI7Cj4+IH0KPj4KPj4gV2l0aCB0aGUgbmV3IGdvdG8sIHdlIG5lZWQgdGhlIHNhbWUK
+Pj4gaWYgKG5vZGVzX2FsbG93ZWQgIT0gJm5vZGVfc3RhdGVzW05fTUVNT1JZXSkgYmVmb3JlIE5P
+REVNQVNLX0ZSRUUoKS4KPj4KPj4gU29ycnksIEkgbWlzc2VkIHRoaXMgaW4gcHJldmlvdXMgdmVy
+c2lvbnMuCj4KPiBPaCByaWdodCwgSSdtIHJlYWxseSBzb3JyeSBJIG1pc3NlZCB0aGF0LCB0aGFu
+ayB5b3UgZm9yIG5vdGljaW5nLgo+CgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtl
+cm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
+YW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
