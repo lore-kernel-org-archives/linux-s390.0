@@ -1,7 +1,8 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v4 5/6] s390/cio: export hsch to modules
-Date: Fri,  1 Mar 2019 10:39:01 +0100
-Message-ID: <20190301093902.27799-6-cohuck@redhat.com>
+Subject: [PATCH v4 1/6] vfio-ccw: make it safe to access
+ channel programs
+Date: Fri,  1 Mar 2019 10:38:57 +0100
+Message-ID: <20190301093902.27799-2-cohuck@redhat.com>
 References: <20190301093902.27799-1-cohuck@redhat.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 In-Reply-To: <20190301093902.27799-1-cohuck@redhat.com>
@@ -21,27 +22,139 @@ To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farha
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The vfio-ccw code will need this, and it matches treatment of ssch
-and csch.
+When we get a solicited interrupt, the start function may have
+been cleared by a csch, but we still have a channel program
+structure allocated. Make it safe to call the cp accessors in
+any case, so we can call them unconditionally.
 
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+While at it, also make sure that functions called from other parts
+of the code return gracefully if the channel program structure
+has not been initialized (even though that is a bug in the caller).
+
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/cio/ioasm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/cio/vfio_ccw_cp.c  | 21 ++++++++++++++++++++-
+ drivers/s390/cio/vfio_ccw_cp.h  |  2 ++
+ drivers/s390/cio/vfio_ccw_fsm.c |  5 +++++
+ 3 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/ioasm.c b/drivers/s390/cio/ioasm.c
-index 14d328338ce2..08eb10283b18 100644
---- a/drivers/s390/cio/ioasm.c
-+++ b/drivers/s390/cio/ioasm.c
-@@ -233,6 +233,7 @@ int hsch(struct subchannel_id schid)
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 384b3987eeb4..0e79799e9a71 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -362,6 +362,7 @@ static void cp_unpin_free(struct channel_program *cp)
+ 	struct ccwchain *chain, *temp;
+ 	int i;
  
- 	return ccode;
++	cp->initialized = false;
+ 	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++) {
+ 			pfn_array_table_unpin_free(chain->ch_pat + i,
+@@ -732,6 +733,9 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	 */
+ 	cp->orb.cmd.c64 = 1;
+ 
++	if (!ret)
++		cp->initialized = true;
++
+ 	return ret;
  }
-+EXPORT_SYMBOL(hsch);
  
- static inline int __xsch(struct subchannel_id schid)
+@@ -746,7 +750,8 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+  */
+ void cp_free(struct channel_program *cp)
  {
+-	cp_unpin_free(cp);
++	if (cp->initialized)
++		cp_unpin_free(cp);
+ }
+ 
+ /**
+@@ -791,6 +796,10 @@ int cp_prefetch(struct channel_program *cp)
+ 	struct ccwchain *chain;
+ 	int len, idx, ret;
+ 
++	/* this is an error in the caller */
++	if (!cp->initialized)
++		return -EINVAL;
++
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		len = chain->ch_len;
+ 		for (idx = 0; idx < len; idx++) {
+@@ -826,6 +835,10 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
+ 	struct ccwchain *chain;
+ 	struct ccw1 *cpa;
+ 
++	/* this is an error in the caller */
++	if (!cp->initialized)
++		return NULL;
++
+ 	orb = &cp->orb;
+ 
+ 	orb->cmd.intparm = intparm;
+@@ -862,6 +875,9 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
+ 	u32 cpa = scsw->cmd.cpa;
+ 	u32 ccw_head;
+ 
++	if (!cp->initialized)
++		return;
++
+ 	/*
+ 	 * LATER:
+ 	 * For now, only update the cmd.cpa part. We may need to deal with
+@@ -898,6 +914,9 @@ bool cp_iova_pinned(struct channel_program *cp, u64 iova)
+ 	struct ccwchain *chain;
+ 	int i;
+ 
++	if (!cp->initialized)
++		return false;
++
+ 	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+ 		for (i = 0; i < chain->ch_len; i++)
+ 			if (pfn_array_table_iova_pinned(chain->ch_pat + i,
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index a4b74fb1aa57..3c20cd208da5 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -21,6 +21,7 @@
+  * @ccwchain_list: list head of ccwchains
+  * @orb: orb for the currently processed ssch request
+  * @mdev: the mediated device to perform page pinning/unpinning
++ * @initialized: whether this instance is actually initialized
+  *
+  * @ccwchain_list is the head of a ccwchain list, that contents the
+  * translated result of the guest channel program that pointed out by
+@@ -30,6 +31,7 @@ struct channel_program {
+ 	struct list_head ccwchain_list;
+ 	union orb orb;
+ 	struct device *mdev;
++	bool initialized;
+ };
+ 
+ extern int cp_init(struct channel_program *cp, struct device *mdev,
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index cab17865aafe..e7c9877c9f1e 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -31,6 +31,10 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	private->state = VFIO_CCW_STATE_BUSY;
+ 
+ 	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
++	if (!orb) {
++		ret = -EIO;
++		goto out;
++	}
+ 
+ 	/* Issue "Start Subchannel" */
+ 	ccode = ssch(sch->schid, orb);
+@@ -64,6 +68,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 	default:
+ 		ret = ccode;
+ 	}
++out:
+ 	spin_unlock_irqrestore(sch->lock, flags);
+ 	return ret;
+ }
 -- 
 2.17.2
