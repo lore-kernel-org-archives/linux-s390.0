@@ -1,9 +1,10 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH v4 0/6] vfio-ccw: support hsch/csch (kernel
- part)
-Date: Fri,  1 Mar 2019 10:38:56 +0100
-Message-ID: <20190301093902.27799-1-cohuck@redhat.com>
+Subject: [PATCH v4 3/6] vfio-ccw: protect the I/O region
+Date: Fri,  1 Mar 2019 10:38:59 +0100
+Message-ID: <20190301093902.27799-4-cohuck@redhat.com>
+References: <20190301093902.27799-1-cohuck@redhat.com>
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <20190301093902.27799-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -20,74 +21,125 @@ To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farha
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-[This is the Linux kernel part, git tree is available at
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3
+Introduce a mutex to disallow concurrent reads or writes to the
+I/O region. This makes sure that the data the kernel or user
+space see is always consistent.
 
-The companion QEMU patches are available at
-https://github.com/cohuck/qemu vfio-ccw-caps]
+The same mutex will be used to protect the async region as well.
 
-Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
-device. This tends to work well for the most common 'good path' scenarios;
-however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
-clearing pending requests at the device is currently not supported.
-This may be a problem for e.g. error recovery.
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c     |  3 +++
+ drivers/s390/cio/vfio_ccw_ops.c     | 28 +++++++++++++++++++---------
+ drivers/s390/cio/vfio_ccw_private.h |  2 ++
+ 3 files changed, 24 insertions(+), 9 deletions(-)
 
-This patch series introduces capabilities (similar to what vfio-pci uses)
-and exposes a new async region for handling hsch/csch.
-
-Lightly tested (I can interact with a dasd as before, and reserve/release
-seems to work well.) Not sure if there is a better way to test this, ideas
-welcome.
-
-Changes v3->v4:
-- shrunk the capability offset, we don't need to accommodate as much as pci
-- make checks in patch 1 more consistent and less buggy
-- rebased on top of my current vfio-ccw branch
-
-Changes v2->v3:
-- Unb0rked patch 1, improved scope
-- Split out the new mutex from patch 2 into new patch 3; added missing
-  locking and hopefully improved description
-- Patch 2 now reworks the state handling by splitting the BUSY state
-  into CP_PROCESSING and CP_PENDING
-- Patches 3 and 5 adapted on top of the reworked patches; hsch/csch
-  are allowed in CP_PENDING, but not in CP_PROCESSING (did not add
-  any R-b due to that)
-- Added missing free in patch 5
-- Probably some small changes I forgot to note down
-
-Changes v1->v2:
-- New patch 1: make it safe to use the cp accessors at any time; this
-  should avoid problems with unsolicited interrupt handling
-- New patch 2: handle concurrent accesses to the io region; the idea is
-  to return -EAGAIN to userspace more often (so it can simply retry)
-- also handle concurrent accesses to the async io region
-- change VFIO_REGION_TYPE_CCW
-- merge events for halt and clear to a single async event; this turned out
-  to make the code quite a bit simpler
-- probably some small changes I forgot to note down
-
-Cornelia Huck (6):
-  vfio-ccw: make it safe to access channel programs
-  vfio-ccw: rework ssch state handling
-  vfio-ccw: protect the I/O region
-  vfio-ccw: add capabilities chain
-  s390/cio: export hsch to modules
-  vfio-ccw: add handling for async channel instructions
-
- drivers/s390/cio/Makefile           |   3 +-
- drivers/s390/cio/ioasm.c            |   1 +
- drivers/s390/cio/vfio_ccw_async.c   |  88 ++++++++++++
- drivers/s390/cio/vfio_ccw_cp.c      |  21 ++-
- drivers/s390/cio/vfio_ccw_cp.h      |   2 +
- drivers/s390/cio/vfio_ccw_drv.c     |  57 ++++++--
- drivers/s390/cio/vfio_ccw_fsm.c     | 143 +++++++++++++++++-
- drivers/s390/cio/vfio_ccw_ops.c     | 215 +++++++++++++++++++++++-----
- drivers/s390/cio/vfio_ccw_private.h |  48 ++++++-
- include/uapi/linux/vfio.h           |   4 +
- include/uapi/linux/vfio_ccw.h       |  12 ++
- 11 files changed, 537 insertions(+), 57 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_async.c
-
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 0b3b9de45c60..5ea0da1dd954 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -84,7 +84,9 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		if (is_final)
+ 			cp_free(&private->cp);
+ 	}
++	mutex_lock(&private->io_mutex);
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
++	mutex_unlock(&private->io_mutex);
+ 
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+@@ -129,6 +131,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 
+ 	private->sch = sch;
+ 	dev_set_drvdata(&sch->dev, private);
++	mutex_init(&private->io_mutex);
+ 
+ 	spin_lock_irq(sch->lock);
+ 	private->state = VFIO_CCW_STATE_NOT_OPER;
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 3fdcc6dfe0bf..025c8a832bc8 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -169,16 +169,20 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+ {
+ 	struct vfio_ccw_private *private;
+ 	struct ccw_io_region *region;
++	int ret;
+ 
+ 	if (*ppos + count > sizeof(*region))
+ 		return -EINVAL;
+ 
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
++	mutex_lock(&private->io_mutex);
+ 	region = private->io_region;
+ 	if (copy_to_user(buf, (void *)region + *ppos, count))
+-		return -EFAULT;
+-
+-	return count;
++		ret = -EFAULT;
++	else
++		ret = count;
++	mutex_unlock(&private->io_mutex);
++	return ret;
+ }
+ 
+ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+@@ -188,23 +192,29 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+ {
+ 	struct vfio_ccw_private *private;
+ 	struct ccw_io_region *region;
++	int ret;
+ 
+ 	if (*ppos + count > sizeof(*region))
+ 		return -EINVAL;
+ 
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
++	if (!mutex_trylock(&private->io_mutex))
++		return -EAGAIN;
+ 
+ 	region = private->io_region;
+-	if (copy_from_user((void *)region + *ppos, buf, count))
+-		return -EFAULT;
++	if (copy_from_user((void *)region + *ppos, buf, count)) {
++		ret = -EFAULT;
++		goto out_unlock;
++	}
+ 
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+-	if (region->ret_code != 0) {
++	if (region->ret_code != 0)
+ 		private->state = VFIO_CCW_STATE_IDLE;
+-		return region->ret_code;
+-	}
++	ret = (region->ret_code != 0) ? region->ret_code : count;
+ 
+-	return count;
++out_unlock:
++	mutex_unlock(&private->io_mutex);
++	return ret;
+ }
+ 
+ static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 50c52efb4fcb..32173cbd838d 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -28,6 +28,7 @@
+  * @mdev: pointer to the mediated device
+  * @nb: notifier for vfio events
+  * @io_region: MMIO region to input/output I/O arguments/results
++ * @io_mutex: protect against concurrent update of I/O regions
+  * @cp: channel program for the current I/O operation
+  * @irb: irb info received from interrupt
+  * @scsw: scsw info
+@@ -42,6 +43,7 @@ struct vfio_ccw_private {
+ 	struct mdev_device	*mdev;
+ 	struct notifier_block	nb;
+ 	struct ccw_io_region	*io_region;
++	struct mutex		io_mutex;
+ 
+ 	struct channel_program	cp;
+ 	struct irb		irb;
 -- 
 2.17.2
