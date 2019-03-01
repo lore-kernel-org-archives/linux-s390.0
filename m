@@ -1,108 +1,114 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 0/6] vfio-ccw: support hsch/csch (kernel
- part)
-Date: Tue, 12 Mar 2019 15:31:24 +0100
-Message-ID: <20190312153124.6e6f3919.cohuck@redhat.com>
-References: <20190301093902.27799-1-cohuck@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Return-Path: <SRS0=/L37=RE=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Subject: Re: [PATCH v4 4/4] hugetlb: allow to free gigantic pages regardless
+ of the configuration
+References: <20190228063604.15298-1-alex@ghiti.fr>
+ <20190228063604.15298-5-alex@ghiti.fr>
+ <9a385cc8-581c-55cf-4a85-10b5c4dd178c@intel.com>
+ <31212559-d397-88fb-eaec-60f6417436c8@oracle.com>
+ <6c842251-1bed-4d79-bf6d-997006ec72e2@intel.com>
+ <6ea4119a-0ecb-511d-3aab-269004245a08@oracle.com>
+ <1cfaca88-a219-d057-3ab8-37fb1c1687d6@ghiti.fr>
+ <f7c94eb5-d496-7e24-d44f-17eaff287012@ghiti.fr>
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Message-ID: <0d3de196-bd71-3ec9-00cd-f8274c9c5f53@oracle.com>
+Date: Fri, 1 Mar 2019 09:51:50 -0800
+MIME-Version: 1.0
+In-Reply-To: <f7c94eb5-d496-7e24-d44f-17eaff287012@ghiti.fr>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <20190301093902.27799-1-cohuck@redhat.com>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
-	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
-Sender: "Qemu-devel"
-	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, Dave Hansen <dave.hansen@intel.com>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, "David S . Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri,  1 Mar 2019 10:38:56 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+On 3/1/19 5:21 AM, Alexandre Ghiti wrote:
+> On 03/01/2019 07:25 AM, Alex Ghiti wrote:
+>> On 2/28/19 5:26 PM, Mike Kravetz wrote:
+>>> On 2/28/19 12:23 PM, Dave Hansen wrote:
+>>>> On 2/28/19 11:50 AM, Mike Kravetz wrote:
+>>>>> On 2/28/19 11:13 AM, Dave Hansen wrote:
+>>>>>>> +    if (hstate_is_gigantic(h) && !IS_ENABLED(CONFIG_CONTIG_ALLOC)) {
+>>>>>>> +        spin_lock(&hugetlb_lock);
+>>>>>>> +        if (count > persistent_huge_pages(h)) {
+>>>>>>> +            spin_unlock(&hugetlb_lock);
+>>>>>>> +            return -EINVAL;
+>>>>>>> +        }
+>>>>>>> +        goto decrease_pool;
+>>>>>>> +    }
+>>>>>> This choice confuses me.  The "Decrease the pool size" code already
+>>>>>> works and the code just falls through to it after skipping all the
+>>>>>> "Increase the pool size" code.
+>>>>>>
+>>>>>> Why did did you need to add this case so early?  Why not just let it
+>>>>>> fall through like before?
+>>>>> I assume you are questioning the goto, right?  You are correct in that
+>>>>> it is unnecessary and we could just fall through.
+>>>> Yeah, it just looked odd to me.
+> 
+>> I'd rather avoid useless checks when we already know they won't
+>> be met and I think that makes the code more understandable.
+>>
+>> But that's up to you for the next version.
 
-> [This is the Linux kernel part, git tree is available at
-> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3
+I too find some value in the goto.  It tells me this !CONFIG_CONTIG_ALLOC
+case is special and we are skipping the normal checks.  But, removing the
+goto is not a requirement for me.
 
-Obviously, that should have been -v4 /o\
+>>>>> However, I wonder if we might want to consider a wacky condition that the
+>>>>> above check would prevent.  Consider a system/configuration with 5 gigantic
+...
+>>
+>> If I may, I think that this is the kind of info the user wants to have and we should
+>> return an error when it is not possible to allocate runtime huge pages.
+>> I already noticed that if someone asks for 10 huge pages, and only 5 are allocated,
+>> no error is returned to the user and I found that surprising.
 
-In the meanwhile, I have rebased this on top of my vfio-ccw branch with
-the factored-out non-final interrupt handling and pushed that out to
-vfio-ccw-eagain-v4.5. The only changes are in patch 2 (removed
-non-final interrupt handling from the patch and its description); Eric:
-I've kept your r-b.
+Upon further thought, let's not consider this wacky permanent -> surplus ->
+permanent case.  I just can't see it being an actual use case.
 
-> 
-> The companion QEMU patches are available at
-> https://github.com/cohuck/qemu vfio-ccw-caps]
-> 
-> Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
-> device. This tends to work well for the most common 'good path' scenarios;
-> however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
-> clearing pending requests at the device is currently not supported.
-> This may be a problem for e.g. error recovery.
-> 
-> This patch series introduces capabilities (similar to what vfio-pci uses)
-> and exposes a new async region for handling hsch/csch.
-> 
-> Lightly tested (I can interact with a dasd as before, and reserve/release
-> seems to work well.) Not sure if there is a better way to test this, ideas
-> welcome.
-> 
-> Changes v3->v4:
-> - shrunk the capability offset, we don't need to accommodate as much as pci
-> - make checks in patch 1 more consistent and less buggy
-> - rebased on top of my current vfio-ccw branch
-> 
-> Changes v2->v3:
-> - Unb0rked patch 1, improved scope
-> - Split out the new mutex from patch 2 into new patch 3; added missing
->   locking and hopefully improved description
-> - Patch 2 now reworks the state handling by splitting the BUSY state
->   into CP_PROCESSING and CP_PENDING
-> - Patches 3 and 5 adapted on top of the reworked patches; hsch/csch
->   are allowed in CP_PENDING, but not in CP_PROCESSING (did not add
->   any R-b due to that)
-> - Added missing free in patch 5
-> - Probably some small changes I forgot to note down
-> 
-> Changes v1->v2:
-> - New patch 1: make it safe to use the cp accessors at any time; this
->   should avoid problems with unsolicited interrupt handling
-> - New patch 2: handle concurrent accesses to the io region; the idea is
->   to return -EAGAIN to userspace more often (so it can simply retry)
-> - also handle concurrent accesses to the async io region
-> - change VFIO_REGION_TYPE_CCW
-> - merge events for halt and clear to a single async event; this turned out
->   to make the code quite a bit simpler
-> - probably some small changes I forgot to note down
-> 
-> Cornelia Huck (6):
->   vfio-ccw: make it safe to access channel programs
->   vfio-ccw: rework ssch state handling
->   vfio-ccw: protect the I/O region
->   vfio-ccw: add capabilities chain
->   s390/cio: export hsch to modules
->   vfio-ccw: add handling for async channel instructions
-> 
->  drivers/s390/cio/Makefile           |   3 +-
->  drivers/s390/cio/ioasm.c            |   1 +
->  drivers/s390/cio/vfio_ccw_async.c   |  88 ++++++++++++
->  drivers/s390/cio/vfio_ccw_cp.c      |  21 ++-
->  drivers/s390/cio/vfio_ccw_cp.h      |   2 +
->  drivers/s390/cio/vfio_ccw_drv.c     |  57 ++++++--
->  drivers/s390/cio/vfio_ccw_fsm.c     | 143 +++++++++++++++++-
->  drivers/s390/cio/vfio_ccw_ops.c     | 215 +++++++++++++++++++++++-----
->  drivers/s390/cio/vfio_ccw_private.h |  48 ++++++-
->  include/uapi/linux/vfio.h           |   4 +
->  include/uapi/linux/vfio_ccw.h       |  12 ++
->  11 files changed, 537 insertions(+), 57 deletions(-)
->  create mode 100644 drivers/s390/cio/vfio_ccw_async.c
-> 
+IIUC, that 'no error' behavior is somewhat expected.  I seem to recall previous
+discussions about changing with the end result to leave as is.
+
+>>>> @@ -2428,7 +2442,9 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
+>>>>       } else
+>>>>           nodes_allowed = &node_states[N_MEMORY];
+>>>>   -    h->max_huge_pages = set_max_huge_pages(h, count, nodes_allowed);
+>>>> +    err = set_max_huge_pages(h, count, nodes_allowed);
+>>>> +    if (err)
+>>>> +        goto out;
+>>>>         if (nodes_allowed != &node_states[N_MEMORY])
+>>>>           NODEMASK_FREE(nodes_allowed);
+>>> Do note that I beleive there is a bug the above change.  The code after
+>>> the out label is:
+>>>
+>>> out:
+>>>          NODEMASK_FREE(nodes_allowed);
+>>>          return err;
+>>> }
+>>>
+>>> With the new goto, we need the same
+>>> if (nodes_allowed != &node_states[N_MEMORY]) before NODEMASK_FREE().
+>>>
+>>> Sorry, I missed this in previous versions.
+>>
+>> Oh right, I'm really sorry I missed that, thank you for noticing.
+
+This is the only issue I have with the code in hugetlb.c.  For me, the
+goto can stay or go.  End result is the same.
+-- 
+Mike Kravetz
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
