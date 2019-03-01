@@ -1,145 +1,138 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v4 5/7] s390: ap: implement PAPQ AQIC interception in
- kernel
-Date: Fri, 1 Mar 2019 10:35:48 +0100
-Message-ID: <44146ea5-8bdf-e986-6e6d-9cbfc104ba37@linux.ibm.com>
+Subject: Re: [PATCH v4 0/7] vfio: ap: AP Queue Interrupt Control
+Date: Fri, 1 Mar 2019 10:40:46 +0100
+Message-ID: <b2606279-649c-29e7-dfa4-68f0ee01059f@linux.ibm.com>
 References: <1550849400-27152-1-git-send-email-pmorel@linux.ibm.com>
- <1550849400-27152-6-git-send-email-pmorel@linux.ibm.com>
- <a7be3d71-6392-4ff3-5bd5-60429b8a61c0@de.ibm.com>
+ <20190228160805.3fcc126b@oc2783563651>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a7be3d71-6392-4ff3-5bd5-60429b8a61c0@de.ibm.com>
+In-Reply-To: <20190228160805.3fcc126b@oc2783563651>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 28/02/2019 21:20, Christian Borntraeger wrote:
+On 28/02/2019 16:08, Halil Pasic wrote:
+> On Fri, 22 Feb 2019 16:29:53 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> 
-> On 22.02.2019 16:29, Pierre Morel wrote:
->> We register the AP PQAP instruction hook during the open
->> of the mediated device. And unregister it on release.
+>> This patch implement PQAP/AQIC interception in KVM.
 >>
->> In the AP PQAP instruction hook, if we receive a demand to
->> enable IRQs,
->> - we retrieve the vfio_ap_queue based on the APQN we receive
->>    in REG1,
->> - we retrieve the page of the guest address, (NIB), from
->>    register REG2
->> - we the mediated device to use the VFIO pinning infratrsucture
->>    to pin the page of the guest address,
->> - we retrieve the pointer to KVM to register the guest ISC
->>    and retrieve the host ISC
->> - finaly we activate GISA
+>> To implement this we need to add a new structure, vfio_ap_queue,to be
+>> able to retrieve the mediated device associated with a queue and specific
+>> values needed to register/unregister the interrupt structures:
+>>   - APQN: to be able to issue the commands and search for queue structures
+>>   - NIB : to unpin the NIB on clear IRQ
+>>   - ISC : to unregister with the GIB interface
+>>   - MATRIX: a pointer to the matrix mediated device
+>>   - LIST: the list_head to handle the vfio_queue life cycle
 >>
->> If we receive a demand to disable IRQs,
->> - we deactivate GISA
->> - unregister from the GIB
->> - unping the NIB
+>> Having this structure and the list management greatly ease the handling
+>> of the AP queues and diminues the LOCs needed in the vfio_ap driver by
+>> more than 150 lines in comparison with the previous version.
 >>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/kvm_host.h      |   1 +
->>   drivers/s390/crypto/ap_bus.h          |   1 +
->>   drivers/s390/crypto/vfio_ap_ops.c     | 199 +++++++++++++++++++++++++++++++++-
->>   drivers/s390/crypto/vfio_ap_private.h |   1 +
->>   4 files changed, 199 insertions(+), 3 deletions(-)
 >>
->> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->> index 49cc8b0..5f3bb8c 100644
->> --- a/arch/s390/include/asm/kvm_host.h
->> +++ b/arch/s390/include/asm/kvm_host.h
->> @@ -720,6 +720,7 @@ struct kvm_s390_cpu_model {
->>   struct kvm_s390_crypto {
->>   	struct kvm_s390_crypto_cb *crycb;
->>   	int (*pqap_hook)(struct kvm_vcpu *vcpu);
->> +	void *vfio_private;
->>   	__u32 crycbd;
->>   	__u8 aes_kw;
->>   	__u8 dea_kw;
->> diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
->> index bfc66e4..323f2aa 100644
->> --- a/drivers/s390/crypto/ap_bus.h
->> +++ b/drivers/s390/crypto/ap_bus.h
->> @@ -43,6 +43,7 @@ static inline int ap_test_bit(unsigned int *ptr, unsigned int nr)
->>   #define AP_RESPONSE_BUSY		0x05
->>   #define AP_RESPONSE_INVALID_ADDRESS	0x06
->>   #define AP_RESPONSE_OTHERWISE_CHANGED	0x07
->> +#define AP_RESPONSE_INVALID_GISA	0x08
->>   #define AP_RESPONSE_Q_FULL		0x10
->>   #define AP_RESPONSE_NO_PENDING_REPLY	0x10
->>   #define AP_RESPONSE_INDEX_TOO_BIG	0x11
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index 1b5130a..0196065 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -43,7 +43,7 @@ struct vfio_ap_queue *vfio_ap_get_queue(int apqn, struct list_head *l)
->>   	return NULL;
->>   }
->>   
->> -static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->> +int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->>   {
->>   	struct ap_queue_status status;
->>   	int retry = 20;
->> @@ -75,6 +75,27 @@ static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->>   	return -EBUSY;
->>   }
->>   
->> +/**
->> + * vfio_ap_free_irq:
->> + * @q: The vfio_ap_queue
->> + *
->> + * Unpin the guest NIB
->> + * Unregister the ISC from the GIB alert
->> + * Clear the vfio_ap_queue intern fields
->> + */
->> +static void vfio_ap_free_irq(struct vfio_ap_queue *q)
->> +{
->> +	if (!q)
->> +		return;
->> +	if (q->g_pfn)
->> +		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &q->g_pfn, 1);
->> +	if (q->isc)
->> +		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->isc);
->> +	q->nib = 0;
->> +	q->isc = 0;
->> +	q->g_pfn = 0;
->> +}
+>> 0) Queues life cycle
+>>
+>> vfio_ap_queues are created on probe
+>>
+>> We define one bucket on the matrix device to store the free vfio_ap_queues,
+>> the queues not assign to any matrix mediated device.
+>>
+>> We define one bucket on each matrix mediated device to hold the
+>> vfio_ap_queues belonging to it.
+>>
+>> vfio_ap_queues are deleted on remove
+>>
+>> This makes the search for a queue easy and the detection of assignent
+>> incoherency obvious (the queue is not avilable) and simplifies assignment.
+>>
+>>
+>> 1) Phase 1, probe and remove from vfio_ap_queue
+>>
+>> The vfio_ap_queue structures are dynamically allocated and setup
+>> when a queue is probed by the ap_vfio_driver.
+>> The vfio_ap_queue is linked to the ap_queue device as the driver data.
+>>
+>> The new The vfio_ap_queue is put on a free_list belonging to the
+>> matrix device.
+>>
+>> The vfio_ap_queue are free during remove.
+>>
+>>
+>> 2) Phase 2, assignment of vfio_ap_queue to a mediated device
+>>
+>> When a APID is assigned we look for APQI already assigned to
+>> the matrix mediated device and associate all the queue with the
+>> APQN = (APID,APQI) to the mediated device by adding them to
+>> the mediated device queue list.
+>> We do the same when a APQI is assigned.
+>>
+>> If any queue with a matching APQN can not be found on the matrix
+>> device free list it means it is already associated to another matrix
+>> mediated device and no queue is added to the matrix mediated device.
+>>
+>> 3) Phase 3, starting the guest
+>>
+>> When the VFIO device is opened the PQAP callback and a pointer to
+>> the matrix mediated device are set inside KVM during the open callback.
+>>
+>> When the device is closed or if a queue is removed, the vfio_ap_queue is
+>> dissociated from the mediated device.
+>>
+>>
+>> 4) Phase 3 intercepting the PQAP/AQIC instruction
+>>
+>> On interception of the PQAP/AQIC instruction, the interception code
+>> makes sure the pqap_hook is initialized and allowed to be called
+>> and call it.
+>> Otherwise it reports the usual -EOPNOTSUPP return code to let
+>> QEMU handle the fault.
+>>    
+>> the pqap callback search for the queue asociated with the APQN
+>> stored in the register 0, setting the code to "illegal APQN"
+>> if the vfio_ap_queue can not be found.
+>>
+>> Depending on the "i" bit of the register 1, the pqap callback
+>> setup or clear the interruption by calling the host format PQAP/AQIC
+>> instruction.
+>> When seting up the interruption it uses the NIB and the guest ISC
+>> provided by the guest and the host ISC provided by the registration
+>> to the GIB code, pin the NIB and also stores ISC and NIB inside
+>> the vfio_ap_queue structure.
+>> When clearing the interrupt it retrieves the host ISC to unregister
+>> with the GIB code and unpin the NIB.
+>>
+>> We take care when enabling GISA that the guest may have issued a
+>> reset and will not need to disable the interuptions before
+>> re-enabling interruptions.
 > 
-> Pierre, unless there is some magic, I think we need to free the gisa stuff before kvm exit.
+> Please let us know what guarantees, that we will disable the
+> interruptions we previously enabled using AQIC (and generally facilitate
+> proper cleanup) *before* kvm_s390_gisa_destroy() makes the gisa and
+> with that the IPM go away!
 > 
-> Imagine a malicious userspace that setups everything fine, but then closes all kvm file
-> descriptors but not the vfio file descriptor. This might result in random access to the
-> memory that contained the gisa potentially resulting in random memory overwrites.
+> Please note that IMHO this needs to be guaranteed by the kernel
+> regardless of what userspace (QEMU) or the guest does.
 > 
-> the problem is that kvm_destroy_vm calls kvm_arch_destroy_vm(kvm) before it calls
-> kvm_destroy_devices(kvm); So we already free the gisa before we do the unregister call.
+> (I've asked this question before during our internal review but I could
+> not find the answer if there was one after going trough my mails.)
 > 
-> What about calling kvm_get_kvm/put from some of the callbacks in the right places.
-> 
-> Debugging random memory overwrites is a PITA, so we either should document why I cannot
-> happen (even with malicious userspace) or simply fix the refcounting.
+> Regards,
+> Halil
 > 
 
-OK, understood.
-I think we can do something simple by using kvm_get/kvm_put, as you 
-suggested, in the vfio KVM notifier to ensure the order of the calls and 
-also unregister the GISA at this moment.
-I will investigate in this direction.
+You are right.
+I will investigate this too.
 
-Thanks
+Regards,
 Pierre
-
-
-
 
 -- 
 Pierre Morel
