@@ -1,107 +1,238 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v4 1/7] s390: ap: kvm: add PQAP interception for AQIC
-Date: Fri, 1 Mar 2019 16:32:30 +0100
-Message-ID: <7fab18c4-9781-b776-5fd9-250ba19cafe5@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v4 5/7] s390: ap: implement PAPQ AQIC interception in
+ kernel
+Date: Mon, 4 Mar 2019 02:57:39 +0100
+Message-ID: <20190304025739.17d0f245@oc2783563651>
 References: <1550849400-27152-1-git-send-email-pmorel@linux.ibm.com>
- <1550849400-27152-2-git-send-email-pmorel@linux.ibm.com>
- <babf7884-35f1-2f2e-34dc-96d9190fd15b@linux.ibm.com>
- <e7ba5cb0-b254-7f73-bc59-ca2456ce7951@linux.ibm.com>
- <9f1d9241-39b9-adbc-d0e9-cb702e609cbc@linux.ibm.com>
- <4dc59125-7f96-cba8-651b-382ed8f8bff8@linux.ibm.com>
- <8526f468-9a4d-68d2-3868-0dad5ce16f46@linux.ibm.com>
- <6058a017-6404-af3c-62ef-2452214ac97c@de.ibm.com>
- <2391adc2-6611-034c-61c5-feb46e2a751b@de.ibm.com>
- <20190228122251.75b31f62.cohuck@redhat.com>
- <be69498a-c4d3-81e7-b8bf-6931058cee74@linux.ibm.com>
- <20190228145254.2909425e.cohuck@redhat.com>
- <261a1e22-3703-21a4-e33d-e737651e7d89@linux.ibm.com>
- <3fedbde5-ef83-c67e-6352-fd492f258009@linux.ibm.com>
- <f4b3dec4-cdf6-85df-309e-b542ba83230a@de.ibm.com>
- <20190301133609.3ee469dc.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+        <1550849400-27152-6-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190301133609.3ee469dc.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <1550849400-27152-6-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 01/03/2019 13:36, Cornelia Huck wrote:
-> On Fri, 1 Mar 2019 13:05:54 +0100
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
->> On 01.03.2019 13:03, Pierre Morel wrote:
->>> On 28/02/2019 15:14, Pierre Morel wrote:
->>>> On 28/02/2019 14:52, Cornelia Huck wrote:
->>>>> On Thu, 28 Feb 2019 14:16:09 +0100
->>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>>>   
->>>>>> On 28/02/2019 12:22, Cornelia Huck wrote:
->>>>>   
->>>>>>> So, to summarize, the function should do:
->>>>>>> - Is userspace supposed to emulate everything (!ECA_APIE)? Return
->>>>>>>      -EOPNOTSUPP to hand control to it.
->>>>>>> - We are now interpreting the instruction in KVM. Do common checks
->>>>>>>      (PSTATE etc.) and inject exceptions, if needed.
->>>>>>> - Now look at the fc; if there's a handler for it, call that; if not
->>>>>>>      (case does not attempt to call a specific handler, or no handler
->>>>>>>      registered), inject a specification exception. (Do we want pre-checks
->>>>>>>      like for facility 65 here, or in the handler?)
->>>>>>>
->>>>>>> That response code 0x01 thingy probably needs to go into the specific
->>>>>>> handler function, if anywhere (don't know the semantics, sorry).
->>>>>>
->>>>>> What do you mean with specific handler function?
->>>>>>
->>>>>> If you mean a switch around the FC with static function's call, I agree,
->>>>>> if you mean a jump into a hook I do not agree.
->>>>>
->>>>> Ah, ok; so each case (that we want to handle) should call into a
->>>>> subhandler that does
->>>>> {
->>>>>      (... check things like facilities ...)
->>>>>      if (!specific_hook)
->>>>>          inject_specif_excp_and_return();
->>>>>      ret = specific_hook();
->>>>>      if (ret)
->>>>>          set_resp_code_0x01(); // or in specific_hook()?
->>>>> }
->>>>>
->>>>> ?
->>>>
->>>> Yes something in this direction.
->>>
->>> Sorry, after reflection, no, we do not want to change the previous behavior so we only handle the AQIC case.
->>
->> I think what you wanted to say is the following:
->> Today (without the patch set) we will answer PQAP with an exception.
->> With this patch set we want to handle FC==3, but nothing else. So for anything FC!=3 we
->> will continue to return an exception?
->>
->> Correct?
+On Fri, 22 Feb 2019 16:29:58 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Yes correct.
-Thanks for the much preciser explanation.
-
->>
+> We register the AP PQAP instruction hook during the open
+> of the mediated device. And unregister it on release.
 > 
-> That sounds reasonable; but I don't see how this conflicts with my
-> proposal? Just don't introduce a subfunction for fc != 3...
+> In the AP PQAP instruction hook, if we receive a demand to
+> enable IRQs,
+> - we retrieve the vfio_ap_queue based on the APQN we receive
+>   in REG1,
+> - we retrieve the page of the guest address, (NIB), from
+>   register REG2
+> - we the mediated device to use the VFIO pinning infratrsucture
+>   to pin the page of the guest address,
+> - we retrieve the pointer to KVM to register the guest ISC
+>   and retrieve the host ISC
+> - finaly we activate GISA
 > 
+> If we receive a demand to disable IRQs,
+> - we deactivate GISA
+> - unregister from the GIB
+> - unping the NIB
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+[..]
+> + */
+> +static void vfio_ap_free_irq(struct vfio_ap_queue *q)
+> +{
+> +	if (!q)
+> +		return;
+> +	if (q->g_pfn)
+> +		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &q->g_pfn, 1);
+> +	if (q->isc)
+> +		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->isc);
 
-Correct too, it does not conflict, as you said it is just not introduce 
-subfunctions.
+Ain't isc 0 a perfectly legit isc?
+
+> +	q->nib = 0;
+> +	q->isc = 0;
+> +	q->g_pfn = 0;
+> +}
+> +
+[..]
+> @@ -109,10 +131,16 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+>  static int vfio_ap_mdev_remove(struct mdev_device *mdev)
+>  {
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	struct vfio_ap_queue *q, *qtmp;
+>  
+>  	if (matrix_mdev->kvm)
+>  		return -EBUSY;
+>  
+> +	list_for_each_entry_safe(q, qtmp, &matrix_mdev->qlist, list) {
+> +		q->matrix_mdev = NULL;
+> +		vfio_ap_mdev_reset_queue(q);
+> +		list_move(&q->list, &matrix_dev->free_list);
+
+How about matrix_dev->lock? I guess you should protect free_list with
+it. If not maybe a code comment would help not stumble over this.
+
+> +	}
+>  	mutex_lock(&matrix_dev->lock);
+>  	list_del(&matrix_mdev->node);
+>  	mutex_unlock(&matrix_dev->lock);
+
+[..]
+
+> +/**
+> + * vfio_ap_setirq: Enable Interruption for a APQN
+> + *
+> + * @dev: the device associated with the ap_queue
+> + * @q:   the vfio_ap_queue holding AQIC parameters
+> + *
+> + * Pin the NIB saved in *q
+> + * Register the guest ISC to GIB interface and retrieve the
+> + * host ISC to issue the host side PQAP/AQIC
+> + *
+> + * Response.status may be set to following Response Code in case of error:
+> + * - AP_RESPONSE_INVALID_ADDRESS: vfio_pin_pages failed
+> + * - AP_RESPONSE_OTHERWISE_CHANGED: Hypervizor GISA internal error
+> + *
+> + * Otherwise return the ap_queue_status returned by the ap_aqic()
+> + */
+> +static struct ap_queue_status vfio_ap_setirq(struct vfio_ap_queue *q)
+> +{
+> +	struct ap_qirq_ctrl aqic_gisa = {};
+> +	struct ap_queue_status status = {};
+> +	struct kvm_s390_gisa *gisa;
+> +	struct kvm *kvm;
+> +	unsigned long g_pfn, h_nib, h_pfn;
+> +	int ret;
+> +
+> +	kvm = q->matrix_mdev->kvm;
+> +	gisa = kvm->arch.gisa_int.origin;
+> +
+> +	g_pfn = q->nib >> PAGE_SHIFT;
+> +	ret = vfio_pin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1,
+> +			     IOMMU_READ | IOMMU_WRITE, &h_pfn);
+> +	switch (ret) {
+> +	case 1:
+> +		break;
+> +	case -EINVAL:
+> +	case -E2BIG:
+> +		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
+> +		/* Fallthrough */
+> +	default:
+> +		return status;
+> +	}
+> +
+> +	h_nib = (h_pfn << PAGE_SHIFT) | (q->nib & ~PAGE_MASK);
+> +	aqic_gisa.gisc = q->isc;
+> +	aqic_gisa.isc = kvm_s390_gisc_register(kvm, q->isc);
+> +	aqic_gisa.ir = 1;
+> +	aqic_gisa.gisa = gisa->next_alert >> 4;
+> +
+> +	status = ap_aqic(q->apqn, aqic_gisa, (void *)h_nib);
+> +	switch (status.response_code) {
+> +	case AP_RESPONSE_NORMAL:
+> +		if (q->g_pfn)
+> +			vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
+> +					 &q->g_pfn, 1);
+
+Shouldn't you call kvm_s390_gisc_unregister() here.
+
+> +		q->g_pfn = g_pfn;
+> +		break;
+> +	case AP_RESPONSE_OTHERWISE_CHANGED:
+> +		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev), &g_pfn, 1);
+
+and here.
+
+> +		break;
+> +	case AP_RESPONSE_INVALID_GISA:
+> +		status.response_code = AP_RESPONSE_INVALID_ADDRESS;
+> +	default:	/* Fall Through */
+> +		pr_warn("%s: apqn %04x: response: %02x\n", __func__, q->apqn,
+> +			status.response_code);
+> +		vfio_ap_free_irq(q);
+
+This guy won't unpin g_pfn but only q->g_pfn if not zero :/
+
+> +		break;
+> +	}
+> +
+> +	return status;
+> +}
+> +
+> +/**
+> + * handle_pqap: PQAP instruction callback
+> + *
+> + * @vcpu: The vcpu on which we received the PQAP instruction
+> + *
+> + * Get the general register contents to initialize internal variables.
+> + * REG[0]: APQN
+> + * REG[1]: IR and ISC
+> + * REG[2]: NIB
+> + *
+> + * Response.status may be set to following Response Code:
+> + * - AP_RESPONSE_Q_NOT_AVAIL: if the queue is not available
+> + * - AP_RESPONSE_DECONFIGURED: if the queue is not configured
+> + * - AP_RESPONSE_NORMAL (0) : in case of successs
+> + *   Check vfio_ap_setirq() and vfio_ap_clrirq() for other possible
+> RC.
+> + *
+> + * Return 0 if we could handle the request inside KVM.
+> + * otherwise, returns -EOPNOTSUPP to let QEMU handle the fault.
+> + */
+> +static int handle_pqap(struct kvm_vcpu *vcpu)
+> +{
+> +	uint64_t status;
+> +	uint16_t apqn;
+> +	struct vfio_ap_queue *q;
+> +	struct ap_queue_status qstatus = {};
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	/* If we do not use the AIV facility just go to userland */
+> +	if (!(vcpu->arch.sie_block->eca & ECA_AIV))
+> +		return -EOPNOTSUPP;
+> +
+> +	apqn = vcpu->run->s.regs.gprs[0] & 0xffff;
+> +	matrix_mdev = vcpu->kvm->arch.crypto.vfio_private;
+> +	if (!matrix_mdev)
+> +		return -EOPNOTSUPP;
+> +	q = vfio_ap_get_queue(apqn, &matrix_mdev->qlist);
+
+This get is not a 'refcount affecting get' any more...
+
+> +	if (!q) {
+> +		qstatus.response_code = AP_RESPONSE_Q_NOT_AVAIL;
+> +		goto out;
+> +	}
+> +
+> +	status = vcpu->run->s.regs.gprs[1];
+> +
+> +	/* If IR bit(16) is set we enable the interrupt */
+> +	if ((status >> (63 - 16)) & 0x01) {
+> +		q->isc = status & 0x07;
+> +		q->nib = vcpu->run->s.regs.gprs[2];
+
+... and I don't see what should prevent a potential use after free here.
 
 Regards,
-Pierre
+Halil
 
+> +		qstatus = vfio_ap_setirq(q);
+> +		if (qstatus.response_code) {
+> +			q->nib = 0;
+> +			q->isc = 0;
+> +		}
+> +	} else
+> +		qstatus = vfio_ap_clrirq(q);
+> +
+> +out:
+> +	memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus));
+> +	return 0;
+> +}
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+[..]
