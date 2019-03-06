@@ -1,8 +1,10 @@
 Return-Path: <SRS0=hX7x=RJ=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v5 0/4] Fix free/allocation of runtime gigantic pages
-Date: Wed,  6 Mar 2019 14:00:01 -0500
-Message-Id: <20190306190005.7036-1-alex@ghiti.fr>
+Subject: [PATCH v5 1/4] sh: Advertise gigantic page support
+Date: Wed,  6 Mar 2019 14:00:02 -0500
+Message-Id: <20190306190005.7036-2-alex@ghiti.fr>
+In-Reply-To: <20190306190005.7036-1-alex@ghiti.fr>
+References: <20190306190005.7036-1-alex@ghiti.fr>
 MIME-Version: 1.0
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -20,65 +22,31 @@ To: Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>,
 Cc: Alexandre Ghiti <alex@ghiti.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-This series fixes sh and sparc that did not advertise their gigantic page
-support and then were not able to allocate and free those pages at runtime.
-It renames MEMORY_ISOLATION && COMPACTION || CMA condition into the more
-accurate CONTIG_ALLOC, since it allows the definition of alloc_contig_range
-function.
-Finally, it then fixes the wrong definition of ARCH_HAS_GIGANTIC_PAGE config
-that, without MEMORY_ISOLATION && COMPACTION || CMA defined, did not allow
-architectures to free boottime allocated gigantic pages although unrelated.
+sh actually supports gigantic pages and selecting
+ARCH_HAS_GIGANTIC_PAGE allows it to allocate and free
+gigantic pages at runtime.
 
-Changes in v5:
-- Fix bug in previous version thanks to Mike Kravetz
-- Fix block comments that did not respect coding style thanks to Dave Hensen
-- Define ARCH_HAS_GIGANTIC_PAGE only for sparc64 as advised by David Miller
-- Factorize "def_bool" and "depends on" thanks to Vlastimil Babka
+At least sdk7786_defconfig exposes such a configuration with
+huge pages of 64MB, pages of 4KB and MAX_ORDER = 11:
+HPAGE_SHIFT (26) - PAGE_SHIFT (12) = 14 >= MAX_ORDER (11)
 
-Changes in v4 as suggested by Dave Hensen:
-- Split previous version into small patches
-- Do not compile alloc_gigantic** functions for architectures that do not
-  support those pages
-- Define correct ARCH_HAS_GIGANTIC_PAGE in all arch that support them to avoid
-  useless runtime check
-- Add comment in set_max_huge_pages to explain that freeing is possible even
-  without CONTIG_ALLOC defined
-- Remove gigantic_page_supported function across all archs
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+---
+ arch/sh/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes in v3 as suggested by Vlastimil Babka and Dave Hansen:
-- config definition was wrong and is now in mm/Kconfig
-- COMPACTION_CORE was renamed in CONTIG_ALLOC
-
-Changes in v2 as suggested by Vlastimil Babka:
-- Get rid of ARCH_HAS_GIGANTIC_PAGE
-- Get rid of architecture specific gigantic_page_supported
-- Factorize CMA or (MEMORY_ISOLATION && COMPACTION) into COMPACTION_CORE
-
-*** BLURB HERE ***
-
-Alexandre Ghiti (4):
-  sh: Advertise gigantic page support
-  sparc: Advertise gigantic page support
-  mm: Simplify MEMORY_ISOLATION && COMPACTION || CMA into CONTIG_ALLOC
-  hugetlb: allow to free gigantic pages regardless of the configuration
-
- arch/arm64/Kconfig                           |  2 +-
- arch/arm64/include/asm/hugetlb.h             |  4 --
- arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
- arch/powerpc/platforms/Kconfig.cputype       |  2 +-
- arch/s390/Kconfig                            |  2 +-
- arch/s390/include/asm/hugetlb.h              |  3 --
- arch/sh/Kconfig                              |  1 +
- arch/sparc/Kconfig                           |  1 +
- arch/x86/Kconfig                             |  2 +-
- arch/x86/include/asm/hugetlb.h               |  4 --
- arch/x86/mm/hugetlbpage.c                    |  2 +-
- include/linux/gfp.h                          |  4 +-
- mm/Kconfig                                   |  3 ++
- mm/hugetlb.c                                 | 54 ++++++++++++--------
- mm/page_alloc.c                              |  7 ++-
- 15 files changed, 48 insertions(+), 50 deletions(-)
-
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index a9c36f95744a..299a17bed67c 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -53,6 +53,7 @@ config SUPERH
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_NMI
+ 	select NEED_SG_DMA_LENGTH
++	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
+ 
+ 	help
+ 	  The SuperH is a RISC processor targeted for use in embedded systems
 -- 
 2.20.1
 
