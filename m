@@ -1,96 +1,52 @@
-Return-Path: <SRS0=FwGd=RK=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v6 0/4] Fix free/allocation of runtime gigantic pages
-Date: Thu,  7 Mar 2019 08:20:11 -0500
-Message-Id: <20190307132015.26970-1-alex@ghiti.fr>
+Return-Path: <SRS0=vL1f=RL=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 8 Mar 2019 08:08:47 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] s390/mem_detect: Use IS_ENABLED(CONFIG_BLK_DEV_INITRD)
+In-Reply-To: <d81a9133ad20d478dc8c14fbc8d1bacf4c8ffe94.camel@perches.com>
+References: <d81a9133ad20d478dc8c14fbc8d1bacf4c8ffe94.camel@perches.com>
 MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
-Cc: Alexandre Ghiti <alex@ghiti.fr>
+Message-Id: <20190308080847.70910d18@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Joe Perches <joe@perches.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-This series fixes sh and sparc that did not advertise their gigantic page
-support and then were not able to allocate and free those pages at runtime.
-It renames MEMORY_ISOLATION && COMPACTION || CMA condition into the more
-accurate CONTIG_ALLOC, since it allows the definition of alloc_contig_range
-function.
-Finally, it then fixes the wrong definition of ARCH_HAS_GIGANTIC_PAGE config
-that, without MEMORY_ISOLATION && COMPACTION || CMA defined, did not allow
-architectures to free boottime allocated gigantic pages although unrelated.
+On Thu, 07 Mar 2019 15:51:45 -0800
+Joe Perches <joe@perches.com> wrote:
 
-Changes in v6:
-- Remove unnecessary goto since the fallthrough path does the same and is
-  the 'normal' behaviour, as suggested by Dave Hensen
-- Be more explicit in comment in set_max_huge_page: we return an error
-  if alloc_contig_range is not defined and the user tries to allocate a
-  gigantic page (we keep the same behaviour as before this patch), but we
-  now let her free boottime gigantic page, as suggested by Dave Hensen
-- Add Acked-by, thanks. 
+> IS_ENABLED should generally use CONFIG_ prefaced symbols and
+> it doesn't appear as if there is a BLK_DEV_INITRD define.
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
+> ---
+>  arch/s390/boot/mem_detect.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
+> index 4cb771ba13fa..5d316fe40480 100644
+> --- a/arch/s390/boot/mem_detect.c
+> +++ b/arch/s390/boot/mem_detect.c
+> @@ -25,7 +25,7 @@ static void *mem_detect_alloc_extended(void)
+>  {
+>  	unsigned long offset = ALIGN(mem_safe_offset(), sizeof(u64));
+> 
+> -	if (IS_ENABLED(BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
+> +	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
+>  	    INITRD_START < offset + ENTRIES_EXTENDED_MAX)
+>  		offset = ALIGN(INITRD_START + INITRD_SIZE, sizeof(u64));
+> 
+> 
 
-Changes in v5:
-- Fix bug in previous version thanks to Mike Kravetz
-- Fix block comments that did not respect coding style thanks to Dave Hensen
-- Define ARCH_HAS_GIGANTIC_PAGE only for sparc64 as advised by David Miller
-- Factorize "def_bool" and "depends on" thanks to Vlastimil Babka
-
-Changes in v4 as suggested by Dave Hensen:
-- Split previous version into small patches
-- Do not compile alloc_gigantic** functions for architectures that do not
-  support those pages
-- Define correct ARCH_HAS_GIGANTIC_PAGE in all arch that support them to avoid
-  useless runtime check
-- Add comment in set_max_huge_pages to explain that freeing is possible even
-  without CONTIG_ALLOC defined
-- Remove gigantic_page_supported function across all archs
-
-Changes in v3 as suggested by Vlastimil Babka and Dave Hansen:
-- config definition was wrong and is now in mm/Kconfig
-- COMPACTION_CORE was renamed in CONTIG_ALLOC
-
-Changes in v2 as suggested by Vlastimil Babka:
-- Get rid of ARCH_HAS_GIGANTIC_PAGE
-- Get rid of architecture specific gigantic_page_supported
-- Factorize CMA or (MEMORY_ISOLATION && COMPACTION) into COMPACTION_CORE 
-
-Alexandre Ghiti (4):
-  sh: Advertise gigantic page support
-  sparc: Advertise gigantic page support
-  mm: Simplify MEMORY_ISOLATION && COMPACTION || CMA into CONTIG_ALLOC
-  hugetlb: allow to free gigantic pages regardless of the configuration
-
- arch/arm64/Kconfig                           |  2 +-
- arch/arm64/include/asm/hugetlb.h             |  4 --
- arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
- arch/powerpc/platforms/Kconfig.cputype       |  2 +-
- arch/s390/Kconfig                            |  2 +-
- arch/s390/include/asm/hugetlb.h              |  3 --
- arch/sh/Kconfig                              |  1 +
- arch/sparc/Kconfig                           |  1 +
- arch/x86/Kconfig                             |  2 +-
- arch/x86/include/asm/hugetlb.h               |  4 --
- arch/x86/mm/hugetlbpage.c                    |  2 +-
- include/linux/gfp.h                          |  4 +-
- mm/Kconfig                                   |  3 ++
- mm/hugetlb.c                                 | 57 ++++++++++++--------
- mm/page_alloc.c                              |  7 ++-
- 15 files changed, 50 insertions(+), 51 deletions(-)
+With more than the 255 embedded entries and a initrd that sits in the
+wrong location that would have resulted in a corrupted ramdisk.
+Nice catch, thanks. I'll add the patch to my queue.
 
 -- 
-2.20.1
+blue skies,
+   Martin.
 
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+"Reality continues to ruin my life." - Calvin.
