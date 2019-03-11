@@ -1,10 +1,10 @@
 Return-Path: <SRS0=FxTY=RO=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 10/52] s390/dasd: fix using offset into zero size array error
-Date: Mon, 11 Mar 2019 15:54:34 -0400
-Message-Id: <20190311195516.137772-10-sashal@kernel.org>
-In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
-References: <20190311195516.137772-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 09/44] s390/dasd: fix using offset into zero size array error
+Date: Mon, 11 Mar 2019 15:56:25 -0400
+Message-Id: <20190311195700.138462-9-sashal@kernel.org>
+In-Reply-To: <20190311195700.138462-1-sashal@kernel.org>
+References: <20190311195700.138462-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
