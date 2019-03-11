@@ -1,65 +1,108 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] vfio: ccw: only free cp on final interrupt
-Date: Mon, 11 Mar 2019 17:26:56 +0100
-Message-ID: <20190311162656.10067-2-cohuck@redhat.com>
-References: <20190311162656.10067-1-cohuck@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190311162656.10067-1-cohuck@redhat.com>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
+Return-Path: <SRS0=FxTY=RO=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 10/52] s390/dasd: fix using offset into zero size array error
+Date: Mon, 11 Mar 2019 15:54:34 -0400
+Message-Id: <20190311195516.137772-10-sashal@kernel.org>
+In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
+References: <20190311195516.137772-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Stefan Haberland <sth@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-When we get an interrupt for a channel program, it is not
-necessarily the final interrupt; for example, the issuing
-guest may request an intermediate interrupt by specifying
-the program-controlled-interrupt flag on a ccw.
+From: Stefan Haberland <sth@linux.ibm.com>
 
-We must not switch the state to idle if the interrupt is not
-yet final; even more importantly, we must not free the translated
-channel program if the interrupt is not yet final, or the host
-can crash during cp rewind.
+[ Upstream commit 4a8ef6999bce998fa5813023a9a6b56eea329dba ]
 
-Fixes: e5f84dbaea59 ("vfio: ccw: return I/O results asynchronously")
-Cc: stable@vger.kernel.org # v4.12+
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Dan Carpenter reported the following:
+
+The patch 52898025cf7d: "[S390] dasd: security and PSF update patch
+for EMC CKD ioctl" from Mar 8, 2010, leads to the following static
+checker warning:
+
+	drivers/s390/block/dasd_eckd.c:4486 dasd_symm_io()
+	error: using offset into zero size array 'psf_data[]'
+
+drivers/s390/block/dasd_eckd.c
+  4458          /* Copy parms from caller */
+  4459          rc = -EFAULT;
+  4460          if (copy_from_user(&usrparm, argp, sizeof(usrparm)))
+                                    ^^^^^^^
+The user can specify any "usrparm.psf_data_len".  They choose zero by
+mistake.
+
+  4461                  goto out;
+  4462          if (is_compat_task()) {
+  4463                  /* Make sure pointers are sane even on 31 bit. */
+  4464                  rc = -EINVAL;
+  4465                  if ((usrparm.psf_data >> 32) != 0)
+  4466                          goto out;
+  4467                  if ((usrparm.rssd_result >> 32) != 0)
+  4468                          goto out;
+  4469                  usrparm.psf_data &= 0x7fffffffULL;
+  4470                  usrparm.rssd_result &= 0x7fffffffULL;
+  4471          }
+  4472          /* alloc I/O data area */
+  4473          psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL
+  			   				 | GFP_DMA);
+  4474          rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL
+							       | GFP_DMA);
+  4475          if (!psf_data || !rssd_result) {
+
+kzalloc() returns a ZERO_SIZE_PTR (0x16).
+
+  4476                  rc = -ENOMEM;
+  4477                  goto out_free;
+  4478          }
+  4479
+  4480          /* get syscall header from user space */
+  4481          rc = -EFAULT;
+  4482          if (copy_from_user(psf_data,
+  4483                             (void __user *)(unsigned long)
+  				   	 		 usrparm.psf_data,
+  4484                             usrparm.psf_data_len))
+
+That all works great.
+
+  4485                  goto out_free;
+  4486          psf0 = psf_data[0];
+  4487          psf1 = psf_data[1];
+
+But now we're assuming that "->psf_data_len" was at least 2 bytes.
+
+Fix this by checking the user specified length psf_data_len.
+
+Fixes: 52898025cf7d ("[S390] dasd: security and PSF update patch for EMC CKD ioctl")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index a10cec0e86eb..0b3b9de45c60 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -72,20 +72,24 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- {
- 	struct vfio_ccw_private *private;
- 	struct irb *irb;
-+	bool is_final;
- 
- 	private = container_of(work, struct vfio_ccw_private, io_work);
- 	irb = &private->irb;
- 
-+	is_final = !(scsw_actl(&irb->scsw) &
-+		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
- 	if (scsw_is_solicited(&irb->scsw)) {
- 		cp_update_scsw(&private->cp, &irb->scsw);
--		cp_free(&private->cp);
-+		if (is_final)
-+			cp_free(&private->cp);
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 4e7b55a14b1a..6e294b4d3635 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -4469,6 +4469,14 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+ 		usrparm.psf_data &= 0x7fffffffULL;
+ 		usrparm.rssd_result &= 0x7fffffffULL;
  	}
- 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
- 
- 	if (private->io_trigger)
- 		eventfd_signal(private->io_trigger, 1);
- 
--	if (private->mdev)
-+	if (private->mdev && is_final)
- 		private->state = VFIO_CCW_STATE_IDLE;
- }
- 
++	/* at least 2 bytes are accessed and should be allocated */
++	if (usrparm.psf_data_len < 2) {
++		DBF_DEV_EVENT(DBF_WARNING, device,
++			      "Symmetrix ioctl invalid data length %d",
++			      usrparm.psf_data_len);
++		rc = -EINVAL;
++		goto out;
++	}
+ 	/* alloc I/O data area */
+ 	psf_data = kzalloc(usrparm.psf_data_len, GFP_KERNEL | GFP_DMA);
+ 	rssd_result = kzalloc(usrparm.rssd_result_len, GFP_KERNEL | GFP_DMA);
 -- 
-2.17.2
+2.19.1
