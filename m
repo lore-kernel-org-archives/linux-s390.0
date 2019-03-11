@@ -1,59 +1,123 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: Re: [PATCH v5 1/3] locking/rwsem: Remove arch specific rwsem files
-References: <20190322143008.21313-1-longman@redhat.com>
- <20190322143008.21313-2-longman@redhat.com>
- <CAHk-=wikkO-1f1=FEOEzkSnaDg3yJLP=4Vd59UCuLBztFd0KOw@mail.gmail.com>
- <20190322193010.azb7rmmmaclhal35@linux-r8p5>
-From: Waiman Long <longman@redhat.com>
-Message-ID: <45315aa9-f006-c4ca-705f-71d6c2650508@redhat.com>
-Date: Fri, 22 Mar 2019 16:27:26 -0400
+Return-Path: <SRS0=FxTY=RO=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH v3] zcrypt: handle AP Info notification from CHSC SEI
+ command
+References: <1550509295-1199-1-git-send-email-akrowiak@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Date: Mon, 11 Mar 2019 10:28:48 -0400
 MIME-Version: 1.0
-In-Reply-To: <20190322193010.azb7rmmmaclhal35@linux-r8p5>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+In-Reply-To: <1550509295-1199-1-git-send-email-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190322202726.9lJL_XubBDFBqSZdCfC7Tah0p-_utMorsbAfmGtsIfU@z>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Davidlohr Bueso <dave@stgolabs.net>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Thomas Gleixner <tglx@linutronix.de>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-alpha@vger.kernel.org" <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k <linux-m68k@lists.linux-m68k.org>, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux-arch <linux-arch@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Tim Chen <tim.c.chen@linux.intel.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <9224eca6-6d2c-7089-1fb2-618a04d7286b@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: freude@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, akrowiak@linux.vnet.ibm.com, oberpar@linux.ibm.com, sebott@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gMDMvMjIvMjAxOSAwMzozMCBQTSwgRGF2aWRsb2hyIEJ1ZXNvIHdyb3RlOgo+IE9uIEZy
-aSwgMjIgTWFyIDIwMTksIExpbnVzIFRvcnZhbGRzIHdyb3RlOgo+PiBTb21lIG9mIHRoZW0g
-X21pZ2h0XyBiZSBwZXJmb3JtYW5jZS1jcml0aWNhbC4gVGhlcmUncyB0aGUgb25lIG9uCj4+
-IG1tYXBfc2VtIGluIHRoZSBmYXVsdCBoYW5kbGluZyBwYXRoLCBmb3IgZXhhbXBsZS4gQW5k
-IHllcywgSSdkIGV4cGVjdAo+PiB0aGUgbm9ybWFsIGNhc2UgdG8gdmVyeSBtdWNoIGJlICJu
-byBvdGhlciByZWFkZXJzIG9yIHdyaXRlcnMiIGZvciB0aGF0Cj4+IG9uZS4KPgo+IFllYWgs
-IHRoZSBtbWFwX3NlbSBjYXNlIGluIHRoZSBmYXVsdCBwYXRoIGlzIHJlYWxseSBleHBlY3Rp
-bmcgYW4gdW5sb2NrZWQKPiBzdGF0ZS4gVG8gdGhlIHBvaW50IHRoYXQgZm91ciBhcmNocyBo
-YXZlIGFkZGVkIGJyYW5jaCBwcmVkaWN0aW9ucywgaWU6Cj4KPiA5MjE4MWYxOTBiNiAoeDg2
-OiBvcHRpbWlzZSB4ODYncyBkb19wYWdlX2ZhdWx0IChDIGVudHJ5IHBvaW50IGZvciB0aGUK
-PiBwYWdlIGZhdWx0IHBhdGgpKQo+IGIxNTAyMWQ5OTRmIChwb3dlcnBjL21tOiBBZGQgYSBi
-dW5jaCBvZiAodW4pbGlrZWx5IGFubm90YXRpb25zIHRvCj4gZG9fcGFnZV9mYXVsdCkKPgo+
-IEFuZCB1c2luZyBQUk9GSUxFX0FOTk9UQVRFRF9CUkFOQ0hFUyBzaG93cyBwcmV0dHkgY2xl
-YXJseToKPiAod2l0aG91dCByZXNldHRpbmcgdGhlIGNvdW50ZXJzKQo+Cj4gY29ycmVjdCBp
-bmNvcnJlY3TCoCAlwqDCoMKgwqDCoMKgwqAgRnVuY3Rpb27CoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCBGaWxlwqDCoMKgwqDCoMKgwqDCoMKgIExpbmUKPiAtLS0tLS0tIC0tLS0tLS0t
-LcKgIC3CoMKgwqDCoMKgwqDCoCAtLS0tLS0tLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IC0tLS3CoMKgwqDCoMKgwqDCoMKgwqAgLS0tLQo+IMKgNDYwMzY4NcKgwqDCoMKgwqDCoCAz
-NMKgwqAgMCBkb191c2VyX2FkZHJfZmF1bHTCoMKgwqDCoMKgwqDCoMKgIGZhdWx0LmPCoMKg
-wqDCoMKgwqDCoMKgwqAgMTQxNgo+IChib290dXApCj4gMzgyMzI3NzQ1wqDCoMKgwqDCoCA0
-NDnCoMKgIDAgZG9fdXNlcl9hZGRyX2ZhdWx0wqDCoMKgwqDCoMKgwqDCoCBmYXVsdC5jwqDC
-oMKgwqDCoMKgwqDCoMKgCj4gMTQxNiAoa2VybmVsIGJ1aWxkKQo+IDM5OTQ0NjE1OcKgwqDC
-oMKgwqAgNDYxwqDCoCAwIGRvX3VzZXJfYWRkcl9mYXVsdMKgwqDCoMKgwqDCoMKgwqAgZmF1
-bHQuY8KgwqDCoMKgwqDCoMKgwqDCoAo+IDE0MTYgKHJlZGlzIGJlbmNobWFyaykKPgo+IEl0
-IHdvdWxkIHByb2JhYmx5IHdvdWxkbid0IGhhcm0gZG9pbmcgdGhlIHVubGlrZWx5KCkgZm9y
-IGFsbCBhcmNocywgb3IKPiBhbHRlcm5hdGl2ZWx5LCBhZGQgbGlrZWx5KCkgdG8gdGhlIGF0
-b21pY19sb25nX3RyeV9jbXB4Y2hnX2FjcXVpcmUgaW4KPiBwYXRjaCAzIGFuZCBkbyBpdCBp
-bXBsaWNpdGx5IGJ1dCBtYXliZSB0aGF0IHdvdWxkIGJlIGxlc3MgZmxleGlibGUoPykKPgo+
-IFRoYW5rcywKPiBEYXZpZGxvaHIKCkkgaGFkIHVzZWQgdGhlIG15IGxvY2sgZXZlbnQgY291
-bnRpbmcgY29kZSB0byBjb3VudCB0aGUgbnVtYmVyIG9mCmNvbnRlbmRlZCBhbmQgdW5jb250
-ZW5kZWQgdHJ5bG9ja3MuIEkgdGVzdGVkIGJvdGggYm9vdHVwIGFuZCBrZXJuZWwKYnVpbGQu
-IEkgdGhpbmsgSSBzYXcgbGVzcyB0aGFuIDElIHdlcmUgY29udGVuZGVkLCB0aGUgcmVzdHMg
-d2VyZSBhbGwKdW5jb250ZW5kZWQuIFRoYXQgaXMgc2ltaWxhciB0byB3aGF0IHlvdSBnb3Qu
-IEkgdGhvdWdodCBJIGhhZCBzZW50IHRoZQpkYXRhIG91dCBwcmV2aW91c2x5LCBidXQgSSBj
-b3VsZG4ndCBmaW5kIHRoZSBlbWFpbC4gVGhhdCB3YXMgdGhlIG1haW4KcmVhc29uIHdoeSBJ
-IHRvb2sgTGludXMnIHN1Z2dlc3Rpb24gdG8gb3B0aW1pemUgaXQgZm9yIHRoZSB1bmNvbnRl
-bmRlZCBjYXNlLgoKVGhhbmtzLApMb25nbWFuCgo=
+On 2/18/19 12:01 PM, Tony Krowiak wrote:
+> The current AP bus implementation periodically polls the AP configuration
+> to detect changes. When the AP configuration is dynamically changed via the
+> SE or an SCLP instruction, the changes will not be reflected to sysfs until
+> the next time the AP configuration is polled. The CHSC architecture
+> provides a Store Event Information (SEI) command to make notification of an
+> AP configuration change. This patch introduces a handler to process
+> notification from the CHSC SEI command by immediately kicking off an AP bus
+> scan-after-event.
+
+Ping
+
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+> Reviewed-by: Harald Freudenberger <FREUDE@de.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>   arch/s390/include/asm/ap.h   | 11 +++++++++++
+>   drivers/s390/cio/chsc.c      | 13 +++++++++++++
+>   drivers/s390/crypto/ap_bus.c | 10 ++++++++++
+>   3 files changed, 34 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+> index 1a6a7092d942..e94a0a28b5eb 100644
+> --- a/arch/s390/include/asm/ap.h
+> +++ b/arch/s390/include/asm/ap.h
+> @@ -360,4 +360,15 @@ static inline struct ap_queue_status ap_dqap(ap_qid_t qid,
+>   	return reg1;
+>   }
+>   
+> +/*
+> + * Interface to tell the AP bus code that a configuration
+> + * change has happened. The bus code should at least do
+> + * an ap bus resource rescan.
+> + */
+> +#if IS_ENABLED(CONFIG_ZCRYPT)
+> +void ap_bus_cfg_chg(void);
+> +#else
+> +static inline void ap_bus_cfg_chg(void){};
+> +#endif
+> +
+>   #endif /* _ASM_S390_AP_H_ */
+> diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+> index a0baee25134c..eaf4699be2c5 100644
+> --- a/drivers/s390/cio/chsc.c
+> +++ b/drivers/s390/cio/chsc.c
+> @@ -24,6 +24,7 @@
+>   #include <asm/crw.h>
+>   #include <asm/isc.h>
+>   #include <asm/ebcdic.h>
+> +#include <asm/ap.h>
+>   
+>   #include "css.h"
+>   #include "cio.h"
+> @@ -586,6 +587,15 @@ static void chsc_process_sei_scm_avail(struct chsc_sei_nt0_area *sei_area)
+>   			      " failed (rc=%d).\n", ret);
+>   }
+>   
+> +static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
+> +{
+> +	CIO_CRW_EVENT(3, "chsc: ap config changed\n");
+> +	if (sei_area->rs != 5)
+> +		return;
+> +
+> +	ap_bus_cfg_chg();
+> +}
+> +
+>   static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
+>   {
+>   	switch (sei_area->cc) {
+> @@ -612,6 +622,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
+>   	case 2: /* i/o resource accessibility */
+>   		chsc_process_sei_res_acc(sei_area);
+>   		break;
+> +	case 3: /* ap config changed */
+> +		chsc_process_sei_ap_cfg_chg(sei_area);
+> +		break;
+>   	case 7: /* channel-path-availability information */
+>   		chsc_process_sei_chp_avail(sei_area);
+>   		break;
+> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+> index 5a699746c357..d0d415954142 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -861,6 +861,16 @@ void ap_bus_force_rescan(void)
+>   EXPORT_SYMBOL(ap_bus_force_rescan);
+>   
+>   /*
+> +* A config change has happened, force an ap bus rescan.
+> +*/
+> +void ap_bus_cfg_chg(void)
+> +{
+> +	AP_DBF(DBF_INFO, "%s config change, forcing bus rescan\n", __func__);
+> +
+> +	ap_bus_force_rescan();
+> +}
+> +
+> +/*
+>    * hex2bitmap() - parse hex mask string and set bitmap.
+>    * Valid strings are "0x012345678" with at least one valid hex number.
+>    * Rest of the bitmap to the right is padded with 0. No spaces allowed
+> 
