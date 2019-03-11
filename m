@@ -1,36 +1,65 @@
-Return-Path: <SRS0=uyI7=RK=vger.kernel.org=linux-kernel-owner@kernel.org>
-Message-ID: <d81a9133ad20d478dc8c14fbc8d1bacf4c8ffe94.camel@perches.com>
-Subject: [PATCH] s390/mem_detect: Use IS_ENABLED(CONFIG_BLK_DEV_INITRD)
-From: Joe Perches <joe@perches.com>
-Date: Thu, 07 Mar 2019 15:51:45 -0800
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 1/1] vfio: ccw: only free cp on final interrupt
+Date: Mon, 11 Mar 2019 17:26:56 +0100
+Message-ID: <20190311162656.10067-2-cohuck@redhat.com>
+References: <20190311162656.10067-1-cohuck@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190311162656.10067-1-cohuck@redhat.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-IS_ENABLED should generally use CONFIG_ prefaced symbols and
-it doesn't appear as if there is a BLK_DEV_INITRD define.
+When we get an interrupt for a channel program, it is not
+necessarily the final interrupt; for example, the issuing
+guest may request an intermediate interrupt by specifying
+the program-controlled-interrupt flag on a ccw.
 
-Signed-off-by: Joe Perches <joe@perches.com>
+We must not switch the state to idle if the interrupt is not
+yet final; even more importantly, we must not free the translated
+channel program if the interrupt is not yet final, or the host
+can crash during cp rewind.
+
+Fixes: e5f84dbaea59 ("vfio: ccw: return I/O results asynchronously")
+Cc: stable@vger.kernel.org # v4.12+
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/boot/mem_detect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
-index 4cb771ba13fa..5d316fe40480 100644
---- a/arch/s390/boot/mem_detect.c
-+++ b/arch/s390/boot/mem_detect.c
-@@ -25,7 +25,7 @@ static void *mem_detect_alloc_extended(void)
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index a10cec0e86eb..0b3b9de45c60 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -72,20 +72,24 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
  {
- 	unsigned long offset = ALIGN(mem_safe_offset(), sizeof(u64));
+ 	struct vfio_ccw_private *private;
+ 	struct irb *irb;
++	bool is_final;
  
--	if (IS_ENABLED(BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && INITRD_START && INITRD_SIZE &&
- 	    INITRD_START < offset + ENTRIES_EXTENDED_MAX)
- 		offset = ALIGN(INITRD_START + INITRD_SIZE, sizeof(u64));
+ 	private = container_of(work, struct vfio_ccw_private, io_work);
+ 	irb = &private->irb;
  
++	is_final = !(scsw_actl(&irb->scsw) &
++		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+ 	if (scsw_is_solicited(&irb->scsw)) {
+ 		cp_update_scsw(&private->cp, &irb->scsw);
+-		cp_free(&private->cp);
++		if (is_final)
++			cp_free(&private->cp);
+ 	}
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+ 
+-	if (private->mdev)
++	if (private->mdev && is_final)
+ 		private->state = VFIO_CCW_STATE_IDLE;
+ }
+ 
+-- 
+2.17.2
