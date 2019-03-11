@@ -1,40 +1,78 @@
-Return-Path: <SRS0=J4ZE=RP=vger.kernel.org=linux-kernel-owner@kernel.org>
-Subject: Re: [PATCH v3] zcrypt: handle AP Info notification from CHSC SEI
- command
-References: <1550509295-1199-1-git-send-email-akrowiak@linux.ibm.com>
- <9224eca6-6d2c-7089-1fb2-618a04d7286b@linux.ibm.com>
- <alpine.LFD.2.21.1903111656170.8196@schleppi>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Date: Tue, 12 Mar 2019 11:02:08 -0400
-MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.21.1903111656170.8196@schleppi>
+From: Eric Farman <farman@linux.ibm.com>
+Subject: Re: [PATCH] vfio: ccw: only free cp on final interrupt
+Date: Mon, 11 Mar 2019 06:35:16 -0400
+Message-ID: <04fe1f86-b7e2-5492-9e3f-48aeb52410e4@linux.ibm.com>
+References: <20190311102025.23941-1-cohuck@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <6117b968-bb06-78e6-1687-9d03b1544099@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, freude@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, pmorel@linux.vnet.ibm.com, pasic@linux.vnet.ibm.com, akrowiak@linux.vnet.ibm.com, oberpar@linux.ibm.com
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190311102025.23941-1-cohuck@redhat.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 3/11/19 11:57 AM, Sebastian Ott wrote:
-> On Mon, 11 Mar 2019, Tony Krowiak wrote:
->> On 2/18/19 12:01 PM, Tony Krowiak wrote:
->>> The current AP bus implementation periodically polls the AP configuration
->>> to detect changes. When the AP configuration is dynamically changed via the
->>> SE or an SCLP instruction, the changes will not be reflected to sysfs until
->>> the next time the AP configuration is polled. The CHSC architecture
->>> provides a Store Event Information (SEI) command to make notification of an
->>> AP configuration change. This patch introduces a handler to process
->>> notification from the CHSC SEI command by immediately kicking off an AP bus
->>> scan-after-event.
->>
->> Ping
+
+
+On 03/11/2019 06:20 AM, Cornelia Huck wrote:
+> When we get an interrupt for a channel program, it is not
+> necessarily the final interrupt; for example, the issuing
+> guest may request an intermediate interrupt by specifying
+> the program-controlled-interrupt flag on a ccw.
 > 
-> Applied.
+> We must not switch the state to idle if the interrupt is not
+> yet final; even more importantly, we must not free the translated
+> channel program if the interrupt is not yet final, or the host
+> can crash during cp rewind.
+> 
+> Fixes: e5f84dbaea59 ("vfio: ccw: return I/O results asynchronously")
+> Cc: stable@vger.kernel.org # v4.12+
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 
-Thank you Sebastian.
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
 
+> ---
+> 
+> Previously part of "vfio-ccw: rework ssch state handling". Please review,
+> I plan to send a pull req asap.
+> 
+> ---
+>   drivers/s390/cio/vfio_ccw_drv.c | 8 ++++++--
+>   1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index a10cec0e86eb..0b3b9de45c60 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -72,20 +72,24 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>   {
+>   	struct vfio_ccw_private *private;
+>   	struct irb *irb;
+> +	bool is_final;
+>   
+>   	private = container_of(work, struct vfio_ccw_private, io_work);
+>   	irb = &private->irb;
+>   
+> +	is_final = !(scsw_actl(&irb->scsw) &
+> +		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+>   	if (scsw_is_solicited(&irb->scsw)) {
+>   		cp_update_scsw(&private->cp, &irb->scsw);
+> -		cp_free(&private->cp);
+> +		if (is_final)
+> +			cp_free(&private->cp);
+>   	}
+>   	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+>   
+>   	if (private->io_trigger)
+>   		eventfd_signal(private->io_trigger, 1);
+>   
+> -	if (private->mdev)
+> +	if (private->mdev && is_final)
+>   		private->state = VFIO_CCW_STATE_IDLE;
+>   }
+>   
 > 
