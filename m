@@ -1,10 +1,8 @@
 Return-Path: <SRS0=FxTY=RO=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 3/8] s390/dasd: fix using offset into zero size array error
-Date: Mon, 11 Mar 2019 15:59:33 -0400
-Message-Id: <20190311195938.139603-3-sashal@kernel.org>
-In-Reply-To: <20190311195938.139603-1-sashal@kernel.org>
-References: <20190311195938.139603-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 1/6] s390/dasd: fix using offset into zero size array error
+Date: Mon, 11 Mar 2019 15:59:46 -0400
+Message-Id: <20190311195951.139741-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -86,10 +84,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+)
 
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index dac2f6883e28..80a43074c2f9 100644
+index ff1ab6da8cff..4bbcdf991c26 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -4023,6 +4023,14 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+@@ -3990,6 +3990,14 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
  		usrparm.psf_data &= 0x7fffffffULL;
  		usrparm.rssd_result &= 0x7fffffffULL;
  	}
