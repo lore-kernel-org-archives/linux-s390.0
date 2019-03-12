@@ -1,38 +1,43 @@
-Return-Path: <SRS0=8sqo=RS=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Kangjie Lu <kjlu@umn.edu>
-Subject: [PATCH] net: smc: fix a NULL pointer dereference
-Date: Thu, 14 Mar 2019 23:15:55 -0500
-Message-Id: <20190315041555.1801-1-kjlu@umn.edu>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: kjlu@umn.edu
-Cc: pakki001@umn.edu, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-Path: <SRS0=h4L/=RP=vger.kernel.org=linux-mips-owner@kernel.org>
+Subject: Re: [PATCH 00/14] entry: preempt_schedule_irq() callers scrub
+References: <20190311224752.8337-1-valentin.schneider@arm.com>
+ <e604601e-f8e1-a8b5-d364-69ca967996ce@synopsys.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
+Message-ID: <a5b1605b-b3b3-7898-30ae-d993050e8c7a@arm.com>
+Date: Tue, 12 Mar 2019 18:18:55 +0000
+MIME-Version: 1.0
+In-Reply-To: <e604601e-f8e1-a8b5-d364-69ca967996ce@synopsys.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-mips-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Vineet Gupta <vineet.gupta1@synopsys.com>, linux-kernel@vger.kernel.org
+Cc: Julien Thierry <julien.thierry@arm.com>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, linux-xtensa@linux-xtensa.org, x86@kernel.org, sparclinux@vger.kernel.org, linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-m68k@lists.linux-m68k.org, nios2-dev@lists.rocketboards.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In case alloc_ordered_workqueue fails, the fix returns NULL
-to avoid NULL pointer dereference.
+On 12/03/2019 18:03, Vineet Gupta wrote:
+[...]
+>> Regarding that loop, archs seem to fall in 3 categories:
+>> A) Those that don't have the loop
+> 
+> Please clarify that this is the right thing to do (since core code already has the
+> loop) hence no fixing is required for this "category"
+> 
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
----
- net/smc/smc_ism.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Right, those don't need any change. I had a brief look at them to double
+check they had the proper need_resched() gate before calling
+preempt_schedule_irq() (with no loop) and they all seem fine. Also...
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 2fff79db1a59..e89e918b88e0 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -289,6 +289,11 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
- 	INIT_LIST_HEAD(&smcd->vlan);
- 	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
- 						 WQ_MEM_RECLAIM, name);
-+	if (!smcd->event_wq) {
-+		kfree(smcd->conn);
-+		kfree(smcd);
-+		return NULL;
-+	}
- 	return smcd;
- }
- EXPORT_SYMBOL_GPL(smcd_alloc_dev);
--- 
-2.17.1
+>> B) Those that have a small need_resched() loop around the
+>>    preempt_schedule_irq() callsite
+>> C) Those that branch to some more generic code further up the entry code
+>>    and eventually branch back to preempt_schedule_irq()
+>>
+>> arc, m68k, nios2 fall in A)
+> 
+
+I forgot to include parisc in here.
+
+[...]
