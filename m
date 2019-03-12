@@ -1,15 +1,14 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 2/6] vfio-ccw: rework ssch state handling
-Date: Mon, 11 Mar 2019 10:47:40 +0100
-Message-ID: <20190311104740.6b271c6a.cohuck@redhat.com>
+Subject: Re: [PATCH v4 0/6] vfio-ccw: support hsch/csch (kernel
+ part)
+Date: Tue, 12 Mar 2019 15:31:24 +0100
+Message-ID: <20190312153124.6e6f3919.cohuck@redhat.com>
 References: <20190301093902.27799-1-cohuck@redhat.com>
-	<20190301093902.27799-3-cohuck@redhat.com>
-	<2f3cd598-5d95-c1b5-24f8-4de2c454be59@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
-In-Reply-To: <2f3cd598-5d95-c1b5-24f8-4de2c454be59@linux.ibm.com>
+In-Reply-To: <20190301093902.27799-1-cohuck@redhat.com>
 List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
 	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
 List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
@@ -22,87 +21,88 @@ Sender: "Qemu-devel"
 	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
+To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 8 Mar 2019 17:18:22 -0500
-Eric Farman <farman@linux.ibm.com> wrote:
+On Fri,  1 Mar 2019 10:38:56 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On 03/01/2019 04:38 AM, Cornelia Huck wrote:
-> > The flow for processing ssch requests can be improved by splitting
-> > the BUSY state:
-> > 
-> > - CP_PROCESSING: We reject any user space requests while we are in
-> >    the process of translating a channel program and submitting it to
-> >    the hardware. Use -EAGAIN to signal user space that it should
-> >    retry the request.
-> > - CP_PENDING: We have successfully submitted a request with ssch and
-> >    are now expecting an interrupt. As we can't handle more than one
-> >    channel program being processed, reject any further requests with
-> >    -EBUSY. A final interrupt will move us out of this state; this also
-> >    fixes a latent bug where a non-final interrupt might have freed up
-> >    a channel program that still was in progress.
-> >    By making this a separate state, we make it possible to issue a
-> >    halt or a clear while we're still waiting for the final interrupt
-> >    for the ssch (in a follow-on patch).
-> > 
-> > It also makes a lot of sense not to preemptively filter out writes to
-> > the io_region if we're in an incorrect state: the state machine will
-> > handle this correctly.
-> > 
-> > Reviewed-by: Eric Farman <farman@linux.ibm.com>
-> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> > ---
-> >   drivers/s390/cio/vfio_ccw_drv.c     |  8 ++++++--
-> >   drivers/s390/cio/vfio_ccw_fsm.c     | 19 ++++++++++++++-----
-> >   drivers/s390/cio/vfio_ccw_ops.c     |  2 --
-> >   drivers/s390/cio/vfio_ccw_private.h |  3 ++-
-> >   4 files changed, 22 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> > index a10cec0e86eb..0b3b9de45c60 100644
-> > --- a/drivers/s390/cio/vfio_ccw_drv.c
-> > +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> > @@ -72,20 +72,24 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
-> >   {
-> >   	struct vfio_ccw_private *private;
-> >   	struct irb *irb;
-> > +	bool is_final;
-> >   
-> >   	private = container_of(work, struct vfio_ccw_private, io_work);
-> >   	irb = &private->irb;
-> >   
-> > +	is_final = !(scsw_actl(&irb->scsw) &
-> > +		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
-> >   	if (scsw_is_solicited(&irb->scsw)) {
-> >   		cp_update_scsw(&private->cp, &irb->scsw);
-> > -		cp_free(&private->cp);
-> > +		if (is_final)
-> > +			cp_free(&private->cp);
-> >   	}
-> >   	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
-> >   
-> >   	if (private->io_trigger)
-> >   		eventfd_signal(private->io_trigger, 1);
-> >   
-> > -	if (private->mdev)
-> > +	if (private->mdev && is_final)
-> >   		private->state = VFIO_CCW_STATE_IDLE;
-> >   }
-> >     
+> [This is the Linux kernel part, git tree is available at
+> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3
+
+Obviously, that should have been -v4 /o\
+
+In the meanwhile, I have rebased this on top of my vfio-ccw branch with
+the factored-out non-final interrupt handling and pushed that out to
+vfio-ccw-eagain-v4.5. The only changes are in patch 2 (removed
+non-final interrupt handling from the patch and its description); Eric:
+I've kept your r-b.
+
 > 
-> Coincidentally, I did something AWESOME last night that the chunks 
-> listed above actually fix.  I have a large channel program, and when it 
-> runs my host crashes which isn't nice.  
-
-Ouch.
-
-(...)
-
-> Recalling the above changes, I applied JUST the above pieces (not the 
-> remainder of this patch), and the above channel program works fine.
-
-Thanks for pointing that out... I'll extract a patch with only the
-changes above and post it with cc:stable. A channel program submitted
-by the guest being able to crash the host is... not good.
+> The companion QEMU patches are available at
+> https://github.com/cohuck/qemu vfio-ccw-caps]
+> 
+> Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
+> device. This tends to work well for the most common 'good path' scenarios;
+> however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
+> clearing pending requests at the device is currently not supported.
+> This may be a problem for e.g. error recovery.
+> 
+> This patch series introduces capabilities (similar to what vfio-pci uses)
+> and exposes a new async region for handling hsch/csch.
+> 
+> Lightly tested (I can interact with a dasd as before, and reserve/release
+> seems to work well.) Not sure if there is a better way to test this, ideas
+> welcome.
+> 
+> Changes v3->v4:
+> - shrunk the capability offset, we don't need to accommodate as much as pci
+> - make checks in patch 1 more consistent and less buggy
+> - rebased on top of my current vfio-ccw branch
+> 
+> Changes v2->v3:
+> - Unb0rked patch 1, improved scope
+> - Split out the new mutex from patch 2 into new patch 3; added missing
+>   locking and hopefully improved description
+> - Patch 2 now reworks the state handling by splitting the BUSY state
+>   into CP_PROCESSING and CP_PENDING
+> - Patches 3 and 5 adapted on top of the reworked patches; hsch/csch
+>   are allowed in CP_PENDING, but not in CP_PROCESSING (did not add
+>   any R-b due to that)
+> - Added missing free in patch 5
+> - Probably some small changes I forgot to note down
+> 
+> Changes v1->v2:
+> - New patch 1: make it safe to use the cp accessors at any time; this
+>   should avoid problems with unsolicited interrupt handling
+> - New patch 2: handle concurrent accesses to the io region; the idea is
+>   to return -EAGAIN to userspace more often (so it can simply retry)
+> - also handle concurrent accesses to the async io region
+> - change VFIO_REGION_TYPE_CCW
+> - merge events for halt and clear to a single async event; this turned out
+>   to make the code quite a bit simpler
+> - probably some small changes I forgot to note down
+> 
+> Cornelia Huck (6):
+>   vfio-ccw: make it safe to access channel programs
+>   vfio-ccw: rework ssch state handling
+>   vfio-ccw: protect the I/O region
+>   vfio-ccw: add capabilities chain
+>   s390/cio: export hsch to modules
+>   vfio-ccw: add handling for async channel instructions
+> 
+>  drivers/s390/cio/Makefile           |   3 +-
+>  drivers/s390/cio/ioasm.c            |   1 +
+>  drivers/s390/cio/vfio_ccw_async.c   |  88 ++++++++++++
+>  drivers/s390/cio/vfio_ccw_cp.c      |  21 ++-
+>  drivers/s390/cio/vfio_ccw_cp.h      |   2 +
+>  drivers/s390/cio/vfio_ccw_drv.c     |  57 ++++++--
+>  drivers/s390/cio/vfio_ccw_fsm.c     | 143 +++++++++++++++++-
+>  drivers/s390/cio/vfio_ccw_ops.c     | 215 +++++++++++++++++++++++-----
+>  drivers/s390/cio/vfio_ccw_private.h |  48 ++++++-
+>  include/uapi/linux/vfio.h           |   4 +
+>  include/uapi/linux/vfio_ccw.h       |  12 ++
+>  11 files changed, 537 insertions(+), 57 deletions(-)
+>  create mode 100644 drivers/s390/cio/vfio_ccw_async.c
+> 
