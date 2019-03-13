@@ -1,14 +1,12 @@
-Return-Path: <SRS0=gLLx=RM=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Alex Ghiti <alex@ghiti.fr>
-Subject: Re: [PATCH v6 4/4] hugetlb: allow to free gigantic pages regardless
- of the configuration
+Return-Path: <SRS0=ZaPV=RQ=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Subject: Re: [PATCH v6 0/4] Fix free/allocation of runtime gigantic pages
 References: <20190307132015.26970-1-alex@ghiti.fr>
- <20190307132015.26970-5-alex@ghiti.fr>
- <ee22103c-5060-e39e-7085-87c07d674cd8@oracle.com>
-Message-ID: <416b046e-b1c0-00e1-0773-1dd869f7e121@ghiti.fr>
-Date: Sat, 9 Mar 2019 04:32:05 -0500
+From: Dave Hansen <dave.hansen@intel.com>
+Message-ID: <875e6287-9528-45ec-788c-9c785e548942@intel.com>
+Date: Wed, 13 Mar 2019 09:41:58 -0700
 MIME-Version: 1.0
-In-Reply-To: <ee22103c-5060-e39e-7085-87c07d674cd8@oracle.com>
+In-Reply-To: <20190307132015.26970-1-alex@ghiti.fr>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,28 +14,28 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Will Deacon <will.deacon@arm.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S . Miller" <davem@davemloft.net>
+To: Alexandre Ghiti <alex@ghiti.fr>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 3/8/19 2:05 PM, Mike Kravetz wrote:
-> On 3/7/19 5:20 AM, Alexandre Ghiti wrote:
->> On systems without CONTIG_ALLOC activated but that support gigantic pages,
->> boottime reserved gigantic pages can not be freed at all. This patch
->> simply enables the possibility to hand back those pages to memory
->> allocator.
->>
->> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
->> Acked-by: David S. Miller <davem@davemloft.net> [sparc]
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Thanks Mike,
+On 3/7/19 5:20 AM, Alexandre Ghiti wrote:
+> This series fixes sh and sparc that did not advertise their gigantic page
+> support and then were not able to allocate and free those pages at runtime.
+> It renames MEMORY_ISOLATION && COMPACTION || CMA condition into the more
+> accurate CONTIG_ALLOC, since it allows the definition of alloc_contig_range
+> function.
+> Finally, it then fixes the wrong definition of ARCH_HAS_GIGANTIC_PAGE config
+> that, without MEMORY_ISOLATION && COMPACTION || CMA defined, did not allow
+> architectures to free boottime allocated gigantic pages although unrelated.
 
-Alex
+Looks good, thanks for all the changes.  For everything generic in the
+set, plus the x86 bits:
+
+Acked-by: Dave Hansen <dave.hansen@intel.com>
 
 _______________________________________________
 linux-arm-kernel mailing list
