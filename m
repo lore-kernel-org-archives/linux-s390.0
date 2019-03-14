@@ -1,13 +1,14 @@
 Return-Path: <SRS0=dG1z=RR=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 Subject: Re: [PATCH v6 4/4] hugetlb: allow to free gigantic pages regardless
  of the configuration
-In-Reply-To: <20190307132015.26970-5-alex@ghiti.fr>
 References: <20190307132015.26970-1-alex@ghiti.fr>
- <20190307132015.26970-5-alex@ghiti.fr>
-Date: Thu, 14 Mar 2019 11:22:42 +0530
+ <20190307132015.26970-5-alex@ghiti.fr> <87va0movdh.fsf@linux.ibm.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
+Message-ID: <e39f5b5b-efa1-c7b1-c1d8-89155b926027@ghiti.fr>
+Date: Thu, 14 Mar 2019 12:43:51 +0100
 MIME-Version: 1.0
-Message-Id: <87va0movdh.fsf@linux.ibm.com>
+In-Reply-To: <87va0movdh.fsf@linux.ibm.com>
+Content-Language: fr
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -15,101 +16,129 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Alexandre Ghiti <alex@ghiti.fr>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Alexandre Ghiti <alex@ghiti.fr> writes:
-
-> On systems without CONTIG_ALLOC activated but that support gigantic pages,
-> boottime reserved gigantic pages can not be freed at all. This patch
-> simply enables the possibility to hand back those pages to memory
-> allocator.
->
-> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-> Acked-by: David S. Miller <davem@davemloft.net> [sparc]
-> ---
->  arch/arm64/Kconfig                           |  2 +-
->  arch/arm64/include/asm/hugetlb.h             |  4 --
->  arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
->  arch/powerpc/platforms/Kconfig.cputype       |  2 +-
->  arch/s390/Kconfig                            |  2 +-
->  arch/s390/include/asm/hugetlb.h              |  3 --
->  arch/sh/Kconfig                              |  2 +-
->  arch/sparc/Kconfig                           |  2 +-
->  arch/x86/Kconfig                             |  2 +-
->  arch/x86/include/asm/hugetlb.h               |  4 --
->  include/linux/gfp.h                          |  2 +-
->  mm/hugetlb.c                                 | 57 ++++++++++++--------
->  mm/page_alloc.c                              |  4 +-
->  13 files changed, 44 insertions(+), 49 deletions(-)
->
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 091a513b93e9..af687eff884a 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -18,7 +18,7 @@ config ARM64
->  	select ARCH_HAS_FAST_MULTIPLIER
->  	select ARCH_HAS_FORTIFY_SOURCE
->  	select ARCH_HAS_GCOV_PROFILE_ALL
-> -	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-> +	select ARCH_HAS_GIGANTIC_PAGE
->  	select ARCH_HAS_KCOV
->  	select ARCH_HAS_MEMBARRIER_SYNC_CORE
->  	select ARCH_HAS_PTE_SPECIAL
-> diff --git a/arch/arm64/include/asm/hugetlb.h b/arch/arm64/include/asm/hugetlb.h
-> index fb6609875455..59893e766824 100644
-> --- a/arch/arm64/include/asm/hugetlb.h
-> +++ b/arch/arm64/include/asm/hugetlb.h
-> @@ -65,8 +65,4 @@ extern void set_huge_swap_pte_at(struct mm_struct *mm, unsigned long addr,
->  
->  #include <asm-generic/hugetlb.h>
->  
-> -#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
-> -static inline bool gigantic_page_supported(void) { return true; }
-> -#endif
-> -
->  #endif /* __ASM_HUGETLB_H */
-> diff --git a/arch/powerpc/include/asm/book3s/64/hugetlb.h b/arch/powerpc/include/asm/book3s/64/hugetlb.h
-> index 5b0177733994..d04a0bcc2f1c 100644
-> --- a/arch/powerpc/include/asm/book3s/64/hugetlb.h
-> +++ b/arch/powerpc/include/asm/book3s/64/hugetlb.h
-> @@ -32,13 +32,6 @@ static inline int hstate_get_psize(struct hstate *hstate)
->  	}
->  }
->  
-> -#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
-> -static inline bool gigantic_page_supported(void)
-> -{
-> -	return true;
-> -}
-> -#endif
-> -
->  /* hugepd entry valid bit */
->  #define HUGEPD_VAL_BITS		(0x8000000000000000UL)
->  
-
-As explained in https://patchwork.ozlabs.org/patch/1047003/
-architectures like ppc64 have a hypervisor assisted mechanism to indicate
-where to find gigantic huge pages(16G pages). At this point, we don't use this
-reserved pages for anything other than hugetlb backing and hence there
-is no runtime free of this pages needed ( Also we don't do
-runtime allocation of them).
-
-I guess you can still achieve what you want to do in this patch by
-keeping gigantic_page_supported()?
-
-NOTE: We should rename gigantic_page_supported to be more specific to
-support for runtime_alloc/free of gigantic pages
-
--aneesh
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+T24gMDMvMTQvMjAxOSAwNjo1MiBBTSwgQW5lZXNoIEt1bWFyIEsuViB3cm90ZToKPiBBbGV4YW5k
+cmUgR2hpdGkgPGFsZXhAZ2hpdGkuZnI+IHdyaXRlczoKPgo+PiBPbiBzeXN0ZW1zIHdpdGhvdXQg
+Q09OVElHX0FMTE9DIGFjdGl2YXRlZCBidXQgdGhhdCBzdXBwb3J0IGdpZ2FudGljIHBhZ2VzLAo+
+PiBib290dGltZSByZXNlcnZlZCBnaWdhbnRpYyBwYWdlcyBjYW4gbm90IGJlIGZyZWVkIGF0IGFs
+bC4gVGhpcyBwYXRjaAo+PiBzaW1wbHkgZW5hYmxlcyB0aGUgcG9zc2liaWxpdHkgdG8gaGFuZCBi
+YWNrIHRob3NlIHBhZ2VzIHRvIG1lbW9yeQo+PiBhbGxvY2F0b3IuCj4+Cj4+IFNpZ25lZC1vZmYt
+Ynk6IEFsZXhhbmRyZSBHaGl0aSA8YWxleEBnaGl0aS5mcj4KPj4gQWNrZWQtYnk6IERhdmlkIFMu
+IE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4gW3NwYXJjXQo+PiAtLS0KPj4gICBhcmNoL2Fy
+bTY0L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4+ICAgYXJjaC9h
+cm02NC9pbmNsdWRlL2FzbS9odWdldGxiLmggICAgICAgICAgICAgfCAgNCAtLQo+PiAgIGFyY2gv
+cG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvaHVnZXRsYi5oIHwgIDcgLS0tCj4+ICAgYXJj
+aC9wb3dlcnBjL3BsYXRmb3Jtcy9LY29uZmlnLmNwdXR5cGUgICAgICAgfCAgMiArLQo+PiAgIGFy
+Y2gvczM5MC9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPj4gICBh
+cmNoL3MzOTAvaW5jbHVkZS9hc20vaHVnZXRsYi5oICAgICAgICAgICAgICB8ICAzIC0tCj4+ICAg
+YXJjaC9zaC9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+PiAg
+IGFyY2gvc3BhcmMvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPj4g
+ICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4+
+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vaHVnZXRsYi5oICAgICAgICAgICAgICAgfCAgNCAtLQo+
+PiAgIGluY2x1ZGUvbGludXgvZ2ZwLmggICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0K
+Pj4gICBtbS9odWdldGxiLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IDU3ICsr
+KysrKysrKysrKy0tLS0tLS0tCj4+ICAgbW0vcGFnZV9hbGxvYy5jICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgNCArLQo+PiAgIDEzIGZpbGVzIGNoYW5nZWQsIDQ0IGluc2VydGlvbnMo
+KyksIDQ5IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9LY29uZmln
+IGIvYXJjaC9hcm02NC9LY29uZmlnCj4+IGluZGV4IDA5MWE1MTNiOTNlOS4uYWY2ODdlZmY4ODRh
+IDEwMDY0NAo+PiAtLS0gYS9hcmNoL2FybTY0L0tjb25maWcKPj4gKysrIGIvYXJjaC9hcm02NC9L
+Y29uZmlnCj4+IEBAIC0xOCw3ICsxOCw3IEBAIGNvbmZpZyBBUk02NAo+PiAgIAlzZWxlY3QgQVJD
+SF9IQVNfRkFTVF9NVUxUSVBMSUVSCj4+ICAgCXNlbGVjdCBBUkNIX0hBU19GT1JUSUZZX1NPVVJD
+RQo+PiAgIAlzZWxlY3QgQVJDSF9IQVNfR0NPVl9QUk9GSUxFX0FMTAo+PiAtCXNlbGVjdCBBUkNI
+X0hBU19HSUdBTlRJQ19QQUdFIGlmIENPTlRJR19BTExPQwo+PiArCXNlbGVjdCBBUkNIX0hBU19H
+SUdBTlRJQ19QQUdFCj4+ICAgCXNlbGVjdCBBUkNIX0hBU19LQ09WCj4+ICAgCXNlbGVjdCBBUkNI
+X0hBU19NRU1CQVJSSUVSX1NZTkNfQ09SRQo+PiAgIAlzZWxlY3QgQVJDSF9IQVNfUFRFX1NQRUNJ
+QUwKPj4gZGlmZiAtLWdpdCBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vaHVnZXRsYi5oIGIvYXJj
+aC9hcm02NC9pbmNsdWRlL2FzbS9odWdldGxiLmgKPj4gaW5kZXggZmI2NjA5ODc1NDU1Li41OTg5
+M2U3NjY4MjQgMTAwNjQ0Cj4+IC0tLSBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vaHVnZXRsYi5o
+Cj4+ICsrKyBiL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vaHVnZXRsYi5oCj4+IEBAIC02NSw4ICs2
+NSw0IEBAIGV4dGVybiB2b2lkIHNldF9odWdlX3N3YXBfcHRlX2F0KHN0cnVjdCBtbV9zdHJ1Y3Qg
+Km1tLCB1bnNpZ25lZCBsb25nIGFkZHIsCj4+ICAgCj4+ICAgI2luY2x1ZGUgPGFzbS1nZW5lcmlj
+L2h1Z2V0bGIuaD4KPj4gICAKPj4gLSNpZmRlZiBDT05GSUdfQVJDSF9IQVNfR0lHQU5USUNfUEFH
+RQo+PiAtc3RhdGljIGlubGluZSBib29sIGdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkKHZvaWQpIHsg
+cmV0dXJuIHRydWU7IH0KPj4gLSNlbmRpZgo+PiAtCj4+ICAgI2VuZGlmIC8qIF9fQVNNX0hVR0VU
+TEJfSCAqLwo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82
+NC9odWdldGxiLmggYi9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vYm9vazNzLzY0L2h1Z2V0bGIu
+aAo+PiBpbmRleCA1YjAxNzc3MzM5OTQuLmQwNGEwYmNjMmYxYyAxMDA2NDQKPj4gLS0tIGEvYXJj
+aC9wb3dlcnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82NC9odWdldGxiLmgKPj4gKysrIGIvYXJjaC9w
+b3dlcnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82NC9odWdldGxiLmgKPj4gQEAgLTMyLDEzICszMiw2
+IEBAIHN0YXRpYyBpbmxpbmUgaW50IGhzdGF0ZV9nZXRfcHNpemUoc3RydWN0IGhzdGF0ZSAqaHN0
+YXRlKQo+PiAgIAl9Cj4+ICAgfQo+PiAgIAo+PiAtI2lmZGVmIENPTkZJR19BUkNIX0hBU19HSUdB
+TlRJQ19QQUdFCj4+IC1zdGF0aWMgaW5saW5lIGJvb2wgZ2lnYW50aWNfcGFnZV9zdXBwb3J0ZWQo
+dm9pZCkKPj4gLXsKPj4gLQlyZXR1cm4gdHJ1ZTsKPj4gLX0KPj4gLSNlbmRpZgo+PiAtCj4+ICAg
+LyogaHVnZXBkIGVudHJ5IHZhbGlkIGJpdCAqLwo+PiAgICNkZWZpbmUgSFVHRVBEX1ZBTF9CSVRT
+CQkoMHg4MDAwMDAwMDAwMDAwMDAwVUwpCj4+ICAgCj4gQXMgZXhwbGFpbmVkIGluIGh0dHBzOi8v
+cGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvMTA0NzAwMy8KPiBhcmNoaXRlY3R1cmVzIGxpa2Ug
+cHBjNjQgaGF2ZSBhIGh5cGVydmlzb3IgYXNzaXN0ZWQgbWVjaGFuaXNtIHRvIGluZGljYXRlCj4g
+d2hlcmUgdG8gZmluZCBnaWdhbnRpYyBodWdlIHBhZ2VzKDE2RyBwYWdlcykuIEF0IHRoaXMgcG9p
+bnQsIHdlIGRvbid0IHVzZSB0aGlzCj4gcmVzZXJ2ZWQgcGFnZXMgZm9yIGFueXRoaW5nIG90aGVy
+IHRoYW4gaHVnZXRsYiBiYWNraW5nIGFuZCBoZW5jZSB0aGVyZQo+IGlzIG5vIHJ1bnRpbWUgZnJl
+ZSBvZiB0aGlzIHBhZ2VzIG5lZWRlZCAoIEFsc28gd2UgZG9uJ3QgZG8KPiBydW50aW1lIGFsbG9j
+YXRpb24gb2YgdGhlbSkuCj4KPiBJIGd1ZXNzIHlvdSBjYW4gc3RpbGwgYWNoaWV2ZSB3aGF0IHlv
+dSB3YW50IHRvIGRvIGluIHRoaXMgcGF0Y2ggYnkKPiBrZWVwaW5nIGdpZ2FudGljX3BhZ2Vfc3Vw
+cG9ydGVkKCk/Cj4KPiBOT1RFOiBXZSBzaG91bGQgcmVuYW1lIGdpZ2FudGljX3BhZ2Vfc3VwcG9y
+dGVkIHRvIGJlIG1vcmUgc3BlY2lmaWMgdG8KPiBzdXBwb3J0IGZvciBydW50aW1lX2FsbG9jL2Zy
+ZWUgb2YgZ2lnYW50aWMgcGFnZXMKPgo+IC1hbmVlc2gKPgpUaGFua3MgZm9yIG5vdGljaW5nIEFu
+ZWVzaC4KCkkgY2FuJ3QgZmluZCBhIGJldHRlciBzb2x1dGlvbiB0aGFuIGJyaW5naW5nIGJhY2sg
+CmdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkIGNoZWNrLApzaW5jZSBpdCBpcyBtdXN0IGJlIGRvbmUg
+YXQgcnVudGltZSBpbiB5b3VyIGNhc2UuCkknbSBub3Qgc3VyZSBvZiBvbmUgdGhpbmcgdGhvdWdo
+OiB5b3Ugc2F5IHRoYXQgZnJlZWluZyBib290dGltZSBnaWdhbnRpYyAKcGFnZXMKaXMgbm90IG5l
+ZWRlZCwgYnV0IGlzIGl0IGZvcmJpZGRlbiA/IEp1c3QgdG8ga25vdyB3aGVyZSB0aGUgY2hlY2sg
+YW5kIAp3aGF0IGl0cwpuZXcgbmFtZSBzaG91bGQgYmUuCklzIHNvbWV0aGluZyBsaWtlIHRoYXQg
+KG9uIHRvcCBvZiB0aGlzIHNlcmllcykgb2sgZm9yIHlvdSAoYW5kIGV2ZXJ5b25lIAplbHNlKSBi
+ZWZvcmUKSSBzZW5kIGEgdjc6CgpkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNt
+L2Jvb2szcy82NC9odWdldGxiLmggCmIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82
+NC9odWdldGxiLmgKaW5kZXggZDA0YTBiYy4uZDEyMTU1OSAxMDA2NDQKLS0tIGEvYXJjaC9wb3dl
+cnBjL2luY2x1ZGUvYXNtL2Jvb2szcy82NC9odWdldGxiLmgKKysrIGIvYXJjaC9wb3dlcnBjL2lu
+Y2x1ZGUvYXNtL2Jvb2szcy82NC9odWdldGxiLmgKQEAgLTM1LDQgKzM1LDIwIEBAIHN0YXRpYyBp
+bmxpbmUgaW50IGhzdGF0ZV9nZXRfcHNpemUoc3RydWN0IGhzdGF0ZSAqaHN0YXRlKQogwqAvKiBo
+dWdlcGQgZW50cnkgdmFsaWQgYml0ICovCiDCoCNkZWZpbmUgSFVHRVBEX1ZBTF9CSVRTwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICgweDgwMDAwMDAwMDAwMDAwMDBVTCkKCisjaWZkZWYg
+Q09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BBR0UKKyNkZWZpbmUgX19IQVZFX0FSQ0hfR0lHQU5U
+SUNfUEFHRV9TVVBQT1JURUQKK3N0YXRpYyBpbmxpbmUgYm9vbCBnaWdhbnRpY19wYWdlX3N1cHBv
+cnRlZCh2b2lkKQoreworwqDCoMKgwqDCoMKgIC8qCivCoMKgwqDCoMKgwqDCoCAqIFdlIHVzZWQg
+Z2lnYW50aWMgcGFnZSByZXNlcnZhdGlvbiB3aXRoIGh5cGVydmlzb3IgYXNzaXN0IGluIApzb21l
+IGNhc2UuCivCoMKgwqDCoMKgwqDCoCAqIFdlIGNhbm5vdCB1c2UgcnVudGltZSBhbGxvY2F0aW9u
+IG9mIGdpZ2FudGljIHBhZ2VzIGluIHRob3NlIApwbGF0Zm9ybXMKK8KgwqDCoMKgwqDCoMKgICog
+VGhpcyBpcyBoYXNoIHRyYW5zbGF0aW9uIG1vZGUgTFBBUnMuCivCoMKgwqDCoMKgwqDCoCAqLwor
+wqDCoMKgwqDCoMKgIGlmIChmaXJtd2FyZV9oYXNfZmVhdHVyZShGV19GRUFUVVJFX0xQQVIpICYm
+ICFyYWRpeF9lbmFibGVkKCkpCivCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybiBm
+YWxzZTsKKworwqDCoMKgwqDCoMKgIHJldHVybiB0cnVlOworfQorI2VuZGlmCisKIMKgI2VuZGlm
+CmRpZmYgLS1naXQgYS9pbmNsdWRlL2FzbS1nZW5lcmljL2h1Z2V0bGIuaCBiL2luY2x1ZGUvYXNt
+LWdlbmVyaWMvaHVnZXRsYi5oCmluZGV4IDcxZDdiNzcuLjdkMTJlNzMgMTAwNjQ0Ci0tLSBhL2lu
+Y2x1ZGUvYXNtLWdlbmVyaWMvaHVnZXRsYi5oCisrKyBiL2luY2x1ZGUvYXNtLWdlbmVyaWMvaHVn
+ZXRsYi5oCkBAIC0xMjYsNCArMTI2LDE4IEBAIHN0YXRpYyBpbmxpbmUgcHRlX3QgaHVnZV9wdGVw
+X2dldChwdGVfdCAqcHRlcCkKIMKgfQogwqAjZW5kaWYKCisjaWZuZGVmIF9fSEFWRV9BUkNIX0dJ
+R0FOVElDX1BBR0VfU1VQUE9SVEVECisjaWZkZWYgQ09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BB
+R0UKK3N0YXRpYyBpbmxpbmUgYm9vbCBnaWdhbnRpY19wYWdlX3N1cHBvcnRlZCh2b2lkKQorewor
+wqDCoMKgwqDCoMKgwqAgcmV0dXJuIHRydWU7Cit9CisjZWxzZQorc3RhdGljIGlubGluZSBib29s
+IGdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkKHZvaWQpCit7CivCoMKgwqDCoMKgwqDCoCByZXR1cm4g
+ZmFsc2U7Cit9CisjZW5kaWYgLyogQ09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BBR0UgKi8KKyNl
+bmRpZiAvKiBfX0hBVkVfQVJDSF9HSUdBTlRJQ19QQUdFX1NVUFBPUlRFRCAqLworCiDCoCNlbmRp
+ZiAvKiBfQVNNX0dFTkVSSUNfSFVHRVRMQl9IICovCmRpZmYgLS1naXQgYS9tbS9odWdldGxiLmMg
+Yi9tbS9odWdldGxiLmMKaW5kZXggOWZjOTZlZi4uY2ZiYmFmZSAxMDA2NDQKLS0tIGEvbW0vaHVn
+ZXRsYi5jCisrKyBiL21tL2h1Z2V0bGIuYwpAQCAtMjQyNSw2ICsyNDI1LDExIEBAIHN0YXRpYyBz
+c2l6ZV90IF9fbnJfaHVnZXBhZ2VzX3N0b3JlX2NvbW1vbihib29sIApvYmV5X21lbXBvbGljeSwK
+IMKgwqDCoMKgwqDCoMKgIGludCBlcnI7CiDCoMKgwqDCoMKgwqDCoCBOT0RFTUFTS19BTExPQyhu
+b2RlbWFza190LCBub2Rlc19hbGxvd2VkLCBHRlBfS0VSTkVMIHwgCl9fR0ZQX05PUkVUUlkpOwoK
+K8KgwqDCoMKgwqDCoCBpZiAoaHN0YXRlX2lzX2dpZ2FudGljKGgpICYmICFnaWdhbnRpY19wYWdl
+X3N1cHBvcnRlZCgpKSB7CivCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVyciA9IC1FSU5W
+QUw7CivCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gb3V0OworwqDCoMKgwqDCoMKg
+IH0KKwogwqDCoMKgwqDCoMKgwqAgaWYgKG5pZCA9PSBOVU1BX05PX05PREUpIHsKIMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAvKgogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgKiBnbG9iYWwgaHN0YXRlIGF0dHJpYnV0ZQpAQCAtMjQ0Niw2ICsyNDUxLDcgQEAgc3RhdGlj
+IHNzaXplX3QgX19ucl9odWdlcGFnZXNfc3RvcmVfY29tbW9uKGJvb2wgCm9iZXlfbWVtcG9saWN5
+LAoKIMKgwqDCoMKgwqDCoMKgIGVyciA9IHNldF9tYXhfaHVnZV9wYWdlcyhoLCBjb3VudCwgbm9k
+ZXNfYWxsb3dlZCk7Cgorb3V0OgogwqDCoMKgwqDCoMKgwqAgaWYgKG5vZGVzX2FsbG93ZWQgIT0g
+Jm5vZGVfc3RhdGVzW05fTUVNT1JZXSkKIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBO
+T0RFTUFTS19GUkVFKG5vZGVzX2FsbG93ZWQpOwoKCgoKCgoKCgoKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxp
+c3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZy
+YWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
