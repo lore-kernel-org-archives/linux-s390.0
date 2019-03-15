@@ -1,75 +1,52 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 2/7] s390: ap: new vfio_ap_queue structure
-Date: Fri, 15 Mar 2019 14:29:18 +0100
-Message-ID: <97431ae5-8a96-2512-870b-0a463e9ec768@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v5 1/7] s390: ap: kvm: add PQAP interception for AQIC
+Date: Fri, 15 Mar 2019 14:41:41 +0100
+Message-ID: <20190315144141.100f2be7.cohuck@redhat.com>
 References: <1552493104-30510-1-git-send-email-pmorel@linux.ibm.com>
- <1552493104-30510-3-git-send-email-pmorel@linux.ibm.com>
- <20190315113330.5ef0eeef.cohuck@redhat.com>
-Reply-To: pmorel@linux.ibm.com
+        <1552493104-30510-2-git-send-email-pmorel@linux.ibm.com>
+        <20190315112032.13b259c2.cohuck@redhat.com>
+        <a0aef0e8-03e3-2cb7-3127-61521eed0629@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190315113330.5ef0eeef.cohuck@redhat.com>
-Content-Language: en-US
+In-Reply-To: <a0aef0e8-03e3-2cb7-3127-61521eed0629@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15/03/2019 11:33, Cornelia Huck wrote:
-> On Wed, 13 Mar 2019 17:04:59 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Fri, 15 Mar 2019 14:26:34 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> Conclusion:  we must handle this in userland, it will have the benefit 
+> to keep old behavior when there is no callback.
+> OLD QEMU will not see change as they will not set aqic facility
+> NEW QEMU will handle this correctly.
 > 
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->> index e9824c3..df6f21a 100644
->> --- a/drivers/s390/crypto/vfio_ap_drv.c
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -40,14 +40,42 @@ static struct ap_device_id ap_queue_ids[] = {
->>   
->>   MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->>   
->> +/**
->> + * vfio_ap_queue_dev_probe:
->> + *
->> + * Allocate a vfio_ap_queue structure and associate it
->> + * with the device as driver_data.
->> + */
->>   static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
->>   {
->> +	struct vfio_ap_queue *q;
->> +
->> +	q = kzalloc(sizeof(*q), GFP_KERNEL);
->> +	if (!q)
->> +		return -ENOMEM;
->> +	dev_set_drvdata(&apdev->device, q);
->> +	q->apqn = to_ap_queue(&apdev->device)->qid;
->> +	INIT_LIST_HEAD(&q->list);
->> +	mutex_lock(&matrix_dev->lock);
->> +	list_add(&q->list, &matrix_dev->free_list);
->> +	mutex_unlock(&matrix_dev->lock);
+> In this case we also do not need to handle all other tests here but can 
+> move it to the callback as Tony wanted.
 > 
->  From what I can see, dealing with the free_list is supposed to be
-> protected by the matrix_dev mutex, and at a glance, it indeed seems to
-> be held every time you interact with the list. I think it would be good
-> to document that with a comment.
-
-Yes.
-It is a big lock but only on administrative tasks so I think it is harmless.
-
+> Would you agree with something simple like:
 > 
-> (I have not reviewed this deeply, and I won't be able to look at this
-> more until April, sorry.)
+> static int handle_pqap(struct kvm_vcpu *vcpu)
+> {
+>          int ret = -EOPNOTSUPP;
+> 
+>          /* Verify that the hook callback is registered and call it */
+>          if (pqap_hook)
+>                  if (try_module_get(pqap_hook->owner)) {
+>                          ret = pqap_hook->hook(vcpu);
+>                          module_put(pqap_hook->owner);
+>                  }
+>          return ret;
+> }
+> 
+> All other tests in QEMU and in the callback.
 
-OK.
-Thanks for the comments.
+With the hook checking for priv, fc, etc.? Yeah, might work.
 
-Regards,
-Pierre
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+But don't count on my feedback too much right now, better wait for
+others' comments :) I'll resume in April, if needed.
