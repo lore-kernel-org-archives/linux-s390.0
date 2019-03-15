@@ -1,90 +1,52 @@
-Return-Path: <SRS0=FE4n=SC=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=8sqo=RS=vger.kernel.org=linux-kernel-owner@kernel.org>
+Subject: Re: [PATCH] net: smc: fix a NULL pointer dereference
+References: <20190315041555.1801-1-kjlu@umn.edu>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Fri, 15 Mar 2019 11:18:24 +0100
 MIME-Version: 1.0
-References: <20190325143521.34928-1-arnd@arndb.de>
- <20190325144737.703921-1-arnd@arndb.de>
- <87y34vl6ji.fsf@concordia.ellerman.id.au>
-In-Reply-To: <87y34vl6ji.fsf@concordia.ellerman.id.au>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 1 Apr 2019 00:28:18 +0800
-Message-ID: <CAK8P3a14of-jJA2q7rki3gHk6gwE-0TCkzHuXZ1+TkemopgfRA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] arch: add pidfd and io_uring syscalls everywhere
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20190315041555.1801-1-kjlu@umn.edu>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, sparclinux <sparclinux@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Helge Deller <deller@gmx.de>, Russell King <linux@armlinux.org.uk>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Firoz Khan <firoz.khan@linaro.org>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard Henderson <rth@twiddle.net>, Michal Simek <monstr@monstr.eu>, Tony Luck <tony.luck@intel.com>, Parisc List <linux-parisc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, alpha <linux-alpha@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, "David S . Miller" <davem@davemloft.net>
+Message-Id: <9887da6d-fc29-eedb-e172-a28edc3d1c4d@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Kangjie Lu <kjlu@umn.edu>
+Cc: pakki001@umn.edu, Karsten Graul <kgraul@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, Mar 31, 2019 at 5:47 PM Michael Ellerman <mpe@ellerman.id.au> wrote:
->
-> Arnd Bergmann <arnd@arndb.de> writes:
-> > Add the io_uring and pidfd_send_signal system calls to all architectures.
-> >
-> > These system calls are designed to handle both native and compat tasks,
-> > so all entries are the same across architectures, only arm-compat and
-> > the generic tale still use an old format.
-> >
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  arch/alpha/kernel/syscalls/syscall.tbl      | 4 ++++
-> >  arch/arm/tools/syscall.tbl                  | 4 ++++
-> >  arch/arm64/include/asm/unistd.h             | 2 +-
-> >  arch/arm64/include/asm/unistd32.h           | 8 ++++++++
-> >  arch/ia64/kernel/syscalls/syscall.tbl       | 4 ++++
-> >  arch/m68k/kernel/syscalls/syscall.tbl       | 4 ++++
-> >  arch/microblaze/kernel/syscalls/syscall.tbl | 4 ++++
-> >  arch/mips/kernel/syscalls/syscall_n32.tbl   | 4 ++++
-> >  arch/mips/kernel/syscalls/syscall_n64.tbl   | 4 ++++
-> >  arch/mips/kernel/syscalls/syscall_o32.tbl   | 4 ++++
-> >  arch/parisc/kernel/syscalls/syscall.tbl     | 4 ++++
-> >  arch/powerpc/kernel/syscalls/syscall.tbl    | 4 ++++
->
-> Have you done any testing?
->
-> I'd rather not wire up syscalls that have never been tested at all on
-> powerpc.
 
-No, I have not. I did review the system calls carefully and added the first
-patch to fix the bug on x86 compat mode before adding the same bug
-on the other compat architectures though ;-)
 
-Generally, my feeling is that adding system calls is not fundamentally
-different from adding other ABIs, and we should really do it at
-the same time across all architectures, rather than waiting for each
-maintainer to get around to reviewing and testing the new calls
-first. This is not a problem on powerpc, but a lot of other architectures
-are less active, which is how we have always ended up with
-different sets of system calls across architectures.
+On 3/15/19 5:15 AM, Kangjie Lu wrote:
+> In case alloc_ordered_workqueue fails, the fix returns NULL
+> to avoid NULL pointer dereference.
+> 
 
-The problem here is that this makes it harder for the C library to
-know when a system call is guaranteed to be available. glibc
-still needs a feature test for newly added syscalls to see if they
-are working (they might be backported to an older kernel, or
-disabled), but whenever the minimum kernel version is increased,
-it makes sense to drop those checks and assume non-optional
-system calls will work if they were part of that minimum version.
+Thanks, looks good. Your patch will be part of our next patch
+submission for the net-tree.
 
-In the future, I'd hope that any new system calls get added
-right away on all architectures when they land (it was a bit
-tricky this time, because I still did a bunch of reworks that
-conflicted with the new calls). Bugs will happen of course, but
-I think adding them sooner makes it more likely to catch those
-bugs early on so we have a chance to fix them properly,
-and need fewer arch specific workarounds (ideally none)
-for system calls.
+Regards, Ursula
 
-       Arnd
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+> ---
+>  net/smc/smc_ism.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+> index 2fff79db1a59..e89e918b88e0 100644
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+> @@ -289,6 +289,11 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
+>  	INIT_LIST_HEAD(&smcd->vlan);
+>  	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
+>  						 WQ_MEM_RECLAIM, name);
+> +	if (!smcd->event_wq) {
+> +		kfree(smcd->conn);
+> +		kfree(smcd);
+> +		return NULL;
+> +	}
+>  	return smcd;
+>  }
+>  EXPORT_SYMBOL_GPL(smcd_alloc_dev);
+> 
