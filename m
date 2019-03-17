@@ -1,8 +1,8 @@
 Return-Path: <SRS0=yKhh=RU=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v7 1/4] sh: Advertise gigantic page support
-Date: Sun, 17 Mar 2019 12:28:44 -0400
-Message-Id: <20190317162847.14107-2-alex@ghiti.fr>
+Subject: [PATCH v7 2/4] sparc: Advertise gigantic page support
+Date: Sun, 17 Mar 2019 12:28:45 -0400
+Message-Id: <20190317162847.14107-3-alex@ghiti.fr>
 In-Reply-To: <20190317162847.14107-1-alex@ghiti.fr>
 References: <20190317162847.14107-1-alex@ghiti.fr>
 MIME-Version: 1.0
@@ -22,31 +22,32 @@ To: aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-fo
 Cc: Alexandre Ghiti <alex@ghiti.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-sh actually supports gigantic pages and selecting
+sparc actually supports gigantic pages and selecting
 ARCH_HAS_GIGANTIC_PAGE allows it to allocate and free
 gigantic pages at runtime.
 
-At least sdk7786_defconfig exposes such a configuration with
-huge pages of 64MB, pages of 4KB and MAX_ORDER = 11:
-HPAGE_SHIFT (26) - PAGE_SHIFT (12) = 14 >= MAX_ORDER (11)
+sparc allows configuration such as huge pages of 16GB,
+pages of 8KB and MAX_ORDER = 13 (default):
+HPAGE_SHIFT (34) - PAGE_SHIFT (13) = 21 >= MAX_ORDER (13)
 
 Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Acked-by: David S. Miller <davem@davemloft.net>
 ---
- arch/sh/Kconfig | 1 +
+ arch/sparc/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index a9c36f95744a..299a17bed67c 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -53,6 +53,7 @@ config SUPERH
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_NMI
- 	select NEED_SG_DMA_LENGTH
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index d5dd652fb8cc..0b7f0e0fefa5 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -90,6 +90,7 @@ config SPARC64
+ 	select ARCH_CLOCKSOURCE_DATA
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select PCI_DOMAINS if PCI
 +	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
  
- 	help
- 	  The SuperH is a RISC processor targeted for use in embedded systems
+ config ARCH_DEFCONFIG
+ 	string
 -- 
 2.20.1
 
