@@ -1,9 +1,9 @@
 Return-Path: <SRS0=yKhh=RU=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v7 3/4] mm: Simplify MEMORY_ISOLATION && COMPACTION || CMA
- into CONTIG_ALLOC
-Date: Sun, 17 Mar 2019 12:28:46 -0400
-Message-Id: <20190317162847.14107-4-alex@ghiti.fr>
+Subject: [PATCH v7 4/4] hugetlb: allow to free gigantic pages regardless of
+ the configuration
+Date: Sun, 17 Mar 2019 12:28:47 -0400
+Message-Id: <20190317162847.14107-5-alex@ghiti.fr>
 In-Reply-To: <20190317162847.14107-1-alex@ghiti.fr>
 References: <20190317162847.14107-1-alex@ghiti.fr>
 MIME-Version: 1.0
@@ -23,157 +23,349 @@ To: aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-fo
 Cc: Alexandre Ghiti <alex@ghiti.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-This condition allows to define alloc_contig_range, so simplify
-it into a more accurate naming.
+On systems without CONTIG_ALLOC activated but that support gigantic pages,
+boottime reserved gigantic pages can not be freed at all. This patch
+simply enables the possibility to hand back those pages to memory
+allocator.
 
-Suggested-by: Vlastimil Babka <vbabka@suse.cz>
 Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David S. Miller <davem@davemloft.net> [sparc]
 ---
- arch/arm64/Kconfig                     | 2 +-
- arch/powerpc/platforms/Kconfig.cputype | 2 +-
- arch/s390/Kconfig                      | 2 +-
- arch/sh/Kconfig                        | 2 +-
- arch/sparc/Kconfig                     | 2 +-
- arch/x86/Kconfig                       | 2 +-
- arch/x86/mm/hugetlbpage.c              | 2 +-
- include/linux/gfp.h                    | 2 +-
- mm/Kconfig                             | 3 +++
- mm/page_alloc.c                        | 3 +--
- 10 files changed, 12 insertions(+), 10 deletions(-)
+ arch/arm64/Kconfig                           |  2 +-
+ arch/arm64/include/asm/hugetlb.h             |  4 --
+ arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
+ arch/powerpc/platforms/Kconfig.cputype       |  2 +-
+ arch/s390/Kconfig                            |  2 +-
+ arch/s390/include/asm/hugetlb.h              |  3 --
+ arch/sh/Kconfig                              |  2 +-
+ arch/sparc/Kconfig                           |  2 +-
+ arch/x86/Kconfig                             |  2 +-
+ arch/x86/include/asm/hugetlb.h               |  4 --
+ include/asm-generic/hugetlb.h                | 14 +++++
+ include/linux/gfp.h                          |  2 +-
+ mm/hugetlb.c                                 | 54 ++++++++++++++------
+ mm/page_alloc.c                              |  4 +-
+ 14 files changed, 61 insertions(+), 43 deletions(-)
 
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index a4168d366127..091a513b93e9 100644
+index 091a513b93e9..af687eff884a 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
 @@ -18,7 +18,7 @@ config ARM64
  	select ARCH_HAS_FAST_MULTIPLIER
  	select ARCH_HAS_FORTIFY_SOURCE
  	select ARCH_HAS_GCOV_PROFILE_ALL
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  	select ARCH_HAS_KCOV
  	select ARCH_HAS_MEMBARRIER_SYNC_CORE
  	select ARCH_HAS_PTE_SPECIAL
+diff --git a/arch/arm64/include/asm/hugetlb.h b/arch/arm64/include/asm/hugetlb.h
+index fb6609875455..59893e766824 100644
+--- a/arch/arm64/include/asm/hugetlb.h
++++ b/arch/arm64/include/asm/hugetlb.h
+@@ -65,8 +65,4 @@ extern void set_huge_swap_pte_at(struct mm_struct *mm, unsigned long addr,
+ 
+ #include <asm-generic/hugetlb.h>
+ 
+-#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
+-static inline bool gigantic_page_supported(void) { return true; }
+-#endif
+-
+ #endif /* __ASM_HUGETLB_H */
+diff --git a/arch/powerpc/include/asm/book3s/64/hugetlb.h b/arch/powerpc/include/asm/book3s/64/hugetlb.h
+index 5b0177733994..d04a0bcc2f1c 100644
+--- a/arch/powerpc/include/asm/book3s/64/hugetlb.h
++++ b/arch/powerpc/include/asm/book3s/64/hugetlb.h
+@@ -32,13 +32,6 @@ static inline int hstate_get_psize(struct hstate *hstate)
+ 	}
+ }
+ 
+-#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
+-static inline bool gigantic_page_supported(void)
+-{
+-	return true;
+-}
+-#endif
+-
+ /* hugepd entry valid bit */
+ #define HUGEPD_VAL_BITS		(0x8000000000000000UL)
+ 
 diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index 8c7464c3f27f..f677c8974212 100644
+index f677c8974212..dc0328de20cd 100644
 --- a/arch/powerpc/platforms/Kconfig.cputype
 +++ b/arch/powerpc/platforms/Kconfig.cputype
 @@ -319,7 +319,7 @@ config ARCH_ENABLE_SPLIT_PMD_PTLOCK
  config PPC_RADIX_MMU
  	bool "Radix MMU Support"
  	depends on PPC_BOOK3S_64
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  	default y
  	help
  	  Enable support for the Power ISA 3.0 Radix style MMU. Currently this
 diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index ed554b09eb3f..1c57b83c76f5 100644
+index 1c57b83c76f5..d84e536796b1 100644
 --- a/arch/s390/Kconfig
 +++ b/arch/s390/Kconfig
 @@ -69,7 +69,7 @@ config S390
  	select ARCH_HAS_ELF_RANDOMIZE
  	select ARCH_HAS_FORTIFY_SOURCE
  	select ARCH_HAS_GCOV_PROFILE_ALL
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  	select ARCH_HAS_KCOV
  	select ARCH_HAS_PTE_SPECIAL
  	select ARCH_HAS_SET_MEMORY
+diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
+index 2d1afa58a4b6..bd191560efcf 100644
+--- a/arch/s390/include/asm/hugetlb.h
++++ b/arch/s390/include/asm/hugetlb.h
+@@ -116,7 +116,4 @@ static inline pte_t huge_pte_modify(pte_t pte, pgprot_t newprot)
+ 	return pte_modify(pte, newprot);
+ }
+ 
+-#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
+-static inline bool gigantic_page_supported(void) { return true; }
+-#endif
+ #endif /* _ASM_S390_HUGETLB_H */
 diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index 299a17bed67c..c7266302691c 100644
+index c7266302691c..404b12a0d871 100644
 --- a/arch/sh/Kconfig
 +++ b/arch/sh/Kconfig
 @@ -53,7 +53,7 @@ config SUPERH
  	select HAVE_FUTEX_CMPXCHG if FUTEX
  	select HAVE_NMI
  	select NEED_SG_DMA_LENGTH
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  
  	help
  	  The SuperH is a RISC processor targeted for use in embedded systems
 diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 0b7f0e0fefa5..ca33c80870e2 100644
+index ca33c80870e2..234a6bd46e89 100644
 --- a/arch/sparc/Kconfig
 +++ b/arch/sparc/Kconfig
 @@ -90,7 +90,7 @@ config SPARC64
  	select ARCH_CLOCKSOURCE_DATA
  	select ARCH_HAS_PTE_SPECIAL
  	select PCI_DOMAINS if PCI
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  
  config ARCH_DEFCONFIG
  	string
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 68261430fe6e..8ba90f3e0038 100644
+index 8ba90f3e0038..ff24eaeef211 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
 @@ -23,7 +23,7 @@ config X86_64
  	def_bool y
  	depends on 64BIT
  	# Options that are inherently 64-bit kernel only:
--	select ARCH_HAS_GIGANTIC_PAGE if (MEMORY_ISOLATION && COMPACTION) || CMA
-+	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
+-	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
++	select ARCH_HAS_GIGANTIC_PAGE
  	select ARCH_SUPPORTS_INT128
  	select ARCH_USE_CMPXCHG_LOCKREF
  	select HAVE_ARCH_SOFT_DIRTY
-diff --git a/arch/x86/mm/hugetlbpage.c b/arch/x86/mm/hugetlbpage.c
-index 92e4c4b85bba..fab095362c50 100644
---- a/arch/x86/mm/hugetlbpage.c
-+++ b/arch/x86/mm/hugetlbpage.c
-@@ -203,7 +203,7 @@ static __init int setup_hugepagesz(char *opt)
- }
- __setup("hugepagesz=", setup_hugepagesz);
- 
--#if (defined(CONFIG_MEMORY_ISOLATION) && defined(CONFIG_COMPACTION)) || defined(CONFIG_CMA)
-+#ifdef CONFIG_CONTIG_ALLOC
- static __init int gigantic_pages_init(void)
+diff --git a/arch/x86/include/asm/hugetlb.h b/arch/x86/include/asm/hugetlb.h
+index 7469d321f072..f65cfb48cfdd 100644
+--- a/arch/x86/include/asm/hugetlb.h
++++ b/arch/x86/include/asm/hugetlb.h
+@@ -17,8 +17,4 @@ static inline void arch_clear_hugepage_flags(struct page *page)
  {
- 	/* With compaction or CMA we can allocate gigantic pages at runtime */
+ }
+ 
+-#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
+-static inline bool gigantic_page_supported(void) { return true; }
+-#endif
+-
+ #endif /* _ASM_X86_HUGETLB_H */
+diff --git a/include/asm-generic/hugetlb.h b/include/asm-generic/hugetlb.h
+index 71d7b77eea50..aaf14974ee5f 100644
+--- a/include/asm-generic/hugetlb.h
++++ b/include/asm-generic/hugetlb.h
+@@ -126,4 +126,18 @@ static inline pte_t huge_ptep_get(pte_t *ptep)
+ }
+ #endif
+ 
++#ifndef __HAVE_ARCH_GIGANTIC_PAGE_RUNTIME_SUPPORTED
++#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
++static inline bool gigantic_page_runtime_supported(void)
++{
++	return true;
++}
++#else
++static inline bool gigantic_page_runtime_supported(void)
++{
++	return false;
++}
++#endif /* CONFIG_ARCH_HAS_GIGANTIC_PAGE */
++#endif /* __HAVE_ARCH_GIGANTIC_PAGE_RUNTIME_SUPPORTED */
++
+ #endif /* _ASM_GENERIC_HUGETLB_H */
 diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index 5f5e25fd6149..1f1ad9aeebb9 100644
+index 1f1ad9aeebb9..58ea44bf75de 100644
 --- a/include/linux/gfp.h
 +++ b/include/linux/gfp.h
-@@ -585,7 +585,7 @@ static inline bool pm_suspended_storage(void)
- }
- #endif /* CONFIG_PM_SLEEP */
- 
--#if (defined(CONFIG_MEMORY_ISOLATION) && defined(CONFIG_COMPACTION)) || defined(CONFIG_CMA)
-+#ifdef CONFIG_CONTIG_ALLOC
+@@ -589,8 +589,8 @@ static inline bool pm_suspended_storage(void)
  /* The below functions must be run on a range from a single zone. */
  extern int alloc_contig_range(unsigned long start, unsigned long end,
  			      unsigned migratetype, gfp_t gfp_mask);
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 25c71eb8a7db..137eadc18732 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -258,6 +258,9 @@ config ARCH_ENABLE_HUGEPAGE_MIGRATION
- config ARCH_ENABLE_THP_MIGRATION
- 	bool
+-extern void free_contig_range(unsigned long pfn, unsigned nr_pages);
+ #endif
++extern void free_contig_range(unsigned long pfn, unsigned int nr_pages);
  
-+config CONTIG_ALLOC
-+       def_bool (MEMORY_ISOLATION && COMPACTION) || CMA
-+
- config PHYS_ADDR_T_64BIT
- 	def_bool 64BIT
- 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 35fdde041f5c..ac9c45ffb344 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8024,8 +8024,7 @@ bool has_unmovable_pages(struct zone *zone, struct page *page, int count,
- 	return true;
+ #ifdef CONFIG_CMA
+ /* CMA stuff */
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index afef61656c1e..4e55aa38704f 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1058,6 +1058,7 @@ static void free_gigantic_page(struct page *page, unsigned int order)
+ 	free_contig_range(page_to_pfn(page), 1 << order);
  }
  
--#if (defined(CONFIG_MEMORY_ISOLATION) && defined(CONFIG_COMPACTION)) || defined(CONFIG_CMA)
--
 +#ifdef CONFIG_CONTIG_ALLOC
- static unsigned long pfn_max_align_down(unsigned long pfn)
+ static int __alloc_gigantic_page(unsigned long start_pfn,
+ 				unsigned long nr_pages, gfp_t gfp_mask)
  {
- 	return pfn & ~(max_t(unsigned long, MAX_ORDER_NR_PAGES,
+@@ -1142,11 +1143,20 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+ 
+ static void prep_new_huge_page(struct hstate *h, struct page *page, int nid);
+ static void prep_compound_gigantic_page(struct page *page, unsigned int order);
++#else /* !CONFIG_CONTIG_ALLOC */
++static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
++					int nid, nodemask_t *nodemask)
++{
++	return NULL;
++}
++#endif /* CONFIG_CONTIG_ALLOC */
+ 
+ #else /* !CONFIG_ARCH_HAS_GIGANTIC_PAGE */
+-static inline bool gigantic_page_supported(void) { return false; }
+ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+-		int nid, nodemask_t *nodemask) { return NULL; }
++					int nid, nodemask_t *nodemask)
++{
++	return NULL;
++}
+ static inline void free_gigantic_page(struct page *page, unsigned int order) { }
+ static inline void destroy_compound_gigantic_page(struct page *page,
+ 						unsigned int order) { }
+@@ -1156,7 +1166,7 @@ static void update_and_free_page(struct hstate *h, struct page *page)
+ {
+ 	int i;
+ 
+-	if (hstate_is_gigantic(h) && !gigantic_page_supported())
++	if (hstate_is_gigantic(h) && !gigantic_page_runtime_supported())
+ 		return;
+ 
+ 	h->nr_huge_pages--;
+@@ -2276,13 +2286,27 @@ static int adjust_pool_surplus(struct hstate *h, nodemask_t *nodes_allowed,
+ }
+ 
+ #define persistent_huge_pages(h) (h->nr_huge_pages - h->surplus_huge_pages)
+-static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
+-						nodemask_t *nodes_allowed)
++static int set_max_huge_pages(struct hstate *h, unsigned long count,
++			      nodemask_t *nodes_allowed)
+ {
+ 	unsigned long min_count, ret;
+ 
+-	if (hstate_is_gigantic(h) && !gigantic_page_supported())
+-		return h->max_huge_pages;
++	spin_lock(&hugetlb_lock);
++
++	/*
++	 * Gigantic pages runtime allocation depend on the capability for large
++	 * page range allocation.
++	 * If the system does not provide this feature, return an error when
++	 * the user tries to allocate gigantic pages but let the user free the
++	 * boottime allocated gigantic pages.
++	 */
++	if (hstate_is_gigantic(h) && !IS_ENABLED(CONFIG_CONTIG_ALLOC)) {
++		if (count > persistent_huge_pages(h)) {
++			spin_unlock(&hugetlb_lock);
++			return -EINVAL;
++		}
++		/* Fall through to decrease pool */
++	}
+ 
+ 	/*
+ 	 * Increase the pool size
+@@ -2295,7 +2319,6 @@ static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
+ 	 * pool might be one hugepage larger than it needs to be, but
+ 	 * within all the constraints specified by the sysctls.
+ 	 */
+-	spin_lock(&hugetlb_lock);
+ 	while (h->surplus_huge_pages && count > persistent_huge_pages(h)) {
+ 		if (!adjust_pool_surplus(h, nodes_allowed, -1))
+ 			break;
+@@ -2350,9 +2373,10 @@ static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
+ 			break;
+ 	}
+ out:
+-	ret = persistent_huge_pages(h);
++	h->max_huge_pages = persistent_huge_pages(h);
+ 	spin_unlock(&hugetlb_lock);
+-	return ret;
++
++	return 0;
+ }
+ 
+ #define HSTATE_ATTR_RO(_name) \
+@@ -2404,7 +2428,7 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
+ 	int err;
+ 	NODEMASK_ALLOC(nodemask_t, nodes_allowed, GFP_KERNEL | __GFP_NORETRY);
+ 
+-	if (hstate_is_gigantic(h) && !gigantic_page_supported()) {
++	if (hstate_is_gigantic(h) && !gigantic_page_runtime_supported()) {
+ 		err = -EINVAL;
+ 		goto out;
+ 	}
+@@ -2428,15 +2452,13 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
+ 	} else
+ 		nodes_allowed = &node_states[N_MEMORY];
+ 
+-	h->max_huge_pages = set_max_huge_pages(h, count, nodes_allowed);
++	err = set_max_huge_pages(h, count, nodes_allowed);
+ 
++out:
+ 	if (nodes_allowed != &node_states[N_MEMORY])
+ 		NODEMASK_FREE(nodes_allowed);
+ 
+-	return len;
+-out:
+-	NODEMASK_FREE(nodes_allowed);
+-	return err;
++	return err ? err : len;
+ }
+ 
+ static ssize_t nr_hugepages_store_common(bool obey_mempolicy,
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index ac9c45ffb344..a4547d90fa7a 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -8234,8 +8234,9 @@ int alloc_contig_range(unsigned long start, unsigned long end,
+ 				pfn_max_align_up(end), migratetype);
+ 	return ret;
+ }
++#endif /* CONFIG_CONTIG_ALLOC */
+ 
+-void free_contig_range(unsigned long pfn, unsigned nr_pages)
++void free_contig_range(unsigned long pfn, unsigned int nr_pages)
+ {
+ 	unsigned int count = 0;
+ 
+@@ -8247,7 +8248,6 @@ void free_contig_range(unsigned long pfn, unsigned nr_pages)
+ 	}
+ 	WARN(count != 0, "%d pages are still in use!\n", count);
+ }
+-#endif
+ 
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ /*
 -- 
 2.20.1
 
