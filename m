@@ -1,15 +1,9 @@
-Return-Path: <SRS0=cPtu=RV=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Subject: Re: [PATCH v7 4/4] hugetlb: allow to free gigantic pages regardless
- of the configuration
-References: <20190317162847.14107-1-alex@ghiti.fr>
- <20190317162847.14107-5-alex@ghiti.fr>
- <f434892d-80b2-f09d-31d6-754a1be0b97a@c-s.fr>
-From: Alex Ghiti <alex@ghiti.fr>
-Message-ID: <525d6c00-012f-c6dd-abf0-fa5e1ffc12be@ghiti.fr>
-Date: Mon, 18 Mar 2019 03:00:47 -0400
+Return-Path: <SRS0=yKhh=RU=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Alexandre Ghiti <alex@ghiti.fr>
+Subject: [PATCH v7 0/4] Fix free/allocation of runtime gigantic pages
+Date: Sun, 17 Mar 2019 12:28:43 -0400
+Message-Id: <20190317162847.14107-1-alex@ghiti.fr>
 MIME-Version: 1.0
-In-Reply-To: <f434892d-80b2-f09d-31d6-754a1be0b97a@c-s.fr>
-Content-Language: sv-FI
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -17,190 +11,100 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: christophe leroy <christophe.leroy@c-s.fr>, aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+To: aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+Cc: Alexandre Ghiti <alex@ghiti.fr>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gMy8xNy8xOSAyOjMxIFBNLCBjaHJpc3RvcGhlIGxlcm95IHdyb3RlOgo+Cj4KPiBMZSAxNy8w
-My8yMDE5IMOgIDE3OjI4LCBBbGV4YW5kcmUgR2hpdGkgYSDDqWNyaXTCoDoKPj4gT24gc3lzdGVt
-cyB3aXRob3V0IENPTlRJR19BTExPQyBhY3RpdmF0ZWQgYnV0IHRoYXQgc3VwcG9ydCBnaWdhbnRp
-YyAKPj4gcGFnZXMsCj4+IGJvb3R0aW1lIHJlc2VydmVkIGdpZ2FudGljIHBhZ2VzIGNhbiBub3Qg
-YmUgZnJlZWQgYXQgYWxsLiBUaGlzIHBhdGNoCj4+IHNpbXBseSBlbmFibGVzIHRoZSBwb3NzaWJp
-bGl0eSB0byBoYW5kIGJhY2sgdGhvc2UgcGFnZXMgdG8gbWVtb3J5Cj4+IGFsbG9jYXRvci4KPj4K
-Pj4gU2lnbmVkLW9mZi1ieTogQWxleGFuZHJlIEdoaXRpIDxhbGV4QGdoaXRpLmZyPgo+PiBBY2tl
-ZC1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PiBbc3BhcmNdCj4+IC0t
-LQo+PiDCoCBhcmNoL2FybTY0L0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4+IMKgIGFyY2gvYXJtNjQvaW5jbHVkZS9h
-c20vaHVnZXRsYi5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA0IC0tCj4+IMKgIGFyY2gv
-cG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvaHVnZXRsYi5oIHzCoCA3IC0tLQo+PiDCoCBh
-cmNoL3Bvd2VycGMvcGxhdGZvcm1zL0tjb25maWcuY3B1dHlwZcKgwqDCoMKgwqDCoCB8wqAgMiAr
-LQo+PiDCoCBhcmNoL3MzOTAvS2NvbmZpZ8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+PiDCoCBhcmNoL3MzOTAvaW5jbHVkZS9h
-c20vaHVnZXRsYi5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDMgLS0KPj4gwqAgYXJj
-aC9zaC9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+PiDCoCBhcmNoL3NwYXJjL0tjb25maWfCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4+IMKg
-IGFyY2gveDg2L0tjb25maWfCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQo+PiDCoCBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9odWdl
-dGxiLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA0IC0tCj4+IMKgIGluY2x1ZGUv
-YXNtLWdlbmVyaWMvaHVnZXRsYi5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMTQg
-KysrKysKPj4gwqAgaW5jbHVkZS9saW51eC9nZnAuaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyICstCj4+IMKgIG1tL2h1Z2V0bGIuY8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgfCA1NCArKysrKysrKysrKysrKy0tLS0tLQo+PiDCoCBtbS9wYWdlX2FsbG9jLmPCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA0
-ICstCj4+IMKgIDE0IGZpbGVzIGNoYW5nZWQsIDYxIGluc2VydGlvbnMoKyksIDQzIGRlbGV0aW9u
-cygtKQo+Pgo+Cj4gWy4uLl0KPgo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9hc20tZ2VuZXJpYy9o
-dWdldGxiLmggCj4+IGIvaW5jbHVkZS9hc20tZ2VuZXJpYy9odWdldGxiLmgKPj4gaW5kZXggNzFk
-N2I3N2VlYTUwLi5hYWYxNDk3NGVlNWYgMTAwNjQ0Cj4+IC0tLSBhL2luY2x1ZGUvYXNtLWdlbmVy
-aWMvaHVnZXRsYi5oCj4+ICsrKyBiL2luY2x1ZGUvYXNtLWdlbmVyaWMvaHVnZXRsYi5oCj4+IEBA
-IC0xMjYsNCArMTI2LDE4IEBAIHN0YXRpYyBpbmxpbmUgcHRlX3QgaHVnZV9wdGVwX2dldChwdGVf
-dCAqcHRlcCkKPj4gwqAgfQo+PiDCoCAjZW5kaWYKPj4gwqAgKyNpZm5kZWYgX19IQVZFX0FSQ0hf
-R0lHQU5USUNfUEFHRV9SVU5USU1FX1NVUFBPUlRFRAo+PiArI2lmZGVmIENPTkZJR19BUkNIX0hB
-U19HSUdBTlRJQ19QQUdFCj4+ICtzdGF0aWMgaW5saW5lIGJvb2wgZ2lnYW50aWNfcGFnZV9ydW50
-aW1lX3N1cHBvcnRlZCh2b2lkKQo+PiArewo+PiArwqDCoMKgIHJldHVybiB0cnVlOwo+PiArfQo+
-PiArI2Vsc2UKPj4gK3N0YXRpYyBpbmxpbmUgYm9vbCBnaWdhbnRpY19wYWdlX3J1bnRpbWVfc3Vw
-cG9ydGVkKHZvaWQpCj4+ICt7Cj4+ICvCoMKgwqAgcmV0dXJuIGZhbHNlOwo+PiArfQo+PiArI2Vu
-ZGlmIC8qIENPTkZJR19BUkNIX0hBU19HSUdBTlRJQ19QQUdFICovCj4KPiBXaGF0IGFib3V0IHRo
-ZSBmb2xsb3dpbmcgaW5zdGVhZDoKPgo+IHN0YXRpYyBpbmxpbmUgYm9vbCBnaWdhbnRpY19wYWdl
-X3J1bnRpbWVfc3VwcG9ydGVkKHZvaWQpCj4gewo+IMKgwqDCoMKgcmV0dXJuIElTX0VOQUJMRUQo
-Q09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BBR0UpOwo+IH0KPgoKVG90YWxseSwgaXQgYWxyZWFk
-eSB3YXMgbGlrZSB0aGF0IGluIHYyIG9yIHYzLi4uCgoKPgo+PiArI2VuZGlmIC8qIF9fSEFWRV9B
-UkNIX0dJR0FOVElDX1BBR0VfUlVOVElNRV9TVVBQT1JURUQgKi8KPj4gKwo+PiDCoCAjZW5kaWYg
-LyogX0FTTV9HRU5FUklDX0hVR0VUTEJfSCAqLwo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51
-eC9nZnAuaCBiL2luY2x1ZGUvbGludXgvZ2ZwLmgKPj4gaW5kZXggMWYxYWQ5YWVlYmI5Li41OGVh
-NDRiZjc1ZGUgMTAwNjQ0Cj4+IC0tLSBhL2luY2x1ZGUvbGludXgvZ2ZwLmgKPj4gKysrIGIvaW5j
-bHVkZS9saW51eC9nZnAuaAo+PiBAQCAtNTg5LDggKzU4OSw4IEBAIHN0YXRpYyBpbmxpbmUgYm9v
-bCBwbV9zdXNwZW5kZWRfc3RvcmFnZSh2b2lkKQo+PiDCoCAvKiBUaGUgYmVsb3cgZnVuY3Rpb25z
-IG11c3QgYmUgcnVuIG9uIGEgcmFuZ2UgZnJvbSBhIHNpbmdsZSB6b25lLiAqLwo+PiDCoCBleHRl
-cm4gaW50IGFsbG9jX2NvbnRpZ19yYW5nZSh1bnNpZ25lZCBsb25nIHN0YXJ0LCB1bnNpZ25lZCBs
-b25nIGVuZCwKPj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWdu
-ZWQgbWlncmF0ZXR5cGUsIGdmcF90IGdmcF9tYXNrKTsKPj4gLWV4dGVybiB2b2lkIGZyZWVfY29u
-dGlnX3JhbmdlKHVuc2lnbmVkIGxvbmcgcGZuLCB1bnNpZ25lZCBucl9wYWdlcyk7Cj4+IMKgICNl
-bmRpZgo+PiArZXh0ZXJuIHZvaWQgZnJlZV9jb250aWdfcmFuZ2UodW5zaWduZWQgbG9uZyBwZm4s
-IHVuc2lnbmVkIGludCAKPj4gbnJfcGFnZXMpOwo+Cj4gJ2V4dGVybicgaXMgdW5uZWVkZWQgYW5k
-IHNob3VsZCBiZSBhdm9pZGVkIChpYXcgY2hlY2twYXRjaCkKPgoKT2ssIEkgZGlkIGZpeCBhIGNo
-ZWNrcGF0Y2ggd2FybmluZyBoZXJlLCBidXQgZGlkIG5vdCBub3RpY2UgdGhlICdleHRlcm4nIApv
-bmUuCgoKVGhhbmtzIGZvciB5b3VyIHRpbWUsCgoKQWxleAoKCj4gQ2hyaXN0b3BoZQo+Cj4+IMKg
-IMKgICNpZmRlZiBDT05GSUdfQ01BCj4+IMKgIC8qIENNQSBzdHVmZiAqLwo+PiBkaWZmIC0tZ2l0
-IGEvbW0vaHVnZXRsYi5jIGIvbW0vaHVnZXRsYi5jCj4+IGluZGV4IGFmZWY2MTY1NmMxZS4uNGU1
-NWFhMzg3MDRmIDEwMDY0NAo+PiAtLS0gYS9tbS9odWdldGxiLmMKPj4gKysrIGIvbW0vaHVnZXRs
-Yi5jCj4+IEBAIC0xMDU4LDYgKzEwNTgsNyBAQCBzdGF0aWMgdm9pZCBmcmVlX2dpZ2FudGljX3Bh
-Z2Uoc3RydWN0IHBhZ2UgCj4+ICpwYWdlLCB1bnNpZ25lZCBpbnQgb3JkZXIpCj4+IMKgwqDCoMKg
-wqAgZnJlZV9jb250aWdfcmFuZ2UocGFnZV90b19wZm4ocGFnZSksIDEgPDwgb3JkZXIpOwo+PiDC
-oCB9Cj4+IMKgICsjaWZkZWYgQ09ORklHX0NPTlRJR19BTExPQwo+PiDCoCBzdGF0aWMgaW50IF9f
-YWxsb2NfZ2lnYW50aWNfcGFnZSh1bnNpZ25lZCBsb25nIHN0YXJ0X3BmbiwKPj4gwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB1bnNpZ25lZCBsb25nIG5yX3BhZ2VzLCBnZnBfdCBn
-ZnBfbWFzaykKPj4gwqAgewo+PiBAQCAtMTE0MiwxMSArMTE0MywyMCBAQCBzdGF0aWMgc3RydWN0
-IHBhZ2UgCj4+ICphbGxvY19naWdhbnRpY19wYWdlKHN0cnVjdCBoc3RhdGUgKmgsIGdmcF90IGdm
-cF9tYXNrLAo+PiDCoCDCoCBzdGF0aWMgdm9pZCBwcmVwX25ld19odWdlX3BhZ2Uoc3RydWN0IGhz
-dGF0ZSAqaCwgc3RydWN0IHBhZ2UgCj4+ICpwYWdlLCBpbnQgbmlkKTsKPj4gwqAgc3RhdGljIHZv
-aWQgcHJlcF9jb21wb3VuZF9naWdhbnRpY19wYWdlKHN0cnVjdCBwYWdlICpwYWdlLCB1bnNpZ25l
-ZCAKPj4gaW50IG9yZGVyKTsKPj4gKyNlbHNlIC8qICFDT05GSUdfQ09OVElHX0FMTE9DICovCj4+
-ICtzdGF0aWMgc3RydWN0IHBhZ2UgKmFsbG9jX2dpZ2FudGljX3BhZ2Uoc3RydWN0IGhzdGF0ZSAq
-aCwgZ2ZwX3QgCj4+IGdmcF9tYXNrLAo+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgaW50IG5pZCwgbm9kZW1hc2tfdCAqbm9kZW1hc2spCj4+ICt7Cj4+ICvCoMKgwqAg
-cmV0dXJuIE5VTEw7Cj4+ICt9Cj4+ICsjZW5kaWYgLyogQ09ORklHX0NPTlRJR19BTExPQyAqLwo+
-PiDCoCDCoCAjZWxzZSAvKiAhQ09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BBR0UgKi8KPj4gLXN0
-YXRpYyBpbmxpbmUgYm9vbCBnaWdhbnRpY19wYWdlX3N1cHBvcnRlZCh2b2lkKSB7IHJldHVybiBm
-YWxzZTsgfQo+PiDCoCBzdGF0aWMgc3RydWN0IHBhZ2UgKmFsbG9jX2dpZ2FudGljX3BhZ2Uoc3Ry
-dWN0IGhzdGF0ZSAqaCwgZ2ZwX3QgCj4+IGdmcF9tYXNrLAo+PiAtwqDCoMKgwqDCoMKgwqAgaW50
-IG5pZCwgbm9kZW1hc2tfdCAqbm9kZW1hc2spIHsgcmV0dXJuIE5VTEw7IH0KPj4gK8KgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGludCBuaWQsIG5vZGVtYXNrX3QgKm5vZGVt
-YXNrKQo+PiArewo+PiArwqDCoMKgIHJldHVybiBOVUxMOwo+PiArfQo+PiDCoCBzdGF0aWMgaW5s
-aW5lIHZvaWQgZnJlZV9naWdhbnRpY19wYWdlKHN0cnVjdCBwYWdlICpwYWdlLCB1bnNpZ25lZCAK
-Pj4gaW50IG9yZGVyKSB7IH0KPj4gwqAgc3RhdGljIGlubGluZSB2b2lkIGRlc3Ryb3lfY29tcG91
-bmRfZ2lnYW50aWNfcGFnZShzdHJ1Y3QgcGFnZSAqcGFnZSwKPj4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWduZWQgaW50IG9yZGVyKSB7IH0K
-Pj4gQEAgLTExNTYsNyArMTE2Niw3IEBAIHN0YXRpYyB2b2lkIHVwZGF0ZV9hbmRfZnJlZV9wYWdl
-KHN0cnVjdCBoc3RhdGUgCj4+ICpoLCBzdHJ1Y3QgcGFnZSAqcGFnZSkKPj4gwqAgewo+PiDCoMKg
-wqDCoMKgIGludCBpOwo+PiDCoCAtwqDCoMKgIGlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkgJiYg
-IWdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkKCkpCj4+ICvCoMKgwqAgaWYgKGhzdGF0ZV9pc19naWdh
-bnRpYyhoKSAmJiAhZ2lnYW50aWNfcGFnZV9ydW50aW1lX3N1cHBvcnRlZCgpKQo+PiDCoMKgwqDC
-oMKgwqDCoMKgwqAgcmV0dXJuOwo+PiDCoCDCoMKgwqDCoMKgIGgtPm5yX2h1Z2VfcGFnZXMtLTsK
-Pj4gQEAgLTIyNzYsMTMgKzIyODYsMjcgQEAgc3RhdGljIGludCBhZGp1c3RfcG9vbF9zdXJwbHVz
-KHN0cnVjdCBoc3RhdGUgCj4+ICpoLCBub2RlbWFza190ICpub2Rlc19hbGxvd2VkLAo+PiDCoCB9
-Cj4+IMKgIMKgICNkZWZpbmUgcGVyc2lzdGVudF9odWdlX3BhZ2VzKGgpIChoLT5ucl9odWdlX3Bh
-Z2VzIC0gCj4+IGgtPnN1cnBsdXNfaHVnZV9wYWdlcykKPj4gLXN0YXRpYyB1bnNpZ25lZCBsb25n
-IHNldF9tYXhfaHVnZV9wYWdlcyhzdHJ1Y3QgaHN0YXRlICpoLCB1bnNpZ25lZCAKPj4gbG9uZyBj
-b3VudCwKPj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-bm9kZW1hc2tfdCAqbm9kZXNfYWxsb3dlZCkKPj4gK3N0YXRpYyBpbnQgc2V0X21heF9odWdlX3Bh
-Z2VzKHN0cnVjdCBoc3RhdGUgKmgsIHVuc2lnbmVkIGxvbmcgY291bnQsCj4+ICvCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG5vZGVtYXNrX3QgKm5vZGVzX2FsbG93ZWQpCj4+IMKg
-IHsKPj4gwqDCoMKgwqDCoCB1bnNpZ25lZCBsb25nIG1pbl9jb3VudCwgcmV0Owo+PiDCoCAtwqDC
-oMKgIGlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkgJiYgIWdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVk
-KCkpCj4+IC3CoMKgwqDCoMKgwqDCoCByZXR1cm4gaC0+bWF4X2h1Z2VfcGFnZXM7Cj4+ICvCoMKg
-wqAgc3Bpbl9sb2NrKCZodWdldGxiX2xvY2spOwo+PiArCj4+ICvCoMKgwqAgLyoKPj4gK8KgwqDC
-oMKgICogR2lnYW50aWMgcGFnZXMgcnVudGltZSBhbGxvY2F0aW9uIGRlcGVuZCBvbiB0aGUgY2Fw
-YWJpbGl0eSAKPj4gZm9yIGxhcmdlCj4+ICvCoMKgwqDCoCAqIHBhZ2UgcmFuZ2UgYWxsb2NhdGlv
-bi4KPj4gK8KgwqDCoMKgICogSWYgdGhlIHN5c3RlbSBkb2VzIG5vdCBwcm92aWRlIHRoaXMgZmVh
-dHVyZSwgcmV0dXJuIGFuIGVycm9yIAo+PiB3aGVuCj4+ICvCoMKgwqDCoCAqIHRoZSB1c2VyIHRy
-aWVzIHRvIGFsbG9jYXRlIGdpZ2FudGljIHBhZ2VzIGJ1dCBsZXQgdGhlIHVzZXIgCj4+IGZyZWUg
-dGhlCj4+ICvCoMKgwqDCoCAqIGJvb3R0aW1lIGFsbG9jYXRlZCBnaWdhbnRpYyBwYWdlcy4KPj4g
-K8KgwqDCoMKgICovCj4+ICvCoMKgwqAgaWYgKGhzdGF0ZV9pc19naWdhbnRpYyhoKSAmJiAhSVNf
-RU5BQkxFRChDT05GSUdfQ09OVElHX0FMTE9DKSkgewo+PiArwqDCoMKgwqDCoMKgwqAgaWYgKGNv
-dW50ID4gcGVyc2lzdGVudF9odWdlX3BhZ2VzKGgpKSB7Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHNwaW5fdW5sb2NrKCZodWdldGxiX2xvY2spOwo+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCByZXR1cm4gLUVJTlZBTDsKPj4gK8KgwqDCoMKgwqDCoMKgIH0KPj4gK8KgwqDCoMKgwqDCoMKg
-IC8qIEZhbGwgdGhyb3VnaCB0byBkZWNyZWFzZSBwb29sICovCj4+ICvCoMKgwqAgfQo+PiDCoCDC
-oMKgwqDCoMKgIC8qCj4+IMKgwqDCoMKgwqDCoCAqIEluY3JlYXNlIHRoZSBwb29sIHNpemUKPj4g
-QEAgLTIyOTUsNyArMjMxOSw2IEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIHNldF9tYXhfaHVnZV9w
-YWdlcyhzdHJ1Y3QgCj4+IGhzdGF0ZSAqaCwgdW5zaWduZWQgbG9uZyBjb3VudCwKPj4gwqDCoMKg
-wqDCoMKgICogcG9vbCBtaWdodCBiZSBvbmUgaHVnZXBhZ2UgbGFyZ2VyIHRoYW4gaXQgbmVlZHMg
-dG8gYmUsIGJ1dAo+PiDCoMKgwqDCoMKgwqAgKiB3aXRoaW4gYWxsIHRoZSBjb25zdHJhaW50cyBz
-cGVjaWZpZWQgYnkgdGhlIHN5c2N0bHMuCj4+IMKgwqDCoMKgwqDCoCAqLwo+PiAtwqDCoMKgIHNw
-aW5fbG9jaygmaHVnZXRsYl9sb2NrKTsKPj4gwqDCoMKgwqDCoCB3aGlsZSAoaC0+c3VycGx1c19o
-dWdlX3BhZ2VzICYmIGNvdW50ID4gCj4+IHBlcnNpc3RlbnRfaHVnZV9wYWdlcyhoKSkgewo+PiDC
-oMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFhZGp1c3RfcG9vbF9zdXJwbHVzKGgsIG5vZGVzX2FsbG93
-ZWQsIC0xKSkKPj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYnJlYWs7Cj4+IEBAIC0yMzUw
-LDkgKzIzNzMsMTAgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgc2V0X21heF9odWdlX3BhZ2VzKHN0
-cnVjdCAKPj4gaHN0YXRlICpoLCB1bnNpZ25lZCBsb25nIGNvdW50LAo+PiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCBicmVhazsKPj4gwqDCoMKgwqDCoCB9Cj4+IMKgIG91dDoKPj4gLcKgwqDC
-oCByZXQgPSBwZXJzaXN0ZW50X2h1Z2VfcGFnZXMoaCk7Cj4+ICvCoMKgwqAgaC0+bWF4X2h1Z2Vf
-cGFnZXMgPSBwZXJzaXN0ZW50X2h1Z2VfcGFnZXMoaCk7Cj4+IMKgwqDCoMKgwqAgc3Bpbl91bmxv
-Y2soJmh1Z2V0bGJfbG9jayk7Cj4+IC3CoMKgwqAgcmV0dXJuIHJldDsKPj4gKwo+PiArwqDCoMKg
-IHJldHVybiAwOwo+PiDCoCB9Cj4+IMKgIMKgICNkZWZpbmUgSFNUQVRFX0FUVFJfUk8oX25hbWUp
-IFwKPj4gQEAgLTI0MDQsNyArMjQyOCw3IEBAIHN0YXRpYyBzc2l6ZV90IF9fbnJfaHVnZXBhZ2Vz
-X3N0b3JlX2NvbW1vbihib29sIAo+PiBvYmV5X21lbXBvbGljeSwKPj4gwqDCoMKgwqDCoCBpbnQg
-ZXJyOwo+PiDCoMKgwqDCoMKgIE5PREVNQVNLX0FMTE9DKG5vZGVtYXNrX3QsIG5vZGVzX2FsbG93
-ZWQsIEdGUF9LRVJORUwgfCAKPj4gX19HRlBfTk9SRVRSWSk7Cj4+IMKgIC3CoMKgwqAgaWYgKGhz
-dGF0ZV9pc19naWdhbnRpYyhoKSAmJiAhZ2lnYW50aWNfcGFnZV9zdXBwb3J0ZWQoKSkgewo+PiAr
-wqDCoMKgIGlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkgJiYgIWdpZ2FudGljX3BhZ2VfcnVudGlt
-ZV9zdXBwb3J0ZWQoKSkgewo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgZXJyID0gLUVJTlZBTDsKPj4g
-wqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gb3V0Owo+PiDCoMKgwqDCoMKgIH0KPj4gQEAgLTI0Mjgs
-MTUgKzI0NTIsMTMgQEAgc3RhdGljIHNzaXplX3QgCj4+IF9fbnJfaHVnZXBhZ2VzX3N0b3JlX2Nv
-bW1vbihib29sIG9iZXlfbWVtcG9saWN5LAo+PiDCoMKgwqDCoMKgIH0gZWxzZQo+PiDCoMKgwqDC
-oMKgwqDCoMKgwqAgbm9kZXNfYWxsb3dlZCA9ICZub2RlX3N0YXRlc1tOX01FTU9SWV07Cj4+IMKg
-IC3CoMKgwqAgaC0+bWF4X2h1Z2VfcGFnZXMgPSBzZXRfbWF4X2h1Z2VfcGFnZXMoaCwgY291bnQs
-IG5vZGVzX2FsbG93ZWQpOwo+PiArwqDCoMKgIGVyciA9IHNldF9tYXhfaHVnZV9wYWdlcyhoLCBj
-b3VudCwgbm9kZXNfYWxsb3dlZCk7Cj4+IMKgICtvdXQ6Cj4+IMKgwqDCoMKgwqAgaWYgKG5vZGVz
-X2FsbG93ZWQgIT0gJm5vZGVfc3RhdGVzW05fTUVNT1JZXSkKPj4gwqDCoMKgwqDCoMKgwqDCoMKg
-IE5PREVNQVNLX0ZSRUUobm9kZXNfYWxsb3dlZCk7Cj4+IMKgIC3CoMKgwqAgcmV0dXJuIGxlbjsK
-Pj4gLW91dDoKPj4gLcKgwqDCoCBOT0RFTUFTS19GUkVFKG5vZGVzX2FsbG93ZWQpOwo+PiAtwqDC
-oMKgIHJldHVybiBlcnI7Cj4+ICvCoMKgwqAgcmV0dXJuIGVyciA/IGVyciA6IGxlbjsKPj4gwqAg
-fQo+PiDCoCDCoCBzdGF0aWMgc3NpemVfdCBucl9odWdlcGFnZXNfc3RvcmVfY29tbW9uKGJvb2wg
-b2JleV9tZW1wb2xpY3ksCj4+IGRpZmYgLS1naXQgYS9tbS9wYWdlX2FsbG9jLmMgYi9tbS9wYWdl
-X2FsbG9jLmMKPj4gaW5kZXggYWM5YzQ1ZmZiMzQ0Li5hNDU0N2Q5MGZhN2EgMTAwNjQ0Cj4+IC0t
-LSBhL21tL3BhZ2VfYWxsb2MuYwo+PiArKysgYi9tbS9wYWdlX2FsbG9jLmMKPj4gQEAgLTgyMzQs
-OCArODIzNCw5IEBAIGludCBhbGxvY19jb250aWdfcmFuZ2UodW5zaWduZWQgbG9uZyBzdGFydCwg
-Cj4+IHVuc2lnbmVkIGxvbmcgZW5kLAo+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHBmbl9tYXhfYWxpZ25fdXAoZW5kKSwgbWlncmF0ZXR5cGUpOwo+PiDCoMKgwqDCoMKgIHJl
-dHVybiByZXQ7Cj4+IMKgIH0KPj4gKyNlbmRpZiAvKiBDT05GSUdfQ09OVElHX0FMTE9DICovCj4+
-IMKgIC12b2lkIGZyZWVfY29udGlnX3JhbmdlKHVuc2lnbmVkIGxvbmcgcGZuLCB1bnNpZ25lZCBu
-cl9wYWdlcykKPj4gK3ZvaWQgZnJlZV9jb250aWdfcmFuZ2UodW5zaWduZWQgbG9uZyBwZm4sIHVu
-c2lnbmVkIGludCBucl9wYWdlcykKPj4gwqAgewo+PiDCoMKgwqDCoMKgIHVuc2lnbmVkIGludCBj
-b3VudCA9IDA7Cj4+IMKgIEBAIC04MjQ3LDcgKzgyNDgsNiBAQCB2b2lkIGZyZWVfY29udGlnX3Jh
-bmdlKHVuc2lnbmVkIGxvbmcgcGZuLCAKPj4gdW5zaWduZWQgbnJfcGFnZXMpCj4+IMKgwqDCoMKg
-wqAgfQo+PiDCoMKgwqDCoMKgIFdBUk4oY291bnQgIT0gMCwgIiVkIHBhZ2VzIGFyZSBzdGlsbCBp
-biB1c2UhXG4iLCBjb3VudCk7Cj4+IMKgIH0KPj4gLSNlbmRpZgo+PiDCoCDCoCAjaWZkZWYgQ09O
-RklHX01FTU9SWV9IT1RQTFVHCj4+IMKgIC8qCj4+Cj4KPiAtLS0KPiBMJ2Fic2VuY2UgZGUgdmly
-dXMgZGFucyBjZSBjb3VycmllciDDqWxlY3Ryb25pcXVlIGEgw6l0w6kgdsOpcmlmacOpZSBwYXIg
-bGUgCj4gbG9naWNpZWwgYW50aXZpcnVzIEF2YXN0Lgo+IGh0dHBzOi8vd3d3LmF2YXN0LmNvbS9h
-bnRpdmlydXMKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5p
-bmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8v
-bGludXgtYXJtLWtlcm5lbAo=
+his series fixes sh and sparc that did not advertise their gigantic page
+support and then were not able to allocate and free those pages at runtime.
+It renames MEMORY_ISOLATION && COMPACTION || CMA condition into the more
+accurate CONTIG_ALLOC, since it allows the definition of alloc_contig_range
+function.
+Finally, it then fixes the wrong definition of ARCH_HAS_GIGANTIC_PAGE config
+that, without MEMORY_ISOLATION && COMPACTION || CMA defined, did not allow
+architectures to free boottime allocated gigantic pages although unrelated.
+
+Changes in v7:
+  I thought gigantic page support was settled at compile time, but Aneesh
+  and Michael have just come up with a patch proving me wrong for
+  powerpc: https://patchwork.ozlabs.org/patch/1047003/. So this version:
+  - reintroduces gigantic_page_supported renamed into
+    gigantic_page_runtime_supported
+  - reintroduces gigantic page page support corresponding checks (not
+    everywhere though: set_max_huge_pages check was redundant with
+    __nr_hugepages_store_common)
+  - introduces the possibility for arch to override this function
+    by using asm-generic/hugetlb.h current semantics although Aneesh
+    proposed something else.
+
+Changes in v6:
+- Remove unnecessary goto since the fallthrough path does the same and is
+  the 'normal' behaviour, as suggested by Dave Hensen
+- Be more explicit in comment in set_max_huge_page: we return an error
+  if alloc_contig_range is not defined and the user tries to allocate a
+  gigantic page (we keep the same behaviour as before this patch), but we
+  now let her free boottime gigantic page, as suggested by Dave Hensen
+- Add Acked-by, thanks. 
+
+Changes in v5:
+- Fix bug in previous version thanks to Mike Kravetz
+- Fix block comments that did not respect coding style thanks to Dave Hensen
+- Define ARCH_HAS_GIGANTIC_PAGE only for sparc64 as advised by David Miller
+- Factorize "def_bool" and "depends on" thanks to Vlastimil Babka
+
+Changes in v4 as suggested by Dave Hensen:
+- Split previous version into small patches
+- Do not compile alloc_gigantic** functions for architectures that do not
+  support those pages
+- Define correct ARCH_HAS_GIGANTIC_PAGE in all arch that support them to avoid
+  useless runtime check
+- Add comment in set_max_huge_pages to explain that freeing is possible even
+  without CONTIG_ALLOC defined
+- Remove gigantic_page_supported function across all archs
+
+Changes in v3 as suggested by Vlastimil Babka and Dave Hansen:
+- config definition was wrong and is now in mm/Kconfig
+- COMPACTION_CORE was renamed in CONTIG_ALLOC
+
+Changes in v2 as suggested by Vlastimil Babka:
+- Get rid of ARCH_HAS_GIGANTIC_PAGE
+- Get rid of architecture specific gigantic_page_supported
+- Factorize CMA or (MEMORY_ISOLATION && COMPACTION) into COMPACTION_CORE 
+
+Alexandre Ghiti (4):
+  sh: Advertise gigantic page support
+  sparc: Advertise gigantic page support
+  mm: Simplify MEMORY_ISOLATION && COMPACTION || CMA into CONTIG_ALLOC
+  hugetlb: allow to free gigantic pages regardless of the configuration
+
+ arch/arm64/Kconfig                           |  2 +-
+ arch/arm64/include/asm/hugetlb.h             |  4 --
+ arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
+ arch/powerpc/platforms/Kconfig.cputype       |  2 +-
+ arch/s390/Kconfig                            |  2 +-
+ arch/s390/include/asm/hugetlb.h              |  3 --
+ arch/sh/Kconfig                              |  1 +
+ arch/sparc/Kconfig                           |  1 +
+ arch/x86/Kconfig                             |  2 +-
+ arch/x86/include/asm/hugetlb.h               |  4 --
+ arch/x86/mm/hugetlbpage.c                    |  2 +-
+ include/asm-generic/hugetlb.h                | 14 +++++
+ include/linux/gfp.h                          |  4 +-
+ mm/Kconfig                                   |  3 ++
+ mm/hugetlb.c                                 | 54 ++++++++++++++------
+ mm/page_alloc.c                              |  7 ++-
+ 16 files changed, 67 insertions(+), 45 deletions(-)
+
+-- 
+2.20.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
