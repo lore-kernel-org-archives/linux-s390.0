@@ -1,12 +1,14 @@
 Return-Path: <SRS0=yKhh=RU=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH v7 4/4] hugetlb: allow to free gigantic pages regardless of
- the configuration
-Date: Sun, 17 Mar 2019 12:28:47 -0400
-Message-Id: <20190317162847.14107-5-alex@ghiti.fr>
-In-Reply-To: <20190317162847.14107-1-alex@ghiti.fr>
+Subject: Re: [PATCH v7 4/4] hugetlb: allow to free gigantic pages regardless
+ of the configuration
 References: <20190317162847.14107-1-alex@ghiti.fr>
+ <20190317162847.14107-5-alex@ghiti.fr>
+From: christophe leroy <christophe.leroy@c-s.fr>
+Message-ID: <f434892d-80b2-f09d-31d6-754a1be0b97a@c-s.fr>
+Date: Sun, 17 Mar 2019 19:31:13 +0100
 MIME-Version: 1.0
+In-Reply-To: <20190317162847.14107-5-alex@ghiti.fr>
+Content-Language: fr
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -14,363 +16,160 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
-Cc: Alexandre Ghiti <alex@ghiti.fr>
+To: Alexandre Ghiti <alex@ghiti.fr>, aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Mike Kravetz <mike.kravetz@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On systems without CONTIG_ALLOC activated but that support gigantic pages,
-boottime reserved gigantic pages can not be freed at all. This patch
-simply enables the possibility to hand back those pages to memory
-allocator.
-
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: David S. Miller <davem@davemloft.net> [sparc]
----
- arch/arm64/Kconfig                           |  2 +-
- arch/arm64/include/asm/hugetlb.h             |  4 --
- arch/powerpc/include/asm/book3s/64/hugetlb.h |  7 ---
- arch/powerpc/platforms/Kconfig.cputype       |  2 +-
- arch/s390/Kconfig                            |  2 +-
- arch/s390/include/asm/hugetlb.h              |  3 --
- arch/sh/Kconfig                              |  2 +-
- arch/sparc/Kconfig                           |  2 +-
- arch/x86/Kconfig                             |  2 +-
- arch/x86/include/asm/hugetlb.h               |  4 --
- include/asm-generic/hugetlb.h                | 14 +++++
- include/linux/gfp.h                          |  2 +-
- mm/hugetlb.c                                 | 54 ++++++++++++++------
- mm/page_alloc.c                              |  4 +-
- 14 files changed, 61 insertions(+), 43 deletions(-)
-
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 091a513b93e9..af687eff884a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -18,7 +18,7 @@ config ARM64
- 	select ARCH_HAS_FAST_MULTIPLIER
- 	select ARCH_HAS_FORTIFY_SOURCE
- 	select ARCH_HAS_GCOV_PROFILE_ALL
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_MEMBARRIER_SYNC_CORE
- 	select ARCH_HAS_PTE_SPECIAL
-diff --git a/arch/arm64/include/asm/hugetlb.h b/arch/arm64/include/asm/hugetlb.h
-index fb6609875455..59893e766824 100644
---- a/arch/arm64/include/asm/hugetlb.h
-+++ b/arch/arm64/include/asm/hugetlb.h
-@@ -65,8 +65,4 @@ extern void set_huge_swap_pte_at(struct mm_struct *mm, unsigned long addr,
- 
- #include <asm-generic/hugetlb.h>
- 
--#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
--static inline bool gigantic_page_supported(void) { return true; }
--#endif
--
- #endif /* __ASM_HUGETLB_H */
-diff --git a/arch/powerpc/include/asm/book3s/64/hugetlb.h b/arch/powerpc/include/asm/book3s/64/hugetlb.h
-index 5b0177733994..d04a0bcc2f1c 100644
---- a/arch/powerpc/include/asm/book3s/64/hugetlb.h
-+++ b/arch/powerpc/include/asm/book3s/64/hugetlb.h
-@@ -32,13 +32,6 @@ static inline int hstate_get_psize(struct hstate *hstate)
- 	}
- }
- 
--#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
--static inline bool gigantic_page_supported(void)
--{
--	return true;
--}
--#endif
--
- /* hugepd entry valid bit */
- #define HUGEPD_VAL_BITS		(0x8000000000000000UL)
- 
-diff --git a/arch/powerpc/platforms/Kconfig.cputype b/arch/powerpc/platforms/Kconfig.cputype
-index f677c8974212..dc0328de20cd 100644
---- a/arch/powerpc/platforms/Kconfig.cputype
-+++ b/arch/powerpc/platforms/Kconfig.cputype
-@@ -319,7 +319,7 @@ config ARCH_ENABLE_SPLIT_PMD_PTLOCK
- config PPC_RADIX_MMU
- 	bool "Radix MMU Support"
- 	depends on PPC_BOOK3S_64
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 	default y
- 	help
- 	  Enable support for the Power ISA 3.0 Radix style MMU. Currently this
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1c57b83c76f5..d84e536796b1 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -69,7 +69,7 @@ config S390
- 	select ARCH_HAS_ELF_RANDOMIZE
- 	select ARCH_HAS_FORTIFY_SOURCE
- 	select ARCH_HAS_GCOV_PROFILE_ALL
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_SET_MEMORY
-diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
-index 2d1afa58a4b6..bd191560efcf 100644
---- a/arch/s390/include/asm/hugetlb.h
-+++ b/arch/s390/include/asm/hugetlb.h
-@@ -116,7 +116,4 @@ static inline pte_t huge_pte_modify(pte_t pte, pgprot_t newprot)
- 	return pte_modify(pte, newprot);
- }
- 
--#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
--static inline bool gigantic_page_supported(void) { return true; }
--#endif
- #endif /* _ASM_S390_HUGETLB_H */
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index c7266302691c..404b12a0d871 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -53,7 +53,7 @@ config SUPERH
- 	select HAVE_FUTEX_CMPXCHG if FUTEX
- 	select HAVE_NMI
- 	select NEED_SG_DMA_LENGTH
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 
- 	help
- 	  The SuperH is a RISC processor targeted for use in embedded systems
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index ca33c80870e2..234a6bd46e89 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -90,7 +90,7 @@ config SPARC64
- 	select ARCH_CLOCKSOURCE_DATA
- 	select ARCH_HAS_PTE_SPECIAL
- 	select PCI_DOMAINS if PCI
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 
- config ARCH_DEFCONFIG
- 	string
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 8ba90f3e0038..ff24eaeef211 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -23,7 +23,7 @@ config X86_64
- 	def_bool y
- 	depends on 64BIT
- 	# Options that are inherently 64-bit kernel only:
--	select ARCH_HAS_GIGANTIC_PAGE if CONTIG_ALLOC
-+	select ARCH_HAS_GIGANTIC_PAGE
- 	select ARCH_SUPPORTS_INT128
- 	select ARCH_USE_CMPXCHG_LOCKREF
- 	select HAVE_ARCH_SOFT_DIRTY
-diff --git a/arch/x86/include/asm/hugetlb.h b/arch/x86/include/asm/hugetlb.h
-index 7469d321f072..f65cfb48cfdd 100644
---- a/arch/x86/include/asm/hugetlb.h
-+++ b/arch/x86/include/asm/hugetlb.h
-@@ -17,8 +17,4 @@ static inline void arch_clear_hugepage_flags(struct page *page)
- {
- }
- 
--#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
--static inline bool gigantic_page_supported(void) { return true; }
--#endif
--
- #endif /* _ASM_X86_HUGETLB_H */
-diff --git a/include/asm-generic/hugetlb.h b/include/asm-generic/hugetlb.h
-index 71d7b77eea50..aaf14974ee5f 100644
---- a/include/asm-generic/hugetlb.h
-+++ b/include/asm-generic/hugetlb.h
-@@ -126,4 +126,18 @@ static inline pte_t huge_ptep_get(pte_t *ptep)
- }
- #endif
- 
-+#ifndef __HAVE_ARCH_GIGANTIC_PAGE_RUNTIME_SUPPORTED
-+#ifdef CONFIG_ARCH_HAS_GIGANTIC_PAGE
-+static inline bool gigantic_page_runtime_supported(void)
-+{
-+	return true;
-+}
-+#else
-+static inline bool gigantic_page_runtime_supported(void)
-+{
-+	return false;
-+}
-+#endif /* CONFIG_ARCH_HAS_GIGANTIC_PAGE */
-+#endif /* __HAVE_ARCH_GIGANTIC_PAGE_RUNTIME_SUPPORTED */
-+
- #endif /* _ASM_GENERIC_HUGETLB_H */
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index 1f1ad9aeebb9..58ea44bf75de 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -589,8 +589,8 @@ static inline bool pm_suspended_storage(void)
- /* The below functions must be run on a range from a single zone. */
- extern int alloc_contig_range(unsigned long start, unsigned long end,
- 			      unsigned migratetype, gfp_t gfp_mask);
--extern void free_contig_range(unsigned long pfn, unsigned nr_pages);
- #endif
-+extern void free_contig_range(unsigned long pfn, unsigned int nr_pages);
- 
- #ifdef CONFIG_CMA
- /* CMA stuff */
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index afef61656c1e..4e55aa38704f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1058,6 +1058,7 @@ static void free_gigantic_page(struct page *page, unsigned int order)
- 	free_contig_range(page_to_pfn(page), 1 << order);
- }
- 
-+#ifdef CONFIG_CONTIG_ALLOC
- static int __alloc_gigantic_page(unsigned long start_pfn,
- 				unsigned long nr_pages, gfp_t gfp_mask)
- {
-@@ -1142,11 +1143,20 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
- 
- static void prep_new_huge_page(struct hstate *h, struct page *page, int nid);
- static void prep_compound_gigantic_page(struct page *page, unsigned int order);
-+#else /* !CONFIG_CONTIG_ALLOC */
-+static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
-+					int nid, nodemask_t *nodemask)
-+{
-+	return NULL;
-+}
-+#endif /* CONFIG_CONTIG_ALLOC */
- 
- #else /* !CONFIG_ARCH_HAS_GIGANTIC_PAGE */
--static inline bool gigantic_page_supported(void) { return false; }
- static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
--		int nid, nodemask_t *nodemask) { return NULL; }
-+					int nid, nodemask_t *nodemask)
-+{
-+	return NULL;
-+}
- static inline void free_gigantic_page(struct page *page, unsigned int order) { }
- static inline void destroy_compound_gigantic_page(struct page *page,
- 						unsigned int order) { }
-@@ -1156,7 +1166,7 @@ static void update_and_free_page(struct hstate *h, struct page *page)
- {
- 	int i;
- 
--	if (hstate_is_gigantic(h) && !gigantic_page_supported())
-+	if (hstate_is_gigantic(h) && !gigantic_page_runtime_supported())
- 		return;
- 
- 	h->nr_huge_pages--;
-@@ -2276,13 +2286,27 @@ static int adjust_pool_surplus(struct hstate *h, nodemask_t *nodes_allowed,
- }
- 
- #define persistent_huge_pages(h) (h->nr_huge_pages - h->surplus_huge_pages)
--static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
--						nodemask_t *nodes_allowed)
-+static int set_max_huge_pages(struct hstate *h, unsigned long count,
-+			      nodemask_t *nodes_allowed)
- {
- 	unsigned long min_count, ret;
- 
--	if (hstate_is_gigantic(h) && !gigantic_page_supported())
--		return h->max_huge_pages;
-+	spin_lock(&hugetlb_lock);
-+
-+	/*
-+	 * Gigantic pages runtime allocation depend on the capability for large
-+	 * page range allocation.
-+	 * If the system does not provide this feature, return an error when
-+	 * the user tries to allocate gigantic pages but let the user free the
-+	 * boottime allocated gigantic pages.
-+	 */
-+	if (hstate_is_gigantic(h) && !IS_ENABLED(CONFIG_CONTIG_ALLOC)) {
-+		if (count > persistent_huge_pages(h)) {
-+			spin_unlock(&hugetlb_lock);
-+			return -EINVAL;
-+		}
-+		/* Fall through to decrease pool */
-+	}
- 
- 	/*
- 	 * Increase the pool size
-@@ -2295,7 +2319,6 @@ static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
- 	 * pool might be one hugepage larger than it needs to be, but
- 	 * within all the constraints specified by the sysctls.
- 	 */
--	spin_lock(&hugetlb_lock);
- 	while (h->surplus_huge_pages && count > persistent_huge_pages(h)) {
- 		if (!adjust_pool_surplus(h, nodes_allowed, -1))
- 			break;
-@@ -2350,9 +2373,10 @@ static unsigned long set_max_huge_pages(struct hstate *h, unsigned long count,
- 			break;
- 	}
- out:
--	ret = persistent_huge_pages(h);
-+	h->max_huge_pages = persistent_huge_pages(h);
- 	spin_unlock(&hugetlb_lock);
--	return ret;
-+
-+	return 0;
- }
- 
- #define HSTATE_ATTR_RO(_name) \
-@@ -2404,7 +2428,7 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
- 	int err;
- 	NODEMASK_ALLOC(nodemask_t, nodes_allowed, GFP_KERNEL | __GFP_NORETRY);
- 
--	if (hstate_is_gigantic(h) && !gigantic_page_supported()) {
-+	if (hstate_is_gigantic(h) && !gigantic_page_runtime_supported()) {
- 		err = -EINVAL;
- 		goto out;
- 	}
-@@ -2428,15 +2452,13 @@ static ssize_t __nr_hugepages_store_common(bool obey_mempolicy,
- 	} else
- 		nodes_allowed = &node_states[N_MEMORY];
- 
--	h->max_huge_pages = set_max_huge_pages(h, count, nodes_allowed);
-+	err = set_max_huge_pages(h, count, nodes_allowed);
- 
-+out:
- 	if (nodes_allowed != &node_states[N_MEMORY])
- 		NODEMASK_FREE(nodes_allowed);
- 
--	return len;
--out:
--	NODEMASK_FREE(nodes_allowed);
--	return err;
-+	return err ? err : len;
- }
- 
- static ssize_t nr_hugepages_store_common(bool obey_mempolicy,
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index ac9c45ffb344..a4547d90fa7a 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8234,8 +8234,9 @@ int alloc_contig_range(unsigned long start, unsigned long end,
- 				pfn_max_align_up(end), migratetype);
- 	return ret;
- }
-+#endif /* CONFIG_CONTIG_ALLOC */
- 
--void free_contig_range(unsigned long pfn, unsigned nr_pages)
-+void free_contig_range(unsigned long pfn, unsigned int nr_pages)
- {
- 	unsigned int count = 0;
- 
-@@ -8247,7 +8248,6 @@ void free_contig_range(unsigned long pfn, unsigned nr_pages)
- 	}
- 	WARN(count != 0, "%d pages are still in use!\n", count);
- }
--#endif
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- /*
--- 
-2.20.1
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+CgpMZSAxNy8wMy8yMDE5IMOgIDE3OjI4LCBBbGV4YW5kcmUgR2hpdGkgYSDDqWNyaXTCoDoKPiBP
+biBzeXN0ZW1zIHdpdGhvdXQgQ09OVElHX0FMTE9DIGFjdGl2YXRlZCBidXQgdGhhdCBzdXBwb3J0
+IGdpZ2FudGljIHBhZ2VzLAo+IGJvb3R0aW1lIHJlc2VydmVkIGdpZ2FudGljIHBhZ2VzIGNhbiBu
+b3QgYmUgZnJlZWQgYXQgYWxsLiBUaGlzIHBhdGNoCj4gc2ltcGx5IGVuYWJsZXMgdGhlIHBvc3Np
+YmlsaXR5IHRvIGhhbmQgYmFjayB0aG9zZSBwYWdlcyB0byBtZW1vcnkKPiBhbGxvY2F0b3IuCj4g
+Cj4gU2lnbmVkLW9mZi1ieTogQWxleGFuZHJlIEdoaXRpIDxhbGV4QGdoaXRpLmZyPgo+IEFja2Vk
+LWJ5OiBEYXZpZCBTLiBNaWxsZXIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+IFtzcGFyY10KPiAtLS0K
+PiAgIGFyY2gvYXJtNjQvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0K
+PiAgIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20vaHVnZXRsYi5oICAgICAgICAgICAgIHwgIDQgLS0K
+PiAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9ib29rM3MvNjQvaHVnZXRsYi5oIHwgIDcgLS0t
+Cj4gICBhcmNoL3Bvd2VycGMvcGxhdGZvcm1zL0tjb25maWcuY3B1dHlwZSAgICAgICB8ICAyICst
+Cj4gICBhcmNoL3MzOTAvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
+Cj4gICBhcmNoL3MzOTAvaW5jbHVkZS9hc20vaHVnZXRsYi5oICAgICAgICAgICAgICB8ICAzIC0t
+Cj4gICBhcmNoL3NoL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
+Cj4gICBhcmNoL3NwYXJjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
+Cj4gICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
+Cj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9odWdldGxiLmggICAgICAgICAgICAgICB8ICA0IC0t
+Cj4gICBpbmNsdWRlL2FzbS1nZW5lcmljL2h1Z2V0bGIuaCAgICAgICAgICAgICAgICB8IDE0ICsr
+KysrCj4gICBpbmNsdWRlL2xpbnV4L2dmcC5oICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAy
+ICstCj4gICBtbS9odWdldGxiLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IDU0
+ICsrKysrKysrKysrKysrLS0tLS0tCj4gICBtbS9wYWdlX2FsbG9jLmMgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICA0ICstCj4gICAxNCBmaWxlcyBjaGFuZ2VkLCA2MSBpbnNlcnRpb25z
+KCspLCA0MyBkZWxldGlvbnMoLSkKPiAKClsuLi5dCgo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2Fz
+bS1nZW5lcmljL2h1Z2V0bGIuaCBiL2luY2x1ZGUvYXNtLWdlbmVyaWMvaHVnZXRsYi5oCj4gaW5k
+ZXggNzFkN2I3N2VlYTUwLi5hYWYxNDk3NGVlNWYgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9hc20t
+Z2VuZXJpYy9odWdldGxiLmgKPiArKysgYi9pbmNsdWRlL2FzbS1nZW5lcmljL2h1Z2V0bGIuaAo+
+IEBAIC0xMjYsNCArMTI2LDE4IEBAIHN0YXRpYyBpbmxpbmUgcHRlX3QgaHVnZV9wdGVwX2dldChw
+dGVfdCAqcHRlcCkKPiAgIH0KPiAgICNlbmRpZgo+ICAgCj4gKyNpZm5kZWYgX19IQVZFX0FSQ0hf
+R0lHQU5USUNfUEFHRV9SVU5USU1FX1NVUFBPUlRFRAo+ICsjaWZkZWYgQ09ORklHX0FSQ0hfSEFT
+X0dJR0FOVElDX1BBR0UKPiArc3RhdGljIGlubGluZSBib29sIGdpZ2FudGljX3BhZ2VfcnVudGlt
+ZV9zdXBwb3J0ZWQodm9pZCkKPiArewo+ICsJcmV0dXJuIHRydWU7Cj4gK30KPiArI2Vsc2UKPiAr
+c3RhdGljIGlubGluZSBib29sIGdpZ2FudGljX3BhZ2VfcnVudGltZV9zdXBwb3J0ZWQodm9pZCkK
+PiArewo+ICsJcmV0dXJuIGZhbHNlOwo+ICt9Cj4gKyNlbmRpZiAvKiBDT05GSUdfQVJDSF9IQVNf
+R0lHQU5USUNfUEFHRSAqLwoKV2hhdCBhYm91dCB0aGUgZm9sbG93aW5nIGluc3RlYWQ6CgpzdGF0
+aWMgaW5saW5lIGJvb2wgZ2lnYW50aWNfcGFnZV9ydW50aW1lX3N1cHBvcnRlZCh2b2lkKQp7Cgly
+ZXR1cm4gSVNfRU5BQkxFRChDT05GSUdfQVJDSF9IQVNfR0lHQU5USUNfUEFHRSk7Cn0KCgo+ICsj
+ZW5kaWYgLyogX19IQVZFX0FSQ0hfR0lHQU5USUNfUEFHRV9SVU5USU1FX1NVUFBPUlRFRCAqLwo+
+ICsKPiAgICNlbmRpZiAvKiBfQVNNX0dFTkVSSUNfSFVHRVRMQl9IICovCj4gZGlmZiAtLWdpdCBh
+L2luY2x1ZGUvbGludXgvZ2ZwLmggYi9pbmNsdWRlL2xpbnV4L2dmcC5oCj4gaW5kZXggMWYxYWQ5
+YWVlYmI5Li41OGVhNDRiZjc1ZGUgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC9nZnAuaAo+
+ICsrKyBiL2luY2x1ZGUvbGludXgvZ2ZwLmgKPiBAQCAtNTg5LDggKzU4OSw4IEBAIHN0YXRpYyBp
+bmxpbmUgYm9vbCBwbV9zdXNwZW5kZWRfc3RvcmFnZSh2b2lkKQo+ICAgLyogVGhlIGJlbG93IGZ1
+bmN0aW9ucyBtdXN0IGJlIHJ1biBvbiBhIHJhbmdlIGZyb20gYSBzaW5nbGUgem9uZS4gKi8KPiAg
+IGV4dGVybiBpbnQgYWxsb2NfY29udGlnX3JhbmdlKHVuc2lnbmVkIGxvbmcgc3RhcnQsIHVuc2ln
+bmVkIGxvbmcgZW5kLAo+ICAgCQkJICAgICAgdW5zaWduZWQgbWlncmF0ZXR5cGUsIGdmcF90IGdm
+cF9tYXNrKTsKPiAtZXh0ZXJuIHZvaWQgZnJlZV9jb250aWdfcmFuZ2UodW5zaWduZWQgbG9uZyBw
+Zm4sIHVuc2lnbmVkIG5yX3BhZ2VzKTsKPiAgICNlbmRpZgo+ICtleHRlcm4gdm9pZCBmcmVlX2Nv
+bnRpZ19yYW5nZSh1bnNpZ25lZCBsb25nIHBmbiwgdW5zaWduZWQgaW50IG5yX3BhZ2VzKTsKCidl
+eHRlcm4nIGlzIHVubmVlZGVkIGFuZCBzaG91bGQgYmUgYXZvaWRlZCAoaWF3IGNoZWNrcGF0Y2gp
+CgpDaHJpc3RvcGhlCgo+ICAgCj4gICAjaWZkZWYgQ09ORklHX0NNQQo+ICAgLyogQ01BIHN0dWZm
+ICovCj4gZGlmZiAtLWdpdCBhL21tL2h1Z2V0bGIuYyBiL21tL2h1Z2V0bGIuYwo+IGluZGV4IGFm
+ZWY2MTY1NmMxZS4uNGU1NWFhMzg3MDRmIDEwMDY0NAo+IC0tLSBhL21tL2h1Z2V0bGIuYwo+ICsr
+KyBiL21tL2h1Z2V0bGIuYwo+IEBAIC0xMDU4LDYgKzEwNTgsNyBAQCBzdGF0aWMgdm9pZCBmcmVl
+X2dpZ2FudGljX3BhZ2Uoc3RydWN0IHBhZ2UgKnBhZ2UsIHVuc2lnbmVkIGludCBvcmRlcikKPiAg
+IAlmcmVlX2NvbnRpZ19yYW5nZShwYWdlX3RvX3BmbihwYWdlKSwgMSA8PCBvcmRlcik7Cj4gICB9
+Cj4gICAKPiArI2lmZGVmIENPTkZJR19DT05USUdfQUxMT0MKPiAgIHN0YXRpYyBpbnQgX19hbGxv
+Y19naWdhbnRpY19wYWdlKHVuc2lnbmVkIGxvbmcgc3RhcnRfcGZuLAo+ICAgCQkJCXVuc2lnbmVk
+IGxvbmcgbnJfcGFnZXMsIGdmcF90IGdmcF9tYXNrKQo+ICAgewo+IEBAIC0xMTQyLDExICsxMTQz
+LDIwIEBAIHN0YXRpYyBzdHJ1Y3QgcGFnZSAqYWxsb2NfZ2lnYW50aWNfcGFnZShzdHJ1Y3QgaHN0
+YXRlICpoLCBnZnBfdCBnZnBfbWFzaywKPiAgIAo+ICAgc3RhdGljIHZvaWQgcHJlcF9uZXdfaHVn
+ZV9wYWdlKHN0cnVjdCBoc3RhdGUgKmgsIHN0cnVjdCBwYWdlICpwYWdlLCBpbnQgbmlkKTsKPiAg
+IHN0YXRpYyB2b2lkIHByZXBfY29tcG91bmRfZ2lnYW50aWNfcGFnZShzdHJ1Y3QgcGFnZSAqcGFn
+ZSwgdW5zaWduZWQgaW50IG9yZGVyKTsKPiArI2Vsc2UgLyogIUNPTkZJR19DT05USUdfQUxMT0Mg
+Ki8KPiArc3RhdGljIHN0cnVjdCBwYWdlICphbGxvY19naWdhbnRpY19wYWdlKHN0cnVjdCBoc3Rh
+dGUgKmgsIGdmcF90IGdmcF9tYXNrLAo+ICsJCQkJCWludCBuaWQsIG5vZGVtYXNrX3QgKm5vZGVt
+YXNrKQo+ICt7Cj4gKwlyZXR1cm4gTlVMTDsKPiArfQo+ICsjZW5kaWYgLyogQ09ORklHX0NPTlRJ
+R19BTExPQyAqLwo+ICAgCj4gICAjZWxzZSAvKiAhQ09ORklHX0FSQ0hfSEFTX0dJR0FOVElDX1BB
+R0UgKi8KPiAtc3RhdGljIGlubGluZSBib29sIGdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkKHZvaWQp
+IHsgcmV0dXJuIGZhbHNlOyB9Cj4gICBzdGF0aWMgc3RydWN0IHBhZ2UgKmFsbG9jX2dpZ2FudGlj
+X3BhZ2Uoc3RydWN0IGhzdGF0ZSAqaCwgZ2ZwX3QgZ2ZwX21hc2ssCj4gLQkJaW50IG5pZCwgbm9k
+ZW1hc2tfdCAqbm9kZW1hc2spIHsgcmV0dXJuIE5VTEw7IH0KPiArCQkJCQlpbnQgbmlkLCBub2Rl
+bWFza190ICpub2RlbWFzaykKPiArewo+ICsJcmV0dXJuIE5VTEw7Cj4gK30KPiAgIHN0YXRpYyBp
+bmxpbmUgdm9pZCBmcmVlX2dpZ2FudGljX3BhZ2Uoc3RydWN0IHBhZ2UgKnBhZ2UsIHVuc2lnbmVk
+IGludCBvcmRlcikgeyB9Cj4gICBzdGF0aWMgaW5saW5lIHZvaWQgZGVzdHJveV9jb21wb3VuZF9n
+aWdhbnRpY19wYWdlKHN0cnVjdCBwYWdlICpwYWdlLAo+ICAgCQkJCQkJdW5zaWduZWQgaW50IG9y
+ZGVyKSB7IH0KPiBAQCAtMTE1Niw3ICsxMTY2LDcgQEAgc3RhdGljIHZvaWQgdXBkYXRlX2FuZF9m
+cmVlX3BhZ2Uoc3RydWN0IGhzdGF0ZSAqaCwgc3RydWN0IHBhZ2UgKnBhZ2UpCj4gICB7Cj4gICAJ
+aW50IGk7Cj4gICAKPiAtCWlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkgJiYgIWdpZ2FudGljX3Bh
+Z2Vfc3VwcG9ydGVkKCkpCj4gKwlpZiAoaHN0YXRlX2lzX2dpZ2FudGljKGgpICYmICFnaWdhbnRp
+Y19wYWdlX3J1bnRpbWVfc3VwcG9ydGVkKCkpCj4gICAJCXJldHVybjsKPiAgIAo+ICAgCWgtPm5y
+X2h1Z2VfcGFnZXMtLTsKPiBAQCAtMjI3NiwxMyArMjI4NiwyNyBAQCBzdGF0aWMgaW50IGFkanVz
+dF9wb29sX3N1cnBsdXMoc3RydWN0IGhzdGF0ZSAqaCwgbm9kZW1hc2tfdCAqbm9kZXNfYWxsb3dl
+ZCwKPiAgIH0KPiAgIAo+ICAgI2RlZmluZSBwZXJzaXN0ZW50X2h1Z2VfcGFnZXMoaCkgKGgtPm5y
+X2h1Z2VfcGFnZXMgLSBoLT5zdXJwbHVzX2h1Z2VfcGFnZXMpCj4gLXN0YXRpYyB1bnNpZ25lZCBs
+b25nIHNldF9tYXhfaHVnZV9wYWdlcyhzdHJ1Y3QgaHN0YXRlICpoLCB1bnNpZ25lZCBsb25nIGNv
+dW50LAo+IC0JCQkJCQlub2RlbWFza190ICpub2Rlc19hbGxvd2VkKQo+ICtzdGF0aWMgaW50IHNl
+dF9tYXhfaHVnZV9wYWdlcyhzdHJ1Y3QgaHN0YXRlICpoLCB1bnNpZ25lZCBsb25nIGNvdW50LAo+
+ICsJCQkgICAgICBub2RlbWFza190ICpub2Rlc19hbGxvd2VkKQo+ICAgewo+ICAgCXVuc2lnbmVk
+IGxvbmcgbWluX2NvdW50LCByZXQ7Cj4gICAKPiAtCWlmIChoc3RhdGVfaXNfZ2lnYW50aWMoaCkg
+JiYgIWdpZ2FudGljX3BhZ2Vfc3VwcG9ydGVkKCkpCj4gLQkJcmV0dXJuIGgtPm1heF9odWdlX3Bh
+Z2VzOwo+ICsJc3Bpbl9sb2NrKCZodWdldGxiX2xvY2spOwo+ICsKPiArCS8qCj4gKwkgKiBHaWdh
+bnRpYyBwYWdlcyBydW50aW1lIGFsbG9jYXRpb24gZGVwZW5kIG9uIHRoZSBjYXBhYmlsaXR5IGZv
+ciBsYXJnZQo+ICsJICogcGFnZSByYW5nZSBhbGxvY2F0aW9uLgo+ICsJICogSWYgdGhlIHN5c3Rl
+bSBkb2VzIG5vdCBwcm92aWRlIHRoaXMgZmVhdHVyZSwgcmV0dXJuIGFuIGVycm9yIHdoZW4KPiAr
+CSAqIHRoZSB1c2VyIHRyaWVzIHRvIGFsbG9jYXRlIGdpZ2FudGljIHBhZ2VzIGJ1dCBsZXQgdGhl
+IHVzZXIgZnJlZSB0aGUKPiArCSAqIGJvb3R0aW1lIGFsbG9jYXRlZCBnaWdhbnRpYyBwYWdlcy4K
+PiArCSAqLwo+ICsJaWYgKGhzdGF0ZV9pc19naWdhbnRpYyhoKSAmJiAhSVNfRU5BQkxFRChDT05G
+SUdfQ09OVElHX0FMTE9DKSkgewo+ICsJCWlmIChjb3VudCA+IHBlcnNpc3RlbnRfaHVnZV9wYWdl
+cyhoKSkgewo+ICsJCQlzcGluX3VubG9jaygmaHVnZXRsYl9sb2NrKTsKPiArCQkJcmV0dXJuIC1F
+SU5WQUw7Cj4gKwkJfQo+ICsJCS8qIEZhbGwgdGhyb3VnaCB0byBkZWNyZWFzZSBwb29sICovCj4g
+Kwl9Cj4gICAKPiAgIAkvKgo+ICAgCSAqIEluY3JlYXNlIHRoZSBwb29sIHNpemUKPiBAQCAtMjI5
+NSw3ICsyMzE5LDYgQEAgc3RhdGljIHVuc2lnbmVkIGxvbmcgc2V0X21heF9odWdlX3BhZ2VzKHN0
+cnVjdCBoc3RhdGUgKmgsIHVuc2lnbmVkIGxvbmcgY291bnQsCj4gICAJICogcG9vbCBtaWdodCBi
+ZSBvbmUgaHVnZXBhZ2UgbGFyZ2VyIHRoYW4gaXQgbmVlZHMgdG8gYmUsIGJ1dAo+ICAgCSAqIHdp
+dGhpbiBhbGwgdGhlIGNvbnN0cmFpbnRzIHNwZWNpZmllZCBieSB0aGUgc3lzY3Rscy4KPiAgIAkg
+Ki8KPiAtCXNwaW5fbG9jaygmaHVnZXRsYl9sb2NrKTsKPiAgIAl3aGlsZSAoaC0+c3VycGx1c19o
+dWdlX3BhZ2VzICYmIGNvdW50ID4gcGVyc2lzdGVudF9odWdlX3BhZ2VzKGgpKSB7Cj4gICAJCWlm
+ICghYWRqdXN0X3Bvb2xfc3VycGx1cyhoLCBub2Rlc19hbGxvd2VkLCAtMSkpCj4gICAJCQlicmVh
+azsKPiBAQCAtMjM1MCw5ICsyMzczLDEwIEBAIHN0YXRpYyB1bnNpZ25lZCBsb25nIHNldF9tYXhf
+aHVnZV9wYWdlcyhzdHJ1Y3QgaHN0YXRlICpoLCB1bnNpZ25lZCBsb25nIGNvdW50LAo+ICAgCQkJ
+YnJlYWs7Cj4gICAJfQo+ICAgb3V0Ogo+IC0JcmV0ID0gcGVyc2lzdGVudF9odWdlX3BhZ2VzKGgp
+Owo+ICsJaC0+bWF4X2h1Z2VfcGFnZXMgPSBwZXJzaXN0ZW50X2h1Z2VfcGFnZXMoaCk7Cj4gICAJ
+c3Bpbl91bmxvY2soJmh1Z2V0bGJfbG9jayk7Cj4gLQlyZXR1cm4gcmV0Owo+ICsKPiArCXJldHVy
+biAwOwo+ICAgfQo+ICAgCj4gICAjZGVmaW5lIEhTVEFURV9BVFRSX1JPKF9uYW1lKSBcCj4gQEAg
+LTI0MDQsNyArMjQyOCw3IEBAIHN0YXRpYyBzc2l6ZV90IF9fbnJfaHVnZXBhZ2VzX3N0b3JlX2Nv
+bW1vbihib29sIG9iZXlfbWVtcG9saWN5LAo+ICAgCWludCBlcnI7Cj4gICAJTk9ERU1BU0tfQUxM
+T0Mobm9kZW1hc2tfdCwgbm9kZXNfYWxsb3dlZCwgR0ZQX0tFUk5FTCB8IF9fR0ZQX05PUkVUUlkp
+Owo+ICAgCj4gLQlpZiAoaHN0YXRlX2lzX2dpZ2FudGljKGgpICYmICFnaWdhbnRpY19wYWdlX3N1
+cHBvcnRlZCgpKSB7Cj4gKwlpZiAoaHN0YXRlX2lzX2dpZ2FudGljKGgpICYmICFnaWdhbnRpY19w
+YWdlX3J1bnRpbWVfc3VwcG9ydGVkKCkpIHsKPiAgIAkJZXJyID0gLUVJTlZBTDsKPiAgIAkJZ290
+byBvdXQ7Cj4gICAJfQo+IEBAIC0yNDI4LDE1ICsyNDUyLDEzIEBAIHN0YXRpYyBzc2l6ZV90IF9f
+bnJfaHVnZXBhZ2VzX3N0b3JlX2NvbW1vbihib29sIG9iZXlfbWVtcG9saWN5LAo+ICAgCX0gZWxz
+ZQo+ICAgCQlub2Rlc19hbGxvd2VkID0gJm5vZGVfc3RhdGVzW05fTUVNT1JZXTsKPiAgIAo+IC0J
+aC0+bWF4X2h1Z2VfcGFnZXMgPSBzZXRfbWF4X2h1Z2VfcGFnZXMoaCwgY291bnQsIG5vZGVzX2Fs
+bG93ZWQpOwo+ICsJZXJyID0gc2V0X21heF9odWdlX3BhZ2VzKGgsIGNvdW50LCBub2Rlc19hbGxv
+d2VkKTsKPiAgIAo+ICtvdXQ6Cj4gICAJaWYgKG5vZGVzX2FsbG93ZWQgIT0gJm5vZGVfc3RhdGVz
+W05fTUVNT1JZXSkKPiAgIAkJTk9ERU1BU0tfRlJFRShub2Rlc19hbGxvd2VkKTsKPiAgIAo+IC0J
+cmV0dXJuIGxlbjsKPiAtb3V0Ogo+IC0JTk9ERU1BU0tfRlJFRShub2Rlc19hbGxvd2VkKTsKPiAt
+CXJldHVybiBlcnI7Cj4gKwlyZXR1cm4gZXJyID8gZXJyIDogbGVuOwo+ICAgfQo+ICAgCj4gICBz
+dGF0aWMgc3NpemVfdCBucl9odWdlcGFnZXNfc3RvcmVfY29tbW9uKGJvb2wgb2JleV9tZW1wb2xp
+Y3ksCj4gZGlmZiAtLWdpdCBhL21tL3BhZ2VfYWxsb2MuYyBiL21tL3BhZ2VfYWxsb2MuYwo+IGlu
+ZGV4IGFjOWM0NWZmYjM0NC4uYTQ1NDdkOTBmYTdhIDEwMDY0NAo+IC0tLSBhL21tL3BhZ2VfYWxs
+b2MuYwo+ICsrKyBiL21tL3BhZ2VfYWxsb2MuYwo+IEBAIC04MjM0LDggKzgyMzQsOSBAQCBpbnQg
+YWxsb2NfY29udGlnX3JhbmdlKHVuc2lnbmVkIGxvbmcgc3RhcnQsIHVuc2lnbmVkIGxvbmcgZW5k
+LAo+ICAgCQkJCXBmbl9tYXhfYWxpZ25fdXAoZW5kKSwgbWlncmF0ZXR5cGUpOwo+ICAgCXJldHVy
+biByZXQ7Cj4gICB9Cj4gKyNlbmRpZiAvKiBDT05GSUdfQ09OVElHX0FMTE9DICovCj4gICAKPiAt
+dm9pZCBmcmVlX2NvbnRpZ19yYW5nZSh1bnNpZ25lZCBsb25nIHBmbiwgdW5zaWduZWQgbnJfcGFn
+ZXMpCj4gK3ZvaWQgZnJlZV9jb250aWdfcmFuZ2UodW5zaWduZWQgbG9uZyBwZm4sIHVuc2lnbmVk
+IGludCBucl9wYWdlcykKPiAgIHsKPiAgIAl1bnNpZ25lZCBpbnQgY291bnQgPSAwOwo+ICAgCj4g
+QEAgLTgyNDcsNyArODI0OCw2IEBAIHZvaWQgZnJlZV9jb250aWdfcmFuZ2UodW5zaWduZWQgbG9u
+ZyBwZm4sIHVuc2lnbmVkIG5yX3BhZ2VzKQo+ICAgCX0KPiAgIAlXQVJOKGNvdW50ICE9IDAsICIl
+ZCBwYWdlcyBhcmUgc3RpbGwgaW4gdXNlIVxuIiwgY291bnQpOwo+ICAgfQo+IC0jZW5kaWYKPiAg
+IAo+ICAgI2lmZGVmIENPTkZJR19NRU1PUllfSE9UUExVRwo+ICAgLyoKPiAKCi0tLQpMJ2Fic2Vu
+Y2UgZGUgdmlydXMgZGFucyBjZSBjb3VycmllciDDqWxlY3Ryb25pcXVlIGEgw6l0w6kgdsOpcmlm
+acOpZSBwYXIgbGUgbG9naWNpZWwgYW50aXZpcnVzIEF2YXN0LgpodHRwczovL3d3dy5hdmFzdC5j
+b20vYW50aXZpcnVzCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0
+cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGlu
+Zm8vbGludXgtYXJtLWtlcm5lbAo=
