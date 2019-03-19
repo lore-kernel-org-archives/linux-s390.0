@@ -1,194 +1,98 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 4/7] s390: ap: setup relation betwen KVM and mediated
- device
-Date: Tue, 19 Mar 2019 15:47:05 +0100
-Message-ID: <dc32eea1-31c9-790e-f012-71259e51cb8c@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 1/7] s390: ap: kvm: add PQAP interception for AQIC
+Date: Tue, 19 Mar 2019 15:54:21 +0100
+Message-ID: <20190319155421.0f0e51c2@oc2783563651>
 References: <1552493104-30510-1-git-send-email-pmorel@linux.ibm.com>
- <1552493104-30510-5-git-send-email-pmorel@linux.ibm.com>
- <20190315191557.6c8d7668@oc2783563651>
- <7c199329-0e82-ff61-46b7-78237a0f01ce@linux.ibm.com>
- <20190319125425.0cf5324e@oc2783563651>
- <2c459ebe-2b37-72bc-1ede-b196e54dc78d@linux.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+        <1552493104-30510-2-git-send-email-pmorel@linux.ibm.com>
+        <20190315112032.13b259c2.cohuck@redhat.com>
+        <a0aef0e8-03e3-2cb7-3127-61521eed0629@linux.ibm.com>
+        <20190315182839.4f7c0a73@oc2783563651>
+        <0351d631-b756-dd22-0848-6f30747dc5e2@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2c459ebe-2b37-72bc-1ede-b196e54dc78d@linux.ibm.com>
-Content-Language: en-US
+In-Reply-To: <0351d631-b756-dd22-0848-6f30747dc5e2@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19/03/2019 15:23, Pierre Morel wrote:
-> On 19/03/2019 12:54, Halil Pasic wrote:
->> On Tue, 19 Mar 2019 10:38:42 +0100
->> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>
->>> On 15/03/2019 19:15, Halil Pasic wrote:
->>>> On Wed, 13 Mar 2019 17:05:01 +0100
->>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>>
->>>>> When the mediated device is open we setup the relation with KVM 
->>>>> unset it
->>>>> when the mediated device is released.
->>>>>
->>>>> We ensure KVM is present on opening of the mediated device.
->>>>>
->>>>> We ensure that KVM survives the mediated device, and establish a 
->>>>> direct
->>>>
->>>> survives?
->>>
->>> what alternative do you prefer?
->>>
->>
->> Increase kvm's refcount to ensure the guest is alive when the
->> ap_matrix_mdev is active. An ap mp_matrix becomes active with
->> a successful open() and ceases to be active with a release().
-> 
-> Right, it is mdev usage not mdev.
-> 
->>
->> Your sentence was materially wrong as the mdev is allowed to outlive
->> the KVM. BTW survive tends to have an 'in spite of' note to it, which
->> outlive does not. vfio-ap is, I hope, not a calamity that threatens
->> the life of KVM ;). https://en.oxforddictionaries.com/definition/survive
-> 
-> Thanks, your description is much better.
-> 
->>
->>>>
->>>>> link from KVM to the mediated device to simplify the relationship.
->>>>>
->>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>>> ---
->>>
->>> ...snip...
->>>
->>>>>    static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->>>>>                           unsigned long action, void *data)
->>>>>    {
->>>>> -    int ret;
->>>>>        struct ap_matrix_mdev *matrix_mdev;
->>>>>        if (action != VFIO_GROUP_NOTIFY_SET_KVM)
->>>>>            return NOTIFY_OK;
->>>>>        matrix_mdev = container_of(nb, struct ap_matrix_mdev, 
->>>>> group_notifier);
->>>>> -
->>>>> -    if (!data) {
->>>>> -        matrix_mdev->kvm = NULL;
->>>>> -        return NOTIFY_OK;
->>>>> -    }
->>>>> -
->>>>> -    ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
->>>>> -    if (ret)
->>>>> -        return NOTIFY_DONE;
->>>>> -
->>>>> -    /* If there is no CRYCB pointer, then we can't copy the masks */
->>>>> -    if (!matrix_mdev->kvm->arch.crypto.crycbd)
->>>>> -        return NOTIFY_DONE;
->>>>> -
->>>>> -    kvm_arch_crypto_set_masks(matrix_mdev->kvm, 
->>>>> matrix_mdev->matrix.apm,
->>>>> -                  matrix_mdev->matrix.aqm,
->>>>> -                  matrix_mdev->matrix.adm);
->>>>> +    matrix_mdev->kvm = data;
->>>>>        return NOTIFY_OK;
->>>>>    }
->>>>> @@ -888,6 +873,12 @@ static int vfio_ap_mdev_open(struct 
->>>>> mdev_device *mdev)
->>>>>        if (ret)
->>>>>            goto err_group;
->>>>> +    /* We do not support opening the mediated device without KVM */
->>>>> +    if (!matrix_mdev->kvm) {
->>>>> +        ret = -ENODEV;
->>>>> +        goto err_group;
->>>>> +    }
->>>>> +
->>>>>        matrix_mdev->iommu_notifier.notifier_call = 
->>>>> vfio_ap_mdev_iommu_notifier;
->>>>>        events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
->>>>> @@ -896,8 +887,15 @@ static int vfio_ap_mdev_open(struct 
->>>>> mdev_device *mdev)
->>>>>        if (ret)
->>>>>            goto err_iommu;
->>>>> +    ret = vfio_ap_mdev_set_kvm(matrix_mdev);
->>>>
->>>> At this point the matrix_mdev->kvm ain't guaranteed to be valid 
->>>> IMHO. Or
->>>> am I wrong? If I'm right kvm_get_kvm(matrix_mdev->kvm) could be too 
->>>> late.
->>>
->>> What about the if (!matrix_mdev->kvm) 10 lines above ?
->>>
->>
->> That check is not sufficient.
->>
->> You should do the kvm_get_kvm() in vfio_ap_mdev_group_notifier(). VFIO
->> must ensure that the kvm pointer you get is valid, in a sense that it
->> points to a valid struct kvm and the kvm object is alive, while you are
->> in the callback. But not beyond.
->>
->> If another thread were to decrement the refcount of the kvm object you
->> would end up with matrix_mdev->kvm pointing to an object that has already
->> died.
->>
->> Does my analysis make sense to you?
-> 
-> Yes thanks the explication is good, it would have been worth to get it 
-> the first time.
-> 
->>
->>>>
->>>>> +    if (ret)
->>>>> +        goto err_kvm;
->>>>> +
->>>>>        return 0;
->>>>> +err_kvm:
->>>>> +    vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
->>>>> +                 &matrix_mdev->iommu_notifier);
->>>>>    err_iommu:
->>>>>        vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
->>>>>                     &matrix_mdev->group_notifier);
->>>>> @@ -906,19 +904,33 @@ static int vfio_ap_mdev_open(struct 
->>>>> mdev_device *mdev)
->>>>>        return ret;
->>>>>    }
->>>>> -static void vfio_ap_mdev_release(struct mdev_device *mdev)
->>>>> +static int vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
->>>>>    {
->>>>> -    struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->>>>> +    struct kvm *kvm = matrix_mdev->kvm;
->>>>>        if (matrix_mdev->kvm)
->>>>>            kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
->>>>
->>>> This still conditional?
->>>
->>> Yes, nothing to clear if there is no KVM.
->>>
->>
->> Since we have ensured the open only works if there is a KVM at that
->> point in time, and we have taken a reference to KVM, I would expect
->> KVM can not go away before we give up our reference.
-> 
-> Right.
+On Tue, 19 Mar 2019 11:01:44 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Right but based on the assumption we do a kvm_get_kvm() during open.
+> On 15/03/2019 18:28, Halil Pasic wrote:
 
-But now we will do it inside the notifier, so the logic is to do a 
-kvm_put_kvm in the notifier too.
-This is important because userland will ask us to release the KVM/VFIO 
-link through this notifier.
-So I will have to rework this part where KVM==NULL in the notifier too.
+[..]
+
+> > 
+> > Things get complicated when one considers that ECA.28 is an effective
+> > control.
+> 
+> I don't think so, ECA_28 is not really a problem.
+> We do not propagate ECA_AIV in VSIE and ECA_AIV is tested in the vfio 
+> driver to support GISA.
+> So that the guest 3 will not support interrupt.
+> 
+
+That was not my concern, but while we are at it... I guess you refer to
+the check in handle_pqap(). That seems to do -EOPNOTSUPP, i.e. got to
+userspace, i.e. with today's QEMU operation exception. Which does not
+seem right.
+
+My concern was the following. Let assume 
+ECA.28 == 1 and EECA.28 == 0 != 1
+and guest issues a PQAP (for simplicity AQIC).
+
+Currently I guess we take a 0x04 interception and go to userspace, which
+may or may not be the best thing to do.
+
+With this patch we would take a 0x04, but (opposed to before) if guest
+does not have facility 65 we go with a specification exception.
+Operation exception should however take priority over this kind of
+specification exception. So basically everything except PQAP/AQIC would
+give you and operation exception (with current QEMU), but PQAP/AQIC would
+give you a specification exception. Which is wrong!
+
+AFAICT there is no way to tell if we got a 04 interception because
+EECA.28 != 1 (and ECA.28 == 1) and FW won't interpret the AP
+instructions for us, or because it PQAP/AQIC is a mandatory intercept.
+In other words I don't see a way to tell if EECA.28 is 1 when
+interpreting PQAP/AQIC.
+
+Do you agree?
+
+[..]
+
+> 
+> Yes, the alternative is:
+> 
+> 1) We do things right but this mean we change the ABI (SPECIFICATION 
+> instead of OPERATION)
+> 
+> I thing this is the best thing to do, it is the implementation
+> proposed by this patch where all is done in Kernel, so that we are
+> right what ever the userland user is (QEMU or other).
+> 
+> 2) We want to preserve the old ABI for old QEMU
+> Then I proposed the implementation here under.
+> 
+> 
+> My personal opinion, is that we should change the ABI and do things 
+> right now.
+
+I tend to agree. Giving an operation exception instead of a specification
+exception is a bug. If it is a kernel or qemu bug it ain't clear to me
+at the moment. 
+
+> We should also do it right for TAPQ with t bit set. I remember
+> Christian already warned about this but we did not implement it.
+> 
+
+Yes, I have some blurry memories of something similar myself. I wonder
+if there was a reason, or did we just forget to address this issue.
 
 Regards,
-Pierre
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Halil
