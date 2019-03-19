@@ -1,236 +1,191 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v5 1/7] s390: ap: kvm: add PQAP interception for AQIC
-Date: Tue, 19 Mar 2019 11:01:44 +0100
-Message-ID: <0351d631-b756-dd22-0848-6f30747dc5e2@linux.ibm.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 4/7] s390: ap: setup relation betwen KVM and mediated
+ device
+Date: Tue, 19 Mar 2019 12:54:25 +0100
+Message-ID: <20190319125425.0cf5324e@oc2783563651>
 References: <1552493104-30510-1-git-send-email-pmorel@linux.ibm.com>
- <1552493104-30510-2-git-send-email-pmorel@linux.ibm.com>
- <20190315112032.13b259c2.cohuck@redhat.com>
- <a0aef0e8-03e3-2cb7-3127-61521eed0629@linux.ibm.com>
- <20190315182839.4f7c0a73@oc2783563651>
-Reply-To: pmorel@linux.ibm.com
+        <1552493104-30510-5-git-send-email-pmorel@linux.ibm.com>
+        <20190315191557.6c8d7668@oc2783563651>
+        <7c199329-0e82-ff61-46b7-78237a0f01ce@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190315182839.4f7c0a73@oc2783563651>
-Content-Language: en-US
+In-Reply-To: <7c199329-0e82-ff61-46b7-78237a0f01ce@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 15/03/2019 18:28, Halil Pasic wrote:
-> On Fri, 15 Mar 2019 14:26:34 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Tue, 19 Mar 2019 10:38:42 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> On 15/03/2019 19:15, Halil Pasic wrote:
+> > On Wed, 13 Mar 2019 17:05:01 +0100
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> > 
+> >> When the mediated device is open we setup the relation with KVM unset it
+> >> when the mediated device is released.
+> >>
+> >> We ensure KVM is present on opening of the mediated device.
+> >>
+> >> We ensure that KVM survives the mediated device, and establish a direct
+> > 
+> > survives?
 > 
->> On 15/03/2019 11:20, Cornelia Huck wrote:
->>> On Wed, 13 Mar 2019 17:04:58 +0100
->>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>
->>>> +/*
->>>> + * handle_pqap: Handling pqap interception
->>>> + * @vcpu: the vcpu having issue the pqap instruction
->>>> + *
->>>> + * We now support PQAP/AQIC instructions and we need to correctly
->>>> + * answer the guest even if no dedicated driver's hook is available.
->>>> + *
->>>> + * The intercepting code calls a dedicated callback for this instruction
->>>> + * if a driver did register one in the CRYPTO satellite of the
->>>> + * SIE block.
->>>> + *
->>>> + * For PQAP/AQIC instructions only, verify privilege and specifications.
->>>> + *
->>>> + * If no callback available, the queues are not available, return this to
->>>> + * the caller.
->>>> + * Else return the value returned by the callback.
->>>> + */
->>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
->>>> +{
->>>> +	uint8_t fc;
->>>> +	struct ap_queue_status status = {};
->>>> +	int ret;
->>>> +	/* Verify that the AP instruction are available */
->>>> +	if (!ap_instructions_available())
->>>> +		return -EOPNOTSUPP;
->>>> +	/* Verify that the guest is allowed to use AP instructions */
->>>> +	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
->>>> +		return -EOPNOTSUPP;
->>>> +	/* Verify that the function code is AQIC */
->>>> +	fc = vcpu->run->s.regs.gprs[0] >> 24;
->>>> +	/* We do not want to change the behavior we had before this patch*/
->>>> +	if (fc != 0x03)
->>>> +		return -EOPNOTSUPP;
->>>> +
->>>> +	/* PQAP instructions are allowed for guest kernel only */
->>>> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
->>>> +		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
->>>> +	/* AQIC instruction is allowed only if facility 65 is available */
->>>> +	if (!test_kvm_facility(vcpu->kvm, 65))
->>>> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
->>>> +	/* Verify that the hook callback is registered and call it */
->>>> +	if (vcpu->kvm->arch.crypto.pqap_hook) {
->>>> +		if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
->>>> +			return -EOPNOTSUPP;
->>>> +		ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
->>>> +		module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
->>>> +		return ret;
->>>> +	}
->>>> +	/*
->>>> +	 * It is the duty of the vfio_driver to register a hook
->>>> +	 * If it does not and we get an exception on AQIC we must
->>>> +	 * guess that there is no vfio_ap_driver at all and no one
->>>> +	 * to handle the guests's CRYCB and the CRYCB is empty.
->>>> +	 */
->>>> +	status.response_code = 0x01;
->>>
->>> I'm still confused here, sorry. From previous discussions I recall that
->>> this indicates "no crypto device" (please correct me if I'm wrong.)
->>>
->>> Before this patch, we had:
->>> - guest issues PQAP/AQIC -> drop to userspace
->>>
->>> With a correct implementation, we get:
->>> - guest issues PQAP/AQIC -> callback does what needs to be done
->>>
->>> With an incorrect implementation (no callback), we get:
->>> - guest issues PQAP/AQIC -> guest gets response code 0x01
->>>
->>> Why not drop to userspace in that case?
->>
->> This is what I had in the previous patches.
->> Hum, I do not remember which discussion lead me to modify this.
->>
->> Anyway, now that you put the finger on this problem, I think the problem
->> is worse.
->>
->> The behavior with old / new Linux, vfio driver and qemu is:
->>
->> LINUX	VFIO_AP	QEMU	PGM
->> OLD	x	x	OPERATION
+> what alternative do you prefer?
 > 
-> Isn't OPERATION a bad answer if ap=on? It should not happen
-> with a well behaved guest because facility 65 is not indicated,
-> but if it does, I guess we give the wrong answer.
 
-It is clearly wrong but we can not change the past :)
+Increase kvm's refcount to ensure the guest is alive when the
+ap_matrix_mdev is active. An ap mp_matrix becomes active with
+a successful open() and ceases to be active with a release().
 
+Your sentence was materially wrong as the mdev is allowed to outlive
+the KVM. BTW survive tends to have an 'in spite of' note to it, which
+outlive does not. vfio-ap is, I hope, not a calamity that threatens
+the life of KVM ;). https://en.oxforddictionaries.com/definition/survive
+
+> > 
+> >> link from KVM to the mediated device to simplify the relationship.
+> >>
+> >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> >> ---
 > 
->> NEW	-	OLD	SPECIFICATION
->> NEW	-	NEW/aqic=off	SPECIFICATION
->> NEW	x	NEW/aqic=on	-
->>
+> ...snip...
 > 
-> AFAICT with LINUX == NEW we get the correct answer. OPERATION exception
-> is only good if ap=off.
-
-Exact.
-
+> >>   static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+> >>   				       unsigned long action, void *data)
+> >>   {
+> >> -	int ret;
+> >>   	struct ap_matrix_mdev *matrix_mdev;
+> >>   
+> >>   	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
+> >>   		return NOTIFY_OK;
+> >>   
+> >>   	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
+> >> -
+> >> -	if (!data) {
+> >> -		matrix_mdev->kvm = NULL;
+> >> -		return NOTIFY_OK;
+> >> -	}
+> >> -
+> >> -	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
+> >> -	if (ret)
+> >> -		return NOTIFY_DONE;
+> >> -
+> >> -	/* If there is no CRYCB pointer, then we can't copy the masks */
+> >> -	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+> >> -		return NOTIFY_DONE;
+> >> -
+> >> -	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+> >> -				  matrix_mdev->matrix.aqm,
+> >> -				  matrix_mdev->matrix.adm);
+> >> +	matrix_mdev->kvm = data;
+> >>   
+> >>   	return NOTIFY_OK;
+> >>   }
+> >> @@ -888,6 +873,12 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+> >>   	if (ret)
+> >>   		goto err_group;
+> >>   
+> >> +	/* We do not support opening the mediated device without KVM */
+> >> +	if (!matrix_mdev->kvm) {
+> >> +		ret = -ENODEV;
+> >> +		goto err_group;
+> >> +	}
+> >> +
+> >>   	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
+> >>   	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+> >>   
+> >> @@ -896,8 +887,15 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+> >>   	if (ret)
+> >>   		goto err_iommu;
+> >>   
+> >> +	ret = vfio_ap_mdev_set_kvm(matrix_mdev);
+> > 
+> > At this point the matrix_mdev->kvm ain't guaranteed to be valid IMHO. Or
+> > am I wrong? If I'm right kvm_get_kvm(matrix_mdev->kvm) could be too late.
 > 
->> x = whatever
->> - = absent/none
->>
->> So yes there is a change in behavior for the userland for the case QEMU
->> do not set the AQIC facility 65, OLD QEMU or NEW QEMU wanting to behave
->> like an older one.
->>
->> I fear we have the same problem with the privileged operation...
->>
+> What about the if (!matrix_mdev->kvm) 10 lines above ?
 > 
-> IMHO this boils down to:
-> * either OLD QEMU or
-> * OLD LINUX
-> should have taken care of handling the mandatory intercept for PQAP/AQIC
-> if ap=on (i.e. guest has AP instructions), and does not have facility 65
-> which was the case for OLD.
 
-yes
+That check is not sufficient.
 
+You should do the kvm_get_kvm() in vfio_ap_mdev_group_notifier(). VFIO
+must ensure that the kvm pointer you get is valid, in a sense that it
+points to a valid struct kvm and the kvm object is alive, while you are
+in the callback. But not beyond.
+
+If another thread were to decrement the refcount of the kvm object you
+would end up with matrix_mdev->kvm pointing to an object that has already
+died.
+
+Does my analysis make sense to you?
+
+> > 
+> >> +	if (ret)
+> >> +		goto err_kvm;
+> >> +
+> >>   	return 0;
+> >>   
+> >> +err_kvm:
+> >> +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> >> +				 &matrix_mdev->iommu_notifier);
+> >>   err_iommu:
+> >>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+> >>   				 &matrix_mdev->group_notifier);
+> >> @@ -906,19 +904,33 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+> >>   	return ret;
+> >>   }
+> >>   
+> >> -static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> >> +static int vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> >>   {
+> >> -	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> >> +	struct kvm *kvm = matrix_mdev->kvm;
+> >>   
+> >>   	if (matrix_mdev->kvm)
+> >>   		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> > 
+> > This still conditional?
 > 
-> Things get complicated when one considers that ECA.28 is an effective
-> control.
-
-I don't think so, ECA_28 is not really a problem.
-We do not propagate ECA_AIV in VSIE and ECA_AIV is tested in the vfio 
-driver to support GISA.
-So that the guest 3 will not support interrupt.
-
+> Yes, nothing to clear if there is no KVM.
 > 
->> For the last case, when the kvm_facility(65) is set, the explication is
->> the following:
->>
->> This is related to the handling of PQAP AQIC which is now authorized by
->> this patch series.
->> If we authorize PQAP AQIC, by setting the bit for facility 65, the guest
->> can use this instruction.
->> If the instruction follows the specifications we must answer something
->> realistic and since there is nothing in the CRYCB (no driver) we answer
->> that there is no queue.
->>
->> Conclusion:  we must handle this in userland, it will have the benefit
->> to keep old behavior when there is no callback.
->> OLD QEMU will not see change as they will not set aqic facility
+
+Since we have ensured the open only works if there is a KVM at that
+point in time, and we have taken a reference to KVM, I would expect
+KVM can not go away before we give up our reference.
+
+> > 
+> >> -
+> >> +	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> > 
+> > I guess your intention was to move vfio_ap_mdev_reset_queues()
+> > here from vfio_ap_mdev_release(), but you still have a
+> > vfio_ap_mdev_reset_queues() call in vfio_ap_mdev_release().
+> > 
+> >> +	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> >>   	matrix_mdev->kvm = NULL;
+> >> +
+> >> +	kvm_put_kvm(kvm);
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +static void vfio_ap_mdev_release(struct mdev_device *mdev)
+> >> +{
+> >> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> >> +
+> >> +	mutex_lock(&matrix_dev->lock);
+> >> +
+> >>   	vfio_ap_mdev_reset_queues(mdev);
 > 
-> That would mean we remain quirky.
-
-Yes, the alternative is:
-
-1) We do things right but this mean we change the ABI (SPECIFICATION 
-instead of OPERATION)
-
-I thing this is the best thing to do, it is the implementation proposed 
-by this patch where all is done in Kernel, so that we are right what 
-ever the userland user is (QEMU or other).
-
-2) We want to preserve the old ABI for old QEMU
-Then I proposed the implementation here under.
-
-
-My personal opinion, is that we should change the ABI and do things 
-right now.
-We should also do it right for TAPQ with t bit set. I remember Christian 
-already warned about this but we did not implement it.
-
+> right, this one will go away.
+> Thanks for reviewing.
 > 
->> NEW QEMU will handle this correctly.
->>
->> In this case we also do not need to handle all other tests here but can
->> move it to the callback as Tony wanted.
->>
->> Would you agree with something simple like:
->>
->> static int handle_pqap(struct kvm_vcpu *vcpu)
->> {
->>           int ret = -EOPNOTSUPP;
->>
->>           /* Verify that the hook callback is registered and call it */
->>           if (pqap_hook)
->>                   if (try_module_get(pqap_hook->owner)) {
->>                           ret = pqap_hook->hook(vcpu);
->>                           module_put(pqap_hook->owner);
->>                   }
->>           return ret;
->> }
->>
->> All other tests in QEMU and in the callback.
->>
-> 
-> You stated in another email that the conclusion is wrong. I'm not sure
 
-Forget it, I do not understand what I wanted to say there /o\ .
-
-> what is the cleanest solution here. This effective control thing does
-> make my head spin.
-
-As I said I do not thing any effective control do interfere here.
-IMHO Alternative 1 is the cleanest solution
+yw
 
 Regards,
-Pierre
-
-
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Halil
