@@ -1,61 +1,57 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-References: <1553062828-27798-1-git-send-email-yamada.masahiro@socionext.com> <CAK7LNAQu9hmeSgKO_B1LhXqq9Z923H25HXNS9XYNvFi55WrFYw@mail.gmail.com>
-In-Reply-To: <CAK7LNAQu9hmeSgKO_B1LhXqq9Z923H25HXNS9XYNvFi55WrFYw@mail.gmail.com>
+References: <1553062828-27798-1-git-send-email-yamada.masahiro@socionext.com>
+In-Reply-To: <1553062828-27798-1-git-send-email-yamada.masahiro@socionext.com>
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 20 Mar 2019 10:38:38 +0100
-Message-ID: <CAK8P3a0-7LRE4ByO2Uf4tb5mR49SbZzBu0AgHpS=03FAMWFLgQ@mail.gmail.com>
+Date: Wed, 20 Mar 2019 10:41:43 +0100
+Message-ID: <CAK8P3a3BG_mxYxxCx4S_+ZKAer_+5FpmkzLk0VrACZekuD=2GQ@mail.gmail.com>
 Subject: Re: [PATCH] compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190320093838.getVFSePzsAzy6z6kIYCwtIvIfwZHmT4YZtrJLGRbRg@z>
+Message-ID: <20190320094143.OfsvsV5mdG9z1-9ldUp3r8_U_B7Tl3Th3x4oe-XS7ng@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dave Hansen <dave@sr71.net>, Michael Ellerman <mpe@ellerman.id.au>, X86 ML <x86@kernel.org>, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paul Burton <paul.burton@mips.com>, Ingo Molnar <mingo@redhat.com>, linux-mtd <linux-mtd@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Dave Hansen <dave@sr71.net>, Michael Ellerman <mpe@ellerman.id.au>, the arch/x86 maintainers <x86@kernel.org>, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paul Burton <paul.burton@mips.com>, Ingo Molnar <mingo@redhat.com>, linux-mtd <linux-mtd@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Mar 20, 2019 at 7:41 AM Masahiro Yamada
+On Wed, Mar 20, 2019 at 7:21 AM Masahiro Yamada
 <yamada.masahiro@socionext.com> wrote:
+>
+> Commit 60a3cdd06394 ("x86: add optimized inlining") introduced
+> CONFIG_OPTIMIZE_INLINING, but it has been available only for x86.
+>
+> The idea is obviously arch-agnostic although we need some code fixups.
+> This commit moves the config entry from arch/x86/Kconfig.debug to
+> lib/Kconfig.debug so that all architectures (except MIPS for now) can
+> benefit from it.
+>
+> At this moment, I added "depends on !MIPS" because fixing 0day bot reports
+> for MIPS was complex to me.
+>
+> I tested this patch on my arm/arm64 boards.
+>
+> This can make a huge difference in kernel image size especially when
+> CONFIG_OPTIMIZE_FOR_SIZE is enabled.
+>
+> For example, I got 3.5% smaller arm64 kernel image for v5.1-rc1.
+>
+>   dec       file
+>   18983424  arch/arm64/boot/Image.before
+>   18321920  arch/arm64/boot/Image.after
+>
+> This also slightly improves the "Kernel hacking" Kconfig menu.
+> Commit e61aca5158a8 ("Merge branch 'kconfig-diet' from Dave Hansen')
+> mentioned this config option would be a good fit in the "compiler option"
+> menu. I did so.
 
-> It is unclear to me how to fix it.
-> That's why I ended up with "depends on !MIPS".
->
->
->   MODPOST vmlinux.o
-> arch/mips/mm/sc-mips.o: In function `mips_sc_prefetch_enable.part.2':
-> sc-mips.c:(.text+0x98): undefined reference to `mips_gcr_base'
-> sc-mips.c:(.text+0x9c): undefined reference to `mips_gcr_base'
-> sc-mips.c:(.text+0xbc): undefined reference to `mips_gcr_base'
-> sc-mips.c:(.text+0xc8): undefined reference to `mips_gcr_base'
-> sc-mips.c:(.text+0xdc): undefined reference to `mips_gcr_base'
-> arch/mips/mm/sc-mips.o:sc-mips.c:(.text.unlikely+0x44): more undefined
-> references to `mips_gcr_base'
->
->
-> Perhaps, MIPS folks may know how to fix it.
+I think this is a good idea in general, but it is likely to cause a lot of
+new warnings. Especially the -Wmaybe-uninitialized warnings get
+new false positives every time we get substantially different inlining
+decisions.
 
-I would guess like this:
+I've added your patch to my randconfig test setup and will let you
+know if I see anything noticeable. I'm currently testing clang-arm32,
+clang-arm64 and gcc-x86.
 
-diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
-index 8bc5df49b0e1..a27483fedb7d 100644
---- a/arch/mips/include/asm/mips-cm.h
-+++ b/arch/mips/include/asm/mips-cm.h
-@@ -79,7 +79,7 @@ static inline int mips_cm_probe(void)
-  *
-  * Returns true if a CM is present in the system, else false.
-  */
--static inline bool mips_cm_present(void)
-+static __always_inline bool mips_cm_present(void)
- {
- #ifdef CONFIG_MIPS_CM
-        return mips_gcr_base != NULL;
-@@ -93,7 +93,7 @@ static inline bool mips_cm_present(void)
-  *
-  * Returns true if the system implements an L2-only sync region, else false.
-  */
--static inline bool mips_cm_has_l2sync(void)
-+static __always_inline bool mips_cm_has_l2sync(void)
- {
- #ifdef CONFIG_MIPS_CM
-        return mips_cm_l2sync_base != NULL;
+      Arnd
