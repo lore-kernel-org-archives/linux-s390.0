@@ -1,43 +1,69 @@
-Return-Path: <SRS0=B1dt=RW=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Jeff Xie <chongguiguzi@gmail.com>
-Subject: [PATCH] s390:tty3270:move spin_lock_bh to spin_lock in tasklet
-Date: Wed, 20 Mar 2019 00:12:36 +0800
-Message-Id: <1553011956-28747-1-git-send-email-chongguiguzi@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: chwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
-Cc: rppt@linux.vnet.ibm.com, akpm@linux-foundation.org, mhocko@suse.com, keescook@chromium.org, chongguiguzi@gmail.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-Path: <SRS0=pftl=RY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Steven Price <steven.price@arm.com>
+Subject: [PATCH v5 06/19] s390: mm: Add p?d_large() definitions
+Date: Thu, 21 Mar 2019 14:19:40 +0000
+Message-Id: <20190321141953.31960-7-steven.price@arm.com>
+In-Reply-To: <20190321141953.31960-1-steven.price@arm.com>
+References: <20190321141953.31960-1-steven.price@arm.com>
+MIME-Version: 1.0
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: linux-mm@kvack.org
+Cc: Mark Rutland <Mark.Rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, "Liang, Kan" <kan.liang@linux.intel.com>, linux-s390@vger.kernel.org, x86@kernel.org, Steven Price <steven.price@arm.com>, Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, James Morse <james.morse@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-It is unnecessary to call spin_lock_bh in a tasklet.
+walk_page_range() is going to be allowed to walk page tables other than
+those of user space. For this it needs to know when it has reached a
+'leaf' entry in the page tables. This information is provided by the
+p?d_large() functions/macros.
 
-Signed-off-by: Jeff Xie <chongguiguzi@gmail.com>
+For s390, pud_large() and pmd_large() are already implemented as static
+inline functions. Add a #define so we don't pick up the generic version
+introduced in a later patch.
+
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Steven Price <steven.price@arm.com>
 ---
- drivers/s390/char/tty3270.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 2b0c36c2..2963396 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -563,7 +563,7 @@ tty3270_read_tasklet(struct raw3270_request *rrq)
- 	char *input;
- 	int len;
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 76dc344edb8c..3ad4c69e1f2d 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -679,6 +679,7 @@ static inline int pud_none(pud_t pud)
+ 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
+ }
  
--	spin_lock_bh(&tp->view.lock);
-+	spin_lock(&tp->view.lock);
- 	/*
- 	 * Two AID keys are special: For 0x7d (enter) the input line
- 	 * has to be emitted to the tty and for 0x6d the screen
-@@ -590,7 +590,7 @@ tty3270_read_tasklet(struct raw3270_request *rrq)
- 		tp->update_flags = TTY_UPDATE_ALL;
- 		tty3270_set_timer(tp, 1);
- 	}
--	spin_unlock_bh(&tp->view.lock);
-+	spin_unlock(&tp->view.lock);
++#define pud_large	pud_large
+ static inline int pud_large(pud_t pud)
+ {
+ 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
+@@ -696,6 +697,7 @@ static inline unsigned long pud_pfn(pud_t pud)
+ 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
+ }
  
- 	/* Start keyboard reset command. */
- 	raw3270_request_reset(tp->kreset);
++#define pmd_large	pmd_large
+ static inline int pmd_large(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
 -- 
-2.7.4
+2.20.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
