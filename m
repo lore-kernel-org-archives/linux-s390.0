@@ -1,7 +1,7 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH v5 1/7] s390: ap: kvm: add PQAP interception for AQIC
-Date: Tue, 19 Mar 2019 18:07:07 +0100
-Message-ID: <9c114f56-70bd-cc9e-3751-f62494407246@linux.ibm.com>
+Date: Thu, 21 Mar 2019 15:05:37 +0100
+Message-ID: <268c46f2-4c30-adfd-25a4-29330aa89b35@linux.ibm.com>
 References: <1552493104-30510-1-git-send-email-pmorel@linux.ibm.com>
  <1552493104-30510-2-git-send-email-pmorel@linux.ibm.com>
  <20190315112032.13b259c2.cohuck@redhat.com>
@@ -9,12 +9,13 @@ References: <1552493104-30510-1-git-send-email-pmorel@linux.ibm.com>
  <20190315182839.4f7c0a73@oc2783563651>
  <0351d631-b756-dd22-0848-6f30747dc5e2@linux.ibm.com>
  <20190319155421.0f0e51c2@oc2783563651>
+ <9c114f56-70bd-cc9e-3751-f62494407246@linux.ibm.com>
 Reply-To: pmorel@linux.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190319155421.0f0e51c2@oc2783563651>
+In-Reply-To: <9c114f56-70bd-cc9e-3751-f62494407246@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -23,111 +24,35 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: Cornelia Huck <cohuck@redhat.com>, borntraeger@de.ibm.com, alex.williamson@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 19/03/2019 15:54, Halil Pasic wrote:
-> On Tue, 19 Mar 2019 11:01:44 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> On 15/03/2019 18:28, Halil Pasic wrote:
-> 
-> [..]
-> 
+On 19/03/2019 18:07, Pierre Morel wrote:
+> On 19/03/2019 15:54, Halil Pasic wrote:
+>> On Tue, 19 Mar 2019 11:01:44 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> On 15/03/2019 18:28, Halil Pasic wrote:
+>>
+
+...snip...
+
+>>
+>>> We should also do it right for TAPQ with t bit set. I remember
+>>> Christian already warned about this but we did not implement it.
 >>>
->>> Things get complicated when one considers that ECA.28 is an effective
->>> control.
 >>
->> I don't think so, ECA_28 is not really a problem.
->> We do not propagate ECA_AIV in VSIE and ECA_AIV is tested in the vfio
->> driver to support GISA.
->> So that the guest 3 will not support interrupt.
->>
+>> Yes, I have some blurry memories of something similar myself. I wonder
+>> if there was a reason, or did we just forget to address this issue.
 > 
-> That was not my concern, but while we are at it... I guess you refer to
-> the check in handle_pqap(). That seems to do -EOPNOTSUPP, i.e. got to
-> userspace, i.e. with today's QEMU operation exception. Which does not
-> seem right.
-
-We already discussed this. no?
-
 > 
-> My concern was the following. Let assume
-> ECA.28 == 1 and EECA.28 == 0 != 1
-> and guest issues a PQAP (for simplicity AQIC).
-> 
-> Currently I guess we take a 0x04 interception and go to userspace, which
-> may or may not be the best thing to do.
-> 
-> With this patch we would take a 0x04, but (opposed to before) if guest
-> does not have facility 65 we go with a specification exception.
+> I will integrate it in the next iteration too, even it is not IRQ, the 
+> PQAP hook patch can be more general.
 
-This is not right.
-We return -EOPNOTSUPP which will be intercepted by QEMU which will 
-report an OPERATION exception as before.
+After all, I will not do this, I remember the reason why we did not do 
+it once: simply it is not intercepted until we enable it.
 
-> Operation exception should however take priority over this kind of
-> specification exception. So basically everything except PQAP/AQIC would
-> give you and operation exception (with current QEMU), but PQAP/AQIC would
-> give you a specification exception. Which is wrong!
-> 
-> AFAICT there is no way to tell if we got a 04 interception because
-> EECA.28 != 1 (and ECA.28 == 1) and FW won't interpret the AP
-> instructions for us, or because it PQAP/AQIC is a mandatory intercept.
-> In other words I don't see a way to tell if EECA.28 is 1 when
-> interpreting PQAP/AQIC.
-> 
-> Do you agree?
-
-
-No.
-EECA = HOST_ECA & GUEST_ECA
-after we made sure that AP instructions are available, HOST_ECA=1
-
-(vcpu->arch.sie_block->eca & ECA_APIE) gives us the answer.
-
-In the case HOST_ECA=0 we always go to userland as before.
-
-> 
-> [..]
-> 
->>
->> Yes, the alternative is:
->>
->> 1) We do things right but this mean we change the ABI (SPECIFICATION
->> instead of OPERATION)
->>
->> I thing this is the best thing to do, it is the implementation
->> proposed by this patch where all is done in Kernel, so that we are
->> right what ever the userland user is (QEMU or other).
->>
->> 2) We want to preserve the old ABI for old QEMU
->> Then I proposed the implementation here under.
->>
->>
->> My personal opinion, is that we should change the ABI and do things
->> right now.
-> 
-> I tend to agree. Giving an operation exception instead of a specification
-> exception is a bug. If it is a kernel or qemu bug it ain't clear to me
-> at the moment.
-> 
->> We should also do it right for TAPQ with t bit set. I remember
->> Christian already warned about this but we did not implement it.
->>
-> 
-> Yes, I have some blurry memories of something similar myself. I wonder
-> if there was a reason, or did we just forget to address this issue.
-
-
-I will integrate it in the next iteration too, even it is not IRQ, the 
-PQAP hook patch can be more general.
+So we will handle it when we enable the TAPQ-t interception
 
 Regards,
 Pierre
-
-> 
-> Regards,
-> Halil
-> 
-
 
 -- 
 Pierre Morel
