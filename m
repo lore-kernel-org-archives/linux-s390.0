@@ -1,11 +1,11 @@
 Return-Path: <SRS0=ULQD=RZ=vger.kernel.org=linux-mips-owner@kernel.org>
 MIME-Version: 1.0
-References: <20190317183438.2057-1-ira.weiny@intel.com> <20190317183438.2057-6-ira.weiny@intel.com>
-In-Reply-To: <20190317183438.2057-6-ira.weiny@intel.com>
+References: <20190317183438.2057-1-ira.weiny@intel.com> <20190317183438.2057-7-ira.weiny@intel.com>
+In-Reply-To: <20190317183438.2057-7-ira.weiny@intel.com>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Fri, 22 Mar 2019 15:14:26 -0700
-Message-ID: <CAA9_cmdQjMekSFU09gLc87-PVx2iHeeh2jC6KeFY1UeadpPh4A@mail.gmail.com>
-Subject: Re: [RESEND 5/7] IB/hfi1: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+Date: Fri, 22 Mar 2019 15:15:10 -0700
+Message-ID: <CAA9_cmdDxh1ZYn1fO+ED1crzDMCPWk0fLjNPfxkFKUb5kNHgxA@mail.gmail.com>
+Subject: Re: [RESEND 6/7] IB/qib: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-mips-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-mips/>
@@ -22,35 +22,5 @@ On Sun, Mar 17, 2019 at 7:36 PM <ira.weiny@intel.com> wrote:
 > FS DAX pages being mapped.
 >
 > Signed-off-by: Ira Weiny <ira.weiny@intel.com>
-> ---
->  drivers/infiniband/hw/hfi1/user_pages.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/infiniband/hw/hfi1/user_pages.c b/drivers/infiniband/hw/hfi1/user_pages.c
-> index 78ccacaf97d0..6a7f9cd5a94e 100644
-> --- a/drivers/infiniband/hw/hfi1/user_pages.c
-> +++ b/drivers/infiniband/hw/hfi1/user_pages.c
-> @@ -104,9 +104,11 @@ int hfi1_acquire_user_pages(struct mm_struct *mm, unsigned long vaddr, size_t np
->                             bool writable, struct page **pages)
->  {
->         int ret;
-> +       unsigned int gup_flags = writable ? FOLL_WRITE : 0;
 
-Maybe:
-
-    unsigned int gup_flags = FOLL_LONGTERM | (writable ? FOLL_WRITE : 0);
-
-?
-
->
-> -       ret = get_user_pages_fast(vaddr, npages, writable ? FOLL_WRITE : 0,
-> -                                 pages);
-> +       gup_flags |= FOLL_LONGTERM;
-> +
-> +       ret = get_user_pages_fast(vaddr, npages, gup_flags, pages);
->         if (ret < 0)
->                 return ret;
->
-> --
-> 2.20.1
->
+Looks good modulo potential  __get_user_pages_fast() suggestion.
