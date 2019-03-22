@@ -1,15 +1,14 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-References: <20190322143008.21313-1-longman@redhat.com> <20190322143008.21313-3-longman@redhat.com>
-In-Reply-To: <20190322143008.21313-3-longman@redhat.com>
+References: <20190322143008.21313-1-longman@redhat.com> <20190322143008.21313-4-longman@redhat.com>
+In-Reply-To: <20190322143008.21313-4-longman@redhat.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 22 Mar 2019 10:07:04 -0700
-Message-ID: <CAHk-=wjujKK-Ey7DPnMExaEmphicuEDLmVn-9+W9VzFzR-Ts=A@mail.gmail.com>
-Subject: Re: [PATCH v5 2/3] locking/rwsem: Remove rwsem-spinlock.c & use
- rwsem-xadd.c for all archs
+Date: Fri, 22 Mar 2019 10:08:29 -0700
+Message-ID: <CAHk-=wi0wwmY-waC1-2SmBz4-XK-Eru2RTx6PrGzUK=P1nwexQ@mail.gmail.com>
+Subject: Re: [PATCH v5 3/3] locking/rwsem: Optimize down_read_trylock()
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190322170704.WUnOcrTuEby5hEKwJMJkfprk_OSRrsWt8s6BPrNRqWw@z>
+Message-ID: <20190322170829.id3X0uFxNqk5Fkhs3XOWOu4_A4mDMxmHtndeMbSFSCU@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Waiman Long <longman@redhat.com>
@@ -18,9 +17,12 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Fri, Mar 22, 2019 at 7:30 AM Waiman Long <longman@redhat.com> wrote:
 >
-> For simplication, we are going to remove rwsem-spinlock.c and make all
-> architectures use a single implementation of rwsem - rwsem-xadd.c.
+> Modify __down_read_trylock() to optimize for an unlocked rwsem and make
+> it generate slightly better code.
 
-Ack.
+Oh, that should teach me to read all patches in the series before
+starting to comment on them.
 
-               Linus
+So ignore my comment on #1.
+
+                Linus
