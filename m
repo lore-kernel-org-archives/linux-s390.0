@@ -1,14 +1,15 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-References: <20190322143008.21313-1-longman@redhat.com> <20190322143008.21313-2-longman@redhat.com>
-In-Reply-To: <20190322143008.21313-2-longman@redhat.com>
+References: <20190322143008.21313-1-longman@redhat.com> <20190322143008.21313-3-longman@redhat.com>
+In-Reply-To: <20190322143008.21313-3-longman@redhat.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Fri, 22 Mar 2019 10:01:53 -0700
-Message-ID: <CAHk-=wikkO-1f1=FEOEzkSnaDg3yJLP=4Vd59UCuLBztFd0KOw@mail.gmail.com>
-Subject: Re: [PATCH v5 1/3] locking/rwsem: Remove arch specific rwsem files
+Date: Fri, 22 Mar 2019 10:07:04 -0700
+Message-ID: <CAHk-=wjujKK-Ey7DPnMExaEmphicuEDLmVn-9+W9VzFzR-Ts=A@mail.gmail.com>
+Subject: Re: [PATCH v5 2/3] locking/rwsem: Remove rwsem-spinlock.c & use
+ rwsem-xadd.c for all archs
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190322170153.KOl3AmhV6A5E1s_bWDAm2hkoz_2qWvNJplPSUNs6yYk@z>
+Message-ID: <20190322170704.WUnOcrTuEby5hEKwJMJkfprk_OSRrsWt8s6BPrNRqWw@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Waiman Long <longman@redhat.com>
@@ -17,68 +18,9 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Fri, Mar 22, 2019 at 7:30 AM Waiman Long <longman@redhat.com> wrote:
 >
->  19 files changed, 133 insertions(+), 930 deletions(-)
+> For simplication, we are going to remove rwsem-spinlock.c and make all
+> architectures use a single implementation of rwsem - rwsem-xadd.c.
 
-Lovely. And it all looks sane to me.
+Ack.
 
-So ack.
-
-The only comment I have is about __down_read_trylock(), which probably
-isn't critical enough to actually care about, but:
-
-> +static inline int __down_read_trylock(struct rw_semaphore *sem)
-> +{
-> +       long tmp;
-> +
-> +       while ((tmp = atomic_long_read(&sem->count)) >= 0) {
-> +               if (tmp == atomic_long_cmpxchg_acquire(&sem->count, tmp,
-> +                                  tmp + RWSEM_ACTIVE_READ_BIAS)) {
-> +                       return 1;
-> +               }
-> +       }
-> +       return 0;
-> +}
-
-So this seems to
-
- (a) read the line early (the whole cacheline in shared state issue)
-
- (b) read the line again unnecessarily in the while loop
-
-Now, (a) might be explained by "well, maybe we do trylock even with
-existing readers", although I continue to think that the case we
-should optimize for is simply the uncontended one, where we don't even
-have multiple readers.
-
-But (b) just seems silly.
-
-So I wonder if it shouldn't just be
-
-        long tmp = 0;
-
-        do {
-                long new = atomic_long_cmpxchg_acquire(&sem->count, tmp,
-                        tmp + RWSEM_ACTIVE_READ_BIAS);
-                if (likely(new == tmp))
-                        return 1;
-               tmp = new;
-        } while (tmp >= 0);
-        return 0;
-
-which would seem simpler and solve both issues. Hmm?
-
-But honestly, I didn't check what our uses of down_read_trylock() look
-like. We have more of them than I expected, and I _think_ the normal
-case is the "nobody else holds the lock", but that's just a gut
-feeling.
-
-Some of them _might_ be performance-critical. There's the one on
-mmap_sem in the fault handling path, for example. And yes, I'd expect
-the normal case to very much be "no other readers or writers" for that
-one.
-
-NOTE! The above code snippet is absolutely untested, and might be
-completely wrong. Take it as a "something like this" rather than
-anything else.
-
-                   Linus
+               Linus
