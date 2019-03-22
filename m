@@ -1,217 +1,202 @@
-Return-Path: <SRS0=0cHI=RY=vger.kernel.org=linux-fsdevel-owner@kernel.org>
-Subject: [RFC PATCH 6/8] vfs: Convert hypfs to fs_context
-From: David Howells <dhowells@redhat.com>
-Date: Thu, 21 Mar 2019 11:48:21 +0000
-Message-ID: <155316890119.29437.8583299471287583503.stgit@warthog.procyon.org.uk>
-In-Reply-To: <155316885201.29437.3428987891437242750.stgit@warthog.procyon.org.uk>
-References: <155316885201.29437.3428987891437242750.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-fsdevel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-fsdevel/>
-List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: viro@zeniv.linux.org.uk
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v6 0/7] vfio: ap: AP Queue Interrupt Control
+Date: Fri, 22 Mar 2019 15:43:41 +0100
+Message-ID: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: borntraeger@de.ibm.com
+Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
----
+This patch implement PQAP/AQIC interception in KVM.
 
- arch/s390/hypfs/inode.c |  128 ++++++++++++++++++++++++++---------------------
- 1 file changed, 70 insertions(+), 58 deletions(-)
+To implement this we need to add a new structure, vfio_ap_queue,to be
+able to retrieve the mediated device associated with a queue and specific
+values needed to register/unregister the interrupt structures:
+ - APQN: to be able to issue the commands and search for queue structures
+ - NIB : to unpin the NIB on clear IRQ
+ - ISC : to unregister with the GIB interface
+ - MATRIX: a pointer to the matrix mediated device
+ - LIST: the list_head to handle the vfio_queue life cycle
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index b5cfcad953c2..d1b5f75334af 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -12,17 +12,17 @@
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/fs.h>
-+#include <linux/fs_context.h>
-+#include <linux/fs_parser.h>
- #include <linux/namei.h>
- #include <linux/vfs.h>
- #include <linux/slab.h>
- #include <linux/pagemap.h>
- #include <linux/time.h>
--#include <linux/parser.h>
- #include <linux/sysfs.h>
- #include <linux/init.h>
- #include <linux/kobject.h>
- #include <linux/seq_file.h>
--#include <linux/mount.h>
- #include <linux/uio.h>
- #include <asm/ebcdic.h>
- #include "hypfs.h"
-@@ -207,52 +207,44 @@ static int hypfs_release(struct inode *inode, struct file *filp)
- 	return 0;
- }
+Having this structure and the list management greatly ease the handling
+of the AP queues and diminues the LOCs needed in the vfio_ap driver by
+more than 150 lines in comparison with the previous version.
+
+
+0) Queues life cycle
+
+vfio_ap_queues are created on probe
+
+We define one bucket on the matrix device to store the free vfio_ap_queues,
+the queues not assign to any matrix mediated device.
+
+We define one bucket on each matrix mediated device to hold the
+vfio_ap_queues belonging to it.
+
+vfio_ap_queues are deleted on remove
+
+This makes the search for a queue easy and the detection of assignent
+incoherency obvious (the queue is not avilable) and simplifies assignment.
+
+
+1) Phase 1, probe and remove from vfio_ap_queue
+
+The vfio_ap_queue structures are dynamically allocated and setup
+when a queue is probed by the ap_vfio_driver.
+The vfio_ap_queue is linked to the ap_queue device as the driver data.
+
+The new The vfio_ap_queue is put on a free_list belonging to the
+matrix device.
+
+The vfio_ap_queue are free during remove.
+
+
+2) Phase 2, assignment of vfio_ap_queue to a mediated device
+
+When a APID is assigned we look for APQI already assigned to
+the matrix mediated device and associate all the queue with the
+APQN = (APID,APQI) to the mediated device by adding them to
+the mediated device queue list.
+We do the same when a APQI is assigned.
+
+If any queue with a matching APQN can not be found on the matrix
+device free list it means it is already associated to another matrix
+mediated device and no queue is added to the matrix mediated device.
+
+3) Phase 3, starting the guest
+
+When the VFIO device is opened the PQAP callback and a pointer to
+the matrix mediated device are set inside KVM during the open callback.
+
+When the device is closed or if a queue is removed, the vfio_ap_queue is
+dissociated from the mediated device.
+
+
+4) Phase 3 intercepting the PQAP/AQIC instruction
+
+On interception of the PQAP/AQIC instruction, the interception code
+verifies that AP instructions are available on hardware and in the
+guest and retrun the usual -EOPNOTSUPP return code to let
+QEMU handle the fault if it is not the case.
+
+If instructions are allowed but intercepted it can only be due to
+specifications errors in instruction usage or to the valid 
+interception of PQAP/AQIC.
+
+In this case, we make sure the pqap_hook is initialized and call it.
+Otherwise, if the hook is not initialize, we assume that there is
+no VFIO AP driver to handle the CRYCB which is consequently empty
+and setup a response as AP queue unavailable.
  
--enum { opt_uid, opt_gid, opt_err };
-+enum { Opt_uid, Opt_gid, };
- 
--static const match_table_t hypfs_tokens = {
--	{opt_uid, "uid=%u"},
--	{opt_gid, "gid=%u"},
--	{opt_err, NULL}
-+static const struct fs_parameter_spec hypfs_param_specs[] = {
-+	fsparam_u32("gid", Opt_gid),
-+	fsparam_u32("uid", Opt_uid),
-+	{}
- };
- 
--static int hypfs_parse_options(char *options, struct super_block *sb)
-+static const struct fs_parameter_description hypfs_fs_parameters = {
-+	.name		= "hypfs",
-+	.specs		= hypfs_param_specs,
-+};
-+
-+static int hypfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
- {
--	char *str;
--	substring_t args[MAX_OPT_ARGS];
-+	struct hypfs_sb_info *hypfs_info = fc->s_fs_info;
-+	struct fs_parse_result result;
- 	kuid_t uid;
- 	kgid_t gid;
--
--	if (!options)
--		return 0;
--	while ((str = strsep(&options, ",")) != NULL) {
--		int token, option;
--		struct hypfs_sb_info *hypfs_info = sb->s_fs_info;
--
--		if (!*str)
--			continue;
--		token = match_token(str, hypfs_tokens, args);
--		switch (token) {
--		case opt_uid:
--			if (match_int(&args[0], &option))
--				return -EINVAL;
--			uid = make_kuid(current_user_ns(), option);
--			if (!uid_valid(uid))
--				return -EINVAL;
--			hypfs_info->uid = uid;
--			break;
--		case opt_gid:
--			if (match_int(&args[0], &option))
--				return -EINVAL;
--			gid = make_kgid(current_user_ns(), option);
--			if (!gid_valid(gid))
--				return -EINVAL;
--			hypfs_info->gid = gid;
--			break;
--		case opt_err:
--		default:
--			pr_err("%s is not a valid mount option\n", str);
--			return -EINVAL;
--		}
-+	int opt;
-+
-+	opt = fs_parse(fc, &hypfs_fs_parameters, param, &result);
-+	if (opt < 0)
-+		return opt;
-+
-+	switch (opt) {
-+	case Opt_uid:
-+		uid = make_kuid(current_user_ns(), result.uint_32);
-+		if (!uid_valid(uid))
-+			return invalf(fc, "Unknown uid");
-+		hypfs_info->uid = uid;
-+		break;
-+	case Opt_gid:
-+		gid = make_kgid(current_user_ns(), result.uint_32);
-+		if (!gid_valid(gid))
-+			return invalf(fc, "Unknown gid");
-+		hypfs_info->gid = gid;
-+		break;
- 	}
- 	return 0;
- }
-@@ -266,26 +258,18 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- 	return 0;
- }
- 
--static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
-+static int hypfs_fill_super(struct super_block *sb, struct fs_context *fc)
- {
-+	struct hypfs_sb_info *sbi = sb->s_fs_info;
- 	struct inode *root_inode;
- 	struct dentry *root_dentry, *update_file;
--	int rc = 0;
--	struct hypfs_sb_info *sbi;
-+	int rc;
- 
--	sbi = kzalloc(sizeof(struct hypfs_sb_info), GFP_KERNEL);
--	if (!sbi)
--		return -ENOMEM;
--	mutex_init(&sbi->lock);
--	sbi->uid = current_uid();
--	sbi->gid = current_gid();
--	sb->s_fs_info = sbi;
- 	sb->s_blocksize = PAGE_SIZE;
- 	sb->s_blocksize_bits = PAGE_SHIFT;
- 	sb->s_magic = HYPFS_MAGIC;
- 	sb->s_op = &hypfs_s_ops;
--	if (hypfs_parse_options(data, sb))
--		return -EINVAL;
-+
- 	root_inode = hypfs_make_inode(sb, S_IFDIR | 0755);
- 	if (!root_inode)
- 		return -ENOMEM;
-@@ -309,10 +293,37 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 	return 0;
- }
- 
--static struct dentry *hypfs_mount(struct file_system_type *fst, int flags,
--			const char *devname, void *data)
-+static int hypfs_get_tree(struct fs_context *fc)
-+{
-+	return vfs_get_super(fc, vfs_get_single_super, hypfs_fill_super);
-+}
-+
-+static void hypfs_free_fc(struct fs_context *fc)
- {
--	return mount_single(fst, flags, data, hypfs_fill_super);
-+	kfree(fc->s_fs_info);
-+}
-+
-+static const struct fs_context_operations hypfs_context_ops = {
-+	.free		= hypfs_free_fc,
-+	.parse_param	= hypfs_parse_param,
-+	.get_tree	= hypfs_get_tree,
-+};
-+
-+static int hypfs_init_fs_context(struct fs_context *fc)
-+{
-+	struct hypfs_sb_info *sbi;
-+
-+	sbi = kzalloc(sizeof(struct hypfs_sb_info), GFP_KERNEL);
-+	if (!sbi)
-+		return -ENOMEM;
-+
-+	mutex_init(&sbi->lock);
-+	sbi->uid = current_uid();
-+	sbi->gid = current_gid();
-+
-+	fc->s_fs_info = sbi;
-+	fc->ops = &hypfs_context_ops;
-+	return 0;
- }
- 
- static void hypfs_kill_super(struct super_block *sb)
-@@ -443,7 +454,8 @@ static const struct file_operations hypfs_file_ops = {
- static struct file_system_type hypfs_type = {
- 	.owner		= THIS_MODULE,
- 	.name		= "s390_hypfs",
--	.mount		= hypfs_mount,
-+	.init_fs_context = hypfs_init_fs_context,
-+	.parameters	= &hypfs_fs_parameters,
- 	.kill_sb	= hypfs_kill_super
- };
- 
+the pqap callback search for the queue asociated with the APQN
+stored in the register 0, setting the code to "illegal APQN"
+if the vfio_ap_queue can not be found.
+
+Depending on the "i" bit of the register 1, the pqap callback
+setup or clear the interruption by calling the host format PQAP/AQIC
+instruction.
+When seting up the interruption it uses the NIB and the guest ISC
+provided by the guest and the host ISC provided by the registration
+to the GIB code, pin the NIB and also stores ISC and NIB inside
+the vfio_ap_queue structure.
+When clearing the interrupt it retrieves the host ISC to unregister
+with the GIB code and unpin the NIB.
+
+We take care when enabling GISA that the guest may have issued a
+reset and will not need to disable the interuptions before
+re-enabling interruptions.
+
+To make sure that the module holding the callback does not disapear
+we use a module reference counting in the structure containing the
+callback.
+
+
+5) Phase 4 clean dissociation from the mediated device on remove
+
+On removing of the AP device the remove callback is called.
+To be sure that the guest will not access the queue anymore
+we clear the APID CRYCB bit.
+Cleaning the APID, over the APQI, is chosen because the architecture
+specifies that only the APID can be dynamically changed outside IPL.
+
+To be sure that the IRQ is cleared before the GISA is free we use
+the KVM reference counting, raise it in open, lower it on release.
+
+
+6) Associated QEMU patch
+
+There is a QEMU patch which is needed to enable the PQAP/AQIC
+facility in the guest.
+
+Posted in qemu-devel@nongnu.org as:
+Message-Id: <1550146494-21085-1-git-send-email-pmorel@linux.ibm.com>
+
+
+
+Pierre Morel (7):
+  s390: ap: kvm: add PQAP interception for AQIC
+  s390: ap: new vfio_ap_queue structure
+  s390: ap: setup relation betwen KVM and mediated device
+  vfio: ap: register IOMMU VFIO notifier
+  s390: ap: implement PAPQ AQIC interception in kernel
+  s390: ap: Cleanup on removing the AP device
+  s390: ap: kvm: Enable PQAP/AQIC facility for the guest
+
+ arch/s390/include/asm/kvm_host.h      |   8 +
+ arch/s390/kvm/priv.c                  |  90 ++++
+ arch/s390/tools/gen_facilities.c      |   1 +
+ drivers/s390/crypto/ap_bus.h          |   1 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  69 ++-
+ drivers/s390/crypto/vfio_ap_ops.c     | 784 +++++++++++++++++++++++-----------
+ drivers/s390/crypto/vfio_ap_private.h |  20 +
+ 7 files changed, 728 insertions(+), 245 deletions(-)
+
+-- 
+2.7.4
+
+Changelog from v5:
+- Refactoring of the PQAP interception after all discussions
+  (Conny, Halil (offline))
+- take a big lock around open to avoid parallel changes through
+  assignment
+- verify that at least one queue has a APID or APQI when
+  first assignment is done to not accept unavailable APID/APQI
+  (myself)
+- Adding comment for locks on free_list
+  (Conny)
+- Modified comment for 
+  "s390: ap: setup relation betwen KVM and mediated device"
+  (Halil)
+
+Changelog from v4:
+- Add forgotten locking for vfio_get_queue() in pqap callback
+  (Conny / Halil)
+- Add KVM reference counting to make sure GISA is free after IRQ
+  (Christian / Halil)
+- Take care that ISC = 0 is a valid ISC
+  (Halil)
+- Integrate the PQAP call back in a structure with module owner
+  reference counting to make sure the callback does not disappear.
+- Restrict functionality to always open KVM before opening the
+  VFIO device.
+- Search all devices in the vfio_ap driver list when associating
+  a queue to a mediated device
+  (Halil / Tony)
+- Get vfio_ap_free_irq() out of vfio_ap_mdev_reset_queue() to call
+  it always, whatever the result of the reset.
+  (Tony)
+
+Changelog from v3:
+- Associating the vfio_queues during APID/APQI assign
+  (Tony)
+- Dissociating the vfio_queues during APID/APQI unassign
+  (Tony)
+- Taking care that the guest can directly disable the interrupt
+  by using a RESET
+  (Halil)
+- Remove the patch creating the matrix bus to accelerate its
+  integration in Linux stable
+  (Christian)
