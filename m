@@ -1,8 +1,10 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v6 0/7] vfio: ap: AP Queue Interrupt Control
-Date: Fri, 22 Mar 2019 15:43:41 +0100
-Message-ID: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v6 1/7] s390: ap: kvm: add PQAP interception for AQIC
+Date: Fri, 22 Mar 2019 15:43:42 +0100
+Message-ID: <1553265828-27823-2-git-send-email-pmorel@linux.ibm.com>
+References: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,193 +12,203 @@ To: borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch implement PQAP/AQIC interception in KVM.
+We prepare the interception of the PQAP/AQIC instruction for
+the case the AQIC facility is enabled in the guest.
 
-To implement this we need to add a new structure, vfio_ap_queue,to be
-able to retrieve the mediated device associated with a queue and specific
-values needed to register/unregister the interrupt structures:
- - APQN: to be able to issue the commands and search for queue structures
- - NIB : to unpin the NIB on clear IRQ
- - ISC : to unregister with the GIB interface
- - MATRIX: a pointer to the matrix mediated device
- - LIST: the list_head to handle the vfio_queue life cycle
+First of all we do not want to change existing behavior when
+intercepting AP instructions without the SIE allowing the guest
+to use AP instructions.
 
-Having this structure and the list management greatly ease the handling
-of the AP queues and diminues the LOCs needed in the vfio_ap driver by
-more than 150 lines in comparison with the previous version.
+In this patch we only handle the AQIC interception allowed by
+facility 65 which will be enabled when the complete interception
+infrastructure will be present.
 
+We add a callback inside the KVM arch structure for s390 for
+a VFIO driver to handle a specific response to the PQAP
+instruction with the AQIC command and only this command.
 
-0) Queues life cycle
+But we want to be able to return a correct answer to the guest
+even there is no VFIO AP driver in the kernel.
+Therefor, we inject the correct exceptions from inside KVM for the
+case the callback is not initialized, which happens when the vfio_ap
+driver is not loaded.
 
-vfio_ap_queues are created on probe
+We do consider the responsability of the driver to always initialize
+the PQAP callback if it defines queues by initializing the CRYCB for
+a guest.
+If the callback has been setup we call it.
+If not we setup an answer considering that no queue is available
+for the guest when no callback has been setup.
 
-We define one bucket on the matrix device to store the free vfio_ap_queues,
-the queues not assign to any matrix mediated device.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h      |  8 ++++
+ arch/s390/kvm/priv.c                  | 90 +++++++++++++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |  2 +
+ 3 files changed, 100 insertions(+)
 
-We define one bucket on each matrix mediated device to hold the
-vfio_ap_queues belonging to it.
-
-vfio_ap_queues are deleted on remove
-
-This makes the search for a queue easy and the detection of assignent
-incoherency obvious (the queue is not avilable) and simplifies assignment.
-
-
-1) Phase 1, probe and remove from vfio_ap_queue
-
-The vfio_ap_queue structures are dynamically allocated and setup
-when a queue is probed by the ap_vfio_driver.
-The vfio_ap_queue is linked to the ap_queue device as the driver data.
-
-The new The vfio_ap_queue is put on a free_list belonging to the
-matrix device.
-
-The vfio_ap_queue are free during remove.
-
-
-2) Phase 2, assignment of vfio_ap_queue to a mediated device
-
-When a APID is assigned we look for APQI already assigned to
-the matrix mediated device and associate all the queue with the
-APQN = (APID,APQI) to the mediated device by adding them to
-the mediated device queue list.
-We do the same when a APQI is assigned.
-
-If any queue with a matching APQN can not be found on the matrix
-device free list it means it is already associated to another matrix
-mediated device and no queue is added to the matrix mediated device.
-
-3) Phase 3, starting the guest
-
-When the VFIO device is opened the PQAP callback and a pointer to
-the matrix mediated device are set inside KVM during the open callback.
-
-When the device is closed or if a queue is removed, the vfio_ap_queue is
-dissociated from the mediated device.
-
-
-4) Phase 3 intercepting the PQAP/AQIC instruction
-
-On interception of the PQAP/AQIC instruction, the interception code
-verifies that AP instructions are available on hardware and in the
-guest and retrun the usual -EOPNOTSUPP return code to let
-QEMU handle the fault if it is not the case.
-
-If instructions are allowed but intercepted it can only be due to
-specifications errors in instruction usage or to the valid 
-interception of PQAP/AQIC.
-
-In this case, we make sure the pqap_hook is initialized and call it.
-Otherwise, if the hook is not initialize, we assume that there is
-no VFIO AP driver to handle the CRYCB which is consequently empty
-and setup a response as AP queue unavailable.
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index a496276..624460b 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -18,6 +18,7 @@
+ #include <linux/kvm_host.h>
+ #include <linux/kvm.h>
+ #include <linux/seqlock.h>
++#include <linux/module.h>
+ #include <asm/debug.h>
+ #include <asm/cpu.h>
+ #include <asm/fpu/api.h>
+@@ -721,8 +722,15 @@ struct kvm_s390_cpu_model {
+ 	unsigned short ibc;
+ };
  
-the pqap callback search for the queue asociated with the APQN
-stored in the register 0, setting the code to "illegal APQN"
-if the vfio_ap_queue can not be found.
-
-Depending on the "i" bit of the register 1, the pqap callback
-setup or clear the interruption by calling the host format PQAP/AQIC
-instruction.
-When seting up the interruption it uses the NIB and the guest ISC
-provided by the guest and the host ISC provided by the registration
-to the GIB code, pin the NIB and also stores ISC and NIB inside
-the vfio_ap_queue structure.
-When clearing the interrupt it retrieves the host ISC to unregister
-with the GIB code and unpin the NIB.
-
-We take care when enabling GISA that the guest may have issued a
-reset and will not need to disable the interuptions before
-re-enabling interruptions.
-
-To make sure that the module holding the callback does not disapear
-we use a module reference counting in the structure containing the
-callback.
-
-
-5) Phase 4 clean dissociation from the mediated device on remove
-
-On removing of the AP device the remove callback is called.
-To be sure that the guest will not access the queue anymore
-we clear the APID CRYCB bit.
-Cleaning the APID, over the APQI, is chosen because the architecture
-specifies that only the APID can be dynamically changed outside IPL.
-
-To be sure that the IRQ is cleared before the GISA is free we use
-the KVM reference counting, raise it in open, lower it on release.
-
-
-6) Associated QEMU patch
-
-There is a QEMU patch which is needed to enable the PQAP/AQIC
-facility in the guest.
-
-Posted in qemu-devel@nongnu.org as:
-Message-Id: <1550146494-21085-1-git-send-email-pmorel@linux.ibm.com>
-
-
-
-Pierre Morel (7):
-  s390: ap: kvm: add PQAP interception for AQIC
-  s390: ap: new vfio_ap_queue structure
-  s390: ap: setup relation betwen KVM and mediated device
-  vfio: ap: register IOMMU VFIO notifier
-  s390: ap: implement PAPQ AQIC interception in kernel
-  s390: ap: Cleanup on removing the AP device
-  s390: ap: kvm: Enable PQAP/AQIC facility for the guest
-
- arch/s390/include/asm/kvm_host.h      |   8 +
- arch/s390/kvm/priv.c                  |  90 ++++
- arch/s390/tools/gen_facilities.c      |   1 +
- drivers/s390/crypto/ap_bus.h          |   1 +
- drivers/s390/crypto/vfio_ap_drv.c     |  69 ++-
- drivers/s390/crypto/vfio_ap_ops.c     | 784 +++++++++++++++++++++++-----------
- drivers/s390/crypto/vfio_ap_private.h |  20 +
- 7 files changed, 728 insertions(+), 245 deletions(-)
-
++struct kvm_s390_module_hook {
++	int (*hook)(struct kvm_vcpu *vcpu);
++	void *data;
++	struct module *owner;
++};
++
+ struct kvm_s390_crypto {
+ 	struct kvm_s390_crypto_cb *crycb;
++	struct kvm_s390_module_hook *pqap_hook;
+ 	__u32 crycbd;
+ 	__u8 aes_kw;
+ 	__u8 dea_kw;
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index 8679bd7..793e48a 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -27,6 +27,7 @@
+ #include <asm/io.h>
+ #include <asm/ptrace.h>
+ #include <asm/sclp.h>
++#include <asm/ap.h>
+ #include "gaccess.h"
+ #include "kvm-s390.h"
+ #include "trace.h"
+@@ -592,6 +593,93 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+ 	}
+ }
+ 
++/*
++ * handle_pqap: Handling pqap interception
++ * @vcpu: the vcpu having issue the pqap instruction
++ *
++ * We now support PQAP/AQIC instructions and we need to correctly
++ * answer the guest even if no dedicated driver's hook is available.
++ *
++ * The intercepting code calls a dedicated callback for this instruction
++ * if a driver did register one in the CRYPTO satellite of the
++ * SIE block.
++ *
++ * For PQAP AQIC and TAPQ instructions, verify privilege and specifications.
++ *
++ * If no callback available, the queues are not available, return this to
++ * the caller.
++ * Else return the value returned by the callback.
++ */
++static int handle_pqap(struct kvm_vcpu *vcpu)
++{
++	struct ap_queue_status status = {};
++	unsigned long reg0;
++	int ret;
++	uint8_t fc;
++
++	/* Verify that the AP instruction are available */
++	if (!ap_instructions_available())
++		return -EOPNOTSUPP;
++	/* Verify that the guest is allowed to use AP instructions */
++	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
++		return -EOPNOTSUPP;
++	/*
++	 * The only possibly intercepted instructions when AP instructions are
++	 * available for the guest are AQIC and TAPQ with the t bit set
++	 * since we do not set IC.3 (FIII) we currently will not intercept
++	 * TAPQ.
++	 * The following code will only treat AQIC function code.
++	 */
++	reg0 = vcpu->run->s.regs.gprs[0];
++	fc = reg0 >> 24;
++	if (fc != 0x03) {
++		pr_warn("%s: Unexpected interception code 0x%02x\n",
++			__func__, fc);
++		return -EOPNOTSUPP;
++	}
++	/* All PQAP instructions are allowed for guest kernel only */
++	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
++		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
++	/*
++	 * Common tests for PQAP instructions to generate a specification
++	 * exception
++	 */
++	/* Zero bits overwrite produce a specification exception */
++	if (reg0 & 0x007f0000UL)
++		goto specification_except;
++	/* If APXA is not installed APQN is limited */
++	if (!(vcpu->kvm->arch.crypto.crycbd & 0x02))
++		if (reg0 & 0x000030f0UL)
++			goto specification_except;
++	/* AQIC needs facility 65 */
++	if (!test_kvm_facility(vcpu->kvm, 65))
++		goto specification_except;
++
++	/*
++	 * Verify that the hook callback is registered, lock the owner
++	 * and call the hook.
++	 */
++	if (vcpu->kvm->arch.crypto.pqap_hook) {
++		if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
++			return -EOPNOTSUPP;
++		ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
++		module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
++		return ret;
++	}
++	/*
++	 * It is the duty of the vfio_driver to register a hook
++	 * If it does not and we get an exception on AQIC we must
++	 * guess that there is no vfio_ap_driver at all and no one
++	 * to handle the guests's CRYCB and the CRYCB is empty.
++	 */
++	status.response_code = 0x01;
++	memcpy(&vcpu->run->s.regs.gprs[1], &status, sizeof(status));
++	return 0;
++
++specification_except:
++	return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++}
++
+ static int handle_stfl(struct kvm_vcpu *vcpu)
+ {
+ 	int rc;
+@@ -878,6 +966,8 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+ 		return handle_sthyi(vcpu);
+ 	case 0x7d:
+ 		return handle_stsi(vcpu);
++	case 0xaf:
++		return handle_pqap(vcpu);
+ 	case 0xb1:
+ 		return handle_stfl(vcpu);
+ 	case 0xb2:
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 76b7f98..a910be1 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -16,6 +16,7 @@
+ #include <linux/mdev.h>
+ #include <linux/delay.h>
+ #include <linux/mutex.h>
++#include <linux/kvm_host.h>
+ 
+ #include "ap_bus.h"
+ 
+@@ -81,6 +82,7 @@ struct ap_matrix_mdev {
+ 	struct ap_matrix matrix;
+ 	struct notifier_block group_notifier;
+ 	struct kvm *kvm;
++	struct kvm_s390_module_hook pqap_hook;
+ };
+ 
+ extern int vfio_ap_mdev_register(void);
 -- 
 2.7.4
-
-Changelog from v5:
-- Refactoring of the PQAP interception after all discussions
-  (Conny, Halil (offline))
-- take a big lock around open to avoid parallel changes through
-  assignment
-- verify that at least one queue has a APID or APQI when
-  first assignment is done to not accept unavailable APID/APQI
-  (myself)
-- Adding comment for locks on free_list
-  (Conny)
-- Modified comment for 
-  "s390: ap: setup relation betwen KVM and mediated device"
-  (Halil)
-
-Changelog from v4:
-- Add forgotten locking for vfio_get_queue() in pqap callback
-  (Conny / Halil)
-- Add KVM reference counting to make sure GISA is free after IRQ
-  (Christian / Halil)
-- Take care that ISC = 0 is a valid ISC
-  (Halil)
-- Integrate the PQAP call back in a structure with module owner
-  reference counting to make sure the callback does not disappear.
-- Restrict functionality to always open KVM before opening the
-  VFIO device.
-- Search all devices in the vfio_ap driver list when associating
-  a queue to a mediated device
-  (Halil / Tony)
-- Get vfio_ap_free_irq() out of vfio_ap_mdev_reset_queue() to call
-  it always, whatever the result of the reset.
-  (Tony)
-
-Changelog from v3:
-- Associating the vfio_queues during APID/APQI assign
-  (Tony)
-- Dissociating the vfio_queues during APID/APQI unassign
-  (Tony)
-- Taking care that the guest can directly disable the interrupt
-  by using a RESET
-  (Halil)
-- Remove the patch creating the matrix bus to accelerate its
-  integration in Linux stable
-  (Christian)
