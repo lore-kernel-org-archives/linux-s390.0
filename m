@@ -1,105 +1,107 @@
-From: George Spelvin <lkml@sdf.org>
-Date: Thu, 21 Mar 2019 12:15:18 +0000
-Subject: [PATCH] arch/s390/crypto/prng: Stop being stupidly wasteful with /dev/urandom
-Message-Id: <201903211215.x2LCFIr3029539@sdf.org>
-To: linux-s390@vger.kernel.org
+From: Steffen Maier <maier@linux.ibm.com>
+Date: Tue, 26 Mar 2019 13:37:00 +0000
+Subject: [PATCH 3/3] zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
+Message-Id: <20190326133700.88655-4-maier@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-generate_entropy() was asking for 8K of high-quality entropy per 64 bytes
-of output, which is ridiculous.  Only ask get_random_bytes for the
-requested amount of entropy, and XOR with the hash of the timer-based
-seed material.
+If an incoming ELS of type RSCN contains more than one element,
+zfcp suboptimally causes repeated erp trigger NOP trace records
+for each previously failed port. These could be ports that went away.
+It loops over each RSCN element, and for each of those in an inner loop
+over all zfcp_ports.
+The trigger to recover failed ports should be just the reception of some
+RSCN, no matter how many elements it has. So we can loop over failed ports
+separately, and only then loop over each RSCN element to handle the
+non-failed ports.
 
-(A possible followon improvement: the msbits of get_tod_clock_fast() are
-unchanging and therefore useless; you could store and hash only the low
-32 bits and save half the hashing effort.)
+The call chain was:
 
-A second latent bugfix: prng_tdes_seed() was not copying the final partial
-doubleword of get_random_bytes() output to the parameter block.  It's
-only ever called with 8- and 16-byte requests, so the bug never triggered,
-but fix it so it won't be (silently) buggy in future.
+  zfcp_fc_incoming_rscn
+    for (i = 1; i < no_entries; i++)
+      _zfcp_fc_incoming_rscn
+        list_for_each_entry(port, &adapter->port_list, list)
+          if (masked port->d_id match) zfcp_fc_test_link
+          if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"   <===
 
-Not tested as I don't have access to an S/390, but the code is
-straightforward.
+In order the reduce the "flooding" of the REC trace area in such cases,
+we factor out handling the failed ports to be outside of the entries loop:
 
-Signed-off-by: George Spelvin <lkml@sdf.org>
-Cc: linux-s390@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.vnet.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Fixes: 57127645d79d2e83e801f141f7d03f64accf28aa
-Cc: Jan Glauber <jan.glauber@de.ibm.com>
-Fixes: 1b2782948997cf5a0d1747de13d43ba7dfa7c543
+  zfcp_fc_incoming_rscn
+    if (no_entries > 1)                                     <===
+      list_for_each_entry(port, &adapter->port_list, list)  <===
+        if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"     <===
+    for (i = 1; i < no_entries; i++)
+      _zfcp_fc_incoming_rscn
+        list_for_each_entry(port, &adapter->port_list, list)
+          if (masked port->d_id match) zfcp_fc_test_link
+
+Abbreviated example trace records before this code change:
+
+Tag            : fcrscn1
+WWPN           : 0x500507630310d327
+ERP want       : 0x02
+ERP need       : 0x02
+
+Tag            : fcrscn1
+WWPN           : 0x500507630310d327
+ERP want       : 0x02
+ERP need       : 0x00                 NOP => superfluous trace record
+
+The last trace entry repeats if there are more than 2 RSCN elements.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
 ---
- arch/s390/crypto/prng.c | 36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+ drivers/s390/scsi/zfcp_fc.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
-index a97a1802cfb4..e3f649e66c91 100644
---- a/arch/s390/crypto/prng.c
-+++ b/arch/s390/crypto/prng.c
-@@ -122,33 +122,30 @@ static const u8 initial_parm_block[32] __initconst = {
-  */
- static int generate_entropy(u8 *ebuf, size_t nbytes)
- {
--	int n, ret = 0;
--	u8 *pg, *h, hash[64];
-+	int n, i, ret = 0;
-+	u64 *pg;
-+	u8 hash[64];
- 
- 	/* allocate 2 pages */
--	pg = (u8 *) __get_free_pages(GFP_KERNEL, 1);
-+	pg = (u64 *) __get_free_pages(GFP_KERNEL, 1);
- 	if (!pg) {
- 		prng_errorflag = PRNG_GEN_ENTROPY_FAILED;
- 		return -ENOMEM;
+diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+index db00b5e3abbe..33eddb02ee30 100644
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -239,10 +239,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+ 	list_for_each_entry(port, &adapter->port_list, list) {
+ 		if ((port->d_id & range) == (ntoh24(page->rscn_fid) & range))
+ 			zfcp_fc_test_link(port);
+-		if (!port->d_id)
+-			zfcp_erp_port_reopen(port,
+-					     ZFCP_STATUS_COMMON_ERP_FAILED,
+-					     "fcrscn1");
  	}
- 
-+	get_random_bytes(ebuf, nbytes);
- 	while (nbytes) {
--		/* fill pages with urandom bytes */
--		get_random_bytes(pg, 2*PAGE_SIZE);
--		/* exor pages with 1024 stckf values */
--		for (n = 0; n < 2 * PAGE_SIZE / sizeof(u64); n++) {
--			u64 *p = ((u64 *)pg) + n;
--			*p ^= get_tod_clock_fast();
--		}
--		n = (nbytes < sizeof(hash)) ? nbytes : sizeof(hash);
--		if (n < sizeof(hash))
--			h = hash;
--		else
--			h = ebuf;
-+		/* fill pages with 1024 stckf values */
-+		for (n = 0; n < 2 * PAGE_SIZE / sizeof(u64); n++)
-+			pg[n] = get_tod_clock_fast();
-+
- 		/* hash over the filled pages */
--		cpacf_kimd(CPACF_KIMD_SHA_512, h, pg, 2*PAGE_SIZE);
--		if (n < sizeof(hash))
--			memcpy(ebuf, hash, n);
-+		cpacf_kimd(CPACF_KIMD_SHA_512, hash, (u8 *)pg, 2*PAGE_SIZE);
-+
-+		/* xor with the urandom bytes */
-+		n = (nbytes < sizeof(hash)) ? nbytes : sizeof(hash);
-+		for (i = 0; i < n; i++)
-+			ebuf[i] ^= hash[i];
- 		ret += n;
- 		ebuf += n;
- 		nbytes -= n;
-@@ -185,13 +182,12 @@ static void prng_tdes_seed(int nbytes)
- 	get_random_bytes(buf, nbytes);
- 
- 	/* Add the entropy */
--	while (nbytes >= 8) {
-+	while (nbytes = 0) {
- 		*((__u64 *)prng_data->prngws.parm_block) ^= *((__u64 *)(buf+i));
- 		prng_tdes_add_entropy();
- 		i += 8;
- 		nbytes -= 8;
- 	}
--	prng_tdes_add_entropy();
- 	prng_data->prngws.reseed_counter = 0;
+ 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
  }
+@@ -250,6 +246,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+ {
+ 	struct fsf_status_read_buffer *status_buffer = (void *)fsf_req->data;
++	struct zfcp_adapter *adapter = fsf_req->adapter;
+ 	struct fc_els_rscn *head;
+ 	struct fc_els_rscn_page *page;
+ 	u16 i;
+@@ -263,6 +260,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+ 	no_entries = be16_to_cpu(head->rscn_plen) /
+ 		sizeof(struct fc_els_rscn_page);
  
++	if (no_entries > 1) {
++		/* handle failed ports */
++		unsigned long flags;
++		struct zfcp_port *port;
++
++		read_lock_irqsave(&adapter->port_list_lock, flags);
++		list_for_each_entry(port, &adapter->port_list, list) {
++			if (port->d_id)
++				continue;
++			zfcp_erp_port_reopen(port,
++					     ZFCP_STATUS_COMMON_ERP_FAILED,
++					     "fcrscn1");
++		}
++		read_unlock_irqrestore(&adapter->port_list_lock, flags);
++	}
++
+ 	for (i = 1; i < no_entries; i++) {
+ 		/* skip head and start with 1st element */
+ 		page++;
 -- 
-2.20.1
+2.16.4
