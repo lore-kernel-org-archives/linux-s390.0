@@ -1,69 +1,90 @@
-Return-Path: <SRS0=pftl=RY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v5 06/19] s390: mm: Add p?d_large() definitions
-Date: Thu, 21 Mar 2019 14:19:40 +0000
-Message-Id: <20190321141953.31960-7-steven.price@arm.com>
-In-Reply-To: <20190321141953.31960-1-steven.price@arm.com>
-References: <20190321141953.31960-1-steven.price@arm.com>
-MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: linux-mm@kvack.org
-Cc: Mark Rutland <Mark.Rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, "Liang, Kan" <kan.liang@linux.intel.com>, linux-s390@vger.kernel.org, x86@kernel.org, Steven Price <steven.price@arm.com>, Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, James Morse <james.morse@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 1/3] zfcp: fix rport unblock if deleted SCSI devices on Scsi_Host
+Date: Tue, 26 Mar 2019 14:36:58 +0100
+Message-ID: <20190326133700.88655-2-maier@linux.ibm.com>
+References: <20190326133700.88655-1-maier@linux.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190326133700.88655-1-maier@linux.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_large() functions/macros.
+An already deleted SCSI device can exist on the Scsi_Host and remain
+there because something still holds a reference.
+A new SCSI device with the same H:C:T:L and FCP device, target port WWPN,
+and FCP LUN can be created.
+When we try to unblock an rport, we still find the deleted SCSI device
+and return early because the zfcp_scsi_dev of that SCSI device is
+not ZFCP_STATUS_COMMON_UNBLOCKED. Hence we miss to unblock the rport,
+even if the new proper SCSI device would be in good state.
 
-For s390, pud_large() and pmd_large() are already implemented as static
-inline functions. Add a #define so we don't pick up the generic version
-introduced in a later patch.
+Therefore, skip deleted SCSI devices when iterating the sdevs of the shost.
+[cf. __scsi_device_lookup{_by_target}() or scsi_device_get()]
 
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
+The following abbreviated trace sequence can indicate such problem:
+
+Area           : REC
+Tag            : ersfs_3
+LUN            : 0x4045400300000000
+WWPN           : 0x50050763031bd327
+LUN status     : 0x40000000     not ZFCP_STATUS_COMMON_UNBLOCKED
+Ready count    : n		not incremented yet
+Running count  : 0x00000000
+ERP want       : 0x01
+ERP need       : 0xc1		ZFCP_ERP_ACTION_NONE
+
+Area           : REC
+Tag            : ersfs_3
+LUN            : 0x4045400300000000
+WWPN           : 0x50050763031bd327
+LUN status     : 0x41000000
+Ready count    : n+1
+Running count  : 0x00000000
+ERP want       : 0x01
+ERP need       : 0x01
+
+...
+
+Area           : REC
+Level          : 4		only with increased trace level
+Tag            : ertru_l
+LUN            : 0x4045400300000000
+WWPN           : 0x50050763031bd327
+LUN status     : 0x40000000
+Request ID     : 0x0000000000000000
+ERP status     : 0x01800000
+ERP step       : 0x1000
+ERP action     : 0x01
+ERP count      : 0x00
+
+NOT followed by a trace record with tag "scpaddy"
+for WWPN 0x50050763031bd327.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race with LUN recovery")
+Cc: <stable@vger.kernel.org> #2.6.32+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/scsi/zfcp_erp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 76dc344edb8c..3ad4c69e1f2d 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -679,6 +679,7 @@ static inline int pud_none(pud_t pud)
- 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
- }
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 744a64680d5b..c0b2348d7ce6 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -1341,6 +1341,9 @@ static void zfcp_erp_try_rport_unblock(struct zfcp_port *port)
+ 		struct zfcp_scsi_dev *zsdev = sdev_to_zfcp(sdev);
+ 		int lun_status;
  
-+#define pud_large	pud_large
- static inline int pud_large(pud_t pud)
- {
- 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-@@ -696,6 +697,7 @@ static inline unsigned long pud_pfn(pud_t pud)
- 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
- }
- 
-+#define pmd_large	pmd_large
- static inline int pmd_large(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
++		if (sdev->sdev_state == SDEV_DEL ||
++		    sdev->sdev_state == SDEV_CANCEL)
++			continue;
+ 		if (zsdev->port != port)
+ 			continue;
+ 		/* LUN under port of interest */
 -- 
-2.20.1
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+2.16.4
