@@ -1,104 +1,69 @@
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 2/3] zfcp: fix scsi_eh host reset with port_forced ERP for non-NPIV FCP devices
-Date: Tue, 26 Mar 2019 14:36:59 +0100
-Message-ID: <20190326133700.88655-3-maier@linux.ibm.com>
-References: <20190326133700.88655-1-maier@linux.ibm.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190326133700.88655-1-maier@linux.ibm.com>
-Sender: stable-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-scsi/>
-List-Post: <mailto:linux-scsi@vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+Return-Path: <SRS0=xvr+=R5=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Steven Price <steven.price@arm.com>
+Subject: [PATCH v6 06/19] s390: mm: Add p?d_large() definitions
+Date: Tue, 26 Mar 2019 16:26:11 +0000
+Message-Id: <20190326162624.20736-7-steven.price@arm.com>
+In-Reply-To: <20190326162624.20736-1-steven.price@arm.com>
+References: <20190326162624.20736-1-steven.price@arm.com>
+MIME-Version: 1.0
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: linux-mm@kvack.org
+Cc: Mark Rutland <Mark.Rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, "Liang, Kan" <kan.liang@linux.intel.com>, linux-s390@vger.kernel.org, x86@kernel.org, Steven Price <steven.price@arm.com>, Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, James Morse <james.morse@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Suppose more than one non-NPIV FCP device is active on the same channel.
-Send I/O to storage and have some of the pending I/O run into a SCSI
-command timeout, e.g. due to bit errors on the fibre. Now the error
-situation stops. However, we saw FCP requests continue to timeout in the
-channel. The abort will be successful, but the subsequent TUR fails.
-Scsi_eh starts. The LUN reset fails. The target reset fails.
-The host reset only did an FCP device recovery. However, for non-NPIV
-FCP devices, this does not close and reopen ports on the SAN-side
-if other non-NPIV FCP device(s) share the same open ports.
+walk_page_range() is going to be allowed to walk page tables other than
+those of user space. For this it needs to know when it has reached a
+'leaf' entry in the page tables. This information is provided by the
+p?d_large() functions/macros.
 
-In order to resolve the continuing FCP request timeouts, we need to
-explicitly close and reopen ports on the SAN-side.
+For s390, pud_large() and pmd_large() are already implemented as static
+inline functions. Add a #define so we don't pick up the generic version
+introduced in a later patch.
 
-This was missing since the beginning of zfcp in v2.6.0 history commit
-ea127f975424 ("[PATCH] s390 (7/7): zfcp host adapter.").
-
-Note: The FSF requests for forced port reopen could run into FSF request
-timeouts due to other reasons. This would trigger an internal FCP device
-recovery. Pending forced port reopen recoveries would get dismissed. So
-some ports might not get fully reopened during this host reset handler.
-However, subsequent I/O would trigger the above described escalation
-and eventually all ports would be forced reopen to resolve any
-continuing FCP request timeouts due to earlier bit errors.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: <stable@vger.kernel.org> #3.0+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Steven Price <steven.price@arm.com>
 ---
- drivers/s390/scsi/zfcp_erp.c  | 14 ++++++++++++++
- drivers/s390/scsi/zfcp_ext.h  |  2 ++
- drivers/s390/scsi/zfcp_scsi.c |  4 ++++
- 3 files changed, 20 insertions(+)
+ arch/s390/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index c0b2348d7ce6..e8fc28dba8df 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -624,6 +624,20 @@ static void zfcp_erp_strategy_memwait(struct zfcp_erp_action *erp_action)
- 	add_timer(&erp_action->timer);
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 76dc344edb8c..3ad4c69e1f2d 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -679,6 +679,7 @@ static inline int pud_none(pud_t pud)
+ 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
  }
  
-+void zfcp_erp_port_forced_reopen_all(struct zfcp_adapter *adapter,
-+				     int clear, char *dbftag)
-+{
-+	unsigned long flags;
-+	struct zfcp_port *port;
-+
-+	write_lock_irqsave(&adapter->erp_lock, flags);
-+	read_lock(&adapter->port_list_lock);
-+	list_for_each_entry(port, &adapter->port_list, list)
-+		_zfcp_erp_port_forced_reopen(port, clear, dbftag);
-+	read_unlock(&adapter->port_list_lock);
-+	write_unlock_irqrestore(&adapter->erp_lock, flags);
-+}
-+
- static void _zfcp_erp_port_reopen_all(struct zfcp_adapter *adapter,
- 				      int clear, char *dbftag)
++#define pud_large	pud_large
+ static inline int pud_large(pud_t pud)
  {
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index 3fce47b0b21b..c6acca521ffe 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -70,6 +70,8 @@ extern void zfcp_erp_port_reopen(struct zfcp_port *port, int clear,
- 				 char *dbftag);
- extern void zfcp_erp_port_shutdown(struct zfcp_port *, int, char *);
- extern void zfcp_erp_port_forced_reopen(struct zfcp_port *, int, char *);
-+extern void zfcp_erp_port_forced_reopen_all(struct zfcp_adapter *adapter,
-+					    int clear, char *dbftag);
- extern void zfcp_erp_set_lun_status(struct scsi_device *, u32);
- extern void zfcp_erp_clear_lun_status(struct scsi_device *, u32);
- extern void zfcp_erp_lun_reopen(struct scsi_device *, int, char *);
-diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index f4f6a07c5222..221d0dfb8493 100644
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -368,6 +368,10 @@ static int zfcp_scsi_eh_host_reset_handler(struct scsi_cmnd *scpnt)
- 	struct zfcp_adapter *adapter = zfcp_sdev->port->adapter;
- 	int ret = SUCCESS, fc_ret;
+ 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
+@@ -696,6 +697,7 @@ static inline unsigned long pud_pfn(pud_t pud)
+ 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
+ }
  
-+	if (!(adapter->connection_features & FSF_FEATURE_NPIV_MODE)) {
-+		zfcp_erp_port_forced_reopen_all(adapter, 0, "schrh_p");
-+		zfcp_erp_wait(adapter);
-+	}
- 	zfcp_erp_adapter_reopen(adapter, 0, "schrh_1");
- 	zfcp_erp_wait(adapter);
- 	fc_ret = fc_block_scsi_eh(scpnt);
++#define pmd_large	pmd_large
+ static inline int pmd_large(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
 -- 
-2.16.4
+2.20.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
