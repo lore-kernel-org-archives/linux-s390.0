@@ -1,14 +1,14 @@
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v6 1/7] s390: ap: kvm: add PQAP interception for AQIC
-Date: Tue, 26 Mar 2019 14:57:40 -0400
-Message-ID: <66abb1f6-425a-df94-cc7c-f1fdec0ece9c@linux.ibm.com>
+Subject: Re: [PATCH v6 2/7] s390: ap: new vfio_ap_queue structure
+Date: Tue, 26 Mar 2019 16:45:21 -0400
+Message-ID: <169eec34-6397-3150-27df-9985c9e711b8@linux.ibm.com>
 References: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
- <1553265828-27823-2-git-send-email-pmorel@linux.ibm.com>
+ <1553265828-27823-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553265828-27823-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1553265828-27823-3-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
@@ -18,275 +18,752 @@ Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org,
 List-ID: <linux-s390.vger.kernel.org>
 
 On 3/22/19 10:43 AM, Pierre Morel wrote:
-> We prepare the interception of the PQAP/AQIC instruction for
-> the case the AQIC facility is enabled in the guest.
+> The AP interruptions are assigned on a queue basis and
+> the GISA structure is handled on a VM basis, so that
+> we need to add a structure we can retrieve from both side
+
+s/side/sides/
+
+> holding the information we need to handle PQAP/AQIC interception
+> and setup the GISA.
+
+s/setup/set up/
+
 > 
-> First of all we do not want to change existing behavior when
-> intercepting AP instructions without the SIE allowing the guest
-> to use AP instructions.
+> Since we can not add more information to the ap_device
+> we add a new structure vfio_ap_queue, to hold per queue
+> information useful to handle interruptions and set it as
+> driver's data of the standard ap_queue device.
 > 
-> In this patch we only handle the AQIC interception allowed by
-> facility 65 which will be enabled when the complete interception
-> infrastructure will be present.
+> Usually, the device and the mediated device are linked together
+> but in the vfio_ap driver design we have a bunch of "sub" devices
+> (the ap_queue devices) belonging to the mediated device.
 > 
-> We add a callback inside the KVM arch structure for s390 for
-> a VFIO driver to handle a specific response to the PQAP
-> instruction with the AQIC command and only this command.
+> Linking these structure to the mediated device it is assigned to,
+> with the help of the vfio_ap_queue structure will help us to
+> retrieve the AP devices associated with the mediated devices
+> during the mediated device operations.
 > 
-> But we want to be able to return a correct answer to the guest
-> even there is no VFIO AP driver in the kernel.
-> Therefor, we inject the correct exceptions from inside KVM for the
-> case the callback is not initialized, which happens when the vfio_ap
-> driver is not loaded.
+> ------------    -------------
+> | AP queue |--> | AP_vfio_q |<----
+> ------------    ------^------    |    ---------------
+>                        |          <--->| matrix_mdev |
+> ------------    ------v------    |    ---------------
+> | AP queue |--> | AP_vfio_q |-----
+> ------------    -------------
 > 
-> We do consider the responsability of the driver to always initialize
-> the PQAP callback if it defines queues by initializing the CRYCB for
-> a guest.
-> If the callback has been setup we call it.
-> If not we setup an answer considering that no queue is available
-> for the guest when no callback has been setup.
+> The vfio_ap_queue device will hold the following entries:
+> - apqn: AP queue number (defined here)
+> - isc : Interrupt subclass (defined later)
+> - nib : notification information byte (defined later)
+> - list: a list_head entry allowing to link this structure to a
+> 	matrix mediated device it is assigned to.
+> 
+> The vfio_ap_queue structure is allocated when the vfio_ap_driver
+> is probed and added as driver data to the ap_queue device.
+> It is free on remove.
+> 
+> The structure is linked to the matrix_dev host device at the
+> probe of the device building some kind of free list for the
+> matrix mediated devices.
+> 
+> When the vfio_queue is associated to a matrix mediated device,
+> during assign_adapter or assign_domain,
+> the vfio_ap_queue device is linked to this matrix mediated device
+> and unlinked when dissociated.
+> 
+> Queuing the devices on a list of free devices and testing the
+> matrix_mdev pointer to the associated matrix allow us to know
+> if the queue is associated to the matrix device and associated
+> or not to a mediated device.
+> 
+> All the operation on the free_list must be protected by the
+> VFIO AP matrix_dev lock.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->   arch/s390/include/asm/kvm_host.h      |  8 ++++
->   arch/s390/kvm/priv.c                  | 90 +++++++++++++++++++++++++++++++++++
->   drivers/s390/crypto/vfio_ap_private.h |  2 +
->   3 files changed, 100 insertions(+)
+>   drivers/s390/crypto/vfio_ap_drv.c     |  31 ++-
+>   drivers/s390/crypto/vfio_ap_ops.c     | 423 ++++++++++++++++++----------------
+>   drivers/s390/crypto/vfio_ap_private.h |   7 +
+>   3 files changed, 266 insertions(+), 195 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index a496276..624460b 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -18,6 +18,7 @@
->   #include <linux/kvm_host.h>
->   #include <linux/kvm.h>
->   #include <linux/seqlock.h>
-> +#include <linux/module.h>
->   #include <asm/debug.h>
->   #include <asm/cpu.h>
->   #include <asm/fpu/api.h>
-> @@ -721,8 +722,15 @@ struct kvm_s390_cpu_model {
->   	unsigned short ibc;
->   };
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> index e9824c3..df6f21a 100644
+> --- a/drivers/s390/crypto/vfio_ap_drv.c
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -40,14 +40,42 @@ static struct ap_device_id ap_queue_ids[] = {
 >   
-> +struct kvm_s390_module_hook {
-> +	int (*hook)(struct kvm_vcpu *vcpu);
-> +	void *data;
-> +	struct module *owner;
-> +};
+>   MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>   
+> +/**
+> + * vfio_ap_queue_dev_probe:
+> + *
+> + * Allocate a vfio_ap_queue structure and associate it
+> + * with the device as driver_data.
+> + */
+>   static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>   {
+> +	struct vfio_ap_queue *q;
 > +
->   struct kvm_s390_crypto {
->   	struct kvm_s390_crypto_cb *crycb;
-> +	struct kvm_s390_module_hook *pqap_hook;
->   	__u32 crycbd;
->   	__u8 aes_kw;
->   	__u8 dea_kw;
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 8679bd7..793e48a 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -27,6 +27,7 @@
->   #include <asm/io.h>
->   #include <asm/ptrace.h>
->   #include <asm/sclp.h>
-> +#include <asm/ap.h>
->   #include "gaccess.h"
->   #include "kvm-s390.h"
->   #include "trace.h"
-> @@ -592,6 +593,93 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
->   	}
+> +	q = kzalloc(sizeof(*q), GFP_KERNEL);
+> +	if (!q)
+> +		return -ENOMEM;
+> +	dev_set_drvdata(&apdev->device, q);
+> +	q->apqn = to_ap_queue(&apdev->device)->qid;
+> +	INIT_LIST_HEAD(&q->list);
+> +	mutex_lock(&matrix_dev->lock);
+> +	list_add(&q->list, &matrix_dev->free_list);
+> +	mutex_unlock(&matrix_dev->lock);
+>   	return 0;
 >   }
 >   
-> +/*
-> + * handle_pqap: Handling pqap interception
-> + * @vcpu: the vcpu having issue the pqap instruction
+> +/**
+> + * vfio_ap_queue_dev_remove:
 > + *
-> + * We now support PQAP/AQIC instructions and we need to correctly
-> + * answer the guest even if no dedicated driver's hook is available.
-> + *
-> + * The intercepting code calls a dedicated callback for this instruction
-> + * if a driver did register one in the CRYPTO satellite of the
-> + * SIE block.
-> + *
-> + * For PQAP AQIC and TAPQ instructions, verify privilege and specifications.
-
-The two paragraphs above should be described via the comments embedded
-in the code and is not necessary here.
-
-> + *
-> + * If no callback available, the queues are not available, return this to
-> + * the caller.
-
-This implies it is specified via the return code when it is in fact
-the response code in the status word.
-
-> + * Else return the value returned by the callback.
+> + * Free the associated vfio_ap_queue structure
 > + */
-
-Given this handler may be called for any PQAP instruction sub-function,
-I think the function doc should be more generic, providing:
-
-* A general description of what the function does
-* A description of each input parameter
-* A description of the value returned. If the return value is a return
-   code, the possible rc values can be enumerated with a description for
-   of the reason each particular value may be returned.
-
-> +static int handle_pqap(struct kvm_vcpu *vcpu)
+>   static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+>   {
+> -	/* Nothing to do yet */
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = dev_get_drvdata(&apdev->device);
+> +	mutex_lock(&matrix_dev->lock);
+> +	list_del(&q->list);
+> +	mutex_unlock(&matrix_dev->lock);
+> +	kfree(q);
+>   }
+>   
+>   static void vfio_ap_matrix_dev_release(struct device *dev)
+> @@ -107,6 +135,7 @@ static int vfio_ap_matrix_dev_create(void)
+>   	matrix_dev->device.bus = &matrix_bus;
+>   	matrix_dev->device.release = vfio_ap_matrix_dev_release;
+>   	matrix_dev->vfio_ap_drv = &vfio_ap_drv;
+> +	INIT_LIST_HEAD(&matrix_dev->free_list);
+>   
+>   	ret = device_register(&matrix_dev->device);
+>   	if (ret)
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 900b9cf..77f7bac 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -24,6 +24,68 @@
+>   #define VFIO_AP_MDEV_TYPE_HWVIRT "passthrough"
+>   #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
+>   
+> +/**
+> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+> + * @apqn: The queue APQN
+> + *
+> + * Retrieve a queue with a specific APQN from the list of the
+> + * devices associated with a list.
+> + *
+> + * Returns the pointer to the associated vfio_ap_queue
+> + */
+> +struct vfio_ap_queue *vfio_ap_get_queue(int apqn, struct list_head *l)
 > +{
-> +	struct ap_queue_status status = {};
-> +	unsigned long reg0;
-> +	int ret;
-> +	uint8_t fc;
+> +	struct vfio_ap_queue *q;
 > +
-> +	/* Verify that the AP instruction are available */
-> +	if (!ap_instructions_available())
-> +		return -EOPNOTSUPP;
-> +	/* Verify that the guest is allowed to use AP instructions */
-> +	if (!(vcpu->arch.sie_block->eca & ECA_APIE))
-> +		return -EOPNOTSUPP;
-> +	/*
-> +	 * The only possibly intercepted instructions when AP instructions are
-> +	 * available for the guest are AQIC and TAPQ with the t bit set
-> +	 * since we do not set IC.3 (FIII) we currently will not intercept
-> +	 * TAPQ.
-> +	 * The following code will only treat AQIC function code.
-> +	 */
-
-Simplify to:
-
-/* The only supported PQAP function is AQIC (0x03) */
-
-> +	reg0 = vcpu->run->s.regs.gprs[0];
-> +	fc = reg0 >> 24;
-> +	if (fc != 0x03) {
-> +		pr_warn("%s: Unexpected interception code 0x%02x\n",
-> +			__func__, fc);
-> +		return -EOPNOTSUPP;
-> +	}
-> +	/* All PQAP instructions are allowed for guest kernel only */
-
-There is only one PQAP instruction with multiple sub-functions.
-/* PQAP instruction is allowed for guest kernel only */
-                         or
-/* PQAP instruction is privileged */
-
-> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
-> +		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-> +	/*
-> +	 * Common tests for PQAP instructions to generate a specification
-> +	 * exception
-> +	 */
-
-This comment is unnecessary as the individual comments below adequately
-do the job.
-
-> +	/* Zero bits overwrite produce a specification exception */
-
-This comment has no meaning unless you intimately know the architecture.
-The following would make more sense:
-
-	/* Bits 41-47 must all be zeros */
-
-It's probably not a big deal, but since we don't support PQAP(TAPQ),
-would it make more sense to make sure bits 40-47 are zeros (i.e.,
-the 't' bit is not set)?
-
-> +	if (reg0 & 0x007f0000UL)
-> +		goto specification_except;
-> +	/* If APXA is not installed APQN is limited */
-
-Wouldn't it be better to state how the APQN is limited?
-For example:
-
-	/*
-	 * If APXA is not installed, then the maximum APID is
-	 * 63 (bits 48-49 of reg0 must be zero) and the maximum
-	 * APQI is 15 (bits 56-59 must be zero)
-	 */
-
-> +	if (!(vcpu->kvm->arch.crypto.crycbd & 0x02))
-> +		if (reg0 & 0x000030f0UL)
-
-If APXA is not installed, then bits 48-49 and 56-59 must all be
-zeros. Shouldn't this mask be 0x0000c0f0UL?
-
-> +			goto specification_except;
-> +	/* AQIC needs facility 65 */
-> +	if (!test_kvm_facility(vcpu->kvm, 65))
-> +		goto specification_except;
-> +
-> +	/*
-> +	 * Verify that the hook callback is registered, lock the owner
-> +	 * and call the hook.
-> +	 */
-> +	if (vcpu->kvm->arch.crypto.pqap_hook) {
-> +		if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
-> +			return -EOPNOTSUPP;
-> +		ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
-> +		module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
-> +		return ret;
-> +	}
-> +	/*
-> +	 * It is the duty of the vfio_driver to register a hook
-> +	 * If it does not and we get an exception on AQIC we must
-> +	 * guess that there is no vfio_ap_driver at all and no one
-> +	 * to handle the guests's CRYCB and the CRYCB is empty.
-> +	 */
-
-The comment above does not make sense to me. If there is no pqap
-hook registered, then we need to handle that case for sure. But why
-mention getting an exception? Why even mention whose responsibility
-it is to set the hook when all we need to know is whether a hook is
-set or not?
-
-I am wondering whether merely setting a response code indicating the
-APQN is invalid is the correct thing to do here. First of all, if the
-guest's CRYCB is empty, then the AP bus running in the guest would not
-create any AP devices or any AP queues bound to any zcrypt driver. In
-that case, I don't think the PQAP(AQIC) would ever be issued. If a
-PQAP is intercepted, wouldn't we want to return -EOPNOTSUPP?
-
-
-
-> +	status.response_code = 0x01;
-> +	memcpy(&vcpu->run->s.regs.gprs[1], &status, sizeof(status));
-> +	return 0;
-> +
-> +specification_except:
-> +	return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> +	list_for_each_entry(q, l, list)
+> +		if (q->apqn == apqn)
+> +			return q;
+> +	return NULL;
 > +}
 > +
->   static int handle_stfl(struct kvm_vcpu *vcpu)
+> +static int vfio_ap_find_any_card(int apid)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	list_for_each_entry(q, &matrix_dev->free_list, list)
+> +		if (AP_QID_CARD(q->apqn) == apid)
+> +			return 1;
+> +	return 0;
+> +}
+> +
+> +static int vfio_ap_find_any_domain(int apqi)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	list_for_each_entry(q, &matrix_dev->free_list, list)
+> +		if (AP_QID_QUEUE(q->apqn) == apqi)
+> +			return 1;
+> +	return 0;
+> +}
+> +
+> +static int vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
+> +{
+> +	struct ap_queue_status status;
+> +	int retry = 1;
+> +
+> +	do {
+> +		status = ap_zapq(q->apqn);
+> +		switch (status.response_code) {
+> +		case AP_RESPONSE_NORMAL:
+> +			return 0;
+> +		case AP_RESPONSE_RESET_IN_PROGRESS:
+> +		case AP_RESPONSE_BUSY:
+> +			msleep(20);
+> +			break;
+> +		default:
+> +			/* things are really broken, give up */
+
+I'm not sure things are necessarily broken. We could end up here if
+the AP is removed from the configuration via the SE or SCLP Deconfigure
+Adjunct Processor command.
+
+> +			return -EIO;
+> +		}
+> +	} while (retry--);
+> +
+> +	return -EBUSY;
+> +}
+> +
+>   static void vfio_ap_matrix_init(struct ap_config_info *info,
+>   				struct ap_matrix *matrix)
 >   {
->   	int rc;
-> @@ -878,6 +966,8 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
->   		return handle_sthyi(vcpu);
->   	case 0x7d:
->   		return handle_stsi(vcpu);
-> +	case 0xaf:
-> +		return handle_pqap(vcpu);
->   	case 0xb1:
->   		return handle_stfl(vcpu);
->   	case 0xb2:
+> @@ -45,6 +107,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+>   		return -ENOMEM;
+>   	}
+>   
+> +	INIT_LIST_HEAD(&matrix_mdev->qlist);
+>   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
+>   	mdev_set_drvdata(mdev, matrix_mdev);
+>   	mutex_lock(&matrix_dev->lock);
+> @@ -113,162 +176,189 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
+>   	NULL,
+>   };
+>   
+> -struct vfio_ap_queue_reserved {
+> -	unsigned long *apid;
+> -	unsigned long *apqi;
+> -	bool reserved;
+> -};
+> +static void vfio_ap_free_queue(int apqn, struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = vfio_ap_get_queue(apqn, &matrix_mdev->qlist);
+> +	if (!q)
+> +		return;
+> +	q->matrix_mdev = NULL;
+> +	vfio_ap_mdev_reset_queue(q);
+
+I'm wondering if it's necessary to reset the queue here. The only time
+a queue is used is when a guest using the mdev device is started. When
+that guest is terminated, the fd for the mdev device is closed and the
+mdev device's release callback is invoked. The release callback resets
+the queues assigned to the mdev device. Is it really necessary to
+reset the queue again when it is unassigned even if there would have
+been no subsequent activity?
+
+> +	list_move(&q->list, &matrix_dev->free_list);
+> +}
+>   
+>   /**
+> - * vfio_ap_has_queue
+> - *
+> - * @dev: an AP queue device
+> - * @data: a struct vfio_ap_queue_reserved reference
+> + * vfio_ap_put_all_domains:
+>    *
+> - * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
+> - * apid or apqi specified in @data:
+> + * @matrix_mdev: the matrix mediated device for which we want to associate
+> + *		 all available queues with a given apqi.
+> + * @apid:	 The apid which associated with all defined APQI of the
+> + *		 mediated device will define a AP queue.
+>    *
+> - * - If @data contains both an apid and apqi value, then @data will be flagged
+> - *   as reserved if the APID and APQI fields for the AP queue device matches
+> - *
+> - * - If @data contains only an apid value, @data will be flagged as
+> - *   reserved if the APID field in the AP queue device matches
+> - *
+> - * - If @data contains only an apqi value, @data will be flagged as
+> - *   reserved if the APQI field in the AP queue device matches
+> - *
+> - * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
+> - * @data does not contain either an apid or apqi.
+> + * We remove the queue from the list of queues associated with the
+> + * mediated device and put them back to the free list of the matrix
+> + * device and clear the matrix_mdev pointer.
+>    */
+> -static int vfio_ap_has_queue(struct device *dev, void *data)
+> +static void vfio_ap_put_all_domains(struct ap_matrix_mdev *matrix_mdev,
+> +				    int apid)
+>   {
+> -	struct vfio_ap_queue_reserved *qres = data;
+> -	struct ap_queue *ap_queue = to_ap_queue(dev);
+> -	ap_qid_t qid;
+> -	unsigned long id;
+> +	int apqi, apqn;
+>   
+> -	if (qres->apid && qres->apqi) {
+> -		qid = AP_MKQID(*qres->apid, *qres->apqi);
+> -		if (qid == ap_queue->qid)
+> -			qres->reserved = true;
+> -	} else if (qres->apid && !qres->apqi) {
+> -		id = AP_QID_CARD(ap_queue->qid);
+> -		if (id == *qres->apid)
+> -			qres->reserved = true;
+> -	} else if (!qres->apid && qres->apqi) {
+> -		id = AP_QID_QUEUE(ap_queue->qid);
+> -		if (id == *qres->apqi)
+> -			qres->reserved = true;
+> -	} else {
+> -		return -EINVAL;
+> +	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
+> +		apqn = AP_MKQID(apid, apqi);
+> +		vfio_ap_free_queue(apqn, matrix_mdev);
+>   	}
+> -
+> -	return 0;
+>   }
+>   
+>   /**
+> - * vfio_ap_verify_queue_reserved
+> - *
+> - * @matrix_dev: a mediated matrix device
+> - * @apid: an AP adapter ID
+> - * @apqi: an AP queue index
+> + * vfio_ap_put_all_cards:
+>    *
+> - * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
+> - * driver according to the following rules:
+> + * @matrix_mdev: the matrix mediated device for which we want to associate
+> + *		 all available queues with a given apqi.
+> + * @apqi:	 The apqi which associated with all defined APID of the
+> + *		 mediated device will define a AP queue.
+>    *
+> - * - If both @apid and @apqi are not NULL, then there must be an AP queue
+> - *   device bound to the vfio_ap driver with the APQN identified by @apid and
+> - *   @apqi
+> - *
+> - * - If only @apid is not NULL, then there must be an AP queue device bound
+> - *   to the vfio_ap driver with an APQN containing @apid
+> - *
+> - * - If only @apqi is not NULL, then there must be an AP queue device bound
+> - *   to the vfio_ap driver with an APQN containing @apqi
+> - *
+> - * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+> + * We remove the queue from the list of queues associated with the
+> + * mediated device and put them back to the free list of the matrix
+> + * device and clear the matrix_mdev pointer.
+>    */
+> -static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+> -					 unsigned long *apqi)
+> +static void vfio_ap_put_all_cards(struct ap_matrix_mdev *matrix_mdev, int apqi)
+>   {
+> -	int ret;
+> -	struct vfio_ap_queue_reserved qres;
+> +	int apid, apqn;
+>   
+> -	qres.apid = apid;
+> -	qres.apqi = apqi;
+> -	qres.reserved = false;
+> -
+> -	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+> -				     &qres, vfio_ap_has_queue);
+> -	if (ret)
+> -		return ret;
+> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
+> +		apqn = AP_MKQID(apid, apqi);
+> +		vfio_ap_free_queue(apqn, matrix_mdev);
+> +	}
+> +}
+>   
+> -	if (qres.reserved)
+> -		return 0;
+> +static void move_and_set(struct list_head *src, struct list_head *dst,
+> +			 struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	struct vfio_ap_queue *q, *qtmp;
+>   
+> -	return -EADDRNOTAVAIL;
+> +	list_for_each_entry_safe(q, qtmp, src, list) {
+> +		list_move(&q->list, dst);
+> +		q->matrix_mdev = matrix_mdev;
+> +	}
+>   }
+>   
+> -static int
+> -vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+> -					     unsigned long apid)
+> +static int vfio_ap_queue_match(struct device *dev, void *data)
+>   {
+> -	int ret;
+> -	unsigned long apqi;
+> -	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
+> +	struct ap_queue *ap;
+>   
+> -	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
+> -		return vfio_ap_verify_queue_reserved(&apid, NULL);
+> +	ap = to_ap_queue(dev);
+> +	return ap->qid == *(int *)data;
+> +}
+>   
+> -	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
+> -		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+> -		if (ret)
+> -			return ret;
+> -	}
+> +static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+> +{
+> +	struct device *dev;
+> +	struct vfio_ap_queue *q;
+> +
+> +	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+> +				 &apqn, vfio_ap_queue_match);
+> +	if (!dev)
+> +		return NULL;
+> +	q = dev_get_drvdata(dev);
+> +	put_device(dev);
+> +	return q;
+> +}
+>   
+> +/**
+> + * vfio_ap_get_all_domains:
+> + *
+> + * @matrix_mdev: the matrix mediated device for which we want to associate
+> + *		 all available queues with a given apqi.
+> + * @apqi:	 The apqi which associated with all defined APID of the
+> + *		 mediated device will define a AP queue.
+> + *
+> + * We define a local list to put all queues we find on the matrix driver
+> + * device list when associating the apqi with all already defined apid for
+> + * this matrix mediated device.
+> + *
+> + * If we can get all the devices we roll them to the mediated device list
+> + * If we get errors we unroll them to the free list.
+> + */
+> +static int vfio_ap_get_all_domains(struct ap_matrix_mdev *matrix_mdev, int apid)
+> +{
+> +	int apqi, apqn;
+> +	int ret = 0;
+> +	struct vfio_ap_queue *q;
+> +	struct list_head q_list;
+> +
+> +	if (!vfio_ap_find_any_card(apid))
+> +		return -EADDRNOTAVAIL;
+> +
+> +	INIT_LIST_HEAD(&q_list);
+> +
+> +	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
+> +		apqn = AP_MKQID(apid, apqi);
+> +		q = vfio_ap_find_queue(apqn);
+> +		if (!q) {
+> +			ret = -EADDRNOTAVAIL;
+> +			goto rewind;
+> +		}
+> +		if (q->matrix_mdev) {
+
+If somebody assigns the same adapter a second time, the assignment will
+fail because the matrix_mdev will already have been associated with the
+queue. I don't think it is appropriate to fail the assignment if the
+q->matrix_mdev is the same as the input matrix_mdev. This should be
+changed to:
+
+	if (q->matrix_mdev != matrix_mdev)
+
+> +			ret = -EADDRINUSE;
+> +			goto rewind;
+> +		}
+> +		list_move(&q->list, &q_list);
+> +	}
+> +	move_and_set(&q_list, &matrix_mdev->qlist, matrix_mdev);
+>   	return 0;
+> +rewind:
+> +	move_and_set(&q_list, &matrix_dev->free_list, NULL);
+> +	return ret;
+>   }
+> -
+>   /**
+> - * vfio_ap_mdev_verify_no_sharing
+> + * vfio_ap_get_all_cards:
+>    *
+> - * Verifies that the APQNs derived from the cross product of the AP adapter IDs
+> - * and AP queue indexes comprising the AP matrix are not configured for another
+> - * mediated device. AP queue sharing is not allowed.
+> + * @matrix_mdev: the matrix mediated device for which we want to associate
+> + *		 all available queues with a given apqi.
+> + * @apqi:	 The apqi which associated with all defined APID of the
+> + *		 mediated device will define a AP queue.
+>    *
+> - * @matrix_mdev: the mediated matrix device
+> + * We define a local list to put all queues we find on the matrix device
+> + * free list when associating the apqi with all already defined apid for
+> + * this matrix mediated device.
+>    *
+> - * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
+> + * If we can get all the devices we roll them to the mediated device list
+> + * If we get errors we unroll them to the free list.
+>    */
+> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+> +static int vfio_ap_get_all_cards(struct ap_matrix_mdev *matrix_mdev, int apqi)
+>   {
+> -	struct ap_matrix_mdev *lstdev;
+> -	DECLARE_BITMAP(apm, AP_DEVICES);
+> -	DECLARE_BITMAP(aqm, AP_DOMAINS);
+> -
+> -	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
+> -		if (matrix_mdev == lstdev)
+> -			continue;
+> -
+> -		memset(apm, 0, sizeof(apm));
+> -		memset(aqm, 0, sizeof(aqm));
+> -
+> -		/*
+> -		 * We work on full longs, as we can only exclude the leftover
+> -		 * bits in non-inverse order. The leftover is all zeros.
+> -		 */
+> -		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
+> -				lstdev->matrix.apm, AP_DEVICES))
+> -			continue;
+> -
+> -		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
+> -				lstdev->matrix.aqm, AP_DOMAINS))
+> -			continue;
+> -
+> -		return -EADDRINUSE;
+> +	int apid, apqn;
+> +	int ret = 0;
+> +	struct vfio_ap_queue *q;
+> +	struct list_head q_list;
+> +	struct ap_matrix_mdev *tmp = NULL;
+> +
+> +	if (!vfio_ap_find_any_domain(apqi))
+> +		return -EADDRNOTAVAIL;
+> +
+> +	INIT_LIST_HEAD(&q_list);
+> +
+> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
+> +		apqn = AP_MKQID(apid, apqi);
+> +		q = vfio_ap_find_queue(apqn);
+> +		if (!q) {
+> +			ret = -EADDRNOTAVAIL;
+> +			goto rewind;
+> +		}
+> +		if (q->matrix_mdev) {
+
+If somebody assigns the same domain a second time, the assignment will
+fail because the matrix_mdev will already have been associated with the
+queue. I don't think it is appropriate to fail the assignment if the
+q->matrix_mdev is the same as the input matrix_mdev. This should be
+changed to:
+
+	if (q->matrix_mdev != matrix_mdev)
+
+> +			ret = -EADDRINUSE;
+> +			goto rewind;
+> +		}
+> +		list_move(&q->list, &q_list);
+>   	}
+> -
+> +	tmp = matrix_mdev;
+> +	move_and_set(&q_list, &matrix_mdev->qlist, matrix_mdev);
+>   	return 0;
+> +rewind:
+> +	move_and_set(&q_list, &matrix_dev->free_list, NULL);
+> +	return ret;
+>   }
+>   
+>   /**
+> @@ -330,21 +420,15 @@ static ssize_t assign_adapter_store(struct device *dev,
+>   	 */
+>   	mutex_lock(&matrix_dev->lock);
+>   
+> -	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
+> +	ret = vfio_ap_get_all_domains(matrix_mdev, apid);
+>   	if (ret)
+>   		goto done;
+>   
+>   	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>   
+> -	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+> -	if (ret)
+> -		goto share_err;
+> -
+>   	ret = count;
+>   	goto done;
+>   
+> -share_err:
+> -	clear_bit_inv(apid, matrix_mdev->matrix.apm);
+>   done:
+>   	mutex_unlock(&matrix_dev->lock);
+>   
+> @@ -391,32 +475,13 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>   
+>   	mutex_lock(&matrix_dev->lock);
+>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+> +	vfio_ap_put_all_domains(matrix_mdev, apid);
+>   	mutex_unlock(&matrix_dev->lock);
+>   
+>   	return count;
+>   }
+>   static DEVICE_ATTR_WO(unassign_adapter);
+>   
+> -static int
+> -vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+> -					     unsigned long apqi)
+> -{
+> -	int ret;
+> -	unsigned long apid;
+> -	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
+> -
+> -	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
+> -		return vfio_ap_verify_queue_reserved(NULL, &apqi);
+> -
+> -	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
+> -		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+> -		if (ret)
+> -			return ret;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+>   /**
+>    * assign_domain_store
+>    *
+> @@ -471,21 +536,15 @@ static ssize_t assign_domain_store(struct device *dev,
+>   
+>   	mutex_lock(&matrix_dev->lock);
+>   
+> -	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
+> +	ret = vfio_ap_get_all_cards(matrix_mdev, apqi);
+>   	if (ret)
+>   		goto done;
+>   
+>   	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>   
+> -	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+> -	if (ret)
+> -		goto share_err;
+> -
+>   	ret = count;
+>   	goto done;
+>   
+> -share_err:
+> -	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>   done:
+>   	mutex_unlock(&matrix_dev->lock);
+>   
+> @@ -533,6 +592,7 @@ static ssize_t unassign_domain_store(struct device *dev,
+>   
+>   	mutex_lock(&matrix_dev->lock);
+>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+> +	vfio_ap_put_all_cards(matrix_mdev, apqi);
+>   	mutex_unlock(&matrix_dev->lock);
+>   
+>   	return count;
+> @@ -790,49 +850,22 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>   	return NOTIFY_OK;
+>   }
+>   
+> -static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+> -				    unsigned int retry)
+> -{
+> -	struct ap_queue_status status;
+> -
+> -	do {
+> -		status = ap_zapq(AP_MKQID(apid, apqi));
+> -		switch (status.response_code) {
+> -		case AP_RESPONSE_NORMAL:
+> -			return 0;
+> -		case AP_RESPONSE_RESET_IN_PROGRESS:
+> -		case AP_RESPONSE_BUSY:
+> -			msleep(20);
+> -			break;
+> -		default:
+> -			/* things are really broken, give up */
+> -			return -EIO;
+> -		}
+> -	} while (retry--);
+> -
+> -	return -EBUSY;
+> -}
+> -
+>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+>   {
+>   	int ret;
+>   	int rc = 0;
+> -	unsigned long apid, apqi;
+>   	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+> +	struct vfio_ap_queue *q;
+>   
+> -	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
+> -			     matrix_mdev->matrix.apm_max + 1) {
+> -		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+> -				     matrix_mdev->matrix.aqm_max + 1) {
+> -			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
+> -			/*
+> -			 * Regardless whether a queue turns out to be busy, or
+> -			 * is not operational, we need to continue resetting
+> -			 * the remaining queues.
+> -			 */
+> -			if (ret)
+> -				rc = ret;
+> -		}
+> +	list_for_each_entry(q, &matrix_mdev->qlist, list) {
+> +		ret = vfio_ap_mdev_reset_queue(q);
+> +		/*
+> +		 * Regardless whether a queue turns out to be busy, or
+> +		 * is not operational, we need to continue resetting
+> +		 * the remaining queues but notice the last error code.
+> +		 */
+> +		if (ret)
+> +			rc = ret;
+>   	}
+>   
+>   	return rc;
+> @@ -868,10 +901,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>   	if (matrix_mdev->kvm)
+>   		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>   
+> +	matrix_mdev->kvm = NULL;
+>   	vfio_ap_mdev_reset_queues(mdev);
+>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
+>   				 &matrix_mdev->group_notifier);
+> -	matrix_mdev->kvm = NULL;
+>   	module_put(THIS_MODULE);
+>   }
+>   
+> @@ -905,7 +938,9 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>   		ret = vfio_ap_mdev_get_device_info(arg);
+>   		break;
+>   	case VFIO_DEVICE_RESET:
+> +		mutex_lock(&matrix_dev->lock);
+>   		ret = vfio_ap_mdev_reset_queues(mdev);
+> +		mutex_unlock(&matrix_dev->lock);
+>   		break;
+>   	default:
+>   		ret = -EOPNOTSUPP;
 > diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 76b7f98..a910be1 100644
+> index a910be1..3e6940c 100644
 > --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.hhttps://www.linuxmint.com/start/sylvia/
-> @@ -16,6 +16,7 @@
->   #include <linux/mdev.h>
->   #include <linux/delay.h>
->   #include <linux/mutex.h>
-> +#include <linux/kvm_host.h>
->   
->   #include "ap_bus.h"
->   
-> @@ -81,6 +82,7 @@ struct ap_matrix_mdev {
->   	struct ap_matrix matrix;
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -40,6 +40,7 @@ struct ap_matrix_dev {
+>   	atomic_t available_instances;
+>   	struct ap_config_info info;
+>   	struct list_head mdev_list;
+> +	struct list_head free_list;
+>   	struct mutex lock;
+>   	struct ap_driver  *vfio_ap_drv;
+>   };
+> @@ -83,9 +84,15 @@ struct ap_matrix_mdev {
 >   	struct notifier_block group_notifier;
 >   	struct kvm *kvm;
-> +	struct kvm_s390_module_hook pqap_hook;
+>   	struct kvm_s390_module_hook pqap_hook;
+> +	struct list_head qlist;
 >   };
 >   
 >   extern int vfio_ap_mdev_register(void);
+>   extern void vfio_ap_mdev_unregister(void);
+>   
+> +struct vfio_ap_queue {
+> +	struct list_head list;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	int	apqn;
+> +};
+>   #endif /* _VFIO_AP_PRIVATE_H_ */
 > 
