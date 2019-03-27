@@ -1,201 +1,88 @@
-Return-Path: <SRS0=MWzg=R6=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=95/N=R6=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 126/192] perf/aux: Make perf_event accessible to
- setup_aux()
-Date: Wed, 27 Mar 2019 14:09:18 -0400
-Message-Id: <20190327181025.13507-126-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 076/192] s390/ism: ignore some errors during deregistration
+Date: Wed, 27 Mar 2019 14:08:28 -0400
+Message-Id: <20190327181025.13507-76-sashal@kernel.org>
 In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
 References: <20190327181025.13507-1-sashal@kernel.org>
 MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Mathieu Poirier <mathieu.poirier@linaro.org>, Sasha Levin <sashal@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Adrian Hunter <adrian.hunter@intel.com>, Will Deacon <will.deacon@arm.com>, Alexei Starovoitov <ast@kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org
+Cc: Sebastian Ott <sebott@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
+From: Sebastian Ott <sebott@linux.ibm.com>
 
-[ Upstream commit 840018668ce2d96783356204ff282d6c9b0e5f66 ]
+[ Upstream commit 0ff06c44efeede4acd068847d3bf8cf894b6c664 ]
 
-When pmu::setup_aux() is called the coresight PMU needs to know which
-sink to use for the session by looking up the information in the
-event's attr::config2 field.
+Prior to dma unmap/free operations the ism driver tries to ensure
+that the memory is no longer accessed by the HW. When errors
+during deregistration of memory regions from the HW occur the ism
+driver will not unmap/free this memory.
 
-As such simply replace the cpu information by the complete perf_event
-structure and change all affected customers.
+When we receive notification from the hypervisor that a PCI function
+has been detached we can no longer access the device and would never
+unmap/free these memory regions which led to complaints by the DMA
+debug API.
 
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Suzuki Poulouse <suzuki.poulose@arm.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190131184714.20388-2-mathieu.poirier@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Treat this kind of errors during the deregistration of memory regions
+from the HW as success since it is already ensured that the memory
+is no longer accessed by HW.
+
+Reported-by: Karsten Graul <kgraul@linux.ibm.com>
+Reported-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c                  | 6 +++---
- arch/x86/events/intel/bts.c                      | 4 +++-
- arch/x86/events/intel/pt.c                       | 5 +++--
- drivers/hwtracing/coresight/coresight-etm-perf.c | 6 +++---
- drivers/perf/arm_spe_pmu.c                       | 6 +++---
- include/linux/perf_event.h                       | 2 +-
- kernel/events/ring_buffer.c                      | 2 +-
- 7 files changed, 17 insertions(+), 14 deletions(-)
+ drivers/s390/net/ism_drv.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 5c53e977be62..44404836e9d1 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1600,7 +1600,7 @@ static void aux_sdb_init(unsigned long sdb)
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 8684bcec8ff4..00cc96341411 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -141,10 +141,13 @@ static int register_ieq(struct ism_dev *ism)
  
- /*
-  * aux_buffer_setup() - Setup AUX buffer for diagnostic mode sampling
-- * @cpu:	On which to allocate, -1 means current
-+ * @event:	Event the buffer is setup for, event->cpu == -1 means current
-  * @pages:	Array of pointers to buffer pages passed from perf core
-  * @nr_pages:	Total pages
-  * @snapshot:	Flag for snapshot mode
-@@ -1612,8 +1612,8 @@ static void aux_sdb_init(unsigned long sdb)
-  *
-  * Return the private AUX buffer structure if success or NULL if fails.
-  */
--static void *aux_buffer_setup(int cpu, void **pages, int nr_pages,
--			      bool snapshot)
-+static void *aux_buffer_setup(struct perf_event *event, void **pages,
-+			      int nr_pages, bool snapshot)
+ static int unregister_sba(struct ism_dev *ism)
  {
- 	struct sf_buffer *sfb;
- 	struct aux_buffer *aux;
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index 24ffa1e88cf9..7139f6bf27ad 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -77,10 +77,12 @@ static size_t buf_size(struct page *page)
- }
++	int ret;
++
+ 	if (!ism->sba)
+ 		return 0;
  
- static void *
--bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
-+bts_buffer_setup_aux(struct perf_event *event, void **pages,
-+		     int nr_pages, bool overwrite)
+-	if (ism_cmd_simple(ism, ISM_UNREG_SBA))
++	ret = ism_cmd_simple(ism, ISM_UNREG_SBA);
++	if (ret && ret != ISM_ERROR)
+ 		return -EIO;
+ 
+ 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
+@@ -158,10 +161,13 @@ static int unregister_sba(struct ism_dev *ism)
+ 
+ static int unregister_ieq(struct ism_dev *ism)
  {
- 	struct bts_buffer *buf;
- 	struct page *page;
-+	int cpu = event->cpu;
- 	int node = (cpu == -1) ? cpu : cpu_to_node(cpu);
- 	unsigned long offset;
- 	size_t size = nr_pages << PAGE_SHIFT;
-diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index 8d016ce5b80d..8f4c98fdd03c 100644
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -1104,10 +1104,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
-  * Return:	Our private PT buffer structure.
-  */
- static void *
--pt_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool snapshot)
-+pt_buffer_setup_aux(struct perf_event *event, void **pages,
-+		    int nr_pages, bool snapshot)
- {
- 	struct pt_buffer *buf;
--	int node, ret;
-+	int node, ret, cpu = event->cpu;
++	int ret;
++
+ 	if (!ism->ieq)
+ 		return 0;
  
- 	if (!nr_pages)
- 		return NULL;
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index 677695635211..0f5e03e4df22 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -181,15 +181,15 @@ static void etm_free_aux(void *data)
- 	schedule_work(&event_data->work);
- }
+-	if (ism_cmd_simple(ism, ISM_UNREG_IEQ))
++	ret = ism_cmd_simple(ism, ISM_UNREG_IEQ);
++	if (ret && ret != ISM_ERROR)
+ 		return -EIO;
  
--static void *etm_setup_aux(int event_cpu, void **pages,
-+static void *etm_setup_aux(struct perf_event *event, void **pages,
- 			   int nr_pages, bool overwrite)
- {
--	int cpu;
-+	int cpu = event->cpu;
- 	cpumask_t *mask;
- 	struct coresight_device *sink;
- 	struct etm_event_data *event_data = NULL;
+ 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
+@@ -288,7 +294,7 @@ static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+ 	cmd.request.dmb_tok = dmb->dmb_tok;
  
--	event_data = alloc_event_data(event_cpu);
-+	event_data = alloc_event_data(cpu);
- 	if (!event_data)
- 		return NULL;
- 	INIT_WORK(&event_data->work, free_event_data);
-diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index e1a77b2de78a..3623f6489f49 100644
---- a/drivers/perf/arm_spe_pmu.c
-+++ b/drivers/perf/arm_spe_pmu.c
-@@ -824,10 +824,10 @@ static void arm_spe_pmu_read(struct perf_event *event)
- {
- }
- 
--static void *arm_spe_pmu_setup_aux(int cpu, void **pages, int nr_pages,
--				   bool snapshot)
-+static void *arm_spe_pmu_setup_aux(struct perf_event *event, void **pages,
-+				   int nr_pages, bool snapshot)
- {
--	int i;
-+	int i, cpu = event->cpu;
- 	struct page **pglist;
- 	struct arm_spe_pmu_buf *buf;
- 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index c2876e740514..42fc852bf512 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -409,7 +409,7 @@ struct pmu {
- 	/*
- 	 * Set up pmu-private data structures for an AUX area
- 	 */
--	void *(*setup_aux)		(int cpu, void **pages,
-+	void *(*setup_aux)		(struct perf_event *event, void **pages,
- 					 int nr_pages, bool overwrite);
- 					/* optional */
- 
-diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 5631af940316..474b2ccdbe69 100644
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -648,7 +648,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
- 			goto out;
- 	}
- 
--	rb->aux_priv = event->pmu->setup_aux(event->cpu, rb->aux_pages, nr_pages,
-+	rb->aux_priv = event->pmu->setup_aux(event, rb->aux_pages, nr_pages,
- 					     overwrite);
- 	if (!rb->aux_priv)
+ 	ret = ism_cmd(ism, &cmd);
+-	if (ret)
++	if (ret && ret != ISM_ERROR)
  		goto out;
+ 
+ 	ism_free_dmb(ism, dmb);
 -- 
 2.19.1
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
