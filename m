@@ -1,48 +1,88 @@
-Return-Path: <SRS0=bBiT=SA=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Alex Ghiti <alex@ghiti.fr>
-Subject: Re: [PATCH v8 4/4] hugetlb: allow to free gigantic pages regardless
- of the configuration
-References: <20190327063626.18421-1-alex@ghiti.fr>
- <20190327063626.18421-5-alex@ghiti.fr>
- <c6a93f46-4d8a-e7fd-3f39-4c3c5a9ed514@oracle.com>
-Message-ID: <206f6cc5-51a8-05cb-0d4d-4d07bbdadc7d@ghiti.fr>
-Date: Fri, 29 Mar 2019 02:54:26 -0400
+Return-Path: <SRS0=95/N=R6=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 111/262] s390/ism: ignore some errors during deregistration
+Date: Wed, 27 Mar 2019 13:59:26 -0400
+Message-Id: <20190327180158.10245-111-sashal@kernel.org>
+In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
+References: <20190327180158.10245-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <c6a93f46-4d8a-e7fd-3f39-4c3c5a9ed514@oracle.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, aneesh.kumar@linux.ibm.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org, mpe@ellerman.id.au, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S . Miller" <davem@davemloft.net>
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sebastian Ott <sebott@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 3/28/19 4:43 PM, Mike Kravetz wrote:
-> On 3/26/19 11:36 PM, Alexandre Ghiti wrote:
->> On systems without CONTIG_ALLOC activated but that support gigantic pages,
->> boottime reserved gigantic pages can not be freed at all. This patch
->> simply enables the possibility to hand back those pages to memory
->> allocator.
->>
->> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
->> Acked-by: David S. Miller <davem@davemloft.net> [sparc]
-> Thanks for all the updates
->
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+From: Sebastian Ott <sebott@linux.ibm.com>
 
-Thanks for all your reviews :)
+[ Upstream commit 0ff06c44efeede4acd068847d3bf8cf894b6c664 ]
 
-Alex
+Prior to dma unmap/free operations the ism driver tries to ensure
+that the memory is no longer accessed by the HW. When errors
+during deregistration of memory regions from the HW occur the ism
+driver will not unmap/free this memory.
 
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+When we receive notification from the hypervisor that a PCI function
+has been detached we can no longer access the device and would never
+unmap/free these memory regions which led to complaints by the DMA
+debug API.
+
+Treat this kind of errors during the deregistration of memory regions
+from the HW as success since it is already ensured that the memory
+is no longer accessed by HW.
+
+Reported-by: Karsten Graul <kgraul@linux.ibm.com>
+Reported-by: Hans Wippel <hwippel@linux.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/net/ism_drv.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index ed8e58f09054..3e132592c1fe 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -141,10 +141,13 @@ static int register_ieq(struct ism_dev *ism)
+ 
+ static int unregister_sba(struct ism_dev *ism)
+ {
++	int ret;
++
+ 	if (!ism->sba)
+ 		return 0;
+ 
+-	if (ism_cmd_simple(ism, ISM_UNREG_SBA))
++	ret = ism_cmd_simple(ism, ISM_UNREG_SBA);
++	if (ret && ret != ISM_ERROR)
+ 		return -EIO;
+ 
+ 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
+@@ -158,10 +161,13 @@ static int unregister_sba(struct ism_dev *ism)
+ 
+ static int unregister_ieq(struct ism_dev *ism)
+ {
++	int ret;
++
+ 	if (!ism->ieq)
+ 		return 0;
+ 
+-	if (ism_cmd_simple(ism, ISM_UNREG_IEQ))
++	ret = ism_cmd_simple(ism, ISM_UNREG_IEQ);
++	if (ret && ret != ISM_ERROR)
+ 		return -EIO;
+ 
+ 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
+@@ -287,7 +293,7 @@ static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
+ 	cmd.request.dmb_tok = dmb->dmb_tok;
+ 
+ 	ret = ism_cmd(ism, &cmd);
+-	if (ret)
++	if (ret && ret != ISM_ERROR)
+ 		goto out;
+ 
+ 	ism_free_dmb(ism, dmb);
+-- 
+2.19.1
