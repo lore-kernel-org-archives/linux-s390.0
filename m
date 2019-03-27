@@ -1,17 +1,26 @@
-Return-Path: <SRS0=95/N=R6=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=MWzg=R6=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 176/262] perf/aux: Make perf_event accessible to setup_aux()
-Date: Wed, 27 Mar 2019 14:00:31 -0400
-Message-Id: <20190327180158.10245-176-sashal@kernel.org>
-In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
-References: <20190327180158.10245-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 126/192] perf/aux: Make perf_event accessible to
+ setup_aux()
+Date: Wed, 27 Mar 2019 14:09:18 -0400
+Message-Id: <20190327181025.13507-126-sashal@kernel.org>
+In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
+References: <20190327181025.13507-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>, Adrian Hunter <adrian.hunter@intel.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Alexei Starovoitov <ast@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jiri Olsa <jolsa@redhat.com>, Mark Rutland <mark.rutland@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>, Sasha Levin <sashal@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Mathieu Poirier <mathieu.poirier@linaro.org>, Sasha Levin <sashal@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Adrian Hunter <adrian.hunter@intel.com>, Will Deacon <will.deacon@arm.com>, Alexei Starovoitov <ast@kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
 From: Mathieu Poirier <mathieu.poirier@linaro.org>
@@ -56,7 +65,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  7 files changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index bfabeb1889cc..1266194afb02 100644
+index 5c53e977be62..44404836e9d1 100644
 --- a/arch/s390/kernel/perf_cpum_sf.c
 +++ b/arch/s390/kernel/perf_cpum_sf.c
 @@ -1600,7 +1600,7 @@ static void aux_sdb_init(unsigned long sdb)
@@ -80,7 +89,7 @@ index bfabeb1889cc..1266194afb02 100644
  	struct sf_buffer *sfb;
  	struct aux_buffer *aux;
 diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index a01ef1b0f883..7cdd7b13bbda 100644
+index 24ffa1e88cf9..7139f6bf27ad 100644
 --- a/arch/x86/events/intel/bts.c
 +++ b/arch/x86/events/intel/bts.c
 @@ -77,10 +77,12 @@ static size_t buf_size(struct page *page)
@@ -98,10 +107,10 @@ index a01ef1b0f883..7cdd7b13bbda 100644
  	unsigned long offset;
  	size_t size = nr_pages << PAGE_SHIFT;
 diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index 9494ca68fd9d..c0e86ff21f81 100644
+index 8d016ce5b80d..8f4c98fdd03c 100644
 --- a/arch/x86/events/intel/pt.c
 +++ b/arch/x86/events/intel/pt.c
-@@ -1114,10 +1114,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
+@@ -1104,10 +1104,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
   * Return:	Our private PT buffer structure.
   */
  static void *
@@ -116,10 +125,10 @@ index 9494ca68fd9d..c0e86ff21f81 100644
  	if (!nr_pages)
  		return NULL;
 diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index abe8249b893b..f21eb28b6782 100644
+index 677695635211..0f5e03e4df22 100644
 --- a/drivers/hwtracing/coresight/coresight-etm-perf.c
 +++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -177,15 +177,15 @@ static void etm_free_aux(void *data)
+@@ -181,15 +181,15 @@ static void etm_free_aux(void *data)
  	schedule_work(&event_data->work);
  }
  
@@ -139,7 +148,7 @@ index abe8249b893b..f21eb28b6782 100644
  		return NULL;
  	INIT_WORK(&event_data->work, free_event_data);
 diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index 8e46a9dad2fa..7cb766dafe85 100644
+index e1a77b2de78a..3623f6489f49 100644
 --- a/drivers/perf/arm_spe_pmu.c
 +++ b/drivers/perf/arm_spe_pmu.c
 @@ -824,10 +824,10 @@ static void arm_spe_pmu_read(struct perf_event *event)
@@ -157,7 +166,7 @@ index 8e46a9dad2fa..7cb766dafe85 100644
  	struct arm_spe_pmu_buf *buf;
  
 diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index e1a051724f7e..7cbbd891bfcd 100644
+index c2876e740514..42fc852bf512 100644
 --- a/include/linux/perf_event.h
 +++ b/include/linux/perf_event.h
 @@ -409,7 +409,7 @@ struct pmu {
@@ -170,10 +179,10 @@ index e1a051724f7e..7cbbd891bfcd 100644
  					/* optional */
  
 diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 5ab4fe3b1dcc..878c62ec0190 100644
+index 5631af940316..474b2ccdbe69 100644
 --- a/kernel/events/ring_buffer.c
 +++ b/kernel/events/ring_buffer.c
-@@ -658,7 +658,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
+@@ -648,7 +648,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
  			goto out;
  	}
  
@@ -184,3 +193,9 @@ index 5ab4fe3b1dcc..878c62ec0190 100644
  		goto out;
 -- 
 2.19.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
