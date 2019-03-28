@@ -1,88 +1,102 @@
-Return-Path: <SRS0=95/N=R6=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 076/192] s390/ism: ignore some errors during deregistration
-Date: Wed, 27 Mar 2019 14:08:28 -0400
-Message-Id: <20190327181025.13507-76-sashal@kernel.org>
-In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
-References: <20190327181025.13507-1-sashal@kernel.org>
+Return-Path: <SRS0=GXiT=R7=vger.kernel.org=linux-mips-owner@kernel.org>
+From: ira.weiny@intel.com
+Subject: [PATCH V3 0/7] Add FOLL_LONGTERM to GUP fast and use it
+Date: Thu, 28 Mar 2019 01:44:15 -0700
+Message-Id: <20190328084422.29911-1-ira.weiny@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sebastian Ott <sebott@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Sender: linux-mips-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-mips/>
+List-Post: <mailto:linux-mips@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, Michal Hocko <mhocko@suse.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Rich Felker <dalias@libc.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>
+Cc: Ira Weiny <ira.weiny@intel.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Sebastian Ott <sebott@linux.ibm.com>
+From: Ira Weiny <ira.weiny@intel.com>
 
-[ Upstream commit 0ff06c44efeede4acd068847d3bf8cf894b6c664 ]
+Following discussion and review[1] here are the cleanups requested.
 
-Prior to dma unmap/free operations the ism driver tries to ensure
-that the memory is no longer accessed by the HW. When errors
-during deregistration of memory regions from the HW occur the ism
-driver will not unmap/free this memory.
+The biggest change for V3 was the disabling of the ability to use FOLL_LONGTERM
+in get_user_pages[unlocked|locked|remote]
 
-When we receive notification from the hypervisor that a PCI function
-has been detached we can no longer access the device and would never
-unmap/free these memory regions which led to complaints by the DMA
-debug API.
+Comments were also enhanced throughout to show potential users what
+FOLL_LONGTERM is all about and limitations it has.
 
-Treat this kind of errors during the deregistration of memory regions
-from the HW as success since it is already ensured that the memory
-is no longer accessed by HW.
+Minor review comments were fixed
 
-Reported-by: Karsten Graul <kgraul@linux.ibm.com>
-Reported-by: Hans Wippel <hwippel@linux.ibm.com>
-Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/ism_drv.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+Original cover letter:
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 8684bcec8ff4..00cc96341411 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -141,10 +141,13 @@ static int register_ieq(struct ism_dev *ism)
- 
- static int unregister_sba(struct ism_dev *ism)
- {
-+	int ret;
-+
- 	if (!ism->sba)
- 		return 0;
- 
--	if (ism_cmd_simple(ism, ISM_UNREG_SBA))
-+	ret = ism_cmd_simple(ism, ISM_UNREG_SBA);
-+	if (ret && ret != ISM_ERROR)
- 		return -EIO;
- 
- 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
-@@ -158,10 +161,13 @@ static int unregister_sba(struct ism_dev *ism)
- 
- static int unregister_ieq(struct ism_dev *ism)
- {
-+	int ret;
-+
- 	if (!ism->ieq)
- 		return 0;
- 
--	if (ism_cmd_simple(ism, ISM_UNREG_IEQ))
-+	ret = ism_cmd_simple(ism, ISM_UNREG_IEQ);
-+	if (ret && ret != ISM_ERROR)
- 		return -EIO;
- 
- 	dma_free_coherent(&ism->pdev->dev, PAGE_SIZE,
-@@ -288,7 +294,7 @@ static int ism_unregister_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb)
- 	cmd.request.dmb_tok = dmb->dmb_tok;
- 
- 	ret = ism_cmd(ism, &cmd);
--	if (ret)
-+	if (ret && ret != ISM_ERROR)
- 		goto out;
- 
- 	ism_free_dmb(ism, dmb);
+HFI1, qib, and mthca, use get_user_pages_fast() due to it performance
+advantages.  These pages can be held for a significant time.  But
+get_user_pages_fast() does not protect against mapping FS DAX pages.
+
+Introduce FOLL_LONGTERM and use this flag in get_user_pages_fast() which
+retains the performance while also adding the FS DAX checks.  XDP has also
+shown interest in using this functionality.[1]
+
+In addition we change get_user_pages() to use the new FOLL_LONGTERM flag and
+remove the specialized get_user_pages_longterm call.
+
+[1] https://lkml.org/lkml/2019/3/19/939
+
+
+
+Ira Weiny (7):
+  mm/gup: Replace get_user_pages_longterm() with FOLL_LONGTERM
+  mm/gup: Change write parameter to flags in fast walk
+  mm/gup: Change GUP fast to use flags rather than a write 'bool'
+  mm/gup: Add FOLL_LONGTERM capability to GUP fast
+  IB/hfi1: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+  IB/qib: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+  IB/mthca: Use the new FOLL_LONGTERM flag to get_user_pages_fast()
+
+ arch/mips/mm/gup.c                          |  11 +-
+ arch/powerpc/kvm/book3s_64_mmu_hv.c         |   4 +-
+ arch/powerpc/kvm/e500_mmu.c                 |   2 +-
+ arch/powerpc/mm/mmu_context_iommu.c         |   3 +-
+ arch/s390/kvm/interrupt.c                   |   2 +-
+ arch/s390/mm/gup.c                          |  12 +-
+ arch/sh/mm/gup.c                            |  11 +-
+ arch/sparc/mm/gup.c                         |   9 +-
+ arch/x86/kvm/paging_tmpl.h                  |   2 +-
+ arch/x86/kvm/svm.c                          |   2 +-
+ drivers/fpga/dfl-afu-dma-region.c           |   2 +-
+ drivers/gpu/drm/via/via_dmablit.c           |   3 +-
+ drivers/infiniband/core/umem.c              |   5 +-
+ drivers/infiniband/hw/hfi1/user_pages.c     |   3 +-
+ drivers/infiniband/hw/mthca/mthca_memfree.c |   3 +-
+ drivers/infiniband/hw/qib/qib_user_pages.c  |   8 +-
+ drivers/infiniband/hw/qib/qib_user_sdma.c   |   2 +-
+ drivers/infiniband/hw/usnic/usnic_uiom.c    |   9 +-
+ drivers/media/v4l2-core/videobuf-dma-sg.c   |   6 +-
+ drivers/misc/genwqe/card_utils.c            |   2 +-
+ drivers/misc/vmw_vmci/vmci_host.c           |   2 +-
+ drivers/misc/vmw_vmci/vmci_queue_pair.c     |   6 +-
+ drivers/platform/goldfish/goldfish_pipe.c   |   3 +-
+ drivers/rapidio/devices/rio_mport_cdev.c    |   4 +-
+ drivers/sbus/char/oradax.c                  |   2 +-
+ drivers/scsi/st.c                           |   3 +-
+ drivers/staging/gasket/gasket_page_table.c  |   4 +-
+ drivers/tee/tee_shm.c                       |   2 +-
+ drivers/vfio/vfio_iommu_spapr_tce.c         |   3 +-
+ drivers/vfio/vfio_iommu_type1.c             |   3 +-
+ drivers/vhost/vhost.c                       |   2 +-
+ drivers/video/fbdev/pvr2fb.c                |   2 +-
+ drivers/virt/fsl_hypervisor.c               |   2 +-
+ drivers/xen/gntdev.c                        |   2 +-
+ fs/io_uring.c                               |   5 +-
+ fs/orangefs/orangefs-bufmap.c               |   2 +-
+ include/linux/mm.h                          |  45 ++-
+ kernel/futex.c                              |   2 +-
+ lib/iov_iter.c                              |   7 +-
+ mm/gup.c                                    | 288 +++++++++++++-------
+ mm/gup_benchmark.c                          |   5 +-
+ mm/util.c                                   |   8 +-
+ net/ceph/pagevec.c                          |   2 +-
+ net/rds/info.c                              |   2 +-
+ net/rds/rdma.c                              |   3 +-
+ net/xdp/xdp_umem.c                          |   4 +-
+ 46 files changed, 314 insertions(+), 200 deletions(-)
+
 -- 
-2.19.1
+2.20.1
