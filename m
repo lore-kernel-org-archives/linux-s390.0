@@ -1,85 +1,69 @@
-Return-Path: <SRS0=K6TM=R7=vger.kernel.org=netdev-owner@kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 07/10] s390/qeth: clarify default cmd callback
-Date: Thu, 28 Mar 2019 16:39:25 +0100
-In-Reply-To: <20190328153928.87692-1-jwi@linux.ibm.com>
-References: <20190328153928.87692-1-jwi@linux.ibm.com>
-Message-Id: <20190328153928.87692-8-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Return-Path: <SRS0=SifL=R7=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Steven Price <steven.price@arm.com>
+Subject: [PATCH v7 07/20] s390: mm: Add p?d_large() definitions
+Date: Thu, 28 Mar 2019 15:20:51 +0000
+Message-Id: <20190328152104.23106-8-steven.price@arm.com>
+In-Reply-To: <20190328152104.23106-1-steven.price@arm.com>
+References: <20190328152104.23106-1-steven.price@arm.com>
+MIME-Version: 1.0
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: linux-mm@kvack.org
+Cc: Mark Rutland <Mark.Rutland@arm.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, "Liang, Kan" <kan.liang@linux.intel.com>, linux-s390@vger.kernel.org, x86@kernel.org, Steven Price <steven.price@arm.com>, Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-kernel@vger.kernel.org, James Morse <james.morse@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Current code makes it look like qeth_send_control_data_cb() is some
-sort of default callback for all cmds. But in practice, it is only used
-for half of the cmd buffers we issue.
-Reduce the confusion by only setting this callback for cmds that
-actually want it, and while at it give the callback a name that matches
-the established naming scheme.
+walk_page_range() is going to be allowed to walk page tables other than
+those of user space. For this it needs to know when it has reached a
+'leaf' entry in the page tables. This information is provided by the
+p?d_large() functions/macros.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+For s390, pud_large() and pmd_large() are already implemented as static
+inline functions. Add a #define so we don't pick up the generic version
+introduced in a later patch.
+
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Steven Price <steven.price@arm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ arch/s390/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index b6c9861108ce..093464567025 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -61,9 +61,9 @@ static struct kmem_cache *qeth_qdio_outbuf_cache;
- static struct device *qeth_core_root_dev;
- static struct lock_class_key qdio_out_skb_queue_key;
- 
--static void qeth_send_control_data_cb(struct qeth_card *card,
--				      struct qeth_channel *channel,
--				      struct qeth_cmd_buffer *iob);
-+static void qeth_issue_next_read_cb(struct qeth_card *card,
-+				    struct qeth_channel *channel,
-+				    struct qeth_cmd_buffer *iob);
- static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *);
- static void qeth_free_buffer_pool(struct qeth_card *);
- static int qeth_qdio_establish(struct qeth_card *);
-@@ -511,7 +511,9 @@ static int __qeth_issue_next_read(struct qeth_card *card)
- 				 CARD_DEVID(card));
- 		return -ENOMEM;
- 	}
-+
- 	qeth_setup_ccw(channel->ccw, CCW_CMD_READ, QETH_BUFSIZE, iob->data);
-+	iob->callback = qeth_issue_next_read_cb;
- 	QETH_CARD_TEXT(card, 6, "noirqpnd");
- 	rc = ccw_device_start(channel->ccwdev, channel->ccw,
- 			      (addr_t) iob, 0, 0);
-@@ -721,7 +723,7 @@ void qeth_release_buffer(struct qeth_channel *channel,
- 
- 	spin_lock_irqsave(&channel->iob_lock, flags);
- 	iob->state = BUF_STATE_FREE;
--	iob->callback = qeth_send_control_data_cb;
-+	iob->callback = NULL;
- 	if (iob->reply) {
- 		qeth_put_reply(iob->reply);
- 		iob->reply = NULL;
-@@ -779,9 +781,9 @@ void qeth_clear_cmd_buffers(struct qeth_channel *channel)
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 76dc344edb8c..3ad4c69e1f2d 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -679,6 +679,7 @@ static inline int pud_none(pud_t pud)
+ 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
  }
- EXPORT_SYMBOL_GPL(qeth_clear_cmd_buffers);
  
--static void qeth_send_control_data_cb(struct qeth_card *card,
--				      struct qeth_channel *channel,
--				      struct qeth_cmd_buffer *iob)
-+static void qeth_issue_next_read_cb(struct qeth_card *card,
-+				    struct qeth_channel *channel,
-+				    struct qeth_cmd_buffer *iob)
++#define pud_large	pud_large
+ static inline int pud_large(pud_t pud)
  {
- 	struct qeth_ipa_cmd *cmd = NULL;
- 	struct qeth_reply *reply = NULL;
-@@ -1272,7 +1274,6 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
- 			break;
- 		channel->iob[cnt].state = BUF_STATE_FREE;
- 		channel->iob[cnt].channel = channel;
--		channel->iob[cnt].callback = qeth_send_control_data_cb;
- 	}
- 	if (cnt < QETH_CMD_BUFFER_NO) {
- 		qeth_clean_channel(channel);
+ 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
+@@ -696,6 +697,7 @@ static inline unsigned long pud_pfn(pud_t pud)
+ 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
+ }
+ 
++#define pmd_large	pmd_large
+ static inline int pmd_large(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
 -- 
-2.16.4
+2.20.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
