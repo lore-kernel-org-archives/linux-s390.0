@@ -1,102 +1,245 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v6 4/7] vfio: ap: register IOMMU VFIO notifier
-Date: Fri, 29 Mar 2019 10:31:08 +0100
-Message-ID: <7a4bf9f1-5046-5838-a50d-8402782c880f@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: Re: [PATCH v6 1/7] s390: ap: kvm: add PQAP interception for AQIC
+Date: Fri, 29 Mar 2019 09:02:29 -0400
+Message-ID: <496e7e46-d47d-2b20-8e73-772f5d8d2143@linux.ibm.com>
 References: <1553265828-27823-1-git-send-email-pmorel@linux.ibm.com>
- <1553265828-27823-5-git-send-email-pmorel@linux.ibm.com>
- <1731fb82-7877-9018-d12e-fd0e2406ac19@linux.ibm.com>
-Reply-To: pmorel@linux.ibm.com
+ <1553265828-27823-2-git-send-email-pmorel@linux.ibm.com>
+ <32716ed4-559f-0c36-cdf3-4c6662e02f4b@linux.ibm.com>
+ <a8df86d7-1515-4267-c097-e31895932de3@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1731fb82-7877-9018-d12e-fd0e2406ac19@linux.ibm.com>
+In-Reply-To: <a8df86d7-1515-4267-c097-e31895932de3@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com
+To: pmorel@linux.ibm.com, borntraeger@de.ibm.com
 Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 28/03/2019 21:46, Tony Krowiak wrote:
-> On 3/22/19 10:43 AM, Pierre Morel wrote:
->> To be able to use the VFIO interface to facilitate the
->> mediated device memory pinning/unpinning we need to register
->> a notifier for IOMMU.
+On 3/29/19 4:52 AM, Pierre Morel wrote:
+> On 28/03/2019 17:12, Tony Krowiak wrote:
+>> On 3/22/19 10:43 AM, Pierre Morel wrote:
+>>> We prepare the interception of the PQAP/AQIC instruction for
+>>> the case the AQIC facility is enabled in the guest.
+>>>
+>>> First of all we do not want to change existing behavior when
+>>> intercepting AP instructions without the SIE allowing the guest
+>>> to use AP instructions.
+>>>
+>>> In this patch we only handle the AQIC interception allowed by
+>>> facility 65 which will be enabled when the complete interception
+>>> infrastructure will be present.
+>>>
+>>> We add a callback inside the KVM arch structure for s390 for
+>>> a VFIO driver to handle a specific response to the PQAP
+>>> instruction with the AQIC command and only this command.
+>>>
+>>> But we want to be able to return a correct answer to the guest
+>>> even there is no VFIO AP driver in the kernel.
+>>> Therefor, we inject the correct exceptions from inside KVM for the
+>>> case the callback is not initialized, which happens when the vfio_ap
+>>> driver is not loaded.
+>>>
+>>> We do consider the responsability of the driver to always initialize
+>>> the PQAP callback if it defines queues by initializing the CRYCB for
+>>> a guest.
+>>> If the callback has been setup we call it.
+>>> If not we setup an answer considering that no queue is available
+>>> for the guest when no callback has been setup.
+>>>
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> ---
+>>>   arch/s390/include/asm/kvm_host.h      |  8 ++++
+>>>   arch/s390/kvm/priv.c                  | 90 
+>>> +++++++++++++++++++++++++++++++++++
+>>>   drivers/s390/crypto/vfio_ap_private.h |  2 +
+>>>   3 files changed, 100 insertions(+)
+>>>
+>>> diff --git a/arch/s390/include/asm/kvm_host.h 
+>>> b/arch/s390/include/asm/kvm_host.h
+>>> index a496276..624460b 100644
+>>> --- a/arch/s390/include/asm/kvm_host.h
+>>> +++ b/arch/s390/include/asm/kvm_host.h
+>>> @@ -18,6 +18,7 @@
+>>>   #include <linux/kvm_host.h>
+>>>   #include <linux/kvm.h>
+>>>   #include <linux/seqlock.h>
+>>> +#include <linux/module.h>
+>>>   #include <asm/debug.h>
+>>>   #include <asm/cpu.h>
+>>>   #include <asm/fpu/api.h>
+>>> @@ -721,8 +722,15 @@ struct kvm_s390_cpu_model {
+>>>       unsigned short ibc;
+>>>   };
+>>> +struct kvm_s390_module_hook {
+>>> +    int (*hook)(struct kvm_vcpu *vcpu);
+>>> +    void *data;
+>>> +    struct module *owner;
+>>> +};
+>>> +
+>>>   struct kvm_s390_crypto {
+>>>       struct kvm_s390_crypto_cb *crycb;
+>>> +    struct kvm_s390_module_hook *pqap_hook;
+>>>       __u32 crycbd;
+>>>       __u8 aes_kw;
+>>>       __u8 dea_kw;
+>>> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+>>> index 8679bd7..793e48a 100644
+>>> --- a/arch/s390/kvm/priv.c
+>>> +++ b/arch/s390/kvm/priv.c
+>>> @@ -27,6 +27,7 @@
+>>>   #include <asm/io.h>
+>>>   #include <asm/ptrace.h>
+>>>   #include <asm/sclp.h>
+>>> +#include <asm/ap.h>
+>>>   #include "gaccess.h"
+>>>   #include "kvm-s390.h"
+>>>   #include "trace.h"
+>>> @@ -592,6 +593,93 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
+>>>       }
+>>>   }
+>>> +/*
+>>> + * handle_pqap: Handling pqap interception
+>>> + * @vcpu: the vcpu having issue the pqap instruction
+>>> + *
+>>> + * We now support PQAP/AQIC instructions and we need to correctly
+>>> + * answer the guest even if no dedicated driver's hook is available.
+>>> + *
+>>> + * The intercepting code calls a dedicated callback for this 
+>>> instruction
+>>> + * if a driver did register one in the CRYPTO satellite of the
+>>> + * SIE block.
+>>> + *
+>>> + * For PQAP AQIC and TAPQ instructions, verify privilege and 
+>>> specifications.
+>>> + *
+>>> + * If no callback available, the queues are not available, return 
+>>> this to
+>>> + * the caller.
+>>> + * Else return the value returned by the callback.
+>>> + */
+>>> +static int handle_pqap(struct kvm_vcpu *vcpu)
+>>> +{
+>>> +    struct ap_queue_status status = {};
+>>> +    unsigned long reg0;
+>>> +    int ret;
+>>> +    uint8_t fc;
+>>> +
+>>> +    /* Verify that the AP instruction are available */
+>>> +    if (!ap_instructions_available())
+>>> +        return -EOPNOTSUPP;
+>>> +    /* Verify that the guest is allowed to use AP instructions */
+>>> +    if (!(vcpu->arch.sie_block->eca & ECA_APIE))
+>>> +        return -EOPNOTSUPP;
+>>> +    /*
+>>> +     * The only possibly intercepted instructions when AP 
+>>> instructions are
+>>> +     * available for the guest are AQIC and TAPQ with the t bit set
+>>> +     * since we do not set IC.3 (FIII) we currently will not intercept
+>>> +     * TAPQ.
+>>> +     * The following code will only treat AQIC function code.
+>>> +     */
+>>> +    reg0 = vcpu->run->s.regs.gprs[0];
+>>> +    fc = reg0 >> 24;
+>>> +    if (fc != 0x03) {
+>>> +        pr_warn("%s: Unexpected interception code 0x%02x\n",
+>>> +            __func__, fc);
+>>> +        return -EOPNOTSUPP;
+>>> +    }
+>>> +    /* All PQAP instructions are allowed for guest kernel only */
+>>> +    if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>>> +        return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>>> +    /*
+>>> +     * Common tests for PQAP instructions to generate a specification
+>>> +     * exception
+>>> +     */
+>>> +    /* Zero bits overwrite produce a specification exception */
+>>> +    if (reg0 & 0x007f0000UL)
+>>> +        goto specification_except;
+>>> +    /* If APXA is not installed APQN is limited */
+>>> +    if (!(vcpu->kvm->arch.crypto.crycbd & 0x02))
+>>> +        if (reg0 & 0x000030f0UL)
+>>> +            goto specification_except;
+>>> +    /* AQIC needs facility 65 */
+>>> +    if (!test_kvm_facility(vcpu->kvm, 65))
+>>> +        goto specification_except;
+>>> +
+>>> +    /*
+>>> +     * Verify that the hook callback is registered, lock the owner
+>>> +     * and call the hook.
+>>> +     */
+>>> +    if (vcpu->kvm->arch.crypto.pqap_hook) {
+>>> +        if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
+>>> +            return -EOPNOTSUPP;
+>>> +        ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
+>>> +        module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
+>>> +        return ret;
+>>> +    }
+>>> +    /*
+>>> +     * It is the duty of the vfio_driver to register a hook
+>>> +     * If it does not and we get an exception on AQIC we must
+>>> +     * guess that there is no vfio_ap_driver at all and no one
+>>> +     * to handle the guests's CRYCB and the CRYCB is empty.
+>>> +     */
+>>> +    status.response_code = 0x01;
+>>> +    memcpy(&vcpu->run->s.regs.gprs[1], &status, sizeof(status));
+>>> +    return 0;
+>>> +
+>>> +specification_except:
+>>> +    return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+>>> +}
+>>> +
+>>>   static int handle_stfl(struct kvm_vcpu *vcpu)
+>>>   {
+>>>       int rc;
+>>> @@ -878,6 +966,8 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+>>>           return handle_sthyi(vcpu);
+>>>       case 0x7d:
+>>>           return handle_stsi(vcpu);
+>>> +    case 0xaf:
+>>> +        return handle_pqap(vcpu);
+>>>       case 0xb1:
+>>>           return handle_stfl(vcpu);
+>>>       case 0xb2:
+>>> diff --git a/drivers/s390/crypto/vfio_ap_private.h 
+>>> b/drivers/s390/crypto/vfio_ap_private.h
+>>> index 76b7f98..a910be1 100644
+>>> --- a/drivers/s390/crypto/vfio_ap_private.h
+>>> +++ b/drivers/s390/crypto/vfio_ap_private.h
+>>> @@ -16,6 +16,7 @@
+>>>   #include <linux/mdev.h>
+>>>   #include <linux/delay.h>
+>>>   #include <linux/mutex.h>
+>>> +#include <linux/kvm_host.h>
+>>>   #include "ap_bus.h"
+>>> @@ -81,6 +82,7 @@ struct ap_matrix_mdev {
+>>>       struct ap_matrix matrix;
+>>>       struct notifier_block group_notifier;
+>>>       struct kvm *kvm;
+>>> +    struct kvm_s390_module_hook pqap_hook;
 >>
->> While we will start to pin one guest page for the interrupt indicator
->> byte, this is still ok with ballooning as this page will never be
->> used by the guest virtio-balloon driver.
->> So the pinned page will never be freed. And even a broken guest does
->> so, that would not impact the host as the original page is still
->> in control by vfio.
+>> I don't understand the purpose of adding this field. We set up the
+>> the kvm->arch.crypto.pqap_hook in the vfio_ap_mdev_set_kvm which is
+>> also in this same file, why not just use a static struct 
+>> kvm_s390_module_hook and reuse it when setting up
+>> kvm->arch.crypto.pqap_hook? It saves you from initializing it every
+>> time an ap_matrix_mdev is created.
 > 
-> I apologize, but I do not understand what you are saying in the second
-> sentence of the paragraph above. Why will the pinned page never be 
-> freed?
-Because it is in use by the guest's kernel as a notification information 
-byte for the original PQAP AQIC.
+> Having this field embedded in the matrix_mdev allows to easily retrieve 
+> the matrix_mdev from the the hook.
 
-  I understand that the pinned page is under the control of vfio
-> until it is freed, but have no idea what you mean by "and even a broken
-> guest does so"? A broken guest does what? Can you please reword this so
-> it makes more sense?
-
-A broken guest could free the page used for the NIB. What is obviously 
-wrong.
+The only place you do this is in the handle_pqap hook. The reason you
+get the matrix_mdev there is to get the vfio_ap_queue object from the
+matrix_mdev qlist. You could just as well have gotten the vfio_ap_queue
+using the vfio_ap_find_queue() function.
 
 > 
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c     | 38 
->> +++++++++++++++++++++++++++++++++++
->>   drivers/s390/crypto/vfio_ap_private.h |  2 ++
->>   2 files changed, 40 insertions(+)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index bdb36e0..3478499 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -787,6 +787,35 @@ static const struct attribute_group 
->> *vfio_ap_mdev_attr_groups[] = {
->>       NULL
->>   };
->> +/**
->> + * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
->> + *
->> + * @nb: The notifier block
->> + * @action: Action to be taken
->> + * @data: data associated with the request
->> + *
->> + * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
->> + * pinned before). Other requests are ignored.
->> + *
->> + */
->> +static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
->> +                       unsigned long action, void *data)
->> +{
->> +    struct ap_matrix_mdev *matrix_mdev;
->> +
->> +    matrix_mdev = container_of(nb, struct ap_matrix_mdev, 
->> iommu_notifier);
->> +
+> Thanks,
+> Pierre
 > 
-> I don't understand why we registered this notifier. I may be wrong, but
-> AFAIU, this notifier will be invoked only when the VFIO_IOMMU_UNMAP_DMA
-> ioctl is called from userspace. I did an experiment and inserted some
-> printf's to see if this ever gets called and verified it does not. Maybe
-> you have a good reason of which I'm not aware. Can you enlighten me
-> here?
-
-The vfio_iommu_type1 pin page requires a notifier.
-
-Regards,
-Pierre
-
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> 
+> 
+> 
