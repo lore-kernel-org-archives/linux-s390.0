@@ -1,205 +1,758 @@
-Return-Path: <SRS0=X2Y2=SG=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.0 166/246] perf/aux: Make perf_event accessible to
- setup_aux()
-Date: Thu,  4 Apr 2019 10:47:46 +0200
-Message-Id: <20190404084624.984808131@linuxfoundation.org>
-In-Reply-To: <20190404084619.236418459@linuxfoundation.org>
-References: <20190404084619.236418459@linuxfoundation.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Message-ID: <20190401134421.442323029@goodmis.org>
+Date: Mon, 01 Apr 2019 09:41:10 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 6/6 v3] syscalls: Remove start and number from syscall_set_arguments() args
+References: <20190401134104.676620247@goodmis.org>
 MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+Content-Type: text/plain; charset=ISO-8859-15
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190401134110.qV-0JpHDBhbqG4keea9dqYooPtZhgohV9r3JEXSZKcU@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, Suzuki Poulouse <suzuki.poulose@arm.com>, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Adrian Hunter <adrian.hunter@intel.com>, stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Roland McGrath <roland@hack.frob.com>, Oleg Nesterov <oleg@redhat.com>, linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>, Andy Lutomirski <luto@kernel.org>, Kees Cook <keescook@chromium.org>, "Eric W. Biederman" <ebiederm@xmission.com>, "Dmitry V. Levin" <ldv@altlinux.org>, Palmer Dabbelt <palmer@sifive.com>, Dave Martin <dave.martin@arm.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
 List-ID: <linux-s390.vger.kernel.org>
 
-5.0-stable review patch.  If anyone has any objections, please let me know.
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-------------------
+After removing the start and count arguments of syscall_get_arguments() it
+seems reasonable to remove them from syscall_set_arguments(). Note, as of
+today, there are no users of syscall_set_arguments(). But we are told that
+there will be soon. But for now, at least make it consistent with
+syscall_get_arguments().
 
-[ Upstream commit 840018668ce2d96783356204ff282d6c9b0e5f66 ]
+Link: http://lkml.kernel.org/r/20190327222014.GA32540@altlinux.org
 
-When pmu::setup_aux() is called the coresight PMU needs to know which
-sink to use for the session by looking up the information in the
-event's attr::config2 field.
-
-As such simply replace the cpu information by the complete perf_event
-structure and change all affected customers.
-
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Suzuki Poulouse <suzuki.poulose@arm.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Dave Martin <dave.martin@arm.com>
+Cc: "Dmitry V. Levin" <ldv@altlinux.org>
+Cc: x86@kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: uclinux-h8-devel@lists.sourceforge.jp
+Cc: linux-hexagon@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: nios2-dev@lists.rocketboards.org
+Cc: openrisc@lists.librecores.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
 Cc: linux-s390@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190131184714.20388-2-mathieu.poirier@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-arch@vger.kernel.org
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c                  | 6 +++---
- arch/x86/events/intel/bts.c                      | 4 +++-
- arch/x86/events/intel/pt.c                       | 5 +++--
- drivers/hwtracing/coresight/coresight-etm-perf.c | 6 +++---
- drivers/perf/arm_spe_pmu.c                       | 6 +++---
- include/linux/perf_event.h                       | 2 +-
- kernel/events/ring_buffer.c                      | 2 +-
- 7 files changed, 17 insertions(+), 14 deletions(-)
+ arch/arm/include/asm/syscall.h        | 22 ++-------
+ arch/arm64/include/asm/syscall.h      | 22 ++-------
+ arch/c6x/include/asm/syscall.h        | 38 +++------------
+ arch/csky/include/asm/syscall.h       | 14 ++----
+ arch/ia64/include/asm/syscall.h       | 10 ++--
+ arch/ia64/kernel/ptrace.c             |  7 ++-
+ arch/microblaze/include/asm/syscall.h |  4 +-
+ arch/nds32/include/asm/syscall.h      | 29 ++---------
+ arch/nios2/include/asm/syscall.h      | 42 +++-------------
+ arch/openrisc/include/asm/syscall.h   |  6 +--
+ arch/powerpc/include/asm/syscall.h    |  7 +--
+ arch/riscv/include/asm/syscall.h      | 13 ++---
+ arch/s390/include/asm/syscall.h       | 11 ++---
+ arch/sh/include/asm/syscall_32.h      | 21 +++-----
+ arch/sh/include/asm/syscall_64.h      |  4 +-
+ arch/sparc/include/asm/syscall.h      |  7 ++-
+ arch/um/include/asm/syscall-generic.h | 39 +++------------
+ arch/x86/include/asm/syscall.h        | 69 +++++++--------------------
+ arch/xtensa/include/asm/syscall.h     | 17 ++-----
+ include/asm-generic/syscall.h         | 10 +---
+ 20 files changed, 88 insertions(+), 304 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index bfabeb1889cc..1266194afb02 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1600,7 +1600,7 @@ static void aux_sdb_init(unsigned long sdb)
+diff --git a/arch/arm/include/asm/syscall.h b/arch/arm/include/asm/syscall.h
+index db969a2972ae..080ce70cab12 100644
+--- a/arch/arm/include/asm/syscall.h
++++ b/arch/arm/include/asm/syscall.h
+@@ -65,26 +65,12 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	if (n == 0)
+-		return;
+-
+-	if (i + n > SYSCALL_MAX_ARGS) {
+-		pr_warn("%s called with max args %d, handling only %d\n",
+-			__func__, i + n, SYSCALL_MAX_ARGS);
+-		n = SYSCALL_MAX_ARGS - i;
+-	}
+-
+-	if (i == 0) {
+-		regs->ARM_ORIG_r0 = args[0];
+-		args++;
+-		i++;
+-		n--;
+-	}
+-
+-	memcpy(&regs->ARM_r0 + i, args, n * sizeof(args[0]));
++	regs->ARM_ORIG_r0 = args[0];
++	args++;
++
++	memcpy(&regs->ARM_r0 + 1, args, 5 * sizeof(args[0]));
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
+index 55b2dab21023..a179df3674a1 100644
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -75,26 +75,12 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	if (n == 0)
+-		return;
+-
+-	if (i + n > SYSCALL_MAX_ARGS) {
+-		pr_warning("%s called with max args %d, handling only %d\n",
+-			   __func__, i + n, SYSCALL_MAX_ARGS);
+-		n = SYSCALL_MAX_ARGS - i;
+-	}
+-
+-	if (i == 0) {
+-		regs->orig_x0 = args[0];
+-		args++;
+-		i++;
+-		n--;
+-	}
+-
+-	memcpy(&regs->regs[i], args, n * sizeof(args[0]));
++	regs->orig_x0 = args[0];
++	args++;
++
++	memcpy(&regs->regs[1], args, 5 * sizeof(args[0]));
+ }
  
  /*
-  * aux_buffer_setup() - Setup AUX buffer for diagnostic mode sampling
-- * @cpu:	On which to allocate, -1 means current
-+ * @event:	Event the buffer is setup for, event->cpu == -1 means current
-  * @pages:	Array of pointers to buffer pages passed from perf core
-  * @nr_pages:	Total pages
-  * @snapshot:	Flag for snapshot mode
-@@ -1612,8 +1612,8 @@ static void aux_sdb_init(unsigned long sdb)
+diff --git a/arch/c6x/include/asm/syscall.h b/arch/c6x/include/asm/syscall.h
+index 06db3251926b..15ba8599858e 100644
+--- a/arch/c6x/include/asm/syscall.h
++++ b/arch/c6x/include/asm/syscall.h
+@@ -59,40 +59,14 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	switch (i) {
+-	case 0:
+-		if (!n--)
+-			break;
+-		regs->a4 = *args++;
+-	case 1:
+-		if (!n--)
+-			break;
+-		regs->b4 = *args++;
+-	case 2:
+-		if (!n--)
+-			break;
+-		regs->a6 = *args++;
+-	case 3:
+-		if (!n--)
+-			break;
+-		regs->b6 = *args++;
+-	case 4:
+-		if (!n--)
+-			break;
+-		regs->a8 = *args++;
+-	case 5:
+-		if (!n--)
+-			break;
+-		regs->a9 = *args++;
+-	case 6:
+-		if (!n)
+-			break;
+-	default:
+-		BUG();
+-	}
++	regs->a4 = *args++;
++	regs->b4 = *args++;
++	regs->a6 = *args++;
++	regs->b6 = *args++;
++	regs->a8 = *args++;
++	regs->a9 = *args;
+ }
+ 
+ #endif /* __ASM_C6X_SYSCALLS_H */
+diff --git a/arch/csky/include/asm/syscall.h b/arch/csky/include/asm/syscall.h
+index c691fe92edc6..bda0a446c63e 100644
+--- a/arch/csky/include/asm/syscall.h
++++ b/arch/csky/include/asm/syscall.h
+@@ -52,17 +52,11 @@ syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+ 
+ static inline void
+ syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
+-		      unsigned int i, unsigned int n, const unsigned long *args)
++		      const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-	if (i == 0) {
+-		regs->orig_a0 = args[0];
+-		args++;
+-		n--;
+-	} else {
+-		i--;
+-	}
+-	memcpy(&regs->a1 + i, args, n * sizeof(regs->a1));
++	regs->orig_a0 = args[0];
++	args++;
++	memcpy(&regs->a1, args, 5 * sizeof(regs->a1));
+ }
+ 
+ static inline int
+diff --git a/arch/ia64/include/asm/syscall.h b/arch/ia64/include/asm/syscall.h
+index 8204c1ff70ce..0d9e7fab4a79 100644
+--- a/arch/ia64/include/asm/syscall.h
++++ b/arch/ia64/include/asm/syscall.h
+@@ -59,23 +59,19 @@ static inline void syscall_set_return_value(struct task_struct *task,
+ }
+ 
+ extern void ia64_syscall_get_set_arguments(struct task_struct *task,
+-	struct pt_regs *regs, unsigned int i, unsigned int n,
+-	unsigned long *args, int rw);
++	struct pt_regs *regs, unsigned long *args, int rw);
+ static inline void syscall_get_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+ 					 unsigned long *args)
+ {
+-	ia64_syscall_get_set_arguments(task, regs, 0, 6, args, 0);
++	ia64_syscall_get_set_arguments(task, regs, args, 0);
+ }
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-
+-	ia64_syscall_get_set_arguments(task, regs, i, n, args, 1);
++	ia64_syscall_get_set_arguments(task, regs, args, 1);
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+index 6d50ede0ed69..bf9c24d9ce84 100644
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -2179,12 +2179,11 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
+ }
+ 
+ void ia64_syscall_get_set_arguments(struct task_struct *task,
+-	struct pt_regs *regs, unsigned int i, unsigned int n,
+-	unsigned long *args, int rw)
++	struct pt_regs *regs, unsigned long *args, int rw)
+ {
+ 	struct syscall_get_set_args data = {
+-		.i = i,
+-		.n = n,
++		.i = 0,
++		.n = 6,
+ 		.args = args,
+ 		.regs = regs,
+ 		.rw = rw,
+diff --git a/arch/microblaze/include/asm/syscall.h b/arch/microblaze/include/asm/syscall.h
+index 4b23e44e5c3c..833d3a53dab3 100644
+--- a/arch/microblaze/include/asm/syscall.h
++++ b/arch/microblaze/include/asm/syscall.h
+@@ -93,9 +93,11 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
++	unsigned int i = 0;
++	unsigned int n = 6;
++
+ 	while (n--)
+ 		microblaze_set_syscall_arg(regs, i++, *args++);
+ }
+diff --git a/arch/nds32/include/asm/syscall.h b/arch/nds32/include/asm/syscall.h
+index 89a6ec8731d8..671ebd357496 100644
+--- a/arch/nds32/include/asm/syscall.h
++++ b/arch/nds32/include/asm/syscall.h
+@@ -129,39 +129,20 @@ void syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+  * syscall_set_arguments - change system call parameter value
+  * @task:	task of interest, must be in system call entry tracing
+  * @regs:	task_pt_regs() of @task
+- * @i:		argument index [0,5]
+- * @n:		number of arguments; n+i must be [1,6].
+  * @args:	array of argument values to store
   *
-  * Return the private AUX buffer structure if success or NULL if fails.
+- * Changes @n arguments to the system call starting with the @i'th argument.
+- * Argument @i gets value @args[0], and so on.
+- * An arch inline version is probably optimal when @i and @n are constants.
++ * Changes 6 arguments to the system call. The first argument gets value
++ * @args[0], and so on.
+  *
+  * It's only valid to call this when @task is stopped for tracing on
+  * entry to a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
+- * It's invalid to call this with @i + @n > 6; we only support system calls
+- * taking up to 6 arguments.
   */
--static void *aux_buffer_setup(int cpu, void **pages, int nr_pages,
--			      bool snapshot)
-+static void *aux_buffer_setup(struct perf_event *event, void **pages,
-+			      int nr_pages, bool snapshot)
+ void syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
+-			   unsigned int i, unsigned int n,
+ 			   const unsigned long *args)
  {
- 	struct sf_buffer *sfb;
- 	struct aux_buffer *aux;
-diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
-index a01ef1b0f883..7cdd7b13bbda 100644
---- a/arch/x86/events/intel/bts.c
-+++ b/arch/x86/events/intel/bts.c
-@@ -77,10 +77,12 @@ static size_t buf_size(struct page *page)
+-	if (n == 0)
+-		return;
+-
+-	if (i + n > SYSCALL_MAX_ARGS) {
+-		pr_warn("%s called with max args %d, handling only %d\n",
+-			__func__, i + n, SYSCALL_MAX_ARGS);
+-		n = SYSCALL_MAX_ARGS - i;
+-	}
+-
+-	if (i == 0) {
+-		regs->orig_r0 = args[0];
+-		args++;
+-		i++;
+-		n--;
+-	}
++	regs->orig_r0 = args[0];
++	args++;
+ 
+-	memcpy(&regs->uregs[0] + i, args, n * sizeof(args[0]));
++	memcpy(&regs->uregs[0] + 1, args, 5 * sizeof(args[0]));
+ }
+ #endif /* _ASM_NDS32_SYSCALL_H */
+diff --git a/arch/nios2/include/asm/syscall.h b/arch/nios2/include/asm/syscall.h
+index 792bd449d839..d7624ed06efb 100644
+--- a/arch/nios2/include/asm/syscall.h
++++ b/arch/nios2/include/asm/syscall.h
+@@ -69,42 +69,14 @@ static inline void syscall_get_arguments(struct task_struct *task,
  }
  
- static void *
--bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
-+bts_buffer_setup_aux(struct perf_event *event, void **pages,
-+		     int nr_pages, bool overwrite)
+ static inline void syscall_set_arguments(struct task_struct *task,
+-	struct pt_regs *regs, unsigned int i, unsigned int n,
+-	const unsigned long *args)
++	struct pt_regs *regs, const unsigned long *args)
  {
- 	struct bts_buffer *buf;
- 	struct page *page;
-+	int cpu = event->cpu;
- 	int node = (cpu == -1) ? cpu : cpu_to_node(cpu);
- 	unsigned long offset;
- 	size_t size = nr_pages << PAGE_SHIFT;
-diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index 9494ca68fd9d..c0e86ff21f81 100644
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -1114,10 +1114,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
-  * Return:	Our private PT buffer structure.
+-	BUG_ON(i + n > 6);
+-
+-	switch (i) {
+-	case 0:
+-		if (!n--)
+-			break;
+-		regs->r4 = *args++;
+-	case 1:
+-		if (!n--)
+-			break;
+-		regs->r5 = *args++;
+-	case 2:
+-		if (!n--)
+-			break;
+-		regs->r6 = *args++;
+-	case 3:
+-		if (!n--)
+-			break;
+-		regs->r7 = *args++;
+-	case 4:
+-		if (!n--)
+-			break;
+-		regs->r8 = *args++;
+-	case 5:
+-		if (!n--)
+-			break;
+-		regs->r9 = *args++;
+-	case 6:
+-		if (!n)
+-			break;
+-	default:
+-		BUG();
+-	}
++	regs->r4 = *args++;
++	regs->r5 = *args++;
++	regs->r6 = *args++;
++	regs->r7 = *args++;
++	regs->r8 = *args++;
++	regs->r9 = *args;
+ }
+ 
+ #endif
+diff --git a/arch/openrisc/include/asm/syscall.h b/arch/openrisc/include/asm/syscall.h
+index 72607860cd55..b4ff07c1baed 100644
+--- a/arch/openrisc/include/asm/syscall.h
++++ b/arch/openrisc/include/asm/syscall.h
+@@ -63,11 +63,9 @@ syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+ 
+ static inline void
+ syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
+-		      unsigned int i, unsigned int n, const unsigned long *args)
++		      const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-
+-	memcpy(&regs->gpr[3 + i], args, n * sizeof(args[0]));
++	memcpy(&regs->gpr[3], args, 6 * sizeof(args[0]));
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/powerpc/include/asm/syscall.h b/arch/powerpc/include/asm/syscall.h
+index 5c9b9dc82b7e..1243045bad2d 100644
+--- a/arch/powerpc/include/asm/syscall.h
++++ b/arch/powerpc/include/asm/syscall.h
+@@ -86,15 +86,12 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-	memcpy(&regs->gpr[3 + i], args, n * sizeof(args[0]));
++	memcpy(&regs->gpr[3], args, 6 * sizeof(args[0]));
+ 
+ 	/* Also copy the first argument into orig_gpr3 */
+-	if (i == 0 && n > 0)
+-		regs->orig_gpr3 = args[0];
++	regs->orig_gpr3 = args[0];
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
+index 6adca1804be1..a3d5273ded7c 100644
+--- a/arch/riscv/include/asm/syscall.h
++++ b/arch/riscv/include/asm/syscall.h
+@@ -81,18 +81,11 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-        if (i == 0) {
+-                regs->orig_a0 = args[0];
+-                args++;
+-                n--;
+-	} else {
+-		i--;
+-	}
+-	memcpy(&regs->a1 + i, args, n * sizeof(regs->a1));
++	regs->orig_a0 = args[0];
++	args++;
++	memcpy(&regs->a1, args, 5 * sizeof(regs->a1));
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index ee0b1f6aa36d..59c3e91f2cdb 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -74,15 +74,14 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
++	unsigned int n = 6;
++
+ 	while (n-- > 0)
+-		if (i + n > 0)
+-			regs->gprs[2 + i + n] = args[n];
+-	if (i == 0)
+-		regs->orig_gpr2 = args[0];
++		if (n > 0)
++			regs->gprs[2 + n] = args[n];
++	regs->orig_gpr2 = args[0];
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/sh/include/asm/syscall_32.h b/arch/sh/include/asm/syscall_32.h
+index 2bf1199a0595..8c9d7e5e5dcc 100644
+--- a/arch/sh/include/asm/syscall_32.h
++++ b/arch/sh/include/asm/syscall_32.h
+@@ -62,23 +62,14 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	/* Same note as above applies */
+-	BUG_ON(i);
+-
+-	switch (n) {
+-	case 6: regs->regs[1] = args[5];
+-	case 5: regs->regs[0] = args[4];
+-	case 4: regs->regs[7] = args[3];
+-	case 3: regs->regs[6] = args[2];
+-	case 2: regs->regs[5] = args[1];
+-	case 1: regs->regs[4] = args[0];
+-		break;
+-	default:
+-		BUG();
+-	}
++	regs->regs[1] = args[5];
++	regs->regs[0] = args[4];
++	regs->regs[7] = args[3];
++	regs->regs[6] = args[2];
++	regs->regs[5] = args[1];
++	regs->regs[4] = args[0];
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/sh/include/asm/syscall_64.h b/arch/sh/include/asm/syscall_64.h
+index 4e8f6460c703..22fad97da066 100644
+--- a/arch/sh/include/asm/syscall_64.h
++++ b/arch/sh/include/asm/syscall_64.h
+@@ -54,11 +54,9 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	BUG_ON(i + n > 6);
+-	memcpy(&regs->regs[2 + i], args, n * sizeof(args[0]));
++	memcpy(&regs->regs[2], args, 6 * sizeof(args[0]));
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/sparc/include/asm/syscall.h b/arch/sparc/include/asm/syscall.h
+index 872dfee852d6..4d075434e816 100644
+--- a/arch/sparc/include/asm/syscall.h
++++ b/arch/sparc/include/asm/syscall.h
+@@ -119,13 +119,12 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+-	unsigned int j;
++	unsigned int i;
+ 
+-	for (j = 0; j < n; j++)
+-		regs->u_regs[UREG_I0 + i + j] = args[j];
++	for (i = 0; i < 6; i++)
++		regs->u_regs[UREG_I0 + i] = args[i];
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/um/include/asm/syscall-generic.h b/arch/um/include/asm/syscall-generic.h
+index 25d00acd1322..98e50c50c12e 100644
+--- a/arch/um/include/asm/syscall-generic.h
++++ b/arch/um/include/asm/syscall-generic.h
+@@ -67,43 +67,16 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+ 	struct uml_pt_regs *r = &regs->regs;
+ 
+-	switch (i) {
+-	case 0:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG1(r) = *args++;
+-	case 1:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG2(r) = *args++;
+-	case 2:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG3(r) = *args++;
+-	case 3:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG4(r) = *args++;
+-	case 4:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG5(r) = *args++;
+-	case 5:
+-		if (!n--)
+-			break;
+-		UPT_SYSCALL_ARG6(r) = *args++;
+-	case 6:
+-		if (!n--)
+-			break;
+-	default:
+-		BUG();
+-		break;
+-	}
++	UPT_SYSCALL_ARG1(r) = *args++;
++	UPT_SYSCALL_ARG2(r) = *args++;
++	UPT_SYSCALL_ARG3(r) = *args++;
++	UPT_SYSCALL_ARG4(r) = *args++;
++	UPT_SYSCALL_ARG5(r) = *args++;
++	UPT_SYSCALL_ARG6(r) = *args;
+ }
+ 
+ /* See arch/x86/um/asm/syscall.h for syscall_get_arch() definition. */
+diff --git a/arch/x86/include/asm/syscall.h b/arch/x86/include/asm/syscall.h
+index 8dbb5c379450..4c305471ec33 100644
+--- a/arch/x86/include/asm/syscall.h
++++ b/arch/x86/include/asm/syscall.h
+@@ -138,63 +138,26 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+ # ifdef CONFIG_IA32_EMULATION
+-	if (task->thread_info.status & TS_COMPAT)
+-		switch (i) {
+-		case 0:
+-			if (!n--) break;
+-			regs->bx = *args++;
+-		case 1:
+-			if (!n--) break;
+-			regs->cx = *args++;
+-		case 2:
+-			if (!n--) break;
+-			regs->dx = *args++;
+-		case 3:
+-			if (!n--) break;
+-			regs->si = *args++;
+-		case 4:
+-			if (!n--) break;
+-			regs->di = *args++;
+-		case 5:
+-			if (!n--) break;
+-			regs->bp = *args++;
+-		case 6:
+-			if (!n--) break;
+-		default:
+-			BUG();
+-			break;
+-		}
+-	else
++	if (task->thread_info.status & TS_COMPAT) {
++		regs->bx = *args++;
++		regs->cx = *args++;
++		regs->dx = *args++;
++		regs->si = *args++;
++		regs->di = *args++;
++		regs->bp = *args;
++	} else
+ # endif
+-		switch (i) {
+-		case 0:
+-			if (!n--) break;
+-			regs->di = *args++;
+-		case 1:
+-			if (!n--) break;
+-			regs->si = *args++;
+-		case 2:
+-			if (!n--) break;
+-			regs->dx = *args++;
+-		case 3:
+-			if (!n--) break;
+-			regs->r10 = *args++;
+-		case 4:
+-			if (!n--) break;
+-			regs->r8 = *args++;
+-		case 5:
+-			if (!n--) break;
+-			regs->r9 = *args++;
+-		case 6:
+-			if (!n--) break;
+-		default:
+-			BUG();
+-			break;
+-		}
++	{
++		regs->di = *args++;
++		regs->si = *args++;
++		regs->dx = *args++;
++		regs->r10 = *args++;
++		regs->r8 = *args++;
++		regs->r9 = *args;
++	}
+ }
+ 
+ static inline int syscall_get_arch(void)
+diff --git a/arch/xtensa/include/asm/syscall.h b/arch/xtensa/include/asm/syscall.h
+index 1504ce9a233a..91dc06d58060 100644
+--- a/arch/xtensa/include/asm/syscall.h
++++ b/arch/xtensa/include/asm/syscall.h
+@@ -70,24 +70,13 @@ static inline void syscall_get_arguments(struct task_struct *task,
+ 
+ static inline void syscall_set_arguments(struct task_struct *task,
+ 					 struct pt_regs *regs,
+-					 unsigned int i, unsigned int n,
+ 					 const unsigned long *args)
+ {
+ 	static const unsigned int reg[] = XTENSA_SYSCALL_ARGUMENT_REGS;
+-	unsigned int j;
+-
+-	if (n == 0)
+-		return;
+-
+-	if (WARN_ON_ONCE(i + n > SYSCALL_MAX_ARGS)) {
+-		if (i < SYSCALL_MAX_ARGS)
+-			n = SYSCALL_MAX_ARGS - i;
+-		else
+-			return;
+-	}
++	unsigned int i;
+ 
+-	for (j = 0; j < n; ++j)
+-		regs->areg[reg[i + j]] = args[j];
++	for (i = 0; i < 6; ++i)
++		regs->areg[reg[i]] = args[i];
+ }
+ 
+ asmlinkage long xtensa_rt_sigreturn(struct pt_regs*);
+diff --git a/include/asm-generic/syscall.h b/include/asm-generic/syscall.h
+index 269e9412ef42..b88239e9efe4 100644
+--- a/include/asm-generic/syscall.h
++++ b/include/asm-generic/syscall.h
+@@ -120,21 +120,15 @@ void syscall_get_arguments(struct task_struct *task, struct pt_regs *regs,
+  * syscall_set_arguments - change system call parameter value
+  * @task:	task of interest, must be in system call entry tracing
+  * @regs:	task_pt_regs() of @task
+- * @i:		argument index [0,5]
+- * @n:		number of arguments; n+i must be [1,6].
+  * @args:	array of argument values to store
+  *
+- * Changes @n arguments to the system call starting with the @i'th argument.
+- * Argument @i gets value @args[0], and so on.
+- * An arch inline version is probably optimal when @i and @n are constants.
++ * Changes 6 arguments to the system call.
++ * The first argument gets value @args[0], and so on.
+  *
+  * It's only valid to call this when @task is stopped for tracing on
+  * entry to a system call, due to %TIF_SYSCALL_TRACE or %TIF_SYSCALL_AUDIT.
+- * It's invalid to call this with @i + @n > 6; we only support system calls
+- * taking up to 6 arguments.
   */
- static void *
--pt_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool snapshot)
-+pt_buffer_setup_aux(struct perf_event *event, void **pages,
-+		    int nr_pages, bool snapshot)
- {
- 	struct pt_buffer *buf;
--	int node, ret;
-+	int node, ret, cpu = event->cpu;
+ void syscall_set_arguments(struct task_struct *task, struct pt_regs *regs,
+-			   unsigned int i, unsigned int n,
+ 			   const unsigned long *args);
  
- 	if (!nr_pages)
- 		return NULL;
-diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
-index abe8249b893b..f21eb28b6782 100644
---- a/drivers/hwtracing/coresight/coresight-etm-perf.c
-+++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
-@@ -177,15 +177,15 @@ static void etm_free_aux(void *data)
- 	schedule_work(&event_data->work);
- }
- 
--static void *etm_setup_aux(int event_cpu, void **pages,
-+static void *etm_setup_aux(struct perf_event *event, void **pages,
- 			   int nr_pages, bool overwrite)
- {
--	int cpu;
-+	int cpu = event->cpu;
- 	cpumask_t *mask;
- 	struct coresight_device *sink;
- 	struct etm_event_data *event_data = NULL;
- 
--	event_data = alloc_event_data(event_cpu);
-+	event_data = alloc_event_data(cpu);
- 	if (!event_data)
- 		return NULL;
- 	INIT_WORK(&event_data->work, free_event_data);
-diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index 8e46a9dad2fa..7cb766dafe85 100644
---- a/drivers/perf/arm_spe_pmu.c
-+++ b/drivers/perf/arm_spe_pmu.c
-@@ -824,10 +824,10 @@ static void arm_spe_pmu_read(struct perf_event *event)
- {
- }
- 
--static void *arm_spe_pmu_setup_aux(int cpu, void **pages, int nr_pages,
--				   bool snapshot)
-+static void *arm_spe_pmu_setup_aux(struct perf_event *event, void **pages,
-+				   int nr_pages, bool snapshot)
- {
--	int i;
-+	int i, cpu = event->cpu;
- 	struct page **pglist;
- 	struct arm_spe_pmu_buf *buf;
- 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index e1a051724f7e..7cbbd891bfcd 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -409,7 +409,7 @@ struct pmu {
- 	/*
- 	 * Set up pmu-private data structures for an AUX area
- 	 */
--	void *(*setup_aux)		(int cpu, void **pages,
-+	void *(*setup_aux)		(struct perf_event *event, void **pages,
- 					 int nr_pages, bool overwrite);
- 					/* optional */
- 
-diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 5ab4fe3b1dcc..878c62ec0190 100644
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -658,7 +658,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
- 			goto out;
- 	}
- 
--	rb->aux_priv = event->pmu->setup_aux(event->cpu, rb->aux_pages, nr_pages,
-+	rb->aux_priv = event->pmu->setup_aux(event, rb->aux_pages, nr_pages,
- 					     overwrite);
- 	if (!rb->aux_priv)
- 		goto out;
+ /**
 -- 
-2.19.1
-
-
-
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+2.20.1
