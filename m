@@ -1,11 +1,13 @@
 From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 0/5] Fix vDSO clock_getres()
-Date: Mon,  1 Apr 2019 12:51:47 +0100
-Message-ID: <20190401115152.32751-1-vincenzo.frascino@arm.com>
+Subject: [PATCH 1/5] arm64: Fix vDSO clock_getres()
+Date: Mon,  1 Apr 2019 12:51:48 +0100
+Message-ID: <20190401115152.32751-2-vincenzo.frascino@arm.com>
+References: <20190401115152.32751-1-vincenzo.frascino@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190401115152.32751-1-vincenzo.frascino@arm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -30,58 +32,107 @@ In particular, posix_get_hrtimer_res() does:
 and hrtimer_resolution depends on the enablement of the high
 resolution timers that can happen either at compile or at run time.
 
-A possible fix is to change the vdso implementation of clock_getres,
-keeping a copy of hrtimer_resolution in vdso data and using that
-directly [1].
-
-This patchset implements the proposed fix for arm64, powerpc, s390,
-nds32 and adds a test to verify that the syscall and the vdso library
-implementation of clock_getres return the same values.
-
-[1] https://marc.info/?l=linux-arm-kernel&m=155110381930196&w=2 
+Fix the arm64 vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
 
 Cc: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Will Deacon <will.deacon@arm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Greentime Hu <green.hu@gmail.com>
-Cc: Vincent Chen <deanbo422@gmail.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+---
+ arch/arm64/include/asm/vdso_datapage.h |  1 +
+ arch/arm64/kernel/asm-offsets.c        |  2 +-
+ arch/arm64/kernel/vdso.c               |  2 ++
+ arch/arm64/kernel/vdso/gettimeofday.S  | 25 ++++++++++++++-----------
+ 4 files changed, 18 insertions(+), 12 deletions(-)
 
-Vincenzo Frascino (5):
-  arm64: Fix vDSO clock_getres()
-  powerpc: Fix vDSO clock_getres()
-  s390: Fix vDSO clock_getres()
-  nds32: Fix vDSO clock_getres()
-  kselftest: Extend vDSO selftest to clock_getres
-
- arch/arm64/include/asm/vdso_datapage.h        |   1 +
- arch/arm64/kernel/asm-offsets.c               |   2 +-
- arch/arm64/kernel/vdso.c                      |   2 +
- arch/arm64/kernel/vdso/gettimeofday.S         |  25 ++--
- arch/nds32/include/asm/vdso_datapage.h        |   1 +
- arch/nds32/kernel/vdso.c                      |   1 +
- arch/nds32/kernel/vdso/gettimeofday.c         |   4 +-
- arch/powerpc/include/asm/vdso_datapage.h      |   2 +
- arch/powerpc/kernel/asm-offsets.c             |   2 +-
- arch/powerpc/kernel/time.c                    |   1 +
- arch/powerpc/kernel/vdso32/gettimeofday.S     |  22 ++--
- arch/powerpc/kernel/vdso64/gettimeofday.S     |  22 ++--
- arch/s390/include/asm/vdso.h                  |   1 +
- arch/s390/kernel/asm-offsets.c                |   2 +-
- arch/s390/kernel/time.c                       |   1 +
- arch/s390/kernel/vdso32/clock_getres.S        |  17 ++-
- arch/s390/kernel/vdso64/clock_getres.S        |  15 ++-
- tools/testing/selftests/vDSO/Makefile         |   2 +
- .../selftests/vDSO/vdso_clock_getres.c        | 107 ++++++++++++++++++
- 19 files changed, 191 insertions(+), 39 deletions(-)
- create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
-
+diff --git a/arch/arm64/include/asm/vdso_datapage.h b/arch/arm64/include/asm/vdso_datapage.h
+index 2b9a63771eda..f89263c8e11a 100644
+--- a/arch/arm64/include/asm/vdso_datapage.h
++++ b/arch/arm64/include/asm/vdso_datapage.h
+@@ -38,6 +38,7 @@ struct vdso_data {
+ 	__u32 tz_minuteswest;	/* Whacky timezone stuff */
+ 	__u32 tz_dsttime;
+ 	__u32 use_syscall;
++	__u32 hrtimer_res;
+ };
+ 
+ #endif /* !__ASSEMBLY__ */
+diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
+index 7f40dcbdd51d..e10e2a5d9ddc 100644
+--- a/arch/arm64/kernel/asm-offsets.c
++++ b/arch/arm64/kernel/asm-offsets.c
+@@ -94,7 +94,7 @@ int main(void)
+   DEFINE(CLOCK_REALTIME,	CLOCK_REALTIME);
+   DEFINE(CLOCK_MONOTONIC,	CLOCK_MONOTONIC);
+   DEFINE(CLOCK_MONOTONIC_RAW,	CLOCK_MONOTONIC_RAW);
+-  DEFINE(CLOCK_REALTIME_RES,	MONOTONIC_RES_NSEC);
++  DEFINE(CLOCK_REALTIME_RES,	offsetof(struct vdso_data, hrtimer_res));
+   DEFINE(CLOCK_REALTIME_COARSE,	CLOCK_REALTIME_COARSE);
+   DEFINE(CLOCK_MONOTONIC_COARSE,CLOCK_MONOTONIC_COARSE);
+   DEFINE(CLOCK_COARSE_RES,	LOW_RES_NSEC);
+diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
+index 2d419006ad43..47ba72345739 100644
+--- a/arch/arm64/kernel/vdso.c
++++ b/arch/arm64/kernel/vdso.c
+@@ -245,6 +245,8 @@ void update_vsyscall(struct timekeeper *tk)
+ 		vdso_data->cs_shift		= tk->tkr_mono.shift;
+ 	}
+ 
++	vdso_data->hrtimer_res			= hrtimer_resolution;
++
+ 	smp_wmb();
+ 	++vdso_data->tb_seq_count;
+ }
+diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
+index c39872a7b03c..7a2cd2f8e13a 100644
+--- a/arch/arm64/kernel/vdso/gettimeofday.S
++++ b/arch/arm64/kernel/vdso/gettimeofday.S
+@@ -296,32 +296,35 @@ ENDPROC(__kernel_clock_gettime)
+ /* int __kernel_clock_getres(clockid_t clock_id, struct timespec *res); */
+ ENTRY(__kernel_clock_getres)
+ 	.cfi_startproc
++	adr	vdso_data, _vdso_data
+ 	cmp	w0, #CLOCK_REALTIME
+ 	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
+ 	ccmp	w0, #CLOCK_MONOTONIC_RAW, #0x4, ne
+-	b.ne	1f
++	b.ne	2f
+ 
+-	ldr	x2, 5f
+-	b	2f
+-1:
++1:	/* Get hrtimer_res */
++	seqcnt_acquire
++	syscall_check fail=5f
++	ldr	x2, [vdso_data, #CLOCK_REALTIME_RES]
++	seqcnt_check fail=1b
++	b	3f
++2:
+ 	cmp	w0, #CLOCK_REALTIME_COARSE
+ 	ccmp	w0, #CLOCK_MONOTONIC_COARSE, #0x4, ne
+-	b.ne	4f
++	b.ne	5f
+ 	ldr	x2, 6f
+-2:
+-	cbz	x1, 3f
++3:
++	cbz	x1, 4f
+ 	stp	xzr, x2, [x1]
+ 
+-3:	/* res == NULL. */
++4:	/* res == NULL. */
+ 	mov	w0, wzr
+ 	ret
+ 
+-4:	/* Syscall fallback. */
++5:	/* Syscall fallback. */
+ 	mov	x8, #__NR_clock_getres
+ 	svc	#0
+ 	ret
+-5:
+-	.quad	CLOCK_REALTIME_RES
+ 6:
+ 	.quad	CLOCK_COARSE_RES
+ 	.cfi_endproc
 -- 
 2.21.0
