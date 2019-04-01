@@ -1,7 +1,7 @@
 From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH 2/5] powerpc: Fix vDSO clock_getres()
-Date: Mon,  1 Apr 2019 12:51:49 +0100
-Message-ID: <20190401115152.32751-3-vincenzo.frascino@arm.com>
+Subject: [PATCH 3/5] s390: Fix vDSO clock_getres()
+Date: Mon,  1 Apr 2019 12:51:50 +0100
+Message-ID: <20190401115152.32751-4-vincenzo.frascino@arm.com>
 References: <20190401115152.32751-1-vincenzo.frascino@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -32,154 +32,149 @@ In particular, posix_get_hrtimer_res() does:
 and hrtimer_resolution depends on the enablement of the high
 resolution timers that can happen either at compile or at run time.
 
-Fix the powerpc vdso implementation of clock_getres keeping a copy of
+Fix the s390 vdso implementation of clock_getres keeping a copy of
 hrtimer_resolution in vdso data and using that directly.
 
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
 ---
- arch/powerpc/include/asm/vdso_datapage.h  |  2 ++
- arch/powerpc/kernel/asm-offsets.c         |  2 +-
- arch/powerpc/kernel/time.c                |  1 +
- arch/powerpc/kernel/vdso32/gettimeofday.S | 22 +++++++++++++++-------
- arch/powerpc/kernel/vdso64/gettimeofday.S | 22 +++++++++++++++-------
- 5 files changed, 34 insertions(+), 15 deletions(-)
+ arch/s390/include/asm/vdso.h           |  1 +
+ arch/s390/kernel/asm-offsets.c         |  2 +-
+ arch/s390/kernel/time.c                |  1 +
+ arch/s390/kernel/vdso32/clock_getres.S | 17 ++++++++++++-----
+ arch/s390/kernel/vdso64/clock_getres.S | 15 ++++++++++-----
+ 5 files changed, 25 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
-index 1afe90ade595..4ae43fc77fe9 100644
---- a/arch/powerpc/include/asm/vdso_datapage.h
-+++ b/arch/powerpc/include/asm/vdso_datapage.h
-@@ -86,6 +86,7 @@ struct vdso_data {
- 	__s32 wtom_clock_nsec;
- 	struct timespec stamp_xtime;	/* xtime as at tb_orig_stamp */
- 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
-+	__u32 hrtimer_res;		/* hrtimer resolution */
-    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
-    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 169d7604eb80..f3ba84fa9bd1 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -36,6 +36,7 @@ struct vdso_data {
+ 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
+ 	__u32 ts_dir;			/* TOD steering direction	0x64 */
+ 	__u64 ts_end;			/* TOD steering end		0x68 */
++	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
  };
-@@ -107,6 +108,7 @@ struct vdso_data {
- 	__s32 wtom_clock_nsec;
- 	struct timespec stamp_xtime;	/* xtime as at tb_orig_stamp */
- 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
-+	__u32 hrtimer_res;		/* hrtimer resolution */
-    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
- 	__u32 dcache_block_size;	/* L1 d-cache block size     */
- 	__u32 icache_block_size;	/* L1 i-cache block size     */
-diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
-index 86a61e5f8285..52e4b98a8492 100644
---- a/arch/powerpc/kernel/asm-offsets.c
-+++ b/arch/powerpc/kernel/asm-offsets.c
-@@ -383,6 +383,7 @@ int main(void)
- 	OFFSET(WTOM_CLOCK_NSEC, vdso_data, wtom_clock_nsec);
- 	OFFSET(STAMP_XTIME, vdso_data, stamp_xtime);
- 	OFFSET(STAMP_SEC_FRAC, vdso_data, stamp_sec_fraction);
-+	OFFSET(CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
- 	OFFSET(CFG_ICACHE_BLOCKSZ, vdso_data, icache_block_size);
- 	OFFSET(CFG_DCACHE_BLOCKSZ, vdso_data, dcache_block_size);
- 	OFFSET(CFG_ICACHE_LOGBLOCKSZ, vdso_data, icache_log_block_size);
-@@ -413,7 +414,6 @@ int main(void)
- 	DEFINE(CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
- 	DEFINE(CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
- 	DEFINE(NSEC_PER_SEC, NSEC_PER_SEC);
--	DEFINE(CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
  
- #ifdef CONFIG_BUG
- 	DEFINE(BUG_ENTRY_SIZE, sizeof(struct bug_entry));
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index bc0503ef9c9c..62c04a6746d8 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -955,6 +955,7 @@ void update_vsyscall(struct timekeeper *tk)
- 	vdso_data->wtom_clock_nsec = tk->wall_to_monotonic.tv_nsec;
- 	vdso_data->stamp_xtime = xt;
- 	vdso_data->stamp_sec_fraction = frac_sec;
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 164bec175628..36db4a9ee703 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -75,6 +75,7 @@ int main(void)
+ 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
+ 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
+ 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
++	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
+ 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
+ 	OFFSET(__VDSO_CPU_NR, vdso_per_cpu_data, cpu_nr);
+@@ -86,7 +87,6 @@ int main(void)
+ 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+-	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index e8766beee5ad..8ea9db599d38 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -310,6 +310,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 
+ 	vdso_data->tk_mult = tk->tkr_mono.mult;
+ 	vdso_data->tk_shift = tk->tkr_mono.shift;
 +	vdso_data->hrtimer_res = hrtimer_resolution;
  	smp_wmb();
- 	++(vdso_data->tb_update_count);
+ 	++vdso_data->tb_update_count;
  }
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index 1e0bc5955a40..b21630079496 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -160,14 +160,21 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
- 	bne	cr0,99f
- 
--	li	r3,0
--	cmpli	cr0,r4,0
-+	mflr	r12
-+  .cfi_register lr,r12
-+	mr	r11,r4
-+	bl	__get_datapage@local
-+	lwz	r5,CLOCK_REALTIME_RES(r3)
-+	li	r4,0
-+	cmplwi	r11,0		/* check if res is NULL */
-+	beq	1f
-+
-+	stw	r4,TSPC32_TV_SEC(r11)
-+	stw	r5,TSPC32_TV_NSEC(r11)
-+
-+1:	mtlr	r12
- 	crclr	cr0*4+so
--	beqlr
--	lis	r5,CLOCK_REALTIME_RES@h
--	ori	r5,r5,CLOCK_REALTIME_RES@l
--	stw	r3,TSPC32_TV_SEC(r4)
--	stw	r5,TSPC32_TV_NSEC(r4)
-+	li	r3,0
- 	blr
- 
- 	/*
-@@ -175,6 +182,7 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	 */
- 99:
- 	li	r0,__NR_clock_getres
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
-index a4ed9edfd5f0..a7e49bddd475 100644
---- a/arch/powerpc/kernel/vdso64/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
-@@ -190,14 +190,21 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
- 	bne	cr0,99f
- 
--	li	r3,0
--	cmpldi	cr0,r4,0
-+	mflr	r12
-+  .cfi_register lr,r12
-+	mr	r11, r4
-+	bl	V_LOCAL_FUNC(__get_datapage)
-+	lwz	r5,CLOCK_REALTIME_RES(r3)
-+	li	r4,0
-+	cmpldi	r11,0		/* check if res is NULL */
-+	beq	1f
-+
-+	std	r4,TSPC64_TV_SEC(r11)
-+	std	r5,TSPC64_TV_NSEC(r11)
-+
-+1:	mtlr	r12
- 	crclr	cr0*4+so
--	beqlr
--	lis	r5,CLOCK_REALTIME_RES@h
--	ori	r5,r5,CLOCK_REALTIME_RES@l
--	std	r3,TSPC64_TV_SEC(r4)
--	std	r5,TSPC64_TV_NSEC(r4)
-+	li	r3,0
- 	blr
- 
- 	/*
-@@ -205,6 +212,7 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
- 	 */
- 99:
- 	li	r0,__NR_clock_getres
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
+diff --git a/arch/s390/kernel/vdso32/clock_getres.S b/arch/s390/kernel/vdso32/clock_getres.S
+index eaf9cf1417f6..00fc50ad228c 100644
+--- a/arch/s390/kernel/vdso32/clock_getres.S
++++ b/arch/s390/kernel/vdso32/clock_getres.S
+@@ -18,20 +18,27 @@
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+ 	basr	%r1,0
+-	la	%r1,4f-.(%r1)
++10:	al	%r1,4f-10b(%r1)
++11:	l	%r4,__VDSO_UPD_COUNT+4(%r1)	/* load update counter */
++	tml	%r4,0x0001			/* pending update ? loop */
++	jnz	11b
++	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
++	cl	%r4,__VDSO_UPD_COUNT+4(%r1)	/* check update counter */
++	jne	11b
+ 	chi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	chi	%r2,__CLOCK_MONOTONIC
+ 	je	0f
+-	la	%r1,5f-4f(%r1)
++	basr	%r1,0
++	la	%r1,5f-.(%r1)
++	l	%r0,0(%r1)
+ 	chi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	chi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	jne	3f
+ 0:	ltr	%r3,%r3
+ 	jz	2f				/* res == NULL */
+-1:	l	%r0,0(%r1)
+-	xc	0(4,%r3),0(%r3)			/* set tp->tv_sec to zero */
++1:	xc	0(4,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	st	%r0,4(%r3)			/* store tp->tv_usec */
+ 2:	lhi	%r2,0
+ 	br	%r14
+@@ -39,6 +46,6 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-4:	.long	__CLOCK_REALTIME_RES
++4:	.long	_vdso_data - 10b
+ 5:	.long	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 081435398e0a..1400a8df9802 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -17,12 +17,19 @@
+ 	.type  __kernel_clock_getres,@function
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+-	larl	%r1,4f
++	larl	%r1,3f
++	lg	%r0,0(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	je	0f
+-	larl	%r1,3f
++	larl	%r1,_vdso_data
++11:	lg	%r4,__VDSO_UPD_COUNT(%r1)	/* load update counter */
++	tmll	%r4,0x0001			/* pending update ? loop */
++	jnz	11b
++	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
++	clg	%r4,__VDSO_UPD_COUNT(%r1)	/* check update counter */
++	jne	11b
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+@@ -36,7 +43,6 @@ __kernel_clock_getres:
+ 	jz	2f
+ 0:	ltgr	%r3,%r3
+ 	jz	1f				/* res == NULL */
+-	lg	%r0,0(%r1)
+ 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	stg	%r0,8(%r3)			/* store tp->tv_usec */
+ 1:	lghi	%r2,0
+@@ -45,6 +51,5 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-3:	.quad	__CLOCK_REALTIME_RES
+-4:	.quad	__CLOCK_COARSE_RES
++3:	.quad	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
 -- 
 2.21.0
