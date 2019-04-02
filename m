@@ -1,94 +1,72 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH 1/5] arm64: Fix vDSO clock_getres()
-Date: Tue, 16 Apr 2019 15:23:46 +0100
-Message-ID: <20190416142346.GA3803@fuggles.cambridge.arm.com>
-References: <20190401115152.32751-1-vincenzo.frascino@arm.com>
- <20190401115152.32751-2-vincenzo.frascino@arm.com>
- <20190415173521.GA901@arrakis.emea.arm.com>
- <efaafc72-79da-b25a-78b7-36424d9350ad@arm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 2/2] vfio-ccw: support async command
+ subregion
+Date: Tue, 2 Apr 2019 15:42:42 +0200
+Message-ID: <20190402154242.789ebfde.cohuck@redhat.com>
+References: <20190301093949.27955-1-cohuck@redhat.com>
+	<20190301093949.27955-3-cohuck@redhat.com>
+	<559babc4-5b67-37c7-eced-c350fc28baf6@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-Content-Disposition: inline
-In-Reply-To: <efaafc72-79da-b25a-78b7-36424d9350ad@arm.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@lists.ozlabs.org>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Vincent Chen <deanbo422@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Greentime Hu <green.hu@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+In-Reply-To: <559babc4-5b67-37c7-eced-c350fc28baf6@linux.ibm.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <http://lists.nongnu.org/archive/html/qemu-devel/>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+	<mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org
+Sender: "Qemu-devel"
+	<qemu-devel-bounces+gceq-qemu-devel2=m.gmane.org@nongnu.org>
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, Halil Pasic <pasic@linux.ibm.com>, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 16, 2019 at 01:42:58PM +0100, Vincenzo Frascino wrote:
-> On 15/04/2019 18:35, Catalin Marinas wrote:
-> > On Mon, Apr 01, 2019 at 12:51:48PM +0100, Vincenzo Frascino wrote:
-> >> +1:	/* Get hrtimer_res */
-> >> +	seqcnt_acquire
-> >> +	syscall_check fail=5f
-> >> +	ldr	x2, [vdso_data, #CLOCK_REALTIME_RES]
-> >> +	seqcnt_check fail=1b
-> >> +	b	3f
-> >> +2:
-> > 
-> > We talked briefly but I'm still confused why we need the fallback to the
-> > syscall here if archdata.vdso_direct is false. Is it because if the
-> > timer driver code sets vdso_direct to false, we don't don't support
-> > highres timers? If my understanding is correct, you may want to move the
-> > hrtimer_res setting in update_vsyscall() to the !use_syscall block.
-> > 
-> 
-> Ok, so let me try to provide more details on what I mentioned yesterday:
-> - clock_getres syscall follows the rules of what defined in posix-timers.c
-> - based on the clock_id that, for this purpose, can be separated in coarse and
-> non-coarse calls either posix_get_coarse_res() or posix_get_hrtimer_res().
-> - if clock id is set to a coarse clock and posix_get_coarse_res() is invoked,
-> happens what follows:
-> 
-> static int posix_get_coarse_res(const clockid_t which_clock,
-> 				struct timespec64 *tp)
-> {
-> 	*tp = ktime_to_timespec64(KTIME_LOW_RES);
-> 	return 0;
-> }
-> 
-> Note that since CONFIG_1HZ seems not supported (jiffies.h) by the kernel in this
-> case we do not need rounding in our vDSO implementation.
-> 
-> - if clock id is set to non-coarse and posix_get_hrtimer_res() is invoked,
-> happens the following:
-> 
-> static int posix_get_hrtimer_res(clockid_t which_clock, struct timespec64 *tp)
-> {
-> 	tp->tv_sec = 0;
-> 	tp->tv_nsec = hrtimer_resolution;
-> 	return 0;
-> }
-> 
-> hrtimer_resolution can be high res or low res depending on the call of
-> hrtimer_switch_to_hres(). For us the only way to preserve the correct value is
-> to keep it in the vdso data page.
-> 
-> - The assembly code mimics exactly the same behaviour detailed above, with one
-> difference: the one related to the use_syscall parameter which is specific to arm64.
-> The use_syscall parameter is set by arm_arch_timer and consumed by
-> update_vsyscall(). To mirror what update_vsyscall does in update_vsyscall() I
-> check "syscall_check fail=5f" in clock_getres vdso function.
-> 
-> Said that, even if functionally it is the same thing, I think it is logically
-> more correct to have hrtimer_res setting inside the !use_syscall block, hence I
-> am going to change it in the next iteration.
-> 
-> Please let me know your thoughts.
+On Thu, 21 Mar 2019 21:38:16 -0400
+Eric Farman <farman@linux.ibm.com> wrote:
 
-I think you can ignore the syscall_check, just like we seem to do for
-CLOCK_REALTIME_COARSE and CLOCK_MONOTONIC_COARSE in clock_gettime().
+> On 3/1/19 4:39 AM, Cornelia Huck wrote:
+> > A vfio-ccw device may provide an async command subregion for
+> > issuing halt/clear subchannel requests. If it is present, use
+> > it for sending halt/clear request to the device; if not, fall
+> > back to emulation (as done today).
+> > 
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> > ---
+> >   hw/s390x/css.c              |  27 +++++++--
+> >   hw/vfio/ccw.c               | 109 +++++++++++++++++++++++++++++++++++-
+> >   include/hw/s390x/s390-ccw.h |   3 +
+> >   3 files changed, 133 insertions(+), 6 deletions(-)
 
-Will
+> > @@ -307,6 +398,20 @@ static void vfio_ccw_get_region(VFIOCCWDevice *vcdev, Error **errp)
+> >       vcdev->io_region_offset = info->offset;
+> >       vcdev->io_region = g_malloc0(info->size);
+> >   
+> > +    /* check for the optional async command region */
+> > +    ret = vfio_get_dev_region_info(vdev, VFIO_REGION_TYPE_CCW,
+> > +                                   VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD, &info);
+> > +    if (!ret) {
+> > +        vcdev->async_cmd_region_size = info->size;
+> > +        if (sizeof(*vcdev->async_cmd_region) != vcdev->async_cmd_region_size) {
+> > +            error_setg(errp, "vfio: Unexpected size of the async cmd region");
+> > +            g_free(info);
+> > +            return;
+> > +        }
+> > +        vcdev->async_cmd_region_offset = info->offset;
+> > +        vcdev->async_cmd_region = g_malloc0(info->size);  
+> 
+> Probably need to g_free() this in vfio_ccw_put_region()
+
+Ah yes, thanks. Will add.
+
+> 
+> > +    }
+> > +
+> >       g_free(info);
+> >   }
+> >   
