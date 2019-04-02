@@ -1,10 +1,12 @@
 Return-Path: <linux-doc-owner@vger.kernel.org>
 From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v3 0/2] Use DIAG318 to set Control Program Name & Version Codes
-Date: Tue,  2 Apr 2019 13:46:34 -0400
+Subject: [PATCH v3 1/2] s390/setup: diag318: remove bit check and refactor struct
+Date: Tue,  2 Apr 2019 13:46:35 -0400
+In-Reply-To: <20190402174636.15175-1-walling@linux.ibm.com>
+References: <20190402174636.15175-1-walling@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20190402174636.15175-1-walling@linux.ibm.com>
+Message-Id: <20190402174636.15175-2-walling@linux.ibm.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-doc/>
 List-Post: <mailto:linux-doc@vger.kernel.org>
@@ -12,46 +14,72 @@ To: pbonzini@redhat.com, david@redhat.com, cohuck@redhat.com, linux-doc@vger.ker
 Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Changelog:
+Execution of DIAGNOSE 0x318 is fenced by checking an SCLP bit
+for the availability of hardware support for the instruction.
 
-    v3
-        - kernel patch for diag 0x318 instruction call fixup
-            - this is to support QEMU changes found here:
-              https://lists.gnu.org/archive/html/qemu-devel/2019-04/msg00328.html
-        - removed CPU model code
-        - cleaned up diag318_info struct
-        - cpnc is no longer unshadowed as it was not needed
-        - rebased on 5.1.0-rc3
+In order to support this instruction for a KVM/QEMU guest, we
+would need to provide modifications to the SCLP Read SCP Info
+data, which will in turn reduce the maximum number of CPUs that
+may be provided to the guest. This issue introduces compatability
+and legacy concerns.
 
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read SCP Info byte 134, bit 0.
-Diagnose318's functionality is also emulated by KVM, which means we can 
-enable this feature for a guest even if the host kernel cannot support it.
+Let's circumvent this issue by removing the bit check and blindly
+executing the instruction. An exception table rule is in place to
+catch the case where hardware does not support this instruction.
 
-The CPNC and CPVC are used for problem diagnosis and allows IBM to identify 
-control program information by answering the following question:
+While we're at it, let's condense the version code fields in the
+diag318_info struct until we can determine how it will be used.
 
-    "What environment is this guest running in?" (CPNC)
-    "What are more details regarding the OS?" (CPVC)
+This modifies commit 4ad78b8651aacf26b3ab6d1e784952eb70469c43
 
-In the future, we will implement the Control Program Version Code (CPVC) to
-convey more information about the OS. For now, we set this field to 0 until
-we come up with a solid plan.
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+---
+ arch/s390/include/asm/diag.h |  6 ++----
+ arch/s390/kernel/setup.c     | 12 ++++++------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-Collin Walling (2):
-  s390/setup: diag318: remove bit check and refactor struct
-  s390/kvm: diagnose 318 handling
-
- Documentation/virtual/kvm/devices/vm.txt | 14 ++++
- arch/s390/include/asm/diag.h             |  6 +-
- arch/s390/include/asm/kvm_host.h         |  7 +-
- arch/s390/include/uapi/asm/kvm.h         |  4 ++
- arch/s390/kernel/setup.c                 | 12 ++--
- arch/s390/kvm/diag.c                     | 17 +++++
- arch/s390/kvm/kvm-s390.c                 | 83 ++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h                 |  1 +
- arch/s390/kvm/vsie.c                     |  2 +
- 9 files changed, 134 insertions(+), 12 deletions(-)
-
+diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
+index 19562be22b7e..215516284175 100644
+--- a/arch/s390/include/asm/diag.h
++++ b/arch/s390/include/asm/diag.h
+@@ -298,10 +298,8 @@ struct diag26c_mac_resp {
+ union diag318_info {
+ 	unsigned long val;
+ 	struct {
+-		unsigned int cpnc : 8;
+-		unsigned int cpvc_linux : 24;
+-		unsigned char cpvc_distro[3];
+-		unsigned char zero;
++		unsigned long cpnc : 8;
++		unsigned long cpvc : 56;
+ 	};
+ };
+ 
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 2c642af526ce..fe70201f8b5d 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -1011,15 +1011,15 @@ static void __init setup_control_program_code(void)
+ {
+ 	union diag318_info diag318_info = {
+ 		.cpnc = CPNC_LINUX,
+-		.cpvc_linux = 0,
+-		.cpvc_distro = {0},
++		.cpvc = 0,
+ 	};
+ 
+-	if (!sclp.has_diag318)
+-		return;
+-
+ 	diag_stat_inc(DIAG_STAT_X318);
+-	asm volatile("diag %0,0,0x318\n" : : "d" (diag318_info.val));
++	asm volatile(
++		"	diag	%0,0,0x318\n"
++		"0:	nopr	%%r7\n"
++		EX_TABLE(0b,0b)
++		: : "d" (diag318_info.val));
+ }
+ 
+ /*
 -- 
 2.20.1
