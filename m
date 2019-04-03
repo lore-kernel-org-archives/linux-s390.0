@@ -3,22 +3,20 @@ Subject: Re: [PATCH v3 1/2] s390/setup: diag318: remove bit check and refactor
  struct
 References: <20190402174636.15175-1-walling@linux.ibm.com>
  <20190402174636.15175-2-walling@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 3 Apr 2019 13:28:00 +0200
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <599addd3-a4f8-d4e7-5898-dc45f52cd7a6@redhat.com>
+Date: Wed, 3 Apr 2019 14:03:21 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190402174636.15175-2-walling@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <92d69cf5-0510-cf22-9f72-ab3efe4ede9b@de.ibm.com>
 Sender: linux-doc-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-doc/>
 List-Post: <mailto:linux-doc@vger.kernel.org>
-To: Collin Walling <walling@linux.ibm.com>, pbonzini@redhat.com, david@redhat.com, cohuck@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, frankja@linux.ibm.com
+To: Collin Walling <walling@linux.ibm.com>, pbonzini@redhat.com, cohuck@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
-
-
 
 On 02.04.19 19:46, Collin Walling wrote:
 > Execution of DIAGNOSE 0x318 is fenced by checking an SCLP bit
@@ -33,12 +31,6 @@ On 02.04.19 19:46, Collin Walling wrote:
 > Let's circumvent this issue by removing the bit check and blindly
 > executing the instruction. An exception table rule is in place to
 > catch the case where hardware does not support this instruction.
-
-
-No, please keep the check. We have to extend the read scp field anyway
-for future extensions.
-
-
 > 
 > While we're at it, let's condense the version code fields in the
 > diag318_info struct until we can determine how it will be used.
@@ -95,3 +87,14 @@ for future extensions.
 >  
 >  /*
 > 
+
+That smells like a nasty hack to not expose new features in QEMU and
+deal with the issue of handling CPU limits. No, I don't like this.
+
+Fix QEMU, not the kernel.
+
+-- 
+
+Thanks,
+
+David / dhildenb
