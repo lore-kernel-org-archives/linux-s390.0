@@ -1,65 +1,173 @@
-From: Farhan Ali <alifm@linux.ibm.com>
-Date: Tue, 02 Apr 2019 16:44:33 +0000
-Subject: [RFC v1 1/3] vfio-ccw: Do not call flush_workqueue while holding the spinlock
-Message-Id: <08af324a0065aa4311de58d6ac9bd7b69ad6143e.1554222348.git.alifm@linux.ibm.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Thu, 04 Apr 2019 08:58:32 +0000
+Subject: Re: [RFC v1 2/3] vfio-ccw: Prevent quiesce function going into an infinite loop
+Message-Id: <20190404105832.1fc25f2f.cohuck@redhat.com>
+In-Reply-To: <2498a158-7574-c5bb-a39d-b0aed9bc71b0@linux.ibm.com>
+References: <2498a158-7574-c5bb-a39d-b0aed9bc71b0@linux.ibm.com>
 To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently we call flush_workqueue while holding the subchannel
-spinlock. But flush_workqueue function can go to sleep, so
-do not call the function while holding the spinlock.
+On Wed, 3 Apr 2019 11:06:14 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Fixes the following bug:
+> On 04/03/2019 03:58 AM, Cornelia Huck wrote:
+> > On Tue,  2 Apr 2019 12:44:34 -0400
+> > Farhan Ali <alifm@linux.ibm.com> wrote:
+> >   
+> >> The quiesce function calls cio_cancel_halt_clear() and if we
+> >> get an -EBUSY we go into a loop where we:
+> >> 	- wait for any interrupts
+> >> 	- flush all I/O in the workqueue
+> >> 	- retry cio_cancel_halt_clear
+> >>
+> >> During the period where we are waiting for interrupts or
+> >> flushing all I/O, the channel subsystem could have completed
+> >> a halt/clear action and turned off the corresponding activity
+> >> control bits in the subchannel status word. This means the next
+> >> time we call cio_cancel_halt_clear(), we will again start by
+> >> calling cancel subchannel and so we can be stuck between calling
+> >> cancel and halt forever.
+> >>
+> >> Rather than calling cio_cancel_halt_clear() immediately after
+> >> waiting, let's try to disable the subchannel. If we succeed in
+> >> disabling the subchannel then we know nothing else can happen
+> >> with the device.  
+> > 
+> > Hmm... I had to spend some time looking at the code and it seems to be
+> > a bit confused (not your patch, the general logic).
+> > 
+> > Basically, we call the quiesce function for two reasons:
+> > - The device is shutdown/removed. We don't want to do anything with the
+> >    device afterwards, and especially want nobody to start anything new.
+> >    The subchannel will be disabled, and stay like that.
+> > - The mdev reset callback is invoked. When resetting, we basically
+> >    disable the subchannel (any I/O of course needs to be done prior to
+> >    that), and then enable it again.
+> > 
+> > In the first case, our goal is to disable the subchannel, and nothing
+> > more will be done with it.
+> > 
+> > In the second case, we simply want to perform a reset operation; that
+> > is, get the subchannel into a clean state. The disable/enable is just a
+> > means to get there.  
+> >  > Looking at what the common I/O layer does with the cancel_halt_clear  
+> > operation, it moves the device into a special quiescing state so that
+> > no new I/O will be started. And I think that's how it is intended to be
+> > used: If we want to quiesce the subchannel prior to remove/shutdown,
+> > fencing off any new I/O is what we want. That means nobody will submit
+> > requests we're not aware of.  
+> 
+> Agreed. Under normal conditions, if someone explicitly requested the 
+> removal of the device we can safely assume that they are no more I/O 
+> request sent from the userspace.
 
-[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
-[  285.203434] INFO: lockdep is turned off.
-....
-[  285.203485] Preemption disabled at:
-[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
-[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
-....
-[  285.203504] Call Trace:
-[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
-[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
-[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
-[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
-[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
-[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
-[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
-[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
-[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
-[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
-[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
-[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
-[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
-[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
-[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
-[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
-[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
-[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
-[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
+Yes, and we would not lose any functionality if we actively fence this.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> > 
+> > That leaves the reset case, in which disabling the subchannel is only a
+> > means to reset the subchannel to a defined state. We definitely want to
+> > accept new I/O requests once we're done with the disable/enable dance.
+> > That leaves the question of what to do with requests that come in while
+> > resetting: Reject them? Queue them for later? Is disable/enable even
+> > the best solution here? We basically came up with it because we
+> > couldn't think of anything else...
+> >   
+> 
+> So right now the reset callback is invoked through an ioctl. Would a 
+> sane userspace try to issue read/write request before the completion of 
+> reset? I am assuming that if userspace is requesting a device reset, it 
+> will at least wait for the reset to complete?
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8f06125..5aca475 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -57,9 +57,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 
- 			wait_for_completion_timeout(&completion, 3*HZ);
- 
--			spin_lock_irq(sch->lock);
- 			private->completion = NULL;
- 			flush_workqueue(vfio_ccw_work_q);
-+			spin_lock_irq(sch->lock);
- 			ret = cio_cancel_halt_clear(sch, &iretry);
- 		};
- 
--- 
-2.7.4
+It depends on the semantics of reset, of which I am not completely
+clear TBH. It's probably ok to fence here as well, maybe with a
+different error ("try again later" vs. "the device is going away
+anyway" in the first case).
+
+> 
+> 
+> > (And yes, I also find it confusing that the quiesce function not only
+> > clears out pending I/O, but also disables the subchannel...)
+> >   
+> >>
+> >> Suggested-by: Eric Farman <farman@linux.ibm.com>
+> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> >> ---
+> >>   drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++----------------
+> >>   1 file changed, 12 insertions(+), 16 deletions(-)
+> >>
+> >> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> >> index 5aca475..f87757b 100644
+> >> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> >> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> >> @@ -43,26 +43,22 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+> >>   	if (ret != -EBUSY)
+> >>   		goto out_unlock;
+> >>   
+> >> +	iretry = 255;
+> >>   	do {
+> >> -		iretry = 255;
+> >>   
+> >> -		ret = cio_cancel_halt_clear(sch, &iretry);
+> >> -		while (ret == -EBUSY) {
+> >> -			/*
+> >> -			 * Flush all I/O and wait for
+> >> -			 * cancel/halt/clear completion.
+> >> -			 */
+> >> -			private->completion = &completion;
+> >> -			spin_unlock_irq(sch->lock);
+> >> +		cio_cancel_halt_clear(sch, &iretry);  
+> > 
+> > I think you still want to check the return code here...
+> >   
+> >> +		/*
+> >> +		 * Flush all I/O and wait for
+> >> +		 * cancel/halt/clear completion.
+> >> +		 */
+> >> +		private->completion = &completion;
+> >> +		spin_unlock_irq(sch->lock);
+> >>   
+> >> -			wait_for_completion_timeout(&completion, 3*HZ);
+> >> -
+> >> -			private->completion = NULL;
+> >> -			flush_workqueue(vfio_ccw_work_q);
+> >> -			spin_lock_irq(sch->lock);
+> >> -			ret = cio_cancel_halt_clear(sch, &iretry);
+> >> -		};
+> >> +		wait_for_completion_timeout(&completion, 3*HZ);  
+> > 
+> > ...because you don't want to wait for an interrupt that won't arrive
+> > (e.g. when xsch was successful, or if the subchannel has become
+> > non-operational in the meantime.)
+> >   
+> 
+> Hmm, this makes sense. I think we probably could wrap the waiting within 
+> an if condition, similar to io_subchannel_quiesce()?
+
+Probably yes.
+
+> 
+> >>   
+> >> +		private->completion = NULL;
+> >> +		flush_workqueue(vfio_ccw_work_q);
+> >> +		spin_lock_irq(sch->lock);
+> >>   		ret = cio_disable_subchannel(sch);
+> >>   	} while (ret == -EBUSY);
+> >>   out_unlock:  
+> > 
+> > Regardless of my comments above, this looks like an improvement over
+> > what we have now. Have you been able to observe the issue in real life?
+> > 
+> >   
+> Yes, I have observed this in my testing. I think if you try to remove 
+> the mediated device (echo 1 > /path/to/mdev/remove) while a guest is 
+> running I/O, there is a good chance you will enter in this infinite loop.
+
+Good to know, a testcase is always helpful :)
+
+> 
+> Thanks for taking a look at the patches.
+> 
+> Thanks
+> Farhan
+> 
