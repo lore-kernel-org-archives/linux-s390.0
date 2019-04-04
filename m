@@ -1,10 +1,10 @@
 Return-Path: <SRS0=rjTT=SG=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [RFC PATCH 03/12] s390/mm: force swiotlb for protected virtualization
-Date: Fri,  5 Apr 2019 01:16:13 +0200
+Subject: [RFC PATCH 02/12] virtio/s390: DMA support for virtio-ccw
+Date: Fri,  5 Apr 2019 01:16:12 +0200
 In-Reply-To: <20190404231622.52531-1-pasic@linux.ibm.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-Message-Id: <20190404231622.52531-4-pasic@linux.ibm.com>
+Message-Id: <20190404231622.52531-3-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,181 +12,75 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On s390 protected virtualization guests also have to use bounce I/O
-buffers.  That requires some plumbing.
+Currently we have a problem if a virtio-ccw device has
+VIRTIO_F_IOMMU_PLATFORM. In future we do want to support DMA API with
+virtio-ccw.
 
-Let us make sure any device using DMA API accordingly is spared from the
-problems that hypervisor attempting I/O to a non-shared secure page would
-bring.
+Let us do the plumbing, so the feature VIRTIO_F_IOMMU_PLATFORM works
+with virtio-ccw.
+
+Let us also switch from legacy avail/used accessors to the DMA aware
+ones (even if it isn't strictly necessary).
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/s390/Kconfig                   |  4 ++++
- arch/s390/include/asm/Kbuild        |  1 -
- arch/s390/include/asm/dma-mapping.h | 13 +++++++++++
- arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++++
- arch/s390/mm/init.c                 | 44 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 79 insertions(+), 1 deletion(-)
- create mode 100644 arch/s390/include/asm/dma-mapping.h
- create mode 100644 arch/s390/include/asm/mem_encrypt.h
+ drivers/s390/virtio/virtio_ccw.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index b6e3d0653002..46c69283a67b 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -1,4 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
-+config ARCH_HAS_MEM_ENCRYPT
-+        def_bool y
-+
- config MMU
- 	def_bool y
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index edf4afe2d688..5956c9e820bb 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -66,6 +66,7 @@ struct virtio_ccw_device {
+ 	bool device_lost;
+ 	unsigned int config_ready;
+ 	void *airq_info;
++	__u64 dma_mask;
+ };
  
-@@ -190,6 +193,7 @@ config S390
- 	select ARCH_HAS_SCALED_CPUTIME
- 	select VIRT_TO_BUS
- 	select HAVE_NMI
-+	select SWIOTLB
- 
- 
- config SCHED_OMIT_FRAME_POINTER
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 12d77cb11fe5..ba55cd472950 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -8,7 +8,6 @@ generic-y += asm-offsets.h
- generic-y += cacheflush.h
- generic-y += device.h
- generic-y += dma-contiguous.h
--generic-y += dma-mapping.h
- generic-y += div64.h
- generic-y += emergency-restart.h
- generic-y += export.h
-diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
-new file mode 100644
-index 000000000000..8985da6ecdfd
---- /dev/null
-+++ b/arch/s390/include/asm/dma-mapping.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_S390_DMA_MAPPING_H
-+#define _ASM_S390_DMA_MAPPING_H
-+
-+#include <linux/dma-contiguous.h>
-+
-+static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
-+{
-+	return NULL;
-+}
-+
-+#endif /* _ASM_S390_DMA_MAPPING_H */
-+
-diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
-new file mode 100644
-index 000000000000..0898c09a888c
---- /dev/null
-+++ b/arch/s390/include/asm/mem_encrypt.h
-@@ -0,0 +1,18 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef S390_MEM_ENCRYPT_H__
-+#define S390_MEM_ENCRYPT_H__
-+
-+#ifndef __ASSEMBLY__
-+
-+#define sme_me_mask	0ULL
-+
-+static inline bool sme_active(void) { return false; }
-+extern bool sev_active(void);
-+
-+int set_memory_encrypted(unsigned long addr, int numpages);
-+int set_memory_decrypted(unsigned long addr, int numpages);
-+
-+#endif	/* __ASSEMBLY__ */
-+
-+#endif	/* S390_MEM_ENCRYPT_H__ */
-+
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 3e82f66d5c61..a47bd4998d24 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -18,6 +18,7 @@
- #include <linux/mman.h>
- #include <linux/mm.h>
- #include <linux/swap.h>
-+#include <linux/swiotlb.h>
- #include <linux/smp.h>
- #include <linux/init.h>
- #include <linux/pagemap.h>
-@@ -29,6 +30,7 @@
- #include <linux/export.h>
- #include <linux/cma.h>
- #include <linux/gfp.h>
-+#include <linux/dma-mapping.h>
- #include <asm/processor.h>
- #include <linux/uaccess.h>
- #include <asm/pgtable.h>
-@@ -42,6 +44,7 @@
- #include <asm/sclp.h>
- #include <asm/set_memory.h>
- #include <asm/kasan.h>
-+#include <asm/dma-mapping.h>
- 
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
- 
-@@ -126,6 +129,45 @@ void mark_rodata_ro(void)
- 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
- }
- 
-+int set_memory_encrypted(unsigned long addr, int numpages)
-+{
-+	/* also called for the swiotlb bounce buffers, make all pages shared */
-+	/* TODO: do ultravisor calls */
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(set_memory_encrypted);
-+
-+int set_memory_decrypted(unsigned long addr, int numpages)
-+{
-+	/* also called for the swiotlb bounce buffers, make all pages shared */
-+	/* TODO: do ultravisor calls */
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(set_memory_decrypted);
-+
-+/* are we a protected virtualization guest? */
-+bool sev_active(void)
-+{
-+	/*
-+	 * TODO: Do proper detection using ultravisor, for now let us fake we
-+	 *  have it so the code gets exercised.
-+	 */
-+	return true;
-+}
-+EXPORT_SYMBOL_GPL(sev_active);
-+
-+/* protected virtualization */
-+static void pv_init(void)
-+{
-+	if (!sev_active())
-+		return;
-+
-+	/* make sure bounce buffers are shared */
-+	swiotlb_init(1);
-+	swiotlb_update_mem_attributes();
-+	swiotlb_force = SWIOTLB_FORCE;
-+}
-+
- void __init mem_init(void)
+ struct vq_info_block_legacy {
+@@ -536,8 +537,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		info->info_block->s.desc = queue;
+ 		info->info_block->s.index = i;
+ 		info->info_block->s.num = info->num;
+-		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
+-		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
++		info->info_block->s.avail = (__u64)virtqueue_get_avail_addr(vq);
++		info->info_block->s.used = (__u64)virtqueue_get_used_addr(vq);
+ 		ccw->count = sizeof(info->info_block->s);
+ 	}
+ 	ccw->cmd_code = CCW_CMD_SET_VQ;
+@@ -769,10 +770,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ static void ccw_transport_features(struct virtio_device *vdev)
  {
- 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
-@@ -134,6 +176,8 @@ void __init mem_init(void)
- 	set_max_mapnr(max_low_pfn);
-         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
- 
-+	pv_init();
+ 	/*
+-	 * Packed ring isn't enabled on virtio_ccw for now,
+-	 * because virtio_ccw uses some legacy accessors,
+-	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
+-	 * which aren't available in packed ring currently.
++	 * There shouldn't be anything that precludes supporting paced.
++	 * TODO: Remove the limitation after having another look into this.
+ 	 */
+ 	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
+ }
+@@ -1255,6 +1254,18 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 		ret = -ENOMEM;
+ 		goto out_free;
+ 	}
++	vcdev->vdev.dev.parent = &cdev->dev;
++	cdev->dev.dma_mask = &vcdev->dma_mask;
 +
- 	/* Setup guest page hinting */
- 	cmma_init();
- 
++	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
++	if (ret)
++		ret = dma_set_mask_and_coherent(&cdev->dev,
++						DMA_BIT_MASK(32));
++	if (ret) {
++		dev_warn(&cdev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
++		goto out_free;
++	}
++
+ 	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
+ 				   GFP_DMA | GFP_KERNEL);
+ 	if (!vcdev->config_block) {
 -- 
 2.16.4
