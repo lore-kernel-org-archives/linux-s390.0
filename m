@@ -1,10 +1,10 @@
 Return-Path: <SRS0=rjTT=SG=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
-Date: Fri,  5 Apr 2019 01:16:11 +0200
+Subject: [RFC PATCH 03/12] s390/mm: force swiotlb for protected virtualization
+Date: Fri,  5 Apr 2019 01:16:13 +0200
 In-Reply-To: <20190404231622.52531-1-pasic@linux.ibm.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-Message-Id: <20190404231622.52531-2-pasic@linux.ibm.com>
+Message-Id: <20190404231622.52531-4-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,107 +12,181 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-establishes a new way of allocating virtqueues (as a part of the effort
-that taught DMA to virtio rings).
+On s390 protected virtualization guests also have to use bounce I/O
+buffers.  That requires some plumbing.
 
-In the future we will want virtio-ccw to use the DMA API as well.
-
-Let us switch from the legacy method of allocating virtqueues to
-vring_create_virtqueue() as the first step into that direction.
+Let us make sure any device using DMA API accordingly is spared from the
+problems that hypervisor attempting I/O to a non-shared secure page would
+bring.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ arch/s390/Kconfig                   |  4 ++++
+ arch/s390/include/asm/Kbuild        |  1 -
+ arch/s390/include/asm/dma-mapping.h | 13 +++++++++++
+ arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++++
+ arch/s390/mm/init.c                 | 44 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 79 insertions(+), 1 deletion(-)
+ create mode 100644 arch/s390/include/asm/dma-mapping.h
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 74c328321889..edf4afe2d688 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -108,7 +108,6 @@ struct virtio_rev_info {
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
- 	int num;
--	void *queue;
- 	union {
- 		struct vq_info_block s;
- 		struct vq_info_block_legacy l;
-@@ -423,7 +422,6 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
- 	struct virtio_ccw_device *vcdev = to_vc_device(vq->vdev);
- 	struct virtio_ccw_vq_info *info = vq->priv;
- 	unsigned long flags;
--	unsigned long size;
- 	int ret;
- 	unsigned int index = vq->index;
- 
-@@ -461,8 +459,6 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
- 			 ret, index);
- 
- 	vring_del_virtqueue(vq);
--	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
--	free_pages_exact(info->queue, size);
- 	kfree(info->info_block);
- 	kfree(info);
- }
-@@ -494,7 +490,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	int err;
- 	struct virtqueue *vq = NULL;
- 	struct virtio_ccw_vq_info *info;
--	unsigned long size = 0; /* silence the compiler */
-+	u64 queue;
- 	unsigned long flags;
- 
- 	/* Allocate queue. */
-@@ -516,17 +512,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 		err = info->num;
- 		goto out_err;
- 	}
--	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
--	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
--	if (info->queue == NULL) {
--		dev_warn(&vcdev->cdev->dev, "no queue\n");
--		err = -ENOMEM;
--		goto out_err;
--	}
-+	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
-+				    vdev, true, true, ctx,
-+				    virtio_ccw_kvm_notify, callback, name);
- 
--	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
--				 true, ctx, info->queue, virtio_ccw_kvm_notify,
--				 callback, name);
- 	if (!vq) {
- 		/* For now, we fail if we can't get the requested size. */
- 		dev_warn(&vcdev->cdev->dev, "no vq\n");
-@@ -534,15 +523,17 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 		goto out_err;
- 	}
- 
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b6e3d0653002..46c69283a67b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++config ARCH_HAS_MEM_ENCRYPT
++        def_bool y
 +
- 	/* Register it with the host. */
-+	queue = virtqueue_get_desc_addr(vq);
- 	if (vcdev->revision == 0) {
--		info->info_block->l.queue = (__u64)info->queue;
-+		info->info_block->l.queue = queue;
- 		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
- 		info->info_block->l.index = i;
- 		info->info_block->l.num = info->num;
- 		ccw->count = sizeof(info->info_block->l);
- 	} else {
--		info->info_block->s.desc = (__u64)info->queue;
-+		info->info_block->s.desc = queue;
- 		info->info_block->s.index = i;
- 		info->info_block->s.num = info->num;
- 		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
-@@ -572,8 +563,6 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
- 	if (vq)
- 		vring_del_virtqueue(vq);
- 	if (info) {
--		if (info->queue)
--			free_pages_exact(info->queue, size);
- 		kfree(info->info_block);
- 	}
- 	kfree(info);
+ config MMU
+ 	def_bool y
+ 
+@@ -190,6 +193,7 @@ config S390
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select VIRT_TO_BUS
+ 	select HAVE_NMI
++	select SWIOTLB
+ 
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 12d77cb11fe5..ba55cd472950 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -8,7 +8,6 @@ generic-y += asm-offsets.h
+ generic-y += cacheflush.h
+ generic-y += device.h
+ generic-y += dma-contiguous.h
+-generic-y += dma-mapping.h
+ generic-y += div64.h
+ generic-y += emergency-restart.h
+ generic-y += export.h
+diff --git a/arch/s390/include/asm/dma-mapping.h b/arch/s390/include/asm/dma-mapping.h
+new file mode 100644
+index 000000000000..8985da6ecdfd
+--- /dev/null
++++ b/arch/s390/include/asm/dma-mapping.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_S390_DMA_MAPPING_H
++#define _ASM_S390_DMA_MAPPING_H
++
++#include <linux/dma-contiguous.h>
++
++static inline const struct dma_map_ops *get_arch_dma_ops(struct bus_type *bus)
++{
++	return NULL;
++}
++
++#endif /* _ASM_S390_DMA_MAPPING_H */
++
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+new file mode 100644
+index 000000000000..0898c09a888c
+--- /dev/null
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_MEM_ENCRYPT_H__
++#define S390_MEM_ENCRYPT_H__
++
++#ifndef __ASSEMBLY__
++
++#define sme_me_mask	0ULL
++
++static inline bool sme_active(void) { return false; }
++extern bool sev_active(void);
++
++int set_memory_encrypted(unsigned long addr, int numpages);
++int set_memory_decrypted(unsigned long addr, int numpages);
++
++#endif	/* __ASSEMBLY__ */
++
++#endif	/* S390_MEM_ENCRYPT_H__ */
++
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 3e82f66d5c61..a47bd4998d24 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -18,6 +18,7 @@
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -29,6 +30,7 @@
+ #include <linux/export.h>
+ #include <linux/cma.h>
+ #include <linux/gfp.h>
++#include <linux/dma-mapping.h>
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -42,6 +44,7 @@
+ #include <asm/sclp.h>
+ #include <asm/set_memory.h>
+ #include <asm/kasan.h>
++#include <asm/dma-mapping.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -126,6 +129,45 @@ void mark_rodata_ro(void)
+ 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
+ }
+ 
++int set_memory_encrypted(unsigned long addr, int numpages)
++{
++	/* also called for the swiotlb bounce buffers, make all pages shared */
++	/* TODO: do ultravisor calls */
++	return 0;
++}
++EXPORT_SYMBOL_GPL(set_memory_encrypted);
++
++int set_memory_decrypted(unsigned long addr, int numpages)
++{
++	/* also called for the swiotlb bounce buffers, make all pages shared */
++	/* TODO: do ultravisor calls */
++	return 0;
++}
++EXPORT_SYMBOL_GPL(set_memory_decrypted);
++
++/* are we a protected virtualization guest? */
++bool sev_active(void)
++{
++	/*
++	 * TODO: Do proper detection using ultravisor, for now let us fake we
++	 *  have it so the code gets exercised.
++	 */
++	return true;
++}
++EXPORT_SYMBOL_GPL(sev_active);
++
++/* protected virtualization */
++static void pv_init(void)
++{
++	if (!sev_active())
++		return;
++
++	/* make sure bounce buffers are shared */
++	swiotlb_init(1);
++	swiotlb_update_mem_attributes();
++	swiotlb_force = SWIOTLB_FORCE;
++}
++
+ void __init mem_init(void)
+ {
+ 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+@@ -134,6 +176,8 @@ void __init mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
++	pv_init();
++
+ 	/* Setup guest page hinting */
+ 	cmma_init();
+ 
 -- 
 2.16.4
