@@ -1,10 +1,10 @@
 Return-Path: <SRS0=rjTT=SG=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [RFC PATCH 06/12] s390/airq: use DMA memory for adapter interrupts
-Date: Fri,  5 Apr 2019 01:16:16 +0200
+Subject: [RFC PATCH 10/12] virtio/s390: consolidate DMA allocations
+Date: Fri,  5 Apr 2019 01:16:20 +0200
 In-Reply-To: <20190404231622.52531-1-pasic@linux.ibm.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-Message-Id: <20190404231622.52531-7-pasic@linux.ibm.com>
+Message-Id: <20190404231622.52531-11-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,137 +12,168 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Protected virtualization guests have to use shared pages for airq
-notifier bit vectors, because hypervisor needs to write these bits.
-
-Let us make sure we allocate DMA memory for the notifier bit vectors.
+We can reduce the number of DMA allocations by pulling the bits
+of memory that belongs to virtio_ccw_device and needs to be DMA
+memory into a single area.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/s390/include/asm/airq.h |  2 ++
- arch/s390/include/asm/cio.h  |  1 +
- drivers/s390/cio/airq.c      | 18 ++++++++++++++----
- drivers/s390/cio/css.c       |  8 +++++++-
- 4 files changed, 24 insertions(+), 5 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 48 ++++++++++++++--------------------------
+ 1 file changed, 16 insertions(+), 32 deletions(-)
 
-diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-index fcf539efb32f..1492d4856049 100644
---- a/arch/s390/include/asm/airq.h
-+++ b/arch/s390/include/asm/airq.h
-@@ -11,6 +11,7 @@
- #define _ASM_S390_AIRQ_H
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index aa45a6a027ae..7268149f2ee8 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -49,12 +49,12 @@ struct vq_config_block {
+ struct vcdev_dma_area {
+ 	unsigned long indicators;
+ 	unsigned long indicators2;
++	struct vq_config_block config_block;
++	__u8 status; /* TODO check __aligned(8); */
+ };
  
- #include <linux/bit_spinlock.h>
-+#include <linux/dma-mapping.h>
+ struct virtio_ccw_device {
+ 	struct virtio_device vdev;
+-	__u8 *status;
+-	dma_addr_t status_dma_addr;
+ 	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
+ 	struct ccw_device *cdev;
+ 	__u32 curr_io;
+@@ -64,8 +64,6 @@ struct virtio_ccw_device {
+ 	spinlock_t lock;
+ 	struct mutex io_lock; /* Serializes I/O requests */
+ 	struct list_head virtqueues;
+-	struct vq_config_block *config_block;
+-	dma_addr_t config_block_dma_addr;
+ 	bool is_thinint;
+ 	bool going_away;
+ 	bool device_lost;
+@@ -450,15 +448,15 @@ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+ {
+ 	int ret;
  
- struct airq_struct {
- 	struct hlist_node list;		/* Handler queueing. */
-@@ -29,6 +30,7 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
- /* Adapter interrupt bit vector */
- struct airq_iv {
- 	unsigned long *vector;	/* Adapter interrupt bit vector */
-+	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
- 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
- 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
- 	unsigned long *ptr;	/* Pointer associated with each bit */
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 4510e418614a..036d3a40d10d 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -330,6 +330,7 @@ extern void css_schedule_reprobe(void);
- 
- extern void *cio_dma_zalloc(size_t size);
- extern void cio_dma_free(void *cpu_addr, size_t size);
-+extern struct device *cio_get_dma_css_dev(void);
- 
- /* Function from drivers/s390/cio/chsc.c */
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index a45011e4529e..7a5c0a08ee09 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -19,6 +19,7 @@
- 
- #include <asm/airq.h>
- #include <asm/isc.h>
-+#include <asm/cio.h>
- 
- #include "cio.h"
- #include "cio_debug.h"
-@@ -113,6 +114,11 @@ void __init init_airq_interrupts(void)
- 	setup_irq(THIN_INTERRUPT, &airq_interrupt);
+-	vcdev->config_block->index = index;
++	vcdev->dma_area->config_block.index = index;
+ 	ccw->cmd_code = CCW_CMD_READ_VQ_CONF;
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(struct vq_config_block);
+-	ccw->cda = (__u32)(unsigned long)(vcdev->config_block);
++	ccw->cda = (__u32)(unsigned long)(&vcdev->dma_area->config_block);
+ 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_VQ_CONF);
+ 	if (ret)
+ 		return ret;
+-	return vcdev->config_block->num ?: -ENOENT;
++	return vcdev->dma_area->config_block.num ?: -ENOENT;
  }
  
-+static inline unsigned long iv_size(unsigned long bits)
-+{
-+	return BITS_TO_LONGS(bits) * sizeof(unsigned long);
-+}
-+
- /**
-  * airq_iv_create - create an interrupt vector
-  * @bits: number of bits in the interrupt vector
-@@ -123,14 +129,15 @@ void __init init_airq_interrupts(void)
- struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- {
- 	struct airq_iv *iv;
--	unsigned long size;
-+	unsigned long size = 0;
+ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
+@@ -754,7 +752,7 @@ static void virtio_ccw_reset(struct virtio_device *vdev)
+ 		return;
  
- 	iv = kzalloc(sizeof(*iv), GFP_KERNEL);
- 	if (!iv)
- 		goto out;
- 	iv->bits = bits;
--	size = BITS_TO_LONGS(bits) * sizeof(unsigned long);
--	iv->vector = kzalloc(size, GFP_KERNEL);
-+	size = iv_size(bits);
-+	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
-+						 &iv->vector_dma, GFP_KERNEL);
- 	if (!iv->vector)
+ 	/* Zero status bits. */
+-	*vcdev->status = 0;
++	vcdev->dma_area->status = 0;
+ 
+ 	/* Send a reset ccw on device. */
+ 	ccw->cmd_code = CCW_CMD_VDEV_RESET;
+@@ -967,11 +965,11 @@ static void virtio_ccw_set_config(struct virtio_device *vdev,
+ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+-	u8 old_status = *vcdev->status;
++	u8 old_status = vcdev->dma_area->status;
+ 	vc_dma_decl_struct(ccw1, ccw);
+ 
+ 	if (vcdev->revision < 1)
+-		return *vcdev->status;
++		return vcdev->dma_area->status;
+ 
+ 	vc_dma_alloc_struct(vdev, ccw);
+ 	if (!ccw)
+@@ -979,24 +977,24 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+ 
+ 	ccw->cmd_code = CCW_CMD_READ_STATUS;
+ 	ccw->flags = 0;
+-	ccw->count = sizeof(*vcdev->status);
+-	ccw->cda = (__u32)(unsigned long)vcdev->status;
++	ccw->count = sizeof(vcdev->dma_area->status);
++	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
+ 	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_READ_STATUS);
+ /*
+  * If the channel program failed (should only happen if the device
+  * was hotunplugged, and then we clean up via the machine check
+- * handler anyway), vcdev->status was not overwritten and we just
++ * handler anyway), vcdev->dma_area->status was not overwritten and we just
+  * return the old status, which is fine.
+ */
+ 	vc_dma_free_struct(vdev, ccw);
+ 
+-	return *vcdev->status;
++	return vcdev->dma_area->status;
+ }
+ 
+ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+-	u8 old_status = *vcdev->status;
++	u8 old_status = vcdev->dma_area->status;
+ 	vc_dma_decl_struct(ccw1, ccw);
+ 	int ret;
+ 
+@@ -1005,15 +1003,15 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+ 		return;
+ 
+ 	/* Write the status to the host. */
+-	*vcdev->status = status;
++	vcdev->dma_area->status = status;
+ 	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(status);
+-	ccw->cda = (__u32)(unsigned long)vcdev->status;
++	ccw->cda = (__u32)(unsigned long)&vcdev->dma_area->status;
+ 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_STATUS);
+ 	/* Write failed? We assume status is unchanged. */
+ 	if (ret)
+-		*vcdev->status = old_status;
++		vcdev->dma_area->status = old_status;
+ 	vc_dma_free_struct(vdev, ccw);
+ }
+ 
+@@ -1047,8 +1045,6 @@ static void virtio_ccw_release_dev(struct device *_d)
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_ccw_device *vcdev = to_vc_device(dev);
+ 
+-	vc_dma_free_struct(dev, vcdev->status);
+-	vc_dma_free_struct(dev, vcdev->config_block);
+ 	__vc_dma_free(&vcdev->vdev, PAGE_SIZE, vcdev->dma_area,
+ 		      vcdev->dma_area_dma_addr);
+ 	kfree(vcdev);
+@@ -1322,16 +1318,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
  		goto out_free;
- 	if (flags & AIRQ_IV_ALLOC) {
-@@ -165,7 +172,8 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- 	kfree(iv->ptr);
- 	kfree(iv->bitlock);
- 	kfree(iv->avail);
--	kfree(iv->vector);
-+	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
-+			  iv->vector_dma);
- 	kfree(iv);
- out:
- 	return NULL;
-@@ -182,6 +190,8 @@ void airq_iv_release(struct airq_iv *iv)
- 	kfree(iv->ptr);
- 	kfree(iv->bitlock);
- 	kfree(iv->vector);
-+	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
-+			  iv->vector, iv->vector_dma);
- 	kfree(iv->avail);
- 	kfree(iv);
- }
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 72629d99d8e4..9e21c2a50682 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -1031,13 +1031,19 @@ static struct gen_pool *cio_dma_pool;
- static struct device *cio_dma_css;
- static gfp_t  cio_dma_flags;
+ 	}
  
-+
-+struct device *cio_get_dma_css_dev(void)
-+{
-+	return &channel_subsystems[0]->device;
-+}
-+
- static void __init cio_dma_pool_init(void)
- {
- 	void *cpu_addr;
- 	dma_addr_t dma_addr;
- 	int i;
- 
--	cio_dma_css = &channel_subsystems[0]->device;
-+	cio_dma_css =  cio_get_dma_css_dev();
- 	cio_dma_flags = GFP_DMA | GFP_KERNEL | __GFP_ZERO;
- 	cio_dma_pool = gen_pool_create(3, -1);
- 	/* No need to free up the resources: compiled in */
+-	vc_dma_alloc_struct(&vcdev->vdev, vcdev->config_block);
+-	if (!vcdev->config_block) {
+-		ret = -ENOMEM;
+-		goto out_free;
+-	}
+-	vc_dma_alloc_struct(&vcdev->vdev, vcdev->status);
+-	if (!vcdev->status) {
+-		ret = -ENOMEM;
+-		goto out_free;
+-	}
+ 	vcdev->dma_area = __vc_dma_alloc(&vcdev->vdev, PAGE_SIZE,
+ 					 &vcdev->dma_area_dma_addr);
+ 	if (!vcdev->dma_area) {
+@@ -1374,8 +1360,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 	return ret;
+ out_free:
+ 	if (vcdev) {
+-		vc_dma_free_struct(&vcdev->vdev, vcdev->status);
+-		vc_dma_free_struct(&vcdev->vdev, vcdev->config_block);
+ 		__vc_dma_free(&vcdev->vdev, PAGE_SIZE, vcdev->dma_area,
+ 			      vcdev->dma_area_dma_addr);
+ 	}
 -- 
 2.16.4
