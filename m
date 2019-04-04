@@ -1,39 +1,205 @@
-Return-Path: <SRS0=oHH8=SG=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH] s390: mmap base does not depend on ADDR_NO_RANDOMIZE personality
-Date: Thu,  4 Apr 2019 02:19:56 -0400
-Message-Id: <20190404061956.25507-1-alex@ghiti.fr>
+Return-Path: <SRS0=X2Y2=SG=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.19 124/187] perf/aux: Make perf_event accessible to
+ setup_aux()
+Date: Thu,  4 Apr 2019 10:47:41 +0200
+Message-Id: <20190404084609.076931407@linuxfoundation.org>
+In-Reply-To: <20190404084603.119654039@linuxfoundation.org>
+References: <20190404084603.119654039@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, Alexandre Ghiti <alex@ghiti.fr>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: linux-kernel@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, Suzuki Poulouse <suzuki.poulose@arm.com>, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Adrian Hunter <adrian.hunter@intel.com>, stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, Arnaldo Carvalho de Melo <acme@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Will Deacon <will.deacon@arm.com>, "H. Peter Anvin" <hpa@zytor.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jiri Olsa <jolsa@redhat.com>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-randomize_stack_top() checks for current task flag PF_RANDOMIZE in order
-to use stack randomization and PF_RANDOMIZE is set when
-ADDR_NO_RANDOMIZE is unset, so no need to check for ADDR_NO_RANDOMIZE
-in stack_maxrandom_size.
+4.19-stable review patch.  If anyone has any objections, please let me know.
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+------------------
+
+[ Upstream commit 840018668ce2d96783356204ff282d6c9b0e5f66 ]
+
+When pmu::setup_aux() is called the coresight PMU needs to know which
+sink to use for the session by looking up the information in the
+event's attr::config2 field.
+
+As such simply replace the cpu information by the complete perf_event
+structure and change all affected customers.
+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Suzuki Poulouse <suzuki.poulose@arm.com>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Link: http://lkml.kernel.org/r/20190131184714.20388-2-mathieu.poirier@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/mmap.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c                  | 6 +++---
+ arch/x86/events/intel/bts.c                      | 4 +++-
+ arch/x86/events/intel/pt.c                       | 5 +++--
+ drivers/hwtracing/coresight/coresight-etm-perf.c | 6 +++---
+ drivers/perf/arm_spe_pmu.c                       | 6 +++---
+ include/linux/perf_event.h                       | 2 +-
+ kernel/events/ring_buffer.c                      | 2 +-
+ 7 files changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-index 687f2a4d3459..5185ed0a0463 100644
---- a/arch/s390/mm/mmap.c
-+++ b/arch/s390/mm/mmap.c
-@@ -24,8 +24,7 @@ static unsigned long stack_maxrandom_size(void)
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 5c53e977be62..44404836e9d1 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1600,7 +1600,7 @@ static void aux_sdb_init(unsigned long sdb)
+ 
+ /*
+  * aux_buffer_setup() - Setup AUX buffer for diagnostic mode sampling
+- * @cpu:	On which to allocate, -1 means current
++ * @event:	Event the buffer is setup for, event->cpu == -1 means current
+  * @pages:	Array of pointers to buffer pages passed from perf core
+  * @nr_pages:	Total pages
+  * @snapshot:	Flag for snapshot mode
+@@ -1612,8 +1612,8 @@ static void aux_sdb_init(unsigned long sdb)
+  *
+  * Return the private AUX buffer structure if success or NULL if fails.
+  */
+-static void *aux_buffer_setup(int cpu, void **pages, int nr_pages,
+-			      bool snapshot)
++static void *aux_buffer_setup(struct perf_event *event, void **pages,
++			      int nr_pages, bool snapshot)
  {
- 	if (!(current->flags & PF_RANDOMIZE))
- 		return 0;
--	if (current->personality & ADDR_NO_RANDOMIZE)
--		return 0;
-+
- 	return STACK_RND_MASK << PAGE_SHIFT;
+ 	struct sf_buffer *sfb;
+ 	struct aux_buffer *aux;
+diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
+index 24ffa1e88cf9..7139f6bf27ad 100644
+--- a/arch/x86/events/intel/bts.c
++++ b/arch/x86/events/intel/bts.c
+@@ -77,10 +77,12 @@ static size_t buf_size(struct page *page)
  }
  
+ static void *
+-bts_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool overwrite)
++bts_buffer_setup_aux(struct perf_event *event, void **pages,
++		     int nr_pages, bool overwrite)
+ {
+ 	struct bts_buffer *buf;
+ 	struct page *page;
++	int cpu = event->cpu;
+ 	int node = (cpu == -1) ? cpu : cpu_to_node(cpu);
+ 	unsigned long offset;
+ 	size_t size = nr_pages << PAGE_SHIFT;
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 8d016ce5b80d..8f4c98fdd03c 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -1104,10 +1104,11 @@ static int pt_buffer_init_topa(struct pt_buffer *buf, unsigned long nr_pages,
+  * Return:	Our private PT buffer structure.
+  */
+ static void *
+-pt_buffer_setup_aux(int cpu, void **pages, int nr_pages, bool snapshot)
++pt_buffer_setup_aux(struct perf_event *event, void **pages,
++		    int nr_pages, bool snapshot)
+ {
+ 	struct pt_buffer *buf;
+-	int node, ret;
++	int node, ret, cpu = event->cpu;
+ 
+ 	if (!nr_pages)
+ 		return NULL;
+diff --git a/drivers/hwtracing/coresight/coresight-etm-perf.c b/drivers/hwtracing/coresight/coresight-etm-perf.c
+index 677695635211..0f5e03e4df22 100644
+--- a/drivers/hwtracing/coresight/coresight-etm-perf.c
++++ b/drivers/hwtracing/coresight/coresight-etm-perf.c
+@@ -181,15 +181,15 @@ static void etm_free_aux(void *data)
+ 	schedule_work(&event_data->work);
+ }
+ 
+-static void *etm_setup_aux(int event_cpu, void **pages,
++static void *etm_setup_aux(struct perf_event *event, void **pages,
+ 			   int nr_pages, bool overwrite)
+ {
+-	int cpu;
++	int cpu = event->cpu;
+ 	cpumask_t *mask;
+ 	struct coresight_device *sink;
+ 	struct etm_event_data *event_data = NULL;
+ 
+-	event_data = alloc_event_data(event_cpu);
++	event_data = alloc_event_data(cpu);
+ 	if (!event_data)
+ 		return NULL;
+ 	INIT_WORK(&event_data->work, free_event_data);
+diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
+index e1a77b2de78a..3623f6489f49 100644
+--- a/drivers/perf/arm_spe_pmu.c
++++ b/drivers/perf/arm_spe_pmu.c
+@@ -824,10 +824,10 @@ static void arm_spe_pmu_read(struct perf_event *event)
+ {
+ }
+ 
+-static void *arm_spe_pmu_setup_aux(int cpu, void **pages, int nr_pages,
+-				   bool snapshot)
++static void *arm_spe_pmu_setup_aux(struct perf_event *event, void **pages,
++				   int nr_pages, bool snapshot)
+ {
+-	int i;
++	int i, cpu = event->cpu;
+ 	struct page **pglist;
+ 	struct arm_spe_pmu_buf *buf;
+ 
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index c2876e740514..42fc852bf512 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -409,7 +409,7 @@ struct pmu {
+ 	/*
+ 	 * Set up pmu-private data structures for an AUX area
+ 	 */
+-	void *(*setup_aux)		(int cpu, void **pages,
++	void *(*setup_aux)		(struct perf_event *event, void **pages,
+ 					 int nr_pages, bool overwrite);
+ 					/* optional */
+ 
+diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
+index 5631af940316..474b2ccdbe69 100644
+--- a/kernel/events/ring_buffer.c
++++ b/kernel/events/ring_buffer.c
+@@ -648,7 +648,7 @@ int rb_alloc_aux(struct ring_buffer *rb, struct perf_event *event,
+ 			goto out;
+ 	}
+ 
+-	rb->aux_priv = event->pmu->setup_aux(event->cpu, rb->aux_pages, nr_pages,
++	rb->aux_priv = event->pmu->setup_aux(event, rb->aux_pages, nr_pages,
+ 					     overwrite);
+ 	if (!rb->aux_priv)
+ 		goto out;
 -- 
-2.20.1
+2.19.1
+
+
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
