@@ -1,77 +1,95 @@
-Return-Path: <SRS0=PCIz=SS=vger.kernel.org=kvm-owner@kernel.org>
-Date: Tue, 16 Apr 2019 15:31:30 +0200
+Return-Path: <SRS0=rjTT=SG=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
-In-Reply-To: <alpine.LFD.2.21.1904161436400.2054@schleppi>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-5-pasic@linux.ibm.com>
-        <alpine.LFD.2.21.1904111955520.2283@schleppi>
-        <20190412132010.3c74cb63@oc2783563651>
-        <alpine.LFD.2.21.1904121343040.1771@schleppi>
-        <20190412173017.04b768bb@oc2783563651>
-        <alpine.LFD.2.21.1904161436400.2054@schleppi>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190416153130.2b430744@oc2783563651>
+Subject: [RFC PATCH 00/12] s390: virtio: support protected virtualization
+Date: Fri,  5 Apr 2019 01:16:10 +0200
+Message-Id: <20190404231622.52531-1-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 16 Apr 2019 14:50:14 +0200 (CEST)
-Sebastian Ott <sebott@linux.ibm.com> wrote:
+Enhanced virtualization protection technology may require the use of
+bounce buffers for I/O. While support for this was built into the virtio
+core,  virtio-ccw wasn't changed accordingly.
 
-> On Fri, 12 Apr 2019, Halil Pasic wrote:
-> > On Fri, 12 Apr 2019 14:12:31 +0200 (CEST)
-> > Sebastian Ott <sebott@linux.ibm.com> wrote:
-> > > On Fri, 12 Apr 2019, Halil Pasic wrote:
-> > > > On Thu, 11 Apr 2019 20:25:01 +0200 (CEST)
-> > > > Sebastian Ott <sebott@linux.ibm.com> wrote:
-> > > > > I don't think we should use this global DMA pool. I guess it's OK for
-> > > > > stuff like airq (where we don't have a struct device at hand) but for
-> > > > > CCW we should use the device we have. Yes, this way we waste some memory
-> > > > > but all dma memory a device uses should fit in a page - so the wastage
-> > > > > is not too much.
-> > 
-> > Regarding the wastage. Let us do the math together in search for an
-> > upper (wastage) limit.
-> [...]
-> > Currently we need at least 224 bytes per device that is ~ 6%
-> > of a PAGE_SIZE.
-> 
-> Yes, we basically waste the whole page. I'm ok with that if the benefit is
-> to play nice with the kernel APIs.
-> 
-> > > For practical
-> > > matters: DMA debugging will complain about misuse of a specific device or
-> > > driver.
-> > > 
-> > 
-> > Do you mean CONFIG_DMA_API_DEBUG and CONFIG_DMA_API_DEBUG_SG? I've been
-> > running with those and did not see any complaints. Maybe we should
-> > clarify this one offline...
-> 
-> I didn't mean to imply that there are bugs already - just that when used
-> as intended the DMA_DEBUG_API can complain about stuff like "your device
-> is gone but you have still DMA memory set up for it" which will not work
-> if you don't use the correct device...
-> 
+Thus what needs to be done to bring virtio-ccw up to speed with respect
+to this is:
+* use some 'new' common virtio stuff
+* make sure that virtio-ccw specific stuff uses shared memory when
+  talking to the hypervisor (except communication blocks like ORB, these
+  are handled by the hypervisor)
+* make sure the DMA API does what is necessary to talk through shared
+  memory if we are a protected virtualization guest.
+* make sure the common IO layer plays along as well (airqs, sense).
 
-Right. In fact the 'real' allocations happen using gen_pool, and the pool
-never shrinks.
+The series is structured in incremental fashion: some of the changes are
+overridden by following patches. The main reason why is that this is how I
+developed. But I think it ain't bad for the didactic and we are a bit more
+flexible with regards to throwing out some of the stuff in the end.
 
-IMHO as so often in software engineering we have a trade-off here. I'm
-still not convinced I traded badly here, but I will take the request of
-yours to tie the dma allocations to a more the device requiring the dma
-as a maintainers request, and accommodate it in v1.
+Important notes:
 
-Are you fine with having a similar gen_pool backed with dma_pages on a
-per struct io_subchannel_private basis?
+* This is an early (WIP) RFC that does not add any function to the
+  kernel at his stage, as the ultravisor interactions are left out.
+  The purpose is getting some early feedback ASAP.
 
-Based on our offline chat I think you are, but but better safe than sorry.
+* In future these patches will depend on some code interacting with the
+  ultravisor (WIP by Vasily and Janosch).
 
-Regards,
-Halil
+* The s390 names are by no means final, and are not properly explained. Should
+  not hamper understanding too much. If it does please ask.
+
+* The existing naming in the common infrastructure (kernel internal
+  interfaces) is pretty much based on the AMD SEV terminology. Thus the
+  names aren't always perfect. There might be merit to changing these
+  names to more abstract ones. I did not put much thought into that at
+  the current stage.
+
+
+Testing:
+
+Please use iommu_platform=on for any virtio devices you are going
+to test this code with (so virtio actually uses the DMA API).
+
+Looking forward to your review or any other type of input.
+
+Halil Pasic (12):
+  virtio/s390: use vring_create_virtqueue
+  virtio/s390: DMA support for virtio-ccw
+  s390/mm: force swiotlb for protected virtualization
+  s390/cio: introduce cio DMA pool
+  s390/cio: add protected virtualization support to cio
+  s390/airq: use DMA memory for adapter interrupts
+  virtio/s390: use DMA memory for ccw I/O
+  virtio/s390: add indirection to indicators access
+  virtio/s390: use DMA memory for notifiers
+  virtio/s390: consolidate DMA allocations
+  virtio/s390: use the cio DMA pool
+  virtio/s390:  make airq summary indicators DMA
+
+ arch/s390/Kconfig                   |   5 +
+ arch/s390/include/asm/Kbuild        |   1 -
+ arch/s390/include/asm/airq.h        |   2 +
+ arch/s390/include/asm/cio.h         |   4 +
+ arch/s390/include/asm/dma-mapping.h |  13 ++
+ arch/s390/include/asm/mem_encrypt.h |  18 +++
+ arch/s390/mm/init.c                 |  44 +++++
+ drivers/s390/cio/airq.c             |  18 ++-
+ drivers/s390/cio/ccwreq.c           |   8 +-
+ drivers/s390/cio/css.c              |  63 ++++++++
+ drivers/s390/cio/device.c           |  46 ++++--
+ drivers/s390/cio/device_fsm.c       |  40 ++---
+ drivers/s390/cio/device_id.c        |  18 +--
+ drivers/s390/cio/device_ops.c       |   4 +-
+ drivers/s390/cio/device_pgid.c      |  20 +--
+ drivers/s390/cio/device_status.c    |  24 +--
+ drivers/s390/cio/io_sch.h           |  19 ++-
+ drivers/s390/virtio/virtio_ccw.c    | 310 ++++++++++++++++++++----------------
+ 18 files changed, 444 insertions(+), 213 deletions(-)
+ create mode 100644 arch/s390/include/asm/dma-mapping.h
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
+
+-- 
+2.16.4
