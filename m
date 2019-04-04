@@ -1,15 +1,15 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-References: <20190401134104.676620247@goodmis.org> <20190401134421.442323029@goodmis.org>
-In-Reply-To: <20190401134421.442323029@goodmis.org>
+References: <20190401134104.676620247@goodmis.org> <20190401134421.278590567@goodmis.org>
+In-Reply-To: <20190401134421.278590567@goodmis.org>
 From: Max Filippov <jcmvbkbc@gmail.com>
-Date: Thu, 4 Apr 2019 11:55:29 -0700
-Message-ID: <CAMo8BfLooVJgKCPQFDXUAfieH3XAF=Bhz2PmAb+3t7BhVBW5FQ@mail.gmail.com>
-Subject: Re: [PATCH 6/6 v3] syscalls: Remove start and number from
- syscall_set_arguments() args
+Date: Thu, 4 Apr 2019 11:56:23 -0700
+Message-ID: <CAMo8BfK8gdgni3z3PKv1rd0KPFMXgDCpicQQ_obuoDAEz3PkZQ@mail.gmail.com>
+Subject: Re: [PATCH 5/6 v3] syscalls: Remove start and number from
+ syscall_get_arguments() args
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190404185529.nmkI6QLxmSxlBQH5reoN77_XbHmmO-dyh9WohNckddI@z>
+Message-ID: <20190404185623.CjKMNA-r2x5dPTZDl3Yjg4w4sH0qiDrHKoSSbOb2hk8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Steven Rostedt <rostedt@goodmis.org>
@@ -18,17 +18,23 @@ List-ID: <linux-s390.vger.kernel.org>
 
 On Mon, Apr 1, 2019 at 6:45 AM Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+> From: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
 >
-> After removing the start and count arguments of syscall_get_arguments() it
-> seems reasonable to remove them from syscall_set_arguments(). Note, as of
-> today, there are no users of syscall_set_arguments(). But we are told that
-> there will be soon. But for now, at least make it consistent with
-> syscall_get_arguments().
+> At Linux Plumbers, Andy Lutomirski approached me and pointed out that the
+> function call syscall_get_arguments() implemented in x86 was horribly
+> written and not optimized for the standard case of passing in 0 and 6 for
+> the starting index and the number of system calls to get. When looking at
+> all the users of this function, I discovered that all instances pass in only
+> 0 and 6 for these arguments. Instead of having this function handle
+> different cases that are never used, simply rewrite it to return the first 6
+> arguments of a system call.
+>
+> This should help out the performance of tracing system calls by ptrace,
+> ftrace and perf.
 
 [...]
 
->  arch/xtensa/include/asm/syscall.h     | 17 ++-----
+>  arch/xtensa/include/asm/syscall.h     | 16 ++----
 
 For xtensa changes:
 Acked-by: Max Filippov <jcmvbkbc@gmail.com>
