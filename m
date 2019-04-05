@@ -1,60 +1,119 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 4 Apr 2019 15:01:04 -0500 (CDT)
-From: Timothy Pearson <tpearson@raptorengineering.com>
-Message-ID: <401506569.4710878.1554408064001.JavaMail.zimbra@raptorengineeringinc.com>
-In-Reply-To: <nycvar.YFH.7.76.1904042145590.9803@cbobk.fhfr.pm>
-References: <cover.1554396090.git.jpoimboe@redhat.com> <91b92d8182d2f114d92c95689fcd4bb1a8dda1b0.1554396090.git.jpoimboe@redhat.com> <nycvar.YFH.7.76.1904042145590.9803@cbobk.fhfr.pm>
-Subject: Re: [PATCH RFC 3/5] powerpc/speculation: Add support for
- 'cpu_spec_mitigations=' cmdline options
+Date: Fri, 5 Apr 2019 15:12:11 +0200
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH RFC 1/5] cpu/speculation: Add 'cpu_spec_mitigations='
+ cmdline options
+Message-ID: <20190405131211.GE23348@zn.tnic>
+References: <cover.1554396090.git.jpoimboe@redhat.com>
+ <f0bd17358ab478eaca52f3b1da8305c150911b40.1554396090.git.jpoimboe@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <f0bd17358ab478eaca52f3b1da8305c150911b40.1554396090.git.jpoimboe@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190404200104.INe2nbO9Bg__dm-H_nSr2d4XkjWKVig0XnWHSYky-mk@z>
+Message-ID: <20190405131211.Q2NjuOAdnJlvlrA0AG2RZhInDwko2zhWKJScqKXcYKQ@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>, Waiman Long <longman@redhat.com>, linux-arch@vger.kernel.org, Jon Masters <jcm@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Tyler Hicks <tyhicks@canonical.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tyler Hicks <tyhicks@canonical.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Will be joining in ~ 5 mins.  Getting Chromium set up here.
+On Thu, Apr 04, 2019 at 11:44:11AM -0500, Josh Poimboeuf wrote:
+> Keeping track of the number of mitigations for all the CPU speculation
+> bugs has become overwhelming for many users.  It's getting more and more
+> complicated to decide which mitigations are needed for a given
+> architecture.  Complicating matters is the fact that each arch tends to
+> their own custom way to mitigate the same vulnerability.
 
------ Original Message -----
-> From: "Jiri Kosina" <jikos@kernel.org>
-> To: "Josh Poimboeuf" <jpoimboe@redhat.com>
-> Cc: "Peter Zijlstra" <peterz@infradead.org>, "Heiko Carstens" <heiko.carstens@de.ibm.com>, "Paul Mackerras"
-> <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, "Ingo Molnar" <mingo@kernel.org>, "Andrea Arcangeli"
-> <aarcange@redhat.com>, linux-s390@vger.kernel.org, x86@kernel.org, "Will Deacon" <will.deacon@arm.com>, "Linus
-> Torvalds" <torvalds@linux-foundation.org>, "Catalin Marinas" <catalin.marinas@arm.com>, "Waiman Long"
-> <longman@redhat.com>, linux-arch@vger.kernel.org, "Jon Masters" <jcm@redhat.com>, "Borislav Petkov" <bp@alien8.de>,
-> "Andy Lutomirski" <luto@kernel.org>, "Thomas Gleixner" <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org,
-> "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, "Tyler Hicks" <tyhicks@canonical.com>,
-> "Martin Schwidefsky" <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org
-> Sent: Thursday, April 4, 2019 2:49:05 PM
-> Subject: Re: [PATCH RFC 3/5] powerpc/speculation: Add support for 'cpu_spec_mitigations=' cmdline options
+Yap, we definitely need something like that.
 
-> On Thu, 4 Apr 2019, Josh Poimboeuf wrote:
+> Most users fall into a few basic categories:
 > 
->> Configure powerpc CPU runtime speculation bug mitigations in accordance
->> with the 'cpu_spec_mitigations=' cmdline options.  This affects
->> Meltdown, Spectre v1, Spectre v2, and Speculative Store Bypass.
-> [ ... snip ... ]
->> -	if (!no_nospec)
->> +	if (!no_nospec && cpu_spec_mitigations != CPU_SPEC_MITIGATIONS_OFF)
+> a) they want all mitigations off;
 > 
-> '!no_nospec' is something that I am sure will come back to hunt me in my
-> bad dreams.
+> b) they want all reasonable mitigations on, with SMT enabled even if
+>    it's vulnerable; or
+
+Uff, "reasonable" - there's the bikeshed waiting to happen.
+
+> c) they want all reasonable mitigations on, with SMT disabled if
+>    vulnerable.
 > 
-> But that's been there already, and fixing it is out of scope of this
-> patch. Other than that, as discussed previously -- I really like this new
-> global option. Feel free to add
+> Define a set of curated, arch-independent options, each of which is an
+> aggregation of existing options:
 > 
->	Reviewed-by: Jiri Kosina <jkosina@suse.cz>
+> - cpu_spec_mitigations=off: Disable all mitigations.
+
+"cpu_spec_mitigations" is too long, TBH.
+
+Imagine yourself in a loud, noisy data center - you basically can't wait
+to leave - crouched over a keyboard in an impossible position, having
+to type that thing and then making a typo. Whoops, too late, already
+pressed Enter. Shiiiit!
+
+Now you have to wait at least 15 mins for the damn single-threaded added
+value BIOS crap to noodle through all the cores just so you can try
+again, because you just rebooted the box.
+
+And I know, my ideas for shorter cmdline options are crazy, like
+
+cpu_spec_mtg=
+
+which people would say, yuck, unreadable...
+
+Oh, I know! How about
+
+cpu_vulns=
+
+?
+
+We already have /sys/devices/system/cpu/vulnerabilities so it'll be the
+same as that. Less things to remember.
+
+> - cpu_spec_mitigations=auto: [default] Enable all the default
+>   mitigations, but leave SMT enabled, even if it's vulnerable.
 > 
-> for the whole set.
+> - cpu_spec_mitigations=auto,nosmt: Enable all the default mitigations,
+>   disabling SMT if needed by a mitigation.
+
+Yah, the suboption choices make sense to me.
+
 > 
-> Thanks,
+> Currently, these options are placeholders which don't actually do
+> anything.  They will be fleshed out in upcoming patches.
 > 
-> --
-> Jiri Kosina
-> SUSE Labs
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> ---
+>  .../admin-guide/kernel-parameters.txt         | 23 +++++++++++++++++++
+>  include/linux/cpu.h                           |  8 +++++++
+>  kernel/cpu.c                                  | 15 ++++++++++++
+>  3 files changed, 46 insertions(+)
+> 
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+> index c4d830003b21..ac42e510bd6e 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -2544,6 +2544,29 @@
+>  			in the "bleeding edge" mini2440 support kernel at
+>  			http://repo.or.cz/w/linux-2.6/mini2440.git
+>  
+> +	cpu_spec_mitigations=
+> +			[KNL] Control mitigations for CPU speculation
+> +			vulnerabilities on affected CPUs.  This is a set of
+> +			curated, arch-independent options, each of which is an
+> +			aggregation of existing options.
+> +
+> +			off
+> +				Disable all speculative CPU mitigations.
+
+Alias to
+
+cpu_vulns=make_linux_fast_again
+
+:-P
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
