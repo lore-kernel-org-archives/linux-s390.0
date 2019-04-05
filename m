@@ -1,53 +1,90 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Fri, 5 Apr 2019 17:26:50 +0200
-From: Borislav Petkov <bp@alien8.de>
+Date: Fri, 5 Apr 2019 10:30:48 -0500
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 Subject: Re: [PATCH RFC 2/5] x86/speculation: Add support for
  'cpu_spec_mitigations=' cmdline options
-Message-ID: <20190405152650.GH23348@zn.tnic>
+Message-ID: <20190405153048.knaizips2n27fwtx@treble>
 References: <cover.1554396090.git.jpoimboe@redhat.com>
  <78c63cb08f36f55407f534d49cc2543079e44dbb.1554396090.git.jpoimboe@redhat.com>
  <20190405135712.GF23348@zn.tnic>
- <20190405143101.ksj7ayjis4p52dgt@treble>
+ <5ccc7515-33e6-b726-833e-9553ab0f4c6a@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190405143101.ksj7ayjis4p52dgt@treble>
+In-Reply-To: <5ccc7515-33e6-b726-833e-9553ab0f4c6a@infradead.org>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190405152650.DqBCc8B5pVR8hG3DaAapjrpOZ6Bf20rzQgqS0JGbMCs@z>
+Message-ID: <20190405153048.O_Br143nVxVMU9csW4aOtbQpM08-f4KvQ02DvzZx_s8@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tyler Hicks <tyhicks@canonical.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tyler Hicks <tyhicks@canonical.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, Apr 05, 2019 at 09:31:01AM -0500, Josh Poimboeuf wrote:
-> My thinking was that the individual options could be used to override
-> the global option.  But maybe that's overkill?  I dunno.
+On Fri, Apr 05, 2019 at 08:18:09AM -0700, Randy Dunlap wrote:
+> On 4/5/19 6:57 AM, Borislav Petkov wrote:
+> > On Thu, Apr 04, 2019 at 11:44:12AM -0500, Josh Poimboeuf wrote:
+> >> Configure x86 runtime CPU speculation bug mitigations in accordance with
+> >> the 'cpu_spec_mitigations=' cmdline options.  This affects Meltdown,
+> >> Spectre v2, Speculative Store Bypass, and L1TF.
+> >>
+> >> The default behavior is unchanged.
+> >>
+> >> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> >> ---
+> >>  .../admin-guide/kernel-parameters.txt         | 15 +++++++++
+> >>  arch/x86/include/asm/processor.h              |  1 +
+> >>  arch/x86/kernel/cpu/bugs.c                    | 32 ++++++++++++++++---
+> >>  arch/x86/kvm/vmx/vmx.c                        |  2 ++
+> >>  arch/x86/mm/pti.c                             |  4 ++-
+> >>  5 files changed, 49 insertions(+), 5 deletions(-)
+> >>
+> >> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+> >> index ac42e510bd6e..29dc03971630 100644
+> >> --- a/Documentation/admin-guide/kernel-parameters.txt
+> >> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> >> @@ -2552,6 +2552,11 @@
+> >>  
+> >>  			off
+> >>  				Disable all speculative CPU mitigations.
+> >> +				Equivalent to: nopti [x86]
+> >> +					       nospectre_v2 [x86]
+> >> +					       spectre_v2_user=off [x86]
+> >> +					       spec_store_bypass_disable=off [x86]
+> >> +					       l1tf=off [x86]
+> >>  
+> >>  			auto (default)
+> >>  				Mitigate all speculative CPU vulnerabilities,
+> >> @@ -2560,12 +2565,22 @@
+> >>  				surprised by SMT getting disabled across kernel
+> >>  				upgrades, or who have other ways of avoiding
+> >>  				SMT-based attacks.
+> >> +				Equivalent to: pti=auto [x86]
+> >> +					       spectre_v2=auto [x86]
+> >> +					       spectre_v2_user=auto [x86]
+> >> +					       spec_store_bypass_disable=auto [x86]
+> >> +					       l1tf=flush [x86]
+> >>  
+> >>  			auto,nosmt
+> >>  				Mitigate all speculative CPU vulnerabilities,
+> >>  				disabling SMT if needed.  This is for users who
+> >>  				always want to be fully mitigated, even if it
+> >>  				means losing SMT.
+> >> +				Equivalent to: pti=auto [x86]
+> >> +					       spectre_v2=auto [x86]
+> >> +					       spectre_v2_user=auto [x86]
+> >> +					       spec_store_bypass_disable=auto [x86]
+> >> +					       l1tf=flush,nosmt [x86]
+> >>  
+> >>  	mminit_loglevel=
+> >>  			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
+> > 
+> > Yap, those sets look ok.
+> 
+> nit:  s/x86/X86/g
+> according to Documentation/admin-guide/kernel-parameters.rst
 
-You mean if the user deliberately types:
-
-"cpu_spec_mitigations=off spectre_v2=auto"
-
-on the cmdline to turn off all and then enable only one?
-
-Hmm, yap, sounds like an overkill to me. Then I'd probably do:
-
-	pr_err("Make up your mind already!\n");
-	return;
-
-:-))
-
-I'd say let's do the simpler and cleaner thing now and think about
-supporting this overkill when it really turns out that it is needed.
-
-> I assume you mean just the part where L1TF_MITIGATION_DEFAULT is added?
-
-Yap.
-
-Thx.
+Ah, I didn't realize I was conforming to a standard.  I will update the
+other arch strings as well.  Thanks.
 
 -- 
-Regards/Gruss,
-    Boris.
-
-Good mailing practices for 400: avoid top-posting and trim the reply.
+Josh
