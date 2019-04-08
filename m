@@ -1,12 +1,12 @@
 Return-Path: <SRS0=nFot=SK=vger.kernel.org=kvm-owner@kernel.org>
 From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [RFC v2 1/3] vfio-ccw: Do not call flush_workqueue while holding the spinlock
-Date: Mon,  8 Apr 2019 17:05:31 -0400
+Subject: [RFC v2 2/3] vfio-ccw: Prevent quiesce function going into an infinite loop
+Date: Mon,  8 Apr 2019 17:05:32 -0400
 In-Reply-To: <cover.1554756534.git.alifm@linux.ibm.com>
 References: <cover.1554756534.git.alifm@linux.ibm.com>
 In-Reply-To: <cover.1554756534.git.alifm@linux.ibm.com>
 References: <cover.1554756534.git.alifm@linux.ibm.com>
-Message-Id: <626bab8bb2958ae132452e1ddaf1b20882ad5a9d.1554756534.git.alifm@linux.ibm.com>
+Message-Id: <2c17cf29fbce8fc1cfbf60cfd04559d00c8eeac0.1554756534.git.alifm@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -14,61 +14,73 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: farman@linux.ibm.com, cohuck@redhat.com, pasic@linux.ibm.com, pmorel@linux.ibm.com, alifm@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Currently we call flush_workqueue while holding the subchannel
-spinlock. But flush_workqueue function can go to sleep, so
-do not call the function while holding the spinlock.
+The quiesce function calls cio_cancel_halt_clear() and if we
+get an -EBUSY we go into a loop where we:
+	- wait for any interrupts
+	- flush all I/O in the workqueue
+	- retry cio_cancel_halt_clear
 
-Fixes the following bug:
+During the period where we are waiting for interrupts or
+flushing all I/O, the channel subsystem could have completed
+a halt/clear action and turned off the corresponding activity
+control bits in the subchannel status word. This means the next
+time we call cio_cancel_halt_clear(), we will again start by
+calling cancel subchannel and so we can be stuck between calling
+cancel and halt forever.
 
-[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
-[  285.203434] INFO: lockdep is turned off.
-....
-[  285.203485] Preemption disabled at:
-[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
-[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
-....
-[  285.203504] Call Trace:
-[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
-[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
-[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
-[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
-[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
-[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
-[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
-[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
-[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
-[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
-[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
-[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
-[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
-[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
-[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
-[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
-[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
-[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
-[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
+Rather than calling cio_cancel_halt_clear() immediately after
+waiting, let's try to disable the subchannel. If we succeed in
+disabling the subchannel then we know nothing else can happen
+with the device.
 
+Suggested-by: Eric Farman <farman@linux.ibm.com>
 Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8f06125..5aca475 100644
+index 5aca475..4405f2a 100644
 --- a/drivers/s390/cio/vfio_ccw_drv.c
 +++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -57,9 +57,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+@@ -43,26 +43,23 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+ 	if (ret != -EBUSY)
+ 		goto out_unlock;
  
++	iretry = 255;
+ 	do {
+-		iretry = 255;
+ 
+ 		ret = cio_cancel_halt_clear(sch, &iretry);
+-		while (ret == -EBUSY) {
+-			/*
+-			 * Flush all I/O and wait for
+-			 * cancel/halt/clear completion.
+-			 */
+-			private->completion = &completion;
+-			spin_unlock_irq(sch->lock);
+-
++		/*
++		 * Flush all I/O and wait for
++		 * cancel/halt/clear completion.
++		 */
++		private->completion = &completion;
++		spin_unlock_irq(sch->lock);
++
++		if (ret == -EBUSY)
  			wait_for_completion_timeout(&completion, 3*HZ);
  
+-			private->completion = NULL;
+-			flush_workqueue(vfio_ccw_work_q);
 -			spin_lock_irq(sch->lock);
- 			private->completion = NULL;
- 			flush_workqueue(vfio_ccw_work_q);
-+			spin_lock_irq(sch->lock);
- 			ret = cio_cancel_halt_clear(sch, &iretry);
- 		};
- 
+-			ret = cio_cancel_halt_clear(sch, &iretry);
+-		};
+-
++		private->completion = NULL;
++		flush_workqueue(vfio_ccw_work_q);
++		spin_lock_irq(sch->lock);
+ 		ret = cio_disable_subchannel(sch);
+ 	} while (ret == -EBUSY);
+ out_unlock:
 -- 
 2.7.4
