@@ -1,23 +1,25 @@
 Return-Path: <SRS0=nFot=SK=vger.kernel.org=kvm-owner@kernel.org>
-Date: Mon, 8 Apr 2019 08:37:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 8 Apr 2019 15:20:43 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
-Message-ID: <20190408083707-mutt-send-email-mst@kernel.org>
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
- <20190404231622.52531-2-pasic@linux.ibm.com>
- <20190408130128.7859febe.cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20190408130128.7859febe.cohuck@redhat.com>
+References: <20190404231622.52531-1-pasic@linux.ibm.com>
+        <20190404231622.52531-2-pasic@linux.ibm.com>
+        <20190408130128.7859febe.cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190408152043.42ff22fc@oc2783563651>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 08, 2019 at 01:01:28PM +0200, Cornelia Huck wrote:
+On Mon, 8 Apr 2019 13:01:28 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
+
 > On Fri,  5 Apr 2019 01:16:11 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
@@ -60,8 +62,9 @@ On Mon, Apr 08, 2019 at 01:01:28PM +0200, Cornelia Huck wrote:
 > case... this will probably be a problem for legacy virtio-pci, which
 > explicitly sets may_reduce_num to false. (I can try to come up with a
 > patch to fix that.)
+> 
 
-Yes, pls do. Not too late for a bugfix to go into the current linux.
+Right.
 
 > > +				    virtio_ccw_kvm_notify, callback, name);
 > >  
@@ -93,6 +96,9 @@ Yes, pls do. Not too late for a bugfix to go into the current linux.
 > 0 (which implies !virtio-1). You probably need to call
 > vring_create_virtqueue with may_reduce_num=false for revision 0 (and
 > wait for the generic vring code to be fixed...)
+
+I will have a look into this.
+
 > 
 > >  		ccw->count = sizeof(info->info_block->l);
 > >  	} else {
@@ -104,4 +110,13 @@ Yes, pls do. Not too late for a bugfix to go into the current linux.
 > Here, you need to obtain the actual number via
 > virtqueue_get_vring_size().
 > 
+
+Will change as requested.
+
+Thanks for having a look!
+
+Regards,
+Halil
+
 > >  		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
+> 
