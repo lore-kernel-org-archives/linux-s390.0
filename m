@@ -1,8 +1,8 @@
 Return-Path: <SRS0=N68d=SK=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 09/12] s390: make __load_psw_mask work with clang
-Date: Mon,  8 Apr 2019 23:26:22 +0200
-Message-Id: <20190408212648.2407234-9-arnd@arndb.de>
+Subject: [PATCH 12/12] [PROBABLY WRONG] s390: void '0' constraint in inline assembly
+Date: Mon,  8 Apr 2019 23:26:25 +0200
+Message-Id: <20190408212648.2407234-12-arnd@arndb.de>
 In-Reply-To: <20190408212648.2407234-1-arnd@arndb.de>
 References: <20190408212648.2407234-1-arnd@arndb.de>
 MIME-Version: 1.0
@@ -11,42 +11,51 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>, "Steven Rostedt (VMware)" <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Cc: clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-clang fails to use the %O and %R inline assembly modifiers
-the same way as gcc, leading to build failures with every use
-of __load_psw_mask():
+clang does not understand the contraint "0" in the CALL_ON_STACK()
+macro:
 
-/tmp/nmi-4a9f80.s: Assembler messages:
-/tmp/nmi-4a9f80.s:571: Error: junk at end of line: `+8(160(%r11))'
-/tmp/nmi-4a9f80.s:626: Error: junk at end of line: `+8(160(%r11))'
+../arch/s390/mm/maccess.c:117:10: error: invalid input constraint '0' in asm
+                return CALL_ON_STACK(_memcpy_real, S390_lowcore.nodat_stack,
+                       ^
+../arch/s390/include/asm/processor.h:292:20: note: expanded from macro 'CALL_ON_STACK'
+                  [_fn] "X" (fn) CALL_FMT_##nr : CALL_CLOBBER_##nr);    \
+                                 ^
+<scratch space>:207:1: note: expanded from here
+CALL_FMT_3
+^
+../arch/s390/include/asm/processor.h:267:20: note: expanded from macro 'CALL_FMT_3'
+ #define CALL_FMT_3 CALL_FMT_2, "d" (r4)
+                   ^
+../arch/s390/include/asm/processor.h:266:20: note: expanded from macro 'CALL_FMT_2'
+ #define CALL_FMT_2 CALL_FMT_1, "d" (r3)
+                   ^
+../arch/s390/include/asm/processor.h:265:32: note: expanded from macro 'CALL_FMT_1'
+ #define CALL_FMT_1 CALL_FMT_0, "0" (r2)
+                               ^
 
-Replace these with a more conventional way of passing the addresses
-that should work with both clang and gcc.
+I don't know what the correct fix here would be, changing it to "d" made
+it build, since clang does understand this one.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/s390/include/asm/processor.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/processor.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 81038ab357ce..700c650ffd4f 100644
+index 700c650ffd4f..84c59c99668a 100644
 --- a/arch/s390/include/asm/processor.h
 +++ b/arch/s390/include/asm/processor.h
-@@ -339,10 +339,10 @@ static __no_kasan_or_inline void __load_psw_mask(unsigned long mask)
+@@ -262,7 +262,7 @@ static __no_kasan_or_inline unsigned short stap(void)
+ 	register unsigned long r4 asm("6") = (unsigned long)(arg5)
  
- 	asm volatile(
- 		"	larl	%0,1f\n"
--		"	stg	%0,%O1+8(%R1)\n"
--		"	lpswe	%1\n"
-+		"	stg	%0,%1\n"
-+		"	lpswe	%2\n"
- 		"1:"
--		: "=&d" (addr), "=Q" (psw) : "Q" (psw) : "memory", "cc");
-+		: "=&d" (addr), "=Q" (psw.addr) : "Q" (psw) : "memory", "cc");
- }
- 
- /*
+ #define CALL_FMT_0
+-#define CALL_FMT_1 CALL_FMT_0, "0" (r2)
++#define CALL_FMT_1 CALL_FMT_0, "d" (r2)
+ #define CALL_FMT_2 CALL_FMT_1, "d" (r3)
+ #define CALL_FMT_3 CALL_FMT_2, "d" (r4)
+ #define CALL_FMT_4 CALL_FMT_3, "d" (r5)
 -- 
 2.20.0
