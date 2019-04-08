@@ -1,61 +1,58 @@
 Return-Path: <SRS0=N68d=SK=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 12/12] [PROBABLY WRONG] s390: void '0' constraint in inline assembly
-Date: Mon,  8 Apr 2019 23:26:25 +0200
-Message-Id: <20190408212648.2407234-12-arnd@arndb.de>
-In-Reply-To: <20190408212648.2407234-1-arnd@arndb.de>
+Date: Mon, 8 Apr 2019 15:03:12 -0700
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: Re: [PATCH 03/12] s390: purgatory: pass --target option to clang
+Message-ID: <20190408220312.GA18333@archlinux-i9>
 References: <20190408212648.2407234-1-arnd@arndb.de>
+ <20190408212648.2407234-3-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190408212648.2407234-3-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, linux-s390@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-clang does not understand the contraint "0" in the CALL_ON_STACK()
-macro:
+On Mon, Apr 08, 2019 at 11:26:16PM +0200, Arnd Bergmann wrote:
+> The purgatory Makefile does not inherit the original cflags,
+> so clang falls back to the default target architecture when
+> building it, typically this would be x86 when cross-compiling.
+> 
+> Pass --target=s390x-linux to all compilers that understand
+> this option.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  arch/s390/purgatory/Makefile | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+> index ce6a3f75065b..3a14b968cec3 100644
+> --- a/arch/s390/purgatory/Makefile
+> +++ b/arch/s390/purgatory/Makefile
+> @@ -22,6 +22,7 @@ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
+>  KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
+>  KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
+>  KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
+> +KBUILD_CFLAGS += $(call cc-option,--target=s390x-linux)
+>  KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
+>  KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
+>  
+> -- 
+> 2.20.0
+> 
 
-../arch/s390/mm/maccess.c:117:10: error: invalid input constraint '0' in asm
-                return CALL_ON_STACK(_memcpy_real, S390_lowcore.nodat_stack,
-                       ^
-../arch/s390/include/asm/processor.h:292:20: note: expanded from macro 'CALL_ON_STACK'
-                  [_fn] "X" (fn) CALL_FMT_##nr : CALL_CLOBBER_##nr);    \
-                                 ^
-<scratch space>:207:1: note: expanded from here
-CALL_FMT_3
-^
-../arch/s390/include/asm/processor.h:267:20: note: expanded from macro 'CALL_FMT_3'
- #define CALL_FMT_3 CALL_FMT_2, "d" (r4)
-                   ^
-../arch/s390/include/asm/processor.h:266:20: note: expanded from macro 'CALL_FMT_2'
- #define CALL_FMT_2 CALL_FMT_1, "d" (r3)
-                   ^
-../arch/s390/include/asm/processor.h:265:32: note: expanded from macro 'CALL_FMT_1'
- #define CALL_FMT_1 CALL_FMT_0, "0" (r2)
-                               ^
+Would
 
-I don't know what the correct fix here would be, changing it to "d" made
-it build, since clang does understand this one.
+ifdef CONFIG_CC_IS_CLANG
+KBUILD_CFLAGS += --target=s390x-linux
+endif
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/s390/include/asm/processor.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+be a little clearer (and save a cc-option call)?
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 700c650ffd4f..84c59c99668a 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -262,7 +262,7 @@ static __no_kasan_or_inline unsigned short stap(void)
- 	register unsigned long r4 asm("6") = (unsigned long)(arg5)
- 
- #define CALL_FMT_0
--#define CALL_FMT_1 CALL_FMT_0, "0" (r2)
-+#define CALL_FMT_1 CALL_FMT_0, "d" (r2)
- #define CALL_FMT_2 CALL_FMT_1, "d" (r3)
- #define CALL_FMT_3 CALL_FMT_2, "d" (r4)
- #define CALL_FMT_4 CALL_FMT_3, "d" (r5)
--- 
-2.20.0
+Otherwise, makes sense.
+
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
