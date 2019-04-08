@@ -1,8 +1,12 @@
 Return-Path: <SRS0=nFot=SK=vger.kernel.org=kvm-owner@kernel.org>
 From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [RFC v2 0/3] fio-ccw fixes for kernel stacktraces
-Date: Mon,  8 Apr 2019 17:05:30 -0400
-Message-Id: <cover.1554756534.git.alifm@linux.ibm.com>
+Subject: [RFC v2 1/3] vfio-ccw: Do not call flush_workqueue while holding the spinlock
+Date: Mon,  8 Apr 2019 17:05:31 -0400
+In-Reply-To: <cover.1554756534.git.alifm@linux.ibm.com>
+References: <cover.1554756534.git.alifm@linux.ibm.com>
+In-Reply-To: <cover.1554756534.git.alifm@linux.ibm.com>
+References: <cover.1554756534.git.alifm@linux.ibm.com>
+Message-Id: <626bab8bb2958ae132452e1ddaf1b20882ad5a9d.1554756534.git.alifm@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,40 +14,61 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
 Cc: farman@linux.ibm.com, cohuck@redhat.com, pasic@linux.ibm.com, pmorel@linux.ibm.com, alifm@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi,
+Currently we call flush_workqueue while holding the subchannel
+spinlock. But flush_workqueue function can go to sleep, so
+do not call the function while holding the spinlock.
 
-I have recently seen some interesting kernel stacktraces while
-testing vfio-ccw mediated devices. These stack traces are seen
-when things don't go right, for example when a guest crashes or
-dies while still doing some I/O on the mediated device.
+Fixes the following bug:
 
-I have also come across an issue in the common vfio code as
-well which I reported upstream (https://marc.info/?l=kvm&m=155369393523503&w=2)
-and submitted a patch separately for it
-(https://marc.info/?l=kvm&m=155414703613868&w=2).
+[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
+[  285.203434] INFO: lockdep is turned off.
+....
+[  285.203485] Preemption disabled at:
+[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
+[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
+....
+[  285.203504] Call Trace:
+[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
+[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
+[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
+[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
+[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
+[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
+[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
+[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
+[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
+[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
+[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
+[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
+[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
+[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
+[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
+[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
+[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
+[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
+[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
 
-I would appreciate any review or feedback on these patches.
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks
-Farhan
-
-ChangeLog
----------
-v1 -> v2
-   - Use the return code from cio_cancel_halt_clear to prevent
-     waiting unnecessarily (patch 2).
-
-   - No need to reset the device on the remove path (patch 3).
-
-Farhan Ali (3):
-  vfio-ccw: Do not call flush_workqueue while holding the spinlock
-  vfio-ccw: Prevent quiesce function going into an infinite loop
-  vfio-ccw: Release any channel program when releasing/removing vfio-ccw
-    mdev
-
- drivers/s390/cio/vfio_ccw_drv.c | 27 ++++++++++++---------------
- drivers/s390/cio/vfio_ccw_ops.c | 11 ++++++++++-
- 2 files changed, 22 insertions(+), 16 deletions(-)
-
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8f06125..5aca475 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -57,9 +57,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+ 
+ 			wait_for_completion_timeout(&completion, 3*HZ);
+ 
+-			spin_lock_irq(sch->lock);
+ 			private->completion = NULL;
+ 			flush_workqueue(vfio_ccw_work_q);
++			spin_lock_irq(sch->lock);
+ 			ret = cio_cancel_halt_clear(sch, &iretry);
+ 		};
+ 
 -- 
 2.7.4
