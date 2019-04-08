@@ -4,24 +4,24 @@ References: <20190301093902.27799-1-cohuck@redhat.com>
  <20190301093902.27799-2-cohuck@redhat.com>
  <9e81af36-ebd2-671b-5256-90e8efaad6f2@linux.ibm.com>
  <20190408190747.12e3618b.cohuck@redhat.com>
-From: Farhan Ali <alifm@linux.ibm.com>
-Date: Mon, 8 Apr 2019 13:19:23 -0400
+From: Eric Farman <farman@linux.ibm.com>
+Date: Mon, 8 Apr 2019 16:25:11 -0400
 MIME-Version: 1.0
 In-Reply-To: <20190408190747.12e3618b.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <b0ff9cf2-f311-2056-a8b1-415c61a419fc@linux.ibm.com>
+Message-Id: <3f64d56f-e27a-3f95-6c44-2602dc00ea0f@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 04/08/2019 01:07 PM, Cornelia Huck wrote:
+On 4/8/19 1:07 PM, Cornelia Huck wrote:
 > On Mon, 8 Apr 2019 13:02:12 -0400
 > Farhan Ali <alifm@linux.ibm.com> wrote:
 > 
@@ -56,12 +56,7 @@ On 04/08/2019 01:07 PM, Cornelia Huck wrote:
 > Actually, I wanted to ask how people felt about merging this whole
 > series for the next release :) It would be one thing less on my plate...
 > 
-> 
 
-I have been testing with your patches for a while now and I haven't hit 
-any problems due to the patches.
-
-IMHO I think we can merge the patches for the next release.
-
-Thanks
-Farhan
+I'm not opposed to it.  Every time I try to review patches 4 and 6 I get 
+an asynchronous interrupt of my own.  :)  I'll at least get you an ack 
+in the next day or two.
