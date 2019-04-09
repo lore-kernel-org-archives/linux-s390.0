@@ -1,15 +1,15 @@
 Return-Path: <SRS0=pOBU=SL=vger.kernel.org=kvm-owner@kernel.org>
-Date: Tue, 9 Apr 2019 13:29:27 +0200
+Date: Tue, 9 Apr 2019 14:11:14 +0200
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 02/12] virtio/s390: DMA support for virtio-ccw
-In-Reply-To: <20190409115743.26e51b81.cohuck@redhat.com>
+Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
+In-Reply-To: <20190409124458.348d1ff5.cohuck@redhat.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-3-pasic@linux.ibm.com>
-        <20190409115743.26e51b81.cohuck@redhat.com>
+        <20190404231622.52531-5-pasic@linux.ibm.com>
+        <20190409124458.348d1ff5.cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190409132927.5df3bc50@oc2783563651>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20190409141114.7dcce94a@oc2783563651>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,193 +17,234 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Apr 2019 11:57:43 +0200
+On Tue, 9 Apr 2019 12:44:58 +0200
 Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On Fri,  5 Apr 2019 01:16:12 +0200
+> On Fri,  5 Apr 2019 01:16:14 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> > Currently we have a problem if a virtio-ccw device has
-> > VIRTIO_F_IOMMU_PLATFORM. 
-> 
-> Can you please describe what the actual problem is?
-> 
-
-Without this patch:
-
-WARNING: CPU: 2 PID: 26
-at [..]/kernel/dma/mapping.c:251
-dma_alloc_attrs+0x8e/0xd0 Modules linked in: CPU: 2 PID: 26 Comm:
-kworker/u6:1 Not tainted 5.1.0-rc3-00023-g1ec89ec #596 Hardware name:
-IBM 2964 NC9 712 (KVM/Linux) Workqueue: events_unbound async_run_entry_fn
-Krnl PSW : 0704c00180000000 000000000021b18e (dma_alloc_attrs+0x8e/0xd0)
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000000 0000000000000000 0000000000000000
-0000000000001406 000003e00040f838 0000000000002dc0 0000000000000100
-0000000000000001 0000000000001000 000000000236f028 000003e00040f838
-0000000000001406 000000004b289828 0000000000000080 000003e00040f6f8
-000003e00040f6a0 Krnl Code: 000000000021b17e: f0e00004ebaf
-srp	4(15,%r0),2991(%r14),0 000000000021b184: f0c0000407f4
-srp	4(13,%r0),2036,0 #000000000021b18a: a7f40001
-brc	15,21b18c >000000000021b18e: ec5520bc0055	risbg
-%r5,%r5,32,188,0 000000000021b194: b9020011		ltgr
-%r1,%r1 000000000021b198: a784ffd9		brc	8,21b14a
-           000000000021b19c: e31010000002	ltg	%r1,0(%r1)
-           000000000021b1a2: a7840012		brc	8,21b1c6
-Call Trace:
-([<0000000000000004>] 0x4)
- [<00000000007a7d54>] vring_alloc_queue+0x74/0x90 
- [<00000000007a8390>] vring_create_virtqueue+0xf8/0x288 
- [<0000000000919ec0>] virtio_ccw_find_vqs+0xf8/0x950 
- [<000000000080772e>] init_vq+0x16e/0x318 
- [<00000000008087c4>] virtblk_probe+0xf4/0xb58 
- [<00000000007a62a6>] virtio_dev_probe+0x1a6/0x250 
- [<00000000007ea498>] really_probe+0x1c8/0x290 
- [<00000000007ea746>] driver_probe_device+0x86/0x160 
- [<00000000007e7cba>] bus_for_each_drv+0x7a/0xc0 
- [<00000000007ea23c>] __device_attach+0xfc/0x180 
- [<00000000007e9116>] bus_probe_device+0xae/0xc8 
- [<00000000007e5066>] device_add+0x3fe/0x698 
- [<00000000007a5d92>] register_virtio_device+0xca/0x120 
- [<00000000009195a2>] virtio_ccw_online+0x1b2/0x220 
- [<000000000089853e>] ccw_device_set_online+0x1d6/0x4d8 
- [<0000000000918cf6>] virtio_ccw_auto_online+0x26/0x58 
- [<00000000001a61b6>] async_run_entry_fn+0x5e/0x158 
- [<0000000000199322>] process_one_work+0x25a/0x668 
- [<000000000019977a>] worker_thread+0x4a/0x428 
- [<00000000001a1ae8>] kthread+0x150/0x170 
- [<0000000000aeab3a>] kernel_thread_starter+0x6/0xc 
- [<0000000000aeab34>] kernel_thread_starter+0x0/0xc 
-
-[..]
-
-virtio_ccw 0.0.0301: no vq
----[ end trace d35815958c12cad3 ]---
-virtio_ccw 0.0.0300: no vq
-virtio_blk: probe of virtio1 failed with error -12
-virtio_blk: probe of virtio3 failed with error -12
-
-Means virtio devices broken.
-
-Should I
-s/we have a problem if a virtio-ccw device/virtio-ccw devices do not work if the device/
-?
-
-> > In future we do want to support DMA API with
-> > virtio-ccw.
+> > To support protected virtualization cio will need to make sure the
+> > memory used for communication with the hypervisor is DMA memory.
 > > 
-> > Let us do the plumbing, so the feature VIRTIO_F_IOMMU_PLATFORM works
-> > with virtio-ccw.
+> > Let us introduce a DMA pool to cio that will help us in allocating
+> 
+> missing 'and'
+> 
+
+Nod.
+
+> > deallocating those chunks of memory.
 > > 
-> > Let us also switch from legacy avail/used accessors to the DMA aware
-> > ones (even if it isn't strictly necessary).
-> 
-> I think with this change we can remove the legacy accessors, if I
-> didn't mis-grep.
-> 
-
-That is possible, I can do that in v1.
-
+> > We use a gen_pool backed with DMA pages to avoid each allocation
+> > effectively wasting a page, as we typically allocate much less
+> > than PAGE_SIZE.
 > > 
 > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 > > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 23 +++++++++++++++++------
-> >  1 file changed, 17 insertions(+), 6 deletions(-)
+> >  arch/s390/Kconfig           |  1 +
+> >  arch/s390/include/asm/cio.h |  3 +++
+> >  drivers/s390/cio/css.c      | 57 +++++++++++++++++++++++++++++++++++++++++++++
+> >  3 files changed, 61 insertions(+)
 > > 
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index edf4afe2d688..5956c9e820bb 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> > @@ -66,6 +66,7 @@ struct virtio_ccw_device {
-> >  	bool device_lost;
-> >  	unsigned int config_ready;
-> >  	void *airq_info;
-> > +	__u64 dma_mask;
-> 
-> u64?
-> 
-
-Right, has nothing to do with userspace.
-
+> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> > index 46c69283a67b..e8099ab47368 100644
+> > --- a/arch/s390/Kconfig
+> > +++ b/arch/s390/Kconfig
+> > @@ -194,6 +194,7 @@ config S390
+> >  	select VIRT_TO_BUS
+> >  	select HAVE_NMI
+> >  	select SWIOTLB
+> > +	select GENERIC_ALLOCATOR
+> >  
+> >  
+> >  config SCHED_OMIT_FRAME_POINTER
+> > diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+> > index 1727180e8ca1..4510e418614a 100644
+> > --- a/arch/s390/include/asm/cio.h
+> > +++ b/arch/s390/include/asm/cio.h
+> > @@ -328,6 +328,9 @@ static inline u8 pathmask_to_pos(u8 mask)
+> >  void channel_subsystem_reinit(void);
+> >  extern void css_schedule_reprobe(void);
+> >  
+> > +extern void *cio_dma_zalloc(size_t size);
+> > +extern void cio_dma_free(void *cpu_addr, size_t size);
+> > +
+> >  /* Function from drivers/s390/cio/chsc.c */
+> >  int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+> >  int chsc_sstpi(void *page, void *result, size_t size);
+> > diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> > index aea502922646..72629d99d8e4 100644
+> > --- a/drivers/s390/cio/css.c
+> > +++ b/drivers/s390/cio/css.c
+> > @@ -20,6 +20,8 @@
+> >  #include <linux/reboot.h>
+> >  #include <linux/suspend.h>
+> >  #include <linux/proc_fs.h>
+> > +#include <linux/genalloc.h>
+> > +#include <linux/dma-mapping.h>
+> >  #include <asm/isc.h>
+> >  #include <asm/crw.h>
+> >  
+> > @@ -886,6 +888,8 @@ static const struct attribute_group *cssdev_attr_groups[] = {
+> >  	NULL,
 > >  };
 > >  
-> >  struct vq_info_block_legacy {
-> > @@ -536,8 +537,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
-> >  		info->info_block->s.desc = queue;
-> >  		info->info_block->s.index = i;
-> >  		info->info_block->s.num = info->num;
-> > -		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
-> > -		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
-> > +		info->info_block->s.avail = (__u64)virtqueue_get_avail_addr(vq);
-> > +		info->info_block->s.used = (__u64)virtqueue_get_used_addr(vq);
-> >  		ccw->count = sizeof(info->info_block->s);
-> >  	}
-> >  	ccw->cmd_code = CCW_CMD_SET_VQ;
-> > @@ -769,10 +770,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
-> >  static void ccw_transport_features(struct virtio_device *vdev)
-> >  {
-> >  	/*
-> > -	 * Packed ring isn't enabled on virtio_ccw for now,
-> > -	 * because virtio_ccw uses some legacy accessors,
-> > -	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
-> > -	 * which aren't available in packed ring currently.
-> > +	 * There shouldn't be anything that precludes supporting paced.
-> 
-> s/paced/packed/
-
-Thx!
-
-> 
-> > +	 * TODO: Remove the limitation after having another look into this.
-> >  	 */
-> >  	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
-> >  }
-> > @@ -1255,6 +1254,18 @@ static int virtio_ccw_online(struct ccw_device *cdev)
-> >  		ret = -ENOMEM;
-> >  		goto out_free;
-> >  	}
-> > +	vcdev->vdev.dev.parent = &cdev->dev;
-> 
-> That one makes sense, pci and mmio are doing that as well.
-> 
-> > +	cdev->dev.dma_mask = &vcdev->dma_mask;
-> 
-> That one feels a bit weird. Will this change in one of the follow-on
-> patches? (Have not yet looked at the whole series.)
-
-I don't thinks so. Do you mean this should happen within the cio code?
-I think I started out with the idea to keep the scope as narrow as
-possible. Do you have any suggestions?
-
-> 
+> > +static u64 css_dev_dma_mask = DMA_BIT_MASK(31);
 > > +
-> > +	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
-> > +	if (ret)
-> > +		ret = dma_set_mask_and_coherent(&cdev->dev,
-> > +						DMA_BIT_MASK(32));
-> > +	if (ret) {
-> > +		dev_warn(&cdev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+> >  static int __init setup_css(int nr)
+> >  {
+> >  	struct channel_subsystem *css;
+> > @@ -899,6 +903,9 @@ static int __init setup_css(int nr)
+> >  	dev_set_name(&css->device, "css%x", nr);
+> >  	css->device.groups = cssdev_attr_groups;
+> >  	css->device.release = channel_subsystem_release;
+> > +	/* some cio DMA memory needs to be 31 bit addressable */
+> > +	css->device.coherent_dma_mask = DMA_BIT_MASK(31),
+> > +	css->device.dma_mask = &css_dev_dma_mask;
 > 
-> This does not look like you'd try to continue?
+> Question: Does this percolate down to the child devices eventually?
+> E.g., you have a ccw_device getting the mask from its parent
+> subchannel, which gets it from its parent css? If so, does that clash
+> with the the mask you used for the virtio_ccw_device in a previous
+> patch? Or are they two really different things?
 > 
 
-I remember now. First I did continue, then I changed this to fail hard
-so I can not ignore any such problems while smoke testing ('I don't always
-check the kernel messages'), but kept the old message. This basically
-should not fail anyway, otherwise we have a problem AFAIU.
+AFAIK id does not percolate. I could not find anything showing in this
+direction in drivers core at least. AFAIU dma_mask is also about the
+addressing limitations of the device itself (in the good old pci world,
+not really applicable for ccw devices).
 
-By the way virtio-pci tries to continue indeed, and this is also where
-the wording comes from ;).
+Regarding virtio_ccw, I need to set the DMA stuff on the parent device
+because that is how the stuff in virtio_ring.c works. There I we can
+get away with DMA_BIT_MASK(64) as that stuff is not used in places where
+31 bit addresses are required. For the actual ccw stuff I used the
+cio DMA pool introduced here.
 
-What would you prefer? Try to continue or fail right away?
+FWIW the allocation mechanisms provided by  DMA API (as documented) is
+not very well suited with what we need for ccw. This is why I choose to
+do this gen_pool thing. The gist of it is as-is at the moment we get
+page granularity allocations from DMA API. Of course we could use
+dma_pool which is kind of perfect for uniformly sized objects. As you
+will see in the rest of the series, we have a comparatively small number
+of smallish objects of varying sizes. And some of these are short lived.
+
+So the child devices like subchannels and ccw devices do not use DMA API
+directly, except for virtio_ccw.
+
+Does all that make any sense to you?
+
+
+> >  
+> >  	mutex_init(&css->mutex);
+> >  	css->cssid = chsc_get_cssid(nr);
+> > @@ -1018,6 +1025,55 @@ static struct notifier_block css_power_notifier = {
+> >  	.notifier_call = css_power_event,
+> >  };
+> >  
+> > +#define POOL_INIT_PAGES 1
+> > +static struct gen_pool *cio_dma_pool;
+> > +/* Currently cio supports only a single css */
+> > +static struct device *cio_dma_css;
+> 
+> That global variable feels wrong, especially if you plan to support
+> MCSS-E in the future. (Do you? :) 
+
+Not that I'm aware of any plans to add support MCSS-E.
+
+> If yes, should the dma pool be global
+> or per-css? As css0 currently is the root device for the channel
+> subsystem stuff, you'd either need a new parent to hang this off from
+> or size this with the number of css images.)
+> 
+> For now, just grab channel_subsystems[0]->device directly?
+> 
+
+Patch 6 gets rid of this variable and adds an accessor instead:
+
++struct device *cio_get_dma_css_dev(void)
++{
++	return &channel_subsystems[0]->device;
++}
++
+
+I can move that here if you like (for v1).
+
+Yes it is kind of unfortunate that some pieces of this code look
+like there could be more than one css, but actually MCSS-E is not
+supported. I would prefer sorting these problems out when they arise, if
+they ever arise.
+
+> > +static gfp_t  cio_dma_flags;
+> > +
+> > +static void __init cio_dma_pool_init(void)
+> > +{
+> > +	void *cpu_addr;
+> > +	dma_addr_t dma_addr;
+> > +	int i;
+> > +
+> > +	cio_dma_css = &channel_subsystems[0]->device;
+> > +	cio_dma_flags = GFP_DMA | GFP_KERNEL | __GFP_ZERO;
+> > +	cio_dma_pool = gen_pool_create(3, -1);
+> > +	/* No need to free up the resources: compiled in */
+> > +	for (i = 0; i < POOL_INIT_PAGES; ++i) {
+> > +		cpu_addr = dma_alloc_coherent(cio_dma_css, PAGE_SIZE, &dma_addr,
+> > +					      cio_dma_flags);
+> > +		if (!cpu_addr)
+> > +			return;
+> > +		gen_pool_add_virt(cio_dma_pool, (unsigned long) cpu_addr,
+> > +				  dma_addr, PAGE_SIZE, -1);
+> > +	}
+> > +
+> > +}
+> > +
+> > +void *cio_dma_zalloc(size_t size)
+> > +{
+> > +	dma_addr_t dma_addr;
+> > +	unsigned long addr = gen_pool_alloc(cio_dma_pool, size);
+> > +
+> > +	if (!addr) {
+> > +		addr = (unsigned long) dma_alloc_coherent(cio_dma_css,
+> > +					PAGE_SIZE, &dma_addr, cio_dma_flags);
+> > +		if (!addr)
+> > +			return NULL;
+> > +		gen_pool_add_virt(cio_dma_pool, addr, dma_addr, PAGE_SIZE, -1);
+> > +		addr = gen_pool_alloc(cio_dma_pool, size);
+> > +	}
+> > +	return (void *) addr;
+> 
+> At this point, you're always going via the css0 device. I'm wondering
+> whether you should pass in the cssid here and use css_by_id(cssid) to
+> make this future proof. But then, I'm not quite clear from which
+> context this will be called.
+
+As said before I don't see MCSS-E coming. Regarding the client code,
+please check out the rest of the series. Especially patch 6. 
+
+From my perspective it would be at this stage saner to make it more
+obvious that only one css is supported (at the moment), than to implement
+MCSS-E, or to make this (kind of) MCSS-E ready.
 
 Regards,
 Halil
 
-> > +		goto out_free;
-> > +	}
+> 
+> > +}
 > > +
-> >  	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
-> >  				   GFP_DMA | GFP_KERNEL);
-> >  	if (!vcdev->config_block) {
+> > +void cio_dma_free(void *cpu_addr, size_t size)
+> > +{
+> > +	memset(cpu_addr, 0, size);
+> > +	gen_pool_free(cio_dma_pool, (unsigned long) cpu_addr, size);
+> > +}
+> > +
+> >  /*
+> >   * Now that the driver core is running, we can setup our channel subsystem.
+> >   * The struct subchannel's are created during probing.
+> > @@ -1063,6 +1119,7 @@ static int __init css_bus_init(void)
+> >  		unregister_reboot_notifier(&css_reboot_notifier);
+> >  		goto out_unregister;
+> >  	}
+> > +	cio_dma_pool_init();
+> >  	css_init_done = 1;
+> >  
+> >  	/* Enable default isc for I/O subchannels. */
 > 
