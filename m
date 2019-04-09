@@ -1,91 +1,282 @@
 From: Benjamin Block <bblock@linux.ibm.com>
-Date: Tue, 09 Apr 2019 16:50:48 +0000
-Subject: [PATCH 05/10] zfcp: support retrieval of SFP Data via Exchange Port Data
-Message-Id: <88f0c8377a80fe0c95dfa095c610515d474bf570.1554823974.git.bblock@linux.ibm.com>
+Date: Tue, 09 Apr 2019 16:50:49 +0000
+Subject: [PATCH 06/10] zfcp: introduce SysFS interface for diagnostics of local SFP transceiver
+Message-Id: <a024ece7998bb362373f138967242b03115e7fc7.1554823974.git.bblock@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-A new FCP channel feature allows us to read the diagnostics from our
-local SFP transceivers. To make use of that add a flag
-(FSF_FEATURE_REQUEST_SFP_DATA) to the feature-set we request from the
-FCP channel. Whether the channel actually implements this can be
-determined via an other new flag (FSF_FEATURE_REPORT_SFP_DATA), that is
-set in the adapter_features field of the adapter structure after
-Exchange Config Data finished.
+This adds an interface to read the diagnostics of the local SFP
+transceiver of an FCP-Channel from userspace. This comes in the form of
+new SysFS entries that are attached to the CCW device representing the
+FCP device. Each type of data gets its own SysFS entry; the whole
+collection of entries is pooled into a new child-directory of the CCW
+device node: "diagnostics".
 
-Also add the corresponding definitions in the QTCB Bottom for Exchange
-Port Data. These new definitions are only valid, if
-FSF_FEATURE_REPORT_SFP_DATA is set.
+Adds SysFS entries for:
+ * sfp_invalid:    boolean value evaluating to whether the following 5
+                   fields are invalid; {0, 1}; 1 - invalid
+ * temperature:    transceiver temp.; unit 1/256��C;
+                   range [-128��C, +128��C]
+ * vcc:            supply voltage; unit 100��V; range [0, 6.55V]
+ * tx_bias:        transmitter laser bias current; unit 2��A;
+                   range [0, 131mA]
+ * tx_power:       coupled TX output power; unit 0.1��W; range [0, 6.5mW]
+ * rx_power:       received optical power; unit 0.1��W; range [0, 6.5mW]
+
+ * optical_port:   boolean value evaluating to whether the FCP-Channel has
+                   an optical port; {0, 1}; 1 - optical
+ * fec_active:     boolean value evaluating to whether 16G FEC is active;
+                   {0, 1}; 1 - active
+ * port_tx_type:   nibble describing the port type; {0, 1, 2, 3};
+                   0 - unknown,             1 - short wave,
+                   2 - long wave LC 1310nm, 3 - long wave LL 1550nm
+ * connector_type: two bits describing the connector type; {0, 1};
+                   0 - unknown,             1 - SFP+
+
+This is only supported if the FCP-Channel in turn supports reporting the
+SFP Diagnostic Data, otherwise read() on these new entries will return
+EOPNOTSUPP (this affects only adapters older than FICON Express8S, on
+Mainframe generations older than z14). Other possible errors for read()
+include ENOLINK, ENODEV and ENOMEM.
+
+With this patch the userspace-interface will only read data stored in
+the corresponding "diagnostic buffer" (that was stored during completion
+of an previous Exchange Port Data command). Implicit updating will
+follow later in this series.
 
 Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c |  6 ++++--
- drivers/s390/scsi/zfcp_fsf.h | 21 ++++++++++++++++++++-
- 2 files changed, 24 insertions(+), 3 deletions(-)
+ drivers/s390/scsi/zfcp_aux.c   |  4 +++
+ drivers/s390/scsi/zfcp_diag.c  | 42 +++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_diag.h  | 18 +++++++++++
+ drivers/s390/scsi/zfcp_ext.h   |  1 +
+ drivers/s390/scsi/zfcp_sysfs.c | 71 ++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 136 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index e23bb0948740..d0100cec10cb 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1257,7 +1257,8 @@ int zfcp_fsf_exchange_config_data(struct zfcp_erp_action *erp_action)
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index 3ddc7147ac4f..5ea162999c4a 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -407,6 +407,9 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
+ 			       &zfcp_sysfs_adapter_attrs))
+ 		goto failed;
  
- 	req->qtcb->bottom.config.feature_selection =
- 			FSF_FEATURE_NOTIFICATION_LOST |
--			FSF_FEATURE_UPDATE_ALERT;
-+			FSF_FEATURE_UPDATE_ALERT |
-+			FSF_FEATURE_REQUEST_SFP_DATA;
- 	req->erp_action = erp_action;
- 	req->handler = zfcp_fsf_exchange_config_data_handler;
- 	erp_action->fsf_req_id = req->req_id;
-@@ -1308,7 +1309,8 @@ int zfcp_fsf_exchange_config_data_sync(struct zfcp_qdio *qdio,
++	if (zfcp_diag_sysfs_setup(adapter))
++		goto failed;
++
+ 	/* report size limit per scatter-gather segment */
+ 	adapter->ccw_device->dev.dma_parms = &adapter->dma_parms;
  
- 	req->qtcb->bottom.config.feature_selection =
- 			FSF_FEATURE_NOTIFICATION_LOST |
--			FSF_FEATURE_UPDATE_ALERT;
-+			FSF_FEATURE_UPDATE_ALERT |
-+			FSF_FEATURE_REQUEST_SFP_DATA;
+@@ -431,6 +434,7 @@ void zfcp_adapter_unregister(struct zfcp_adapter *adapter)
  
- 	req->data = data;
+ 	zfcp_fc_wka_ports_force_offline(adapter->gs);
+ 	zfcp_scsi_adapter_unregister(adapter);
++	zfcp_diag_sysfs_destroy(adapter);
+ 	sysfs_remove_group(&cdev->dev.kobj, &zfcp_sysfs_adapter_attrs);
  
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index 2c658b66318c..2b1e4da1944f 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -163,6 +163,8 @@
- #define FSF_FEATURE_ELS_CT_CHAINED_SBALS	0x00000020
- #define FSF_FEATURE_UPDATE_ALERT		0x00000100
- #define FSF_FEATURE_MEASUREMENT_DATA		0x00000200
-+#define FSF_FEATURE_REQUEST_SFP_DATA		0x00000200
-+#define FSF_FEATURE_REPORT_SFP_DATA		0x00000800
- #define FSF_FEATURE_DIF_PROT_TYPE1		0x00010000
- #define FSF_FEATURE_DIX_PROT_TCPIP		0x00020000
+ 	zfcp_erp_thread_kill(adapter);
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+index a9564c9156eb..65475d8fcef1 100644
+--- a/drivers/s390/scsi/zfcp_diag.c
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -10,6 +10,8 @@
+ #include <linux/spinlock.h>
+ #include <linux/jiffies.h>
+ #include <linux/string.h>
++#include <linux/kernfs.h>
++#include <linux/sysfs.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
  
-@@ -407,7 +409,24 @@ struct fsf_qtcb_bottom_port {
- 	u8 cp_util;
- 	u8 cb_util;
- 	u8 a_util;
--	u8 res2[253];
-+	u8 res2;
-+	u16 temperature;
-+	u16 vcc;
-+	u16 tx_bias;
-+	u16 tx_power;
-+	u16 rx_power;
-+	union {
-+		u16 raw;
-+		struct {
-+			u16 fec_active		:1;
-+			u16:7;
-+			u16 connector_type	:2;
-+			u16 sfp_invalid		:1;
-+			u16 optical_port	:1;
-+			u16 port_tx_type	:4;
-+		};
-+	} sfp_flags;
-+	u8 res3[240];
- } __attribute__ ((packed));
+@@ -77,6 +79,46 @@ void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter)
+ 	adapter->diagnostics = NULL;
+ }
  
- union fsf_qtcb_bottom {
++/**
++ * zfcp_diag_sysfs_setup() - Setup the sysfs-group for adapter-diagnostics.
++ * @adapter: target adapter to which the group should be added.
++ *
++ * Return: 0 on success; Something else otherwise (see sysfs_create_group()).
++ */
++int zfcp_diag_sysfs_setup(struct zfcp_adapter *const adapter)
++{
++	int rc = sysfs_create_group(&adapter->ccw_device->dev.kobj,
++				    &zfcp_sysfs_diag_attr_group);
++	if (rc == 0)
++		adapter->diagnostics->sysfs_established = 1;
++
++	return rc;
++}
++
++/**
++ * zfcp_diag_sysfs_destroy() - Remove the sysfs-group for adapter-diagnostics.
++ * @adapter: target adapter from which the group should be removed.
++ */
++void zfcp_diag_sysfs_destroy(struct zfcp_adapter *const adapter)
++{
++	if (adapter->diagnostics == NULL ||
++	    !adapter->diagnostics->sysfs_established)
++		return;
++
++	/*
++	 * We need this state-handling so we can prevent warnings being printed
++	 * on the kernel-console in case we have to abort a halfway done
++	 * zfcp_adapter_enqueue(), in which the sysfs-group was not yet
++	 * established. sysfs_remove_group() does this checking as well, but
++	 * still prints a warning in case we try to remove a group that has not
++	 * been established before
++	 */
++	adapter->diagnostics->sysfs_established = 0;
++	sysfs_remove_group(&adapter->ccw_device->dev.kobj,
++			   &zfcp_sysfs_diag_attr_group);
++}
++
++
+ /**
+  * zfcp_diag_update_xdata() - Update a diagnostics buffer.
+  * @hdr: the meta data to update.
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+index 031050c82b6e..7c7e0a726c7e 100644
+--- a/drivers/s390/scsi/zfcp_diag.h
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -40,6 +40,8 @@ struct zfcp_diag_header {
+ /**
+  * struct zfcp_diag_adapter - central storage for all diagnostics concerning an
+  *                            adapter.
++ * @sysfs_established: flag showing that the associated sysfs-group was created
++ *                     during run of zfcp_adapter_enqueue().
+  * @port_data: data retrieved using exchange port data.
+  * @port_data.header: header with metadata for the cache in @port_data.data.
+  * @port_data.data: cached QTCB Bottom of command exchange port data.
+@@ -48,6 +50,8 @@ struct zfcp_diag_header {
+  * @config_data.data: cached QTCB Bottom of command exchange config data.
+  */
+ struct zfcp_diag_adapter {
++	u64	sysfs_established	:1;
++
+ 	struct {
+ 		struct zfcp_diag_header		header;
+ 		struct fsf_qtcb_bottom_port	data;
+@@ -61,7 +65,21 @@ struct zfcp_diag_adapter {
+ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter);
+ void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter);
+ 
++int zfcp_diag_sysfs_setup(struct zfcp_adapter *const adapter);
++void zfcp_diag_sysfs_destroy(struct zfcp_adapter *const adapter);
++
+ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
+ 			    const void *const data, const bool incomplete);
+ 
++/**
++ * zfcp_diag_support_sfp() - Return %true if the @adapter supports reporting
++ *                           SFP Data.
++ * @adapter: adapter to test the availability of SFP Data reporting for.
++ */
++static inline bool
++zfcp_diag_support_sfp(const struct zfcp_adapter *const adapter)
++{
++	return !!(adapter->adapter_features & FSF_FEATURE_REPORT_SFP_DATA);
++}
++
+ #endif /* ZFCP_DIAG_H */
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index 3fce47b0b21b..b4f9d5fa5ab1 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -165,6 +165,7 @@ extern const struct attribute_group *zfcp_port_attr_groups[];
+ extern struct mutex zfcp_sysfs_port_units_mutex;
+ extern struct device_attribute *zfcp_sysfs_sdev_attrs[];
+ extern struct device_attribute *zfcp_sysfs_shost_attrs[];
++extern const struct attribute_group zfcp_sysfs_diag_attr_group;
+ 
+ /* zfcp_unit.c */
+ extern int zfcp_unit_add(struct zfcp_port *, u64);
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 11c945e8156d..5323e34d94bb 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/slab.h>
++#include "zfcp_diag.h"
+ #include "zfcp_ext.h"
+ 
+ #define ZFCP_DEV_ATTR(_feat, _name, _mode, _show, _store) \
+@@ -621,3 +622,73 @@ struct device_attribute *zfcp_sysfs_shost_attrs[] = {
+ 	&dev_attr_queue_full,
+ 	NULL
+ };
++
++#define ZFCP_DEFINE_DIAG_SFP_ATTR(_name, _qtcb_member, _prtsize, _prtfmt)      \
++	static ssize_t zfcp_sysfs_adapter_diag_sfp_##_name##_show(             \
++		struct device *dev, struct device_attribute *attr, char *buf)  \
++	{                                                                      \
++		struct zfcp_adapter *const adapter =                           \
++			zfcp_ccw_adapter_by_cdev(to_ccwdev(dev));              \
++		struct zfcp_diag_header *diag_hdr;                             \
++		ssize_t rc = -ENOLINK;                                         \
++		unsigned long flags;                                           \
++		unsigned int status;                                           \
++									       \
++		if (!adapter)                                                  \
++			return -ENODEV;                                        \
++									       \
++		status = atomic_read(&adapter->status);                        \
++		if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||                 \
++		    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||            \
++		    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED))             \
++			goto out;                                              \
++									       \
++		if (!zfcp_diag_support_sfp(adapter)) {                         \
++			rc = -EOPNOTSUPP;                                      \
++			goto out;                                              \
++		}                                                              \
++									       \
++		diag_hdr = &adapter->diagnostics->port_data.header;            \
++									       \
++		spin_lock_irqsave(&diag_hdr->access_lock, flags);              \
++		rc = scnprintf(                                                \
++			buf, (_prtsize) + 2, _prtfmt "\n",                     \
++			adapter->diagnostics->port_data.data._qtcb_member);    \
++		spin_unlock_irqrestore(&diag_hdr->access_lock, flags);         \
++									       \
++	out:                                                                   \
++		zfcp_ccw_adapter_put(adapter);                                 \
++		return rc;                                                     \
++	}                                                                      \
++	static ZFCP_DEV_ATTR(adapter_diag_sfp, _name, 0400,                    \
++			     zfcp_sysfs_adapter_diag_sfp_##_name##_show, NULL)
++
++ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(vcc, vcc, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(tx_bias, tx_bias, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(tx_power, tx_power, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(rx_power, rx_power, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(port_tx_type, sfp_flags.port_tx_type, 2, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(optical_port, sfp_flags.optical_port, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(sfp_invalid, sfp_flags.sfp_invalid, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(connector_type, sfp_flags.connector_type, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(fec_active, sfp_flags.fec_active, 1, "%hu");
++
++static struct attribute *zfcp_sysfs_diag_attrs[] = {
++	&dev_attr_adapter_diag_sfp_temperature.attr,
++	&dev_attr_adapter_diag_sfp_vcc.attr,
++	&dev_attr_adapter_diag_sfp_tx_bias.attr,
++	&dev_attr_adapter_diag_sfp_tx_power.attr,
++	&dev_attr_adapter_diag_sfp_rx_power.attr,
++	&dev_attr_adapter_diag_sfp_port_tx_type.attr,
++	&dev_attr_adapter_diag_sfp_optical_port.attr,
++	&dev_attr_adapter_diag_sfp_sfp_invalid.attr,
++	&dev_attr_adapter_diag_sfp_connector_type.attr,
++	&dev_attr_adapter_diag_sfp_fec_active.attr,
++	NULL,
++};
++
++const struct attribute_group zfcp_sysfs_diag_attr_group = {
++	.name = "diagnostics",
++	.attrs = zfcp_sysfs_diag_attrs,
++};
 -- 
 2.16.4
