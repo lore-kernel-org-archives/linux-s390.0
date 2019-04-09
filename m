@@ -1,57 +1,67 @@
-Return-Path: <linux-doc-owner@vger.kernel.org>
-Subject: Re: [PATCH v5 1/6] iommu: add generic boot option iommu.dma_mode
-References: <20190409125308.18304-1-thunder.leizhen@huawei.com>
- <20190409125308.18304-2-thunder.leizhen@huawei.com>
- <20190412111649.GK4518@8bytes.org>
-From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
-Message-ID: <5CBE7C51.8070002@huawei.com>
-Date: Tue, 23 Apr 2019 10:45:37 +0800
+Return-Path: <SRS0=D3m8=SL=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Tue, 9 Apr 2019 15:43:16 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v3] ubsan: Avoid unnecessary 128-bit shifts
+References: <201904050158.x351wr9f016512@sdf.org>
 MIME-Version: 1.0
-In-Reply-To: <20190412111649.GK4518@8bytes.org>
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Sender: linux-doc-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-doc/>
-List-Post: <mailto:linux-doc@vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>, Hanjun Guo <guohanjun@huawei.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <201904050158.x351wr9f016512@sdf.org>
+Message-Id: <20190409134316.GC4227@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: George Spelvin <lkml@sdf.org>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Fri, Apr 05, 2019 at 01:58:53AM +0000, George Spelvin wrote:
+> If CONFIG_ARCH_SUPPORTS_INT128, s_max is 128 bits, and variable
+> sign-extending shifts of such a double-word data type are a non-trivial
+> amount of code and complexity.  Do a single-word sign-extension *before*
+> the cast to (s_max), greatly simplifying the object code.
+> 
+> Rasmus Villemoes suggested using sign_extend* from <linux/bitops.h>.
+> 
+> On s390 (and perhaps some other arches), gcc implements variable
+> 128-bit shifts using an __ashrti3 helper function which the kernel
+> doesn't provide, causing a link error.  In that case, this patch is
+> a prerequisite for enabling INT128 support.  Andrey Ryabinin has gven
+> permission for any arch that needs it to cherry-pick it so they don't
+> have to wait for ubsan to be merged into Linus' tree.
 
+Still, this should go upstream via Andrew Morton.
 
-On 2019/4/12 19:16, Joerg Roedel wrote:
-> On Tue, Apr 09, 2019 at 08:53:03PM +0800, Zhen Lei wrote:
->> +static int __init iommu_dma_mode_setup(char *str)
->> +{
->> +	if (!str)
->> +		goto fail;
->> +
->> +	if (!strncmp(str, "passthrough", 11))
->> +		iommu_default_dma_mode = IOMMU_DMA_MODE_PASSTHROUGH;
->> +	else if (!strncmp(str, "lazy", 4))
->> +		iommu_default_dma_mode = IOMMU_DMA_MODE_LAZY;
->> +	else if (!strncmp(str, "strict", 6))
->> +		iommu_default_dma_mode = IOMMU_DMA_MODE_STRICT;
->> +	else
->> +		goto fail;
->> +
->> +	pr_info("Force dma mode to be %d\n", iommu_default_dma_mode);
-> 
-> Printing a number is not very desriptive or helpful to the user. Please
-> print the name of the mode instead.
+As soon as this gets merged I'd like to select ARCH_SUPPORTS_INT128 on
+s390 unconditionally.
 
-OK, thanks. I have given up adding iommu.dma_mode boot option according
-to Robin and Will's suggestion. So these codes will be removed in v6.
+However... ;)
 
-> 
-> 
-> Regards,
-> 
-> 	Joerg
-> 
-> .
-> 
+> +static inline long sign_extend_long(unsigned long value, int index)
+> +{
+> +	if (sizeof(value) == 4)
+> +		return sign_extend32(value);
+> +	return sign_extend64(value);
+> +}
+> +
 
--- 
-Thanks!
-BestRegards
+This doesn't compile:
+
+In file included from ./include/linux/kernel.h:12,
+                 from ./arch/s390/include/asm/bug.h:5,
+                 from ./include/linux/bug.h:5,
+                 from ./include/linux/page-flags.h:10,
+                 from kernel/bounds.c:10:
+./include/linux/bitops.h: In function 'sign_extend_long':
+./include/linux/bitops.h:163:10: error: too few arguments to function 'sign_extend32'
+   return sign_extend32(value);
+          ^~~~~~~~~~~~~
+./include/linux/bitops.h:143:21: note: declared here
+ static inline __s32 sign_extend32(__u32 value, int index)
+                     ^~~~~~~~~~~~~
+./include/linux/bitops.h:164:9: error: too few arguments to function 'sign_extend64'
+  return sign_extend64(value);
+         ^~~~~~~~~~~~~
+./include/linux/bitops.h:154:21: note: declared here
+ static inline __s64 sign_extend64(__u64 value, int index)
+                     ^~~~~~~~~~~~~
