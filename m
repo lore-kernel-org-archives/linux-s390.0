@@ -1,122 +1,115 @@
-Return-Path: <SRS0=nFot=SK=vger.kernel.org=kvm-owner@kernel.org>
-Date: Mon, 8 Apr 2019 15:20:43 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 01/12] virtio/s390: use vring_create_virtqueue
-In-Reply-To: <20190408130128.7859febe.cohuck@redhat.com>
+Return-Path: <SRS0=pOBU=SL=vger.kernel.org=kvm-owner@kernel.org>
+Date: Tue, 9 Apr 2019 11:57:43 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 02/12] virtio/s390: DMA support for virtio-ccw
+Message-ID: <20190409115743.26e51b81.cohuck@redhat.com>
+In-Reply-To: <20190404231622.52531-3-pasic@linux.ibm.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-2-pasic@linux.ibm.com>
-        <20190408130128.7859febe.cohuck@redhat.com>
+        <20190404231622.52531-3-pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190408152043.42ff22fc@oc2783563651>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 8 Apr 2019 13:01:28 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Fri,  5 Apr 2019 01:16:12 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Fri,  5 Apr 2019 01:16:11 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
-> > The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-> > establishes a new way of allocating virtqueues (as a part of the effort
-> > that taught DMA to virtio rings).
-> > 
-> > In the future we will want virtio-ccw to use the DMA API as well.
-> > 
-> > Let us switch from the legacy method of allocating virtqueues to
-> > vring_create_virtqueue() as the first step into that direction.
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 27 ++++++++-------------------
-> >  1 file changed, 8 insertions(+), 19 deletions(-)
-> > 
-> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> > index 74c328321889..edf4afe2d688 100644
-> > --- a/drivers/s390/virtio/virtio_ccw.c
-> > +++ b/drivers/s390/virtio/virtio_ccw.c
-> 
-> > @@ -516,17 +512,10 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
-> >  		err = info->num;
-> >  		goto out_err;
-> >  	}
-> > -	size = PAGE_ALIGN(vring_size(info->num, KVM_VIRTIO_CCW_RING_ALIGN));
-> > -	info->queue = alloc_pages_exact(size, GFP_KERNEL | __GFP_ZERO);
-> > -	if (info->queue == NULL) {
-> > -		dev_warn(&vcdev->cdev->dev, "no queue\n");
-> > -		err = -ENOMEM;
-> > -		goto out_err;
-> > -	}
-> > +	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
-> > +				    vdev, true, true, ctx,
-> 
-> This second true means 'may_reduce_num'. Looking at the vring code, it
-> seems that this parameter is never checked; the code will try to
-> allocate a smaller queue if it can't get the requested size in any
-> case... this will probably be a problem for legacy virtio-pci, which
-> explicitly sets may_reduce_num to false. (I can try to come up with a
-> patch to fix that.)
-> 
+> Currently we have a problem if a virtio-ccw device has
+> VIRTIO_F_IOMMU_PLATFORM. 
 
-Right.
+Can you please describe what the actual problem is?
 
-> > +				    virtio_ccw_kvm_notify, callback, name);
-> >  
-> > -	vq = vring_new_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN, vdev,
-> > -				 true, ctx, info->queue, virtio_ccw_kvm_notify,
-> > -				 callback, name);
-> >  	if (!vq) {
-> >  		/* For now, we fail if we can't get the requested size. */
-> >  		dev_warn(&vcdev->cdev->dev, "no vq\n");
-> > @@ -534,15 +523,17 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
-> >  		goto out_err;
-> >  	}
-> >  
-> > +
+> In future we do want to support DMA API with
+> virtio-ccw.
 > 
-> Extra blank line :)
+> Let us do the plumbing, so the feature VIRTIO_F_IOMMU_PLATFORM works
+> with virtio-ccw.
 > 
-> >  	/* Register it with the host. */
-> > +	queue = virtqueue_get_desc_addr(vq);
-> >  	if (vcdev->revision == 0) {
-> > -		info->info_block->l.queue = (__u64)info->queue;
-> > +		info->info_block->l.queue = queue;
-> >  		info->info_block->l.align = KVM_VIRTIO_CCW_RING_ALIGN;
-> >  		info->info_block->l.index = i;
-> >  		info->info_block->l.num = info->num;
-> 
-> You always fill in the size requested by the host, but the actual size
-> may be smaller (see above). I don't think that is allowed for revision
-> 0 (which implies !virtio-1). You probably need to call
-> vring_create_virtqueue with may_reduce_num=false for revision 0 (and
-> wait for the generic vring code to be fixed...)
+> Let us also switch from legacy avail/used accessors to the DMA aware
+> ones (even if it isn't strictly necessary).
 
-I will have a look into this.
+I think with this change we can remove the legacy accessors, if I
+didn't mis-grep.
 
 > 
-> >  		ccw->count = sizeof(info->info_block->l);
-> >  	} else {
-> > -		info->info_block->s.desc = (__u64)info->queue;
-> > +		info->info_block->s.desc = queue;
-> >  		info->info_block->s.index = i;
-> >  		info->info_block->s.num = info->num;
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 23 +++++++++++++++++------
+>  1 file changed, 17 insertions(+), 6 deletions(-)
 > 
-> Here, you need to obtain the actual number via
-> virtqueue_get_vring_size().
-> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index edf4afe2d688..5956c9e820bb 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -66,6 +66,7 @@ struct virtio_ccw_device {
+>  	bool device_lost;
+>  	unsigned int config_ready;
+>  	void *airq_info;
+> +	__u64 dma_mask;
 
-Will change as requested.
+u64?
 
-Thanks for having a look!
+>  };
+>  
+>  struct vq_info_block_legacy {
+> @@ -536,8 +537,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+>  		info->info_block->s.desc = queue;
+>  		info->info_block->s.index = i;
+>  		info->info_block->s.num = info->num;
+> -		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
+> -		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
+> +		info->info_block->s.avail = (__u64)virtqueue_get_avail_addr(vq);
+> +		info->info_block->s.used = (__u64)virtqueue_get_used_addr(vq);
+>  		ccw->count = sizeof(info->info_block->s);
+>  	}
+>  	ccw->cmd_code = CCW_CMD_SET_VQ;
+> @@ -769,10 +770,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+>  static void ccw_transport_features(struct virtio_device *vdev)
+>  {
+>  	/*
+> -	 * Packed ring isn't enabled on virtio_ccw for now,
+> -	 * because virtio_ccw uses some legacy accessors,
+> -	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
+> -	 * which aren't available in packed ring currently.
+> +	 * There shouldn't be anything that precludes supporting paced.
 
-Regards,
-Halil
+s/paced/packed/
 
-> >  		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
-> 
+> +	 * TODO: Remove the limitation after having another look into this.
+>  	 */
+>  	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
+>  }
+> @@ -1255,6 +1254,18 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+>  		ret = -ENOMEM;
+>  		goto out_free;
+>  	}
+> +	vcdev->vdev.dev.parent = &cdev->dev;
+
+That one makes sense, pci and mmio are doing that as well.
+
+> +	cdev->dev.dma_mask = &vcdev->dma_mask;
+
+That one feels a bit weird. Will this change in one of the follow-on
+patches? (Have not yet looked at the whole series.)
+
+> +
+> +	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
+> +	if (ret)
+> +		ret = dma_set_mask_and_coherent(&cdev->dev,
+> +						DMA_BIT_MASK(32));
+> +	if (ret) {
+> +		dev_warn(&cdev->dev, "Failed to enable 64-bit or 32-bit DMA.  Trying to continue, but this might not work.\n");
+
+This does not look like you'd try to continue?
+
+> +		goto out_free;
+> +	}
+> +
+>  	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
+>  				   GFP_DMA | GFP_KERNEL);
+>  	if (!vcdev->config_block) {
