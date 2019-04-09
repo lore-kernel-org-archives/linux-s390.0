@@ -1,82 +1,100 @@
 From: Benjamin Block <bblock@linux.ibm.com>
-Date: Tue, 09 Apr 2019 16:50:52 +0000
-Subject: [PATCH 09/10] zfcp: introduce SysFS interface to read the local B2B-Credit
-Message-Id: <51fedf38b3213ea6e73a93204da6f34c205cb635.1554823974.git.bblock@linux.ibm.com>
+Date: Tue, 09 Apr 2019 16:50:53 +0000
+Subject: [PATCH 10/10] zfcp: implicitly refresh config-data diagnostics when reading SysFS
+Message-Id: <a2acd762e1d299e0e9cd36bc3264f05c6e75edf9.1554823974.git.bblock@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In addition to the diagnostic data from the local SFP transceiver this
-patch adds an interface to read the advertised buffer-to-buffer credit
-from the local FC_Port.
+Adds implicit updates of cached diagnostics via Exchange Config Data
+when reading SysFS attributes interfacing them. Right now this only
+affects the new B2B-Credit diagnostic attribute.
 
-With this patch the userspace-interface will only read data stored in
-the corresponding "diagnostic buffer" (that was stored during completion
-of a previous Exchange Config Data command). Implicit updating will
-follow later in this series.
+This uses the same mechanism previously also used for cached diagnostics
+of Exchange Port Data.
 
 Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_sysfs.c | 40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/s390/scsi/zfcp_diag.c  | 37 +++++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_diag.h  |  1 +
+ drivers/s390/scsi/zfcp_sysfs.c |  5 +++++
+ 3 files changed, 43 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
-index e20baec37589..d49f8b442853 100644
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -623,6 +623,45 @@ struct device_attribute *zfcp_sysfs_shost_attrs[] = {
- 	NULL
- };
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+index 54458c2bf843..6a9a1c54e23e 100644
+--- a/drivers/s390/scsi/zfcp_diag.c
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -186,6 +186,43 @@ int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter)
+ 	return rc;
+ }
  
-+static ssize_t zfcp_sysfs_adapter_diag_b2b_credit_show(
-+	struct device *dev, struct device_attribute *attr, char *buf)
++/**
++ * zfcp_diag_update_config_data_buffer() - Implementation of
++ *                                         &typedef zfcp_diag_update_buffer_func
++ *                                         to collect and update Config Data.
++ * @adapter: Adapter to collect Config Data from.
++ *
++ * This call is SYNCHRONOUS ! It blocks till the respective command has
++ * finished completely, or has failed in some way.
++ *
++ * Return:
++ * * 0		- Successfully retrieved new Diagnostics and Updated the buffer;
++ *                this also includes cases where data was retrieved, but
++ *                incomplete; you'll have to check the flag ``incomplete``
++ *                of &struct zfcp_diag_header.
++ * * -ENOMEM	- In case it is not possible to allocate memory for the qtcb
++ *                bottom.
++ * * see zfcp_fsf_exchange_config_data_sync() for possible error-codes (
++ *   excluding -EAGAIN)
++ */
++int zfcp_diag_update_config_data_buffer(struct zfcp_adapter *const adapter)
 +{
-+	struct zfcp_adapter *adapter = zfcp_ccw_adapter_by_cdev(to_ccwdev(dev));
-+	struct zfcp_diag_header *diag_hdr;
-+	struct fc_els_flogi *nsp;
-+	ssize_t rc = -ENOLINK;
-+	unsigned long flags;
-+	unsigned int status;
++	struct fsf_qtcb_bottom_config *qtcb_bottom;
++	int rc;
 +
-+	if (!adapter)
-+		return -ENODEV;
++	qtcb_bottom = kzalloc(sizeof(*qtcb_bottom), GFP_KERNEL);
++	if (qtcb_bottom == NULL)
++		return -ENOMEM;
 +
-+	status = atomic_read(&adapter->status);
-+	if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||
-+	    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||
-+	    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED))
-+		goto out;
++	rc = zfcp_fsf_exchange_config_data_sync(adapter->qdio, qtcb_bottom);
++	if (rc == -EAGAIN)
++		rc = 0; /* signaling incomplete via struct zfcp_diag_header */
 +
-+	diag_hdr = &adapter->diagnostics->config_data.header;
++	/* buffer-data was updated in zfcp_fsf_exchange_config_data_handler() */
 +
-+	spin_lock_irqsave(&diag_hdr->access_lock, flags);
-+	/* nport_serv_param doesn't contain the ELS_Command code */
-+	nsp = (struct fc_els_flogi *)((unsigned long)
-+					      adapter->diagnostics->config_data
-+						      .data.nport_serv_param -
-+				      sizeof(u32));
-+
-+	rc = scnprintf(buf, 5 + 2, "%hu\n",
-+		       be16_to_cpu(nsp->fl_csp.sp_bb_cred));
-+	spin_unlock_irqrestore(&diag_hdr->access_lock, flags);
-+
-+out:
-+	zfcp_ccw_adapter_put(adapter);
 +	return rc;
 +}
-+static ZFCP_DEV_ATTR(adapter_diag, b2b_credit, 0400,
-+		     zfcp_sysfs_adapter_diag_b2b_credit_show, NULL);
 +
- #define ZFCP_DEFINE_DIAG_SFP_ATTR(_name, _qtcb_member, _prtsize, _prtfmt)      \
- 	static ssize_t zfcp_sysfs_adapter_diag_sfp_##_name##_show(             \
- 		struct device *dev, struct device_attribute *attr, char *buf)  \
-@@ -690,6 +729,7 @@ static struct attribute *zfcp_sysfs_diag_attrs[] = {
- 	&dev_attr_adapter_diag_sfp_sfp_invalid.attr,
- 	&dev_attr_adapter_diag_sfp_connector_type.attr,
- 	&dev_attr_adapter_diag_sfp_fec_active.attr,
-+	&dev_attr_adapter_diag_b2b_credit.attr,
- 	NULL,
- };
+ static int __zfcp_diag_update_buffer(struct zfcp_adapter *const adapter,
+ 				     struct zfcp_diag_header *const hdr,
+ 				     zfcp_diag_update_buffer_func buffer_update,
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+index 994ee7e9207c..e582b8219cc1 100644
+--- a/drivers/s390/scsi/zfcp_diag.h
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -77,6 +77,7 @@ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
+  */
+ typedef int (*zfcp_diag_update_buffer_func)(struct zfcp_adapter *const adapter);
  
++int zfcp_diag_update_config_data_buffer(struct zfcp_adapter *const adapter);
+ int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter);
+ int zfcp_diag_update_buffer_limited(struct zfcp_adapter *const adapter,
+ 				    struct zfcp_diag_header *const hdr,
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index d49f8b442853..8bd04b3ca9f9 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -644,6 +644,11 @@ static ssize_t zfcp_sysfs_adapter_diag_b2b_credit_show(
+ 
+ 	diag_hdr = &adapter->diagnostics->config_data.header;
+ 
++	rc = zfcp_diag_update_buffer_limited(
++		adapter, diag_hdr, zfcp_diag_update_config_data_buffer);
++	if (rc != 0)
++		goto out;
++
+ 	spin_lock_irqsave(&diag_hdr->access_lock, flags);
+ 	/* nport_serv_param doesn't contain the ELS_Command code */
+ 	nsp = (struct fc_els_flogi *)((unsigned long)
 -- 
 2.16.4
