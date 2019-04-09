@@ -1,110 +1,91 @@
 From: Benjamin Block <bblock@linux.ibm.com>
-Date: Tue, 09 Apr 2019 16:50:47 +0000
-Subject: [PATCH 04/10] zfcp: add diagnostics buffer for exchange config data
-Message-Id: <aa442f46d408179149af8f1123985888e9e02a3b.1554823974.git.bblock@linux.ibm.com>
-To: linux-s390@vger.kernel.org
+Date: Tue, 09 Apr 2019 16:50:48 +0000
+Subject: [PATCH 05/10] zfcp: support retrieval of SFP Data via Exchange Port Data
+Message-Id: <88f0c8377a80fe0c95dfa095c610515d474bf570.1554823974.git.bblock@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-In the same vein as the previous patch, add diagnostic data capture for
-the Exchange Config Data command.
+A new FCP channel feature allows us to read the diagnostics from our
+local SFP transceivers. To make use of that add a flag
+(FSF_FEATURE_REQUEST_SFP_DATA) to the feature-set we request from the
+FCP channel. Whether the channel actually implements this can be
+determined via an other new flag (FSF_FEATURE_REPORT_SFP_DATA), that is
+set in the adapter_features field of the adapter structure after
+Exchange Config Data finished.
+
+Also add the corresponding definitions in the QTCB Bottom for Exchange
+Port Data. These new definitions are only valid, if
+FSF_FEATURE_REPORT_SFP_DATA is set.
 
 Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_diag.c | 14 ++++++++++++--
- drivers/s390/scsi/zfcp_diag.h |  7 +++++++
- drivers/s390/scsi/zfcp_fsf.c  |  9 +++++++++
- 3 files changed, 28 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c |  6 ++++--
+ drivers/s390/scsi/zfcp_fsf.h | 21 ++++++++++++++++++++-
+ 2 files changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
-index ca56a8f136ca..a9564c9156eb 100644
---- a/drivers/s390/scsi/zfcp_diag.c
-+++ b/drivers/s390/scsi/zfcp_diag.c
-@@ -34,6 +34,9 @@
-  */
- int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter)
- {
-+	/* set the timestamp so that the first test on age will always fail */
-+	const unsigned long initial_timestamp =
-+		jiffies - msecs_to_jiffies(ZFCP_DIAG_MAX_AGE);
- 	struct zfcp_diag_adapter *diag;
- 	struct zfcp_diag_header *hdr;
- 
-@@ -47,8 +50,15 @@ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter)
- 	spin_lock_init(&hdr->access_lock);
- 	hdr->buffer = &diag->port_data.data;
- 	hdr->buffer_size = sizeof(diag->port_data.data);
--	/* set the timestamp so that the first test on age will always fail */
--	hdr->timestamp = jiffies - msecs_to_jiffies(ZFCP_DIAG_MAX_AGE);
-+	hdr->timestamp = initial_timestamp;
-+
-+	/* setup header for config_data */
-+	hdr = &diag->config_data.header;
-+
-+	spin_lock_init(&hdr->access_lock);
-+	hdr->buffer = &diag->config_data.data;
-+	hdr->buffer_size = sizeof(diag->config_data.data);
-+	hdr->timestamp = initial_timestamp;
- 
- 	adapter->diagnostics = diag;
- 	return 0;
-diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
-index 5c81e7a8b8d7..031050c82b6e 100644
---- a/drivers/s390/scsi/zfcp_diag.h
-+++ b/drivers/s390/scsi/zfcp_diag.h
-@@ -43,12 +43,19 @@ struct zfcp_diag_header {
-  * @port_data: data retrieved using exchange port data.
-  * @port_data.header: header with metadata for the cache in @port_data.data.
-  * @port_data.data: cached QTCB Bottom of command exchange port data.
-+ * @config_data: data retrieved using exchange config data.
-+ * @config_data.header: header with metadata for the cache in @config_data.data.
-+ * @config_data.data: cached QTCB Bottom of command exchange config data.
-  */
- struct zfcp_diag_adapter {
- 	struct {
- 		struct zfcp_diag_header		header;
- 		struct fsf_qtcb_bottom_port	data;
- 	} port_data;
-+	struct {
-+		struct zfcp_diag_header		header;
-+		struct fsf_qtcb_bottom_config	data;
-+	} config_data;
- };
- 
- int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter);
 diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 310cc937d1f1..e23bb0948740 100644
+index e23bb0948740..d0100cec10cb 100644
 --- a/drivers/s390/scsi/zfcp_fsf.c
 +++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -545,6 +545,8 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
- static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
- {
- 	struct zfcp_adapter *adapter = req->adapter;
-+	struct zfcp_diag_header *const diag_hdr =
-+		&adapter->diagnostics->config_data.header;
- 	struct fsf_qtcb *qtcb = req->qtcb;
- 	struct fsf_qtcb_bottom_config *bottom = &qtcb->bottom.config;
- 	struct Scsi_Host *shost = adapter->scsi_host;
-@@ -561,6 +563,12 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
+@@ -1257,7 +1257,8 @@ int zfcp_fsf_exchange_config_data(struct zfcp_erp_action *erp_action)
  
- 	switch (qtcb->header.fsf_status) {
- 	case FSF_GOOD:
-+		/*
-+		 * usually we wait with an update till the cache is too old,
-+		 * but because we have the data available, update it anyway
-+		 */
-+		zfcp_diag_update_xdata(diag_hdr, bottom, false);
-+
- 		if (zfcp_fsf_exchange_config_evaluate(req))
- 			return;
+ 	req->qtcb->bottom.config.feature_selection =
+ 			FSF_FEATURE_NOTIFICATION_LOST |
+-			FSF_FEATURE_UPDATE_ALERT;
++			FSF_FEATURE_UPDATE_ALERT |
++			FSF_FEATURE_REQUEST_SFP_DATA;
+ 	req->erp_action = erp_action;
+ 	req->handler = zfcp_fsf_exchange_config_data_handler;
+ 	erp_action->fsf_req_id = req->req_id;
+@@ -1308,7 +1309,8 @@ int zfcp_fsf_exchange_config_data_sync(struct zfcp_qdio *qdio,
  
-@@ -576,6 +584,7 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
- 				&adapter->status);
- 		break;
- 	case FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE:
-+		zfcp_diag_update_xdata(diag_hdr, bottom, true);
- 		req->status |= ZFCP_STATUS_FSFREQ_XDATAINCOMPLETE;
+ 	req->qtcb->bottom.config.feature_selection =
+ 			FSF_FEATURE_NOTIFICATION_LOST |
+-			FSF_FEATURE_UPDATE_ALERT;
++			FSF_FEATURE_UPDATE_ALERT |
++			FSF_FEATURE_REQUEST_SFP_DATA;
  
- 		fc_host_node_name(shost) = 0;
+ 	req->data = data;
+ 
+diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
+index 2c658b66318c..2b1e4da1944f 100644
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
+@@ -163,6 +163,8 @@
+ #define FSF_FEATURE_ELS_CT_CHAINED_SBALS	0x00000020
+ #define FSF_FEATURE_UPDATE_ALERT		0x00000100
+ #define FSF_FEATURE_MEASUREMENT_DATA		0x00000200
++#define FSF_FEATURE_REQUEST_SFP_DATA		0x00000200
++#define FSF_FEATURE_REPORT_SFP_DATA		0x00000800
+ #define FSF_FEATURE_DIF_PROT_TYPE1		0x00010000
+ #define FSF_FEATURE_DIX_PROT_TCPIP		0x00020000
+ 
+@@ -407,7 +409,24 @@ struct fsf_qtcb_bottom_port {
+ 	u8 cp_util;
+ 	u8 cb_util;
+ 	u8 a_util;
+-	u8 res2[253];
++	u8 res2;
++	u16 temperature;
++	u16 vcc;
++	u16 tx_bias;
++	u16 tx_power;
++	u16 rx_power;
++	union {
++		u16 raw;
++		struct {
++			u16 fec_active		:1;
++			u16:7;
++			u16 connector_type	:2;
++			u16 sfp_invalid		:1;
++			u16 optical_port	:1;
++			u16 port_tx_type	:4;
++		};
++	} sfp_flags;
++	u8 res3[240];
+ } __attribute__ ((packed));
+ 
+ union fsf_qtcb_bottom {
 -- 
 2.16.4
