@@ -1,14 +1,12 @@
 Return-Path: <SRS0=pOBU=SL=vger.kernel.org=kvm-owner@kernel.org>
-Date: Tue, 9 Apr 2019 19:18:27 +0200
+Date: Tue, 9 Apr 2019 19:55:48 +0200
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 03/12] s390/mm: force swiotlb for protected
- virtualization
-Message-ID: <20190409191827.2dcc2402.cohuck@redhat.com>
-In-Reply-To: <20190409125416.73713f23@oc2783563651>
+Subject: Re: [RFC PATCH 05/12] s390/cio: add protected virtualization
+ support to cio
+Message-ID: <20190409195548.6dea6e40.cohuck@redhat.com>
+In-Reply-To: <20190404231622.52531-6-pasic@linux.ibm.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-4-pasic@linux.ibm.com>
-        <20190409121647.3e0e1f53.cohuck@redhat.com>
-        <20190409125416.73713f23@oc2783563651>
+        <20190404231622.52531-6-pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -19,147 +17,117 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 9 Apr 2019 12:54:16 +0200
+On Fri,  5 Apr 2019 01:16:15 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Tue, 9 Apr 2019 12:16:47 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Fri,  5 Apr 2019 01:16:13 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > On s390 protected virtualization guests also have to use bounce I/O
-> > > buffers.  That requires some plumbing.
-> > > 
-> > > Let us make sure any device using DMA API accordingly is spared from the  
->                     ^,                                   ^,
-> Maybe this helps...
-> 
-> > > problems that hypervisor attempting I/O to a non-shared secure page would
-> > > bring.  
-> > 
-> > I have problems parsing this sentence :(
-> > 
-> > Do you mean that we want to exclude pages for I/O from encryption?  
-> 
-> The intended meaning is:
-> * Devices that do use DMA API (properly) to get get/map the memory
->   that is used to talk to hypervisor should be OK with PV (protected
->   virtualizaton). I.e. for such devices PV or not PV is basically
->   transparent.
-> * But if a device does not use DMA API for the memory that is used to
->   talk to the hypervisor this patch won't help.
-> 
-> And yes the gist of it is: memory accessed by the hypervisor needs to
-> be on pages excluded from protection (which in case of PV is technically
-> not encryption).
-> 
-> Does that help?
+> Virtio-ccw relies on cio mechanisms for bootstrapping the ccw device.
 
-Hm, let me sleep on this. The original sentence was a bit too
-convoluted for me...
+Well, a ccw device is, by definition, using cio mechanisms ;)
+
+Better say: "As virtio-ccw devices are channel devices, we need to use
+the dma area for any communication with the hypervisor."
+Or something like that.
+
+> Thus we need to make sure any memory that is used for communication with
+> the hypervisor is shared.
+
+In this context, does 'hypervisor' always mean 'QEMU/KVM'? If Other
+Hypervisors implement protected virtualization, we probably need to
+make sure that all common I/O layer control blocks are in the dma area
+(including e.g. QDIO), not just what virtio-ccw devices use.
 
 > 
-> >   
-> > > 
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > ---
-> > >  arch/s390/Kconfig                   |  4 ++++
-> > >  arch/s390/include/asm/Kbuild        |  1 -
-> > >  arch/s390/include/asm/dma-mapping.h | 13 +++++++++++
-> > >  arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++++
-> > >  arch/s390/mm/init.c                 | 44 +++++++++++++++++++++++++++++++++++++
-> > >  5 files changed, 79 insertions(+), 1 deletion(-)
-> > >  create mode 100644 arch/s390/include/asm/dma-mapping.h
-> > >  create mode 100644 arch/s390/include/asm/mem_encrypt.h  
-> > 
-> > (...)
-> >   
-> > > @@ -126,6 +129,45 @@ void mark_rodata_ro(void)
-> > >  	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
-> > >  }
-> > >  
-> > > +int set_memory_encrypted(unsigned long addr, int numpages)
-> > > +{
-> > > +	/* also called for the swiotlb bounce buffers, make all pages shared */
-> > > +	/* TODO: do ultravisor calls */
-> > > +	return 0;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(set_memory_encrypted);
-> > > +
-> > > +int set_memory_decrypted(unsigned long addr, int numpages)
-> > > +{
-> > > +	/* also called for the swiotlb bounce buffers, make all pages shared */
-> > > +	/* TODO: do ultravisor calls */
-> > > +	return 0;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(set_memory_decrypted);
-> > > +
-> > > +/* are we a protected virtualization guest? */
-> > > +bool sev_active(void)
-> > > +{
-> > > +	/*
-> > > +	 * TODO: Do proper detection using ultravisor, for now let us fake we
-> > > +	 *  have it so the code gets exercised.  
-> > 
-> > That's the swiotlb stuff, right?
-> >   
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> ---
+>  drivers/s390/cio/ccwreq.c        |  8 +++----
+>  drivers/s390/cio/device.c        | 46 +++++++++++++++++++++++++++++++---------
+>  drivers/s390/cio/device_fsm.c    | 40 +++++++++++++++++-----------------
+>  drivers/s390/cio/device_id.c     | 18 ++++++++--------
+>  drivers/s390/cio/device_ops.c    |  4 ++--
+>  drivers/s390/cio/device_pgid.c   | 20 ++++++++---------
+>  drivers/s390/cio/device_status.c | 24 ++++++++++-----------
+>  drivers/s390/cio/io_sch.h        | 19 ++++++++++++-----
+>  8 files changed, 107 insertions(+), 72 deletions(-)
 > 
-> You mean 'That' == code to get exercised == 'swiotlb stuff'?
-> 
-> If yes then the answer is kind of. The swiotlb (i.e. bounce buffers) is
-> when we map (like we map the buffers pointed to by the descriptors in
-> case of the virtio ring). The other part of it is the memory allocated
-> as DMA coherent (i.e. the virtio ring (desc, avail used) itself).
 
-Ok.
+(...)
 
-> 
-> > (The patches will obviously need some reordering before it is actually
-> > getting merged.)
-> >   
-> 
-> What do you mean by reordering?
-> 
-> One reason why this is an early RFC is the missing dependency (i.e. the
-> stuff described by most of the TODO comments). As pointed out in the
-> cover letter. Another reason is that I wanted to avoid putting a lots of
-> effort into fine-polishing before clarifying the getting some feedback
-> on the basics from the community. ;)
+(just looking at which fields are moved for now)
 
-Sure. I'm just reading top-down and unconditionally enabling this is
-something that obviously needs to be changed in later iterations ;)
+> diff --git a/drivers/s390/cio/io_sch.h b/drivers/s390/cio/io_sch.h
+> index 90e4e3a7841b..fc3220fede0f 100644
+> --- a/drivers/s390/cio/io_sch.h
+> +++ b/drivers/s390/cio/io_sch.h
+> @@ -9,15 +9,20 @@
+>  #include "css.h"
+>  #include "orb.h"
+>  
+> +
+> +struct io_subchannel_dma_area {
+> +	struct ccw1 sense_ccw;	/* static ccw for sense command */
 
-> 
-> 
-> > > +	 */
-> > > +	return true;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(sev_active);
-> > > +
-> > > +/* protected virtualization */
-> > > +static void pv_init(void)
-> > > +{
-> > > +	if (!sev_active())
-> > > +		return;
-> > > +
-> > > +	/* make sure bounce buffers are shared */
-> > > +	swiotlb_init(1);
-> > > +	swiotlb_update_mem_attributes();
-> > > +	swiotlb_force = SWIOTLB_FORCE;
-> > > +}
-> > > +
-> > >  void __init mem_init(void)
-> > >  {
-> > >  	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
-> > > @@ -134,6 +176,8 @@ void __init mem_init(void)
-> > >  	set_max_mapnr(max_low_pfn);
-> > >          high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
-> > >  
-> > > +	pv_init();
-> > > +
-> > >  	/* Setup guest page hinting */
-> > >  	cmma_init();
-> > >    
-> >   
-> 
+The ccw makes sense.
+
+> +};
+> +
+>  struct io_subchannel_private {
+>  	union orb orb;		/* operation request block */
+> -	struct ccw1 sense_ccw;	/* static ccw for sense command */
+>  	struct ccw_device *cdev;/* pointer to the child ccw device */
+>  	struct {
+>  		unsigned int suspend:1;	/* allow suspend */
+>  		unsigned int prefetch:1;/* deny prefetch */
+>  		unsigned int inter:1;	/* suppress intermediate interrupts */
+>  	} __packed options;
+> +	struct io_subchannel_dma_area *dma_area;
+>  } __aligned(8);
+>  
+>  #define to_io_private(n) ((struct io_subchannel_private *) \
+> @@ -115,6 +120,13 @@ enum cdev_todo {
+>  #define FAKE_CMD_IRB	1
+>  #define FAKE_TM_IRB	2
+>  
+> +struct ccw_device_dma_area {
+> +	struct senseid senseid;	/* SenseID info */
+> +	struct ccw1 iccws[2];	/* ccws for SNID/SID/SPGID commands */
+> +	struct irb irb;		/* device status */
+> +	struct pgid pgid[8];	/* path group IDs per chpid*/
+
+Again, ccws, and blocks that will be written by the hypervisor, which
+makes sense as well.
+
+> +};
+> +
+>  struct ccw_device_private {
+>  	struct ccw_device *cdev;
+>  	struct subchannel *sch;
+> @@ -156,11 +168,7 @@ struct ccw_device_private {
+>  	} __attribute__((packed)) flags;
+>  	unsigned long intparm;	/* user interruption parameter */
+>  	struct qdio_irq *qdio_data;
+> -	struct irb irb;		/* device status */
+>  	int async_kill_io_rc;
+> -	struct senseid senseid;	/* SenseID info */
+> -	struct pgid pgid[8];	/* path group IDs per chpid*/
+> -	struct ccw1 iccws[2];	/* ccws for SNID/SID/SPGID commands */
+>  	struct work_struct todo_work;
+>  	enum cdev_todo todo;
+>  	wait_queue_head_t wait_q;
+> @@ -169,6 +177,7 @@ struct ccw_device_private {
+>  	struct list_head cmb_list;	/* list of measured devices */
+>  	u64 cmb_start_time;		/* clock value of cmb reset */
+>  	void *cmb_wait;			/* deferred cmb enable/disable */
+> +	struct ccw_device_dma_area *dma_area;
+>  	enum interruption_class int_class;
+>  };
+>  
+
+So, this leaves some things I'm not sure about, especially as I do not
+know the architecture of this new feature.
+
+- This applies only to asynchronously handled things, it seems? So
+  things like control blocks modified by stsch/msch/etc does not need
+  special treatment?
+- What about channel measurements? Or are they not supported?
+- What about CHSCs? Or would only asynchronous commands (which we
+  currently don't implement in QEMU) need special treatment?
