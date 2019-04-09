@@ -1,289 +1,187 @@
-Return-Path: <SRS0=58dN=SL=kvack.org=owner-linux-mm@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 4/4] mm/memory_hotplug: Make __remove_pages() and arch_remove_memory() never fail
-Date: Tue,  9 Apr 2019 12:01:48 +0200
-Message-Id: <20190409100148.24703-5-david@redhat.com>
-In-Reply-To: <20190409100148.24703-1-david@redhat.com>
-References: <20190409100148.24703-1-david@redhat.com>
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, David Hildenbrand <david@redhat.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@linux.ibm.com>, Oscar Salvador <osalvador@suse.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Stefan Agner <stefan@agner.ch>, Nicholas Piggin <npiggin@gmail.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Vasily Gorbik <gor@linux.ibm.com>, Arun KS <arunks@codeaurora.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Rob Herring <robh@kernel.org>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Wei Yang <richard.weiyang@gmail.com>, Qian Cai <cai@lca.pw>, Mathieu Malaterre <malat@debian.org>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org
+Return-Path: <linux-doc-owner@vger.kernel.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Subject: [PATCH v5 1/6] iommu: add generic boot option iommu.dma_mode
+Date: Tue, 9 Apr 2019 20:53:03 +0800
+Message-ID: <20190409125308.18304-2-thunder.leizhen@huawei.com>
+In-Reply-To: <20190409125308.18304-1-thunder.leizhen@huawei.com>
+References: <20190409125308.18304-1-thunder.leizhen@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-doc/>
+List-Post: <mailto:linux-doc@vger.kernel.org>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>, Hanjun Guo <guohanjun@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-All callers of arch_remove_memory() ignore errors. And we should really
-try to remove any errors from the memory removal path.
-No more errors are reported from __remove_pages(). BUG() in s390x code
-in case arch_remove_memory() is triggered. We may implement that properly
-later. WARN in case powerpc code failed to remove the section mapping,
-which is better than ignoring the error completely right now.
+Currently the IOMMU dma contains 3 modes: passthrough, lazy, strict. The
+passthrough mode bypass the IOMMU, the lazy mode defer the invalidation
+of hardware TLBs, and the strict mode invalidate IOMMU hardware TLBs
+synchronously. The three modes are mutually exclusive. But the current
+boot options are confused, such as: iommu.passthrough and iommu.strict,
+because they are no good to be coexist. So add iommu.dma_mode.
 
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Arun KS <arunks@codeaurora.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-sh@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 ---
- arch/ia64/mm/init.c            | 11 +++--------
- arch/powerpc/mm/mem.c          | 11 ++++-------
- arch/s390/mm/init.c            |  5 +++--
- arch/sh/mm/init.c              | 11 +++--------
- arch/x86/mm/init_32.c          |  5 +++--
- arch/x86/mm/init_64.c          | 10 +++-------
- include/linux/memory_hotplug.h |  8 ++++----
- mm/memory_hotplug.c            |  5 ++---
- 8 files changed, 25 insertions(+), 41 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt | 19 ++++++++
+ drivers/iommu/iommu.c                           | 59 ++++++++++++++++++++-----
+ include/linux/iommu.h                           |  5 +++
+ 3 files changed, 71 insertions(+), 12 deletions(-)
 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 379eb1f9adc9..d28e29103bdb 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -682,20 +682,15 @@ int arch_add_memory(int nid, u64 start, u64 size,
- }
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 2b8ee90bb64470d..f7766f8ac8b9084 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -1811,6 +1811,25 @@
+ 			1 - Bypass the IOMMU for DMA.
+ 			unset - Use value of CONFIG_IOMMU_DEFAULT_PASSTHROUGH.
  
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap)
-+void arch_remove_memory(int nid, u64 start, u64 size,
-+			struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	struct zone *zone;
--	int ret;
++	iommu.dma_mode= Configure default dma mode. if unset, use the value
++			of CONFIG_IOMMU_DEFAULT_PASSTHROUGH to determine
++			passthrough or not.
++			Note: For historical reasons, ARM64/S390/PPC/X86 have
++			their specific options. Currently, only ARM64 support
++			this boot option, and hope other ARCHs to use this as
++			generic boot option.
++		passthrough
++			Configure DMA to bypass the IOMMU by default.
++		lazy
++			Request that DMA unmap operations use deferred
++			invalidation of hardware TLBs, for increased
++			throughput at the cost of reduced device isolation.
++			Will fall back to strict mode if not supported by
++			the relevant IOMMU driver.
++		strict
++			DMA unmap operations invalidate IOMMU hardware TLBs
++			synchronously.
++
+ 	io7=		[HW] IO7 for Marvel based alpha systems
+ 			See comment before marvel_specify_io7 in
+ 			arch/alpha/kernel/core_marvel.c.
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 109de67d5d727c2..df1ce8e22385b48 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -38,12 +38,13 @@
  
- 	zone = page_zone(pfn_to_page(start_pfn));
--	ret = __remove_pages(zone, start_pfn, nr_pages, altmap);
--	if (ret)
--		pr_warn("%s: Problem encountered in __remove_pages() as"
--			" ret=%d\n", __func__,  ret);
--
--	return ret;
-+	__remove_pages(zone, start_pfn, nr_pages, altmap);
- }
+ static struct kset *iommu_group_kset;
+ static DEFINE_IDA(iommu_group_ida);
++
+ #ifdef CONFIG_IOMMU_DEFAULT_PASSTHROUGH
+-static unsigned int iommu_def_domain_type = IOMMU_DOMAIN_IDENTITY;
++#define IOMMU_DEFAULT_DMA_MODE		IOMMU_DMA_MODE_PASSTHROUGH
+ #else
+-static unsigned int iommu_def_domain_type = IOMMU_DOMAIN_DMA;
++#define IOMMU_DEFAULT_DMA_MODE		IOMMU_DMA_MODE_STRICT
  #endif
- #endif
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 76deaa8525db..cc9425fb9056 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -131,8 +131,8 @@ int __meminit arch_add_memory(int nid, u64 start, u64 size,
- }
+-static bool iommu_dma_strict __read_mostly = true;
++static int iommu_default_dma_mode __read_mostly = IOMMU_DEFAULT_DMA_MODE;
  
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int __meminit arch_remove_memory(int nid, u64 start, u64 size,
--					struct vmem_altmap *altmap)
-+void __meminit arch_remove_memory(int nid, u64 start, u64 size,
-+				  struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
-@@ -147,14 +147,13 @@ int __meminit arch_remove_memory(int nid, u64 start, u64 size,
- 	if (altmap)
- 		page += vmem_altmap_offset(altmap);
+ struct iommu_callback_data {
+ 	const struct iommu_ops *ops;
+@@ -147,20 +148,51 @@ static int __init iommu_set_def_domain_type(char *str)
+ 	int ret;
  
--	ret = __remove_pages(page_zone(page), start_pfn, nr_pages, altmap);
+ 	ret = kstrtobool(str, &pt);
 -	if (ret)
 -		return ret;
-+	__remove_pages(page_zone(page), start_pfn, nr_pages, altmap);
++	if (!ret && pt)
++		iommu_default_dma_mode = IOMMU_DMA_MODE_PASSTHROUGH;
  
- 	/* Remove htab bolted mappings for this section of memory */
- 	start = (unsigned long)__va(start);
- 	flush_inval_dcache_range(start, start + size);
- 	ret = remove_section_mapping(start, start + size);
-+	WARN_ON_ONCE(ret);
- 
- 	/* Ensure all vmalloc mappings are flushed in case they also
- 	 * hit that section of memory
-@@ -162,8 +161,6 @@ int __meminit arch_remove_memory(int nid, u64 start, u64 size,
- 	vm_unmap_aliases();
- 
- 	resize_hpt_for_hotplug(memblock_phys_mem_size());
--
--	return ret;
- }
- #endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index f5db961ad792..31b1071315d7 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -234,14 +234,15 @@ int arch_add_memory(int nid, u64 start, u64 size,
- }
- 
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap)
-+void arch_remove_memory(int nid, u64 start, u64 size,
-+			struct vmem_altmap *altmap)
- {
- 	/*
- 	 * There is no hardware or firmware interface which could trigger a
- 	 * hot memory remove on s390. So there is nothing that needs to be
- 	 * implemented.
- 	 */
--	return -EBUSY;
-+	BUG();
- }
- #endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index 168d3a6b9358..5aeb4d7099a1 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -429,20 +429,15 @@ EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
- #endif
- 
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap)
-+void arch_remove_memory(int nid, u64 start, u64 size,
-+			struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	struct zone *zone;
--	int ret;
- 
- 	zone = page_zone(pfn_to_page(start_pfn));
--	ret = __remove_pages(zone, start_pfn, nr_pages, altmap);
--	if (unlikely(ret))
--		pr_warn("%s: Failed, __remove_pages() == %d\n", __func__,
--			ret);
--
--	return ret;
-+	__remove_pages(zone, start_pfn, nr_pages, altmap);
- }
- #endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 755dbed85531..075e568098f2 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -860,14 +860,15 @@ int arch_add_memory(int nid, u64 start, u64 size,
- }
- 
- #ifdef CONFIG_MEMORY_HOTREMOVE
--int arch_remove_memory(int nid, u64 start, u64 size, struct vmem_altmap *altmap)
-+void arch_remove_memory(int nid, u64 start, u64 size,
-+			struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	struct zone *zone;
- 
- 	zone = page_zone(pfn_to_page(start_pfn));
--	return __remove_pages(zone, start_pfn, nr_pages, altmap);
-+	__remove_pages(zone, start_pfn, nr_pages, altmap);
- }
- #endif
- #endif
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index db42c11b48fb..20d14254b686 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1141,24 +1141,20 @@ kernel_physical_mapping_remove(unsigned long start, unsigned long end)
- 	remove_pagetable(start, end, true, NULL);
- }
- 
--int __ref arch_remove_memory(int nid, u64 start, u64 size,
--				struct vmem_altmap *altmap)
-+void __ref arch_remove_memory(int nid, u64 start, u64 size,
-+			      struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	struct page *page = pfn_to_page(start_pfn);
- 	struct zone *zone;
--	int ret;
- 
- 	/* With altmap the first mapped page is offset from @start */
- 	if (altmap)
- 		page += vmem_altmap_offset(altmap);
- 	zone = page_zone(page);
--	ret = __remove_pages(zone, start_pfn, nr_pages, altmap);
--	WARN_ON_ONCE(ret);
-+	__remove_pages(zone, start_pfn, nr_pages, altmap);
- 	kernel_physical_mapping_remove(start, start + size);
--
--	return ret;
- }
- #endif
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index d0a145ffa4fe..9d0efac902ec 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -112,10 +112,10 @@ static inline bool movable_node_is_enabled(void)
- }
- 
- #ifdef CONFIG_MEMORY_HOTREMOVE
--extern int arch_remove_memory(int nid, u64 start, u64 size,
--				struct vmem_altmap *altmap);
--extern int __remove_pages(struct zone *zone, unsigned long start_pfn,
--	unsigned long nr_pages, struct vmem_altmap *altmap);
-+extern void arch_remove_memory(int nid, u64 start, u64 size,
-+			       struct vmem_altmap *altmap);
-+extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
-+			   unsigned long nr_pages, struct vmem_altmap *altmap);
- #endif /* CONFIG_MEMORY_HOTREMOVE */
- 
- /*
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 17a60281c36f..52fef4a81e4c 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -548,8 +548,8 @@ static void __remove_section(struct zone *zone, struct mem_section *ms,
-  * sure that pages are marked reserved and zones are adjust properly by
-  * calling offline_pages().
-  */
--int __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
--		 unsigned long nr_pages, struct vmem_altmap *altmap)
-+void __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
-+		    unsigned long nr_pages, struct vmem_altmap *altmap)
- {
- 	unsigned long i;
- 	unsigned long map_offset = 0;
-@@ -580,7 +580,6 @@ int __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
- 	}
- 
- 	set_zone_contiguous(zone);
+-	iommu_def_domain_type = pt ? IOMMU_DOMAIN_IDENTITY : IOMMU_DOMAIN_DMA;
 -	return 0;
++	return ret;
  }
- #endif /* CONFIG_MEMORY_HOTREMOVE */
+ early_param("iommu.passthrough", iommu_set_def_domain_type);
  
+ static int __init iommu_dma_setup(char *str)
+ {
+-	return kstrtobool(str, &iommu_dma_strict);
++	bool strict;
++	int ret;
++
++	ret = kstrtobool(str, &strict);
++	if (!ret)
++		iommu_default_dma_mode = strict ?
++				IOMMU_DMA_MODE_STRICT : IOMMU_DMA_MODE_LAZY;
++
++	return ret;
+ }
+ early_param("iommu.strict", iommu_dma_setup);
+ 
++static int __init iommu_dma_mode_setup(char *str)
++{
++	if (!str)
++		goto fail;
++
++	if (!strncmp(str, "passthrough", 11))
++		iommu_default_dma_mode = IOMMU_DMA_MODE_PASSTHROUGH;
++	else if (!strncmp(str, "lazy", 4))
++		iommu_default_dma_mode = IOMMU_DMA_MODE_LAZY;
++	else if (!strncmp(str, "strict", 6))
++		iommu_default_dma_mode = IOMMU_DMA_MODE_STRICT;
++	else
++		goto fail;
++
++	pr_info("Force dma mode to be %d\n", iommu_default_dma_mode);
++
++	return 0;
++
++fail:
++	pr_debug("Boot option iommu.dma_mode is incorrect, ignored\n");
++	return -EINVAL;
++}
++early_param("iommu.dma_mode", iommu_dma_mode_setup);
++
+ static ssize_t iommu_group_attr_show(struct kobject *kobj,
+ 				     struct attribute *__attr, char *buf)
+ {
+@@ -1102,14 +1134,17 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 	 */
+ 	if (!group->default_domain) {
+ 		struct iommu_domain *dom;
++		int def_domain_type =
++			(iommu_default_dma_mode == IOMMU_DMA_MODE_PASSTHROUGH)
++			? IOMMU_DOMAIN_IDENTITY : IOMMU_DOMAIN_DMA;
+ 
+-		dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
+-		if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
++		dom = __iommu_domain_alloc(dev->bus, def_domain_type);
++		if (!dom && def_domain_type != IOMMU_DOMAIN_DMA) {
+ 			dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
+ 			if (dom) {
+ 				dev_warn(dev,
+ 					 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
+-					 iommu_def_domain_type);
++					 def_domain_type);
+ 			}
+ 		}
+ 
+@@ -1117,7 +1152,7 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 		if (!group->domain)
+ 			group->domain = dom;
+ 
+-		if (dom && !iommu_dma_strict) {
++		if (dom && (iommu_default_dma_mode == IOMMU_DMA_MODE_LAZY)) {
+ 			int attr = 1;
+ 			iommu_domain_set_attr(dom,
+ 					      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index ffbbc7e39ceeba3..c3f4e3416176496 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -42,6 +42,11 @@
+  */
+ #define IOMMU_PRIV	(1 << 5)
+ 
++
++#define IOMMU_DMA_MODE_STRICT		0x0
++#define IOMMU_DMA_MODE_LAZY		0x1
++#define IOMMU_DMA_MODE_PASSTHROUGH	0x2
++
+ struct iommu_ops;
+ struct iommu_group;
+ struct bus_type;
 -- 
-2.17.2
+1.8.3
