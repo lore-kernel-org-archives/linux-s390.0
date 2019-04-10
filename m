@@ -1,15 +1,15 @@
 Return-Path: <SRS0=rkwH=SM=vger.kernel.org=kvm-owner@kernel.org>
-Date: Wed, 10 Apr 2019 16:42:45 +0200
+Date: Wed, 10 Apr 2019 17:12:54 +0200
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 07/12] virtio/s390: use DMA memory for ccw I/O
-In-Reply-To: <20190410104251.38fe7405.cohuck@redhat.com>
+Subject: Re: [RFC PATCH 10/12] virtio/s390: consolidate DMA allocations
+In-Reply-To: <20190410104649.12cdbcba.cohuck@redhat.com>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-8-pasic@linux.ibm.com>
-        <20190410104251.38fe7405.cohuck@redhat.com>
+        <20190404231622.52531-11-pasic@linux.ibm.com>
+        <20190410104649.12cdbcba.cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190410164245.53f8b26d@oc2783563651>
+Message-Id: <20190410171254.71206015@oc2783563651>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -17,155 +17,67 @@ To: Cornelia Huck <cohuck@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 10 Apr 2019 10:42:51 +0200
+On Wed, 10 Apr 2019 10:46:49 +0200
 Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On Fri,  5 Apr 2019 01:16:17 +0200
+> On Fri,  5 Apr 2019 01:16:20 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> > Before virtio-ccw could get away with not using DMA API for the pieces of
-> > memory it does ccw I/O with. With protected virtualization this has to
-> > change, since the hypervisor needs to read and sometimes also write these
-> > pieces of memory.
-> > 
-> > Let us make sure all ccw I/O is done through shared memory.
-> > 
-> > Note: The control blocks of I/O instructions do not need to be shared.
-> > These are marshalled by the ultravisor.
+> > We can reduce the number of DMA allocations by pulling the bits
+> > of memory that belongs to virtio_ccw_device and needs to be DMA
+> > memory into a single area.
 > 
-> Ok, so direct parameters of I/O instructions are handled by the
-> ultravisor?
+> That makes a lot of sense (maybe start with introducing the dma area
+> from the beginning?), but...
 > 
 
-Yes.
+Yeah, as I wrote at #7 once we are in clear how the code should look
+like in the end, it might make sense to squash a couple of patches
+together.
 
 > > 
 > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 > > ---
-> >  drivers/s390/virtio/virtio_ccw.c | 177 +++++++++++++++++++++++----------------
-> >  1 file changed, 107 insertions(+), 70 deletions(-)
+> >  drivers/s390/virtio/virtio_ccw.c | 48 ++++++++++++++--------------------------
+> >  1 file changed, 16 insertions(+), 32 deletions(-)
 > > 
-> (...)
-> > @@ -167,6 +170,28 @@ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
-> >  	return container_of(vdev, struct virtio_ccw_device, vdev);
-> >  }
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index aa45a6a027ae..7268149f2ee8 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -49,12 +49,12 @@ struct vq_config_block {
+> >  struct vcdev_dma_area {
+> >  	unsigned long indicators;
+> >  	unsigned long indicators2;
+> > +	struct vq_config_block config_block;
+> > +	__u8 status; /* TODO check __aligned(8); */
+> 
+> ...I think that needs attention.
+
+Yes I wanted to discuss this with you. I could not find anything
+in the virtio spec that would put requirements on how this
+status field needs to be aligned. But I did not look to hard.
+
+The ccw.cda can hold an arbitrary data address AFAIR (for indirect,
+of course we do have alignment requirements).
+
+Apparently status used to be a normal field, and became a pointer with
+73fa21ea4fc6 "KVM: s390: Dynamic allocation of virtio-ccw I/O
+data." (Cornelia Huck, 2013-01-07). I could not quite figure out why.
+
+So maybe dropping the TODO comment will do just fine. What do you think?
+
+Regards,
+Halil
+
+> 
+> >  };
 > >  
-> > +#define vc_dma_decl_struct(type, field) \
-> > +	dma_addr_t field ## _dma_addr;  \
-> > +	struct type *field
-> > +
-> > +static inline void *__vc_dma_alloc(struct virtio_device *vdev, size_t size,
-> > +				   dma_addr_t *dma_handle)
-> > +{
-> > +	return dma_alloc_coherent(vdev->dev.parent, size, dma_handle,
-> > +				  GFP_DMA | GFP_KERNEL | __GFP_ZERO);
-> > +}
-> > +
-> > +static inline void __vc_dma_free(struct virtio_device *vdev, size_t size,
-> > +				 void *cpu_addr, dma_addr_t dma_handle)
-> > +{
-> > +	dma_free_coherent(vdev->dev.parent, size, cpu_addr, dma_handle);
-> > +}
-> > +
-> > +#define vc_dma_alloc_struct(vdev, ptr) \
-> > +	({ ptr = __vc_dma_alloc(vdev, (sizeof(*(ptr))), &(ptr ## _dma_addr)); })
-> > +#define vc_dma_free_struct(vdev, ptr) \
-> > +	__vc_dma_free(vdev, sizeof(*(ptr)), (ptr), (ptr ## _dma_addr))
-> 
-> Not sure I'm a fan of those wrappers... I think they actually hurt
-> readability of the code.
-> 
-
-By wrappers you mean just the macros or also the inline functions?
-
-If we agree to go with the cio DMA pool instead of using DMA API
-facilities for allocation (dma_alloc_coherent or maybe a per ccw-device
-dma_pool) I think I could just use cio_dma_zalloc() directly if you like.
-
-I was quite insecure about how this gen_pool idea is going to be received
-here. That's why I decided to keep the dma_alloc_coherent() version in
-for the RFC.
-
-If you prefer I can squash patches #7 #9 #10 and #11 together and
-pull #8 forward. Would you prefer that?
-
-
-> > +
-> >  static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
-> >  {
-> >  	unsigned long i, flags;
-> > @@ -322,12 +347,12 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-> >  {
-> >  	int ret;
-> >  	unsigned long *indicatorp = NULL;
-> > -	struct virtio_thinint_area *thinint_area = NULL;
-> > +	vc_dma_decl_struct(virtio_thinint_area, thinint_area) = NULL;
-> > +	dma_addr_t indicatorp_dma_addr;
-> >  	struct airq_info *airq_info = vcdev->airq_info;
-> >  
-> >  	if (vcdev->is_thinint) {
-> > -		thinint_area = kzalloc(sizeof(*thinint_area),
-> > -				       GFP_DMA | GFP_KERNEL);
-> > +		vc_dma_alloc_struct(&vcdev->vdev, thinint_area);
-> >  		if (!thinint_area)
-> >  			return;
-> >  		thinint_area->summary_indicator =
-> > @@ -338,8 +363,9 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-> >  		ccw->cda = (__u32)(unsigned long) thinint_area;
-> >  	} else {
-> >  		/* payload is the address of the indicators */
-> > -		indicatorp = kmalloc(sizeof(&vcdev->indicators),
-> > -				     GFP_DMA | GFP_KERNEL);
-> > +		indicatorp = __vc_dma_alloc(&vcdev->vdev,
-> > +					    sizeof(&vcdev->indicators),
-> > +					    &indicatorp_dma_addr);
-> >  		if (!indicatorp)
-> >  			return;
-> >  		*indicatorp = 0;
-> > @@ -359,8 +385,10 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-> >  			 "Failed to deregister indicators (%d)\n", ret);
-> >  	else if (vcdev->is_thinint)
-> >  		virtio_ccw_drop_indicators(vcdev);
-> > -	kfree(indicatorp);
-> > -	kfree(thinint_area);
-> > +	if (indicatorp)
-> > +		__vc_dma_free(&vcdev->vdev, sizeof(&vcdev->indicators),
-> > +			       indicatorp, indicatorp_dma_addr);
-> > +	vc_dma_free_struct(&vcdev->vdev, thinint_area);
-> 
-> Don't you need to check for !NULL here as well?
-
-Good catch! 
-
-I could take care of it in __vc_dma_free().
-
-void cio_dma_free(void *cpu_addr, size_t size) {
- +	if (!cpu_addr)
- +		return;
-
-also seems to me like a good idea right now.
-
-> 
-> >  }
-> >  
-> >  static inline long __do_kvm_notify(struct subchannel_id schid,
-> (...)
-> > @@ -1280,7 +1318,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
-> >  
-> >  	vcdev->is_thinint = virtio_ccw_use_airq; /* at least try */
-> >  
-> > -	vcdev->vdev.dev.parent = &cdev->dev;
-> 
-> Hm?
-> 
-> (You added a line like that in a previous patch; should it simply have
-> been a movement instead? Or am I misremembering?)
-
-Right the move was supposed to take place in patch #2. Not sure how
-I ended up with this. Maybe a messed up rebase.
-
-> 
-> >  	vcdev->vdev.dev.release = virtio_ccw_release_dev;
-> >  	vcdev->vdev.config = &virtio_ccw_config_ops;
-> >  	vcdev->cdev = cdev;
+> >  struct virtio_ccw_device {
+> >  	struct virtio_device vdev;
+> > -	__u8 *status;
+> > -	dma_addr_t status_dma_addr;
+> >  	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
+> >  	struct ccw_device *cdev;
+> >  	__u32 curr_io;
 > 
