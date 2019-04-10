@@ -1,42 +1,94 @@
 Return-Path: <SRS0=SZ1Q=SM=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Wed, 10 Apr 2019 17:58:19 +0200
+Date: Wed, 10 Apr 2019 17:59:46 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 04/12] s390: qeth: address type mismatch warning
-In-Reply-To: <20190408212648.2407234-4-arnd@arndb.de>
+Subject: Re: [PATCH 05/12] s390: zcrypt: initialize variables before_use
+In-Reply-To: <8875e0b6-00b4-884d-fd6a-a5a144543559@linux.ibm.com>
 References: <20190408212648.2407234-1-arnd@arndb.de>
-        <20190408212648.2407234-4-arnd@arndb.de>
+        <20190408212648.2407234-5-arnd@arndb.de>
+        <8875e0b6-00b4-884d-fd6a-a5a144543559@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190410175819.106f30b3@mschwideX1>
+Message-Id: <20190410175946.0e6d2b00@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Kittipon Meesompop <kmeesomp@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Ingo Franzki <ifranzki@de.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon,  8 Apr 2019 23:26:17 +0200
-Arnd Bergmann <arnd@arndb.de> wrote:
+On Tue, 9 Apr 2019 11:54:30 +0200
+Harald Freudenberger <freude@linux.ibm.com> wrote:
 
-> clang produces a harmless warning for each use for the qeth_adp_supported
-> macro:
-> 
-> drivers/s390/net/qeth_l2_main.c:559:31: warning: implicit conversion from enumeration type 'enum qeth_ipa_setadp_cmd' to
->       different enumeration type 'enum qeth_ipa_funcs' [-Wenum-conversion]
->         if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
->             ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> drivers/s390/net/qeth_core.h:179:41: note: expanded from macro 'qeth_adp_supported'
->         qeth_is_ipa_supported(&c->options.adp, f)
->         ~~~~~~~~~~~~~~~~~~~~~                  ^
-> 
-> Add a version of this macro that uses the correct types, and
-> remove the unused qeth_adp_enabled() macro that has the same
-> problem.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> On 08.04.19 23:26, Arnd Bergmann wrote:
+> > The 'func_code' variable gets printed in debug statements without
+> > a prior initialization in multiple functions, as reported when building
+> > with clang:
+> >
+> > drivers/s390/crypto/zcrypt_api.c:659:6: warning: variable 'func_code' is used uninitialized whenever 'if' condition is true
+> >       [-Wsometimes-uninitialized]
+> >         if (mex->outputdatalength < mex->inputdatalength) {
+> >             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > drivers/s390/crypto/zcrypt_api.c:725:29: note: uninitialized use occurs here
+> >         trace_s390_zcrypt_rep(mex, func_code, rc,
+> >                                    ^~~~~~~~~
+> > drivers/s390/crypto/zcrypt_api.c:659:2: note: remove the 'if' if its condition is always false
+> >         if (mex->outputdatalength < mex->inputdatalength) {
+> >         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > drivers/s390/crypto/zcrypt_api.c:654:24: note: initialize the variable 'func_code' to silence this warning
+> >         unsigned int func_code;
+> >                               ^
+> >
+> > Add initializations to all affected code paths to shut up the warning
+> > and make the warning output consistent.
+> >
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  drivers/s390/crypto/zcrypt_api.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> >
+> > diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+> > index eb93c2d27d0a..23472063d9a8 100644
+> > --- a/drivers/s390/crypto/zcrypt_api.c
+> > +++ b/drivers/s390/crypto/zcrypt_api.c
+> > @@ -657,6 +657,7 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
+> >  	trace_s390_zcrypt_req(mex, TP_ICARSAMODEXPO);
+> >  
+> >  	if (mex->outputdatalength < mex->inputdatalength) {
+> > +		func_code = -1;
+> >  		rc = -EINVAL;
+> >  		goto out;
+> >  	}
+> > @@ -739,6 +740,7 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
+> >  	trace_s390_zcrypt_req(crt, TP_ICARSACRT);
+> >  
+> >  	if (crt->outputdatalength < crt->inputdatalength) {
+> > +		func_code = -1;
+> >  		rc = -EINVAL;
+> >  		goto out;
+> >  	}
+> > @@ -946,6 +948,7 @@ static long zcrypt_send_ep11_cprb(struct ap_perms *perms,
+> >  
+> >  		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+> >  		if (!targets) {
+> > +			func_code = -1;
+> >  			rc = -ENOMEM;
+> >  			goto out;
+> >  		}
+> > @@ -953,6 +956,7 @@ static long zcrypt_send_ep11_cprb(struct ap_perms *perms,
+> >  		uptr = (struct ep11_target_dev __force __user *) xcrb->targets;
+> >  		if (copy_from_user(targets, uptr,
+> >  				   target_num * sizeof(*targets))) {
+> > +			func_code = -1;
+> >  			rc = -EFAULT;
+> >  			goto out_free;
+> >  		}  
+> Thanks Arnd, but as Nathan already wrote, I'd prefer to have the
+> variable initialized with 0 instead of -1.
+> If you agree with this, I'll rewrite the patch and apply it to our
+> internal git and it will appear at kernel org with the next s390 code merge then.
 
-I have added this to our internal tree for Julian to pick up.
+Do we agreement on func_coed=0 for this one ?
 
 -- 
 blue skies,
