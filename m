@@ -1,95 +1,57 @@
-Return-Path: <SRS0=EIds=SH=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 5 Apr 2019 01:58:53 GMT
-Message-Id: <201904050158.x351wr9f016512@sdf.org>
-From: George Spelvin <lkml@sdf.org>
-Subject: [PATCH v3] ubsan: Avoid unnecessary 128-bit shifts
+Return-Path: <SRS0=SZ1Q=SM=vger.kernel.org=linux-kernel-owner@kernel.org>
+Message-Id: <20190410103644.396788431@linutronix.de>
+Date: Wed, 10 Apr 2019 12:28:03 +0200
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [RFC patch 09/41] s390/stacktrace: Remove the pointless ULONG_MAX
+ marker
+References: <20190410102754.387743324@linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, George Spelvin <lkml@sdf.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>, x86@kernel.org, Andy Lutomirski <luto@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Alexander Potapenko <glider@google.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-If CONFIG_ARCH_SUPPORTS_INT128, s_max is 128 bits, and variable
-sign-extending shifts of such a double-word data type are a non-trivial
-amount of code and complexity.  Do a single-word sign-extension *before*
-the cast to (s_max), greatly simplifying the object code.
+Terminating the last trace entry with ULONG_MAX is a completely pointless
+exercise and none of the consumers can rely on it because it's
+inconsistently implemented across architectures. In fact quite some of the
+callers remove the entry and adjust stack_trace.nr_entries afterwards.
 
-Rasmus Villemoes suggested using sign_extend* from <linux/bitops.h>.
-
-On s390 (and perhaps some other arches), gcc implements variable
-128-bit shifts using an __ashrti3 helper function which the kernel
-doesn't provide, causing a link error.  In that case, this patch is
-a prerequisite for enabling INT128 support.  Andrey Ryabinin has gven
-permission for any arch that needs it to cherry-pick it so they don't
-have to wait for ubsan to be merged into Linus' tree.
-
-We *could*, alternatively, implement __ashrti3, but that becomes dead as
-soon as this patch is merged, so it seems like a waste of time and its
-absence discourages people from adding inefficient code.  Note that the
-shifts in <math64.h> (unsigned, and by a compile-time constant amount)
-are simpler and generated inline.
-
-Signed-off-by: George Spelvin <lkml@sdf.org>
-Acked-By: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Feedback-from: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: linux-s390@vger.kernel.org
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 ---
- include/linux/bitops.h |  7 +++++++
- lib/ubsan.c            | 13 +++++--------
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ arch/s390/kernel/stacktrace.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-v3:	Added sign_extend_long() to sign_extend{32,64} in <linux/bitops.h>.
-	Used sign_extend_long rather than hand-rolling sign extension.
-	Changed to more uniform if ... else if ... else ... structure.
-v2:	Eliminated redundant cast to (s_max).
-        Rewrote commit message without "is this the right thing to do?"
-        verbiage.
-        Incorporated ack from Andrey Ryabinin.
-
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index 705f7c442691..8d33c2bfe6c5 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -157,6 +157,13 @@ static inline __s64 sign_extend64(__u64 value, int index)
- 	return (__s64)(value << shift) >> shift;
+--- a/arch/s390/kernel/stacktrace.c
++++ b/arch/s390/kernel/stacktrace.c
+@@ -45,8 +45,6 @@ void save_stack_trace(struct stack_trace
+ 
+ 	sp = current_stack_pointer();
+ 	dump_trace(save_address, trace, NULL, sp);
+-	if (trace->nr_entries < trace->max_entries)
+-		trace->entries[trace->nr_entries++] = ULONG_MAX;
  }
+ EXPORT_SYMBOL_GPL(save_stack_trace);
  
-+static inline long sign_extend_long(unsigned long value, int index)
-+{
-+	if (sizeof(value) == 4)
-+		return sign_extend32(value);
-+	return sign_extend64(value);
-+}
-+
- static inline unsigned fls_long(unsigned long l)
- {
- 	if (sizeof(l) == 4)
-diff --git a/lib/ubsan.c b/lib/ubsan.c
-index e4162f59a81c..24d4920317e4 100644
---- a/lib/ubsan.c
-+++ b/lib/ubsan.c
-@@ -88,15 +88,12 @@ static bool is_inline_int(struct type_descriptor *type)
- 
- static s_max get_signed_val(struct type_descriptor *type, unsigned long val)
- {
--	if (is_inline_int(type)) {
--		unsigned extra_bits = sizeof(s_max)*8 - type_bit_width(type);
--		return ((s_max)val) << extra_bits >> extra_bits;
--	}
-+	if (is_inline_int(type))
-+		return sign_extend_long(val, type_bit_width(type) - 1);
--
--	if (type_bit_width(type) == 64)
-+	else if (type_bit_width(type) == 64)
- 		return *(s64 *)val;
--
--	return *(s_max *)val;
-+	else
-+		return *(s_max *)val;
+@@ -58,8 +56,6 @@ void save_stack_trace_tsk(struct task_st
+ 	if (tsk == current)
+ 		sp = current_stack_pointer();
+ 	dump_trace(save_address_nosched, trace, tsk, sp);
+-	if (trace->nr_entries < trace->max_entries)
+-		trace->entries[trace->nr_entries++] = ULONG_MAX;
  }
+ EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
  
- static bool val_is_negative(struct type_descriptor *type, unsigned long val)
--- 
-2.20.1
+@@ -69,7 +65,5 @@ void save_stack_trace_regs(struct pt_reg
+ 
+ 	sp = kernel_stack_pointer(regs);
+ 	dump_trace(save_address, trace, NULL, sp);
+-	if (trace->nr_entries < trace->max_entries)
+-		trace->entries[trace->nr_entries++] = ULONG_MAX;
+ }
+ EXPORT_SYMBOL_GPL(save_stack_trace_regs);
