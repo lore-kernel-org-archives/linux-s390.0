@@ -1,13 +1,13 @@
 Return-Path: <SRS0=rkwH=SM=vger.kernel.org=kvm-owner@kernel.org>
-Date: Wed, 10 Apr 2019 18:21:21 +0200
+Date: Wed, 10 Apr 2019 18:24:11 +0200
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 07/12] virtio/s390: use DMA memory for ccw I/O
-Message-ID: <20190410182121.61fb89b6.cohuck@redhat.com>
-In-Reply-To: <20190410164245.53f8b26d@oc2783563651>
+Subject: Re: [RFC PATCH 00/12] s390: virtio: support protected
+ virtualization
+Message-ID: <20190410182411.1dc39bb2.cohuck@redhat.com>
+In-Reply-To: <20190410175750.0ed0a454@oc2783563651>
 References: <20190404231622.52531-1-pasic@linux.ibm.com>
-        <20190404231622.52531-8-pasic@linux.ibm.com>
-        <20190410104251.38fe7405.cohuck@redhat.com>
-        <20190410164245.53f8b26d@oc2783563651>
+        <20190410112048.154c96fc.cohuck@redhat.com>
+        <20190410175750.0ed0a454@oc2783563651>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -18,67 +18,57 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 10 Apr 2019 16:42:45 +0200
+On Wed, 10 Apr 2019 17:57:50 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Wed, 10 Apr 2019 10:42:51 +0200
+> On Wed, 10 Apr 2019 11:20:48 +0200
 > Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> > On Fri,  5 Apr 2019 01:16:17 +0200
+> > On Fri,  5 Apr 2019 01:16:10 +0200
 > > Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> > > @@ -167,6 +170,28 @@ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
-> > >  	return container_of(vdev, struct virtio_ccw_device, vdev);
-> > >  }
-> > >  
-> > > +#define vc_dma_decl_struct(type, field) \
-> > > +	dma_addr_t field ## _dma_addr;  \
-> > > +	struct type *field
-> > > +
-> > > +static inline void *__vc_dma_alloc(struct virtio_device *vdev, size_t size,
-> > > +				   dma_addr_t *dma_handle)
-> > > +{
-> > > +	return dma_alloc_coherent(vdev->dev.parent, size, dma_handle,
-> > > +				  GFP_DMA | GFP_KERNEL | __GFP_ZERO);
-> > > +}
-> > > +
-> > > +static inline void __vc_dma_free(struct virtio_device *vdev, size_t size,
-> > > +				 void *cpu_addr, dma_addr_t dma_handle)
-> > > +{
-> > > +	dma_free_coherent(vdev->dev.parent, size, cpu_addr, dma_handle);
-> > > +}
-> > > +
-> > > +#define vc_dma_alloc_struct(vdev, ptr) \
-> > > +	({ ptr = __vc_dma_alloc(vdev, (sizeof(*(ptr))), &(ptr ## _dma_addr)); })
-> > > +#define vc_dma_free_struct(vdev, ptr) \
-> > > +	__vc_dma_free(vdev, sizeof(*(ptr)), (ptr), (ptr ## _dma_addr))  
+> >   
+> > > Enhanced virtualization protection technology may require the use of
+> > > bounce buffers for I/O. While support for this was built into the
+> > > virtio core,  virtio-ccw wasn't changed accordingly.
+> > > 
+> > > Thus what needs to be done to bring virtio-ccw up to speed with
+> > > respect to this is:
+> > > * use some 'new' common virtio stuff
+> > > * make sure that virtio-ccw specific stuff uses shared memory when
+> > >   talking to the hypervisor (except communication blocks like ORB,
+> > > these are handled by the hypervisor)
+> > > * make sure the DMA API does what is necessary to talk through shared
+> > >   memory if we are a protected virtualization guest.
+> > > * make sure the common IO layer plays along as well (airqs, sense).  
 > > 
-> > Not sure I'm a fan of those wrappers... I think they actually hurt
-> > readability of the code.
+> > It would be good to have a summary somewhere in the code (or
+> > Documentation/) as to what needs the dma treatment and what doesn't,
+> > for later reference. We don't want people to accidentally break things
+> > (especially if they cannot refer to architecture documentation - or
+> > will at least some of that be published?)
 > >   
 > 
-> By wrappers you mean just the macros or also the inline functions?
+> I can put documentation on my TODO list. This cover letter was also
+> supposed to provide a bird's-eye view on what needs to be done.
 
-In particular, I dislike the macros.
-
-> 
-> If we agree to go with the cio DMA pool instead of using DMA API
-> facilities for allocation (dma_alloc_coherent or maybe a per ccw-device
-> dma_pool) I think I could just use cio_dma_zalloc() directly if you like.
-
-If we go with the pool (I'm not familiar enough with the dma stuff to
-be able to make a good judgment there), nice and obvious calls sound
-good to me :)
+Some comments in the code to prevent further headscratching are also a
+good idea.
 
 > 
-> I was quite insecure about how this gen_pool idea is going to be received
-> here. That's why I decided to keep the dma_alloc_coherent() version in
-> for the RFC.
+> > > 
+> > > The series is structured in incremental fashion: some of the changes
+> > > are overridden by following patches. The main reason why is that
+> > > this is how I developed. But I think it ain't bad for the didactic
+> > > and we are a bit more flexible with regards to throwing out some of
+> > > the stuff in the end.  
+> > 
+> > FWIW, I think reshuffling the patches in the next iteration would ease
+> > review.
+> >   
 > 
-> If you prefer I can squash patches #7 #9 #10 and #11 together and
-> pull #8 forward. Would you prefer that?
+> Can you please tell me more about what is desired here? I mean, I made
+> some tentative proposals on squashing some patches together. I don't
+> remember any requests to reorder patches or split.
 
-If that avoids multiple switches of the approach used, that sounds like
-a good idea.
-
-(Still would like to see some feedback from others.)
+Just try to avoid to rewrite things multiple times -- if we agree on
+the end result, we should be able to go there directly :)
