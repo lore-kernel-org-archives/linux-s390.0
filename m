@@ -1,32 +1,37 @@
 Return-Path: <SRS0=SZ1Q=SM=vger.kernel.org=linux-kernel-owner@kernel.org>
 MIME-Version: 1.0
-References: <20190408212648.2407234-1-arnd@arndb.de> <20190408212648.2407234-5-arnd@arndb.de>
- <8875e0b6-00b4-884d-fd6a-a5a144543559@linux.ibm.com> <20190410175946.0e6d2b00@mschwideX1>
-In-Reply-To: <20190410175946.0e6d2b00@mschwideX1>
+References: <20190408212648.2407234-1-arnd@arndb.de> <20190408212648.2407234-2-arnd@arndb.de>
+ <CAKwvOdmRVK8t=CL5h0MXykm00R39e17dy8EkgFrLuhg1Yr0HJQ@mail.gmail.com>
+In-Reply-To: <CAKwvOdmRVK8t=CL5h0MXykm00R39e17dy8EkgFrLuhg1Yr0HJQ@mail.gmail.com>
 From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 10 Apr 2019 20:57:21 +0200
-Message-ID: <CAK8P3a1-1axfWq5Y1pK9XORMdsbmZyq75p+V5Do71hNRowct+g@mail.gmail.com>
-Subject: Re: [PATCH 05/12] s390: zcrypt: initialize variables before_use
+Date: Wed, 10 Apr 2019 21:00:52 +0200
+Message-ID: <CAK8P3a3ytjz5KarSPyk4G=HOGopBMN65j0eYaWZanUbGoe=wXw@mail.gmail.com>
+Subject: Re: [PATCH 02/12] s390: don't build vdso32 with clang
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Ingo Franzki <ifranzki@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Apr 10, 2019 at 5:59 PM Martin Schwidefsky
-<schwidefsky@de.ibm.com> wrote:
-> On Tue, 9 Apr 2019 11:54:30 +0200 Harald Freudenberger <freude@linux.ibm.com> wrote:
-> > On 08.04.19 23:26, Arnd Bergmann wrote:
-> > >             }
-> > Thanks Arnd, but as Nathan already wrote, I'd prefer to have the
-> > variable initialized with 0 instead of -1.
-> > If you agree with this, I'll rewrite the patch and apply it to our
-> > internal git and it will appear at kernel org with the next s390 code merge then.
+On Wed, Apr 10, 2019 at 6:26 PM 'Nick Desaulniers' via Clang Built
+Linux <clang-built-linux@googlegroups.com> wrote:
 >
-> Do we agreement on func_coed=0 for this one ?
+> On Mon, Apr 8, 2019 at 2:27 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> >
+> > clang does not support 31 bit object files on s390, so skip
+> > the 32-bit vdso here, and only build it when using gcc to compile
+> > the kernel.
+>
+> What's the build failure?  Would you mind filing a bug against LLVM's
+> issue tracker for it, please?
 
-Yes, I think that was the consensus.
+As far as I can tell, llvm does only supports 64-bit output for s390, so this
+is not a bug but rather a missing feature that seems highly unlikely to
+ever get added.
 
-       Arnd
+32-bit (31-bit) mode on s390 is only used for very old existing binaries,
+and the vdso support is optional there.
+
+      Arnd
