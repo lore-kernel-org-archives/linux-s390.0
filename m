@@ -1,96 +1,62 @@
 Return-Path: <SRS0=MvP8=SN=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 11 Apr 2019 20:07:42 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [qemu-s390x] [Qemu-devel] [PATCH v4 1/6] vfio-ccw: make it safe
- to access channel programs
-In-Reply-To: <20190411183648.34edf4dd.cohuck@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v4 1/6] vfio-ccw: make it safe to access
+ channel programs
+From: Eric Farman <farman@linux.ibm.com>
 References: <20190301093902.27799-1-cohuck@redhat.com>
-        <20190301093902.27799-2-cohuck@redhat.com>
-        <9e81af36-ebd2-671b-5256-90e8efaad6f2@linux.ibm.com>
-        <20190408190747.12e3618b.cohuck@redhat.com>
-        <20190410013434.7cea1971@oc2783563651>
-        <4a692c11-edb2-93f9-7d8e-96a73a7ecdae@linux.ibm.com>
-        <20190411175831.7be345f4@oc2783563651>
-        <72385d8c-a050-67e7-85cf-bc804f941137@linux.ibm.com>
-        <20190411183648.34edf4dd.cohuck@redhat.com>
+ <20190301093902.27799-2-cohuck@redhat.com>
+ <9e81af36-ebd2-671b-5256-90e8efaad6f2@linux.ibm.com>
+ <20190408190747.12e3618b.cohuck@redhat.com>
+ <20190410013434.7cea1971@oc2783563651>
+ <4a692c11-edb2-93f9-7d8e-96a73a7ecdae@linux.ibm.com>
+Date: Thu, 11 Apr 2019 17:27:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190411200742.19b7c476@oc2783563651>
+In-Reply-To: <4a692c11-edb2-93f9-7d8e-96a73a7ecdae@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <571b9f8c-cfb0-704e-ded4-8661a8136876@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
+To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org, Alex Williamson <alex.williamson@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 11 Apr 2019 18:36:48 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On Thu, 11 Apr 2019 12:25:38 -0400
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
-> > On 4/11/19 11:58 AM, Halil Pasic wrote:
-> > > On Wed, 10 Apr 2019 22:59:41 -0400
-> > > Eric Farman <farman@linux.ibm.com> wrote:
-> > >   
-> > >> r the next release :) It would be one thing less on my plate...  
-> > >>>>     
-> > >>>
-> > >>> Sorry I was not able to spend any significant amount of time on this
-> > >>> lately.
-> > >>>
-> > >>> Gave the combined set (this + Farhans fio-ccw fixes for kernel
-> > >>> stacktraces v2) it a bit of smoke testing after some minor adjustments
-> > >>> to make it compile:
-> > >>>
-> > >>> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> > >>> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> > >>> @@ -13,6 +13,7 @@
-> > >>>    #include <linux/vfio.h>
-> > >>>    #include <linux/mdev.h>
-> > >>>    #include <linux/nospec.h>
-> > >>> +#include <linux/slab.h>
-> > >>>    
-> > >>>    #include "vfio_ccw_private.h"
-> > >>>
-> > >>>      
-> > >>
-> > >> Hrm...  Taking today's master, and the two series you mention (slight
-> > >> adjustment to apply patch 3 of Connie's series, because part of it was
-> > >> split out a few weeks ago), and I don't encounter this.  Tried switching
-> > >> between SLUB/SLAB, but still compiles fine.  
-> > > 
-> > > Let me guess: you have CONFIG_PCI in our .config, right?
-> > > 
-> > > In arch/s390/include/asm/pci_io.h we have
-> > > 
-> > > #ifndef _ASM_S390_PCI_IO_H
-> > > #define _ASM_S390_PCI_IO_H
-> > > 
-> > > #ifdef CONFIG_PCI
-> > > 
-> > > #include <linux/kernel.h>
-> > > #include <linux/slab.h>
-> > > 
-> > > and pci_io.h comes in via
-> > > 
-> > > include/linux/vfio.h
-> > > include/linux/iommu.h
-> > > include/linux/scatterlist.h
-> > > arch/s390/include/asm/io.h
-> > > arch/s390/include/asm/pci_io.h
-> > > 
-> > > 
-> > > Figured it out with help from Farhan. Took me quite some time.  
-> > 
-> > That would have been useful information up front.
-> 
-> Indeed. It's trivial to fold that change in, though :) (Should be in
-> patch 4, if I see it correctly.)
-> 
 
-#4 vfio-ccw: add capabilities chain it is!
+On 4/10/19 10:59 PM, Eric Farman wrote:
+> 
+> 
+> On 4/9/19 7:34 PM, Halil Pasic wrote:
+>> On Mon, 8 Apr 2019 19:07:47 +0200
 
-Cheers,
-Halil
+...snip...
+
+>> I'm just running fio on a pass-through DASD and on some virto-blk disks
+>> in parallel. My QEMU is today's vfio-ccw-caps from your repo.
+>>
+>> I see stuff like this:
+>> qemu-git: vfio-ccw: wirte I/O region failed with errno=16[1811/7332/0 
+>> iops] [eta 26m:34s]
+> 
+> Without knowing what the I/O was that failed, this is a guessing game. 
+> But I encountered something similar just now running fio.
+> 
+> qemu:
+> 2019-04-11T02:06:09.524838Z qemu-system-s390x: vfio-ccw: wirte I/O 
+> region failed with errno=16
+
+...snip...
+
+>  From the associated I/O, I think this is fixed by a series I am nearly 
+> ready to send for review.  I'll try again with those fixes on top of the 
+> two series here, and report back.
+
+So, I've run enough combinations to feel comfortable saying that the 
+error (EBUSY) I saw last night (and presumably the one Halil saw) exists 
+in today's code and is not introduced by this series.  It also appears 
+to be addressed by one of the patches in a series I'm working on, but 
+which that series still has some further problems.  Sigh, there are too 
+many branches and too many interrupts.
+
+  - Eric
