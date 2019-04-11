@@ -1,85 +1,45 @@
 Return-Path: <SRS0=BPXs=SN=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Thu, 11 Apr 2019 09:32:34 +0200
+Date: Thu, 11 Apr 2019 09:40:55 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 10/12] s390: avoid __builtin_return_address(n) on clang
-In-Reply-To: <CAK8P3a2n+nEcaNrATQVO8NSGzfrMP5n+SrvjpTYcH4ikCN5LGg@mail.gmail.com>
+Subject: Re: [PATCH 05/12] s390: zcrypt: initialize variables before_use
+In-Reply-To: <CAK8P3a1-1axfWq5Y1pK9XORMdsbmZyq75p+V5Do71hNRowct+g@mail.gmail.com>
 References: <20190408212648.2407234-1-arnd@arndb.de>
-        <20190408212648.2407234-10-arnd@arndb.de>
-        <20190410180357.3290d24f@mschwideX1>
-        <20190410121421.1414e179@gandalf.local.home>
-        <CAK8P3a2n+nEcaNrATQVO8NSGzfrMP5n+SrvjpTYcH4ikCN5LGg@mail.gmail.com>
+        <20190408212648.2407234-5-arnd@arndb.de>
+        <8875e0b6-00b4-884d-fd6a-a5a144543559@linux.ibm.com>
+        <20190410175946.0e6d2b00@mschwideX1>
+        <CAK8P3a1-1axfWq5Y1pK9XORMdsbmZyq75p+V5Do71hNRowct+g@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190411093234.5f212a2e@mschwideX1>
+Message-Id: <20190411094055.5884244c@mschwideX1>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Ingo Franzki <ifranzki@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 10 Apr 2019 21:07:56 +0200
+On Wed, 10 Apr 2019 20:57:21 +0200
 Arnd Bergmann <arnd@arndb.de> wrote:
 
-> On Wed, Apr 10, 2019 at 6:14 PM Steven Rostedt <rostedt@goodmis.org> wrote:
-> > On Wed, 10 Apr 2019 18:03:57 +0200 Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-> >  
-> > > > --- a/arch/s390/include/asm/ftrace.h
-> > > > +++ b/arch/s390/include/asm/ftrace.h
-> > > > @@ -13,7 +13,12 @@
-> > > >
-> > > >  #ifndef __ASSEMBLY__
-> > > >
-> > > > +#ifdef CONFIG_CC_IS_CLANG
-> > > > +/* https://bugs.llvm.org/show_bug.cgi?id=41424 */
-> > > > +#define ftrace_return_address(n) __builtin_return_address(0)
-> > > > +#else
-> > > >  #define ftrace_return_address(n) __builtin_return_address(n)
-> > > > +#endif
-> > > >
-> > > >  void _mcount(void);
-> > > >  void ftrace_caller(void);  
-> > >
-> > > I can say I like this one. If the compiler can not do __builtin_return_address(n)
-> > > it feels wrong to just use __builtin_return_address(0).  
+> On Wed, Apr 10, 2019 at 5:59 PM Martin Schwidefsky
+> <schwidefsky@de.ibm.com> wrote:
+> > On Tue, 9 Apr 2019 11:54:30 +0200 Harald Freudenberger <freude@linux.ibm.com> wrote:  
+> > > On 08.04.19 23:26, Arnd Bergmann wrote:  
+> > > >             }  
+> > > Thanks Arnd, but as Nathan already wrote, I'd prefer to have the
+> > > variable initialized with 0 instead of -1.
+> > > If you agree with this, I'll rewrite the patch and apply it to our
+> > > internal git and it will appear at kernel org with the next s390 code merge then.  
 > >
-> > I agree. The proper return value is 0UL, see include/linux/ftrace.h
-> >
-> > /* Archs may use other ways for ADDR1 and beyond */
-> > #ifndef ftrace_return_address
-> > # ifdef CONFIG_FRAME_POINTER
-> > #  define ftrace_return_address(n) __builtin_return_address(n)
-> > # else
-> > #  define ftrace_return_address(n) 0UL
-> > # endif
-> > #endif
-> >
-> > This is why we treat zero differently:
-> >
-> > #define CALLER_ADDR0 ((unsigned long)ftrace_return_address0)
-> > #define CALLER_ADDR1 ((unsigned long)ftrace_return_address(1))
-> > #define CALLER_ADDR2 ((unsigned long)ftrace_return_address(2))
-> > #define CALLER_ADDR3 ((unsigned long)ftrace_return_address(3))
-> > #define CALLER_ADDR4 ((unsigned long)ftrace_return_address(4))
-> > #define CALLER_ADDR5 ((unsigned long)ftrace_return_address(5))
-> > #define CALLER_ADDR6 ((unsigned long)ftrace_return_address(6))  
+> > Do we agreement on func_coed=0 for this one ?  
 > 
-> Right, got it.
+> Yes, I think that was the consensus.
 > 
-> Martin, do you want me to send a replacement patch, or can you
-> commit the patch with
+>        Arnd
 > 
-> #ifdef CONFIG_CC_IS_CLANG
-> /* https://bugs.llvm.org/show_bug.cgi?id=41424 */
-> #define ftrace_return_address(n) 0UL
-> #else
-> #define ftrace_return_address(n) __builtin_return_address(n)
-> #endif
-> 
-> instead?
 
-Ok, done.
+Ok, committed with func_code=0.
 
 -- 
 blue skies,
