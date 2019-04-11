@@ -1,13 +1,12 @@
 Return-Path: <SRS0=MvP8=SN=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 11 Apr 2019 16:15:02 +0200 (CEST)
+Date: Thu, 11 Apr 2019 20:25:01 +0200 (CEST)
 From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [RFC PATCH 05/12] s390/cio: add protected virtualization support
- to cio
-In-Reply-To: <20190404231622.52531-6-pasic@linux.ibm.com>
-References: <20190404231622.52531-1-pasic@linux.ibm.com> <20190404231622.52531-6-pasic@linux.ibm.com>
+Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
+In-Reply-To: <20190404231622.52531-5-pasic@linux.ibm.com>
+References: <20190404231622.52531-1-pasic@linux.ibm.com> <20190404231622.52531-5-pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <alpine.LFD.2.21.1904111612160.1809@schleppi>
+Message-Id: <alpine.LFD.2.21.1904111955520.2283@schleppi>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -16,16 +15,20 @@ Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 List-ID: <linux-s390.vger.kernel.org>
 
 On Fri, 5 Apr 2019, Halil Pasic wrote:
-> @@ -1593,20 +1609,29 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
->  		return ERR_CAST(sch);
->  
->  	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
-> -	if (!io_priv) {
-> -		put_device(&sch->dev);
-> -		return ERR_PTR(-ENOMEM);
-> -	}
-> +	if (!io_priv)
-> +		goto err_priv;
-> +	io_priv->dma_area = cio_dma_zalloc(sizeof(*io_priv->dma_area));
+> To support protected virtualization cio will need to make sure the
+> memory used for communication with the hypervisor is DMA memory.
+> 
+> Let us introduce a DMA pool to cio that will help us in allocating
+> deallocating those chunks of memory.
+> 
+> We use a gen_pool backed with DMA pages to avoid each allocation
+> effectively wasting a page, as we typically allocate much less
+> than PAGE_SIZE.
 
-This is called very early - the dma pool is not yet initialized.
+I don't think we should use this global DMA pool. I guess it's OK for
+stuff like airq (where we don't have a struct device at hand) but for
+CCW we should use the device we have. Yes, this way we waste some memory
+but all dma memory a device uses should fit in a page - so the wastage
+is not too much.
+
+Sebastian
