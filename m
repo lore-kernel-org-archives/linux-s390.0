@@ -1,51 +1,73 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v2 5/5] arm64/speculation: Support 'mitigations=' cmdline
- option
-Date: Wed, 24 Apr 2019 20:19:22 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1904242019001.1762@nanos.tec.linutronix.de>
-References: <cover.1555085500.git.jpoimboe@redhat.com> <24039e1370ed57e8075730c0b88c505afd9e0ab7.1555085500.git.jpoimboe@redhat.com> <alpine.DEB.2.21.1904162124020.1780@nanos.tec.linutronix.de> <20190424141631.GH14829@fuggles.cambridge.arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424141631.GH14829@fuggles.cambridge.arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH v2 0/5] cpu/speculation: Add 'mitigations=' cmdline option
+Date: Fri, 12 Apr 2019 15:39:27 -0500
+Message-ID: <cover.1555085500.git.jpoimboe@redhat.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190412203927.GqjOnEw9WLkRpmak28qB9aG5qvxuwKWKeEwe3zPA6K0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Will Deacon <will.deacon@arm.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, linux-kernel@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, linux-arm-kernel@lists.infradead.orglinux
+To: linux-kernel@vger.kernel.org
+Cc: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tyler Hicks <tyhicks@canonical.com>, Linus Torvalds <torvalds@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Steven Price <steven.price@arm.com>, Phil Auld <pauld@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 24 Apr 2019, Will Deacon wrote:
+v2:
+- docs improvements: [Randy, Michael]
+- Rename to "mitigations=" [Michael]
+- Add cpu_mitigations_off() function wrapper [Michael]
+- x86: Simplify logic [Boris]
+- powerpc: Fix no_rfi_flush checking bug (use '&&' instead of '||')
+- arm64: Rebase onto Jeremy Linton's v7 patches [Will]
+- arm64: "kpti command line option" [Steve P]
+- arm64: Add nospectre_v2 support
 
-> Hi Thomas,
-> 
-> On Tue, Apr 16, 2019 at 09:26:13PM +0200, Thomas Gleixner wrote:
-> > On Fri, 12 Apr 2019, Josh Poimboeuf wrote:
-> > 
-> > > Configure arm64 runtime CPU speculation bug mitigations in accordance
-> > > with the 'mitigations=' cmdline option.  This affects Meltdown, Spectre
-> > > v2, and Speculative Store Bypass.
-> > > 
-> > > The default behavior is unchanged.
-> > > 
-> > > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> > > ---
-> > > NOTE: This is based on top of Jeremy Linton's patches:
-> > >       https://lkml.kernel.org/r/20190410231237.52506-1-jeremy.linton@arm.com
-> > 
-> > So I keep that out and we have to revisit that once the ARM64 stuff hits a
-> > tree, right? I can have a branch with just the 4 first patches applied
-> > which ARM64 folks can pull in when they apply Jeremy's patches before te
-> > merge window.
-> 
-> I'm assuming that this refers to the core/speculation branch in tip:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/log/?h=core/speculation
-> 
-> but please can you confirm that I'm good to pull that into arm64?
+-----------
 
-Yes. It's all yours :)
+Keeping track of the number of mitigations for all the CPU speculation
+bugs has become overwhelming for many users.  It's getting more and more
+complicated to decide which mitigations are needed for a given
+architecture.  Complicating matters is the fact that each arch tends to
+have its own custom way to mitigate the same vulnerability.
 
-Thanks,
+Most users fall into a few basic categories:
 
-	tglx
+a) they want all mitigations off;
+
+b) they want all reasonable mitigations on, with SMT enabled even if
+   it's vulnerable; or
+
+c) they want all reasonable mitigations on, with SMT disabled if
+   vulnerable.
+
+Define a set of curated, arch-independent options, each of which is an
+aggregation of existing options:
+
+- mitigations=off: Disable all mitigations.
+
+- mitigations=auto: [default] Enable all the default mitigations, but
+  leave SMT enabled, even if it's vulnerable.
+
+- mitigations=auto,nosmt: Enable all the default mitigations, disabling
+  SMT if needed by a mitigation.
+
+Josh Poimboeuf (5):
+  cpu/speculation: Add 'mitigations=' cmdline option
+  x86/speculation: Support 'mitigations=' cmdline option
+  powerpc/speculation: Support 'mitigations=' cmdline option
+  s390/speculation: Support 'mitigations=' cmdline option
+  arm64/speculation: Support 'mitigations=' cmdline option
+
+ .../admin-guide/kernel-parameters.txt         | 34 +++++++++++++++++++
+ arch/arm64/kernel/cpu_errata.c                |  6 +++-
+ arch/arm64/kernel/cpufeature.c                |  8 ++++-
+ arch/powerpc/kernel/security.c                |  6 ++--
+ arch/powerpc/kernel/setup_64.c                |  2 +-
+ arch/s390/kernel/nospec-branch.c              |  3 +-
+ arch/x86/kernel/cpu/bugs.c                    | 11 ++++--
+ arch/x86/mm/pti.c                             |  4 ++-
+ include/linux/cpu.h                           | 24 +++++++++++++
+ kernel/cpu.c                                  | 15 ++++++++
+ 10 files changed, 103 insertions(+), 10 deletions(-)
+
+-- 
+2.17.2
