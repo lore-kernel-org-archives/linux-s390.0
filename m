@@ -1,214 +1,26 @@
 Return-Path: <SRS0=h9J9=SO=vger.kernel.org=netdev-owner@kernel.org>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 7/8] net/smc: improve smc_listen_work reason codes
-Date: Fri, 12 Apr 2019 12:57:29 +0200
+Date: Fri, 12 Apr 2019 11:25:59 -0700 (PDT)
+Message-Id: <20190412.112559.138318713916530041.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/8] net/smc: patches 2019-04-12
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20190412105730.96245-1-ubraun@linux.ibm.com>
 References: <20190412105730.96245-1-ubraun@linux.ibm.com>
-Message-Id: <20190412105730.96245-8-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Fri, 12 Apr 2019 12:57:22 +0200
 
-Rework smc_listen_work() to provide improved reason codes when an
-SMC connection is declined. This allows better debugging on user side.
-This also adds 3 more detailed reason codes in smc_clc.h to indicate
-what type of device was not found (ism or rdma or both), or if ism
-cannot talk to the peer.
+> here are patches for SMC:
+> * patch 1 improves behavior of non-blocking connect
+> * patches 2, 3, 5, 7, and 8 improve connecting return codes
+> * patches 4 and 6 are a cleanups without functional change
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/af_smc.c  | 95 +++++++++++++++++++++++++++++--------------------------
- net/smc/smc_clc.h |  5 ++-
- 2 files changed, 54 insertions(+), 46 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 951af05708a7..5e38b16c327b 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -503,8 +503,8 @@ static int smc_find_rdma_device(struct smc_sock *smc, struct smc_init_info *ini)
- 	 * used for the internal TCP socket
- 	 */
- 	smc_pnet_find_roce_resource(smc->clcsock->sk, ini);
--	if (!(ini->ib_dev))
--		return SMC_CLC_DECL_CNFERR; /* configuration error */
-+	if (!ini->ib_dev)
-+		return SMC_CLC_DECL_NOSMCRDEV;
- 	return 0;
- }
- 
-@@ -515,7 +515,7 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
- 	/* Find ISM device with same PNETID as connecting interface  */
- 	smc_pnet_find_ism_resource(smc->clcsock->sk, ini);
- 	if (!ini->ism_dev)
--		return SMC_CLC_DECL_CNFERR; /* configuration error */
-+		return SMC_CLC_DECL_NOSMCDDEV;
- 	return 0;
- }
- 
-@@ -1155,7 +1155,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 		if (*local_contact == SMC_FIRST_CONTACT)
- 			smc_lgr_forget(new_smc->conn.lgr);
- 		smc_conn_free(&new_smc->conn);
--		return SMC_CLC_DECL_CNFERR;
-+		return SMC_CLC_DECL_SMCDNOTALK;
- 	}
- 
- 	/* Create send and receive buffers */
-@@ -1249,28 +1249,24 @@ static void smc_listen_work(struct work_struct *work)
- 	pclc = (struct smc_clc_msg_proposal *)&buf;
- 	rc = smc_clc_wait_msg(new_smc, pclc, SMC_CLC_MAX_LEN,
- 			      SMC_CLC_PROPOSAL, CLC_WAIT_TIME);
--	if (rc) {
--		smc_listen_decline(new_smc, rc, 0);
--		return;
--	}
-+	if (rc)
-+		goto out_decl;
- 
- 	/* IPSec connections opt out of SMC-R optimizations */
- 	if (using_ipsec(new_smc)) {
--		smc_listen_decline(new_smc, SMC_CLC_DECL_IPSEC, 0);
--		return;
-+		rc = SMC_CLC_DECL_IPSEC;
-+		goto out_decl;
- 	}
- 
- 	/* check for matching IP prefix and subnet length */
- 	rc = smc_listen_prfx_check(new_smc, pclc);
--	if (rc) {
--		smc_listen_decline(new_smc, rc, 0);
--		return;
--	}
-+	if (rc)
-+		goto out_decl;
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(new_smc->clcsock, &ini)) {
--		smc_listen_decline(new_smc, SMC_CLC_DECL_GETVLANERR, 0);
--		return;
-+		rc = SMC_CLC_DECL_GETVLANERR;
-+		goto out_decl;
- 	}
- 
- 	mutex_lock(&smc_server_lgr_pending);
-@@ -1278,41 +1274,45 @@ static void smc_listen_work(struct work_struct *work)
- 	smc_rx_init(new_smc);
- 	smc_tx_init(new_smc);
- 
--	/* prepare ISM check */
--	ini.is_smcd = true;
- 	/* check if ISM is available */
--	if ((pclc->hdr.path == SMC_TYPE_D || pclc->hdr.path == SMC_TYPE_B) &&
--	    !smc_find_ism_device(new_smc, &ini) &&
--	    !smc_listen_ism_init(new_smc, pclc, &ini, &local_contact)) {
--		ism_supported = true;
--	} else {
-+	if (pclc->hdr.path == SMC_TYPE_D || pclc->hdr.path == SMC_TYPE_B) {
-+		ini.is_smcd = true; /* prepare ISM check */
-+		rc = smc_find_ism_device(new_smc, &ini);
-+		if (!rc)
-+			rc = smc_listen_ism_init(new_smc, pclc, &ini,
-+						 &local_contact);
-+		if (!rc)
-+			ism_supported = true;
-+		else if (pclc->hdr.path == SMC_TYPE_D)
-+			goto out_unlock; /* skip RDMA and decline */
-+	}
-+
-+	/* check if RDMA is available */
-+	if (!ism_supported) { /* SMC_TYPE_R or SMC_TYPE_B */
- 		/* prepare RDMA check */
- 		memset(&ini, 0, sizeof(ini));
- 		ini.is_smcd = false;
- 		ini.ib_lcl = &pclc->lcl;
--	}
--
--	/* check if RDMA is available */
--	if (!ism_supported &&
--	    ((pclc->hdr.path != SMC_TYPE_R && pclc->hdr.path != SMC_TYPE_B) ||
--	     smc_vlan_by_tcpsk(new_smc->clcsock, &ini) ||
--	     smc_find_rdma_device(new_smc, &ini) ||
--	     smc_listen_rdma_init(new_smc, &ini, &local_contact) ||
--	     smc_listen_rdma_reg(new_smc, local_contact))) {
--		/* SMC not supported, decline */
--		mutex_unlock(&smc_server_lgr_pending);
--		smc_listen_decline(new_smc, SMC_CLC_DECL_MODEUNSUPP,
--				   local_contact);
--		return;
-+		rc = smc_find_rdma_device(new_smc, &ini);
-+		if (rc) {
-+			/* no RDMA device found */
-+			if (pclc->hdr.path == SMC_TYPE_B)
-+				/* neither ISM nor RDMA device found */
-+				rc = SMC_CLC_DECL_NOSMCDEV;
-+			goto out_unlock;
-+		}
-+		rc = smc_listen_rdma_init(new_smc, &ini, &local_contact);
-+		if (rc)
-+			goto out_unlock;
-+		rc = smc_listen_rdma_reg(new_smc, local_contact);
-+		if (rc)
-+			goto out_unlock;
- 	}
- 
- 	/* send SMC Accept CLC message */
- 	rc = smc_clc_send_accept(new_smc, local_contact);
--	if (rc) {
--		mutex_unlock(&smc_server_lgr_pending);
--		smc_listen_decline(new_smc, rc, local_contact);
--		return;
--	}
-+	if (rc)
-+		goto out_unlock;
- 
- 	/* SMC-D does not need this lock any more */
- 	if (ism_supported)
-@@ -1323,9 +1323,8 @@ static void smc_listen_work(struct work_struct *work)
- 			      SMC_CLC_CONFIRM, CLC_WAIT_TIME);
- 	if (rc) {
- 		if (!ism_supported)
--			mutex_unlock(&smc_server_lgr_pending);
--		smc_listen_decline(new_smc, rc, local_contact);
--		return;
-+			goto out_unlock;
-+		goto out_decl;
- 	}
- 
- 	/* finish worker */
-@@ -1337,6 +1336,12 @@ static void smc_listen_work(struct work_struct *work)
- 	}
- 	smc_conn_save_peer_info(new_smc, &cclc);
- 	smc_listen_out_connected(new_smc);
-+	return;
-+
-+out_unlock:
-+	mutex_unlock(&smc_server_lgr_pending);
-+out_decl:
-+	smc_listen_decline(new_smc, rc, local_contact);
- }
- 
- static void smc_tcp_listen_work(struct work_struct *work)
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 96a9eab0a0aa..39f06da31d5e 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -34,7 +34,10 @@
- #define SMC_CLC_DECL_CNFERR	0x03000000  /* configuration error            */
- #define SMC_CLC_DECL_PEERNOSMC	0x03010000  /* peer did not indicate SMC      */
- #define SMC_CLC_DECL_IPSEC	0x03020000  /* IPsec usage		      */
--#define SMC_CLC_DECL_NOSMCDEV	0x03030000  /* no SMC device found	      */
-+#define SMC_CLC_DECL_NOSMCDEV	0x03030000  /* no SMC device found (R or D)   */
-+#define SMC_CLC_DECL_NOSMCDDEV	0x03030001  /* no SMC-D device found	      */
-+#define SMC_CLC_DECL_NOSMCRDEV	0x03030002  /* no SMC-R device found	      */
-+#define SMC_CLC_DECL_SMCDNOTALK	0x03030003  /* SMC-D dev can't talk to peer   */
- #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
- #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
- #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
--- 
-2.16.4
+Series applied, thanks.
