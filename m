@@ -1,132 +1,145 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v2 2/5] x86/speculation: Support 'mitigations=' cmdline option
-Date: Fri, 12 Apr 2019 15:39:29 -0500
-Message-ID: <6616d0ae169308516cfdf5216bedd169f8a8291b.1555085500.git.jpoimboe@redhat.com>
+Subject: [PATCH v2 1/5] cpu/speculation: Add 'mitigations=' cmdline option
+Date: Fri, 12 Apr 2019 15:39:28 -0500
+Message-ID: <b07a8ef9b7c5055c3a4637c87d07c296d5016fe0.1555085500.git.jpoimboe@redhat.com>
 In-Reply-To: <cover.1555085500.git.jpoimboe@redhat.com>
 References: <cover.1555085500.git.jpoimboe@redhat.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190412203929.xOb0zvZMJZNd4F0wcE-2Eoe3qaeKCU3W8IJKsVnafAY@z>
+Message-ID: <20190412203928.LJRFSi4Or4nAZ7fs4nfhoDM3Sa-VG60uKlkFKyjrXzQ@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Tyler Hicks <tyhicks@canonical.com>, Linus Torvalds <torvalds@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Steven Price <steven.price@arm.com>, Phil Auld <pauld@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Configure x86 runtime CPU speculation bug mitigations in accordance with
-the 'mitigations=' cmdline option.  This affects Meltdown, Spectre v2,
-Speculative Store Bypass, and L1TF.
+Keeping track of the number of mitigations for all the CPU speculation
+bugs has become overwhelming for many users.  It's getting more and more
+complicated to decide which mitigations are needed for a given
+architecture.  Complicating matters is the fact that each arch tends to
+have its own custom way to mitigate the same vulnerability.
 
-The default behavior is unchanged.
+Most users fall into a few basic categories:
+
+a) they want all mitigations off;
+
+b) they want all reasonable mitigations on, with SMT enabled even if
+   it's vulnerable; or
+
+c) they want all reasonable mitigations on, with SMT disabled if
+   vulnerable.
+
+Define a set of curated, arch-independent options, each of which is an
+aggregation of existing options:
+
+- mitigations=off: Disable all mitigations.
+
+- mitigations=auto: [default] Enable all the default mitigations, but
+  leave SMT enabled, even if it's vulnerable.
+
+- mitigations=auto,nosmt: Enable all the default mitigations, disabling
+  SMT if needed by a mitigation.
+
+Currently, these options are placeholders which don't actually do
+anything.  They will be fleshed out in upcoming patches.
 
 Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- Documentation/admin-guide/kernel-parameters.txt | 16 +++++++++++-----
- arch/x86/kernel/cpu/bugs.c                      | 11 +++++++++--
- arch/x86/mm/pti.c                               |  4 +++-
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ .../admin-guide/kernel-parameters.txt         | 24 +++++++++++++++++++
+ include/linux/cpu.h                           | 24 +++++++++++++++++++
+ kernel/cpu.c                                  | 15 ++++++++++++
+ 3 files changed, 63 insertions(+)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 3ea92e075c64..3e33bd03441a 100644
+index faafdc59104a..3ea92e075c64 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2545,15 +2545,20 @@
+@@ -2544,6 +2544,30 @@
+ 			in the "bleeding edge" mini2440 support kernel at
  			http://repo.or.cz/w/linux-2.6/mini2440.git
  
- 	mitigations=
--			Control optional mitigations for CPU vulnerabilities.
--			This is a set of curated, arch-independent options, each
--			of which is an aggregation of existing arch-specific
--			options.
-+			[X86] Control optional mitigations for CPU
-+			vulnerabilities.  This is a set of curated,
-+			arch-independent options, each of which is an
-+			aggregation of existing arch-specific options.
- 
- 			off
- 				Disable all optional CPU mitigations.  This
- 				improves system performance, but it may also
- 				expose users to several CPU vulnerabilities.
-+				Equivalent to: nopti [X86]
-+					       nospectre_v2 [X86]
-+					       spectre_v2_user=off [X86]
-+					       spec_store_bypass_disable=off [X86]
-+					       l1tf=off [X86]
- 
- 			auto (default)
- 				Mitigate all CPU vulnerabilities, but leave SMT
-@@ -2561,12 +2566,13 @@
- 				users who don't want to be surprised by SMT
- 				getting disabled across kernel upgrades, or who
- 				have other ways of avoiding SMT-based attacks.
--				This is the default behavior.
-+				Equivalent to: (default behavior)
- 
- 			auto,nosmt
- 				Mitigate all CPU vulnerabilities, disabling SMT
- 				if needed.  This is for users who always want to
- 				be fully mitigated, even if it means losing SMT.
-+				Equivalent to: l1tf=flush,nosmt [X86]
- 
++	mitigations=
++			Control optional mitigations for CPU vulnerabilities.
++			This is a set of curated, arch-independent options, each
++			of which is an aggregation of existing arch-specific
++			options.
++
++			off
++				Disable all optional CPU mitigations.  This
++				improves system performance, but it may also
++				expose users to several CPU vulnerabilities.
++
++			auto (default)
++				Mitigate all CPU vulnerabilities, but leave SMT
++				enabled, even if it's vulnerable.  This is for
++				users who don't want to be surprised by SMT
++				getting disabled across kernel upgrades, or who
++				have other ways of avoiding SMT-based attacks.
++				This is the default behavior.
++
++			auto,nosmt
++				Mitigate all CPU vulnerabilities, disabling SMT
++				if needed.  This is for users who always want to
++				be fully mitigated, even if it means losing SMT.
++
  	mminit_loglevel=
  			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 2da82eff0eb4..8043a21f36be 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -440,7 +440,8 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
- 	char arg[20];
- 	int ret, i;
+ 			parameter allows control of the logging verbosity for
+diff --git a/include/linux/cpu.h b/include/linux/cpu.h
+index ae99dde02320..5350357dfbdb 100644
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -188,4 +188,28 @@ static inline void cpu_smt_disable(bool force) { }
+ static inline void cpu_smt_check_topology(void) { }
+ #endif
  
--	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
-+	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2") ||
-+	    cpu_mitigations_off())
- 		return SPECTRE_V2_CMD_NONE;
- 
- 	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
-@@ -672,7 +673,8 @@ static enum ssb_mitigation_cmd __init ssb_parse_cmdline(void)
- 	char arg[20];
- 	int ret, i;
- 
--	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable")) {
-+	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable") ||
-+	    cpu_mitigations_off()) {
- 		return SPEC_STORE_BYPASS_CMD_NONE;
- 	} else {
- 		ret = cmdline_find_option(boot_command_line, "spec_store_bypass_disable",
-@@ -1008,6 +1010,11 @@ static void __init l1tf_select_mitigation(void)
- 	if (!boot_cpu_has_bug(X86_BUG_L1TF))
- 		return;
- 
-+	if (cpu_mitigations_off())
-+		l1tf_mitigation = L1TF_MITIGATION_OFF;
-+	else if (cpu_mitigations_auto_nosmt())
-+		l1tf_mitigation = L1TF_MITIGATION_FLUSH_NOSMT;
++/*
++ * These are used for a global "mitigations=" cmdline option for toggling
++ * optional CPU mitigations.
++ */
++enum cpu_mitigations {
++	CPU_MITIGATIONS_OFF,
++	CPU_MITIGATIONS_AUTO,
++	CPU_MITIGATIONS_AUTO_NOSMT,
++};
 +
- 	override_cache_bits(&boot_cpu_data);
- 
- 	switch (l1tf_mitigation) {
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index 5d27172c683f..9c2463bc158f 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -35,6 +35,7 @@
- #include <linux/spinlock.h>
- #include <linux/mm.h>
- #include <linux/uaccess.h>
-+#include <linux/cpu.h>
- 
- #include <asm/cpufeature.h>
- #include <asm/hypervisor.h>
-@@ -115,7 +116,8 @@ void __init pti_check_boottime_disable(void)
- 		}
- 	}
- 
--	if (cmdline_find_option_bool(boot_command_line, "nopti")) {
-+	if (cmdline_find_option_bool(boot_command_line, "nopti") ||
-+	    cpu_mitigations_off()) {
- 		pti_mode = PTI_FORCE_OFF;
- 		pti_print_if_insecure("disabled on command line.");
- 		return;
++extern enum cpu_mitigations cpu_mitigations;
++
++/* mitigations=off */
++static inline bool cpu_mitigations_off(void)
++{
++	return cpu_mitigations == CPU_MITIGATIONS_OFF;
++}
++
++/* mitigations=auto,nosmt */
++static inline bool cpu_mitigations_auto_nosmt(void)
++{
++	return cpu_mitigations == CPU_MITIGATIONS_AUTO_NOSMT;
++}
++
+ #endif /* _LINUX_CPU_H_ */
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 38890f62f9a8..aed9083f8eac 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -2320,3 +2320,18 @@ void __init boot_cpu_hotplug_init(void)
+ #endif
+ 	this_cpu_write(cpuhp_state.state, CPUHP_ONLINE);
+ }
++
++enum cpu_mitigations cpu_mitigations __ro_after_init = CPU_MITIGATIONS_AUTO;
++
++static int __init mitigations_cmdline(char *arg)
++{
++	if (!strcmp(arg, "off"))
++		cpu_mitigations = CPU_MITIGATIONS_OFF;
++	else if (!strcmp(arg, "auto"))
++		cpu_mitigations = CPU_MITIGATIONS_AUTO;
++	else if (!strcmp(arg, "auto,nosmt"))
++		cpu_mitigations = CPU_MITIGATIONS_AUTO_NOSMT;
++
++	return 0;
++}
++early_param("mitigations", mitigations_cmdline);
 -- 
 2.17.2
