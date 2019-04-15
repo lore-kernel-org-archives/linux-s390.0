@@ -1,67 +1,53 @@
-Return-Path: <SRS0=DLm5=TA=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=spRZ=SR=lists.ozlabs.org=linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@kernel.org>
 MIME-Version: 1.0
-References: <20190423210058.249510-1-ndesaulniers@google.com>
-In-Reply-To: <20190423210058.249510-1-ndesaulniers@google.com>
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Tue, 30 Apr 2019 13:25:09 -0700
-Message-ID: <CAKwvOd=aR_GsJkaMTtV83UAAyqkZGuToD+3Zbq5sv=U_bogXmg@mail.gmail.com>
-Subject: Re: [PATCH] s390: vdso: drop unnecessary cc-ldoption
+References: <CAHk-=wjvcuyCQGnfOhooaL1H4H63qXO=xgo+9yncSOG=eK+kbA@mail.gmail.com>
+ <20190415051919.GA31481@infradead.org>
+In-Reply-To: <20190415051919.GA31481@infradead.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 15 Apr 2019 09:17:10 -0700
+Message-ID: <CAHk-=wj7jgMOVFW0tiU-X+zhg6+Rn7mEBTej+f26rV3zXezOSA@mail.gmail.com>
+Subject: Re: Linux 5.1-rc5
 Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: clang-built-linux <clang-built-linux@googlegroups.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.org>
+List-Archive: <https://lore.kernel.org/linuxppc-dev/>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 23, 2019 at 2:01 PM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
+On Sun, Apr 14, 2019 at 10:19 PM Christoph Hellwig <hch@infradead.org> wrote:
 >
-> Towards the goal of removing cc-ldoption, it seems that --hash-style=
-> was added to binutils 2.17.50.0.2 in 2006. The minimal required version
-> of binutils for the kernel according to
-> Documentation/process/changes.rst is 2.20.
->
-> Link: https://gcc.gnu.org/ml/gcc/2007-01/msg01141.html
-> Cc: clang-built-linux@googlegroups.com
-> Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
->  arch/s390/kernel/vdso32/Makefile | 2 +-
->  arch/s390/kernel/vdso64/Makefile | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-> index e76309fbbcb3..aee9ffbccb54 100644
-> --- a/arch/s390/kernel/vdso32/Makefile
-> +++ b/arch/s390/kernel/vdso32/Makefile
-> @@ -19,7 +19,7 @@ KBUILD_AFLAGS_31 += -m31 -s
->  KBUILD_CFLAGS_31 := $(filter-out -m64,$(KBUILD_CFLAGS))
->  KBUILD_CFLAGS_31 += -m31 -fPIC -shared -fno-common -fno-builtin
->  KBUILD_CFLAGS_31 += -nostdlib -Wl,-soname=linux-vdso32.so.1 \
-> -                       $(call cc-ldoption, -Wl$(comma)--hash-style=both)
-> +                   -Wl,--hash-style=both
->
->  $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_31)
->  $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_31)
-> diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-> index f849ac61c5da..bec19e7e6e1c 100644
-> --- a/arch/s390/kernel/vdso64/Makefile
-> +++ b/arch/s390/kernel/vdso64/Makefile
-> @@ -19,7 +19,7 @@ KBUILD_AFLAGS_64 += -m64 -s
->  KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
->  KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
->  KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
-> -                       $(call cc-ldoption, -Wl$(comma)--hash-style=both)
-> +                   -Wl,--hash-style=both
->
->  $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
->  $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
-> --
-> 2.21.0.593.g511ec345e18-goog
->
+> Can we please have the page refcount overflow fixes out on the list
+> for review, even if it is after the fact?
 
-bumping for review
--- 
-Thanks,
-~Nick Desaulniers
+They were actually on a list for review long before the fact, but it
+was the security mailing list. The issue actually got discussed back
+in January along with early versions of the patches, but then we
+dropped the ball because it just wasn't on anybody's radar and it got
+resurrected late March. Willy wrote a rather bigger patch-series, and
+review of that is what then resulted in those commits. So they may
+look recent, but that's just because the original patches got
+seriously edited down and rewritten.
+
+That said, powerpc and s390 should at least look at maybe adding a
+check for the page ref in their gup paths too. Powerpc has the special
+gup_hugepte() case, and s390 has its own version of gup entirely. I
+was actually hoping the s390 guys would look at using the generic gup
+code.
+
+I ruthlessly also entirely ignored MIPS, SH and sparc, since they seem
+largely irrelevant, partly since even theoretically this whole issue
+needs a _lot_ of memory.
+
+Michael, Martin, see commit 6b3a70773630 ("Merge branch 'page-refs'
+(page ref overflow)"). You may or may not really care.
+
+                 Linus
