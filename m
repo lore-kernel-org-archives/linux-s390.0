@@ -1,45 +1,109 @@
-Return-Path: <SRS0=h9J9=SO=vger.kernel.org=netdev-owner@kernel.org>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 0/8] net/smc: patches 2019-04-12
-Date: Fri, 12 Apr 2019 12:57:22 +0200
-Message-Id: <20190412105730.96245-1-ubraun@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
+Return-Path: <SRS0=rNeM=SR=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Mon, 15 Apr 2019 08:32:34 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH 2/2] s390: boot, purgatory: pass $(CLANG_FLAGS) where
+ needed
+In-Reply-To: <CAKwvOdmdUv3pOGdsJCf5HG3KGPfq8TJHY0523jPD=etJwuES7g@mail.gmail.com>
+References: <20190410201300.3528984-1-arnd@arndb.de>
+        <20190410201300.3528984-2-arnd@arndb.de>
+        <CAKwvOdk-tfsZRVaOr8Suv5C146F-w3jUA-Rx0n2OxkVy+L8tCg@mail.gmail.com>
+        <CAK8P3a0cdvxkoRPOF7moxZ1W2059OEJeOGAFPfSemMH1_g=YPg@mail.gmail.com>
+        <CAKwvOdmdUv3pOGdsJCf5HG3KGPfq8TJHY0523jPD=etJwuES7g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190415083234.7f05254b@mschwideX1>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Philipp Rudo <prudo@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Dave,
+On Thu, 11 Apr 2019 11:08:31 -0700
+Nick Desaulniers <ndesaulniers@google.com> wrote:
 
-here are patches for SMC:
-* patch 1 improves behavior of non-blocking connect
-* patches 2, 3, 5, 7, and 8 improve connecting return codes
-* patches 4 and 6 are a cleanups without functional change
+> On Thu, Apr 11, 2019 at 1:52 AM Arnd Bergmann <arnd@arndb.de> wrote:
+> >
+> > On Thu, Apr 11, 2019 at 12:14 AM 'Nick Desaulniers' via Clang Built
+> > Linux <clang-built-linux@googlegroups.com> wrote:  
+> > > On Wed, Apr 10, 2019 at 1:13 PM Arnd Bergmann <arnd@arndb.de> wrote:  
+> > > >
+> > > > The purgatory and boot Makefiles do not inherit the original cflags,
+> > > > so clang falls back to the default target architecture when building it,
+> > > > typically this would be x86 when cross-compiling.
+> > > >
+> > > > Add $(CLANG_FLAGS) everywhere so we pass the correct --target=s390x-linux
+> > > > option when cross-compiling.
+> > > >
+> > > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > > > ---
+> > > >  arch/s390/Makefile           | 5 +++--
+> > > >  arch/s390/purgatory/Makefile | 1 +
+> > > >  2 files changed, 4 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> > > > index 9c079a506325..443990791099 100644
+> > > > --- a/arch/s390/Makefile
+> > > > +++ b/arch/s390/Makefile
+> > > > @@ -17,12 +17,13 @@ KBUILD_CFLAGS_MODULE += -fPIC
+> > > >  KBUILD_AFLAGS  += -m64
+> > > >  KBUILD_CFLAGS  += -m64
+> > > >  aflags_dwarf   := -Wa,-gdwarf-2
+> > > > -KBUILD_AFLAGS_DECOMPRESSOR := -m64 -D__ASSEMBLY__
+> > > > +KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+> > > >  KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
+> > > > -KBUILD_CFLAGS_DECOMPRESSOR := -m64 -O2
+> > > > +KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2
+> > > >  KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+> > > >  KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float
+> > > >  KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables  
+> > >
+> > > Thanks for the respin with Nathan's suggestion.
+> > >  
+> > > > +KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning,pointer-sign)  
+> > >
+> > > What's up with this ^ ?  Seems like the top level sets it (without
+> > > cc-disable-warning :( ), but then KBUILD_CFLAGS_DECOMPRESSOR discards
+> > > it.  Does Clang actually flag code in this arch (that GCC doesn't)?  
+> >
+> > Oops, that should have been a separate patch.
+> >
+> > I think what happens is that clang warns more aggressively about pointer sign
+> > bugs than gcc in some cases, and some of those cases happen in s390
+> > header files that are included by both the kernel and the decompressor.
+> >
+> > The full warning log without this change is rather long, see
+> > https://pastebin.com/KG9xaTNB  
+> 
+> From this link, it looks like the definitions of:
+> __atomic64_or
+> __atomic64_and
+> __atomic64_xor
+> and their *_barrier variants are problematic.  I think converting
+> those to use unsigned long is the way to go.  Shouldn't you be doing
+> bitwise ops on unsigned types anyways?
 
-Thanks, Ursula
+These functions follow the type of atomic64_t which is a "long" wrapped
+in a structure. We do not want to change that to unsigned long, are we?
+Then having some of the functions operate on "long" and others on
+"unsigned long" seem odd.
 
-Karsten Graul (7):
-  net/smc: fallback to TCP after connect problems
-  net/smc: check for ip prefix and subnet
-  net/smc: consolidate function parameters
-  net/smc: cleanup of get vlan id
-  net/smc: code cleanup smc_listen_work
-  net/smc: improve smc_listen_work reason codes
-  net/smc: improve smc_conn_create reason codes
+> The warnings with __atomic64_add are tougher to read/understand since
+> at that point the log lines look like they start to mix together.
+> 
+> >
+> > I also tried patching the code to avoid the warnings, but I'm not entirely
+> > happy with that result either, see
+> > https://pastebin.com/pSMz5eZA  
+> 
+> That's no terrible, IMO, particularly with the change I suggest above.
 
-Ursula Braun (1):
-  net/smc: nonblocking connect rework
-
- net/smc/af_smc.c   | 355 +++++++++++++++++++++++++++--------------------------
- net/smc/smc.h      |  11 +-
- net/smc/smc_clc.c  |  10 +-
- net/smc/smc_clc.h  |  20 +--
- net/smc/smc_core.c |  93 +++++++-------
- net/smc/smc_core.h |  25 +++-
- net/smc/smc_pnet.c |  47 ++++---
- net/smc/smc_pnet.h |   7 +-
- 8 files changed, 294 insertions(+), 274 deletions(-)
+That is not too bad, the only change I do not like is the s/u8/char/ in
+struct ipl_block_fcp.
 
 -- 
-2.16.4
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
