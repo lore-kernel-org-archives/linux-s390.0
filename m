@@ -1,40 +1,416 @@
 Return-Path: <SRS0=kLZb=SR=vger.kernel.org=kvm-owner@kernel.org>
-Date: Mon, 15 Apr 2019 13:51:26 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 0/6] vfio-ccw: support hsch/csch (kernel part)
-Message-ID: <20190415135126.2fa9b12b.cohuck@redhat.com>
-In-Reply-To: <20190301093902.27799-1-cohuck@redhat.com>
+Subject: Re: [PATCH v4 4/6] vfio-ccw: add capabilities chain
 References: <20190301093902.27799-1-cohuck@redhat.com>
+ <20190301093902.27799-5-cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Date: Mon, 15 Apr 2019 10:40:59 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190301093902.27799-5-cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <9d692710-cf9e-99c6-45d1-bb18a2ba7b94@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, qemu-s390x@nongnu.org, Alex Williamson <alex.williamson@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri,  1 Mar 2019 10:38:56 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
 
-> [This is the Linux kernel part, git tree is available at
-> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git vfio-ccw-eagain-caps-v3
-> 
-> The companion QEMU patches are available at
-> https://github.com/cohuck/qemu vfio-ccw-caps]
-> 
-> Currently, vfio-ccw only relays START SUBCHANNEL requests to the real
-> device. This tends to work well for the most common 'good path' scenarios;
-> however, as we emulate {HALT,CLEAR} SUBCHANNEL in QEMU, things like
-> clearing pending requests at the device is currently not supported.
-> This may be a problem for e.g. error recovery.
-> 
-> This patch series introduces capabilities (similar to what vfio-pci uses)
-> and exposes a new async region for handling hsch/csch.
 
-One more gentle ping for an ack/r-b for patches 4 and 6.
+On 3/1/19 4:39 AM, Cornelia Huck wrote:
+> Allow to extend the regions used by vfio-ccw. The first user will be
+> handling of halt and clear subchannel.
+> 
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 
-I could go ahead and merge patches 1-3 and then patches 1+3 of Farhan's
-series, but I'd really like to merge patches 4-6 as well so I can later
-merge the QEMU part after a headers update to 5.2-rc...
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+
+> ---
+>   drivers/s390/cio/vfio_ccw_ops.c     | 186 ++++++++++++++++++++++++----
+>   drivers/s390/cio/vfio_ccw_private.h |  38 ++++++
+>   include/uapi/linux/vfio.h           |   2 +
+>   3 files changed, 200 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index 025c8a832bc8..3fd663320bbf 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -3,13 +3,16 @@
+>    * Physical device callbacks for vfio_ccw
+>    *
+>    * Copyright IBM Corp. 2017
+> + * Copyright Red Hat, Inc. 2019
+>    *
+>    * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+>    *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> + *            Cornelia Huck <cohuck@redhat.com>
+>    */
+>   
+>   #include <linux/vfio.h>
+>   #include <linux/mdev.h>
+> +#include <linux/nospec.h>
+>   
+>   #include "vfio_ccw_private.h"
+>   
+> @@ -157,27 +160,33 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+>   {
+>   	struct vfio_ccw_private *private =
+>   		dev_get_drvdata(mdev_parent_dev(mdev));
+> +	int i;
+>   
+>   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+>   				 &private->nb);
+> +
+> +	for (i = 0; i < private->num_regions; i++)
+> +		private->region[i].ops->release(private, &private->region[i]);
+> +
+> +	private->num_regions = 0;
+> +	kfree(private->region);
+> +	private->region = NULL;
+>   }
+>   
+> -static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+> -				  char __user *buf,
+> -				  size_t count,
+> -				  loff_t *ppos)
+> +static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+> +					    char __user *buf, size_t count,
+> +					    loff_t *ppos)
+>   {
+> -	struct vfio_ccw_private *private;
+> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+>   	struct ccw_io_region *region;
+>   	int ret;
+>   
+> -	if (*ppos + count > sizeof(*region))
+> +	if (pos + count > sizeof(*region))
+>   		return -EINVAL;
+>   
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>   	mutex_lock(&private->io_mutex);
+>   	region = private->io_region;
+> -	if (copy_to_user(buf, (void *)region + *ppos, count))
+> +	if (copy_to_user(buf, (void *)region + pos, count))
+>   		ret = -EFAULT;
+>   	else
+>   		ret = count;
+> @@ -185,24 +194,47 @@ static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+>   	return ret;
+>   }
+>   
+> -static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+> -				   const char __user *buf,
+> -				   size_t count,
+> -				   loff_t *ppos)
+> +static ssize_t vfio_ccw_mdev_read(struct mdev_device *mdev,
+> +				  char __user *buf,
+> +				  size_t count,
+> +				  loff_t *ppos)
+>   {
+> +	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+>   	struct vfio_ccw_private *private;
+> +
+> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> +
+> +	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+> +		return -EINVAL;
+> +
+> +	switch (index) {
+> +	case VFIO_CCW_CONFIG_REGION_INDEX:
+> +		return vfio_ccw_mdev_read_io_region(private, buf, count, ppos);
+> +	default:
+> +		index -= VFIO_CCW_NUM_REGIONS;
+> +		return private->region[index].ops->read(private, buf, count,
+> +							ppos);
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+> +					     const char __user *buf,
+> +					     size_t count, loff_t *ppos)
+> +{
+> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+>   	struct ccw_io_region *region;
+>   	int ret;
+>   
+> -	if (*ppos + count > sizeof(*region))
+> +	if (pos + count > sizeof(*region))
+>   		return -EINVAL;
+>   
+> -	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>   	if (!mutex_trylock(&private->io_mutex))
+>   		return -EAGAIN;
+>   
+>   	region = private->io_region;
+> -	if (copy_from_user((void *)region + *ppos, buf, count)) {
+> +	if (copy_from_user((void *)region + pos, buf, count)) {
+>   		ret = -EFAULT;
+>   		goto out_unlock;
+>   	}
+> @@ -217,19 +249,52 @@ static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+>   	return ret;
+>   }
+>   
+> -static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info)
+> +static ssize_t vfio_ccw_mdev_write(struct mdev_device *mdev,
+> +				   const char __user *buf,
+> +				   size_t count,
+> +				   loff_t *ppos)
+>   {
+> +	unsigned int index = VFIO_CCW_OFFSET_TO_INDEX(*ppos);
+> +	struct vfio_ccw_private *private;
+> +
+> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
+> +
+> +	if (index >= VFIO_CCW_NUM_REGIONS + private->num_regions)
+> +		return -EINVAL;
+> +
+> +	switch (index) {
+> +	case VFIO_CCW_CONFIG_REGION_INDEX:
+> +		return vfio_ccw_mdev_write_io_region(private, buf, count, ppos);
+> +	default:
+> +		index -= VFIO_CCW_NUM_REGIONS;
+> +		return private->region[index].ops->write(private, buf, count,
+> +							 ppos);
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int vfio_ccw_mdev_get_device_info(struct vfio_device_info *info,
+> +					 struct mdev_device *mdev)
+> +{
+> +	struct vfio_ccw_private *private;
+> +
+> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>   	info->flags = VFIO_DEVICE_FLAGS_CCW | VFIO_DEVICE_FLAGS_RESET;
+> -	info->num_regions = VFIO_CCW_NUM_REGIONS;
+> +	info->num_regions = VFIO_CCW_NUM_REGIONS + private->num_regions;
+>   	info->num_irqs = VFIO_CCW_NUM_IRQS;
+>   
+>   	return 0;
+>   }
+>   
+>   static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+> -					 u16 *cap_type_id,
+> -					 void **cap_type)
+> +					 struct mdev_device *mdev,
+> +					 unsigned long arg)
+>   {
+> +	struct vfio_ccw_private *private;
+> +	int i;
+> +
+> +	private = dev_get_drvdata(mdev_parent_dev(mdev));
+>   	switch (info->index) {
+>   	case VFIO_CCW_CONFIG_REGION_INDEX:
+>   		info->offset = 0;
+> @@ -237,9 +302,55 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+>   		info->flags = VFIO_REGION_INFO_FLAG_READ
+>   			      | VFIO_REGION_INFO_FLAG_WRITE;
+>   		return 0;
+> -	default:
+> -		return -EINVAL;
+> +	default: /* all other regions are handled via capability chain */
+> +	{
+> +		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
+> +		struct vfio_region_info_cap_type cap_type = {
+> +			.header.id = VFIO_REGION_INFO_CAP_TYPE,
+> +			.header.version = 1 };
+> +		int ret;
+> +
+> +		if (info->index >=
+> +		    VFIO_CCW_NUM_REGIONS + private->num_regions)
+> +			return -EINVAL;
+> +
+> +		info->index = array_index_nospec(info->index,
+> +						 VFIO_CCW_NUM_REGIONS +
+> +						 private->num_regions);
+> +
+> +		i = info->index - VFIO_CCW_NUM_REGIONS;
+> +
+> +		info->offset = VFIO_CCW_INDEX_TO_OFFSET(info->index);
+> +		info->size = private->region[i].size;
+> +		info->flags = private->region[i].flags;
+> +
+> +		cap_type.type = private->region[i].type;
+> +		cap_type.subtype = private->region[i].subtype;
+> +
+> +		ret = vfio_info_add_capability(&caps, &cap_type.header,
+> +					       sizeof(cap_type));
+> +		if (ret)
+> +			return ret;
+> +
+> +		info->flags |= VFIO_REGION_INFO_FLAG_CAPS;
+> +		if (info->argsz < sizeof(*info) + caps.size) {
+> +			info->argsz = sizeof(*info) + caps.size;
+> +			info->cap_offset = 0;
+> +		} else {
+> +			vfio_info_cap_shift(&caps, sizeof(*info));
+> +			if (copy_to_user((void __user *)arg + sizeof(*info),
+> +					 caps.buf, caps.size)) {
+> +				kfree(caps.buf);
+> +				return -EFAULT;
+> +			}
+> +			info->cap_offset = sizeof(*info);
+> +		}
+> +
+> +		kfree(caps.buf);
+> +
+> +	}
+>   	}
+> +	return 0;
+>   }
+>   
+>   static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+> @@ -316,6 +427,32 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+>   	}
+>   }
+>   
+> +int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+> +				 unsigned int subtype,
+> +				 const struct vfio_ccw_regops *ops,
+> +				 size_t size, u32 flags, void *data)
+> +{
+> +	struct vfio_ccw_region *region;
+> +
+> +	region = krealloc(private->region,
+> +			  (private->num_regions + 1) * sizeof(*region),
+> +			  GFP_KERNEL);
+> +	if (!region)
+> +		return -ENOMEM;
+> +
+> +	private->region = region;
+> +	private->region[private->num_regions].type = VFIO_REGION_TYPE_CCW;
+> +	private->region[private->num_regions].subtype = subtype;
+> +	private->region[private->num_regions].ops = ops;
+> +	private->region[private->num_regions].size = size;
+> +	private->region[private->num_regions].flags = flags;
+> +	private->region[private->num_regions].data = data;
+> +
+> +	private->num_regions++;
+> +
+> +	return 0;
+> +}
+> +
+>   static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+>   				   unsigned int cmd,
+>   				   unsigned long arg)
+> @@ -336,7 +473,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+>   		if (info.argsz < minsz)
+>   			return -EINVAL;
+>   
+> -		ret = vfio_ccw_mdev_get_device_info(&info);
+> +		ret = vfio_ccw_mdev_get_device_info(&info, mdev);
+>   		if (ret)
+>   			return ret;
+>   
+> @@ -345,8 +482,6 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+>   	case VFIO_DEVICE_GET_REGION_INFO:
+>   	{
+>   		struct vfio_region_info info;
+> -		u16 cap_type_id = 0;
+> -		void *cap_type = NULL;
+>   
+>   		minsz = offsetofend(struct vfio_region_info, offset);
+>   
+> @@ -356,8 +491,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+>   		if (info.argsz < minsz)
+>   			return -EINVAL;
+>   
+> -		ret = vfio_ccw_mdev_get_region_info(&info, &cap_type_id,
+> -						    &cap_type);
+> +		ret = vfio_ccw_mdev_get_region_info(&info, mdev, arg);
+>   		if (ret)
+>   			return ret;
+>   
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> index 32173cbd838d..d888a2573470 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -3,9 +3,11 @@
+>    * Private stuff for vfio_ccw driver
+>    *
+>    * Copyright IBM Corp. 2017
+> + * Copyright Red Hat, Inc. 2019
+>    *
+>    * Author(s): Dong Jia Shi <bjsdjshi@linux.vnet.ibm.com>
+>    *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+> + *            Cornelia Huck <cohuck@redhat.com>
+>    */
+>   
+>   #ifndef _VFIO_CCW_PRIVATE_H_
+> @@ -19,6 +21,38 @@
+>   #include "css.h"
+>   #include "vfio_ccw_cp.h"
+>   
+> +#define VFIO_CCW_OFFSET_SHIFT   10
+> +#define VFIO_CCW_OFFSET_TO_INDEX(off)	(off >> VFIO_CCW_OFFSET_SHIFT)
+> +#define VFIO_CCW_INDEX_TO_OFFSET(index)	((u64)(index) << VFIO_CCW_OFFSET_SHIFT)
+> +#define VFIO_CCW_OFFSET_MASK	(((u64)(1) << VFIO_CCW_OFFSET_SHIFT) - 1)
+> +
+> +/* capability chain handling similar to vfio-pci */
+> +struct vfio_ccw_private;
+> +struct vfio_ccw_region;
+> +
+> +struct vfio_ccw_regops {
+> +	ssize_t	(*read)(struct vfio_ccw_private *private, char __user *buf,
+> +			size_t count, loff_t *ppos);
+> +	ssize_t	(*write)(struct vfio_ccw_private *private,
+> +			 const char __user *buf, size_t count, loff_t *ppos);
+> +	void	(*release)(struct vfio_ccw_private *private,
+> +			   struct vfio_ccw_region *region);
+> +};
+> +
+> +struct vfio_ccw_region {
+> +	u32				type;
+> +	u32				subtype;
+> +	const struct vfio_ccw_regops	*ops;
+> +	void				*data;
+> +	size_t				size;
+> +	u32				flags;
+> +};
+> +
+> +int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+> +				 unsigned int subtype,
+> +				 const struct vfio_ccw_regops *ops,
+> +				 size_t size, u32 flags, void *data);
+> +
+>   /**
+>    * struct vfio_ccw_private
+>    * @sch: pointer to the subchannel
+> @@ -29,6 +63,8 @@
+>    * @nb: notifier for vfio events
+>    * @io_region: MMIO region to input/output I/O arguments/results
+>    * @io_mutex: protect against concurrent update of I/O regions
+> + * @region: additional regions for other subchannel operations
+> + * @num_regions: number of additional regions
+>    * @cp: channel program for the current I/O operation
+>    * @irb: irb info received from interrupt
+>    * @scsw: scsw info
+> @@ -44,6 +80,8 @@ struct vfio_ccw_private {
+>   	struct notifier_block	nb;
+>   	struct ccw_io_region	*io_region;
+>   	struct mutex		io_mutex;
+> +	struct vfio_ccw_region *region;
+> +	int num_regions;
+>   
+>   	struct channel_program	cp;
+>   	struct irb		irb;
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index 02bb7ad6e986..56e2413d3e00 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -353,6 +353,8 @@ struct vfio_region_gfx_edid {
+>   #define VFIO_DEVICE_GFX_LINK_STATE_DOWN  2
+>   };
+>   
+> +#define VFIO_REGION_TYPE_CCW			(2)
+> +
+>   /*
+>    * 10de vendor sub-type
+>    *
+> 
