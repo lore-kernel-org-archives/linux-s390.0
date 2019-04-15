@@ -1,127 +1,250 @@
-Return-Path: <SRS0=kLZb=SR=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [RFC v2 2/3] vfio-ccw: Prevent quiesce function going into an
- infinite loop
-References: <cover.1554756534.git.alifm@linux.ibm.com>
- <2c17cf29fbce8fc1cfbf60cfd04559d00c8eeac0.1554756534.git.alifm@linux.ibm.com>
- <20190411182434.07d5f685.cohuck@redhat.com>
- <ffcffd06-5bbd-a97c-021e-855b2240982d@linux.ibm.com>
- <20190412101013.2bf4a5df.cohuck@redhat.com>
- <396cde69-5c1d-b9e5-aaa2-248cf91e6f60@linux.ibm.com>
- <20190415101332.7ebbe5ad.cohuck@redhat.com>
- <00c54029-9f60-4242-8a3a-a87bf1e0434b@linux.ibm.com>
- <20190415161841.75aa61f4.cohuck@redhat.com>
-From: Farhan Ali <alifm@linux.ibm.com>
-Date: Mon, 15 Apr 2019 10:24:53 -0400
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] [v2] arch: add pidfd and io_uring syscalls everywhere
+Date: Mon, 15 Apr 2019 16:22:57 +0200
+Message-ID: <20190415143007.2989285-1-arnd@arndb.de>
 MIME-Version: 1.0
-In-Reply-To: <20190415161841.75aa61f4.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <7f1f3844-9108-fea8-a723-1d1d5c0047cd@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190415142257.Oavrs5lhTp4eig_GFX1CGsW0kTiSuTMbCGkdaf3jRCY@z>
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-arch@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Michal Simek <monstr@monstr.eu>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Firoz Khan <firoz.khan@linaro.org>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+Add the io_uring and pidfd_send_signal system calls to all architectures.
 
+These system calls are designed to handle both native and compat tasks,
+so all entries are the same across architectures, only arm-compat and
+the generic tale still use an old format.
 
-On 04/15/2019 10:18 AM, Cornelia Huck wrote:
-> On Mon, 15 Apr 2019 09:38:37 -0400
-> Farhan Ali <alifm@linux.ibm.com> wrote:
-> 
->> On 04/15/2019 04:13 AM, Cornelia Huck wrote:
->>> On Fri, 12 Apr 2019 10:38:50 -0400
->>> Farhan Ali <alifm@linux.ibm.com> wrote:
->>>    
->>>> On 04/12/2019 04:10 AM, Cornelia Huck wrote:
->>>>> On Thu, 11 Apr 2019 16:30:44 -0400
->>>>> Farhan Ali <alifm@linux.ibm.com> wrote:
->>>>>       
->>>>>> On 04/11/2019 12:24 PM, Cornelia Huck wrote:
->>>>>>> On Mon,  8 Apr 2019 17:05:32 -0400
->>>>>>> Farhan Ali <alifm@linux.ibm.com> wrote:
->>>    
->>>>>>> Looking at the possible return codes:
->>>>>>> * -ENODEV -> device is not operational anyway, in theory you should even
->>>>>>>        not need to bother with disabling the subchannel
->>>>>>> * -EIO -> we've run out of retries, and the subchannel still is not
->>>>>>>       idle; I'm not sure if we could do anything here, as disable is
->>>>>>>       unlikely to work, either
->>>
->>> (...)
->>>    
->>>> Thinking a little bit more about EIO, if the return code is EIO then it
->>>> means we have exhausted all our options with cancel_halt_clear and the
->>>> subchannel/device is still status pending, right?
->>>
->>> Yes.
->>>    
->>>>
->>>> I think we should still continue to try and disable the subchannel,
->>>> because if not then the subchannel/device could in some point of time
->>>> come back and bite us. So we really should protect the system from this
->>>> behavior.
->>>
->>> I think trying to disable the subchannel does not really hurt, but I
->>> fear it won't succeed in that case...
->>>    
->>>>
->>>> I think for EIO we should log an error message, but still try to
->>>> continue with disabling the subchannel. What do you or others think?
->>>
->>> Logging an error may be useful (it's really fouled up at that time), but...
->>>    
->>>>
->>>>
->>>>
->>>>   
->>>>>>      
->>>>>>>> +		flush_workqueue(vfio_ccw_work_q);
->>>>>>>> +		spin_lock_irq(sch->lock);
->>>>>>>>      		ret = cio_disable_subchannel(sch);
->>>
->>> ...there's a good chance that we'd get -EBUSY here, which would keep us
->>> in the loop. We probably need to break out after we got -EIO from
->>> cancel_halt_clear, regardless of which return code we get from the
->>> disable.
->>
->> Okay, for EIO we can log an error message and break out of the loop.
->>
->> I will send a v3. Are you going to queue patch 1 or patch 3 soon? If you
->> are then I will just send this patch separately.
-> 
-> Yes, please do send it separately. I'm currently testing patch 1 and 3
-> on top of my patchset, will queue either with or without the halt/clear
-> patches proper, depending on how soon I get acks/r-bs (hint, hint :)
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> (s390)
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+Changes since v1:
+- fix s390 table
+- use 'n64' tag in mips-n64 instead of common.
+---
+ arch/alpha/kernel/syscalls/syscall.tbl      | 4 ++++
+ arch/arm/tools/syscall.tbl                  | 4 ++++
+ arch/arm64/include/asm/unistd.h             | 2 +-
+ arch/arm64/include/asm/unistd32.h           | 8 ++++++++
+ arch/ia64/kernel/syscalls/syscall.tbl       | 4 ++++
+ arch/m68k/kernel/syscalls/syscall.tbl       | 4 ++++
+ arch/microblaze/kernel/syscalls/syscall.tbl | 4 ++++
+ arch/mips/kernel/syscalls/syscall_n32.tbl   | 4 ++++
+ arch/mips/kernel/syscalls/syscall_n64.tbl   | 4 ++++
+ arch/mips/kernel/syscalls/syscall_o32.tbl   | 4 ++++
+ arch/parisc/kernel/syscalls/syscall.tbl     | 4 ++++
+ arch/powerpc/kernel/syscalls/syscall.tbl    | 4 ++++
+ arch/s390/kernel/syscalls/syscall.tbl       | 4 ++++
+ arch/sh/kernel/syscalls/syscall.tbl         | 4 ++++
+ arch/sparc/kernel/syscalls/syscall.tbl      | 4 ++++
+ arch/xtensa/kernel/syscalls/syscall.tbl     | 4 ++++
+ 16 files changed, 65 insertions(+), 1 deletion(-)
 
-I am going through your patches 4 and 6 and hopefully will get back to 
-you by the end of the day :).
-
-> 
->>
->> Thanks
->> Farhan
->>
->>>
->>> (It will be "interesting" to see what happens with such a stuck
->>> subchannel in the calling code; but I don't really see many options.
->>> Panic seems way too strong; maybe mark the subchannel as "broken; no
->>> idea how to fix"? But that would be a follow-on patch; I think if we
->>> avoid the endless loop here, this patch is a real improvement and
->>> should just go in.)
->>>    
->>>>>>>>      	} while (ret == -EBUSY);
->>>>>>>>      out_unlock:
->>>>>>>
->>>>>>>          
->>>>>>      
->>>>>
->>>>>       
->>>>   
->>>
->>>    
->>
-> 
-> 
+diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
+index 63ed39cbd3bd..165f268beafc 100644
+--- a/arch/alpha/kernel/syscalls/syscall.tbl
++++ b/arch/alpha/kernel/syscalls/syscall.tbl
+@@ -463,3 +463,7 @@
+ 532	common	getppid				sys_getppid
+ # all other architectures have common numbers for new syscall, alpha
+ # is the exception.
++534	common	pidfd_send_signal		sys_pidfd_send_signal
++535	common	io_uring_setup			sys_io_uring_setup
++536	common	io_uring_enter			sys_io_uring_enter
++537	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index 9016f4081bb9..0393917eaa57 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -437,3 +437,7 @@
+ 421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+ 422	common	futex_time64			sys_futex
+ 423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 310d8f1cae7a..c6946fe640e6 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -49,7 +49,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
+ 
+-#define __NR_compat_syscalls		424
++#define __NR_compat_syscalls		428
+ #endif
+ 
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index 5590f2623690..23f1a44acada 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -866,6 +866,14 @@ __SYSCALL(__NR_rt_sigtimedwait_time64, compat_sys_rt_sigtimedwait_time64)
+ __SYSCALL(__NR_futex_time64, sys_futex)
+ #define __NR_sched_rr_get_interval_time64 423
+ __SYSCALL(__NR_sched_rr_get_interval_time64, sys_sched_rr_get_interval)
++#define __NR_pidfd_send_signal 424
++__SYSCALL(__NR_pidfd_send_signal, sys_pidfd_send_signal)
++#define __NR_io_uring_setup 425
++__SYSCALL(__NR_io_uring_setup, sys_io_uring_setup)
++#define __NR_io_uring_enter 426
++__SYSCALL(__NR_io_uring_enter, sys_io_uring_enter)
++#define __NR_io_uring_register 427
++__SYSCALL(__NR_io_uring_register, sys_io_uring_register)
+ 
+ /*
+  * Please add new compat syscalls above this comment and update
+diff --git a/arch/ia64/kernel/syscalls/syscall.tbl b/arch/ia64/kernel/syscalls/syscall.tbl
+index ab9cda5f6136..56e3d0b685e1 100644
+--- a/arch/ia64/kernel/syscalls/syscall.tbl
++++ b/arch/ia64/kernel/syscalls/syscall.tbl
+@@ -344,3 +344,7 @@
+ 332	common	pkey_free			sys_pkey_free
+ 333	common	rseq				sys_rseq
+ # 334 through 423 are reserved to sync up with other architectures
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/m68k/kernel/syscalls/syscall.tbl b/arch/m68k/kernel/syscalls/syscall.tbl
+index 125c14178979..df4ec3ec71d1 100644
+--- a/arch/m68k/kernel/syscalls/syscall.tbl
++++ b/arch/m68k/kernel/syscalls/syscall.tbl
+@@ -423,3 +423,7 @@
+ 421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+ 422	common	futex_time64			sys_futex
+ 423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/microblaze/kernel/syscalls/syscall.tbl b/arch/microblaze/kernel/syscalls/syscall.tbl
+index 8ee3a8c18498..4964947732af 100644
+--- a/arch/microblaze/kernel/syscalls/syscall.tbl
++++ b/arch/microblaze/kernel/syscalls/syscall.tbl
+@@ -429,3 +429,7 @@
+ 421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+ 422	common	futex_time64			sys_futex
+ 423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
+index 15f4117900ee..9392dfe33f97 100644
+--- a/arch/mips/kernel/syscalls/syscall_n32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
+@@ -362,3 +362,7 @@
+ 421	n32	rt_sigtimedwait_time64		compat_sys_rt_sigtimedwait_time64
+ 422	n32	futex_time64			sys_futex
+ 423	n32	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	n32	pidfd_send_signal		sys_pidfd_send_signal
++425	n32	io_uring_setup			sys_io_uring_setup
++426	n32	io_uring_enter			sys_io_uring_enter
++427	n32	io_uring_register		sys_io_uring_register
+diff --git a/arch/mips/kernel/syscalls/syscall_n64.tbl b/arch/mips/kernel/syscalls/syscall_n64.tbl
+index c85502e67b44..cd0c8aa21fba 100644
+--- a/arch/mips/kernel/syscalls/syscall_n64.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n64.tbl
+@@ -338,3 +338,7 @@
+ 327	n64	rseq				sys_rseq
+ 328	n64	io_pgetevents			sys_io_pgetevents
+ # 329 through 423 are reserved to sync up with other architectures
++424	n64	pidfd_send_signal		sys_pidfd_send_signal
++425	n64	io_uring_setup			sys_io_uring_setup
++426	n64	io_uring_enter			sys_io_uring_enter
++427	n64	io_uring_register		sys_io_uring_register
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 2e063d0f837e..e849e8ffe4a2 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -411,3 +411,7 @@
+ 421	o32	rt_sigtimedwait_time64		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait_time64
+ 422	o32	futex_time64			sys_futex			sys_futex
+ 423	o32	sched_rr_get_interval_time64	sys_sched_rr_get_interval	sys_sched_rr_get_interval
++424	o32	pidfd_send_signal		sys_pidfd_send_signal
++425	o32	io_uring_setup			sys_io_uring_setup
++426	o32	io_uring_enter			sys_io_uring_enter
++427	o32	io_uring_register		sys_io_uring_register
+diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
+index b26766c6647d..fe8ca623add8 100644
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -420,3 +420,7 @@
+ 421	32	rt_sigtimedwait_time64		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait_time64
+ 422	32	futex_time64			sys_futex			sys_futex
+ 423	32	sched_rr_get_interval_time64	sys_sched_rr_get_interval	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index b18abb0c3dae..00f5a63c8d9a 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -505,3 +505,7 @@
+ 421	32	rt_sigtimedwait_time64		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait_time64
+ 422	32	futex_time64			sys_futex			sys_futex
+ 423	32	sched_rr_get_interval_time64	sys_sched_rr_get_interval	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 02579f95f391..061418f787c3 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -426,3 +426,7 @@
+ 421	32	rt_sigtimedwait_time64	-				compat_sys_rt_sigtimedwait_time64
+ 422	32	futex_time64		-				sys_futex
+ 423	32	sched_rr_get_interval_time64	-			sys_sched_rr_get_interval
++424  common	pidfd_send_signal	sys_pidfd_send_signal		sys_pidfd_send_signal
++425  common	io_uring_setup		sys_io_uring_setup              sys_io_uring_setup
++426  common	io_uring_enter		sys_io_uring_enter              sys_io_uring_enter
++427  common	io_uring_register	sys_io_uring_register           sys_io_uring_register
+diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
+index bfda678576e4..480b057556ee 100644
+--- a/arch/sh/kernel/syscalls/syscall.tbl
++++ b/arch/sh/kernel/syscalls/syscall.tbl
+@@ -426,3 +426,7 @@
+ 421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+ 422	common	futex_time64			sys_futex
+ 423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index b9a5a04b2d2c..a1dd24307b00 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -469,3 +469,7 @@
+ 421	32	rt_sigtimedwait_time64		sys_rt_sigtimedwait		compat_sys_rt_sigtimedwait_time64
+ 422	32	futex_time64			sys_futex			sys_futex
+ 423	32	sched_rr_get_interval_time64	sys_sched_rr_get_interval	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+diff --git a/arch/xtensa/kernel/syscalls/syscall.tbl b/arch/xtensa/kernel/syscalls/syscall.tbl
+index 6af49929de85..30084eaf8422 100644
+--- a/arch/xtensa/kernel/syscalls/syscall.tbl
++++ b/arch/xtensa/kernel/syscalls/syscall.tbl
+@@ -394,3 +394,7 @@
+ 421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
+ 422	common	futex_time64			sys_futex
+ 423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
++424	common	pidfd_send_signal		sys_pidfd_send_signal
++425	common	io_uring_setup			sys_io_uring_setup
++426	common	io_uring_enter			sys_io_uring_enter
++427	common	io_uring_register		sys_io_uring_register
+-- 
+2.20.0
