@@ -1,57 +1,40 @@
-Return-Path: <SRS0=LehB=SZ=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=kLZb=SR=vger.kernel.org=kvm-owner@kernel.org>
+Date: Mon, 15 Apr 2019 16:44:43 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC v2 2/3] vfio-ccw: Prevent quiesce function going into an
+ infinite loop
+Message-ID: <20190415164443.4a418f97.cohuck@redhat.com>
+In-Reply-To: <7f1f3844-9108-fea8-a723-1d1d5c0047cd@linux.ibm.com>
+References: <cover.1554756534.git.alifm@linux.ibm.com>
+        <2c17cf29fbce8fc1cfbf60cfd04559d00c8eeac0.1554756534.git.alifm@linux.ibm.com>
+        <20190411182434.07d5f685.cohuck@redhat.com>
+        <ffcffd06-5bbd-a97c-021e-855b2240982d@linux.ibm.com>
+        <20190412101013.2bf4a5df.cohuck@redhat.com>
+        <396cde69-5c1d-b9e5-aaa2-248cf91e6f60@linux.ibm.com>
+        <20190415101332.7ebbe5ad.cohuck@redhat.com>
+        <00c54029-9f60-4242-8a3a-a87bf1e0434b@linux.ibm.com>
+        <20190415161841.75aa61f4.cohuck@redhat.com>
+        <7f1f3844-9108-fea8-a723-1d1d5c0047cd@linux.ibm.com>
 MIME-Version: 1.0
-References: <20190415083605.2560074-1-arnd@arndb.de> <20190415083605.2560074-4-arnd@arndb.de>
- <CAKwvOd=761wDZ-g-E7kqOFCftH=CONpzc52WU0-ZQztZ3U=x4w@mail.gmail.com> <CAK8P3a2_Rkz3y662mxKTva_rrzHpOQ9fQ+pedenWCZCehxgxPw@mail.gmail.com>
-In-Reply-To: <CAK8P3a2_Rkz3y662mxKTva_rrzHpOQ9fQ+pedenWCZCehxgxPw@mail.gmail.com>
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Tue, 23 Apr 2019 11:21:28 -0700
-Message-ID: <CAKwvOdmrOdzb3N3oNZL1kKYYSKzrVR+Opc7af9cYDL9cd2QpOg@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] s390: fix clang -Wpointer-sign warnigns in boot code
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 23, 2019 at 1:06 AM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Mon, Apr 22, 2019 at 7:52 PM 'Nick Desaulniers' via Clang Built
-> Linux <clang-built-linux@googlegroups.com> wrote:
->
-> > > @@ -20,7 +20,7 @@ extern __u8 _ebc_tolower[256]; /* EBCDIC -> lowercase */
-> > >  extern __u8 _ebc_toupper[256]; /* EBCDIC -> uppercase */
-> > >
-> > >  static inline void
-> > > -codepage_convert(const __u8 *codepage, volatile __u8 * addr, unsigned long nr)
-> > > +codepage_convert(const __u8 *codepage, volatile char* addr, unsigned long nr)
-> > >  {
-> > >         if (nr-- <= 0)
-> > >                 return;
-> >
-> > There are many call sites of ASCEBC which is defined in terms of this
-> > function. Do they all use `char*`?  grep shows an explicit cast to
-> > `unsigned char*` in drivers/s390/char/tape_std.c for example.
->
-> Generally speaking, the kernel is full of Wpointer-sign warnings, that's why
-> this warning is disabled in the top-level Makefile by default. My patch fixes
-> the ones in the s390 boot code that is not built with those default flags, but
-> I made no attempt to fix the rest of the kernel.
+On Mon, 15 Apr 2019 10:24:53 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Right, sorry, I forgot about that.  This patch looks good to me.
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> On 04/15/2019 10:18 AM, Cornelia Huck wrote:
 
->
-> Fun fact: on most architectures, 'char' is signed, but on s390 and 32-bit
-> arm it is unsigned. The compiler treats 'char', 'unsigned char' and
-> 'signed char'
-> as three distinct types here for that reason.
+> > Yes, please do send it separately. I'm currently testing patch 1 and 3
+> > on top of my patchset, will queue either with or without the halt/clear
+> > patches proper, depending on how soon I get acks/r-bs (hint, hint :)  
+> 
+> I am going through your patches 4 and 6 and hopefully will get back to 
+> you by the end of the day :).
 
-I think I recall reading about that in:
-https://www.amazon.com/ARM-System-Developers-Guide-Architecture/dp/1558608745
-(I'll try to dig it up and post what the explanation was).
-
--- 
-Thanks,
-~Nick Desaulniers
+Awesome, thanks!
