@@ -1,90 +1,110 @@
-Return-Path: <SRS0=BPXs=SN=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=rNeM=SR=vger.kernel.org=linux-kernel-owner@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v2 1/4] s390: only build for new CPUs with clang
+Date: Mon, 15 Apr 2019 10:35:51 +0200
+Message-Id: <20190415083605.2560074-1-arnd@arndb.de>
 MIME-Version: 1.0
-References: <20190410201300.3528984-1-arnd@arndb.de> <20190410201300.3528984-2-arnd@arndb.de>
- <CAKwvOdk-tfsZRVaOr8Suv5C146F-w3jUA-Rx0n2OxkVy+L8tCg@mail.gmail.com> <CAK8P3a0cdvxkoRPOF7moxZ1W2059OEJeOGAFPfSemMH1_g=YPg@mail.gmail.com>
-In-Reply-To: <CAK8P3a0cdvxkoRPOF7moxZ1W2059OEJeOGAFPfSemMH1_g=YPg@mail.gmail.com>
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Thu, 11 Apr 2019 11:08:31 -0700
-Message-ID: <CAKwvOdmdUv3pOGdsJCf5HG3KGPfq8TJHY0523jPD=etJwuES7g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] s390: boot, purgatory: pass $(CLANG_FLAGS) where needed
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Philipp Rudo <prudo@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.vnet.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 11, 2019 at 1:52 AM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Thu, Apr 11, 2019 at 12:14 AM 'Nick Desaulniers' via Clang Built
-> Linux <clang-built-linux@googlegroups.com> wrote:
-> > On Wed, Apr 10, 2019 at 1:13 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> > >
-> > > The purgatory and boot Makefiles do not inherit the original cflags,
-> > > so clang falls back to the default target architecture when building it,
-> > > typically this would be x86 when cross-compiling.
-> > >
-> > > Add $(CLANG_FLAGS) everywhere so we pass the correct --target=s390x-linux
-> > > option when cross-compiling.
-> > >
-> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > > ---
-> > >  arch/s390/Makefile           | 5 +++--
-> > >  arch/s390/purgatory/Makefile | 1 +
-> > >  2 files changed, 4 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-> > > index 9c079a506325..443990791099 100644
-> > > --- a/arch/s390/Makefile
-> > > +++ b/arch/s390/Makefile
-> > > @@ -17,12 +17,13 @@ KBUILD_CFLAGS_MODULE += -fPIC
-> > >  KBUILD_AFLAGS  += -m64
-> > >  KBUILD_CFLAGS  += -m64
-> > >  aflags_dwarf   := -Wa,-gdwarf-2
-> > > -KBUILD_AFLAGS_DECOMPRESSOR := -m64 -D__ASSEMBLY__
-> > > +KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
-> > >  KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
-> > > -KBUILD_CFLAGS_DECOMPRESSOR := -m64 -O2
-> > > +KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2
-> > >  KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
-> > >  KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float
-> > >  KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
-> >
-> > Thanks for the respin with Nathan's suggestion.
-> >
-> > > +KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning,pointer-sign)
-> >
-> > What's up with this ^ ?  Seems like the top level sets it (without
-> > cc-disable-warning :( ), but then KBUILD_CFLAGS_DECOMPRESSOR discards
-> > it.  Does Clang actually flag code in this arch (that GCC doesn't)?
->
-> Oops, that should have been a separate patch.
->
-> I think what happens is that clang warns more aggressively about pointer sign
-> bugs than gcc in some cases, and some of those cases happen in s390
-> header files that are included by both the kernel and the decompressor.
->
-> The full warning log without this change is rather long, see
-> https://pastebin.com/KG9xaTNB
+llvm does does not understand -march=z9-109 and older target
+specifiers, so disable the respective Kconfig settings and
+the logic to make the boot code work on old systems when
+building with clang.
 
-From this link, it looks like the definitions of:
-__atomic64_or
-__atomic64_and
-__atomic64_xor
-and their *_barrier variants are problematic.  I think converting
-those to use unsigned long is the way to go.  Shouldn't you be doing
-bitwise ops on unsigned types anyways?
+Part of the early boot code is normally compiled with -march=z900
+for maximum compatibility. This also has to get changed with
+clang to the oldest supported ISA, which is -march=z10 here.
 
-The warnings with __atomic64_add are tougher to read/understand since
-at that point the log lines look like they start to mix together.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ arch/s390/Kconfig       |  6 ++++++
+ arch/s390/boot/Makefile | 18 ++++++++++++------
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
->
-> I also tried patching the code to avoid the warnings, but I'm not entirely
-> happy with that result either, see
-> https://pastebin.com/pSMz5eZA
-
-That's no terrible, IMO, particularly with the change I suggest above.
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 8cd860cba4d1..1a2eec61196d 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -240,6 +240,7 @@ choice
+ 
+ config MARCH_Z900
+ 	bool "IBM zSeries model z800 and z900"
++	depends on !CC_IS_CLANG
+ 	select HAVE_MARCH_Z900_FEATURES
+ 	help
+ 	  Select this to enable optimizations for model z800/z900 (2064 and
+@@ -248,6 +249,7 @@ config MARCH_Z900
+ 
+ config MARCH_Z990
+ 	bool "IBM zSeries model z890 and z990"
++	depends on !CC_IS_CLANG
+ 	select HAVE_MARCH_Z990_FEATURES
+ 	help
+ 	  Select this to enable optimizations for model z890/z990 (2084 and
+@@ -256,6 +258,7 @@ config MARCH_Z990
+ 
+ config MARCH_Z9_109
+ 	bool "IBM System z9"
++	depends on !CC_IS_CLANG
+ 	select HAVE_MARCH_Z9_109_FEATURES
+ 	help
+ 	  Select this to enable optimizations for IBM System z9 (2094 and
+@@ -347,12 +350,15 @@ config TUNE_DEFAULT
+ 
+ config TUNE_Z900
+ 	bool "IBM zSeries model z800 and z900"
++	depends on !CC_IS_CLANG
+ 
+ config TUNE_Z990
+ 	bool "IBM zSeries model z890 and z990"
++	depends on !CC_IS_CLANG
+ 
+ config TUNE_Z9_109
+ 	bool "IBM System z9"
++	depends on !CC_IS_CLANG
+ 
+ config TUNE_Z10
+ 	bool "IBM System z10"
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index c844eaf24ed7..c6a6b6dd3d52 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -12,18 +12,24 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+ KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
+ 
+ #
+-# Use -march=z900 for als.c to be able to print an error
++# Use minimum architecture for als.c to be able to print an error
+ # message if the kernel is started on a machine which is too old
+ #
+-ifneq ($(CC_FLAGS_MARCH),-march=z900)
++ifndef CONFIG_CC_IS_CLANG
++CC_FLAGS_MARCH_MINIMUM := -march=z900
++else
++CC_FLAGS_MARCH_MINIMUM := -march=z10
++endif
++
++ifneq ($(CC_FLAGS_MARCH),$(CC_FLAGS_MARCH_MINIMUM))
+ AFLAGS_REMOVE_head.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_head.o			+= -march=z900
++AFLAGS_head.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+ AFLAGS_REMOVE_mem.o		+= $(CC_FLAGS_MARCH)
+-AFLAGS_mem.o			+= -march=z900
++AFLAGS_mem.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+ CFLAGS_REMOVE_als.o		+= $(CC_FLAGS_MARCH)
+-CFLAGS_als.o			+= -march=z900
++CFLAGS_als.o			+= $(CC_FLAGS_MARCH_MINIMUM)
+ CFLAGS_REMOVE_sclp_early_core.o	+= $(CC_FLAGS_MARCH)
+-CFLAGS_sclp_early_core.o	+= -march=z900
++CFLAGS_sclp_early_core.o	+= $(CC_FLAGS_MARCH_MINIMUM)
+ endif
+ 
+ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
 -- 
-Thanks,
-~Nick Desaulniers
+2.20.0
