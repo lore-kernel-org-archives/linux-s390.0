@@ -1,154 +1,67 @@
 Return-Path: <SRS0=rNeM=SR=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 4/4] s390: fix clang -Wpointer-sign warnigns in boot code
-Date: Mon, 15 Apr 2019 10:35:54 +0200
-Message-Id: <20190415083605.2560074-4-arnd@arndb.de>
-In-Reply-To: <20190415083605.2560074-1-arnd@arndb.de>
+Date: Mon, 15 Apr 2019 09:12:06 -0700
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: Re: [PATCH v2 2/4] s390: boot, purgatory: pass $(CLANG_FLAGS) where
+ needed
+Message-ID: <20190415161206.GA6928@archlinux-i9>
 References: <20190415083605.2560074-1-arnd@arndb.de>
+ <20190415083605.2560074-2-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190415083605.2560074-2-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The arch/s390/boot directory is built with its own set of compiler
-options that does not include -Wno-pointer-sign like the rest of
-the kernel does, this causes a lot of harmess but correct warnings
-when building with clang.
+On Mon, Apr 15, 2019 at 10:35:52AM +0200, Arnd Bergmann wrote:
+> The purgatory and boot Makefiles do not inherit the original cflags,
+> so clang falls back to the default target architecture when building it,
+> typically this would be x86 when cross-compiling.
+> 
+> Add $(CLANG_FLAGS) everywhere so we pass the correct --target=s390x-linux
+> option when cross-compiling.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-For the atomics, we can add type casts to avoid the warnings, for
-everything else the easiest way is to slightly adapt the types
-to be more consistent.
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/s390/boot/ipl_parm.c       |  2 +-
- arch/s390/include/asm/bitops.h  | 12 ++++++------
- arch/s390/include/asm/ebcdic.h  |  2 +-
- arch/s390/include/asm/lowcore.h |  2 +-
- drivers/s390/char/sclp.h        |  4 ++--
- 5 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
-index 36beb56de021..3f2f0a9f1dad 100644
---- a/arch/s390/boot/ipl_parm.c
-+++ b/arch/s390/boot/ipl_parm.c
-@@ -51,7 +51,7 @@ void store_ipl_parmblock(void)
- 		early_ipl_block_valid = 1;
- }
- 
--static size_t scpdata_length(const char *buf, size_t count)
-+static size_t scpdata_length(const u8 *buf, size_t count)
- {
- 	while (count) {
- 		if (buf[count - 1] != '\0' && buf[count - 1] != ' ')
-diff --git a/arch/s390/include/asm/bitops.h b/arch/s390/include/asm/bitops.h
-index d1f8a4d94cca..9900d655014c 100644
---- a/arch/s390/include/asm/bitops.h
-+++ b/arch/s390/include/asm/bitops.h
-@@ -73,7 +73,7 @@ static inline void set_bit(unsigned long nr, volatile unsigned long *ptr)
- 	}
- #endif
- 	mask = 1UL << (nr & (BITS_PER_LONG - 1));
--	__atomic64_or(mask, addr);
-+	__atomic64_or(mask, (long *)addr);
- }
- 
- static inline void clear_bit(unsigned long nr, volatile unsigned long *ptr)
-@@ -94,7 +94,7 @@ static inline void clear_bit(unsigned long nr, volatile unsigned long *ptr)
- 	}
- #endif
- 	mask = ~(1UL << (nr & (BITS_PER_LONG - 1)));
--	__atomic64_and(mask, addr);
-+	__atomic64_and(mask, (long *)addr);
- }
- 
- static inline void change_bit(unsigned long nr, volatile unsigned long *ptr)
-@@ -115,7 +115,7 @@ static inline void change_bit(unsigned long nr, volatile unsigned long *ptr)
- 	}
- #endif
- 	mask = 1UL << (nr & (BITS_PER_LONG - 1));
--	__atomic64_xor(mask, addr);
-+	__atomic64_xor(mask, (long *)addr);
- }
- 
- static inline int
-@@ -125,7 +125,7 @@ test_and_set_bit(unsigned long nr, volatile unsigned long *ptr)
- 	unsigned long old, mask;
- 
- 	mask = 1UL << (nr & (BITS_PER_LONG - 1));
--	old = __atomic64_or_barrier(mask, addr);
-+	old = __atomic64_or_barrier(mask, (long *)addr);
- 	return (old & mask) != 0;
- }
- 
-@@ -136,7 +136,7 @@ test_and_clear_bit(unsigned long nr, volatile unsigned long *ptr)
- 	unsigned long old, mask;
- 
- 	mask = ~(1UL << (nr & (BITS_PER_LONG - 1)));
--	old = __atomic64_and_barrier(mask, addr);
-+	old = __atomic64_and_barrier(mask, (long *)addr);
- 	return (old & ~mask) != 0;
- }
- 
-@@ -147,7 +147,7 @@ test_and_change_bit(unsigned long nr, volatile unsigned long *ptr)
- 	unsigned long old, mask;
- 
- 	mask = 1UL << (nr & (BITS_PER_LONG - 1));
--	old = __atomic64_xor_barrier(mask, addr);
-+	old = __atomic64_xor_barrier(mask, (long *)addr);
- 	return (old & mask) != 0;
- }
- 
-diff --git a/arch/s390/include/asm/ebcdic.h b/arch/s390/include/asm/ebcdic.h
-index 29441beb92e6..d3ce6adacb10 100644
---- a/arch/s390/include/asm/ebcdic.h
-+++ b/arch/s390/include/asm/ebcdic.h
-@@ -20,7 +20,7 @@ extern __u8 _ebc_tolower[256]; /* EBCDIC -> lowercase */
- extern __u8 _ebc_toupper[256]; /* EBCDIC -> uppercase */
- 
- static inline void
--codepage_convert(const __u8 *codepage, volatile __u8 * addr, unsigned long nr)
-+codepage_convert(const __u8 *codepage, volatile char* addr, unsigned long nr)
- {
- 	if (nr-- <= 0)
- 		return;
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index cc0947e08b6f..f3a637afd485 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -128,7 +128,7 @@ struct lowcore {
- 	/* SMP info area */
- 	__u32	cpu_nr;				/* 0x0398 */
- 	__u32	softirq_pending;		/* 0x039c */
--	__u32	preempt_count;			/* 0x03a0 */
-+	__s32	preempt_count;			/* 0x03a0 */
- 	__u32	spinlock_lockval;		/* 0x03a4 */
- 	__u32	spinlock_index;			/* 0x03a8 */
- 	__u32	fpu_flags;			/* 0x03ac */
-diff --git a/drivers/s390/char/sclp.h b/drivers/s390/char/sclp.h
-index 367e9d384d85..5918479ffa0e 100644
---- a/drivers/s390/char/sclp.h
-+++ b/drivers/s390/char/sclp.h
-@@ -365,14 +365,14 @@ sclp_ascebc(unsigned char ch)
- 
- /* translate string from EBCDIC to ASCII */
- static inline void
--sclp_ebcasc_str(unsigned char *str, int nr)
-+sclp_ebcasc_str(char *str, int nr)
- {
- 	(MACHINE_IS_VM) ? EBCASC(str, nr) : EBCASC_500(str, nr);
- }
- 
- /* translate string from ASCII to EBCDIC */
- static inline void
--sclp_ascebc_str(unsigned char *str, int nr)
-+sclp_ascebc_str(char *str, int nr)
- {
- 	(MACHINE_IS_VM) ? ASCEBC(str, nr) : ASCEBC_500(str, nr);
- }
--- 
-2.20.0
+> ---
+>  arch/s390/Makefile           | 4 ++--
+>  arch/s390/purgatory/Makefile | 1 +
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+> index 9c079a506325..9a228786e34f 100644
+> --- a/arch/s390/Makefile
+> +++ b/arch/s390/Makefile
+> @@ -17,9 +17,9 @@ KBUILD_CFLAGS_MODULE += -fPIC
+>  KBUILD_AFLAGS	+= -m64
+>  KBUILD_CFLAGS	+= -m64
+>  aflags_dwarf	:= -Wa,-gdwarf-2
+> -KBUILD_AFLAGS_DECOMPRESSOR := -m64 -D__ASSEMBLY__
+> +KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+>  KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
+> -KBUILD_CFLAGS_DECOMPRESSOR := -m64 -O2
+> +KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2
+>  KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+>  KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float
+>  KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
+> diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+> index ce6a3f75065b..ecd0b3847fef 100644
+> --- a/arch/s390/purgatory/Makefile
+> +++ b/arch/s390/purgatory/Makefile
+> @@ -22,6 +22,7 @@ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
+>  KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
+>  KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
+>  KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
+> +KBUILD_CFLAGS += $(CLANG_FLAGS)
+>  KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
+>  KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
+>  
+> -- 
+> 2.20.0
+> 
