@@ -1,7 +1,7 @@
 From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH v2 1/5] arm64: Fix vDSO clock_getres()
-Date: Tue, 16 Apr 2019 17:14:30 +0100
-Message-ID: <20190416161434.32691-2-vincenzo.frascino@arm.com>
+Subject: [PATCH v2 2/5] powerpc: Fix vDSO clock_getres()
+Date: Tue, 16 Apr 2019 17:14:31 +0100
+Message-ID: <20190416161434.32691-3-vincenzo.frascino@arm.com>
 References: <20190416161434.32691-1-vincenzo.frascino@arm.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -32,104 +32,116 @@ In particular, posix_get_hrtimer_res() does:
 and hrtimer_resolution depends on the enablement of the high
 resolution timers that can happen either at compile or at run time.
 
-Fix the arm64 vdso implementation of clock_getres keeping a copy of
+Fix the powerpc vdso implementation of clock_getres keeping a copy of
 hrtimer_resolution in vdso data and using that directly.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
 ---
- arch/arm64/include/asm/vdso_datapage.h |  1 +
- arch/arm64/kernel/asm-offsets.c        |  2 +-
- arch/arm64/kernel/vdso.c               |  2 ++
- arch/arm64/kernel/vdso/gettimeofday.S  | 22 +++++++++++-----------
- 4 files changed, 15 insertions(+), 12 deletions(-)
+ arch/powerpc/include/asm/vdso_datapage.h  | 2 ++
+ arch/powerpc/kernel/asm-offsets.c         | 2 +-
+ arch/powerpc/kernel/time.c                | 1 +
+ arch/powerpc/kernel/vdso32/gettimeofday.S | 7 +++++--
+ arch/powerpc/kernel/vdso64/gettimeofday.S | 7 +++++--
+ 5 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/include/asm/vdso_datapage.h b/arch/arm64/include/asm/vdso_datapage.h
-index 2b9a63771eda..f89263c8e11a 100644
---- a/arch/arm64/include/asm/vdso_datapage.h
-+++ b/arch/arm64/include/asm/vdso_datapage.h
-@@ -38,6 +38,7 @@ struct vdso_data {
- 	__u32 tz_minuteswest;	/* Whacky timezone stuff */
- 	__u32 tz_dsttime;
- 	__u32 use_syscall;
-+	__u32 hrtimer_res;
+diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
+index bbc06bd72b1f..4333b9a473dc 100644
+--- a/arch/powerpc/include/asm/vdso_datapage.h
++++ b/arch/powerpc/include/asm/vdso_datapage.h
+@@ -86,6 +86,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;			/* Wall to monotonic clock nsec */
+ 	__s64 wtom_clock_sec;			/* Wall to monotonic clock sec */
+ 	struct timespec stamp_xtime;		/* xtime as at tb_orig_stamp */
++	__u32 hrtimer_res;			/* hrtimer resolution */
+    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
  };
+@@ -107,6 +108,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;
+ 	struct timespec stamp_xtime;	/* xtime as at tb_orig_stamp */
+ 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
++	__u32 hrtimer_res;		/* hrtimer resolution */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+ 	__u32 dcache_block_size;	/* L1 d-cache block size     */
+ 	__u32 icache_block_size;	/* L1 i-cache block size     */
+diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
+index 86a61e5f8285..52e4b98a8492 100644
+--- a/arch/powerpc/kernel/asm-offsets.c
++++ b/arch/powerpc/kernel/asm-offsets.c
+@@ -383,6 +383,7 @@ int main(void)
+ 	OFFSET(WTOM_CLOCK_NSEC, vdso_data, wtom_clock_nsec);
+ 	OFFSET(STAMP_XTIME, vdso_data, stamp_xtime);
+ 	OFFSET(STAMP_SEC_FRAC, vdso_data, stamp_sec_fraction);
++	OFFSET(CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(CFG_ICACHE_BLOCKSZ, vdso_data, icache_block_size);
+ 	OFFSET(CFG_DCACHE_BLOCKSZ, vdso_data, dcache_block_size);
+ 	OFFSET(CFG_ICACHE_LOGBLOCKSZ, vdso_data, icache_log_block_size);
+@@ -413,7 +414,6 @@ int main(void)
+ 	DEFINE(CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(NSEC_PER_SEC, NSEC_PER_SEC);
+-	DEFINE(CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
  
- #endif /* !__ASSEMBLY__ */
-diff --git a/arch/arm64/kernel/asm-offsets.c b/arch/arm64/kernel/asm-offsets.c
-index 7f40dcbdd51d..e10e2a5d9ddc 100644
---- a/arch/arm64/kernel/asm-offsets.c
-+++ b/arch/arm64/kernel/asm-offsets.c
-@@ -94,7 +94,7 @@ int main(void)
-   DEFINE(CLOCK_REALTIME,	CLOCK_REALTIME);
-   DEFINE(CLOCK_MONOTONIC,	CLOCK_MONOTONIC);
-   DEFINE(CLOCK_MONOTONIC_RAW,	CLOCK_MONOTONIC_RAW);
--  DEFINE(CLOCK_REALTIME_RES,	MONOTONIC_RES_NSEC);
-+  DEFINE(CLOCK_REALTIME_RES,	offsetof(struct vdso_data, hrtimer_res));
-   DEFINE(CLOCK_REALTIME_COARSE,	CLOCK_REALTIME_COARSE);
-   DEFINE(CLOCK_MONOTONIC_COARSE,CLOCK_MONOTONIC_COARSE);
-   DEFINE(CLOCK_COARSE_RES,	LOW_RES_NSEC);
-diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-index 2d419006ad43..5f5759d51c33 100644
---- a/arch/arm64/kernel/vdso.c
-+++ b/arch/arm64/kernel/vdso.c
-@@ -245,6 +245,8 @@ void update_vsyscall(struct timekeeper *tk)
- 		vdso_data->cs_shift		= tk->tkr_mono.shift;
- 	}
- 
-+	vdso_data->hrtimer_res		= hrtimer_resolution;
-+
+ #ifdef CONFIG_BUG
+ 	DEFINE(BUG_ENTRY_SIZE, sizeof(struct bug_entry));
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index bc0503ef9c9c..62c04a6746d8 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -955,6 +955,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	vdso_data->wtom_clock_nsec = tk->wall_to_monotonic.tv_nsec;
+ 	vdso_data->stamp_xtime = xt;
+ 	vdso_data->stamp_sec_fraction = frac_sec;
++	vdso_data->hrtimer_res = hrtimer_resolution;
  	smp_wmb();
- 	++vdso_data->tb_seq_count;
+ 	++(vdso_data->tb_update_count);
  }
-diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
-index c39872a7b03c..e2e9dfe9ba4a 100644
---- a/arch/arm64/kernel/vdso/gettimeofday.S
-+++ b/arch/arm64/kernel/vdso/gettimeofday.S
-@@ -296,32 +296,32 @@ ENDPROC(__kernel_clock_gettime)
- /* int __kernel_clock_getres(clockid_t clock_id, struct timespec *res); */
- ENTRY(__kernel_clock_getres)
- 	.cfi_startproc
-+	adr	vdso_data, _vdso_data
- 	cmp	w0, #CLOCK_REALTIME
- 	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
- 	ccmp	w0, #CLOCK_MONOTONIC_RAW, #0x4, ne
--	b.ne	1f
-+	b.ne	2f
+diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
+index afd516b572f8..2b5f9e83c610 100644
+--- a/arch/powerpc/kernel/vdso32/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
+@@ -160,12 +160,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
  
--	ldr	x2, 5f
--	b	2f
--1:
-+1:	/* Get hrtimer_res */
-+	ldr	x2, [vdso_data, #CLOCK_REALTIME_RES]
-+	b	3f
-+2:
- 	cmp	w0, #CLOCK_REALTIME_COARSE
- 	ccmp	w0, #CLOCK_MONOTONIC_COARSE, #0x4, ne
--	b.ne	4f
-+	b.ne	5f
- 	ldr	x2, 6f
--2:
--	cbz	x1, 3f
-+3:
-+	cbz	x1, 4f
- 	stp	xzr, x2, [x1]
++	mflr	r12
++  .cfi_register lr,r12
++	bl	__get_datapage@local
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpli	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	stw	r3,TSPC32_TV_SEC(r4)
+ 	stw	r5,TSPC32_TV_NSEC(r4)
+ 	blr
+diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
+index 1f324c28705b..f07730f73d5e 100644
+--- a/arch/powerpc/kernel/vdso64/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
+@@ -190,12 +190,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
  
--3:	/* res == NULL. */
-+4:	/* res == NULL. */
- 	mov	w0, wzr
- 	ret
- 
--4:	/* Syscall fallback. */
-+5:	/* Syscall fallback. */
- 	mov	x8, #__NR_clock_getres
- 	svc	#0
- 	ret
--5:
--	.quad	CLOCK_REALTIME_RES
- 6:
- 	.quad	CLOCK_COARSE_RES
- 	.cfi_endproc
++	mflr	r12
++  .cfi_register lr,r12
++	bl	V_LOCAL_FUNC(__get_datapage)
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpldi	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	std	r3,TSPC64_TV_SEC(r4)
+ 	std	r5,TSPC64_TV_NSEC(r4)
+ 	blr
 -- 
 2.21.0
