@@ -1,120 +1,563 @@
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: Re: [PATCH v2 2/5] powerpc: Fix vDSO clock_getres()
-Date: Tue, 23 Apr 2019 18:33:12 +0200
-Message-ID: <5f59aad9-f6d2-5622-b183-4506f13eedbd@c-s.fr>
-References: <20190416161434.32691-1-vincenzo.frascino@arm.com>
- <20190416161434.32691-3-vincenzo.frascino@arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190416161434.32691-3-vincenzo.frascino@arm.com>
-Content-Language: fr
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Vincenzo Frascino <vincenzo.frascino@arm.com>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, Greentime Hu <green.hu@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Vincent Chen <deanbo422@gmail.com>, Shuah Khan <shuah@kernel.org>
+Return-Path: <SRS0=Ev4s=SS=vger.kernel.org=linux-fsdevel-owner@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH v3 13/26] compat_ioctl: move tape handling into drivers
+Date: Tue, 16 Apr 2019 22:25:34 +0200
+Message-Id: <20190416202701.127745-2-arnd@arndb.de>
+In-Reply-To: <20190416202701.127745-1-arnd@arndb.de>
+References: <20190416202013.4034148-1-arnd@arndb.de>
+ <20190416202701.127745-1-arnd@arndb.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-fsdevel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-fsdevel/>
+List-Post: <mailto:linux-fsdevel@vger.kernel.org>
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org, y2038@lists.linaro.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Willem Riede <osst@riede.org>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, =?UTF-8?q?Kai=20M=C3=A4kisara?= <Kai.Makisara@kolumbus.fi>, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, osst-users@lists.sourceforge.net, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-CgpMZSAxNi8wNC8yMDE5IMOgIDE4OjE0LCBWaW5jZW56byBGcmFzY2lubyBhIMOpY3JpdMKgOgo+
-IGNsb2NrX2dldHJlcyBpbiB0aGUgdkRTTyBsaWJyYXJ5IGhhcyB0byBwcmVzZXJ2ZSB0aGUgc2Ft
-ZSBiZWhhdmlvdXIKPiBvZiBwb3NpeF9nZXRfaHJ0aW1lcl9yZXMoKS4KPiAKPiBJbiBwYXJ0aWN1
-bGFyLCBwb3NpeF9nZXRfaHJ0aW1lcl9yZXMoKSBkb2VzOgo+ICAgICAgc2VjID0gMDsKPiAgICAg
-IG5zID0gaHJ0aW1lcl9yZXNvbHV0aW9uOwo+IGFuZCBocnRpbWVyX3Jlc29sdXRpb24gZGVwZW5k
-cyBvbiB0aGUgZW5hYmxlbWVudCBvZiB0aGUgaGlnaAo+IHJlc29sdXRpb24gdGltZXJzIHRoYXQg
-Y2FuIGhhcHBlbiBlaXRoZXIgYXQgY29tcGlsZSBvciBhdCBydW4gdGltZS4KPiAKPiBGaXggdGhl
-IHBvd2VycGMgdmRzbyBpbXBsZW1lbnRhdGlvbiBvZiBjbG9ja19nZXRyZXMga2VlcGluZyBhIGNv
-cHkgb2YKPiBocnRpbWVyX3Jlc29sdXRpb24gaW4gdmRzbyBkYXRhIGFuZCB1c2luZyB0aGF0IGRp
-cmVjdGx5Lgo+IAo+IENjOiBCZW5qYW1pbiBIZXJyZW5zY2htaWR0IDxiZW5oQGtlcm5lbC5jcmFz
-aGluZy5vcmc+Cj4gQ2M6IFBhdWwgTWFja2VycmFzIDxwYXVsdXNAc2FtYmEub3JnPgo+IENjOiBN
-aWNoYWVsIEVsbGVybWFuIDxtcGVAZWxsZXJtYW4uaWQuYXU+Cj4gU2lnbmVkLW9mZi1ieTogVmlu
-Y2Vuem8gRnJhc2Npbm8gPHZpbmNlbnpvLmZyYXNjaW5vQGFybS5jb20+CgpSZXZpZXdlZC1ieTog
-Q2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3BoZS5sZXJveUBjLXMuZnI+Cgo+IC0tLQo+ICAgYXJj
-aC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaCAgfCAyICsrCj4gICBhcmNoL3Bv
-d2VycGMva2VybmVsL2FzbS1vZmZzZXRzLmMgICAgICAgICB8IDIgKy0KPiAgIGFyY2gvcG93ZXJw
-Yy9rZXJuZWwvdGltZS5jICAgICAgICAgICAgICAgIHwgMSArCj4gICBhcmNoL3Bvd2VycGMva2Vy
-bmVsL3Zkc28zMi9nZXR0aW1lb2ZkYXkuUyB8IDcgKysrKystLQo+ICAgYXJjaC9wb3dlcnBjL2tl
-cm5lbC92ZHNvNjQvZ2V0dGltZW9mZGF5LlMgfCA3ICsrKysrLS0KPiAgIDUgZmlsZXMgY2hhbmdl
-ZCwgMTQgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvYXJj
-aC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaCBiL2FyY2gvcG93ZXJwYy9pbmNs
-dWRlL2FzbS92ZHNvX2RhdGFwYWdlLmgKPiBpbmRleCBiYmMwNmJkNzJiMWYuLjQzMzNiOWE0NzNk
-YyAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vdmRzb19kYXRhcGFnZS5o
-Cj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaAo+IEBAIC04
-Niw2ICs4Niw3IEBAIHN0cnVjdCB2ZHNvX2RhdGEgewo+ICAgCV9fczMyIHd0b21fY2xvY2tfbnNl
-YzsJCQkvKiBXYWxsIHRvIG1vbm90b25pYyBjbG9jayBuc2VjICovCj4gICAJX19zNjQgd3RvbV9j
-bG9ja19zZWM7CQkJLyogV2FsbCB0byBtb25vdG9uaWMgY2xvY2sgc2VjICovCj4gICAJc3RydWN0
-IHRpbWVzcGVjIHN0YW1wX3h0aW1lOwkJLyogeHRpbWUgYXMgYXQgdGJfb3JpZ19zdGFtcCAqLwo+
-ICsJX191MzIgaHJ0aW1lcl9yZXM7CQkJLyogaHJ0aW1lciByZXNvbHV0aW9uICovCj4gICAgICAJ
-X191MzIgc3lzY2FsbF9tYXBfNjRbU1lTQ0FMTF9NQVBfU0laRV07IC8qIG1hcCBvZiBzeXNjYWxs
-cyAgKi8KPiAgICAgIAlfX3UzMiBzeXNjYWxsX21hcF8zMltTWVNDQUxMX01BUF9TSVpFXTsgLyog
-bWFwIG9mIHN5c2NhbGxzICovCj4gICB9Owo+IEBAIC0xMDcsNiArMTA4LDcgQEAgc3RydWN0IHZk
-c29fZGF0YSB7Cj4gICAJX19zMzIgd3RvbV9jbG9ja19uc2VjOwo+ICAgCXN0cnVjdCB0aW1lc3Bl
-YyBzdGFtcF94dGltZTsJLyogeHRpbWUgYXMgYXQgdGJfb3JpZ19zdGFtcCAqLwo+ICAgCV9fdTMy
-IHN0YW1wX3NlY19mcmFjdGlvbjsJLyogZnJhY3Rpb25hbCBzZWNvbmRzIG9mIHN0YW1wX3h0aW1l
-ICovCj4gKwlfX3UzMiBocnRpbWVyX3JlczsJCS8qIGhydGltZXIgcmVzb2x1dGlvbiAqLwo+ICAg
-ICAgCV9fdTMyIHN5c2NhbGxfbWFwXzMyW1NZU0NBTExfTUFQX1NJWkVdOyAvKiBtYXAgb2Ygc3lz
-Y2FsbHMgKi8KPiAgIAlfX3UzMiBkY2FjaGVfYmxvY2tfc2l6ZTsJLyogTDEgZC1jYWNoZSBibG9j
-ayBzaXplICAgICAqLwo+ICAgCV9fdTMyIGljYWNoZV9ibG9ja19zaXplOwkvKiBMMSBpLWNhY2hl
-IGJsb2NrIHNpemUgICAgICovCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNt
-LW9mZnNldHMuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNtLW9mZnNldHMuYwo+IGluZGV4IDg2
-YTYxZTVmODI4NS4uNTJlNGI5OGE4NDkyIDEwMDY0NAo+IC0tLSBhL2FyY2gvcG93ZXJwYy9rZXJu
-ZWwvYXNtLW9mZnNldHMuYwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNtLW9mZnNldHMu
-Ywo+IEBAIC0zODMsNiArMzgzLDcgQEAgaW50IG1haW4odm9pZCkKPiAgIAlPRkZTRVQoV1RPTV9D
-TE9DS19OU0VDLCB2ZHNvX2RhdGEsIHd0b21fY2xvY2tfbnNlYyk7Cj4gICAJT0ZGU0VUKFNUQU1Q
-X1hUSU1FLCB2ZHNvX2RhdGEsIHN0YW1wX3h0aW1lKTsKPiAgIAlPRkZTRVQoU1RBTVBfU0VDX0ZS
-QUMsIHZkc29fZGF0YSwgc3RhbXBfc2VjX2ZyYWN0aW9uKTsKPiArCU9GRlNFVChDTE9DS19SRUFM
-VElNRV9SRVMsIHZkc29fZGF0YSwgaHJ0aW1lcl9yZXMpOwo+ICAgCU9GRlNFVChDRkdfSUNBQ0hF
-X0JMT0NLU1osIHZkc29fZGF0YSwgaWNhY2hlX2Jsb2NrX3NpemUpOwo+ICAgCU9GRlNFVChDRkdf
-RENBQ0hFX0JMT0NLU1osIHZkc29fZGF0YSwgZGNhY2hlX2Jsb2NrX3NpemUpOwo+ICAgCU9GRlNF
-VChDRkdfSUNBQ0hFX0xPR0JMT0NLU1osIHZkc29fZGF0YSwgaWNhY2hlX2xvZ19ibG9ja19zaXpl
-KTsKPiBAQCAtNDEzLDcgKzQxNCw2IEBAIGludCBtYWluKHZvaWQpCj4gICAJREVGSU5FKENMT0NL
-X1JFQUxUSU1FX0NPQVJTRSwgQ0xPQ0tfUkVBTFRJTUVfQ09BUlNFKTsKPiAgIAlERUZJTkUoQ0xP
-Q0tfTU9OT1RPTklDX0NPQVJTRSwgQ0xPQ0tfTU9OT1RPTklDX0NPQVJTRSk7Cj4gICAJREVGSU5F
-KE5TRUNfUEVSX1NFQywgTlNFQ19QRVJfU0VDKTsKPiAtCURFRklORShDTE9DS19SRUFMVElNRV9S
-RVMsIE1PTk9UT05JQ19SRVNfTlNFQyk7Cj4gICAKPiAgICNpZmRlZiBDT05GSUdfQlVHCj4gICAJ
-REVGSU5FKEJVR19FTlRSWV9TSVpFLCBzaXplb2Yoc3RydWN0IGJ1Z19lbnRyeSkpOwo+IGRpZmYg
-LS1naXQgYS9hcmNoL3Bvd2VycGMva2VybmVsL3RpbWUuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwv
-dGltZS5jCj4gaW5kZXggYmMwNTAzZWY5YzljLi42MmMwNGE2NzQ2ZDggMTAwNjQ0Cj4gLS0tIGEv
-YXJjaC9wb3dlcnBjL2tlcm5lbC90aW1lLmMKPiArKysgYi9hcmNoL3Bvd2VycGMva2VybmVsL3Rp
-bWUuYwo+IEBAIC05NTUsNiArOTU1LDcgQEAgdm9pZCB1cGRhdGVfdnN5c2NhbGwoc3RydWN0IHRp
-bWVrZWVwZXIgKnRrKQo+ICAgCXZkc29fZGF0YS0+d3RvbV9jbG9ja19uc2VjID0gdGstPndhbGxf
-dG9fbW9ub3RvbmljLnR2X25zZWM7Cj4gICAJdmRzb19kYXRhLT5zdGFtcF94dGltZSA9IHh0Owo+
-ICAgCXZkc29fZGF0YS0+c3RhbXBfc2VjX2ZyYWN0aW9uID0gZnJhY19zZWM7Cj4gKwl2ZHNvX2Rh
-dGEtPmhydGltZXJfcmVzID0gaHJ0aW1lcl9yZXNvbHV0aW9uOwo+ICAgCXNtcF93bWIoKTsKPiAg
-IAkrKyh2ZHNvX2RhdGEtPnRiX3VwZGF0ZV9jb3VudCk7Cj4gICB9Cj4gZGlmZiAtLWdpdCBhL2Fy
-Y2gvcG93ZXJwYy9rZXJuZWwvdmRzbzMyL2dldHRpbWVvZmRheS5TIGIvYXJjaC9wb3dlcnBjL2tl
-cm5lbC92ZHNvMzIvZ2V0dGltZW9mZGF5LlMKPiBpbmRleCBhZmQ1MTZiNTcyZjguLjJiNWY5ZTgz
-YzYxMCAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMva2VybmVsL3Zkc28zMi9nZXR0aW1lb2Zk
-YXkuUwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvdmRzbzMyL2dldHRpbWVvZmRheS5TCj4g
-QEAgLTE2MCwxMiArMTYwLDE1IEBAIFZfRlVOQ1RJT05fQkVHSU4oX19rZXJuZWxfY2xvY2tfZ2V0
-cmVzKQo+ICAgCWNyb3IJY3IwKjQrZXEsY3IwKjQrZXEsY3IxKjQrZXEKPiAgIAlibmUJY3IwLDk5
-Zgo+ICAgCj4gKwltZmxyCXIxMgo+ICsgIC5jZmlfcmVnaXN0ZXIgbHIscjEyCj4gKwlibAlfX2dl
-dF9kYXRhcGFnZUBsb2NhbAo+ICsJbHd6CXI1LENMT0NLX1JFQUxUSU1FX1JFUyhyMykKPiArCW10
-bHIJcjEyCj4gICAJbGkJcjMsMAo+ICAgCWNtcGxpCWNyMCxyNCwwCj4gICAJY3JjbHIJY3IwKjQr
-c28KPiAgIAliZXFscgo+IC0JbGlzCXI1LENMT0NLX1JFQUxUSU1FX1JFU0BoCj4gLQlvcmkJcjUs
-cjUsQ0xPQ0tfUkVBTFRJTUVfUkVTQGwKPiAgIAlzdHcJcjMsVFNQQzMyX1RWX1NFQyhyNCkKPiAg
-IAlzdHcJcjUsVFNQQzMyX1RWX05TRUMocjQpCj4gICAJYmxyCj4gZGlmZiAtLWdpdCBhL2FyY2gv
-cG93ZXJwYy9rZXJuZWwvdmRzbzY0L2dldHRpbWVvZmRheS5TIGIvYXJjaC9wb3dlcnBjL2tlcm5l
-bC92ZHNvNjQvZ2V0dGltZW9mZGF5LlMKPiBpbmRleCAxZjMyNGMyODcwNWIuLmYwNzczMGY3M2Q1
-ZSAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMva2VybmVsL3Zkc282NC9nZXR0aW1lb2ZkYXku
-Uwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvdmRzbzY0L2dldHRpbWVvZmRheS5TCj4gQEAg
-LTE5MCwxMiArMTkwLDE1IEBAIFZfRlVOQ1RJT05fQkVHSU4oX19rZXJuZWxfY2xvY2tfZ2V0cmVz
-KQo+ICAgCWNyb3IJY3IwKjQrZXEsY3IwKjQrZXEsY3IxKjQrZXEKPiAgIAlibmUJY3IwLDk5Zgo+
-ICAgCj4gKwltZmxyCXIxMgo+ICsgIC5jZmlfcmVnaXN0ZXIgbHIscjEyCj4gKwlibAlWX0xPQ0FM
-X0ZVTkMoX19nZXRfZGF0YXBhZ2UpCj4gKwlsd3oJcjUsQ0xPQ0tfUkVBTFRJTUVfUkVTKHIzKQo+
-ICsJbXRscglyMTIKPiAgIAlsaQlyMywwCj4gICAJY21wbGRpCWNyMCxyNCwwCj4gICAJY3JjbHIJ
-Y3IwKjQrc28KPiAgIAliZXFscgo+IC0JbGlzCXI1LENMT0NLX1JFQUxUSU1FX1JFU0BoCj4gLQlv
-cmkJcjUscjUsQ0xPQ0tfUkVBTFRJTUVfUkVTQGwKPiAgIAlzdGQJcjMsVFNQQzY0X1RWX1NFQyhy
-NCkKPiAgIAlzdGQJcjUsVFNQQzY0X1RWX05TRUMocjQpCj4gICAJYmxyCj4gCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
-aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
-c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+MTIOCPOS and MTIOCGET are incompatible between 32-bit and 64-bit user
+space, and traditionally have been translated in fs/compat_ioctl.c.
+
+To get rid of that translation handler, move a corresponding
+implementation into each of the four drivers implementing those commands.
+
+The interesting part of that is now in a new linux/mtio.h header that
+wraps the existing uapi/linux/mtio.h header and provides an abstraction
+to let drivers handle both cases easily.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/ide/ide-tape.c        | 31 ++++++++++++----
+ drivers/s390/char/tape_char.c | 41 ++++++++------------
+ drivers/scsi/osst.c           | 34 ++++++++++-------
+ drivers/scsi/st.c             | 35 +++++++++++-------
+ fs/compat_ioctl.c             | 70 -----------------------------------
+ include/linux/mtio.h          | 58 +++++++++++++++++++++++++++++
+ 6 files changed, 137 insertions(+), 132 deletions(-)
+ create mode 100644 include/linux/mtio.h
+
+diff --git a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
+index db1a65f4b490..54560ae5c054 100644
+--- a/drivers/ide/ide-tape.c
++++ b/drivers/ide/ide-tape.c
+@@ -19,6 +19,7 @@
+ 
+ #define IDETAPE_VERSION "1.20"
+ 
++#include <linux/compat.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/string.h>
+@@ -1368,7 +1369,7 @@ static int idetape_mtioctop(ide_drive_t *drive, short mt_op, int mt_count)
+  * ide-tape ioctls are supported on both interfaces.
+  */
+ static long do_idetape_chrdev_ioctl(struct file *file,
+-				unsigned int cmd, unsigned long arg)
++				unsigned int cmd, unsigned long arg, bool compat)
+ {
+ 	struct ide_tape_obj *tape = file->private_data;
+ 	ide_drive_t *drive = tape->drive;
+@@ -1407,14 +1408,10 @@ static long do_idetape_chrdev_ioctl(struct file *file,
+ 		if (tape->drv_write_prot)
+ 			mtget.mt_gstat |= GMT_WR_PROT(0xffffffff);
+ 
+-		if (copy_to_user(argp, &mtget, sizeof(struct mtget)))
+-			return -EFAULT;
+-		return 0;
++		return put_user_mtget(argp, &mtget, compat);
+ 	case MTIOCPOS:
+ 		mtpos.mt_blkno = position / tape->user_bs_factor - block_offset;
+-		if (copy_to_user(argp, &mtpos, sizeof(struct mtpos)))
+-			return -EFAULT;
+-		return 0;
++		return put_user_mtpos(argp, &mtpos, compat);
+ 	default:
+ 		if (tape->chrdev_dir == IDETAPE_DIR_READ)
+ 			ide_tape_discard_merge_buffer(drive, 1);
+@@ -1427,7 +1424,23 @@ static long idetape_chrdev_ioctl(struct file *file,
+ {
+ 	long ret;
+ 	mutex_lock(&ide_tape_mutex);
+-	ret = do_idetape_chrdev_ioctl(file, cmd, arg);
++	ret = do_idetape_chrdev_ioctl(file, cmd, arg, false);
++	mutex_unlock(&ide_tape_mutex);
++	return ret;
++}
++
++static long idetape_chrdev_compat_ioctl(struct file *file,
++				unsigned int cmd, unsigned long arg)
++{
++	long ret;
++
++	if (cmd == MTIOCPOS32)
++		cmd = MTIOCPOS;
++	else if (cmd == MTIOCGET32)
++		cmd = MTIOCGET;
++
++	mutex_lock(&ide_tape_mutex);
++	ret = do_idetape_chrdev_ioctl(file, cmd, arg, true);
+ 	mutex_unlock(&ide_tape_mutex);
+ 	return ret;
+ }
+@@ -1886,6 +1899,8 @@ static const struct file_operations idetape_fops = {
+ 	.read		= idetape_chrdev_read,
+ 	.write		= idetape_chrdev_write,
+ 	.unlocked_ioctl	= idetape_chrdev_ioctl,
++	.compat_ioctl	= IS_ENABLED(CONFIG_COMPAT) ?
++			  idetape_chrdev_compat_ioctl : NULL,
+ 	.open		= idetape_chrdev_open,
+ 	.release	= idetape_chrdev_release,
+ 	.llseek		= noop_llseek,
+diff --git a/drivers/s390/char/tape_char.c b/drivers/s390/char/tape_char.c
+index fc206c9d1c56..522ca9b836e3 100644
+--- a/drivers/s390/char/tape_char.c
++++ b/drivers/s390/char/tape_char.c
+@@ -341,14 +341,14 @@ tapechar_release(struct inode *inode, struct file *filp)
+  */
+ static int
+ __tapechar_ioctl(struct tape_device *device,
+-		 unsigned int no, unsigned long data)
++		 unsigned int no, void __user *data, bool compat)
+ {
+ 	int rc;
+ 
+ 	if (no == MTIOCTOP) {
+ 		struct mtop op;
+ 
+-		if (copy_from_user(&op, (char __user *) data, sizeof(op)) != 0)
++		if (copy_from_user(&op, data, sizeof(op)) != 0)
+ 			return -EFAULT;
+ 		if (op.mt_count < 0)
+ 			return -EINVAL;
+@@ -392,9 +392,7 @@ __tapechar_ioctl(struct tape_device *device,
+ 		if (rc < 0)
+ 			return rc;
+ 		pos.mt_blkno = rc;
+-		if (copy_to_user((char __user *) data, &pos, sizeof(pos)) != 0)
+-			return -EFAULT;
+-		return 0;
++		return put_user_mtpos(data, &pos, compat);
+ 	}
+ 	if (no == MTIOCGET) {
+ 		/* MTIOCGET: query the tape drive status. */
+@@ -424,15 +422,12 @@ __tapechar_ioctl(struct tape_device *device,
+ 			get.mt_blkno = rc;
+ 		}
+ 
+-		if (copy_to_user((char __user *) data, &get, sizeof(get)) != 0)
+-			return -EFAULT;
+-
+-		return 0;
++		return put_user_mtget(data, &get, compat);
+ 	}
+ 	/* Try the discipline ioctl function. */
+ 	if (device->discipline->ioctl_fn == NULL)
+ 		return -EINVAL;
+-	return device->discipline->ioctl_fn(device, no, data);
++	return device->discipline->ioctl_fn(device, no, (unsigned long)data);
+ }
+ 
+ static long
+@@ -445,7 +440,7 @@ tapechar_ioctl(struct file *filp, unsigned int no, unsigned long data)
+ 
+ 	device = (struct tape_device *) filp->private_data;
+ 	mutex_lock(&device->mutex);
+-	rc = __tapechar_ioctl(device, no, data);
++	rc = __tapechar_ioctl(device, no, (void __user *)data, false);
+ 	mutex_unlock(&device->mutex);
+ 	return rc;
+ }
+@@ -455,23 +450,17 @@ static long
+ tapechar_compat_ioctl(struct file *filp, unsigned int no, unsigned long data)
+ {
+ 	struct tape_device *device = filp->private_data;
+-	int rval = -ENOIOCTLCMD;
+-	unsigned long argp;
++	long rc;
+ 
+-	/* The 'arg' argument of any ioctl function may only be used for
+-	 * pointers because of the compat pointer conversion.
+-	 * Consider this when adding new ioctls.
+-	 */
+-	argp = (unsigned long) compat_ptr(data);
+-	if (device->discipline->ioctl_fn) {
+-		mutex_lock(&device->mutex);
+-		rval = device->discipline->ioctl_fn(device, no, argp);
+-		mutex_unlock(&device->mutex);
+-		if (rval == -EINVAL)
+-			rval = -ENOIOCTLCMD;
+-	}
++	if (no == MTIOCPOS32)
++		no = MTIOCPOS;
++	else if (no == MTIOCGET32)
++		no = MTIOCGET;
+ 
+-	return rval;
++	mutex_lock(&device->mutex);
++	rc = __tapechar_ioctl(device, no, compat_ptr(data), false);
++	mutex_unlock(&device->mutex);
++	return rc;
+ }
+ #endif /* CONFIG_COMPAT */
+ 
+diff --git a/drivers/scsi/osst.c b/drivers/scsi/osst.c
+index be3c73ebbfde..edfde6edfc18 100644
+--- a/drivers/scsi/osst.c
++++ b/drivers/scsi/osst.c
+@@ -33,6 +33,7 @@ static const char * osst_version = "0.99.4";
+ 
+ #include <linux/module.h>
+ 
++#include <linux/compat.h>
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+ #include <linux/sched/signal.h>
+@@ -4941,7 +4942,7 @@ static int os_scsi_tape_close(struct inode * inode, struct file * filp)
+ static long osst_ioctl(struct file * file,
+ 	 unsigned int cmd_in, unsigned long arg)
+ {
+-	int		      i, cmd_nr, cmd_type, blk, retval = 0;
++	int		      i, cmd_nr, cmd_type, cmd_size, blk, retval = 0;
+ 	struct st_modedef   * STm;
+ 	struct st_partstat  * STps;
+ 	struct osst_request * SRpnt = NULL;
+@@ -4978,6 +4979,7 @@ static long osst_ioctl(struct file * file,
+ 
+ 	cmd_type = _IOC_TYPE(cmd_in);
+ 	cmd_nr   = _IOC_NR(cmd_in);
++	cmd_size = _IOC_SIZE(cmd_in);
+ #if DEBUG
+ 	printk(OSST_DEB_MSG "%s:D: Ioctl %d,%d in %s mode\n", name,
+ 			    cmd_type, cmd_nr, STp->raw?"raw":"normal");
+@@ -5179,7 +5181,8 @@ static long osst_ioctl(struct file * file,
+ 	if (cmd_type == _IOC_TYPE(MTIOCGET) && cmd_nr == _IOC_NR(MTIOCGET)) {
+ 		struct mtget mt_status;
+ 
+-		if (_IOC_SIZE(cmd_in) != sizeof(struct mtget)) {
++		if (cmd_size != sizeof(struct mtget) &&
++		    cmd_size != sizeof(struct mtget32)) {
+ 			 retval = (-EINVAL);
+ 			 goto out;
+ 		}
+@@ -5229,21 +5232,18 @@ static long osst_ioctl(struct file * file,
+ 		    STp->drv_buffer != 0)
+ 			mt_status.mt_gstat |= GMT_IM_REP_EN(0xffffffff);
+ 
+-		i = copy_to_user(p, &mt_status, sizeof(struct mtget));
+-		if (i) {
+-			retval = (-EFAULT);
+-			goto out;
+-		}
+-
+-		STp->recover_erreg = 0;  /* Clear after read */
+-		retval = 0;
++		retval = put_user_mtget(p, &mt_status,
++					cmd_size == sizeof(struct mtget32));
++		if (!retval)
++			STp->recover_erreg = 0;  /* Clear after read */
+ 		goto out;
+ 	} /* End of MTIOCGET */
+ 
+ 	if (cmd_type == _IOC_TYPE(MTIOCPOS) && cmd_nr == _IOC_NR(MTIOCPOS)) {
+ 		struct mtpos mt_pos;
+ 
+-		if (_IOC_SIZE(cmd_in) != sizeof(struct mtpos)) {
++		if (cmd_size != sizeof(struct mtpos) &&
++		    cmd_size != sizeof(struct mtpos32)) {
+ 			retval = (-EINVAL);
+ 			goto out;
+ 		}
+@@ -5256,9 +5256,7 @@ static long osst_ioctl(struct file * file,
+ 			goto out;
+ 		}
+ 		mt_pos.mt_blkno = blk;
+-		i = copy_to_user(p, &mt_pos, sizeof(struct mtpos));
+-		if (i)
+-			retval = -EFAULT;
++		retval = put_user_mtpos(p, &mt_pos, cmd_size == sizeof(struct mtpos32));
+ 		goto out;
+ 	}
+ 	if (SRpnt) osst_release_request(SRpnt);
+@@ -5284,6 +5282,14 @@ static long osst_compat_ioctl(struct file * file, unsigned int cmd_in, unsigned
+ 	struct osst_tape *STp = file->private_data;
+ 	struct scsi_device *sdev = STp->device;
+ 	int ret = -ENOIOCTLCMD;
++
++	switch (cmd_in) {
++	case MTIOCTOP:
++	case MTIOCPOS32:
++	case MTIOCGET32:
++		return osst_ioctl(file, cmd_in, (unsigned long)compat_ptr(arg));
++	}
++
+ 	if (sdev->host->hostt->compat_ioctl) {
+ 
+ 		ret = sdev->host->hostt->compat_ioctl(sdev, cmd_in, (void __user *)arg);
+diff --git a/drivers/scsi/st.c b/drivers/scsi/st.c
+index 19c022e66d63..f0cb35964a30 100644
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -21,6 +21,7 @@ static const char *verstr = "20160209";
+ 
+ #include <linux/module.h>
+ 
++#include <linux/compat.h>
+ #include <linux/fs.h>
+ #include <linux/kernel.h>
+ #include <linux/sched/signal.h>
+@@ -3502,7 +3503,7 @@ static int partition_tape(struct scsi_tape *STp, int size)
+ /* The ioctl command */
+ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ {
+-	int i, cmd_nr, cmd_type, bt;
++	int i, cmd_nr, cmd_type, cmd_size, bt;
+ 	int retval = 0;
+ 	unsigned int blk;
+ 	struct scsi_tape *STp = file->private_data;
+@@ -3536,6 +3537,7 @@ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ 
+ 	cmd_type = _IOC_TYPE(cmd_in);
+ 	cmd_nr = _IOC_NR(cmd_in);
++	cmd_size = _IOC_SIZE(cmd_in);
+ 
+ 	if (cmd_type == _IOC_TYPE(MTIOCTOP) && cmd_nr == _IOC_NR(MTIOCTOP)) {
+ 		struct mtop mtc;
+@@ -3745,7 +3747,8 @@ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ 	if (cmd_type == _IOC_TYPE(MTIOCGET) && cmd_nr == _IOC_NR(MTIOCGET)) {
+ 		struct mtget mt_status;
+ 
+-		if (_IOC_SIZE(cmd_in) != sizeof(struct mtget)) {
++		if (cmd_size != sizeof(struct mtget) &&
++		    cmd_size != sizeof(struct mtget32)) {
+ 			 retval = (-EINVAL);
+ 			 goto out;
+ 		}
+@@ -3800,19 +3803,16 @@ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ 		if (STp->cleaning_req)
+ 			mt_status.mt_gstat |= GMT_CLN(0xffffffff);
+ 
+-		i = copy_to_user(p, &mt_status, sizeof(struct mtget));
+-		if (i) {
+-			retval = (-EFAULT);
+-			goto out;
+-		}
++		retval = put_user_mtget(p, &mt_status,
++					cmd_size == sizeof(struct mtget32));
+ 
+ 		STp->recover_reg = 0;		/* Clear after read */
+-		retval = 0;
+ 		goto out;
+ 	}			/* End of MTIOCGET */
+ 	if (cmd_type == _IOC_TYPE(MTIOCPOS) && cmd_nr == _IOC_NR(MTIOCPOS)) {
+ 		struct mtpos mt_pos;
+-		if (_IOC_SIZE(cmd_in) != sizeof(struct mtpos)) {
++		if (cmd_size != sizeof(struct mtpos) &&
++		    cmd_size != sizeof(struct mtpos32)) {
+ 			 retval = (-EINVAL);
+ 			 goto out;
+ 		}
+@@ -3821,9 +3821,8 @@ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ 			goto out;
+ 		}
+ 		mt_pos.mt_blkno = blk;
+-		i = copy_to_user(p, &mt_pos, sizeof(struct mtpos));
+-		if (i)
+-			retval = (-EFAULT);
++		retval = put_user_mtpos(p, &mt_pos,
++					cmd_size == sizeof(struct mtpos32));
+ 		goto out;
+ 	}
+ 	mutex_unlock(&STp->lock);
+@@ -3857,14 +3856,22 @@ static long st_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ }
+ 
+ #ifdef CONFIG_COMPAT
+-static long st_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++static long st_compat_ioctl(struct file *file, unsigned int cmd_in, unsigned long arg)
+ {
+ 	struct scsi_tape *STp = file->private_data;
+ 	struct scsi_device *sdev = STp->device;
+ 	int ret = -ENOIOCTLCMD;
++
++	switch (cmd_in) {
++	case MTIOCTOP:
++	case MTIOCPOS32:
++	case MTIOCGET32:
++		return st_ioctl(file, cmd_in, (unsigned long)compat_ptr(arg));
++	}
++
+ 	if (sdev->host->hostt->compat_ioctl) { 
+ 
+-		ret = sdev->host->hostt->compat_ioctl(sdev, cmd, (void __user *)arg);
++		ret = sdev->host->hostt->compat_ioctl(sdev, cmd_in, (void __user *)arg);
+ 
+ 	}
+ 	return ret;
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index ab2ff530313b..6eb7a3f51702 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -27,7 +27,6 @@
+ #include <linux/file.h>
+ #include <linux/ppp-ioctl.h>
+ #include <linux/if_pppox.h>
+-#include <linux/mtio.h>
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>
+ #include <linux/raw.h>
+@@ -279,70 +278,6 @@ static int sg_grt_trans(struct file *file,
+ 	return err;
+ }
+ 
+-struct mtget32 {
+-	compat_long_t	mt_type;
+-	compat_long_t	mt_resid;
+-	compat_long_t	mt_dsreg;
+-	compat_long_t	mt_gstat;
+-	compat_long_t	mt_erreg;
+-	compat_daddr_t	mt_fileno;
+-	compat_daddr_t	mt_blkno;
+-};
+-#define MTIOCGET32	_IOR('m', 2, struct mtget32)
+-
+-struct mtpos32 {
+-	compat_long_t	mt_blkno;
+-};
+-#define MTIOCPOS32	_IOR('m', 3, struct mtpos32)
+-
+-static int mt_ioctl_trans(struct file *file,
+-		unsigned int cmd, void __user *argp)
+-{
+-	/* NULL initialization to make gcc shut up */
+-	struct mtget __user *get = NULL;
+-	struct mtget32 __user *umget32;
+-	struct mtpos __user *pos = NULL;
+-	struct mtpos32 __user *upos32;
+-	unsigned long kcmd;
+-	void *karg;
+-	int err = 0;
+-
+-	switch(cmd) {
+-	case MTIOCPOS32:
+-		kcmd = MTIOCPOS;
+-		pos = compat_alloc_user_space(sizeof(*pos));
+-		karg = pos;
+-		break;
+-	default:	/* MTIOCGET32 */
+-		kcmd = MTIOCGET;
+-		get = compat_alloc_user_space(sizeof(*get));
+-		karg = get;
+-		break;
+-	}
+-	if (karg == NULL)
+-		return -EFAULT;
+-	err = do_ioctl(file, kcmd, (unsigned long)karg);
+-	if (err)
+-		return err;
+-	switch (cmd) {
+-	case MTIOCPOS32:
+-		upos32 = argp;
+-		err = convert_in_user(&pos->mt_blkno, &upos32->mt_blkno);
+-		break;
+-	case MTIOCGET32:
+-		umget32 = argp;
+-		err = convert_in_user(&get->mt_type, &umget32->mt_type);
+-		err |= convert_in_user(&get->mt_resid, &umget32->mt_resid);
+-		err |= convert_in_user(&get->mt_dsreg, &umget32->mt_dsreg);
+-		err |= convert_in_user(&get->mt_gstat, &umget32->mt_gstat);
+-		err |= convert_in_user(&get->mt_erreg, &umget32->mt_erreg);
+-		err |= convert_in_user(&get->mt_fileno, &umget32->mt_fileno);
+-		err |= convert_in_user(&get->mt_blkno, &umget32->mt_blkno);
+-		break;
+-	}
+-	return err ? -EFAULT: 0;
+-}
+-
+ #endif /* CONFIG_BLOCK */
+ 
+ /* Bluetooth ioctls */
+@@ -443,8 +378,6 @@ IGNORE_IOCTL(VT_GETMODE)
+  */
+ COMPATIBLE_IOCTL(_IOR('p', 20, int[7])) /* RTCGET */
+ COMPATIBLE_IOCTL(_IOW('p', 21, int[7])) /* RTCSET */
+-/* Little m */
+-COMPATIBLE_IOCTL(MTIOCTOP)
+ /* Socket level stuff */
+ COMPATIBLE_IOCTL(FIOQSIZE)
+ #ifdef CONFIG_BLOCK
+@@ -775,9 +708,6 @@ static long do_ioctl_trans(unsigned int cmd,
+ 		return sg_ioctl_trans(file, cmd, compat_ptr(arg));
+ 	case SG_GET_REQUEST_TABLE:
+ 		return sg_grt_trans(file, cmd, compat_ptr(arg));
+-	case MTIOCGET32:
+-	case MTIOCPOS32:
+-		return mt_ioctl_trans(file, cmd, compat_ptr(arg));
+ #endif
+ 	}
+ 
+diff --git a/include/linux/mtio.h b/include/linux/mtio.h
+new file mode 100644
+index 000000000000..02640756a40d
+--- /dev/null
++++ b/include/linux/mtio.h
+@@ -0,0 +1,58 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_MTIO_COMPAT_H
++#define _LINUX_MTIO_COMPAT_H
++
++#include <uapi/linux/mtio.h>
++#include <linux/uaccess.h>
++
++/*
++ * helper functions for implementing compat ioctls on the four tape
++ * drivers: we define the 32-bit layout of each incompatible strucucture,
++ * plus a wrapper function to copy it to user space in either format.
++ */
++
++struct	mtget32 {
++	s32	mt_type;
++	s32	mt_resid;
++	s32	mt_dsreg;
++	s32	mt_gstat;
++	s32	mt_erreg;
++	s32	mt_fileno;
++	s32	mt_blkno;
++};
++#define	MTIOCGET32	_IOR('m', 2, struct mtget32)
++
++struct	mtpos32 {
++	s32 	mt_blkno;
++};
++#define	MTIOCPOS32	_IOR('m', 3, struct mtpos32)
++
++static inline int put_user_mtget(void __user *u, struct mtget *k, bool compat)
++{
++	struct mtget32 k32 = {
++		.mt_type   = k->mt_type,
++		.mt_resid  = k->mt_resid,
++		.mt_dsreg  = k->mt_dsreg,
++		.mt_gstat  = k->mt_gstat,
++		.mt_fileno = k->mt_fileno,
++		.mt_blkno  = k->mt_blkno,
++	};
++	int ret;
++
++	if (IS_ENABLED(CONFIG_COMPAT) && compat)
++		ret = copy_to_user(u, &k32, sizeof(k32));
++	else
++		ret = copy_to_user(u, k, sizeof(*k));
++
++	return ret ? -EFAULT : 0;
++}
++
++static inline int put_user_mtpos(void __user *u, struct mtpos *k, bool compat)
++{
++	if (IS_ENABLED(CONFIG_COMPAT) && compat)
++		return put_user(k->mt_blkno, (u32 __user *)u);
++	else
++		return put_user(k->mt_blkno, (long __user *)u);
++}
++
++#endif
+-- 
+2.20.0
