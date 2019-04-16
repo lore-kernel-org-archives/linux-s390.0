@@ -1,66 +1,53 @@
 Return-Path: <SRS0=PCIz=SS=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [RFC PATCH 00/12] s390: virtio: support protected virtualization
-References: <20190404231622.52531-1-pasic@linux.ibm.com>
- <ec7dd523-6277-7753-eb18-83d0896d8706@redhat.com>
- <20190416131005.6f3e05eb@oc2783563651>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <9fdf86ac-2498-e315-5ed8-317d40cedc5f@redhat.com>
-Date: Tue, 16 Apr 2019 13:50:50 +0200
+Date: Tue, 16 Apr 2019 14:50:14 +0200 (CEST)
+From: Sebastian Ott <sebott@linux.ibm.com>
+Subject: Re: [RFC PATCH 04/12] s390/cio: introduce cio DMA pool
+In-Reply-To: <20190412173017.04b768bb@oc2783563651>
+References: <20190404231622.52531-1-pasic@linux.ibm.com> <20190404231622.52531-5-pasic@linux.ibm.com> <alpine.LFD.2.21.1904111955520.2283@schleppi> <20190412132010.3c74cb63@oc2783563651> <alpine.LFD.2.21.1904121343040.1771@schleppi>
+ <20190412173017.04b768bb@oc2783563651>
 MIME-Version: 1.0
-In-Reply-To: <20190416131005.6f3e05eb@oc2783563651>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <alpine.LFD.2.21.1904161436400.2054@schleppi>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Halil Pasic <pasic@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 16.04.19 13:10, Halil Pasic wrote:
-> On Fri, 12 Apr 2019 15:47:50 +0200
-> David Hildenbrand <david@redhat.com> wrote:
+On Fri, 12 Apr 2019, Halil Pasic wrote:
+> On Fri, 12 Apr 2019 14:12:31 +0200 (CEST)
+> Sebastian Ott <sebott@linux.ibm.com> wrote:
+> > On Fri, 12 Apr 2019, Halil Pasic wrote:
+> > > On Thu, 11 Apr 2019 20:25:01 +0200 (CEST)
+> > > Sebastian Ott <sebott@linux.ibm.com> wrote:
+> > > > I don't think we should use this global DMA pool. I guess it's OK for
+> > > > stuff like airq (where we don't have a struct device at hand) but for
+> > > > CCW we should use the device we have. Yes, this way we waste some memory
+> > > > but all dma memory a device uses should fit in a page - so the wastage
+> > > > is not too much.
 > 
->> On 05.04.19 01:16, Halil Pasic wrote:
->>> Enhanced virtualization protection technology may require the use of
->>> bounce buffers for I/O. While support for this was built into the virtio
->>> core,  virtio-ccw wasn't changed accordingly.
->>
->> Can you elaborate some more about the general approach (Enhanced
->> virtualization protection technology, ultravisor, concept, issues, how
->> to squeeze it into QEMU/KVM/kernel) etc =
->>
->> For my taste, this cover letter misses some important context :)
->>
+> Regarding the wastage. Let us do the math together in search for an
+> upper (wastage) limit.
+[...]
+> Currently we need at least 224 bytes per device that is ~ 6%
+> of a PAGE_SIZE.
+
+Yes, we basically waste the whole page. I'm ok with that if the benefit is
+to play nice with the kernel APIs.
+
+> > For practical
+> > matters: DMA debugging will complain about misuse of a specific device or
+> > driver.
+> > 
 > 
-> I'm aware. Unfortunately we don't have a decision yet about which parts
-> of the protected virtualization architecture are going to be PoP
-> material.
+> Do you mean CONFIG_DMA_API_DEBUG and CONFIG_DMA_API_DEBUG_SG? I've been
+> running with those and did not see any complaints. Maybe we should
+> clarify this one offline...
 
-Oh, okay.
+I didn't mean to imply that there are bugs already - just that when used
+as intended the DMA_DEBUG_API can complain about stuff like "your device
+is gone but you have still DMA memory set up for it" which will not work
+if you don't use the correct device...
 
-> 
-> You can get some more context immediately by having a look at Martin's
-> features branch and looking at the s390/protvirt  and s390/uv patches.
-
-As I don't have time to dig through random branches to
-discover/reverse-engineer the obvious, I won't be reviewing this patch
-series. But as I am not an I/O expert, this might not be bad at all :)
-
-Maybe other people can help.
-
-> 
-> I will try to provide more background information for v1. But having
-> a remotely complete and reliable documentation will take some time. What
-> I can offer at the moment is answers to specific questions.
-
-Waiting for v1 then.
-
-Cheers!
-
--- 
-
-Thanks,
-
-David / dhildenb
+Sebastian
