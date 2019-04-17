@@ -1,190 +1,67 @@
-Return-Path: <SRS0=Ev4s=SS=vger.kernel.org=linux-fsdevel-owner@kernel.org>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v3 00/26] compat_ioctl: cleanups
-Date: Tue, 16 Apr 2019 22:19:38 +0200
-Message-Id: <20190416202013.4034148-1-arnd@arndb.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-fsdevel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-fsdevel/>
-List-Post: <mailto:linux-fsdevel@vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org, y2038@lists.linaro.org, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Karsten Keil <isdn@linux-pingi.de>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Marcel Holtmann <marcel@holtmann.org>, netdev@vger.kernel.org, devel@driverdev.osuosl.org, linux-integrity@vger.kernel.org, qat-linux@intel.com, linux-crypto@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linux1394-devel@lists.sourceforge.net, amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ide@vger.kernel.org, linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-mtd@lists.infradead.org, linux-ppp@vger.kernel.org, linux-nvme@lists.infradead.org, platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-rtc@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-wireless@vger.kernel.org, alsa-devel@alsa-project.org
+Return-Path: <SRS0=rjjQ=ST=vger.kernel.org=kvm-owner@kernel.org>
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH] KVM: s390: Fix potential spectre warnings
+Date: Wed, 17 Apr 2019 02:54:14 +0200
+Message-Id: <20190417005414.47801-1-farman@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Al,
+Fix some warnings from smatch:
 
-It took me way longer than I had hoped to revisit this series, see
-https://lore.kernel.org/lkml/20180912150142.157913-1-arnd@arndb.de/
-for the previously posted version.
+arch/s390/kvm/interrupt.c:2310 get_io_adapter() warn: potential spectre issue 'kvm->arch.adapters' [r] (local cap)
+arch/s390/kvm/interrupt.c:2341 register_io_adapter() warn: potential spectre issue 'dev->kvm->arch.adapters' [w]
 
-I've come to the point where all conversion handlers and most
-COMPATIBLE_IOCTL() entries are gone from this file, but for
-now, this series only has the parts that have either been reviewed
-previously, or that are simple enough to include.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+A recent patch from Paolo [1] acted as a reminder (thanks, Christian!)
+that I had one for the s390 KVM code after some code reviews [2].
+Let's clean that up.
 
-The main missing piece is the SG_IO/SG_GET_REQUEST_TABLE conversion.
-I'll post the patches I made for that later, as they need more
-testing and review from the scsi maintainers.
+[1] https://patchwork.kernel.org/patch/10895463/
+[2] https://patchwork.kernel.org/patch/10788565/#22484223
+---
+ arch/s390/kvm/interrupt.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-I hope you can still take these for the coming merge window, unless
-new problems come up.
-
-      Arnd
-
-Arnd Bergmann (26):
-  compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
-  compat_ioctl: move simple ppp command handling into driver
-  compat_ioctl: avoid unused function warning for do_ioctl
-  compat_ioctl: move PPPIOCSCOMPRESS32 to ppp-generic.c
-  compat_ioctl: move PPPIOCSPASS32/PPPIOCSACTIVE32 to ppp_generic.c
-  compat_ioctl: handle PPPIOCGIDLE for 64-bit time_t
-  compat_ioctl: move rtc handling into rtc-dev.c
-  compat_ioctl: add compat_ptr_ioctl()
-  compat_ioctl: move drivers to compat_ptr_ioctl
-  compat_ioctl: use correct compat_ptr() translation in drivers
-  ceph: fix compat_ioctl for ceph_dir_operations
-  compat_ioctl: move more drivers to compat_ptr_ioctl
-  compat_ioctl: move tape handling into drivers
-  compat_ioctl: move ATYFB_CLK handling to atyfb driver
-  compat_ioctl: move isdn/capi ioctl translation into driver
-  compat_ioctl: move rfcomm handlers into driver
-  compat_ioctl: move hci_sock handlers into driver
-  compat_ioctl: remove HCIUART handling
-  compat_ioctl: remove HIDIO translation
-  compat_ioctl: remove translation for sound ioctls
-  compat_ioctl: remove IGNORE_IOCTL()
-  compat_ioctl: remove /dev/random commands
-  compat_ioctl: remove joystick ioctl translation
-  compat_ioctl: remove PCI ioctl translation
-  compat_ioctl: remove /dev/raw ioctl translation
-  compat_ioctl: remove last RAID handling code
-
- Documentation/networking/ppp_generic.txt    |   2 +
- arch/um/drivers/hostaudio_kern.c            |   1 +
- drivers/android/binder.c                    |   2 +-
- drivers/char/ppdev.c                        |  12 +-
- drivers/char/random.c                       |   1 +
- drivers/char/tpm/tpm_vtpm_proxy.c           |  12 +-
- drivers/crypto/qat/qat_common/adf_ctl_drv.c |   2 +-
- drivers/dma-buf/dma-buf.c                   |   4 +-
- drivers/dma-buf/sw_sync.c                   |   2 +-
- drivers/dma-buf/sync_file.c                 |   2 +-
- drivers/firewire/core-cdev.c                |  12 +-
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c    |   2 +-
- drivers/hid/hidraw.c                        |   4 +-
- drivers/hid/usbhid/hiddev.c                 |  11 +-
- drivers/hwtracing/stm/core.c                |  12 +-
- drivers/ide/ide-tape.c                      |  31 +-
- drivers/iio/industrialio-core.c             |   2 +-
- drivers/infiniband/core/uverbs_main.c       |   4 +-
- drivers/isdn/capi/capi.c                    |  31 +
- drivers/isdn/i4l/isdn_ppp.c                 |  14 +-
- drivers/media/rc/lirc_dev.c                 |   4 +-
- drivers/mfd/cros_ec_dev.c                   |   4 +-
- drivers/misc/cxl/flash.c                    |   8 +-
- drivers/misc/genwqe/card_dev.c              |  23 +-
- drivers/misc/mei/main.c                     |  22 +-
- drivers/misc/vmw_vmci/vmci_host.c           |   2 +-
- drivers/mtd/ubi/cdev.c                      |  36 +-
- drivers/net/ppp/ppp_generic.c               |  99 +++-
- drivers/net/ppp/pppoe.c                     |   7 +
- drivers/net/ppp/pptp.c                      |   3 +
- drivers/net/tap.c                           |  12 +-
- drivers/nvdimm/bus.c                        |   4 +-
- drivers/nvme/host/core.c                    |   2 +-
- drivers/pci/switch/switchtec.c              |   2 +-
- drivers/platform/x86/wmi.c                  |   2 +-
- drivers/rpmsg/rpmsg_char.c                  |   4 +-
- drivers/rtc/dev.c                           |  13 +-
- drivers/rtc/rtc-vr41xx.c                    |  10 +
- drivers/s390/char/tape_char.c               |  41 +-
- drivers/sbus/char/display7seg.c             |   2 +-
- drivers/sbus/char/envctrl.c                 |   4 +-
- drivers/scsi/3w-xxxx.c                      |   4 +-
- drivers/scsi/cxlflash/main.c                |   2 +-
- drivers/scsi/esas2r/esas2r_main.c           |   2 +-
- drivers/scsi/megaraid/megaraid_mm.c         |  28 +-
- drivers/scsi/osst.c                         |  34 +-
- drivers/scsi/pmcraid.c                      |   4 +-
- drivers/scsi/st.c                           |  35 +-
- drivers/staging/android/ion/ion.c           |   4 +-
- drivers/staging/pi433/pi433_if.c            |  12 +-
- drivers/staging/vme/devices/vme_user.c      |   2 +-
- drivers/tee/tee_core.c                      |   2 +-
- drivers/usb/class/cdc-wdm.c                 |   2 +-
- drivers/usb/class/usbtmc.c                  |   4 +-
- drivers/usb/core/devio.c                    |  16 +-
- drivers/usb/gadget/function/f_fs.c          |  12 +-
- drivers/vfio/vfio.c                         |  39 +-
- drivers/vhost/net.c                         |  12 +-
- drivers/vhost/scsi.c                        |  12 +-
- drivers/vhost/test.c                        |  12 +-
- drivers/vhost/vsock.c                       |  12 +-
- drivers/video/fbdev/aty/atyfb_base.c        |  12 +-
- drivers/virt/fsl_hypervisor.c               |   2 +-
- fs/btrfs/super.c                            |   2 +-
- fs/ceph/dir.c                               |   1 +
- fs/ceph/file.c                              |   2 +-
- fs/compat_ioctl.c                           | 602 +-------------------
- fs/fat/file.c                               |  13 +-
- fs/fuse/dev.c                               |   2 +-
- fs/notify/fanotify/fanotify_user.c          |   2 +-
- fs/userfaultfd.c                            |   2 +-
- include/linux/fs.h                          |   7 +
- include/linux/if_pppox.h                    |   2 +
- include/linux/mtio.h                        |  58 ++
- include/uapi/linux/ppp-ioctl.h              |   2 +
- include/uapi/linux/ppp_defs.h               |  14 +
- net/bluetooth/hci_sock.c                    |  21 +-
- net/bluetooth/rfcomm/sock.c                 |  14 +-
- net/l2tp/l2tp_ppp.c                         |   3 +
- net/rfkill/core.c                           |   2 +-
- sound/core/oss/pcm_oss.c                    |   4 +
- sound/oss/dmasound/dmasound_core.c          |   2 +
- 82 files changed, 452 insertions(+), 1034 deletions(-)
- create mode 100644 include/linux/mtio.h
-
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 82162867f378..bfd55ad34a3e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -14,6 +14,7 @@
+ #include <linux/kvm_host.h>
+ #include <linux/hrtimer.h>
+ #include <linux/mmu_context.h>
++#include <linux/nospec.h>
+ #include <linux/signal.h>
+ #include <linux/slab.h>
+ #include <linux/bitmap.h>
+@@ -2307,6 +2308,7 @@ static struct s390_io_adapter *get_io_adapter(struct kvm *kvm, unsigned int id)
+ {
+ 	if (id >= MAX_S390_IO_ADAPTERS)
+ 		return NULL;
++	id = array_index_nospec(id, MAX_S390_IO_ADAPTERS);
+ 	return kvm->arch.adapters[id];
+ }
+ 
+@@ -2320,8 +2322,13 @@ static int register_io_adapter(struct kvm_device *dev,
+ 			   (void __user *)attr->addr, sizeof(adapter_info)))
+ 		return -EFAULT;
+ 
+-	if ((adapter_info.id >= MAX_S390_IO_ADAPTERS) ||
+-	    (dev->kvm->arch.adapters[adapter_info.id] != NULL))
++	if (adapter_info.id >= MAX_S390_IO_ADAPTERS)
++		return -EINVAL;
++
++	adapter_info.id = array_index_nospec(adapter_info.id,
++					     MAX_S390_IO_ADAPTERS);
++
++	if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
+ 		return -EINVAL;
+ 
+ 	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
 -- 
-2.20.0
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Karsten Keil <isdn@linux-pingi.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: devel@driverdev.osuosl.org
-Cc: linux-integrity@vger.kernel.org
-Cc: qat-linux@intel.com
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux1394-devel@lists.sourceforge.net
-Cc: amd-gfx@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-ide@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
-Cc: linux-rdma@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-ppp@vger.kernel.org
-Cc: linux-nvme@lists.infradead.org
-Cc: platform-driver-x86@vger.kernel.org
-Cc: linux-remoteproc@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org
-Cc: linux-btrfs@vger.kernel.org
-Cc: ceph-devel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-bluetooth@vger.kernel.org
-Cc: linux-wireless@vger.kernel.org
-Cc: alsa-devel@alsa-project.org
-Cc: y2038@lists.linaro.org
+2.16.4
