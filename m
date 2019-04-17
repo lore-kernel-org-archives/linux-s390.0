@@ -4,24 +4,24 @@ Subject: Re: [PATCH v3 1/1] vfio-ccw: Prevent quiesce function going into an
 References: <cover.1555449329.git.alifm@linux.ibm.com>
  <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
  <20190417110348.28efc8e3.cohuck@redhat.com>
-From: Eric Farman <farman@linux.ibm.com>
-Date: Wed, 17 Apr 2019 09:58:24 -0400
+From: Farhan Ali <alifm@linux.ibm.com>
+Date: Wed, 17 Apr 2019 10:02:00 -0400
 MIME-Version: 1.0
 In-Reply-To: <20190417110348.28efc8e3.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <b7daaf7d-72e9-7e59-890c-620a4733b93d@linux.ibm.com>
+Message-Id: <815f0a6d-0699-f57e-472b-e086b899157e@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, pasic@linux.ibm.com, pmorel@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 4/17/19 5:03 AM, Cornelia Huck wrote:
+On 04/17/2019 05:03 AM, Cornelia Huck wrote:
 > On Tue, 16 Apr 2019 17:23:14 -0400
 > Farhan Ali <alifm@linux.ibm.com> wrote:
 > 
@@ -89,11 +89,11 @@ On 4/17/19 5:03 AM, Cornelia Huck wrote:
 > What about using
 > 	dev_err(&sch->dev, "could not quiesce");
 > instead?
-
-+1
-
 > 
 > (Can make that change while applying, no need to resend for that.)
+
+Sure, the change is fine with me, dev_err would be more appropriate.
+
 > 
 >> +			break;
 >> +		}
@@ -122,7 +122,7 @@ On 4/17/19 5:03 AM, Cornelia Huck wrote:
 > 
 > Otherwise, looks good to me. Will queue when I get some ack/r-b.
 > 
+> Thanks again for reviewing :).
 
-I like it, but I feel weird giving an r-b to something I suggested:
-
-Acked-by: Eric Farman <farman@linux.ibm.com>
+Thanks
+Farhan
