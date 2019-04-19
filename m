@@ -1,57 +1,51 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v2 00/11] compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING
-Date: Fri, 19 Apr 2019 18:47:43 +0900
-Message-ID: <20190419094754.24667-1-yamada.masahiro@socionext.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH v2 04/11] s390/cpacf: mark scpacf_query() as __always_inline
+Date: Fri, 19 Apr 2019 18:47:47 +0900
+Message-ID: <20190419094754.24667-5-yamada.masahiro@socionext.com>
+In-Reply-To: <20190419094754.24667-1-yamada.masahiro@socionext.com>
+References: <20190419094754.24667-1-yamada.masahiro@socionext.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190419094743.4njOIHeTzKs72WjxKwBNrBoYGkdTgthRqm-9zkgC_RY@z>
+Message-ID: <20190419094747.jw70wnltH88Mg2BzoDiZ8Z1j_daXEBrUzHe-Aqz3FUY@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
 Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Masahiro Yamada <yamada.masahiro@socionext.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
+place. We need to eliminate potential issues beforehand.
 
-Major changes in v2:
- - Eliminate more errors and warnings
- - Delete 'depends on !MIPS'
- - Split into separate patches
+If it is enabled for s390, the following error is reported:
 
-Arnd Bergmann (1):
-  ARM: prevent tracing IPI_CPU_BACKTRACE
+In file included from arch/s390/crypto/des_s390.c:19:
+./arch/s390/include/asm/cpacf.h: In function 'cpacf_query':
+./arch/s390/include/asm/cpacf.h:170:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(
+  ^~~
+./arch/s390/include/asm/cpacf.h:170:2: error: impossible constraint in 'asm'
 
-Masahiro Yamada (10):
-  arm64: mark (__)cpus_have_const_cap as __always_inline
-  MIPS: mark mult_sh_align_mod() as __always_inline
-  s390/cpacf: mark scpacf_query() as __always_inline
-  mtd: rawnand: vf610_nfc: add initializer to avoid
-    -Wmaybe-uninitialized
-  MIPS: mark __fls() as __always_inline
-  ARM: mark setup_machine_tags() stub as __init __noreturn
-  powerpc/prom_init: mark prom_getprop() and prom_getproplen() as __init
-  powerpc/mm/radix: mark __radix__flush_tlb_range_psize() as
-    __always_inline
-  powerpc/mm/radix: mark as __tlbie_pid() and friends as__always_inline
-  compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
 
- arch/arm/include/asm/hardirq.h      |  1 +
- arch/arm/kernel/atags.h             |  2 +-
- arch/arm/kernel/smp.c               |  6 +++++-
- arch/arm64/include/asm/cpufeature.h |  4 ++--
- arch/mips/include/asm/bitops.h      |  2 +-
- arch/mips/kernel/cpu-bugs64.c       |  4 ++--
- arch/powerpc/kernel/prom_init.c     |  6 +++---
- arch/powerpc/mm/tlb-radix.c         | 12 ++++++------
- arch/s390/include/asm/cpacf.h       |  2 +-
- arch/x86/Kconfig                    |  3 ---
- arch/x86/Kconfig.debug              | 14 --------------
- drivers/mtd/nand/raw/vf610_nfc.c    |  2 +-
- include/linux/compiler_types.h      |  3 +--
- lib/Kconfig.debug                   | 14 ++++++++++++++
- 14 files changed, 38 insertions(+), 37 deletions(-)
+Changes in v2:
+  - split into a separate patch
 
+ arch/s390/include/asm/cpacf.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+index 3cc52e37b4b2..f316de40e51b 100644
+--- a/arch/s390/include/asm/cpacf.h
++++ b/arch/s390/include/asm/cpacf.h
+@@ -202,7 +202,7 @@ static inline int __cpacf_check_opcode(unsigned int opcode)
+ 	}
+ }
+ 
+-static inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
++static __always_inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+ {
+ 	if (__cpacf_check_opcode(opcode)) {
+ 		__cpacf_query(opcode, mask);
 -- 
 2.17.1
