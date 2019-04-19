@@ -1,14 +1,14 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v2 11/11] compiler: allow all arches to enable
- CONFIG_OPTIMIZE_INLINING
-Date: Fri, 19 Apr 2019 18:47:54 +0900
-Message-ID: <20190419094754.24667-12-yamada.masahiro@socionext.com>
+From: Mathieu Malaterre <malat@debian.org>
+Subject: Re: [PATCH v2 06/11] MIPS: mark __fls() as __always_inline
+Date: Fri, 19 Apr 2019 17:45:31 +0200
+Message-ID: <CA+7wUsygTo=AN_giku_X6_a4mQWdJL48RoVbVB4hBqkZSKkP0Q@mail.gmail.com>
 References: <20190419094754.24667-1-yamada.masahiro@socionext.com>
+ <20190419094754.24667-7-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190419094754.24667-1-yamada.masahiro@socionext.com>
+In-Reply-To: <20190419094754.24667-7-yamada.masahiro@socionext.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,119 +20,76 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, x86@kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-arm-kernel@lists.infradead.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Commit 60a3cdd06394 ("x86: add optimized inlining") introduced
-CONFIG_OPTIMIZE_INLINING, but it has been available only for x86.
+Hi,
 
-The idea is obviously arch-agnostic. This commit moves the config
-entry from arch/x86/Kconfig.debug to lib/Kconfig.debug so that all
-architectures can benefit from it.
+On Fri, Apr 19, 2019 at 12:06 PM Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+>
+> This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
+> place. We need to eliminate potential issues beforehand.
+>
+> If it is enabled for mips, the following errors are reported:
+>
+> arch/mips/mm/sc-mips.o: In function `mips_sc_prefetch_enable.part.2':
+> sc-mips.c:(.text+0x98): undefined reference to `mips_gcr_base'
+> sc-mips.c:(.text+0x9c): undefined reference to `mips_gcr_base'
+> sc-mips.c:(.text+0xbc): undefined reference to `mips_gcr_base'
+> sc-mips.c:(.text+0xc8): undefined reference to `mips_gcr_base'
+> sc-mips.c:(.text+0xdc): undefined reference to `mips_gcr_base'
+> arch/mips/mm/sc-mips.o:sc-mips.c:(.text.unlikely+0x44): more undefined references to `mips_gcr_base'
 
-This can make a huge difference in kernel image size especially when
-CONFIG_OPTIMIZE_FOR_SIZE is enabled.
+Tested with success on ppc32/G4. But on CI20 (ci20_defconfig from
+master), I get:
 
-For example, I got 3.5% smaller arm64 kernel for v5.1-rc1.
+  MODPOST vmlinux.o
+mipsel-linux-gnu-ld: arch/mips/kernel/traps.o: in function
+`addr_gcr_err_control':
+/home/mathieu/tmp/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:169:
+undefined reference to `mips_gcr_base'
+mipsel-linux-gnu-ld:
+/home/mathieu/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:169:
+undefined reference to `mips_gcr_base'
+mipsel-linux-gnu-ld: arch/mips/mm/sc-mips.o: in function
+`addr_gcr_l2_pft_control':
+/home/mathieu/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:246:
+undefined reference to `mips_gcr_base'
+mipsel-linux-gnu-ld:
+/home/mathieu/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:246:
+undefined reference to `mips_gcr_base'
+mipsel-linux-gnu-ld:
+/home/mathieu/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:246:
+undefined reference to `mips_gcr_base'
+mipsel-linux-gnu-ld:
+arch/mips/mm/sc-mips.o:/home/mathieu/linux/linux/ci20/../arch/mips/include/asm/mips-cm.h:246:
+more undefined references to `mips_gcr_base' follow
 
-  dec       file
-  18983424  arch/arm64/boot/Image.before
-  18321920  arch/arm64/boot/Image.after
 
-This also slightly improves the "Kernel hacking" Kconfig menu as
-e61aca5158a8 ("Merge branch 'kconfig-diet' from Dave Hansen') suggested;
-this config option would be a good fit in the "compiler option" menu.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
-Changes in v2:
-  - split into a separate patch
-
- arch/x86/Kconfig               |  3 ---
- arch/x86/Kconfig.debug         | 14 --------------
- include/linux/compiler_types.h |  3 +--
- lib/Kconfig.debug              | 14 ++++++++++++++
- 4 files changed, 15 insertions(+), 19 deletions(-)
-
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 5ad92419be19..9e93d109a6cb 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -310,9 +310,6 @@ config ZONE_DMA32
- config AUDIT_ARCH
- 	def_bool y if X86_64
- 
--config ARCH_SUPPORTS_OPTIMIZED_INLINING
--	def_bool y
--
- config ARCH_SUPPORTS_DEBUG_PAGEALLOC
- 	def_bool y
- 
-diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
-index 15d0fbe27872..f730680dc818 100644
---- a/arch/x86/Kconfig.debug
-+++ b/arch/x86/Kconfig.debug
-@@ -266,20 +266,6 @@ config CPA_DEBUG
- 	---help---
- 	  Do change_page_attr() self-tests every 30 seconds.
- 
--config OPTIMIZE_INLINING
--	bool "Allow gcc to uninline functions marked 'inline'"
--	---help---
--	  This option determines if the kernel forces gcc to inline the functions
--	  developers have marked 'inline'. Doing so takes away freedom from gcc to
--	  do what it thinks is best, which is desirable for the gcc 3.x series of
--	  compilers. The gcc 4.x series have a rewritten inlining algorithm and
--	  enabling this option will generate a smaller kernel there. Hopefully
--	  this algorithm is so good that allowing gcc 4.x and above to make the
--	  decision will become the default in the future. Until then this option
--	  is there to test gcc for this.
--
--	  If unsure, say N.
--
- config DEBUG_ENTRY
- 	bool "Debug low-level entry code"
- 	depends on DEBUG_KERNEL
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index ba814f18cb4c..19e58b9138a0 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -140,8 +140,7 @@ struct ftrace_likely_data {
-  * Do not use __always_inline here, since currently it expands to inline again
-  * (which would break users of __always_inline).
-  */
--#if !defined(CONFIG_ARCH_SUPPORTS_OPTIMIZED_INLINING) || \
--	!defined(CONFIG_OPTIMIZE_INLINING)
-+#if !defined(CONFIG_OPTIMIZE_INLINING)
- #define inline inline __attribute__((__always_inline__)) __gnu_inline \
- 	__maybe_unused notrace
- #else
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 0d9e81779e37..f8f284f46c85 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -310,6 +310,20 @@ config HEADERS_CHECK
- 	  exported to $(INSTALL_HDR_PATH) (usually 'usr/include' in
- 	  your build tree), to make sure they're suitable.
- 
-+config OPTIMIZE_INLINING
-+	bool "Allow compiler to uninline functions marked 'inline'"
-+	help
-+	  This option determines if the kernel forces gcc to inline the functions
-+	  developers have marked 'inline'. Doing so takes away freedom from gcc to
-+	  do what it thinks is best, which is desirable for the gcc 3.x series of
-+	  compilers. The gcc 4.x series have a rewritten inlining algorithm and
-+	  enabling this option will generate a smaller kernel there. Hopefully
-+	  this algorithm is so good that allowing gcc 4.x and above to make the
-+	  decision will become the default in the future. Until then this option
-+	  is there to test gcc for this.
-+
-+	  If unsure, say N.
-+
- config DEBUG_SECTION_MISMATCH
- 	bool "Enable full Section mismatch analysis"
- 	help
--- 
-2.17.1
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
+>
+> Changes in v2:
+>   - new patch
+>
+>  arch/mips/include/asm/bitops.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/mips/include/asm/bitops.h b/arch/mips/include/asm/bitops.h
+> index 830c93a010c3..6a26ead1c2b6 100644
+> --- a/arch/mips/include/asm/bitops.h
+> +++ b/arch/mips/include/asm/bitops.h
+> @@ -482,7 +482,7 @@ static inline void __clear_bit_unlock(unsigned long nr, volatile unsigned long *
+>   * Return the bit position (0..63) of the most significant 1 bit in a word
+>   * Returns -1 if no 1 bit exists
+>   */
+> -static inline unsigned long __fls(unsigned long word)
+> +static __always_inline unsigned long __fls(unsigned long word)
+>  {
+>         int num;
+>
+> --
+> 2.17.1
+>
