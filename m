@@ -1,133 +1,168 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 00/26] compat_ioctl: cleanups
-Date: Wed, 17 Apr 2019 11:26:46 +0200
-Message-ID: <CAK8P3a31L4isqsG_qPwjOhNZdxyu2KHLg11p9kFC=gtPNS0_UQ@mail.gmail.com>
-References: <20190416202013.4034148-1-arnd@arndb.de>
- <c379ed8d-1f33-e391-a1b5-810da77605f2@interlog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <c379ed8d-1f33-e391-a1b5-810da77605f2@interlog.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-List-Archive: <https://lore.kernel.org/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-To: dgilbert@interlog.com
-Cc: linux-nvme@lists.infradead.org, linux-iio@vger.kernel.org, linux-remoteproc@vger.kernel.org, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, IDE-ML <linux-ide@vger.kernel.org>, linux-mtd <linux-mtd@lists.infradead.org>, sparclinux <sparclinux@vger.kernel.org>, linux1394-devel@lists.sourceforge.net, driverdevel <devel@driverdev.osuosl.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Bluez mailing list <linux-bluetooth@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, qat-linux@intel.com, amd-gfx@lists.freedesktop.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-rtc@vger.kernel.org, ALSA
+Return-Path: <SRS0=Y38/=SV=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+MIME-Version: 1.0
+References: <1555660717-18731-1-git-send-email-kernelfans@gmail.com>
+ <alpine.DEB.2.21.1904191009040.3174@nanos.tec.linutronix.de>
+In-Reply-To: <alpine.DEB.2.21.1904191009040.3174@nanos.tec.linutronix.de>
+From: Pingfan Liu <kernelfans@gmail.com>
+Date: Fri, 19 Apr 2019 22:45:35 +0800
+Message-ID: <CAFgQCTtaP24gXUs_dh4h8qCsA-TKHc5A-vs5oiezfwuR_qjQvA@mail.gmail.com>
+Subject: Re: [PATCH] kernel/crash: make parse_crashkernel()'s return value
+ more indicant
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>, Yangtao Li <tiny.windzz@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Palmer Dabbelt <palmer@sifive.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, x86@kernel.org, Stefan Agner <stefan@agner.ch>, linux-mips@vger.kernel.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, David Hildenbrand <david@redhat.com>, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Dave Young <dyoung@redhat.com>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, linuxppc-dev@lists.ozlabs.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, Hari Bathini <hbathini@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Tony Luck <tony.luck@intel.com>, Baoquan He <bhe@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Robin Murphy <robin.murphy@arm.com>, LKML <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Bogendoerfer <tbogendoerfer@suse.de>, Paul Burton <paul.burton@mips.com>, Johannes Weiner <hannes@cmpxchg.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Logan Gunthorpe <logang@deltatee.com>, Greg Hackmann <ghackmann@android.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gV2VkLCBBcHIgMTcsIDIwMTkgYXQgMTI6MzMgQU0gRG91Z2xhcyBHaWxiZXJ0IDxkZ2lsYmVy
-dEBpbnRlcmxvZy5jb20+IHdyb3RlOgo+Cj4gT24gMjAxOS0wNC0xNiA0OjE5IHAubS4sIEFybmQg
-QmVyZ21hbm4gd3JvdGU6Cj4gPiBIaSBBbCwKPiA+Cj4gPiBJdCB0b29rIG1lIHdheSBsb25nZXIg
-dGhhbiBJIGhhZCBob3BlZCB0byByZXZpc2l0IHRoaXMgc2VyaWVzLCBzZWUKPiA+IGh0dHBzOi8v
-bG9yZS5rZXJuZWwub3JnL2xrbWwvMjAxODA5MTIxNTAxNDIuMTU3OTEzLTEtYXJuZEBhcm5kYi5k
-ZS8KPiA+IGZvciB0aGUgcHJldmlvdXNseSBwb3N0ZWQgdmVyc2lvbi4KPiA+Cj4gPiBJJ3ZlIGNv
-bWUgdG8gdGhlIHBvaW50IHdoZXJlIGFsbCBjb252ZXJzaW9uIGhhbmRsZXJzIGFuZCBtb3N0Cj4g
-PiBDT01QQVRJQkxFX0lPQ1RMKCkgZW50cmllcyBhcmUgZ29uZSBmcm9tIHRoaXMgZmlsZSwgYnV0
-IGZvcgo+ID4gbm93LCB0aGlzIHNlcmllcyBvbmx5IGhhcyB0aGUgcGFydHMgdGhhdCBoYXZlIGVp
-dGhlciBiZWVuIHJldmlld2VkCj4gPiBwcmV2aW91c2x5LCBvciB0aGF0IGFyZSBzaW1wbGUgZW5v
-dWdoIHRvIGluY2x1ZGUuCj4gPgo+ID4gVGhlIG1haW4gbWlzc2luZyBwaWVjZSBpcyB0aGUgU0df
-SU8vU0dfR0VUX1JFUVVFU1RfVEFCTEUgY29udmVyc2lvbi4KPiA+IEknbGwgcG9zdCB0aGUgcGF0
-Y2hlcyBJIG1hZGUgZm9yIHRoYXQgbGF0ZXIsIGFzIHRoZXkgbmVlZCBtb3JlCj4gPiB0ZXN0aW5n
-IGFuZCByZXZpZXcgZnJvbSB0aGUgc2NzaSBtYWludGFpbmVycy4KPgo+IFBlcmhhcHMgeW91IGNv
-dWxkIGxvb2sgYXQgdGhlIGRvY3VtZW50IGluIHRoaXMgdXJsOgo+ICAgICAgaHR0cDovL3NnLmRh
-bm55LmN6L3NnL3NnX3Y0MC5odG1sCj4KPiBJdCBpcyB3b3JrLWluLXByb2dyZXNzIHRvIG1vZGVy
-bml6ZSB0aGUgU0NTSSBnZW5lcmljIGRyaXZlci4gSXQKPiBleHRlbmRzIGlvY3RsKHNnX2ZkLCBT
-R19JTywgJnB0X29iaikgdG8gYWRkaXRpb25hbGx5IGFjY2VwdCB0aGUgc2cgdjQKPiBpbnRlcmZh
-Y2UgYXMgZGVmaW5lZCBpbiBpbmNsdWRlL3VhcGkvbGludXgvYnNnLmggLiBDdXJyZW50bHkgb25s
-eSB0aGUKPiBic2cgZHJpdmVyIHVzZXMgdGhlIHNnIHY0IGludGVyZmFjZS4gU2luY2Ugc3RydWN0
-IHNnX2lvX3Y0IGlzIGFsbAo+IGV4cGxpY2l0bHkgc2l6ZWQgaW50ZWdlcnMsIEknbSBndWVzc2lu
-ZyBpdCBpcyBpbW11bmUgImNvbXBhdCIgcHJvYmxlbXMuCj4gW0kgY2FuIHNlZSBubyByZWZlcmVu
-Y2UgdG8gYnNnIG5vciBzdHJ1Y3Qgc2dfaW9fdjQgaW4gdGhlIGN1cnJlbnQKPiBmcy9jb21wYXRf
-aW9jdGwuYyBmaWxlLl0KCk9rLCBJJ3ZlIHRha2VuIGEgYnJpZWYgbG9vayBhdCB5b3VyIHNlcmll
-cyBub3cuIFVuZm9ydHVuYXRlbHkgaXQgY2xhc2hlcwpxdWl0ZSBoYXJkIHdpdGggbXkgc2VyaWVz
-LCBidXQgaXQncyBwcm9iYWJseSBmb3IgdGhlIGJldHRlciB0byBoYXZlIHlvdXIKc3R1ZmYgZ2V0
-IG1lcmdlZCBmaXJzdC4KCkEgZmV3ICh1bnNvcnRlZCkgY29tbWVudHMgZnJvbSBnb2luZyB0aHJv
-dWdoIHlvdXIgcGF0Y2hlczoKCi0gdGhlIGFkZGVkIGlvY3RscyBhcmUgYWxsIGNvbXBhdGlibGUg
-d2hlbiB1c2luZyB0aGUgdjQgc3RydWN0dXJlcwogIGFuZCBtb3N0bHkgZG9uJ3QgbmVlZCBoYW5k
-bGVycyBmb3IgY29tcGF0IG1vZGUsIGJ1dCB0aGV5IG5lZWQgdG8gYmUKICBjYWxsZWQgZnJvbSAu
-Y29tcGF0X2lvY3RsIHRvIGFjdHVhbGx5IGJlIHVzYWJsZSBpbiBjb21wYXQgbW9kZS4KICBXaXRo
-IG15IHBhdGNoZXMgeW91IGdldCB0aGF0LgotIE9uZSBleGNlcHRpb24gZm9yIHRoZSB2NCBsYXlv
-dXQgaXMgdGhlIHVzZSBvZiBpb3ZlYyBwb2ludGVycywgYXMKICAnc3RydWN0IGlvdmVjJyBpcyBp
-bmNvbXBhdGlibGUuIFdlIHNob3VsZCBwcm9iYWJseSBtZXJnZSB0aGUKICBnZW5lcmljIGNvbXBh
-dF9pbXBvcnRfaW92ZWMoKSBpbnRvIGltcG9ydF9pb3ZlYygpIHdpdGggYQogICdpbl9jb21wYXRf
-c3lzY2FsbCgpJyBjaGVjaywgd2hpY2ggd291bGQgYmUgaGVscGZ1bCBpbiBnZW5lcmFsLgogIGJz
-Zy5jIGRvZXMgbm90IGlvdmVjLCBzbyBpdCBpcyBub3QgYWZmZWN0ZWQgYnkgdGhpcyBhdCB0aGUg
-bW9tZW50LAogIG1heWJlIGl0IHdvdWxkIGJlIGJldHRlciB0byBzdGF5IGNvbXBhdGlibGUgd2l0
-aCB0aGF0IGFuZCBhbHNvCiAgbm90IHN1cHBvcnQgdGhlbSBpbiBzZy5jPwotIElzIHRoZXJlIGEg
-bmVlZCBmb3IgdGhlIG5ldyBzZ19pb2N0bF9pb3N1Ym1pdC9zZ19pb2N0bF9pb3JlY2VpdmUKICB0
-byBzdXBwb3J0IHRoZSB2MyBzdHJ1Y3R1cmVzPyBUaG9zZSBhcmUgL25vdC8gY29tcGF0aWJsZSwg
-c28KICB5b3UgbmVlZCBleHRyYSBjb2RlIHRvIGhhbmRsZSB0aGUgdjMtY29tcGF0IGxheW91dCBh
-cyB3ZWxsLgogIFN1cHBvcnRpbmcgb25seSB2NCB3b3VsZCBzaW1wbGlmeSB0aGlzLgotIHRoZSBs
-YWNrIG9mIGNoYW5nZXNldCBkZXNjcmlwdGlvbnMgaXMgYSBiaXQgaXJyaXRhdGluZyBhbmQgbWFr
-ZXMKICBpdCBtdWNoIGhhcmRlciB0byB1bmRlcnN0YW5kIHdoYXQgeW91IGFyZSBkb2luZy4KLSB0
-cnkgdG8ga2VlcCBwYXRjaGVzIHRoYXQgbW92ZSBjb2RlIGFyb3VuZCBzZXBhcmF0ZSBmcm9tIHRo
-b3NlCiAgdGhhdCBjaGFuZ2UgaXQgaW4gYW55IG90aGVyIHdheSwgZm9yIGJldHRlciByZXZpZXdp
-bmcuCi0gaW4gInNnOiBwcmVwYXJhdGlvbiBmb3IgcmVxdWVzdCBzaGFyaW5nIiwgeW91IHNlZW0g
-dG8gaW5hZHZlcnRlbnRseQogIGNoYW5nZSB0aGUgc2l6ZSBvZiAic3RydWN0IHNnX2V4dGVuZGVk
-X2luZm8iLCBtYWtpbmcgaXQgNCBieXRlcwogIGxvbmdlciBieSBhZGRpbmcgdHdvIG1lbWJlcnMu
-Ci0gWW91IHNob3VsZCBuZXZlciB1c2UgSVNfRVJSX09SX05VTEwoKSBpbiBub3JtYWwgY29kZSwg
-dGhhdAogIGlzIGp1c3QgYSBzaWduIG9mIGEgYmFkIEFQSS4gTWFrZSBlYWNoIGZ1bmN0aW9uIGhh
-dmUgY29uc2lzdGVudAogIGVycm9yIGJlaGF2aW9yLgotIFRoZSAiI2lmIDAgIC8qIHRlbXBvcmFy
-eSB0byBzaG9ydGVuIGJpZyBwYXRjaCAqLyIgdHJpY2sgYnJlYWtzCiAgYmlzZWN0aW9uLCB0aGF0
-IGlzIHByb2JhYmx5IHdvcnNlIHRoYW4gdGhlIGxhcmdlciBwYXRjaC4KLSBUaGUgc3BsaXQgYWNj
-ZXNzX29rKCkvX19jb3B5X2Zyb21fdXNlcigpIGhhcyBmYWxsZW4gb3V0IG9mCiAgZmF2b3IgYmVj
-YXVzZSBpdCBoYXMgY2F1c2VkIHRvbyBtYW55IGJ1Z3MgaW4gdGhlIHBhc3QsIGp1c3QKICB1c2Ug
-dGhlIGNvbWJpbmVkIGNvcHlfZnJvbV91c2VyKCkgaW5zdGVhZC4KLSBrdGltZV90b19ucyhrdGlt
-ZV9nZXRfd2l0aF9vZmZzZXQoVEtfT0ZGU19CT09UKSkgZm9sbG93ZWQKICBieSBhIDY0LWJpdCBk
-aXZpc2lvbiB3b24ndCB3b3JrIG9uIDMyLWJpdCBtYWNoaW5lcywgdXNlCiAga3RpbWVfZ2V0X2Jv
-b3R0aW1lX3RzNjQoKSBpbnN0ZWFkLgoKPiBPdGhlciBhZGRpdGlvbnMgZGVzY3JpYmVkIGluIHRo
-ZSB0aGF0IGRvY3VtZW50IGFyZSB0aGVzZSBuZXcgaW9jdGxzOgo+ICAgIC0gU0dfSU9TVUJNSVQg
-ICAgdWx0aW1hdGVseSB0byByZXBsYWNlIHdyaXRlKHNnX2ZkLCAuLi4pCj4gICAgLSBTR19JT1JF
-Q0VJVkUgICAgICAgICAgICAgIHRvIHJlcGxhY2UgcmVhZChzZ19mZCwgLi4uKQo+ICAgIC0gU0df
-SU9BQk9SVCAgICAgYWJvcnQgU0NTSSBjbWQgaW4gcHJvZ3Jlc3M7IG5ldyBmdW5jdGlvbmFsaXR5
-Cj4gICAgLSBTR19TRVRfR0VUX0VYVEVOREVEICAgaGFzIGFzc29jaWF0ZWQgc3RydWN0IHNnX2V4
-dGVuZGVkX2luZm8KPgo+IFRoZSBmaXJzdCB0aHJlZSB0YWtlIGEgcG9pbnRlciB0byBhIHN0cnVj
-dCBzZ19pb19oZHIgKHYzIGludGVyZmFjZSkgb3IKPiBhIHN0cnVjdCBzZ19pb192NCBvYmplY3Qu
-IEJvdGggb2JqZWN0cyBzdGFydCB3aXRoIGEgMzIgYml0IGludGVnZXI6Cj4gJ1MnIGlkZW50aWZp
-ZXMgdGhlIHYzIGludGVyZmFjZSB3aGlsZSAnUScgaWRlbnRpZmllcyB0aGUgdjQgaW50ZXJmYWNl
-LgoKSSB0aGluayB0aGUgbWFnaWMgY2hhcmFjdGVyIHdhcyBhIG1pc3Rha2UgaW4gdGhlIG9yaWdp
-bmFsIGRlc2lnbiwKanVzdCBsaWtlIHZlcnNpb25lZCBpbnRlcmZhY2VzIGluIGdlbmVyYWwuIElm
-IHlvdSBhcmUgZXh0ZW5kaW5nIGFuCmludGVyZmFjZSBpbiBhbiBpbmNvbXBhdGlibGUgd2F5LCB0
-aGUgbm9ybWFsIHdheSB3b3VsZCBiZSB0bwpoYXZlIHNlcGFyYXRlIGNvbW1hbmQgY29kZXMsIGxp
-a2UgU0dfSU9SRUNFSVZFX1YzCmFuZCBTR19JT1JFQ0VJVkVfVjQsIGlmIHlvdSBhYnNvbHV0ZWx5
-IGhhdmUgdG8gbWFpbnRhaW4KY29tcGF0aWJsaXR5IHdpdGggdGhlIG9sZCBpbnRlcmZhY2UgKHdo
-aWNoIEkgdGhpbmsgeW91IGRvbid0IGluCmNhc2Ugb2YgU0dfSU9SRUNFSVZFKS4KCkZvciBTR19J
-TywgSSBjYW4gc2VlICB3aHkgeW91IHdhbnQgdG8gc3VwcG9ydCBib3RoIHRoZSB2MwphbmQgdjQg
-c3RydWN0dXJlcyBwbHVzIHRoZSBjb21wYXQtdjMgdmVyc2lvbiwgYnV0IEknZCB0cnkgdG8ga2Vl
-cAp0aGVtIGFzIHNlcGFyYXRlIGFzIHBvc3NpYmxlLCBhbmQgZG8gc29tZXRoaW5nIGxpa2UKCnN0
-YXRpYyBpbnQgIHNnX2N0bF9zZ19pbyhzdHJ1Y3QgZmlsZSAqZmlscCwgc3RydWN0IHNnX2Rldmlj
-ZSAqc2RwLApzdHJ1Y3Qgc2dfZmQgKnNmcCwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgdm9pZCBfX3VzZXIgKnApCnsKICAgICAgIGludCByZXQ7CgogICAgICByZXQgPSBzZ19pb192
-NChmaWxwLCBzZHAsIHNmcCwgKHN0cnVjdCBzZ19pb192NCBfX3VzZXIgKilwKTsKCiAgICAgIGlm
-IChyZXQgIT0gLUVOT0lPQ1RMQ01EIHx8ICFTX0VOQUJMRUQoQ09ORklHX1NHX0lPX1YzKSkKICAg
-ICAgICAgICAgcmV0dXJuIHJldDsKCiAgICAgaWYgKGluX2NvbXBhdF9zeXNjYWxsKCkpCiAgICAg
-ICAgICAgcmV0ID0gc2dfaW9fY29tcGF0XyhmaWxwLCBzZHAsIHNmcCwgKHN0cnVjdApjb21wYXRf
-c2dfaW9faGRyIF9fdXNlciAqKXApOwogICAgIGVsc2UKICAgICAgICAgICByZXQgPSBzZ19pb192
-MyhmaWxwLCBzZHAsIHNmcCwgKHN0cnVjdCBzZ19pb19oZHIgX191c2VyICopcCk7Cn0KCkluIG15
-IHBhdGNoIHNlcmllcywgSSBjb21iaW5lZCB0aGUgbGF0dGVyIHR3byBjYXNlcyBhbmQgdXNlZCBh
-IHNoYXJlZApnZXRfc2dfaW9faGRyKCkvcHV0X3NnX2lvX2hkcigpIGhlbHBlciBhcyB3ZWxsIGFz
-IGEgd3JhcHBlciBmb3IgdGhlIGlvdmVjCmlzc3VlLgoKPiBUaGUgU0dfU0VUX0dFVF9FWFRFTkRF
-RCBpb2N0bCB0YWtlcyBhIHBvaW50ZXIgdG8gYSBzdHJ1Y3QKPiBzZ19leHRlbmRlZF9pbmZvIG9i
-amVjdCB3aGljaCBjb250YWlucyBleHBsaWNpdGx5IHNpemVkIGludGVnZXJzIHNvIGl0Cj4gbWF5
-IGFsc28gYmUgaW1tdW5lIGZyb20gImNvbXBhdCIgcHJvYmxlbXMuIFRoZSBpb2N0bHMgc2VjdGlv
-biAoMTMpIG9mCj4gdGhhdCBkb2N1bWVudCByZWZlcmVuY2VkIGFib3ZlIGhhcyBhIHRhYmxlIHNo
-b3dpbmcgaG93IG1hbnkgInNldHMgYW5kCj4gZ2V0cyIgYXJlIGhpZGluZyBpbiB0aGUgU0dfU0VU
-X0dFVF9FWFRFTkRFRCBpb2N0bC4KCkFncmVlZCwgU0dfU0VUX0dFVF9FWFRFTkRFRCBsb29rcyBm
-aW5lIHRvIG1lIGZyb20gYSBjb21wYXQKcGVyc3BlY3RpdmUuCgpJJ3ZlIHVwbG9hZGVkIG15IHBh
-dGNoZXMgdG8KZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmc6L3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9h
-cm5kL3BsYXlncm91bmQuZ2l0CmNvbXBhdC1pb2N0bC12MwpUaGlzIGNvbnRhaW5zIGJvdGggdGhl
-IHNlcmllcyBJIHBvc3RlZCBoZXJlLCBhbmQgbXkgc2NzaSBpb2N0bCByZXdvcmsuCgpNYXliZSB5
-b3UgY2FuIHRha2UgdGhlIGJpdHMgeW91IG5lZWQgZnJvbSB0aGF0IHRvIGhhbmRsZSB0aGUgdjMt
-Y29tcGF0CnN0cnVjdHVyZXMgYW5kIGludGVncmF0ZSBpdCBpbnRvIHlvdXIgc2VyaWVzPwoKICAg
-ICBBcm5kCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRy
-aS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRw
-czovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbA==
+On Fri, Apr 19, 2019 at 4:19 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On Fri, 19 Apr 2019, Pingfan Liu wrote:
+>
+> > At present, both return and crash_size should be checked to guarantee the
+> > success of parse_crashkernel().
+> > Simplify the way by returning negative if fail, positive if success. In
+> > case of failure, -EINVAL for bad syntax, -1 for the parsing results in
+> > crash_size=0.
+>
+> I'm not entirely sure what you are trying to say here, but '-1' is not an
+> improvement at all. We surely are not short of proper error codes, right?
+>
+The different negative return values are only used by x86. The option
+"crashkernel=X,high", which is only used on x86, causes parse_kernel()
+to return -EINVAL, then let parse_crashkernel_high() have a try.
+
+When parsing crashkernel=size@offset and crashkernel=range1:size1,
+there are other cases of failure, which is not worth to call
+parse_crashkernel_high() to have a try. That is "-1" aiming for.
+
+First, in parse_crashkernel_mem(), if demanded size is bigger than
+system ram, this one looks like -ENOMEM, but -ENOMEM normally is used
+for allocation. Second, in parse_crashkernel_mem(), if system ram is
+not inside the range listed by "crashkernel=". Third, crashkernel=0MB
+is given in the option (not in practice, but can not forbid user to do
+so).
+
+All of these cases can be treated as -EINVAL, but hard to define the
+error codes.
+> Also I don't see any positive return value > 0. So what is this about:
+>
+Yes. 0 is enough for success.  I had thought about returning 1 if
+@offset is specified in crashkernel. But at present, no use case for
+it.
+
+> > --- a/arch/ia64/kernel/setup.c
+> > +++ b/arch/ia64/kernel/setup.c
+> > @@ -277,7 +277,7 @@ static void __init setup_crashkernel(unsigned long total, int *n)
+> >
+> >       ret = parse_crashkernel(boot_command_line, total,
+> >                       &size, &base);
+> > -     if (ret == 0 && size > 0) {
+> > +     if (ret >= 0) {
+>
+>   ^^^^^^^^^^^^^^^^^^^^^^^^^^^  ????
+>
+> >       if (!memory_region_available(crash_base, crash_size)) {
+> > diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+> > index 45a8d0b..0b626e2 100644
+> > --- a/arch/powerpc/kernel/fadump.c
+> > +++ b/arch/powerpc/kernel/fadump.c
+> > @@ -376,7 +376,7 @@ static inline unsigned long fadump_calculate_reserve_size(void)
+> >        */
+> >       ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+> >                               &size, &base);
+> > -     if (ret == 0 && size > 0) {
+> > +     if (ret >= 0) {
+>
+> and this ?
+>
+> >               unsigned long max_size;
+> >
+> >               if (fw_dump.reserve_bootvar)
+> > diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
+> > index 63f5a93..9f3e61a 100644
+> > --- a/arch/powerpc/kernel/machine_kexec.c
+> > +++ b/arch/powerpc/kernel/machine_kexec.c
+> > @@ -122,7 +122,7 @@ void __init reserve_crashkernel(void)
+> >       /* use common parsing */
+> >       ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+> >                       &crash_size, &crash_base);
+> > -     if (ret == 0 && crash_size > 0) {
+> > +     if (ret >= 0) {
+>
+> Again.
+>
+> >               crashk_res.start = crash_base;
+> >               crashk_res.end = crash_base + crash_size - 1;
+> >       }
+> > --- a/arch/sh/kernel/machine_kexec.c
+> > +++ b/arch/sh/kernel/machine_kexec.c
+> > @@ -157,7 +157,7 @@ void __init reserve_crashkernel(void)
+> >
+> >       ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
+> >                       &crash_size, &crash_base);
+> > -     if (ret == 0 && crash_size > 0) {
+> > +     if (ret >= 0) {
+>
+> And some more.
+>
+> >               crashk_res.start = crash_base;
+> >               crashk_res.end = crash_base + crash_size - 1;
+> >       }
+> > diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+> > index 3d872a5..62d07d4 100644
+> > --- a/arch/x86/kernel/setup.c
+> > +++ b/arch/x86/kernel/setup.c
+> > @@ -526,11 +526,11 @@ static void __init reserve_crashkernel(void)
+> >
+> >       /* crashkernel=XM */
+> >       ret = parse_crashkernel(boot_command_line, total_mem, &crash_size, &crash_base);
+> > -     if (ret != 0 || crash_size <= 0) {
+> > +     if (ret == -EINVAL) {
+>
+> Without an explanation why this proceedes on error codes other than EINVAL
+> this is uncomprehensible. Comments exist for a reason.
+>
+As explained above, deciding whether to let parse_crashkernel_high() try.
+
+> >               /* crashkernel=X,high */
+> >               ret = parse_crashkernel_high(boot_command_line, total_mem,
+> >                                            &crash_size, &crash_base);
+> > -             if (ret != 0 || crash_size <= 0)
+> > +             if (ret < 0)
+> >                       return;
+> >               high = true;
+>
+> > @@ -87,7 +87,7 @@ static int __init parse_crashkernel_mem(char *cmdline,
+> >               cur = tmp;
+> >               if (size >= system_ram) {
+> >                       pr_warn("crashkernel: invalid size\n");
+> > -                     return -EINVAL;
+> > +                     return -1;
+>
+> Well, this is incomprehensible as well. The pr_warn() says invalid and then
+> you change the error code to something magic.
+>
+As explained above, want to know whether worth to let
+parse_crashkernel_high() try.
+
+What about the following alternative method? Treating crash_size=0 as
+-EINVAL. Then on x86, just call parse_crashkernel_high() blindly to
+have a try. Thanks for your review.
+
+Regards,
+Pingfan
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
