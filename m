@@ -1,25 +1,22 @@
 Return-Path: <SRS0=ts8b=SV=lists.ozlabs.org=linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@kernel.org>
-Date: Fri, 19 Apr 2019 15:33:07 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: Linux 5.1-rc5
-In-Reply-To: <20190418204144.16adf2a0@mschwideX1>
+MIME-Version: 1.0
 References: <CAHk-=wjvcuyCQGnfOhooaL1H4H63qXO=xgo+9yncSOG=eK+kbA@mail.gmail.com>
  <20190415051919.GA31481@infradead.org>
  <CAHk-=wj7jgMOVFW0tiU-X+zhg6+Rn7mEBTej+f26rV3zXezOSA@mail.gmail.com>
- <20190416110906.6c773aff@mschwideX1>
- <20190416140658.2cb73a3f@mschwideX1>
+ <20190416110906.6c773aff@mschwideX1> <20190416140658.2cb73a3f@mschwideX1>
  <CAHk-=wjKi5C+Onhp5Vs5BQxHbaBud9M3cTS-S6Tr9yDY4dS-Sw@mail.gmail.com>
  <CAHk-=wj2SW0Zno0Yn=S9wrsmHOKV0FiFPiPS4TM=Gn8yjfYXAg@mail.gmail.com>
- <20190417094637.51ad4c67@mschwideX1>
- <20190417100244.42e29736@mschwideX1>
+ <20190417094637.51ad4c67@mschwideX1> <20190417100244.42e29736@mschwideX1>
  <CAHk-=wj5j-zMo7hVNxiw3+5L2d1WQVm3x4fbpg=OXLzDh8FhYg@mail.gmail.com>
  <20190418100218.0a4afd51@mschwideX1>
  <CAHk-=whajv8Fw2VcBqZUs0hfx1Dq4fYj3TEEx4yfR3E8+rLS1A@mail.gmail.com>
- <20190418204144.16adf2a0@mschwideX1>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190419153307.4f2911b5@mschwideX1>
+ <20190418204144.16adf2a0@mschwideX1> <20190419153307.4f2911b5@mschwideX1>
+In-Reply-To: <20190419153307.4f2911b5@mschwideX1>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 19 Apr 2019 10:27:17 -0700
+Message-ID: <CAHk-=wj6yp7hkJ_wR38dhdDRkAHQaEx28v2FkVT9hDFXX_qfjA@mail.gmail.com>
+Subject: Re: Linux 5.1-rc5
+Content-Type: text/plain; charset="UTF-8"
 List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
  <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
@@ -31,97 +28,56 @@ Errors-To: linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.or
 Sender: "Linuxppc-dev"
  <linuxppc-dev-bounces+linuxppc-dev=archiver.kernel.org@lists.ozlabs.org>
 List-Archive: <https://lore.kernel.org/linuxppc-dev/>
-To: Linus Torvalds <torvalds@linux-foundation.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Cc: Christoph Hellwig <hch@infradead.org>, linuxppc-dev@lists.ozlabs.org, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 18 Apr 2019 20:41:44 +0200
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+On Fri, Apr 19, 2019 at 6:33 AM Martin Schwidefsky
+<schwidefsky@de.ibm.com> wrote:
+>
+> That problem got stuck in my head and I thought more about it. Why not
+> emulate the static folding sequence in the s390 page table code?
 
-> On Thu, 18 Apr 2019 08:49:32 -0700
-> Linus Torvalds <torvalds@linux-foundation.org> wrote:
-> 
-> > On Thu, Apr 18, 2019 at 1:02 AM Martin Schwidefsky
-> > <schwidefsky@de.ibm.com> wrote:  
-> > >
-> > > The problematic lines in the generic gup code are these three:
-> > >
-> > > 1845:   pmdp = pmd_offset(&pud, addr);
-> > > 1888:   pudp = pud_offset(&p4d, addr);
-> > > 1916:   p4dp = p4d_offset(&pgd, addr);
-> > >
-> > > Passing the pointer of a *copy* of a page table entry to pxd_offset() does
-> > > not work with the page table folding on s390.    
-> > 
-> > Hmm. I wonder why. x86 too does the folding thing for the p4d and pud case.
-> > 
-> > The folding works with the local copy just the same way it works with
-> > the orignal value.  
-> 
-> The difference is that with the static page table folding pgd_offset()
-> does the index calculation of the actual hardware top-level table. With
-> dynamic page table folding as s390 is doing it, if the task does not use
-> a 5-level page table pgd_offset() will see a pgd_index() of 0, the indexing
-> of the actual top-level table is done later with p4d_offset(), pud_offset()
-> or pmd_offset(). 
-> 
-> As an example, with a three level page table we have three indexes x/y/z.
-> The common code "thinks" 5 indexing steps, with static folding the index
-> sequence is x 0 0 y z. With dynamic folding the sequence is 0 0 x y z.
-> By moving the first indexing operation to pgd_offset the static sequence
-> does not add an index to a non-dereferenced pointer to a stack variable,
-> the dynamic sequence does.
+So this model seems much closer to what x86 does in its folding, where
+the pattern is basically
 
-That problem got stuck in my head and I thought more about it. Why not
-emulate the static folding sequence in the s390 page table code?
+> static inline pX-1d_t *pXd_offset(pXd_t *pXd, unsigned long address)
+> {
+>         if (pXd_folded(pXd)
+>                 return (pX-1d_t *) pXd;
+>         return (pX-1d_t *) pXd_deref(*pXd) + pXd_index(address);
+> }
 
-As the table type is encoded in every entry for the region and segment
-tables, pgd_offset() can look at the first entry to find the table type
-and then do the correct index calculation for the given top-level table.
-Like this:
+which is really how the code is designed to work (ie the folded entry
+doesn't actually do anything to the page directory pointer, it just
+says "ok, we'll use this exact page directory pointer for the next
+lower level instead".
 
-static inline pgd_t *pgd_offset_raw(pgd_t *pgd, unsigned long address)
-{
-        unsigned long rste;
-        unsigned int shift;
+And that's very much what allows the generic gup code to load the
+entry once, and use a temporary, and as you walk down the chain, if it
+is folded it just then uses that (previous) temporary value for the
+next level instead. IOW, the lower level page table is hidden inside
+the upper level one, and folding just means "don't do any offsets,
+don't change any values, just use the entry as-is for the next lower
+level".
 
-        /* Get the first entry of the top level table */
-        rste = pgd_val(*pgd);
-        /* Pick up the shift from the table type of the first entry */
-        shift = ((rste & _REGION_ENTRY_TYPE_MASK) >> 2) * 11 + 20;
-        return pgd + ((address >> shift) & (PTRS_PER_PGD - 1));
-}
+So I think that's the right thing to do.
 
-#define pgd_offset(mm, address) pgd_offset_raw((mm)->pgd, address)
-#define pgd_offset_k(address) pgd_offset(&init_mm, address)
+Looking at the s390 code, it seems to fold things the other way,
+conceptually hiding the upper level inside the lower one, and always
+doing the offset thing (but just avoiding the dereference).
 
-static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
-{
-        if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R1)
-                return (p4d_t *) pgd;
-        return (p4d_t *) pgd_deref(*pgd) + p4d_index(address);
-}
+Maybe there's some reason why the s390 code does it that way, but I
+think your new model is the right one, and hopefully means you can use
+the generic page table walking more easily.
 
-static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-{
-        if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R2)
-                return (pud_t *) p4d;
-        return (pud_t *) p4d_deref(*p4d) + pud_index(address);
-}
+Of course, the s390 folding is very different from the x86 one (or the
+generic fixed 3-level of 4-level cases). The x86 folding doesn't
+depend on the contents of the page tables, it's just entirely static
+(well, the 5th level is conditional, but it's conditional on a static
+key, not on what is in the page tables). So maybe the old model of
+s390 made more sense in that context, but I look at your new suggested
+pXd_offset() functions and I go "yeah, that's the way it's supposed to
+work".
 
-static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
-{
-        if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-                return (pmd_t *) pud;
-        return (pmd_t *) pud_deref(*pud) + pmd_index(address);
-}
-
-This needs more thorough testing but in principle it does work. The kernel
-boots and survives a kernel compile. The only things that is slightly off is
-that pgd_offset() now has to look at the first table entry to do its job.
-
--- 
-blue skies,
-   Martin.
-
-"Reality continues to ruin my life." - Calvin.
+                 Linus
