@@ -1,10 +1,10 @@
 Return-Path: <SRS0=agSP=SW=vger.kernel.org=kvm-owner@kernel.org>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 6/8] s390: kvm: test CRYCB masks before setting them
-Date: Sat, 20 Apr 2019 17:49:38 -0400
+Subject: [PATCH v2 5/8] s390: vfio-ap: wait for queue empty on queue reset
+Date: Sat, 20 Apr 2019 17:49:37 -0400
 In-Reply-To: <1555796980-27920-1-git-send-email-akrowiak@linux.ibm.com>
 References: <1555796980-27920-1-git-send-email-akrowiak@linux.ibm.com>
-Message-Id: <1555796980-27920-7-git-send-email-akrowiak@linux.ibm.com>
+Message-Id: <1555796980-27920-6-git-send-email-akrowiak@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,64 +12,74 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-There is no sense in blocking all vCPUs to set the masks in the guest's
-CRYCB if the mask values will not be changed, so let's verify
-
-Let's verify that mask values will be changed before blocking all vCPUs
-in order to set the crypto masks in the guest's CRYCB.
+Refactors the AP queue reset function to wait until the queue is empty
+after the PQAP(ZAPQ) instruction is executed to zero out the queue as
+required by the AP architecture.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ drivers/s390/crypto/vfio_ap_ops.c | 35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4638303ba6a8..38835717c815 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2217,12 +2217,43 @@ static void kvm_s390_set_crycb_format(struct kvm *kvm)
- 		kvm->arch.crypto.crycbd |= CRYCB_FORMAT1;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 091804317c5e..31ce30ee784d 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -744,15 +744,44 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 	return NOTIFY_OK;
  }
  
-+static int kvm_arch_crypto_test_masks(struct kvm *kvm, unsigned long *apm,
-+				      unsigned long *aqm, unsigned long *adm)
-+{
-+	int ret;
-+	struct kvm_s390_crypto_cb *crycb = kvm->arch.crypto.crycb;
+-static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+-				    unsigned int retry)
++static void vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
+ {
+ 	struct ap_queue_status status;
++	ap_qid_t qid = AP_MKQID(apid, apqi);
++	int retry = 5;
 +
-+	switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
-+	case CRYCB_FORMAT2: /* APCB1 use 256 bits */
-+		ret = bitmap_equal(apm, (unsigned long *)crycb->apcb1.apm, 256);
-+		ret &= bitmap_equal(aqm,
-+				    (unsigned long *)crycb->apcb1.aqm, 256);
-+		ret &= bitmap_equal(adm,
-+				    (unsigned long *)crycb->apcb1.adm, 256);
-+		break;
-+	case CRYCB_FORMAT1:
-+	case CRYCB_FORMAT0: /* Fall through both use APCB0 */
-+		ret = bitmap_equal(apm, (unsigned long *)crycb->apcb0.apm, 64);
-+		ret &= bitmap_equal(aqm, (unsigned long *)crycb->apcb0.aqm, 16);
-+		ret &= bitmap_equal(adm, (unsigned long *)crycb->apcb0.adm, 16);
-+		break;
-+	default:	/* Can not happen */
-+		ret = 0;
-+		break;
-+	}
-+	return ret;
++	do {
++		status = ap_tapq(qid, NULL);
++		switch (status.response_code) {
++		case AP_RESPONSE_NORMAL:
++			if (status.queue_empty)
++				return;
++			msleep(20);
++			break;
++		case AP_RESPONSE_RESET_IN_PROGRESS:
++		case AP_RESPONSE_BUSY:
++			msleep(20);
++			break;
++		default:
++			pr_warn("%s: tapq err %02x: 0x%04x may not be empty\n",
++				__func__, status.response_code, q->apqn);
++			return;
++		}
++	} while (--retry);
 +}
 +
- void kvm_arch_crypto_set_masks(struct kvm *kvm, unsigned long *apm,
- 			       unsigned long *aqm, unsigned long *adm)
- {
- 	struct kvm_s390_crypto_cb *crycb = kvm->arch.crypto.crycb;
++int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi)
++{
++	struct ap_queue_status status;
++	int retry = 5;
  
- 	mutex_lock(&kvm->lock);
-+	if (kvm_arch_crypto_test_masks(kvm, apm, aqm, adm)) {
-+		mutex_unlock(&kvm->lock);
-+		return;
-+	}
- 	kvm_s390_vcpu_block_all(kvm);
- 
- 	switch (kvm->arch.crypto.crycbd & CRYCB_FORMAT_MASK) {
+ 	do {
+ 		status = ap_zapq(AP_MKQID(apid, apqi));
+ 		switch (status.response_code) {
+ 		case AP_RESPONSE_NORMAL:
++			vfio_ap_mdev_wait_for_qempty(apid, apqi);
++			return 0;
++		case AP_RESPONSE_DECONFIGURED:
+ 			return 0;
+ 		case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		case AP_RESPONSE_BUSY:
+@@ -778,7 +807,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+ 			     matrix_mdev->matrix.apm_max + 1) {
+ 		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+ 				     matrix_mdev->matrix.aqm_max + 1) {
+-			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
++			ret = vfio_ap_mdev_reset_queue(apid, apqi);
+ 			/*
+ 			 * Regardless whether a queue turns out to be busy, or
+ 			 * is not operational, we need to continue resetting
 -- 
 2.7.4
