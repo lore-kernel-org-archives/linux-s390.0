@@ -1,108 +1,241 @@
-Return-Path: <SRS0=NhyN=SP=vger.kernel.org=linux-kernel-owner@kernel.org>
+Return-Path: <SRS0=agSP=SW=vger.kernel.org=kvm-owner@kernel.org>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Subject: [PATCH] KVM: Directly return result from kvm_arch_check_processor_compat()
+Date: Fri, 19 Apr 2019 22:18:17 -0700
+Message-Id: <20190420051817.5644-1-sean.j.christopherson@intel.com>
 MIME-Version: 1.0
-Date: Sat, 13 Apr 2019 09:16:08 -0700
-Message-ID: <000000000000ac48ed05866bbc2c@google.com>
-Subject: WARNING in smc_unhash_sk (2)
-From: syzbot <syzbot+bd8cc73d665590a1fcad@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: davem@davemloft.net, kgraul@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
+Content-Transfer-Encoding: 8bit
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: James Hogan <jhogan@kernel.org>, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Joerg Roedel <joro@8bytes.org>, Christoffer Dall <christoffer.dall@arm.com>, Marc Zyngier <marc.zyngier@arm.com>
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, James Morse <james.morse@arm.com>, Julien Thierry <julien.thierry@arm.com>, Suzuki K Pouloze <suzuki.poulose@arm.com>, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
 List-ID: <linux-s390.vger.kernel.org>
 
-Hello,
+Add a wrapper to invoke kvm_arch_check_processor_compat() so that the
+boilerplate ugliness of checking virtualization support on all CPUs is
+hidden from the arch specific code.  x86's implementation in particular
+is quite heinous, as it unnecessarily propagates the out-param pattern
+into kvm_x86_ops.
 
-syzbot found the following crash on:
+While the x86 specific issue could be resolved solely by changing
+kvm_x86_ops, make the change for all architectures as returning a value
+directly is prettier and technically more robust, e.g. s390 doesn't set
+the out param, which could lead to subtle breakage in the (highly
+unlikely) scenario where the out-param was not pre-initialized by the
+caller.
 
-HEAD commit:    e0a092eb Merge branch 'smc-next'
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=10fb322d200000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=94c460c3e4cd188a
-dashboard link: https://syzkaller.appspot.com/bug?extid=bd8cc73d665590a1fcad
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=176c98f3200000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15ea286b200000
+Opportunistically annotate svm_check_processor_compat() with __init.
 
-The bug was bisected to:
-
-commit 50717a37db032ce783f50685a73bb2ac68471a5a
-Author: Ursula Braun <ubraun@linux.ibm.com>
-Date:   Fri Apr 12 10:57:23 2019 +0000
-
-     net/smc: nonblocking connect rework
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=14764e5b200000
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=16764e5b200000
-console output: https://syzkaller.appspot.com/x/log.txt?x=12764e5b200000
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+bd8cc73d665590a1fcad@syzkaller.appspotmail.com
-Fixes: 50717a37db03 ("net/smc: nonblocking connect rework")
-
-WARNING: CPU: 0 PID: 7716 at include/net/sock.h:666 sk_del_node_init  
-include/net/sock.h:666 [inline]
-WARNING: CPU: 0 PID: 7716 at include/net/sock.h:666  
-smc_unhash_sk+0x1ea/0x260 net/smc/af_smc.c:95
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 7716 Comm: syz-executor514 Not tainted 5.1.0-rc4+ #135
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
-  panic+0x2cb/0x65c kernel/panic.c:214
-  __warn.cold+0x20/0x45 kernel/panic.c:571
-  report_bug+0x263/0x2b0 lib/bug.c:186
-  fixup_bug arch/x86/kernel/traps.c:179 [inline]
-  fixup_bug arch/x86/kernel/traps.c:174 [inline]
-  do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:272
-  do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:291
-  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:973
-RIP: 0010:sk_del_node_init include/net/sock.h:666 [inline]
-RIP: 0010:smc_unhash_sk+0x1ea/0x260 net/smc/af_smc.c:95
-Code: ff ff ff ff e8 57 e6 95 fe e8 82 9e 92 fa 4c 89 ef e8 ca 21 38 00 48  
-83 c4 08 5b 41 5c 41 5d 41 5e 41 5f 5d c3 e8 66 9e 92 fa <0f> 0b eb 86 4c  
-89 e7 e8 9a e7 ca fa e9 5f ff ff ff e8 b0 e7 ca fa
-RSP: 0018:ffff888085e3fbd8 EFLAGS: 00010293
-RAX: ffff888090874080 RBX: ffff8880914f9240 RCX: ffffffff86ddf01e
-RDX: 0000000000000000 RSI: ffffffff86ddf09a RDI: 0000000000000005
-RBP: ffff888085e3fc08 R08: ffff888090874080 R09: ffffed101229f259
-R10: ffffed101229f258 R11: ffff8880914f92c3 R12: ffff8880914f92c0
-R13: ffffffff895353e0 R14: ffff8880914f9268 R15: 0000000000000001
-  smc_release+0x337/0x820 net/smc/af_smc.c:164
-  __sock_release+0xd3/0x2b0 net/socket.c:599
-  sock_close+0x1b/0x30 net/socket.c:1247
-  __fput+0x2e5/0x8d0 fs/file_table.c:278
-  ____fput+0x16/0x20 fs/file_table.c:309
-  task_work_run+0x14a/0x1c0 kernel/task_work.c:113
-  exit_task_work include/linux/task_work.h:22 [inline]
-  do_exit+0x90a/0x2fa0 kernel/exit.c:876
-  do_group_exit+0x135/0x370 kernel/exit.c:980
-  __do_sys_exit_group kernel/exit.c:991 [inline]
-  __se_sys_exit_group kernel/exit.c:989 [inline]
-  __x64_sys_exit_group+0x44/0x50 kernel/exit.c:989
-  do_syscall_64+0x103/0x610 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x43ee18
-Code: Bad RIP value.
-RSP: 002b:00007ffc9ebae588 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 000000000043ee18
-RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
-RBP: 00000000004be628 R08: 00000000000000e7 R09: ffffffffffffffd0
-R10: 0000000000000004 R11: 0000000000000246 R12: 0000000000000001
-R13: 00000000006d0180 R14: 0000000000000000 R15: 0000000000000000
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+Tested on VMX only.
+
+ arch/mips/kvm/mips.c             | 4 ++--
+ arch/powerpc/kvm/powerpc.c       | 4 ++--
+ arch/s390/include/asm/kvm_host.h | 1 -
+ arch/s390/kvm/kvm-s390.c         | 5 +++++
+ arch/x86/include/asm/kvm_host.h  | 2 +-
+ arch/x86/kvm/svm.c               | 4 ++--
+ arch/x86/kvm/vmx/vmx.c           | 8 ++++----
+ arch/x86/kvm/x86.c               | 4 ++--
+ include/linux/kvm_host.h         | 2 +-
+ virt/kvm/arm/arm.c               | 4 ++--
+ virt/kvm/kvm_main.c              | 9 ++++++---
+ 11 files changed, 27 insertions(+), 20 deletions(-)
+
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 6d0517ac18e5..1c22b938c550 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -123,9 +123,9 @@ int kvm_arch_hardware_setup(void)
+ 	return 0;
+ }
+ 
+-void kvm_arch_check_processor_compat(void *rtn)
++int kvm_arch_check_processor_compat(void)
+ {
+-	*(int *)rtn = 0;
++	return 0;
+ }
+ 
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index 92910b7c5bcc..7b7635201739 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -425,9 +425,9 @@ int kvm_arch_hardware_setup(void)
+ 	return 0;
+ }
+ 
+-void kvm_arch_check_processor_compat(void *rtn)
++int kvm_arch_check_processor_compat(void)
+ {
+-	*(int *)rtn = kvmppc_core_check_processor_compat();
++	return kvmppc_core_check_processor_compat();
+ }
+ 
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index c47e22bba87f..96a1603ecf10 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -903,7 +903,6 @@ extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
+ extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
+ 
+ static inline void kvm_arch_hardware_disable(void) {}
+-static inline void kvm_arch_check_processor_compat(void *rtn) {}
+ static inline void kvm_arch_sync_events(struct kvm *kvm) {}
+ static inline void kvm_arch_vcpu_uninit(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 28f35d2b06cb..4c50bd533ebc 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -221,6 +221,11 @@ int kvm_arch_hardware_enable(void)
+ 	return 0;
+ }
+ 
++int kvm_arch_check_processor_compat(void)
++{
++	return 0;
++}
++
+ static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
+ 			      unsigned long end);
+ 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 8d68ba0cba0c..02ba99ef8c5f 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -995,7 +995,7 @@ struct kvm_x86_ops {
+ 	int (*disabled_by_bios)(void);             /* __init */
+ 	int (*hardware_enable)(void);
+ 	void (*hardware_disable)(void);
+-	void (*check_processor_compatibility)(void *rtn);
++	int (*check_processor_compatibility)(void);/* __init */
+ 	int (*hardware_setup)(void);               /* __init */
+ 	void (*hardware_unsetup)(void);            /* __exit */
+ 	bool (*cpu_has_accelerated_tpr)(void);
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 406b558abfef..236e2fc0edec 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -5859,9 +5859,9 @@ svm_patch_hypercall(struct kvm_vcpu *vcpu, unsigned char *hypercall)
+ 	hypercall[2] = 0xd9;
+ }
+ 
+-static void svm_check_processor_compat(void *rtn)
++static int __init svm_check_processor_compat(void)
+ {
+-	*(int *)rtn = 0;
++	return 0;
+ }
+ 
+ static bool svm_cpu_has_accelerated_tpr(void)
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index d8f101b58ab8..7d0733b8f383 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6720,22 +6720,22 @@ static int vmx_vm_init(struct kvm *kvm)
+ 	return 0;
+ }
+ 
+-static void __init vmx_check_processor_compat(void *rtn)
++static int __init vmx_check_processor_compat(void)
+ {
+ 	struct vmcs_config vmcs_conf;
+ 	struct vmx_capability vmx_cap;
+ 
+-	*(int *)rtn = 0;
+ 	if (setup_vmcs_config(&vmcs_conf, &vmx_cap) < 0)
+-		*(int *)rtn = -EIO;
++		return -EIO;
+ 	if (nested)
+ 		nested_vmx_setup_ctls_msrs(&vmcs_conf.nested, vmx_cap.ept,
+ 					   enable_apicv);
+ 	if (memcmp(&vmcs_config, &vmcs_conf, sizeof(struct vmcs_config)) != 0) {
+ 		printk(KERN_ERR "kvm: CPU %d feature inconsistency!\n",
+ 				smp_processor_id());
+-		*(int *)rtn = -EIO;
++		return -EIO;
+ 	}
++	return 0;
+ }
+ 
+ static u64 vmx_get_mt_mask(struct kvm_vcpu *vcpu, gfn_t gfn, bool is_mmio)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c09507057743..6214c27b0c2a 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9042,9 +9042,9 @@ void kvm_arch_hardware_unsetup(void)
+ 	kvm_x86_ops->hardware_unsetup();
+ }
+ 
+-void kvm_arch_check_processor_compat(void *rtn)
++int kvm_arch_check_processor_compat(void)
+ {
+-	kvm_x86_ops->check_processor_compatibility(rtn);
++	return kvm_x86_ops->check_processor_compatibility();
+ }
+ 
+ bool kvm_vcpu_is_reset_bsp(struct kvm_vcpu *vcpu)
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 640a03642766..0ddef348b9b0 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -842,7 +842,7 @@ int kvm_arch_hardware_enable(void);
+ void kvm_arch_hardware_disable(void);
+ int kvm_arch_hardware_setup(void);
+ void kvm_arch_hardware_unsetup(void);
+-void kvm_arch_check_processor_compat(void *rtn);
++int kvm_arch_check_processor_compat(void);
+ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu);
+ bool kvm_arch_vcpu_in_kernel(struct kvm_vcpu *vcpu);
+ int kvm_arch_vcpu_should_kick(struct kvm_vcpu *vcpu);
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index be4ec5f3ba5f..67ecadbd8961 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -105,9 +105,9 @@ int kvm_arch_hardware_setup(void)
+ 	return 0;
+ }
+ 
+-void kvm_arch_check_processor_compat(void *rtn)
++int kvm_arch_check_processor_compat(void)
+ {
+-	*(int *)rtn = 0;
++	return 0;
+ }
+ 
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 4bb20f2b2a69..41effae3f9ec 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4135,6 +4135,11 @@ static void kvm_sched_out(struct preempt_notifier *pn,
+ 	kvm_arch_vcpu_put(vcpu);
+ }
+ 
++static void check_processor_compat(void *rtn)
++{
++	*(int *)rtn = kvm_arch_check_processor_compat();
++}
++
+ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
+ 		  struct module *module)
+ {
+@@ -4166,9 +4171,7 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
+ 		goto out_free_0a;
+ 
+ 	for_each_online_cpu(cpu) {
+-		smp_call_function_single(cpu,
+-				kvm_arch_check_processor_compat,
+-				&r, 1);
++		smp_call_function_single(cpu, check_processor_compat, &r, 1);
+ 		if (r < 0)
+ 			goto out_free_1;
+ 	}
+-- 
+2.21.0
