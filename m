@@ -1,10 +1,10 @@
 Return-Path: <SRS0=BnvS=SY=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 19/21] scsi: zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
-Date: Mon, 22 Apr 2019 15:49:39 -0400
-Message-Id: <20190422194941.13433-19-sashal@kernel.org>
-In-Reply-To: <20190422194941.13433-1-sashal@kernel.org>
-References: <20190422194941.13433-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 13/15] scsi: zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
+Date: Mon, 22 Apr 2019 15:50:20 -0400
+Message-Id: <20190422195022.13760-13-sashal@kernel.org>
+In-Reply-To: <20190422195022.13760-1-sashal@kernel.org>
+References: <20190422195022.13760-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -74,10 +74,10 @@ Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
  1 file changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 237688af179b..f7630cf581cd 100644
+index ca28e1c66115..f9d59262da88 100644
 --- a/drivers/s390/scsi/zfcp_fc.c
 +++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -238,10 +238,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+@@ -195,10 +195,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
  	list_for_each_entry(port, &adapter->port_list, list) {
  		if ((port->d_id & range) == (ntoh24(page->rscn_fid) & range))
  			zfcp_fc_test_link(port);
@@ -88,7 +88,7 @@ index 237688af179b..f7630cf581cd 100644
  	}
  	read_unlock_irqrestore(&adapter->port_list_lock, flags);
  }
-@@ -249,6 +245,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+@@ -206,6 +202,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
  static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
  {
  	struct fsf_status_read_buffer *status_buffer = (void *)fsf_req->data;
@@ -96,7 +96,7 @@ index 237688af179b..f7630cf581cd 100644
  	struct fc_els_rscn *head;
  	struct fc_els_rscn_page *page;
  	u16 i;
-@@ -261,6 +258,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+@@ -218,6 +215,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
  	/* see FC-FS */
  	no_entries = head->rscn_plen / sizeof(struct fc_els_rscn_page);
  
