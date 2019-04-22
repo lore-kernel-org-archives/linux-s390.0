@@ -1,59 +1,123 @@
 Return-Path: <SRS0=BnvS=SY=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 02/29] s390: limit brk randomization to 32MB
-Date: Mon, 22 Apr 2019 15:48:21 -0400
-Message-Id: <20190422194848.13049-2-sashal@kernel.org>
-In-Reply-To: <20190422194848.13049-1-sashal@kernel.org>
-References: <20190422194848.13049-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 19/21] scsi: zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
+Date: Mon, 22 Apr 2019 15:49:39 -0400
+Message-Id: <20190422194941.13433-19-sashal@kernel.org>
+In-Reply-To: <20190422194941.13433-1-sashal@kernel.org>
+References: <20190422194941.13433-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-[ Upstream commit cd479eccd2e057116d504852814402a1e68ead80 ]
+[ Upstream commit c8206579175c34a2546de8a74262456278a7795a ]
 
-For a 64-bit process the randomization of the program break is quite
-large with 1GB. That is as big as the randomization of the anonymous
-mapping base, for a test case started with '/lib/ld64.so.1 <exec>'
-it can happen that the heap is placed after the stack. To avoid
-this limit the program break randomization to 32MB for 64-bit and
-keep 8MB for 31-bit.
+If an incoming ELS of type RSCN contains more than one element, zfcp
+suboptimally causes repeated erp trigger NOP trace records for each
+previously failed port. These could be ports that went away.  It loops over
+each RSCN element, and for each of those in an inner loop over all
+zfcp_ports.
 
-Reported-by: Stefan Liebler <stli@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+The trigger to recover failed ports should be just the reception of some
+RSCN, no matter how many elements it has. So we can loop over failed ports
+separately, and only then loop over each RSCN element to handle the
+non-failed ports.
+
+The call chain was:
+
+  zfcp_fc_incoming_rscn
+    for (i = 1; i < no_entries; i++)
+      _zfcp_fc_incoming_rscn
+        list_for_each_entry(port, &adapter->port_list, list)
+          if (masked port->d_id match) zfcp_fc_test_link
+          if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"   <===
+
+In order the reduce the "flooding" of the REC trace area in such cases, we
+factor out handling the failed ports to be outside of the entries loop:
+
+  zfcp_fc_incoming_rscn
+    if (no_entries > 1)                                     <===
+      list_for_each_entry(port, &adapter->port_list, list)  <===
+        if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"     <===
+    for (i = 1; i < no_entries; i++)
+      _zfcp_fc_incoming_rscn
+        list_for_each_entry(port, &adapter->port_list, list)
+          if (masked port->d_id match) zfcp_fc_test_link
+
+Abbreviated example trace records before this code change:
+
+Tag            : fcrscn1
+WWPN           : 0x500507630310d327
+ERP want       : 0x02
+ERP need       : 0x02
+
+Tag            : fcrscn1
+WWPN           : 0x500507630310d327
+ERP want       : 0x02
+ERP need       : 0x00                 NOP => superfluous trace record
+
+The last trace entry repeats if there are more than 2 RSCN elements.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- arch/s390/include/asm/elf.h | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/s390/scsi/zfcp_fc.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/elf.h b/arch/s390/include/asm/elf.h
-index 8d665f1b29f8..f0fe566a9910 100644
---- a/arch/s390/include/asm/elf.h
-+++ b/arch/s390/include/asm/elf.h
-@@ -215,11 +215,14 @@ do {								\
+diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+index 237688af179b..f7630cf581cd 100644
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -238,10 +238,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+ 	list_for_each_entry(port, &adapter->port_list, list) {
+ 		if ((port->d_id & range) == (ntoh24(page->rscn_fid) & range))
+ 			zfcp_fc_test_link(port);
+-		if (!port->d_id)
+-			zfcp_erp_port_reopen(port,
+-					     ZFCP_STATUS_COMMON_ERP_FAILED,
+-					     "fcrscn1");
+ 	}
+ 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
+ }
+@@ -249,6 +245,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
+ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+ {
+ 	struct fsf_status_read_buffer *status_buffer = (void *)fsf_req->data;
++	struct zfcp_adapter *adapter = fsf_req->adapter;
+ 	struct fc_els_rscn *head;
+ 	struct fc_els_rscn_page *page;
+ 	u16 i;
+@@ -261,6 +258,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
+ 	/* see FC-FS */
+ 	no_entries = head->rscn_plen / sizeof(struct fc_els_rscn_page);
  
- /*
-  * Cache aliasing on the latest machines calls for a mapping granularity
-- * of 512KB. For 64-bit processes use a 512KB alignment and a randomization
-- * of up to 1GB. For 31-bit processes the virtual address space is limited,
-- * use no alignment and limit the randomization to 8MB.
-+ * of 512KB for the anonymous mapping base. For 64-bit processes use a
-+ * 512KB alignment and a randomization of up to 1GB. For 31-bit processes
-+ * the virtual address space is limited, use no alignment and limit the
-+ * randomization to 8MB.
-+ * For the additional randomization of the program break use 32MB for
-+ * 64-bit and 8MB for 31-bit.
-  */
--#define BRK_RND_MASK	(is_compat_task() ? 0x7ffUL : 0x3ffffUL)
-+#define BRK_RND_MASK	(is_compat_task() ? 0x7ffUL : 0x1fffUL)
- #define MMAP_RND_MASK	(is_compat_task() ? 0x7ffUL : 0x3ff80UL)
- #define MMAP_ALIGN_MASK	(is_compat_task() ? 0 : 0x7fUL)
- #define STACK_RND_MASK	MMAP_RND_MASK
++	if (no_entries > 1) {
++		/* handle failed ports */
++		unsigned long flags;
++		struct zfcp_port *port;
++
++		read_lock_irqsave(&adapter->port_list_lock, flags);
++		list_for_each_entry(port, &adapter->port_list, list) {
++			if (port->d_id)
++				continue;
++			zfcp_erp_port_reopen(port,
++					     ZFCP_STATUS_COMMON_ERP_FAILED,
++					     "fcrscn1");
++		}
++		read_unlock_irqrestore(&adapter->port_list_lock, flags);
++	}
++
+ 	for (i = 1; i < no_entries; i++) {
+ 		/* skip head and start with 1st element */
+ 		page++;
 -- 
 2.19.1
