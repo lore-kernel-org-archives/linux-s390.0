@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 02/10] MIPS: mark mult_sh_align_mod() as __always_inline
-Date: Tue, 23 Apr 2019 12:20:58 +0900
-Message-ID: <20190423032106.11960-3-yamada.masahiro@socionext.com>
+Subject: [PATCH v3 03/10] s390/cpacf: mark scpacf_query() as __always_inline
+Date: Tue, 23 Apr 2019 12:20:59 +0900
+Message-ID: <20190423032106.11960-4-yamada.masahiro@socionext.com>
 In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190423032058.2ACeEkZ6QqsYrHEWAcWcykfUvdKbdvY_2fsoSaW2Nyw@z>
+Message-ID: <20190423032059.yUTjWzkM-3FFTUCfPfVAIU3wxQbGma_P9irrvNUqnl0@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
@@ -16,21 +16,14 @@ List-ID: <linux-s390.vger.kernel.org>
 This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 place. We need to eliminate potential issues beforehand.
 
-If it is enabled for mips, the following error is reported:
+If it is enabled for s390, the following error is reported:
 
-arch/mips/kernel/cpu-bugs64.c: In function 'mult_sh_align_mod.constprop':
-arch/mips/kernel/cpu-bugs64.c:33:2: error: asm operand 1 probably doesn't match constraints [-Werror]
+In file included from arch/s390/crypto/des_s390.c:19:
+./arch/s390/include/asm/cpacf.h: In function 'cpacf_query':
+./arch/s390/include/asm/cpacf.h:170:2: warning: asm operand 3 probably doesn't match constraints
   asm volatile(
   ^~~
-arch/mips/kernel/cpu-bugs64.c:33:2: error: asm operand 1 probably doesn't match constraints [-Werror]
-  asm volatile(
-  ^~~
-arch/mips/kernel/cpu-bugs64.c:33:2: error: impossible constraint in 'asm'
-  asm volatile(
-  ^~~
-arch/mips/kernel/cpu-bugs64.c:33:2: error: impossible constraint in 'asm'
-  asm volatile(
-  ^~~
+./arch/s390/include/asm/cpacf.h:170:2: error: impossible constraint in 'asm'
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
@@ -39,23 +32,21 @@ Changes in v3: None
 Changes in v2:
   - split into a separate patch
 
- arch/mips/kernel/cpu-bugs64.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/cpacf.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/cpu-bugs64.c b/arch/mips/kernel/cpu-bugs64.c
-index bada74af7641..c04b97aace4a 100644
---- a/arch/mips/kernel/cpu-bugs64.c
-+++ b/arch/mips/kernel/cpu-bugs64.c
-@@ -42,8 +42,8 @@ static inline void align_mod(const int align, const int mod)
- 		: "n"(align), "n"(mod));
+diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+index 3cc52e37b4b2..f316de40e51b 100644
+--- a/arch/s390/include/asm/cpacf.h
++++ b/arch/s390/include/asm/cpacf.h
+@@ -202,7 +202,7 @@ static inline int __cpacf_check_opcode(unsigned int opcode)
+ 	}
  }
  
--static inline void mult_sh_align_mod(long *v1, long *v2, long *w,
--				     const int align, const int mod)
-+static __always_inline void mult_sh_align_mod(long *v1, long *v2, long *w,
-+					      const int align, const int mod)
+-static inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
++static __always_inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
  {
- 	unsigned long flags;
- 	int m1, m2;
+ 	if (__cpacf_check_opcode(opcode)) {
+ 		__cpacf_query(opcode, mask);
 -- 
 2.17.1
