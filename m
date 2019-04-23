@@ -1,123 +1,87 @@
-Return-Path: <SRS0=BnvS=SY=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 13/15] scsi: zfcp: reduce flood of fcrscn1 trace records on multi-element RSCN
-Date: Mon, 22 Apr 2019 15:50:20 -0400
-Message-Id: <20190422195022.13760-13-sashal@kernel.org>
-In-Reply-To: <20190422195022.13760-1-sashal@kernel.org>
-References: <20190422195022.13760-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH v3 09/10] powerpc/mm/radix: mark as __tlbie_pid() and friends as__always_inline
+Date: Tue, 23 Apr 2019 12:21:05 +0900
+Message-ID: <20190423032106.11960-10-yamada.masahiro@socionext.com>
+References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Mathieu Malaterre <malat@debian.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Steffen Maier <maier@linux.ibm.com>
+This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
+place. We need to eliminate potential issues beforehand.
 
-[ Upstream commit c8206579175c34a2546de8a74262456278a7795a ]
+If it is enabled for powerpc, the following errors are reported:
 
-If an incoming ELS of type RSCN contains more than one element, zfcp
-suboptimally causes repeated erp trigger NOP trace records for each
-previously failed port. These could be ports that went away.  It loops over
-each RSCN element, and for each of those in an inner loop over all
-zfcp_ports.
+arch/powerpc/mm/tlb-radix.c: In function '__tlbie_lpid':
+arch/powerpc/mm/tlb-radix.c:148:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
+  ^~~
+arch/powerpc/mm/tlb-radix.c:148:2: error: impossible constraint in 'asm'
+arch/powerpc/mm/tlb-radix.c: In function '__tlbie_pid':
+arch/powerpc/mm/tlb-radix.c:118:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
+  ^~~
+arch/powerpc/mm/tlb-radix.c: In function '__tlbiel_pid':
+arch/powerpc/mm/tlb-radix.c:104:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+  ^~~
 
-The trigger to recover failed ports should be just the reception of some
-RSCN, no matter how many elements it has. So we can loop over failed ports
-separately, and only then loop over each RSCN element to handle the
-non-failed ports.
-
-The call chain was:
-
-  zfcp_fc_incoming_rscn
-    for (i = 1; i < no_entries; i++)
-      _zfcp_fc_incoming_rscn
-        list_for_each_entry(port, &adapter->port_list, list)
-          if (masked port->d_id match) zfcp_fc_test_link
-          if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"   <===
-
-In order the reduce the "flooding" of the REC trace area in such cases, we
-factor out handling the failed ports to be outside of the entries loop:
-
-  zfcp_fc_incoming_rscn
-    if (no_entries > 1)                                     <===
-      list_for_each_entry(port, &adapter->port_list, list)  <===
-        if (!port->d_id) zfcp_erp_port_reopen "fcrscn1"     <===
-    for (i = 1; i < no_entries; i++)
-      _zfcp_fc_incoming_rscn
-        list_for_each_entry(port, &adapter->port_list, list)
-          if (masked port->d_id match) zfcp_fc_test_link
-
-Abbreviated example trace records before this code change:
-
-Tag            : fcrscn1
-WWPN           : 0x500507630310d327
-ERP want       : 0x02
-ERP need       : 0x02
-
-Tag            : fcrscn1
-WWPN           : 0x500507630310d327
-ERP want       : 0x02
-ERP need       : 0x00                 NOP => superfluous trace record
-
-The last trace entry repeats if there are more than 2 RSCN elements.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
- drivers/s390/scsi/zfcp_fc.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index ca28e1c66115..f9d59262da88 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -195,10 +195,6 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
- 	list_for_each_entry(port, &adapter->port_list, list) {
- 		if ((port->d_id & range) == (ntoh24(page->rscn_fid) & range))
- 			zfcp_fc_test_link(port);
--		if (!port->d_id)
--			zfcp_erp_port_reopen(port,
--					     ZFCP_STATUS_COMMON_ERP_FAILED,
--					     "fcrscn1");
- 	}
- 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
+Changes in v3: None
+Changes in v2:
+  - new patch
+
+ arch/powerpc/mm/tlb-radix.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/powerpc/mm/tlb-radix.c b/arch/powerpc/mm/tlb-radix.c
+index a2b2848f0ae3..14ff414d1545 100644
+--- a/arch/powerpc/mm/tlb-radix.c
++++ b/arch/powerpc/mm/tlb-radix.c
+@@ -90,8 +90,8 @@ void radix__tlbiel_all(unsigned int action)
+ 	asm volatile(PPC_INVALIDATE_ERAT "; isync" : : :"memory");
  }
-@@ -206,6 +202,7 @@ static void _zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req, u32 range,
- static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
- {
- 	struct fsf_status_read_buffer *status_buffer = (void *)fsf_req->data;
-+	struct zfcp_adapter *adapter = fsf_req->adapter;
- 	struct fc_els_rscn *head;
- 	struct fc_els_rscn_page *page;
- 	u16 i;
-@@ -218,6 +215,22 @@ static void zfcp_fc_incoming_rscn(struct zfcp_fsf_req *fsf_req)
- 	/* see FC-FS */
- 	no_entries = head->rscn_plen / sizeof(struct fc_els_rscn_page);
  
-+	if (no_entries > 1) {
-+		/* handle failed ports */
-+		unsigned long flags;
-+		struct zfcp_port *port;
-+
-+		read_lock_irqsave(&adapter->port_list_lock, flags);
-+		list_for_each_entry(port, &adapter->port_list, list) {
-+			if (port->d_id)
-+				continue;
-+			zfcp_erp_port_reopen(port,
-+					     ZFCP_STATUS_COMMON_ERP_FAILED,
-+					     "fcrscn1");
-+		}
-+		read_unlock_irqrestore(&adapter->port_list_lock, flags);
-+	}
-+
- 	for (i = 1; i < no_entries; i++) {
- 		/* skip head and start with 1st element */
- 		page++;
+-static inline void __tlbiel_pid(unsigned long pid, int set,
+-				unsigned long ric)
++static __always_inline void __tlbiel_pid(unsigned long pid, int set,
++					 unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -106,7 +106,7 @@ static inline void __tlbiel_pid(unsigned long pid, int set,
+ 	trace_tlbie(0, 1, rb, rs, ric, prs, r);
+ }
+ 
+-static inline void __tlbie_pid(unsigned long pid, unsigned long ric)
++static __always_inline void __tlbie_pid(unsigned long pid, unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -136,7 +136,7 @@ static inline void __tlbiel_lpid(unsigned long lpid, int set,
+ 	trace_tlbie(lpid, 1, rb, rs, ric, prs, r);
+ }
+ 
+-static inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
++static __always_inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -239,7 +239,7 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
+ /*
+  * We use 128 set in radix mode and 256 set in hpt mode.
+  */
+-static inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
++static __always_inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
+ {
+ 	int set;
+ 
 -- 
-2.19.1
+2.17.1
