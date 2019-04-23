@@ -1,7 +1,7 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 09/10] powerpc/mm/radix: mark as __tlbie_pid() and friends as__always_inline
-Date: Tue, 23 Apr 2019 12:21:05 +0900
-Message-ID: <20190423032106.11960-10-yamada.masahiro@socionext.com>
+Subject: [PATCH v3 06/10] ARM: mark setup_machine_tags() stub as __init __noreturn
+Date: Tue, 23 Apr 2019 12:21:02 +0900
+Message-ID: <20190423032106.11960-7-yamada.masahiro@socionext.com>
 References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
@@ -15,21 +15,14 @@ List-ID: <linux-s390.vger.kernel.org>
 This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 place. We need to eliminate potential issues beforehand.
 
-If it is enabled for powerpc, the following errors are reported:
+If it is enabled for arm, Clang build results in the following modpost
+warning:
 
-arch/powerpc/mm/tlb-radix.c: In function '__tlbie_lpid':
-arch/powerpc/mm/tlb-radix.c:148:2: warning: asm operand 3 probably doesn't match constraints
-  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
-  ^~~
-arch/powerpc/mm/tlb-radix.c:148:2: error: impossible constraint in 'asm'
-arch/powerpc/mm/tlb-radix.c: In function '__tlbie_pid':
-arch/powerpc/mm/tlb-radix.c:118:2: warning: asm operand 3 probably doesn't match constraints
-  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
-  ^~~
-arch/powerpc/mm/tlb-radix.c: In function '__tlbiel_pid':
-arch/powerpc/mm/tlb-radix.c:104:2: warning: asm operand 3 probably doesn't match constraints
-  asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
-  ^~~
+WARNING: vmlinux.o(.text+0x1124): Section mismatch in reference from the function setup_machine_tags() to the function .init.text:early_print()
+The function setup_machine_tags() references
+the function __init early_print().
+This is often because setup_machine_tags lacks a __init
+annotation or the annotation of early_print is wrong.
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
@@ -38,50 +31,21 @@ Changes in v3: None
 Changes in v2:
   - new patch
 
- arch/powerpc/mm/tlb-radix.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/kernel/atags.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/tlb-radix.c b/arch/powerpc/mm/tlb-radix.c
-index a2b2848f0ae3..14ff414d1545 100644
---- a/arch/powerpc/mm/tlb-radix.c
-+++ b/arch/powerpc/mm/tlb-radix.c
-@@ -90,8 +90,8 @@ void radix__tlbiel_all(unsigned int action)
- 	asm volatile(PPC_INVALIDATE_ERAT "; isync" : : :"memory");
- }
- 
--static inline void __tlbiel_pid(unsigned long pid, int set,
--				unsigned long ric)
-+static __always_inline void __tlbiel_pid(unsigned long pid, int set,
-+					 unsigned long ric)
+diff --git a/arch/arm/kernel/atags.h b/arch/arm/kernel/atags.h
+index 201100226301..067e12edc341 100644
+--- a/arch/arm/kernel/atags.h
++++ b/arch/arm/kernel/atags.h
+@@ -5,7 +5,7 @@ void convert_to_tag_list(struct tag *tags);
+ const struct machine_desc *setup_machine_tags(phys_addr_t __atags_pointer,
+ 	unsigned int machine_nr);
+ #else
+-static inline const struct machine_desc *
++static inline const struct machine_desc * __init __noreturn
+ setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
  {
- 	unsigned long rb,rs,prs,r;
- 
-@@ -106,7 +106,7 @@ static inline void __tlbiel_pid(unsigned long pid, int set,
- 	trace_tlbie(0, 1, rb, rs, ric, prs, r);
- }
- 
--static inline void __tlbie_pid(unsigned long pid, unsigned long ric)
-+static __always_inline void __tlbie_pid(unsigned long pid, unsigned long ric)
- {
- 	unsigned long rb,rs,prs,r;
- 
-@@ -136,7 +136,7 @@ static inline void __tlbiel_lpid(unsigned long lpid, int set,
- 	trace_tlbie(lpid, 1, rb, rs, ric, prs, r);
- }
- 
--static inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
-+static __always_inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
- {
- 	unsigned long rb,rs,prs,r;
- 
-@@ -239,7 +239,7 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
- /*
-  * We use 128 set in radix mode and 256 set in hpt mode.
-  */
--static inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
-+static __always_inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
- {
- 	int set;
- 
+ 	early_print("no ATAGS support: can't continue\n");
 -- 
 2.17.1
