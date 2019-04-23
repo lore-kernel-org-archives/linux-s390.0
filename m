@@ -1,52 +1,97 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [RESEND PATCH v3 04/11] s390/cpacf: mark scpacf_query() as __always_inline
-Date: Tue, 23 Apr 2019 12:49:52 +0900
-Message-ID: <20190423034959.13525-5-yamada.masahiro@socionext.com>
+Subject: [RESEND PATCH v3 01/11] ARM: prevent tracing IPI_CPU_BACKTRACE
+Date: Tue, 23 Apr 2019 12:49:49 +0900
+Message-ID: <20190423034959.13525-2-yamada.masahiro@socionext.com>
 In-Reply-To: <20190423034959.13525-1-yamada.masahiro@socionext.com>
 References: <20190423034959.13525-1-yamada.masahiro@socionext.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190423034952._7n2srg1Yjp5Yjykp6g8g6gNrLbJsTSx2u6vPXKWP90@z>
+Message-ID: <20190423034949.xqlzSpCdRIFvw6yjpc34U6Lj3SddRyictb4f43sJ6d4@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
 Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Mathieu Malaterre <malat@debian.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
-place. We need to eliminate potential issues beforehand.
+From: Arnd Bergmann <arnd@arndb.de>
 
-If it is enabled for s390, the following error is reported:
+When function tracing for IPIs is enabled, we get a warning for an
+overflow of the ipi_types array with the IPI_CPU_BACKTRACE type
+as triggered by raise_nmi():
 
-In file included from arch/s390/crypto/des_s390.c:19:
-./arch/s390/include/asm/cpacf.h: In function 'cpacf_query':
-./arch/s390/include/asm/cpacf.h:170:2: warning: asm operand 3 probably doesn't match constraints
-  asm volatile(
-  ^~~
-./arch/s390/include/asm/cpacf.h:170:2: error: impossible constraint in 'asm'
+arch/arm/kernel/smp.c: In function 'raise_nmi':
+arch/arm/kernel/smp.c:489:2: error: array subscript is above array bounds [-Werror=array-bounds]
+  trace_ipi_raise(target, ipi_types[ipinr]);
 
+This is a correct warning as we actually overflow the array here.
+
+This patch raise_nmi() to call __smp_cross_call() instead of
+smp_cross_call(), to avoid calling into ftrace. For clarification,
+I'm also adding a two new code comments describing how this one
+is special.
+
+The warning appears to have shown up after patch e7273ff49acf
+("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI"), which
+changed the number assignment from '15' to '8', but as far as I can
+tell has existed since the IPI tracepoints were first introduced.
+If we decide to backport this patch to stable kernels, we probably
+need to backport e7273ff49acf as well.
+
+Fixes: e7273ff49acf ("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI")
+Fixes: 365ec7b17327 ("ARM: add IPI tracepoints") # v3.17
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[yamada.masahiro@socionext.com: rebase on v5.1-rc1]
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
+This is a long-standing issue, and
+Arnd posted this patch two years ago:
+http://lists.infradead.org/pipermail/linux-arm-kernel/2016-February/409393.html
+
+It is no longer applied, so I rebased it on top of the latest kernel.
+
 
 Changes in v3: None
-Changes in v2:
-  - split into a separate patch
+Changes in v2: None
 
- arch/s390/include/asm/cpacf.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/hardirq.h | 1 +
+ arch/arm/kernel/smp.c          | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index 3cc52e37b4b2..f316de40e51b 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -202,7 +202,7 @@ static inline int __cpacf_check_opcode(unsigned int opcode)
- 	}
+diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
+index cba23eaa6072..7a88f160b1fb 100644
+--- a/arch/arm/include/asm/hardirq.h
++++ b/arch/arm/include/asm/hardirq.h
+@@ -6,6 +6,7 @@
+ #include <linux/threads.h>
+ #include <asm/irq.h>
+ 
++/* number of IPIS _not_ including IPI_CPU_BACKTRACE */
+ #define NR_IPI	7
+ 
+ typedef struct {
+diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
+index facd4240ca02..c93fe0f256de 100644
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -70,6 +70,10 @@ enum ipi_msg_type {
+ 	IPI_CPU_STOP,
+ 	IPI_IRQ_WORK,
+ 	IPI_COMPLETION,
++	/*
++	 * CPU_BACKTRACE is special and not included in NR_IPI
++	 * or tracable with trace_ipi_*
++	 */
+ 	IPI_CPU_BACKTRACE,
+ 	/*
+ 	 * SGI8-15 can be reserved by secure firmware, and thus may
+@@ -797,7 +801,7 @@ core_initcall(register_cpufreq_notifier);
+ 
+ static void raise_nmi(cpumask_t *mask)
+ {
+-	smp_cross_call(mask, IPI_CPU_BACKTRACE);
++	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
  }
  
--static inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
-+static __always_inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
- {
- 	if (__cpacf_check_opcode(opcode)) {
- 		__cpacf_query(opcode, mask);
+ void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)
 -- 
 2.17.1
