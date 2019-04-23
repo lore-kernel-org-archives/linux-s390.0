@@ -1,66 +1,54 @@
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 07/10] powerpc/prom_init: mark prom_getprop() and prom_getproplen() as __init
-Date: Tue, 23 Apr 2019 12:21:03 +0900
-Message-ID: <20190423032106.11960-8-yamada.masahiro@socionext.com>
-References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v3 00/10] compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING
+Date: Tue, 23 Apr 2019 12:20:56 +0900
+Message-ID: <20190423032106.11960-1-yamada.masahiro@socionext.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190423032056.RmtWz2ypIXSixXNpzEfA7D5OWD-B24JGCidnKibRtsQ@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
 Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Mathieu Malaterre <malat@debian.org>, Masahiro Yamada <yamada.masahiro@socionext.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
-place. We need to eliminate potential issues beforehand.
+Major changes in v3:
+ - Fix link error for arch/mips/configs/ci20_defconfig
 
-If it is enabled for powerpc, the following modpost warnings are
-reported:
+Major changes in v2:
+ - Eliminate more errors and warnings
+ - Delete 'depends on !MIPS'
+ - Split into separate patches
 
-WARNING: vmlinux.o(.text.unlikely+0x20): Section mismatch in reference from the function .prom_getprop() to the function .init.text:.call_prom()
-The function .prom_getprop() references
-the function __init .call_prom().
-This is often because .prom_getprop lacks a __init
-annotation or the annotation of .call_prom is wrong.
+Masahiro Yamada (10):
+  arm64: mark (__)cpus_have_const_cap as __always_inline
+  MIPS: mark mult_sh_align_mod() as __always_inline
+  s390/cpacf: mark scpacf_query() as __always_inline
+  mtd: rawnand: vf610_nfc: add initializer to avoid
+    -Wmaybe-uninitialized
+  MIPS: mark __fls() and __ffs() as __always_inline
+  ARM: mark setup_machine_tags() stub as __init __noreturn
+  powerpc/prom_init: mark prom_getprop() and prom_getproplen() as __init
+  powerpc/mm/radix: mark __radix__flush_tlb_range_psize() as
+    __always_inline
+  powerpc/mm/radix: mark as __tlbie_pid() and friends as__always_inline
+  compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING
 
-WARNING: vmlinux.o(.text.unlikely+0x3c): Section mismatch in reference from the function .prom_getproplen() to the function .init.text:.call_prom()
-The function .prom_getproplen() references
-the function __init .call_prom().
-This is often because .prom_getproplen lacks a __init
-annotation or the annotation of .call_prom is wrong.
+ arch/arm/kernel/atags.h             |  2 +-
+ arch/arm64/include/asm/cpufeature.h |  4 ++--
+ arch/mips/include/asm/bitops.h      |  4 ++--
+ arch/mips/kernel/cpu-bugs64.c       |  4 ++--
+ arch/powerpc/kernel/prom_init.c     |  6 +++---
+ arch/powerpc/mm/tlb-radix.c         | 12 ++++++------
+ arch/s390/include/asm/cpacf.h       |  2 +-
+ arch/x86/Kconfig                    |  3 ---
+ arch/x86/Kconfig.debug              | 14 --------------
+ drivers/mtd/nand/raw/vf610_nfc.c    |  2 +-
+ include/linux/compiler_types.h      |  3 +--
+ lib/Kconfig.debug                   | 14 ++++++++++++++
+ 12 files changed, 33 insertions(+), 37 deletions(-)
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
-Changes in v3: None
-Changes in v2:
-  - split into a separate patch
-
- arch/powerpc/kernel/prom_init.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index f33ff4163a51..241fe6b7a8cc 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -501,14 +501,14 @@ static int __init prom_next_node(phandle *nodep)
- 	}
- }
- 
--static inline int prom_getprop(phandle node, const char *pname,
--			       void *value, size_t valuelen)
-+static inline int __init prom_getprop(phandle node, const char *pname,
-+				      void *value, size_t valuelen)
- {
- 	return call_prom("getprop", 4, 1, node, ADDR(pname),
- 			 (u32)(unsigned long) value, (u32) valuelen);
- }
- 
--static inline int prom_getproplen(phandle node, const char *pname)
-+static inline int __init prom_getproplen(phandle node, const char *pname)
- {
- 	return call_prom("getproplen", 2, 1, node, ADDR(pname));
- }
 -- 
 2.17.1
