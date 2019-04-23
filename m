@@ -1,16 +1,15 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH v2 1/5] arm64: Fix vDSO clock_getres()
-Date: Tue, 16 Apr 2019 18:09:23 +0100
-Message-ID: <20190416170923.GD7342@fuggles.cambridge.arm.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: Re: [PATCH v2 2/5] powerpc: Fix vDSO clock_getres()
+Date: Tue, 23 Apr 2019 18:33:12 +0200
+Message-ID: <5f59aad9-f6d2-5622-b183-4506f13eedbd@c-s.fr>
 References: <20190416161434.32691-1-vincenzo.frascino@arm.com>
- <20190416161434.32691-2-vincenzo.frascino@arm.com>
- <20190416162432.GI28994@arrakis.emea.arm.com>
+ <20190416161434.32691-3-vincenzo.frascino@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20190416162432.GI28994@arrakis.emea.arm.com>
+In-Reply-To: <20190416161434.32691-3-vincenzo.frascino@arm.com>
+Content-Language: fr
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,55 +21,100 @@ Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Vincent Chen <deanbo422@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, Greentime Hu <green.hu@gmail.com>, linux-kselftest@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+To: Vincenzo Frascino <vincenzo.frascino@arm.com>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, Greentime Hu <green.hu@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Vincent Chen <deanbo422@gmail.com>, Shuah Khan <shuah@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 16, 2019 at 05:24:33PM +0100, Catalin Marinas wrote:
-> On Tue, Apr 16, 2019 at 05:14:30PM +0100, Vincenzo Frascino wrote:
-> > diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
-> > index 2d419006ad43..5f5759d51c33 100644
-> > --- a/arch/arm64/kernel/vdso.c
-> > +++ b/arch/arm64/kernel/vdso.c
-> > @@ -245,6 +245,8 @@ void update_vsyscall(struct timekeeper *tk)
-> >  		vdso_data->cs_shift		= tk->tkr_mono.shift;
-> >  	}
-> >  
-> > +	vdso_data->hrtimer_res		= hrtimer_resolution;
-> 
-> This should be a WRITE_ONCE(), just in case.
-> 
-> > +
-> >  	smp_wmb();
-> >  	++vdso_data->tb_seq_count;
-> >  }
-> > diff --git a/arch/arm64/kernel/vdso/gettimeofday.S b/arch/arm64/kernel/vdso/gettimeofday.S
-> > index c39872a7b03c..e2e9dfe9ba4a 100644
-> > --- a/arch/arm64/kernel/vdso/gettimeofday.S
-> > +++ b/arch/arm64/kernel/vdso/gettimeofday.S
-> > @@ -296,32 +296,32 @@ ENDPROC(__kernel_clock_gettime)
-> >  /* int __kernel_clock_getres(clockid_t clock_id, struct timespec *res); */
-> >  ENTRY(__kernel_clock_getres)
-> >  	.cfi_startproc
-> > +	adr	vdso_data, _vdso_data
-> >  	cmp	w0, #CLOCK_REALTIME
-> >  	ccmp	w0, #CLOCK_MONOTONIC, #0x4, ne
-> >  	ccmp	w0, #CLOCK_MONOTONIC_RAW, #0x4, ne
-> > -	b.ne	1f
-> > +	b.ne	2f
-> >  
-> > -	ldr	x2, 5f
-> > -	b	2f
-> > -1:
-> > +1:	/* Get hrtimer_res */
-> > +	ldr	x2, [vdso_data, #CLOCK_REALTIME_RES]
-> 
-> And here we need an "ldr w2, ..." since hrtimer_res is u32.
-> 
-> With the above (which Will can fix up):
-> 
-> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-
-Applied, with the above and a few extra cleanups.
-
-Will
+CgpMZSAxNi8wNC8yMDE5IMOgIDE4OjE0LCBWaW5jZW56byBGcmFzY2lubyBhIMOpY3JpdMKgOgo+
+IGNsb2NrX2dldHJlcyBpbiB0aGUgdkRTTyBsaWJyYXJ5IGhhcyB0byBwcmVzZXJ2ZSB0aGUgc2Ft
+ZSBiZWhhdmlvdXIKPiBvZiBwb3NpeF9nZXRfaHJ0aW1lcl9yZXMoKS4KPiAKPiBJbiBwYXJ0aWN1
+bGFyLCBwb3NpeF9nZXRfaHJ0aW1lcl9yZXMoKSBkb2VzOgo+ICAgICAgc2VjID0gMDsKPiAgICAg
+IG5zID0gaHJ0aW1lcl9yZXNvbHV0aW9uOwo+IGFuZCBocnRpbWVyX3Jlc29sdXRpb24gZGVwZW5k
+cyBvbiB0aGUgZW5hYmxlbWVudCBvZiB0aGUgaGlnaAo+IHJlc29sdXRpb24gdGltZXJzIHRoYXQg
+Y2FuIGhhcHBlbiBlaXRoZXIgYXQgY29tcGlsZSBvciBhdCBydW4gdGltZS4KPiAKPiBGaXggdGhl
+IHBvd2VycGMgdmRzbyBpbXBsZW1lbnRhdGlvbiBvZiBjbG9ja19nZXRyZXMga2VlcGluZyBhIGNv
+cHkgb2YKPiBocnRpbWVyX3Jlc29sdXRpb24gaW4gdmRzbyBkYXRhIGFuZCB1c2luZyB0aGF0IGRp
+cmVjdGx5Lgo+IAo+IENjOiBCZW5qYW1pbiBIZXJyZW5zY2htaWR0IDxiZW5oQGtlcm5lbC5jcmFz
+aGluZy5vcmc+Cj4gQ2M6IFBhdWwgTWFja2VycmFzIDxwYXVsdXNAc2FtYmEub3JnPgo+IENjOiBN
+aWNoYWVsIEVsbGVybWFuIDxtcGVAZWxsZXJtYW4uaWQuYXU+Cj4gU2lnbmVkLW9mZi1ieTogVmlu
+Y2Vuem8gRnJhc2Npbm8gPHZpbmNlbnpvLmZyYXNjaW5vQGFybS5jb20+CgpSZXZpZXdlZC1ieTog
+Q2hyaXN0b3BoZSBMZXJveSA8Y2hyaXN0b3BoZS5sZXJveUBjLXMuZnI+Cgo+IC0tLQo+ICAgYXJj
+aC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaCAgfCAyICsrCj4gICBhcmNoL3Bv
+d2VycGMva2VybmVsL2FzbS1vZmZzZXRzLmMgICAgICAgICB8IDIgKy0KPiAgIGFyY2gvcG93ZXJw
+Yy9rZXJuZWwvdGltZS5jICAgICAgICAgICAgICAgIHwgMSArCj4gICBhcmNoL3Bvd2VycGMva2Vy
+bmVsL3Zkc28zMi9nZXR0aW1lb2ZkYXkuUyB8IDcgKysrKystLQo+ICAgYXJjaC9wb3dlcnBjL2tl
+cm5lbC92ZHNvNjQvZ2V0dGltZW9mZGF5LlMgfCA3ICsrKysrLS0KPiAgIDUgZmlsZXMgY2hhbmdl
+ZCwgMTQgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvYXJj
+aC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaCBiL2FyY2gvcG93ZXJwYy9pbmNs
+dWRlL2FzbS92ZHNvX2RhdGFwYWdlLmgKPiBpbmRleCBiYmMwNmJkNzJiMWYuLjQzMzNiOWE0NzNk
+YyAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vdmRzb19kYXRhcGFnZS5o
+Cj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Zkc29fZGF0YXBhZ2UuaAo+IEBAIC04
+Niw2ICs4Niw3IEBAIHN0cnVjdCB2ZHNvX2RhdGEgewo+ICAgCV9fczMyIHd0b21fY2xvY2tfbnNl
+YzsJCQkvKiBXYWxsIHRvIG1vbm90b25pYyBjbG9jayBuc2VjICovCj4gICAJX19zNjQgd3RvbV9j
+bG9ja19zZWM7CQkJLyogV2FsbCB0byBtb25vdG9uaWMgY2xvY2sgc2VjICovCj4gICAJc3RydWN0
+IHRpbWVzcGVjIHN0YW1wX3h0aW1lOwkJLyogeHRpbWUgYXMgYXQgdGJfb3JpZ19zdGFtcCAqLwo+
+ICsJX191MzIgaHJ0aW1lcl9yZXM7CQkJLyogaHJ0aW1lciByZXNvbHV0aW9uICovCj4gICAgICAJ
+X191MzIgc3lzY2FsbF9tYXBfNjRbU1lTQ0FMTF9NQVBfU0laRV07IC8qIG1hcCBvZiBzeXNjYWxs
+cyAgKi8KPiAgICAgIAlfX3UzMiBzeXNjYWxsX21hcF8zMltTWVNDQUxMX01BUF9TSVpFXTsgLyog
+bWFwIG9mIHN5c2NhbGxzICovCj4gICB9Owo+IEBAIC0xMDcsNiArMTA4LDcgQEAgc3RydWN0IHZk
+c29fZGF0YSB7Cj4gICAJX19zMzIgd3RvbV9jbG9ja19uc2VjOwo+ICAgCXN0cnVjdCB0aW1lc3Bl
+YyBzdGFtcF94dGltZTsJLyogeHRpbWUgYXMgYXQgdGJfb3JpZ19zdGFtcCAqLwo+ICAgCV9fdTMy
+IHN0YW1wX3NlY19mcmFjdGlvbjsJLyogZnJhY3Rpb25hbCBzZWNvbmRzIG9mIHN0YW1wX3h0aW1l
+ICovCj4gKwlfX3UzMiBocnRpbWVyX3JlczsJCS8qIGhydGltZXIgcmVzb2x1dGlvbiAqLwo+ICAg
+ICAgCV9fdTMyIHN5c2NhbGxfbWFwXzMyW1NZU0NBTExfTUFQX1NJWkVdOyAvKiBtYXAgb2Ygc3lz
+Y2FsbHMgKi8KPiAgIAlfX3UzMiBkY2FjaGVfYmxvY2tfc2l6ZTsJLyogTDEgZC1jYWNoZSBibG9j
+ayBzaXplICAgICAqLwo+ICAgCV9fdTMyIGljYWNoZV9ibG9ja19zaXplOwkvKiBMMSBpLWNhY2hl
+IGJsb2NrIHNpemUgICAgICovCj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNt
+LW9mZnNldHMuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNtLW9mZnNldHMuYwo+IGluZGV4IDg2
+YTYxZTVmODI4NS4uNTJlNGI5OGE4NDkyIDEwMDY0NAo+IC0tLSBhL2FyY2gvcG93ZXJwYy9rZXJu
+ZWwvYXNtLW9mZnNldHMuYwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvYXNtLW9mZnNldHMu
+Ywo+IEBAIC0zODMsNiArMzgzLDcgQEAgaW50IG1haW4odm9pZCkKPiAgIAlPRkZTRVQoV1RPTV9D
+TE9DS19OU0VDLCB2ZHNvX2RhdGEsIHd0b21fY2xvY2tfbnNlYyk7Cj4gICAJT0ZGU0VUKFNUQU1Q
+X1hUSU1FLCB2ZHNvX2RhdGEsIHN0YW1wX3h0aW1lKTsKPiAgIAlPRkZTRVQoU1RBTVBfU0VDX0ZS
+QUMsIHZkc29fZGF0YSwgc3RhbXBfc2VjX2ZyYWN0aW9uKTsKPiArCU9GRlNFVChDTE9DS19SRUFM
+VElNRV9SRVMsIHZkc29fZGF0YSwgaHJ0aW1lcl9yZXMpOwo+ICAgCU9GRlNFVChDRkdfSUNBQ0hF
+X0JMT0NLU1osIHZkc29fZGF0YSwgaWNhY2hlX2Jsb2NrX3NpemUpOwo+ICAgCU9GRlNFVChDRkdf
+RENBQ0hFX0JMT0NLU1osIHZkc29fZGF0YSwgZGNhY2hlX2Jsb2NrX3NpemUpOwo+ICAgCU9GRlNF
+VChDRkdfSUNBQ0hFX0xPR0JMT0NLU1osIHZkc29fZGF0YSwgaWNhY2hlX2xvZ19ibG9ja19zaXpl
+KTsKPiBAQCAtNDEzLDcgKzQxNCw2IEBAIGludCBtYWluKHZvaWQpCj4gICAJREVGSU5FKENMT0NL
+X1JFQUxUSU1FX0NPQVJTRSwgQ0xPQ0tfUkVBTFRJTUVfQ09BUlNFKTsKPiAgIAlERUZJTkUoQ0xP
+Q0tfTU9OT1RPTklDX0NPQVJTRSwgQ0xPQ0tfTU9OT1RPTklDX0NPQVJTRSk7Cj4gICAJREVGSU5F
+KE5TRUNfUEVSX1NFQywgTlNFQ19QRVJfU0VDKTsKPiAtCURFRklORShDTE9DS19SRUFMVElNRV9S
+RVMsIE1PTk9UT05JQ19SRVNfTlNFQyk7Cj4gICAKPiAgICNpZmRlZiBDT05GSUdfQlVHCj4gICAJ
+REVGSU5FKEJVR19FTlRSWV9TSVpFLCBzaXplb2Yoc3RydWN0IGJ1Z19lbnRyeSkpOwo+IGRpZmYg
+LS1naXQgYS9hcmNoL3Bvd2VycGMva2VybmVsL3RpbWUuYyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwv
+dGltZS5jCj4gaW5kZXggYmMwNTAzZWY5YzljLi42MmMwNGE2NzQ2ZDggMTAwNjQ0Cj4gLS0tIGEv
+YXJjaC9wb3dlcnBjL2tlcm5lbC90aW1lLmMKPiArKysgYi9hcmNoL3Bvd2VycGMva2VybmVsL3Rp
+bWUuYwo+IEBAIC05NTUsNiArOTU1LDcgQEAgdm9pZCB1cGRhdGVfdnN5c2NhbGwoc3RydWN0IHRp
+bWVrZWVwZXIgKnRrKQo+ICAgCXZkc29fZGF0YS0+d3RvbV9jbG9ja19uc2VjID0gdGstPndhbGxf
+dG9fbW9ub3RvbmljLnR2X25zZWM7Cj4gICAJdmRzb19kYXRhLT5zdGFtcF94dGltZSA9IHh0Owo+
+ICAgCXZkc29fZGF0YS0+c3RhbXBfc2VjX2ZyYWN0aW9uID0gZnJhY19zZWM7Cj4gKwl2ZHNvX2Rh
+dGEtPmhydGltZXJfcmVzID0gaHJ0aW1lcl9yZXNvbHV0aW9uOwo+ICAgCXNtcF93bWIoKTsKPiAg
+IAkrKyh2ZHNvX2RhdGEtPnRiX3VwZGF0ZV9jb3VudCk7Cj4gICB9Cj4gZGlmZiAtLWdpdCBhL2Fy
+Y2gvcG93ZXJwYy9rZXJuZWwvdmRzbzMyL2dldHRpbWVvZmRheS5TIGIvYXJjaC9wb3dlcnBjL2tl
+cm5lbC92ZHNvMzIvZ2V0dGltZW9mZGF5LlMKPiBpbmRleCBhZmQ1MTZiNTcyZjguLjJiNWY5ZTgz
+YzYxMCAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMva2VybmVsL3Zkc28zMi9nZXR0aW1lb2Zk
+YXkuUwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvdmRzbzMyL2dldHRpbWVvZmRheS5TCj4g
+QEAgLTE2MCwxMiArMTYwLDE1IEBAIFZfRlVOQ1RJT05fQkVHSU4oX19rZXJuZWxfY2xvY2tfZ2V0
+cmVzKQo+ICAgCWNyb3IJY3IwKjQrZXEsY3IwKjQrZXEsY3IxKjQrZXEKPiAgIAlibmUJY3IwLDk5
+Zgo+ICAgCj4gKwltZmxyCXIxMgo+ICsgIC5jZmlfcmVnaXN0ZXIgbHIscjEyCj4gKwlibAlfX2dl
+dF9kYXRhcGFnZUBsb2NhbAo+ICsJbHd6CXI1LENMT0NLX1JFQUxUSU1FX1JFUyhyMykKPiArCW10
+bHIJcjEyCj4gICAJbGkJcjMsMAo+ICAgCWNtcGxpCWNyMCxyNCwwCj4gICAJY3JjbHIJY3IwKjQr
+c28KPiAgIAliZXFscgo+IC0JbGlzCXI1LENMT0NLX1JFQUxUSU1FX1JFU0BoCj4gLQlvcmkJcjUs
+cjUsQ0xPQ0tfUkVBTFRJTUVfUkVTQGwKPiAgIAlzdHcJcjMsVFNQQzMyX1RWX1NFQyhyNCkKPiAg
+IAlzdHcJcjUsVFNQQzMyX1RWX05TRUMocjQpCj4gICAJYmxyCj4gZGlmZiAtLWdpdCBhL2FyY2gv
+cG93ZXJwYy9rZXJuZWwvdmRzbzY0L2dldHRpbWVvZmRheS5TIGIvYXJjaC9wb3dlcnBjL2tlcm5l
+bC92ZHNvNjQvZ2V0dGltZW9mZGF5LlMKPiBpbmRleCAxZjMyNGMyODcwNWIuLmYwNzczMGY3M2Q1
+ZSAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMva2VybmVsL3Zkc282NC9nZXR0aW1lb2ZkYXku
+Uwo+ICsrKyBiL2FyY2gvcG93ZXJwYy9rZXJuZWwvdmRzbzY0L2dldHRpbWVvZmRheS5TCj4gQEAg
+LTE5MCwxMiArMTkwLDE1IEBAIFZfRlVOQ1RJT05fQkVHSU4oX19rZXJuZWxfY2xvY2tfZ2V0cmVz
+KQo+ICAgCWNyb3IJY3IwKjQrZXEsY3IwKjQrZXEsY3IxKjQrZXEKPiAgIAlibmUJY3IwLDk5Zgo+
+ICAgCj4gKwltZmxyCXIxMgo+ICsgIC5jZmlfcmVnaXN0ZXIgbHIscjEyCj4gKwlibAlWX0xPQ0FM
+X0ZVTkMoX19nZXRfZGF0YXBhZ2UpCj4gKwlsd3oJcjUsQ0xPQ0tfUkVBTFRJTUVfUkVTKHIzKQo+
+ICsJbXRscglyMTIKPiAgIAlsaQlyMywwCj4gICAJY21wbGRpCWNyMCxyNCwwCj4gICAJY3JjbHIJ
+Y3IwKjQrc28KPiAgIAliZXFscgo+IC0JbGlzCXI1LENMT0NLX1JFQUxUSU1FX1JFU0BoCj4gLQlv
+cmkJcjUscjUsQ0xPQ0tfUkVBTFRJTUVfUkVTQGwKPiAgIAlzdGQJcjMsVFNQQzY0X1RWX1NFQyhy
+NCkKPiAgIAlzdGQJcjUsVFNQQzY0X1RWX05TRUMocjQpCj4gICAJYmxyCj4gCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
+aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
+c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
