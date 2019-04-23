@@ -1,12 +1,11 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 05/10] MIPS: mark __fls() and __ffs() as __always_inline
-Date: Tue, 23 Apr 2019 12:21:01 +0900
-Message-ID: <20190423032106.11960-6-yamada.masahiro@socionext.com>
-In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
-References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
-Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190423032101.vBH3ATamQ7RpEXWmZTvqj2fOc4W-AD3wO691sCf_jdg@z>
+Subject: [RESEND PATCH v3 10/11] powerpc/mm/radix: mark as __tlbie_pid() and friends as__always_inline
+Date: Tue, 23 Apr 2019 12:49:58 +0900
+Message-ID: <20190423034959.13525-11-yamada.masahiro@socionext.com>
+References: <20190423034959.13525-1-yamada.masahiro@socionext.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190423034959.13525-1-yamada.masahiro@socionext.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
@@ -16,49 +15,73 @@ List-ID: <linux-s390.vger.kernel.org>
 This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 place. We need to eliminate potential issues beforehand.
 
-If it is enabled for mips, the following errors are reported:
+If it is enabled for powerpc, the following errors are reported:
 
-arch/mips/mm/sc-mips.o: In function `mips_sc_prefetch_enable.part.2':
-sc-mips.c:(.text+0x98): undefined reference to `mips_gcr_base'
-sc-mips.c:(.text+0x9c): undefined reference to `mips_gcr_base'
-sc-mips.c:(.text+0xbc): undefined reference to `mips_gcr_base'
-sc-mips.c:(.text+0xc8): undefined reference to `mips_gcr_base'
-sc-mips.c:(.text+0xdc): undefined reference to `mips_gcr_base'
-arch/mips/mm/sc-mips.o:sc-mips.c:(.text.unlikely+0x44): more undefined references to `mips_gcr_base'
+arch/powerpc/mm/tlb-radix.c: In function '__tlbie_lpid':
+arch/powerpc/mm/tlb-radix.c:148:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
+  ^~~
+arch/powerpc/mm/tlb-radix.c:148:2: error: impossible constraint in 'asm'
+arch/powerpc/mm/tlb-radix.c: In function '__tlbie_pid':
+arch/powerpc/mm/tlb-radix.c:118:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
+  ^~~
+arch/powerpc/mm/tlb-radix.c: In function '__tlbiel_pid':
+arch/powerpc/mm/tlb-radix.c:104:2: warning: asm operand 3 probably doesn't match constraints
+  asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+  ^~~
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
-Changes in v3:
-  - forcibly inline __ffs() too
-
+Changes in v3: None
 Changes in v2:
   - new patch
 
- arch/mips/include/asm/bitops.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/tlb-radix.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/include/asm/bitops.h b/arch/mips/include/asm/bitops.h
-index 830c93a010c3..9a466dde9b96 100644
---- a/arch/mips/include/asm/bitops.h
-+++ b/arch/mips/include/asm/bitops.h
-@@ -482,7 +482,7 @@ static inline void __clear_bit_unlock(unsigned long nr, volatile unsigned long *
-  * Return the bit position (0..63) of the most significant 1 bit in a word
-  * Returns -1 if no 1 bit exists
-  */
--static inline unsigned long __fls(unsigned long word)
-+static __always_inline unsigned long __fls(unsigned long word)
- {
- 	int num;
- 
-@@ -548,7 +548,7 @@ static inline unsigned long __fls(unsigned long word)
-  * Returns 0..SZLONG-1
-  * Undefined if no bit exists, so code should check against 0 first.
-  */
--static inline unsigned long __ffs(unsigned long word)
-+static __always_inline unsigned long __ffs(unsigned long word)
- {
- 	return __fls(word & -word);
+diff --git a/arch/powerpc/mm/tlb-radix.c b/arch/powerpc/mm/tlb-radix.c
+index a2b2848f0ae3..14ff414d1545 100644
+--- a/arch/powerpc/mm/tlb-radix.c
++++ b/arch/powerpc/mm/tlb-radix.c
+@@ -90,8 +90,8 @@ void radix__tlbiel_all(unsigned int action)
+ 	asm volatile(PPC_INVALIDATE_ERAT "; isync" : : :"memory");
  }
+ 
+-static inline void __tlbiel_pid(unsigned long pid, int set,
+-				unsigned long ric)
++static __always_inline void __tlbiel_pid(unsigned long pid, int set,
++					 unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -106,7 +106,7 @@ static inline void __tlbiel_pid(unsigned long pid, int set,
+ 	trace_tlbie(0, 1, rb, rs, ric, prs, r);
+ }
+ 
+-static inline void __tlbie_pid(unsigned long pid, unsigned long ric)
++static __always_inline void __tlbie_pid(unsigned long pid, unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -136,7 +136,7 @@ static inline void __tlbiel_lpid(unsigned long lpid, int set,
+ 	trace_tlbie(lpid, 1, rb, rs, ric, prs, r);
+ }
+ 
+-static inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
++static __always_inline void __tlbie_lpid(unsigned long lpid, unsigned long ric)
+ {
+ 	unsigned long rb,rs,prs,r;
+ 
+@@ -239,7 +239,7 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
+ /*
+  * We use 128 set in radix mode and 256 set in hpt mode.
+  */
+-static inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
++static __always_inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
+ {
+ 	int set;
+ 
 -- 
 2.17.1
