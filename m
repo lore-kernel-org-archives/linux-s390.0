@@ -1,7 +1,7 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [RESEND PATCH v3 07/11] ARM: mark setup_machine_tags() stub as __init __noreturn
-Date: Tue, 23 Apr 2019 12:49:55 +0900
-Message-ID: <20190423034959.13525-8-yamada.masahiro@socionext.com>
+Subject: [RESEND PATCH v3 06/11] MIPS: mark __fls() and __ffs() as __always_inline
+Date: Tue, 23 Apr 2019 12:49:54 +0900
+Message-ID: <20190423034959.13525-7-yamada.masahiro@socionext.com>
 References: <20190423034959.13525-1-yamada.masahiro@socionext.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190423034959.13525-1-yamada.masahiro@socionext.com>
@@ -15,37 +15,49 @@ List-ID: <linux-s390.vger.kernel.org>
 This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 place. We need to eliminate potential issues beforehand.
 
-If it is enabled for arm, Clang build results in the following modpost
-warning:
+If it is enabled for mips, the following errors are reported:
 
-WARNING: vmlinux.o(.text+0x1124): Section mismatch in reference from the function setup_machine_tags() to the function .init.text:early_print()
-The function setup_machine_tags() references
-the function __init early_print().
-This is often because setup_machine_tags lacks a __init
-annotation or the annotation of early_print is wrong.
+arch/mips/mm/sc-mips.o: In function `mips_sc_prefetch_enable.part.2':
+sc-mips.c:(.text+0x98): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0x9c): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xbc): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xc8): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xdc): undefined reference to `mips_gcr_base'
+arch/mips/mm/sc-mips.o:sc-mips.c:(.text.unlikely+0x44): more undefined references to `mips_gcr_base'
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
-Changes in v3: None
+Changes in v3:
+  - forcibly inline __ffs() too
+
 Changes in v2:
   - new patch
 
- arch/arm/kernel/atags.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/bitops.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/atags.h b/arch/arm/kernel/atags.h
-index 201100226301..067e12edc341 100644
---- a/arch/arm/kernel/atags.h
-+++ b/arch/arm/kernel/atags.h
-@@ -5,7 +5,7 @@ void convert_to_tag_list(struct tag *tags);
- const struct machine_desc *setup_machine_tags(phys_addr_t __atags_pointer,
- 	unsigned int machine_nr);
- #else
--static inline const struct machine_desc *
-+static inline const struct machine_desc * __init __noreturn
- setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
+diff --git a/arch/mips/include/asm/bitops.h b/arch/mips/include/asm/bitops.h
+index 830c93a010c3..9a466dde9b96 100644
+--- a/arch/mips/include/asm/bitops.h
++++ b/arch/mips/include/asm/bitops.h
+@@ -482,7 +482,7 @@ static inline void __clear_bit_unlock(unsigned long nr, volatile unsigned long *
+  * Return the bit position (0..63) of the most significant 1 bit in a word
+  * Returns -1 if no 1 bit exists
+  */
+-static inline unsigned long __fls(unsigned long word)
++static __always_inline unsigned long __fls(unsigned long word)
  {
- 	early_print("no ATAGS support: can't continue\n");
+ 	int num;
+ 
+@@ -548,7 +548,7 @@ static inline unsigned long __fls(unsigned long word)
+  * Returns 0..SZLONG-1
+  * Undefined if no bit exists, so code should check against 0 first.
+  */
+-static inline unsigned long __ffs(unsigned long word)
++static __always_inline unsigned long __ffs(unsigned long word)
+ {
+ 	return __fls(word & -word);
+ }
 -- 
 2.17.1
