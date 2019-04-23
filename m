@@ -1,12 +1,12 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH v3 03/10] s390/cpacf: mark scpacf_query() as __always_inline
-Date: Tue, 23 Apr 2019 12:20:59 +0900
-Message-ID: <20190423032106.11960-4-yamada.masahiro@socionext.com>
+Subject: [PATCH v3 05/10] MIPS: mark __fls() and __ffs() as __always_inline
+Date: Tue, 23 Apr 2019 12:21:01 +0900
+Message-ID: <20190423032106.11960-6-yamada.masahiro@socionext.com>
 In-Reply-To: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 References: <20190423032106.11960-1-yamada.masahiro@socionext.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190423032059.yUTjWzkM-3FFTUCfPfVAIU3wxQbGma_P9irrvNUqnl0@z>
+Message-ID: <20190423032101.vBH3ATamQ7RpEXWmZTvqj2fOc4W-AD3wO691sCf_jdg@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
@@ -16,37 +16,49 @@ List-ID: <linux-s390.vger.kernel.org>
 This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 place. We need to eliminate potential issues beforehand.
 
-If it is enabled for s390, the following error is reported:
+If it is enabled for mips, the following errors are reported:
 
-In file included from arch/s390/crypto/des_s390.c:19:
-./arch/s390/include/asm/cpacf.h: In function 'cpacf_query':
-./arch/s390/include/asm/cpacf.h:170:2: warning: asm operand 3 probably doesn't match constraints
-  asm volatile(
-  ^~~
-./arch/s390/include/asm/cpacf.h:170:2: error: impossible constraint in 'asm'
+arch/mips/mm/sc-mips.o: In function `mips_sc_prefetch_enable.part.2':
+sc-mips.c:(.text+0x98): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0x9c): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xbc): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xc8): undefined reference to `mips_gcr_base'
+sc-mips.c:(.text+0xdc): undefined reference to `mips_gcr_base'
+arch/mips/mm/sc-mips.o:sc-mips.c:(.text.unlikely+0x44): more undefined references to `mips_gcr_base'
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
-Changes in v3: None
+Changes in v3:
+  - forcibly inline __ffs() too
+
 Changes in v2:
-  - split into a separate patch
+  - new patch
 
- arch/s390/include/asm/cpacf.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/bitops.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index 3cc52e37b4b2..f316de40e51b 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -202,7 +202,7 @@ static inline int __cpacf_check_opcode(unsigned int opcode)
- 	}
- }
- 
--static inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
-+static __always_inline int cpacf_query(unsigned int opcode, cpacf_mask_t *mask)
+diff --git a/arch/mips/include/asm/bitops.h b/arch/mips/include/asm/bitops.h
+index 830c93a010c3..9a466dde9b96 100644
+--- a/arch/mips/include/asm/bitops.h
++++ b/arch/mips/include/asm/bitops.h
+@@ -482,7 +482,7 @@ static inline void __clear_bit_unlock(unsigned long nr, volatile unsigned long *
+  * Return the bit position (0..63) of the most significant 1 bit in a word
+  * Returns -1 if no 1 bit exists
+  */
+-static inline unsigned long __fls(unsigned long word)
++static __always_inline unsigned long __fls(unsigned long word)
  {
- 	if (__cpacf_check_opcode(opcode)) {
- 		__cpacf_query(opcode, mask);
+ 	int num;
+ 
+@@ -548,7 +548,7 @@ static inline unsigned long __fls(unsigned long word)
+  * Returns 0..SZLONG-1
+  * Undefined if no bit exists, so code should check against 0 first.
+  */
+-static inline unsigned long __ffs(unsigned long word)
++static __always_inline unsigned long __ffs(unsigned long word)
+ {
+ 	return __fls(word & -word);
+ }
 -- 
 2.17.1
