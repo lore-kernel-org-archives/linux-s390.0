@@ -1,16 +1,17 @@
 Return-Path: <SRS0=oVSW=SZ=vger.kernel.org=kvm-owner@kernel.org>
 Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH v2 5/8] s390: vfio-ap: wait for queue empty on queue reset
+Subject: Re: [PATCH v2 7/8] s390: vfio-ap: handle bind and unbind of AP queue
+ device
 References: <1555796980-27920-1-git-send-email-akrowiak@linux.ibm.com>
- <1555796980-27920-6-git-send-email-akrowiak@linux.ibm.com>
+ <1555796980-27920-8-git-send-email-akrowiak@linux.ibm.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 23 Apr 2019 14:50:26 +0200
+Date: Tue, 23 Apr 2019 15:08:36 +0200
 MIME-Version: 1.0
-In-Reply-To: <1555796980-27920-6-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1555796980-27920-8-git-send-email-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <9a23da6d-89a8-227d-b756-6e002b0199e3@linux.ibm.com>
+Message-Id: <926b43f9-13ed-602d-c7f0-1e0dd9fe32a1@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -19,79 +20,201 @@ Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@lin
 List-ID: <linux-s390.vger.kernel.org>
 
 On 20/04/2019 23:49, Tony Krowiak wrote:
-> Refactors the AP queue reset function to wait until the queue is empty
-> after the PQAP(ZAPQ) instruction is executed to zero out the queue as
-> required by the AP architecture.
+> There is an implied guarantee that when an AP queue device is bound to a
+> device driver, that driver will have exclusive control over the device.
+> When an AP queue device is unbound from the vfio_ap driver while the
+> queue is in use by a guest and subsquently bound to a zcrypt driver, the
+> guarantee that the zcrypt driver has exclusive control of the queue
+> device will be violated. Likewise, when an AP queue device is bound to
+> the vfio_ap device driver and its APQN is assigned to an mdev device in
+> use by a guest, the expectation is that the guest will have access to
+> the queue.
+> 
+> The purpose of this patch is to ensure three things:
+> 
+> 1. When an AP queue device in use by a guest is unbound, the guest shall
+>     no longer access the queue. Due to the limitations of the
+>     architecture, access to a single queue can not be denied to a guest,
+>     so access to the AP card to which the queue is connected will be
+>     denied to the guest.
+> 
+> 2. When an AP queue device with an APQN assigned to an mdev device is
+>     bound to the vfio_ap driver while the mdev device is in use by a guest,
+>     the guest shall be granted access to the queue.
+> 
+> 3. When a guest is started, each APQN assigned to the guest's mdev device
+>     must be owned by the vfio_ap driver.
 > 
 > Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 > ---
->   drivers/s390/crypto/vfio_ap_ops.c | 35 ++++++++++++++++++++++++++++++++---
->   1 file changed, 32 insertions(+), 3 deletions(-)
+>   drivers/s390/crypto/vfio_ap_drv.c     | 16 ++++++-
+>   drivers/s390/crypto/vfio_ap_ops.c     | 82 ++++++++++++++++++++++++++++++++++-
+>   drivers/s390/crypto/vfio_ap_private.h |  2 +
+>   3 files changed, 97 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 091804317c5e..31ce30ee784d 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -744,15 +744,44 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->   	return NOTIFY_OK;
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> index e9824c35c34f..0f5dafddf5b1 100644
+> --- a/drivers/s390/crypto/vfio_ap_drv.c
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -42,12 +42,26 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>   
+>   static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>   {
+> +	struct ap_queue *apq = to_ap_queue(&apdev->device);
+> +	unsigned long apid = AP_QID_CARD(apq->qid);
+> +	unsigned long apqi = AP_QID_QUEUE(apq->qid);
+> +
+> +	mutex_lock(&matrix_dev->lock);
+> +	vfio_ap_mdev_probe_queue(apid, apqi);
+> +	mutex_unlock(&matrix_dev->lock);
+> +
+>   	return 0;
 >   }
 >   
-> -static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-> -				    unsigned int retry)
-> +static void vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
+>   static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
 >   {
->   	struct ap_queue_status status;
-> +	ap_qid_t qid = AP_MKQID(apid, apqi);
-> +	int retry = 5;
+> -	/* Nothing to do yet */
+> +	struct ap_queue *apq = to_ap_queue(&apdev->device);
+> +	unsigned long apid = AP_QID_CARD(apq->qid);
+> +	unsigned long apqi = AP_QID_QUEUE(apq->qid);
 > +
-> +	do {
-> +		status = ap_tapq(qid, NULL);
-> +		switch (status.response_code) {
-> +		case AP_RESPONSE_NORMAL:
-> +			if (status.queue_empty)
-> +				return;
-> +			msleep(20);
-> +			break;
-> +		case AP_RESPONSE_RESET_IN_PROGRESS:
-> +		case AP_RESPONSE_BUSY:
-> +			msleep(20);
-> +			break;
-> +		default:
-> +			pr_warn("%s: tapq err %02x: 0x%04x may not be empty\n",
-> +				__func__, status.response_code, q->apqn);
-
-q is not defined. use qid ?
-
-
-> +			return;
-> +		}
-> +	} while (--retry);
+> +	mutex_lock(&matrix_dev->lock);
+> +	vfio_ap_mdev_remove_queue(apid, apqi);
+> +	mutex_unlock(&matrix_dev->lock);
+>   }
+>   
+>   static void vfio_ap_matrix_dev_release(struct device *dev)
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index 31ce30ee784d..3f9506516545 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -763,8 +763,8 @@ static void vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
+>   			msleep(20);
+>   			break;
+>   		default:
+> -			pr_warn("%s: tapq err %02x: 0x%04x may not be empty\n",
+> -				__func__, status.response_code, q->apqn);
+> +			pr_warn("%s: tapq err %02x: %02lx%04lx may not be empty\n",
+> +				__func__, status.response_code, apid, apqi);
+>   			return;
+>   		}
+>   	} while (--retry);
+> @@ -823,6 +823,14 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+>   
+>   static int vfio_ap_mdev_create_shadow_crycb(struct ap_matrix_mdev *matrix_mdev)
+>   {
+> +	/*
+> +	 * If an AP resource is not owned by the vfio_ap driver - e.g., it was
+> +	 * unbound from the driver while still assigned to the mdev device
+> +	 */
+> +	if (ap_apqn_in_matrix_owned_by_def_drv(matrix_mdev->matrix.apm,
+> +					       matrix_mdev->matrix.aqm))
+> +		return -EADDRNOTAVAIL;
+> +
+>   	matrix_mdev->shadow_crycb = kzalloc(sizeof(*matrix_mdev->shadow_crycb),
+>   					    GFP_KERNEL);
+>   	if (!matrix_mdev->shadow_crycb)
+> @@ -847,6 +855,18 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+>   	if (!try_module_get(THIS_MODULE))
+>   		return -ENODEV;
+>   
+> +	ret = ap_apqn_in_matrix_owned_by_def_drv(matrix_mdev->matrix.apm,
+> +						 matrix_mdev->matrix.aqm);
+> +
+> +	/*
+> +	 * If any APQN is owned by a default driver, it can not be used by the
+> +	 * guest. This can happen if a queue is unbound from the vfio_ap
+> +	 * driver but not unassigned from the mdev device.
+> +	 */
+> +	ret = (ret == 1) ? -EADDRNOTAVAIL : ret;
+> +	if (ret)
+> +		return ret;
+> +
+>   	matrix_mdev->group_notifier.notifier_call = vfio_ap_mdev_group_notifier;
+>   	events = VFIO_GROUP_NOTIFY_SET_KVM;
+>   
+> @@ -938,3 +958,61 @@ void vfio_ap_mdev_unregister(void)
+>   {
+>   	mdev_unregister_device(&matrix_dev->device);
+>   }
+> +
+> +static struct ap_matrix_mdev *vfio_ap_mdev_find_matrix_mdev(unsigned long apid,
+> +							    unsigned long apqi)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
+> +		    test_bit_inv(apqi, matrix_mdev->matrix.aqm))
+> +			return matrix_mdev;
+> +	}
+> +
+> +	return NULL;
 > +}
 > +
-> +int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi)
+> +void vfio_ap_mdev_remove_queue(unsigned long apid, unsigned long apqi)
 > +{
-> +	struct ap_queue_status status;
-> +	int retry = 5;
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	matrix_mdev = vfio_ap_mdev_find_matrix_mdev(apid, apqi);
+> +
+> +	/*
+> +	 * If the queue is assigned to the mdev device and the mdev device
+> +	 * is in use by a guest
+> +	 */
+> +	if (matrix_mdev && matrix_mdev->kvm) {
+> +		/*
+> +		 * Unplug the adapter from the guest but don't unassign it
+> +		 * from the mdev device
+> +		 */
+> +		clear_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
+> +		vfio_ap_mdev_update_crycb(matrix_mdev);
+> +	}
+> +
+> +	vfio_ap_mdev_reset_queue(apid, apqi);
+> +}
+> +
+> +void vfio_ap_mdev_probe_queue(unsigned long apid, unsigned long apqi)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	matrix_mdev = vfio_ap_mdev_find_matrix_mdev(apid, apqi);
+> +
+> +	/*
+> +	 * If the queue is assigned to the mdev device and the mdev device
+> +	 * is in use by a guest
+> +	 */
+> +	if (matrix_mdev && matrix_mdev->kvm) {
+> +		/* Plug the adapter into the guest */
+> +		set_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
+> +
+> +		/* Make sure the queue is also plugged in to the guest */
+> +		if (!test_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm))
+> +			set_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm);
+
+Why are you testing the domain before setting it and not the adapter?
+
+Eventually you do not need to test at all or if, then both.
+
+NIT
+
+
+> +
+> +		vfio_ap_mdev_update_crycb(matrix_mdev);
+> +	}
+> +}
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index e8457aa61976..00eaae3b853f 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -87,5 +87,7 @@ struct ap_matrix_mdev {
 >   
->   	do {
->   		status = ap_zapq(AP_MKQID(apid, apqi));
->   		switch (status.response_code) {
->   		case AP_RESPONSE_NORMAL:
-> +			vfio_ap_mdev_wait_for_qempty(apid, apqi);
-> +			return 0;
-> +		case AP_RESPONSE_DECONFIGURED:
->   			return 0;
->   		case AP_RESPONSE_RESET_IN_PROGRESS:
->   		case AP_RESPONSE_BUSY:
-> @@ -778,7 +807,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->   			     matrix_mdev->matrix.apm_max + 1) {
->   		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
->   				     matrix_mdev->matrix.aqm_max + 1) {
-> -			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> +			ret = vfio_ap_mdev_reset_queue(apid, apqi);
->   			/*
->   			 * Regardless whether a queue turns out to be busy, or
->   			 * is not operational, we need to continue resetting
+>   extern int vfio_ap_mdev_register(void);
+>   extern void vfio_ap_mdev_unregister(void);
+> +void vfio_ap_mdev_remove_queue(unsigned long apid, unsigned long apqi);
+> +void vfio_ap_mdev_probe_queue(unsigned long apid, unsigned long apqi);
+>   
+>   #endif /* _VFIO_AP_PRIVATE_H_ */
 > 
 
 
