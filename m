@@ -1,66 +1,58 @@
-Return-Path: <SRS0=qZKM=S2=kvack.org=owner-linux-mm@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 0/7] mm/memory_hotplug: Factor out memory block device handling
-Date: Wed, 24 Apr 2019 12:25:04 +0200
-Message-Id: <20190424102511.29318-1-david@redhat.com>
+Return-Path: <SRS0=OpZk=S2=vger.kernel.org=kvm-owner@kernel.org>
+Date: Wed, 24 Apr 2019 18:35:12 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 1/1] vfio-ccw: Prevent quiesce function going into an
+ infinite loop
+Message-ID: <20190424183512.0d384ee2.cohuck@redhat.com>
+In-Reply-To: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
+References: <cover.1555449329.git.alifm@linux.ibm.com>
+        <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, David Hildenbrand <david@redhat.com>, Alex Deucher <alexander.deucher@amd.com>, Andrew Banman <andrew.banman@hpe.com>, Andy Lutomirski <luto@kernel.org>, Arun KS <arunks@codeaurora.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Christophe Leroy <christophe.leroy@c-s.fr>, Chris Wilson <chris@chris-wilson.co.uk>, Dave Hansen <dave.hansen@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Logan Gunthorpe <logang@deltatee.com>, Mark Brown <broonie@kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Mathieu Malaterre <malat@debian.org>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Nicholas Piggin <npiggin@gmail.com>, Oscar Salvador <osalvador@suse.com>, Oscar Salvador <osalvador@suse.de>, Paul Mackerras <paulus@samba.org>, Pavel Tatashin <pasha.tatashin@soleen.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Peter Zijlstra <peterz@infradead.org>, Qian Cai <cai@lca.pw>, "Rafael J. Wysocki" <rafael@kernel.org>, Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Tony Luck <tony.luck@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Wei Yang <richard.weiyang@gmail.com>, Wei Yang <richardw.yang@linux.intel.com>, Yoshinori Sato <ysato@users.sourceforge.jp>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com, pmorel@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We only want memory block devices for memory to be onlined/offlined
-(add/remove from the buddy). This is required so user space can
-online/offline memory and kdump gets notified about newly onlined memory.
+On Tue, 16 Apr 2019 17:23:14 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Only such memory has the requirement of having to span whole memory blocks.
-Let's factor out creation/removal of memory block devices. This helps
-to further cleanup arch_add_memory/arch_remove_memory() and to make
-implementation of new features (e.g. sub-section hot-add) easier.
+> The quiesce function calls cio_cancel_halt_clear() and if we
+> get an -EBUSY we go into a loop where we:
+> 	- wait for any interrupts
+> 	- flush all I/O in the workqueue
+> 	- retry cio_cancel_halt_clear
+> 
+> During the period where we are waiting for interrupts or
+> flushing all I/O, the channel subsystem could have completed
+> a halt/clear action and turned off the corresponding activity
+> control bits in the subchannel status word. This means the next
+> time we call cio_cancel_halt_clear(), we will again start by
+> calling cancel subchannel and so we can be stuck between calling
+> cancel and halt forever.
+> 
+> Rather than calling cio_cancel_halt_clear() immediately after
+> waiting, let's try to disable the subchannel. If we succeed in
+> disabling the subchannel then we know nothing else can happen
+> with the device.
+> 
+> Suggested-by: Eric Farman <farman@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+> ChangeLog:
+> v2 -> v3
+>    - Log an error message when cio_cancel_halt_clear
+>      returns EIO and break out of the loop.
+>    
+>    - Did not include past change log as the other patches
+>      of the original series have been queued by Conny.
+>      Old series (v2) can be found here:
+>      https://marc.info/?l=kvm&m=155475754101769&w=2
+> 
+>  drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
+>  1 file changed, 18 insertions(+), 14 deletions(-)
 
-Patch 1 makes sure the memory block size granularity is always respected.
-Patch 2 implements arch_remove_memory() on s390x. Patch 3 prepares
-arch_remove_memory() to be also called without CONFIG_MEMORY_HOTREMOVE.
-Patch 4,5 and 6 factor out creation/removal of memory block devices.
-Patch 7 gets rid of some unlikely errors that could have happened, not
-removinf links between memory block devices and nodes, previously brought
-up by Oscar.
-
-Did a quick sanity test with DIMM plug/unplug, making sure all devices
-and sysfs links properly get added/removed. Compile tested on s390x and
-x86-64.
-
-Based on git://git.cmpxchg.org/linux-mmots.git
-
-David Hildenbrand (7):
-  mm/memory_hotplug: Simplify and fix check_hotplug_memory_range()
-  s390x/mm: Implement arch_remove_memory()
-  mm/memory_hotplug: arch_remove_memory() and __remove_pages() with
-    CONFIG_MEMORY_HOTPLUG
-  mm/memory_hotplug: Create memory block devices after arch_add_memory()
-  mm/memory_hotplug: Drop MHP_MEMBLOCK_API
-  mm/memory_hotplug: Remove memory block devices before
-    arch_remove_memory()
-  mm/memory_hotplug: Make unregister_memory_block_under_nodes() never
-    fail
-
- arch/ia64/mm/init.c            |   2 -
- arch/powerpc/mm/mem.c          |   2 -
- arch/s390/mm/init.c            |  15 +++--
- arch/sh/mm/init.c              |   2 -
- arch/x86/mm/init_32.c          |   2 -
- arch/x86/mm/init_64.c          |   2 -
- drivers/base/memory.c          | 109 +++++++++++++++++++--------------
- drivers/base/node.c            |  27 +++-----
- include/linux/memory.h         |   6 +-
- include/linux/memory_hotplug.h |  10 ---
- include/linux/node.h           |   7 +--
- mm/memory_hotplug.c            |  42 +++++--------
- mm/sparse.c                    |   6 --
- 13 files changed, 100 insertions(+), 132 deletions(-)
-
--- 
-2.20.1
+Thanks, applied.
