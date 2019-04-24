@@ -1,97 +1,321 @@
-Return-Path: <SRS0=oVSW=SZ=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v2 7/8] s390: vfio-ap: handle bind and unbind of AP queue
- device
-References: <1555796980-27920-1-git-send-email-akrowiak@linux.ibm.com>
- <1555796980-27920-8-git-send-email-akrowiak@linux.ibm.com>
- <20190423155458.65966ebf.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Date: Tue, 23 Apr 2019 11:27:11 -0400
+Return-Path: <SRS0=DUYh=S2=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: [PATCH] memblock: make keeping memblock memory opt-in rather than
+ opt-out
+Date: Wed, 24 Apr 2019 13:35:50 +0300
+Message-Id: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 MIME-Version: 1.0
-In-Reply-To: <20190423155458.65966ebf.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <604cb4b6-5baa-16f9-4e6e-1459453376b6@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Mike Rapoport <rppt@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, linux-m68k@lists.linux-m68k.org, Borislav Petkov <bp@alien8.de>, nios2-dev@lists.rocketboards.org, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Tony Luck <tony.luck@intel.com>, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Richard Kuo <rkuo@codeaurora.org>, Paul Burton <paul.burton@mips.com>, Eric Biederman <ebiederm@xmission.com>, linux-hexagon@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ley Foon Tan <lftan@altera.com>, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 4/23/19 9:54 AM, Halil Pasic wrote:
-> On Sat, 20 Apr 2019 17:49:39 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> 
->> +void vfio_ap_mdev_probe_queue(unsigned long apid, unsigned long apqi)
->> +{
->> +	struct ap_matrix_mdev *matrix_mdev;
->> +
->> +	matrix_mdev = vfio_ap_mdev_find_matrix_mdev(apid, apqi);
->> +
->> +	/*
->> +	 * If the queue is assigned to the mdev device and the mdev device
->> +	 * is in use by a guest
->> +	 */
->> +	if (matrix_mdev && matrix_mdev->kvm) {
->> +		/* Plug the adapter into the guest */
->> +		set_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
->> +
->> +		/* Make sure the queue is also plugged in to the guest */
->> +		if (!test_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm))
->> +			set_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm);
->> +
->> +		vfio_ap_mdev_update_crycb(matrix_mdev);
-> 
-> With this you effectively grant access to all the assigned domains on
-> the AP identified by the apid, not only to the domain identified by
-> apqi! But some of these queues may still not be bound to the vfio_ap
-> driver.
+Most architectures do not need the memblock memory after the page allocator
+is initialized, but only few enable ARCH_DISCARD_MEMBLOCK in the
+arch Kconfig.
 
-I have been doing some more testing since I last visited and discovered
-that there needs to be additional checking here.
+Replacing ARCH_DISCARD_MEMBLOCK with ARCH_KEEP_MEMBLOCK and inverting the
+logic makes it clear which architectures actually use memblock after system
+initialization and skips the necessity to add ARCH_DISCARD_MEMBLOCK to the
+architectures that are still missing that option.
 
-> 
-> IMHO you should only set the apid-th bit in apm if all queues (apid, q)
-> such that q-th bit is set in aqm are bound to the vfio_ap driver.
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/arm/Kconfig         |  2 +-
+ arch/arm64/Kconfig       |  1 +
+ arch/hexagon/Kconfig     |  1 -
+ arch/ia64/Kconfig        |  1 -
+ arch/m68k/Kconfig        |  1 -
+ arch/mips/Kconfig        |  1 -
+ arch/nios2/Kconfig       |  1 -
+ arch/powerpc/Kconfig     |  1 +
+ arch/s390/Kconfig        |  1 +
+ arch/sh/Kconfig          |  1 -
+ arch/x86/Kconfig         |  1 -
+ include/linux/memblock.h |  3 ++-
+ kernel/kexec_file.c      | 16 ++++++++--------
+ mm/Kconfig               |  2 +-
+ mm/memblock.c            |  6 +++---
+ mm/page_alloc.c          |  3 +--
+ 16 files changed, 19 insertions(+), 23 deletions(-)
 
-This is partially correct. It is not necessary to verify that the
-affected queues are bound to the vfio_ap driver. It is only necessary
-to verify they are not reserved for use by a zcrypt driver since we
-are allowing assignment of APQNs for queues that are not available (see
-patch 3/8).
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 850b480..7073436 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -4,7 +4,6 @@ config ARM
+ 	default y
+ 	select ARCH_32BIT_OFF_T
+ 	select ARCH_CLOCKSOURCE_DATA
+-	select ARCH_DISCARD_MEMBLOCK if !HAVE_ARCH_PFN_VALID && !KEXEC
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
+ 	select ARCH_HAS_ELF_RANDOMIZE
+@@ -21,6 +20,7 @@ config ARM
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAVE_CUSTOM_GPIO_H
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
++	select ARCH_KEEP_MEMBLOCK if HAVE_ARCH_PFN_VALID || KEXEC
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_NO_SG_CHAIN if !ARM_HAS_SG_CHAIN
+ 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 7e34b9e..d71f043 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -58,6 +58,7 @@ config ARM64
+ 	select ARCH_INLINE_SPIN_UNLOCK_BH if !PREEMPT
+ 	select ARCH_INLINE_SPIN_UNLOCK_IRQ if !PREEMPT
+ 	select ARCH_INLINE_SPIN_UNLOCK_IRQRESTORE if !PREEMPT
++	select ARCH_KEEP_MEMBLOCK
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
+index ac44168..bbe3819 100644
+--- a/arch/hexagon/Kconfig
++++ b/arch/hexagon/Kconfig
+@@ -22,7 +22,6 @@ config HEXAGON
+ 	select GENERIC_IRQ_SHOW
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_TRACEHOOK
+-	select ARCH_DISCARD_MEMBLOCK
+ 	select NEED_SG_DMA_LENGTH
+ 	select NO_IOPORT_MAP
+ 	select GENERIC_IOMAP
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 8d7396b..bd51d3b 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -33,7 +33,6 @@ config IA64
+ 	select ARCH_HAS_DMA_COHERENT_TO_PFN if SWIOTLB
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU if SWIOTLB
+ 	select VIRT_TO_BUS
+-	select ARCH_DISCARD_MEMBLOCK
+ 	select GENERIC_IRQ_PROBE
+ 	select GENERIC_PENDING_IRQ if SMP
+ 	select GENERIC_IRQ_SHOW
+diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
+index b542064..7d1e5d9 100644
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -27,7 +27,6 @@ config M68K
+ 	select MODULES_USE_ELF_RELA
+ 	select OLD_SIGSUSPEND3
+ 	select OLD_SIGACTION
+-	select ARCH_DISCARD_MEMBLOCK
+ 
+ config CPU_BIG_ENDIAN
+ 	def_bool y
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 4a5f5b0..8b9298b 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -5,7 +5,6 @@ config MIPS
+ 	select ARCH_32BIT_OFF_T if !64BIT
+ 	select ARCH_BINFMT_ELF_STATE if MIPS_FP_SUPPORT
+ 	select ARCH_CLOCKSOURCE_DATA
+-	select ARCH_DISCARD_MEMBLOCK
+ 	select ARCH_HAS_ELF_RANDOMIZE
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
+index 4ef15a6..dc4239c 100644
+--- a/arch/nios2/Kconfig
++++ b/arch/nios2/Kconfig
+@@ -23,7 +23,6 @@ config NIOS2
+ 	select SPARSE_IRQ
+ 	select USB_ARCH_HAS_HCD if USB_SUPPORT
+ 	select CPU_NO_EFFICIENT_FFS
+-	select ARCH_DISCARD_MEMBLOCK
+ 
+ config GENERIC_CSUM
+ 	def_bool y
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 2d0be82..39877b9 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -143,6 +143,7 @@ config PPC
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+ 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
+ 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
++	select ARCH_KEEP_MEMBLOCK
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index b6e3d06..3eaf660 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -106,6 +106,7 @@ config S390
+ 	select ARCH_INLINE_WRITE_UNLOCK_BH
+ 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
+ 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
++	select ARCH_KEEP_MEMBLOCK
+ 	select ARCH_SAVE_PAGE_KEYS if HIBERNATION
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index b1c91ea..418e928 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -10,7 +10,6 @@ config SUPERH
+ 	select DMA_DECLARE_COHERENT
+ 	select HAVE_IDE if HAS_IOPORT_MAP
+ 	select HAVE_MEMBLOCK_NODE_MAP
+-	select ARCH_DISCARD_MEMBLOCK
+ 	select HAVE_OPROFILE
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_PERF_EVENTS
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 62fc3fd..80bc582 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -48,7 +48,6 @@ config X86
+ 	select ARCH_32BIT_OFF_T			if X86_32
+ 	select ARCH_CLOCKSOURCE_DATA
+ 	select ARCH_CLOCKSOURCE_INIT
+-	select ARCH_DISCARD_MEMBLOCK
+ 	select ARCH_HAS_ACPI_TABLE_UPGRADE	if ACPI
+ 	select ARCH_HAS_DEBUG_VIRTUAL
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 294d5d8..6ba69ba 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -96,13 +96,14 @@ struct memblock {
+ extern struct memblock memblock;
+ extern int memblock_debug;
+ 
+-#ifdef CONFIG_ARCH_DISCARD_MEMBLOCK
++#ifndef CONFIG_ARCH_KEEP_MEMBLOCK
+ #define __init_memblock __meminit
+ #define __initdata_memblock __meminitdata
+ void memblock_discard(void);
+ #else
+ #define __init_memblock
+ #define __initdata_memblock
++static inline void memblock_discard(void) {}
+ #endif
+ 
+ #define memblock_dbg(fmt, ...) \
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index f1d0e00..623b022 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -500,13 +500,7 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
+ 	return locate_mem_hole_bottom_up(start, end, kbuf);
+ }
+ 
+-#ifdef CONFIG_ARCH_DISCARD_MEMBLOCK
+-static int kexec_walk_memblock(struct kexec_buf *kbuf,
+-			       int (*func)(struct resource *, void *))
+-{
+-	return 0;
+-}
+-#else
++#ifdef CONFIG_ARCH_KEEP_MEMBLOCK
+ static int kexec_walk_memblock(struct kexec_buf *kbuf,
+ 			       int (*func)(struct resource *, void *))
+ {
+@@ -550,6 +544,12 @@ static int kexec_walk_memblock(struct kexec_buf *kbuf,
+ 
+ 	return ret;
+ }
++#else
++static int kexec_walk_memblock(struct kexec_buf *kbuf,
++			       int (*func)(struct resource *, void *))
++{
++	return 0;
++}
+ #endif
+ 
+ /**
+@@ -589,7 +589,7 @@ int kexec_locate_mem_hole(struct kexec_buf *kbuf)
+ 	if (kbuf->mem != KEXEC_BUF_MEM_UNKNOWN)
+ 		return 0;
+ 
+-	if (IS_ENABLED(CONFIG_ARCH_DISCARD_MEMBLOCK))
++	if (!IS_ENABLED(CONFIG_ARCH_KEEP_MEMBLOCK))
+ 		ret = kexec_walk_resources(kbuf, locate_mem_hole_callback);
+ 	else
+ 		ret = kexec_walk_memblock(kbuf, locate_mem_hole_callback);
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 25c71eb..1e1c6ce 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -136,7 +136,7 @@ config HAVE_MEMBLOCK_PHYS_MAP
+ config HAVE_GENERIC_GUP
+ 	bool
+ 
+-config ARCH_DISCARD_MEMBLOCK
++config ARCH_KEEP_MEMBLOCK
+ 	bool
+ 
+ config MEMORY_ISOLATION
+diff --git a/mm/memblock.c b/mm/memblock.c
+index e7665cf..d6b5755 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -94,7 +94,7 @@
+  * :c:func:`mem_init` function frees all the memory to the buddy page
+  * allocator.
+  *
+- * If an architecure enables %CONFIG_ARCH_DISCARD_MEMBLOCK, the
++ * Unless an architecure enables %CONFIG_ARCH_KEEP_MEMBLOCK, the
+  * memblock data structures will be discarded after the system
+  * initialization compltes.
+  */
+@@ -375,7 +375,7 @@ static void __init_memblock memblock_remove_region(struct memblock_type *type, u
+ 	}
+ }
+ 
+-#ifdef CONFIG_ARCH_DISCARD_MEMBLOCK
++#ifndef CONFIG_ARCH_KEEP_MEMBLOCK
+ /**
+  * memblock_discard - discard memory and reserved arrays if they were allocated
+  */
+@@ -1923,7 +1923,7 @@ unsigned long __init memblock_free_all(void)
+ 	return pages;
+ }
+ 
+-#if defined(CONFIG_DEBUG_FS) && !defined(CONFIG_ARCH_DISCARD_MEMBLOCK)
++#if defined(CONFIG_DEBUG_FS) && defined(CONFIG_ARCH_KEEP_MEMBLOCK)
+ 
+ static int memblock_debug_show(struct seq_file *m, void *private)
+ {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c6ce20a..a1825e9 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1831,10 +1831,9 @@ void __init page_alloc_init_late(void)
+ 	/* Reinit limits that are based on free pages after the kernel is up */
+ 	files_maxfiles_init();
+ #endif
+-#ifdef CONFIG_ARCH_DISCARD_MEMBLOCK
++
+ 	/* Discard memblock private memory */
+ 	memblock_discard();
+-#endif
+ 
+ 	for_each_populated_zone(zone)
+ 		set_zone_contiguous(zone);
+-- 
+2.7.4
 
-> 
-> BTW a 'shadow' (or effective) apm would perfectly suffice. I don't think
-> you fiddle with shadow_crycb->a[qd]m, and if you do, I don't think that's
-> a good idea.
 
-I do not think it is accurate to refer to the APM in the shadow CRYCB as
-an effective mask. Effective masking is a firmware construct. The CRYCB
-of the guest may be configured with APQNs that are not available.
-
-The shadow CRYCB is in fact a copy of the guest CRYCB. Whenever the
-masks in the guest CRYCB are set, they are set from the masks in the
-shadow CRYCB. The lifespan of the shadow CRYCB is synonymous with the
-lifespan of the guest.
-
-Each of the mdev device sysfs assignment/unassignment interfaces does
-fiddle with the masks in the shadow CRYCB if a guest is using the mdev
-device. This allows us to hot plug/unplug AP resources for the guest.
-Recall that an adapter or domain can not be assigned unless each
-new APQN created is NOT reserved for use by the zcrypt drivers via
-the AP bus's apmask/aqmask sysfs interfaces, and the APQN is not 
-assigned to any other mdev device. That is how protection is
-provided against inadvertently sharing AP queues between guests or
-the guest and the host. I do have to add that verification to
-the vfio_ap_mdev_probe_queue function though.
-
-
-
-> 
-> Regards,
-> Halil
-> 
->> +	}
->> +}
-> 
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
