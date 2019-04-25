@@ -1,96 +1,74 @@
 Return-Path: <SRS0=V8Ip=S3=vger.kernel.org=kvm-owner@kernel.org>
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 9/9] vfio-ccw: Prevent quiesce function going into an infinite loop
-Date: Thu, 25 Apr 2019 11:15:59 +0200
-Message-Id: <20190425091559.15490-10-cohuck@redhat.com>
+Date: Thu, 25 Apr 2019 13:47:51 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PULL 0/9] vfio-ccw patches for 5.2
 In-Reply-To: <20190425091559.15490-1-cohuck@redhat.com>
 References: <20190425091559.15490-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190425134751.086dc37b@mschwideX1>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+On Thu, 25 Apr 2019 11:15:50 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-The quiesce function calls cio_cancel_halt_clear() and if we
-get an -EBUSY we go into a loop where we:
-	- wait for any interrupts
-	- flush all I/O in the workqueue
-	- retry cio_cancel_halt_clear
+> The following changes since commit 1c410fd6a561af452aba282b1cd3cabef2080d72:
+> 
+>   s390/cpum_cf_diag: Add support for CPU-MF SVN 6 (2019-04-23 16:30:06 +0200)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20190425
+> 
+> for you to fetch changes up to d1ffa760d22aa1d8190478e5ef555c59a771db27:
+> 
+>   vfio-ccw: Prevent quiesce function going into an infinite loop (2019-04-24 14:18:51 +0200)
+> 
+> ----------------------------------------------------------------
+> - support for sending halt/clear requests to the device
+> - various bug fixes
+> 
+> ----------------------------------------------------------------
+> 
+> Cornelia Huck (6):
+>   vfio-ccw: make it safe to access channel programs
+>   vfio-ccw: rework ssch state handling
+>   vfio-ccw: protect the I/O region
+>   vfio-ccw: add capabilities chain
+>   s390/cio: export hsch to modules
+>   vfio-ccw: add handling for async channel instructions
+> 
+> Farhan Ali (3):
+>   vfio-ccw: Do not call flush_workqueue while holding the spinlock
+>   vfio-ccw: Release any channel program when releasing/removing vfio-ccw
+>     mdev
+>   vfio-ccw: Prevent quiesce function going into an infinite loop
+> 
+>  drivers/s390/cio/Makefile           |   3 +-
+>  drivers/s390/cio/ioasm.c            |   1 +
+>  drivers/s390/cio/vfio_ccw_async.c   |  88 +++++++++++
+>  drivers/s390/cio/vfio_ccw_cp.c      |  21 ++-
+>  drivers/s390/cio/vfio_ccw_cp.h      |   2 +
+>  drivers/s390/cio/vfio_ccw_drv.c     |  81 ++++++----
+>  drivers/s390/cio/vfio_ccw_fsm.c     | 143 +++++++++++++++++-
+>  drivers/s390/cio/vfio_ccw_ops.c     | 227 ++++++++++++++++++++++++----
+>  drivers/s390/cio/vfio_ccw_private.h |  48 +++++-
+>  include/uapi/linux/vfio.h           |   4 +
+>  include/uapi/linux/vfio_ccw.h       |  12 ++
+>  11 files changed, 560 insertions(+), 70 deletions(-)
+>  create mode 100644 drivers/s390/cio/vfio_ccw_async.c
+> 
 
-During the period where we are waiting for interrupts or
-flushing all I/O, the channel subsystem could have completed
-a halt/clear action and turned off the corresponding activity
-control bits in the subchannel status word. This means the next
-time we call cio_cancel_halt_clear(), we will again start by
-calling cancel subchannel and so we can be stuck between calling
-cancel and halt forever.
+Pulled and push to s390/linux:features for the next merge window. Thanks.
 
-Rather than calling cio_cancel_halt_clear() immediately after
-waiting, let's try to disable the subchannel. If we succeed in
-disabling the subchannel then we know nothing else can happen
-with the device.
-
-Suggested-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index d72aa8c760c5..ee8767f5845a 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -43,26 +43,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	if (ret != -EBUSY)
- 		goto out_unlock;
- 
-+	iretry = 255;
- 	do {
--		iretry = 255;
- 
- 		ret = cio_cancel_halt_clear(sch, &iretry);
--		while (ret == -EBUSY) {
--			/*
--			 * Flush all I/O and wait for
--			 * cancel/halt/clear completion.
--			 */
--			private->completion = &completion;
--			spin_unlock_irq(sch->lock);
- 
--			wait_for_completion_timeout(&completion, 3*HZ);
-+		if (ret == -EIO) {
-+			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
-+			       sch->schid.ssid, sch->schid.sch_no);
-+			break;
-+		}
-+
-+		/*
-+		 * Flush all I/O and wait for
-+		 * cancel/halt/clear completion.
-+		 */
-+		private->completion = &completion;
-+		spin_unlock_irq(sch->lock);
- 
--			private->completion = NULL;
--			flush_workqueue(vfio_ccw_work_q);
--			spin_lock_irq(sch->lock);
--			ret = cio_cancel_halt_clear(sch, &iretry);
--		};
-+		if (ret == -EBUSY)
-+			wait_for_completion_timeout(&completion, 3*HZ);
- 
-+		private->completion = NULL;
-+		flush_workqueue(vfio_ccw_work_q);
-+		spin_lock_irq(sch->lock);
- 		ret = cio_disable_subchannel(sch);
- 	} while (ret == -EBUSY);
- out_unlock:
 -- 
-2.17.2
+blue skies,
+   Martin.
+
+"Reality continues to ruin my life." - Calvin.
