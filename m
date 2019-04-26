@@ -1,53 +1,67 @@
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [-next] system hangs likely due to "modules: Only return -EEXIST
- for modules that have finished loading"
-Date: Mon, 29 Apr 2019 07:55:20 +0200
-Message-ID: <20190429055520.GA3665@osiris>
-References: <20190426130736.GB8646@osiris>
- <d4d75ad1-e193-c230-1edc-a93db2b068d7@redhat.com>
- <20190426150741.GD8646@osiris>
- <20190426160956.GA3827@linux-8ccs>
- <2e047a7e-bf08-be8c-bdd0-429464fa133d@redhat.com>
- <52c293e9-ddfa-426a-a8f1-2106e250e78d@redhat.com>
- <f74996cb-3e0a-ab23-00b9-85ac782583d1@redhat.com>
- <20190427102440.GA28889@osiris>
- <6a69074a-e913-3b67-feef-9b62a7400f8a@redhat.com>
+Subject: [-next] system hangs likely due to "modules: Only return -EEXIST for
+ modules that have finished loading"
+Date: Fri, 26 Apr 2019 15:07:36 +0200
+Message-ID: <20190426130736.GB8646@osiris>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6a69074a-e913-3b67-feef-9b62a7400f8a@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-next/>
 List-Post: <mailto:linux-next@vger.kernel.org>
-To: Prarit Bhargava <prarit@redhat.com>
-Cc: Jessica Yu <jeyu@kernel.org>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Cathy Avery <cavery@redhat.com>
+To: Prarit Bhargava <prarit@redhat.com>, Jessica Yu <jeyu@kernel.org>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Cathy Avery <cavery@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sat, Apr 27, 2019 at 06:42:51AM -0400, Prarit Bhargava wrote:
-> On 4/27/19 6:24 AM, Heiko Carstens wrote:
-> 
-> > 
-> > diff --git a/kernel/module.c b/kernel/module.c
-> > index 410eeb7e4f1d..48748cfec991 100644
-> > --- a/kernel/module.c
-> > +++ b/kernel/module.c
-> > @@ -3585,6 +3585,7 @@ again:
-> >  					       finished_loading(mod->name));
-> >  			if (err)
-> >  				goto out_unlocked;
-> > +			cond_resched();
-> Heiko, I'm testing on 2-cpu systems which appear to show the problem ~10% of the
-> time.  On another system I backed out my original patch to set a baseline, and
-> noticed that occasionally the time to boot the system doubles from ~4 seconds to
-> 9 seconds.  Is this something you're also concerned with?
+Hello Prarit,
 
-This _could_ be an issue, since I see the problem much more likely to
-happen on systems with many devices (where many means only something
-like 10 block devices). As far as I can tell it looks like
-systemd/udevd tries to modprobe at the s390-trng module for each(!)
-device.
-I have no idea why it is doing that... however given that (failed)
-module handling now sometimes takes more time, this might become a
-real issue on system with several 1000s of block devices, which is a
-realistic scenario at least on s390.
+it looks like your commit f9a75c1d717f ("modules: Only return -EEXIST
+for modules that have finished loading") _sometimes_ causes hangs on
+s390. This is unfortunately not 100% reproducible, however the
+mentioned commit seems to be the only relevant one in modules.c.
+
+What I see is a hanging system with messages like this on the console:
+
+[   65.876040] rcu: INFO: rcu_sched self-detected stall on CPU
+[   65.876049] rcu:     7-....: (5999 ticks this GP) idle=eae/1/0x4000000000000002 softirq=1181/1181 fqs=2729
+[   65.876078]  (t=6000 jiffies g=-471 q=17196)
+[   65.876084] Task dump for CPU 7:
+[   65.876088] systemd-udevd   R  running task        0   731    721 0x06000004
+[   65.876097] Call Trace:
+[   65.876113] ([<0000000000abb264>] __schedule+0x2e4/0x6e0)
+[   65.876122]  [<00000000001ee486>] finished_loading+0x4e/0xb0
+[   65.876128]  [<00000000001f1ed6>] load_module+0xcce/0x27a0
+[   65.876134]  [<00000000001f3af0>] __s390x_sys_init_module+0x148/0x178
+[   65.876142]  [<0000000000ac0766>] system_call+0x2aa/0x2c8
+
+crash's backtrace of this task looks like this:
+
+PID: 731    TASK: 1e79ba000         CPU: 7   COMMAND: "systemd-udevd"
+ LOWCORE INFO:
+  -psw      : 0x0704c00180000000 0x0000000000ab666a
+  -function : memcmp at ab666a
+  -prefix   : 0x7fe32000
+  -cpu timer: 0x7fffff5784d0f048
+  -clock cmp: 0xd60757081cd70d00
+  -general registers:
+     0x0000000000000009 0x0000000000000009
+     0x000003ff80347321 000000000000000000
+     0x000003ff8034f321 000000000000000000
+     0x000000000000001e 0x000003ff8c592708
+     0x000003e0047da900 0x000003ff8034f318
+     0x0000000000000001 0x0000000000000009
+     0x000003ff80347300 0x0000000000ad81b8
+     0x00000000001ee062 0x000003e004357cb0
+[...]
+ #0 [3e004357cf0] load_module at 1f1eb0
+ #1 [3e004357dd0] __se_sys_init_module at 1f3af0
+ #2 [3e004357ea8] system_call at ac0766
+ PSW:  0705000180000000 000003ff8c27ad3e (user space)
+ GPRS: 000002aa280d2fb0 000003ff8c27ad3c 0000000000000080 00000000000035fd
+       000003ff8c592708 000002aa280c8770 0000000000000000 000002aa280d7130
+       0000000000020000 000002aa28915760 000003ff8c592708 000002aa280c00b0
+       000003ff8c8fff80 000002aa280c00b0 000003ff8c58a456 000003ffe9cfde90
+
+I did not look any further into the dump, however since the commit
+touches exactly the code path which seems to be looping... ;)
