@@ -1,46 +1,170 @@
-Return-Path: <SRS0=+MMY=S7=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH] KVM: s390: vsie: Return correct values for Invalid CRYCB
- format
-References: <1556269201-22918-1-git-send-email-pmorel@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 29 Apr 2019 09:01:36 +0200
-MIME-Version: 1.0
-In-Reply-To: <1556269201-22918-1-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <50d14c28-1042-7654-dd4e-cbc45d1a2b66@de.ibm.com>
+Return-Path: <SRS0=JTmC=S4=vger.kernel.org=kvm-owner@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v7 0/4] vfio: ap: AP Queue Interrupt Control
+Date: Fri, 26 Apr 2019 15:01:24 +0200
+Message-Id: <1556283688-556-1-git-send-email-pmorel@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, david@redhat.com
-Cc: linux-kernel@vger.kernel.org, cohuck@redhat.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: borntraeger@de.ibm.com
+Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 26.04.19 11:00, Pierre Morel wrote:
-> Let's use the correct validity number.
-> 
-> Fixes: 55ded154b43 "KVM: s390: vsie: Allow CRYCB FORMAT-2"
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/kvm/vsie.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index ac411e9..076090f 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -344,7 +344,7 @@ static int shadow_crycb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  end:
->  	switch (ret) {
->  	case -EINVAL:
-> -		return set_validity_icpt(scb_s, 0x0020U);
-> +		return set_validity_icpt(scb_s, 0x0022U);
->  	case -EFAULT:
->  		return set_validity_icpt(scb_s, 0x0035U);
->  	case -EACCES:
-> 
+This patch series implements PQAP/AQIC interception in KVM.
 
-Thanks applied. 
+1) Data to handle GISA interrupt for AQIC
+
+To implement this we need to add a new structure, vfio_ap_queue,
+to be able to retrieve the mediated device associated with a queue
+and specific values needed to register/unregister the interrupt
+structures:
+  - APQN: to be able to issue the commands and search for queue
+    structures
+  - NIB and old NIB : to unpin the NIB on clear IRQ
+  - ISC and old ISC : to unregister with the GIB interface
+  - matrix_mdev: to retrieve the associate matrix and mediated device
+
+Specific handling bei keeping old values when re-registering is
+needed because the guest could unregister interrupt in a invisble
+manner bei issuing an un-interceptible RESET command.
+
+Reset commands issued directly by the guest and indirectly when
+removing the guest unpin the memory and deregister the ISC.
+
+The vfio_ap_queue is associated to the ap_device during the probe
+of the device and dissociated during the remove of the ap_device.
+
+The vfio_ap_queue is associated to the matrix mediated device during
+each interception of the AQIC command, so it do not need to be
+dissociated until the guest is terminated.
+
+The life of the vfio_ap_queue will be protected by the matrix_dev lock
+to guaranty that no change can occur to the CRYCB or that devices can
+not be removed when a vfio_ap_queue is in use.
+
+2) KVM destroy race conditions
+
+To make sure that KVM do not vanish and GISA is still available
+when the VFIO_AP driver is in used we take a reference to KVM
+during the opening of the mediated device and release it on
+releasing the mediated device.
+
+3) Interception of PQAP
+
+The driver registers a hook structure to KVM providing:
+- a pointer to a function implementing PQAP(AQIC) handling
+- the reference to the module owner of the hook
+
+On interception by KVM we do not change the behavior, returning
+ -EOPNOTSUPP to the user in the case AP instructions are not
+supported by the host or by the guest.
+Otherwise we verify the exceptions cases before trying to call 
+the vfio_ap hook.
+
+In the case we do not find a hook we assume that the CRYCB has not
+been setup for the guest and is empty.
+
+
+4) Removing the AP device
+
+Removing the AP device without having unassign it is clearly
+discourage by the documentation.
+The patch series does not check if the queue is used by a
+guest and simply free the vfio_ap_queue.
+
+5) Associated QEMU patch
+
+There is a QEMU patch which is needed to enable the PQAP/AQIC
+facility in the guest.
+
+Posted in qemu-devel@nongnu.org as:
+Message-Id: <1550146494-21085-1-git-send-email-pmorel@linux.ibm.com>
+
+
+Pierre Morel (4):
+  s390: ap: kvm: add PQAP interception for AQIC
+  vfio: ap: register IOMMU VFIO notifier
+  s390: ap: implement PAPQ AQIC interception in kernel
+  s390: ap: kvm: Enable PQAP/AQIC facility for the guest
+
+ arch/s390/include/asm/kvm_host.h      |   7 +
+ arch/s390/kvm/priv.c                  |  86 +++++++++
+ arch/s390/tools/gen_facilities.c      |   1 +
+ drivers/s390/crypto/ap_bus.h          |   1 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  30 ++-
+ drivers/s390/crypto/vfio_ap_ops.c     | 336 +++++++++++++++++++++++++++++++++-
+ drivers/s390/crypto/vfio_ap_private.h |  15 ++
+ 7 files changed, 468 insertions(+), 8 deletions(-)
+
+-- 
+2.7.4
+
+Changelog:
+
+Changelog from v6:
+- Not taking care if the AP queue is associated with a guest
+  admin is warn in the odcumentation
+ (Tony, Halil)
+- Using WARN_ON_ONCE, direct call to report specification errors
+  (Christian)
+- Wait until the IRQ bit is cleared when clearing interrupts
+ (Tony, Halil)
+- Some minor changes and add some comments before
+  vfio_ap_free_irq_data
+  (Pierre)
+- initializing the pointer to matrix_mdev in vfio_ap_queue 
+  during the interception and suppress the association during
+  assignment and the usage of lists.
+  (Tony, Halil)
+- Merging patches for creation of vfio_ap_queue, initialization
+  and use of vfio_ap_queue during interception of PQAP/AQIC
+  (Conny)
+
+Changelog from v5:
+- Refactoring of the PQAP interception after all discussions
+  (Conny, Halil (offline))
+- take a big lock around open to avoid parallel changes through
+  assignment
+- verify that at least one queue has a APID or APQI when
+  first assignment is done to not accept unavailable APID/APQI
+  (myself)
+- Adding comment for locks on free_list
+  (Conny)
+- Modified comment for 
+  "s390: ap: setup relation betwen KVM and mediated device"
+  (Halil)
+
+Changelog from v4:
+- Add forgotten locking for vfio_get_queue() in pqap callback
+  (Conny / Halil)
+- Add KVM reference counting to make sure GISA is free after IRQ
+  (Christian / Halil)
+- Take care that ISC = 0 is a valid ISC
+  (Halil)
+- Integrate the PQAP call back in a structure with module owner
+  reference counting to make sure the callback does not disappear.
+- Restrict functionality to always open KVM before opening the
+  VFIO device.
+- Search all devices in the vfio_ap driver list when associating
+  a queue to a mediated device
+  (Halil / Tony)
+- Get vfio_ap_free_irq() out of vfio_ap_mdev_reset_queue() to call
+  it always, whatever the result of the reset.
+  (Tony)
+
+Changelog from v3:
+- Associating the vfio_queues during APID/APQI assign
+  (Tony)
+- Dissociating the vfio_queues during APID/APQI unassign
+  (Tony)
+- Taking care that the guest can directly disable the interrupt
+  by using a RESET
+  (Halil)
+- Remove the patch creating the matrix bus to accelerate its
+  integration in Linux stable
+  (Christian)
+
+Changelog from v1:
+- Refactoring to handle interception in kernel instead of in
+  QEMU
+  (Halil)
