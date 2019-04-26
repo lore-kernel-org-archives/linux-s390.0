@@ -1,10 +1,10 @@
 Return-Path: <SRS0=JTmC=S4=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
-Date: Fri, 26 Apr 2019 20:32:45 +0200
+Subject: [PATCH 04/10] s390/mm: force swiotlb for protected virtualization
+Date: Fri, 26 Apr 2019 20:32:39 +0200
 In-Reply-To: <20190426183245.37939-1-pasic@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-Message-Id: <20190426183245.37939-11-pasic@linux.ibm.com>
+Message-Id: <20190426183245.37939-5-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,103 +12,153 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hypervisor needs to interact with the summary indicators, so these
-need to be DMA memory as well (at least for protected virtualization
-guests).
+On s390, protected virtualization guests have to use bounced I/O
+buffers.  That requires some plumbing.
+
+Let us make sure, any device that uses DMA API with direct ops correctly
+is spared from the problems, that a hypervisor attempting I/O to a
+non-shared page would bring.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ arch/s390/Kconfig                   |  4 +++
+ arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++
+ arch/s390/mm/init.c                 | 50 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 72 insertions(+)
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 613b18001a0c..6058b07fea08 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
- 
- struct airq_info {
- 	rwlock_t lock;
--	u8 summary_indicator;
-+	u8 summary_indicator_idx;
- 	struct airq_struct airq;
- 	struct airq_iv *aiv;
- };
- static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-+static u8 *summary_indicators;
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 1c3fcf19c3af..5500d05d4d53 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++config ARCH_HAS_MEM_ENCRYPT
++        def_bool y
 +
-+static inline u8 *get_summary_indicator(struct airq_info *info)
+ config MMU
+ 	def_bool y
+ 
+@@ -191,6 +194,7 @@ config S390
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select VIRT_TO_BUS
+ 	select HAVE_NMI
++	select SWIOTLB
+ 
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+new file mode 100644
+index 000000000000..0898c09a888c
+--- /dev/null
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_MEM_ENCRYPT_H__
++#define S390_MEM_ENCRYPT_H__
++
++#ifndef __ASSEMBLY__
++
++#define sme_me_mask	0ULL
++
++static inline bool sme_active(void) { return false; }
++extern bool sev_active(void);
++
++int set_memory_encrypted(unsigned long addr, int numpages);
++int set_memory_decrypted(unsigned long addr, int numpages);
++
++#endif	/* __ASSEMBLY__ */
++
++#endif	/* S390_MEM_ENCRYPT_H__ */
++
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 3e82f66d5c61..7e3cbd15dcfa 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -18,6 +18,7 @@
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -29,6 +30,7 @@
+ #include <linux/export.h>
+ #include <linux/cma.h>
+ #include <linux/gfp.h>
++#include <linux/dma-mapping.h>
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -42,6 +44,8 @@
+ #include <asm/sclp.h>
+ #include <asm/set_memory.h>
+ #include <asm/kasan.h>
++#include <asm/dma-mapping.h>
++#include <asm/uv.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -126,6 +130,50 @@ void mark_rodata_ro(void)
+ 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
+ }
+ 
++int set_memory_encrypted(unsigned long addr, int numpages)
 +{
-+	return summary_indicators + info->summary_indicator_idx;
++	int i;
++
++	/* make all pages shared, (swiotlb, dma_free) */
++	for (i = 0; i < numpages; ++i) {
++		uv_remove_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
 +}
- 
- #define CCW_CMD_SET_VQ 0x13
- #define CCW_CMD_VDEV_RESET 0x33
-@@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct *airq)
- 			break;
- 		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
- 	}
--	info->summary_indicator = 0;
-+	*(get_summary_indicator(info)) = 0;
- 	smp_wmb();
- 	/* Walk through indicators field, summary indicator not active. */
- 	for (ai = 0;;) {
-@@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
- 	read_unlock(&info->lock);
- }
- 
--static struct airq_info *new_airq_info(void)
-+/* call with airq_areas_lock held */
-+static struct airq_info *new_airq_info(int index)
++EXPORT_SYMBOL_GPL(set_memory_encrypted);
++
++int set_memory_decrypted(unsigned long addr, int numpages)
++{
++	int i;
++	/* make all pages shared (swiotlb, dma_alloca) */
++	for (i = 0; i < numpages; ++i) {
++		uv_set_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
++}
++EXPORT_SYMBOL_GPL(set_memory_decrypted);
++
++/* are we a protected virtualization guest? */
++bool sev_active(void)
++{
++	return is_prot_virt_guest();
++}
++EXPORT_SYMBOL_GPL(sev_active);
++
++/* protected virtualization */
++static void pv_init(void)
++{
++	if (!sev_active())
++		return;
++
++	/* make sure bounce buffers are shared */
++	swiotlb_init(1);
++	swiotlb_update_mem_attributes();
++	swiotlb_force = SWIOTLB_FORCE;
++}
++
+ void __init mem_init(void)
  {
- 	struct airq_info *info;
- 	int rc;
-@@ -252,7 +259,8 @@ static struct airq_info *new_airq_info(void)
- 		return NULL;
- 	}
- 	info->airq.handler = virtio_airq_handler;
--	info->airq.lsi_ptr = &info->summary_indicator;
-+	info->summary_indicator_idx = index;
-+	info->airq.lsi_ptr = get_summary_indicator(info);
- 	info->airq.lsi_mask = 0xff;
- 	info->airq.isc = VIRTIO_AIRQ_ISC;
- 	rc = register_adapter_interrupt(&info->airq);
-@@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
- 	unsigned long bit, flags;
+ 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+@@ -134,6 +182,8 @@ void __init mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
  
- 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-+		/* TODO: this seems to be racy */
- 		if (!airq_areas[i])
--			airq_areas[i] = new_airq_info();
-+			airq_areas[i] = new_airq_info(i);
- 		info = airq_areas[i];
- 		if (!info)
- 			return 0;
-@@ -359,7 +368,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		if (!thinint_area)
- 			return;
- 		thinint_area->summary_indicator =
--			(unsigned long) &airq_info->summary_indicator;
-+			(unsigned long) get_summary_indicator(airq_info);
- 		thinint_area->isc = VIRTIO_AIRQ_ISC;
- 		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 		ccw->count = sizeof(*thinint_area);
-@@ -624,7 +633,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
- 	}
- 	info = vcdev->airq_info;
- 	thinint_area->summary_indicator =
--		(unsigned long) &info->summary_indicator;
-+		(unsigned long) get_summary_indicator(info);
- 	thinint_area->isc = VIRTIO_AIRQ_ISC;
- 	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
- 	ccw->flags = CCW_FLAG_SLI;
-@@ -1500,6 +1509,7 @@ static int __init virtio_ccw_init(void)
- {
- 	/* parse no_auto string before we do anything further */
- 	no_auto_parse();
-+	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
- 	return ccw_driver_register(&virtio_ccw_driver);
- }
- device_initcall(virtio_ccw_init);
++	pv_init();
++
+ 	/* Setup guest page hinting */
+ 	cmma_init();
+ 
 -- 
 2.16.4
