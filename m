@@ -1,10 +1,10 @@
 Return-Path: <SRS0=JTmC=S4=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 07/10] s390/airq: use DMA memory for adapter interrupts
-Date: Fri, 26 Apr 2019 20:32:42 +0200
+Subject: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
+Date: Fri, 26 Apr 2019 20:32:45 +0200
 In-Reply-To: <20190426183245.37939-1-pasic@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-Message-Id: <20190426183245.37939-8-pasic@linux.ibm.com>
+Message-Id: <20190426183245.37939-11-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,98 +12,103 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Protected virtualization guests have to use shared pages for airq
-notifier bit vectors, because hypervisor needs to write these bits.
-
-Let us make sure we allocate DMA memory for the notifier bit vectors.
+Hypervisor needs to interact with the summary indicators, so these
+need to be DMA memory as well (at least for protected virtualization
+guests).
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/s390/include/asm/airq.h |  2 ++
- drivers/s390/cio/airq.c      | 18 ++++++++++++++----
- 2 files changed, 16 insertions(+), 4 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-index fcf539efb32f..1492d4856049 100644
---- a/arch/s390/include/asm/airq.h
-+++ b/arch/s390/include/asm/airq.h
-@@ -11,6 +11,7 @@
- #define _ASM_S390_AIRQ_H
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 613b18001a0c..6058b07fea08 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
  
- #include <linux/bit_spinlock.h>
-+#include <linux/dma-mapping.h>
- 
- struct airq_struct {
- 	struct hlist_node list;		/* Handler queueing. */
-@@ -29,6 +30,7 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
- /* Adapter interrupt bit vector */
- struct airq_iv {
- 	unsigned long *vector;	/* Adapter interrupt bit vector */
-+	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
- 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
- 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
- 	unsigned long *ptr;	/* Pointer associated with each bit */
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index a45011e4529e..7a5c0a08ee09 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -19,6 +19,7 @@
- 
- #include <asm/airq.h>
- #include <asm/isc.h>
-+#include <asm/cio.h>
- 
- #include "cio.h"
- #include "cio_debug.h"
-@@ -113,6 +114,11 @@ void __init init_airq_interrupts(void)
- 	setup_irq(THIN_INTERRUPT, &airq_interrupt);
- }
- 
-+static inline unsigned long iv_size(unsigned long bits)
-+{
-+	return BITS_TO_LONGS(bits) * sizeof(unsigned long);
-+}
+ struct airq_info {
+ 	rwlock_t lock;
+-	u8 summary_indicator;
++	u8 summary_indicator_idx;
+ 	struct airq_struct airq;
+ 	struct airq_iv *aiv;
+ };
+ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
++static u8 *summary_indicators;
 +
- /**
-  * airq_iv_create - create an interrupt vector
-  * @bits: number of bits in the interrupt vector
-@@ -123,14 +129,15 @@ void __init init_airq_interrupts(void)
- struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- {
- 	struct airq_iv *iv;
--	unsigned long size;
-+	unsigned long size = 0;
++static inline u8 *get_summary_indicator(struct airq_info *info)
++{
++	return summary_indicators + info->summary_indicator_idx;
++}
  
- 	iv = kzalloc(sizeof(*iv), GFP_KERNEL);
- 	if (!iv)
- 		goto out;
- 	iv->bits = bits;
--	size = BITS_TO_LONGS(bits) * sizeof(unsigned long);
--	iv->vector = kzalloc(size, GFP_KERNEL);
-+	size = iv_size(bits);
-+	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
-+						 &iv->vector_dma, GFP_KERNEL);
- 	if (!iv->vector)
- 		goto out_free;
- 	if (flags & AIRQ_IV_ALLOC) {
-@@ -165,7 +172,8 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
- 	kfree(iv->ptr);
- 	kfree(iv->bitlock);
- 	kfree(iv->avail);
--	kfree(iv->vector);
-+	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
-+			  iv->vector_dma);
- 	kfree(iv);
- out:
- 	return NULL;
-@@ -182,6 +190,8 @@ void airq_iv_release(struct airq_iv *iv)
- 	kfree(iv->ptr);
- 	kfree(iv->bitlock);
- 	kfree(iv->vector);
-+	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
-+			  iv->vector, iv->vector_dma);
- 	kfree(iv->avail);
- 	kfree(iv);
+ #define CCW_CMD_SET_VQ 0x13
+ #define CCW_CMD_VDEV_RESET 0x33
+@@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct *airq)
+ 			break;
+ 		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
+ 	}
+-	info->summary_indicator = 0;
++	*(get_summary_indicator(info)) = 0;
+ 	smp_wmb();
+ 	/* Walk through indicators field, summary indicator not active. */
+ 	for (ai = 0;;) {
+@@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
+ 	read_unlock(&info->lock);
  }
+ 
+-static struct airq_info *new_airq_info(void)
++/* call with airq_areas_lock held */
++static struct airq_info *new_airq_info(int index)
+ {
+ 	struct airq_info *info;
+ 	int rc;
+@@ -252,7 +259,8 @@ static struct airq_info *new_airq_info(void)
+ 		return NULL;
+ 	}
+ 	info->airq.handler = virtio_airq_handler;
+-	info->airq.lsi_ptr = &info->summary_indicator;
++	info->summary_indicator_idx = index;
++	info->airq.lsi_ptr = get_summary_indicator(info);
+ 	info->airq.lsi_mask = 0xff;
+ 	info->airq.isc = VIRTIO_AIRQ_ISC;
+ 	rc = register_adapter_interrupt(&info->airq);
+@@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+ 	unsigned long bit, flags;
+ 
+ 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
++		/* TODO: this seems to be racy */
+ 		if (!airq_areas[i])
+-			airq_areas[i] = new_airq_info();
++			airq_areas[i] = new_airq_info(i);
+ 		info = airq_areas[i];
+ 		if (!info)
+ 			return 0;
+@@ -359,7 +368,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+ 		if (!thinint_area)
+ 			return;
+ 		thinint_area->summary_indicator =
+-			(unsigned long) &airq_info->summary_indicator;
++			(unsigned long) get_summary_indicator(airq_info);
+ 		thinint_area->isc = VIRTIO_AIRQ_ISC;
+ 		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+ 		ccw->count = sizeof(*thinint_area);
+@@ -624,7 +633,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
+ 	}
+ 	info = vcdev->airq_info;
+ 	thinint_area->summary_indicator =
+-		(unsigned long) &info->summary_indicator;
++		(unsigned long) get_summary_indicator(info);
+ 	thinint_area->isc = VIRTIO_AIRQ_ISC;
+ 	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+ 	ccw->flags = CCW_FLAG_SLI;
+@@ -1500,6 +1509,7 @@ static int __init virtio_ccw_init(void)
+ {
+ 	/* parse no_auto string before we do anything further */
+ 	no_auto_parse();
++	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+ 	return ccw_driver_register(&virtio_ccw_driver);
+ }
+ device_initcall(virtio_ccw_init);
 -- 
 2.16.4
