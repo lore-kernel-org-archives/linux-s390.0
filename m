@@ -1,8 +1,8 @@
 From: Prarit Bhargava <prarit@redhat.com>
 Subject: Re: [-next] system hangs likely due to "modules: Only return -EEXIST
  for modules that have finished loading"
-Date: Fri, 26 Apr 2019 13:15:07 -0400
-Message-ID: <8402e0ea-30dc-206c-1d2b-f9f4ba594391@redhat.com>
+Date: Fri, 26 Apr 2019 14:10:15 -0400
+Message-ID: <2e047a7e-bf08-be8c-bdd0-429464fa133d@redhat.com>
 References: <20190426130736.GB8646@osiris>
  <d4d75ad1-e193-c230-1edc-a93db2b068d7@redhat.com>
  <20190426150741.GD8646@osiris> <20190426160956.GA3827@linux-8ccs>
@@ -74,6 +74,17 @@ On 4/26/19 12:09 PM, Jessica Yu wrote:
 >>
 >> If I'm not mistaken then there was _no_ corresponding message on the
 >> console stating that the module already exists.
+
+Heiko,
+
+Where is the s390_trng module?  I can't seem to find it in the tree.
+
+[02:06 PM root@ibm-z-108 linux-next]# find ./ -name *s390_trng*
+[02:06 PM root@ibm-z-108 linux-next]# git grep s390_trng
+[02:07 PM root@ibm-z-108 linux-next]#
+
+P.
+
 > 
 > Hm, my current theory is that we have a module whose exit() function
 > is taking a while to run to completion. While it is doing so, the
@@ -87,14 +98,6 @@ On 4/26/19 12:09 PM, Jessica Yu wrote:
 > kernel may trigger an rcu stall warning (see bullet point stating "a
 > CPU looping anywhere in the kernel without invoking schedule()".
 > 
-
-Yeah, that's what I'm thinking too.  The question is, however, why that module
-is taking so long that it stalls the system.  If the module state is going then
-the probe of the module has already failed.  Could it be some weird bug in the
-notifier chains?  And :) why aren't I seeing this all the time?
-
-P.
-
 > Heiko, could you modify the patch to print the module's state to
 > confirm?
 > 
