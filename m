@@ -1,8 +1,10 @@
 Return-Path: <SRS0=JTmC=S4=vger.kernel.org=kvm-owner@kernel.org>
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 00/10] s390: virtio: support protected virtualization
-Date: Fri, 26 Apr 2019 20:32:35 +0200
-Message-Id: <20190426183245.37939-1-pasic@linux.ibm.com>
+Subject: [PATCH 02/10] virtio/s390: DMA support for virtio-ccw
+Date: Fri, 26 Apr 2019 20:32:37 +0200
+In-Reply-To: <20190426183245.37939-1-pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+Message-Id: <20190426183245.37939-3-pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,127 +12,111 @@ To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redha
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Enhanced virtualization protection technology may require the use of
-bounce buffers for I/O. While support for this was built into the virtio
-core, virtio-ccw wasn't changed accordingly.
+Currently virtio-ccw devices do not work if the device has
+VIRTIO_F_IOMMU_PLATFORM. In future we do want to support DMA API with
+virtio-ccw.
 
-Some background on technology (not part of this series) and the
-terminology used.
+Let us do the plumbing, so the feature VIRTIO_F_IOMMU_PLATFORM works
+with virtio-ccw.
 
-* Protected Virtualization (PV):
+Let us also switch from legacy avail/used accessors to the DMA aware
+ones (even if it isn't strictly necessary), and remove the legacy
+accessors (we were the last users).
 
-Protected Virtualization guarantees, that non-shared memory of a  guest
-that operates in PV mode private to that guest. I.e. any attempts by the
-hypervisor or other guests to access it will result in an exception. If
-supported by the environment (machine, KVM, guest VM) a guest can decide
-to change into PV mode by doing the appropriate ultravisor calls. Unlike
-some other enhanced virtualization protection technology, 
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 22 +++++++++++++++-------
+ include/linux/virtio.h           | 17 -----------------
+ 2 files changed, 15 insertions(+), 24 deletions(-)
 
-* Ultravisor:
-
-A hardware/firmware entity that manages PV guests, and polices access to
-their memory. A PV guest prospect needs to interact with the ultravisor,
-to enter PV mode, and potentially to share pages (for I/O which should
-be encrypted by the guest). A guest interacts with the ultravisor via so
-called ultravisor calls. A hypervisor needs to interact with the
-ultravisor to facilitate interpretation, emulation and swapping. A
-hypervisor  interacts with the ultravisor via ultravisor calls and via
-the SIE state description. Generally the ultravisor sanitizes hypervisor
-inputs so that the guest can not be corrupted (except for denial of
-service.
-
-
-What needs to be done
-=====================
-
-Thus what needs to be done to bring virtio-ccw up to speed with respect
-to protected virtualization is:
-* use some 'new' common virtio stuff
-* make sure that virtio-ccw specific stuff uses shared memory when
-  talking to the hypervisor (except control/communication blocks like ORB,
-  these are handled by the ultravisor)
-* make sure the DMA API does what is necessary to talk through shared
-  memory if we are a protected virtualization guest.
-* make sure the common IO layer plays along as well (airqs, sense).
-
-
-Important notes
-================
-
-* This patch set is based on Martins features branch
- (git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git branch
- 'features').
-
-* Documentation is still very sketchy. I'm committed to improving this,
-  but I'm currently hampered by some dependencies currently.  
-
-* The existing naming in the common infrastructure (kernel internal
-  interfaces) is pretty much based on the AMD SEV terminology. Thus the
-  names aren't always perfect. There might be merit to changing these
-  names to more abstract ones. I did not put much thought into that at
-  the current stage.
-
-* Testing: Please use iommu_platform=on for any virtio devices you are
-  going to test this code with (so virtio actually uses the DMA API).
-
-Change log
-==========
-
-RFC --> v1:
-* Fixed bugs found by Connie (may_reduce and handling reduced,  warning,
-  split move -- thanks Connie!).
-* Fixed console bug found by Sebastian (thanks Sebastian!).
-* Removed the completely useless duplicate of dma-mapping.h spotted by
-  Christoph (thanks Christoph!).
-* Don't use the global DMA pool for subchannel and ccw device
-  owned memory as requested by Sebastian. Consequences:
-	* Both subchannel and ccw devices have their dma masks
-	now (both specifying 31 bit addressable)
-	* We require at least 2 DMA pages per ccw device now, most of
-	this memory is wasted though.
-	* DMA memory allocated by virtio is also 31 bit addressable now
-        as virtio uses the parent (which is the ccw device).
-* Enabled packed ring.
-* Rebased onto Martins feature branch; using the actual uv (ultravisor)
-  interface instead of TODO comments.
-* Added some explanations to the cover letter (Connie, David).
-* Squashed a couple of patches together and fixed some text stuff. 
-
-Looking forward to your review, or any other type of input.
-
-Halil Pasic (10):
-  virtio/s390: use vring_create_virtqueue
-  virtio/s390: DMA support for virtio-ccw
-  virtio/s390: enable packed ring
-  s390/mm: force swiotlb for protected virtualization
-  s390/cio: introduce DMA pools to cio
-  s390/cio: add basic protected virtualization support
-  s390/airq: use DMA memory for adapter interrupts
-  virtio/s390: add indirection to indicators access
-  virtio/s390: use DMA memory for ccw I/O and classic notifiers
-  virtio/s390: make airq summary indicators DMA
-
- arch/s390/Kconfig                   |   5 +
- arch/s390/include/asm/airq.h        |   2 +
- arch/s390/include/asm/ccwdev.h      |   4 +
- arch/s390/include/asm/cio.h         |  11 ++
- arch/s390/include/asm/mem_encrypt.h |  18 +++
- arch/s390/mm/init.c                 |  50 +++++++
- drivers/s390/cio/airq.c             |  18 ++-
- drivers/s390/cio/ccwreq.c           |   8 +-
- drivers/s390/cio/cio.h              |   1 +
- drivers/s390/cio/css.c              | 101 +++++++++++++
- drivers/s390/cio/device.c           |  65 +++++++--
- drivers/s390/cio/device_fsm.c       |  40 +++---
- drivers/s390/cio/device_id.c        |  18 +--
- drivers/s390/cio/device_ops.c       |  21 ++-
- drivers/s390/cio/device_pgid.c      |  20 +--
- drivers/s390/cio/device_status.c    |  24 ++--
- drivers/s390/cio/io_sch.h           |  21 ++-
- drivers/s390/virtio/virtio_ccw.c    | 275 +++++++++++++++++++-----------------
- include/linux/virtio.h              |  17 ---
- 19 files changed, 499 insertions(+), 220 deletions(-)
- create mode 100644 arch/s390/include/asm/mem_encrypt.h
-
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 2c66941ef3d0..42832a164546 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -66,6 +66,7 @@ struct virtio_ccw_device {
+ 	bool device_lost;
+ 	unsigned int config_ready;
+ 	void *airq_info;
++	u64 dma_mask;
+ };
+ 
+ struct vq_info_block_legacy {
+@@ -539,8 +540,8 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
+ 		info->info_block->s.desc = queue;
+ 		info->info_block->s.index = i;
+ 		info->info_block->s.num = info->num;
+-		info->info_block->s.avail = (__u64)virtqueue_get_avail(vq);
+-		info->info_block->s.used = (__u64)virtqueue_get_used(vq);
++		info->info_block->s.avail = (__u64)virtqueue_get_avail_addr(vq);
++		info->info_block->s.used = (__u64)virtqueue_get_used_addr(vq);
+ 		ccw->count = sizeof(info->info_block->s);
+ 	}
+ 	ccw->cmd_code = CCW_CMD_SET_VQ;
+@@ -772,10 +773,8 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+ static void ccw_transport_features(struct virtio_device *vdev)
+ {
+ 	/*
+-	 * Packed ring isn't enabled on virtio_ccw for now,
+-	 * because virtio_ccw uses some legacy accessors,
+-	 * e.g. virtqueue_get_avail() and virtqueue_get_used()
+-	 * which aren't available in packed ring currently.
++	 * There shouldn't be anything that precludes supporting packed.
++	 * TODO: Remove the limitation after having another look into this.
+ 	 */
+ 	__virtio_clear_bit(vdev, VIRTIO_F_RING_PACKED);
+ }
+@@ -1258,6 +1257,16 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 		ret = -ENOMEM;
+ 		goto out_free;
+ 	}
++
++	vcdev->vdev.dev.parent = &cdev->dev;
++	cdev->dev.dma_mask = &vcdev->dma_mask;
++	/* we are fine with common virtio infrastructure using 64 bit DMA */
++	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
++	if (ret) {
++		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
++		goto out_free;
++	}
++
+ 	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
+ 				   GFP_DMA | GFP_KERNEL);
+ 	if (!vcdev->config_block) {
+@@ -1272,7 +1281,6 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+ 
+ 	vcdev->is_thinint = virtio_ccw_use_airq; /* at least try */
+ 
+-	vcdev->vdev.dev.parent = &cdev->dev;
+ 	vcdev->vdev.dev.release = virtio_ccw_release_dev;
+ 	vcdev->vdev.config = &virtio_ccw_config_ops;
+ 	vcdev->cdev = cdev;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 673fe3ef3607..15f906e4a748 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -90,23 +90,6 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+ dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+ 
+-/*
+- * Legacy accessors -- in almost all cases, these are the wrong functions
+- * to use.
+- */
+-static inline void *virtqueue_get_desc(struct virtqueue *vq)
+-{
+-	return virtqueue_get_vring(vq)->desc;
+-}
+-static inline void *virtqueue_get_avail(struct virtqueue *vq)
+-{
+-	return virtqueue_get_vring(vq)->avail;
+-}
+-static inline void *virtqueue_get_used(struct virtqueue *vq)
+-{
+-	return virtqueue_get_vring(vq)->used;
+-}
+-
+ /**
+  * virtio_device - representation of a device using virtio
+  * @index: unique position on the virtio bus
 -- 
 2.16.4
