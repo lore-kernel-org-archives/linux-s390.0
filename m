@@ -1,109 +1,53 @@
-Return-Path: <SRS0=b3Rq=S7=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-MIME-Version: 1.0
-References: <1556087581-14513-1-git-send-email-kernelfans@gmail.com>
- <10dc5468-6cd9-85c7-ba66-1dfa5aa922b7@suse.com>
- <CAFgQCTstd667wP6g+maxYekz4u3iBR2R=FHUiS1V=XxTs6MKUw@mail.gmail.com>
- <20190428083710.GA11981@dhcp-128-65.nay.redhat.com>
- <CAFgQCTvQezGM7xgY2Q1RSUiQ7wLdxtUAeztrO3AqDfjx8f2kdg@mail.gmail.com>
-In-Reply-To: <CAFgQCTvQezGM7xgY2Q1RSUiQ7wLdxtUAeztrO3AqDfjx8f2kdg@mail.gmail.com>
-From: Pingfan Liu <kernelfans@gmail.com>
-Date: Mon, 29 Apr 2019 12:48:26 +0800
-Message-ID: <CAFgQCTszGixzH5ZrwOzjbp7W91Wxo3XvA+EeEx0ErVVcYMr0FA@mail.gmail.com>
-Subject: Re: [PATCHv2] kernel/crash: make parse_crashkernel()'s return value
- more indicant
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Dave Young <dyoung@redhat.com>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>, Yangtao Li <tiny.windzz@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Palmer Dabbelt <palmer@sifive.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Agner <stefan@agner.ch>, linux-mips@vger.kernel.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Logan Gunthorpe <logang@deltatee.com>, linux-s390@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Tony Luck <tony.luck@intel.com>, Will Deacon <will.deacon@arm.com>, Johannes Weiner <hannes@cmpxchg.org>, Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, Matthias Brugger <mbrugger@suse.com>, Baoquan He <bhe@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Robin Murphy <robin.murphy@arm.com>, kexec@lists.infradead.org, LKML <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Bogendoerfer <tbogendoerfer@suse.de>, Paul Burton <paul.burton@mips.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, Greg Hackmann <ghackmann@android.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [-next] system hangs likely due to "modules: Only return -EEXIST
+ for modules that have finished loading"
+Date: Mon, 29 Apr 2019 07:55:20 +0200
+Message-ID: <20190429055520.GA3665@osiris>
+References: <20190426130736.GB8646@osiris>
+ <d4d75ad1-e193-c230-1edc-a93db2b068d7@redhat.com>
+ <20190426150741.GD8646@osiris>
+ <20190426160956.GA3827@linux-8ccs>
+ <2e047a7e-bf08-be8c-bdd0-429464fa133d@redhat.com>
+ <52c293e9-ddfa-426a-a8f1-2106e250e78d@redhat.com>
+ <f74996cb-3e0a-ab23-00b9-85ac782583d1@redhat.com>
+ <20190427102440.GA28889@osiris>
+ <6a69074a-e913-3b67-feef-9b62a7400f8a@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <6a69074a-e913-3b67-feef-9b62a7400f8a@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-next/>
+List-Post: <mailto:linux-next@vger.kernel.org>
+To: Prarit Bhargava <prarit@redhat.com>
+Cc: Jessica Yu <jeyu@kernel.org>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Cathy Avery <cavery@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, Apr 29, 2019 at 11:04 AM Pingfan Liu <kernelfans@gmail.com> wrote:
->
-> On Sun, Apr 28, 2019 at 4:37 PM Dave Young <dyoung@redhat.com> wrote:
-> >
-> > On 04/25/19 at 04:20pm, Pingfan Liu wrote:
-> > > On Wed, Apr 24, 2019 at 4:31 PM Matthias Brugger <mbrugger@suse.com> wrote:
-> > > >
-> > > >
-> > > [...]
-> > > > > @@ -139,6 +141,8 @@ static int __init parse_crashkernel_simple(char *cmdline,
-> > > > >               pr_warn("crashkernel: unrecognized char: %c\n", *cur);
-> > > > >               return -EINVAL;
-> > > > >       }
-> > > > > +     if (*crash_size == 0)
-> > > > > +             return -EINVAL;
-> > > >
-> > > > This covers the case where I pass an argument like "crashkernel=0M" ?
-> > > > Can't we fix that by using kstrtoull() in memparse and check if the return value
-> > > > is < 0? In that case we could return without updating the retptr and we will be
-> > > > fine.
-> > > >
-> > > It seems that kstrtoull() treats 0M as invalid parameter, while
-> > > simple_strtoull() does not.
-> > >
-> > > If changed like your suggestion, then all the callers of memparse()
-> > > will treats 0M as invalid parameter. This affects many components
-> > > besides kexec.  Not sure this can be done or not.
-> >
-> > simple_strtoull is obsolete, move to kstrtoull is the right way.
-> >
-> > $ git grep memparse|wc
-> >     158     950   10479
-> >
-> > Except some documentation/tools etc there are still a log of callers
-> > which directly use the return value as the ull number without error
-> > checking.
-> >
-> > So it would be good to mark memparse as obsolete as well in
-> > lib/cmdline.c, and introduce a new function eg. kmemparse() to use
-> > kstrtoull,  and return a real error code, and save the size in an
-> > argument like &size.  Then update X86 crashkernel code to use it.
-> >
-> Thank for your good suggestion.
->
-Go through the v5.0 kernel code, I think it will be a huge job.
+On Sat, Apr 27, 2019 at 06:42:51AM -0400, Prarit Bhargava wrote:
+> On 4/27/19 6:24 AM, Heiko Carstens wrote:
+> 
+> > 
+> > diff --git a/kernel/module.c b/kernel/module.c
+> > index 410eeb7e4f1d..48748cfec991 100644
+> > --- a/kernel/module.c
+> > +++ b/kernel/module.c
+> > @@ -3585,6 +3585,7 @@ again:
+> >  					       finished_loading(mod->name));
+> >  			if (err)
+> >  				goto out_unlocked;
+> > +			cond_resched();
+> Heiko, I'm testing on 2-cpu systems which appear to show the problem ~10% of the
+> time.  On another system I backed out my original patch to set a baseline, and
+> noticed that occasionally the time to boot the system doubles from ~4 seconds to
+> 9 seconds.  Is this something you're also concerned with?
 
-The difference between unsigned long long simple_strtoull(const char
-*cp, char **endp, unsigned int base) and int _kstrtoull(const char *s,
-unsigned int base, unsigned long long *res) is bigger than expected,
-especially the output parameter @res. Many references to
-memparse(const char *ptr, char **retptr) rely on @retptr to work. A
-typical example from arch/x86/kernel/e820.c
-        mem_size = memparse(p, &p);
-        if (p == oldp)
-                return -EINVAL;
-
-        userdef = 1;
-        if (*p == '@') {  <----------- here
-                start_at = memparse(p+1, &p);
-                e820__range_add(start_at, mem_size, E820_TYPE_RAM);
-        } else if (*p == '#') {
-                start_at = memparse(p+1, &p);
-                e820__range_add(start_at, mem_size, E820_TYPE_ACPI);
-        } else if (*p == '$') {
-                start_at = memparse(p+1, &p);
-                e820__range_add(start_at, mem_size, E820_TYPE_RESERVED);
-        }
-
-So we need to resolve the prototype of kstrtoull() firstly, and maybe
-kstrtouint() etc too. All of them have lots of references in kernel.
-
-Any idea about this?
-
-Thanks,
-Pingfan
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+This _could_ be an issue, since I see the problem much more likely to
+happen on systems with many devices (where many means only something
+like 10 block devices). As far as I can tell it looks like
+systemd/udevd tries to modprobe at the s390-trng module for each(!)
+device.
+I have no idea why it is doing that... however given that (failed)
+module handling now sometimes takes more time, this might become a
+real issue on system with several 1000s of block devices, which is a
+realistic scenario at least on s390.
