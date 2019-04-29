@@ -1,95 +1,71 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [RESEND PATCH v3 02/11] arm64: mark (__)cpus_have_const_cap as
- __always_inline
-Date: Tue, 23 Apr 2019 12:31:42 +0100
-Message-ID: <20190423113142.GB56999@lakrids.cambridge.arm.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: Re: [RESEND PATCH v3 09/11] powerpc/mm/radix: mark
+ __radix__flush_tlb_range_psize() as __always_inline
+Date: Mon, 29 Apr 2019 17:35:53 +0200
+Message-ID: <40b48947-b80e-7971-376d-52b594e26d17@c-s.fr>
 References: <20190423034959.13525-1-yamada.masahiro@socionext.com>
- <20190423034959.13525-3-yamada.masahiro@socionext.com>
+ <20190423034959.13525-10-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190423034959.13525-3-yamada.masahiro@socionext.com>
+In-Reply-To: <20190423034959.13525-10-yamada.masahiro@socionext.com>
+Content-Language: fr
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Mathieu Malaterre <malat@debian.org>, will.deacon@arm.com, catalin.marinas@arm.com, marc.zyngier@arm.com
+To: Masahiro Yamada <yamada.masahiro@socionext.com>, Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@lists.ozlabs.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Mathieu Malaterre <malat@debian.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-[adding relevant arm64 folk to Cc]
 
-On Tue, Apr 23, 2019 at 12:49:50PM +0900, Masahiro Yamada wrote:
+
+Le 23/04/2019 à 05:49, Masahiro Yamada a écrit :
 > This prepares to move CONFIG_OPTIMIZE_INLINING from x86 to a common
 > place. We need to eliminate potential issues beforehand.
+
+How did you identify the functions requiring __always_inline as this one 
+? Just by 'test and see if it fails', or did you have some script or so ?
+
+Here the problem is that one of the parameters of the function are used 
+as "immediate" constraint for the inline assembly, therefore requiring 
+the function to always be inline.
+
+I guess this should be explained in the commit log and I'm wondering how 
+you ensure that you did identify all functions like this.
+
+Christophe
+
 > 
-> If it is enabled for arm64, the following errors are reported:
+> If it is enabled for powerpc, the following error is reported:
 > 
-> In file included from ././include/linux/compiler_types.h:68,
->                  from <command-line>:
-> ./arch/arm64/include/asm/jump_label.h: In function 'cpus_have_const_cap':
-> ./include/linux/compiler-gcc.h:120:38: warning: asm operand 0 probably doesn't match constraints
->  #define asm_volatile_goto(x...) do { asm goto(x); asm (""); } while (0)
->                                       ^~~
-> ./arch/arm64/include/asm/jump_label.h:32:2: note: in expansion of macro 'asm_volatile_goto'
->   asm_volatile_goto(
->   ^~~~~~~~~~~~~~~~~
-> ./include/linux/compiler-gcc.h:120:38: error: impossible constraint in 'asm'
->  #define asm_volatile_goto(x...) do { asm goto(x); asm (""); } while (0)
->                                       ^~~
-> ./arch/arm64/include/asm/jump_label.h:32:2: note: in expansion of macro 'asm_volatile_goto'
->   asm_volatile_goto(
->   ^~~~~~~~~~~~~~~~~
+> arch/powerpc/mm/tlb-radix.c: In function '__radix__flush_tlb_range_psize':
+> arch/powerpc/mm/tlb-radix.c:104:2: error: asm operand 3 probably doesn't match constraints [-Werror]
+>    asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
+>    ^~~
+> arch/powerpc/mm/tlb-radix.c:104:2: error: impossible constraint in 'asm'
 > 
 > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-
-This looks sound to me, and from a quick scan of v5.1-rc6 with:
-
-$ git grep -wW inline -- arch/arm64
-
-... I didn't spot any other sites which obviously needed to be made
-__always_inline.
-
-I've built and booted this atop of defconfig and my usual suite of debug
-options for fuzzing, at EL1 under QEMU/KVM, and at EL2 under QEMU/TCG,
-with no issues in either case, so FWIW:
-
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-
-Thanks,
-Mark.
-
 > ---
 > 
 > Changes in v3: None
 > Changes in v2:
->   - split into a separate patch
+>    - split into a separate patch
 > 
->  arch/arm64/include/asm/cpufeature.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>   arch/powerpc/mm/tlb-radix.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-> index e505e1fbd2b9..77d1aa57323e 100644
-> --- a/arch/arm64/include/asm/cpufeature.h
-> +++ b/arch/arm64/include/asm/cpufeature.h
-> @@ -406,7 +406,7 @@ static inline bool cpu_have_feature(unsigned int num)
->  }
->  
->  /* System capability check for constant caps */
-> -static inline bool __cpus_have_const_cap(int num)
-> +static __always_inline bool __cpus_have_const_cap(int num)
->  {
->  	if (num >= ARM64_NCAPS)
->  		return false;
-> @@ -420,7 +420,7 @@ static inline bool cpus_have_cap(unsigned int num)
->  	return test_bit(num, cpu_hwcaps);
->  }
->  
-> -static inline bool cpus_have_const_cap(int num)
-> +static __always_inline bool cpus_have_const_cap(int num)
->  {
->  	if (static_branch_likely(&arm64_const_caps_ready))
->  		return __cpus_have_const_cap(num);
-> -- 
-> 2.17.1
+> diff --git a/arch/powerpc/mm/tlb-radix.c b/arch/powerpc/mm/tlb-radix.c
+> index 6a23b9ebd2a1..a2b2848f0ae3 100644
+> --- a/arch/powerpc/mm/tlb-radix.c
+> +++ b/arch/powerpc/mm/tlb-radix.c
+> @@ -928,7 +928,7 @@ void radix__tlb_flush(struct mmu_gather *tlb)
+>   	tlb->need_flush_all = 0;
+>   }
+>   
+> -static inline void __radix__flush_tlb_range_psize(struct mm_struct *mm,
+> +static __always_inline void __radix__flush_tlb_range_psize(struct mm_struct *mm,
+>   				unsigned long start, unsigned long end,
+>   				int psize, bool also_pwc)
+>   {
 > 
