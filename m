@@ -4,15 +4,15 @@ Subject: Re: [PATCH v7 3/4] s390: ap: implement PAPQ AQIC interception in
  kernel
 References: <1556283688-556-1-git-send-email-pmorel@linux.ibm.com>
  <1556283688-556-4-git-send-email-pmorel@linux.ibm.com>
- <20190430160031.198b83c1.pasic@linux.ibm.com>
+ <20190430152605.3bb21f31.pasic@linux.ibm.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 30 Apr 2019 16:03:30 +0200
+Date: Tue, 30 Apr 2019 16:09:58 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190430160031.198b83c1.pasic@linux.ibm.com>
+In-Reply-To: <20190430152605.3bb21f31.pasic@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <40c7e3a5-06b1-8ab9-e32d-c0305c60d63f@linux.ibm.com>
+Message-Id: <622a9ab0-579d-17f4-6fa1-74d73da13b19@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -20,56 +20,79 @@ To: Halil Pasic <pasic@linux.ibm.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 30/04/2019 16:00, Halil Pasic wrote:
+On 30/04/2019 15:26, Halil Pasic wrote:
 > On Fri, 26 Apr 2019 15:01:27 +0200
 > Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
->> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
->> index 18dcc4d..7cc02ff 100644
->> --- a/drivers/s390/crypto/vfio_ap_private.h
->> +++ b/drivers/s390/crypto/vfio_ap_private.h
->> @@ -4,6 +4,7 @@
->>    *
->>    * Author(s): Tony Krowiak <akrowiak@linux.ibm.com>
->>    *	      Halil Pasic <pasic@linux.ibm.com>
->> + *	      Pierre Morel <pmorel@linux.ibm.com>
->>    *
->>    * Copyright IBM Corp. 2018
->>    */
->> @@ -90,4 +91,14 @@ struct ap_matrix_mdev {
->>   extern int vfio_ap_mdev_register(void);
->>   extern void vfio_ap_mdev_unregister(void);
->>   
->> +struct vfio_ap_queue {
->> +	struct ap_matrix_mdev *matrix_mdev;
->> +	unsigned long a_nib;
->> +	unsigned long a_pfn;
->> +	unsigned long p_pfn;
->> +	int	apqn;
->> +#define VFIO_AP_ISC_INVALID 0xff
+>> +/**
+>> + * vfio_ap_clrirq: Disable Interruption for a APQN
+>> + *
+>> + * @dev: the device associated with the ap_queue
+>> + * @q:   the vfio_ap_queue holding AQIC parameters
+>> + *
+>> + * Issue the host side PQAP/AQIC
+>> + * On success: unpin the NIB saved in *q and unregister from GIB
+>> + * interface
+>> + *
+>> + * Return the ap_queue_status returned by the ap_aqic()
+>> + */
+>> +static struct ap_queue_status vfio_ap_clrirq(struct vfio_ap_queue *q)
+>> +{
+>> +	struct ap_qirq_ctrl aqic_gisa = {};
+>> +	struct ap_queue_status status;
+>> +	int checks = 10;
+>> +
+>> +	status = ap_aqic(q->apqn, aqic_gisa, NULL);
+>> +	if (!status.response_code) {
+>> +		while (status.irq_enabled && checks--) {
+>> +			msleep(20);
 > 
-> How about -1?
+> Hm, that seems like a lot of time to me. And I suppose we are holding the
+> kvm lock: e.g. no other instruction can be interpreted by kvm in the
+> meantime.
 > 
->> +	unsigned char a_isc;
->> +	unsigned char p_isc;
->> +};
->>   #endif /* _VFIO_AP_PRIVATE_H_ */
+>> +			status = ap_tapq(q->apqn, NULL);
+>> +		}
+>> +		if (checks >= 0)
+>> +			vfio_ap_free_irq_data(q);
 > 
-> I assume a_ and p_ are for argument and private, or? Anyway it would be
-> nice to have nicer names for these.
+> Actually we don't have to wait for the async part to do it's magic
+> (indicated by the status.irq_enabled --> !status.irq_enabled transition)
+> in the instruction handler. We have to wait so we can unpin the NIB but
+> that could be done async (e.g. workqueue).
 > 
-> If the a_ members are really just arguments, we could probably live
-> without the. I'm fine either way.
+> BTW do you have any measurements here? How many msleep(20) do we
+> experience for one clear on average?
+
+No idea but it is probably linked to the queue state and usage history.
+I can use a lower sleep time and increment the retry count.
+
+> 
+> If linux is not using clear (you told so offline, and I also remember
+> something similar), we can probably get away with something like this,
+> and do it properly (from performance standpoint) later.
+
+In the Linux AP code it is only used once, in the explicit
+ap_queue_enable_interruption() function.
+
+Yes, thanks, I will keep it as is, may be just play with msleep()time 
+and retry count.
+
+Regards,
+Pierre
+
 > 
 > Regards,
 > Halil
 > 
+>> +		else
+>> +			WARN_ONCE("%s: failed disabling IRQ", __func__);
+>> +	}
+>> +
+>> +	return status;
+>> +}
+> 
 
-Since there will be another iteration to modify other part of this patch
-I will simplify this handling and make the names clearer.
-
-Thanks
-Pierre
 
 -- 
 Pierre Morel
