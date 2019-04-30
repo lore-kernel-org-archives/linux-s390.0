@@ -1,70 +1,68 @@
-Return-Path: <SRS0=+MMY=S7=vger.kernel.org=kvm-owner@kernel.org>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 01/12] KVM: s390: Fix potential spectre warnings
-Date: Mon, 29 Apr 2019 11:09:51 +0200
-In-Reply-To: <20190429091002.71164-1-borntraeger@de.ibm.com>
-References: <20190429091002.71164-1-borntraeger@de.ibm.com>
+Return-Path: <SRS0=fZwd=TA=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Tom Murphy <tmurphy@arista.com>
+Subject: [PATCH v2 0/4] iommu/amd: Convert the AMD iommu driver to the
+ dma-iommu api
+Date: Tue, 30 Apr 2019 01:29:47 +0100
+Message-Id: <20190430002952.18909-1-tmurphy@arista.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190429091002.71164-2-borntraeger@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: iommu@lists.linux-foundation.org
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andy Gross <andy.gross@linaro.org>, linux-tegra@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, Tom Murphy <tmurphy@arista.com>, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, murphyt7@tcd.ie, Rob Clark <robdclark@gmail.com>, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Eric Farman <farman@linux.ibm.com>
+Convert the AMD iommu driver to the dma-iommu api. Remove the iova
+handling and reserve region code from the AMD iommu driver.
 
-Fix some warnings from smatch:
+Change-log:
+v2:
+-Rebase on top of this series:
+ http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
+-Add a gfp_t parameter to the iommu_ops::map function.
+-Made use of the reserve region code inside the dma-iommu api
 
-arch/s390/kvm/interrupt.c:2310 get_io_adapter() warn: potential spectre issue 'kvm->arch.adapters' [r] (local cap)
-arch/s390/kvm/interrupt.c:2341 register_io_adapter() warn: potential spectre issue 'dev->kvm->arch.adapters' [w]
+Tom Murphy (4):
+  iommu: Add gfp parameter to iommu_ops::map
+  iommu/dma-iommu: Handle deferred devices
+  iommu/dma-iommu: Use the dev->coherent_dma_mask
+  iommu/amd: Convert the AMD iommu driver to the dma-iommu api
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20190417005414.47801-1-farman@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/iommu/Kconfig          |   1 +
+ drivers/iommu/amd_iommu.c      | 694 ++++-----------------------------
+ drivers/iommu/arm-smmu-v3.c    |   2 +-
+ drivers/iommu/arm-smmu.c       |   2 +-
+ drivers/iommu/dma-iommu.c      |  52 ++-
+ drivers/iommu/exynos-iommu.c   |   2 +-
+ drivers/iommu/intel-iommu.c    |   2 +-
+ drivers/iommu/iommu.c          |  43 +-
+ drivers/iommu/ipmmu-vmsa.c     |   2 +-
+ drivers/iommu/msm_iommu.c      |   2 +-
+ drivers/iommu/mtk_iommu.c      |   2 +-
+ drivers/iommu/mtk_iommu_v1.c   |   2 +-
+ drivers/iommu/omap-iommu.c     |   2 +-
+ drivers/iommu/qcom_iommu.c     |   2 +-
+ drivers/iommu/rockchip-iommu.c |   2 +-
+ drivers/iommu/s390-iommu.c     |   2 +-
+ drivers/iommu/tegra-gart.c     |   2 +-
+ drivers/iommu/tegra-smmu.c     |   2 +-
+ include/linux/iommu.h          |  21 +-
+ 19 files changed, 187 insertions(+), 652 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 82162867f378..bfd55ad34a3e 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -14,6 +14,7 @@
- #include <linux/kvm_host.h>
- #include <linux/hrtimer.h>
- #include <linux/mmu_context.h>
-+#include <linux/nospec.h>
- #include <linux/signal.h>
- #include <linux/slab.h>
- #include <linux/bitmap.h>
-@@ -2307,6 +2308,7 @@ static struct s390_io_adapter *get_io_adapter(struct kvm *kvm, unsigned int id)
- {
- 	if (id >= MAX_S390_IO_ADAPTERS)
- 		return NULL;
-+	id = array_index_nospec(id, MAX_S390_IO_ADAPTERS);
- 	return kvm->arch.adapters[id];
- }
- 
-@@ -2320,8 +2322,13 @@ static int register_io_adapter(struct kvm_device *dev,
- 			   (void __user *)attr->addr, sizeof(adapter_info)))
- 		return -EFAULT;
- 
--	if ((adapter_info.id >= MAX_S390_IO_ADAPTERS) ||
--	    (dev->kvm->arch.adapters[adapter_info.id] != NULL))
-+	if (adapter_info.id >= MAX_S390_IO_ADAPTERS)
-+		return -EINVAL;
-+
-+	adapter_info.id = array_index_nospec(adapter_info.id,
-+					     MAX_S390_IO_ADAPTERS);
-+
-+	if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
- 		return -EINVAL;
- 
- 	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
 -- 
-2.19.1
+2.17.1
+
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
