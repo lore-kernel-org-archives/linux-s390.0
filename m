@@ -1,63 +1,75 @@
 Return-Path: <SRS0=Ul9H=TA=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
+Date: Tue, 30 Apr 2019 15:26:05 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v7 3/4] s390: ap: implement PAPQ AQIC interception in
  kernel
+In-Reply-To: <1556283688-556-4-git-send-email-pmorel@linux.ibm.com>
 References: <1556283688-556-1-git-send-email-pmorel@linux.ibm.com>
- <1556283688-556-4-git-send-email-pmorel@linux.ibm.com>
- <20190429185002.6041eecc.pasic@linux.ibm.com>
- <14453f04-f13f-f63c-fd8a-d9d8834182e0@linux.ibm.com>
- <efa8840b-35b1-2823-697f-ab56d4898854@linux.ibm.com>
- <20190430113718.426392f0.pasic@linux.ibm.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Tue, 30 Apr 2019 13:00:55 +0200
+        <1556283688-556-4-git-send-email-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20190430113718.426392f0.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <e000d0b8-c5fa-bdc1-10f3-2bebae7ccdfe@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190430152605.3bb21f31.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
 Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 30/04/2019 11:37, Halil Pasic wrote:
-> On Tue, 30 Apr 2019 10:32:52 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->>>>> +    aqic_gisa.gisa = gisa->next_alert >> 4;
->>>>
->>>> Why gisa->next_alert? Isn't this supposed to get set to gisa origin
->>>> (without some bits on the left)?
-> 
-> s/left/right/
-> 
->>>
->>> Someone already asked this question.
-> 
-> It must have been in some previous iteration... Can you give me a
-> pointer?
-> 
->>> The answer is: look at the ap_qirq_ctrl structure, you will see that the
->>> gisa field is 27 bits wide.
-> 
-> My question was not about the width, but about gisa->next_alert being
-> used.
-> 
-> Regards,
-> Halil
-> 
+On Fri, 26 Apr 2019 15:01:27 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Ah, OK, I understand.
-it is inherited from the time I allocated the GISA myself, before the 
-Mimu GISA/GIB patches.
+> +/**
+> + * vfio_ap_clrirq: Disable Interruption for a APQN
+> + *
+> + * @dev: the device associated with the ap_queue
+> + * @q:   the vfio_ap_queue holding AQIC parameters
+> + *
+> + * Issue the host side PQAP/AQIC
+> + * On success: unpin the NIB saved in *q and unregister from GIB
+> + * interface
+> + *
+> + * Return the ap_queue_status returned by the ap_aqic()
+> + */
+> +static struct ap_queue_status vfio_ap_clrirq(struct vfio_ap_queue *q)
+> +{
+> +	struct ap_qirq_ctrl aqic_gisa = {};
+> +	struct ap_queue_status status;
+> +	int checks = 10;
+> +
+> +	status = ap_aqic(q->apqn, aqic_gisa, NULL);
+> +	if (!status.response_code) {
+> +		while (status.irq_enabled && checks--) {
+> +			msleep(20);
 
-So now indeed I must use the GISA origin for the case next_alert is used 
-by GIB alert queue.
+Hm, that seems like a lot of time to me. And I suppose we are holding the
+kvm lock: e.g. no other instruction can be interpreted by kvm in the
+meantime.
 
+> +			status = ap_tapq(q->apqn, NULL);
+> +		}
+> +		if (checks >= 0)
+> +			vfio_ap_free_irq_data(q);
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Actually we don't have to wait for the async part to do it's magic
+(indicated by the status.irq_enabled --> !status.irq_enabled transition)
+in the instruction handler. We have to wait so we can unpin the NIB but
+that could be done async (e.g. workqueue).
+
+BTW do you have any measurements here? How many msleep(20) do we
+experience for one clear on average?
+
+If linux is not using clear (you told so offline, and I also remember
+something similar), we can probably get away with something like this,
+and do it properly (from performance standpoint) later.
+
+Regards,
+Halil
+
+> +		else
+> +			WARN_ONCE("%s: failed disabling IRQ", __func__);
+> +	}
+> +
+> +	return status;
+> +}
