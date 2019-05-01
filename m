@@ -1,7 +1,7 @@
 From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 1/3] arm: remove ARCH_SELECT_MEMORY_MODEL
-Date: Wed,  1 May 2019 22:56:15 +0300
-Message-ID: <1556740577-4140-2-git-send-email-rppt@linux.ibm.com>
+Subject: [PATCH 3/3] sparc: remove ARCH_SELECT_MEMORY_MODEL
+Date: Wed,  1 May 2019 22:56:17 +0300
+Message-ID: <1556740577-4140-4-git-send-email-rppt@linux.ibm.com>
 References: <1556740577-4140-1-git-send-email-rppt@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1556740577-4140-1-git-send-email-rppt@linux.ibm.com>
@@ -12,36 +12,34 @@ To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-The ARCH_SELECT_MEMORY_MODEL in arch/arm/Kconfig is enabled only when
-ARCH_SPARSEMEM_ENABLE=y. But in this case, ARCH_SPARSEMEM_DEFAULT is also
-enabled and this in turn enables SPARSEMEM_MANUAL.
+The ARCH_SELECT_MEMORY_MODEL option is enabled only for 64-bit. However,
+64-bit configuration also enables ARCH_SPARSEMEM_DEFAULT and there is no
+ARCH_FLATMEM_ENABLE in arch/sparc/Kconfig.
 
-Since there is no definition of ARCH_FLATMEM_ENABLE in arch/arm/Kconfig,
-SPARSEMEM_MANUAL is the only enabled memory model, hence the final
-selection will evaluate to SPARSEMEM=y.
+With such settings, the dependencies in mm/Kconfig are always evaluated to
+SPARSEMEM=y for 64-bit and to FLATMEM=y for 32-bit.
 
-Since ARCH_SPARSEMEM_ENABLE is set to 'y' only by several sub-arch
-configurations, the default for must sub-arches would be the falback to
-FLATMEM regardless of ARCH_SELECT_MEMORY_MODEL.
+The ARCH_SELECT_MEMORY_MODEL option in arch/sparc/Kconfig does not affect
+anything and can be removed.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- arch/arm/Kconfig | 3 ---
+ arch/sparc/Kconfig | 3 ---
  1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 9aed25a..25a69a3 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1592,9 +1592,6 @@ config ARCH_SPARSEMEM_ENABLE
- config ARCH_SPARSEMEM_DEFAULT
- 	def_bool ARCH_SPARSEMEM_ENABLE
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 40f8f4f..9137dbe 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -305,9 +305,6 @@ config NODES_SPAN_OTHER_NODES
+ 	def_bool y
+ 	depends on NEED_MULTIPLE_NODES
  
 -config ARCH_SELECT_MEMORY_MODEL
--	def_bool ARCH_SPARSEMEM_ENABLE
+-	def_bool y if SPARC64
 -
- config HAVE_ARCH_PFN_VALID
- 	def_bool ARCH_HAS_HOLES_MEMORYMODEL || !SPARSEMEM
- 
+ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y if SPARC64
+ 	select SPARSEMEM_VMEMMAP_ENABLE
 -- 
 2.7.4
