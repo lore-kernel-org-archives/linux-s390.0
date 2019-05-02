@@ -1,44 +1,112 @@
-Return-Path: <SRS0=XqZV=TC=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH] memblock: make keeping memblock memory opt-in rather than
- opt-out
-In-Reply-To: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
-References: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
-Date: Fri, 03 May 2019 01:31:10 +1000
-Message-ID: <87h8acyitd.fsf@concordia.ellerman.id.au>
+Return-Path: <SRS0=sFCg=TC=vger.kernel.org=kvm-owner@kernel.org>
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [PATCH v7 3/4] s390: ap: implement PAPQ AQIC interception in
+ kernel
+From: Pierre Morel <pmorel@linux.ibm.com>
+References: <1556283688-556-1-git-send-email-pmorel@linux.ibm.com>
+ <1556283688-556-4-git-send-email-pmorel@linux.ibm.com>
+ <20190430152605.3bb21f31.pasic@linux.ibm.com>
+ <622a9ab0-579d-17f4-6fa1-74d73da13b19@linux.ibm.com>
+Date: Thu, 2 May 2019 09:57:31 +0200
 MIME-Version: 1.0
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, linux-m68k@lists.linux-m68k.org, Borislav Petkov <bp@alien8.de>, nios2-dev@lists.rocketboards.org, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Tony Luck <tony.luck@intel.com>, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Richard Kuo <rkuo@codeaurora.org>, Paul Burton <paul.burton@mips.com>, Eric Biederman <ebiederm@xmission.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ley Foon Tan <lftan@altera.com>, linuxppc-dev@lists.ozlabs.org
+In-Reply-To: <622a9ab0-579d-17f4-6fa1-74d73da13b19@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <42185132-dfc4-c997-3d69-31e43d25e525@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: borntraeger@de.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Mike Rapoport <rppt@linux.ibm.com> writes:
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index 2d0be82..39877b9 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -143,6 +143,7 @@ config PPC
->  	select ARCH_HAS_UBSAN_SANITIZE_ALL
->  	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
-> +	select ARCH_KEEP_MEMBLOCK
+On 30/04/2019 16:09, Pierre Morel wrote:
+> On 30/04/2019 15:26, Halil Pasic wrote:
+>> On Fri, 26 Apr 2019 15:01:27 +0200
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> +/**
+>>> + * vfio_ap_clrirq: Disable Interruption for a APQN
+>>> + *
+>>> + * @dev: the device associated with the ap_queue
+>>> + * @q:   the vfio_ap_queue holding AQIC parameters
+>>> + *
+>>> + * Issue the host side PQAP/AQIC
+>>> + * On success: unpin the NIB saved in *q and unregister from GIB
+>>> + * interface
+>>> + *
+>>> + * Return the ap_queue_status returned by the ap_aqic()
+>>> + */
+>>> +static struct ap_queue_status vfio_ap_clrirq(struct vfio_ap_queue *q)
+>>> +{
+>>> +    struct ap_qirq_ctrl aqic_gisa = {};
+>>> +    struct ap_queue_status status;
+>>> +    int checks = 10;
+>>> +
+>>> +    status = ap_aqic(q->apqn, aqic_gisa, NULL);
+>>> +    if (!status.response_code) {
+>>> +        while (status.irq_enabled && checks--) {
+>>> +            msleep(20);
+>>
+>> Hm, that seems like a lot of time to me. And I suppose we are holding the
+>> kvm lock: e.g. no other instruction can be interpreted by kvm in the
+>> meantime.
+>>
+>>> +            status = ap_tapq(q->apqn, NULL);
+>>> +        }
+>>> +        if (checks >= 0)
+>>> +            vfio_ap_free_irq_data(q);
+>>
+>> Actually we don't have to wait for the async part to do it's magic
+>> (indicated by the status.irq_enabled --> !status.irq_enabled transition)
+>> in the instruction handler. We have to wait so we can unpin the NIB but
+>> that could be done async (e.g. workqueue).
+>>
+>> BTW do you have any measurements here? How many msleep(20) do we
+>> experience for one clear on average?
+> 
+> No idea but it is probably linked to the queue state and usage history.
+> I can use a lower sleep time and increment the retry count.
+> 
+>>
+>> If linux is not using clear (you told so offline, and I also remember
+>> something similar), we can probably get away with something like this,
+>> and do it properly (from performance standpoint) later.
+> 
+> In the Linux AP code it is only used once, in the explicit
+> ap_queue_enable_interruption() function.
 
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+My answer is not clear: ap_aqic() is used only once, during the bus 
+probe, in the all code to enable interrupt and is never used to disable 
+interrupt.
 
-cheers
+Interrupt disabling is only done by using ap_zapq() or ap_rapq() which 
+can not be intercepted.
 
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+> 
+> Yes, thanks, I will keep it as is, may be just play with msleep()time 
+> and retry count.
+> 
+> Regards,
+> Pierre
+> 
+>>
+>> Regards,
+>> Halil
+>>
+>>> +        else
+>>> +            WARN_ONCE("%s: failed disabling IRQ", __func__);
+>>> +    }
+>>> +
+>>> +    return status;
+>>> +}
+>>
+> 
+> 
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
