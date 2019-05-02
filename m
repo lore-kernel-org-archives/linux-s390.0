@@ -1,49 +1,44 @@
-Return-Path: <SRS0=crtG=TI=vger.kernel.org=kvm-owner@kernel.org>
-Date: Wed, 8 May 2019 11:53:41 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v1 0/2] New state handling for VFIO CCW
-Message-ID: <20190508115341.2be6b108.cohuck@redhat.com>
-In-Reply-To: <1557148270-19901-1-git-send-email-pmorel@linux.ibm.com>
-References: <1557148270-19901-1-git-send-email-pmorel@linux.ibm.com>
+Return-Path: <SRS0=XqZV=TC=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] memblock: make keeping memblock memory opt-in rather than
+ opt-out
+In-Reply-To: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
+References: <1556102150-32517-1-git-send-email-rppt@linux.ibm.com>
+Date: Fri, 03 May 2019 01:31:10 +1000
+Message-ID: <87h8acyitd.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: pasic@linux.vnet.ibm.com, farman@linux.ibm.com, alifm@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-mips@vger.kernel.org, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-hexagon@vger.kernel.org, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, linux-m68k@lists.linux-m68k.org, Borislav Petkov <bp@alien8.de>, nios2-dev@lists.rocketboards.org, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Tony Luck <tony.luck@intel.com>, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Richard Kuo <rkuo@codeaurora.org>, Paul Burton <paul.burton@mips.com>, Eric Biederman <ebiederm@xmission.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Ley Foon Tan <lftan@altera.com>, linuxppc-dev@lists.ozlabs.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon,  6 May 2019 15:11:08 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+Mike Rapoport <rppt@linux.ibm.com> writes:
+> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> index 2d0be82..39877b9 100644
+> --- a/arch/powerpc/Kconfig
+> +++ b/arch/powerpc/Kconfig
+> @@ -143,6 +143,7 @@ config PPC
+>  	select ARCH_HAS_UBSAN_SANITIZE_ALL
+>  	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
+>  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+> +	select ARCH_KEEP_MEMBLOCK
 
-> Hi,
-> 
-> I did not integrate all my patches for state handling like I had
-> before but just two patches which seems interresting to me:
-> 
-> - The first one allows the device ti be used only when a guest
->   is currently using it.
->   Otherwise the device is in NOT_OPER state
->  
-> - The second rework the sch_event callback: AFAIU we can not
->   consider that the event moves the device in IDLE state.
->   I think we better let it as it is currently.
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
 
-I agree with the direction of this patch series.
+cheers
 
-> 
-> Regards,
-> Pierre
-> 
-> Pierre Morel (2):
->   vfio-ccw: Set subchannel state STANDBY on open
->   vfio-ccw: rework sch_event
-> 
->  drivers/s390/cio/vfio_ccw_drv.c     | 21 ++-------------------
->  drivers/s390/cio/vfio_ccw_fsm.c     |  7 +------
->  drivers/s390/cio/vfio_ccw_ops.c     | 36 ++++++++++++++++++------------------
->  drivers/s390/cio/vfio_ccw_private.h |  1 -
->  4 files changed, 21 insertions(+), 44 deletions(-)
-> 
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
