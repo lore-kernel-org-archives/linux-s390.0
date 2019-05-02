@@ -1,118 +1,196 @@
 Return-Path: <SRS0=sFCg=TC=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v4 2/2] s390/kvm: diagnose 318 handling
-References: <1556751063-21835-1-git-send-email-walling@linux.ibm.com>
- <1556751063-21835-3-git-send-email-walling@linux.ibm.com>
- <783ecdb4-3bc2-4bf3-55cb-9a902467aadd@redhat.com>
- <1988b4c3-e123-47dd-2008-15d8bec0171d@linux.ibm.com>
- <02bfe52f-95e7-b4a3-e8d3-a8a8fffc5dec@redhat.com>
-From: Collin Walling <walling@linux.ibm.com>
-Date: Thu, 2 May 2019 11:58:53 -0400
-MIME-Version: 1.0
-In-Reply-To: <02bfe52f-95e7-b4a3-e8d3-a8a8fffc5dec@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <f550f424-01f0-0901-a410-18f7767d5978@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v8 0/4] vfio: ap: AP Queue Interrupt Control
+Date: Thu,  2 May 2019 19:34:07 +0200
+Message-Id: <1556818451-1806-1-git-send-email-pmorel@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, cohuck@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: borntraeger@de.ibm.com
+Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/2/19 11:39 AM, David Hildenbrand wrote:
-> On 02.05.19 17:25, Collin Walling wrote:
->> On 5/2/19 8:59 AM, David Hildenbrand wrote:
->>> On 02.05.19 00:51, Collin Walling wrote:
->>>> DIAGNOSE 0x318 (diag318) is a privileged s390x instruction that must
->>>> be intercepted by SIE and handled via KVM. Let's introduce some
->>>> functions to communicate between userspace and KVM via ioctls. These
->>>> will be used to get/set the diag318 related information (also known
->>>> as the "Control Program Code" or "CPC"), as well as check the system
->>>> if KVM supports handling this instruction.
->>>>
->>>> This information can help with diagnosing the OS the VM is running
->>>> in (Linux, z/VM, etc) if the OS calls this instruction.
->>>>
->>>> The get/set functions are introduced primarily for VM migration and
->>>> reset, though no harm could be done to the system if a userspace
->>>> program decides to alter this data (this is highly discouraged).
->>>>
->>>> The Control Program Name Code (CPNC) is stored in the SIE block and
->>>> a copy is retained in each VCPU. The Control Program Version Code
->>>> (CPVC) retains a copy in each VCPU as well.
->>>>
->>>> At this time, the CPVC is not reported as its format is yet to be
->>>> defined.
->>>>
->>>> Note that the CPNC is set in the SIE block iff the host hardware
->>>> supports it.
->>>
->>> For vSIE and SIE you only configure the CPNC. Is that sufficient?
->>> Shouldn't diag318 allow the guest to set both? (especially regarding vSIE)
->>>
->>
->> The SIE block only stores the CPNC. The CPVC is not designed to be
->> stored in the SIE block, so we store it in guest memory only.
-> 
-> How can the cpvc value be used? Who will access it? Right now, it is
-> only written to some location in KVM, and only read/written during
-> migration.
-> 
+This patch series implements PQAP/AQIC interception in KVM.
 
-Guest dump, ring dump, and call home are events where this data
-would we observed to assist with debugging efforts ("what environment
-/ OS is the guest running?")
+1) Data to handle GISA interrupt for AQIC
 
-> You mention "The Control Program Version Code (CPVC) retains a copy in
-> each VCPU as well", this is wrong, no?
-> 
+To implement this we need to add a new structure, vfio_ap_queue,
+to be able to retrieve the mediated device associated with a queue
+and specific values needed to register/unregister the interrupt
+structures:
+  - APQN: to be able to issue the commands and search for queue
+    structures
+  - saved NIB : to keep track of the pin page for unpining it
+  - saved ISC : to unregister with the GIB interface
+  - matrix_mdev: to retrieve the associate matrix, the mediated device
+    and KVM
 
-The parent struct kvm_arch retains a copy of the CPVC, not the VCPUs
-themselves. The commit message should be changed to reflect that.
+Specific handling bei keeping old values when re-registering is
+needed because the guest could unregister interrupt in a invisble
+manner bei issuing an un-interceptible RESET command.
 
->>
->>> [...]
->>>>
->>>> diff --git a/Documentation/virtual/kvm/devices/vm.txt b/Documentation/virtual/kvm/devices/vm.txt
->>>> index 95ca68d..9a8d934 100644
->>>> --- a/Documentation/virtual/kvm/devices/vm.txt
->>>> +++ b/Documentation/virtual/kvm/devices/vm.txt
->>>> @@ -267,3 +267,17 @@ Parameters: address of a buffer in user space to store the data (u64) to;
->>>>    	    if it is enabled
->>>>    Returns:    -EFAULT if the given address is not accessible from kernel space
->>>>    	    0 in case of success.
->>>> +
->>>> +6. GROUP: KVM_S390_VM_MISC
->>>> +Architectures: s390
->>>> +
->>>> +6.1. KVM_S390_VM_MISC_CPC (r/w)
->>>> +
->>>> +Allows userspace to access the "Control Program Code" which consists of a
->>>> +1-byte "Control Program Name Code" and a 7-byte "Control Program Version Code".
->>>> +This information is initialized during IPL and must be preserved during
->>>> +migration.
->>>
->>> Your implementation does not match this description. User space can only
->>> get/set the cpnc effectively for the HW to see it, not the CPVC, no?
->>>
->>
->> We retrieve the entire CPNC + CPVC. User space (i.e. QEMU) can retrieve
->> this 64-bit value and save / load it during live guest migration.
->>
->> I figured it would be best to set / get this entire value now, so that
->> we don't need to add extra handling for the version code later when its
->> format is properly decided.
->>
->>> Shouldn't you transparently forward that data to the SCB for vSIE/SIE,
->>> because we really don't care what the target format will be?
->>>
->>
->> Sorry, I'm not fully understanding what you mean by "we really don't
->> care what the target format will be?"
->>
->> Do you mean to shadow the CPNC without checking if diag318 is supported?
->> I imagine that would be harmless.
-> 
-> No, I was rather wondering about the CPVC format. But I think I am
-> missing how that one will be used at all.
-> 
+Reset commands issued directly by the guest and indirectly when
+removing the guest unpin the memory and deregister the ISC.
+
+The vfio_ap_queue is associated to the ap_device during the probe
+of the device and dissociated during the remove of the ap_device.
+
+The vfio_ap_queue is associated to the matrix mediated device during
+each interception of the AQIC command, so it does not need to be
+dissociated until the guest is terminated.
+
+The life of the vfio_ap_queue will be protected by the matrix_dev lock
+to guaranty that no change can occur to the CRYCB or that devices can
+not be removed when a vfio_ap_queue is in use.
+
+2) KVM destroy race conditions
+
+To make sure that KVM do not vanish and GISA is still available
+when the VFIO_AP driver is in used we take a reference to KVM
+during the opening of the mediated device and release it on
+releasing the mediated device.
+
+3) Interception of PQAP
+
+The driver registers a hook structure to KVM providing:
+- a pointer to a function implementing PQAP(AQIC) handling
+- the reference to the module owner of the hook
+
+On interception by KVM we do not change the behavior, returning
+ -EOPNOTSUPP to the user in the case AP instructions are not
+supported by the host or by the guest.
+Otherwise we verify the exceptions cases before trying to call 
+the vfio_ap hook.
+
+In the case we do not find a hook we assume that the CRYCB has not
+been setup for the guest and is empty.
+
+4) Enabling and disabling the IRQ
+
+When enabling the IRQ care is taken to unping the saved NIB.
+When disabling IRQ care is taken to wait until the IRQ bit
+of the queue status is cleared before unpining the NIB.
+
+On RESET and before unpinning the NIB and unregistering the ISC
+the IRQ is disabled using PQAP/AQIC even when a PQAP/APZQ have
+been done.
+
+5) Removing the AP device
+
+Removing the AP device without having unassign it is clearly
+discourage by the documentation.
+The patch series does not check if the queue is used by a
+guest. It only de-register the IRQ, unregister ISC and unpin
+the NIB, then free the vfio_ap_queue.
+
+6) Associated QEMU patch
+
+There is a QEMU patch which is needed to enable the PQAP/AQIC
+facility in the guest.
+
+Posted in qemu-devel@nongnu.org as:
+Message-Id: <1550146494-21085-1-git-send-email-pmorel@linux.ibm.com>
+
+
+
+Pierre Morel (4):
+  s390: ap: kvm: add PQAP interception for AQIC
+  vfio: ap: register IOMMU VFIO notifier
+  s390: ap: implement PAPQ AQIC interception in kernel
+  s390: ap: kvm: Enable PQAP/AQIC facility for the guest
+
+ arch/s390/include/asm/kvm_host.h      |   7 +
+ arch/s390/kvm/priv.c                  |  86 +++++++++
+ arch/s390/tools/gen_facilities.c      |   1 +
+ drivers/s390/crypto/ap_bus.h          |   1 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  36 +++-
+ drivers/s390/crypto/vfio_ap_ops.c     | 326 +++++++++++++++++++++++++++++++++-
+ drivers/s390/crypto/vfio_ap_private.h |  15 ++
+ 7 files changed, 464 insertions(+), 8 deletions(-)
+
+-- 
+2.7.4
+
+Changelog:
+
+Changelog from v7:
+- Modification of the IRQ disable routine to call ap_aqic
+  even a ap_zapq has been done
+  (to answer a question from Christian)
+- use GISA origin instead of gisa next_alert field to
+  initialize ap_aqic register 2
+  (Halil)
+- Corection of the testing of the vfio_pin_pages return value.
+  (Halil)
+- Only keep track of saved_isc and saved_pfn for a later 
+  interrupt disabling.
+  (Halil)
+- renaming the routine to enable/disable the interruptions
+
+Changelog from v6:
+- Not taking care if the AP queue is associated with a guest
+  admin is warn in the odcumentation
+ (Tony, Halil)
+- Using WARN_ON_ONCE, direct call to report specification errors
+  (Christian)
+- Wait until the IRQ bit is cleared when clearing interrupts
+ (Tony, Halil)
+- Some minor changes and add some comments before
+  vfio_ap_free_irq_data
+  (Pierre)
+- initializing the pointer to matrix_mdev in vfio_ap_queue 
+  during the interception and suppress the association during
+  assignment and the usage of lists.
+  (Tony, Halil)
+- Merging patches for creation of vfio_ap_queue, initialization
+  and use of vfio_ap_queue during interception of PQAP/AQIC
+  (Conny)
+
+Changelog from v5:
+- Refactoring of the PQAP interception after all discussions
+  (Conny, Halil (offline))
+- take a big lock around open to avoid parallel changes through
+  assignment
+- verify that at least one queue has a APID or APQI when
+  first assignment is done to not accept unavailable APID/APQI
+  (myself)
+- Adding comment for locks on free_list
+  (Conny)
+- Modified comment for 
+  "s390: ap: setup relation betwen KVM and mediated device"
+  (Halil)
+
+Changelog from v4:
+- Add forgotten locking for vfio_get_queue() in pqap callback
+  (Conny / Halil)
+- Add KVM reference counting to make sure GISA is free after IRQ
+  (Christian / Halil)
+- Take care that ISC = 0 is a valid ISC
+  (Halil)
+- Integrate the PQAP call back in a structure with module owner
+  reference counting to make sure the callback does not disappear.
+- Restrict functionality to always open KVM before opening the
+  VFIO device.
+- Search all devices in the vfio_ap driver list when associating
+  a queue to a mediated device
+  (Halil / Tony)
+- Get vfio_ap_free_irq() out of vfio_ap_mdev_reset_queue() to call
+  it always, whatever the result of the reset.
+  (Tony)
+
+Changelog from v3:
+- Associating the vfio_queues during APID/APQI assign
+  (Tony)
+- Dissociating the vfio_queues during APID/APQI unassign
+  (Tony)
+- Taking care that the guest can directly disable the interrupt
+  by using a RESET
+  (Halil)
+- Remove the patch creating the matrix bus to accelerate its
+  integration in Linux stable
+  (Christian)
+
+Changelog from v1:
+- Refactoring to handle interception in kernel instead of in
+  QEMU
+  (Halil)
