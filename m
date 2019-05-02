@@ -1,58 +1,70 @@
-Return-Path: <SRS0=qujA=TB=vger.kernel.org=kvm-owner@kernel.org>
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v4 0/2] Use DIAG318 to set Control Program Name & Version Codes
-Date: Wed,  1 May 2019 18:51:01 -0400
-Message-Id: <1556751063-21835-1-git-send-email-walling@linux.ibm.com>
+Return-Path: <SRS0=sFCg=TC=vger.kernel.org=kvm-owner@kernel.org>
+Subject: Re: [PATCH v4 1/2] s390/setup: diag318: refactor struct
+References: <1556751063-21835-1-git-send-email-walling@linux.ibm.com>
+ <1556751063-21835-2-git-send-email-walling@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <5c81a3b6-19a7-7e75-1ecc-8276a4ccc981@redhat.com>
+Date: Thu, 2 May 2019 14:34:08 +0200
+MIME-Version: 1.0
+In-Reply-To: <1556751063-21835-2-git-send-email-walling@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: cohuck@redhat.com, david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Collin Walling <walling@linux.ibm.com>, cohuck@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Changelog:
+On 02.05.19 00:51, Collin Walling wrote:
+> The diag318 struct introduced in include/asm/diag.h can be
+> reused in KVM, so let's condense the version code fields in the
+> diag318_info struct for easier usage and simplify it until we
+> can determine how the data should be formatted.
+> 
+> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/diag.h | 6 ++----
+>  arch/s390/kernel/setup.c     | 3 +--
+>  2 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
+> index 19562be..2155162 100644
+> --- a/arch/s390/include/asm/diag.h
+> +++ b/arch/s390/include/asm/diag.h
+> @@ -298,10 +298,8 @@ struct diag26c_mac_resp {
+>  union diag318_info {
+>  	unsigned long val;
+>  	struct {
+> -		unsigned int cpnc : 8;
+> -		unsigned int cpvc_linux : 24;
+> -		unsigned char cpvc_distro[3];
+> -		unsigned char zero;
+> +		unsigned long cpnc : 8;
+> +		unsigned long cpvc : 56;
+>  	};
+>  };
+>  
+> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> index 2c642af..cb88062 100644
+> --- a/arch/s390/kernel/setup.c
+> +++ b/arch/s390/kernel/setup.c
+> @@ -1011,8 +1011,7 @@ static void __init setup_control_program_code(void)
+>  {
+>  	union diag318_info diag318_info = {
+>  		.cpnc = CPNC_LINUX,
+> -		.cpvc_linux = 0,
+> -		.cpvc_distro = {0},
+> +		.cpvc = 0,
+>  	};
+>  
+>  	if (!sclp.has_diag318)
+> 
 
-    v4
-        - removed setup.c changes introduced in bullet 1 of v3
-        - kept diag318_info struct cleanup
-        - analogous QEMU patches:
-            https://lists.gnu.org/archive/html/qemu-devel/2019-05/msg00164.html
-
-    v3
-        - kernel patch for diag 0x318 instruction call fixup [removed in v4]
-        - removed CPU model code
-        - cleaned up diag318_info struct
-        - cpnc is no longer unshadowed as it was not needed
-        - rebased on 5.1.0-rc3
-
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read SCP Info byte 134, bit 0.
-Diagnose318's functionality is also emulated by KVM, which means we can 
-enable this feature for a guest even if the host kernel cannot support it.
-
-The CPNC and CPVC are used for problem diagnosis and allows IBM to identify 
-control program information by answering the following question:
-
-    "What environment is this guest running in?" (CPNC)
-    "What are more details regarding the OS?" (CPVC)
-
-In the future, we will implement the Control Program Version Code (CPVC) to
-convey more information about the OS. For now, we set this field to 0 until
-we come up with a solid plan.
-
-Collin Walling (2):
-  s390/setup: diag318: refactor struct
-  s390/kvm: diagnose 318 handling
-
- Documentation/virtual/kvm/devices/vm.txt | 14 ++++++
- arch/s390/include/asm/diag.h             |  6 +--
- arch/s390/include/asm/kvm_host.h         |  7 ++-
- arch/s390/include/uapi/asm/kvm.h         |  4 ++
- arch/s390/kernel/setup.c                 |  3 +-
- arch/s390/kvm/diag.c                     | 17 +++++++
- arch/s390/kvm/kvm-s390.c                 | 83 ++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h                 |  1 +
- arch/s390/kvm/vsie.c                     |  2 +
- 9 files changed, 129 insertions(+), 8 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
-2.7.4
+
+Thanks,
+
+David / dhildenb
