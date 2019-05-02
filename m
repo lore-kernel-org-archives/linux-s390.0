@@ -1,40 +1,67 @@
-Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 23 May 2019 17:17:56 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-In-Reply-To: <alpine.LFD.2.21.1905081447280.1773@schleppi>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190426183245.37939-6-pasic@linux.ibm.com>
-        <alpine.LFD.2.21.1905081447280.1773@schleppi>
+Return-Path: <SRS0=XqZV=TC=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <1556087581-14513-1-git-send-email-kernelfans@gmail.com>
+ <10dc5468-6cd9-85c7-ba66-1dfa5aa922b7@suse.com>
+ <CAFgQCTstd667wP6g+maxYekz4u3iBR2R=FHUiS1V=XxTs6MKUw@mail.gmail.com>
+In-Reply-To: <CAFgQCTstd667wP6g+maxYekz4u3iBR2R=FHUiS1V=XxTs6MKUw@mail.gmail.com>
+From: Pingfan Liu <kernelfans@gmail.com>
+Date: Thu, 2 May 2019 14:22:06 +0800
+Message-ID: <CAFgQCTtQm7SuBRfXik6B065Aa+uQ=Mx6i+Y1q+NJU1GEiUgH4g@mail.gmail.com>
+Subject: Re: [PATCHv2] kernel/crash: make parse_crashkernel()'s return value
+ more indicant
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190523171756.4d30233a.pasic@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: Matthias Brugger <mbrugger@suse.com>
+Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>, Yangtao Li <tiny.windzz@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Palmer Dabbelt <palmer@sifive.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Agner <stefan@agner.ch>, linux-mips@vger.kernel.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Logan Gunthorpe <logang@deltatee.com>, linux-s390@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Dave Young <dyoung@redhat.com>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, Johannes Weiner <hannes@cmpxchg.org>, Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, Tony Luck <tony.luck@intel.com>, Baoquan He <bhe@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Robin Murphy <robin.murphy@arm.com>, LKML <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Bogendoerfer <tbogendoerfer@suse.de>, Paul Burton <paul.burton@mips.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, Greg Hackmann <ghackmann@android.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 8 May 2019 15:18:10 +0200 (CEST)
-Sebastian Ott <sebott@linux.ibm.com> wrote:
+On Thu, Apr 25, 2019 at 4:20 PM Pingfan Liu <kernelfans@gmail.com> wrote:
+>
+> On Wed, Apr 24, 2019 at 4:31 PM Matthias Brugger <mbrugger@suse.com> wrote:
+> >
+> >
+> [...]
+> > > @@ -139,6 +141,8 @@ static int __init parse_crashkernel_simple(char *cmdline,
+> > >               pr_warn("crashkernel: unrecognized char: %c\n", *cur);
+> > >               return -EINVAL;
+> > >       }
+> > > +     if (*crash_size == 0)
+> > > +             return -EINVAL;
+> >
+> > This covers the case where I pass an argument like "crashkernel=0M" ?
+> > Can't we fix that by using kstrtoull() in memparse and check if the return value
+> > is < 0? In that case we could return without updating the retptr and we will be
+> > fine.
+After a series of work, I suddenly realized that it can not be done
+like this way. "0M" causes kstrtoull() to return -EINVAL, but this is
+caused by "M", not "0". If passing "0" to kstrtoull(), it will return
+0 on success.
 
-> > @@ -224,6 +228,9 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
-> >  	INIT_WORK(&sch->todo_work, css_sch_todo);
-> >  	sch->dev.release = &css_subchannel_release;
-> >  	device_initialize(&sch->dev);
-> > +	sch->dma_mask = css_dev_dma_mask;
-> > +	sch->dev.dma_mask = &sch->dma_mask;
-> > +	sch->dev.coherent_dma_mask = sch->dma_mask;  
-> 
-> Could we do:
-> 	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
-> 	sch->dev.coherent_dma_mask = css_dev_dma_mask;
-> ?
+> >
+> It seems that kstrtoull() treats 0M as invalid parameter, while
+> simple_strtoull() does not.
+>
+My careless going through the code. And I tested with a valid value
+"256M" using kstrtoull(), it also returned -EINVAL.
 
-Looks like a good idea to me. We will do it for all 3 (sch, ccw and
-css). Thanks!
+So I think there is no way to distinguish 0 from a positive value
+inside this basic math function.
+Do I miss anything?
 
-Regards,
-Halil
+Thanks and regards,
+Pingfan
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
