@@ -1,102 +1,39 @@
-Return-Path: <SRS0=Fa9J=TO=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH 7/7] s390/cio: Remove vfio-ccw checks of command codes
-References: <20190503134912.39756-1-farman@linux.ibm.com>
- <20190503134912.39756-8-farman@linux.ibm.com>
- <8625f759-0a2d-09af-c8b5-5b312d854ba1@linux.ibm.com>
- <7c897993-d146-bf8e-48ad-11a914a04716@linux.ibm.com>
- <bba6c0a8-2346-cd99-b8ad-f316daac010b@linux.ibm.com>
- <7ac9fb43-8d7a-9e04-8cba-fa4c63dfc413@linux.ibm.com>
- <1f2e4272-8570-f93f-9d67-a43dcb00fc55@linux.ibm.com>
- <5c2b74a9-e1d9-cd63-1284-6544fa4376d9@linux.ibm.com>
- <20190510134718.3f727571.cohuck@redhat.com>
- <85fe257b-721a-f900-32fa-011845f242ed@linux.ibm.com>
- <20190514162913.6db90f44.cohuck@redhat.com>
-From: Eric Farman <farman@linux.ibm.com>
-Date: Tue, 14 May 2019 14:29:32 -0400
+Return-Path: <SRS0=RThv=TD=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Fri, 3 May 2019 16:39:40 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: vdso: drop unnecessary cc-ldoption
+References: <20190423210058.249510-1-ndesaulniers@google.com>
+ <CAKwvOd=aR_GsJkaMTtV83UAAyqkZGuToD+3Zbq5sv=U_bogXmg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190514162913.6db90f44.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <59c0f455-7b2f-5a85-1107-d8be5b85c16a@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKwvOd=aR_GsJkaMTtV83UAAyqkZGuToD+3Zbq5sv=U_bogXmg@mail.gmail.com>
+Message-Id: <20190503143940.GH5602@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, clang-built-linux <clang-built-linux@googlegroups.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, Apr 30, 2019 at 01:25:09PM -0700, Nick Desaulniers wrote:
+> On Tue, Apr 23, 2019 at 2:01 PM Nick Desaulniers
+> <ndesaulniers@google.com> wrote:
+> >
+> > Towards the goal of removing cc-ldoption, it seems that --hash-style=
+> > was added to binutils 2.17.50.0.2 in 2006. The minimal required version
+> > of binutils for the kernel according to
+> > Documentation/process/changes.rst is 2.20.
+> >
+> > Link: https://gcc.gnu.org/ml/gcc/2007-01/msg01141.html
+> > Cc: clang-built-linux@googlegroups.com
+> > Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> > ---
+> >  arch/s390/kernel/vdso32/Makefile | 2 +-
+> >  arch/s390/kernel/vdso64/Makefile | 2 +-
+> >  2 files changed, 2 insertions(+), 2 deletions(-)
+...
+> bumping for review
 
-
-On 5/14/19 10:29 AM, Cornelia Huck wrote:
-> On Fri, 10 May 2019 10:24:31 -0400
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
->> On 5/10/19 7:47 AM, Cornelia Huck wrote:
->>> On Wed, 8 May 2019 11:22:07 +0200
->>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>    
->>>> For the NOOP its clearly stated that it does not start a data transfer.
->>>> If we pin the CDA, it could then eventually be the cause of errors if
->>>> the address indicated by the CDA is not accessible.
->>>>
->>>> The NOOP is a particular CONTROL operation for which no data is transfered.
->>>> Other CONTROL operation may start a data transfer.
->>>
->>> I've just looked at the documentation again.
->>>
->>> The Olde Common I/O Device Commands document indicates that a NOOP
->>> simply causes channel end/device end.
->>>
->>> The PoP seems to indicate that the cda is always checked (i.e. does it
->>> point to a valid memory area?), but I'm not sure whether the area that
->>> is pointed to is checked for accessibility etc. as well, even if the
->>> command does not transfer any data.
->>>
->>> Has somebody tried to find out what happens on Real Hardware(tm) if you
->>> send a command that is not supposed to transfer any data where the cda
->>> points to a valid, but not accessible area?
->>
->> Hrm...  The CDA itself?  I don't think so.  Since every CCW is converted
->> to an IDAL in vfio-ccw, we guarantee that it's pointing to something
->> valid at that point.
->>
->> So, I hacked ccwchain_fetch_direct() to NOT set the IDAL flag in a NOP
->> CCW, and to leave the CDA alone.  This means it will still contain the
->> guest address, which is risky but hey it's a test system.  :)  (I
->> offline'd a bunch of host memory too, to make sure I had some
->> unavailable addresses.)
->>
->> In my traces, the non-IDA NOP CCWs were issued to the host with and
->> without the skip flag, with zero and non-zero counts, and with zero and
->> non-zero CDAs.  All of them work just fine, including the ones who's
->> addresses fall into the offline space.  Even the combination of no skip,
->> non-zero count, and zero cda.
->>
->> I modified that hack to do the same for a known invalid control opcode,
->> and it seemed to be okay too.  We got an (expected) invalid command
->> before we noticed any problem with the provided address.
-> 
-> That's interesting; I would not have arrived at this by interpreting
-> the PoP...
-> 
->>>
->>> In general, I think doing the translation (and probably already hitting
->>> errors there) is better than sending down a guest address.
->>>    
->>
->> I mostly agree, but I have one test program that generates invalid GUEST
->> addresses with its NOP CCWs, since it doesn't seem to care about whether
->> they're valid or not.  So any attempt to pin them will end badly, which
->> is why I call that opcode out in ccw_does_data_transfer(), and just send
->> invalid IDAWs with it.
-> 
-> So, without the attempt to pin they do not fail? 
-
-Correct.
-
-> Maybe the right
-> approach would be to rewrite the cda before sending the ccws?
-> 
-
-That would be my vote.  (And it's what this series does.  :)
+Sorry for the delay! Applied now, thanks.
