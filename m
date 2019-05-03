@@ -1,152 +1,289 @@
-Return-Path: <SRS0=etnf=TK=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH v8 3/4] s390: ap: implement PAPQ AQIC interception in
- kernel
-References: <1556818451-1806-1-git-send-email-pmorel@linux.ibm.com>
- <1556818451-1806-4-git-send-email-pmorel@linux.ibm.com>
- <adcec876-22f5-89fb-3dcc-ad843d6f8f64@linux.ibm.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Fri, 10 May 2019 18:21:51 +0200
-MIME-Version: 1.0
-In-Reply-To: <adcec876-22f5-89fb-3dcc-ad843d6f8f64@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <754503da-5e90-d1af-34ba-e33975129118@linux.ibm.com>
+Return-Path: <SRS0=yMf+=TD=vger.kernel.org=kvm-owner@kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v2 5/7] s390: vfio-ap: allow hot plug/unplug of AP resources using mdev device
+Date: Fri,  3 May 2019 17:14:31 -0400
+In-Reply-To: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
+Message-Id: <1556918073-13171-6-git-send-email-akrowiak@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 08/05/2019 22:17, Tony Krowiak wrote:
-> On 5/2/19 1:34 PM, Pierre Morel wrote:
->> We register a AP PQAP instruction hook during the open
->> of the mediated device. And unregister it on release.
->>
->> During the probe of the AP device, we allocate a vfio_ap_queue
->> structure to keep track of the information we need for the
->> PQAP/AQIC instruction interception.
->>
->> In the AP PQAP instruction hook, if we receive a demand to
->> enable IRQs,
->> - we retrieve the vfio_ap_queue based on the APQN we receive
->>    in REG1,
->> - we retrieve the page of the guest address, (NIB), from
->>    register REG2
->> - we retrieve the mediated device to use the VFIO pinning
->>    infrastructure to pin the page of the guest address,
->> - we retrieve the pointer to KVM to register the guest ISC
->>    and retrieve the host ISC
->> - finaly we activate GISA
->>
->> If we receive a demand to disable IRQs,
->> - we deactivate GISA
->> - unregister from the GIB
->> - unping the NIB
-> 
-> s/unping/unpin
+Let's allow AP resources to be assigned to or unassigned from an AP matrix
+mdev device while it is in use by a guest. If a guest is using the mdev
+device while assignment is taking place, the guest will be granted access
+to the resource as long as the guest will not be given access to an AP
+queue device that is not bound to the vfio_ap device driver. If a guest is
+using the mdev device while unassignment is taking place, access to the
+resource will be taken from the guest.
 
-yes, thanks,
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 116 ++++++++++++++++++++++++++++----------
+ 1 file changed, 86 insertions(+), 30 deletions(-)
 
-> 
-
-...snip...
-
->>   static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
->>   {
->> -    /* Nothing to do yet */
->> +    struct vfio_ap_queue *q;
->> +    int apid, apqi;
->> +
->> +    mutex_lock(&matrix_dev->lock);
->> +    q = dev_get_drvdata(&apdev->device);
->> +    dev_set_drvdata(&apdev->device, NULL);
->> +    if (q) {
->> +        apid = AP_QID_CARD(q->apqn);
->> +        apqi = AP_QID_QUEUE(q->apqn);
->> +        vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> 
-> As you know, there is another patch series (s390: vfio-ap: dynamic
-> configuration support) posted concurrently with this series. That series
-> handles reset on remove of an AP queue device. It looks like your
-> choices here will greatly conflict with the reset processing in the
-> other patch series and create a nasty merge conflict. My suggestion is
-> that you build this patch series on top of the other series and do
-> the following:
-> 
-> There are two new functions introduced in vfio_ap_private.h:
-> void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
-> void vfio_ap_mdev_probe_queue(struct ap_queue *queue);
-> 
-> These are called from the probe and remove callbacks in vfio_ap_drv.c.
-> If you embed your changes to the probe and remove functions above into
-> those new functions, that will make merging the two much easier and
-> the code cleaner IMHO.
-
-The merging is really limited
-The dynamic configuration patches series is new and I am not sure it 
-will satisfy Harald and Reinhard, doing so would delay the IRQ patch 
-series for an unknown among of time.
-I am not sure it is so wise.
-
-May be an other opinion?
-
-
-Whatever, we can share the reset function, it is independent of the 
-series, for my opinion it could go its own way.
-I can take your patch.
-
-...snip...
-
->> +struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
->> +{
->> +    struct ap_qirq_ctrl aqic_gisa;
->> +    struct ap_queue_status status = {
->> +            .response_code = AP_RESPONSE_Q_NOT_AVAIL,
->> +            };
->> +    int retry_tapq = 5;
->> +    int retry_aqic = 5;
->> +
->> +    if (!q)
-> 
-> When will q ever be NULL? I checked all places where this is called and
-> it looks to me like this will never happen.
-> 
-
-OK, I check, may be too carefull.
-
->> +        return status;
->> +
->> +again:
-> 
-> I'm not crazy about using a label, why not a do/while
-> loop or something of that nature?
-
-I will try this way.
-
-> 
->> +    status = ap_aqic(q->apqn, aqic_gisa, NULL);
->> +    switch (status.response_code) {
->> +    case AP_RESPONSE_OTHERWISE_CHANGED:
->> +    case AP_RESPONSE_RESET_IN_PROGRESS:
->> +    case AP_RESPONSE_NORMAL: /* Fall through */
->> +        while (status.irq_enabled && retry_tapq--) {
->> +            msleep(20);
->> +            status = ap_tapq(q->apqn, NULL);
-> 
-> Shouldn't you be checking response codes from the TAPQ
-> function? Maybe there should be a function call here to
-> with for IRQ disabled?
-
-OK
-
-Thanks,
-Pierre
-
-
-
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index ea24caf17a16..ede45184eb67 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -226,6 +226,8 @@ static struct device *vfio_ap_get_queue_dev(unsigned long apid,
+ 				  &apqn, match_apqn);
+ }
+ 
++
++
+ static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
+ {
+ 	int ret;
+@@ -237,6 +239,26 @@ static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
+ 	return vfio_ap_mdev_verify_no_sharing(apm, aqm);
+ }
+ 
++static bool vfio_ap_queues_on_drv(unsigned long *apm, unsigned long *aqm)
++{
++	unsigned long apid, apqi, apqn;
++	struct device *dev;
++
++	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
++		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
++			apqn = AP_MKQID(apid, apqi);
++
++			dev = vfio_ap_get_queue_dev(apid, apqi);
++			if (!dev)
++				return false;
++
++			put_device(dev);
++		}
++	}
++
++	return true;
++}
++
+ /**
+  * assign_adapter_store
+  *
+@@ -247,7 +269,10 @@ static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the APID from @buf and sets the corresponding bit in the mediated
+- * matrix device's APM.
++ * matrix device's APM. If a guest is using the mediated matrix device and each
++ * new APQN formed as a result of the assignment identifies an AP queue device
++ * that is bound to the vfio_ap device driver, the guest will be granted access
++ * to the adapter with the specified APID.
+  *
+  * Returns the number of bytes processed if the APID is valid; otherwise,
+  * returns one of the following errors:
+@@ -279,10 +304,6 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow assignment of adapter */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apid);
+ 	if (ret)
+ 		return ret;
+@@ -300,6 +321,14 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 		return ret;
+ 	}
+ 	set_bit_inv(apid, matrix_mdev->matrix.apm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (vfio_ap_queues_on_drv(apm,
++					  matrix_mdev->shadow_crycb->aqm)) {
++			set_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
+@@ -315,7 +344,9 @@ static DEVICE_ATTR_WO(assign_adapter);
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the APID from @buf and clears the corresponding bit in the mediated
+- * matrix device's APM.
++ * matrix device's APM. If a guest is using the mediated matrix device and has
++ * access to the AP adapter with the specified APID, access to the adapter will
++ * be taken from the guest.
+  *
+  * Returns the number of bytes processed if the APID is valid; otherwise,
+  * returns one of the following errors:
+@@ -332,10 +363,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow un-assignment of adapter */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apid);
+ 	if (ret)
+ 		return ret;
+@@ -345,6 +372,13 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (test_bit_inv(apid, matrix_mdev->shadow_crycb->apm)) {
++			clear_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
+@@ -361,7 +395,10 @@ static DEVICE_ATTR_WO(unassign_adapter);
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the APQI from @buf and sets the corresponding bit in the mediated
+- * matrix device's AQM.
++ * matrix device's AQM. If a guest is using the mediated matrix device and each
++ * new APQN formed as a result of the assignment identifies an AP queue device
++ * that is bound to the vfio_ap device driver, the guest will be given access
++ * to the AP queue(s) with the specified APQI.
+  *
+  * Returns the number of bytes processed if the APQI is valid; otherwise returns
+  * one of the following errors:
+@@ -394,10 +431,6 @@ static ssize_t assign_domain_store(struct device *dev,
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
+ 
+-	/* If the guest is running, disallow assignment of domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apqi);
+ 	if (ret)
+ 		return ret;
+@@ -414,6 +447,14 @@ static ssize_t assign_domain_store(struct device *dev,
+ 		return ret;
+ 	}
+ 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (vfio_ap_queues_on_drv(matrix_mdev->shadow_crycb->apm,
++					  aqm)) {
++			set_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
+@@ -431,7 +472,9 @@ static DEVICE_ATTR_WO(assign_domain);
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the APQI from @buf and clears the corresponding bit in the
+- * mediated matrix device's AQM.
++ * mediated matrix device's AQM. If a guest is using the mediated matrix device
++ * and has access to queue(s) with the specified domain APQI, access to
++ * the queue(s) will be taken away from the guest.
+  *
+  * Returns the number of bytes processed if the APQI is valid; otherwise,
+  * returns one of the following errors:
+@@ -447,10 +490,6 @@ static ssize_t unassign_domain_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow un-assignment of domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apqi);
+ 	if (ret)
+ 		return ret;
+@@ -460,6 +499,13 @@ static ssize_t unassign_domain_store(struct device *dev,
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (test_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm)) {
++			clear_bit_inv(apqi, matrix_mdev->shadow_crycb->aqm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
+@@ -475,7 +521,9 @@ static DEVICE_ATTR_WO(unassign_domain);
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the domain ID from @buf and sets the corresponding bit in the mediated
+- * matrix device's ADM.
++ * matrix device's ADM. If a guest is using the mediated matrix device and the
++ * guest does not have access to the control domain with the specified ID, the
++ * guest will be granted access to it.
+  *
+  * Returns the number of bytes processed if the domain ID is valid; otherwise,
+  * returns one of the following errors:
+@@ -491,10 +539,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow assignment of control domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &id);
+ 	if (ret)
+ 		return ret;
+@@ -504,6 +548,13 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	set_bit_inv(id, matrix_mdev->matrix.adm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (!test_bit_inv(id, matrix_mdev->shadow_crycb->adm)) {
++			set_bit_inv(id, matrix_mdev->shadow_crycb->adm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
+@@ -519,7 +570,9 @@ static DEVICE_ATTR_WO(assign_control_domain);
+  * @count:	the number of bytes in @buf
+  *
+  * Parses the domain ID from @buf and clears the corresponding bit in the
+- * mediated matrix device's ADM.
++ * mediated matrix device's ADM. If a guest is using the mediated matrix device
++ * and has access to control domain with the specified domain ID, access to
++ * the control domain will be taken from the guest.
+  *
+  * Returns the number of bytes processed if the domain ID is valid; otherwise,
+  * returns one of the following errors:
+@@ -536,10 +589,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
+ 
+-	/* If the guest is running, disallow un-assignment of control domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &domid);
+ 	if (ret)
+ 		return ret;
+@@ -548,6 +597,13 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	clear_bit_inv(domid, matrix_mdev->matrix.adm);
++
++	if (matrix_mdev->shadow_crycb) {
++		if (test_bit_inv(domid, matrix_mdev->shadow_crycb->adm)) {
++			clear_bit_inv(domid, matrix_mdev->shadow_crycb->adm);
++			vfio_ap_mdev_update_crycb(matrix_mdev);
++		}
++	}
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return count;
 -- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+2.7.4
