@@ -1,10 +1,10 @@
 Return-Path: <SRS0=yMf+=TD=vger.kernel.org=kvm-owner@kernel.org>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 6/7] s390: vfio-ap: handle bind and unbind of AP queue device
-Date: Fri,  3 May 2019 17:14:32 -0400
+Subject: [PATCH v2 2/7] s390: vfio-ap: maintain a shadow of the guest's CRYCB
+Date: Fri,  3 May 2019 17:14:28 -0400
 In-Reply-To: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
 References: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
-Message-Id: <1556918073-13171-7-git-send-email-akrowiak@linux.ibm.com>
+Message-Id: <1556918073-13171-3-git-send-email-akrowiak@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,185 +12,175 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-There is nothing preventing a root user from inadvertently unbinding an
-AP queue device that is in use by a guest from the vfio_ap device driver
-and binding it to a zcrypt driver. This can result in a queue being
-accessible from both the host and a guest.
+This patch introduces a shadow of the CRYCB being used by a guest. This
+will enable to more effectively manage dynamic changes to the AP
+resources installed on the host that may be assigned to an mdev device
+and being used by a guest. For example:
 
-This patch introduces safeguards that prevent sharing of an AP queue
-between the host when a queue device is unbound from the vfio_ap device
-driver. In addition, this patch restores guest access to AP queue devices
-bound to the vfio_ap driver if the queue's APQN is assigned to an mdev
-device in use by a guest.
+* AP adapter cards can be dynamically added to and removed from the AP
+  configuration via the SE or an SCLP command.
+
+* AP resources that disappear and reappear due to hardware malfunctions.
+
+* AP queues bound to and unbound from the vfio_ap device driver by a
+  root user.
 
 Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  12 +++-
- drivers/s390/crypto/vfio_ap_ops.c     | 100 +++++++++++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |   2 +
- 3 files changed, 111 insertions(+), 3 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c     | 91 ++++++++++++++++++++++++++++++++---
+ drivers/s390/crypto/vfio_ap_private.h |  2 +
+ 2 files changed, 87 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index e9824c35c34f..c215978daf39 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -42,12 +42,22 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
- 
- static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
- {
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	vfio_ap_mdev_probe_queue(queue);
-+	mutex_unlock(&matrix_dev->lock);
-+
- 	return 0;
- }
- 
- static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- {
--	/* Nothing to do yet */
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	vfio_ap_mdev_remove_queue(queue);
-+	mutex_unlock(&matrix_dev->lock);
- }
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index ede45184eb67..40324951bd37 100644
+index b88a2a2ba075..44a04b4aa9ae 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -226,8 +226,6 @@ static struct device *vfio_ap_get_queue_dev(unsigned long apid,
- 				  &apqn, match_apqn);
+@@ -297,6 +297,45 @@ static void vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
+ 	} while (--retry);
  }
  
--
--
- static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
- {
- 	int ret;
-@@ -259,6 +257,27 @@ static bool vfio_ap_queues_on_drv(unsigned long *apm, unsigned long *aqm)
- 	return true;
- }
- 
-+static bool vfio_ap_card_on_drv(struct ap_queue *queue, unsigned long *aqm)
++/*
++ * vfio_ap_mdev_update_crycb
++ *
++ * @matrix_mdev: the mediated matrix device
++ *
++ * Updates the AP matrix in the guest's CRYCB from it's shadow masks.
++ *
++ * Returns zero if the guest's CRYCB is successfully updated; otherwise,
++ * returns -ENODEV if a guest is not running or does not have a CRYCB.
++ */
++static int vfio_ap_mdev_update_crycb(struct ap_matrix_mdev *matrix_mdev)
 +{
-+	unsigned long apid, apqi;
-+	struct device *dev;
++	if (!matrix_mdev->kvm || !matrix_mdev->kvm->arch.crypto.crycbd)
++		return -ENODEV;
 +
-+	apid = AP_QID_CARD(queue->qid);
++	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
++				  matrix_mdev->shadow_crycb->apm,
++				  matrix_mdev->shadow_crycb->aqm,
++				  matrix_mdev->shadow_crycb->adm);
 +
-+	for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
-+		if (queue->qid == AP_MKQID(apid, apqi))
-+			continue;
++	return 0;
++}
 +
-+		dev = vfio_ap_get_queue_dev(apid, apqi);
-+		if (!dev)
-+			return false;
++static int match_apqn(struct device *dev, void *data)
++{
++	struct ap_queue *apq = to_ap_queue(dev);
 +
-+		put_device(dev);
-+	}
++	return (apq->qid == *(unsigned long *)(data)) ? 1 : 0;
++}
 +
-+	return true;
++static struct device *vfio_ap_get_queue_dev(unsigned long apid,
++					     unsigned long apqi)
++{
++	unsigned long apqn = AP_MKQID(apid, apqi);
++
++	return driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
++				  &apqn, match_apqn);
 +}
 +
  /**
   * assign_adapter_store
   *
-@@ -1017,3 +1036,80 @@ void vfio_ap_mdev_unregister(void)
- {
- 	mdev_unregister_device(&matrix_dev->device);
+@@ -805,14 +844,9 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 	if (ret)
+ 		return NOTIFY_DONE;
+ 
+-	/* If there is no CRYCB pointer, then we can't copy the masks */
+-	if (!matrix_mdev->kvm->arch.crypto.crycbd)
++	if (vfio_ap_mdev_update_crycb(matrix_mdev))
+ 		return NOTIFY_DONE;
+ 
+-	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+-				  matrix_mdev->matrix.aqm,
+-				  matrix_mdev->matrix.adm);
+-
+ 	return NOTIFY_OK;
  }
-+
-+static struct ap_matrix_mdev *vfio_ap_mdev_find_matrix_mdev(unsigned long apid,
-+							    unsigned long apqi)
+ 
+@@ -867,12 +901,55 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+ 	return rc;
+ }
+ 
++static int vfio_ap_mdev_create_shadow_crycb(struct ap_matrix_mdev *matrix_mdev)
 +{
-+	struct ap_matrix_mdev *matrix_mdev;
++	unsigned long apid, apqi, domid;
++	struct device *dev;
 +
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
-+		    test_bit_inv(apqi, matrix_mdev->matrix.aqm))
-+			return matrix_mdev;
-+	}
++	matrix_mdev->shadow_crycb = kzalloc(sizeof(*matrix_mdev->shadow_crycb),
++					    GFP_KERNEL);
++	if (!matrix_mdev->shadow_crycb)
++		return -ENOMEM;
 +
-+	return NULL;
-+}
-+
-+void vfio_ap_mdev_probe_queue(struct ap_queue *queue)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+	unsigned long *shadow_apm, *shadow_aqm;
-+	unsigned long apid = AP_QID_CARD(queue->qid);
-+	unsigned long apqi = AP_QID_QUEUE(queue->qid);
++	vfio_ap_matrix_init(&matrix_dev->info, matrix_mdev->shadow_crycb);
 +
 +	/*
-+	 * Find the mdev device to which the APQN of the queue device being
-+	 * probed is assigned
++	 * Examine each APQN assigned to the mdev device. Set the APID and APQI
++	 * in the shadow CRYCB if and only if the queue device identified by
++	 * the APQN is in the configuration.
 +	 */
-+	matrix_mdev = vfio_ap_mdev_find_matrix_mdev(apid, apqi);
-+
-+	/* Check whether we found an mdev device and it is in use by a guest */
-+	if (matrix_mdev && matrix_mdev->kvm) {
-+		shadow_apm = matrix_mdev->shadow_crycb->apm;
-+		shadow_aqm = matrix_mdev->shadow_crycb->aqm;
-+		/*
-+		 * If the guest already has access to the adapter card
-+		 * referenced by APID or does not have access to the queues
-+		 * referenced by APQI, there is nothing to do here.
-+		 */
-+		if (test_bit_inv(apid, shadow_apm) ||
-+		    !test_bit_inv(apqi, shadow_aqm))
-+			return;
-+
-+		/*
-+		 * If each APQN with the APID of the queue being probed and an
-+		 * APQI in the shadow CRYCB references a queue device that is
-+		 * bound to the vfio_ap driver, then plug the adapter into the
-+		 * guest.
-+		 */
-+		if (vfio_ap_card_on_drv(queue, shadow_aqm)) {
-+			set_bit_inv(apid, shadow_apm);
-+			vfio_ap_mdev_update_crycb(matrix_mdev);
++	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
++			     matrix_mdev->matrix.apm_max + 1) {
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++				     matrix_mdev->matrix.aqm_max + 1) {
++			dev = vfio_ap_get_queue_dev(apid, apqi);
++			if (dev) {
++				set_bit_inv(apid,
++					    matrix_mdev->shadow_crycb->apm);
++				set_bit_inv(apqi,
++					    matrix_mdev->shadow_crycb->aqm);
++				put_device(dev);
++			}
 +		}
 +	}
++
++	/* Set all control domains assigned to the mdev in the shadow CRYCB */
++	for_each_set_bit_inv(domid, matrix_mdev->matrix.adm,
++			     matrix_mdev->matrix.adm_max + 1)
++		set_bit_inv(domid, matrix_mdev->shadow_crycb->adm);
++
++	return 0;
 +}
 +
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+	unsigned long apid = AP_QID_CARD(queue->qid);
-+	unsigned long apqi = AP_QID_QUEUE(queue->qid);
-+
-+	matrix_mdev = vfio_ap_mdev_find_matrix_mdev(apid, apqi);
-+
-+	/*
-+	 * If the queue is assigned to the mdev device and the mdev device
-+	 * is in use by a guest, unplug the adapter referred to by the APID
-+	 * of the APQN of the queue being removed.
-+	 */
-+	if (matrix_mdev && matrix_mdev->kvm) {
-+		if (!test_bit_inv(apid, matrix_mdev->shadow_crycb->apm))
-+			return;
-+
-+		clear_bit_inv(apid, matrix_mdev->shadow_crycb->apm);
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+	}
-+
-+	vfio_ap_mdev_reset_queue(apid, apqi);
-+}
+ static int vfio_ap_mdev_open(struct mdev_device *mdev)
+ {
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long events;
+ 	int ret;
+ 
++	ret = vfio_ap_mdev_create_shadow_crycb(matrix_mdev);
++	if (ret)
++		return ret;
+ 
+ 	if (!try_module_get(THIS_MODULE))
+ 		return -ENODEV;
+@@ -902,6 +979,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 				 &matrix_mdev->group_notifier);
+ 	matrix_mdev->kvm = NULL;
+ 	module_put(THIS_MODULE);
++	kfree(matrix_mdev->shadow_crycb);
++	matrix_mdev->shadow_crycb = NULL;
+ }
+ 
+ static int vfio_ap_mdev_get_device_info(unsigned long arg)
 diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index e8457aa61976..6b1f7df5b979 100644
+index 76b7f98e47e9..e8457aa61976 100644
 --- a/drivers/s390/crypto/vfio_ap_private.h
 +++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -87,5 +87,7 @@ struct ap_matrix_mdev {
- 
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
-+void vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- 
- #endif /* _VFIO_AP_PRIVATE_H_ */
+@@ -72,6 +72,7 @@ struct ap_matrix {
+  * @list:	allows the ap_matrix_mdev struct to be added to a list
+  * @matrix:	the adapters, usage domains and control domains assigned to the
+  *		mediated matrix device.
++ * @shadow_crycb: a shadow copy of the crycb in use by a guest
+  * @group_notifier: notifier block used for specifying callback function for
+  *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
+  * @kvm:	the struct holding guest's state
+@@ -79,6 +80,7 @@ struct ap_matrix {
+ struct ap_matrix_mdev {
+ 	struct list_head node;
+ 	struct ap_matrix matrix;
++	struct ap_matrix *shadow_crycb;
+ 	struct notifier_block group_notifier;
+ 	struct kvm *kvm;
+ };
 -- 
 2.7.4
