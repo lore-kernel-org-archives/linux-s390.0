@@ -1,54 +1,45 @@
 Return-Path: <SRS0=yMf+=TD=vger.kernel.org=kvm-owner@kernel.org>
-Date: Fri, 3 May 2019 15:33:10 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 00/10] s390: virtio: support protected virtualization
-Message-ID: <20190503153310.04d4b85c.cohuck@redhat.com>
-In-Reply-To: <20190503115511.17a1f6d1.cohuck@redhat.com>
+Date: Fri, 3 May 2019 16:04:48 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
+Message-ID: <20190503160421-mutt-send-email-mst@kernel.org>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190503115511.17a1f6d1.cohuck@redhat.com>
+ <20190426183245.37939-2-pasic@linux.ibm.com>
+ <20190503111724.70c6ec37.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190503111724.70c6ec37.cohuck@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, 3 May 2019 11:55:11 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> On Fri, 26 Apr 2019 20:32:35 +0200
+On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:
+> On Fri, 26 Apr 2019 20:32:36 +0200
 > Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-
-> > What needs to be done
-> > =====================
+> > The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> > establishes a new way of allocating virtqueues (as a part of the effort
+> > that taught DMA to virtio rings).
 > > 
-> > Thus what needs to be done to bring virtio-ccw up to speed with respect
-> > to protected virtualization is:
-> > * use some 'new' common virtio stuff
+> > In the future we will want virtio-ccw to use the DMA API as well.
+> > 
+> > Let us switch from the legacy method of allocating virtqueues to
+> > vring_create_virtqueue() as the first step into that direction.
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
+> >  1 file changed, 11 insertions(+), 19 deletions(-)
 > 
-> Doing this makes sense regardless of the protected virtualization use
-> case, and I think we should go ahead and merge those patches for 5.2.
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
-> > * make sure that virtio-ccw specific stuff uses shared memory when
-> >   talking to the hypervisor (except control/communication blocks like ORB,
-> >   these are handled by the ultravisor)
-> 
-> TBH, I'm still a bit hazy on what needs to use shared memory and what
-> doesn't.
-> 
-> > * make sure the DMA API does what is necessary to talk through shared
-> >   memory if we are a protected virtualization guest.
-> > * make sure the common IO layer plays along as well (airqs, sense).
+> I'd vote for merging this patch right away for 5.2.
 
-I've skimmed some more over the rest of the patches; but I think this
-needs review by someone else.
+So which tree is this going through? mine?
 
-For example, I'm not sure what the semantics of using the main css
-device as the dma device are, as I'm not sufficiently familiar with the
-intricacies of the dma infrastructure. Combine this with a lack of
-documentation of the hardware architecture, and I think that others can
-provide much better feedback on this than I am able to.
+-- 
+MST
