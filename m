@@ -1,45 +1,33 @@
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 3/3] sparc: remove ARCH_SELECT_MEMORY_MODEL
-Date: Wed,  1 May 2019 22:56:17 +0300
-Message-ID: <1556740577-4140-4-git-send-email-rppt@linux.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 2/3] s390: remove ARCH_SELECT_MEMORY_MODEL
+Date: Fri, 3 May 2019 15:47:19 +0200
+Message-ID: <20190503134719.GB5602@osiris>
 References: <1556740577-4140-1-git-send-email-rppt@linux.ibm.com>
+ <1556740577-4140-3-git-send-email-rppt@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1556740577-4140-1-git-send-email-rppt@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1556740577-4140-3-git-send-email-rppt@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>
+To: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>, "David S. Miller" <davem@davemloft.net>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-The ARCH_SELECT_MEMORY_MODEL option is enabled only for 64-bit. However,
-64-bit configuration also enables ARCH_SPARSEMEM_DEFAULT and there is no
-ARCH_FLATMEM_ENABLE in arch/sparc/Kconfig.
+On Wed, May 01, 2019 at 10:56:16PM +0300, Mike Rapoport wrote:
+> The only reason s390 has ARCH_SELECT_MEMORY_MODEL option in
+> arch/s390/Kconfig is an ancient compile error with allnoconfig which was
+> fixed by commit 97195d6b411f ("[S390] fix sparsemem related compile error
+> with allnoconfig on s390") by adding the ARCH_SELECT_MEMORY_MODEL option.
+> 
+> Since then a lot have changed and now allnoconfig builds just fine without
+> ARCH_SELECT_MEMORY_MODEL, so it can be removed.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig | 3 ---
+>  1 file changed, 3 deletions(-)
 
-With such settings, the dependencies in mm/Kconfig are always evaluated to
-SPARSEMEM=y for 64-bit and to FLATMEM=y for 32-bit.
-
-The ARCH_SELECT_MEMORY_MODEL option in arch/sparc/Kconfig does not affect
-anything and can be removed.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/sparc/Kconfig | 3 ---
- 1 file changed, 3 deletions(-)
-
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 40f8f4f..9137dbe 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -305,9 +305,6 @@ config NODES_SPAN_OTHER_NODES
- 	def_bool y
- 	depends on NEED_MULTIPLE_NODES
- 
--config ARCH_SELECT_MEMORY_MODEL
--	def_bool y if SPARC64
--
- config ARCH_SPARSEMEM_ENABLE
- 	def_bool y if SPARC64
- 	select SPARSEMEM_VMEMMAP_ENABLE
--- 
-2.7.4
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
