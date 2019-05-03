@@ -1,8 +1,10 @@
 Return-Path: <SRS0=yMf+=TD=vger.kernel.org=kvm-owner@kernel.org>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 0/7] s390: vfio-ap: dynamic configuration support
-Date: Fri,  3 May 2019 17:14:26 -0400
-Message-Id: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
+Subject: [PATCH v2 1/7] s390: vfio-ap: wait for queue empty on queue reset
+Date: Fri,  3 May 2019 17:14:27 -0400
+Message-Id: <1556918073-13171-2-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,43 +12,81 @@ To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-This patch series extends the crypto adapter pass-through support to 
-provide safeguards against inadvertent sharing of AP resources between
-guests and/or the host, and to implement more of the s390 AP
-architecture related to provisioning and dynamic configuration of
-AP resources.
+Refactors the AP queue reset function to wait until the queue is empty
+after the PQAP(ZAPQ) instruction is executed to zero out the queue as
+required by the AP architecture.
 
-Change log v2->v3:
------------------
-* Allow guest access to an AP queue only if the queue is bound to
-  the vfio_ap device driver.
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
-* Removed the patch to test CRYCB masks before taking the vCPUs
-  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
-
-Change log v1->v2:
------------------
-* Removed patches preventing root user from unbinding AP queues from 
-  the vfio_ap device driver
-* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
-  changes to the AP guest configuration due to root user interventions
-  or hardware anomalies.
-
-Tony Krowiak (7):
-  s390: vfio-ap: wait for queue empty on queue reset
-  s390: vfio-ap: maintain a shadow of the guest's CRYCB
-  s390: vfio-ap: sysfs interface to display guest CRYCB
-  s390: vfio-ap: allow assignment of unavailable AP resources to mdev
-    device
-  s390: vfio-ap: allow hot plug/unplug of AP resources using mdev device
-  s390: vfio-ap: handle bind and unbind of AP queue device
-  s390: vfio-ap: update documentation
-
- Documentation/s390/vfio-ap.txt        | 191 +++++++----
- drivers/s390/crypto/vfio_ap_drv.c     |  12 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 612 ++++++++++++++++++++++------------
- drivers/s390/crypto/vfio_ap_private.h |   4 +
- 4 files changed, 536 insertions(+), 283 deletions(-)
-
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 900b9cf20ca5..b88a2a2ba075 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -271,6 +271,32 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+ 	return 0;
+ }
+ 
++static void vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
++{
++	struct ap_queue_status status;
++	ap_qid_t qid = AP_MKQID(apid, apqi);
++	int retry = 5;
++
++	do {
++		status = ap_tapq(qid, NULL);
++		switch (status.response_code) {
++		case AP_RESPONSE_NORMAL:
++			if (status.queue_empty)
++				return;
++			msleep(20);
++			break;
++		case AP_RESPONSE_RESET_IN_PROGRESS:
++		case AP_RESPONSE_BUSY:
++			msleep(20);
++			break;
++		default:
++			pr_warn("%s: tapq err %02x: %04lx.%02lx may not be empty\n",
++				__func__, status.response_code, apid, apqi);
++			return;
++		}
++	} while (--retry);
++}
++
+ /**
+  * assign_adapter_store
+  *
+@@ -790,15 +816,18 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 	return NOTIFY_OK;
+ }
+ 
+-static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+-				    unsigned int retry)
++int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi)
+ {
+ 	struct ap_queue_status status;
++	int retry = 5;
+ 
+ 	do {
+ 		status = ap_zapq(AP_MKQID(apid, apqi));
+ 		switch (status.response_code) {
+ 		case AP_RESPONSE_NORMAL:
++			vfio_ap_mdev_wait_for_qempty(apid, apqi);
++			return 0;
++		case AP_RESPONSE_DECONFIGURED:
+ 			return 0;
+ 		case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		case AP_RESPONSE_BUSY:
+@@ -824,7 +853,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+ 			     matrix_mdev->matrix.apm_max + 1) {
+ 		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+ 				     matrix_mdev->matrix.aqm_max + 1) {
+-			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
++			ret = vfio_ap_mdev_reset_queue(apid, apqi);
+ 			/*
+ 			 * Regardless whether a queue turns out to be busy, or
+ 			 * is not operational, we need to continue resetting
 -- 
 2.7.4
