@@ -1,10 +1,10 @@
 Return-Path: <SRS0=yMf+=TD=vger.kernel.org=kvm-owner@kernel.org>
 From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH 2/7] s390/cio: Set vfio-ccw FSM state before ioeventfd
-Date: Fri,  3 May 2019 15:49:07 +0200
+Subject: [PATCH 7/7] s390/cio: Remove vfio-ccw checks of command codes
+Date: Fri,  3 May 2019 15:49:12 +0200
 In-Reply-To: <20190503134912.39756-1-farman@linux.ibm.com>
 References: <20190503134912.39756-1-farman@linux.ibm.com>
-Message-Id: <20190503134912.39756-3-farman@linux.ibm.com>
+Message-Id: <20190503134912.39756-8-farman@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,40 +12,68 @@ To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Otherwise, the guest can believe it's okay to start another I/O
-and bump into the non-idle state.  This results in a cc=3
-(or cc=2 with the pending async CSCH/HSCH code [1]) to the guest,
-which is unfortunate since everything is otherwise working normally.
+If the CCW being processed is a No-Operation, then by definition no
+data is being transferred.  Let's fold those checks into the normal
+CCW processors, rather than skipping out early.
 
-[1] https://patchwork.kernel.org/comment/22588563/
+Likewise, if the CCW being processed is a "test" (an invented
+definition to simply mean it ends in a zero), let's permit that to go
+through to the hardware.  There's nothing inherently unique about
+those command codes versus one that ends in an eight [1], or any other
+otherwise valid command codes that are undefined for the device type
+in question.
+
+[1] POPS states that a x08 is a TIC CCW, and that having any high-order
+bits enabled is invalid for format-1 CCWs.  For format-0 CCWs, the
+high-order bits are ignored.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
-
 ---
+ drivers/s390/cio/vfio_ccw_cp.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-I think this might've been part of Pierre's FSM cleanup?
----
- drivers/s390/cio/vfio_ccw_drv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 0b3b9de45c60..ddd21b6149fd 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -86,11 +86,11 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 	}
- 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 36d76b821209..c0a52025bf06 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -289,8 +289,6 @@ static long copy_ccw_from_iova(struct channel_program *cp,
+ #define ccw_is_read_backward(_ccw) (((_ccw)->cmd_code & 0x0F) == 0x0C)
+ #define ccw_is_sense(_ccw) (((_ccw)->cmd_code & 0x0F) == CCW_CMD_BASIC_SENSE)
  
--	if (private->io_trigger)
--		eventfd_signal(private->io_trigger, 1);
+-#define ccw_is_test(_ccw) (((_ccw)->cmd_code & 0x0F) == 0)
 -
- 	if (private->mdev && is_final)
- 		private->state = VFIO_CCW_STATE_IDLE;
-+
-+	if (private->io_trigger)
-+		eventfd_signal(private->io_trigger, 1);
- }
+ #define ccw_is_noop(_ccw) ((_ccw)->cmd_code == CCW_CMD_NOOP)
  
- /*
+ #define ccw_is_tic(_ccw) ((_ccw)->cmd_code == CCW_CMD_TIC)
+@@ -314,6 +312,10 @@ static inline int ccw_does_data_transfer(struct ccw1 *ccw)
+ 	if (ccw->count == 0)
+ 		return 0;
+ 
++	/* If the command is a NOP, then no data will be transferred */
++	if (ccw_is_noop(ccw))
++		return 0;
++
+ 	/* If the skip flag is off, then data will be transferred */
+ 	if (!ccw_is_skip(ccw))
+ 		return 1;
+@@ -398,7 +400,7 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+ {
+ 	struct ccw1 *ccw = chain->ch_ccw + idx;
+ 
+-	if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
++	if (ccw_is_tic(ccw))
+ 		return;
+ 
+ 	kfree((void *)(u64)ccw->cda);
+@@ -723,9 +725,6 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+ {
+ 	struct ccw1 *ccw = chain->ch_ccw + idx;
+ 
+-	if (ccw_is_test(ccw) || ccw_is_noop(ccw))
+-		return 0;
+-
+ 	if (ccw_is_tic(ccw))
+ 		return ccwchain_fetch_tic(chain, idx, cp);
+ 
 -- 
 2.16.4
