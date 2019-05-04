@@ -1,39 +1,55 @@
-Return-Path: <SRS0=RThv=TD=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 3 May 2019 16:39:40 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: vdso: drop unnecessary cc-ldoption
-References: <20190423210058.249510-1-ndesaulniers@google.com>
- <CAKwvOd=aR_GsJkaMTtV83UAAyqkZGuToD+3Zbq5sv=U_bogXmg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOd=aR_GsJkaMTtV83UAAyqkZGuToD+3Zbq5sv=U_bogXmg@mail.gmail.com>
-Message-Id: <20190503143940.GH5602@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, clang-built-linux <clang-built-linux@googlegroups.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Return-Path: <SRS0=l3iw=TE=vger.kernel.org=kvm-owner@kernel.org>
+From: Tom Murphy <tmurphy@arista.com>
+Subject: [RFC 0/7] Convert the Intel iommu driver to the dma-ops api
+Date: Sat,  4 May 2019 14:23:16 +0100
+Message-Id: <20190504132327.27041-1-tmurphy@arista.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: iommu@lists.linux-foundation.org
+Cc: murphyt7@tcd.ie, Tom Murphy <tmurphy@arista.com>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, Apr 30, 2019 at 01:25:09PM -0700, Nick Desaulniers wrote:
-> On Tue, Apr 23, 2019 at 2:01 PM Nick Desaulniers
-> <ndesaulniers@google.com> wrote:
-> >
-> > Towards the goal of removing cc-ldoption, it seems that --hash-style=
-> > was added to binutils 2.17.50.0.2 in 2006. The minimal required version
-> > of binutils for the kernel according to
-> > Documentation/process/changes.rst is 2.20.
-> >
-> > Link: https://gcc.gnu.org/ml/gcc/2007-01/msg01141.html
-> > Cc: clang-built-linux@googlegroups.com
-> > Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> > Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> > ---
-> >  arch/s390/kernel/vdso32/Makefile | 2 +-
-> >  arch/s390/kernel/vdso64/Makefile | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-...
-> bumping for review
+Convert the intel iommu driver to the dma-ops api so that we can remove a bunch of repeated code.
 
-Sorry for the delay! Applied now, thanks.
+This patchset depends on the "iommu/vt-d: Delegate DMA domain to generic iommu" and
+"iommu/amd: Convert the AMD iommu driver to the dma-iommu api" patch sets which haven't
+yet merged so this is just a RFC to get some feedback before I do more testing.
+
+Tom Murphy (7):
+  iommu/vt-d: Set the dma_ops per device so we can remove the
+    iommu_no_mapping code
+  iommu/vt-d: Remove iova handling code from non-dma ops path
+  iommu: improve iommu iotlb flushing
+  iommu/dma-iommu: Handle freelists in the dma-iommu api path
+  iommu/dma-iommu: add wrapper for iommu_dma_free_cpu_cached_iovas
+  iommu/vt-d: convert the intel iommu driver to the dma-iommu ops api
+  iommu/vt-d: Always set DMA_PTE_READ if the iommu doens't support zero
+    length reads
+
+ drivers/iommu/Kconfig           |   1 +
+ drivers/iommu/amd_iommu.c       |  14 +-
+ drivers/iommu/arm-smmu-v3.c     |   3 +-
+ drivers/iommu/arm-smmu.c        |   2 +-
+ drivers/iommu/dma-iommu.c       |  48 ++-
+ drivers/iommu/exynos-iommu.c    |   3 +-
+ drivers/iommu/intel-iommu.c     | 605 +++++---------------------------
+ drivers/iommu/iommu.c           |  21 +-
+ drivers/iommu/ipmmu-vmsa.c      |   2 +-
+ drivers/iommu/msm_iommu.c       |   2 +-
+ drivers/iommu/mtk_iommu.c       |   3 +-
+ drivers/iommu/mtk_iommu_v1.c    |   3 +-
+ drivers/iommu/omap-iommu.c      |   2 +-
+ drivers/iommu/qcom_iommu.c      |   2 +-
+ drivers/iommu/rockchip-iommu.c  |   2 +-
+ drivers/iommu/s390-iommu.c      |   3 +-
+ drivers/iommu/tegra-gart.c      |   2 +-
+ drivers/iommu/tegra-smmu.c      |   2 +-
+ drivers/vfio/vfio_iommu_type1.c |   3 +-
+ include/linux/dma-iommu.h       |   3 +
+ include/linux/intel-iommu.h     |   1 -
+ include/linux/iommu.h           |  24 +-
+ 22 files changed, 175 insertions(+), 576 deletions(-)
+
+-- 
+2.17.1
