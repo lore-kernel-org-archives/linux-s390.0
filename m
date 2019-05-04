@@ -1,40 +1,61 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH] Documentation: Add ARM64 to kernel-parameters.rst
-Date: Fri, 3 May 2019 14:00:27 +0100
-Message-ID: <20190503130027.GD32046@fuggles.cambridge.arm.com>
-References: <cover.1555085500.git.jpoimboe@redhat.com>
- <24039e1370ed57e8075730c0b88c505afd9e0ab7.1555085500.git.jpoimboe@redhat.com>
- <25174c3c-0e39-0562-7d02-bb7d51cd2b43@infradead.org>
- <20190413035621.tohihjksatqushwf@treble>
- <20190503063756.09c74f6e@lwn.net>
- <20190503123940.GC32046@fuggles.cambridge.arm.com>
- <20190503064719.45d79af9@lwn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190503064719.45d79af9@lwn.net>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.orgCa
+Return-Path: <linux-doc-owner@vger.kernel.org>
+Subject: Re: [PATCH v6 0/1] iommu: enhance IOMMU dma mode build options
+References: <20190418135701.24668-1-thunder.leizhen@huawei.com>
+From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
+Message-ID: <5CCD50E7.3070505@huawei.com>
+Date: Sat, 4 May 2019 16:44:23 +0800
+MIME-Version: 1.0
+In-Reply-To: <20190418135701.24668-1-thunder.leizhen@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-doc-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-doc/>
+List-Post: <mailto:linux-doc@vger.kernel.org>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Hanjun Guo <guohanjun@huawei.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 03, 2019 at 06:47:19AM -0600, Jonathan Corbet wrote:
-> On Fri, 3 May 2019 13:39:40 +0100
-> Will Deacon <will.deacon@arm.com> wrote:
+Hi all,
+  Can anybody review or comment?
+
+
+On 2019/4/18 21:57, Zhen Lei wrote:
+> v5 --> v6:
+> 1. give up adding boot option iommu.dma_mode
 > 
-> > > It looks like nobody has picked this up...so I've applied it.  
-> > 
-> > It's queued and tagged in the arm64 tree, which should also be in next!
+> v4 --> v5:
+> As Hanjun and Thomas Gleixner's suggestion:
+> 1. Keep the old ARCH specific boot options no change.
+> 2. Keep build option CONFIG_IOMMU_DEFAULT_PASSTHROUGH no change.
 > 
-> Just looked again, I still don't see it there.  Josh's mitigations= change
-> is there, but not this one.  In any case, I've unapplied it, so it's all
-> yours.
+> v4:
+> As Robin Murphy's suggestion:
+> "It's also not necessarily obvious to the user how this interacts with
+> IOMMU_DEFAULT_PASSTHROUGH, so if we really do go down this route, maybe it
+> would be better to refactor the whole lot into a single selection of something
+> like IOMMU_DEFAULT_MODE anyway."
+> 
+> In this version, I tried to normalize the IOMMU dma mode boot options for all
+> ARCHs. When IOMMU is enabled, there are 3 dma modes: paasthrough(bypass),
+> lazy(mapping but defer the IOTLB invalidation), strict. But currently each
+> ARCHs defined their private boot options, different with each other. For
+> example, to enable/disable "passthrough", ARM64 use iommu.passthrough=1/0,
+> X86 use iommu=pt/nopt, PPC/POWERNV use iommu=nobypass.
+> 
+> Zhen Lei (1):
+>   iommu: enhance IOMMU dma mode build options
+> 
+>  arch/ia64/kernel/pci-dma.c                |  2 +-
+>  arch/powerpc/platforms/powernv/pci-ioda.c |  3 ++-
+>  arch/s390/pci/pci_dma.c                   |  2 +-
+>  arch/x86/kernel/pci-dma.c                 |  7 ++---
+>  drivers/iommu/Kconfig                     | 44 ++++++++++++++++++++++++++-----
+>  drivers/iommu/amd_iommu_init.c            |  3 ++-
+>  drivers/iommu/intel-iommu.c               |  2 +-
+>  drivers/iommu/iommu.c                     |  3 ++-
+>  8 files changed, 48 insertions(+), 18 deletions(-)
+> 
 
-Weird... I see it in -next as 4ad499c94264:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=4ad499c94264a2ee05aacc518b9bde658318e510
-
-Will
+-- 
+Thanks!
+BestRegards
