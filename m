@@ -3,14 +3,15 @@ Subject: Re: [RFC 2/7] iommu/vt-d: Remove iova handling code from non-dma ops
  path
 References: <20190504132327.27041-1-tmurphy@arista.com>
  <20190504132327.27041-3-tmurphy@arista.com>
+ <bf35694d-3ff4-0df7-0802-b0e87a9a0d47@linux.intel.com>
 From: Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <bf35694d-3ff4-0df7-0802-b0e87a9a0d47@linux.intel.com>
-Date: Sun, 5 May 2019 09:19:51 +0800
+Message-ID: <9405cd93-fc16-822e-0b34-4ba2229f176d@linux.intel.com>
+Date: Sun, 5 May 2019 09:22:47 +0800
 MIME-Version: 1.0
-In-Reply-To: <20190504132327.27041-3-tmurphy@arista.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <bf35694d-3ff4-0df7-0802-b0e87a9a0d47@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -20,35 +21,46 @@ List-ID: <linux-s390.vger.kernel.org>
 
 Hi,
 
-On 5/4/19 9:23 PM, Tom Murphy via iommu wrote:
-> @@ -4181,58 +4168,37 @@ static int intel_iommu_memory_notifier(struct notifier_block *nb,
->   				       unsigned long val, void *v)
->   {
->   	struct memory_notify *mhp = v;
-> -	unsigned long long start, end;
-> -	unsigned long start_vpfn, last_vpfn;
-> +	unsigned long start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
-> +	unsigned long last_vpfn = mm_to_dma_pfn(mhp->start_pfn +
-> +			mhp->nr_pages - 1);
->   
->   	switch (val) {
->   	case MEM_GOING_ONLINE:
-> -		start = mhp->start_pfn << PAGE_SHIFT;
-> -		end = ((mhp->start_pfn + mhp->nr_pages) << PAGE_SHIFT) - 1;
-> -		if (iommu_domain_identity_map(si_domain, start, end)) {
-> -			pr_warn("Failed to build identity map for [%llx-%llx]\n",
-> -				start, end);
-> +		if (iommu_domain_identity_map(si_domain, start_vpfn,
-> +					last_vpfn)) {
-> +			pr_warn("Failed to build identity map for [%lx-%lx]\n",
-> +				start_vpfn, last_vpfn);
->   			return NOTIFY_BAD;
->   		}
->   		break;
+On 5/5/19 9:19 AM, Lu Baolu wrote:
+> Hi,
+> 
+> On 5/4/19 9:23 PM, Tom Murphy via iommu wrote:
+>> @@ -4181,58 +4168,37 @@ static int intel_iommu_memory_notifier(struct 
+>> notifier_block *nb,
+>>                          unsigned long val, void *v)
+>>   {
+>>       struct memory_notify *mhp = v;
+>> -    unsigned long long start, end;
+>> -    unsigned long start_vpfn, last_vpfn;
+>> +    unsigned long start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
+>> +    unsigned long last_vpfn = mm_to_dma_pfn(mhp->start_pfn +
+>> +            mhp->nr_pages - 1);
+>>       switch (val) {
+>>       case MEM_GOING_ONLINE:
+>> -        start = mhp->start_pfn << PAGE_SHIFT;
+>> -        end = ((mhp->start_pfn + mhp->nr_pages) << PAGE_SHIFT) - 1;
+>> -        if (iommu_domain_identity_map(si_domain, start, end)) {
+>> -            pr_warn("Failed to build identity map for [%llx-%llx]\n",
+>> -                start, end);
+>> +        if (iommu_domain_identity_map(si_domain, start_vpfn,
+>> +                    last_vpfn)) {
+>> +            pr_warn("Failed to build identity map for [%lx-%lx]\n",
+>> +                start_vpfn, last_vpfn);
+>>               return NOTIFY_BAD;
+>>           }
+>>           break;
+> 
+> Actually we don't need to update the si_domain if iommu hardware
+> supports pass-through mode. This should be made in a separated patch
+> anyway.
 
-Actually we don't need to update the si_domain if iommu hardware
-supports pass-through mode. This should be made in a separated patch
-anyway.
+Oh! please ignore it.
+
+This callback is only registered when hardware doesn't support pass
+through mode.
+
+         if (si_domain && !hw_pass_through)
+                 register_memory_notifier(&intel_iommu_memory_nb);
 
 Best regards,
 Lu Baolu
