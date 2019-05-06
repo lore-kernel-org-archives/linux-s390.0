@@ -1,102 +1,106 @@
-Return-Path: <SRS0=l9rD=TG=vger.kernel.org=kvm-owner@kernel.org>
-MIME-Version: 1.0
-References: <20190504132327.27041-1-tmurphy@arista.com> <20190504132327.27041-2-tmurphy@arista.com>
- <8fef18f5-773c-e1c9-2537-c9dff5bfd35e@linux.intel.com>
-In-Reply-To: <8fef18f5-773c-e1c9-2537-c9dff5bfd35e@linux.intel.com>
+Return-Path: <SRS0=LtyS=TG=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 From: Tom Murphy <tmurphy@arista.com>
-Date: Mon, 6 May 2019 16:27:09 +0100
-Message-ID: <CAPL0++4_Qa+dxzQ2k6BJi_o+VSSrHEtomYgVmRqjtjsOfHbGew@mail.gmail.com>
-Subject: Re: [RFC 1/7] iommu/vt-d: Set the dma_ops per device so we can remove
- the iommu_no_mapping code
-Content-Type: text/plain; charset="UTF-8"
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: iommu@lists.linux-foundation.org, Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Marc Zyngier <marc.zyngier@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, kvm@vger.kernel.org
+Subject: [PATCH v3 2/4] iommu/dma-iommu: Handle deferred devices
+Date: Mon,  6 May 2019 19:52:04 +0100
+Message-Id: <20190506185207.31069-3-tmurphy@arista.com>
+In-Reply-To: <20190506185207.31069-1-tmurphy@arista.com>
+References: <20190506185207.31069-1-tmurphy@arista.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
+List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
+To: iommu@lists.linux-foundation.org
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andy Gross <andy.gross@linaro.org>, linux-tegra@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, Tom Murphy <tmurphy@arista.com>, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, murphyt7@tcd.ie, Rob Clark <robdclark@gmail.com>, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, May 6, 2019 at 2:48 AM Lu Baolu <baolu.lu@linux.intel.com> wrote:
->
-> Hi,
->
-> On 5/4/19 9:23 PM, Tom Murphy wrote:
-> > Set the dma_ops per device so we can remove the iommu_no_mapping code.
-> >
-> > Signed-off-by: Tom Murphy<tmurphy@arista.com>
-> > ---
-> >   drivers/iommu/intel-iommu.c | 85 +++----------------------------------
-> >   1 file changed, 6 insertions(+), 79 deletions(-)
-> >
-> > diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-> > index eace915602f0..2db1dc47e7e4 100644
-> > --- a/drivers/iommu/intel-iommu.c
-> > +++ b/drivers/iommu/intel-iommu.c
-> > @@ -2622,17 +2622,6 @@ static int __init si_domain_init(int hw)
-> >       return 0;
-> >   }
-> >
-> > -static int identity_mapping(struct device *dev)
-> > -{
-> > -     struct device_domain_info *info;
-> > -
-> > -     info = dev->archdata.iommu;
-> > -     if (info && info != DUMMY_DEVICE_DOMAIN_INFO)
-> > -             return (info->domain == si_domain);
-> > -
-> > -     return 0;
-> > -}
-> > -
-> >   static int domain_add_dev_info(struct dmar_domain *domain, struct device *dev)
-> >   {
-> >       struct dmar_domain *ndomain;
-> > @@ -3270,43 +3259,6 @@ static unsigned long intel_alloc_iova(struct device *dev,
-> >       return iova_pfn;
-> >   }
-> >
-> > -/* Check if the dev needs to go through non-identity map and unmap process.*/
-> > -static int iommu_no_mapping(struct device *dev)
-> > -{
-> > -     int found;
-> > -
-> > -     if (iommu_dummy(dev))
-> > -             return 1;
-> > -
-> > -     found = identity_mapping(dev);
-> > -     if (found) {
-> > -             /*
-> > -              * If the device's dma_mask is less than the system's memory
-> > -              * size then this is not a candidate for identity mapping.
-> > -              */
-> > -             u64 dma_mask = *dev->dma_mask;
-> > -
-> > -             if (dev->coherent_dma_mask &&
-> > -                 dev->coherent_dma_mask < dma_mask)
-> > -                     dma_mask = dev->coherent_dma_mask;
-> > -
-> > -             if (dma_mask < dma_get_required_mask(dev)) {
-> > -                     /*
-> > -                      * 32 bit DMA is removed from si_domain and fall back
-> > -                      * to non-identity mapping.
-> > -                      */
-> > -                     dmar_remove_one_dev_info(dev);
-> > -                     dev_warn(dev, "32bit DMA uses non-identity mapping\n");
-> > -
-> > -                     return 0;
-> > -             }
->
-> The iommu_no_mapping() also checks whether any 32bit DMA device uses
-> identity mapping. The device might not work if the system memory space
-> is bigger than 4G.
+Handle devices which defer their attach to the iommu in the dma-iommu api
 
-It looks like their is actually a bug in the v3 of the "iommu/vt-d:
-Delegate DMA domain to generic iommu" patch set. I will leave a
-message in that email thread. Fixing that bug should also fix this
-issue.
+Signed-off-by: Tom Murphy <tmurphy@arista.com>
+---
+ drivers/iommu/dma-iommu.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 7a96c2c8f56b..b383498e2dc3 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -22,6 +22,7 @@
+ #include <linux/pci.h>
+ #include <linux/scatterlist.h>
+ #include <linux/vmalloc.h>
++#include <linux/crash_dump.h>
+ 
+ struct iommu_dma_msi_page {
+ 	struct list_head	list;
+@@ -322,6 +323,22 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+ 	return iova_reserve_iommu_regions(dev, domain);
+ }
+ 
++static int handle_deferred_device(struct device *dev)
++{
++	struct iommu_domain *domain;
++	const struct iommu_ops *ops;
++
++	if (!is_kdump_kernel())
++		return 0;
++
++	domain = iommu_get_domain_for_dev(dev);
++	ops = domain->ops;
++	if (ops->is_attach_deferred && ops->is_attach_deferred(domain, dev))
++		return iommu_attach_device(domain, dev);
++
++	return 0;
++}
++
+ /**
+  * dma_info_to_prot - Translate DMA API directions and attributes to IOMMU API
+  *                    page flags.
+@@ -835,7 +852,10 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+ 	bool coherent = dev_is_dma_coherent(dev);
+ 	dma_addr_t dma_handle;
+ 
+-	dma_handle =__iommu_dma_map(dev, phys, size,
++	if (unlikely(handle_deferred_device(dev)))
++		return DMA_MAPPING_ERROR;
++
++	dma_handle = __iommu_dma_map(dev, phys, size,
+ 			dma_info_to_prot(dir, coherent, attrs),
+ 			iommu_get_dma_domain(dev));
+ 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+@@ -953,6 +973,9 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	unsigned long mask = dma_get_seg_boundary(dev);
+ 	int i;
+ 
++	if (unlikely(handle_deferred_device(dev)))
++		return 0;
++
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+ 		iommu_dma_sync_sg_for_device(dev, sg, nents, dir);
+ 
+@@ -1056,6 +1079,9 @@ static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
+ static void *iommu_dma_alloc(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp, unsigned long attrs)
+ {
++	if (unlikely(handle_deferred_device(dev)))
++		return NULL;
++
+ 	gfp |= __GFP_ZERO;
+ 
+ #ifdef CONFIG_DMA_DIRECT_REMAP
+-- 
+2.17.1
 
 
->
-> Will you add this to other place, or it's unnecessary?
->
-> Best regards,
-> Lu Baolu
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
