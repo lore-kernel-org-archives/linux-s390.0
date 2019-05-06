@@ -1,15 +1,16 @@
-Return-Path: <SRS0=Ya7x=TY=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+Return-Path: <SRS0=LtyS=TG=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
 MIME-Version: 1.0
-References: <1556087581-14513-1-git-send-email-kernelfans@gmail.com>
- <10dc5468-6cd9-85c7-ba66-1dfa5aa922b7@suse.com>
- <CAFgQCTstd667wP6g+maxYekz4u3iBR2R=FHUiS1V=XxTs6MKUw@mail.gmail.com>
- <CAFgQCTtQm7SuBRfXik6B065Aa+uQ=Mx6i+Y1q+NJU1GEiUgH4g@mail.gmail.com>
-In-Reply-To: <CAFgQCTtQm7SuBRfXik6B065Aa+uQ=Mx6i+Y1q+NJU1GEiUgH4g@mail.gmail.com>
-From: Pingfan Liu <kernelfans@gmail.com>
-Date: Fri, 24 May 2019 11:11:13 +0800
-Message-ID: <CAFgQCTuAEbST8ZdSJmPDTPbqkL3uZ8j6U-vTWT879wARDhUwTw@mail.gmail.com>
-Subject: Re: [PATCHv2] kernel/crash: make parse_crashkernel()'s return value
- more indicant
+References: <20190430002952.18909-1-tmurphy@arista.com>
+ <20190430002952.18909-4-tmurphy@arista.com>
+ <20190430111222.GA3191@infradead.org>
+ <da835ce2-f73e-3035-e1d7-d3028cc1a838@arm.com>
+ <20190430113253.GA23210@infradead.org>
+ <96ebb6fc-a889-fa94-09ba-65d505b85724@arm.com>
+In-Reply-To: <96ebb6fc-a889-fa94-09ba-65d505b85724@arm.com>
+From: Tom Murphy <tmurphy@arista.com>
+Date: Mon, 6 May 2019 18:56:13 +0100
+Message-ID: <CAPL0++61WytVhs63tvt+hdpZKXGinrkYx=4nDtNx1UoNTRWWjw@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] iommu/dma-iommu: Use the dev->coherent_dma_mask
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,53 +23,41 @@ Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Matthias Brugger <mbrugger@suse.com>
-Cc: Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>, Yangtao Li <tiny.windzz@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Palmer Dabbelt <palmer@sifive.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Agner <stefan@agner.ch>, linux-mips@vger.kernel.org, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Logan Gunthorpe <logang@deltatee.com>, linux-s390@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, James Hogan <jhogan@kernel.org>, Dave Young <dyoung@redhat.com>, Fenghua Yu <fenghua.yu@intel.com>, Will Deacon <will.deacon@arm.com>, Johannes Weiner <hannes@cmpxchg.org>, Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>, Borislav Petkov <bp@alien8.de>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, Jens Axboe <axboe@kernel.dk>, Tony Luck <tony.luck@intel.com>, Baoquan He <bhe@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Robin Murphy <robin.murphy@arm.com>, LKML <linux-kernel@vger.kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Thomas Bogendoerfer <tbogendoerfer@suse.de>, Paul Burton <paul.burton@mips.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, Greg Hackmann <ghackmann@android.com>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, Christoph Hellwig <hch@infradead.org>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andy Gross <andy.gross@linaro.org>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org, David Woodhouse <dwmw2@infradead.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-Matthias, ping? Any suggestions?
+Just to make this clear, I won't apply Christoph's patch (the one in
+this email thread) and instead the only change I will make is to
+rename dma_limit to dma_mask.
 
-Thanks,
-Pingfan
-
-
-On Thu, May 2, 2019 at 2:22 PM Pingfan Liu <kernelfans@gmail.com> wrote:
+On Tue, Apr 30, 2019 at 1:05 PM Robin Murphy <robin.murphy@arm.com> wrote:
 >
-> On Thu, Apr 25, 2019 at 4:20 PM Pingfan Liu <kernelfans@gmail.com> wrote:
+> On 30/04/2019 12:32, Christoph Hellwig wrote:
+> > On Tue, Apr 30, 2019 at 12:27:02PM +0100, Robin Murphy wrote:
+> >>> Hmm, I don't think we need the DMA mask for the MSI mapping, this
+> >>> should probably always use a 64-bit mask.
+> >>
+> >> If that were true then we wouldn't need DMA masks for regular mappings
+> >> either. If we have to map the MSI doorbell at all, then we certainly have to
+> >> place it at an IOVA that the relevant device is actually capable of
+> >> addressing.
 > >
-> > On Wed, Apr 24, 2019 at 4:31 PM Matthias Brugger <mbrugger@suse.com> wrote:
-> > >
-> > >
-> > [...]
-> > > > @@ -139,6 +141,8 @@ static int __init parse_crashkernel_simple(char *cmdline,
-> > > >               pr_warn("crashkernel: unrecognized char: %c\n", *cur);
-> > > >               return -EINVAL;
-> > > >       }
-> > > > +     if (*crash_size == 0)
-> > > > +             return -EINVAL;
-> > >
-> > > This covers the case where I pass an argument like "crashkernel=0M" ?
-> > > Can't we fix that by using kstrtoull() in memparse and check if the return value
-> > > is < 0? In that case we could return without updating the retptr and we will be
-> > > fine.
-> After a series of work, I suddenly realized that it can not be done
-> like this way. "0M" causes kstrtoull() to return -EINVAL, but this is
-> caused by "M", not "0". If passing "0" to kstrtoull(), it will return
-> 0 on success.
+> > Well, as shown by the patch below we don't even look at the DMA mask
+> > for the MSI page - we just allocate from bottom to top.
 >
-> > >
-> > It seems that kstrtoull() treats 0M as invalid parameter, while
-> > simple_strtoull() does not.
-> >
-> My careless going through the code. And I tested with a valid value
-> "256M" using kstrtoull(), it also returned -EINVAL.
+> In the trivial cookie for unmanaged domains, yes, but in that case the
+> responsibility is on VFIO to provide a suitable (i.e. sub-32-bit)
+> address range for that cookie in the first place. In the managed case,
+> allocation uses the streaming mask via iommu_dma_get_msi_page() calling
+> __iommu_dma_map(). Admittedly the mask can then get overlooked when
+> reusing an existing mapping, which strictly could pose a problem if you
+> have multiple devices with incompatible masks in the same group (and
+> such that the PCI stuff doesn't already mitigate it), but that's such an
+> obscure corner case that I'm reticent to introduce the complication to
+> handle it until it's actually proven necessary.
 >
-> So I think there is no way to distinguish 0 from a positive value
-> inside this basic math function.
-> Do I miss anything?
->
-> Thanks and regards,
-> Pingfan
+> Robin.
 
 _______________________________________________
 linux-arm-kernel mailing list
