@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v1 0/9] KVM selftests for s390x
-Date: Thu, 23 May 2019 18:43:00 +0200
-Message-Id: <20190523164309.13345-1-thuth@redhat.com>
+From: Tom Murphy <tmurphy@arista.com>
+Subject: [PATCH v3 0/4] iommu/amd: Convert the AMD iommu driver to the dma-iommu api
+Date: Mon,  6 May 2019 19:52:02 +0100
+Message-Id: <20190506185207.31069-1-tmurphy@arista.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: murphyt7@tcd.ie, Tom Murphy <tmurphy@arista.com>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
 
-This patch series enables the KVM selftests for s390x. As a first
-test, the sync_regs from x86 has been adapted to s390x, and after
-a fix for KVM_CAP_MAX_VCPU_ID on s390x, the kvm_create_max_vcpus
-is now enabled here, too.
+Convert the AMD iommu driver to the dma-iommu api. Remove the iova
+handling and reserve region code from the AMD iommu driver.
 
-Please note that the ucall() interface is not used yet - since
-s390x neither has PIO nor MMIO, this needs some more work first
-before it becomes usable (we likely should use a DIAG hypercall
-here, which is what the sync_reg test is currently using, too...
-I started working on that topic, but did not finish that work
-yet, so I decided to not include it yet).
+Change-log:
+v3:
+-rename dma_limit to dma_mask
+-exit handle_deferred_device early if (!is_kdump_kernel())
+-remove pointless calls to handle_deferred_device
+v2:
+-Rebase on top of this series:
+ http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
+-Add a gfp_t parameter to the iommu_ops::map function.
+-Made use of the reserve region code inside the dma-iommu api
 
-RFC -> v1:
- - Rebase, needed to add the first patch for vcpu_nested_state_get/set
- - Added patch to introduce VM_MODE_DEFAULT macro
- - Improved/cleaned up the code in processor.c
- - Added patch to fix KVM_CAP_MAX_VCPU_ID on s390x
- - Added patch to enable the kvm_create_max_vcpus on s390x and aarch64
+Tom Murphy (4):
+  iommu: Add gfp parameter to iommu_ops::map
+  iommu/dma-iommu: Handle deferred devices
+  iommu/dma-iommu: Use the dev->coherent_dma_mask
+  iommu/amd: Convert the AMD iommu driver to the dma-iommu api
 
-Andrew Jones (1):
-  kvm: selftests: aarch64: fix default vm mode
-
-Thomas Huth (8):
-  KVM: selftests: Wrap vcpu_nested_state_get/set functions with x86
-    guard
-  KVM: selftests: Guard struct kvm_vcpu_events with
-    __KVM_HAVE_VCPU_EVENTS
-  KVM: selftests: Introduce a VM_MODE_DEFAULT macro for the default bits
-  KVM: selftests: Align memory region addresses to 1M on s390x
-  KVM: selftests: Add processor code for s390x
-  KVM: selftests: Add the sync_regs test for s390x
-  KVM: s390: Do not report unusabled IDs via KVM_CAP_MAX_VCPU_ID
-  KVM: selftests: Move kvm_create_max_vcpus test to generic code
-
- MAINTAINERS                                   |   2 +
- arch/mips/kvm/mips.c                          |   3 +
- arch/powerpc/kvm/powerpc.c                    |   3 +
- arch/s390/kvm/kvm-s390.c                      |   1 +
- arch/x86/kvm/x86.c                            |   3 +
- tools/testing/selftests/kvm/Makefile          |   7 +-
- .../testing/selftests/kvm/include/kvm_util.h  |  10 +
- .../selftests/kvm/include/s390x/processor.h   |  22 ++
- .../kvm/{x86_64 => }/kvm_create_max_vcpus.c   |   3 +-
- .../selftests/kvm/lib/aarch64/processor.c     |   2 +-
- tools/testing/selftests/kvm/lib/kvm_util.c    |  25 +-
- .../selftests/kvm/lib/s390x/processor.c       | 286 ++++++++++++++++++
- .../selftests/kvm/lib/x86_64/processor.c      |   2 +-
- .../selftests/kvm/s390x/sync_regs_test.c      | 151 +++++++++
- virt/kvm/arm/arm.c                            |   3 +
- virt/kvm/kvm_main.c                           |   2 -
- 16 files changed, 514 insertions(+), 11 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/include/s390x/processor.h
- rename tools/testing/selftests/kvm/{x86_64 => }/kvm_create_max_vcpus.c (93%)
- create mode 100644 tools/testing/selftests/kvm/lib/s390x/processor.c
- create mode 100644 tools/testing/selftests/kvm/s390x/sync_regs_test.c
+ drivers/iommu/Kconfig          |   1 +
+ drivers/iommu/amd_iommu.c      | 694 ++++-----------------------------
+ drivers/iommu/arm-smmu-v3.c    |   2 +-
+ drivers/iommu/arm-smmu.c       |   2 +-
+ drivers/iommu/dma-iommu.c      |  50 ++-
+ drivers/iommu/exynos-iommu.c   |   2 +-
+ drivers/iommu/intel-iommu.c    |   2 +-
+ drivers/iommu/iommu.c          |  43 +-
+ drivers/iommu/ipmmu-vmsa.c     |   2 +-
+ drivers/iommu/msm_iommu.c      |   2 +-
+ drivers/iommu/mtk_iommu.c      |   2 +-
+ drivers/iommu/mtk_iommu_v1.c   |   2 +-
+ drivers/iommu/omap-iommu.c     |   2 +-
+ drivers/iommu/qcom_iommu.c     |   2 +-
+ drivers/iommu/rockchip-iommu.c |   2 +-
+ drivers/iommu/s390-iommu.c     |   2 +-
+ drivers/iommu/tegra-gart.c     |   2 +-
+ drivers/iommu/tegra-smmu.c     |   2 +-
+ include/linux/iommu.h          |  21 +-
+ 19 files changed, 184 insertions(+), 653 deletions(-)
 
 -- 
-2.21.0
+2.17.1
