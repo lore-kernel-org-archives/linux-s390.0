@@ -1,8 +1,8 @@
 Return-Path: <SRS0=RyeP=TH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 05/14] s390/dasd: Fix capacity calculation for large volumes
-Date: Tue,  7 May 2019 01:42:07 -0400
-Message-Id: <20190507054218.340-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 07/14] s390/3270: fix lockdep false positive on view->lock
+Date: Tue,  7 May 2019 01:42:09 -0400
+Message-Id: <20190507054218.340-7-sashal@kernel.org>
 In-Reply-To: <20190507054218.340-1-sashal@kernel.org>
 References: <20190507054218.340-1-sashal@kernel.org>
 MIME-Version: 1.0
@@ -11,61 +11,124 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[ Upstream commit 2cc9637ce825f3a9f51f8f78af7474e9e85bfa5f ]
+[ Upstream commit 5712f3301a12c0c3de9cc423484496b0464f2faf ]
 
-The DASD driver incorrectly limits the maximum number of blocks of ECKD
-DASD volumes to 32 bit numbers. Volumes with a capacity greater than
-2^32-1 blocks are incorrectly recognized as smaller volumes.
+The spinlock in the raw3270_view structure is used by con3270, tty3270
+and fs3270 in different ways. For con3270 the lock can be acquired in
+irq context, for tty3270 and fs3270 the highest context is bh.
 
-This results in the following volume capacity limits depending on the
-formatted block size:
+Lockdep sees the view->lock as a single class and if the 3270 driver
+is used for the console the following message is generated:
 
-  BLKSIZE  MAX_GB   MAX_CYL
-      512    2047   5843492
-     1024    4095   8676701
-     2048    8191  13634816
-     4096   16383  23860929
+WARNING: inconsistent lock state
+5.1.0-rc3-05157-g5c168033979d #12 Not tainted
+--------------------------------
+inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
+swapper/0/1 [HC0[0]:SC1[1]:HE1:SE0] takes:
+(____ptrval____) (&(&view->lock)->rlock){?.-.}, at: tty3270_update+0x7c/0x330
 
-The same problem occurs when a volume with more than 17895697 cylinders
-is accessed in raw-track-access mode.
+Introduce a lockdep subclass for the view lock to distinguish bh from
+irq locks.
 
-Fix this problem by adding an explicit type cast when calculating the
-maximum number of blocks.
-
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/char/con3270.c | 2 +-
+ drivers/s390/char/fs3270.c  | 3 ++-
+ drivers/s390/char/raw3270.c | 3 ++-
+ drivers/s390/char/raw3270.h | 4 +++-
+ drivers/s390/char/tty3270.c | 3 ++-
+ 5 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 80a43074c2f9..c530610f61ac 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -2066,14 +2066,14 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 	blk_per_trk = recs_per_track(&private->rdc_data, 0, block->bp_block);
+diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
+index bae98521c808..3e5a7912044f 100644
+--- a/drivers/s390/char/con3270.c
++++ b/drivers/s390/char/con3270.c
+@@ -627,7 +627,7 @@ con3270_init(void)
+ 		     (void (*)(unsigned long)) con3270_read_tasklet,
+ 		     (unsigned long) condev->read);
  
- raw:
--	block->blocks = (private->real_cyl *
-+	block->blocks = ((unsigned long) private->real_cyl *
- 			  private->rdc_data.trk_per_cyl *
- 			  blk_per_trk);
+-	raw3270_add_view(&condev->view, &con3270_fn, 1);
++	raw3270_add_view(&condev->view, &con3270_fn, 1, RAW3270_VIEW_LOCK_IRQ);
  
- 	dev_info(&device->cdev->dev,
--		 "DASD with %d KB/block, %d KB total size, %d KB/track, "
-+		 "DASD with %u KB/block, %lu KB total size, %u KB/track, "
- 		 "%s\n", (block->bp_block >> 10),
--		 ((private->real_cyl *
-+		 (((unsigned long) private->real_cyl *
- 		   private->rdc_data.trk_per_cyl *
- 		   blk_per_trk * (block->bp_block >> 9)) >> 1),
- 		 ((blk_per_trk * block->bp_block) >> 10),
+ 	INIT_LIST_HEAD(&condev->freemem);
+ 	for (i = 0; i < CON3270_STRING_PAGES; i++) {
+diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
+index 71e974738014..f0c86bcbe316 100644
+--- a/drivers/s390/char/fs3270.c
++++ b/drivers/s390/char/fs3270.c
+@@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
+ 
+ 	init_waitqueue_head(&fp->wait);
+ 	fp->fs_pid = get_pid(task_pid(current));
+-	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor);
++	rc = raw3270_add_view(&fp->view, &fs3270_fn, minor,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		fs3270_free_view(&fp->view);
+ 		goto out;
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index 220acb4cbee5..9c350e6d75bf 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -956,7 +956,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
+  * Add view to device with minor "minor".
+  */
+ int
+-raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
++raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor, int subclass)
+ {
+ 	unsigned long flags;
+ 	struct raw3270 *rp;
+@@ -978,6 +978,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
+ 		view->cols = rp->cols;
+ 		view->ascebc = rp->ascebc;
+ 		spin_lock_init(&view->lock);
++		lockdep_set_subclass(&view->lock, subclass);
+ 		list_add(&view->list, &rp->view_list);
+ 		rc = 0;
+ 		spin_unlock_irqrestore(get_ccwdev_lock(rp->cdev), flags);
+diff --git a/drivers/s390/char/raw3270.h b/drivers/s390/char/raw3270.h
+index e1e41c2861fb..5ae54317857a 100644
+--- a/drivers/s390/char/raw3270.h
++++ b/drivers/s390/char/raw3270.h
+@@ -155,6 +155,8 @@ struct raw3270_fn {
+ struct raw3270_view {
+ 	struct list_head list;
+ 	spinlock_t lock;
++#define RAW3270_VIEW_LOCK_IRQ	0
++#define RAW3270_VIEW_LOCK_BH	1
+ 	atomic_t ref_count;
+ 	struct raw3270 *dev;
+ 	struct raw3270_fn *fn;
+@@ -163,7 +165,7 @@ struct raw3270_view {
+ 	unsigned char *ascebc;		/* ascii -> ebcdic table */
+ };
+ 
+-int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int);
++int raw3270_add_view(struct raw3270_view *, struct raw3270_fn *, int, int);
+ int raw3270_activate_view(struct raw3270_view *);
+ void raw3270_del_view(struct raw3270_view *);
+ void raw3270_deactivate_view(struct raw3270_view *);
+diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+index e96fc7fd9498..ab95d24b991b 100644
+--- a/drivers/s390/char/tty3270.c
++++ b/drivers/s390/char/tty3270.c
+@@ -937,7 +937,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
+ 		return PTR_ERR(tp);
+ 
+ 	rc = raw3270_add_view(&tp->view, &tty3270_fn,
+-			      tty->index + RAW3270_FIRSTMINOR);
++			      tty->index + RAW3270_FIRSTMINOR,
++			      RAW3270_VIEW_LOCK_BH);
+ 	if (rc) {
+ 		tty3270_free_view(tp);
+ 		return rc;
 -- 
 2.20.1
