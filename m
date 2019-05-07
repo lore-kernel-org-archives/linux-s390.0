@@ -1,8 +1,8 @@
 Return-Path: <SRS0=RyeP=TH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 68/99] s390: ctcm: fix ctcm_new_device error return code
-Date: Tue,  7 May 2019 01:32:02 -0400
-Message-Id: <20190507053235.29900-68-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 39/99] s390/pkey: add one more argument space for debug feature entry
+Date: Tue,  7 May 2019 01:31:33 -0400
+Message-Id: <20190507053235.29900-39-sashal@kernel.org>
 In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 MIME-Version: 1.0
@@ -11,55 +11,45 @@ Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Nathan Chancellor <natechancellor@gmail.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Christian Rund <Christian.Rund@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
+[ Upstream commit 6b1f16ba730d4c0cda1247568c3a1bf4fa3a2f2f ]
 
-clang points out that the return code from this function is
-undefined for one of the error paths:
+The debug feature entries have been used with up to 5 arguents
+(including the pointer to the format string) but there was only
+space reserved for 4 arguemnts. So now the registration does
+reserve space for 5 times a long value.
 
-../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
-      [-Wsometimes-uninitialized]
-                if (priv->channel[direction] == NULL) {
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
-        return result;
-               ^~~~~~
-../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
-                if (priv->channel[direction] == NULL) {
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
-        int result;
-                  ^
+This fixes a sometime appearing weired value as the last
+value of an debug feature entry like this:
 
-Make it return -ENODEV here, as in the related failure cases.
-gcc has a known bug in underreporting some of these warnings
-when it has already eliminated the assignment of the return code
-based on some earlier optimization step.
+... pkey_sec2protkey zcrypt_send_cprb (cardnr=10 domain=12)
+   failed with errno -2143346254
 
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reported-by: Christian Rund <Christian.Rund@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/crypto/pkey_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 7617d21cb296..f63c5c871d3d 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
- 		if (priv->channel[direction] == NULL) {
- 			if (direction == CTCM_WRITE)
- 				channel_free(priv->channel[CTCM_READ]);
-+			result = -ENODEV;
- 			goto out_dev;
- 		}
- 		priv->channel[direction]->netdev = dev;
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index 2f92bbed4bf6..097e890e0d6d 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -51,7 +51,8 @@ static debug_info_t *debug_info;
+ 
+ static void __init pkey_debug_init(void)
+ {
+-	debug_info = debug_register("pkey", 1, 1, 4 * sizeof(long));
++	/* 5 arguments per dbf entry (including the format string ptr) */
++	debug_info = debug_register("pkey", 1, 1, 5 * sizeof(long));
+ 	debug_register_view(debug_info, &debug_sprintf_view);
+ 	debug_set_level(debug_info, 3);
+ }
 -- 
 2.20.1
