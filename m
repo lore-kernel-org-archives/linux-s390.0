@@ -1,10 +1,10 @@
 Return-Path: <SRS0=RyeP=TH=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 19/81] s390/3270: fix lockdep false positive on view->lock
-Date: Tue,  7 May 2019 01:34:50 -0400
-Message-Id: <20190507053554.30848-19-sashal@kernel.org>
-In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
-References: <20190507053554.30848-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 13/95] s390/3270: fix lockdep false positive on view->lock
+Date: Tue,  7 May 2019 01:37:02 -0400
+Message-Id: <20190507053826.31622-13-sashal@kernel.org>
+In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
+References: <20190507053826.31622-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -47,7 +47,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  5 files changed, 10 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index fd2146bcc0ad..e17364e13d2f 100644
+index be3e3c1206c2..1868ff803f43 100644
 --- a/drivers/s390/char/con3270.c
 +++ b/drivers/s390/char/con3270.c
 @@ -629,7 +629,7 @@ con3270_init(void)
@@ -60,7 +60,7 @@ index fd2146bcc0ad..e17364e13d2f 100644
  	INIT_LIST_HEAD(&condev->freemem);
  	for (i = 0; i < CON3270_STRING_PAGES; i++) {
 diff --git a/drivers/s390/char/fs3270.c b/drivers/s390/char/fs3270.c
-index 16a4e8528bbc..2f9905ee047c 100644
+index c4518168fd02..4f73a38c7cbd 100644
 --- a/drivers/s390/char/fs3270.c
 +++ b/drivers/s390/char/fs3270.c
 @@ -463,7 +463,8 @@ fs3270_open(struct inode *inode, struct file *filp)
@@ -74,10 +74,10 @@ index 16a4e8528bbc..2f9905ee047c 100644
  		fs3270_free_view(&fp->view);
  		goto out;
 diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-index f8cd2935fbfd..63a41b168761 100644
+index 5d4f053d7c38..0f47fec35acc 100644
 --- a/drivers/s390/char/raw3270.c
 +++ b/drivers/s390/char/raw3270.c
-@@ -920,7 +920,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
+@@ -919,7 +919,7 @@ raw3270_deactivate_view(struct raw3270_view *view)
   * Add view to device with minor "minor".
   */
  int
@@ -86,7 +86,7 @@ index f8cd2935fbfd..63a41b168761 100644
  {
  	unsigned long flags;
  	struct raw3270 *rp;
-@@ -942,6 +942,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
+@@ -941,6 +941,7 @@ raw3270_add_view(struct raw3270_view *view, struct raw3270_fn *fn, int minor)
  		view->cols = rp->cols;
  		view->ascebc = rp->ascebc;
  		spin_lock_init(&view->lock);
@@ -117,10 +117,10 @@ index 114ca7cbf889..3afaa35f7351 100644
  void raw3270_del_view(struct raw3270_view *);
  void raw3270_deactivate_view(struct raw3270_view *);
 diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 5b8af2782282..81067f5bb178 100644
+index e5ebe2fbee23..401688bf8fd3 100644
 --- a/drivers/s390/char/tty3270.c
 +++ b/drivers/s390/char/tty3270.c
-@@ -980,7 +980,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
+@@ -978,7 +978,8 @@ static int tty3270_install(struct tty_driver *driver, struct tty_struct *tty)
  		return PTR_ERR(tp);
  
  	rc = raw3270_add_view(&tp->view, &tty3270_fn,
