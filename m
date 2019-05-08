@@ -1,116 +1,158 @@
-Return-Path: <SRS0=KhOk=TH=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v1 2/2] vfio-ccw: rework sch_event
+Return-Path: <SRS0=crtG=TI=vger.kernel.org=kvm-owner@kernel.org>
+Date: Wed, 8 May 2019 11:52:03 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v1 1/2] vfio-ccw: Set subchannel state STANDBY on open
+Message-ID: <20190508115203.5596e207.cohuck@redhat.com>
+In-Reply-To: <3a55983d-c304-ec7e-f53d-8380576b9a42@linux.ibm.com>
 References: <1557148270-19901-1-git-send-email-pmorel@linux.ibm.com>
- <1557148270-19901-3-git-send-email-pmorel@linux.ibm.com>
-From: Farhan Ali <alifm@linux.ibm.com>
-Date: Tue, 7 May 2019 16:06:58 -0400
+        <1557148270-19901-2-git-send-email-pmorel@linux.ibm.com>
+        <3a55983d-c304-ec7e-f53d-8380576b9a42@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <1557148270-19901-3-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <3fac544d-897c-03ec-6a3f-709685f280a8@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, cohuck@redhat.com
-Cc: pasic@linux.vnet.ibm.com, farman@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, pasic@linux.vnet.ibm.com, farman@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On Tue, 7 May 2019 15:44:54 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-
-On 05/06/2019 09:11 AM, Pierre Morel wrote:
-> Set the mediated device as non operational when the
-> subchannel went non operational.
-> Otherwise keep the current state.
+> On 05/06/2019 09:11 AM, Pierre Morel wrote:
+> > When no guest is associated with the mediated device,
+> > i.e. the mediated device is not opened, the state of
+> > the mediated device is VFIO_CCW_STATE_NOT_OPER.
+> > 
+> > The subchannel enablement and the according setting to the
+> > VFIO_CCW_STATE_STANDBY state should only be done when all
+> > parts of the VFIO mediated device have been initialized
+> > i.e. after the mediated device has been successfully opened.
+> > 
+> > Let's stay in VFIO_CCW_STATE_NOT_OPER until the mediated
+> > device has been opened.
+> > 
+> > When the mediated device is closed, disable the sub channel
+> > by calling vfio_ccw_sch_quiesce() no reset needs to be done
+> > the mediated devce will be enable on next open.  
 > 
-> Since we removed the last use of VFIO_CCW_STATE_STANDBY
-> remove this state from the state machine.
+> s/devce/device
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->   drivers/s390/cio/vfio_ccw_drv.c     | 11 +----------
->   drivers/s390/cio/vfio_ccw_fsm.c     |  7 +------
->   drivers/s390/cio/vfio_ccw_ops.c     |  2 +-
->   drivers/s390/cio/vfio_ccw_private.h |  1 -
->   4 files changed, 3 insertions(+), 18 deletions(-)
+> > 
+> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> > ---
+> >   drivers/s390/cio/vfio_ccw_drv.c | 10 +---------
+> >   drivers/s390/cio/vfio_ccw_ops.c | 36 ++++++++++++++++++------------------
+> >   2 files changed, 19 insertions(+), 27 deletions(-)
+> > 
+(...)
+> > diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> > index 5eb6111..497419c 100644
+> > --- a/drivers/s390/cio/vfio_ccw_ops.c
+> > +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> > @@ -115,14 +115,10 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+> >   	struct vfio_ccw_private *private =
+> >   		dev_get_drvdata(mdev_parent_dev(mdev));
+> >   
+> > -	if (private->state == VFIO_CCW_STATE_NOT_OPER)
+> > -		return -ENODEV;
+> > -
+> >   	if (atomic_dec_if_positive(&private->avail) < 0)
+> >   		return -EPERM;
+> >   
+> >   	private->mdev = mdev;
+> > -	private->state = VFIO_CCW_STATE_IDLE;
+> >   
+> >   	return 0;
+> >   }
+> > @@ -132,12 +128,7 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+> >   	struct vfio_ccw_private *private =
+> >   		dev_get_drvdata(mdev_parent_dev(mdev));
+> >   
+> > -	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+> > -	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+> > -		if (!vfio_ccw_sch_quiesce(private->sch))
+> > -			private->state = VFIO_CCW_STATE_STANDBY;
+> > -		/* The state will be NOT_OPER on error. */
+> > -	}
+> > +	vfio_ccw_sch_quiesce(private->sch);
+> >   
+> >   	cp_free(&private->cp);
+> >   	private->mdev = NULL;
+> > @@ -151,6 +142,7 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+> >   	struct vfio_ccw_private *private =
+> >   		dev_get_drvdata(mdev_parent_dev(mdev));
+> >   	unsigned long events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
+> > +	struct subchannel *sch = private->sch;
+> >   	int ret;
+> >   
+> >   	private->nb.notifier_call = vfio_ccw_mdev_notifier;
+> > @@ -165,6 +157,20 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+> >   		vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> >   					 &private->nb);
+> >   	return ret;
+
+I think this "return ret;" needs to go into the if branch above it;
+otherwise, the code below won't be reached :)
+
+> > +
+> > +	spin_lock_irq(private->sch->lock);
+> > +	if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
+> > +		goto error;
+> > +
+> > +	private->state = VFIO_CCW_STATE_STANDBY;  
 > 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index a95b6c7..2f6140d5 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -210,17 +210,8 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
->   	if (work_pending(&sch->todo_work))
->   		goto out_unlock;
->   
-> -	if (cio_update_schib(sch)) {
-> +	if (cio_update_schib(sch))
->   		vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_NOT_OPER);
-> -		rc = 0;
-> -		goto out_unlock;
-> -	}
-> -
-> -	private = dev_get_drvdata(&sch->dev);
-> -	if (private->state == VFIO_CCW_STATE_NOT_OPER) {
-> -		private->state = private->mdev ? VFIO_CCW_STATE_IDLE :
-> -				 VFIO_CCW_STATE_STANDBY;
-> -	}
->   	rc = 0;
->   
->   out_unlock:
-> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-> index 49d9d3d..a6524ca 100644
-> --- a/drivers/s390/cio/vfio_ccw_fsm.c
-> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
-> @@ -88,6 +88,7 @@ static int fsm_do_halt(struct vfio_ccw_private *private)
->   
->   	/* Issue "Halt Subchannel" */
->   	ccode = hsch(sch->schid);
-> +	pr_warn("ccode = hsch(sch->schid);\n");
+> I don't think we should set the state to STANDBY here, because with just 
+> this patch applied, any VFIO_CCW_EVENT_IO_REQ will return an error (due 
+> to fsm_io_error).
+> 
+> It might be safe to set it to IDLE in this patch.
 
+Agreed, this should be IDLE; otherwise, I don't see how a device might
+move into IDLE state?
 
-I am not sure what's the purpose of logging this? Was it for your 
-debugging purpose?
+(That change happens in the next patch anyway.)
 
->   
->   	switch (ccode) {
->   	case 0:
-> @@ -326,12 +327,6 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
->   		[VFIO_CCW_EVENT_ASYNC_REQ]	= fsm_async_error,
->   		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_disabled_irq,
->   	},
-> -	[VFIO_CCW_STATE_STANDBY] = {
-> -		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
-> -		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_error,
-> -		[VFIO_CCW_EVENT_ASYNC_REQ]	= fsm_async_error,
-> -		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
-> -	},
->   	[VFIO_CCW_STATE_IDLE] = {
->   		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
->   		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_request,
-> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-> index 497419c..35445ca 100644
-> --- a/drivers/s390/cio/vfio_ccw_ops.c
-> +++ b/drivers/s390/cio/vfio_ccw_ops.c
-> @@ -162,7 +162,7 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
->   	if (cio_enable_subchannel(sch, (u32)(unsigned long)sch))
->   		goto error;
->   
-> -	private->state = VFIO_CCW_STATE_STANDBY;
-> +	private->state = VFIO_CCW_STATE_IDLE;
->   	spin_unlock_irq(sch->lock);
->   	return 0;
->   
-> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-> index f1092c3..ece6a75 100644
-> --- a/drivers/s390/cio/vfio_ccw_private.h
-> +++ b/drivers/s390/cio/vfio_ccw_private.h
-> @@ -105,7 +105,6 @@ extern int vfio_ccw_sch_quiesce(struct subchannel *sch);
->    */
->   enum vfio_ccw_state {
->   	VFIO_CCW_STATE_NOT_OPER,
-> -	VFIO_CCW_STATE_STANDBY,
->   	VFIO_CCW_STATE_IDLE,
->   	VFIO_CCW_STATE_CP_PROCESSING,
->   	VFIO_CCW_STATE_CP_PENDING,
+> 
+> 
+> > +	spin_unlock_irq(sch->lock);
+> > +	return 0;
+> > +
+> > +error:
+> > +	spin_unlock_irq(sch->lock);
+> > +	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> > +				 &private->nb);
+> > +	return -EFAULT;
+> >   }
+> >   
+> >   static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+> > @@ -173,20 +179,14 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+> >   		dev_get_drvdata(mdev_parent_dev(mdev));
+> >   	int i;
+> >   
+> > -	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+> > -	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+> > -		if (!vfio_ccw_mdev_reset(mdev))
+> > -			private->state = VFIO_CCW_STATE_STANDBY;
+> > -		/* The state will be NOT_OPER on error. */
+> > -	}
+> > -
+> > -	cp_free(&private->cp);
+> > +	vfio_ccw_sch_quiesce(private->sch);
+> >   	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> >   				 &private->nb);
+> >   
+> >   	for (i = 0; i < private->num_regions; i++)
+> >   		private->region[i].ops->release(private, &private->region[i]);
+> >   
+> > +	cp_free(&private->cp);
+
+I'm wondering why this cp_free is moved -- there should not be any
+activity related to it after quiesce, should there?
+
+> >   	private->num_regions = 0;
+> >   	kfree(private->region);
+> >   	private->region = NULL;
+> >   
 > 
