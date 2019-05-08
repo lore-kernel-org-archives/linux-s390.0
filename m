@@ -1,67 +1,30 @@
 Return-Path: <SRS0=OmxZ=TI=kvack.org=owner-linux-mm@kernel.org>
 MIME-Version: 1.0
-References: <20190507183804.5512-1-david@redhat.com> <20190507183804.5512-8-david@redhat.com>
-In-Reply-To: <20190507183804.5512-8-david@redhat.com>
+References: <20190507183804.5512-1-david@redhat.com> <20190507183804.5512-9-david@redhat.com>
+In-Reply-To: <20190507183804.5512-9-david@redhat.com>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Tue, 7 May 2019 17:15:17 -0700
-Message-ID: <CAPcyv4h2PgzQZrD0UU=4Qz_yH2C_hiYQyqV9U7CCkjpmHZ5xjQ@mail.gmail.com>
-Subject: Re: [PATCH v2 7/8] mm/memory_hotplug: Make unregister_memory_block_under_nodes()
- never fail
+Date: Tue, 7 May 2019 17:30:15 -0700
+Message-ID: <CAPcyv4hzpuApmKHhC6mHnE-RmiZ8Aspiv5wfd+Fs4QmaDsCJVw@mail.gmail.com>
+Subject: Re: [PATCH v2 8/8] mm/memory_hotplug: Remove "zone" parameter from sparse_remove_one_section
 Content-Type: text/plain; charset="UTF-8"
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
 To: David Hildenbrand <david@redhat.com>
-Cc: Linux MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Oscar Salvador <osalvador@suse.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Linux MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-ID: <linux-s390.vger.kernel.org>
 
 On Tue, May 7, 2019 at 11:39 AM David Hildenbrand <david@redhat.com> wrote:
 >
-> We really don't want anything during memory hotunplug to fail.
-> We always pass a valid memory block device, that check can go. Avoid
-> allocating memory and eventually failing. As we are always called under
-> lock, we can use a static piece of memory. This avoids having to put
-> the structure onto the stack, having to guess about the stack size
-> of callers.
->
-> Patch inspired by a patch from Oscar Salvador.
->
-> In the future, there might be no need to iterate over nodes at all.
-> mem->nid should tell us exactly what to remove. Memory block devices
-> with mixed nodes (added during boot) should properly fenced off and never
-> removed.
->
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  drivers/base/node.c  | 18 +++++-------------
->  include/linux/node.h |  5 ++---
->  2 files changed, 7 insertions(+), 16 deletions(-)
->
-> diff --git a/drivers/base/node.c b/drivers/base/node.c
-> index 04fdfa99b8bc..9be88fd05147 100644
-> --- a/drivers/base/node.c
-> +++ b/drivers/base/node.c
-> @@ -803,20 +803,14 @@ int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
->
->  /*
->   * Unregister memory block device under all nodes that it spans.
-> + * Has to be called with mem_sysfs_mutex held (due to unlinked_nodes).
+> Unused, and memory unplug path should never care about zones. This is
+> the job of memory offlining. ZONE_DEVICE might require special care -
+> the caller of arch_remove_memory() should handle this.
 
-Given this comment can bitrot relative to the implementation lets
-instead add an explicit:
+The ZONE_DEVICE usage does not require special care so you can drop
+that comment. The only place it's used in the subsection patches is to
+lookup the node-id, but it turns out that the resulting node-id is
+then never used.
 
-    lockdep_assert_held(&mem_sysfs_mutex);
-
-With that you can add:
+With the ZONE_DEVICE mention dropped out of changelog you can add:
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
