@@ -1,132 +1,93 @@
 Return-Path: <SRS0=crtG=TI=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
+Date: Wed, 8 May 2019 22:12:58 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
+In-Reply-To: <ed6cbf63-f2ff-f259-ccb0-3b9ba60f2b35@de.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-11-pasic@linux.ibm.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 8 May 2019 17:11:14 +0200
+        <20190426183245.37939-2-pasic@linux.ibm.com>
+        <20190503111724.70c6ec37.cohuck@redhat.com>
+        <20190503160421-mutt-send-email-mst@kernel.org>
+        <20190504160340.29f17b98.pasic@linux.ibm.com>
+        <20190505131523.159bec7c.cohuck@redhat.com>
+        <ed6cbf63-f2ff-f259-ccb0-3b9ba60f2b35@de.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20190426183245.37939-11-pasic@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190508221258.6db20c81.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 26/04/2019 20:32, Halil Pasic wrote:
-> Hypervisor needs to interact with the summary indicators, so these
-> need to be DMA memory as well (at least for protected virtualization
-> guests).
+On Tue, 7 May 2019 15:58:12 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
 > 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->   drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
->   1 file changed, 17 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 613b18001a0c..6058b07fea08 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
->   
->   struct airq_info {
->   	rwlock_t lock;
-> -	u8 summary_indicator;
-> +	u8 summary_indicator_idx;
->   	struct airq_struct airq;
->   	struct airq_iv *aiv;
->   };
->   static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-> +static u8 *summary_indicators;
-> +
-> +static inline u8 *get_summary_indicator(struct airq_info *info)
-> +{
-> +	return summary_indicators + info->summary_indicator_idx;
-> +}
->   
->   #define CCW_CMD_SET_VQ 0x13
->   #define CCW_CMD_VDEV_RESET 0x33
-> @@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct *airq)
->   			break;
->   		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
->   	}
-> -	info->summary_indicator = 0;
-> +	*(get_summary_indicator(info)) = 0;
->   	smp_wmb();
->   	/* Walk through indicators field, summary indicator not active. */
->   	for (ai = 0;;) {
-> @@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
->   	read_unlock(&info->lock);
->   }
->   
-> -static struct airq_info *new_airq_info(void)
-> +/* call with airq_areas_lock held */
-> +static struct airq_info *new_airq_info(int index)
->   {
->   	struct airq_info *info;
->   	int rc;
-> @@ -252,7 +259,8 @@ static struct airq_info *new_airq_info(void)
->   		return NULL;
->   	}
->   	info->airq.handler = virtio_airq_handler;
-> -	info->airq.lsi_ptr = &info->summary_indicator;
-> +	info->summary_indicator_idx = index;
-> +	info->airq.lsi_ptr = get_summary_indicator(info);
->   	info->airq.lsi_mask = 0xff;
->   	info->airq.isc = VIRTIO_AIRQ_ISC;
->   	rc = register_adapter_interrupt(&info->airq);
-> @@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
->   	unsigned long bit, flags;
->   
->   	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-> +		/* TODO: this seems to be racy */
-
-yes, my opinions too, was already racy, in my opinion, we need another 
-patch in another series to fix this.
-
-However, not sure about the comment.
-
->   		if (!airq_areas[i])
-> -			airq_areas[i] = new_airq_info();
-> +			airq_areas[i] = new_airq_info(i);
->   		info = airq_areas[i];
->   		if (!info)
->   			return 0;
-> @@ -359,7 +368,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   		if (!thinint_area)
->   			return;
->   		thinint_area->summary_indicator =
-> -			(unsigned long) &airq_info->summary_indicator;
-> +			(unsigned long) get_summary_indicator(airq_info);
->   		thinint_area->isc = VIRTIO_AIRQ_ISC;
->   		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
->   		ccw->count = sizeof(*thinint_area);
-> @@ -624,7 +633,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
->   	}
->   	info = vcdev->airq_info;
->   	thinint_area->summary_indicator =
-> -		(unsigned long) &info->summary_indicator;
-> +		(unsigned long) get_summary_indicator(info);
->   	thinint_area->isc = VIRTIO_AIRQ_ISC;
->   	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
->   	ccw->flags = CCW_FLAG_SLI;
-> @@ -1500,6 +1509,7 @@ static int __init virtio_ccw_init(void)
->   {
->   	/* parse no_auto string before we do anything further */
->   	no_auto_parse();
-> +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
->   	return ccw_driver_register(&virtio_ccw_driver);
->   }
->   device_initcall(virtio_ccw_init);
+> On 05.05.19 13:15, Cornelia Huck wrote:
+> > On Sat, 4 May 2019 16:03:40 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > 
+> >> On Fri, 3 May 2019 16:04:48 -0400
+> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >>
+> >>> On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:  
+> >>>> On Fri, 26 Apr 2019 20:32:36 +0200
+> >>>> Halil Pasic <pasic@linux.ibm.com> wrote:
+> >>>>   
+> >>>>> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
+> >>>>> establishes a new way of allocating virtqueues (as a part of the effort
+> >>>>> that taught DMA to virtio rings).
+> >>>>>
+> >>>>> In the future we will want virtio-ccw to use the DMA API as well.
+> >>>>>
+> >>>>> Let us switch from the legacy method of allocating virtqueues to
+> >>>>> vring_create_virtqueue() as the first step into that direction.
+> >>>>>
+> >>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >>>>> ---
+> >>>>>  drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
+> >>>>>  1 file changed, 11 insertions(+), 19 deletions(-)  
+> >>>>
+> >>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> >>>>
+> >>>> I'd vote for merging this patch right away for 5.2.  
+> >>>
+> >>> So which tree is this going through? mine?
+> >>>   
+> >>
+> >> Christian, what do you think? If the whole series is supposed to go in
+> >> in one go (which I hope it is), via Martin's tree could be the simplest
+> >> route IMHO.
+> > 
+> > 
+> > The first three patches are virtio(-ccw) only and the those are the ones
+> > that I think are ready to go.
+> > 
+> > I'm not feeling comfortable going forward with the remainder as it
+> > stands now; waiting for some other folks to give feedback. (They are
+> > touching/interacting with code parts I'm not so familiar with, and lack
+> > of documentation, while not the developers' fault, does not make it
+> > easier.)
+> > 
+> > Michael, would you like to pick up 1-3 for your tree directly? That
+> > looks like the easiest way.
 > 
+> Agreed. Michael please pick 1-3.
+> We will continue to review 4- first and then see which tree is best.
 
+Thanks Christian!
 
+Guys, I broke my right arm on last Thursday (2nd may). You may
+have noticed that I was not as responsive as I'm supposed to be.
+Unfortunately this less than responsiveness is about to persist for a
+couple more weeks. Fortunate the guys from IBM, and chiefly Michael
+Mueller is going to help me drive this -- thanks Michael! Due to this,
+I would generally prefer doing as few changes to this series as
+necessary, and deferring as many of the beautifying to patches on top
+(possibly authored by somebody else) as possible.
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+Regards,
+Halil
