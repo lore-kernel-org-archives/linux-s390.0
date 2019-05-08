@@ -1,17 +1,16 @@
 Return-Path: <SRS0=crtG=TI=vger.kernel.org=kvm-owner@kernel.org>
 Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH 09/10] virtio/s390: use DMA memory for ccw I/O and classic
- notifiers
+Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-10-pasic@linux.ibm.com>
+ <20190426183245.37939-11-pasic@linux.ibm.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 8 May 2019 16:46:12 +0200
+Date: Wed, 8 May 2019 17:11:14 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190426183245.37939-10-pasic@linux.ibm.com>
+In-Reply-To: <20190426183245.37939-11-pasic@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <a873909a-9846-d6d3-f03e-e86d53fd9c75@linux.ibm.com>
+Message-Id: <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -20,125 +19,113 @@ Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.
 List-ID: <linux-s390.vger.kernel.org>
 
 On 26/04/2019 20:32, Halil Pasic wrote:
-> Before virtio-ccw could get away with not using DMA API for the pieces of
-> memory it does ccw I/O with. With protected virtualization this has to
-> change, since the hypervisor needs to read and sometimes also write these
-> pieces of memory.
-> 
-> The hypervisor is supposed to poke the classic notifiers, if these are
-> used, out of band with regards to ccw I/O. So these need to be allocated
-> as DMA memory (which is shared memory for protected virtualization
+> Hypervisor needs to interact with the summary indicators, so these
+> need to be DMA memory as well (at least for protected virtualization
 > guests).
-> 
-> Let us factor out everything from struct virtio_ccw_device that needs to
-> be DMA memory in a satellite that is allocated as such.
-> 
-> Note: The control blocks of I/O instructions do not need to be shared.
-> These are marshalled by the ultravisor.
 > 
 > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 > ---
->   drivers/s390/virtio/virtio_ccw.c | 177 +++++++++++++++++++++------------------
->   1 file changed, 96 insertions(+), 81 deletions(-)
+>   drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
+>   1 file changed, 17 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 1f3e7d56924f..613b18001a0c 100644
+> index 613b18001a0c..6058b07fea08 100644
 > --- a/drivers/s390/virtio/virtio_ccw.c
 > +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -46,9 +46,15 @@ struct vq_config_block {
->   #define VIRTIO_CCW_CONFIG_SIZE 0x100
->   /* same as PCI config space size, should be enough for all drivers */
+> @@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
 >   
-> +struct vcdev_dma_area {
-> +	unsigned long indicators;
-> +	unsigned long indicators2;
-> +	struct vq_config_block config_block;
-> +	__u8 status;
-> +};
-> +
->   struct virtio_ccw_device {
->   	struct virtio_device vdev;
-> -	__u8 *status;
->   	__u8 config[VIRTIO_CCW_CONFIG_SIZE];
->   	struct ccw_device *cdev;
->   	__u32 curr_io;
-> @@ -58,24 +64,22 @@ struct virtio_ccw_device {
->   	spinlock_t lock;
->   	struct mutex io_lock; /* Serializes I/O requests */
->   	struct list_head virtqueues;
-> -	unsigned long indicators;
-> -	unsigned long indicators2;
-> -	struct vq_config_block *config_block;
->   	bool is_thinint;
->   	bool going_away;
->   	bool device_lost;
->   	unsigned int config_ready;
->   	void *airq_info;
-> +	struct vcdev_dma_area *dma_area;
+>   struct airq_info {
+>   	rwlock_t lock;
+> -	u8 summary_indicator;
+> +	u8 summary_indicator_idx;
+>   	struct airq_struct airq;
+>   	struct airq_iv *aiv;
 >   };
->   
->   static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
->   {
-> -	return &vcdev->indicators;
-> +	return &vcdev->dma_area->indicators;
->   }
->   
->   static inline unsigned long *indicators2(struct virtio_ccw_device *vcdev)
->   {
-> -	return &vcdev->indicators2;
-> +	return &vcdev->dma_area->indicators2;
->   }
->   
->   struct vq_info_block_legacy {
-> @@ -176,6 +180,22 @@ static struct virtio_ccw_device *to_vc_device(struct virtio_device *vdev)
->   	return container_of(vdev, struct virtio_ccw_device, vdev);
->   }
->   
-> +static inline void *__vc_dma_alloc(struct virtio_device *vdev, size_t size)
+>   static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+> +static u8 *summary_indicators;
+> +
+> +static inline u8 *get_summary_indicator(struct airq_info *info)
 > +{
-> +	return ccw_device_dma_zalloc(to_vc_device(vdev)->cdev, size);
+> +	return summary_indicators + info->summary_indicator_idx;
 > +}
-> +
-> +static inline void __vc_dma_free(struct virtio_device *vdev, size_t size,
-> +				 void *cpu_addr)
-> +{
-> +	return ccw_device_dma_free(to_vc_device(vdev)->cdev, cpu_addr, size);
-> +}
-> +
-> +#define vc_dma_alloc_struct(vdev, ptr) \
-> +	({ptr = __vc_dma_alloc(vdev, sizeof(*(ptr))); })
-> +#define vc_dma_free_struct(vdev, ptr) \
-> +	__vc_dma_free(vdev, sizeof(*(ptr)), (ptr))
-> +
->   static void drop_airq_indicator(struct virtqueue *vq, struct airq_info *info)
->   {
->   	unsigned long i, flags;
-> @@ -335,8 +355,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   	struct airq_info *airq_info = vcdev->airq_info;
 >   
->   	if (vcdev->is_thinint) {
-> -		thinint_area = kzalloc(sizeof(*thinint_area),
-> -				       GFP_DMA | GFP_KERNEL);
-> +		vc_dma_alloc_struct(&vcdev->vdev, thinint_area);
+>   #define CCW_CMD_SET_VQ 0x13
+>   #define CCW_CMD_VDEV_RESET 0x33
+> @@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct *airq)
+>   			break;
+>   		vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
+>   	}
+> -	info->summary_indicator = 0;
+> +	*(get_summary_indicator(info)) = 0;
+>   	smp_wmb();
+>   	/* Walk through indicators field, summary indicator not active. */
+>   	for (ai = 0;;) {
+> @@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct *airq)
+>   	read_unlock(&info->lock);
+>   }
+>   
+> -static struct airq_info *new_airq_info(void)
+> +/* call with airq_areas_lock held */
+> +static struct airq_info *new_airq_info(int index)
+>   {
+>   	struct airq_info *info;
+>   	int rc;
+> @@ -252,7 +259,8 @@ static struct airq_info *new_airq_info(void)
+>   		return NULL;
+>   	}
+>   	info->airq.handler = virtio_airq_handler;
+> -	info->airq.lsi_ptr = &info->summary_indicator;
+> +	info->summary_indicator_idx = index;
+> +	info->airq.lsi_ptr = get_summary_indicator(info);
+>   	info->airq.lsi_mask = 0xff;
+>   	info->airq.isc = VIRTIO_AIRQ_ISC;
+>   	rc = register_adapter_interrupt(&info->airq);
+> @@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+>   	unsigned long bit, flags;
+>   
+>   	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
+> +		/* TODO: this seems to be racy */
+
+yes, my opinions too, was already racy, in my opinion, we need another 
+patch in another series to fix this.
+
+However, not sure about the comment.
+
+>   		if (!airq_areas[i])
+> -			airq_areas[i] = new_airq_info();
+> +			airq_areas[i] = new_airq_info(i);
+>   		info = airq_areas[i];
+>   		if (!info)
+>   			return 0;
+> @@ -359,7 +368,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
 >   		if (!thinint_area)
 >   			return;
 >   		thinint_area->summary_indicator =
-> @@ -347,8 +366,8 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->   		ccw->cda = (__u32)(unsigned long) thinint_area;
->   	} else {
->   		/* payload is the address of the indicators */
-> -		indicatorp = kmalloc(sizeof(indicators(vcdev)),
-> -				     GFP_DMA | GFP_KERNEL);
-> +		indicatorp = __vc_dma_alloc(&vcdev->vdev,
-> +					   sizeof(indicators(vcdev)));
+> -			(unsigned long) &airq_info->summary_indicator;
+> +			(unsigned long) get_summary_indicator(airq_info);
+>   		thinint_area->isc = VIRTIO_AIRQ_ISC;
+>   		ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+>   		ccw->count = sizeof(*thinint_area);
+> @@ -624,7 +633,7 @@ static int virtio_ccw_register_adapter_ind(struct virtio_ccw_device *vcdev,
+>   	}
+>   	info = vcdev->airq_info;
+>   	thinint_area->summary_indicator =
+> -		(unsigned long) &info->summary_indicator;
+> +		(unsigned long) get_summary_indicator(info);
+>   	thinint_area->isc = VIRTIO_AIRQ_ISC;
+>   	ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+>   	ccw->flags = CCW_FLAG_SLI;
+> @@ -1500,6 +1509,7 @@ static int __init virtio_ccw_init(void)
+>   {
+>   	/* parse no_auto string before we do anything further */
+>   	no_auto_parse();
+> +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+>   	return ccw_driver_register(&virtio_ccw_driver);
+>   }
+>   device_initcall(virtio_ccw_init);
+> 
 
-should be sizeof(long) ?
 
-This is a recurrent error, but it is not an issue because the size of
-the indicators is unsigned long as the size of the pointer.
-
-Regards,
-Pierre
 
 -- 
 Pierre Morel
