@@ -1,31 +1,34 @@
 Return-Path: <SRS0=crtG=TI=vger.kernel.org=kvm-owner@kernel.org>
-Date: Wed, 8 May 2019 06:54:57 -0700
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
- support
-Message-ID: <20190508135457.GA3530@infradead.org>
-References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-7-pasic@linux.ibm.com>
- <alpine.LFD.2.21.1905081522300.1773@schleppi>
+Date: Wed, 8 May 2019 15:58:48 +0200 (CEST)
+From: Sebastian Ott <sebott@linux.ibm.com>
+Subject: Re: [PATCH 07/10] s390/airq: use DMA memory for adapter interrupts
+In-Reply-To: <20190426183245.37939-8-pasic@linux.ibm.com>
+References: <20190426183245.37939-1-pasic@linux.ibm.com> <20190426183245.37939-8-pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.21.1905081522300.1773@schleppi>
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <alpine.LFD.2.21.1905081553580.1773@schleppi>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, May 08, 2019 at 03:46:42PM +0200, Sebastian Ott wrote:
-> > +	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
-> > +				sizeof(*io_priv->dma_area),
-> > +				&io_priv->dma_area_dma, GFP_KERNEL);
-> 
-> This needs GFP_DMA.
-> You use a genpool for ccw_private->dma and not for iopriv->dma - looks
-> kinda inconsistent.
 
-dma_alloc_* never needs GFP_DMA.  It selects the zone to allocate
-from based on the dma_coherent_mask of the device.
+On Fri, 26 Apr 2019, Halil Pasic wrote:
+> @@ -182,6 +190,8 @@ void airq_iv_release(struct airq_iv *iv)
+>  	kfree(iv->ptr);
+>  	kfree(iv->bitlock);
+>  	kfree(iv->vector);
+
+-  	kfree(iv->vector);
+
+> +	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
+> +			  iv->vector, iv->vector_dma);
+>  	kfree(iv->avail);
+>  	kfree(iv);
+>  }
+
+Looks good to me but needs adaption to current code. Probably you can just
+revert my changes introducing cacheline aligned vectors since we now use
+a whole page.
