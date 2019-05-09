@@ -1,65 +1,27 @@
-Return-Path: <SRS0=dKik=T7=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [RFC] mm: Generalize notify_page_fault()
-References: <1559195713-6956-1-git-send-email-anshuman.khandual@arm.com>
- <20190530110639.GC23461@bombadil.infradead.org>
- <4f9a610d-e856-60f6-4467-09e9c3836771@arm.com>
- <20190530133954.GA2024@bombadil.infradead.org>
-Message-ID: <f1995445-d5ab-f292-d26c-809581002184@arm.com>
-Date: Fri, 31 May 2019 14:17:43 +0530
+Return-Path: <SRS0=bR5W=TJ=vger.kernel.org=linux-block-owner@kernel.org>
+Subject: Re: [PATCH] s390/dasd: fix build warning in dasd_eckd_build_cp_raw
+References: <20190509100314.19152-1-ming.lei@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <37bda439-1c86-0fb7-31c5-cf6be6625546@kernel.dk>
+Date: Thu, 9 May 2019 08:10:32 -0600
 MIME-Version: 1.0
-In-Reply-To: <20190530133954.GA2024@bombadil.infradead.org>
+In-Reply-To: <20190509100314.19152-1-ming.lei@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
-List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Michal Hocko <mhocko@suse.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, Russell King <linux@armlinux.org.uk>, Fenghua Yu <fenghua.yu@intel.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Andrey Konovalov <andreyknvl@google.com>, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Tony Luck <tony.luck@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+Sender: linux-block-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-block/>
+List-Post: <mailto:linux-block@vger.kernel.org>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: linux-block@vger.kernel.org, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On 5/9/19 4:03 AM, Ming Lei wrote:
+> Commit 72deb455b5ec619f ("block: remove CONFIG_LBDAF") changes
+> sector_t to u64 unconditionaly, so apply '%llu' for print
+> sector_t variable.
 
+Applied, thanks Ming.
 
-On 05/30/2019 07:09 PM, Matthew Wilcox wrote:
-> On Thu, May 30, 2019 at 05:31:15PM +0530, Anshuman Khandual wrote:
->> On 05/30/2019 04:36 PM, Matthew Wilcox wrote:
->>> The two handle preemption differently.  Why is x86 wrong and this one
->>> correct?
->>
->> Here it expects context to be already non-preemptible where as the proposed
->> generic function makes it non-preemptible with a preempt_[disable|enable]()
->> pair for the required code section, irrespective of it's present state. Is
->> not this better ?
-> 
-> git log -p arch/x86/mm/fault.c
-> 
-> search for 'kprobes'.
-> 
-> tell me what you think.
-> 
-
-Are you referring to these following commits
-
-a980c0ef9f6d ("x86/kprobes: Refactor kprobes_fault() like kprobe_exceptions_notify()")
-b506a9d08bae ("x86: code clarification patch to Kprobes arch code")
-
-In particular the later one (b506a9d08bae). It explains how the invoking context
-in itself should be non-preemptible for the kprobes processing context irrespective
-of whether kprobe_running() or perhaps smp_processor_id() is safe or not. Hence it
-does not make much sense to continue when original invoking context is preemptible.
-Instead just bail out earlier. This seems to be making more sense than preempt
-disable-enable pair. If there are no concerns about this change from other platforms,
-I will change the preemption behavior in proposed generic function next time around.
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+-- 
+Jens Axboe
