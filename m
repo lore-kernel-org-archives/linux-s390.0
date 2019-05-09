@@ -1,64 +1,52 @@
 Return-Path: <SRS0=ZS0J=TJ=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 9 May 2019 20:30:28 +0200
+Date: Fri, 10 May 2019 00:11:12 +0200
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 09/10] virtio/s390: use DMA memory for ccw I/O and
- classic notifiers
-In-Reply-To: <db036887-c238-9795-5f47-cfeb475074e4@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+In-Reply-To: <20190509121106.48aa04db.cohuck@redhat.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190426183245.37939-10-pasic@linux.ibm.com>
-        <a873909a-9846-d6d3-f03e-e86d53fd9c75@linux.ibm.com>
-        <db036887-c238-9795-5f47-cfeb475074e4@linux.ibm.com>
+        <20190426183245.37939-6-pasic@linux.ibm.com>
+        <alpine.LFD.2.21.1905081447280.1773@schleppi>
+        <20190508232210.5a555caa.pasic@linux.ibm.com>
+        <20190509121106.48aa04db.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190509203028.5b75eaa2.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190510001112.479b2fd7.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Sebastian Ott <sebott@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 9 May 2019 15:30:08 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Thu, 9 May 2019 12:11:06 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On 08/05/2019 16:46, Pierre Morel wrote:
-> > On 26/04/2019 20:32, Halil Pasic wrote:
-> >> Before virtio-ccw could get away with not using DMA API for the pieces of
-> >> memory it does ccw I/O with. With protected virtualization this has to
-> >> change, since the hypervisor needs to read and sometimes also write these
-> >> pieces of memory.
-> >>
-> >> The hypervisor is supposed to poke the classic notifiers, if these are
-> >> used, out of band with regards to ccw I/O. So these need to be allocated
-> >> as DMA memory (which is shared memory for protected virtualization
-> >> guests).
-> >>
-> >> Let us factor out everything from struct virtio_ccw_device that needs to
-> >> be DMA memory in a satellite that is allocated as such.
-> >>
-> ...
-> >> +                       sizeof(indicators(vcdev)));
-> > 
-> > should be sizeof(long) ?
-
-If something different then sizeof(u64) IMHO.
-> > 
-> > This is a recurrent error, but it is not an issue because the size of
-> > the indicators is unsigned long as the size of the pointer.
-
-I don't think there is an error, let alone a recurrent one.
-
-> > 
-> > Regards,
-> > Pierre
-> > 
+> On Wed, 8 May 2019 23:22:10 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> Here too, with the problem of the indicator size handled:
+> > On Wed, 8 May 2019 15:18:10 +0200 (CEST)
+> > Sebastian Ott <sebott@linux.ibm.com> wrote:
+> 
+> > > > @@ -1063,6 +1163,7 @@ static int __init css_bus_init(void)
+> > > >  		unregister_reboot_notifier(&css_reboot_notifier);
+> > > >  		goto out_unregister;
+> > > >  	}
+> > > > +	cio_dma_pool_init();    
+> > > 
+> > > This is too late for early devices (ccw console!).  
+> > 
+> > You have already raised concern about this last time (thanks). I think,
+> > I've addressed this issue: tje cio_dma_pool is only used by the airq
+> > stuff. I don't think the ccw console needs it. Please have an other look
+> > at patch #6, and explain your concern in more detail if it persists.
+> 
+> What about changing the naming/adding comments here, so that (1) folks
+> aren't confused by the same thing in the future and (2) folks don't try
+> to use that pool for something needed for the early ccw consoles?
+> 
 
-I've laid out my view in a response to your comment on patch #8.
+I'm all for clarity! Suggestions for better names?
 
-> Reviewed-by: Pierre Morel<pmorel@linux.ibm.com>
-
-Thanks!
+Regards,
 Halil
