@@ -1,55 +1,117 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: RE: [PATCH] vsprintf: Do not break early boot with probing addresses
-Date: Fri, 10 May 2019 20:21:02 +1000
-Message-ID: <87ef56vcdt.fsf@concordia.ellerman.id.au>
-References: <20190509121923.8339-1-pmladek@suse.com> <20190509153829.06319d0c@kitsune.suse.cz> <8ad8bb83b7034f7e92df12040fb8c2c2@AcuMS.aculab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8ad8bb83b7034f7e92df12040fb8c2c2@AcuMS.aculab.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Petr Mladek <pmladek@suse.com>
+Subject: [PATCH] vsprintf: Do not break early boot with probing addresses
+Date: Thu,  9 May 2019 14:19:23 +0200
+Message-ID: <20190509121923.8339-1-pmladek@suse.com>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190509121923.aQycz_mOWrrZRdG61KMh7qtBiiaqDuu5CXB5Ufi79nE@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: David Laight <David.Laight@ACULAB.COM>, 'Michal =?utf-8?Q?Such=C3=A1ne?= =?utf-8?Q?k'?= <msuchanek@suse.de>, Petr Mladek <pmladek@suse.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Stephen Rothwell <sfr@ozlabs.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, "Tobin C . Harding" <me@tobin.cc>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Petr Mladek <pmladek@suse.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-David Laight <David.Laight@ACULAB.COM> writes:
-> From: Michal Suchánek
->> Sent: 09 May 2019 14:38
-> ...
->> > The problem is the combination of some new code called via printk(),
->> > check_pointer() which calls probe_kernel_read(). That then calls
->> > allow_user_access() (PPC_KUAP) and that uses mmu_has_feature() too early
->> > (before we've patched features).
->> 
->> There is early_mmu_has_feature for this case. mmu_has_feature does not
->> work before patching so parts of kernel that can run before patching
->> must use the early_ variant which actually runs code reading the
->> feature bitmap to determine the answer.
->
-> Does the early_ variant get patched so the it is reasonably
-> efficient after the 'patching' is done?
+The commit 3e5903eb9cff70730 ("vsprintf: Prevent crash when dereferencing
+invalid pointers") broke boot on several architectures. The common
+pattern is that probe_kernel_read() is not working during early
+boot because userspace access framework is not ready.
 
-No they don't get patched ever. The name is a bit misleading I guess.
+The check is only the best effort. Let's not rush with it during
+the early boot.
 
-> Or should there be a third version which gets patched across?
+Details:
 
-For a case like this it's entirely safe to just skip the code early in
-boot, so if it was a static_key_false everything would just work.
+1. Report on Power:
 
-Unfortunately the way the code is currently written we would have to
-change all MMU features to static_key_false and that risks breaking
-something else.
+Kernel crashes very early during boot with with CONFIG_PPC_KUAP and
+CONFIG_JUMP_LABEL_FEATURE_CHECK_DEBUG
 
-We have a long standing TODO to rework all our feature logic and unify
-CPU/MMU/firmware/etc. features. Possibly as part of that we can come up
-with a scheme where the default value is per-feature bit.
+The problem is the combination of some new code called via printk(),
+check_pointer() which calls probe_kernel_read(). That then calls
+allow_user_access() (PPC_KUAP) and that uses mmu_has_feature() too early
+(before we've patched features). With the JUMP_LABEL debug enabled that
+causes us to call printk() & dump_stack() and we end up recursing and
+overflowing the stack.
 
-Having said all that, in this case the overhead of the test and branch
-is small compared to the cost of writing to the SPR which controls user
-access and then doing an isync, so it's all somewhat premature
-optimisation.
+Because it happens so early you don't get any output, just an apparently
+dead system.
 
-cheers
+The stack trace (which you don't see) is something like:
+
+  ...
+  dump_stack+0xdc
+  probe_kernel_read+0x1a4
+  check_pointer+0x58
+  string+0x3c
+  vsnprintf+0x1bc
+  vscnprintf+0x20
+  printk_safe_log_store+0x7c
+  printk+0x40
+  dump_stack_print_info+0xbc
+  dump_stack+0x8
+  probe_kernel_read+0x1a4
+  probe_kernel_read+0x19c
+  check_pointer+0x58
+  string+0x3c
+  vsnprintf+0x1bc
+  vscnprintf+0x20
+  vprintk_store+0x6c
+  vprintk_emit+0xec
+  vprintk_func+0xd4
+  printk+0x40
+  cpufeatures_process_feature+0xc8
+  scan_cpufeatures_subnodes+0x380
+  of_scan_flat_dt_subnodes+0xb4
+  dt_cpu_ftrs_scan_callback+0x158
+  of_scan_flat_dt+0xf0
+  dt_cpu_ftrs_scan+0x3c
+  early_init_devtree+0x360
+  early_setup+0x9c
+
+2. Report on s390:
+
+vsnprintf invocations, are broken on s390. For example, the early boot
+output now looks like this where the first (efault) should be
+the linux_banner:
+
+[    0.099985] (efault)
+[    0.099985] setup: Linux is running as a z/VM guest operating system in 64-bit mode
+[    0.100066] setup: The maximum memory size is 8192MB
+[    0.100070] cma: Reserved 4 MiB at (efault)
+[    0.100100] numa: NUMA mode: (efault)
+
+The reason for this, is that the code assumes that
+probe_kernel_address() works very early. This however is not true on
+at least s390. Uaccess on KERNEL_DS works only after page tables have
+been setup on s390, which happens with setup_arch()->paging_init().
+
+Any probe_kernel_address() invocation before that will return -EFAULT.
+
+Fixes: 3e5903eb9cff70730 ("vsprintf: Prevent crash when dereferencing invalid pointers")
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+---
+ lib/vsprintf.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 7b0a6140bfad..8b43a883be6b 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -640,8 +640,13 @@ static const char *check_pointer_msg(const void *ptr)
+ 	if (!ptr)
+ 		return "(null)";
+ 
+-	if (probe_kernel_address(ptr, byte))
+-		return "(efault)";
++	/* User space address handling is not ready during early boot. */
++	if (system_state <= SYSTEM_BOOTING) {
++		if ((unsigned long)ptr < PAGE_SIZE)
++			return "(efault)";
++	} else {
++		if (probe_kernel_address(ptr, byte))
++			return "(efault)";
+ 
+ 	return NULL;
+ }
+-- 
+2.16.4
