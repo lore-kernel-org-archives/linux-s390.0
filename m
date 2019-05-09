@@ -1,22 +1,25 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 9 May 2019 16:05:12 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] vsprintf: Do not break early boot with probing addresses
-Message-ID: <20190509130512.GS9224@smile.fi.intel.com>
+Date: Thu, 9 May 2019 09:13:57 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] vsprintf: Do not break early boot with probing
+ addresses
+Message-ID: <20190509091357.0af3fcd7@gandalf.local.home>
+In-Reply-To: <20190509121923.8339-1-pmladek@suse.com>
 References: <20190509121923.8339-1-pmladek@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190509121923.8339-1-pmladek@suse.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190509130512.eOpTHWX1Vw219J1juYw-SpeQRpBzQZT5CGSN2gh29i4@z>
+Message-ID: <20190509131357.ae3kG3RqVx9kjP66InzbRDur4-P1bAbE2QdMj6Mn17c@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
 To: Petr Mladek <pmladek@suse.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, May 09, 2019 at 02:19:23PM +0200, Petr Mladek wrote:
+On Thu,  9 May 2019 14:19:23 +0200
+Petr Mladek <pmladek@suse.com> wrote:
+
 > The commit 3e5903eb9cff70730 ("vsprintf: Prevent crash when dereferencing
 > invalid pointers") broke boot on several architectures. The common
 > pattern is that probe_kernel_read() is not working during early
@@ -92,19 +95,13 @@ On Thu, May 09, 2019 at 02:19:23PM +0200, Petr Mladek wrote:
 > been setup on s390, which happens with setup_arch()->paging_init().
 > 
 > Any probe_kernel_address() invocation before that will return -EFAULT.
+
+Hmm, this sounds to me that probe_kernel_address() is broken for these
+architectures. Perhaps the system_state check should be in
+probe_kernel_address() for those architectures?
+
+
 > 
-
-It's seems as a good enough fix.
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-Though in all cases would be nice to distinguish error pointers as well.
-Something like
-
-if (IS_ERR(ptr))
-	return err_pointer_str(ptr);
-
-in check_pointer_msg().
-
 > Fixes: 3e5903eb9cff70730 ("vsprintf: Prevent crash when dereferencing invalid pointers")
 > Signed-off-by: Petr Mladek <pmladek@suse.com>
 > ---
@@ -121,20 +118,25 @@ in check_pointer_msg().
 >  
 > -	if (probe_kernel_address(ptr, byte))
 > -		return "(efault)";
+
+Either that, or we add a macro to those architectures and add:
+
+#ifdef ARCH_NO_EARLY_PROBE_KERNEL_ADDRESS
+
 > +	/* User space address handling is not ready during early boot. */
 > +	if (system_state <= SYSTEM_BOOTING) {
 > +		if ((unsigned long)ptr < PAGE_SIZE)
 > +			return "(efault)";
 > +	} else {
+
+#endif
+
+Why add an unnecessary branch for archs this is not a problem for?
+
+-- Steve
+
 > +		if (probe_kernel_address(ptr, byte))
 > +			return "(efault)";
 >  
 >  	return NULL;
 >  }
-> -- 
-> 2.16.4
-> 
-
--- 
-With Best Regards,
-Andy Shevchenko
