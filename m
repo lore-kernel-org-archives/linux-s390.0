@@ -1,65 +1,47 @@
-Return-Path: <SRS0=RyeP=TH=vger.kernel.org=linux-kernel-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 08/10] s390: ctcm: fix ctcm_new_device error return code
-Date: Tue,  7 May 2019 01:42:44 -0400
-Message-Id: <20190507054247.537-8-sashal@kernel.org>
-In-Reply-To: <20190507054247.537-1-sashal@kernel.org>
-References: <20190507054247.537-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Early printk breakage due to 3e5903eb9cff ("vsprintf: Prevent crash
+ when dereferencing invalid pointers")
+Date: Thu, 9 May 2019 12:46:58 +0200
+Message-ID: <20190509104658.GB5758@osiris>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Nathan Chancellor <natechancellor@gmail.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: Petr Mladek <pmladek@suse.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+Hello Petr,
 
-[ Upstream commit 27b141fc234a3670d21bd742c35d7205d03cbb3a ]
+I just realized that early printks, or more specific vsnprintf invocations,
+are broken on s390 due to
 
-clang points out that the return code from this function is
-undefined for one of the error paths:
+3e5903eb9cff ("vsprintf: Prevent crash when dereferencing invalid pointers").
 
-../drivers/s390/net/ctcm_main.c:1595:7: warning: variable 'result' is used uninitialized whenever 'if' condition is true
-      [-Wsometimes-uninitialized]
-                if (priv->channel[direction] == NULL) {
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1638:9: note: uninitialized use occurs here
-        return result;
-               ^~~~~~
-../drivers/s390/net/ctcm_main.c:1595:3: note: remove the 'if' if its condition is always false
-                if (priv->channel[direction] == NULL) {
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../drivers/s390/net/ctcm_main.c:1539:12: note: initialize the variable 'result' to silence this warning
-        int result;
-                  ^
+E.g. the early boot output now looks like this where the first
+(efault) should be the linux_banner:
 
-Make it return -ENODEV here, as in the related failure cases.
-gcc has a known bug in underreporting some of these warnings
-when it has already eliminated the assignment of the return code
-based on some earlier optimization step.
+[    0.099985] (efault)
+[    0.099985] setup: Linux is running as a z/VM guest operating system in 64-bit mode
+[    0.100066] setup: The maximum memory size is 8192MB
+[    0.100070] cma: Reserved 4 MiB at (efault)
+[    0.100100] numa: NUMA mode: (efault)
 
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/ctcm_main.c | 1 +
- 1 file changed, 1 insertion(+)
+The reason for this, is that your code assumes that
+probe_kernel_address() works very early. This however is not true on
+at least s390. Uaccess on KERNEL_DS works only after page tables have
+been setup on s390, which happens with setup_arch()->paging_init().
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index e056dd4fe44d..5526388f905e 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1595,6 +1595,7 @@ static int ctcm_new_device(struct ccwgroup_device *cgdev)
- 		if (priv->channel[direction] == NULL) {
- 			if (direction == CTCM_WRITE)
- 				channel_free(priv->channel[CTCM_READ]);
-+			result = -ENODEV;
- 			goto out_dev;
- 		}
- 		priv->channel[direction]->netdev = dev;
--- 
-2.20.1
+Any probe_kernel_address() invocation before that will return -EFAULT.
+
+So how should we fix this? We could e.g. again add an arch specific
+version of probe_kernel_read() for s390, which would be more or less a
+copy of the generic variant, just that it would do something different
+if page tables aren't setup yet.
+
+Or... any other idea?
+
+Cc'ing linux-arch, just in case other architectures are also affected.
