@@ -1,114 +1,54 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Thu, 9 May 2019 16:06:09 +0200
-From: Petr Mladek <pmladek@suse.com>
+Date: Fri, 10 May 2019 13:32:00 +0900
+From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
 Subject: Re: [PATCH] vsprintf: Do not break early boot with probing addresses
-Message-ID: <20190509140609.n44v6kj27wb77jck@pathway.suse.cz>
+Message-ID: <20190510043200.GC15652@jagdpanzerIV>
 References: <20190509121923.8339-1-pmladek@suse.com>
- <20190509091357.0af3fcd7@gandalf.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190509091357.0af3fcd7@gandalf.local.home>
+In-Reply-To: <20190509121923.8339-1-pmladek@suse.com>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190509140609.pGTLvlSQI_xy_YFvhBzkQV7ZWu_ABMDICwAH3s7J8IA@z>
+Message-ID: <20190510043200.8FxCQhSO0N0LIZ4YtumRMpgw45VDU75TKeSE5eHU2dc@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Petr Mladek <pmladek@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu 2019-05-09 09:13:57, Steven Rostedt wrote:
-> On Thu,  9 May 2019 14:19:23 +0200
-> Petr Mladek <pmladek@suse.com> wrote:
+On (05/09/19 14:19), Petr Mladek wrote:
+> 1. Report on Power:
 > 
-> > The commit 3e5903eb9cff70730 ("vsprintf: Prevent crash when dereferencing
-> > invalid pointers") broke boot on several architectures. The common
-> > pattern is that probe_kernel_read() is not working during early
-> > boot because userspace access framework is not ready.
-> > 
-> > The check is only the best effort. Let's not rush with it during
-> > the early boot.
-> > 
-> > Details:
-> > 
-> > 1. Report on Power:
-> > 
-> > Kernel crashes very early during boot with with CONFIG_PPC_KUAP and
-> > CONFIG_JUMP_LABEL_FEATURE_CHECK_DEBUG
-> > 
-> > The problem is the combination of some new code called via printk(),
-> > check_pointer() which calls probe_kernel_read(). That then calls
-> > allow_user_access() (PPC_KUAP) and that uses mmu_has_feature() too early
-> > (before we've patched features). With the JUMP_LABEL debug enabled that
-> > causes us to call printk() & dump_stack() and we end up recursing and
-> > overflowing the stack.
-> > 
-> > Because it happens so early you don't get any output, just an apparently
-> > dead system.
-> > 
-> > The stack trace (which you don't see) is something like:
-> > 
-> >   ...
-> >   dump_stack+0xdc
-> >   probe_kernel_read+0x1a4
-> >   check_pointer+0x58
-> >   string+0x3c
-> >   vsnprintf+0x1bc
-> >   vscnprintf+0x20
-> >   printk_safe_log_store+0x7c
-> >   printk+0x40
-> >   dump_stack_print_info+0xbc
-> >   dump_stack+0x8
-> >   probe_kernel_read+0x1a4
-> >   probe_kernel_read+0x19c
-> >   check_pointer+0x58
-> >   string+0x3c
-> >   vsnprintf+0x1bc
-> >   vscnprintf+0x20
-> >   vprintk_store+0x6c
-> >   vprintk_emit+0xec
-> >   vprintk_func+0xd4
-> >   printk+0x40
-> >   cpufeatures_process_feature+0xc8
-> >   scan_cpufeatures_subnodes+0x380
-> >   of_scan_flat_dt_subnodes+0xb4
-> >   dt_cpu_ftrs_scan_callback+0x158
-> >   of_scan_flat_dt+0xf0
-> >   dt_cpu_ftrs_scan+0x3c
-> >   early_init_devtree+0x360
-> >   early_setup+0x9c
-> > 
-> > 2. Report on s390:
-> > 
-> > vsnprintf invocations, are broken on s390. For example, the early boot
-> > output now looks like this where the first (efault) should be
-> > the linux_banner:
-> > 
-> > [    0.099985] (efault)
-> > [    0.099985] setup: Linux is running as a z/VM guest operating system in 64-bit mode
-> > [    0.100066] setup: The maximum memory size is 8192MB
-> > [    0.100070] cma: Reserved 4 MiB at (efault)
-> > [    0.100100] numa: NUMA mode: (efault)
-> > 
-> > The reason for this, is that the code assumes that
-> > probe_kernel_address() works very early. This however is not true on
-> > at least s390. Uaccess on KERNEL_DS works only after page tables have
-> > been setup on s390, which happens with setup_arch()->paging_init().
-> > 
-> > Any probe_kernel_address() invocation before that will return -EFAULT.
+> Kernel crashes very early during boot with with CONFIG_PPC_KUAP and
+> CONFIG_JUMP_LABEL_FEATURE_CHECK_DEBUG
 > 
-> Hmm, this sounds to me that probe_kernel_address() is broken for these
-> architectures. Perhaps the system_state check should be in
-> probe_kernel_address() for those architectures?
+> The problem is the combination of some new code called via printk(),
+> check_pointer() which calls probe_kernel_read(). That then calls
+> allow_user_access() (PPC_KUAP) and that uses mmu_has_feature() too early
+> (before we've patched features). With the JUMP_LABEL debug enabled that
+> causes us to call printk() & dump_stack() and we end up recursing and
+> overflowing the stack.
 
-Yeah. Well, these problems are hard to debug. It left a dead power
-system with a blank screen. I am not sure if the added check is
-worth the pain.
+Hmm... hmm... PPC does an .opd-based symbol dereference, which
+eventually probe_kernel_read()-s. So early printk(%pS) will do
 
-I hope that the check would help to debug problems. But it is yet
-another complexity in printk() path. I think that it is fine
-to keep it enabled only on the booted system for a while
-and get some more feedback.
+	printk(%pS)
+	 dereference_function_descriptor()
+	  probe_kernel_address()
+	   dump_stack()
+	    printk(%pS)
+	     dereference_function_descriptor()
+	      probe_kernel_address()
+	       dump_stack()
+	        printk(%pS)
+	         ...
 
-Best Regards,
-Petr
+I'd say... that it's not vsprintf that we want to fix, it's
+the idea that probe_kernel_address() can dump_stack() on any
+platform. On some archs probe_kernel_address()->dump_stack()
+is going nowhere:
+ dump_stack() does probe_kernel_address(), which calls dump_stack(),
+ which calls printk(%pS)->probe_kernel_address() again and again,
+ and again.
+
+	-ss
