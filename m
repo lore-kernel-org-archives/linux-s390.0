@@ -1,155 +1,173 @@
 Return-Path: <SRS0=etnf=TK=vger.kernel.org=kvm-owner@kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH 4/4] vfio: vfio_iommu_type1: implement VFIO_IOMMU_INFO_CAPABILITIES
-Date: Fri, 10 May 2019 10:22:35 +0200
-In-Reply-To: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
+Subject: Re: [PATCH 1/4] s390: pci: Exporting access to CLP PCI function and
+ PCI group
 References: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1557476555-20256-5-git-send-email-pmorel@linux.ibm.com>
+ <1557476555-20256-2-git-send-email-pmorel@linux.ibm.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Message-ID: <a06ffd83-5fde-8c6e-b25b-bd4163d4cd5f@arm.com>
+Date: Fri, 10 May 2019 11:21:33 +0100
+MIME-Version: 1.0
+In-Reply-To: <1557476555-20256-2-git-send-email-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: sebott@linux.vnet.ibm.com
-Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>, sebott@linux.vnet.ibm.com
+Cc: linux-s390@vger.kernel.org, pasic@linux.vnet.ibm.com, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, walling@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, iommu@lists.linux-foundation.org, schwidefsky@de.ibm.com, gerald.schaefer@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We implement a capability intercafe for VFIO_IOMMU_GET_INFO and add the
-first capability: VFIO_IOMMU_INFO_CAPABILITIES.
+On 10/05/2019 09:22, Pierre Morel wrote:
+> For the generic implementation of VFIO PCI we need to retrieve
+> the hardware configuration for the PCI functions and the
+> PCI function groups.
+> 
+> We modify the internal function using CLP Query PCI function and
+> CLP query PCI function group so that they can be called from
+> outside the S390 architecture PCI code and prefix the two
+> functions with "zdev" to make clear that they can be called
+> knowing only the associated zdevice.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/pci.h |  3 ++
+>   arch/s390/pci/pci_clp.c     | 72 ++++++++++++++++++++++++---------------------
+>   2 files changed, 41 insertions(+), 34 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 305befd..e66b246 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -261,4 +261,7 @@ cpumask_of_pcibus(const struct pci_bus *bus)
+>   
+>   #endif /* CONFIG_NUMA */
+>   
+> +int zdev_query_pci_fngrp(struct zpci_dev *zdev,
+> +			 struct clp_req_rsp_query_pci_grp *rrb);
+> +int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb);
+>   #endif
+> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+> index 3a36b07..4ae5d77 100644
+> --- a/arch/s390/pci/pci_clp.c
+> +++ b/arch/s390/pci/pci_clp.c
+> @@ -113,32 +113,18 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
+>   	}
+>   }
+>   
+> -static int clp_query_pci_fngrp(struct zpci_dev *zdev, u8 pfgid)
+> +int zdev_query_pci_fngrp(struct zpci_dev *zdev,
+> +			 struct clp_req_rsp_query_pci_grp *rrb)
+>   {
+> -	struct clp_req_rsp_query_pci_grp *rrb;
+> -	int rc;
+> -
+> -	rrb = clp_alloc_block(GFP_KERNEL);
+> -	if (!rrb)
+> -		return -ENOMEM;
+> -
+>   	memset(rrb, 0, sizeof(*rrb));
+>   	rrb->request.hdr.len = sizeof(rrb->request);
+>   	rrb->request.hdr.cmd = CLP_QUERY_PCI_FNGRP;
+>   	rrb->response.hdr.len = sizeof(rrb->response);
+> -	rrb->request.pfgid = pfgid;
+> +	rrb->request.pfgid = zdev->pfgid;
+>   
+> -	rc = clp_req(rrb, CLP_LPS_PCI);
+> -	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
+> -		clp_store_query_pci_fngrp(zdev, &rrb->response);
+> -	else {
+> -		zpci_err("Q PCI FGRP:\n");
+> -		zpci_err_clp(rrb->response.hdr.rsp, rc);
+> -		rc = -EIO;
+> -	}
+> -	clp_free_block(rrb);
+> -	return rc;
+> +	return clp_req(rrb, CLP_LPS_PCI);
+>   }
+> +EXPORT_SYMBOL(zdev_query_pci_fngrp);
 
-When calling the ioctl, the user must specify
-VFIO_IOMMU_INFO_CAPABILITIES to retrieve the capabilities and must check
-in the answer if capabilities are supported.
-Older kernel will not check nor set the VFIO_IOMMU_INFO_CAPABILITIES in
-the flags of vfio_iommu_type1_info.
+AFAICS it's only the IOMMU driver itself which needs to call these. That 
+can't be built as a module, so you shouldn't need explicit exports - the 
+header declaration is enough.
 
-The iommu get_attr callback will be called to retrieve the specific
-attributes and fill the capabilities, VFIO_IOMMU_INFO_CAP_QFN for the
-PCI query function attributes and VFIO_IOMMU_INFO_CAP_QGRP for the
-PCI query function group.
+Robin.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- drivers/vfio/vfio_iommu_type1.c | 95 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 94 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index d0f731c..f7f8120 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1658,6 +1658,70 @@ static int vfio_domains_have_iommu_cache(struct vfio_iommu *iommu)
- 	return ret;
- }
- 
-+int vfio_iommu_type1_caps(struct vfio_iommu *iommu, struct vfio_info_cap *caps,
-+			  size_t size)
-+{
-+	struct vfio_domain *d;
-+	struct vfio_iommu_type1_info_block *info_fn;
-+	struct vfio_iommu_type1_info_block *info_grp;
-+	unsigned long total_size, fn_size, grp_size;
-+	int ret;
-+
-+	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
-+	if (!d)
-+		return -ENODEV;
-+	/* The size of these capabilities are device dependent */
-+	fn_size = iommu_domain_get_attr(d->domain,
-+					DOMAIN_ATTR_ZPCI_FN_SIZE, NULL);
-+	if (fn_size < 0)
-+		return fn_size;
-+	fn_size +=  sizeof(struct vfio_info_cap_header);
-+	total_size = fn_size;
-+
-+	grp_size = iommu_domain_get_attr(d->domain,
-+					 DOMAIN_ATTR_ZPCI_GRP_SIZE, NULL);
-+	if (grp_size < 0)
-+		return grp_size;
-+	grp_size +=  sizeof(struct vfio_info_cap_header);
-+	total_size += grp_size;
-+
-+	/* Tell caller to call us with a greater buffer */
-+	if (total_size > size) {
-+		caps->size = total_size;
-+		return 0;
-+	}
-+
-+	info_fn = kzalloc(fn_size, GFP_KERNEL);
-+	if (!info_fn)
-+		return -ENOMEM;
-+	ret = iommu_domain_get_attr(d->domain,
-+				    DOMAIN_ATTR_ZPCI_FN, &info_fn->data);
-+	if (ret < 0)
-+		return ret;
-+
-+	info_fn->header.id = VFIO_IOMMU_INFO_CAP_QFN;
-+
-+	ret = vfio_info_add_capability(caps, &info_fn->header, fn_size);
-+	if (ret)
-+		goto err_fn;
-+
-+	info_grp = kzalloc(grp_size, GFP_KERNEL);
-+	if (!info_grp)
-+		goto err_fn;
-+	ret = iommu_domain_get_attr(d->domain,
-+				    DOMAIN_ATTR_ZPCI_GRP, &info_grp->data);
-+	if (ret < 0)
-+		goto err_grp;
-+	info_grp->header.id = VFIO_IOMMU_INFO_CAP_QGRP;
-+	ret = vfio_info_add_capability(caps, &info_grp->header, grp_size);
-+
-+err_grp:
-+	kfree(info_grp);
-+err_fn:
-+	kfree(info_fn);
-+	return ret;
-+}
-+
- static long vfio_iommu_type1_ioctl(void *iommu_data,
- 				   unsigned int cmd, unsigned long arg)
- {
-@@ -1679,6 +1743,8 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
- 		}
- 	} else if (cmd == VFIO_IOMMU_GET_INFO) {
- 		struct vfio_iommu_type1_info info;
-+		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-+		int ret;
- 
- 		minsz = offsetofend(struct vfio_iommu_type1_info, iova_pgsizes);
- 
-@@ -1688,7 +1754,34 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
- 		if (info.argsz < minsz)
- 			return -EINVAL;
- 
--		info.flags = VFIO_IOMMU_INFO_PGSIZES;
-+		if (info.flags & VFIO_IOMMU_INFO_CAPABILITIES) {
-+			minsz = offsetofend(struct vfio_iommu_type1_info,
-+					    cap_offset);
-+			if (info.argsz < minsz)
-+				return -EINVAL;
-+			ret = vfio_iommu_type1_caps(iommu, &caps,
-+						    info.argsz - sizeof(info));
-+			if (ret)
-+				return ret;
-+		}
-+		if (caps.size) {
-+			if (info.argsz < sizeof(info) + caps.size) {
-+				info.argsz = sizeof(info) + caps.size;
-+				info.cap_offset = 0;
-+			} else {
-+				if (copy_to_user((void __user *)arg +
-+						 sizeof(info), caps.buf,
-+						 caps.size)) {
-+					kfree(caps.buf);
-+					return -EFAULT;
-+				}
-+
-+				info.cap_offset = sizeof(info);
-+			}
-+			kfree(caps.buf);
-+		}
-+
-+		info.flags |= VFIO_IOMMU_INFO_PGSIZES;
- 
- 		info.iova_pgsizes = vfio_pgsize_bitmap(iommu);
- 
--- 
-2.7.4
+>   static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+>   				  struct clp_rsp_query_pci *response)
+> @@ -174,32 +160,50 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+>   	return 0;
+>   }
+>   
+> -static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
+> +int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb)
+> +{
+> +
+> +	memset(rrb, 0, sizeof(*rrb));
+> +	rrb->request.hdr.len = sizeof(rrb->request);
+> +	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
+> +	rrb->response.hdr.len = sizeof(rrb->response);
+> +	rrb->request.fh = zdev->fh;
+> +
+> +	return clp_req(rrb, CLP_LPS_PCI);
+> +}
+> +EXPORT_SYMBOL(zdev_query_pci_fn);
+> +
+> +static int clp_query_pci(struct zpci_dev *zdev)
+>   {
+>   	struct clp_req_rsp_query_pci *rrb;
+> +	struct clp_req_rsp_query_pci_grp *grrb;
+>   	int rc;
+>   
+>   	rrb = clp_alloc_block(GFP_KERNEL);
+>   	if (!rrb)
+>   		return -ENOMEM;
+>   
+> -	memset(rrb, 0, sizeof(*rrb));
+> -	rrb->request.hdr.len = sizeof(rrb->request);
+> -	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
+> -	rrb->response.hdr.len = sizeof(rrb->response);
+> -	rrb->request.fh = fh;
+> -
+> -	rc = clp_req(rrb, CLP_LPS_PCI);
+> -	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+> -		rc = clp_store_query_pci_fn(zdev, &rrb->response);
+> -		if (rc)
+> -			goto out;
+> -		rc = clp_query_pci_fngrp(zdev, rrb->response.pfgid);
+> -	} else {
+> +	rc = zdev_query_pci_fn(zdev, rrb);
+> +	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
+>   		zpci_err("Q PCI FN:\n");
+>   		zpci_err_clp(rrb->response.hdr.rsp, rc);
+>   		rc = -EIO;
+> +		goto out;
+>   	}
+> +	rc = clp_store_query_pci_fn(zdev, &rrb->response);
+> +	if (rc)
+> +		goto out;
+> +
+> +	grrb = (struct clp_req_rsp_query_pci_grp *)rrb;
+> +	rc = zdev_query_pci_fngrp(zdev, grrb);
+> +	if (rc || grrb->response.hdr.rsp != CLP_RC_OK) {
+> +		zpci_err("Q PCI FGRP:\n");
+> +		zpci_err_clp(grrb->response.hdr.rsp, rc);
+> +		rc = -EIO;
+> +		goto out;
+> +	}
+> +	clp_store_query_pci_fngrp(zdev, &grrb->response);
+> +
+>   out:
+>   	clp_free_block(rrb);
+>   	return rc;
+> @@ -219,7 +223,7 @@ int clp_add_pci_device(u32 fid, u32 fh, int configured)
+>   	zdev->fid = fid;
+>   
+>   	/* Query function properties and update zdev */
+> -	rc = clp_query_pci_fn(zdev, fh);
+> +	rc = clp_query_pci(zdev);
+>   	if (rc)
+>   		goto error;
+>   
+> 
