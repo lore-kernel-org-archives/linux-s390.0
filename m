@@ -1,220 +1,110 @@
-Return-Path: <SRS0=ZS0J=TJ=vger.kernel.org=kvm-owner@kernel.org>
-Date: Fri, 10 May 2019 00:34:01 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 04/10] s390/mm: force swiotlb for protected
- virtualization
-In-Reply-To: <20190508151540.14ba1d90@p-imbrenda.boeblingen.de.ibm.com>
+Return-Path: <SRS0=etnf=TK=vger.kernel.org=kvm-owner@kernel.org>
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190426183245.37939-5-pasic@linux.ibm.com>
-        <20190508151540.14ba1d90@p-imbrenda.boeblingen.de.ibm.com>
+ <20190426183245.37939-9-pasic@linux.ibm.com>
+ <716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
+ <a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
+ <20190509202600.4fd6aebe.pasic@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Fri, 10 May 2019 09:43:08 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190510003401.4254f200.pasic@linux.ibm.com>
+In-Reply-To: <20190509202600.4fd6aebe.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 8 May 2019 15:15:40 +0200
-Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
-
-> On Fri, 26 Apr 2019 20:32:39 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+On 09/05/2019 20:26, Halil Pasic wrote:
+> On Thu, 9 May 2019 14:01:01 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> > On s390, protected virtualization guests have to use bounced I/O
-> > buffers.  That requires some plumbing.
-> > 
-> > Let us make sure, any device that uses DMA API with direct ops
-> > correctly is spared from the problems, that a hypervisor attempting
-> > I/O to a non-shared page would bring.
-> > 
-> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > ---
-> >  arch/s390/Kconfig                   |  4 +++
-> >  arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++++
-> >  arch/s390/mm/init.c                 | 50
-> > +++++++++++++++++++++++++++++++++++++ 3 files changed, 72
-> > insertions(+) create mode 100644 arch/s390/include/asm/mem_encrypt.h
-> > 
-> > diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> > index 1c3fcf19c3af..5500d05d4d53 100644
-> > --- a/arch/s390/Kconfig
-> > +++ b/arch/s390/Kconfig
-> > @@ -1,4 +1,7 @@
-> >  # SPDX-License-Identifier: GPL-2.0
-> > +config ARCH_HAS_MEM_ENCRYPT
-> > +        def_bool y
-> > +
-> >  config MMU
-> >  	def_bool y
-> >  
-> > @@ -191,6 +194,7 @@ config S390
-> >  	select ARCH_HAS_SCALED_CPUTIME
-> >  	select VIRT_TO_BUS
-> >  	select HAVE_NMI
-> > +	select SWIOTLB
-> >  
-> >  
-> >  config SCHED_OMIT_FRAME_POINTER
-> > diff --git a/arch/s390/include/asm/mem_encrypt.h
-> > b/arch/s390/include/asm/mem_encrypt.h new file mode 100644
-> > index 000000000000..0898c09a888c
-> > --- /dev/null
-> > +++ b/arch/s390/include/asm/mem_encrypt.h
-> > @@ -0,0 +1,18 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +#ifndef S390_MEM_ENCRYPT_H__
-> > +#define S390_MEM_ENCRYPT_H__
-> > +
-> > +#ifndef __ASSEMBLY__
-> > +
-> > +#define sme_me_mask	0ULL
+>> On 08/05/2019 16:31, Pierre Morel wrote:
+>>> On 26/04/2019 20:32, Halil Pasic wrote:
+>>>> This will come in handy soon when we pull out the indicators from
+>>>> virtio_ccw_device to a memory area that is shared with the hypervisor
+>>>> (in particular for protected virtualization guests).
+>>>>
+>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/virtio/virtio_ccw.c | 40
+>>>> +++++++++++++++++++++++++---------------
+>>>>    1 file changed, 25 insertions(+), 15 deletions(-)
+>>>>
+>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c
+>>>> b/drivers/s390/virtio/virtio_ccw.c
+>>>> index bb7a92316fc8..1f3e7d56924f 100644
+>>>> --- a/drivers/s390/virtio/virtio_ccw.c
+>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>>>> @@ -68,6 +68,16 @@ struct virtio_ccw_device {
+>>>>        void *airq_info;
+>>>>    };
+>>>> +static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
+>>>> +{
+>>>> +    return &vcdev->indicators;
+>>>> +}
+>>>> +
+>>>> +static inline unsigned long *indicators2(struct virtio_ccw_device
+>>>> *vcdev)
+>>>> +{
+>>>> +    return &vcdev->indicators2;
+>>>> +}
+>>>> +
+>>>>    struct vq_info_block_legacy {
+>>>>        __u64 queue;
+>>>>        __u32 align;
+>>>> @@ -337,17 +347,17 @@ static void virtio_ccw_drop_indicator(struct
+>>>> virtio_ccw_device *vcdev,
+>>>>            ccw->cda = (__u32)(unsigned long) thinint_area;
+>>>>        } else {
+>>>>            /* payload is the address of the indicators */
+>>>> -        indicatorp = kmalloc(sizeof(&vcdev->indicators),
+>>>> +        indicatorp = kmalloc(sizeof(indicators(vcdev)),
+>>>>                         GFP_DMA | GFP_KERNEL);
+>>>>            if (!indicatorp)
+>>>>                return;
+>>>>            *indicatorp = 0;
+>>>>            ccw->cmd_code = CCW_CMD_SET_IND;
+>>>> -        ccw->count = sizeof(&vcdev->indicators);
+>>>> +        ccw->count = sizeof(indicators(vcdev));
+>>>
+>>> This looks strange to me. Was already weird before.
+>>> Lucky we are indicators are long...
+>>> may be just sizeof(long)
+>>
 > 
-> This is rather ugly, but I understand why it's there
+> I'm not sure I understand where are you coming from...
 > 
-
-Nod.
-
-> > +
-> > +static inline bool sme_active(void) { return false; }
-> > +extern bool sev_active(void);
-> > +
-> > +int set_memory_encrypted(unsigned long addr, int numpages);
-> > +int set_memory_decrypted(unsigned long addr, int numpages);
-> > +
-> > +#endif	/* __ASSEMBLY__ */
-> > +
-> > +#endif	/* S390_MEM_ENCRYPT_H__ */
-> > +
-> > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> > index 3e82f66d5c61..7e3cbd15dcfa 100644
-> > --- a/arch/s390/mm/init.c
-> > +++ b/arch/s390/mm/init.c
-> > @@ -18,6 +18,7 @@
-> >  #include <linux/mman.h>
-> >  #include <linux/mm.h>
-> >  #include <linux/swap.h>
-> > +#include <linux/swiotlb.h>
-> >  #include <linux/smp.h>
-> >  #include <linux/init.h>
-> >  #include <linux/pagemap.h>
-> > @@ -29,6 +30,7 @@
-> >  #include <linux/export.h>
-> >  #include <linux/cma.h>
-> >  #include <linux/gfp.h>
-> > +#include <linux/dma-mapping.h>
-> >  #include <asm/processor.h>
-> >  #include <linux/uaccess.h>
-> >  #include <asm/pgtable.h>
-> > @@ -42,6 +44,8 @@
-> >  #include <asm/sclp.h>
-> >  #include <asm/set_memory.h>
-> >  #include <asm/kasan.h>
-> > +#include <asm/dma-mapping.h>
-> > +#include <asm/uv.h>
-> >  
-> >  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
-> >  
-> > @@ -126,6 +130,50 @@ void mark_rodata_ro(void)
-> >  	pr_info("Write protected read-only-after-init data: %luk\n",
-> > size >> 10); }
-> >  
-> > +int set_memory_encrypted(unsigned long addr, int numpages)
-> > +{
-> > +	int i;
-> > +
-> > +	/* make all pages shared, (swiotlb, dma_free) */
+> With CCW_CMD_SET_IND we tell the hypervisor the guest physical address
+> at which the so called classic indicators. There is a comment that
+> makes this obvious. The argument of the sizeof was and remained a
+> pointer type. AFAIU this is what bothers you.
+>>
+>> AFAIK the size of the indicators (AIV/AIS) is not restricted by the
+>> architecture.
 > 
-> this is a copypaste typo, I think? (should be UNshared?)
-> also, it doesn't make ALL pages unshared, but only those specified in
-> the parameters
-
-Right a copy paste error. Needs correction. The all was meant like all
-pages in the range specified by the arguments. But it is better changed
-since it turned out to be confusing.
-
+> The size of vcdev->indicators is restricted or defined by the virtio
+> specification. Please have a look at '4.3.2.6.1 Setting Up Classic Queue
+> Indicators' here:
+> https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-1630002
 > 
-> with this fixed:
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> 
+> Since with Linux on s390 only 64 bit is supported, both the sizes are in
+> line with the specification. Using u64 would semantically match the spec
+> better, modulo pre virtio 1.0 which ain't specified. I did not want to
+> do changes that are not necessary for what I'm trying to accomplish. If
+> we want we can change these to u64 with a patch on top.
 
-Thanks!
+I mean you are changing these line already, so why not doing it right 
+while at it?
 
-> > +	for (i = 0; i < numpages; ++i) {
-> > +		uv_remove_shared(addr);
-> > +		addr += PAGE_SIZE;
-> > +	}
-> > +	return 0;
-> > +}
-> > +EXPORT_SYMBOL_GPL(set_memory_encrypted);
-> > +
-> > +int set_memory_decrypted(unsigned long addr, int numpages)
-> > +{
-> > +	int i;
-> > +	/* make all pages shared (swiotlb, dma_alloca) */
-> 
-> same here with ALL
-> 
-> > +	for (i = 0; i < numpages; ++i) {
-> > +		uv_set_shared(addr);
-> > +		addr += PAGE_SIZE;
-> > +	}
-> > +	return 0;
-> > +}
-> > +EXPORT_SYMBOL_GPL(set_memory_decrypted);
-> > +
-> > +/* are we a protected virtualization guest? */
-> > +bool sev_active(void)
-> 
-> this is also ugly. the correct solution would be probably to refactor
-> everything, including all the AMD SEV code.... let's not go there
-> 
+Pierre
 
-Nod. Maybe later.
-
-> > +{
-> > +	return is_prot_virt_guest();
-> > +}
-> > +EXPORT_SYMBOL_GPL(sev_active);
-> > +
-> > +/* protected virtualization */
-> > +static void pv_init(void)
-> > +{
-> > +	if (!sev_active())
-> 
-> can't you just use is_prot_virt_guest here?
-> 
-
-Sure! I guess it would be less confusing. It is something I did not
-remember to change when the interface for this provided by uv.h went
-from sketchy to nice.
-
-Thanks again!
-
-Regards,
-Halil
-
-> > +		return;
-> > +
-> > +	/* make sure bounce buffers are shared */
-> > +	swiotlb_init(1);
-> > +	swiotlb_update_mem_attributes();
-> > +	swiotlb_force = SWIOTLB_FORCE;
-> > +}
-> > +
-> >  void __init mem_init(void)
-> >  {
-> >  	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
-> > @@ -134,6 +182,8 @@ void __init mem_init(void)
-> >  	set_max_mapnr(max_low_pfn);
-> >          high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
-> >  
-> > +	pv_init();
-> > +
-> >  	/* Setup guest page hinting */
-> >  	cmma_init();
-> >  
-> 
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
