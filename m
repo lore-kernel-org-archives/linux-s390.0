@@ -1,48 +1,60 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Fri, 10 May 2019 10:06:02 +0200
+From: Petr Mladek <pmladek@suse.com>
 Subject: Re: [PATCH] vsprintf: Do not break early boot with probing addresses
-In-Reply-To: <20190510050709.GA1831@jagdpanzerIV>
-References: <20190509121923.8339-1-pmladek@suse.com> <20190510043200.GC15652@jagdpanzerIV> <CAHk-=wiP+hwSqEW0dM6AYNWUR7jXDkeueq69et6ahfUgV7hC3w@mail.gmail.com> <20190510050709.GA1831@jagdpanzerIV>
-Date: Fri, 10 May 2019 16:41:24 +1000
-Message-ID: <87h8a2vmjv.fsf@concordia.ellerman.id.au>
+Message-ID: <20190510080602.mdfk54f6lpyg6unw@pathway.suse.cz>
+References: <20190509121923.8339-1-pmladek@suse.com>
+ <20190510043200.GC15652@jagdpanzerIV>
+ <CAHk-=wiP+hwSqEW0dM6AYNWUR7jXDkeueq69et6ahfUgV7hC3w@mail.gmail.com>
+ <20190510050709.GA1831@jagdpanzerIV>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190510050709.GA1831@jagdpanzerIV>
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190510064124.q7J_CwuPPeHjW5ZMFj9t16uRiB6ATm6nxxi7Biu_ngY@z>
+Message-ID: <20190510080602.36-virBOPDomDAXDbVYusr-C7NH4SabZGccCMnPdJH4@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Petr Mladek <pmladek@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Russell Currey <ruscur@russell.cc>, Christophe Leroy <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com> writes:
+On Fri 2019-05-10 14:07:09, Sergey Senozhatsky wrote:
 > On (05/09/19 21:47), Linus Torvalds wrote:
->>    [ Sorry about html and mobile crud, I'm not at the computer right now ]
->>    How about we just undo the whole misguided probe_kernel_address() thing?
->
+> >    [ Sorry about html and mobile crud, I'm not at the computer right now ]
+> >    How about we just undo the whole misguided probe_kernel_address() thing?
+> 
 > But the problem will remain - %pS/%pF on PPC (and some other arch-s)
 > do dereference_function_descriptor(), which calls probe_kernel_address().
-
-(Only on 64-bit big endian, and we may even change that one day)
-
 > So if probe_kernel_address() starts to dump_stack(), then we are heading
 > towards stack overflow. Unless I'm totally missing something.
 
-We only ended up calling dump_stack() from probe_kernel_address() due to
-a combination of things:
-  1. probe_kernel_address() actually uses __copy_from_user_inatomic()
-     which is silly because it's not doing a user access.
-  2. our user access code uses mmu_has_feature() which uses jump labels,
-     and so isn't safe to call until we've initialised those jump labels.
-     This is unnecessarily fragile, we can easily make the user access
-     code safe to call before the jump labels are initialised.
-  3. we had extra debug code enabled in mmu_has_feature() which calls
-     dump_stack().
+That is true. On the other hand, %pS/%pF uses
+dereference_function_descriptor() only on three architectures.
+And these modifiers are used only rarely (ok, in dump_stack()
+but still).
 
-I've fixed 2, and plan to fix 1 as well at some point. And 3 is behind a
-CONFIG option that no one except me is going to have enabled in
-practice.
+On the other hand, any infinite loop in vsprintf() via
+probe_kernel_address() would break any printk(). And would be
+hard to debug.
 
-So in future we shouldn't be calling dump_stack() in that path.
+I tend to agree with Linus. probe_kernel_address() is too complicated.
+It is prone to these infinite loops and should not be used in
+the default printk() path.
 
-cheers
+It would be nice to have a lightweight and safe alternative. But
+I can't find any. And I think that it is not worth any huge
+complexity. It was just a nice to have idea...
+
+
+I am going to send a patch replacing probe_kernel_address() with
+a simple check:
+
+	if ((unsigned long)ptr < PAGE_SIZE || IS_ERR_VALUE(ptr))
+		return "(efault)";
+
+The original patch still makes sense because it adds the check
+into more locations and replaces some custom variants.
+
+Best Regards,
+Petr
