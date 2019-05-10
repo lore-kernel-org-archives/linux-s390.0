@@ -1,181 +1,161 @@
-Return-Path: <SRS0=KhOk=TH=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v2 2/7] s390: vfio-ap: maintain a shadow of the guest's
- CRYCB
-References: <1556918073-13171-1-git-send-email-akrowiak@linux.ibm.com>
- <1556918073-13171-3-git-send-email-akrowiak@linux.ibm.com>
- <2f980dbc-4765-aba8-46fc-848ee66854d6@linux.ibm.com>
- <a47e980e-95e5-f44c-b8fd-e8a7d3d9b625@linux.ibm.com>
- <9d467999-21db-e362-0b65-f0826c6b485d@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Date: Tue, 7 May 2019 11:15:27 -0400
-MIME-Version: 1.0
-In-Reply-To: <9d467999-21db-e362-0b65-f0826c6b485d@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <f956b4c9-1323-871e-46e2-8c91b1c16dc9@linux.ibm.com>
+Return-Path: <SRS0=etnf=TK=vger.kernel.org=kvm-owner@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH 1/4] s390: pci: Exporting access to CLP PCI function and PCI group
+Date: Fri, 10 May 2019 10:22:32 +0200
+In-Reply-To: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
+References: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1557476555-20256-2-git-send-email-pmorel@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: pmorel@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
+To: sebott@linux.vnet.ibm.com
+Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/7/19 4:22 AM, Pierre Morel wrote:
-> On 06/05/2019 21:53, Tony Krowiak wrote:
->> On 5/6/19 2:49 AM, Pierre Morel wrote:
->>> On 03/05/2019 23:14, Tony Krowiak wrote:
->>>> This patch introduces a shadow of the CRYCB being used by a guest. This
->>>> will enable to more effectively manage dynamic changes to the AP
->>>> resources installed on the host that may be assigned to an mdev device
->>>> and being used by a guest. For example:
->>>>
->>>> * AP adapter cards can be dynamically added to and removed from the AP
->>>>    configuration via the SE or an SCLP command.
->>>>
->>>> * AP resources that disappear and reappear due to hardware 
->>>> malfunctions.
->>>>
->>>> * AP queues bound to and unbound from the vfio_ap device driver by a
->>>>    root user.
->>>>
->>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->>>> ---
->>>>   drivers/s390/crypto/vfio_ap_ops.c     | 91 
->>>> ++++++++++++++++++++++++++++++++---
->>>>   drivers/s390/crypto/vfio_ap_private.h |  2 +
->>>>   2 files changed, 87 insertions(+), 6 deletions(-)
->>>>
->>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c 
->>>> b/drivers/s390/crypto/vfio_ap_ops.c
->>>> index b88a2a2ba075..44a04b4aa9ae 100644
->>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
->>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->>>> @@ -297,6 +297,45 @@ static void 
->>>> vfio_ap_mdev_wait_for_qempty(unsigned long apid, unsigned long apqi)
->>>>       } while (--retry);
->>>>   }
->>>> +/*
->>>> + * vfio_ap_mdev_update_crycb
->>>> + *
->>>> + * @matrix_mdev: the mediated matrix device
->>>> + *
->>>> + * Updates the AP matrix in the guest's CRYCB from it's shadow masks.
->>>> + *
->>>> + * Returns zero if the guest's CRYCB is successfully updated; 
->>>> otherwise,
->>>> + * returns -ENODEV if a guest is not running or does not have a CRYCB.
->>>> + */
->>>> +static int vfio_ap_mdev_update_crycb(struct ap_matrix_mdev 
->>>> *matrix_mdev)
->>>> +{
->>>> +    if (!matrix_mdev->kvm || !matrix_mdev->kvm->arch.crypto.crycbd)
->>>> +        return -ENODEV;
->>>> +
->>>> +    kvm_arch_crypto_set_masks(matrix_mdev->kvm,
->>>> +                  matrix_mdev->shadow_crycb->apm,
->>>> +                  matrix_mdev->shadow_crycb->aqm,
->>>> +                  matrix_mdev->shadow_crycb->adm);
->>>> +
->>>> +    return 0;
->>>> +}
->>>> +
->>>> +static int match_apqn(struct device *dev, void *data)
->>>> +{
->>>> +    struct ap_queue *apq = to_ap_queue(dev);
->>>> +
->>>> +    return (apq->qid == *(unsigned long *)(data)) ? 1 : 0;
->>>> +}
->>>> +
->>>> +static struct device *vfio_ap_get_queue_dev(unsigned long apid,
->>>> +                         unsigned long apqi)
->>>> +{
->>>> +    unsigned long apqn = AP_MKQID(apid, apqi);
->>>> +
->>>> +    return driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
->>>> +                  &apqn, match_apqn);
->>>> +}
->>>> +
->>>>   /**
->>>>    * assign_adapter_store
->>>>    *
->>>> @@ -805,14 +844,9 @@ static int vfio_ap_mdev_group_notifier(struct 
->>>> notifier_block *nb,
->>>>       if (ret)
->>>>           return NOTIFY_DONE;
->>>> -    /* If there is no CRYCB pointer, then we can't copy the masks */
->>>> -    if (!matrix_mdev->kvm->arch.crypto.crycbd)
->>>> +    if (vfio_ap_mdev_update_crycb(matrix_mdev))
->>>>           return NOTIFY_DONE;
->>>> -    kvm_arch_crypto_set_masks(matrix_mdev->kvm, 
->>>> matrix_mdev->matrix.apm,
->>>> -                  matrix_mdev->matrix.aqm,
->>>> -                  matrix_mdev->matrix.adm);
->>>> -
->>>>       return NOTIFY_OK;
->>>>   }
->>>> @@ -867,12 +901,55 @@ static int vfio_ap_mdev_reset_queues(struct 
->>>> mdev_device *mdev)
->>>>       return rc;
->>>>   }
->>>> +static int vfio_ap_mdev_create_shadow_crycb(struct ap_matrix_mdev 
->>>> *matrix_mdev)
->>>> +{
->>>> +    unsigned long apid, apqi, domid;
->>>> +    struct device *dev;
->>>> +
->>>> +    matrix_mdev->shadow_crycb = 
->>>> kzalloc(sizeof(*matrix_mdev->shadow_crycb),
->>>> +                        GFP_KERNEL);
->>>> +    if (!matrix_mdev->shadow_crycb)
->>>> +        return -ENOMEM;
->>>> +
->>>> +    vfio_ap_matrix_init(&matrix_dev->info, matrix_mdev->shadow_crycb);
->>>> +
->>>> +    /*
->>>> +     * Examine each APQN assigned to the mdev device. Set the APID 
->>>> and APQI
->>>> +     * in the shadow CRYCB if and only if the queue device 
->>>> identified by
->>>> +     * the APQN is in the configuration.
->>>> +     */
->>>> +    for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
->>>> +                 matrix_mdev->matrix.apm_max + 1) {
->>>> +        for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
->>>> +                     matrix_mdev->matrix.aqm_max + 1) {
->>>> +            dev = vfio_ap_get_queue_dev(apid, apqi);
->>>> +            if (dev) {
->>>> +                set_bit_inv(apid,
->>>> +                        matrix_mdev->shadow_crycb->apm);
->>>> +                set_bit_inv(apqi,
->>>> +                        matrix_mdev->shadow_crycb->aqm);
->>>> +                put_device(dev);
->>>> +            }
->>>
->>> I think that if we do not find a device here we have a problem.
->>> Don't we?
->>
->> Other than the fact that the guest will not have any AP devices,
->> what would be the problem? What would you suggest?
->>
-> 
-> Suppose we have in matrix_mdev->matrix:
-> 1-2
-> 1-3
-> 2-2
-> 2-3
-> 
-> We set the shadow_crycb with:
-> we find 1-2 we set 1 2
-> we find 1-3 we se 1 3
-> we find 2-2 we set 2 2
-> we do not find 2-3
-> 
-> we have set apm(1,2) aqm(2,3)
-> the guest can access 2-3 but we do not have the device.
+For the generic implementation of VFIO PCI we need to retrieve
+the hardware configuration for the PCI functions and the
+PCI function groups.
 
-Good point. I'll fix this for v4.
+We modify the internal function using CLP Query PCI function and
+CLP query PCI function group so that they can be called from
+outside the S390 architecture PCI code and prefix the two
+functions with "zdev" to make clear that they can be called
+knowing only the associated zdevice.
 
-> 
-> Pierre
-> 
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+---
+ arch/s390/include/asm/pci.h |  3 ++
+ arch/s390/pci/pci_clp.c     | 72 ++++++++++++++++++++++++---------------------
+ 2 files changed, 41 insertions(+), 34 deletions(-)
+
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index 305befd..e66b246 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -261,4 +261,7 @@ cpumask_of_pcibus(const struct pci_bus *bus)
+ 
+ #endif /* CONFIG_NUMA */
+ 
++int zdev_query_pci_fngrp(struct zpci_dev *zdev,
++			 struct clp_req_rsp_query_pci_grp *rrb);
++int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb);
+ #endif
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index 3a36b07..4ae5d77 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -113,32 +113,18 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
+ 	}
+ }
+ 
+-static int clp_query_pci_fngrp(struct zpci_dev *zdev, u8 pfgid)
++int zdev_query_pci_fngrp(struct zpci_dev *zdev,
++			 struct clp_req_rsp_query_pci_grp *rrb)
+ {
+-	struct clp_req_rsp_query_pci_grp *rrb;
+-	int rc;
+-
+-	rrb = clp_alloc_block(GFP_KERNEL);
+-	if (!rrb)
+-		return -ENOMEM;
+-
+ 	memset(rrb, 0, sizeof(*rrb));
+ 	rrb->request.hdr.len = sizeof(rrb->request);
+ 	rrb->request.hdr.cmd = CLP_QUERY_PCI_FNGRP;
+ 	rrb->response.hdr.len = sizeof(rrb->response);
+-	rrb->request.pfgid = pfgid;
++	rrb->request.pfgid = zdev->pfgid;
+ 
+-	rc = clp_req(rrb, CLP_LPS_PCI);
+-	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
+-		clp_store_query_pci_fngrp(zdev, &rrb->response);
+-	else {
+-		zpci_err("Q PCI FGRP:\n");
+-		zpci_err_clp(rrb->response.hdr.rsp, rc);
+-		rc = -EIO;
+-	}
+-	clp_free_block(rrb);
+-	return rc;
++	return clp_req(rrb, CLP_LPS_PCI);
+ }
++EXPORT_SYMBOL(zdev_query_pci_fngrp);
+ 
+ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 				  struct clp_rsp_query_pci *response)
+@@ -174,32 +160,50 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 	return 0;
+ }
+ 
+-static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
++int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb)
++{
++
++	memset(rrb, 0, sizeof(*rrb));
++	rrb->request.hdr.len = sizeof(rrb->request);
++	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
++	rrb->response.hdr.len = sizeof(rrb->response);
++	rrb->request.fh = zdev->fh;
++
++	return clp_req(rrb, CLP_LPS_PCI);
++}
++EXPORT_SYMBOL(zdev_query_pci_fn);
++
++static int clp_query_pci(struct zpci_dev *zdev)
+ {
+ 	struct clp_req_rsp_query_pci *rrb;
++	struct clp_req_rsp_query_pci_grp *grrb;
+ 	int rc;
+ 
+ 	rrb = clp_alloc_block(GFP_KERNEL);
+ 	if (!rrb)
+ 		return -ENOMEM;
+ 
+-	memset(rrb, 0, sizeof(*rrb));
+-	rrb->request.hdr.len = sizeof(rrb->request);
+-	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
+-	rrb->response.hdr.len = sizeof(rrb->response);
+-	rrb->request.fh = fh;
+-
+-	rc = clp_req(rrb, CLP_LPS_PCI);
+-	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+-		rc = clp_store_query_pci_fn(zdev, &rrb->response);
+-		if (rc)
+-			goto out;
+-		rc = clp_query_pci_fngrp(zdev, rrb->response.pfgid);
+-	} else {
++	rc = zdev_query_pci_fn(zdev, rrb);
++	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
+ 		zpci_err("Q PCI FN:\n");
+ 		zpci_err_clp(rrb->response.hdr.rsp, rc);
+ 		rc = -EIO;
++		goto out;
+ 	}
++	rc = clp_store_query_pci_fn(zdev, &rrb->response);
++	if (rc)
++		goto out;
++
++	grrb = (struct clp_req_rsp_query_pci_grp *)rrb;
++	rc = zdev_query_pci_fngrp(zdev, grrb);
++	if (rc || grrb->response.hdr.rsp != CLP_RC_OK) {
++		zpci_err("Q PCI FGRP:\n");
++		zpci_err_clp(grrb->response.hdr.rsp, rc);
++		rc = -EIO;
++		goto out;
++	}
++	clp_store_query_pci_fngrp(zdev, &grrb->response);
++
+ out:
+ 	clp_free_block(rrb);
+ 	return rc;
+@@ -219,7 +223,7 @@ int clp_add_pci_device(u32 fid, u32 fh, int configured)
+ 	zdev->fid = fid;
+ 
+ 	/* Query function properties and update zdev */
+-	rc = clp_query_pci_fn(zdev, fh);
++	rc = clp_query_pci(zdev);
+ 	if (rc)
+ 		goto error;
+ 
+-- 
+2.7.4
