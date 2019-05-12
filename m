@@ -1,88 +1,201 @@
 Return-Path: <SRS0=FItE=TM=vger.kernel.org=kvm-owner@kernel.org>
-Date: Sun, 12 May 2019 12:47:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 01/10] virtio/s390: use vring_create_virtqueue
-Message-ID: <20190512124730-mutt-send-email-mst@kernel.org>
+Date: Sun, 12 May 2019 20:22:56 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
+In-Reply-To: <20190510161013.7e697337.cohuck@redhat.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-2-pasic@linux.ibm.com>
- <20190503111724.70c6ec37.cohuck@redhat.com>
- <20190503160421-mutt-send-email-mst@kernel.org>
- <20190504160340.29f17b98.pasic@linux.ibm.com>
- <20190505131523.159bec7c.cohuck@redhat.com>
- <ed6cbf63-f2ff-f259-ccb0-3b9ba60f2b35@de.ibm.com>
- <20190510160744.00285367.cohuck@redhat.com>
+ <20190426183245.37939-6-pasic@linux.ibm.com>
+ <alpine.LFD.2.21.1905081447280.1773@schleppi>
+ <20190508232210.5a555caa.pasic@linux.ibm.com>
+ <20190509121106.48aa04db.cohuck@redhat.com>
+ <20190510001112.479b2fd7.pasic@linux.ibm.com>
+ <20190510161013.7e697337.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190510160744.00285367.cohuck@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190512202256.5517592d.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: Sebastian Ott <sebott@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 10, 2019 at 04:07:44PM +0200, Cornelia Huck wrote:
-> On Tue, 7 May 2019 15:58:12 +0200
-> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Fri, 10 May 2019 16:10:13 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> On Fri, 10 May 2019 00:11:12 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
-> > On 05.05.19 13:15, Cornelia Huck wrote:
-> > > On Sat, 4 May 2019 16:03:40 +0200
+> > On Thu, 9 May 2019 12:11:06 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > On Wed, 8 May 2019 23:22:10 +0200
 > > > Halil Pasic <pasic@linux.ibm.com> wrote:
 > > >   
-> > >> On Fri, 3 May 2019 16:04:48 -0400
-> > >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > >>  
-> > >>> On Fri, May 03, 2019 at 11:17:24AM +0200, Cornelia Huck wrote:    
-> > >>>> On Fri, 26 Apr 2019 20:32:36 +0200
-> > >>>> Halil Pasic <pasic@linux.ibm.com> wrote:
-> > >>>>     
-> > >>>>> The commit 2a2d1382fe9d ("virtio: Add improved queue allocation API")
-> > >>>>> establishes a new way of allocating virtqueues (as a part of the effort
-> > >>>>> that taught DMA to virtio rings).
-> > >>>>>
-> > >>>>> In the future we will want virtio-ccw to use the DMA API as well.
-> > >>>>>
-> > >>>>> Let us switch from the legacy method of allocating virtqueues to
-> > >>>>> vring_create_virtqueue() as the first step into that direction.
-> > >>>>>
-> > >>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > >>>>> ---
-> > >>>>>  drivers/s390/virtio/virtio_ccw.c | 30 +++++++++++-------------------
-> > >>>>>  1 file changed, 11 insertions(+), 19 deletions(-)    
-> > >>>>
-> > >>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> > >>>>
-> > >>>> I'd vote for merging this patch right away for 5.2.    
-> > >>>
-> > >>> So which tree is this going through? mine?
-> > >>>     
-> > >>
-> > >> Christian, what do you think? If the whole series is supposed to go in
-> > >> in one go (which I hope it is), via Martin's tree could be the simplest
-> > >> route IMHO.  
+> > > > On Wed, 8 May 2019 15:18:10 +0200 (CEST)
+> > > > Sebastian Ott <sebott@linux.ibm.com> wrote:  
+> > >   
+> > > > > > @@ -1063,6 +1163,7 @@ static int __init css_bus_init(void)
+> > > > > >  		unregister_reboot_notifier(&css_reboot_notifier);
+> > > > > >  		goto out_unregister;
+> > > > > >  	}
+> > > > > > +	cio_dma_pool_init();      
+> > > > > 
+> > > > > This is too late for early devices (ccw console!).    
+> > > > 
+> > > > You have already raised concern about this last time (thanks). I think,
+> > > > I've addressed this issue: the cio_dma_pool is only used by the airq
+> > > > stuff. I don't think the ccw console needs it. Please have an other look
+> > > > at patch #6, and explain your concern in more detail if it persists.  
 > > > 
-> > > 
-> > > The first three patches are virtio(-ccw) only and the those are the ones
-> > > that I think are ready to go.
-> > > 
-> > > I'm not feeling comfortable going forward with the remainder as it
-> > > stands now; waiting for some other folks to give feedback. (They are
-> > > touching/interacting with code parts I'm not so familiar with, and lack
-> > > of documentation, while not the developers' fault, does not make it
-> > > easier.)
-> > > 
-> > > Michael, would you like to pick up 1-3 for your tree directly? That
-> > > looks like the easiest way.  
+> > > What about changing the naming/adding comments here, so that (1) folks
+> > > aren't confused by the same thing in the future and (2) folks don't try
+> > > to use that pool for something needed for the early ccw consoles?
+> > >   
 > > 
-> > Agreed. Michael please pick 1-3.
-> > We will continue to review 4- first and then see which tree is best.
+> > I'm all for clarity! Suggestions for better names?
 > 
-> Michael, please let me know if you'll pick directly or whether I should
-> post a series.
+> css_aiv_dma_pool, maybe? Or is there other cross-device stuff that may
+> need it?
 > 
-> [Given that the patches are from one virtio-ccw maintainer and reviewed
-> by the other, picking directly would eliminate an unnecessary
-> indirection :)]
 
-picked them
+Ouch! I was considering to use cio_dma_zalloc() for the adapter
+interruption vectors but I ended up between the two chairs in the end.
+So with this series there are no uses for cio_dma pool.
+
+I don't feel strongly about this going one way the other.
+
+Against getting rid of the cio_dma_pool and sticking with the speaks
+dma_alloc_coherent() that we waste a DMA page per vector, which is a
+non obvious side effect.
+
+What speaks against cio_dma_pool is that it is slightly more code, and
+this currently can not be used for very early stuff, which I don't
+think is relevant. What also used to speak against it is that
+allocations asking for more than a page would just fail, but I addressed
+that in the patch I've hacked up on top of the series, and I'm going to
+paste below. While at it I addressed some other issues as well.
+
+I've also got code that deals with AIRQ_IV_CACHELINE by turning the
+kmem_cache into a dma_pool.
+
+Cornelia, Sebastian which approach do you prefer:
+1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
+vector, or
+2) go with the approach taken by the patch below?
+
+
+Regards,
+Halil
+-----------------------8<---------------------------------------------
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Sun, 12 May 2019 18:08:05 +0200
+Subject: [PATCH] WIP: use cio dma pool for airqs
+
+Let's not waste a DMA page per adapter interrupt bit vector.
+---
+Lightly tested...
+---
+ arch/s390/include/asm/airq.h |  1 -
+ drivers/s390/cio/airq.c      | 10 +++-------
+ drivers/s390/cio/css.c       | 18 +++++++++++++++---
+ 3 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index 1492d48..981a3eb 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -30,7 +30,6 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
+ /* Adapter interrupt bit vector */
+ struct airq_iv {
+ 	unsigned long *vector;	/* Adapter interrupt bit vector */
+-	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
+ 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
+ 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
+ 	unsigned long *ptr;	/* Pointer associated with each bit */
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index 7a5c0a0..f11f437 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -136,8 +136,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 		goto out;
+ 	iv->bits = bits;
+ 	size = iv_size(bits);
+-	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
+-						 &iv->vector_dma, GFP_KERNEL);
++	iv->vector = cio_dma_zalloc(size);
+ 	if (!iv->vector)
+ 		goto out_free;
+ 	if (flags & AIRQ_IV_ALLOC) {
+@@ -172,8 +171,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 	kfree(iv->ptr);
+ 	kfree(iv->bitlock);
+ 	kfree(iv->avail);
+-	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
+-			  iv->vector_dma);
++	cio_dma_free(iv->vector, size);
+ 	kfree(iv);
+ out:
+ 	return NULL;
+@@ -189,9 +187,7 @@ void airq_iv_release(struct airq_iv *iv)
+ 	kfree(iv->data);
+ 	kfree(iv->ptr);
+ 	kfree(iv->bitlock);
+-	kfree(iv->vector);
+-	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
+-			  iv->vector, iv->vector_dma);
++	cio_dma_free(iv->vector, iv_size(iv->bits));
+ 	kfree(iv->avail);
+ 	kfree(iv);
+ }
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 7087cc3..88d9c92 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -1063,7 +1063,10 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
+ static void __gp_dma_free_dma(struct gen_pool *pool,
+ 			      struct gen_pool_chunk *chunk, void *data)
+ {
+-	dma_free_coherent((struct device *) data, PAGE_SIZE,
++
++	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
++
++	dma_free_coherent((struct device *) data, chunk_size,
+ 			 (void *) chunk->start_addr,
+ 			 (dma_addr_t) chunk->phys_addr);
+ }
+@@ -1088,13 +1091,15 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+ {
+ 	dma_addr_t dma_addr;
+ 	unsigned long addr = gen_pool_alloc(gp_dma, size);
++	size_t chunk_size;
+ 
+ 	if (!addr) {
++		chunk_size = round_up(size, PAGE_SIZE);
+ 		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+-					PAGE_SIZE, &dma_addr, CIO_DMA_GFP);
++					 chunk_size, &dma_addr, CIO_DMA_GFP);
+ 		if (!addr)
+ 			return NULL;
+-		gen_pool_add_virt(gp_dma, addr, dma_addr, PAGE_SIZE, -1);
++		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+ 		addr = gen_pool_alloc(gp_dma, size);
+ 	}
+ 	return (void *) addr;
+@@ -1108,6 +1113,13 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+ 	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
+ }
+ 
++/**
++ * Allocate dma memory from the css global pool. Intended for memory not
++ * specific to any single device within the css.
++ *
++ * Caution: Not suitable for early stuff like console.
++ *
++ */
+ void *cio_dma_zalloc(size_t size)
+ {
+ 	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+-- 
+2.5.5
