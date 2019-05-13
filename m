@@ -1,85 +1,55 @@
-Return-Path: <SRS0=5q+O=TJ=kvack.org=owner-linux-mm@kernel.org>
-Subject: Re: [PATCH v2 4/8] mm/memory_hotplug: Create memory block devices
- after arch_add_memory()
+Return-Path: <SRS0=GvbC=TN=kvack.org=owner-linux-mm@kernel.org>
+Subject: Re: [PATCH v2 3/8] mm/memory_hotplug: arch_remove_memory() and
+ __remove_pages() with CONFIG_MEMORY_HOTPLUG
 References: <20190507183804.5512-1-david@redhat.com>
- <20190507183804.5512-5-david@redhat.com>
- <20190509143151.zexjmwu3ikkmye7i@master>
- <28071389-372c-14eb-1209-02464726b4f0@redhat.com>
- <20190509215034.jl2qejw3pzqtbu5d@master>
+ <20190507183804.5512-4-david@redhat.com>
+ <CAPcyv4jpnKjeP3QEvF3_9CzdZhtFXN2nMU7P-Ee7y06J3bGZ0A@mail.gmail.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <c5cfec90-8837-8d84-29fa-564e4e5923a1@redhat.com>
-Date: Fri, 10 May 2019 00:18:50 +0200
+Message-ID: <c027a782-1cef-a076-92a3-3ce36140f3f2@redhat.com>
+Date: Mon, 13 May 2019 09:48:31 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190509215034.jl2qejw3pzqtbu5d@master>
+In-Reply-To: <CAPcyv4jpnKjeP3QEvF3_9CzdZhtFXN2nMU7P-Ee7y06J3bGZ0A@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-mm@kvack.org
 List-Archive: <https://lore.kernel.org/linux-mm/>
 List-Post: <mailto:linux-mm@kvack.org>
-To: Wei Yang <richard.weiyang@gmail.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Ingo Molnar <mingo@kernel.org>, Andrew Banman <andrew.banman@hpe.com>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
+To: Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@suse.com>, Oscar Salvador <osalvador@suse.com>
+Cc: Linux MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Christophe Leroy <christophe.leroy@c-s.fr>, Nicholas Piggin <npiggin@gmail.com>, Vasily Gorbik <gor@linux.ibm.com>, Rob Herring <robh@kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Andrew Banman <andrew.banman@hpe.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richardw.yang@linux.intel.com>, Arun KS <arunks@codeaurora.org>, Qian Cai <cai@lca.pw>, Mathieu Malaterre <malat@debian.org>, Baoquan He <bhe@redhat.com>, Logan Gunthorpe <logang@deltatee.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-> Looks good to me.
-> 
+On 07.05.19 23:02, Dan Williams wrote:
+> On Tue, May 7, 2019 at 11:38 AM David Hildenbrand <david@redhat.com> wrote:
 >>
->> (I would actually even prefer "memory_block_devices", because memory
->> blocks have different meanins)
+>> Let's prepare for better error handling while adding memory by allowing
+>> to use arch_remove_memory() and __remove_pages() even if
+>> CONFIG_MEMORY_HOTREMOVE is not set. CONFIG_MEMORY_HOTREMOVE effectively
+>> covers
+>> - Offlining of system ram (memory block devices) - offline_pages()
+>> - Unplug of system ram - remove_memory()
+>> - Unplug/remap of device memory - devm_memremap()
 >>
-> 
-> Agree with you, this comes to my mind sometime ago :-)
-
-We have memblocks, memory_blocks  ... I guess memory_block_device is
-unique :)
-
-> 
->>>
->>> [...]
->>>
->>>> /*
->>>> @@ -1106,6 +1100,13 @@ int __ref add_memory_resource(int nid, struct resource *res)
->>>> 	if (ret < 0)
->>>> 		goto error;
->>>>
->>>> +	/* create memory block devices after memory was added */
->>>> +	ret = hotplug_memory_register(start, size);
->>>> +	if (ret) {
->>>> +		arch_remove_memory(nid, start, size, NULL);
->>>
->>> Functionally, it works I think.
->>>
->>> But arch_remove_memory() would remove pages from zone. At this point, we just
->>> allocate section/mmap for pages, the zones are empty and pages are not
->>> connected to zone.
->>>
->>> Function  zone = page_zone(page); always gets zone #0, since pages->flags is 0
->>> at  this point. This is not exact.
->>>
->>> Would we add some comment to mention this? Or we need to clean up
->>> arch_remove_memory() to take out __remove_zone()?
+>> This allows e.g. for handling like
 >>
->> That is precisely what is on my list next (see cover letter).This is
->> already broken when memory that was never onlined is removed again.
->> So I am planning to fix that independently.
+>> arch_add_memory()
+>> rc = do_something();
+>> if (rc) {
+>>         arch_remove_memory();
+>> }
 >>
+>> Whereby do_something() will for example be memory block device creation
+>> after it has been factored out.
 > 
-> Sounds great :-)
-
-Especially, I suspect a lot of bugs in the area of
-
-1. Remove memory that has never been onlined
-2. Remove memory that has been onlined/offlined a couple of times
-3. Remove memory that has been onlined to different zones.
-
-Will see when refactoring if my intuition is right :)
-
+> What's left after this? Can we just get rid of CONFIG_MEMORY_HOTREMOVE
+> option completely when CONFIG_MEMORY_HOTPLUG is enabled? It's not
+> clear to me why there was ever the option to compile out the remove
+> code when the add code is included.
 > 
-> Hope you would cc me in the following series.
 
-
-Sure! Thanks!
-
+If there are no other comments, I will go ahead and rip out
+CONFIG_MEMORY_HOTREMOVE completely, gluing the functionality to
+CONFIG_MEMORY_HOTPLUG.
 
 -- 
 
