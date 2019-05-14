@@ -1,10 +1,10 @@
 Return-Path: <SRS0=Fa9J=TO=vger.kernel.org=kvm-owner@kernel.org>
 From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 5/7] s390/cio: Allow zero-length CCWs in vfio-ccw
-Date: Wed, 15 May 2019 01:42:46 +0200
+Subject: [PATCH v2 7/7] s390/cio: Remove vfio-ccw checks of command codes
+Date: Wed, 15 May 2019 01:42:48 +0200
 In-Reply-To: <20190514234248.36203-1-farman@linux.ibm.com>
 References: <20190514234248.36203-1-farman@linux.ibm.com>
-Message-Id: <20190514234248.36203-6-farman@linux.ibm.com>
+Message-Id: <20190514234248.36203-8-farman@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,128 +12,68 @@ To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-It is possible that a guest might issue a CCW with a length of zero,
-and will expect a particular response.  Consider this chain:
+If the CCW being processed is a No-Operation, then by definition no
+data is being transferred.  Let's fold those checks into the normal
+CCW processors, rather than skipping out early.
 
-   Address   Format-1 CCW
-   --------  -----------------
- 0 33110EC0  346022CC 33177468
- 1 33110EC8  CF200000 3318300C
+Likewise, if the CCW being processed is a "test" (an invented
+definition to simply mean it ends in a zero), let's permit that to go
+through to the hardware.  There's nothing inherently unique about
+those command codes versus one that ends in an eight [1], or any other
+otherwise valid command codes that are undefined for the device type
+in question.
 
-CCW[0] moves a little more than two pages, but also has the
-Suppress Length Indication (SLI) bit set to handle the expectation
-that considerably less data will be moved.  CCW[1] also has the SLI
-bit set, and has a length of zero.  Once vfio-ccw does its magic,
-the kernel issues a start subchannel on behalf of the guest with this:
-
-   Address   Format-1 CCW
-   --------  -----------------
- 0 021EDED0  346422CC 021F0000
- 1 021EDED8  CF240000 3318300C
-
-Both CCWs were converted to an IDAL and have the corresponding flags
-set (which is by design), but only the address of the first data
-address is converted to something the host is aware of.  The second
-CCW still has the address used by the guest, which happens to be (A)
-(probably) an invalid address for the host, and (B) an invalid IDAW
-address (doubleword boundary, etc.).
-
-While the I/O fails, it doesn't fail correctly.  In this example, we
-would receive a program check for an invalid IDAW address, instead of
-a unit check for an invalid command.
-
-To fix this, revert commit 4cebc5d6a6ff ("vfio: ccw: validate the
-count field of a ccw before pinning") and allow the individual fetch
-routines to process them like anything else.  We'll make a slight
-adjustment to our allocation of the pfn_array (for direct CCWs) or
-IDAL (for IDAL CCWs) memory, so that we have room for at least one
-address even though no data will be transferred.
-
-Note that this doesn't provide us with a channel program that will
-fail in the expected way.  Since our length is zero, vfio_pin_pages()
-returns -EINVAL and cp_prefetch() will thus fail.  This will be fixed
-in the next patch.
+[1] POPS states that a x08 is a TIC CCW, and that having any high-order
+bits enabled is invalid for format-1 CCWs.  For format-0 CCWs, the
+high-order bits are ignored.
 
 Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 0a97978d1d28..a68711114aab 100644
+index 94888094ed2c..abe0f501a963 100644
 --- a/drivers/s390/cio/vfio_ccw_cp.c
 +++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -70,9 +70,6 @@ static int pfn_array_alloc(struct pfn_array *pa, u64 iova, unsigned int len)
- {
- 	int i;
+@@ -295,8 +295,6 @@ static long copy_ccw_from_iova(struct channel_program *cp,
+ #define ccw_is_read_backward(_ccw) (((_ccw)->cmd_code & 0x0F) == 0x0C)
+ #define ccw_is_sense(_ccw) (((_ccw)->cmd_code & 0x0F) == CCW_CMD_BASIC_SENSE)
  
--	if (!len)
--		return 0;
+-#define ccw_is_test(_ccw) (((_ccw)->cmd_code & 0x0F) == 0)
 -
- 	if (pa->pa_nr || pa->pa_iova_pfn)
- 		return -EINVAL;
+ #define ccw_is_noop(_ccw) ((_ccw)->cmd_code == CCW_CMD_NOOP)
  
-@@ -372,8 +369,6 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+ #define ccw_is_tic(_ccw) ((_ccw)->cmd_code == CCW_CMD_TIC)
+@@ -320,6 +318,10 @@ static inline int ccw_does_data_transfer(struct ccw1 *ccw)
+ 	if (ccw->count == 0)
+ 		return 0;
  
- 	if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
++	/* If the command is a NOP, then no data will be transferred */
++	if (ccw_is_noop(ccw))
++		return 0;
++
+ 	/* If the skip flag is off, then data will be transferred */
+ 	if (!ccw_is_skip(ccw))
+ 		return 1;
+@@ -404,7 +406,7 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+ {
+ 	struct ccw1 *ccw = chain->ch_ccw + idx;
+ 
+-	if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
++	if (ccw_is_tic(ccw))
  		return;
--	if (!ccw->count)
--		return;
  
  	kfree((void *)(u64)ccw->cda);
- }
-@@ -558,18 +553,12 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	struct pfn_array_table *pat;
- 	unsigned long *idaws;
- 	int ret;
-+	int bytes = 1;
+@@ -729,9 +731,6 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+ {
+ 	struct ccw1 *ccw = chain->ch_ccw + idx;
  
- 	ccw = chain->ch_ccw + idx;
- 
--	if (!ccw->count) {
--		/*
--		 * We just want the translation result of any direct ccw
--		 * to be an IDA ccw, so let's add the IDA flag for it.
--		 * Although the flag will be ignored by firmware.
--		 */
--		ccw->flags |= CCW_FLAG_IDA;
+-	if (ccw_is_test(ccw) || ccw_is_noop(ccw))
 -		return 0;
--	}
-+	if (ccw->count)
-+		bytes = ccw->count;
+-
+ 	if (ccw_is_tic(ccw))
+ 		return ccwchain_fetch_tic(chain, idx, cp);
  
- 	/*
- 	 * Pin data page(s) in memory.
-@@ -581,7 +570,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	if (ret)
- 		goto out_init;
- 
--	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, ccw->count);
-+	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, bytes);
- 	if (ret < 0)
- 		goto out_unpin;
- 
-@@ -620,17 +609,18 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
- 	u64 idaw_iova;
- 	unsigned int idaw_nr, idaw_len;
- 	int i, ret;
-+	int bytes = 1;
- 
- 	ccw = chain->ch_ccw + idx;
- 
--	if (!ccw->count)
--		return 0;
-+	if (ccw->count)
-+		bytes = ccw->count;
- 
- 	/* Calculate size of idaws. */
- 	ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda, sizeof(idaw_iova));
- 	if (ret)
- 		return ret;
--	idaw_nr = idal_nr_words((void *)(idaw_iova), ccw->count);
-+	idaw_nr = idal_nr_words((void *)(idaw_iova), bytes);
- 	idaw_len = idaw_nr * sizeof(*idaws);
- 
- 	/* Pin data page(s) in memory. */
 -- 
 2.17.1
