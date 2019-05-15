@@ -1,85 +1,55 @@
-From: Christian Brauner <christian@brauner.io>
+From: Oleg Nesterov <oleg@redhat.com>
 Subject: Re: [PATCH 1/2] pid: add pidfd_open()
-Date: Wed, 15 May 2019 16:16:35 +0200
-Message-ID: <20190515141634.lrc5ynllcmjr64mn@brauner.io>
+Date: Wed, 15 May 2019 16:38:58 +0200
+Message-ID: <20190515143857.GB18892@redhat.com>
 References: <20190515100400.3450-1-christian@brauner.io>
- <4c5ae46657e1931a832def5645db61eb0bf1accd.camel@opteya.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4c5ae46657e1931a832def5645db61eb0bf1accd.camel@opteya.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <20190515100400.3450-1-christian@brauner.io>
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
-To: Yann Droneaud <ydroneaud@opteya.com>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, dhowells@redhat.com, linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org, linux-api@vger.kernel.org, elena.reshetova@intel.com, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, keescook@chromium.org, arnd@arndb.de, jannh@google.com, linux-m68k@lists.linux-m68k.org, viro@zeniv.linux.org.uk, luto@kernel.org, oleg@redhat.com, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, cyphar@cyphar.com, torvalds@linux-foundation.org, linux-mips@vger.kernel.org, luto@amacapital.net, ebiederm@xmission.com, linux-alpha@vger.kernel.org, akpm@linux-foundation.org, linuxppc-dev@lists.ozlabs.org
+To: Christian Brauner <christian@brauner.io>
+Cc: jannh@google.com, viro@zeniv.linux.org.uk, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org, arnd@arndb.de, dhowells@redhat.com, akpm@linux-foundation.org, cyphar@cyphar.com, ebiederm@xmission.com, elena.reshetova@intel.com, keescook@chromium.org, luto@amacapital.net, luto@kernel.org, tglx@linutronix.de, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-T24gV2VkLCBNYXkgMTUsIDIwMTkgYXQgMDQ6MDA6MjBQTSArMDIwMCwgWWFubiBEcm9uZWF1ZCB3
-cm90ZToKPiBIaSwKPiAKPiBMZSBtZXJjcmVkaSAxNSBtYWkgMjAxOSDDoCAxMjowMyArMDIwMCwg
-Q2hyaXN0aWFuIEJyYXVuZXIgYSDDqWNyaXQgOgo+ID4gCj4gPiBkaWZmIC0tZ2l0IGEva2VybmVs
-L3BpZC5jIGIva2VybmVsL3BpZC5jCj4gPiBpbmRleCAyMDg4MTU5OGJkZmEuLjIzN2QxOGQ2ZWNi
-OCAxMDA2NDQKPiA+IC0tLSBhL2tlcm5lbC9waWQuYwo+ID4gKysrIGIva2VybmVsL3BpZC5jCj4g
-PiBAQCAtNDUxLDYgKzQ1Miw1MyBAQCBzdHJ1Y3QgcGlkICpmaW5kX2dlX3BpZChpbnQgbnIsIHN0
-cnVjdAo+ID4gcGlkX25hbWVzcGFjZSAqbnMpCj4gPiAgCXJldHVybiBpZHJfZ2V0X25leHQoJm5z
-LT5pZHIsICZucik7Cj4gPiAgfQo+ID4gIAo+ID4gKy8qKgo+ID4gKyAqIHBpZGZkX29wZW4oKSAt
-IE9wZW4gbmV3IHBpZCBmaWxlIGRlc2NyaXB0b3IuCj4gPiArICoKPiA+ICsgKiBAcGlkOiAgIHBp
-ZCBmb3Igd2hpY2ggdG8gcmV0cmlldmUgYSBwaWRmZAo+ID4gKyAqIEBmbGFnczogZmxhZ3MgdG8g
-cGFzcwo+ID4gKyAqCj4gPiArICogVGhpcyBjcmVhdGVzIGEgbmV3IHBpZCBmaWxlIGRlc2NyaXB0
-b3Igd2l0aCB0aGUgT19DTE9FWEVDIGZsYWcgc2V0IGZvcgo+ID4gKyAqIHRoZSBwcm9jZXNzIGlk
-ZW50aWZpZWQgYnkgQHBpZC4gQ3VycmVudGx5LCB0aGUgcHJvY2VzcyBpZGVudGlmaWVkIGJ5Cj4g
-PiArICogQHBpZCBtdXN0IGJlIGEgdGhyZWFkLWdyb3VwIGxlYWRlci4gVGhpcyByZXN0cmljdGlv
-biBjdXJyZW50bHkgZXhpc3RzCj4gPiArICogZm9yIGFsbCBhc3BlY3RzIG9mIHBpZGZkcyBpbmNs
-dWRpbmcgcGlkZmQgY3JlYXRpb24gKENMT05FX1BJREZEIGNhbm5vdAo+ID4gKyAqIGJlIHVzZWQg
-d2l0aCBDTE9ORV9USFJFQUQpIGFuZCBwaWRmZCBwb2xsaW5nIChvbmx5IHN1cHBvcnRzIHRocmVh
-ZCBncm91cAo+ID4gKyAqIGxlYWRlcnMpLgo+ID4gKyAqCj4gCj4gV291bGQgaXQgYmUgcG9zc2li
-bGUgdG8gY3JlYXRlIGZpbGUgZGVzY3JpcHRvciB3aXRoICJyZXN0cmljdGVkIgo+IG9wZXJhdGlv
-biA/Cj4gCj4gLSBPX1JET05MWTogd2FpdGluZyBmb3IgcHJvY2VzcyBjb21wbGV0aW9uIGFsbG93
-ZWQgKGZvciBleGFtcGxlKQo+IC0gT19XUk9OTFk6IHNlbmRpbmcgcHJvY2VzcyBzaWduYWwgYWxs
-b3dlZAoKWWVzLCBzb21ldGhpbmcgbGlrZSB0aGlzIGlzIGxpa2VseSBnb2luZyB0byBiZSBwb3Nz
-aWJsZSBpbiB0aGUgZnV0dXJlLgpXZSBoYWQgZGlzY3Vzc2lvbiBhcm91bmQgdGhpcy4gQnV0IG1h
-cHBpbmcgdGhpcyB0byBPX1JET05MWSBhbmQgT19XUk9OTFkKaXMgbm90IHRoZSByaWdodCBtb2Rl
-bC4gSXQgbWFrZXMgbW9yZSBzZW5zZSB0byBoYXZlIHNwZWNpYWxpemVkIGZsYWdzCnRoYXQgcmVz
-dHJpY3QgYWN0aW9ucy4KCj4gCj4gRm9yIGV4YW1wbGUsIGEgcHJvY2VzcyBjb3VsZCBzZW5kIG92
-ZXIgYSBVbml4IHNvY2tldCBhIHByb2Nlc3MgYSBwaWRmZCwKPiBhbGxvd2luZyB0aGlzIHRvIG9u
-bHkgd2FpdCBmb3IgY29tcGxldGlvbiwgYnV0IG5vdCBzZW5kaW5nIHNpZ25hbCA/Cj4gCj4gSSBz
-ZWUgdGhlIHBlcm1pc3Npb24gY2hlY2sgaXMgbm90IGRvbmUgaW4gcGlkZmRfb3BlbigpLCBzbyB3
-aGF0IHByZXZlbnQKPiBhIHVzZXIgZnJvbSBzZW5kaW5nIGEgc2lnbmFsIHRvIGFub3RoZXIgdXNl
-ciBvd25lZCBwcm9jZXNzID8KClRoYXQncyBzdXBwb3NlZCB0byBiZSBwb3NzaWJsZS4gWW91IGNh
-biBkbyB0aGUgc2FtZSByaWdodCBub3cgYWxyZWFkeQp3aXRoIHBpZHMuIFRvb2xzIGxpa2UgTE1L
-IG5lZWQgdGhpcyBwcm9iYWJseSB2ZXJ5IG11Y2guClBlcm1pc3Npb24gY2hlY2tpbmcgZm9yIHNp
-Z25hbHMgaXMgZG9uZSBhdCBzZW5kIHRpbWUgcmlnaHQgbm93LgpBbmQgaWYgeW91IGNhbid0IHNp
-Z25hbCB2aWEgYSBwaWQgeW91IGNhbid0IHNpZ25hbCB2aWEgYSBwaWRmZCBhcwp0aGV5J3JlIGJv
-dGggc3ViamVjdCB0byB0aGUgc2FtZSBwZXJtaXNzaW9ucyBjaGVja3MuCgo+IAo+IElmIGl0J3Mg
-aW4gcGlkZmRfc2VuZF9zaWduYWwoKSwgdGhlbiwgcGFzc2luZyB0aGUgc29ja2V0IHRocm91Z2gK
-PiBTQ01fUklHSFQgd29uJ3QgYmUgdXNlZnVsIGlmIHRoZSB0YXJnZXQgcHJvY2VzcyBpcyBub3Qg
-b3duZWQgYnkgdGhlCj4gc2FtZSB1c2VyLCBvciByb290Lgo+IAo+ID4gKyAqIFJldHVybjogT24g
-c3VjY2VzcywgYSBjbG9leGVjIHBpZGZkIGlzIHJldHVybmVkLgo+ID4gKyAqICAgICAgICAgT24g
-ZXJyb3IsIGEgbmVnYXRpdmUgZXJybm8gbnVtYmVyIHdpbGwgYmUgcmV0dXJuZWQuCj4gPiArICov
-Cj4gPiArU1lTQ0FMTF9ERUZJTkUyKHBpZGZkX29wZW4sIHBpZF90LCBwaWQsIHVuc2lnbmVkIGlu
-dCwgZmxhZ3MpCj4gPiArewo+ID4gKwlpbnQgZmQsIHJldDsKPiA+ICsJc3RydWN0IHBpZCAqcDsK
-PiA+ICsJc3RydWN0IHRhc2tfc3RydWN0ICp0c2s7Cj4gPiArCj4gPiArCWlmIChmbGFncykKPiA+
-ICsJCXJldHVybiAtRUlOVkFMOwo+ID4gKwo+ID4gKwlpZiAocGlkIDw9IDApCj4gPiArCQlyZXR1
-cm4gLUVJTlZBTDsKPiA+ICsKPiA+ICsJcCA9IGZpbmRfZ2V0X3BpZChwaWQpOwo+ID4gKwlpZiAo
-IXApCj4gPiArCQlyZXR1cm4gLUVTUkNIOwo+ID4gKwo+ID4gKwlyY3VfcmVhZF9sb2NrKCk7Cj4g
-PiArCXRzayA9IHBpZF90YXNrKHAsIFBJRFRZUEVfUElEKTsKPiA+ICsJaWYgKCF0c2spCj4gPiAr
-CQlyZXQgPSAtRVNSQ0g7Cj4gPiArCWVsc2UgaWYgKHVubGlrZWx5KCF0aHJlYWRfZ3JvdXBfbGVh
-ZGVyKHRzaykpKQo+ID4gKwkJcmV0ID0gLUVJTlZBTDsKPiA+ICsJZWxzZQo+ID4gKwkJcmV0ID0g
-MDsKPiA+ICsJcmN1X3JlYWRfdW5sb2NrKCk7Cj4gPiArCj4gPiArCWZkID0gcmV0ID86IHBpZGZk
-X2NyZWF0ZShwKTsKPiA+ICsJcHV0X3BpZChwKTsKPiA+ICsJcmV0dXJuIGZkOwo+ID4gK30KPiA+
-ICsKPiA+ICB2b2lkIF9faW5pdCBwaWRfaWRyX2luaXQodm9pZCkKPiA+ICB7Cj4gPiAgCS8qIFZl
-cmlmeSBubyBvbmUgaGFzIGRvbmUgYW55dGhpbmcgc2lsbHk6ICovCj4gCj4gUmVnYXJkcy4KPiAK
-PiAtLSAKPiBZYW5uIERyb25lYXVkCj4gT1BURVlBCj4gCj4gCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlz
-dApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
-ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+On 05/15, Christian Brauner wrote:
+>
+> +SYSCALL_DEFINE2(pidfd_open, pid_t, pid, unsigned int, flags)
+> +{
+> +	int fd, ret;
+> +	struct pid *p;
+> +	struct task_struct *tsk;
+> +
+> +	if (flags)
+> +		return -EINVAL;
+> +
+> +	if (pid <= 0)
+> +		return -EINVAL;
+> +
+> +	p = find_get_pid(pid);
+> +	if (!p)
+> +		return -ESRCH;
+> +
+> +	rcu_read_lock();
+> +	tsk = pid_task(p, PIDTYPE_PID);
+
+You do not need find_get_pid() before rcu_lock and put_pid() at the end.
+You can just do find_vpid() under rcu_read_lock().
+
+> +	if (!tsk)
+> +		ret = -ESRCH;
+> +	else if (unlikely(!thread_group_leader(tsk)))
+> +		ret = -EINVAL;
+
+it seems that you can do a single check
+
+	tsk = pid_task(p, PIDTYPE_TGID);
+	if (!tsk)
+		ret = -ESRCH;
+
+this even looks more correct if we race with exec changing the leader.
+
+Oleg.
