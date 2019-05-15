@@ -1,92 +1,180 @@
 Return-Path: <SRS0=A7Pw=TP=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v2 5/7] s390/cio: Allow zero-length CCWs in vfio-ccw
+Subject: Re: [PATCH v2 3/7] s390/cio: Split pfn_array_alloc_pin into pieces
 References: <20190514234248.36203-1-farman@linux.ibm.com>
- <20190514234248.36203-6-farman@linux.ibm.com>
- <20190515142339.12065a1d.cohuck@redhat.com>
-From: Eric Farman <farman@linux.ibm.com>
-Message-ID: <f309cad9-9265-e276-8d57-8b6387f6fed7@linux.ibm.com>
-Date: Wed, 15 May 2019 11:04:33 -0400
+ <20190514234248.36203-4-farman@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+Message-ID: <ab8e6a2b-e8c3-d74a-9af1-5139cdce7e7a@linux.ibm.com>
+Date: Wed, 15 May 2019 12:04:14 -0400
 MIME-Version: 1.0
-In-Reply-To: <20190515142339.12065a1d.cohuck@redhat.com>
+In-Reply-To: <20190514234248.36203-4-farman@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 5/15/19 8:23 AM, Cornelia Huck wrote:
-> On Wed, 15 May 2019 01:42:46 +0200
-> Eric Farman <farman@linux.ibm.com> wrote:
+On 05/14/2019 07:42 PM, Eric Farman wrote:
+> The pfn_array_alloc_pin routine is doing too much.  Today, it does the
+> alloc of the pfn_array struct and its member arrays, builds the iova
+> address lists out of a contiguous piece of guest memory, and asks vfio
+> to pin the resulting pages.
 > 
->> It is possible that a guest might issue a CCW with a length of zero,
->> and will expect a particular response.  Consider this chain:
->>
->>     Address   Format-1 CCW
->>     --------  -----------------
->>   0 33110EC0  346022CC 33177468
->>   1 33110EC8  CF200000 3318300C
->>
->> CCW[0] moves a little more than two pages, but also has the
->> Suppress Length Indication (SLI) bit set to handle the expectation
->> that considerably less data will be moved.  CCW[1] also has the SLI
->> bit set, and has a length of zero.  Once vfio-ccw does its magic,
->> the kernel issues a start subchannel on behalf of the guest with this:
->>
->>     Address   Format-1 CCW
->>     --------  -----------------
->>   0 021EDED0  346422CC 021F0000
->>   1 021EDED8  CF240000 3318300C
->>
->> Both CCWs were converted to an IDAL and have the corresponding flags
->> set (which is by design), but only the address of the first data
->> address is converted to something the host is aware of.  The second
->> CCW still has the address used by the guest, which happens to be (A)
->> (probably) an invalid address for the host, and (B) an invalid IDAW
->> address (doubleword boundary, etc.).
->>
->> While the I/O fails, it doesn't fail correctly.  In this example, we
->> would receive a program check for an invalid IDAW address, instead of
->> a unit check for an invalid command.
->>
->> To fix this, revert commit 4cebc5d6a6ff ("vfio: ccw: validate the
->> count field of a ccw before pinning") and allow the individual fetch
->> routines to process them like anything else.  We'll make a slight
->> adjustment to our allocation of the pfn_array (for direct CCWs) or
->> IDAL (for IDAL CCWs) memory, so that we have room for at least one
->> address even though no data will be transferred.
->>
->> Note that this doesn't provide us with a channel program that will
->> fail in the expected way.  Since our length is zero, vfio_pin_pages()
-
-s/is/was/
-
->> returns -EINVAL and cp_prefetch() will thus fail.  This will be fixed
->> in the next patch.
+> Let's effectively revert a significant portion of commit 5c1cfb1c3948
+> ("vfio: ccw: refactor and improve pfn_array_alloc_pin()") such that we
+> break pfn_array_alloc_pin() into its component pieces, and have one
+> routine that allocates/populates the pfn_array structs, and another
+> that actually pins the memory.  In the future, we will be able to
+> handle scenarios where pinning memory isn't actually appropriate.
 > 
-> So, this failed before, and still fails, just differently? 
-
-Probably.  If the guest gave us a valid address, the pin might actually 
-work now whereas before it would fail because the length was zero.  If 
-the address were also invalid,
-
- >IOW, this
-> has no effect on bisectability?
-
-I think so, but I suppose that either (A) patch 5 and 6 could be 
-squashed together, or (B) I could move the "set pa_nr to zero" (or more 
-accurately, set it to ccw->count) pieces from patch 6 into this patch, 
-so that the vfio_pin_pages() call occurs like it does today.
-
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>   drivers/s390/cio/vfio_ccw_cp.c | 64 ++++++++++++++++++++++++----------
+>   1 file changed, 46 insertions(+), 18 deletions(-)
 > 
->>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>   drivers/s390/cio/vfio_ccw_cp.c | 26 ++++++++------------------
->>   1 file changed, 8 insertions(+), 18 deletions(-)
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 41f48b8790bc..60aa784717c5 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -50,28 +50,25 @@ struct ccwchain {
+>   };
+>   
+>   /*
+> - * pfn_array_alloc_pin() - alloc memory for PFNs, then pin user pages in memory
+> + * pfn_array_alloc() - alloc memory for PFNs
+>    * @pa: pfn_array on which to perform the operation
+> - * @mdev: the mediated device to perform pin/unpin operations
+>    * @iova: target guest physical address
+>    * @len: number of bytes that should be pinned from @iova
+>    *
+> - * Attempt to allocate memory for PFNs, and pin user pages in memory.
+> + * Attempt to allocate memory for PFNs.
+>    *
+>    * Usage of pfn_array:
+>    * We expect (pa_nr == 0) and (pa_iova_pfn == NULL), any field in
+>    * this structure will be filled in by this function.
+>    *
+>    * Returns:
+> - *   Number of pages pinned on success.
+> - *   If @pa->pa_nr is not 0, or @pa->pa_iova_pfn is not NULL initially,
+> - *   returns -EINVAL.
+> - *   If no pages were pinned, returns -errno.
+> + *         0 if PFNs are allocated
+> + *   -EINVAL if pa->pa_nr is not initially zero, or pa->pa_iova_pfn is not NULL
+> + *   -ENOMEM if alloc failed
+>    */
+> -static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+> -			       u64 iova, unsigned int len)
+> +static int pfn_array_alloc(struct pfn_array *pa, u64 iova, unsigned int len)
+>   {
+> -	int i, ret = 0;
+> +	int i;
+>   
+>   	if (!len)
+>   		return 0;
+> @@ -97,6 +94,22 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+>   	for (i = 1; i < pa->pa_nr; i++)
+>   		pa->pa_iova_pfn[i] = pa->pa_iova_pfn[i - 1] + 1;
+>   
+> +	return 0;
+> +}
+> +
+> +/*
+> + * pfn_array_pin() - Pin user pages in memory
+> + * @pa: pfn_array on which to perform the operation
+> + * @mdev: the mediated device to perform pin operations
+> + *
+> + * Returns number of pages pinned upon success.
+> + * If the pin request partially succeeds, or fails completely,
+> + * all pages are left unpinned and a negative error value is returned.
+> + */
+> +static int pfn_array_pin(struct pfn_array *pa, struct device *mdev)
+> +{
+> +	int ret = 0;
+> +
+>   	ret = vfio_pin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr,
+>   			     IOMMU_READ | IOMMU_WRITE, pa->pa_pfn);
+>   
+> @@ -112,8 +125,6 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+>   
+>   err_out:
+>   	pa->pa_nr = 0;
+> -	kfree(pa->pa_iova_pfn);
+> -	pa->pa_iova_pfn = NULL;
+>   
+>   	return ret;
+>   }
+> @@ -121,7 +132,9 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+>   /* Unpin the pages before releasing the memory. */
+>   static void pfn_array_unpin_free(struct pfn_array *pa, struct device *mdev)
+>   {
+> -	vfio_unpin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr);
+> +	/* Only unpin if any pages were pinned to begin with */
+> +	if (pa->pa_nr)
+> +		vfio_unpin_pages(mdev, pa->pa_iova_pfn, pa->pa_nr);
+>   	pa->pa_nr = 0;
+>   	kfree(pa->pa_iova_pfn);
+>   }
+> @@ -209,10 +222,16 @@ static long copy_from_iova(struct device *mdev,
+>   	int i, ret;
+>   	unsigned long l, m;
+>   
+> -	ret = pfn_array_alloc_pin(&pa, mdev, iova, n);
+> -	if (ret <= 0)
+> +	ret = pfn_array_alloc(&pa, iova, n);
+> +	if (ret < 0)
+>   		return ret;
+>   
+> +	ret = pfn_array_pin(&pa, mdev);
+> +	if (ret < 0) {
+> +		pfn_array_unpin_free(&pa, mdev);
+> +		return ret;
+> +	}
+> +
+>   	l = n;
+>   	for (i = 0; i < pa.pa_nr; i++) {
+>   		from = pa.pa_pfn[i] << PAGE_SHIFT;
+> @@ -559,7 +578,11 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+>   	if (ret)
+>   		goto out_init;
+>   
+> -	ret = pfn_array_alloc_pin(pat->pat_pa, cp->mdev, ccw->cda, ccw->count);
+> +	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, ccw->count);
+> +	if (ret < 0)
+> +		goto out_unpin;
+> +
+> +	ret = pfn_array_pin(pat->pat_pa, cp->mdev);
+>   	if (ret < 0)
+>   		goto out_unpin;
+>   
+> @@ -589,6 +612,7 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+>   {
+>   	struct ccw1 *ccw;
+>   	struct pfn_array_table *pat;
+> +	struct pfn_array *pa;
+>   	unsigned long *idaws;
+>   	u64 idaw_iova;
+>   	unsigned int idaw_nr, idaw_len;
+> @@ -627,9 +651,13 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+>   
+>   	for (i = 0; i < idaw_nr; i++) {
+>   		idaw_iova = *(idaws + i);
+> +		pa = pat->pat_pa + i;
+> +
+> +		ret = pfn_array_alloc(pa, idaw_iova, 1);
+> +		if (ret < 0)
+> +			goto out_free_idaws;
+>   
+> -		ret = pfn_array_alloc_pin(pat->pat_pa + i, cp->mdev,
+> -					  idaw_iova, 1);
+> +		ret = pfn_array_pin(pa, cp->mdev);
+>   		if (ret < 0)
+>   			goto out_free_idaws;
+>   	}
 > 
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
