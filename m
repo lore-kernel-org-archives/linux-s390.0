@@ -1,37 +1,63 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 15 May 2019 15:21:11 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Subject: Re: [PATCH] vsprintf: Do not break early boot with probing addresses
-Message-ID: <20190515062111.GA30030@jagdpanzerIV>
-References: <20190510122401.21a598f6@gandalf.local.home>
- <daf4dfd1-7f4f-8b92-6866-437c3a2be28b@c-s.fr>
- <096d6c9c17b3484484d9d9d3f3aa3a7c@AcuMS.aculab.com>
- <20190513091320.GK9224@smile.fi.intel.com>
- <20190513124220.wty2qbnz4wo52h3x@pathway.suse.cz>
- <20190514020730.GA651@jagdpanzerIV>
- <45348cf615fe40d383c1a25688d4a88f@AcuMS.aculab.com>
- <CAMuHMdXaMObq9h2Sb49PW1-HUysPeaWXB7wJmKFz=xLmSoUDZg@mail.gmail.com>
- <20190514143751.48e81e05@oasis.local.home>
- <CAMuHMdUhy3uB+G23uXh__F2Y_Jsam5uS1Q5jJC95kWAOEM8WRA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUhy3uB+G23uXh__F2Y_Jsam5uS1Q5jJC95kWAOEM8WRA@mail.gmail.com>
+References: <20190510081635.GA4533@jagdpanzerIV> <20190510084213.22149-1-pmladek@suse.com>
+ <20190510122401.21a598f6@gandalf.local.home> <daf4dfd1-7f4f-8b92-6866-437c3a2be28b@c-s.fr>
+ <096d6c9c17b3484484d9d9d3f3aa3a7c@AcuMS.aculab.com> <20190513091320.GK9224@smile.fi.intel.com>
+ <20190513124220.wty2qbnz4wo52h3x@pathway.suse.cz> <20190514020730.GA651@jagdpanzerIV>
+ <45348cf615fe40d383c1a25688d4a88f@AcuMS.aculab.com> <CAMuHMdXaMObq9h2Sb49PW1-HUysPeaWXB7wJmKFz=xLmSoUDZg@mail.gmail.com>
+ <20190514143751.48e81e05@oasis.local.home> <CAMuHMdUhy3uB+G23uXh__F2Y_Jsam5uS1Q5jJC95kWAOEM8WRA@mail.gmail.com>
+ <20190514153503.6b7faaa7@oasis.local.home>
+In-Reply-To: <20190514153503.6b7faaa7@oasis.local.home>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 15 May 2019 09:23:05 +0200
+Message-ID: <CAMuHMdUFEwxwQUWg0HNUiz75hP6S7TVGSx7fWXnsQ_3qsVfotQ@mail.gmail.com>
+Subject: Re: [PATCH] vsprintf: Do not break early boot with probing addresses
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-arch-owner@vger.kernel.org
-Message-ID: <20190515062111.T5hZGjKZK2a2swDTBpkbB4UbIVTKWVNPATVUxxRnwVM@z>
+Message-ID: <20190515072305.E1DEATG-MTVuAOpUj2pEKMYi_9cV96M6GcmiMB3QY8Q@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, David Laight <David.Laight@aculab.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Petr Mladek <pmladek@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, christophe leroy <christophe.leroy@c-s.fr>, Linus Torvalds <torvalds@linux-foundation.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Russell Currey <ruscur@russell.cc>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: David Laight <David.Laight@aculab.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Petr Mladek <pmladek@suse.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, christophe leroy <christophe.leroy@c-s.fr>, Linus Torvalds <torvalds@linux-foundation.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, "Tobin C . Harding" <me@tobin.cc>, Michal Hocko <mhocko@suse.cz>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, Russell Currey <ruscur@russell.cc>, Stephen Rothwell <sfr@ozlabs.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On (05/14/19 21:13), Geert Uytterhoeven wrote:
-> I would immediately understand there's a missing IS_ERR() check in a
-> function that can return  -EINVAL, without having to add a new printk()
-> to find out what kind of bogus value has been received, and without
-> having to reboot, and trying to reproduce...
+Hi Steve,
 
-But chances are that missing IS_ERR() will crash the kernel sooner
-or later (in general case), if not in sprintf() then somewhere else.
+On Tue, May 14, 2019 at 9:35 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Tue, 14 May 2019 21:13:06 +0200
+> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > > > Do we care about the value? "(-E%u)"?
+> > >
+> > > That too could be confusing. What would (-E22) be considered by a user
+> > > doing an sprintf() on some string. I know that would confuse me, or I
+> > > would think that it was what the %pX displayed, and wonder why it
+> > > displayed it that way. Whereas "(fault)" is quite obvious for any %p
+> > > use case.
+> >
+> > I would immediately understand there's a missing IS_ERR() check in a
+> > function that can return  -EINVAL, without having to add a new printk()
+> > to find out what kind of bogus value has been received, and without
+> > having to reboot, and trying to reproduce...
+>
+> I have to ask. Has there actually been a case that you used a %pX and
+> it faulted, and you had to go back to find what the value of the
+> failure was?
 
-	-ss
+If it faulted, the bad pointer value is obvious from the backtrace.
+If the code avoids the fault by verifying the pointer and returning
+"(efault)" instead, the bad pointer value is lost.
+
+Or am I missing something?
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
