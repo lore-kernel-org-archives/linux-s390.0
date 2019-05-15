@@ -1,104 +1,151 @@
-Return-Path: <SRS0=Fa9J=TO=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: jjherne@linux.ibm.com
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
- support
+Return-Path: <SRS0=A7Pw=TP=vger.kernel.org=kvm-owner@kernel.org>
+Reply-To: mimu@linux.ibm.com
+Subject: Re: [PATCH 10/10] virtio/s390: make airq summary indicators DMA
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-7-pasic@linux.ibm.com>
- <20190513114136.783c851c.cohuck@redhat.com>
-From: "Jason J. Herne" <jjherne@linux.ibm.com>
-Date: Tue, 14 May 2019 10:47:34 -0400
+ <20190426183245.37939-11-pasic@linux.ibm.com>
+ <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Wed, 15 May 2019 15:33:02 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190513114136.783c851c.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <74ff9a63-891a-7e24-0865-8cc91a95cada@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <d0ffefec-a14e-ee83-0aae-df288c3ffda4@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <7c21b646-df27-88b6-6b06-3aab7887ff0a@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: pmorel@linux.ibm.com, Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 5/13/19 5:41 AM, Cornelia Huck wrote:
-> On Fri, 26 Apr 2019 20:32:41 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
->> As virtio-ccw devices are channel devices, we need to use the dma area
->> for any communication with the hypervisor.
->>
->> This patch addresses the most basic stuff (mostly what is required for
->> virtio-ccw), and does take care of QDIO or any devices.
-> 
-> "does not take care of QDIO", surely? (Also, what does "any devices"
-> mean? Do you mean "every arbitrary device", perhaps?)
-> 
->>
->> An interesting side effect is that virtio structures are now going to
->> get allocated in 31 bit addressable storage.
-> 
-> Hm...
-> 
+
+
+On 08.05.19 17:11, Pierre Morel wrote:
+> On 26/04/2019 20:32, Halil Pasic wrote:
+>> Hypervisor needs to interact with the summary indicators, so these
+>> need to be DMA memory as well (at least for protected virtualization
+>> guests).
 >>
 >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 >> ---
->>   arch/s390/include/asm/ccwdev.h   |  4 +++
->>   drivers/s390/cio/ccwreq.c        |  8 ++---
->>   drivers/s390/cio/device.c        | 65 +++++++++++++++++++++++++++++++++-------
->>   drivers/s390/cio/device_fsm.c    | 40 ++++++++++++-------------
->>   drivers/s390/cio/device_id.c     | 18 +++++------
->>   drivers/s390/cio/device_ops.c    | 21 +++++++++++--
->>   drivers/s390/cio/device_pgid.c   | 20 ++++++-------
->>   drivers/s390/cio/device_status.c | 24 +++++++--------
->>   drivers/s390/cio/io_sch.h        | 21 +++++++++----
->>   drivers/s390/virtio/virtio_ccw.c | 10 -------
->>   10 files changed, 148 insertions(+), 83 deletions(-)
-> 
-> (...)
-> 
->> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
->> index 6d989c360f38..bb7a92316fc8 100644
+>>   drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++-------
+>>   1 file changed, 17 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/s390/virtio/virtio_ccw.c 
+>> b/drivers/s390/virtio/virtio_ccw.c
+>> index 613b18001a0c..6058b07fea08 100644
 >> --- a/drivers/s390/virtio/virtio_ccw.c
 >> +++ b/drivers/s390/virtio/virtio_ccw.c
->> @@ -66,7 +66,6 @@ struct virtio_ccw_device {
->>   	bool device_lost;
->>   	unsigned int config_ready;
->>   	void *airq_info;
->> -	u64 dma_mask;
->>   };
->>   
->>   struct vq_info_block_legacy {
->> @@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
->>   		ret = -ENOMEM;
->>   		goto out_free;
->>   	}
->> -
->>   	vcdev->vdev.dev.parent = &cdev->dev;
->> -	cdev->dev.dma_mask = &vcdev->dma_mask;
->> -	/* we are fine with common virtio infrastructure using 64 bit DMA */
->> -	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
->> -	if (ret) {
->> -		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
->> -		goto out_free;
->> -	}
+>> @@ -140,11 +140,17 @@ static int virtio_ccw_use_airq = 1;
+>>   struct airq_info {
+>>       rwlock_t lock;
+>> -    u8 summary_indicator;
+>> +    u8 summary_indicator_idx;
+>>       struct airq_struct airq;
+>>       struct airq_iv *aiv;
+>>   };
+>>   static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+>> +static u8 *summary_indicators;
+>> +
+>> +static inline u8 *get_summary_indicator(struct airq_info *info)
+>> +{
+>> +    return summary_indicators + info->summary_indicator_idx;
+>> +}
+>>   #define CCW_CMD_SET_VQ 0x13
+>>   #define CCW_CMD_VDEV_RESET 0x33
+>> @@ -225,7 +231,7 @@ static void virtio_airq_handler(struct airq_struct 
+>> *airq)
+>>               break;
+>>           vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
+>>       }
+>> -    info->summary_indicator = 0;
+>> +    *(get_summary_indicator(info)) = 0;
+>>       smp_wmb();
+>>       /* Walk through indicators field, summary indicator not active. */
+>>       for (ai = 0;;) {
+>> @@ -237,7 +243,8 @@ static void virtio_airq_handler(struct airq_struct 
+>> *airq)
+>>       read_unlock(&info->lock);
+>>   }
+>> -static struct airq_info *new_airq_info(void)
+>> +/* call with airq_areas_lock held */
+>> +static struct airq_info *new_airq_info(int index)
+>>   {
+>>       struct airq_info *info;
+>>       int rc;
+>> @@ -252,7 +259,8 @@ static struct airq_info *new_airq_info(void)
+>>           return NULL;
+>>       }
+>>       info->airq.handler = virtio_airq_handler;
+>> -    info->airq.lsi_ptr = &info->summary_indicator;
+>> +    info->summary_indicator_idx = index;
+>> +    info->airq.lsi_ptr = get_summary_indicator(info);
+>>       info->airq.lsi_mask = 0xff;
+>>       info->airq.isc = VIRTIO_AIRQ_ISC;
+>>       rc = register_adapter_interrupt(&info->airq);
+>> @@ -273,8 +281,9 @@ static unsigned long get_airq_indicator(struct 
+>> virtqueue *vqs[], int nvqs,
+>>       unsigned long bit, flags;
+>>       for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
+>> +        /* TODO: this seems to be racy */
 > 
-> This means that vring structures now need to fit into 31 bits as well,
-> I think? Is there any way to reserve the 31 bit restriction for channel
-> subsystem structures and keep vring in the full 64 bit range? (Or am I
-> fundamentally misunderstanding something?)
+> yes, my opinions too, was already racy, in my opinion, we need another 
+> patch in another series to fix this.
 > 
+> However, not sure about the comment.
 
-I hope I've understood everything... I'm new to virtio. But from what I'm understanding, 
-the vring structure (a.k.a. the VirtQueue) needs to be accessed and modified by both host 
-and guest. Therefore the page(s) holding that data need to be marked shared if using 
-protected virtualization. This patch set makes use of DMA pages by way of swiotlb (always 
-below 32-bit line right?) for shared memory. Therefore, a side effect is that all shared 
-memory, including VirtQueue data will be in the DMA zone and in 32-bit memory.
+I will drop this comment for v2 of this patch series.
+We shall fix the race with a separate patch.
 
-I don't see any restrictions on sharing pages above the 32-bit line. So it seems possible. 
-I'm not sure how much more work it would be. I wonder if Halil has considered this? Are we 
-worried that virtio data structures are going to be a burden on the 31-bit address space?
+Michael
 
+> 
+>>           if (!airq_areas[i])
+>> -            airq_areas[i] = new_airq_info();
+>> +            airq_areas[i] = new_airq_info(i);
+>>           info = airq_areas[i];
+>>           if (!info)
+>>               return 0;
+>> @@ -359,7 +368,7 @@ static void virtio_ccw_drop_indicator(struct 
+>> virtio_ccw_device *vcdev,
+>>           if (!thinint_area)
+>>               return;
+>>           thinint_area->summary_indicator =
+>> -            (unsigned long) &airq_info->summary_indicator;
+>> +            (unsigned long) get_summary_indicator(airq_info);
+>>           thinint_area->isc = VIRTIO_AIRQ_ISC;
+>>           ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+>>           ccw->count = sizeof(*thinint_area);
+>> @@ -624,7 +633,7 @@ static int virtio_ccw_register_adapter_ind(struct 
+>> virtio_ccw_device *vcdev,
+>>       }
+>>       info = vcdev->airq_info;
+>>       thinint_area->summary_indicator =
+>> -        (unsigned long) &info->summary_indicator;
+>> +        (unsigned long) get_summary_indicator(info);
+>>       thinint_area->isc = VIRTIO_AIRQ_ISC;
+>>       ccw->cmd_code = CCW_CMD_SET_IND_ADAPTER;
+>>       ccw->flags = CCW_FLAG_SLI;
+>> @@ -1500,6 +1509,7 @@ static int __init virtio_ccw_init(void)
+>>   {
+>>       /* parse no_auto string before we do anything further */
+>>       no_auto_parse();
+>> +    summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
+>>       return ccw_driver_register(&virtio_ccw_driver);
+>>   }
+>>   device_initcall(virtio_ccw_init);
+>>
+> 
+> 
+> 
 
 -- 
--- Jason J. Herne (jjherne@linux.ibm.com)
+Mit freundlichen Grüßen / Kind regards
+Michael Müller
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschäftsführung: Dirk Wittkopp
+Sitz der Gesellschaft: Böblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
