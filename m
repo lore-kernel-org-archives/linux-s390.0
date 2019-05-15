@@ -1,51 +1,146 @@
-Return-Path: <SRS0=5q+O=TJ=kvack.org=owner-linux-mm@kernel.org>
-Subject: Re: [PATCH v2 5/8] mm/memory_hotplug: Drop MHP_MEMBLOCK_API
-References: <20190507183804.5512-1-david@redhat.com>
- <20190507183804.5512-6-david@redhat.com>
- <CAPcyv4ge1pSOopfHof4USn=7Skc-UV4Xhd_s=h+M9VXSp_p1XQ@mail.gmail.com>
- <d83fec16-ceff-2f6f-72e1-48996187d5ba@redhat.com>
- <CAPcyv4iRQteuT9yESvbUyhp3KVVgTXDiGAo+TwPCM_4f0CzBgg@mail.gmail.com>
- <edd762a1-c012-fe05-a72e-2505cd98188a@redhat.com>
- <1557356938.3028.35.camel@suse.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <f7fac4cc-468e-0787-a364-760e68f6b1c2@redhat.com>
-Date: Thu, 9 May 2019 09:05:23 +0200
-MIME-Version: 1.0
-In-Reply-To: <1557356938.3028.35.camel@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: owner-linux-mm@kvack.org
-List-Archive: <https://lore.kernel.org/linux-mm/>
-List-Post: <mailto:linux-mm@kvack.org>
-To: osalvador <osalvador@suse.com>, Dan Williams <dan.j.williams@intel.com>
-Cc: Linux MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 248/266] x86/speculation: Support mitigations= cmdline option
+Date: Wed, 15 May 2019 12:55:55 +0200
+Message-ID: <20190515090731.402525457@linuxfoundation.org>
+References: <20190515090722.696531131@linuxfoundation.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catal>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 09.05.19 01:08, osalvador wrote:
-> On Wed, 2019-05-08 at 09:39 +0200, David Hildenbrand wrote:
->> However I haven't really thought it through yet, smalles like that
->> could
->> as well just be handled by the caller of
->> arch_add_memory()/arch_remove_memory() eventually, passing it via
->> something like the altmap parameter.
->>
->> Let's leave it in place for now, we can talk about that once we have
->> new
->> patches from Oscar.
-> Hi David,
-> 
-> I plan to send a new patchset once this is and Dan's are merged,
-> otherwise I will have a mayhem with the conflicts.
-> 
-> I also plan/want to review this patchset, but time is tight this week.
-> 
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-Sure, take your time. I'll resend this patch set most probably tomorrow
-or early next week. Cheers!
+commit d68be4c4d31295ff6ae34a8ddfaa4c1a8ff42812 upstream.
 
--- 
+Configure x86 runtime CPU speculation bug mitigations in accordance with
+the 'mitigations=' cmdline option.  This affects Meltdown, Spectre v2,
+Speculative Store Bypass, and L1TF.
 
-Thanks,
+The default behavior is unchanged.
 
-David / dhildenb
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jiri Kosina <jkosina@suse.cz> (on x86)
+Reviewed-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jon Masters <jcm@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-arch@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Tyler Hicks <tyhicks@canonical.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Phil Auld <pauld@redhat.com>
+Link: https://lkml.kernel.org/r/6616d0ae169308516cfdf5216bedd169f8a8291b.1555085500.git.jpoimboe@redhat.com
+[bwh: Backported to 4.4:
+ - Drop the auto,nosmt option and the l1tf mitigation selection, which we can't
+   support
+ - Adjust filenames, context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ Documentation/kernel-parameters.txt |   14 +++++++++-----
+ arch/x86/kernel/cpu/bugs.c          |    6 ++++--
+ arch/x86/mm/kaiser.c                |    4 +++-
+ 3 files changed, 16 insertions(+), 8 deletions(-)
+
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -2174,15 +2174,19 @@ bytes respectively. Such letter suffixes
+ 			http://repo.or.cz/w/linux-2.6/mini2440.git
+ 
+ 	mitigations=
+-			Control optional mitigations for CPU vulnerabilities.
+-			This is a set of curated, arch-independent options, each
+-			of which is an aggregation of existing arch-specific
+-			options.
++			[X86] Control optional mitigations for CPU
++			vulnerabilities.  This is a set of curated,
++			arch-independent options, each of which is an
++			aggregation of existing arch-specific options.
+ 
+ 			off
+ 				Disable all optional CPU mitigations.  This
+ 				improves system performance, but it may also
+ 				expose users to several CPU vulnerabilities.
++				Equivalent to: nopti [X86]
++					       nospectre_v2 [X86]
++					       spectre_v2_user=off [X86]
++					       spec_store_bypass_disable=off [X86]
+ 
+ 			auto (default)
+ 				Mitigate all CPU vulnerabilities, but leave SMT
+@@ -2190,7 +2194,7 @@ bytes respectively. Such letter suffixes
+ 				users who don't want to be surprised by SMT
+ 				getting disabled across kernel upgrades, or who
+ 				have other ways of avoiding SMT-based attacks.
+-				This is the default behavior.
++				Equivalent to: (default behavior)
+ 
+ 	mminit_loglevel=
+ 			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -479,7 +479,8 @@ static enum spectre_v2_mitigation_cmd __
+ 	char arg[20];
+ 	int ret, i;
+ 
+-	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
++	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2") ||
++	    cpu_mitigations_off())
+ 		return SPECTRE_V2_CMD_NONE;
+ 
+ 	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
+@@ -743,7 +744,8 @@ static enum ssb_mitigation_cmd __init ss
+ 	char arg[20];
+ 	int ret, i;
+ 
+-	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable")) {
++	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable") ||
++	    cpu_mitigations_off()) {
+ 		return SPEC_STORE_BYPASS_CMD_NONE;
+ 	} else {
+ 		ret = cmdline_find_option(boot_command_line, "spec_store_bypass_disable",
+--- a/arch/x86/mm/kaiser.c
++++ b/arch/x86/mm/kaiser.c
+@@ -10,6 +10,7 @@
+ #include <linux/mm.h>
+ #include <linux/uaccess.h>
+ #include <linux/ftrace.h>
++#include <linux/cpu.h>
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt)     "Kernel/User page tables isolation: " fmt
+@@ -297,7 +298,8 @@ void __init kaiser_check_boottime_disabl
+ 			goto skip;
+ 	}
+ 
+-	if (cmdline_find_option_bool(boot_command_line, "nopti"))
++	if (cmdline_find_option_bool(boot_command_line, "nopti") ||
++	    cpu_mitigations_off())
+ 		goto disable;
+ 
+ skip:
