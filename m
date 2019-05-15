@@ -1,15 +1,16 @@
 Return-Path: <SRS0=A7Pw=TP=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v2 0/7] s390: vfio-ccw fixes
+Subject: Re: [PATCH v2 7/7] s390/cio: Remove vfio-ccw checks of command codes
 References: <20190514234248.36203-1-farman@linux.ibm.com>
- <20190515144530.5603097b.cohuck@redhat.com>
+ <20190514234248.36203-8-farman@linux.ibm.com>
+ <20190515144305.46a2ecb1.cohuck@redhat.com>
 From: Eric Farman <farman@linux.ibm.com>
-Date: Wed, 15 May 2019 09:21:06 -0400
+Date: Wed, 15 May 2019 09:36:01 -0400
 MIME-Version: 1.0
-In-Reply-To: <20190515144530.5603097b.cohuck@redhat.com>
+In-Reply-To: <20190515144305.46a2ecb1.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <8a3e8e4d-2f47-2180-67ec-83934277f088@linux.ibm.com>
+Message-Id: <1f0e2084-2e3d-bc97-f8cf-a40f194d7288@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -19,74 +20,45 @@ List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 5/15/19 8:45 AM, Cornelia Huck wrote:
-> On Wed, 15 May 2019 01:42:41 +0200
+On 5/15/19 8:43 AM, Cornelia Huck wrote:
+> On Wed, 15 May 2019 01:42:48 +0200
 > Eric Farman <farman@linux.ibm.com> wrote:
 > 
->> The attached are a few fixes to the vfio-ccw kernel code for potential
->> errors or architecture anomalies.  Under normal usage, and even most
->> abnormal usage, they don't expose any problems to a well-behaved guest
->> and its devices.  But, they are deficiencies just the same and could
->> cause some weird behavior if they ever popped up in real life.
+>> If the CCW being processed is a No-Operation, then by definition no
+>> data is being transferred.  Let's fold those checks into the normal
+>> CCW processors, rather than skipping out early.
 >>
->> I have tried to arrange these patches in a "solves a noticeable problem
->> with existing workloads" to "solves a theoretical problem with
->> hypothetical workloads" order.  This way, the bigger ones at the end
->> can be discussed without impeding the smaller and more impactful ones
->> at the start.
->>
->> Per the conversations on patch 7, the last several patches remain
->> unchanged.  They continue to buid an IDAL for each CCW, and only pin
->> guest pages and assign the resulting addresses to IDAWs if they are
->> expected to cause a data transfer.  This will avoid sending an
->> unmodified guest address, which may be invalid but anyway is not mapped
->> to the same host address, in the IDAL sent to the channel subsystem and
->> any unexpected behavior that may result.
->>
->> They are based on 5.1.0, not Conny's vfio-ccw tree even though there are
->> some good fixes pending for 5.2 there.  I've run this series both with
->> and without that code, but couldn't decide which base would provide an
->> easier time applying patches.  "I think" they should apply fine to both,
->> but I apologize in advance if I guessed wrong!  :)
+>> Likewise, if the CCW being processed is a "test" (an invented
+>> definition to simply mean it ends in a zero), let's permit that to go
+>> through to the hardware.  There's nothing inherently unique about
+>> those command codes versus one that ends in an eight [1], or any other
+>> otherwise valid command codes that are undefined for the device type
+>> in question.
 > 
-> They also should apply on current master, no? My 5.2 branch should be
-> all merged by now :)
+> Hm... let's tweak that a bit? It's not that "test" is an invented
+> category; it's just that this has not been a valid command for
+> post-s/370 and therefore should not get any special treatment and just
+> be sent to the hardware?
 
-Yeah, I just haven't updated my branches yet.  :)
+Agreed, I should've re-read that one before I sent it...  How about:
+
+Likewise, if the CCW being processed is a "test" (a category defined
+here as an opcode that contains zero in the lowest four bits) then no
+special processing is necessary as far as vfio-ccw is concerned.
+These command codes have not been valid since the S/370 days, meaning
+they are invalid in the same way as one that ends in an eight [1] or
+an otherwise valid command code that is undefined for the device type
+in question.  Considering that, let's just process "test" CCWs like
+any other CCW, and send everything to the hardware.
 
 > 
-> Nothing really jumped out at me; I'm happy to queue the patches if I
-> get some more feedback.
-> 
 >>
+>> [1] POPS states that a x08 is a TIC CCW, and that having any high-order
+>> bits enabled is invalid for format-1 CCWs.  For format-0 CCWs, the
+>> high-order bits are ignored.
 >>
->> Changelog:
->>   v1 -> v2:
->>    - Patch 1:
->>       - [Cornelia] Added a code comment about why we update the SCSW when
->>         we've gone past the end of the chain for normal, successful, I/O
->>    - Patch 2:
->>       - [Cornelia] Cleaned up the cc info in the commit message
->>       - [Pierre] Added r-b
->>    - Patch 3:
->>       - [Cornelia] Update the return code information in prologue of
->>         pfn_array_pin(), and then only call vfio_unpin_pages() if we
->>         pinned anything, rather than silently creating an error
->>         (this last bit was mentioned on patch 6, but applied here)
->>       - [Eric] Clean up the error exit in pfn_array_pin()
->>    - Patch 4-7 unchanged
->>
->> Eric Farman (7):
->>    s390/cio: Update SCSW if it points to the end of the chain
->>    s390/cio: Set vfio-ccw FSM state before ioeventfd
->>    s390/cio: Split pfn_array_alloc_pin into pieces
->>    s390/cio: Initialize the host addresses in pfn_array
->>    s390/cio: Allow zero-length CCWs in vfio-ccw
->>    s390/cio: Don't pin vfio pages for empty transfers
->>    s390/cio: Remove vfio-ccw checks of command codes
->>
->>   drivers/s390/cio/vfio_ccw_cp.c  | 159 +++++++++++++++++++++++---------
->>   drivers/s390/cio/vfio_ccw_drv.c |   6 +-
->>   2 files changed, 119 insertions(+), 46 deletions(-)
->>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>   drivers/s390/cio/vfio_ccw_cp.c | 11 +++++------
+>>   1 file changed, 5 insertions(+), 6 deletions(-)
 > 
