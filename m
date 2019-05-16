@@ -1,30 +1,25 @@
 Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
+Date: Thu, 16 May 2019 12:31:00 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
 Subject: Re: [PATCH 2/4] vfio: vfio_iommu_type1: Define
  VFIO_IOMMU_INFO_CAPABILITIES
-References: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
- <1557476555-20256-3-git-send-email-pmorel@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 16 May 2019 16:57:42 +0200
-MIME-Version: 1.0
+Message-ID: <20190516123100.529f06be@x1.home>
 In-Reply-To: <1557476555-20256-3-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <1557476555-20256-1-git-send-email-pmorel@linux.ibm.com>
+        <1557476555-20256-3-git-send-email-pmorel@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <f396492c-5815-7fd2-0e78-7681e6380591@de.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, sebott@linux.vnet.ibm.com, alex.williamson@redhat.com
-Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Alex, 
+On Fri, 10 May 2019 10:22:33 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-patch 1 and 3 are s390 specific, 2 and 4 are vfio common code.
-Are you ok with the common code changes? If yes, would you prefer to have this
-via the s390 tree (Martin) or your tree?
-
-On 10.05.19 10:22, Pierre Morel wrote:
 > To use the VFIO_IOMMU_GET_INFO to retrieve IOMMU specific information,
 > we define a new flag VFIO_IOMMU_INFO_CAPABILITIES in the
 > vfio_iommu_type1_info structure and the associated capability
@@ -49,6 +44,9 @@ On 10.05.19 10:22, Pierre Morel wrote:
 > +
 > +#define VFIO_IOMMU_INFO_CAP_QFN		1
 > +#define VFIO_IOMMU_INFO_CAP_QGRP	2
+
+Descriptions?
+
 > +
 > +struct vfio_iommu_type1_info_block {
 > +	struct vfio_info_cap_header header;
@@ -56,4 +54,10 @@ On 10.05.19 10:22, Pierre Morel wrote:
 >  };
 >  
 >  #define VFIO_IOMMU_GET_INFO _IO(VFIO_TYPE, VFIO_BASE + 12)
-> 
+
+This is just a blob of data, what's the API?  How do we revision it?
+How does the user know how to interpret it?  Dumping kernel internal
+structures out to userspace like this is not acceptable, define a user
+API. Thanks,
+
+Alex
