@@ -1,63 +1,63 @@
-Return-Path: <SRS0=A7Pw=TP=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH v2 1/7] s390/cio: Update SCSW if it points to the end of
- the chain
-References: <20190514234248.36203-1-farman@linux.ibm.com>
- <20190514234248.36203-2-farman@linux.ibm.com>
-From: Farhan Ali <alifm@linux.ibm.com>
-Date: Wed, 15 May 2019 10:30:35 -0400
+Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [PATCH v1 0/2] New state handling for VFIO CCW
+References: <1557148270-19901-1-git-send-email-pmorel@linux.ibm.com>
+ <20190508115341.2be6b108.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 16 May 2019 10:59:55 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190514234248.36203-2-farman@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20190508115341.2be6b108.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <978ed329-cc81-b08f-8d59-ae92350abc17@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <118f3dc7-d950-75ac-527d-2eb65dce9a99@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: pasic@linux.vnet.ibm.com, farman@linux.ibm.com, alifm@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
+On 08/05/2019 11:53, Cornelia Huck wrote:
+> On Mon,  6 May 2019 15:11:08 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> Hi,
+>>
+>> I did not integrate all my patches for state handling like I had
+>> before but just two patches which seems interresting to me:
+>>
+>> - The first one allows the device ti be used only when a guest
+>>    is currently using it.
+>>    Otherwise the device is in NOT_OPER state
+>>   
+>> - The second rework the sch_event callback: AFAIU we can not
+>>    consider that the event moves the device in IDLE state.
+>>    I think we better let it as it is currently.
+> 
+> I agree with the direction of this patch series.
+> 
+>>
+>> Regards,
+>> Pierre
+>>
+>> Pierre Morel (2):
+>>    vfio-ccw: Set subchannel state STANDBY on open
+>>    vfio-ccw: rework sch_event
+>>
+>>   drivers/s390/cio/vfio_ccw_drv.c     | 21 ++-------------------
+>>   drivers/s390/cio/vfio_ccw_fsm.c     |  7 +------
+>>   drivers/s390/cio/vfio_ccw_ops.c     | 36 ++++++++++++++++++------------------
+>>   drivers/s390/cio/vfio_ccw_private.h |  1 -
+>>   4 files changed, 21 insertions(+), 44 deletions(-)
+>>
+> 
+Thanks,
+I will post a v2 with the corrections seen by you and Farhan,
 
+Regards,
+Pierre	
 
-On 05/14/2019 07:42 PM, Eric Farman wrote:
-> Per the POPs [1], when processing an interrupt the SCSW.CPA field of an
-> IRB generally points to 8 bytes after the last CCW that was executed
-> (there are exceptions, but this is the most common behavior).
-> 
-> In the case of an error, this points us to the first un-executed CCW
-> in the chain.  But in the case of normal I/O, the address points beyond
-> the end of the chain.  While the guest generally only cares about this
-> when possibly restarting a channel program after error recovery, we
-> should convert the address even in the good scenario so that we provide
-> a consistent, valid, response upon I/O completion.
-> 
-> [1] Figure 16-6 in SA22-7832-11.  The footnotes in that table also state
-> that this is true even if the resulting address is invalid or protected,
-> but moving to the end of the guest chain should not be a surprise.
-> 
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->   drivers/s390/cio/vfio_ccw_cp.c | 6 +++++-
->   1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 384b3987eeb4..41f48b8790bc 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -870,7 +870,11 @@ void cp_update_scsw(struct channel_program *cp, union scsw *scsw)
->   	 */
->   	list_for_each_entry(chain, &cp->ccwchain_list, next) {
->   		ccw_head = (u32)(u64)chain->ch_ccw;
-> -		if (is_cpa_within_range(cpa, ccw_head, chain->ch_len)) {
-> +		/*
-> +		 * On successful execution, cpa points just beyond the end
-> +		 * of the chain.
-> +		 */
-> +		if (is_cpa_within_range(cpa, ccw_head, chain->ch_len + 1)) {
->   			/*
->   			 * (cpa - ccw_head) is the offset value of the host
->   			 * physical ccw to its chain head.
-> 
-
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
