@@ -1,8 +1,10 @@
 Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
 From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 0/3] s390: vfio-ccw fixes
-Date: Thu, 16 May 2019 18:14:00 +0200
-Message-Id: <20190516161403.79053-1-farman@linux.ibm.com>
+Subject: [PATCH v3 2/3] s390/cio: Allow zero-length CCWs in vfio-ccw
+Date: Thu, 16 May 2019 18:14:02 +0200
+In-Reply-To: <20190516161403.79053-1-farman@linux.ibm.com>
+References: <20190516161403.79053-1-farman@linux.ibm.com>
+Message-Id: <20190516161403.79053-3-farman@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,33 +12,136 @@ To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Here are the remaining patches in my fixes series, to handle the more
-involved scenario of channel programs that do not move any actual data
-to/from the device.  They were reordered per feedback from v2, which
-means they received minor massaging because of overlapping code and
-some cleanup to the commit messages.
+It is possible that a guest might issue a CCW with a length of zero,
+and will expect a particular response.  Consider this chain:
 
-They are based on Conny's vfio-ccw tree.  :)
+   Address   Format-1 CCW
+   --------  -----------------
+ 0 33110EC0  346022CC 33177468
+ 1 33110EC8  CF200000 3318300C
 
-Changelog:
- v2 -> v3:
-  - Patches 1-4:
-     - [Farhan] Added r-b
-     - [Cornelia] Queued to vfio-ccw, dropped from this version
-  - Patches 5/6:
-     - [Cornelia/Farhan] Swapped the order of these patches, minor
-       rework on the placement of bytes/idaw_nr variables and the
-       commit messages that resulted.
- v2: https://patchwork.kernel.org/cover/10944075/
- v1: https://patchwork.kernel.org/cover/10928799/
+CCW[0] moves a little more than two pages, but also has the
+Suppress Length Indication (SLI) bit set to handle the expectation
+that considerably less data will be moved.  CCW[1] also has the SLI
+bit set, and has a length of zero.  Once vfio-ccw does its magic,
+the kernel issues a start subchannel on behalf of the guest with this:
 
-Eric Farman (3):
-  s390/cio: Don't pin vfio pages for empty transfers
-  s390/cio: Allow zero-length CCWs in vfio-ccw
-  s390/cio: Remove vfio-ccw checks of command codes
+   Address   Format-1 CCW
+   --------  -----------------
+ 0 021EDED0  346422CC 021F0000
+ 1 021EDED8  CF240000 3318300C
 
- drivers/s390/cio/vfio_ccw_cp.c | 92 ++++++++++++++++++++++++----------
- 1 file changed, 65 insertions(+), 27 deletions(-)
+Both CCWs were converted to an IDAL and have the corresponding flags
+set (which is by design), but only the address of the first data
+address is converted to something the host is aware of.  The second
+CCW still has the address used by the guest, which happens to be (A)
+(probably) an invalid address for the host, and (B) an invalid IDAW
+address (doubleword boundary, etc.).
 
+While the I/O fails, it doesn't fail correctly.  In this example, we
+would receive a program check for an invalid IDAW address, instead of
+a unit check for an invalid command.
+
+To fix this, revert commit 4cebc5d6a6ff ("vfio: ccw: validate the
+count field of a ccw before pinning") and allow the individual fetch
+routines to process them like anything else.  We'll make a slight
+adjustment to our allocation of the pfn_array (for direct CCWs) or
+IDAL (for IDAL CCWs) memory, so that we have room for at least one
+address even though no guest memory will be pinned and thus the
+IDAW will not be populated with a host address.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 0467838aed23..c77c9b4cd2a8 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -70,9 +70,6 @@ static int pfn_array_alloc(struct pfn_array *pa, u64 iova, unsigned int len)
+ {
+ 	int i;
+ 
+-	if (!len)
+-		return 0;
+-
+ 	if (pa->pa_nr || pa->pa_iova_pfn)
+ 		return -EINVAL;
+ 
+@@ -319,6 +316,10 @@ static long copy_ccw_from_iova(struct channel_program *cp,
+  */
+ static inline int ccw_does_data_transfer(struct ccw1 *ccw)
+ {
++	/* If the count field is zero, then no data will be transferred */
++	if (ccw->count == 0)
++		return 0;
++
+ 	/* If the skip flag is off, then data will be transferred */
+ 	if (!ccw_is_skip(ccw))
+ 		return 1;
+@@ -405,8 +406,6 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
+ 
+ 	if (ccw_is_test(ccw) || ccw_is_noop(ccw) || ccw_is_tic(ccw))
+ 		return;
+-	if (!ccw->count)
+-		return;
+ 
+ 	kfree((void *)(u64)ccw->cda);
+ }
+@@ -592,19 +591,13 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	struct pfn_array_table *pat;
+ 	unsigned long *idaws;
+ 	int ret;
++	int bytes = 1;
+ 	int idaw_nr = 1;
+ 
+ 	ccw = chain->ch_ccw + idx;
+ 
+-	if (!ccw->count) {
+-		/*
+-		 * We just want the translation result of any direct ccw
+-		 * to be an IDA ccw, so let's add the IDA flag for it.
+-		 * Although the flag will be ignored by firmware.
+-		 */
+-		ccw->flags |= CCW_FLAG_IDA;
+-		return 0;
+-	} else {
++	if (ccw->count) {
++		bytes = ccw->count;
+ 		idaw_nr = idal_nr_words((void *)(u64)ccw->cda, ccw->count);
+ 	}
+ 
+@@ -618,7 +611,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	if (ret)
+ 		goto out_init;
+ 
+-	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, ccw->count);
++	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, bytes);
+ 	if (ret < 0)
+ 		goto out_unpin;
+ 
+@@ -661,17 +654,18 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ 	u64 idaw_iova;
+ 	unsigned int idaw_nr, idaw_len;
+ 	int i, ret;
++	int bytes = 1;
+ 
+ 	ccw = chain->ch_ccw + idx;
+ 
+-	if (!ccw->count)
+-		return 0;
++	if (ccw->count)
++		bytes = ccw->count;
+ 
+ 	/* Calculate size of idaws. */
+ 	ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda, sizeof(idaw_iova));
+ 	if (ret)
+ 		return ret;
+-	idaw_nr = idal_nr_words((void *)(idaw_iova), ccw->count);
++	idaw_nr = idal_nr_words((void *)(idaw_iova), bytes);
+ 	idaw_len = idaw_nr * sizeof(*idaws);
+ 
+ 	/* Pin data page(s) in memory. */
 -- 
 2.17.1
