@@ -1,19 +1,14 @@
 Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 16 May 2019 08:13:43 +0200
+Date: Thu, 16 May 2019 08:29:28 +0200
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-Message-ID: <20190516081343.0d22db55.cohuck@redhat.com>
-In-Reply-To: <20190515191257.31bdc583.pasic@linux.ibm.com>
+Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
+ support
+Message-ID: <20190516082928.1371696b.cohuck@redhat.com>
+In-Reply-To: <20190515225158.301af387.pasic@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190426183245.37939-6-pasic@linux.ibm.com>
-        <alpine.LFD.2.21.1905081447280.1773@schleppi>
-        <20190508232210.5a555caa.pasic@linux.ibm.com>
-        <20190509121106.48aa04db.cohuck@redhat.com>
-        <20190510001112.479b2fd7.pasic@linux.ibm.com>
-        <20190510161013.7e697337.cohuck@redhat.com>
-        <20190512202256.5517592d.pasic@linux.ibm.com>
-        <20190513152924.1e8e8f5a.cohuck@redhat.com>
-        <20190515191257.31bdc583.pasic@linux.ibm.com>
+        <20190426183245.37939-7-pasic@linux.ibm.com>
+        <20190513114136.783c851c.cohuck@redhat.com>
+        <20190515225158.301af387.pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -21,317 +16,182 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Sebastian Ott <sebott@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 15 May 2019 19:12:57 +0200
+On Wed, 15 May 2019 22:51:58 +0200
 Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Mon, 13 May 2019 15:29:24 +0200
+> On Mon, 13 May 2019 11:41:36 +0200
 > Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> > On Sun, 12 May 2019 20:22:56 +0200
+> > On Fri, 26 Apr 2019 20:32:41 +0200
 > > Halil Pasic <pasic@linux.ibm.com> wrote:
 > >   
-> > > On Fri, 10 May 2019 16:10:13 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > On Fri, 10 May 2019 00:11:12 +0200
-> > > > Halil Pasic <pasic@linux.ibm.com> wrote:
-> > > >     
-> > > > > On Thu, 9 May 2019 12:11:06 +0200
-> > > > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > > > >     
-> > > > > > On Wed, 8 May 2019 23:22:10 +0200
-> > > > > > Halil Pasic <pasic@linux.ibm.com> wrote:
-> > > > > >       
-> > > > > > > On Wed, 8 May 2019 15:18:10 +0200 (CEST)
-> > > > > > > Sebastian Ott <sebott@linux.ibm.com> wrote:      
-> > > > > >       
-> > > > > > > > > @@ -1063,6 +1163,7 @@ static int __init css_bus_init(void)
-> > > > > > > > >  		unregister_reboot_notifier(&css_reboot_notifier);
-> > > > > > > > >  		goto out_unregister;
-> > > > > > > > >  	}
-> > > > > > > > > +	cio_dma_pool_init();          
-> > > > > > > > 
-> > > > > > > > This is too late for early devices (ccw console!).        
-> > > > > > > 
-> > > > > > > You have already raised concern about this last time (thanks). I think,
-> > > > > > > I've addressed this issue: the cio_dma_pool is only used by the airq
-> > > > > > > stuff. I don't think the ccw console needs it. Please have an other look
-> > > > > > > at patch #6, and explain your concern in more detail if it persists.      
-> > > > > > 
-> > > > > > What about changing the naming/adding comments here, so that (1) folks
-> > > > > > aren't confused by the same thing in the future and (2) folks don't try
-> > > > > > to use that pool for something needed for the early ccw consoles?
-> > > > > >       
-> > > > > 
-> > > > > I'm all for clarity! Suggestions for better names?    
-> > > > 
-> > > > css_aiv_dma_pool, maybe? Or is there other cross-device stuff that may
-> > > > need it?
-> > > >     
+> > > As virtio-ccw devices are channel devices, we need to use the dma area
+> > > for any communication with the hypervisor.
 > > > 
-> > > Ouch! I was considering to use cio_dma_zalloc() for the adapter
-> > > interruption vectors but I ended up between the two chairs in the end.
-> > > So with this series there are no uses for cio_dma pool.
-> > > 
-> > > I don't feel strongly about this going one way the other.
-> > > 
-> > > Against getting rid of the cio_dma_pool and sticking with the speaks
-> > > dma_alloc_coherent() that we waste a DMA page per vector, which is a
-> > > non obvious side effect.  
+> > > This patch addresses the most basic stuff (mostly what is required for
+> > > virtio-ccw), and does take care of QDIO or any devices.  
 > > 
-> > That would basically mean one DMA page per virtio-ccw device, right?  
+> > "does not take care of QDIO", surely?   
 > 
-> Not quite: virtio-ccw shares airq vectors among multiple devices. We
-> alloc 64 bytes a time and use that as long as we don't run out of bits.
->  
-> > For single queue devices, this seems like quite a bit of overhead.
-> >  
+> I did not bother making the QDIO library code use dma memory for
+> anything that is conceptually dma memory. AFAIK QDIO is out of scope for
+> prot virt for now. If one were to do some emulated qdio with prot virt
+> guests, one wound need to make a bunch of things shared.
+
+And unless you wanted to support protected virt under z/VM as well, it
+would be wasted effort :)
+
+> 
+> > (Also, what does "any devices"
+> > mean? Do you mean "every arbitrary device", perhaps?)  
+> 
+> What I mean is: this patch takes care of the core stuff, but any
+> particular device is likely to have to do more -- that is it ain't all
+> the cio devices support prot virt with this patch. For example
+> virtio-ccw needs to make sure that the ccws constituting the channel
+> programs, as well as the data pointed by the ccws is shared. If one
+> would want to make vfio-ccw DASD pass-through work under prot virt, one
+> would need to make sure, that everything that needs to be shared is
+> shared (data buffers, channel programs).
+> 
+> Does is clarify things?
+
+That's what I thought, but the sentence was confusing :) What about
+
+"This patch addresses the most basic stuff (mostly what is required to
+support virtio-ccw devices). It handles neither QDIO devices, nor
+arbitrary non-virtio-ccw devices." ?
+
+> 
+> >   
+> > > 
+> > > An interesting side effect is that virtio structures are now going to
+> > > get allocated in 31 bit addressable storage.  
+> > 
+> > Hm...
+> >   
+> > > 
+> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > > ---
+> > >  arch/s390/include/asm/ccwdev.h   |  4 +++
+> > >  drivers/s390/cio/ccwreq.c        |  8 ++---
+> > >  drivers/s390/cio/device.c        | 65 +++++++++++++++++++++++++++++++++-------
+> > >  drivers/s390/cio/device_fsm.c    | 40 ++++++++++++-------------
+> > >  drivers/s390/cio/device_id.c     | 18 +++++------
+> > >  drivers/s390/cio/device_ops.c    | 21 +++++++++++--
+> > >  drivers/s390/cio/device_pgid.c   | 20 ++++++-------
+> > >  drivers/s390/cio/device_status.c | 24 +++++++--------
+> > >  drivers/s390/cio/io_sch.h        | 21 +++++++++----
+> > >  drivers/s390/virtio/virtio_ccw.c | 10 -------
+> > >  10 files changed, 148 insertions(+), 83 deletions(-)  
+> > 
+> > (...)
+> >   
+> > > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > > index 6d989c360f38..bb7a92316fc8 100644
+> > > --- a/drivers/s390/virtio/virtio_ccw.c
+> > > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > > @@ -66,7 +66,6 @@ struct virtio_ccw_device {
+> > >  	bool device_lost;
+> > >  	unsigned int config_ready;
+> > >  	void *airq_info;
+> > > -	u64 dma_mask;
+> > >  };
+> > >  
+> > >  struct vq_info_block_legacy {
+> > > @@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
+> > >  		ret = -ENOMEM;
+> > >  		goto out_free;
+> > >  	}
+> > > -
+> > >  	vcdev->vdev.dev.parent = &cdev->dev;
+> > > -	cdev->dev.dma_mask = &vcdev->dma_mask;
+> > > -	/* we are fine with common virtio infrastructure using 64 bit DMA */
+> > > -	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
+> > > -	if (ret) {
+> > > -		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
+> > > -		goto out_free;
+> > > -	}  
+> > 
+> > This means that vring structures now need to fit into 31 bits as well,
+> > I think?  
 > 
 > Nod.
->  
-> > Are we expecting many devices in use per guest?  
 > 
-> This is affect linux in general, not only guest 2 stuff (i.e. we
-> also waste in vanilla lpar mode). And zpci seems to do at least one
-> airq_iv_create() per pci function.
-
-Hm, I thought that guests with virtio-ccw devices were the most heavy
-user of this.
-
-On LPAR (which would be the environment where I'd expect lots of
-devices), how many users of this infrastructure do we typically have?
-DASD do not use adapter interrupts, and QDIO devices (qeth/zfcp) use
-their own indicator handling (that pre-dates this infrastructure) IIRC,
-which basically only leaves the PCI functions you mention above.
-
-> 
-> >   
-> > > 
-> > > What speaks against cio_dma_pool is that it is slightly more code, and
-> > > this currently can not be used for very early stuff, which I don't
-> > > think is relevant.   
-> > 
-> > Unless properly documented, it feels like something you can easily trip
-> > over, however.
-> > 
-> > I assume that the "very early stuff" is basically only ccw consoles.
-> > Not sure if we can use virtio-serial as an early ccw console -- IIRC
-> > that was only about 3215/3270? While QEMU guests are able to use a 3270
-> > console, this is experimental and I would not count that as a use case.
-> > Anyway, 3215/3270 don't use adapter interrupts, and probably not
-> > anything cross-device, either; so unless early virtio-serial is a
-> > thing, this restriction is fine if properly documented.
+> > Is there any way to reserve the 31 bit restriction for channel
+> > subsystem structures and keep vring in the full 64 bit range? (Or am I
+> > fundamentally misunderstanding something?)
 > >   
 > 
-> Mimu can you dig into this a bit?
+> At the root of this problem is that the DMA API basically says devices
+> may have addressing limitations expressed by the dma_mask, while our
+> addressing limitations are not coming from the device but from the IO
+> arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In our case it
+> depends on how and for what is the device going to use the memory (e.g.
+> buffers addressed by MIDA vs IDA vs direct).
 > 
-> We could also aim for getting rid of this limitation. One idea would be
-> some sort of lazy initialization (i.e. triggered by first usage).
-> Another idea would be simply doing the initialization earlier.
-> Unfortunately I'm not all that familiar with the early stuff. Is there
-> some doc you can recommend?
+> Virtio uses the DMA properties of the parent, that is in our case the
+> struct device embedded in struct ccw_device.
+> 
+> The previous version (RFC) used to allocate all the cio DMA stuff from
+> this global cio_dma_pool using the css0.dev for the DMA API
+> interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
+> e.g. the allocated ccws are 31 bit addressable.
+> 
+> But I was asked to change this so that when I allocate DMA memory for a
+> channel program of particular ccw device, a struct device of that ccw
+> device is used as the first argument of dma_alloc_coherent().
+> 
+> Considering
+> 
+> void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
+>                 gfp_t flag, unsigned long attrs)
+> {
+>         const struct dma_map_ops *ops = get_dma_ops(dev);
+>         void *cpu_addr;
+> 
+>         WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
+> 
+>         if (dma_alloc_from_dev_coherent(dev, size, dma_handle, &cpu_addr))
+>                 return cpu_addr;
+> 
+>         /* let the implementation decide on the zone to allocate from: */
+>         flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
+> 
+> that is the GFP flags dropped that implies that we really want
+> cdev->dev restricted to 31 bit addressable memory because we can't tell
+> (with the current common DMA code) hey but this piece of DMA mem you
+> are abot to allocate for me must be 31 bit addressable (using GFP_DMA
+> as we usually do).
+> 
+> So, as described in the commit message, the vring stuff being forced
+> into ZONE_DMA is an unfortunate consequence of this all.
 
-I'd probably look at the code for that.
-
-> 
-> Anyway before investing much more into this, I think we should have a
-> fair idea which option do we prefer...
-
-Agreed.
-
-> 
-> > > What also used to speak against it is that
-> > > allocations asking for more than a page would just fail, but I addressed
-> > > that in the patch I've hacked up on top of the series, and I'm going to
-> > > paste below. While at it I addressed some other issues as well.  
-> > 
-> > Hm, which "other issues"?
-> >   
-> 
-> The kfree() I've forgotten to get rid of, and this 'document does not
-> work early' (pun intended) business.
-
-Ok.
-
-> 
-> > > 
-> > > I've also got code that deals with AIRQ_IV_CACHELINE by turning the
-> > > kmem_cache into a dma_pool.  
-> > 
-> > Isn't that percolating to other airq users again? Or maybe I just don't
-> > understand what you're proposing here...  
-> 
-> Absolutely.
-> 
-> >   
-> > > 
-> > > Cornelia, Sebastian which approach do you prefer:
-> > > 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
-> > > vector, or
-> > > 2) go with the approach taken by the patch below?  
-> > 
-> > I'm not sure that I properly understand this (yeah, you probably
-> > guessed); so I'm not sure I can make a good call here.
-> >   
-> 
-> I hope you, I managed to clarify some of the questions. Please keep
-> asking if stuff remains unclear. I'm not a great communicator, but a
-> quite tenacious one.
-> 
-> I hope Sebastian will chime in as well.
-
-Yes, waiting for his comments as well :)
+Yeah. I hope 31 bits are enough for that as well.
 
 > 
-> > > 
-> > > 
-> > > Regards,
-> > > Halil
-> > > -----------------------8<---------------------------------------------
-> > > From: Halil Pasic <pasic@linux.ibm.com>
-> > > Date: Sun, 12 May 2019 18:08:05 +0200
-> > > Subject: [PATCH] WIP: use cio dma pool for airqs
-> > > 
-> > > Let's not waste a DMA page per adapter interrupt bit vector.
-> > > ---
-> > > Lightly tested...
-> > > ---
-> > >  arch/s390/include/asm/airq.h |  1 -
-> > >  drivers/s390/cio/airq.c      | 10 +++-------
-> > >  drivers/s390/cio/css.c       | 18 +++++++++++++++---
-> > >  3 files changed, 18 insertions(+), 11 deletions(-)
-> > > 
-> > > diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
-> > > index 1492d48..981a3eb 100644
-> > > --- a/arch/s390/include/asm/airq.h
-> > > +++ b/arch/s390/include/asm/airq.h
-> > > @@ -30,7 +30,6 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
-> > >  /* Adapter interrupt bit vector */
-> > >  struct airq_iv {
-> > >  	unsigned long *vector;	/* Adapter interrupt bit vector */
-> > > -	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
-> > >  	unsigned long *avail;	/* Allocation bit mask for the bit vector */
-> > >  	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
-> > >  	unsigned long *ptr;	/* Pointer associated with each bit */
-> > > diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-> > > index 7a5c0a0..f11f437 100644
-> > > --- a/drivers/s390/cio/airq.c
-> > > +++ b/drivers/s390/cio/airq.c
-> > > @@ -136,8 +136,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
-> > >  		goto out;
-> > >  	iv->bits = bits;
-> > >  	size = iv_size(bits);
-> > > -	iv->vector = dma_alloc_coherent(cio_get_dma_css_dev(), size,
-> > > -						 &iv->vector_dma, GFP_KERNEL);
-> > > +	iv->vector = cio_dma_zalloc(size);
-> > >  	if (!iv->vector)
-> > >  		goto out_free;
-> > >  	if (flags & AIRQ_IV_ALLOC) {
-> > > @@ -172,8 +171,7 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
-> > >  	kfree(iv->ptr);
-> > >  	kfree(iv->bitlock);
-> > >  	kfree(iv->avail);
-> > > -	dma_free_coherent(cio_get_dma_css_dev(), size, iv->vector,
-> > > -			  iv->vector_dma);
-> > > +	cio_dma_free(iv->vector, size);
-> > >  	kfree(iv);
-> > >  out:
-> > >  	return NULL;
-> > > @@ -189,9 +187,7 @@ void airq_iv_release(struct airq_iv *iv)
-> > >  	kfree(iv->data);
-> > >  	kfree(iv->ptr);
-> > >  	kfree(iv->bitlock);
-> > > -	kfree(iv->vector);
-> > > -	dma_free_coherent(cio_get_dma_css_dev(), iv_size(iv->bits),
-> > > -			  iv->vector, iv->vector_dma);
-> > > +	cio_dma_free(iv->vector, iv_size(iv->bits));
-> > >  	kfree(iv->avail);
-> > >  	kfree(iv);
-> > >  }
-> > > diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-> > > index 7087cc3..88d9c92 100644
-> > > --- a/drivers/s390/cio/css.c
-> > > +++ b/drivers/s390/cio/css.c
-> > > @@ -1063,7 +1063,10 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
-> > >  static void __gp_dma_free_dma(struct gen_pool *pool,
-> > >  			      struct gen_pool_chunk *chunk, void *data)
-> > >  {
-> > > -	dma_free_coherent((struct device *) data, PAGE_SIZE,
-> > > +
-> > > +	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
-> > > +
-> > > +	dma_free_coherent((struct device *) data, chunk_size,
-> > >  			 (void *) chunk->start_addr,
-> > >  			 (dma_addr_t) chunk->phys_addr);
-> > >  }
-> > > @@ -1088,13 +1091,15 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
-> > >  {
-> > >  	dma_addr_t dma_addr;
-> > >  	unsigned long addr = gen_pool_alloc(gp_dma, size);
-> > > +	size_t chunk_size;
-> > >  
-> > >  	if (!addr) {
-> > > +		chunk_size = round_up(size, PAGE_SIZE);  
-> > 
-> > Doesn't that mean that we still go up to chunks of at least PAGE_SIZE?
-> > Or can vectors now share the same chunk?  
-> 
-> Exactly! We put the allocated dma mem into the genpool. So if the next
-> request can be served from what is already in the genpool we don't end
-> up in this fallback path where we grow the pool. 
+> A side note: making the subchannel device 'own' the DMA stuff of a ccw
+> device (something that was discussed in the RFC thread) is tricky
+> because the ccw device may outlive the subchannel (all that orphan
+> stuff).
 
-Ok, that makes sense.
+Yes, that's... eww. Not really a problem for virtio-ccw devices (which
+do not support the disconnected state), but can we make DMA and the
+subchannel moving play nice with each other at all?
 
 > 
-> >   
-> > >  		addr = (unsigned long) dma_alloc_coherent(dma_dev,
-> > > -					PAGE_SIZE, &dma_addr, CIO_DMA_GFP);
-> > > +					 chunk_size, &dma_addr, CIO_DMA_GFP);
-> > >  		if (!addr)
-> > >  			return NULL;
-> > > -		gen_pool_add_virt(gp_dma, addr, dma_addr, PAGE_SIZE, -1);
-> > > +		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
-> > >  		addr = gen_pool_alloc(gp_dma, size);  
-> 
-> BTW I think it would be good to recover from this alloc failing due to a
-> race (qute unlikely with small allocations thogh...).
-
-The callers hopefully check the result?
-
-> 
-> > >  	}
-> > >  	return (void *) addr;
-> > > @@ -1108,6 +1113,13 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
-> > >  	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
-> > >  }
-> > >  
-> > > +/**
-> > > + * Allocate dma memory from the css global pool. Intended for memory not
-> > > + * specific to any single device within the css.
-> > > + *
-> > > + * Caution: Not suitable for early stuff like console.  
-> > 
-> > Maybe add "Do not use prior to <point in startup>"?
-> >   
-> 
-> I'm not awfully familiar with the well known 'points in startup'. Can
-> you recommend me some documentation on this topic?
-
-The code O:-) Anyway, that's where I'd start reading; there might be
-good stuff under Documentation/ that I've never looked at...
-
-> 
+> So the answer is: it is technically possible (e.g. see RFC) but it comes
+> at a price, and I see no obviously brilliant solution.
 > 
 > Regards,
 > Halil
 > 
-> > > + *
-> > > + */
-> > >  void *cio_dma_zalloc(size_t size)
-> > >  {
-> > >  	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);  
+> > > -
+> > >  	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
+> > >  				   GFP_DMA | GFP_KERNEL);
+> > >  	if (!vcdev->config_block) {  
 > >   
 > 
