@@ -1,47 +1,184 @@
 Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
-Date: Thu, 16 May 2019 15:59:22 +0200 (CEST)
-From: Sebastian Ott <sebott@linux.ibm.com>
-Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
-In-Reply-To: <20190512202256.5517592d.pasic@linux.ibm.com>
-References: <20190426183245.37939-1-pasic@linux.ibm.com> <20190426183245.37939-6-pasic@linux.ibm.com> <alpine.LFD.2.21.1905081447280.1773@schleppi> <20190508232210.5a555caa.pasic@linux.ibm.com> <20190509121106.48aa04db.cohuck@redhat.com>
- <20190510001112.479b2fd7.pasic@linux.ibm.com> <20190510161013.7e697337.cohuck@redhat.com> <20190512202256.5517592d.pasic@linux.ibm.com>
+Reply-To: pmorel@linux.ibm.com
+Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
+References: <20190426183245.37939-1-pasic@linux.ibm.com>
+ <20190426183245.37939-9-pasic@linux.ibm.com>
+ <716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
+ <a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
+ <20190509202600.4fd6aebe.pasic@linux.ibm.com>
+ <c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
+ <20190510135421.5363f14a.pasic@linux.ibm.com>
+ <89074bc5-78ee-a2e3-0546-791a465f83bd@linux.ibm.com>
+ <20190513121502.34d3dc62.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 16 May 2019 17:24:39 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <alpine.LFD.2.21.1905161517570.1767@schleppi>
+In-Reply-To: <20190513121502.34d3dc62.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <2736e862-69e5-7923-b429-aee0dcdd2c5a@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Sun, 12 May 2019, Halil Pasic wrote:
-> I've also got code that deals with AIRQ_IV_CACHELINE by turning the
-> kmem_cache into a dma_pool.
+On 13/05/2019 12:15, Cornelia Huck wrote:
+> On Fri, 10 May 2019 17:36:05 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> Cornelia, Sebastian which approach do you prefer:
-> 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
-> vector, or
-> 2) go with the approach taken by the patch below?
+>> On 10/05/2019 13:54, Halil Pasic wrote:
+>>> On Fri, 10 May 2019 09:43:08 +0200
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> On 09/05/2019 20:26, Halil Pasic wrote:
+>>>>> On Thu, 9 May 2019 14:01:01 +0200
+>>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>>>   
+>>>>>> On 08/05/2019 16:31, Pierre Morel wrote:
+>>>>>>> On 26/04/2019 20:32, Halil Pasic wrote:
+>>>>>>>> This will come in handy soon when we pull out the indicators from
+>>>>>>>> virtio_ccw_device to a memory area that is shared with the hypervisor
+>>>>>>>> (in particular for protected virtualization guests).
+>>>>>>>>
+>>>>>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+>>>>>>>> ---
+>>>>>>>>      drivers/s390/virtio/virtio_ccw.c | 40
+>>>>>>>> +++++++++++++++++++++++++---------------
+>>>>>>>>      1 file changed, 25 insertions(+), 15 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c
+>>>>>>>> b/drivers/s390/virtio/virtio_ccw.c
+>>>>>>>> index bb7a92316fc8..1f3e7d56924f 100644
+>>>>>>>> --- a/drivers/s390/virtio/virtio_ccw.c
+>>>>>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>>>>>>>> @@ -68,6 +68,16 @@ struct virtio_ccw_device {
+>>>>>>>>          void *airq_info;
+>>>>>>>>      };
+>>>>>>>> +static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
+>>>>>>>> +{
+>>>>>>>> +    return &vcdev->indicators;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>>> +static inline unsigned long *indicators2(struct virtio_ccw_device
+>>>>>>>> *vcdev)
+>>>>>>>> +{
+>>>>>>>> +    return &vcdev->indicators2;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>>>      struct vq_info_block_legacy {
+>>>>>>>>          __u64 queue;
+>>>>>>>>          __u32 align;
+>>>>>>>> @@ -337,17 +347,17 @@ static void virtio_ccw_drop_indicator(struct
+>>>>>>>> virtio_ccw_device *vcdev,
+>>>>>>>>              ccw->cda = (__u32)(unsigned long) thinint_area;
+>>>>>>>>          } else {
+>>>>>>>>              /* payload is the address of the indicators */
+>>>>>>>> -        indicatorp = kmalloc(sizeof(&vcdev->indicators),
+>>>>>>>> +        indicatorp = kmalloc(sizeof(indicators(vcdev)),
+>>>>>>>>                           GFP_DMA | GFP_KERNEL);
+>>>>>>>>              if (!indicatorp)
+>>>>>>>>                  return;
+>>>>>>>>              *indicatorp = 0;
+>>>>>>>>              ccw->cmd_code = CCW_CMD_SET_IND;
+>>>>>>>> -        ccw->count = sizeof(&vcdev->indicators);
+>>>>>>>> +        ccw->count = sizeof(indicators(vcdev));
+>>>>>>>
+>>>>>>> This looks strange to me. Was already weird before.
+>>>>>>> Lucky we are indicators are long...
+>>>>>>> may be just sizeof(long)
+>>>>>>   
+>>>>>
+>>>>> I'm not sure I understand where are you coming from...
+>>>>>
+>>>>> With CCW_CMD_SET_IND we tell the hypervisor the guest physical address
+>>>>> at which the so called classic indicators. There is a comment that
+>>>>> makes this obvious. The argument of the sizeof was and remained a
+>>>>> pointer type. AFAIU this is what bothers you.
+>>>>>>
+>>>>>> AFAIK the size of the indicators (AIV/AIS) is not restricted by the
+>>>>>> architecture.
+>>>>>
+>>>>> The size of vcdev->indicators is restricted or defined by the virtio
+>>>>> specification. Please have a look at '4.3.2.6.1 Setting Up Classic Queue
+>>>>> Indicators' here:
+>>>>> https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-1630002
+>>>>>
+>>>>> Since with Linux on s390 only 64 bit is supported, both the sizes are in
+>>>>> line with the specification. Using u64 would semantically match the spec
+>>>>> better, modulo pre virtio 1.0 which ain't specified. I did not want to
+>>>>> do changes that are not necessary for what I'm trying to accomplish. If
+>>>>> we want we can change these to u64 with a patch on top.
+>>>>
+>>>> I mean you are changing these line already, so why not doing it right
+>>>> while at it?
+>>>>   
+>>>
+>>> This patch is about adding the indirection so we can move the member
+>>> painlessly. Mixing in different stuff would be a bad practice.
+>>>
+>>> BTW I just explained that it ain't wrong, so I really do not understand
+>>> what do you mean by  'why not doing it right'. Can you please explain?
+>>>    
+>>
+>> I did not wanted to discuss a long time on this and gave my R-B, so
+>> meaning that I am OK with this patch.
+>>
+>> But if you ask, yes I can, it seems quite obvious.
+>> When you build a CCW you give the pointer to CCW->cda and you give the
+>> size of the transfer in CCW->count.
+>>
+>> Here the count is initialized with the sizeof of the pointer used to
+>> initialize CCW->cda with.
+> 
+> But the cda points to the pointer address, so the size of the pointer
+> is actually the correct value here, isn't it?
 
-We only have a couple of users for airq_iv:
+Oh. Yes, it is correct.
+What I do not like are the mixing of (unsigned long), (unsigned long *) 
+and &
+if we had
+cda = _u32 (unsigned long) indicatorp
+count = sizeof(*indicatorp)
 
-virtio_ccw.c: 2K bits
+I would have been completely happy.
 
-pci with floating IRQs: <= 2K (for the per-function bit vectors)
-                        1..4K (for the summary bit vector)
-
-pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
-                            1..nr_cpu (for the summary bit vector)
+It was just a non important thing and I wouldn't have given a R-B if the 
+functionality was not correct.
 
 
-The options are:
-* page allocations for everything
-* dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
-* dma_pool for everything
+> 
+>> Lukily we work on a 64 bits machine with 64 bits pointers and the size
+>> of the pointed object is 64 bits wide so... the resulting count is right.
+>> But it is not the correct way to do it.
+> 
+> I think it is, but this interface really is confusing.
 
-I think we should do option 3 and use a dma_pool with cachesize
-alignment for everything (as a prerequisite we have to limit
-config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
+Yes, it is what I thought we could do better.
 
-Sebastian
+> 
+>> That is all. Not a big concern, you do not need to change it, as you
+>> said it can be done in another patch.
+>>
+>>> Did you agree with the rest of my comment? I mean there was more to it.
+>>>    
+>>
+>> I understood from your comments that the indicators in Linux are 64bits
+>> wide so all OK.
+>>
+>> Regards
+>> Pierre
+>>
+>>
+>>
+>>
+>>
+>>
+> 
+
+
+-- 
+Pierre Morel
+Linux/KVM/QEMU in Böblingen - Germany
