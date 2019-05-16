@@ -1,146 +1,134 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 248/266] x86/speculation: Support mitigations= cmdline option
-Date: Wed, 15 May 2019 12:55:55 +0200
-Message-ID: <20190515090731.402525457@linuxfoundation.org>
-References: <20190515090722.696531131@linuxfoundation.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 4.4 247/266] cpu/speculation: Add mitigations= cmdline option
+Date: Thu, 16 May 2019 09:04:41 +0200
+Message-ID: <CAMuHMdVFaQLbH7F=Ard5MzUzG1FTfwLH=7xz=LpA3YaZyj2+Zg@mail.gmail.com>
+References: <20190515090722.696531131@linuxfoundation.org> <20190515090731.364702401@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190515090722.696531131@linuxfoundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190515090731.364702401@linuxfoundation.org>
+Sender: stable-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jikos@kernel.org>, Waiman Long <longman@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>, Jon Masters <jcm@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Catalin Marinas <catal>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ben Hutchings <ben@decadent.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Steven Price <steven.price@arm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Jon Masters <jcm@redhat.com>, Waiman Long <longman@redhat.com>, Linux-Arch <linux-arch@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, Jiri Kosina <jikos@kernel.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Josh
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+Hi Greg, Ben,
 
-commit d68be4c4d31295ff6ae34a8ddfaa4c1a8ff42812 upstream.
+On Wed, May 15, 2019 at 1:12 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> From: Josh Poimboeuf <jpoimboe@redhat.com>
+>
+> commit 98af8452945c55652de68536afdde3b520fec429 upstream.
+>
+> Keeping track of the number of mitigations for all the CPU speculation
+> bugs has become overwhelming for many users.  It's getting more and more
+> complicated to decide which mitigations are needed for a given
+> architecture.  Complicating matters is the fact that each arch tends to
+> have its own custom way to mitigate the same vulnerability.
+>
+> Most users fall into a few basic categories:
+>
+> a) they want all mitigations off;
+>
+> b) they want all reasonable mitigations on, with SMT enabled even if
+>    it's vulnerable; or
+>
+> c) they want all reasonable mitigations on, with SMT disabled if
+>    vulnerable.
+>
+> Define a set of curated, arch-independent options, each of which is an
+> aggregation of existing options:
+>
+> - mitigations=off: Disable all mitigations.
+>
+> - mitigations=auto: [default] Enable all the default mitigations, but
+>   leave SMT enabled, even if it's vulnerable.
+>
+> - mitigations=auto,nosmt: Enable all the default mitigations, disabling
+>   SMT if needed by a mitigation.
+>
+> Currently, these options are placeholders which don't actually do
+> anything.  They will be fleshed out in upcoming patches.
+>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Configure x86 runtime CPU speculation bug mitigations in accordance with
-the 'mitigations=' cmdline option.  This affects Meltdown, Spectre v2,
-Speculative Store Bypass, and L1TF.
+> [bwh: Backported to 4.4:
+>  - Drop the auto,nosmt option which we can't support
 
-The default behavior is unchanged.
+This doesn't really stand out. I.e. I completely missed it, and started
+wondering why "auto,nosmt" was not documented in
+kernel-parameters.txt below...
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jiri Kosina <jkosina@suse.cz> (on x86)
-Reviewed-by: Jiri Kosina <jkosina@suse.cz>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Jon Masters <jcm@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-arch@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Tyler Hicks <tyhicks@canonical.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Steven Price <steven.price@arm.com>
-Cc: Phil Auld <pauld@redhat.com>
-Link: https://lkml.kernel.org/r/6616d0ae169308516cfdf5216bedd169f8a8291b.1555085500.git.jpoimboe@redhat.com
-[bwh: Backported to 4.4:
- - Drop the auto,nosmt option and the l1tf mitigation selection, which we can't
-   support
- - Adjust filenames, context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- Documentation/kernel-parameters.txt |   14 +++++++++-----
- arch/x86/kernel/cpu/bugs.c          |    6 ++++--
- arch/x86/mm/kaiser.c                |    4 +++-
- 3 files changed, 16 insertions(+), 8 deletions(-)
+> --- a/Documentation/kernel-parameters.txt
+> +++ b/Documentation/kernel-parameters.txt
+> @@ -2173,6 +2173,25 @@ bytes respectively. Such letter suffixes
+>                         in the "bleeding edge" mini2440 support kernel at
+>                         http://repo.or.cz/w/linux-2.6/mini2440.git
+>
+> +       mitigations=
+> +                       Control optional mitigations for CPU vulnerabilities.
+> +                       This is a set of curated, arch-independent options, each
+> +                       of which is an aggregation of existing arch-specific
+> +                       options.
+> +
+> +                       off
+> +                               Disable all optional CPU mitigations.  This
+> +                               improves system performance, but it may also
+> +                               expose users to several CPU vulnerabilities.
+> +
+> +                       auto (default)
+> +                               Mitigate all CPU vulnerabilities, but leave SMT
+> +                               enabled, even if it's vulnerable.  This is for
+> +                               users who don't want to be surprised by SMT
+> +                               getting disabled across kernel upgrades, or who
+> +                               have other ways of avoiding SMT-based attacks.
+> +                               This is the default behavior.
+> +
+>         mminit_loglevel=
+>                         [KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
+>                         parameter allows control of the logging verbosity for
 
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -2174,15 +2174,19 @@ bytes respectively. Such letter suffixes
- 			http://repo.or.cz/w/linux-2.6/mini2440.git
- 
- 	mitigations=
--			Control optional mitigations for CPU vulnerabilities.
--			This is a set of curated, arch-independent options, each
--			of which is an aggregation of existing arch-specific
--			options.
-+			[X86] Control optional mitigations for CPU
-+			vulnerabilities.  This is a set of curated,
-+			arch-independent options, each of which is an
-+			aggregation of existing arch-specific options.
- 
- 			off
- 				Disable all optional CPU mitigations.  This
- 				improves system performance, but it may also
- 				expose users to several CPU vulnerabilities.
-+				Equivalent to: nopti [X86]
-+					       nospectre_v2 [X86]
-+					       spectre_v2_user=off [X86]
-+					       spec_store_bypass_disable=off [X86]
- 
- 			auto (default)
- 				Mitigate all CPU vulnerabilities, but leave SMT
-@@ -2190,7 +2194,7 @@ bytes respectively. Such letter suffixes
- 				users who don't want to be surprised by SMT
- 				getting disabled across kernel upgrades, or who
- 				have other ways of avoiding SMT-based attacks.
--				This is the default behavior.
-+				Equivalent to: (default behavior)
- 
- 	mminit_loglevel=
- 			[KNL] When CONFIG_DEBUG_MEMORY_INIT is set, this
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -479,7 +479,8 @@ static enum spectre_v2_mitigation_cmd __
- 	char arg[20];
- 	int ret, i;
- 
--	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2"))
-+	if (cmdline_find_option_bool(boot_command_line, "nospectre_v2") ||
-+	    cpu_mitigations_off())
- 		return SPECTRE_V2_CMD_NONE;
- 
- 	ret = cmdline_find_option(boot_command_line, "spectre_v2", arg, sizeof(arg));
-@@ -743,7 +744,8 @@ static enum ssb_mitigation_cmd __init ss
- 	char arg[20];
- 	int ret, i;
- 
--	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable")) {
-+	if (cmdline_find_option_bool(boot_command_line, "nospec_store_bypass_disable") ||
-+	    cpu_mitigations_off()) {
- 		return SPEC_STORE_BYPASS_CMD_NONE;
- 	} else {
- 		ret = cmdline_find_option(boot_command_line, "spec_store_bypass_disable",
---- a/arch/x86/mm/kaiser.c
-+++ b/arch/x86/mm/kaiser.c
-@@ -10,6 +10,7 @@
- #include <linux/mm.h>
- #include <linux/uaccess.h>
- #include <linux/ftrace.h>
-+#include <linux/cpu.h>
- 
- #undef pr_fmt
- #define pr_fmt(fmt)     "Kernel/User page tables isolation: " fmt
-@@ -297,7 +298,8 @@ void __init kaiser_check_boottime_disabl
- 			goto skip;
- 	}
- 
--	if (cmdline_find_option_bool(boot_command_line, "nopti"))
-+	if (cmdline_find_option_bool(boot_command_line, "nopti") ||
-+	    cpu_mitigations_off())
- 		goto disable;
- 
- skip:
+> --- a/kernel/cpu.c
+> +++ b/kernel/cpu.c
+> @@ -842,3 +842,16 @@ void init_cpu_online(const struct cpumas
+>  {
+>         cpumask_copy(to_cpumask(cpu_online_bits), src);
+>  }
+> +
+> +enum cpu_mitigations cpu_mitigations = CPU_MITIGATIONS_AUTO;
+> +
+> +static int __init mitigations_parse_cmdline(char *arg)
+> +{
+> +       if (!strcmp(arg, "off"))
+> +               cpu_mitigations = CPU_MITIGATIONS_OFF;
+> +       else if (!strcmp(arg, "auto"))
+> +               cpu_mitigations = CPU_MITIGATIONS_AUTO;
+
+Perhaps
+
+    else
+            pr_crit("mitigations=%s is not supported\n", arg);
+
+?
+
+Actually that makes sense on mainline, too.
+Cooking a patch...
+
+> +
+> +       return 0;
+> +}
+> +early_param("mitigations", mitigations_parse_cmdline);
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
