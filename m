@@ -1,8 +1,10 @@
 Return-Path: <SRS0=60ZI=TR=vger.kernel.org=kvm-owner@kernel.org>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v2 0/4] Retrieving zPCI specific info with VFIO
-Date: Fri, 17 May 2019 18:16:46 +0200
-Message-Id: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v2 2/4] vfio: vfio_iommu_type1: Define VFIO_IOMMU_INFO_CAPABILITIES
+Date: Fri, 17 May 2019 18:16:48 +0200
+In-Reply-To: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
+References: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1558109810-18683-3-git-send-email-pmorel@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,56 +12,100 @@ To: sebott@linux.vnet.ibm.com
 Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-Using the PCI VFIO interface allows userland, a.k.a. QEMU, to retrieve
-ZPCI specific information without knowing Z specific identifiers
-like the function ID or the function handle of the zPCI function
-hidden behind the PCI interface.
+We add a capabilities functionality to VFIO_IOMMU_GET_INFO.
 
-By using the VFIO_IOMMU_GET_INFO ioctl we enter the vfio_iommu_type1
-ioctl callback and can insert there the treatment for a new Z specific
-capability.
+This will allow the VFIO_IOMMU_GET_INFO ioctl to retrieve IOMMU
+specific information.
 
-Once in vfio_iommu_type1 we can retrieve the real iommu device,
-s390_iommu and call the get_attr iommu operation's callback
-in which we can retrieve the zdev device and start clp operations
-to retrieve Z specific values the guest driver is concerned with.
+we define a new flag VFIO_IOMMU_INFO_CAPABILITIES in the
+vfio_iommu_type1_info structure and two Z-PCI specific
+capabilities:
+VFIO_IOMMU_INFO_CAP_QFN: to query Z-PCI function information
+VFIO_IOMMU_INFO_CAP_QGRP: to query for Z-PCI group information
+and we define the associated information structures.
 
-To share the code with arch/s390/pci/pci_clp.c the original functions
-in pci_clp.c to query PCI functions and PCI functions group are
-modified so that they can be exported.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ include/uapi/linux/vfio.h | 67 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
 
-A new function clp_query_pci() replaces clp_query_pci_fn() and
-the previous calls to clp_query_pci_fn() and clp_query_pci_fngrp()
-are replaced with calls to zdev_query_pci_fn() and zdev_query_pci_fngrp()
-using a zdev pointer as argument.
-
-
-Pierre Morel (4):
-  s390: pci: Exporting access to CLP PCI function and PCI group
-  vfio: vfio_iommu_type1: Define VFIO_IOMMU_INFO_CAPABILITIES
-  s390: iommu: Adding get attributes for s390_iommu
-  vfio: vfio_iommu_type1: implement VFIO_IOMMU_INFO_CAPABILITIES
-
- arch/s390/include/asm/pci.h     |   3 +
- arch/s390/pci/pci_clp.c         |  70 ++++++++++++-----------
- drivers/iommu/s390-iommu.c      |  77 +++++++++++++++++++++++++
- drivers/vfio/vfio_iommu_type1.c | 122 +++++++++++++++++++++++++++++++++++++++-
- include/linux/iommu.h           |   4 ++
- include/uapi/linux/vfio.h       |  67 ++++++++++++++++++++++
- 6 files changed, 308 insertions(+), 35 deletions(-)
-
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 8f10748..aed0e72 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -715,6 +715,73 @@ struct vfio_iommu_type1_info {
+ 	__u32	flags;
+ #define VFIO_IOMMU_INFO_PGSIZES (1 << 0)	/* supported page sizes info */
+ 	__u64	iova_pgsizes;		/* Bitmap of supported page sizes */
++#define VFIO_IOMMU_INFO_CAPABILITIES (1 << 1)  /* support capabilities info */
++	__u64   cap_offset;     /* Offset within info struct of first cap */
++};
++
++/*
++ * The VFIO IOMMU INFO  PCI function capability allows to retrieve
++ * Z-PCI function specific data needed by the VFIO user to provide
++ * them to the guest function's driver.
++ *
++ * The structures below define version 1 of this capability.
++ */
++#define VFIO_IOMMU_INFO_CAP_QFN		1
++
++struct vfio_iommu_pci_function {
++	__u32 ignored;
++	__u32 format;		/* Structure format */
++	__u64 reserved1;
++	__u16 vfn;		/* Virtual function number */
++	__u8 u;			/* utility string presence */
++	__u8 gid;		/* Function group */
++	__u32 fid;		/* Function identifier */
++	__u8 bar_size[6];	/* Bar size */
++	__u16 pchid;		/* Physical channel ID */
++	__u32 bar[6];		/* PCI Bar address */
++	__u64 reserved2;
++	__u64 sdma;		/* Start available DMA */
++	__u64 edma;		/* End available DMA */
++	__u32 reserved3[11];
++	__u32 uid;		/* User's identifier */
++	__u8 util_str[64];	/* Adapter specific utility string */
++};
++
++struct vfio_iommu_type1_info_pcifn {
++	struct vfio_info_cap_header header;
++	struct vfio_iommu_pci_function response;
++};
++
++/*
++ * The VFIO IOMMU INFO PCI function group capability allows to retrieve
++ * information, specific to a group of Z-PCI functions, needed by
++ * the VFIO user to provide them to the guest function's driver.
++ *
++ * The structures below define version 1 of this capability.
++ */
++#define VFIO_IOMMU_INFO_CAP_QGRP	2
++
++struct vfio_iommu_pci_function_group {
++	__u32 ignored;
++	__u32 format;		/* Structure format */
++	__u64 reserved1;
++	__u16 noi;		/* Maximum number of interruptions */
++	__u8 version;		/* Version */
++	__u8 flags;		/* Flags */
++#define VFIO_IOMMU_ZPCI_REFRESH	0x01
++#define VFIO_IOMMU_ZPCI_FRAME	0x02
++	__u16 maxstbl;		/* Maximum store-block length */
++	__u16 mui;		/* Measurement block update interval */
++	__u64 reserved3;
++	__u64 dasm;		/* DMA Address space mask */
++	__u64 msia;		/* MSI Address */
++	__u64 reserved4;
++	__u64 reserved5;
++};
++
++struct vfio_iommu_type1_info_pcifg {
++	struct vfio_info_cap_header header;
++	struct vfio_iommu_pci_function_group response;
+ };
+ 
+ #define VFIO_IOMMU_GET_INFO _IO(VFIO_TYPE, VFIO_BASE + 12)
 -- 
 2.7.4
-
-Changelog
-From V1:
-- no export of the symbol of the new zPCI CLP functions
-(Robin)
-- adding descriptions for the VFIO capabilities
-(Alex)
-- defining the structure of the data retrieved through
-  VFIO_IOMMU_GET_INFO
-(Alex)
-- code modifications to allow architecture independence
-  for the capabilities
-(Alex)
