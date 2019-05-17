@@ -1,10 +1,10 @@
 Return-Path: <SRS0=60ZI=TR=vger.kernel.org=kvm-owner@kernel.org>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v2 4/4] vfio: vfio_iommu_type1: implement VFIO_IOMMU_INFO_CAPABILITIES
-Date: Fri, 17 May 2019 18:16:50 +0200
+Subject: [PATCH v2 3/4] s390: iommu: Adding get attributes for s390_iommu
+Date: Fri, 17 May 2019 18:16:49 +0200
 In-Reply-To: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
 References: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1558109810-18683-5-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1558109810-18683-4-git-send-email-pmorel@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -12,175 +12,131 @@ To: sebott@linux.vnet.ibm.com
 Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We implement the capability interface for VFIO_IOMMU_GET_INFO.
+We add the "get attributes" callback to the S390 iommu operations
+to retrieve the S390 specific attributes through the call of zPCI
+dedicated CLP functions.
 
-When calling the ioctl, the user must specify
-VFIO_IOMMU_INFO_CAPABILITIES to retrieve the capabilities and
-must check in the answer if capabilities are supported.
-
-The iommu get_attr callback will be used to retrieve the specific
-attributes and fill the capabilities.
-
-Currently two Z-PCI specific capabilities will be queried and
-filled by the underlying Z specific s390_iommu:
-VFIO_IOMMU_INFO_CAP_QFN for the PCI query function attributes
-and
-VFIO_IOMMU_INFO_CAP_QGRP for the PCI query function group.
-
-Other architectures may add new capabilities in the same way
-after enhancing the architecture specific IOMMU driver.
+The caller can use the following attributes and retrieve:
+DOMAIN_ATTR_ZPCI_FN_SIZE: the size of the Z-PCI function attributes
+DOMAIN_ATTR_ZPCI_GRP_SIZE: the size of the Z-PCI function group attributes
+DOMAIN_ATTR_ZPCI_FN: the Z-PCI function attributes
+DOMAIN_ATTR_ZPCI_GRP: the Z-PCI function group attributes
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/vfio/vfio_iommu_type1.c | 122 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 121 insertions(+), 1 deletion(-)
+ drivers/iommu/s390-iommu.c | 77 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/iommu.h      |  4 +++
+ 2 files changed, 81 insertions(+)
 
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index d0f731c..9435647 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -1658,6 +1658,97 @@ static int vfio_domains_have_iommu_cache(struct vfio_iommu *iommu)
- 	return ret;
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 22d4db3..98082f0 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -363,6 +363,82 @@ void zpci_destroy_iommu(struct zpci_dev *zdev)
+ 	iommu_device_sysfs_remove(&zdev->iommu_dev);
  }
  
-+static int vfio_iommu_type1_zpci_fn(struct iommu_domain *domain,
-+				    struct vfio_info_cap *caps, size_t size)
++struct zpci_dev *get_zpci(struct s390_domain *s390_domain)
 +{
-+	struct vfio_iommu_type1_info_pcifn *info_fn;
-+	int ret;
++	struct s390_domain_device *domain_device;
 +
-+	info_fn = kzalloc(size, GFP_KERNEL);
-+	if (!info_fn)
-+		return -ENOMEM;
-+
-+	ret = iommu_domain_get_attr(domain, DOMAIN_ATTR_ZPCI_FN,
-+				    &info_fn->response);
-+	if (ret < 0)
-+		goto free_fn;
-+
-+	info_fn->header.id = VFIO_IOMMU_INFO_CAP_QFN;
-+	ret = vfio_info_add_capability(caps, &info_fn->header, size);
-+
-+free_fn:
-+	kfree(info_fn);
-+	return ret;
++	domain_device = list_first_entry(&s390_domain->devices,
++					 struct s390_domain_device, list);
++	if (!domain_device)
++		return NULL;
++	return domain_device->zdev;
 +}
 +
-+static int vfio_iommu_type1_zpci_grp(struct iommu_domain *domain,
-+				     struct vfio_info_cap *caps,
-+				     size_t grp_size)
++static int s390_domain_get_fn(struct iommu_domain *domain, void *data)
 +{
-+	struct vfio_iommu_type1_info_pcifg *info_grp;
-+	int ret;
++	struct zpci_dev *zdev;
++	struct clp_req_rsp_query_pci *rrb;
++	int rc;
 +
-+	info_grp = kzalloc(grp_size, GFP_KERNEL);
-+	if (!info_grp)
-+		return -ENOMEM;
-+
-+	ret = iommu_domain_get_attr(domain, DOMAIN_ATTR_ZPCI_GRP,
-+				    (void *) &info_grp->response);
-+	if (ret < 0)
-+		goto free_grp;
-+	info_grp->header.id = VFIO_IOMMU_INFO_CAP_QGRP;
-+	ret = vfio_info_add_capability(caps, &info_grp->header, grp_size);
-+
-+free_grp:
-+	kfree(info_grp);
-+	return ret;
-+}
-+
-+int vfio_iommu_type1_caps(struct vfio_iommu *iommu, struct vfio_info_cap *caps,
-+			  size_t size)
-+{
-+	struct vfio_domain *d;
-+	unsigned long total_size, fn_size, grp_size;
-+	int ret;
-+
-+	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
-+	if (!d)
++	zdev = get_zpci(to_s390_domain(domain));
++	if (!zdev)
 +		return -ENODEV;
++	rrb = (struct clp_req_rsp_query_pci *)
++	      __get_free_pages(GFP_KERNEL, get_order(CLP_BLK_SIZE));
++	if (!rrb)
++		return -ENOMEM;
++	rc = zdev_query_pci_fn(zdev, rrb);
 +
-+	/* First compute the size the user must provide */
-+	total_size = 0;
-+	fn_size = iommu_domain_get_attr(d->domain,
-+					DOMAIN_ATTR_ZPCI_FN_SIZE, NULL);
-+	if (fn_size > 0) {
-+		fn_size +=  sizeof(struct vfio_info_cap_header);
-+		total_size += fn_size;
-+	}
-+
-+	grp_size = iommu_domain_get_attr(d->domain,
-+					 DOMAIN_ATTR_ZPCI_GRP_SIZE, NULL);
-+	if (grp_size > 0) {
-+		grp_size +=  sizeof(struct vfio_info_cap_header);
-+		total_size += grp_size;
-+	}
-+
-+	if (total_size > size) {
-+		/* Tell caller to call us with a greater buffer */
-+		caps->size = total_size;
-+		return 0;
-+	}
-+
-+	if (fn_size) {
-+		ret = vfio_iommu_type1_zpci_fn(d->domain, caps, fn_size);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	if (grp_size)
-+		ret = vfio_iommu_type1_zpci_grp(d->domain, caps, grp_size);
-+
-+	return ret;
++	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
++		memcpy(data, &rrb->response, sizeof(struct clp_rsp_query_pci));
++	else
++		rc = -EIO;
++	free_pages((unsigned long) rrb, get_order(CLP_BLK_SIZE));
++	return rc;
 +}
 +
- static long vfio_iommu_type1_ioctl(void *iommu_data,
- 				   unsigned int cmd, unsigned long arg)
- {
-@@ -1679,6 +1770,8 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
- 		}
- 	} else if (cmd == VFIO_IOMMU_GET_INFO) {
- 		struct vfio_iommu_type1_info info;
-+		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-+		int ret;
- 
- 		minsz = offsetofend(struct vfio_iommu_type1_info, iova_pgsizes);
- 
-@@ -1688,7 +1781,34 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
- 		if (info.argsz < minsz)
- 			return -EINVAL;
- 
--		info.flags = VFIO_IOMMU_INFO_PGSIZES;
-+		if (info.flags & VFIO_IOMMU_INFO_CAPABILITIES) {
-+			minsz = offsetofend(struct vfio_iommu_type1_info,
-+					    cap_offset);
-+			if (info.argsz < minsz)
-+				return -EINVAL;
-+			ret = vfio_iommu_type1_caps(iommu, &caps,
-+						    info.argsz - sizeof(info));
-+			if (ret)
-+				return ret;
-+		}
-+		if (caps.size) {
-+			if (info.argsz < sizeof(info) + caps.size) {
-+				info.argsz = sizeof(info) + caps.size;
-+				info.cap_offset = 0;
-+			} else {
-+				if (copy_to_user((void __user *)arg +
-+						 sizeof(info), caps.buf,
-+						 caps.size)) {
-+					kfree(caps.buf);
-+					return -EFAULT;
-+				}
++static int s390_domain_get_grp(struct iommu_domain *domain, void *data)
++{
++	struct zpci_dev *zdev;
++	struct clp_req_rsp_query_pci_grp *rrb;
++	int rc;
 +
-+				info.cap_offset = sizeof(info);
-+			}
-+			kfree(caps.buf);
-+		}
++	zdev = get_zpci(to_s390_domain(domain));
++	if (!zdev)
++		return -ENODEV;
++	rrb = (struct clp_req_rsp_query_pci_grp *)
++	      __get_free_pages(GFP_KERNEL, get_order(CLP_BLK_SIZE));
++	if (!rrb)
++		return -ENOMEM;
 +
-+		info.flags |= VFIO_IOMMU_INFO_PGSIZES;
++	rc = zdev_query_pci_fngrp(zdev, rrb);
++	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
++		memcpy(data, &rrb->response,
++		       sizeof(struct clp_rsp_query_pci_grp));
++	else
++		rc = -EIO;
++
++	free_pages((unsigned long) rrb, get_order(CLP_BLK_SIZE));
++	return rc;
++}
++
++static int s390_domain_get_attr(struct iommu_domain *domain,
++				enum iommu_attr attr, void *data)
++{
++	switch (attr) {
++	case DOMAIN_ATTR_ZPCI_FN_SIZE:
++		return sizeof(struct clp_rsp_query_pci);
++	case DOMAIN_ATTR_ZPCI_GRP_SIZE:
++		return sizeof(struct clp_rsp_query_pci_grp);
++	case DOMAIN_ATTR_ZPCI_FN:
++		return s390_domain_get_fn(domain, data);
++	case DOMAIN_ATTR_ZPCI_GRP:
++		return s390_domain_get_grp(domain, data);
++	default:
++		return -ENODEV;
++	}
++}
++
+ static const struct iommu_ops s390_iommu_ops = {
+ 	.capable = s390_iommu_capable,
+ 	.domain_alloc = s390_domain_alloc,
+@@ -376,6 +452,7 @@ static const struct iommu_ops s390_iommu_ops = {
+ 	.remove_device = s390_iommu_remove_device,
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
++	.domain_get_attr = s390_domain_get_attr,
+ };
  
- 		info.iova_pgsizes = vfio_pgsize_bitmap(iommu);
+ static int __init s390_iommu_init(void)
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index ffbbc7e..ebdcac4 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -125,6 +125,10 @@ enum iommu_attr {
+ 	DOMAIN_ATTR_FSL_PAMUV1,
+ 	DOMAIN_ATTR_NESTING,	/* two stages of translation */
+ 	DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
++	DOMAIN_ATTR_ZPCI_FN_SIZE,
++	DOMAIN_ATTR_ZPCI_GRP_SIZE,
++	DOMAIN_ATTR_ZPCI_FN,
++	DOMAIN_ATTR_ZPCI_GRP,
+ 	DOMAIN_ATTR_MAX,
+ };
  
 -- 
 2.7.4
