@@ -1,111 +1,204 @@
 Return-Path: <SRS0=60ZI=TR=vger.kernel.org=kvm-owner@kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v2 2/4] vfio: vfio_iommu_type1: Define VFIO_IOMMU_INFO_CAPABILITIES
-Date: Fri, 17 May 2019 18:16:48 +0200
-In-Reply-To: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
+Date: Fri, 17 May 2019 10:41:43 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH v2 4/4] vfio: vfio_iommu_type1: implement
+ VFIO_IOMMU_INFO_CAPABILITIES
+Message-ID: <20190517104143.240082b5@x1.home>
+In-Reply-To: <1558109810-18683-5-git-send-email-pmorel@linux.ibm.com>
 References: <1558109810-18683-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1558109810-18683-3-git-send-email-pmorel@linux.ibm.com>
+        <1558109810-18683-5-git-send-email-pmorel@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: sebott@linux.vnet.ibm.com
-Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-We add a capabilities functionality to VFIO_IOMMU_GET_INFO.
+On Fri, 17 May 2019 18:16:50 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-This will allow the VFIO_IOMMU_GET_INFO ioctl to retrieve IOMMU
-specific information.
+> We implement the capability interface for VFIO_IOMMU_GET_INFO.
+> 
+> When calling the ioctl, the user must specify
+> VFIO_IOMMU_INFO_CAPABILITIES to retrieve the capabilities and
+> must check in the answer if capabilities are supported.
+> 
+> The iommu get_attr callback will be used to retrieve the specific
+> attributes and fill the capabilities.
+> 
+> Currently two Z-PCI specific capabilities will be queried and
+> filled by the underlying Z specific s390_iommu:
+> VFIO_IOMMU_INFO_CAP_QFN for the PCI query function attributes
+> and
+> VFIO_IOMMU_INFO_CAP_QGRP for the PCI query function group.
+> 
+> Other architectures may add new capabilities in the same way
+> after enhancing the architecture specific IOMMU driver.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  drivers/vfio/vfio_iommu_type1.c | 122 +++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 121 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+> index d0f731c..9435647 100644
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -1658,6 +1658,97 @@ static int vfio_domains_have_iommu_cache(struct vfio_iommu *iommu)
+>  	return ret;
+>  }
+>  
+> +static int vfio_iommu_type1_zpci_fn(struct iommu_domain *domain,
+> +				    struct vfio_info_cap *caps, size_t size)
+> +{
+> +	struct vfio_iommu_type1_info_pcifn *info_fn;
+> +	int ret;
+> +
+> +	info_fn = kzalloc(size, GFP_KERNEL);
+> +	if (!info_fn)
+> +		return -ENOMEM;
+> +
+> +	ret = iommu_domain_get_attr(domain, DOMAIN_ATTR_ZPCI_FN,
+> +				    &info_fn->response);
 
-we define a new flag VFIO_IOMMU_INFO_CAPABILITIES in the
-vfio_iommu_type1_info structure and two Z-PCI specific
-capabilities:
-VFIO_IOMMU_INFO_CAP_QFN: to query Z-PCI function information
-VFIO_IOMMU_INFO_CAP_QGRP: to query for Z-PCI group information
-and we define the associated information structures.
+What ensures that the 'struct clp_rsp_query_pci' returned from this
+get_attr remains consistent with a 'struct vfio_iommu_pci_function'?
+Why does the latter contains so many reserved fields (beyond simply
+alignment) for a user API?  What fields of these structures are
+actually useful to userspace?  Should any fields not be exposed to the
+user?  Aren't BAR sizes redundant to what's available through the vfio
+PCI API?  I'm afraid that simply redefining an internal structure as
+the API leaves a lot to be desired too.  Thanks,
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- include/uapi/linux/vfio.h | 67 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+Alex
 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 8f10748..aed0e72 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -715,6 +715,73 @@ struct vfio_iommu_type1_info {
- 	__u32	flags;
- #define VFIO_IOMMU_INFO_PGSIZES (1 << 0)	/* supported page sizes info */
- 	__u64	iova_pgsizes;		/* Bitmap of supported page sizes */
-+#define VFIO_IOMMU_INFO_CAPABILITIES (1 << 1)  /* support capabilities info */
-+	__u64   cap_offset;     /* Offset within info struct of first cap */
-+};
-+
-+/*
-+ * The VFIO IOMMU INFO  PCI function capability allows to retrieve
-+ * Z-PCI function specific data needed by the VFIO user to provide
-+ * them to the guest function's driver.
-+ *
-+ * The structures below define version 1 of this capability.
-+ */
-+#define VFIO_IOMMU_INFO_CAP_QFN		1
-+
-+struct vfio_iommu_pci_function {
-+	__u32 ignored;
-+	__u32 format;		/* Structure format */
-+	__u64 reserved1;
-+	__u16 vfn;		/* Virtual function number */
-+	__u8 u;			/* utility string presence */
-+	__u8 gid;		/* Function group */
-+	__u32 fid;		/* Function identifier */
-+	__u8 bar_size[6];	/* Bar size */
-+	__u16 pchid;		/* Physical channel ID */
-+	__u32 bar[6];		/* PCI Bar address */
-+	__u64 reserved2;
-+	__u64 sdma;		/* Start available DMA */
-+	__u64 edma;		/* End available DMA */
-+	__u32 reserved3[11];
-+	__u32 uid;		/* User's identifier */
-+	__u8 util_str[64];	/* Adapter specific utility string */
-+};
-+
-+struct vfio_iommu_type1_info_pcifn {
-+	struct vfio_info_cap_header header;
-+	struct vfio_iommu_pci_function response;
-+};
-+
-+/*
-+ * The VFIO IOMMU INFO PCI function group capability allows to retrieve
-+ * information, specific to a group of Z-PCI functions, needed by
-+ * the VFIO user to provide them to the guest function's driver.
-+ *
-+ * The structures below define version 1 of this capability.
-+ */
-+#define VFIO_IOMMU_INFO_CAP_QGRP	2
-+
-+struct vfio_iommu_pci_function_group {
-+	__u32 ignored;
-+	__u32 format;		/* Structure format */
-+	__u64 reserved1;
-+	__u16 noi;		/* Maximum number of interruptions */
-+	__u8 version;		/* Version */
-+	__u8 flags;		/* Flags */
-+#define VFIO_IOMMU_ZPCI_REFRESH	0x01
-+#define VFIO_IOMMU_ZPCI_FRAME	0x02
-+	__u16 maxstbl;		/* Maximum store-block length */
-+	__u16 mui;		/* Measurement block update interval */
-+	__u64 reserved3;
-+	__u64 dasm;		/* DMA Address space mask */
-+	__u64 msia;		/* MSI Address */
-+	__u64 reserved4;
-+	__u64 reserved5;
-+};
-+
-+struct vfio_iommu_type1_info_pcifg {
-+	struct vfio_info_cap_header header;
-+	struct vfio_iommu_pci_function_group response;
- };
- 
- #define VFIO_IOMMU_GET_INFO _IO(VFIO_TYPE, VFIO_BASE + 12)
--- 
-2.7.4
+> +	if (ret < 0)
+> +		goto free_fn;
+> +
+> +	info_fn->header.id = VFIO_IOMMU_INFO_CAP_QFN;
+> +	ret = vfio_info_add_capability(caps, &info_fn->header, size);
+> +
+> +free_fn:
+> +	kfree(info_fn);
+> +	return ret;
+> +}
+> +
+> +static int vfio_iommu_type1_zpci_grp(struct iommu_domain *domain,
+> +				     struct vfio_info_cap *caps,
+> +				     size_t grp_size)
+> +{
+> +	struct vfio_iommu_type1_info_pcifg *info_grp;
+> +	int ret;
+> +
+> +	info_grp = kzalloc(grp_size, GFP_KERNEL);
+> +	if (!info_grp)
+> +		return -ENOMEM;
+> +
+> +	ret = iommu_domain_get_attr(domain, DOMAIN_ATTR_ZPCI_GRP,
+> +				    (void *) &info_grp->response);
+> +	if (ret < 0)
+> +		goto free_grp;
+> +	info_grp->header.id = VFIO_IOMMU_INFO_CAP_QGRP;
+> +	ret = vfio_info_add_capability(caps, &info_grp->header, grp_size);
+> +
+> +free_grp:
+> +	kfree(info_grp);
+> +	return ret;
+> +}
+> +
+> +int vfio_iommu_type1_caps(struct vfio_iommu *iommu, struct vfio_info_cap *caps,
+> +			  size_t size)
+> +{
+> +	struct vfio_domain *d;
+> +	unsigned long total_size, fn_size, grp_size;
+> +	int ret;
+> +
+> +	d = list_first_entry(&iommu->domain_list, struct vfio_domain, next);
+> +	if (!d)
+> +		return -ENODEV;
+> +
+> +	/* First compute the size the user must provide */
+> +	total_size = 0;
+> +	fn_size = iommu_domain_get_attr(d->domain,
+> +					DOMAIN_ATTR_ZPCI_FN_SIZE, NULL);
+> +	if (fn_size > 0) {
+> +		fn_size +=  sizeof(struct vfio_info_cap_header);
+> +		total_size += fn_size;
+> +	}
+> +
+> +	grp_size = iommu_domain_get_attr(d->domain,
+> +					 DOMAIN_ATTR_ZPCI_GRP_SIZE, NULL);
+> +	if (grp_size > 0) {
+> +		grp_size +=  sizeof(struct vfio_info_cap_header);
+> +		total_size += grp_size;
+> +	}
+> +
+> +	if (total_size > size) {
+> +		/* Tell caller to call us with a greater buffer */
+> +		caps->size = total_size;
+> +		return 0;
+> +	}
+> +
+> +	if (fn_size) {
+> +		ret = vfio_iommu_type1_zpci_fn(d->domain, caps, fn_size);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	if (grp_size)
+> +		ret = vfio_iommu_type1_zpci_grp(d->domain, caps, grp_size);
+> +
+> +	return ret;
+> +}
+> +
+>  static long vfio_iommu_type1_ioctl(void *iommu_data,
+>  				   unsigned int cmd, unsigned long arg)
+>  {
+> @@ -1679,6 +1770,8 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
+>  		}
+>  	} else if (cmd == VFIO_IOMMU_GET_INFO) {
+>  		struct vfio_iommu_type1_info info;
+> +		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
+> +		int ret;
+>  
+>  		minsz = offsetofend(struct vfio_iommu_type1_info, iova_pgsizes);
+>  
+> @@ -1688,7 +1781,34 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
+>  		if (info.argsz < minsz)
+>  			return -EINVAL;
+>  
+> -		info.flags = VFIO_IOMMU_INFO_PGSIZES;
+> +		if (info.flags & VFIO_IOMMU_INFO_CAPABILITIES) {
+> +			minsz = offsetofend(struct vfio_iommu_type1_info,
+> +					    cap_offset);
+> +			if (info.argsz < minsz)
+> +				return -EINVAL;
+> +			ret = vfio_iommu_type1_caps(iommu, &caps,
+> +						    info.argsz - sizeof(info));
+> +			if (ret)
+> +				return ret;
+> +		}
+> +		if (caps.size) {
+> +			if (info.argsz < sizeof(info) + caps.size) {
+> +				info.argsz = sizeof(info) + caps.size;
+> +				info.cap_offset = 0;
+> +			} else {
+> +				if (copy_to_user((void __user *)arg +
+> +						 sizeof(info), caps.buf,
+> +						 caps.size)) {
+> +					kfree(caps.buf);
+> +					return -EFAULT;
+> +				}
+> +
+> +				info.cap_offset = sizeof(info);
+> +			}
+> +			kfree(caps.buf);
+> +		}
+> +
+> +		info.flags |= VFIO_IOMMU_INFO_PGSIZES;
+>  
+>  		info.iova_pgsizes = vfio_pgsize_bitmap(iommu);
+>  
