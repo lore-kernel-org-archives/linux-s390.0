@@ -1,184 +1,153 @@
-Return-Path: <SRS0=lgIa=TQ=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: pmorel@linux.ibm.com
-Subject: Re: [PATCH 08/10] virtio/s390: add indirection to indicators access
+Return-Path: <SRS0=tFsi=TS=vger.kernel.org=kvm-owner@kernel.org>
+Date: Sat, 18 May 2019 20:11:00 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
+ support
+In-Reply-To: <20190516082928.1371696b.cohuck@redhat.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
- <20190426183245.37939-9-pasic@linux.ibm.com>
- <716d47ca-016f-e8f4-6d78-7746a7d9f6ba@linux.ibm.com>
- <a4bf1976-8037-63bb-2cf6-c389edbd2e89@linux.ibm.com>
- <20190509202600.4fd6aebe.pasic@linux.ibm.com>
- <c1e03cf0-3773-de00-10ae-d092ffe7ccc5@linux.ibm.com>
- <20190510135421.5363f14a.pasic@linux.ibm.com>
- <89074bc5-78ee-a2e3-0546-791a465f83bd@linux.ibm.com>
- <20190513121502.34d3dc62.cohuck@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 16 May 2019 17:24:39 +0200
+        <20190426183245.37939-7-pasic@linux.ibm.com>
+        <20190513114136.783c851c.cohuck@redhat.com>
+        <20190515225158.301af387.pasic@linux.ibm.com>
+        <20190516082928.1371696b.cohuck@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190513121502.34d3dc62.cohuck@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <2736e862-69e5-7923-b429-aee0dcdd2c5a@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190518201100.0fd07d7f.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 13/05/2019 12:15, Cornelia Huck wrote:
-> On Fri, 10 May 2019 17:36:05 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Thu, 16 May 2019 08:29:28 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
+
+> On Wed, 15 May 2019 22:51:58 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
->> On 10/05/2019 13:54, Halil Pasic wrote:
->>> On Fri, 10 May 2019 09:43:08 +0200
->>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>    
->>>> On 09/05/2019 20:26, Halil Pasic wrote:
->>>>> On Thu, 9 May 2019 14:01:01 +0200
->>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>>>   
->>>>>> On 08/05/2019 16:31, Pierre Morel wrote:
->>>>>>> On 26/04/2019 20:32, Halil Pasic wrote:
->>>>>>>> This will come in handy soon when we pull out the indicators from
->>>>>>>> virtio_ccw_device to a memory area that is shared with the hypervisor
->>>>>>>> (in particular for protected virtualization guests).
->>>>>>>>
->>>>>>>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->>>>>>>> ---
->>>>>>>>      drivers/s390/virtio/virtio_ccw.c | 40
->>>>>>>> +++++++++++++++++++++++++---------------
->>>>>>>>      1 file changed, 25 insertions(+), 15 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c
->>>>>>>> b/drivers/s390/virtio/virtio_ccw.c
->>>>>>>> index bb7a92316fc8..1f3e7d56924f 100644
->>>>>>>> --- a/drivers/s390/virtio/virtio_ccw.c
->>>>>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
->>>>>>>> @@ -68,6 +68,16 @@ struct virtio_ccw_device {
->>>>>>>>          void *airq_info;
->>>>>>>>      };
->>>>>>>> +static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
->>>>>>>> +{
->>>>>>>> +    return &vcdev->indicators;
->>>>>>>> +}
->>>>>>>> +
->>>>>>>> +static inline unsigned long *indicators2(struct virtio_ccw_device
->>>>>>>> *vcdev)
->>>>>>>> +{
->>>>>>>> +    return &vcdev->indicators2;
->>>>>>>> +}
->>>>>>>> +
->>>>>>>>      struct vq_info_block_legacy {
->>>>>>>>          __u64 queue;
->>>>>>>>          __u32 align;
->>>>>>>> @@ -337,17 +347,17 @@ static void virtio_ccw_drop_indicator(struct
->>>>>>>> virtio_ccw_device *vcdev,
->>>>>>>>              ccw->cda = (__u32)(unsigned long) thinint_area;
->>>>>>>>          } else {
->>>>>>>>              /* payload is the address of the indicators */
->>>>>>>> -        indicatorp = kmalloc(sizeof(&vcdev->indicators),
->>>>>>>> +        indicatorp = kmalloc(sizeof(indicators(vcdev)),
->>>>>>>>                           GFP_DMA | GFP_KERNEL);
->>>>>>>>              if (!indicatorp)
->>>>>>>>                  return;
->>>>>>>>              *indicatorp = 0;
->>>>>>>>              ccw->cmd_code = CCW_CMD_SET_IND;
->>>>>>>> -        ccw->count = sizeof(&vcdev->indicators);
->>>>>>>> +        ccw->count = sizeof(indicators(vcdev));
->>>>>>>
->>>>>>> This looks strange to me. Was already weird before.
->>>>>>> Lucky we are indicators are long...
->>>>>>> may be just sizeof(long)
->>>>>>   
->>>>>
->>>>> I'm not sure I understand where are you coming from...
->>>>>
->>>>> With CCW_CMD_SET_IND we tell the hypervisor the guest physical address
->>>>> at which the so called classic indicators. There is a comment that
->>>>> makes this obvious. The argument of the sizeof was and remained a
->>>>> pointer type. AFAIU this is what bothers you.
->>>>>>
->>>>>> AFAIK the size of the indicators (AIV/AIS) is not restricted by the
->>>>>> architecture.
->>>>>
->>>>> The size of vcdev->indicators is restricted or defined by the virtio
->>>>> specification. Please have a look at '4.3.2.6.1 Setting Up Classic Queue
->>>>> Indicators' here:
->>>>> https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-1630002
->>>>>
->>>>> Since with Linux on s390 only 64 bit is supported, both the sizes are in
->>>>> line with the specification. Using u64 would semantically match the spec
->>>>> better, modulo pre virtio 1.0 which ain't specified. I did not want to
->>>>> do changes that are not necessary for what I'm trying to accomplish. If
->>>>> we want we can change these to u64 with a patch on top.
->>>>
->>>> I mean you are changing these line already, so why not doing it right
->>>> while at it?
->>>>   
->>>
->>> This patch is about adding the indirection so we can move the member
->>> painlessly. Mixing in different stuff would be a bad practice.
->>>
->>> BTW I just explained that it ain't wrong, so I really do not understand
->>> what do you mean by  'why not doing it right'. Can you please explain?
->>>    
->>
->> I did not wanted to discuss a long time on this and gave my R-B, so
->> meaning that I am OK with this patch.
->>
->> But if you ask, yes I can, it seems quite obvious.
->> When you build a CCW you give the pointer to CCW->cda and you give the
->> size of the transfer in CCW->count.
->>
->> Here the count is initialized with the sizeof of the pointer used to
->> initialize CCW->cda with.
+> > On Mon, 13 May 2019 11:41:36 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > On Fri, 26 Apr 2019 20:32:41 +0200
+> > > Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >   
+> > > > As virtio-ccw devices are channel devices, we need to use the dma area
+> > > > for any communication with the hypervisor.
+> > > > 
+> > > > This patch addresses the most basic stuff (mostly what is required for
+> > > > virtio-ccw), and does take care of QDIO or any devices.  
+> > > 
+> > > "does not take care of QDIO", surely?   
+> > 
+> > I did not bother making the QDIO library code use dma memory for
+> > anything that is conceptually dma memory. AFAIK QDIO is out of scope for
+> > prot virt for now. If one were to do some emulated qdio with prot virt
+> > guests, one wound need to make a bunch of things shared.
 > 
-> But the cda points to the pointer address, so the size of the pointer
-> is actually the correct value here, isn't it?
-
-Oh. Yes, it is correct.
-What I do not like are the mixing of (unsigned long), (unsigned long *) 
-and &
-if we had
-cda = _u32 (unsigned long) indicatorp
-count = sizeof(*indicatorp)
-
-I would have been completely happy.
-
-It was just a non important thing and I wouldn't have given a R-B if the 
-functionality was not correct.
-
-
-> 
->> Lukily we work on a 64 bits machine with 64 bits pointers and the size
->> of the pointed object is 64 bits wide so... the resulting count is right.
->> But it is not the correct way to do it.
-> 
-> I think it is, but this interface really is confusing.
-
-Yes, it is what I thought we could do better.
-
-> 
->> That is all. Not a big concern, you do not need to change it, as you
->> said it can be done in another patch.
->>
->>> Did you agree with the rest of my comment? I mean there was more to it.
->>>    
->>
->> I understood from your comments that the indicators in Linux are 64bits
->> wide so all OK.
->>
->> Regards
->> Pierre
->>
->>
->>
->>
->>
->>
+> And unless you wanted to support protected virt under z/VM as well, it
+> would be wasted effort :)
 > 
 
+:)
 
--- 
-Pierre Morel
-Linux/KVM/QEMU in Böblingen - Germany
+> > 
+> > > (Also, what does "any devices"
+> > > mean? Do you mean "every arbitrary device", perhaps?)  
+> > 
+> > What I mean is: this patch takes care of the core stuff, but any
+> > particular device is likely to have to do more -- that is it ain't all
+> > the cio devices support prot virt with this patch. For example
+> > virtio-ccw needs to make sure that the ccws constituting the channel
+> > programs, as well as the data pointed by the ccws is shared. If one
+> > would want to make vfio-ccw DASD pass-through work under prot virt, one
+> > would need to make sure, that everything that needs to be shared is
+> > shared (data buffers, channel programs).
+> > 
+> > Does is clarify things?
+> 
+> That's what I thought, but the sentence was confusing :) What about
+> 
+> "This patch addresses the most basic stuff (mostly what is required to
+> support virtio-ccw devices). It handles neither QDIO devices, nor
+> arbitrary non-virtio-ccw devices." ?
+>
+
+Don't like the second sentence. How about "It handles neither QDIO
+in the common code, nor any device type specific stuff (like channel
+programs constructed by the DADS driver)."
+
+My problem is that this patch is about the common infrastructure code,
+and virtio-ccw specific stuff is handled by subsequent patches of this
+series.
+
+[..]
+
+> > > Is there any way to reserve the 31 bit restriction for channel
+> > > subsystem structures and keep vring in the full 64 bit range? (Or
+> > > am I fundamentally misunderstanding something?)
+> > >   
+> > 
+> > At the root of this problem is that the DMA API basically says
+> > devices may have addressing limitations expressed by the dma_mask,
+> > while our addressing limitations are not coming from the device but
+> > from the IO arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In
+> > our case it depends on how and for what is the device going to use
+> > the memory (e.g. buffers addressed by MIDA vs IDA vs direct).
+> > 
+> > Virtio uses the DMA properties of the parent, that is in our case the
+> > struct device embedded in struct ccw_device.
+> > 
+> > The previous version (RFC) used to allocate all the cio DMA stuff
+> > from this global cio_dma_pool using the css0.dev for the DMA API
+> > interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
+> > e.g. the allocated ccws are 31 bit addressable.
+> > 
+> > But I was asked to change this so that when I allocate DMA memory
+> > for a channel program of particular ccw device, a struct device of
+> > that ccw device is used as the first argument of
+> > dma_alloc_coherent().
+> > 
+> > Considering
+> > 
+> > void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t
+> > *dma_handle, gfp_t flag, unsigned long attrs)
+> > {
+> >         const struct dma_map_ops *ops = get_dma_ops(dev);
+> >         void *cpu_addr;
+> > 
+> >         WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
+> > 
+> >         if (dma_alloc_from_dev_coherent(dev, size, dma_handle,
+> > &cpu_addr)) return cpu_addr;
+> > 
+> >         /* let the implementation decide on the zone to allocate
+> > from: */ flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
+> > 
+> > that is the GFP flags dropped that implies that we really want
+> > cdev->dev restricted to 31 bit addressable memory because we can't
+> > tell (with the current common DMA code) hey but this piece of DMA
+> > mem you are abot to allocate for me must be 31 bit addressable
+> > (using GFP_DMA as we usually do).
+> > 
+> > So, as described in the commit message, the vring stuff being forced
+> > into ZONE_DMA is an unfortunate consequence of this all.
+> 
+> Yeah. I hope 31 bits are enough for that as well.
+> 
+> > 
+> > A side note: making the subchannel device 'own' the DMA stuff of a
+> > ccw device (something that was discussed in the RFC thread) is tricky
+> > because the ccw device may outlive the subchannel (all that orphan
+> > stuff).
+> 
+> Yes, that's... eww. Not really a problem for virtio-ccw devices (which
+> do not support the disconnected state), but can we make DMA and the
+> subchannel moving play nice with each other at all?
+> 
+
+I don't quite understand the question. This series does not have any
+problems with that AFAIU. Can you please clarify?
+
+Regards,
+Halil
