@@ -1,153 +1,82 @@
-Return-Path: <SRS0=tFsi=TS=vger.kernel.org=kvm-owner@kernel.org>
-Date: Sat, 18 May 2019 20:11:00 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
+Return-Path: <SRS0=Q8yj=TU=vger.kernel.org=kvm-owner@kernel.org>
+Date: Mon, 20 May 2019 12:21:43 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
  support
-In-Reply-To: <20190516082928.1371696b.cohuck@redhat.com>
+Message-ID: <20190520122143.259ff8df.cohuck@redhat.com>
+In-Reply-To: <20190518201100.0fd07d7f.pasic@linux.ibm.com>
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
         <20190426183245.37939-7-pasic@linux.ibm.com>
         <20190513114136.783c851c.cohuck@redhat.com>
         <20190515225158.301af387.pasic@linux.ibm.com>
         <20190516082928.1371696b.cohuck@redhat.com>
+        <20190518201100.0fd07d7f.pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190518201100.0fd07d7f.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 16 May 2019 08:29:28 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Sat, 18 May 2019 20:11:00 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Wed, 15 May 2019 22:51:58 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
+> On Thu, 16 May 2019 08:29:28 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> > On Mon, 13 May 2019 11:41:36 +0200
-> > Cornelia Huck <cohuck@redhat.com> wrote:
-> > 
-> > > On Fri, 26 Apr 2019 20:32:41 +0200
-> > > Halil Pasic <pasic@linux.ibm.com> wrote:
-> > >   
-> > > > As virtio-ccw devices are channel devices, we need to use the dma area
-> > > > for any communication with the hypervisor.
-> > > > 
-> > > > This patch addresses the most basic stuff (mostly what is required for
-> > > > virtio-ccw), and does take care of QDIO or any devices.  
-> > > 
-> > > "does not take care of QDIO", surely?   
-> > 
-> > I did not bother making the QDIO library code use dma memory for
-> > anything that is conceptually dma memory. AFAIK QDIO is out of scope for
-> > prot virt for now. If one were to do some emulated qdio with prot virt
-> > guests, one wound need to make a bunch of things shared.
-> 
-> And unless you wanted to support protected virt under z/VM as well, it
-> would be wasted effort :)
-> 
+> > On Wed, 15 May 2019 22:51:58 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
 
-:)
+> Don't like the second sentence. How about "It handles neither QDIO
+> in the common code, nor any device type specific stuff (like channel
+> programs constructed by the DADS driver)."
 
+Sounds good to me (with s/DADS/DASD/ :)
+
+> > > A side note: making the subchannel device 'own' the DMA stuff of a
+> > > ccw device (something that was discussed in the RFC thread) is tricky
+> > > because the ccw device may outlive the subchannel (all that orphan
+> > > stuff).  
 > > 
-> > > (Also, what does "any devices"
-> > > mean? Do you mean "every arbitrary device", perhaps?)  
-> > 
-> > What I mean is: this patch takes care of the core stuff, but any
-> > particular device is likely to have to do more -- that is it ain't all
-> > the cio devices support prot virt with this patch. For example
-> > virtio-ccw needs to make sure that the ccws constituting the channel
-> > programs, as well as the data pointed by the ccws is shared. If one
-> > would want to make vfio-ccw DASD pass-through work under prot virt, one
-> > would need to make sure, that everything that needs to be shared is
-> > shared (data buffers, channel programs).
-> > 
-> > Does is clarify things?
+> > Yes, that's... eww. Not really a problem for virtio-ccw devices (which
+> > do not support the disconnected state), but can we make DMA and the
+> > subchannel moving play nice with each other at all?
+> >   
 > 
-> That's what I thought, but the sentence was confusing :) What about
-> 
-> "This patch addresses the most basic stuff (mostly what is required to
-> support virtio-ccw devices). It handles neither QDIO devices, nor
-> arbitrary non-virtio-ccw devices." ?
->
+> I don't quite understand the question. This series does not have any
+> problems with that AFAIU. Can you please clarify?
 
-Don't like the second sentence. How about "It handles neither QDIO
-in the common code, nor any device type specific stuff (like channel
-programs constructed by the DADS driver)."
+Wait, weren't you saying that there actually is a problem?
 
-My problem is that this patch is about the common infrastructure code,
-and virtio-ccw specific stuff is handled by subsequent patches of this
-series.
+We seem to have the following situation:
+- the device per se is represented by the ccw device
+- the subchannel is the means of communication, and dma is tied to the
+  (I/O ?) subchannel
+- the machine check handling code may move a ccw device to a different
+  subchannel, or even to a fake subchannel (orphanage handling)
 
-[..]
+The moving won't happen with virtio-ccw devices (as they do not support
+the disconnected state, which is a prereq for being moved around), but
+at a glance, this looks like it is worth some more thought.
 
-> > > Is there any way to reserve the 31 bit restriction for channel
-> > > subsystem structures and keep vring in the full 64 bit range? (Or
-> > > am I fundamentally misunderstanding something?)
-> > >   
-> > 
-> > At the root of this problem is that the DMA API basically says
-> > devices may have addressing limitations expressed by the dma_mask,
-> > while our addressing limitations are not coming from the device but
-> > from the IO arch: e.g. orb.cpa and ccw.cda are 31 bit addresses. In
-> > our case it depends on how and for what is the device going to use
-> > the memory (e.g. buffers addressed by MIDA vs IDA vs direct).
-> > 
-> > Virtio uses the DMA properties of the parent, that is in our case the
-> > struct device embedded in struct ccw_device.
-> > 
-> > The previous version (RFC) used to allocate all the cio DMA stuff
-> > from this global cio_dma_pool using the css0.dev for the DMA API
-> > interactions. And we set *css0.dev.dma_mask == DMA_BIT_MASK(31) so
-> > e.g. the allocated ccws are 31 bit addressable.
-> > 
-> > But I was asked to change this so that when I allocate DMA memory
-> > for a channel program of particular ccw device, a struct device of
-> > that ccw device is used as the first argument of
-> > dma_alloc_coherent().
-> > 
-> > Considering
-> > 
-> > void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t
-> > *dma_handle, gfp_t flag, unsigned long attrs)
-> > {
-> >         const struct dma_map_ops *ops = get_dma_ops(dev);
-> >         void *cpu_addr;
-> > 
-> >         WARN_ON_ONCE(dev && !dev->coherent_dma_mask);
-> > 
-> >         if (dma_alloc_from_dev_coherent(dev, size, dma_handle,
-> > &cpu_addr)) return cpu_addr;
-> > 
-> >         /* let the implementation decide on the zone to allocate
-> > from: */ flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
-> > 
-> > that is the GFP flags dropped that implies that we really want
-> > cdev->dev restricted to 31 bit addressable memory because we can't
-> > tell (with the current common DMA code) hey but this piece of DMA
-> > mem you are abot to allocate for me must be 31 bit addressable
-> > (using GFP_DMA as we usually do).
-> > 
-> > So, as described in the commit message, the vring stuff being forced
-> > into ZONE_DMA is an unfortunate consequence of this all.
-> 
-> Yeah. I hope 31 bits are enough for that as well.
-> 
-> > 
-> > A side note: making the subchannel device 'own' the DMA stuff of a
-> > ccw device (something that was discussed in the RFC thread) is tricky
-> > because the ccw device may outlive the subchannel (all that orphan
-> > stuff).
-> 
-> Yes, that's... eww. Not really a problem for virtio-ccw devices (which
-> do not support the disconnected state), but can we make DMA and the
-> subchannel moving play nice with each other at all?
-> 
+- Are all (I/O) subchannels using e.g. the same dma size? (TBH, that
+  question sounds a bit silly: that should be a property belonging to
+  the ccw device, shouldn't it?)
+- What dma properties does the fake subchannel have? (Probably none, as
+  its only purpose is to serve as a parent for otherwise parentless
+  disconnected ccw devices, and is therefore not involved in any I/O.)
+- There needs to be some kind of handling in the machine check code, I
+  guess? We would probably need a different allocation if we end up at
+  a different subchannel?
 
-I don't quite understand the question. This series does not have any
-problems with that AFAIU. Can you please clarify?
+I think we can assume that the dma size is at most 31 bits (since that
+is what the common I/O layer needs); but can we also assume that it
+will always be at least 31 bits?
 
-Regards,
-Halil
+My take on this is that we should be sure that we're not digging
+ourselves a hole that will be hard to get out of again should we want to
+support non-virtio-ccw in the future, not that the current
+implementation is necessarily broken.
