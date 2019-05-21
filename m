@@ -1,117 +1,135 @@
-Return-Path: <SRS0=Q8yj=TU=vger.kernel.org=kvm-owner@kernel.org>
-Date: Mon, 20 May 2019 15:43:46 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH 06/10] s390/cio: add basic protected virtualization
- support
-Message-ID: <20190520154346.4f95ab3a.cohuck@redhat.com>
-In-Reply-To: <20190520143411.15130af3.pasic@linux.ibm.com>
+Return-Path: <SRS0=A95w=TV=vger.kernel.org=kvm-owner@kernel.org>
+Reply-To: mimu@linux.ibm.com
+Subject: Re: [PATCH 05/10] s390/cio: introduce DMA pools to cio
 References: <20190426183245.37939-1-pasic@linux.ibm.com>
-        <20190426183245.37939-7-pasic@linux.ibm.com>
-        <20190513114136.783c851c.cohuck@redhat.com>
-        <20190515225158.301af387.pasic@linux.ibm.com>
-        <20190516082928.1371696b.cohuck@redhat.com>
-        <20190518201100.0fd07d7f.pasic@linux.ibm.com>
-        <20190520122143.259ff8df.cohuck@redhat.com>
-        <20190520143411.15130af3.pasic@linux.ibm.com>
+ <20190426183245.37939-6-pasic@linux.ibm.com>
+ <alpine.LFD.2.21.1905081447280.1773@schleppi>
+ <20190508232210.5a555caa.pasic@linux.ibm.com>
+ <20190509121106.48aa04db.cohuck@redhat.com>
+ <20190510001112.479b2fd7.pasic@linux.ibm.com>
+ <20190510161013.7e697337.cohuck@redhat.com>
+ <20190512202256.5517592d.pasic@linux.ibm.com>
+ <alpine.LFD.2.21.1905161517570.1767@schleppi>
+ <20190520141312.4e3a2d36.pasic@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Tue, 21 May 2019 10:46:50 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190520141312.4e3a2d36.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <af3479db-691c-ddd3-0253-f379cc528f57@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Mon, 20 May 2019 14:34:11 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Mon, 20 May 2019 12:21:43 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > On Sat, 18 May 2019 20:11:00 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> > > On Thu, 16 May 2019 08:29:28 +0200
-> > > Cornelia Huck <cohuck@redhat.com> wrote:
-> > >   
-> > > > On Wed, 15 May 2019 22:51:58 +0200
-> > > > Halil Pasic <pasic@linux.ibm.com> wrote:  
 
-> > > > > A side note: making the subchannel device 'own' the DMA stuff of a
-> > > > > ccw device (something that was discussed in the RFC thread) is tricky
-> > > > > because the ccw device may outlive the subchannel (all that orphan
-> > > > > stuff).    
-> > > > 
-> > > > Yes, that's... eww. Not really a problem for virtio-ccw devices (which
-> > > > do not support the disconnected state), but can we make DMA and the
-> > > > subchannel moving play nice with each other at all?
-> > > >     
-> > > 
-> > > I don't quite understand the question. This series does not have any
-> > > problems with that AFAIU. Can you please clarify?  
-> > 
-> > Wait, weren't you saying that there actually is a problem?
-> >  
+On 20.05.19 14:13, Halil Pasic wrote:
+> On Thu, 16 May 2019 15:59:22 +0200 (CEST)
+> Sebastian Ott <sebott@linux.ibm.com> wrote:
 > 
-> No, what I tried to say is: if we tried to make all the dma mem belong to
-> the subchannel device, we would have a problem. It appeared as a
-> tempting opportunity for consolidation, but I decided to not do it.
+>> On Sun, 12 May 2019, Halil Pasic wrote:
+>>> I've also got code that deals with AIRQ_IV_CACHELINE by turning the
+>>> kmem_cache into a dma_pool.
+>>>
+>>> Cornelia, Sebastian which approach do you prefer:
+>>> 1) get rid of cio_dma_pool and AIRQ_IV_CACHELINE, and waste a page per
+>>> vector, or
+>>> 2) go with the approach taken by the patch below?
+>>
+>> We only have a couple of users for airq_iv:
+>>
+>> virtio_ccw.c: 2K bits
+> 
+> 
+> You mean a single allocation is 2k bits (VIRTIO_IV_BITS = 256 * 8)? My
+> understanding is that the upper bound is more like:
+> MAX_AIRQ_AREAS * VIRTIO_IV_BITS = 20 * 256 * 8 = 40960 bits.
+> 
+> In practice it is most likely just 2k.
+> 
+>>
+>> pci with floating IRQs: <= 2K (for the per-function bit vectors)
+>>                          1..4K (for the summary bit vector)
+>>
+> 
+> As far as I can tell with virtio_pci arch_setup_msi_irqs() gets called
+> once per device and allocates a small number of bits (2 and 3 in my
+> test, it may depend on #virtqueues, but I did not check).
+> 
+> So for an upper bound we would have to multiply with the upper bound of
+> pci devices/functions. What is the upper bound on the number of
+> functions?
+> 
+>> pci with CPU directed IRQs: 2K (for the per-CPU bit vectors)
+>>                              1..nr_cpu (for the summary bit vector)
+>>
+> 
+> I guess this is the same.
+> 
+>>
+>> The options are:
+>> * page allocations for everything
+> 
+> Worst case we need 20 + #max_pci_dev pages. At the moment we allocate
+> from ZONE_DMA (!) and waste a lot.
+> 
+>> * dma_pool for AIRQ_IV_CACHELINE ,gen_pool for others
+> 
+> I prefer this. Explanation follows.
+> 
+>> * dma_pool for everything
+>>
+> 
+> Less waste by factor factor 16.
+> 
+>> I think we should do option 3 and use a dma_pool with cachesize
+>> alignment for everything (as a prerequisite we have to limit
+>> config PCI_NR_FUNCTIONS to 2K - but that is not a real constraint).
+>>
+> 
+> I prefer option 3 because it is conceptually the smallest change, and
+> provides the behavior which is closest to the current one.
+> 
+> Commit  414cbd1e3d14 "s390/airq: provide cacheline aligned
+> ivs" (Sebastian Ott, 2019-02-27) could have been smaller had you implemented
+> 'kmem_cache for everything' (and I would have had just to replace kmem_cache with
+> dma_cache to achieve option 3). For some reason you decided to keep the
+> iv->vector = kzalloc(size, GFP_KERNEL) code-path and make the client code request
+> iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL) explicitly, using a flag
+> which you only decided to use for directed pci irqs AFAICT.
+> 
+> My understanding of these decisions, and especially of the rationale
+> behind commit 414cbd1e3d14 is limited. Thus if option 3 is the way to
+> go, and the choices made by 414cbd1e3d14 were sub-optimal, I would feel
+> much more comfortable if you provided a patch that revises  and switches
+> everything to kmem_chache. I would then just swap kmem_cache out with a
+> dma_cache and my change would end up a straightforward and relatively
+> clean one.
+> 
+> So Sebastian, what shall we do?
+> 
+> Regards,
+> Halil
+> 
+> 
+> 
+> 
+>> Sebastian
+>>
+> 
 
-Ok, that makes sense.
+Folks, I had a version running with slight changes to the initial
+v1 patch set together with a revert of 414cbd1e3d14 "s390/airq: provide 
+cacheline aligned ivs". That of course has the deficit of the memory
+usage pattern.
 
-> 
-> > We seem to have the following situation:
-> > - the device per se is represented by the ccw device
-> > - the subchannel is the means of communication, and dma is tied to the
-> >   (I/O ?) subchannel  
-> 
-> It is not. When for example a virtio-ccw device talks to the device
-> using a channel program, the dma mem hosting the channel program belongs
-> to the ccw device and not to the subchannel.
-> 
-> In fact everything but the stuff in io_priv->dma_area belongs to the ccw
-> device.
+Now you are discussing same substantial changes. The exercise was to
+get an initial working code through the door. We really need a decision!
 
-Normal machine check handling hopefully should cover this one, then.
 
-> 
-> > - the machine check handling code may move a ccw device to a different
-> >   subchannel, or even to a fake subchannel (orphanage handling)
-> >   
-> 
-> Right!
-> 
-> > The moving won't happen with virtio-ccw devices (as they do not support
-> > the disconnected state, which is a prereq for being moved around), but
-> > at a glance, this looks like it is worth some more thought.
-> > 
-> > - Are all (I/O) subchannels using e.g. the same dma size? (TBH, that
-> >   question sounds a bit silly: that should be a property belonging to
-> >   the ccw device, shouldn't it?)
-> > - What dma properties does the fake subchannel have? (Probably none, as
-> >   its only purpose is to serve as a parent for otherwise parentless
-> >   disconnected ccw devices, and is therefore not involved in any I/O.)
-> > - There needs to be some kind of handling in the machine check code, I
-> >   guess? We would probably need a different allocation if we end up at
-> >   a different subchannel?
-> >   
-> 
-> Basically nothing changes with mem ownership, except that some bits are
-> dma memory now. Should I provide a more detailed answer to the
-> questions above?
-
-No real need, I simply did not understand your initial remark correctly.
-
-> 
-> > I think we can assume that the dma size is at most 31 bits (since that
-> > is what the common I/O layer needs); but can we also assume that it
-> > will always be at least 31 bits?
-> >   
-> 
-> You mean dma_mas by dma size?
-
-Whatever it is called :) IIUC, we need to go with 31 bit for any
-channel I/O related structures; I was mainly wondering whether any
-devices need a lower limit for some of the memory they use. I would be
-surprised if they did, but you never know :)
+Michael
