@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v8 0/7] iommu: enhance IOMMU default DMA mode build options
-Date: Thu, 30 May 2019 11:48:24 +0800
-Message-ID: <20190530034831.4184-1-thunder.leizhen@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v9 4/4] s390: ap: kvm: Enable PQAP/AQIC facility for the guest
+Date: Tue, 21 May 2019 17:34:37 +0200
+In-Reply-To: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
+References: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1558452877-27822-5-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>, Hanjun Guo <guohanjun@huawei.com>
+To: borntraeger@de.ibm.com
+Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 
-v7--> v8
-1. Split into multiple small patches base on ARCHs or IOMMU drivers.
-2. Hide the unsupported build options on the related ARCH or IOMMU.
+AP Queue Interruption Control (AQIC) facility gives
+the guest the possibility to control interruption for
+the Cryptographic Adjunct Processor queues.
 
-v6 --> v7:
-1. Fix some text editing errors
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ arch/s390/tools/gen_facilities.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-v5 --> v6:
-1. give up adding boot option iommu.dma_mode
-
-v4 --> v5:
-As Hanjun and Thomas Gleixner's suggestion:
-1. Keep the old ARCH specific boot options no change.
-2. Keep build option CONFIG_IOMMU_DEFAULT_PASSTHROUGH no change.
-
-v4:
-As Robin Murphy's suggestion:
-"It's also not necessarily obvious to the user how this interacts with
-IOMMU_DEFAULT_PASSTHROUGH, so if we really do go down this route, maybe it
-would be better to refactor the whole lot into a single selection of something
-like IOMMU_DEFAULT_MODE anyway."
-
-In this version, I tried to normalize the IOMMU dma mode boot options for all
-ARCHs. When IOMMU is enabled, there are 3 dma modes: paasthrough(bypass),
-lazy(mapping but defer the IOTLB invalidation), strict. But currently each
-ARCHs defined their private boot options, different with each other. For
-example, to enable/disable "passthrough", ARM64 use iommu.passthrough=1/0,
-X86 use iommu=pt/nopt, PPC/POWERNV use iommu=nobypass.
-
-Zhen Lei (7):
-  iommu: enhance IOMMU default DMA mode build options
-  x86/dma: use IS_ENABLED() to simplify the code
-  s390/pci: add support for IOMMU default DMA mode build options
-  powernv/iommu: add support for IOMMU default DMA mode build options
-  iommu/vt-d: add support for IOMMU default DMA mode build options
-  iommu/amd: add support for IOMMU default DMA mode build options
-  ia64: hide build option IOMMU_DEFAULT_PASSTHROUGH
-
- arch/powerpc/platforms/powernv/pci-ioda.c |  3 +-
- arch/s390/pci/pci_dma.c                   |  2 +-
- arch/x86/kernel/pci-dma.c                 |  7 ++---
- drivers/iommu/Kconfig                     | 46 ++++++++++++++++++++++++++-----
- drivers/iommu/amd_iommu_init.c            |  3 +-
- drivers/iommu/intel-iommu.c               |  2 +-
- drivers/iommu/iommu.c                     |  3 +-
- 7 files changed, 49 insertions(+), 17 deletions(-)
-
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index 61ce5b5..aed14fc 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -114,6 +114,7 @@ static struct facility_def facility_defs[] = {
+ 		.bits = (int[]){
+ 			12, /* AP Query Configuration Information */
+ 			15, /* AP Facilities Test */
++			65, /* AP Queue Interruption Control */
+ 			156, /* etoken facility */
+ 			-1  /* END */
+ 		}
 -- 
-1.8.3
+2.7.4
