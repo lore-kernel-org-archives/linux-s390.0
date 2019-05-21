@@ -1,27 +1,27 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: Sad News - Martin Schwidefsky
-Date: Tue, 21 May 2019 12:49:25 -0700
-Message-ID: <CAHk-=wgCtFPj_Uo1RMHnCLHut8SRG_t5M-E8Uw2+OFmc=c=H6w@mail.gmail.com>
-References: <20190521162350.GA17107@osiris>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190521162350.GA17107@osiris>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 21 May 2019 18:23:50 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Sad News - Martin Schwidefsky
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-ID: <20190521162350.GA17107@osiris>
+Sender: linux-arch-owner@vger.kernel.org
+Message-ID: <20190521162350.1lxursx5wqMzAmsQOfnQyfnSMDNtOmkmzPD7YQ5aATo@z>
 List-Archive: <https://lore.kernel.org/linux-arch/>
 List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-arch <linux-arch@vger.kernel.org>, Linux List Kernel Mailing <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, May 21, 2019 at 9:24 AM Heiko Carstens
-<heiko.carstens@de.ibm.com> wrote:
->
-> We are devastated by the tragic death of Martin Schwidefsky who died
-> in an accident last Saturday.
+We are devastated by the tragic death of Martin Schwidefsky who died
+in an accident last Saturday.
 
-Ouch.
+Martin was the most significant contributor to the initial s390 port
+of the Linux Kernel and later the maintainer of the s390 architecture
+backend. His technical expertise as well as his mentoring skills were
+outstanding. Martin was well known for his positive mindset and his
+willingness to help.
 
-Thanks for letting people know, and condolences to friends and family.
+He will be greatly missed.
 
-               Linus
+Heiko
