@@ -1,10 +1,10 @@
 Return-Path: <SRS0=sxVn=TW=vger.kernel.org=linux-kernel-owner@kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 072/375] s390: qeth: address type mismatch warning
-Date: Wed, 22 May 2019 15:16:12 -0400
-Message-Id: <20190522192115.22666-72-sashal@kernel.org>
-In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
-References: <20190522192115.22666-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 063/317] s390: qeth: address type mismatch warning
+Date: Wed, 22 May 2019 15:19:24 -0400
+Message-Id: <20190522192338.23715-63-sashal@kernel.org>
+In-Reply-To: <20190522192338.23715-1-sashal@kernel.org>
+References: <20190522192338.23715-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -43,10 +43,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index c851cf6e01c43..d603dfea97ab2 100644
+index 122059ecad848..614bb0f34e8e2 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -163,6 +163,12 @@ struct qeth_vnicc_info {
+@@ -215,6 +215,12 @@ struct qeth_vnicc_info {
  	bool rx_bcast_enabled;
  };
  
@@ -59,7 +59,7 @@ index c851cf6e01c43..d603dfea97ab2 100644
  static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
  		enum qeth_ipa_funcs func)
  {
-@@ -176,9 +182,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
+@@ -228,9 +234,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
  }
  
  #define qeth_adp_supported(c, f) \
