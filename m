@@ -1,254 +1,211 @@
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: Re: [PATCH v3 3/3] kselftest: Extend vDSO selftest to clock_getres
-Date: Wed, 22 May 2019 16:03:30 +0100
-Message-ID: <c0b5b233-9b06-1627-6b72-773ac4b5d69e@arm.com>
-References: <20190522110722.28094-1-vincenzo.frascino@arm.com>
- <20190522110722.28094-4-vincenzo.frascino@arm.com>
- <3a6d9b99-0026-6743-9e73-4880f3cd6b1c@c-s.fr>
+From: Christian Brauner <christian@brauner.io>
+Subject: [PATCH v1 2/2] tests: add close_range() tests
+Date: Wed, 22 May 2019 17:52:59 +0200
+Message-ID: <20190522155259.11174-2-christian@brauner.io>
+References: <20190522155259.11174-1-christian@brauner.io>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <3a6d9b99-0026-6743-9e73-4880f3cd6b1c@c-s.fr>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: Christophe Leroy <christophe.leroy@c-s.fr>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Shuah Khan <shuah@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190522155259.11174-1-christian@brauner.io>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, torvalds@linux-foundation.org, fweimer@redhat.com
+Cc: jannh@google.com, oleg@redhat.com, tglx@linutronix.de, arnd@arndb.de, shuah@kernel.org, dhowells@redhat.com, tkjos@android.com, ldv@altlinux.org, miklos@szeredi.hu, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org, x86@kernel.org, Christian Brauner <christian@brauner.io>
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Christophe,
+This adds basic tests for the new close_range() syscall.
+- test that no invalid flags can be passed
+- test that a range of file descriptors is correctly closed
+- test that a range of file descriptors is correctly closed if there there
+  are already closed file descriptors in the range
+- test that max_fd is correctly capped to the current fdtable maximum
 
-thank you for your review.
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jann Horn <jannh@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Dmitry V. Levin <ldv@altlinux.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: linux-api@vger.kernel.org
+---
+v1: unchanged
+---
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/core/.gitignore       |   1 +
+ tools/testing/selftests/core/Makefile         |   6 +
+ .../testing/selftests/core/close_range_test.c | 128 ++++++++++++++++++
+ 4 files changed, 136 insertions(+)
+ create mode 100644 tools/testing/selftests/core/.gitignore
+ create mode 100644 tools/testing/selftests/core/Makefile
+ create mode 100644 tools/testing/selftests/core/close_range_test.c
 
-On 22/05/2019 12:50, Christophe Leroy wrote:
-> 
-> 
-> Le 22/05/2019 à 13:07, Vincenzo Frascino a écrit :
->> The current version of the multiarch vDSO selftest verifies only
->> gettimeofday.
->>
->> Extend the vDSO selftest to clock_getres, to verify that the
->> syscall and the vDSO library function return the same information.
->>
->> The extension has been used to verify the hrtimer_resoltion fix.
->>
->> Cc: Shuah Khan <shuah@kernel.org>
->> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
->> ---
->>
->> Note: This patch is independent from the others in this series, hence it
->> can be merged singularly by the kselftest maintainers.
->>
->>   tools/testing/selftests/vDSO/Makefile         |   2 +
->>   .../selftests/vDSO/vdso_clock_getres.c        | 137 ++++++++++++++++++
->>   2 files changed, 139 insertions(+)
->>   create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
->>
->> diff --git a/tools/testing/selftests/vDSO/Makefile b/tools/testing/selftests/vDSO/Makefile
->> index 9e03d61f52fd..d5c5bfdf1ac1 100644
->> --- a/tools/testing/selftests/vDSO/Makefile
->> +++ b/tools/testing/selftests/vDSO/Makefile
->> @@ -5,6 +5,7 @@ uname_M := $(shell uname -m 2>/dev/null || echo not)
->>   ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
->>   
->>   TEST_GEN_PROGS := $(OUTPUT)/vdso_test
->> +TEST_GEN_PROGS += $(OUTPUT)/vdso_clock_getres
->>   ifeq ($(ARCH),x86)
->>   TEST_GEN_PROGS += $(OUTPUT)/vdso_standalone_test_x86
->>   endif
->> @@ -18,6 +19,7 @@ endif
->>   
->>   all: $(TEST_GEN_PROGS)
->>   $(OUTPUT)/vdso_test: parse_vdso.c vdso_test.c
->> +$(OUTPUT)/vdso_clock_getres: vdso_clock_getres.c
->>   $(OUTPUT)/vdso_standalone_test_x86: vdso_standalone_test_x86.c parse_vdso.c
->>   	$(CC) $(CFLAGS) $(CFLAGS_vdso_standalone_test_x86) \
->>   		vdso_standalone_test_x86.c parse_vdso.c \
->> diff --git a/tools/testing/selftests/vDSO/vdso_clock_getres.c b/tools/testing/selftests/vDSO/vdso_clock_getres.c
->> new file mode 100644
->> index 000000000000..341a9bc34ffc
->> --- /dev/null
->> +++ b/tools/testing/selftests/vDSO/vdso_clock_getres.c
->> @@ -0,0 +1,137 @@
->> +// SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
->> +/*
->> + * vdso_clock_getres.c: Sample code to test clock_getres.
->> + * Copyright (c) 2019 Arm Ltd.
->> + *
->> + * Compile with:
->> + * gcc -std=gnu99 vdso_clock_getres.c
->> + *
->> + * Tested on ARM, ARM64, MIPS32, x86 (32-bit and 64-bit),
->> + * Power (32-bit and 64-bit), S390x (32-bit and 64-bit).
->> + * Might work on other architectures.
->> + */
->> +
->> +#define _GNU_SOURCE
->> +#include <elf.h>
->> +#include <err.h>
->> +#include <fcntl.h>
->> +#include <stdint.h>
->> +#include <stdio.h>
->> +#include <stdlib.h>
->> +#include <time.h>
->> +#include <sys/auxv.h>
->> +#include <sys/mman.h>
->> +#include <sys/time.h>
->> +#include <unistd.h>
->> +#include <sys/syscall.h>
->> +
->> +#include "../kselftest.h"
->> +
->> +static long syscall_clock_getres(clockid_t _clkid, struct timespec *_ts)
->> +{
->> +	long ret;
->> +
->> +	ret = syscall(SYS_clock_getres, _clkid, _ts);
->> +
->> +	return ret;
->> +}
->> +
->> +const char *vdso_clock_name[12] = {
->> +	"CLOCK_REALTIME",
->> +	"CLOCK_MONOTONIC",
->> +	"CLOCK_PROCESS_CPUTIME_ID",
->> +	"CLOCK_THREAD_CPUTIME_ID",
->> +	"CLOCK_MONOTONIC_RAW",
->> +	"CLOCK_REALTIME_COARSE",
->> +	"CLOCK_MONOTONIC_COARSE",
->> +	"CLOCK_BOOTTIME",
->> +	"CLOCK_REALTIME_ALARM",
->> +	"CLOCK_BOOTTIME_ALARM",
->> +	"CLOCK_SGI_CYCLE",
->> +	"CLOCK_TAI",
->> +};
->> +
->> +/*
->> + * This function calls clock_getres in vdso and by system call
->> + * with different values for clock_id.
->> + *
->> + * Example of output:
->> + *
->> + * clock_id: CLOCK_REALTIME [PASS]
->> + * clock_id: CLOCK_BOOTTIME [PASS]
->> + * clock_id: CLOCK_TAI [PASS]
->> + * clock_id: CLOCK_REALTIME_COARSE [PASS]
->> + * clock_id: CLOCK_MONOTONIC [PASS]
->> + * clock_id: CLOCK_MONOTONIC_RAW [PASS]
->> + * clock_id: CLOCK_MONOTONIC_COARSE [PASS]
->> + */
->> +static inline int vdso_test_clock(unsigned int clock_id)
->> +{
->> +	struct timespec x, y;
->> +
->> +	printf("clock_id: %s", vdso_clock_name[clock_id]);
->> +	clock_getres(clock_id, &x);
->> +	syscall_clock_getres(clock_id, &y);
->> +
->> +	if ((x.tv_sec != y.tv_sec) || (x.tv_sec != y.tv_sec)) {
->> +		printf(" [FAIL]\n");
->> +		return KSFT_FAIL;
->> +	}
->> +
->> +	printf(" [PASS]\n");
->> +	return 0;
->> +}
->> +
->> +int main(int argc, char **argv)
->> +{
->> +	int ret;
->> +
->> +#if _POSIX_TIMERS > 0
->> +
->> +#ifdef CLOCK_REALTIME
-> 
-> Why do you need that #ifdef and all the ones below ?
-> 
-> CLOCK_REALTIME (and others) is defined in include/uapi/linux/time.h, so 
-> it should be there when you build the test, shouldn't it ?
-> 
-
-In implementing this test I tried to follow what the man page for
-clock_gettime(2) defines in terms of availability of the timers. Since I do not
-know how old are the userspace headers, I think it is a good idea checking that
-the clocks are defined before trying to use them.
-
->> +	ret = vdso_test_clock(CLOCK_REALTIME);
->> +	if (ret)
->> +		goto out;
-> 
-> Why that goto ? Nothing is done at out, so a 'return ret' would be 
-> better I think.
-> 
-
-Agree, thanks for pointing this out. Will fix in v4.
-
-> And do we really want to stop at first failure ? Wouldn't it be better 
-> to run all the tests regardless ?
-> 
-
-The test is supposed to fail if one of the sub-tests fails, hence once the first
-fails doesn't seem convenient to run the others, because we already know the
-result.
-
-> Christophe
-> 
->> +#endif
->> +
->> +#ifdef CLOCK_BOOTTIME
->> +	ret = vdso_test_clock(CLOCK_BOOTTIME);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#ifdef CLOCK_TAI
->> +	ret = vdso_test_clock(CLOCK_TAI);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#ifdef CLOCK_REALTIME_COARSE
->> +	ret = vdso_test_clock(CLOCK_REALTIME_COARSE);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#ifdef CLOCK_MONOTONIC
->> +	ret = vdso_test_clock(CLOCK_MONOTONIC);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#ifdef CLOCK_MONOTONIC_RAW
->> +	ret = vdso_test_clock(CLOCK_MONOTONIC_RAW);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#ifdef CLOCK_MONOTONIC_COARSE
->> +	ret = vdso_test_clock(CLOCK_MONOTONIC_COARSE);
->> +	if (ret)
->> +		goto out;
->> +#endif
->> +
->> +#endif
->> +
->> +out:
->> +	return ret;
->> +}
->>
-
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index 9781ca79794a..06e57fabbff9 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -4,6 +4,7 @@ TARGETS += bpf
+ TARGETS += breakpoints
+ TARGETS += capabilities
+ TARGETS += cgroup
++TARGETS += core
+ TARGETS += cpufreq
+ TARGETS += cpu-hotplug
+ TARGETS += drivers/dma-buf
+diff --git a/tools/testing/selftests/core/.gitignore b/tools/testing/selftests/core/.gitignore
+new file mode 100644
+index 000000000000..6e6712ce5817
+--- /dev/null
++++ b/tools/testing/selftests/core/.gitignore
+@@ -0,0 +1 @@
++close_range_test
+diff --git a/tools/testing/selftests/core/Makefile b/tools/testing/selftests/core/Makefile
+new file mode 100644
+index 000000000000..de3ae68aa345
+--- /dev/null
++++ b/tools/testing/selftests/core/Makefile
+@@ -0,0 +1,6 @@
++CFLAGS += -g -I../../../../usr/include/ -I../../../../include
++
++TEST_GEN_PROGS := close_range_test
++
++include ../lib.mk
++
+diff --git a/tools/testing/selftests/core/close_range_test.c b/tools/testing/selftests/core/close_range_test.c
+new file mode 100644
+index 000000000000..ab10cd205ab9
+--- /dev/null
++++ b/tools/testing/selftests/core/close_range_test.c
+@@ -0,0 +1,128 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#define _GNU_SOURCE
++#include <errno.h>
++#include <fcntl.h>
++#include <linux/kernel.h>
++#include <limits.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <syscall.h>
++#include <unistd.h>
++
++#include "../kselftest.h"
++
++static inline int sys_close_range(unsigned int fd, unsigned int max_fd,
++				  unsigned int flags)
++{
++	return syscall(__NR_close_range, fd, max_fd, flags);
++}
++
++#ifndef ARRAY_SIZE
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++#endif
++
++int main(int argc, char **argv)
++{
++	const char *test_name = "close_range";
++	int i, ret;
++	int open_fds[100];
++	int fd_max, fd_mid, fd_min;
++
++	ksft_set_plan(7);
++
++	for (i = 0; i < ARRAY_SIZE(open_fds); i++) {
++		int fd;
++
++		fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
++		if (fd < 0) {
++			if (errno == ENOENT)
++				ksft_exit_skip(
++					"%s test: skipping test since /dev/null does not exist\n",
++					test_name);
++
++			ksft_exit_fail_msg(
++				"%s test: %s - failed to open /dev/null\n",
++				strerror(errno), test_name);
++		}
++
++		open_fds[i] = fd;
++	}
++
++	fd_min = open_fds[0];
++	fd_max = open_fds[99];
++
++	ret = sys_close_range(fd_min, fd_max, 1);
++	if (!ret)
++		ksft_exit_fail_msg(
++			"%s test: managed to pass invalid flag value\n",
++			test_name);
++	ksft_test_result_pass("do not allow invalid flag values for close_range()\n");
++
++	fd_mid = open_fds[50];
++	ret = sys_close_range(fd_min, fd_mid, 0);
++	if (ret < 0)
++		ksft_exit_fail_msg(
++			"%s test: Failed to close range of file descriptors from 4 to 50\n",
++			test_name);
++	ksft_test_result_pass("close_range() from %d to %d\n", fd_min, fd_mid);
++
++	for (i = 0; i <= 50; i++) {
++		ret = fcntl(open_fds[i], F_GETFL);
++		if (ret >= 0)
++			ksft_exit_fail_msg(
++				"%s test: Failed to close range of file descriptors from 4 to 50\n",
++				test_name);
++	}
++	ksft_test_result_pass("fcntl() verify closed range from %d to %d\n", fd_min, fd_mid);
++
++	/* create a couple of gaps */
++	close(57);
++	close(78);
++	close(81);
++	close(82);
++	close(84);
++	close(90);
++
++	fd_mid = open_fds[51];
++	/* Choose slightly lower limit and leave some fds for a later test */
++	fd_max = open_fds[92];
++	ret = sys_close_range(fd_mid, fd_max, 0);
++	if (ret < 0)
++		ksft_exit_fail_msg(
++			"%s test: Failed to close range of file descriptors from 51 to 100\n",
++			test_name);
++	ksft_test_result_pass("close_range() from %d to %d\n", fd_mid, fd_max);
++
++	for (i = 51; i <= 92; i++) {
++		ret = fcntl(open_fds[i], F_GETFL);
++		if (ret >= 0)
++			ksft_exit_fail_msg(
++				"%s test: Failed to close range of file descriptors from 51 to 100\n",
++				test_name);
++	}
++	ksft_test_result_pass("fcntl() verify closed range from %d to %d\n", fd_mid, fd_max);
++
++	fd_mid = open_fds[93];
++	fd_max = open_fds[99];
++	/* test that the kernel caps and still closes all fds */
++	ret = sys_close_range(fd_mid, UINT_MAX, 0);
++	if (ret < 0)
++		ksft_exit_fail_msg(
++			"%s test: Failed to close range of file descriptors from 51 to 100\n",
++			test_name);
++	ksft_test_result_pass("close_range() from %d to %d\n", fd_mid, fd_max);
++
++	for (i = 93; i < 100; i++) {
++		ret = fcntl(open_fds[i], F_GETFL);
++		if (ret >= 0)
++			ksft_exit_fail_msg(
++				"%s test: Failed to close range of file descriptors from 51 to 100\n",
++				test_name);
++	}
++	ksft_test_result_pass("fcntl() verify closed range from %d to %d\n", fd_mid, fd_max);
++
++	return ksft_exit_pass();
++}
 -- 
-Regards,
-Vincenzo
+2.21.0
