@@ -1,7 +1,7 @@
 From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 Subject: Re: [PATCH v3 3/3] kselftest: Extend vDSO selftest to clock_getres
-Date: Wed, 22 May 2019 15:55:16 +0100
-Message-ID: <84a39582-7acb-fa00-682f-dc126fdfa266@arm.com>
+Date: Wed, 22 May 2019 16:03:30 +0100
+Message-ID: <c0b5b233-9b06-1627-6b72-773ac4b5d69e@arm.com>
 References: <20190522110722.28094-1-vincenzo.frascino@arm.com>
  <20190522110722.28094-4-vincenzo.frascino@arm.com>
  <3a6d9b99-0026-6743-9e73-4880f3cd6b1c@c-s.fr>
@@ -179,10 +179,10 @@ On 22/05/2019 12:50, Christophe Leroy wrote:
 > it should be there when you build the test, shouldn't it ?
 > 
 
-In implementing this test I followed what the man page for clock_gettime(2)
-defines in terms of availability of the timers. Since I do not know how old are
-the userspace headers, I think it is a good idea checking that the clocks are
-defined before trying to use them.
+In implementing this test I tried to follow what the man page for
+clock_gettime(2) defines in terms of availability of the timers. Since I do not
+know how old are the userspace headers, I think it is a good idea checking that
+the clocks are defined before trying to use them.
 
 >> +	ret = vdso_test_clock(CLOCK_REALTIME);
 >> +	if (ret)
@@ -190,17 +190,16 @@ defined before trying to use them.
 > 
 > Why that goto ? Nothing is done at out, so a 'return ret' would be 
 > better I think.
->
+> 
 
 Agree, thanks for pointing this out. Will fix in v4.
-
 
 > And do we really want to stop at first failure ? Wouldn't it be better 
 > to run all the tests regardless ?
 > 
 
 The test is supposed to fail if one of the sub-tests fails, hence once the first
-fails doesn't seem convenient running the others, because we already know the
+fails doesn't seem convenient to run the others, because we already know the
 result.
 
 > Christophe
