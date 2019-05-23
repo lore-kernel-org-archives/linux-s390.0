@@ -1,8 +1,8 @@
 Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
 From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH 5/9] KVM: selftests: Align memory region addresses to 1M on s390x
-Date: Thu, 23 May 2019 18:43:05 +0200
-Message-Id: <20190523164309.13345-6-thuth@redhat.com>
+Subject: [PATCH 1/9] KVM: selftests: Wrap vcpu_nested_state_get/set functions with x86 guard
+Date: Thu, 23 May 2019 18:43:01 +0200
+Message-Id: <20190523164309.13345-2-thuth@redhat.com>
 In-Reply-To: <20190523164309.13345-1-thuth@redhat.com>
 References: <20190523164309.13345-1-thuth@redhat.com>
 MIME-Version: 1.0
@@ -14,62 +14,53 @@ To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux
 Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On s390x, there is a constraint that memory regions have to be aligned
-to 1M (or running the VM will fail). Introduce a new "alignment" variable
-in the vm_userspace_mem_region_add() function which now can be used for
-both, huge page and s390x alignment requirements.
+struct kvm_nested_state is only available on x86 so far. To be able
+to compile the code on other architectures as well, we need to wrap
+the related code with #ifdefs.
 
+Reviewed-by: Andrew Jones <drjones@redhat.com>
 Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
- tools/testing/selftests/kvm/lib/kvm_util.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ tools/testing/selftests/kvm/include/kvm_util.h | 2 ++
+ tools/testing/selftests/kvm/lib/kvm_util.c     | 2 ++
+ 2 files changed, 4 insertions(+)
 
+diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+index 8c6b9619797d..a5a4b28f14d8 100644
+--- a/tools/testing/selftests/kvm/include/kvm_util.h
++++ b/tools/testing/selftests/kvm/include/kvm_util.h
+@@ -118,10 +118,12 @@ void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
+ 		     struct kvm_vcpu_events *events);
+ void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
+ 		     struct kvm_vcpu_events *events);
++#ifdef __x86_64__
+ void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
+ 			   struct kvm_nested_state *state);
+ int vcpu_nested_state_set(struct kvm_vm *vm, uint32_t vcpuid,
+ 			  struct kvm_nested_state *state, bool ignore_error);
++#endif
+ 
+ const char *exit_reason_str(unsigned int exit_reason);
+ 
 diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index 08edb8436c47..656df9d5cd4d 100644
+index e9113857f44e..ba1359ac504f 100644
 --- a/tools/testing/selftests/kvm/lib/kvm_util.c
 +++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -559,6 +559,7 @@ void vm_userspace_mem_region_add(struct kvm_vm *vm,
- 	unsigned long pmem_size = 0;
- 	struct userspace_mem_region *region;
- 	size_t huge_page_size = KVM_UTIL_PGS_PER_HUGEPG * vm->page_size;
-+	size_t alignment;
+@@ -1250,6 +1250,7 @@ void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
+ 		ret, errno);
+ }
  
- 	TEST_ASSERT((guest_paddr % vm->page_size) == 0, "Guest physical "
- 		"address not on a page boundary.\n"
-@@ -608,9 +609,20 @@ void vm_userspace_mem_region_add(struct kvm_vm *vm,
- 	TEST_ASSERT(region != NULL, "Insufficient Memory");
- 	region->mmap_size = npages * vm->page_size;
++#ifdef __x86_64__
+ void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
+ 			   struct kvm_nested_state *state)
+ {
+@@ -1281,6 +1282,7 @@ int vcpu_nested_state_set(struct kvm_vm *vm, uint32_t vcpuid,
  
--	/* Enough memory to align up to a huge page. */
-+#ifdef __s390x__
-+	/* On s390x, the host address must be aligned to 1M (due to PGSTEs) */
-+	alignment = 0x100000;
-+#else
-+	alignment = 1;
+ 	return ret;
+ }
 +#endif
-+
- 	if (src_type == VM_MEM_SRC_ANONYMOUS_THP)
--		region->mmap_size += huge_page_size;
-+		alignment = huge_page_size;
-+
-+	/* Add enough memory to align up if necessary */
-+	if (alignment > 1)
-+		region->mmap_size += alignment;
-+
- 	region->mmap_start = mmap(NULL, region->mmap_size,
- 				  PROT_READ | PROT_WRITE,
- 				  MAP_PRIVATE | MAP_ANONYMOUS
-@@ -620,9 +632,8 @@ void vm_userspace_mem_region_add(struct kvm_vm *vm,
- 		    "test_malloc failed, mmap_start: %p errno: %i",
- 		    region->mmap_start, errno);
  
--	/* Align THP allocation up to start of a huge page. */
--	region->host_mem = align(region->mmap_start,
--				 src_type == VM_MEM_SRC_ANONYMOUS_THP ?  huge_page_size : 1);
-+	/* Align host address */
-+	region->host_mem = align(region->mmap_start, alignment);
- 
- 	/* As needed perform madvise */
- 	if (src_type == VM_MEM_SRC_ANONYMOUS || src_type == VM_MEM_SRC_ANONYMOUS_THP) {
+ /*
+  * VM VCPU System Regs Get
 -- 
 2.21.0
