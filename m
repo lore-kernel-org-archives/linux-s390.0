@@ -1,113 +1,41 @@
-Return-Path: <SRS0=FZpJ=T4=vger.kernel.org=kvm-owner@kernel.org>
-Date: Tue, 28 May 2019 15:54:28 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH v3 2/3] vfio: zpci: defining the VFIO headers
-Message-ID: <20190528155428.0f149994@x1.home>
-In-Reply-To: <20190523182433.567b8408.cohuck@redhat.com>
-References: <1558614326-24711-1-git-send-email-pmorel@linux.ibm.com>
-        <1558614326-24711-3-git-send-email-pmorel@linux.ibm.com>
-        <20190523182433.567b8408.cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 1/2] zfcp: fix missing zfcp_port reference put on -EBUSY from port_remove
+Date: Thu, 23 May 2019 15:23:45 +0200
+Message-ID: <1558617826-30129-2-git-send-email-maier@linux.ibm.com>
+References: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-scsi/>
+List-Post: <mailto:linux-scsi@vger.kernel.org>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 23 May 2019 18:24:33 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+With this early return due to zfcp_unit child(ren), we don't use the
+zfcp_port reference from the earlier zfcp_get_port_by_wwpn()any more
+and need to put it.
 
-> On Thu, 23 May 2019 14:25:25 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
-> > We define a new device region in vfio.h to be able to
-> > get the ZPCI CLP information by reading this region from
-> > userland.
-> > 
-> > We create a new file, vfio_zdev.h to define the structure
-> > of the new region we defined in vfio.h
-> > 
-> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> > ---
-> >  include/uapi/linux/vfio.h      |  4 ++++
-> >  include/uapi/linux/vfio_zdev.h | 34 ++++++++++++++++++++++++++++++++++
-> >  2 files changed, 38 insertions(+)
-> >  create mode 100644 include/uapi/linux/vfio_zdev.h
-> > 
-> > diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-> > index 8f10748..56595b8 100644
-> > --- a/include/uapi/linux/vfio.h
-> > +++ b/include/uapi/linux/vfio.h
-> > @@ -306,6 +306,10 @@ struct vfio_region_info_cap_type {
-> >  #define VFIO_REGION_TYPE_GFX                    (1)
-> >  #define VFIO_REGION_SUBTYPE_GFX_EDID            (1)
-> >  
-> > +/* IBM Subtypes */
-> > +#define VFIO_REGION_TYPE_IBM_ZDEV		(1)
-> > +#define VFIO_REGION_SUBTYPE_ZDEV_CLP		(1)  
-> 
-> I'm afraid that confuses me a bit. You want to add the region to every
-> vfio-pci device when we're running under s390, right? So this does not
-> depend on the device type of the actual device (which may or may not be
-> from IBM), but only on the architecture?
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove")
+Cc: <stable@vger.kernel.org> #3.7+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-FWIW, I don't really have a strong opinion here but I welcome the
-discussion.  It seems fair to me that a PCI vendor type could be used
-for either a device with that vendor ID or by the vendor of the
-platform.  We've got a lot of address space if want to use
-VFIO_REGION_TYPE_IBM_ZDEV rather than a PCI vendor type (so long as
-it's updated not to conflict with the GFX type).  Thanks,
-
-Alex
- 
-> (Generally speaking, I think using regions for this makes sense,
-> though.)
-> 
-> > +
-> >  /**
-> >   * struct vfio_region_gfx_edid - EDID region layout.
-> >   *
-> > diff --git a/include/uapi/linux/vfio_zdev.h
-> > b/include/uapi/linux/vfio_zdev.h new file mode 100644
-> > index 0000000..84b1a82
-> > --- /dev/null
-> > +++ b/include/uapi/linux/vfio_zdev.h
-> > @@ -0,0 +1,34 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> > +/*
-> > + * Region definition for ZPCI devices
-> > + *
-> > + * Copyright IBM Corp. 2019
-> > + *
-> > + * Author(s): Pierre Morel <pmorel@linux.ibm.com>
-> > + */
-> > +
-> > +#ifndef _VFIO_ZDEV_H_
-> > +#define _VFIO_ZDEV_H_
-> > +
-> > +#include <linux/types.h>
-> > +
-> > +/**
-> > + * struct vfio_region_zpci_info - ZPCI information.
-> > + *
-> > + */
-> > +struct vfio_region_zpci_info {
-> > +	__u64 dasm;
-> > +	__u64 start_dma;
-> > +	__u64 end_dma;
-> > +	__u64 msi_addr;
-> > +	__u64 flags;
-> > +	__u16 pchid;
-> > +	__u16 mui;
-> > +	__u16 noi;
-> > +	__u8 gid;
-> > +	__u8 version;
-> > +#define VFIO_PCI_ZDEV_FLAGS_REFRESH 1
-> > +	__u8 util_str[CLP_UTIL_STR_LEN];
-> > +} __packed;
-> > +
-> > +#endif  
-> 
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index b277be6f7611..2d78732b270b 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -261,6 +261,7 @@ static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
+ 	if (atomic_read(&port->units) > 0) {
+ 		retval = -EBUSY;
+ 		mutex_unlock(&zfcp_sysfs_port_units_mutex);
++		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
+ 		goto out;
+ 	}
+ 	/* port is about to be removed, so no more unit_add */
+-- 
+2.17.1
