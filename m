@@ -1,175 +1,74 @@
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH v4 2/3] s390: Fix vDSO clock_getres()
-Date: Thu, 23 May 2019 12:21:15 +0100
-Message-ID: <20190523112116.19233-3-vincenzo.frascino@arm.com>
-References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+From: Christian Brauner <christian@brauner.io>
+Subject: [PATCH v2 0/2] close_range()
+Date: Thu, 23 May 2019 17:47:45 +0200
+Message-ID: <20190523154747.15162-1-christian@brauner.io>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20190523112116.19233-1-vincenzo.frascino@arm.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-List-Archive: <https://lore.kernel.org/linux-arch/>
-List-Post: <mailto:linux-arch@vger.kernel.org>
-To: linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, vincenzo.frascino@arm.com, Shuah Khan <shuah@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, torvalds@linux-foundation.org, fweimer@redhat.com
+Cc: jannh@google.com, oleg@redhat.com, tglx@linutronix.de, arnd@arndb.de, shuah@kernel.org, dhowells@redhat.com, tkjos@android.com, ldv@altlinux.org, miklos@szeredi.hu, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org, x86@kernel.org, Christian Brauner <christian@brauner.io>
 List-ID: <linux-s390.vger.kernel.org>
 
-clock_getres in the vDSO library has to preserve the same behaviour
-of posix_get_hrtimer_res().
+Hey,
 
-In particular, posix_get_hrtimer_res() does:
-    sec = 0;
-    ns = hrtimer_resolution;
-and hrtimer_resolution depends on the enablement of the high
-resolution timers that can happen either at compile or at run time.
+This is v2 of this patchset.
 
-Fix the s390 vdso implementation of clock_getres keeping a copy of
-hrtimer_resolution in vdso data and using that directly.
+In accordance with some comments There's a cond_resched() added to the
+close loop similar to what is done for close_files().
+A common helper pick_file() for __close_fd() and __close_range() has
+been split out. This allows to only make a cond_resched() call when
+filp_close() has been called similar to what is done in close_files().
+Maybe that's not worth it. Jann mentioned that cond_resched() looks
+rather cheap.
+So it maybe that we could simply do:
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+while (fd <= max_fd) {
+       __close(files, fd++);
+       cond_resched();
+}
 
-Note: This patch is independent from the others in this series, hence it
-can be merged singularly by the s390 maintainers.
+I also added a missing test for close_range(fd, fd, 0).
 
- arch/s390/include/asm/vdso.h           |  1 +
- arch/s390/kernel/asm-offsets.c         |  2 +-
- arch/s390/kernel/time.c                |  1 +
- arch/s390/kernel/vdso32/clock_getres.S | 12 +++++++-----
- arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
- 5 files changed, 15 insertions(+), 11 deletions(-)
+Thanks!
+Christian
 
-diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
-index 169d7604eb80..f3ba84fa9bd1 100644
---- a/arch/s390/include/asm/vdso.h
-+++ b/arch/s390/include/asm/vdso.h
-@@ -36,6 +36,7 @@ struct vdso_data {
- 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
- 	__u32 ts_dir;			/* TOD steering direction	0x64 */
- 	__u64 ts_end;			/* TOD steering end		0x68 */
-+	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
- };
- 
- struct vdso_per_cpu_data {
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 41ac4ad21311..4a229a60b24a 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -76,6 +76,7 @@ int main(void)
- 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
- 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
- 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
-+	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
- 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
- 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
- 	OFFSET(__VDSO_CPU_NR, vdso_per_cpu_data, cpu_nr);
-@@ -87,7 +88,6 @@ int main(void)
- 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
- 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
- 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
--	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
- 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
- 	BLANK();
- 	/* idle data offsets */
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index e8766beee5ad..8ea9db599d38 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -310,6 +310,7 @@ void update_vsyscall(struct timekeeper *tk)
- 
- 	vdso_data->tk_mult = tk->tkr_mono.mult;
- 	vdso_data->tk_shift = tk->tkr_mono.shift;
-+	vdso_data->hrtimer_res = hrtimer_resolution;
- 	smp_wmb();
- 	++vdso_data->tb_update_count;
- }
-diff --git a/arch/s390/kernel/vdso32/clock_getres.S b/arch/s390/kernel/vdso32/clock_getres.S
-index eaf9cf1417f6..fecd7684c645 100644
---- a/arch/s390/kernel/vdso32/clock_getres.S
-+++ b/arch/s390/kernel/vdso32/clock_getres.S
-@@ -18,20 +18,22 @@
- __kernel_clock_getres:
- 	CFI_STARTPROC
- 	basr	%r1,0
--	la	%r1,4f-.(%r1)
-+10:	al	%r1,4f-10b(%r1)
-+	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
- 	chi	%r2,__CLOCK_REALTIME
- 	je	0f
- 	chi	%r2,__CLOCK_MONOTONIC
- 	je	0f
--	la	%r1,5f-4f(%r1)
-+	basr	%r1,0
-+	la	%r1,5f-.(%r1)
-+	l	%r0,0(%r1)
- 	chi	%r2,__CLOCK_REALTIME_COARSE
- 	je	0f
- 	chi	%r2,__CLOCK_MONOTONIC_COARSE
- 	jne	3f
- 0:	ltr	%r3,%r3
- 	jz	2f				/* res == NULL */
--1:	l	%r0,0(%r1)
--	xc	0(4,%r3),0(%r3)			/* set tp->tv_sec to zero */
-+1:	xc	0(4,%r3),0(%r3)			/* set tp->tv_sec to zero */
- 	st	%r0,4(%r3)			/* store tp->tv_usec */
- 2:	lhi	%r2,0
- 	br	%r14
-@@ -39,6 +41,6 @@ __kernel_clock_getres:
- 	svc	0
- 	br	%r14
- 	CFI_ENDPROC
--4:	.long	__CLOCK_REALTIME_RES
-+4:	.long	_vdso_data - 10b
- 5:	.long	__CLOCK_COARSE_RES
- 	.size	__kernel_clock_getres,.-__kernel_clock_getres
-diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
-index 081435398e0a..022b58c980db 100644
---- a/arch/s390/kernel/vdso64/clock_getres.S
-+++ b/arch/s390/kernel/vdso64/clock_getres.S
-@@ -17,12 +17,14 @@
- 	.type  __kernel_clock_getres,@function
- __kernel_clock_getres:
- 	CFI_STARTPROC
--	larl	%r1,4f
-+	larl	%r1,3f
-+	lg	%r0,0(%r1)
- 	cghi	%r2,__CLOCK_REALTIME_COARSE
- 	je	0f
- 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
- 	je	0f
--	larl	%r1,3f
-+	larl	%r1,_vdso_data
-+	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
- 	cghi	%r2,__CLOCK_REALTIME
- 	je	0f
- 	cghi	%r2,__CLOCK_MONOTONIC
-@@ -36,7 +38,6 @@ __kernel_clock_getres:
- 	jz	2f
- 0:	ltgr	%r3,%r3
- 	jz	1f				/* res == NULL */
--	lg	%r0,0(%r1)
- 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
- 	stg	%r0,8(%r3)			/* store tp->tv_usec */
- 1:	lghi	%r2,0
-@@ -45,6 +46,5 @@ __kernel_clock_getres:
- 	svc	0
- 	br	%r14
- 	CFI_ENDPROC
--3:	.quad	__CLOCK_REALTIME_RES
--4:	.quad	__CLOCK_COARSE_RES
-+3:	.quad	__CLOCK_COARSE_RES
- 	.size	__kernel_clock_getres,.-__kernel_clock_getres
+Christian Brauner (2):
+  open: add close_range()
+  tests: add close_range() tests
+
+ arch/alpha/kernel/syscalls/syscall.tbl        |   1 +
+ arch/arm/tools/syscall.tbl                    |   1 +
+ arch/arm64/include/asm/unistd32.h             |   2 +
+ arch/ia64/kernel/syscalls/syscall.tbl         |   1 +
+ arch/m68k/kernel/syscalls/syscall.tbl         |   1 +
+ arch/microblaze/kernel/syscalls/syscall.tbl   |   1 +
+ arch/mips/kernel/syscalls/syscall_n32.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_n64.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_o32.tbl     |   1 +
+ arch/parisc/kernel/syscalls/syscall.tbl       |   1 +
+ arch/powerpc/kernel/syscalls/syscall.tbl      |   1 +
+ arch/s390/kernel/syscalls/syscall.tbl         |   1 +
+ arch/sh/kernel/syscalls/syscall.tbl           |   1 +
+ arch/sparc/kernel/syscalls/syscall.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_32.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_64.tbl        |   1 +
+ arch/xtensa/kernel/syscalls/syscall.tbl       |   1 +
+ fs/file.c                                     |  62 +++++++-
+ fs/open.c                                     |  20 +++
+ include/linux/fdtable.h                       |   2 +
+ include/linux/syscalls.h                      |   2 +
+ include/uapi/asm-generic/unistd.h             |   4 +-
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/core/.gitignore       |   1 +
+ tools/testing/selftests/core/Makefile         |   6 +
+ .../testing/selftests/core/close_range_test.c | 142 ++++++++++++++++++
+ 26 files changed, 249 insertions(+), 9 deletions(-)
+ create mode 100644 tools/testing/selftests/core/.gitignore
+ create mode 100644 tools/testing/selftests/core/Makefile
+ create mode 100644 tools/testing/selftests/core/close_range_test.c
+
 -- 
 2.21.0
