@@ -1,241 +1,187 @@
-Return-Path: <SRS0=M1fl=TR=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Fri, 17 May 2019 08:58:54 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [GIT PULL] s390 patches for the 5.2 merge window #2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20190517085854.7be56501@mschwideX1>
-Sender: linux-kernel-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/lkml/>
-List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v3 3/3] vfio: pci: Using a device region to retrieve zPCI information
+Date: Thu, 23 May 2019 14:25:26 +0200
+In-Reply-To: <1558614326-24711-1-git-send-email-pmorel@linux.ibm.com>
+References: <1558614326-24711-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1558614326-24711-4-git-send-email-pmorel@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/kvm/>
+List-Post: <mailto:kvm@vger.kernel.org>
+To: sebott@linux.vnet.ibm.com
+Cc: gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-The following changes since commit 71ae5fc87c34ecbdca293c2a5c563d6be2576558:
+We define a new configuration entry for VFIO/PCI, VFIO_PCI_ZDEV
 
-  Merge tag 'linux-kselftest-5.2-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest (2019-05-06 20:29:45 -0700)
+When the VFIO_PCI_ZDEV feature is configured we initialize
+a new device region, VFIO_REGION_SUBTYPE_ZDEV_CLP, to hold
+the information from the ZPCI device the userland needs to
+give to a guest driving the zPCI function.
 
-are available in the git repository at:
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ drivers/vfio/pci/Kconfig            |  7 ++++
+ drivers/vfio/pci/Makefile           |  1 +
+ drivers/vfio/pci/vfio_pci.c         |  9 ++++
+ drivers/vfio/pci/vfio_pci_private.h | 10 +++++
+ drivers/vfio/pci/vfio_pci_zdev.c    | 83 +++++++++++++++++++++++++++++++++++++
+ 5 files changed, 110 insertions(+)
+ create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux tags/s390-5.2-2
-
-for you to fetch changes up to f3e20ad67b4c8365df9818fd3c8026e105d6b53a:
-
-  s390: move arch/s390/defconfig to arch/s390/configs/defconfig (2019-05-14 17:54:48 +0200)
-
-----------------------------------------------------------------
-s390 updates for the 5.2 merge window #2
-
- - Enhancements for the QDIO layer
-
- - Remove the RCP trace event
-
- - Avoid three build issues
-
- - Move the defconfig to the configs directory
-
-----------------------------------------------------------------
-Farhan Ali (1):
-      s390/cio: Remove tracing for rchp instruction
-
-Julian Wiedmann (3):
-      s390/qdio: allow to scan all Output SBALs in one go
-      s390/qdio: use get_buf_state() in debug_get_buf_state()
-      s390/qdio: optimize state inspection of HW-owned SBALs
-
-Martin Schwidefsky (1):
-      s390/boot: fix compiler error due to missing awk strtonum
-
-Masahiro Yamada (1):
-      s390: move arch/s390/defconfig to arch/s390/configs/defconfig
-
-Vasily Gorbik (2):
-      latent_entropy: avoid build error when plugin cflags are not set
-      s390/kasan: adapt disabled_wait usage to avoid build error
-
- arch/s390/Makefile                      |  2 ++
- arch/s390/boot/Makefile                 |  1 -
- arch/s390/boot/compressed/vmlinux.lds.S |  2 ++
- arch/s390/{ => configs}/defconfig       |  0
- arch/s390/mm/kasan_init.c               |  2 +-
- drivers/s390/cio/qdio_main.c            | 19 +++++++++++--------
- drivers/s390/cio/trace.c                |  1 -
- drivers/s390/cio/trace.h                | 23 -----------------------
- include/linux/random.h                  |  2 +-
- 9 files changed, 17 insertions(+), 35 deletions(-)
- rename arch/s390/{ => configs}/defconfig (100%)
-
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index df1d6a1..de8521f 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -10,6 +10,8 @@
- # Copyright (C) 1994 by Linus Torvalds
- #
- 
-+KBUILD_DEFCONFIG := defconfig
+diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+index d0f8e4f..9c1181c 100644
+--- a/drivers/vfio/pci/Kconfig
++++ b/drivers/vfio/pci/Kconfig
+@@ -44,3 +44,10 @@ config VFIO_PCI_NVLINK2
+ 	depends on VFIO_PCI && PPC_POWERNV
+ 	help
+ 	  VFIO PCI support for P9 Witherspoon machine with NVIDIA V100 GPUs
 +
- LD_BFD		:= elf64-s390
- KBUILD_LDFLAGS	:= -m elf64_s390
- KBUILD_AFLAGS_MODULE += -fPIC
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index c51496b..7cba96e 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -58,7 +58,6 @@ define cmd_section_cmp
- 	touch $@
- endef
++config VFIO_PCI_ZDEV
++	tristate "VFIO PCI Generic for ZPCI devices"
++	depends on VFIO_PCI && S390
++	default y
++	help
++	  VFIO PCI support for S390 Z-PCI devices
+diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
+index 9662c06..fd53819 100644
+--- a/drivers/vfio/pci/Makefile
++++ b/drivers/vfio/pci/Makefile
+@@ -2,5 +2,6 @@
+ vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
+ vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
+ vfio-pci-$(CONFIG_VFIO_PCI_NVLINK2) += vfio_pci_nvlink2.o
++vfio-pci-$(CONFIG_VFIO_PCI_ZDEV) += vfio_pci_zdev.o
  
--OBJCOPYFLAGS_bzImage := --pad-to $$(readelf -s $(obj)/compressed/vmlinux | awk '/\<_end\>/ {print or(strtonum("0x"$$2),4095)+1}')
- $(obj)/bzImage: $(obj)/compressed/vmlinux $(obj)/section_cmp.boot.data $(obj)/section_cmp.boot.preserved.data FORCE
- 	$(call if_changed,objcopy)
- 
-diff --git a/arch/s390/boot/compressed/vmlinux.lds.S b/arch/s390/boot/compressed/vmlinux.lds.S
-index 112b8d9..635217e 100644
---- a/arch/s390/boot/compressed/vmlinux.lds.S
-+++ b/arch/s390/boot/compressed/vmlinux.lds.S
-@@ -77,6 +77,8 @@ SECTIONS
- 		_compressed_start = .;
- 		*(.vmlinux.bin.compressed)
- 		_compressed_end = .;
-+		FILL(0xff);
-+		. = ALIGN(4096);
+ obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 3fa20e9..b6087d6 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -362,6 +362,15 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
+ 		}
  	}
- 	. = ALIGN(256);
- 	.bss : {
-diff --git a/arch/s390/defconfig b/arch/s390/configs/defconfig
-similarity index 100%
-rename from arch/s390/defconfig
-rename to arch/s390/configs/defconfig
-diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
-index 01892dc..0c1f257 100644
---- a/arch/s390/mm/kasan_init.c
-+++ b/arch/s390/mm/kasan_init.c
-@@ -28,7 +28,7 @@ static void __init kasan_early_panic(const char *reason)
- {
- 	sclp_early_printk("The Linux kernel failed to boot with the KernelAddressSanitizer:\n");
- 	sclp_early_printk(reason);
--	disabled_wait(0);
-+	disabled_wait();
- }
  
- static void * __init kasan_early_alloc_segment(void)
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index cfce255..7b7620d 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -205,17 +205,22 @@ static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
- 				 int auto_ack, int merge_pending)
- {
- 	unsigned char __state = 0;
--	int i;
-+	int i = 1;
- 
- 	if (is_qebsm(q))
- 		return qdio_do_eqbs(q, state, bufnr, count, auto_ack);
- 
- 	/* get initial state: */
- 	__state = q->slsb.val[bufnr];
++	if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV)) {
++		ret = vfio_pci_zdev_init(vdev);
++		if (ret) {
++			dev_warn(&vdev->pdev->dev,
++				 "Failed to setup ZDEV regions\n");
++			goto disable_exit;
++		}
++	}
 +
-+	/* Bail out early if there is no work on the queue: */
-+	if (__state & SLSB_OWNER_CU)
-+		goto out;
-+
- 	if (merge_pending && __state == SLSB_P_OUTPUT_PENDING)
- 		__state = SLSB_P_OUTPUT_EMPTY;
+ 	vfio_pci_probe_mmaps(vdev);
  
--	for (i = 1; i < count; i++) {
-+	for (; i < count; i++) {
- 		bufnr = next_buf(bufnr);
- 
- 		/* merge PENDING into EMPTY: */
-@@ -228,6 +233,8 @@ static inline int get_buf_states(struct qdio_q *q, unsigned int bufnr,
- 		if (q->slsb.val[bufnr] != __state)
- 			break;
- 	}
-+
-+out:
- 	*state = __state;
- 	return i;
+ 	return 0;
+diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+index 1812cf2..db73cdf 100644
+--- a/drivers/vfio/pci/vfio_pci_private.h
++++ b/drivers/vfio/pci/vfio_pci_private.h
+@@ -189,4 +189,14 @@ static inline int vfio_pci_ibm_npu2_init(struct vfio_pci_device *vdev)
+ 	return -ENODEV;
  }
-@@ -382,7 +389,7 @@ int debug_get_buf_state(struct qdio_q *q, unsigned int bufnr,
- {
- 	if (need_siga_sync(q))
- 		qdio_siga_sync_q(q);
--	return get_buf_states(q, bufnr, state, 1, 0, 0);
-+	return get_buf_state(q, bufnr, state, 0);
- }
- 
- static inline void qdio_stop_polling(struct qdio_q *q)
-@@ -719,11 +726,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start)
- 		    multicast_outbound(q)))
- 			qdio_siga_sync_q(q);
- 
--	/*
--	 * Don't check 128 buffers, as otherwise qdio_inbound_q_moved
--	 * would return 0.
--	 */
--	count = min(atomic_read(&q->nr_buf_used), QDIO_MAX_BUFFERS_MASK);
-+	count = atomic_read(&q->nr_buf_used);
- 	if (!count)
- 		return 0;
- 
-diff --git a/drivers/s390/cio/trace.c b/drivers/s390/cio/trace.c
-index e331cd9..882ee53 100644
---- a/drivers/s390/cio/trace.c
-+++ b/drivers/s390/cio/trace.c
-@@ -21,5 +21,4 @@ EXPORT_TRACEPOINT_SYMBOL(s390_cio_csch);
- EXPORT_TRACEPOINT_SYMBOL(s390_cio_hsch);
- EXPORT_TRACEPOINT_SYMBOL(s390_cio_xsch);
- EXPORT_TRACEPOINT_SYMBOL(s390_cio_rsch);
--EXPORT_TRACEPOINT_SYMBOL(s390_cio_rchp);
- EXPORT_TRACEPOINT_SYMBOL(s390_cio_chsc);
-diff --git a/drivers/s390/cio/trace.h b/drivers/s390/cio/trace.h
-index 0ebb29b..4803139 100644
---- a/drivers/s390/cio/trace.h
-+++ b/drivers/s390/cio/trace.h
-@@ -274,29 +274,6 @@ DEFINE_EVENT(s390_class_schid, s390_cio_rsch,
- 	TP_ARGS(schid, cc)
- );
- 
--/**
-- * s390_cio_rchp - Reset Channel Path (RCHP) instruction was performed
-- * @chpid: Channel-Path Identifier
-- * @cc: Condition code
-- */
--TRACE_EVENT(s390_cio_rchp,
--	TP_PROTO(struct chp_id chpid, int cc),
--	TP_ARGS(chpid, cc),
--	TP_STRUCT__entry(
--		__field(u8, cssid)
--		__field(u8, id)
--		__field(int, cc)
--	),
--	TP_fast_assign(
--		__entry->cssid = chpid.cssid;
--		__entry->id = chpid.id;
--		__entry->cc = cc;
--	),
--	TP_printk("chpid=%x.%02x cc=%d", __entry->cssid, __entry->id,
--		  __entry->cc
--	)
--);
--
- #define CHSC_MAX_REQUEST_LEN		64
- #define CHSC_MAX_RESPONSE_LEN		64
- 
-diff --git a/include/linux/random.h b/include/linux/random.h
-index 445a0ea..d4eb9b3 100644
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -20,7 +20,7 @@ struct random_ready_callback {
- 
- extern void add_device_randomness(const void *, unsigned int);
- 
--#if defined(CONFIG_GCC_PLUGIN_LATENT_ENTROPY) && !defined(__CHECKER__)
-+#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
- static inline void add_latent_entropy(void)
- {
- 	add_device_randomness((const void *)&latent_entropy,
+ #endif
++
++#ifdef(IS_ENABLED_VFIO_PCI_ZDEV)
++extern int vfio_pci_zdev_init(struct vfio_pci_device *vdev);
++#else
++static inline int vfio_pci_zdev_init(struct vfio_pci_device *vdev)
++{
++	return -ENODEV;
++}
++#endif
++
+ #endif /* VFIO_PCI_PRIVATE_H */
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+new file mode 100644
+index 0000000..230a4e4
+--- /dev/null
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -0,0 +1,83 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * VFIO ZPCI devices support
++ *
++ * Copyright (C) IBM Corp. 2019.  All rights reserved.
++ *	Author: Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++#include <linux/io.h>
++#include <linux/pci.h>
++#include <linux/uaccess.h>
++#include <linux/vfio.h>
++#include <linux/vfio_zdev.h>
++
++#include "vfio_pci_private.h"
++
++static size_t vfio_pci_zdev_rw(struct vfio_pci_device *vdev,
++			       char __user *buf, size_t count, loff_t *ppos,
++			       bool iswrite)
++{
++	struct vfio_region_zpci_info *region;
++	struct zpci_dev *zdev;
++	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
++
++	if (!vdev->pdev->bus)
++		return -ENODEV;
++
++	zdev = vdev->pdev->bus->sysdata;
++	if (!zdev)
++		return -ENODEV;
++
++	if ((*ppos & VFIO_PCI_OFFSET_MASK) || (count != sizeof(*region)))
++		return -EINVAL;
++
++	region = vdev->region[index - VFIO_PCI_NUM_REGIONS].data;
++	region->dasm = zdev->dma_mask;
++	region->start_dma = zdev->start_dma;
++	region->end_dma = zdev->end_dma;
++	region->msi_addr = zdev->msi_addr;
++	region->flags = VFIO_PCI_ZDEV_FLAGS_REFRESH;
++	region->gid = zdev->pfgid;
++	region->mui = zdev->fmb_update;
++	region->noi = zdev->max_msi;
++	memcpy(region->util_str, zdev->util_str, CLP_UTIL_STR_LEN);
++
++	if (copy_to_user(buf, region, count))
++		return -EFAULT;
++
++	return count;
++}
++
++static void vfio_pci_zdev_release(struct vfio_pci_device *vdev,
++				  struct vfio_pci_region *region)
++{
++	kfree(region->data);
++}
++
++static const struct vfio_pci_regops vfio_pci_zdev_regops = {
++	.rw		= vfio_pci_zdev_rw,
++	.release	= vfio_pci_zdev_release,
++};
++
++int vfio_pci_zdev_init(struct vfio_pci_device *vdev)
++{
++	struct vfio_region_zpci_info *region;
++	int ret;
++
++	region = kmalloc(sizeof(*region), GFP_KERNEL);
++	if (!region)
++		return -ENOMEM;
++
++	ret = vfio_pci_register_dev_region(vdev,
++		PCI_VENDOR_ID_IBM | VFIO_REGION_TYPE_PCI_VENDOR_TYPE,
++		VFIO_REGION_SUBTYPE_ZDEV_CLP,
++		&vfio_pci_zdev_regops, sizeof(*region),
++		VFIO_REGION_INFO_FLAG_READ, region);
++
++	return ret;
++}
+-- 
+2.7.4
