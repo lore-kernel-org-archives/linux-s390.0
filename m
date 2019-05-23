@@ -1,8 +1,10 @@
 Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v2 0/8] s390: virtio: support protected virtualization
-Date: Thu, 23 May 2019 18:22:01 +0200
-Message-Id: <20190523162209.9543-1-mimu@linux.ibm.com>
+Subject: [PATCH v2 4/8] s390/airq: use DMA memory for adapter interrupts
+Date: Thu, 23 May 2019 18:22:05 +0200
+In-Reply-To: <20190523162209.9543-1-mimu@linux.ibm.com>
+References: <20190523162209.9543-1-mimu@linux.ibm.com>
+Message-Id: <20190523162209.9543-5-mimu@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,136 +12,167 @@ To: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Enhanced virtualization protection technology may require the use of
-bounce buffers for I/O. While support for this was built into the virtio
-core, virtio-ccw wasn't changed accordingly.
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Some background on technology (not part of this series) and the
-terminology used.
+Protected virtualization guests have to use shared pages for airq
+notifier bit vectors, because hypervisor needs to write these bits.
 
-* Protected Virtualization (PV):
+Let us make sure we allocate DMA memory for the notifier bit vectors by
+replacing the kmem_cache with a dma_cache and kalloc() with
+cio_dma_zalloc().
 
-Protected Virtualization guarantees, that non-shared memory of a  guest
-that operates in PV mode private to that guest. I.e. any attempts by the
-hypervisor or other guests to access it will result in an exception. If
-supported by the environment (machine, KVM, guest VM) a guest can decide
-to change into PV mode by doing the appropriate ultravisor calls.
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+---
+ arch/s390/include/asm/airq.h |  2 ++
+ drivers/s390/cio/airq.c      | 32 ++++++++++++++++++++------------
+ drivers/s390/cio/cio.h       |  2 ++
+ drivers/s390/cio/css.c       |  1 +
+ 4 files changed, 25 insertions(+), 12 deletions(-)
 
-* Ultravisor:
-
-A hardware/firmware entity that manages PV guests, and polices access to
-their memory. A PV guest prospect needs to interact with the ultravisor,
-to enter PV mode, and potentially to share pages (for I/O which should
-be encrypted by the guest). A guest interacts with the ultravisor via so
-called ultravisor calls. A hypervisor needs to interact with the
-ultravisor to facilitate interpretation, emulation and swapping. A
-hypervisor  interacts with the ultravisor via ultravisor calls and via
-the SIE state description. Generally the ultravisor sanitizes hypervisor
-inputs so that the guest can not be corrupted (except for denial of
-service.
-
-
-What needs to be done
-=====================
-
-Thus what needs to be done to bring virtio-ccw up to speed with respect
-to protected virtualization is:
-* use some 'new' common virtio stuff
-* make sure that virtio-ccw specific stuff uses shared memory when
-  talking to the hypervisor (except control/communication blocks like ORB,
-  these are handled by the ultravisor)
-* make sure the DMA API does what is necessary to talk through shared
-  memory if we are a protected virtualization guest.
-* make sure the common IO layer plays along as well (airqs, sense).
-
-
-Important notes
-================
-
-* This patch set is based on Martins features branch
- (git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git branch
- 'features').
-
-* Documentation is still very sketchy. I'm committed to improving this,
-  but I'm currently hampered by some dependencies currently.  
-
-* The existing naming in the common infrastructure (kernel internal
-  interfaces) is pretty much based on the AMD SEV terminology. Thus the
-  names aren't always perfect. There might be merit to changing these
-  names to more abstract ones. I did not put much thought into that at
-  the current stage.
-
-* Testing: Please use iommu_platform=on for any virtio devices you are
-  going to test this code with (so virtio actually uses the DMA API).
-
-Change log
-==========
-
-v1 --> v2:
-* patch "virtio/s390: use vring_create_virtqueue" went already upstream
-* patch "virtio/s390: DMA support for virtio-ccw" went already upstream
-* patch "virtio/s390: enable packed ring" went already upstream
-* Made dev.dma_mask point to dev.coherent_dma_mask for css, subchannel
-  and ccw devices.
-* While rebasing 's390/airq: use DMA memory for adapter interrupts' the
-  newly introduced kmem_cache  was replaced with an equivalent dma_pool;
-  the kalloc() allocations are now replaced with cio_dma_zalloc()
-  allocations to avoid wasting almost a full page.
-* Made virtio-ccw use the new AIRQ_IV_CACHELINE flag.
-* fixed all remaining checkpatch issues
-
-RFC --> v1:
-* Fixed bugs found by Connie (may_reduce and handling reduced,  warning,
-  split move -- thanks Connie!).
-* Fixed console bug found by Sebastian (thanks Sebastian!).
-* Removed the completely useless duplicate of dma-mapping.h spotted by
-  Christoph (thanks Christoph!).
-* Don't use the global DMA pool for subchannel and ccw device
-  owned memory as requested by Sebastian. Consequences:
-	* Both subchannel and ccw devices have their dma masks
-	now (both specifying 31 bit addressable)
-	* We require at least 2 DMA pages per ccw device now, most of
-	this memory is wasted though.
-	* DMA memory allocated by virtio is also 31 bit addressable now
-        as virtio uses the parent (which is the ccw device).
-* Enabled packed ring.
-* Rebased onto Martins feature branch; using the actual uv (ultravisor)
-  interface instead of TODO comments.
-* Added some explanations to the cover letter (Connie, David).
-* Squashed a couple of patches together and fixed some text stuff. 
-
-Looking forward to your review, or any other type of input.
-
-Halil Pasic (8):
-  s390/mm: force swiotlb for protected virtualization
-  s390/cio: introduce DMA pools to cio
-  s390/cio: add basic protected virtualization support
-  s390/airq: use DMA memory for adapter interrupts
-  virtio/s390: use cacheline aligned airq bit vectors
-  virtio/s390: add indirection to indicators access
-  virtio/s390: use DMA memory for ccw I/O and classic notifiers
-  virtio/s390: make airq summary indicators DMA
-
- arch/s390/Kconfig                   |   5 +
- arch/s390/include/asm/airq.h        |   2 +
- arch/s390/include/asm/ccwdev.h      |   4 +
- arch/s390/include/asm/cio.h         |  11 ++
- arch/s390/include/asm/mem_encrypt.h |  18 +++
- arch/s390/mm/init.c                 |  47 +++++++
- drivers/s390/cio/airq.c             |  32 +++--
- drivers/s390/cio/ccwreq.c           |   9 +-
- drivers/s390/cio/cio.h              |   2 +
- drivers/s390/cio/css.c              | 111 ++++++++++++++++
- drivers/s390/cio/device.c           |  64 ++++++++--
- drivers/s390/cio/device_fsm.c       |  53 +++++---
- drivers/s390/cio/device_id.c        |  20 +--
- drivers/s390/cio/device_ops.c       |  21 +++-
- drivers/s390/cio/device_pgid.c      |  22 ++--
- drivers/s390/cio/device_status.c    |  24 ++--
- drivers/s390/cio/io_sch.h           |  20 ++-
- drivers/s390/virtio/virtio_ccw.c    | 244 ++++++++++++++++++++----------------
- 18 files changed, 514 insertions(+), 195 deletions(-)
- create mode 100644 arch/s390/include/asm/mem_encrypt.h
-
+diff --git a/arch/s390/include/asm/airq.h b/arch/s390/include/asm/airq.h
+index c10d2ee2dfda..01936fdfaddb 100644
+--- a/arch/s390/include/asm/airq.h
++++ b/arch/s390/include/asm/airq.h
+@@ -11,6 +11,7 @@
+ #define _ASM_S390_AIRQ_H
+ 
+ #include <linux/bit_spinlock.h>
++#include <linux/dma-mapping.h>
+ 
+ struct airq_struct {
+ 	struct hlist_node list;		/* Handler queueing. */
+@@ -29,6 +30,7 @@ void unregister_adapter_interrupt(struct airq_struct *airq);
+ /* Adapter interrupt bit vector */
+ struct airq_iv {
+ 	unsigned long *vector;	/* Adapter interrupt bit vector */
++	dma_addr_t vector_dma; /* Adapter interrupt bit vector dma */
+ 	unsigned long *avail;	/* Allocation bit mask for the bit vector */
+ 	unsigned long *bitlock;	/* Lock bit mask for the bit vector */
+ 	unsigned long *ptr;	/* Pointer associated with each bit */
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index 4534afc63591..89d26e43004d 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -16,9 +16,11 @@
+ #include <linux/mutex.h>
+ #include <linux/rculist.h>
+ #include <linux/slab.h>
++#include <linux/dmapool.h>
+ 
+ #include <asm/airq.h>
+ #include <asm/isc.h>
++#include <asm/cio.h>
+ 
+ #include "cio.h"
+ #include "cio_debug.h"
+@@ -27,7 +29,7 @@
+ static DEFINE_SPINLOCK(airq_lists_lock);
+ static struct hlist_head airq_lists[MAX_ISC+1];
+ 
+-static struct kmem_cache *airq_iv_cache;
++static struct dma_pool *airq_iv_cache;
+ 
+ /**
+  * register_adapter_interrupt() - register adapter interrupt handler
+@@ -115,6 +117,11 @@ void __init init_airq_interrupts(void)
+ 	setup_irq(THIN_INTERRUPT, &airq_interrupt);
+ }
+ 
++static inline unsigned long iv_size(unsigned long bits)
++{
++	return BITS_TO_LONGS(bits) * sizeof(unsigned long);
++}
++
+ /**
+  * airq_iv_create - create an interrupt vector
+  * @bits: number of bits in the interrupt vector
+@@ -132,17 +139,18 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 		goto out;
+ 	iv->bits = bits;
+ 	iv->flags = flags;
+-	size = BITS_TO_LONGS(bits) * sizeof(unsigned long);
++	size = iv_size(bits);
+ 
+ 	if (flags & AIRQ_IV_CACHELINE) {
+ 		if ((cache_line_size() * BITS_PER_BYTE) < bits)
+ 			goto out_free;
+ 
+-		iv->vector = kmem_cache_zalloc(airq_iv_cache, GFP_KERNEL);
++		iv->vector = dma_pool_zalloc(airq_iv_cache, GFP_KERNEL,
++					     &iv->vector_dma);
+ 		if (!iv->vector)
+ 			goto out_free;
+ 	} else {
+-		iv->vector = kzalloc(size, GFP_KERNEL);
++		iv->vector = cio_dma_zalloc(size);
+ 		if (!iv->vector)
+ 			goto out_free;
+ 	}
+@@ -179,9 +187,9 @@ struct airq_iv *airq_iv_create(unsigned long bits, unsigned long flags)
+ 	kfree(iv->bitlock);
+ 	kfree(iv->avail);
+ 	if (iv->flags & AIRQ_IV_CACHELINE)
+-		kmem_cache_free(airq_iv_cache, iv->vector);
++		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+ 	else
+-		kfree(iv->vector);
++		cio_dma_free(iv->vector, size);
+ 	kfree(iv);
+ out:
+ 	return NULL;
+@@ -198,9 +206,9 @@ void airq_iv_release(struct airq_iv *iv)
+ 	kfree(iv->ptr);
+ 	kfree(iv->bitlock);
+ 	if (iv->flags & AIRQ_IV_CACHELINE)
+-		kmem_cache_free(airq_iv_cache, iv->vector);
++		dma_pool_free(airq_iv_cache, iv->vector, iv->vector_dma);
+ 	else
+-		kfree(iv->vector);
++		cio_dma_free(iv->vector, iv_size(iv->bits));
+ 	kfree(iv->avail);
+ 	kfree(iv);
+ }
+@@ -295,12 +303,12 @@ unsigned long airq_iv_scan(struct airq_iv *iv, unsigned long start,
+ }
+ EXPORT_SYMBOL(airq_iv_scan);
+ 
+-static int __init airq_init(void)
++int __init airq_init(void)
+ {
+-	airq_iv_cache = kmem_cache_create("airq_iv_cache", cache_line_size(),
+-					  cache_line_size(), 0, NULL);
++	airq_iv_cache = dma_pool_create("airq_iv_cache", cio_get_dma_css_dev(),
++					cache_line_size(),
++					cache_line_size(), PAGE_SIZE);
+ 	if (!airq_iv_cache)
+ 		return -ENOMEM;
+ 	return 0;
+ }
+-subsys_initcall(airq_init);
+diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
+index 06a91743335a..4d6c7d16416e 100644
+--- a/drivers/s390/cio/cio.h
++++ b/drivers/s390/cio/cio.h
+@@ -135,6 +135,8 @@ extern int cio_commit_config(struct subchannel *sch);
+ int cio_tm_start_key(struct subchannel *sch, struct tcw *tcw, u8 lpm, u8 key);
+ int cio_tm_intrg(struct subchannel *sch);
+ 
++extern int __init airq_init(void);
++
+ /* Use with care. */
+ #ifdef CONFIG_CCW_CONSOLE
+ extern struct subchannel *cio_probe_console(void);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 789f6ecdbbcc..f09521771a32 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -1173,6 +1173,7 @@ static int __init css_bus_init(void)
+ 		goto out_unregister;
+ 	}
+ 	cio_dma_pool_init();
++	airq_init();
+ 	css_init_done = 1;
+ 
+ 	/* Enable default isc for I/O subchannels. */
 -- 
 2.13.4
