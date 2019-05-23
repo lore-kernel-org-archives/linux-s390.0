@@ -1,106 +1,146 @@
-Return-Path: <SRS0=MIKI=TW=vger.kernel.org=kvm-owner@kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 049/167] vfio-ccw: Release any channel program when releasing/removing vfio-ccw mdev
-Date: Wed, 22 May 2019 15:26:44 -0400
-Message-Id: <20190522192842.25858-49-sashal@kernel.org>
-In-Reply-To: <20190522192842.25858-1-sashal@kernel.org>
-References: <20190522192842.25858-1-sashal@kernel.org>
-MIME-Version: 1.0
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Subject: [PATCH v4 1/3] powerpc: Fix vDSO clock_getres()
+Date: Thu, 23 May 2019 12:21:14 +0100
+Message-ID: <20190523112116.19233-2-vincenzo.frascino@arm.com>
+References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+Sender: stable-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/linux-arch/>
+List-Post: <mailto:linux-arch@vger.kernel.org>
+To: linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc: vincenzo.frascino@arm.com, Christophe Leroy <christophe.leroy@c-s.fr>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-[ Upstream commit b49bdc8602b7c9c7a977758bee4125683f73e59f ]
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
 
-When releasing the vfio-ccw mdev, we currently do not release
-any existing channel program and its pinned pages. This can
-lead to the following warning:
+Fix the powerpc vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
 
-[1038876.561565] WARNING: CPU: 2 PID: 144727 at drivers/vfio/vfio_iommu_type1.c:1494 vfio_sanity_check_pfn_list+0x40/0x70 [vfio_iommu_type1]
-
-....
-
-1038876.561921] Call Trace:
-[1038876.561935] ([<00000009897fb870>] 0x9897fb870)
-[1038876.561949]  [<000003ff8013bf62>] vfio_iommu_type1_detach_group+0xda/0x2f0 [vfio_iommu_type1]
-[1038876.561965]  [<000003ff8007b634>] __vfio_group_unset_container+0x64/0x190 [vfio]
-[1038876.561978]  [<000003ff8007b87e>] vfio_group_put_external_user+0x26/0x38 [vfio]
-[1038876.562024]  [<000003ff806fc608>] kvm_vfio_group_put_external_user+0x40/0x60 [kvm]
-[1038876.562045]  [<000003ff806fcb9e>] kvm_vfio_destroy+0x5e/0xd0 [kvm]
-[1038876.562065]  [<000003ff806f63fc>] kvm_put_kvm+0x2a4/0x3d0 [kvm]
-[1038876.562083]  [<000003ff806f655e>] kvm_vm_release+0x36/0x48 [kvm]
-[1038876.562098]  [<00000000003c2dc4>] __fput+0x144/0x228
-[1038876.562113]  [<000000000016ee82>] task_work_run+0x8a/0xd8
-[1038876.562125]  [<000000000014c7a8>] do_exit+0x5d8/0xd90
-[1038876.562140]  [<000000000014d084>] do_group_exit+0xc4/0xc8
-[1038876.562155]  [<000000000015c046>] get_signal+0x9ae/0xa68
-[1038876.562169]  [<0000000000108d66>] do_signal+0x66/0x768
-[1038876.562185]  [<0000000000b9e37e>] system_call+0x1ea/0x2d8
-[1038876.562195] 2 locks held by qemu-system-s39/144727:
-[1038876.562205]  #0: 00000000537abaf9 (&container->group_lock){++++}, at: __vfio_group_unset_container+0x3c/0x190 [vfio]
-[1038876.562230]  #1: 00000000670008b5 (&iommu->lock){+.+.}, at: vfio_iommu_type1_detach_group+0x36/0x2f0 [vfio_iommu_type1]
-[1038876.562250] Last Breaking-Event-Address:
-[1038876.562262]  [<000003ff8013aa24>] vfio_sanity_check_pfn_list+0x3c/0x70 [vfio_iommu_type1]
-[1038876.562272] irq event stamp: 4236481
-[1038876.562287] hardirqs last  enabled at (4236489): [<00000000001cee7a>] console_unlock+0x6d2/0x740
-[1038876.562299] hardirqs last disabled at (4236496): [<00000000001ce87e>] console_unlock+0xd6/0x740
-[1038876.562311] softirqs last  enabled at (4234162): [<0000000000b9fa1e>] __do_softirq+0x556/0x598
-[1038876.562325] softirqs last disabled at (4234153): [<000000000014e4cc>] irq_exit+0xac/0x108
-[1038876.562337] ---[ end trace 6c96d467b1c3ca06 ]---
-
-Similarly we do not free the channel program when we are removing
-the vfio-ccw device. Let's fix this by resetting the device and freeing
-the channel program and pinned pages in the release path. For the remove
-path we can just quiesce the device, since in the remove path the mediated
-device is going away for good and so we don't need to do a full reset.
-
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Message-Id: <ae9f20dc8873f2027f7b3c5d2aaa0bdfe06850b8.1554756534.git.alifm@linux.ibm.com>
-Acked-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a7f290dad32e ("[PATCH] powerpc: Merge vdso's and add vdso support
+to 32 bits kernel")
+Cc: stable@vger.kernel.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
 ---
- drivers/s390/cio/vfio_ccw_ops.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 41eeb57d68a3d..560013c8d2a48 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -130,11 +130,12 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+Note: This patch is independent from the others in this series, hence it
+can be merged singularly by the powerpc maintainers.
+
+ arch/powerpc/include/asm/vdso_datapage.h  | 2 ++
+ arch/powerpc/kernel/asm-offsets.c         | 2 +-
+ arch/powerpc/kernel/time.c                | 1 +
+ arch/powerpc/kernel/vdso32/gettimeofday.S | 7 +++++--
+ arch/powerpc/kernel/vdso64/gettimeofday.S | 7 +++++--
+ 5 files changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/vdso_datapage.h b/arch/powerpc/include/asm/vdso_datapage.h
+index bbc06bd72b1f..4333b9a473dc 100644
+--- a/arch/powerpc/include/asm/vdso_datapage.h
++++ b/arch/powerpc/include/asm/vdso_datapage.h
+@@ -86,6 +86,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;			/* Wall to monotonic clock nsec */
+ 	__s64 wtom_clock_sec;			/* Wall to monotonic clock sec */
+ 	struct timespec stamp_xtime;		/* xtime as at tb_orig_stamp */
++	__u32 hrtimer_res;			/* hrtimer resolution */
+    	__u32 syscall_map_64[SYSCALL_MAP_SIZE]; /* map of syscalls  */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+ };
+@@ -107,6 +108,7 @@ struct vdso_data {
+ 	__s32 wtom_clock_nsec;
+ 	struct timespec stamp_xtime;	/* xtime as at tb_orig_stamp */
+ 	__u32 stamp_sec_fraction;	/* fractional seconds of stamp_xtime */
++	__u32 hrtimer_res;		/* hrtimer resolution */
+    	__u32 syscall_map_32[SYSCALL_MAP_SIZE]; /* map of syscalls */
+ 	__u32 dcache_block_size;	/* L1 d-cache block size     */
+ 	__u32 icache_block_size;	/* L1 i-cache block size     */
+diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
+index 8e02444e9d3d..dfc40f29f2b9 100644
+--- a/arch/powerpc/kernel/asm-offsets.c
++++ b/arch/powerpc/kernel/asm-offsets.c
+@@ -389,6 +389,7 @@ int main(void)
+ 	OFFSET(WTOM_CLOCK_NSEC, vdso_data, wtom_clock_nsec);
+ 	OFFSET(STAMP_XTIME, vdso_data, stamp_xtime);
+ 	OFFSET(STAMP_SEC_FRAC, vdso_data, stamp_sec_fraction);
++	OFFSET(CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(CFG_ICACHE_BLOCKSZ, vdso_data, icache_block_size);
+ 	OFFSET(CFG_DCACHE_BLOCKSZ, vdso_data, dcache_block_size);
+ 	OFFSET(CFG_ICACHE_LOGBLOCKSZ, vdso_data, icache_log_block_size);
+@@ -419,7 +420,6 @@ int main(void)
+ 	DEFINE(CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(NSEC_PER_SEC, NSEC_PER_SEC);
+-	DEFINE(CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
  
- 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
- 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
--		if (!vfio_ccw_mdev_reset(mdev))
-+		if (!vfio_ccw_sch_quiesce(private->sch))
- 			private->state = VFIO_CCW_STATE_STANDBY;
- 		/* The state will be NOT_OPER on error. */
- 	}
- 
-+	cp_free(&private->cp);
- 	private->mdev = NULL;
- 	atomic_inc(&private->avail);
- 
-@@ -158,6 +159,14 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
- 
-+	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
-+	    (private->state != VFIO_CCW_STATE_STANDBY)) {
-+		if (!vfio_ccw_mdev_reset(mdev))
-+			private->state = VFIO_CCW_STATE_STANDBY;
-+		/* The state will be NOT_OPER on error. */
-+	}
-+
-+	cp_free(&private->cp);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &private->nb);
+ #ifdef CONFIG_BUG
+ 	DEFINE(BUG_ENTRY_SIZE, sizeof(struct bug_entry));
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 325d60633dfa..4ea4e9d7a58e 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -963,6 +963,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	vdso_data->wtom_clock_nsec = tk->wall_to_monotonic.tv_nsec;
+ 	vdso_data->stamp_xtime = xt;
+ 	vdso_data->stamp_sec_fraction = frac_sec;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++(vdso_data->tb_update_count);
  }
+diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
+index afd516b572f8..2b5f9e83c610 100644
+--- a/arch/powerpc/kernel/vdso32/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
+@@ -160,12 +160,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
+ 
++	mflr	r12
++  .cfi_register lr,r12
++	bl	__get_datapage@local
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpli	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	stw	r3,TSPC32_TV_SEC(r4)
+ 	stw	r5,TSPC32_TV_NSEC(r4)
+ 	blr
+diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
+index 1f324c28705b..f07730f73d5e 100644
+--- a/arch/powerpc/kernel/vdso64/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
+@@ -190,12 +190,15 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	cror	cr0*4+eq,cr0*4+eq,cr1*4+eq
+ 	bne	cr0,99f
+ 
++	mflr	r12
++  .cfi_register lr,r12
++	bl	V_LOCAL_FUNC(__get_datapage)
++	lwz	r5,CLOCK_REALTIME_RES(r3)
++	mtlr	r12
+ 	li	r3,0
+ 	cmpldi	cr0,r4,0
+ 	crclr	cr0*4+so
+ 	beqlr
+-	lis	r5,CLOCK_REALTIME_RES@h
+-	ori	r5,r5,CLOCK_REALTIME_RES@l
+ 	std	r3,TSPC64_TV_SEC(r4)
+ 	std	r5,TSPC64_TV_NSEC(r4)
+ 	blr
 -- 
-2.20.1
+2.21.0
