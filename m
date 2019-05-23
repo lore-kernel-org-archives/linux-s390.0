@@ -1,52 +1,186 @@
 Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v4 3/3] kselftest: Extend vDSO selftest to clock_getres
-In-Reply-To: <20190523112116.19233-4-vincenzo.frascino@arm.com>
-References: <20190523112116.19233-1-vincenzo.frascino@arm.com> <20190523112116.19233-4-vincenzo.frascino@arm.com>
-Date: Tue, 28 May 2019 16:19:21 +1000
-Message-ID: <87lfyrp0d2.fsf@concordia.ellerman.id.au>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Subject: [PATCH v4 3/3] kselftest: Extend vDSO selftest to clock_getres
+Date: Thu, 23 May 2019 12:21:16 +0100
+Message-Id: <20190523112116.19233-4-vincenzo.frascino@arm.com>
+In-Reply-To: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Vincenzo Frascino <vincenzo.frascino@arm.com>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@arndb.de>
+To: linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc: vincenzo.frascino@arm.com, Christophe Leroy <christophe.leroy@c-s.fr>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@arndb.de>
 
-Vincenzo Frascino <vincenzo.frascino@arm.com> writes:
+The current version of the multiarch vDSO selftest verifies only
+gettimeofday.
 
-> The current version of the multiarch vDSO selftest verifies only
-> gettimeofday.
->
-> Extend the vDSO selftest to clock_getres, to verify that the
-> syscall and the vDSO library function return the same information.
->
-> The extension has been used to verify the hrtimer_resoltion fix.
+Extend the vDSO selftest to clock_getres, to verify that the
+syscall and the vDSO library function return the same information.
 
-This is passing for me even without patch 1 applied, shouldn't it fail
-without the fix? What am I missing?
+The extension has been used to verify the hrtimer_resoltion fix.
 
-# uname -r
-5.2.0-rc2-gcc-8.2.0
+Cc: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+---
 
-# ./vdso_clock_getres
-clock_id: CLOCK_REALTIME [PASS]
-clock_id: CLOCK_BOOTTIME [PASS]
-clock_id: CLOCK_TAI [PASS]
-clock_id: CLOCK_REALTIME_COARSE [PASS]
-clock_id: CLOCK_MONOTONIC [PASS]
-clock_id: CLOCK_MONOTONIC_RAW [PASS]
-clock_id: CLOCK_MONOTONIC_COARSE [PASS]
+Note: This patch is independent from the others in this series, hence it
+can be merged singularly by the kselftest maintainers.
 
-cheers
+ tools/testing/selftests/vDSO/Makefile         |   2 +
+ .../selftests/vDSO/vdso_clock_getres.c        | 124 ++++++++++++++++++
+ 2 files changed, 126 insertions(+)
+ create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
 
-> Cc: Shuah Khan <shuah@kernel.org>
-> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-> ---
->
-> Note: This patch is independent from the others in this series, hence it
-> can be merged singularly by the kselftest maintainers.
->
->  tools/testing/selftests/vDSO/Makefile         |   2 +
->  .../selftests/vDSO/vdso_clock_getres.c        | 124 ++++++++++++++++++
->  2 files changed, 126 insertions(+)
->  create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
+diff --git a/tools/testing/selftests/vDSO/Makefile b/tools/testing/selftests/vDSO/Makefile
+index 9e03d61f52fd..d5c5bfdf1ac1 100644
+--- a/tools/testing/selftests/vDSO/Makefile
++++ b/tools/testing/selftests/vDSO/Makefile
+@@ -5,6 +5,7 @@ uname_M := $(shell uname -m 2>/dev/null || echo not)
+ ARCH ?= $(shell echo $(uname_M) | sed -e s/i.86/x86/ -e s/x86_64/x86/)
+ 
+ TEST_GEN_PROGS := $(OUTPUT)/vdso_test
++TEST_GEN_PROGS += $(OUTPUT)/vdso_clock_getres
+ ifeq ($(ARCH),x86)
+ TEST_GEN_PROGS += $(OUTPUT)/vdso_standalone_test_x86
+ endif
+@@ -18,6 +19,7 @@ endif
+ 
+ all: $(TEST_GEN_PROGS)
+ $(OUTPUT)/vdso_test: parse_vdso.c vdso_test.c
++$(OUTPUT)/vdso_clock_getres: vdso_clock_getres.c
+ $(OUTPUT)/vdso_standalone_test_x86: vdso_standalone_test_x86.c parse_vdso.c
+ 	$(CC) $(CFLAGS) $(CFLAGS_vdso_standalone_test_x86) \
+ 		vdso_standalone_test_x86.c parse_vdso.c \
+diff --git a/tools/testing/selftests/vDSO/vdso_clock_getres.c b/tools/testing/selftests/vDSO/vdso_clock_getres.c
+new file mode 100644
+index 000000000000..b62d8d4f7c38
+--- /dev/null
++++ b/tools/testing/selftests/vDSO/vdso_clock_getres.c
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
++/*
++ * vdso_clock_getres.c: Sample code to test clock_getres.
++ * Copyright (c) 2019 Arm Ltd.
++ *
++ * Compile with:
++ * gcc -std=gnu99 vdso_clock_getres.c
++ *
++ * Tested on ARM, ARM64, MIPS32, x86 (32-bit and 64-bit),
++ * Power (32-bit and 64-bit), S390x (32-bit and 64-bit).
++ * Might work on other architectures.
++ */
++
++#define _GNU_SOURCE
++#include <elf.h>
++#include <err.h>
++#include <fcntl.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <time.h>
++#include <sys/auxv.h>
++#include <sys/mman.h>
++#include <sys/time.h>
++#include <unistd.h>
++#include <sys/syscall.h>
++
++#include "../kselftest.h"
++
++static long syscall_clock_getres(clockid_t _clkid, struct timespec *_ts)
++{
++	long ret;
++
++	ret = syscall(SYS_clock_getres, _clkid, _ts);
++
++	return ret;
++}
++
++const char *vdso_clock_name[12] = {
++	"CLOCK_REALTIME",
++	"CLOCK_MONOTONIC",
++	"CLOCK_PROCESS_CPUTIME_ID",
++	"CLOCK_THREAD_CPUTIME_ID",
++	"CLOCK_MONOTONIC_RAW",
++	"CLOCK_REALTIME_COARSE",
++	"CLOCK_MONOTONIC_COARSE",
++	"CLOCK_BOOTTIME",
++	"CLOCK_REALTIME_ALARM",
++	"CLOCK_BOOTTIME_ALARM",
++	"CLOCK_SGI_CYCLE",
++	"CLOCK_TAI",
++};
++
++/*
++ * This function calls clock_getres in vdso and by system call
++ * with different values for clock_id.
++ *
++ * Example of output:
++ *
++ * clock_id: CLOCK_REALTIME [PASS]
++ * clock_id: CLOCK_BOOTTIME [PASS]
++ * clock_id: CLOCK_TAI [PASS]
++ * clock_id: CLOCK_REALTIME_COARSE [PASS]
++ * clock_id: CLOCK_MONOTONIC [PASS]
++ * clock_id: CLOCK_MONOTONIC_RAW [PASS]
++ * clock_id: CLOCK_MONOTONIC_COARSE [PASS]
++ */
++static inline int vdso_test_clock(unsigned int clock_id)
++{
++	struct timespec x, y;
++
++	printf("clock_id: %s", vdso_clock_name[clock_id]);
++	clock_getres(clock_id, &x);
++	syscall_clock_getres(clock_id, &y);
++
++	if ((x.tv_sec != y.tv_sec) || (x.tv_sec != y.tv_sec)) {
++		printf(" [FAIL]\n");
++		return KSFT_FAIL;
++	}
++
++	printf(" [PASS]\n");
++	return KSFT_PASS;
++}
++
++int main(int argc, char **argv)
++{
++	int ret;
++
++#if _POSIX_TIMERS > 0
++
++#ifdef CLOCK_REALTIME
++	ret = vdso_test_clock(CLOCK_REALTIME);
++#endif
++
++#ifdef CLOCK_BOOTTIME
++	ret += vdso_test_clock(CLOCK_BOOTTIME);
++#endif
++
++#ifdef CLOCK_TAI
++	ret += vdso_test_clock(CLOCK_TAI);
++#endif
++
++#ifdef CLOCK_REALTIME_COARSE
++	ret += vdso_test_clock(CLOCK_REALTIME_COARSE);
++#endif
++
++#ifdef CLOCK_MONOTONIC
++	ret += vdso_test_clock(CLOCK_MONOTONIC);
++#endif
++
++#ifdef CLOCK_MONOTONIC_RAW
++	ret += vdso_test_clock(CLOCK_MONOTONIC_RAW);
++#endif
++
++#ifdef CLOCK_MONOTONIC_COARSE
++	ret += vdso_test_clock(CLOCK_MONOTONIC_COARSE);
++#endif
++
++#endif
++	if (ret > 0)
++		return KSFT_FAIL;
++
++	return KSFT_PASS;
++}
+-- 
+2.21.0
