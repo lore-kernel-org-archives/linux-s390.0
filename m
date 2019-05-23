@@ -1,8 +1,8 @@
 Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
 From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH 3/9] kvm: selftests: aarch64: fix default vm mode
-Date: Thu, 23 May 2019 18:43:03 +0200
-Message-Id: <20190523164309.13345-4-thuth@redhat.com>
+Subject: [PATCH 4/9] KVM: selftests: Introduce a VM_MODE_DEFAULT macro for the default bits
+Date: Thu, 23 May 2019 18:43:04 +0200
+Message-Id: <20190523164309.13345-5-thuth@redhat.com>
 In-Reply-To: <20190523164309.13345-1-thuth@redhat.com>
 References: <20190523164309.13345-1-thuth@redhat.com>
 MIME-Version: 1.0
@@ -14,32 +14,58 @@ To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux
 Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Andrew Jones <drjones@redhat.com>
+This will be required later for tests like the kvm_create_max_vcpus
+test that do not use the vm_create_default() function.
 
-VM_MODE_P52V48_4K is not a valid mode for AArch64. Replace its
-use in vm_create_default() with a mode that works and represents
-a good AArch64 default. (We didn't ever see a problem with this
-because we don't have any unit tests using vm_create_default(),
-but it's good to get it fixed in advance.)
-
-Reported-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
+ tools/testing/selftests/kvm/include/kvm_util.h      | 6 ++++++
  tools/testing/selftests/kvm/lib/aarch64/processor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/kvm/lib/x86_64/processor.c  | 2 +-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
+diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+index b8bf961074fe..b6eb6471e6b2 100644
+--- a/tools/testing/selftests/kvm/include/kvm_util.h
++++ b/tools/testing/selftests/kvm/include/kvm_util.h
+@@ -43,6 +43,12 @@ enum vm_guest_mode {
+ 	NUM_VM_MODES,
+ };
+ 
++#ifdef __aarch64__
++#define VM_MODE_DEFAULT VM_MODE_P40V48_4K
++#else
++#define VM_MODE_DEFAULT VM_MODE_P52V48_4K
++#endif
++
+ #define vm_guest_mode_string(m) vm_guest_mode_string[m]
+ extern const char * const vm_guest_mode_string[];
+ 
 diff --git a/tools/testing/selftests/kvm/lib/aarch64/processor.c b/tools/testing/selftests/kvm/lib/aarch64/processor.c
-index e8c42506a09d..fa6cd340137c 100644
+index fa6cd340137c..596ccaf09cb6 100644
 --- a/tools/testing/selftests/kvm/lib/aarch64/processor.c
 +++ b/tools/testing/selftests/kvm/lib/aarch64/processor.c
 @@ -226,7 +226,7 @@ struct kvm_vm *vm_create_default(uint32_t vcpuid, uint64_t extra_mem_pages,
  	uint64_t extra_pg_pages = (extra_mem_pages / ptrs_per_4k_pte) * 2;
  	struct kvm_vm *vm;
  
--	vm = vm_create(VM_MODE_P52V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
-+	vm = vm_create(VM_MODE_P40V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
+-	vm = vm_create(VM_MODE_P40V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
++	vm = vm_create(VM_MODE_DEFAULT, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
  
  	kvm_vm_elf_load(vm, program_invocation_name, 0, 0);
  	vm_vcpu_add_default(vm, vcpuid, guest_code);
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+index dc7fae9fa424..bb38bbcefac5 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+@@ -823,7 +823,7 @@ struct kvm_vm *vm_create_default(uint32_t vcpuid, uint64_t extra_mem_pages,
+ 	uint64_t extra_pg_pages = extra_mem_pages / 512 * 2;
+ 
+ 	/* Create VM */
+-	vm = vm_create(VM_MODE_P52V48_4K,
++	vm = vm_create(VM_MODE_DEFAULT,
+ 		       DEFAULT_GUEST_PHY_PAGES + extra_pg_pages,
+ 		       O_RDWR);
+ 
 -- 
 2.21.0
