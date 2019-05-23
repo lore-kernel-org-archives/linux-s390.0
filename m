@@ -1,66 +1,78 @@
 Return-Path: <SRS0=0NiW=TX=vger.kernel.org=kvm-owner@kernel.org>
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH 1/9] KVM: selftests: Wrap vcpu_nested_state_get/set functions with x86 guard
-Date: Thu, 23 May 2019 18:43:01 +0200
-Message-Id: <20190523164309.13345-2-thuth@redhat.com>
-In-Reply-To: <20190523164309.13345-1-thuth@redhat.com>
+Date: Thu, 23 May 2019 19:20:04 +0200
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [PATCH 4/9] KVM: selftests: Introduce a VM_MODE_DEFAULT macro
+ for the default bits
+Message-ID: <20190523172004.yeo5wtugofoh5mid@kamzik.brq.redhat.com>
 References: <20190523164309.13345-1-thuth@redhat.com>
+ <20190523164309.13345-5-thuth@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190523164309.13345-5-thuth@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-struct kvm_nested_state is only available on x86 so far. To be able
-to compile the code on other architectures as well, we need to wrap
-the related code with #ifdefs.
+On Thu, May 23, 2019 at 06:43:04PM +0200, Thomas Huth wrote:
+> This will be required later for tests like the kvm_create_max_vcpus
+> test that do not use the vm_create_default() function.
+> 
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  tools/testing/selftests/kvm/include/kvm_util.h      | 6 ++++++
+>  tools/testing/selftests/kvm/lib/aarch64/processor.c | 2 +-
+>  tools/testing/selftests/kvm/lib/x86_64/processor.c  | 2 +-
+>  3 files changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+> index b8bf961074fe..b6eb6471e6b2 100644
+> --- a/tools/testing/selftests/kvm/include/kvm_util.h
+> +++ b/tools/testing/selftests/kvm/include/kvm_util.h
+> @@ -43,6 +43,12 @@ enum vm_guest_mode {
+>  	NUM_VM_MODES,
+>  };
+>  
+> +#ifdef __aarch64__
+> +#define VM_MODE_DEFAULT VM_MODE_P40V48_4K
+> +#else
+> +#define VM_MODE_DEFAULT VM_MODE_P52V48_4K
+> +#endif
+> +
+>  #define vm_guest_mode_string(m) vm_guest_mode_string[m]
+>  extern const char * const vm_guest_mode_string[];
+>  
+> diff --git a/tools/testing/selftests/kvm/lib/aarch64/processor.c b/tools/testing/selftests/kvm/lib/aarch64/processor.c
+> index fa6cd340137c..596ccaf09cb6 100644
+> --- a/tools/testing/selftests/kvm/lib/aarch64/processor.c
+> +++ b/tools/testing/selftests/kvm/lib/aarch64/processor.c
+> @@ -226,7 +226,7 @@ struct kvm_vm *vm_create_default(uint32_t vcpuid, uint64_t extra_mem_pages,
+>  	uint64_t extra_pg_pages = (extra_mem_pages / ptrs_per_4k_pte) * 2;
+>  	struct kvm_vm *vm;
+>  
+> -	vm = vm_create(VM_MODE_P40V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
+> +	vm = vm_create(VM_MODE_DEFAULT, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
+>  
+>  	kvm_vm_elf_load(vm, program_invocation_name, 0, 0);
+>  	vm_vcpu_add_default(vm, vcpuid, guest_code);
+> diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+> index dc7fae9fa424..bb38bbcefac5 100644
+> --- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
+> +++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+> @@ -823,7 +823,7 @@ struct kvm_vm *vm_create_default(uint32_t vcpuid, uint64_t extra_mem_pages,
+>  	uint64_t extra_pg_pages = extra_mem_pages / 512 * 2;
+>  
+>  	/* Create VM */
+> -	vm = vm_create(VM_MODE_P52V48_4K,
+> +	vm = vm_create(VM_MODE_DEFAULT,
+>  		       DEFAULT_GUEST_PHY_PAGES + extra_pg_pages,
+>  		       O_RDWR);
+>  
+> -- 
+> 2.21.0
+>
 
 Reviewed-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- tools/testing/selftests/kvm/include/kvm_util.h | 2 ++
- tools/testing/selftests/kvm/lib/kvm_util.c     | 2 ++
- 2 files changed, 4 insertions(+)
-
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index 8c6b9619797d..a5a4b28f14d8 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -118,10 +118,12 @@ void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events);
- void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events);
-+#ifdef __x86_64__
- void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
- 			   struct kvm_nested_state *state);
- int vcpu_nested_state_set(struct kvm_vm *vm, uint32_t vcpuid,
- 			  struct kvm_nested_state *state, bool ignore_error);
-+#endif
- 
- const char *exit_reason_str(unsigned int exit_reason);
- 
-diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index e9113857f44e..ba1359ac504f 100644
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -1250,6 +1250,7 @@ void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		ret, errno);
- }
- 
-+#ifdef __x86_64__
- void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
- 			   struct kvm_nested_state *state)
- {
-@@ -1281,6 +1282,7 @@ int vcpu_nested_state_set(struct kvm_vm *vm, uint32_t vcpuid,
- 
- 	return ret;
- }
-+#endif
- 
- /*
-  * VM VCPU System Regs Get
--- 
-2.21.0
