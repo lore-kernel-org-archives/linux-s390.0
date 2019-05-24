@@ -1,27 +1,24 @@
 Return-Path: <SRS0=zbpt=TY=vger.kernel.org=kvm-owner@kernel.org>
-Date: Fri, 24 May 2019 11:13:23 +0200
-From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 8/9] KVM: s390: Do not report unusabled IDs via
  KVM_CAP_MAX_VCPU_ID
-Message-ID: <20190524111323.656afbff.cohuck@redhat.com>
-In-Reply-To: <20190523164309.13345-9-thuth@redhat.com>
 References: <20190523164309.13345-1-thuth@redhat.com>
-        <20190523164309.13345-9-thuth@redhat.com>
+ <20190523164309.13345-9-thuth@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <9c406f3f-cad1-e9da-f212-0892ec3a26cd@redhat.com>
+Date: Fri, 24 May 2019 11:16:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190523164309.13345-9-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, 23 May 2019 18:43:08 +0200
-Thomas Huth <thuth@redhat.com> wrote:
-
-In the subject: s/unusabled/unusable/
-
+On 23.05.19 18:43, Thomas Huth wrote:
 > KVM_CAP_MAX_VCPU_ID is currently always reporting KVM_MAX_VCPU_ID on all
 > architectures. However, on s390x, the amount of usable CPUs is determined
 > during runtime - it is depending on the features of the machine the code
@@ -45,5 +42,94 @@ In the subject: s/unusabled/unusable/
 >  virt/kvm/arm/arm.c         | 3 +++
 >  virt/kvm/kvm_main.c        | 2 --
 >  6 files changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+> index 6d0517ac18e5..0369f26ab96d 100644
+> --- a/arch/mips/kvm/mips.c
+> +++ b/arch/mips/kvm/mips.c
+> @@ -1122,6 +1122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_MIPS_FPU:
+>  		/* We don't handle systems with inconsistent cpu_has_fpu */
+>  		r = !!raw_cpu_has_fpu;
+> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+> index 3393b166817a..aa3a678711be 100644
+> --- a/arch/powerpc/kvm/powerpc.c
+> +++ b/arch/powerpc/kvm/powerpc.c
+> @@ -657,6 +657,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  #ifdef CONFIG_PPC_BOOK3S_64
+>  	case KVM_CAP_PPC_GET_SMMU_INFO:
+>  		r = 1;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 8d6d75db8de6..871d2e99b156 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -539,6 +539,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  		break;
+>  	case KVM_CAP_NR_VCPUS:
+>  	case KVM_CAP_MAX_VCPUS:
+> +	case KVM_CAP_MAX_VCPU_ID:
+>  		r = KVM_S390_BSCA_CPU_SLOTS;
+>  		if (!kvm_s390_use_sca_entries())
+>  			r = KVM_MAX_VCPUS;
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 536b78c4af6e..09a07d6a154e 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -3122,6 +3122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_PV_MMU:	/* obsolete */
+>  		r = 0;
+>  		break;
+> diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+> index 90cedebaeb94..7eeebe5e9da2 100644
+> --- a/virt/kvm/arm/arm.c
+> +++ b/virt/kvm/arm/arm.c
+> @@ -224,6 +224,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_MSI_DEVID:
+>  		if (!kvm)
+>  			r = -EINVAL;
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index f0d13d9d125d..c09259dd6286 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -3146,8 +3146,6 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
+>  	case KVM_CAP_MULTI_ADDRESS_SPACE:
+>  		return KVM_ADDRESS_SPACE_NUM;
+>  #endif
+> -	case KVM_CAP_MAX_VCPU_ID:
+> -		return KVM_MAX_VCPU_ID;
+>  	case KVM_CAP_NR_MEMSLOTS:
+>  		return KVM_USER_MEM_SLOTS;
+>  	default:
+> 
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
+Thanks,
+
+David / dhildenb
