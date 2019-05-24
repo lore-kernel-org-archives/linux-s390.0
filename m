@@ -1,13 +1,13 @@
 Return-Path: <SRS0=zbpt=TY=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH 8/9] KVM: s390: Do not report unusabled IDs via
- KVM_CAP_MAX_VCPU_ID
+Subject: Re: [PATCH 9/9] KVM: selftests: Move kvm_create_max_vcpus test to
+ generic code
 References: <20190523164309.13345-1-thuth@redhat.com>
- <20190523164309.13345-9-thuth@redhat.com>
+ <20190523164309.13345-10-thuth@redhat.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <9c406f3f-cad1-e9da-f212-0892ec3a26cd@redhat.com>
-Date: Fri, 24 May 2019 11:16:19 +0200
+Message-ID: <7f4bf43e-e6ff-f903-3e36-e01132b45f47@redhat.com>
+Date: Fri, 24 May 2019 11:16:55 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190523164309.13345-9-thuth@redhat.com>
+In-Reply-To: <20190523164309.13345-10-thuth@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -19,111 +19,61 @@ Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcm
 List-ID: <linux-s390.vger.kernel.org>
 
 On 23.05.19 18:43, Thomas Huth wrote:
-> KVM_CAP_MAX_VCPU_ID is currently always reporting KVM_MAX_VCPU_ID on all
-> architectures. However, on s390x, the amount of usable CPUs is determined
-> during runtime - it is depending on the features of the machine the code
-> is running on. Since we are using the vcpu_id as an index into the SCA
-> structures that are defined by the hardware (see e.g. the sca_add_vcpu()
-> function), it is not only the amount of CPUs that is limited by the hard-
-> ware, but also the range of IDs that we can use.
-> Thus KVM_CAP_MAX_VCPU_ID must be determined during runtime on s390x, too.
-> So the handling of KVM_CAP_MAX_VCPU_ID has to be moved from the common
-> code into the architecture specific code, and on s390x we have to return
-> the same value here as for KVM_CAP_MAX_VCPUS.
-> This problem has been discovered with the kvm_create_max_vcpus selftest.
-> With this change applied, the selftest now passes on s390x, too.
+> There is nothing x86-specific in the test apart from the VM_MODE_P52V48_4K
+> which we can now replace with VM_MODE_DEFAULT. Thus let's move the file to
+> the main folder and enable it for aarch64 and s390x, too.
 > 
 > Signed-off-by: Thomas Huth <thuth@redhat.com>
 > ---
->  arch/mips/kvm/mips.c       | 3 +++
->  arch/powerpc/kvm/powerpc.c | 3 +++
->  arch/s390/kvm/kvm-s390.c   | 1 +
->  arch/x86/kvm/x86.c         | 3 +++
->  virt/kvm/arm/arm.c         | 3 +++
->  virt/kvm/kvm_main.c        | 2 --
->  6 files changed, 13 insertions(+), 2 deletions(-)
+>  tools/testing/selftests/kvm/Makefile                          | 4 +++-
+>  .../testing/selftests/kvm/{x86_64 => }/kvm_create_max_vcpus.c | 3 ++-
+>  2 files changed, 5 insertions(+), 2 deletions(-)
+>  rename tools/testing/selftests/kvm/{x86_64 => }/kvm_create_max_vcpus.c (93%)
 > 
-> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-> index 6d0517ac18e5..0369f26ab96d 100644
-> --- a/arch/mips/kvm/mips.c
-> +++ b/arch/mips/kvm/mips.c
-> @@ -1122,6 +1122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  	case KVM_CAP_MAX_VCPUS:
->  		r = KVM_MAX_VCPUS;
->  		break;
-> +	case KVM_CAP_MAX_VCPU_ID:
-> +		r = KVM_MAX_VCPU_ID;
-> +		break;
->  	case KVM_CAP_MIPS_FPU:
->  		/* We don't handle systems with inconsistent cpu_has_fpu */
->  		r = !!raw_cpu_has_fpu;
-> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-> index 3393b166817a..aa3a678711be 100644
-> --- a/arch/powerpc/kvm/powerpc.c
-> +++ b/arch/powerpc/kvm/powerpc.c
-> @@ -657,6 +657,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  	case KVM_CAP_MAX_VCPUS:
->  		r = KVM_MAX_VCPUS;
->  		break;
-> +	case KVM_CAP_MAX_VCPU_ID:
-> +		r = KVM_MAX_VCPU_ID;
-> +		break;
->  #ifdef CONFIG_PPC_BOOK3S_64
->  	case KVM_CAP_PPC_GET_SMMU_INFO:
->  		r = 1;
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 8d6d75db8de6..871d2e99b156 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -539,6 +539,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  		break;
->  	case KVM_CAP_NR_VCPUS:
->  	case KVM_CAP_MAX_VCPUS:
-> +	case KVM_CAP_MAX_VCPU_ID:
->  		r = KVM_S390_BSCA_CPU_SLOTS;
->  		if (!kvm_s390_use_sca_entries())
->  			r = KVM_MAX_VCPUS;
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 536b78c4af6e..09a07d6a154e 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -3122,6 +3122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  	case KVM_CAP_MAX_VCPUS:
->  		r = KVM_MAX_VCPUS;
->  		break;
-> +	case KVM_CAP_MAX_VCPU_ID:
-> +		r = KVM_MAX_VCPU_ID;
-> +		break;
->  	case KVM_CAP_PV_MMU:	/* obsolete */
->  		r = 0;
->  		break;
-> diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-> index 90cedebaeb94..7eeebe5e9da2 100644
-> --- a/virt/kvm/arm/arm.c
-> +++ b/virt/kvm/arm/arm.c
-> @@ -224,6 +224,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->  	case KVM_CAP_MAX_VCPUS:
->  		r = KVM_MAX_VCPUS;
->  		break;
-> +	case KVM_CAP_MAX_VCPU_ID:
-> +		r = KVM_MAX_VCPU_ID;
-> +		break;
->  	case KVM_CAP_MSI_DEVID:
->  		if (!kvm)
->  			r = -EINVAL;
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index f0d13d9d125d..c09259dd6286 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -3146,8 +3146,6 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
->  	case KVM_CAP_MULTI_ADDRESS_SPACE:
->  		return KVM_ADDRESS_SPACE_NUM;
->  #endif
-> -	case KVM_CAP_MAX_VCPU_ID:
-> -		return KVM_MAX_VCPU_ID;
->  	case KVM_CAP_NR_MEMSLOTS:
->  		return KVM_USER_MEM_SLOTS;
->  	default:
+> diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+> index d8beb990c8f4..aef5bd1166cf 100644
+> --- a/tools/testing/selftests/kvm/Makefile
+> +++ b/tools/testing/selftests/kvm/Makefile
+> @@ -21,15 +21,17 @@ TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
+>  TEST_GEN_PROGS_x86_64 += x86_64/hyperv_cpuid
+>  TEST_GEN_PROGS_x86_64 += x86_64/vmx_close_while_nested_test
+>  TEST_GEN_PROGS_x86_64 += x86_64/smm_test
+> -TEST_GEN_PROGS_x86_64 += x86_64/kvm_create_max_vcpus
+>  TEST_GEN_PROGS_x86_64 += x86_64/vmx_set_nested_state_test
+> +TEST_GEN_PROGS_x86_64 += kvm_create_max_vcpus
+>  TEST_GEN_PROGS_x86_64 += dirty_log_test
+>  TEST_GEN_PROGS_x86_64 += clear_dirty_log_test
+>  
+>  TEST_GEN_PROGS_aarch64 += dirty_log_test
+>  TEST_GEN_PROGS_aarch64 += clear_dirty_log_test
+> +TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
+>  
+>  TEST_GEN_PROGS_s390x += s390x/sync_regs_test
+> +TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
+>  
+>  TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(UNAME_M))
+>  LIBKVM += $(LIBKVM_$(UNAME_M))
+> diff --git a/tools/testing/selftests/kvm/x86_64/kvm_create_max_vcpus.c b/tools/testing/selftests/kvm/kvm_create_max_vcpus.c
+> similarity index 93%
+> rename from tools/testing/selftests/kvm/x86_64/kvm_create_max_vcpus.c
+> rename to tools/testing/selftests/kvm/kvm_create_max_vcpus.c
+> index 50e92996f918..db78ce07c416 100644
+> --- a/tools/testing/selftests/kvm/x86_64/kvm_create_max_vcpus.c
+> +++ b/tools/testing/selftests/kvm/kvm_create_max_vcpus.c
+> @@ -1,3 +1,4 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+>  /*
+>   * kvm_create_max_vcpus
+>   *
+> @@ -28,7 +29,7 @@ void test_vcpu_creation(int first_vcpu_id, int num_vcpus)
+>  	printf("Testing creating %d vCPUs, with IDs %d...%d.\n",
+>  	       num_vcpus, first_vcpu_id, first_vcpu_id + num_vcpus - 1);
+>  
+> -	vm = vm_create(VM_MODE_P52V48_4K, DEFAULT_GUEST_PHY_PAGES, O_RDWR);
+> +	vm = vm_create(VM_MODE_DEFAULT, DEFAULT_GUEST_PHY_PAGES, O_RDWR);
+>  
+>  	for (i = 0; i < num_vcpus; i++) {
+>  		int vcpu_id = first_vcpu_id + i;
 > 
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
