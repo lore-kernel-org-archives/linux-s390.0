@@ -1,28 +1,19 @@
 From: Christian Brauner <christian@brauner.io>
 Subject: Re: [PATCH v1 1/2] open: add close_range()
-Date: Thu, 23 May 2019 18:33:46 +0200
-Message-ID: <20190523163345.q5ynd2ytk7nxcvqf@brauner.io>
+Date: Fri, 24 May 2019 12:31:39 +0200
+Message-ID: <20190524103137.otw7tbmagiqnf6u6@brauner.io>
 References: <20190522155259.11174-1-christian@brauner.io>
  <67e4458a-9cc4-d1aa-608c-73ebe9e2f7a3@yandex-team.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <67e4458a-9cc4-d1aa-608c-73ebe9e2f7a3@yandex-team.ru>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/linux-api/>
 List-Post: <mailto:linux-api@vger.kernel.org>
 To: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, oleg@redhat.com, dhowells@redhat.com, linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org, shuah@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, miklos@szeredi.hu, x86@kernel.org, torvalds@linux-foundation.org, linux-mips@vger.kernel.org, linux-xtensa@linux-xtensa.org, tkjos@android.com, arnd@arndb.de, jannh@google.com, linux-m68k@lists.linux-m68k.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, ldv@altlinux.org, linux-arm-kernel@lists.infradead.org, fweimer@redhat.com, linux-parisc@vger.kernel.org, linux-api@vger.kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, torvalds@linux-foundation.org, fweimer@redhat.com, jannh@google.com, oleg@redhat.com, tglx@linutronix.de, arnd@arndb.de, shuah@kernel.org, dhowells@redhat.com, tkjos@android.com, ldv@altlinux.org, miklos@szeredi.hu, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org, x86@kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
 On Thu, May 23, 2019 at 07:22:17PM +0300, Konstantin Khlebnikov wrote:
@@ -140,93 +131,12 @@ On Thu, May 23, 2019 at 07:22:17PM +0300, Konstantin Khlebnikov wrote:
 > Effect should be the same - fd wouldn't be reused.
 > 
 > Actually two flags for two phases: closing files and releasing fd.
-> 
-> >
-> >  From an implementation side this is kept rather dumb. It saw some input
-> > from David and Jann but all nonsense is obviously my own!
-> > - Errors to close file descriptors are currently ignored. (Could be changed
-> >    by setting a flag in the future if needed.)
-> > - __close_range() is a rather simplistic wrapper around __close_fd().
-> >    My reasoning behind this is based on the nature of how __close_fd() needs
-> >    to release an fd. But maybe I misunderstood specifics:
-> >    We take the files_lock and rcu-dereference the fdtable of the calling
-> >    task, we find the entry in the fdtable, get the file and need to release
-> >    files_lock before calling filp_close().
-> >    In the meantime the fdtable might have been altered so we can't just
-> >    retake the spinlock and keep the old rcu-reference of the fdtable
-> >    around. Instead we need to grab a fresh reference to the fdtable.
-> >    If my reasoning is correct then there's really no point in fancyfying
-> >    __close_range(): We just need to rcu-dereference the fdtable of the
-> >    calling task once to cap the max_fd value correctly and then go on
-> >    calling __close_fd() in a loop.
-> >
-> > /* References */
-> > [1]: https://lore.kernel.org/lkml/20190516165021.GD17978@ZenIV.linux.org.uk/
-> > [2]: https://github.com/python/cpython/blob/9e4f2f3a6b8ee995c365e86d976937c141d867f8/Modules/_posixsubprocess.c#L220
-> > [3]: https://sourceware.org/bugzilla/show_bug.cgi?id=10353#c7
-> > [4]: https://github.com/systemd/systemd/blob/5238e9575906297608ff802a27e2ff9effa3b338/src/basic/fd-util.c#L217
-> > [5]: https://github.com/lxc/lxc/blob/ddf4b77e11a4d08f09b7b9cd13e593f8c047edc5/src/lxc/start.c#L236
-> > [6]: https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/grantpt.c;h=2030e07fa6e652aac32c775b8c6e005844c3c4eb;hb=HEAD#l17
-> >       Note that this is an internal implementation that is not exported.
-> >       Currently, libc seems to not provide an exported version of this
-> >       because of missing kernel support to do this.
-> > [7]: https://github.com/rust-lang/rust/issues/12148
-> > [8]: https://github.com/rust-lang/rust/blob/5f47c0613ed4eb46fca3633c1297364c09e5e451/src/libstd/sys/unix/process2.rs#L303-L308
-> >       Rust's solution is slightly different but is equally unperformant.
-> >       Rust calls getdtablesize() which is a glibc library function that
-> >       simply returns the current RLIMIT_NOFILE or OPEN_MAX values. Rust then
-> >       goes on to call close() on each fd. That's obviously overkill for most
-> >       tasks. Rarely, tasks - especially non-demons - hit RLIMIT_NOFILE or
-> >       OPEN_MAX.
-> >       Let's be nice and assume an unprivileged user with RLIMIT_NOFILE set
-> >       to 1024. Even in this case, there's a very high chance that in the
-> >       common case Rust is calling the close() syscall 1021 times pointlessly
-> >       if the task just has 0, 1, and 2 open.
-> >
-> > Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-> > Signed-off-by: Christian Brauner <christian@brauner.io>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > Cc: Jann Horn <jannh@google.com>
-> > Cc: David Howells <dhowells@redhat.com>
-> > Cc: Dmitry V. Levin <ldv@altlinux.org>
-> > Cc: Oleg Nesterov <oleg@redhat.com>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Florian Weimer <fweimer@redhat.com>
-> > Cc: linux-api@vger.kernel.org
-> > ---
-> > v1:
-> > - Linus Torvalds <torvalds@linux-foundation.org>:
-> >    - add cond_resched() to yield cpu when closing a lot of file descriptors
-> > - Al Viro <viro@zeniv.linux.org.uk>:
-> >    - add cond_resched() to yield cpu when closing a lot of file descriptors
-> > ---
-> >   arch/alpha/kernel/syscalls/syscall.tbl      |  1 +
-> >   arch/arm/tools/syscall.tbl                  |  1 +
-> >   arch/arm64/include/asm/unistd32.h           |  2 +
-> >   arch/ia64/kernel/syscalls/syscall.tbl       |  1 +
-> >   arch/m68k/kernel/syscalls/syscall.tbl       |  1 +
-> >   arch/microblaze/kernel/syscalls/syscall.tbl |  1 +
-> >   arch/mips/kernel/syscalls/syscall_n32.tbl   |  1 +
-> >   arch/mips/kernel/syscalls/syscall_n64.tbl   |  1 +
-> >   arch/mips/kernel/syscalls/syscall_o32.tbl   |  1 +
-> >   arch/parisc/kernel/syscalls/syscall.tbl     |  1 +
-> >   arch/powerpc/kernel/syscalls/syscall.tbl    |  1 +
-> >   arch/s390/kernel/syscalls/syscall.tbl       |  1 +
-> >   arch/sh/kernel/syscalls/syscall.tbl         |  1 +
-> >   arch/sparc/kernel/syscalls/syscall.tbl      |  1 +
-> >   arch/x86/entry/syscalls/syscall_32.tbl      |  1 +
-> >   arch/x86/entry/syscalls/syscall_64.tbl      |  1 +
-> >   arch/xtensa/kernel/syscalls/syscall.tbl     |  1 +
-> >   fs/file.c                                   | 63 ++++++++++++++++++---
-> >   fs/open.c                                   | 20 +++++++
-> >   include/linux/fdtable.h                     |  2 +
-> >   include/linux/syscalls.h                    |  2 +
-> >   include/uapi/asm-generic/unistd.h           |  4 +-
-> >   22 files changed, 100 insertions(+), 9 deletions(-)
-> >
-> 
-> It would be better to split arch/ wiring into separate patch for better readability.
 
-Ok. You mean only do x86 - seems to be the standard - and then move the
-others into a separate patch? Doesn't seem worth to have a patch
-per-arch, I'd think.
+Konstantin, I'm sorry, I totally missed that part of your mail
+yesterday.
+Without speaking to the feasibility of this it's at least a good
+illustration that people really do have the possible need for a flag
+argument.
+
+Thanks!
+Christian
