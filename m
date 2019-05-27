@@ -1,10 +1,10 @@
-Return-Path: <SRS0=zbpt=TY=vger.kernel.org=kvm-owner@kernel.org>
+Return-Path: <SRS0=9P2n=T3=vger.kernel.org=kvm-owner@kernel.org>
 Subject: Re: [PATCH] KVM: s390: fix memory slot handling for
  KVM_SET_USER_MEMORY_REGION
 References: <20190524140623.104033-1-borntraeger@de.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <89ad11b6-b044-5669-a9a3-398da002182f@redhat.com>
-Date: Fri, 24 May 2019 21:21:55 +0200
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <54e7751b-53a0-fd69-2ce0-d7836411a8e6@redhat.com>
+Date: Mon, 27 May 2019 09:39:09 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190524140623.104033-1-borntraeger@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
@@ -14,10 +14,10 @@ Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Andrew Jones <drjones@redhat.com>, linux-kselftest@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Andrew Jones <drjones@redhat.com>, linux-kselftest@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
 
-On 24/05/19 16:06, Christian Borntraeger wrote:
+On 24/05/2019 16.06, Christian Borntraeger wrote:
 > kselftests exposed a problem in the s390 handling for memory slots.
 > Right now we only do proper memory slot handling for creation of new
 > memory slots. Neither MOVE, nor DELETION are handled properly. Let us
@@ -49,7 +49,10 @@ On 24/05/19 16:06, Christian Borntraeger wrote:
 > -	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
 > -	    old->npages * PAGE_SIZE == mem->memory_size)
 > -		return;
-> -
+
+This check is now gone in the new code. Maybe mention the reason in the
+patch description?
+
 > -	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
 > -		mem->guest_phys_addr, mem->memory_size);
 > +	switch (change) {
@@ -77,6 +80,6 @@ On 24/05/19 16:06, Christian Borntraeger wrote:
 >  	return;
 > 
 
-Queued for 5.2-rc2, thanks.
+Looks good to me, but I'm not an expert in this area, so FWIW a weak:
 
-Paolo
+Reviewed-by: Thomas Huth <thuth@redhat.com>
