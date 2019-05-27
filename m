@@ -1,56 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tom Murphy <tmurphy@arista.com>
-Subject: [PATCH v3 0/4] iommu/amd: Convert the AMD iommu driver to the dma-iommu api
-Date: Mon,  6 May 2019 19:52:02 +0100
-Message-Id: <20190506185207.31069-1-tmurphy@arista.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 10/11] mm/memory_hotplug: Make unregister_memory_block_under_nodes() never fail
+Date: Mon, 27 May 2019 13:11:51 +0200
+Message-Id: <20190527111152.16324-11-david@redhat.com>
+In-Reply-To: <20190527111152.16324-1-david@redhat.com>
+References: <20190527111152.16324-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: murphyt7@tcd.ie, Tom Murphy <tmurphy@arista.com>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Oscar Salvador <osalvador@suse.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Convert the AMD iommu driver to the dma-iommu api. Remove the iova
-handling and reserve region code from the AMD iommu driver.
+We really don't want anything during memory hotunplug to fail.
+We always pass a valid memory block device, that check can go. Avoid
+allocating memory and eventually failing. As we are always called under
+lock, we can use a static piece of memory. This avoids having to put
+the structure onto the stack, having to guess about the stack size
+of callers.
 
-Change-log:
-v3:
--rename dma_limit to dma_mask
--exit handle_deferred_device early if (!is_kdump_kernel())
--remove pointless calls to handle_deferred_device
-v2:
--Rebase on top of this series:
- http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
--Add a gfp_t parameter to the iommu_ops::map function.
--Made use of the reserve region code inside the dma-iommu api
+Patch inspired by a patch from Oscar Salvador.
 
-Tom Murphy (4):
-  iommu: Add gfp parameter to iommu_ops::map
-  iommu/dma-iommu: Handle deferred devices
-  iommu/dma-iommu: Use the dev->coherent_dma_mask
-  iommu/amd: Convert the AMD iommu driver to the dma-iommu api
+In the future, there might be no need to iterate over nodes at all.
+mem->nid should tell us exactly what to remove. Memory block devices
+with mixed nodes (added during boot) should properly fenced off and never
+removed.
 
- drivers/iommu/Kconfig          |   1 +
- drivers/iommu/amd_iommu.c      | 694 ++++-----------------------------
- drivers/iommu/arm-smmu-v3.c    |   2 +-
- drivers/iommu/arm-smmu.c       |   2 +-
- drivers/iommu/dma-iommu.c      |  50 ++-
- drivers/iommu/exynos-iommu.c   |   2 +-
- drivers/iommu/intel-iommu.c    |   2 +-
- drivers/iommu/iommu.c          |  43 +-
- drivers/iommu/ipmmu-vmsa.c     |   2 +-
- drivers/iommu/msm_iommu.c      |   2 +-
- drivers/iommu/mtk_iommu.c      |   2 +-
- drivers/iommu/mtk_iommu_v1.c   |   2 +-
- drivers/iommu/omap-iommu.c     |   2 +-
- drivers/iommu/qcom_iommu.c     |   2 +-
- drivers/iommu/rockchip-iommu.c |   2 +-
- drivers/iommu/s390-iommu.c     |   2 +-
- drivers/iommu/tegra-gart.c     |   2 +-
- drivers/iommu/tegra-smmu.c     |   2 +-
- include/linux/iommu.h          |  21 +-
- 19 files changed, 184 insertions(+), 653 deletions(-)
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/base/node.c  | 18 +++++-------------
+ include/linux/node.h |  5 ++---
+ 2 files changed, 7 insertions(+), 16 deletions(-)
 
+diff --git a/drivers/base/node.c b/drivers/base/node.c
+index 04fdfa99b8bc..9be88fd05147 100644
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -803,20 +803,14 @@ int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
+ 
+ /*
+  * Unregister memory block device under all nodes that it spans.
++ * Has to be called with mem_sysfs_mutex held (due to unlinked_nodes).
+  */
+-int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
++void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
+ {
+-	NODEMASK_ALLOC(nodemask_t, unlinked_nodes, GFP_KERNEL);
+ 	unsigned long pfn, sect_start_pfn, sect_end_pfn;
++	static nodemask_t unlinked_nodes;
+ 
+-	if (!mem_blk) {
+-		NODEMASK_FREE(unlinked_nodes);
+-		return -EFAULT;
+-	}
+-	if (!unlinked_nodes)
+-		return -ENOMEM;
+-	nodes_clear(*unlinked_nodes);
+-
++	nodes_clear(unlinked_nodes);
+ 	sect_start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
+ 	sect_end_pfn = section_nr_to_pfn(mem_blk->end_section_nr);
+ 	for (pfn = sect_start_pfn; pfn <= sect_end_pfn; pfn++) {
+@@ -827,15 +821,13 @@ int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
+ 			continue;
+ 		if (!node_online(nid))
+ 			continue;
+-		if (node_test_and_set(nid, *unlinked_nodes))
++		if (node_test_and_set(nid, unlinked_nodes))
+ 			continue;
+ 		sysfs_remove_link(&node_devices[nid]->dev.kobj,
+ 			 kobject_name(&mem_blk->dev.kobj));
+ 		sysfs_remove_link(&mem_blk->dev.kobj,
+ 			 kobject_name(&node_devices[nid]->dev.kobj));
+ 	}
+-	NODEMASK_FREE(unlinked_nodes);
+-	return 0;
+ }
+ 
+ int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
+diff --git a/include/linux/node.h b/include/linux/node.h
+index 02a29e71b175..548c226966a2 100644
+--- a/include/linux/node.h
++++ b/include/linux/node.h
+@@ -139,7 +139,7 @@ extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
+ extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
+ extern int register_mem_sect_under_node(struct memory_block *mem_blk,
+ 						void *arg);
+-extern int unregister_memory_block_under_nodes(struct memory_block *mem_blk);
++extern void unregister_memory_block_under_nodes(struct memory_block *mem_blk);
+ 
+ extern int register_memory_node_under_compute_node(unsigned int mem_nid,
+ 						   unsigned int cpu_nid,
+@@ -175,9 +175,8 @@ static inline int register_mem_sect_under_node(struct memory_block *mem_blk,
+ {
+ 	return 0;
+ }
+-static inline int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
++static inline void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
+ {
+-	return 0;
+ }
+ 
+ static inline void register_hugetlbfs_with_node(node_registration_func_t reg,
 -- 
-2.17.1
+2.20.1
