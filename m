@@ -1,116 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v9 2/4] vfio: ap: register IOMMU VFIO notifier
-Date: Tue, 21 May 2019 17:34:35 +0200
-In-Reply-To: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
-References: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1558452877-27822-3-git-send-email-pmorel@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 08/11] mm/memory_hotplug: Drop MHP_MEMBLOCK_API
+Date: Mon, 27 May 2019 13:11:49 +0200
+Message-Id: <20190527111152.16324-9-david@redhat.com>
+In-Reply-To: <20190527111152.16324-1-david@redhat.com>
+References: <20190527111152.16324-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
 
-To be able to use the VFIO interface to facilitate the
-mediated device memory pinning/unpinning we need to register
-a notifier for IOMMU.
+No longer needed, the callers of arch_add_memory() can handle this
+manually.
 
-While we will start to pin one guest page for the interrupt indicator
-byte, this is still ok with ballooning as this page will never be
-used by the guest virtio-balloon driver.
-So the pinned page will never be freed. And even a broken guest does
-so, that would not impact the host as the original page is still
-in control by vfio.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Arun KS <arunks@codeaurora.org>
+Cc: Mathieu Malaterre <malat@debian.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 43 ++++++++++++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 2 files changed, 44 insertions(+), 1 deletion(-)
+ include/linux/memory_hotplug.h | 8 --------
+ mm/memory_hotplug.c            | 9 +++------
+ 2 files changed, 3 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 900b9cf..e8e87bf 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -759,6 +759,35 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 2d4de313926d..2f1f87e13baa 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -128,14 +128,6 @@ extern void arch_remove_memory(int nid, u64 start, u64 size,
+ extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
+ 			   unsigned long nr_pages, struct vmem_altmap *altmap);
  
-+/*
-+ * vfio_ap_mdev_iommu_notifier: IOMMU notifier callback
-+ *
-+ * @nb: The notifier block
-+ * @action: Action to be taken
-+ * @data: data associated with the request
-+ *
-+ * For an UNMAP request, unpin the guest IOVA (the NIB guest address we
-+ * pinned before). Other requests are ignored.
-+ *
-+ */
-+static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
-+				       unsigned long action, void *data)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	matrix_mdev = container_of(nb, struct ap_matrix_mdev, iommu_notifier);
-+
-+	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
-+		struct vfio_iommu_type1_dma_unmap *unmap = data;
-+		unsigned long g_pfn = unmap->iova >> PAGE_SHIFT;
-+
-+		vfio_unpin_pages(mdev_dev(matrix_mdev->mdev), &g_pfn, 1);
-+		return NOTIFY_OK;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 				       unsigned long action, void *data)
+-/*
+- * Do we want sysfs memblock files created. This will allow userspace to online
+- * and offline memory explicitly. Lack of this bit means that the caller has to
+- * call move_pfn_range_to_zone to finish the initialization.
+- */
+-
+-#define MHP_MEMBLOCK_API               (1<<0)
+-
+ /* reasonably generic interface to expand the physical pages */
+ extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
+ 		       struct mhp_restrictions *restrictions);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b1fde90bbf19..9a92549ef23b 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -251,7 +251,7 @@ void __init register_page_bootmem_info_node(struct pglist_data *pgdat)
+ #endif /* CONFIG_HAVE_BOOTMEM_INFO_NODE */
+ 
+ static int __meminit __add_section(int nid, unsigned long phys_start_pfn,
+-		struct vmem_altmap *altmap, bool want_memblock)
++				   struct vmem_altmap *altmap)
  {
-@@ -858,7 +887,17 @@ static int vfio_ap_mdev_open(struct mdev_device *mdev)
- 		return ret;
+ 	int ret;
+ 
+@@ -294,8 +294,7 @@ int __ref __add_pages(int nid, unsigned long phys_start_pfn,
  	}
  
--	return 0;
-+	matrix_mdev->iommu_notifier.notifier_call = vfio_ap_mdev_iommu_notifier;
-+	events = VFIO_IOMMU_NOTIFY_DMA_UNMAP;
-+	ret = vfio_register_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				     &events, &matrix_mdev->iommu_notifier);
-+	if (!ret)
-+		return ret;
-+
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
-+				 &matrix_mdev->group_notifier);
-+	module_put(THIS_MODULE);
-+	return ret;
- }
+ 	for (i = start_sec; i <= end_sec; i++) {
+-		err = __add_section(nid, section_nr_to_pfn(i), altmap,
+-				restrictions->flags & MHP_MEMBLOCK_API);
++		err = __add_section(nid, section_nr_to_pfn(i), altmap);
  
- static void vfio_ap_mdev_release(struct mdev_device *mdev)
-@@ -869,6 +908,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
- 
- 	vfio_ap_mdev_reset_queues(mdev);
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				 &matrix_mdev->iommu_notifier);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_GROUP_NOTIFY,
- 				 &matrix_mdev->group_notifier);
- 	matrix_mdev->kvm = NULL;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index a910be1..18dcc4d 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -81,8 +81,10 @@ struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
- 	struct notifier_block group_notifier;
-+	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
- 	struct kvm_s390_module_hook pqap_hook;
-+	struct mdev_device *mdev;
- };
- 
- extern int vfio_ap_mdev_register(void);
+ 		/*
+ 		 * EEXIST is finally dealt with by ioresource collision
+@@ -1067,9 +1066,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
+  */
+ int __ref add_memory_resource(int nid, struct resource *res)
+ {
+-	struct mhp_restrictions restrictions = {
+-		.flags = MHP_MEMBLOCK_API,
+-	};
++	struct mhp_restrictions restrictions = {};
+ 	u64 start, size;
+ 	bool new_node = false;
+ 	int ret;
 -- 
-2.7.4
+2.20.1
