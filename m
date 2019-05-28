@@ -1,67 +1,132 @@
-Return-Path: <SRS0=9P2n=T3=vger.kernel.org=kvm-owner@kernel.org>
-Subject: Re: [PATCH] KVM: selftests: enable pgste option for the linker on
- s390
+Return-Path: <SRS0=FZpJ=T4=vger.kernel.org=kvm-owner@kernel.org>
 References: <20190523164309.13345-1-thuth@redhat.com>
- <20190524103301.87017-1-borntraeger@de.ibm.com>
+ <20190523164309.13345-9-thuth@redhat.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 27 May 2019 13:44:31 +0200
+Date: Tue, 28 May 2019 13:00:30 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190524103301.87017-1-borntraeger@de.ibm.com>
+In-Reply-To: <20190523164309.13345-9-thuth@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <ea4a142b-7361-7a6c-bfe9-8a06de278df7@de.ibm.com>
+Message-Id: <1deb73ac-9589-89cb-9a9b-f9957584733e@de.ibm.com>
+Subject: Re:  [PATCH 8/9] KVM: s390: Do not report unusabled IDs via
+ KVM_CAP_MAX_VCPU_ID
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Andrew Jones <drjones@redhat.com>, linux-kselftest@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>
+To: Janosch Frank <frankja@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 24.05.19 12:33, Christian Borntraeger wrote:
-> To avoid testcase failures we need to enable the pgstes. This can be
-> done with /proc/sys/vm/allocate_pgste or with a linker option that
-> creates an  S390_PGSTE program header.
+Paolo, Radim,
+
+would you consider this patch (or the full series) as 5.2 material or 5.3 material?
+
+
+On 23.05.19 18:43, Thomas Huth wrote:
+> KVM_CAP_MAX_VCPU_ID is currently always reporting KVM_MAX_VCPU_ID on all
+> architectures. However, on s390x, the amount of usable CPUs is determined
+> during runtime - it is depending on the features of the machine the code
+> is running on. Since we are using the vcpu_id as an index into the SCA
+> structures that are defined by the hardware (see e.g. the sca_add_vcpu()
+> function), it is not only the amount of CPUs that is limited by the hard-
+> ware, but also the range of IDs that we can use.
+> Thus KVM_CAP_MAX_VCPU_ID must be determined during runtime on s390x, too.
+> So the handling of KVM_CAP_MAX_VCPU_ID has to be moved from the common
+> code into the architecture specific code, and on s390x we have to return
+> the same value here as for KVM_CAP_MAX_VCPUS.
+> This problem has been discovered with the kvm_create_max_vcpus selftest.
+> With this change applied, the selftest now passes on s390x, too.
 > 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 > ---
->  tools/testing/selftests/kvm/Makefile | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  arch/mips/kvm/mips.c       | 3 +++
+>  arch/powerpc/kvm/powerpc.c | 3 +++
+>  arch/s390/kvm/kvm-s390.c   | 1 +
+>  arch/x86/kvm/x86.c         | 3 +++
+>  virt/kvm/arm/arm.c         | 3 +++
+>  virt/kvm/kvm_main.c        | 2 --
+>  6 files changed, 13 insertions(+), 2 deletions(-)
 > 
-> diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-> index aef5bd1166cf..4aac14c1919f 100644
-> --- a/tools/testing/selftests/kvm/Makefile
-> +++ b/tools/testing/selftests/kvm/Makefile
-> @@ -44,7 +44,10 @@ CFLAGS += -O2 -g -std=gnu99 -fno-stack-protector -fno-PIE -I$(LINUX_TOOL_INCLUDE
->  no-pie-option := $(call try-run, echo 'int main() { return 0; }' | \
->          $(CC) -Werror $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -no-pie -x c - -o "$$TMP", -no-pie)
->  
-> -LDFLAGS += -pthread $(no-pie-option)
-> +# On s390, build the testcases KVM-enabled
-> +pgste-option := $(call cc-ldoption, -Wl$(comma)--s390-pgste)
-> +
-> +LDFLAGS += -pthread $(no-pie-option) $(pgste-option)
->  
->  # After inclusion, $(OUTPUT) is defined and
->  # $(TEST_GEN_PROGS) starts with $(OUTPUT)/
+> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+> index 6d0517ac18e5..0369f26ab96d 100644
+> --- a/arch/mips/kvm/mips.c
+> +++ b/arch/mips/kvm/mips.c
+> @@ -1122,6 +1122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_MIPS_FPU:
+>  		/* We don't handle systems with inconsistent cpu_has_fpu */
+>  		r = !!raw_cpu_has_fpu;
+> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+> index 3393b166817a..aa3a678711be 100644
+> --- a/arch/powerpc/kvm/powerpc.c
+> +++ b/arch/powerpc/kvm/powerpc.c
+> @@ -657,6 +657,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  #ifdef CONFIG_PPC_BOOK3S_64
+>  	case KVM_CAP_PPC_GET_SMMU_INFO:
+>  		r = 1;
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 8d6d75db8de6..871d2e99b156 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -539,6 +539,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  		break;
+>  	case KVM_CAP_NR_VCPUS:
+>  	case KVM_CAP_MAX_VCPUS:
+> +	case KVM_CAP_MAX_VCPU_ID:
+>  		r = KVM_S390_BSCA_CPU_SLOTS;
+>  		if (!kvm_s390_use_sca_entries())
+>  			r = KVM_MAX_VCPUS;
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 536b78c4af6e..09a07d6a154e 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -3122,6 +3122,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_PV_MMU:	/* obsolete */
+>  		r = 0;
+>  		break;
+> diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+> index 90cedebaeb94..7eeebe5e9da2 100644
+> --- a/virt/kvm/arm/arm.c
+> +++ b/virt/kvm/arm/arm.c
+> @@ -224,6 +224,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_MAX_VCPUS:
+>  		r = KVM_MAX_VCPUS;
+>  		break;
+> +	case KVM_CAP_MAX_VCPU_ID:
+> +		r = KVM_MAX_VCPU_ID;
+> +		break;
+>  	case KVM_CAP_MSI_DEVID:
+>  		if (!kvm)
+>  			r = -EINVAL;
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index f0d13d9d125d..c09259dd6286 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -3146,8 +3146,6 @@ static long kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
+>  	case KVM_CAP_MULTI_ADDRESS_SPACE:
+>  		return KVM_ADDRESS_SPACE_NUM;
+>  #endif
+> -	case KVM_CAP_MAX_VCPU_ID:
+> -		return KVM_MAX_VCPU_ID;
+>  	case KVM_CAP_NR_MEMSLOTS:
+>  		return KVM_USER_MEM_SLOTS;
+>  	default:
 > 
-
-After commit commit 055efab3120bae7ab1ed841317774f3c953f6e1b (kbuild: drop support for cc-ldoption)
-I had to change that in the following way.
-
-    
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 2a73b58fd9e0..a798ea54a434 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -48,7 +48,7 @@ no-pie-option := $(call try-run, echo 'int main() { return 0; }' | \
-         $(CC) -Werror $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -no-pie -x c - -o "$$TMP", -no-pie)
- 
- # On s390, build the testcases KVM-enabled
--pgste-option := $(call cc-ldoption, -Wl$(comma)--s390-pgste)
-+pgste-option := $(call cc-option,-Wl$(comma)--s390-pgste)
- 
- LDFLAGS += -pthread $(no-pie-option) $(pgste-option)
- 
-
-With that pushed out to kvms390/next.
