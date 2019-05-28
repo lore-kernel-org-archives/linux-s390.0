@@ -1,108 +1,67 @@
-Return-Path: <SRS0=9P2n=T3=vger.kernel.org=kvm-owner@kernel.org>
-Reply-To: mimu@linux.ibm.com
-Subject: Re: [PATCH v2 3/8] s390/cio: add basic protected virtualization
- support
+Return-Path: <SRS0=FZpJ=T4=vger.kernel.org=kvm-owner@kernel.org>
+Date: Tue, 28 May 2019 16:33:42 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v2 8/8] virtio/s390: make airq summary indicators DMA
+In-Reply-To: <20190527140018.7c2d34ff.cohuck@redhat.com>
 References: <20190523162209.9543-1-mimu@linux.ibm.com>
- <20190523162209.9543-4-mimu@linux.ibm.com>
- <alpine.LFD.2.21.1905251124230.3359@schleppi>
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Mon, 27 May 2019 17:01:12 +0200
+        <20190523162209.9543-9-mimu@linux.ibm.com>
+        <20190527140018.7c2d34ff.cohuck@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.21.1905251124230.3359@schleppi>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <f2b8d5c3-a39b-8632-c463-cde47bf38c91@linux.ibm.com>
+Message-Id: <20190528163342.335eea0b.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
+On Mon, 27 May 2019 14:00:18 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-
-On 25.05.19 11:44, Sebastian Ott wrote:
+> On Thu, 23 May 2019 18:22:09 +0200
+> Michael Mueller <mimu@linux.ibm.com> wrote:
 > 
-> On Thu, 23 May 2019, Michael Mueller wrote:
->>   static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
->>   {
->>   	struct ccw_device *cdev;
->> +	struct gen_pool *dma_pool;
->>   
->>   	cdev  = kzalloc(sizeof(*cdev), GFP_KERNEL);
->> -	if (cdev) {
->> -		cdev->private = kzalloc(sizeof(struct ccw_device_private),
->> -					GFP_KERNEL | GFP_DMA);
->> -		if (cdev->private)
->> -			return cdev;
->> -	}
->> +	if (!cdev)
->> +		goto err_cdev;
->> +	cdev->private = kzalloc(sizeof(struct ccw_device_private),
->> +				GFP_KERNEL | GFP_DMA);
->> +	if (!cdev->private)
->> +		goto err_priv;
->> +	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
->> +	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
->> +	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
+> > From: Halil Pasic <pasic@linux.ibm.com>
+> > 
+> > Hypervisor needs to interact with the summary indicators, so these
+> > need to be DMA memory as well (at least for protected virtualization
+> > guests).
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > ---
+> >  drivers/s390/virtio/virtio_ccw.c | 22 +++++++++++++++-------
+> >  1 file changed, 15 insertions(+), 7 deletions(-)
 > 
-> This can return NULL. gen_pool_alloc will panic in this case.
-> [...]
-
-yep, will handled in next version
-
+> (...)
 > 
->> +err_dma_area:
->> +		kfree(io_priv);
-
-one tab gone
-
+> > @@ -1501,6 +1508,7 @@ static int __init virtio_ccw_init(void)
+> >  {
+> >  	/* parse no_auto string before we do anything further */
+> >  	no_auto_parse();
+> > +	summary_indicators = cio_dma_zalloc(MAX_AIRQ_AREAS);
 > 
-> Indentation.
-> 
->> +err_priv:
->> +	put_device(&sch->dev);
->> +	return ERR_PTR(-ENOMEM);
->>   }
-> [...]
->>   void ccw_device_update_sense_data(struct ccw_device *cdev)
->>   {
->>   	memset(&cdev->id, 0, sizeof(cdev->id));
->> -	cdev->id.cu_type   = cdev->private->senseid.cu_type;
->> -	cdev->id.cu_model  = cdev->private->senseid.cu_model;
->> -	cdev->id.dev_type  = cdev->private->senseid.dev_type;
->> -	cdev->id.dev_model = cdev->private->senseid.dev_model;
->> +	cdev->id.cu_type   =
->> +		cdev->private->dma_area->senseid.cu_type;
->> +	cdev->id.cu_model  =
->> +		cdev->private->dma_area->senseid.cu_model;
->> +	cdev->id.dev_type  =
->> +		cdev->private->dma_area->senseid.dev_type;
->> +	cdev->id.dev_model =
->> +		cdev->private->dma_area->senseid.dev_model;
-> 
-> These fit into one line.
+> What happens if this fails?
 
-yep, surprisingly below 80 characters
+Bad things could happen!
+
+How about adding
+
+if (!summary_indicators)
+	virtio_ccw_use_airq = 0; /* fall back to classic */
+
+?
+
+Since it ain't very likely to happen, we could also just fail
+virtio_ccw_init() with -ENOMEM.
+
+Regards,
+Halil
+
 
 > 
->> +/**
->> + * Allocate zeroed dma coherent 31 bit addressable memory using
->> + * the subchannels dma pool. Maximal size of allocation supported
->> + * is PAGE_SIZE.
->> + */
-> drivers/s390/cio/device_ops.c:708: warning: Function parameter or member 'cdev' not described in 'ccw_device_dma_zalloc'
-> drivers/s390/cio/device_ops.c:708: warning: Function parameter or member 'size' not described in 'ccw_device_dma_zalloc'
-
-changing comment open token
-
+> >  	return ccw_driver_register(&virtio_ccw_driver);
+> >  }
+> >  device_initcall(virtio_ccw_init);
 > 
-> 
-> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-> 
-
-Thanks!
-
-
-Michael
