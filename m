@@ -1,24 +1,24 @@
 Return-Path: <SRS0=FZpJ=T4=vger.kernel.org=kvm-owner@kernel.org>
-Date: Tue, 28 May 2019 15:46:31 -0600
+Date: Tue, 28 May 2019 15:54:28 -0600
 From: Alex Williamson <alex.williamson@redhat.com>
 Subject: Re: [PATCH v3 2/3] vfio: zpci: defining the VFIO headers
-Message-ID: <20190528154631.1553f7e9@x1.home>
-In-Reply-To: <20190528154342.7b0f3946@x1.home>
+Message-ID: <20190528155428.0f149994@x1.home>
+In-Reply-To: <20190523182433.567b8408.cohuck@redhat.com>
 References: <1558614326-24711-1-git-send-email-pmorel@linux.ibm.com>
         <1558614326-24711-3-git-send-email-pmorel@linux.ibm.com>
-        <20190528154342.7b0f3946@x1.home>
+        <20190523182433.567b8408.cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, sebott@linux.vnet.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.vnet.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, robin.murphy@arm.com
 List-ID: <linux-s390.vger.kernel.org>
 
-On Tue, 28 May 2019 15:43:42 -0600
-Alex Williamson <alex.williamson@redhat.com> wrote:
+On Thu, 23 May 2019 18:24:33 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
 > On Thu, 23 May 2019 14:25:25 +0200
 > Pierre Morel <pmorel@linux.ibm.com> wrote:
@@ -46,28 +46,32 @@ Alex Williamson <alex.williamson@redhat.com> wrote:
 > >  #define VFIO_REGION_SUBTYPE_GFX_EDID            (1)
 > >  
 > > +/* IBM Subtypes */
-> > +#define VFIO_REGION_TYPE_IBM_ZDEV		(1)  
-> 
-> This one defines (but never uses) a conflicting region type to GFX
-> above.
-> 
+> > +#define VFIO_REGION_TYPE_IBM_ZDEV		(1)
 > > +#define VFIO_REGION_SUBTYPE_ZDEV_CLP		(1)  
 > 
-> If we're using a PCI vendor type, which the next patch indicates we
-> are, this is the one you need.  But please also specify it as a PCI
-> vendor sub-type with the hex PCI vendor ID, and perhaps group it with
-> the Intel vendor sub-types.
+> I'm afraid that confuses me a bit. You want to add the region to every
+> vfio-pci device when we're running under s390, right? So this does not
+> depend on the device type of the actual device (which may or may not be
+> from IBM), but only on the architecture?
 
-BTW, we've already started a set of IBM sub-types:
+FWIW, I don't really have a strong opinion here but I welcome the
+discussion.  It seems fair to me that a PCI vendor type could be used
+for either a device with that vendor ID or by the vendor of the
+platform.  We've got a lot of address space if want to use
+VFIO_REGION_TYPE_IBM_ZDEV rather than a PCI vendor type (so long as
+it's updated not to conflict with the GFX type).  Thanks,
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/vfio.h?id=7f92891778dff62303c070ac81de7b7d80de331a
-
+Alex
+ 
+> (Generally speaking, I think using regions for this makes sense,
+> though.)
+> 
 > > +
 > >  /**
 > >   * struct vfio_region_gfx_edid - EDID region layout.
 > >   *
-> > diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-> > new file mode 100644
+> > diff --git a/include/uapi/linux/vfio_zdev.h
+> > b/include/uapi/linux/vfio_zdev.h new file mode 100644
 > > index 0000000..84b1a82
 > > --- /dev/null
 > > +++ b/include/uapi/linux/vfio_zdev.h
@@ -102,13 +106,7 @@ https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/includ
 > > +	__u8 gid;
 > > +	__u8 version;
 > > +#define VFIO_PCI_ZDEV_FLAGS_REFRESH 1
-> > +	__u8 util_str[CLP_UTIL_STR_LEN];  
-> 
-> I don't see where CLP_UTIL_STR_LEN is defined in a uapi consumable
-> header.  Should this simply be [] where the string length is implied by
-> the remaining region size?  QEMU hard codes it, that doesn't validate
-> the vfio uapi.
-> 
+> > +	__u8 util_str[CLP_UTIL_STR_LEN];
 > > +} __packed;
 > > +
 > > +#endif  
