@@ -1,48 +1,55 @@
 Return-Path: <SRS0=5+JM=T5=vger.kernel.org=kvm-owner@kernel.org>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/2] KVM: s390: fixes for 5.2-rc3
-Date: Wed, 29 May 2019 14:50:43 +0200
+Subject: Re: [GIT PULL 1/2] kvm: fix compile on s390 part 2
+References: <20190529125045.42935-1-borntraeger@de.ibm.com>
+ <20190529125045.42935-2-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <64437661-0430-e025-4682-905a90befd8e@redhat.com>
+Date: Wed, 29 May 2019 14:53:09 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190529125045.42935-1-borntraeger@de.ibm.com>
+In-Reply-To: <20190529125045.42935-2-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Paolo, Radim,
+On 29.05.19 14:50, Christian Borntraeger wrote:
+> We also need to fence the memunmap part.
+> 
+> Fixes: e45adf665a53 ("KVM: Introduce a new guest mapping API")
+> Fixes: d30b214d1d0a (kvm: fix compilation on s390)
+> Cc: Michal Kubecek <mkubecek@suse.cz>
+> Cc: KarimAllah Ahmed <karahmed@amazon.de>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  virt/kvm/kvm_main.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 134ec0283a8a..301089a462c4 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -1795,8 +1795,10 @@ void kvm_vcpu_unmap(struct kvm_vcpu *vcpu, struct kvm_host_map *map,
+>  
+>  	if (map->page)
+>  		kunmap(map->page);
+> +#ifdef CONFIG_HAS_IOMEM
+>  	else
+>  		memunmap(map->hva);
+> +#endif
+>  
+>  	if (dirty) {
+>  		kvm_vcpu_mark_page_dirty(vcpu, map->gfn);
+> 
 
-The following changes since commit cd6c84d8f0cdc911df435bb075ba22ce3c605b07:
+I *think* you dropped my r-b - never mind ;)
 
-  Linux 5.2-rc2 (2019-05-26 16:49:19 -0700)
+-- 
 
-are available in the Git repository at:
+Thanks,
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.2-2
-
-for you to fetch changes up to a86cb413f4bf273a9d341a3ab2c2ca44e12eb317:
-
-  KVM: s390: Do not report unusabled IDs via KVM_CAP_MAX_VCPU_ID (2019-05-28 15:52:19 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Fixes
-
-- fix compilation for !CONFIG_PCI
-- fix the output of KVM_CAP_MAX_VCPU_ID
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      kvm: fix compile on s390 part 2
-
-Thomas Huth (1):
-      KVM: s390: Do not report unusabled IDs via KVM_CAP_MAX_VCPU_ID
-
- arch/mips/kvm/mips.c       | 3 +++
- arch/powerpc/kvm/powerpc.c | 3 +++
- arch/s390/kvm/kvm-s390.c   | 1 +
- arch/x86/kvm/x86.c         | 3 +++
- virt/kvm/arm/arm.c         | 3 +++
- virt/kvm/kvm_main.c        | 4 ++--
- 6 files changed, 15 insertions(+), 2 deletions(-)
+David / dhildenb
