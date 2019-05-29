@@ -1,10 +1,10 @@
 Return-Path: <SRS0=5+JM=T5=vger.kernel.org=kvm-owner@kernel.org>
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v3 6/8] virtio/s390: add indirection to indicators access
-Date: Wed, 29 May 2019 14:26:55 +0200
+Subject: [PATCH v3 1/8] s390/mm: force swiotlb for protected virtualization
+Date: Wed, 29 May 2019 14:26:50 +0200
 In-Reply-To: <20190529122657.166148-1-mimu@linux.ibm.com>
 References: <20190529122657.166148-1-mimu@linux.ibm.com>
-Message-Id: <20190529122657.166148-7-mimu@linux.ibm.com>
+Message-Id: <20190529122657.166148-2-mimu@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -14,121 +14,152 @@ List-ID: <linux-s390.vger.kernel.org>
 
 From: Halil Pasic <pasic@linux.ibm.com>
 
-This will come in handy soon when we pull out the indicators from
-virtio_ccw_device to a memory area that is shared with the hypervisor
-(in particular for protected virtualization guests).
+On s390, protected virtualization guests have to use bounced I/O
+buffers.  That requires some plumbing.
+
+Let us make sure, any device that uses DMA API with direct ops correctly
+is spared from the problems, that a hypervisor attempting I/O to a
+non-shared page would bring.
 
 Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 40 +++++++++++++++++++++++++---------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ arch/s390/Kconfig                   |  4 ++++
+ arch/s390/include/asm/mem_encrypt.h | 18 ++++++++++++++
+ arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 69 insertions(+)
+ create mode 100644 arch/s390/include/asm/mem_encrypt.h
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 1da7430f94c8..e96a8cc56ec2 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -68,6 +68,16 @@ struct virtio_ccw_device {
- 	void *airq_info;
- };
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 109243fdb6ec..88d8355b7bf7 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++config ARCH_HAS_MEM_ENCRYPT
++        def_bool y
++
+ config MMU
+ 	def_bool y
  
-+static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
-+{
-+	return &vcdev->indicators;
-+}
+@@ -187,6 +190,7 @@ config S390
+ 	select VIRT_CPU_ACCOUNTING
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select HAVE_NMI
++	select SWIOTLB
+ 
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+new file mode 100644
+index 000000000000..0898c09a888c
+--- /dev/null
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -0,0 +1,18 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef S390_MEM_ENCRYPT_H__
++#define S390_MEM_ENCRYPT_H__
 +
-+static inline unsigned long *indicators2(struct virtio_ccw_device *vcdev)
-+{
-+	return &vcdev->indicators2;
-+}
++#ifndef __ASSEMBLY__
 +
- struct vq_info_block_legacy {
- 	__u64 queue;
- 	__u32 align;
-@@ -338,17 +348,17 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		ccw->cda = (__u32)(unsigned long) thinint_area;
- 	} else {
- 		/* payload is the address of the indicators */
--		indicatorp = kmalloc(sizeof(&vcdev->indicators),
-+		indicatorp = kmalloc(sizeof(indicators(vcdev)),
- 				     GFP_DMA | GFP_KERNEL);
- 		if (!indicatorp)
- 			return;
- 		*indicatorp = 0;
- 		ccw->cmd_code = CCW_CMD_SET_IND;
--		ccw->count = sizeof(&vcdev->indicators);
-+		ccw->count = sizeof(indicators(vcdev));
- 		ccw->cda = (__u32)(unsigned long) indicatorp;
- 	}
- 	/* Deregister indicators from host. */
--	vcdev->indicators = 0;
-+	*indicators(vcdev) = 0;
- 	ccw->flags = 0;
- 	ret = ccw_io_helper(vcdev, ccw,
- 			    vcdev->is_thinint ?
-@@ -657,10 +667,10 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	 * We need a data area under 2G to communicate. Our payload is
- 	 * the address of the indicators.
- 	*/
--	indicatorp = kmalloc(sizeof(&vcdev->indicators), GFP_DMA | GFP_KERNEL);
-+	indicatorp = kmalloc(sizeof(indicators(vcdev)), GFP_DMA | GFP_KERNEL);
- 	if (!indicatorp)
- 		goto out;
--	*indicatorp = (unsigned long) &vcdev->indicators;
-+	*indicatorp = (unsigned long) indicators(vcdev);
- 	if (vcdev->is_thinint) {
- 		ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
- 		if (ret)
-@@ -669,21 +679,21 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	}
- 	if (!vcdev->is_thinint) {
- 		/* Register queue indicators with host. */
--		vcdev->indicators = 0;
-+		*indicators(vcdev) = 0;
- 		ccw->cmd_code = CCW_CMD_SET_IND;
- 		ccw->flags = 0;
--		ccw->count = sizeof(&vcdev->indicators);
-+		ccw->count = sizeof(indicators(vcdev));
- 		ccw->cda = (__u32)(unsigned long) indicatorp;
- 		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
- 		if (ret)
- 			goto out;
- 	}
- 	/* Register indicators2 with host for config changes */
--	*indicatorp = (unsigned long) &vcdev->indicators2;
--	vcdev->indicators2 = 0;
-+	*indicatorp = (unsigned long) indicators2(vcdev);
-+	*indicators2(vcdev) = 0;
- 	ccw->cmd_code = CCW_CMD_SET_CONF_IND;
- 	ccw->flags = 0;
--	ccw->count = sizeof(&vcdev->indicators2);
-+	ccw->count = sizeof(indicators2(vcdev));
- 	ccw->cda = (__u32)(unsigned long) indicatorp;
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_CONF_IND);
- 	if (ret)
-@@ -1093,17 +1103,17 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 			vcdev->err = -EIO;
- 	}
- 	virtio_ccw_check_activity(vcdev, activity);
--	for_each_set_bit(i, &vcdev->indicators,
--			 sizeof(vcdev->indicators) * BITS_PER_BYTE) {
-+	for_each_set_bit(i, indicators(vcdev),
-+			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
- 		/* The bit clear must happen before the vring kick. */
--		clear_bit(i, &vcdev->indicators);
-+		clear_bit(i, indicators(vcdev));
- 		barrier();
- 		vq = virtio_ccw_vq_by_ind(vcdev, i);
- 		vring_interrupt(0, vq);
- 	}
--	if (test_bit(0, &vcdev->indicators2)) {
-+	if (test_bit(0, indicators2(vcdev))) {
- 		virtio_config_changed(&vcdev->vdev);
--		clear_bit(0, &vcdev->indicators2);
-+		clear_bit(0, indicators2(vcdev));
- 	}
++#define sme_me_mask	0ULL
++
++static inline bool sme_active(void) { return false; }
++extern bool sev_active(void);
++
++int set_memory_encrypted(unsigned long addr, int numpages);
++int set_memory_decrypted(unsigned long addr, int numpages);
++
++#endif	/* __ASSEMBLY__ */
++
++#endif	/* S390_MEM_ENCRYPT_H__ */
++
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 14d1eae9fe43..f0bee6af3960 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -18,6 +18,7 @@
+ #include <linux/mman.h>
+ #include <linux/mm.h>
+ #include <linux/swap.h>
++#include <linux/swiotlb.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+ #include <linux/pagemap.h>
+@@ -29,6 +30,7 @@
+ #include <linux/export.h>
+ #include <linux/cma.h>
+ #include <linux/gfp.h>
++#include <linux/dma-mapping.h>
+ #include <asm/processor.h>
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -42,6 +44,8 @@
+ #include <asm/sclp.h>
+ #include <asm/set_memory.h>
+ #include <asm/kasan.h>
++#include <asm/dma-mapping.h>
++#include <asm/uv.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -128,6 +132,47 @@ void mark_rodata_ro(void)
+ 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
  }
+ 
++int set_memory_encrypted(unsigned long addr, int numpages)
++{
++	int i;
++
++	/* make specified pages unshared, (swiotlb, dma_free) */
++	for (i = 0; i < numpages; ++i) {
++		uv_remove_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
++}
++
++int set_memory_decrypted(unsigned long addr, int numpages)
++{
++	int i;
++	/* make specified pages shared (swiotlb, dma_alloca) */
++	for (i = 0; i < numpages; ++i) {
++		uv_set_shared(addr);
++		addr += PAGE_SIZE;
++	}
++	return 0;
++}
++
++/* are we a protected virtualization guest? */
++bool sev_active(void)
++{
++	return is_prot_virt_guest();
++}
++
++/* protected virtualization */
++static void pv_init(void)
++{
++	if (!is_prot_virt_guest())
++		return;
++
++	/* make sure bounce buffers are shared */
++	swiotlb_init(1);
++	swiotlb_update_mem_attributes();
++	swiotlb_force = SWIOTLB_FORCE;
++}
++
+ void __init mem_init(void)
+ {
+ 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
+@@ -136,6 +181,8 @@ void __init mem_init(void)
+ 	set_max_mapnr(max_low_pfn);
+         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 
++	pv_init();
++
+ 	/* Setup guest page hinting */
+ 	cmma_init();
  
 -- 
 2.13.4
