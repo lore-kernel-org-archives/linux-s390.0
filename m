@@ -1,8 +1,10 @@
 Return-Path: <SRS0=5+JM=T5=vger.kernel.org=kvm-owner@kernel.org>
 From: Michael Mueller <mimu@linux.ibm.com>
-Subject: [PATCH v3 0/8] s390: virtio: support protected virtualization
-Date: Wed, 29 May 2019 14:26:49 +0200
-Message-Id: <20190529122657.166148-1-mimu@linux.ibm.com>
+Subject: [PATCH v3 2/8] s390/cio: introduce DMA pools to cio
+Date: Wed, 29 May 2019 14:26:51 +0200
+In-Reply-To: <20190529122657.166148-1-mimu@linux.ibm.com>
+References: <20190529122657.166148-1-mimu@linux.ibm.com>
+Message-Id: <20190529122657.166148-3-mimu@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
@@ -10,147 +12,224 @@ To: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@
 Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-Enhanced virtualization protection technology may require the use of
-bounce buffers for I/O. While support for this was built into the virtio
-core, virtio-ccw wasn't changed accordingly.
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Some background on technology (not part of this series) and the
-terminology used.
+To support protected virtualization cio will need to make sure the
+memory used for communication with the hypervisor is DMA memory.
 
-* Protected Virtualization (PV):
+Let us introduce one global pool for cio.
 
-Protected Virtualization guarantees, that non-shared memory of a  guest
-that operates in PV mode private to that guest. I.e. any attempts by the
-hypervisor or other guests to access it will result in an exception. If
-supported by the environment (machine, KVM, guest VM) a guest can decide
-to change into PV mode by doing the appropriate ultravisor calls.
+Our DMA pools are implemented as a gen_pool backed with DMA pages. The
+idea is to avoid each allocation effectively wasting a page, as we
+typically allocate much less than PAGE_SIZE.
 
-* Ultravisor:
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ arch/s390/Kconfig           |   1 +
+ arch/s390/include/asm/cio.h |  11 ++++
+ drivers/s390/cio/css.c      | 120 ++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 128 insertions(+), 4 deletions(-)
 
-A hardware/firmware entity that manages PV guests, and polices access to
-their memory. A PV guest prospect needs to interact with the ultravisor,
-to enter PV mode, and potentially to share pages (for I/O which should
-be encrypted by the guest). A guest interacts with the ultravisor via so
-called ultravisor calls. A hypervisor needs to interact with the
-ultravisor to facilitate interpretation, emulation and swapping. A
-hypervisor  interacts with the ultravisor via ultravisor calls and via
-the SIE state description. Generally the ultravisor sanitizes hypervisor
-inputs so that the guest can not be corrupted (except for denial of
-service.
-
-
-What needs to be done
-=====================
-
-Thus what needs to be done to bring virtio-ccw up to speed with respect
-to protected virtualization is:
-* use some 'new' common virtio stuff
-* make sure that virtio-ccw specific stuff uses shared memory when
-  talking to the hypervisor (except control/communication blocks like ORB,
-  these are handled by the ultravisor)
-* make sure the DMA API does what is necessary to talk through shared
-  memory if we are a protected virtualization guest.
-* make sure the common IO layer plays along as well (airqs, sense).
-
-
-Important notes
-================
-
-* This patch set is based on Martins features branch
- (git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git branch
- 'features').
-
-* Documentation is still very sketchy. I'm committed to improving this,
-  but I'm currently hampered by some dependencies currently.  
-
-* The existing naming in the common infrastructure (kernel internal
-  interfaces) is pretty much based on the AMD SEV terminology. Thus the
-  names aren't always perfect. There might be merit to changing these
-  names to more abstract ones. I did not put much thought into that at
-  the current stage.
-
-* Testing: Please use iommu_platform=on for any virtio devices you are
-  going to test this code with (so virtio actually uses the DMA API).
-
-Change log
-==========
-
-v2 --> v3:
-* patch 2/8
-    potential cio_dma_pool_init() returning NULL issue fixed
-    potential cio_gp_dma_create() returning NULL issue fixed
-    warning issues with doc type comments fixed
-    unused define statement removed 
-* patch 3/8
-    potential cio_gp_dma_create() returning NULL issue fixed
-    whitespace issue fixed
-    warning issues with doc type comments fixed
-* patch 8/8
-    potential cio_dma_zalloc() returning NULL issue fixed
-
-v1 --> v2:
-* patch "virtio/s390: use vring_create_virtqueue" went already upstream
-* patch "virtio/s390: DMA support for virtio-ccw" went already upstream
-* patch "virtio/s390: enable packed ring" went already upstream
-* Made dev.dma_mask point to dev.coherent_dma_mask for css, subchannel
-  and ccw devices.
-* While rebasing 's390/airq: use DMA memory for adapter interrupts' the
-  newly introduced kmem_cache  was replaced with an equivalent dma_pool;
-  the kalloc() allocations are now replaced with cio_dma_zalloc()
-  allocations to avoid wasting almost a full page.
-* Made virtio-ccw use the new AIRQ_IV_CACHELINE flag.
-* fixed all remaining checkpatch issues
-
-RFC --> v1:
-* Fixed bugs found by Connie (may_reduce and handling reduced,  warning,
-  split move -- thanks Connie!).
-* Fixed console bug found by Sebastian (thanks Sebastian!).
-* Removed the completely useless duplicate of dma-mapping.h spotted by
-  Christoph (thanks Christoph!).
-* Don't use the global DMA pool for subchannel and ccw device
-  owned memory as requested by Sebastian. Consequences:
-	* Both subchannel and ccw devices have their dma masks
-	now (both specifying 31 bit addressable)
-	* We require at least 2 DMA pages per ccw device now, most of
-	this memory is wasted though.
-	* DMA memory allocated by virtio is also 31 bit addressable now
-        as virtio uses the parent (which is the ccw device).
-* Enabled packed ring.
-* Rebased onto Martins feature branch; using the actual uv (ultravisor)
-  interface instead of TODO comments.
-* Added some explanations to the cover letter (Connie, David).
-* Squashed a couple of patches together and fixed some text stuff. 
-
-Halil Pasic (8):
-  s390/mm: force swiotlb for protected virtualization
-  s390/cio: introduce DMA pools to cio
-  s390/cio: add basic protected virtualization support
-  s390/airq: use DMA memory for adapter interrupts
-  virtio/s390: use cacheline aligned airq bit vectors
-  virtio/s390: add indirection to indicators access
-  virtio/s390: use DMA memory for ccw I/O and classic notifiers
-  virtio/s390: make airq summary indicators DMA
-
- arch/s390/Kconfig                   |   5 +
- arch/s390/include/asm/airq.h        |   2 +
- arch/s390/include/asm/ccwdev.h      |   4 +
- arch/s390/include/asm/cio.h         |  11 ++
- arch/s390/include/asm/mem_encrypt.h |  18 +++
- arch/s390/mm/init.c                 |  47 +++++++
- drivers/s390/cio/airq.c             |  32 +++--
- drivers/s390/cio/ccwreq.c           |   9 +-
- drivers/s390/cio/cio.h              |   2 +
- drivers/s390/cio/css.c              | 121 +++++++++++++++++-
- drivers/s390/cio/device.c           |  67 ++++++++--
- drivers/s390/cio/device_fsm.c       |  49 ++++---
- drivers/s390/cio/device_id.c        |  20 +--
- drivers/s390/cio/device_ops.c       |  21 ++-
- drivers/s390/cio/device_pgid.c      |  22 ++--
- drivers/s390/cio/device_status.c    |  24 ++--
- drivers/s390/cio/io_sch.h           |  20 ++-
- drivers/s390/virtio/virtio_ccw.c    | 248 ++++++++++++++++++++----------------
- 18 files changed, 523 insertions(+), 199 deletions(-)
- create mode 100644 arch/s390/include/asm/mem_encrypt.h
-
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 88d8355b7bf7..2a245b56db8b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -191,6 +191,7 @@ config S390
+ 	select ARCH_HAS_SCALED_CPUTIME
+ 	select HAVE_NMI
+ 	select SWIOTLB
++	select GENERIC_ALLOCATOR
+ 
+ 
+ config SCHED_OMIT_FRAME_POINTER
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 1727180e8ca1..43c007d2775a 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -328,6 +328,17 @@ static inline u8 pathmask_to_pos(u8 mask)
+ void channel_subsystem_reinit(void);
+ extern void css_schedule_reprobe(void);
+ 
++extern void *cio_dma_zalloc(size_t size);
++extern void cio_dma_free(void *cpu_addr, size_t size);
++extern struct device *cio_get_dma_css_dev(void);
++
++struct gen_pool;
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size);
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
++
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index aea502922646..b97618497848 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -20,6 +20,8 @@
+ #include <linux/reboot.h>
+ #include <linux/suspend.h>
+ #include <linux/proc_fs.h>
++#include <linux/genalloc.h>
++#include <linux/dma-mapping.h>
+ #include <asm/isc.h>
+ #include <asm/crw.h>
+ 
+@@ -224,6 +226,8 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	INIT_WORK(&sch->todo_work, css_sch_todo);
+ 	sch->dev.release = &css_subchannel_release;
+ 	device_initialize(&sch->dev);
++	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
++	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
+ 	return sch;
+ 
+ err:
+@@ -899,6 +903,8 @@ static int __init setup_css(int nr)
+ 	dev_set_name(&css->device, "css%x", nr);
+ 	css->device.groups = cssdev_attr_groups;
+ 	css->device.release = channel_subsystem_release;
++	css->device.coherent_dma_mask = DMA_BIT_MASK(64);
++	css->device.dma_mask = &css->device.coherent_dma_mask;
+ 
+ 	mutex_init(&css->mutex);
+ 	css->cssid = chsc_get_cssid(nr);
+@@ -1018,6 +1024,109 @@ static struct notifier_block css_power_notifier = {
+ 	.notifier_call = css_power_event,
+ };
+ 
++#define  CIO_DMA_GFP (GFP_KERNEL | __GFP_ZERO)
++static struct gen_pool *cio_dma_pool;
++
++/* Currently cio supports only a single css */
++struct device *cio_get_dma_css_dev(void)
++{
++	return &channel_subsystems[0]->device;
++}
++
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
++{
++	struct gen_pool *gp_dma;
++	void *cpu_addr;
++	dma_addr_t dma_addr;
++	int i;
++
++	gp_dma = gen_pool_create(3, -1);
++	if (!gp_dma)
++		return NULL;
++	for (i = 0; i < nr_pages; ++i) {
++		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
++					      CIO_DMA_GFP);
++		if (!cpu_addr)
++			return gp_dma;
++		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
++				  dma_addr, PAGE_SIZE, -1);
++	}
++	return gp_dma;
++}
++
++static void __gp_dma_free_dma(struct gen_pool *pool,
++			      struct gen_pool_chunk *chunk, void *data)
++{
++	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
++
++	dma_free_coherent((struct device *) data, chunk_size,
++			 (void *) chunk->start_addr,
++			 (dma_addr_t) chunk->phys_addr);
++}
++
++void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
++{
++	if (!gp_dma)
++		return;
++	/* this is qite ugly but no better idea */
++	gen_pool_for_each_chunk(gp_dma, __gp_dma_free_dma, dma_dev);
++	gen_pool_destroy(gp_dma);
++}
++
++static int cio_dma_pool_init(void)
++{
++	/* No need to free up the resources: compiled in */
++	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
++	if (!cio_dma_pool)
++		return -ENOMEM;
++	return 0;
++}
++
++void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
++			size_t size)
++{
++	dma_addr_t dma_addr;
++	unsigned long addr;
++	size_t chunk_size;
++
++	addr = gen_pool_alloc(gp_dma, size);
++	while (!addr) {
++		chunk_size = round_up(size, PAGE_SIZE);
++		addr = (unsigned long) dma_alloc_coherent(dma_dev,
++					 chunk_size, &dma_addr, CIO_DMA_GFP);
++		if (!addr)
++			return NULL;
++		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
++		addr = gen_pool_alloc(gp_dma, size);
++	}
++	return (void *) addr;
++}
++
++void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
++{
++	if (!cpu_addr)
++		return;
++	memset(cpu_addr, 0, size);
++	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
++}
++
++/*
++ * Allocate dma memory from the css global pool. Intended for memory not
++ * specific to any single device within the css. The allocated memory
++ * is not guaranteed to be 31-bit addressable.
++ *
++ * Caution: Not suitable for early stuff like console.
++ */
++void *cio_dma_zalloc(size_t size)
++{
++	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
++}
++
++void cio_dma_free(void *cpu_addr, size_t size)
++{
++	cio_gp_dma_free(cio_dma_pool, cpu_addr, size);
++}
++
+ /*
+  * Now that the driver core is running, we can setup our channel subsystem.
+  * The struct subchannel's are created during probing.
+@@ -1059,16 +1168,19 @@ static int __init css_bus_init(void)
+ 	if (ret)
+ 		goto out_unregister;
+ 	ret = register_pm_notifier(&css_power_notifier);
+-	if (ret) {
+-		unregister_reboot_notifier(&css_reboot_notifier);
+-		goto out_unregister;
+-	}
++	if (ret)
++		goto out_unregister_rn;
++	ret = cio_dma_pool_init();
++	if (ret)
++		goto out_unregister_rn;
+ 	css_init_done = 1;
+ 
+ 	/* Enable default isc for I/O subchannels. */
+ 	isc_register(IO_SCH_ISC);
+ 
+ 	return 0;
++out_unregister_rn:
++	unregister_reboot_notifier(&css_reboot_notifier);
+ out_unregister:
+ 	while (i-- > 0) {
+ 		struct channel_subsystem *css = channel_subsystems[i];
 -- 
 2.13.4
