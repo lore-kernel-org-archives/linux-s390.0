@@ -1,27 +1,18 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Mon, 20 May 2019 10:40:11 +0000
-Subject: Re: [PATCH -next] KVM: s390: fix typo in parameter description
-Message-Id: <44f535b4-a89c-748d-b275-2876d5223689@redhat.com>
-In-Reply-To: <a6d67ef5-2db8-5373-04ae-d54f5bdb79db@de.ibm.com>
-References: <a6d67ef5-2db8-5373-04ae-d54f5bdb79db@de.ibm.com>
-To: linux-s390@vger.kernel.org, kernel-janitors@vger.kernel.org
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Date: Thu, 30 May 2019 01:53:37 +0000
+Subject: Re: [PATCH 0/2] zfcp fixes for v5.2-rcX
+Message-Id: <yq1d0k0zp0e.fsf@oracle.com>
+In-Reply-To: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+References: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On 20/05/19 09:41, Christian Borntraeger wrote:
-> On 06.05.19 09:52, Christian Borntraeger wrote:
->>
->>
->> On 04.05.19 08:51, Wei Yongjun wrote:
->>> Fix typo in parameter description.
->>>
->>> Fixes: 8b905d28ee17 ("KVM: s390: provide kvm_arch_no_poll function")
->>> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
->>
->> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> 
-> Since I have another fix pending, I now picked this up myself and
-> this will be in my next pull request for 5.2-rc2.
 
-Ok, I'll wait for it before sending my own pending fixes to Linus.
+Steffen,
 
-Paolo
+> here are 2 zfcp bugfixes for v5.2-rcX.
+
+Applied to 5.2/scsi-fixes. Thank you!
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
