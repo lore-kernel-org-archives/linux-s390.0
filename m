@@ -1,16 +1,8 @@
-Return-Path: <SRS0=dKik=T7=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
-Date: Fri, 31 May 2019 10:48:54 -0700
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [RFC] mm: Generalize notify_page_fault()
-Message-ID: <20190531174854.GA31852@bombadil.infradead.org>
-References: <1559195713-6956-1-git-send-email-anshuman.khandual@arm.com>
- <20190530110639.GC23461@bombadil.infradead.org>
- <4f9a610d-e856-60f6-4467-09e9c3836771@arm.com>
- <20190530133954.GA2024@bombadil.infradead.org>
- <f1995445-d5ab-f292-d26c-809581002184@arm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <f1995445-d5ab-f292-d26c-809581002184@arm.com>
+Return-Path: <SRS0=n/Ag=T6=lists.infradead.org=linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@kernel.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [RFC] mm: Generalize notify_page_fault()
+Date: Thu, 30 May 2019 11:25:13 +0530
+Message-Id: <1559195713-6956-1-git-send-email-anshuman.khandual@arm.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,51 +10,344 @@ List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
 List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
 List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+infradead-linux-arm-kernel=archiver.kernel.org@lists.infradead.org
 List-Archive: <https://lore.kernel.org/linux-arm-kernel/>
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Michal Hocko <mhocko@suse.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, Russell King <linux@armlinux.org.uk>, Fenghua Yu <fenghua.yu@intel.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Andrey Konovalov <andreyknvl@google.com>, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Tony Luck <tony.luck@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Michal Hocko <mhocko@suse.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-s390@vger.kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michael Ellerman <mpe@ellerman.id.au>, Russell King <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>, Fenghua Yu <fenghua.yu@intel.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Andrey Konovalov <andreyknvl@google.com>, linux-arm-kernel@lists.infradead.org, Christophe Leroy <christophe.leroy@c-s.fr>, Tony Luck <tony.luck@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 31, 2019 at 02:17:43PM +0530, Anshuman Khandual wrote:
-> On 05/30/2019 07:09 PM, Matthew Wilcox wrote:
-> > On Thu, May 30, 2019 at 05:31:15PM +0530, Anshuman Khandual wrote:
-> >> On 05/30/2019 04:36 PM, Matthew Wilcox wrote:
-> >>> The two handle preemption differently.  Why is x86 wrong and this one
-> >>> correct?
-> >>
-> >> Here it expects context to be already non-preemptible where as the proposed
-> >> generic function makes it non-preemptible with a preempt_[disable|enable]()
-> >> pair for the required code section, irrespective of it's present state. Is
-> >> not this better ?
-> > 
-> > git log -p arch/x86/mm/fault.c
-> > 
-> > search for 'kprobes'.
-> > 
-> > tell me what you think.
-> 
-> Are you referring to these following commits
-> 
-> a980c0ef9f6d ("x86/kprobes: Refactor kprobes_fault() like kprobe_exceptions_notify()")
-> b506a9d08bae ("x86: code clarification patch to Kprobes arch code")
-> 
-> In particular the later one (b506a9d08bae). It explains how the invoking context
-> in itself should be non-preemptible for the kprobes processing context irrespective
-> of whether kprobe_running() or perhaps smp_processor_id() is safe or not. Hence it
-> does not make much sense to continue when original invoking context is preemptible.
-> Instead just bail out earlier. This seems to be making more sense than preempt
-> disable-enable pair. If there are no concerns about this change from other platforms,
-> I will change the preemption behavior in proposed generic function next time around.
+Similar notify_page_fault() definitions are being used by architectures
+duplicating much of the same code. This attempts to unify them into a
+single implementation, generalize it and then move it to a common place.
+kprobes_built_in() can detect CONFIG_KPROBES, hence notify_page_fault()
+must not be wrapped again within CONFIG_KPROBES. Trap number argument can
+now contain upto an 'unsigned int' accommodating all possible platforms.
 
-Exactly.
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
-So, any of the arch maintainers know of a reason they behave differently
-from x86 in this regard?  Or can Anshuman use the x86 implementation
-for all the architectures supporting kprobes?
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: "David S. Miller" <davem@davemloft.net>
+---
+Boot tested on arm64 and build tested on some others.
+
+ arch/arm/mm/fault.c      | 22 ----------------------
+ arch/arm64/mm/fault.c    | 22 ----------------------
+ arch/ia64/mm/fault.c     | 22 ----------------------
+ arch/powerpc/mm/fault.c  | 23 ++---------------------
+ arch/s390/mm/fault.c     | 16 +---------------
+ arch/sh/mm/fault.c       | 14 --------------
+ arch/sparc/mm/fault_64.c | 16 +---------------
+ include/linux/mm.h       |  1 +
+ mm/memory.c              | 14 ++++++++++++++
+ 9 files changed, 19 insertions(+), 131 deletions(-)
+
+diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
+index 58f69fa..1bc3b18 100644
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -30,28 +30,6 @@
+ 
+ #ifdef CONFIG_MMU
+ 
+-#ifdef CONFIG_KPROBES
+-static inline int notify_page_fault(struct pt_regs *regs, unsigned int fsr)
+-{
+-	int ret = 0;
+-
+-	if (!user_mode(regs)) {
+-		/* kprobe_running() needs smp_processor_id() */
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, fsr))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-
+-	return ret;
+-}
+-#else
+-static inline int notify_page_fault(struct pt_regs *regs, unsigned int fsr)
+-{
+-	return 0;
+-}
+-#endif
+-
+ /*
+  * This is useful to dump out the page tables associated with
+  * 'addr' in mm 'mm'.
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index a30818e..152f1f1 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -70,28 +70,6 @@ static inline const struct fault_info *esr_to_debug_fault_info(unsigned int esr)
+ 	return debug_fault_info + DBG_ESR_EVT(esr);
+ }
+ 
+-#ifdef CONFIG_KPROBES
+-static inline int notify_page_fault(struct pt_regs *regs, unsigned int esr)
+-{
+-	int ret = 0;
+-
+-	/* kprobe_running() needs smp_processor_id() */
+-	if (!user_mode(regs)) {
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, esr))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-
+-	return ret;
+-}
+-#else
+-static inline int notify_page_fault(struct pt_regs *regs, unsigned int esr)
+-{
+-	return 0;
+-}
+-#endif
+-
+ static void data_abort_decode(unsigned int esr)
+ {
+ 	pr_alert("Data abort info:\n");
+diff --git a/arch/ia64/mm/fault.c b/arch/ia64/mm/fault.c
+index 5baeb02..64283d2 100644
+--- a/arch/ia64/mm/fault.c
++++ b/arch/ia64/mm/fault.c
+@@ -21,28 +21,6 @@
+ 
+ extern int die(char *, struct pt_regs *, long);
+ 
+-#ifdef CONFIG_KPROBES
+-static inline int notify_page_fault(struct pt_regs *regs, int trap)
+-{
+-	int ret = 0;
+-
+-	if (!user_mode(regs)) {
+-		/* kprobe_running() needs smp_processor_id() */
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, trap))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-
+-	return ret;
+-}
+-#else
+-static inline int notify_page_fault(struct pt_regs *regs, int trap)
+-{
+-	return 0;
+-}
+-#endif
+-
+ /*
+  * Return TRUE if ADDRESS points at a page in the kernel's mapped segment
+  * (inside region 5, on ia64) and that page is present.
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index b5d3578..5a0d71f 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -46,26 +46,6 @@
+ #include <asm/debug.h>
+ #include <asm/kup.h>
+ 
+-static inline bool notify_page_fault(struct pt_regs *regs)
+-{
+-	bool ret = false;
+-
+-#ifdef CONFIG_KPROBES
+-	/* kprobe_running() needs smp_processor_id() */
+-	if (!user_mode(regs)) {
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, 11))
+-			ret = true;
+-		preempt_enable();
+-	}
+-#endif /* CONFIG_KPROBES */
+-
+-	if (unlikely(debugger_fault_handler(regs)))
+-		ret = true;
+-
+-	return ret;
+-}
+-
+ /*
+  * Check whether the instruction inst is a store using
+  * an update addressing form which will update r1.
+@@ -466,8 +446,9 @@ static int __do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	int is_write = page_fault_is_write(error_code);
+ 	vm_fault_t fault, major = 0;
+ 	bool must_retry = false;
++	int kprobe_fault = notify_page_fault(regs, 11);
+ 
+-	if (notify_page_fault(regs))
++	if (unlikely(debugger_fault_handler(regs) || kprobe_fault))
+ 		return 0;
+ 
+ 	if (unlikely(page_fault_is_bad(error_code))) {
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index c220399..d317263 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -67,20 +67,6 @@ static int __init fault_init(void)
+ }
+ early_initcall(fault_init);
+ 
+-static inline int notify_page_fault(struct pt_regs *regs)
+-{
+-	int ret = 0;
+-
+-	/* kprobe_running() needs smp_processor_id() */
+-	if (kprobes_built_in() && !user_mode(regs)) {
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, 14))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-	return ret;
+-}
+-
+ /*
+  * Find out which address space caused the exception.
+  * Access register mode is impossible, ignore space == 3.
+@@ -409,7 +395,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+ 	 */
+ 	clear_pt_regs_flag(regs, PIF_PER_TRAP);
+ 
+-	if (notify_page_fault(regs))
++	if (notify_page_fault(regs, 14))
+ 		return 0;
+ 
+ 	mm = tsk->mm;
+diff --git a/arch/sh/mm/fault.c b/arch/sh/mm/fault.c
+index 6defd2c6..94bdfcb 100644
+--- a/arch/sh/mm/fault.c
++++ b/arch/sh/mm/fault.c
+@@ -24,20 +24,6 @@
+ #include <asm/tlbflush.h>
+ #include <asm/traps.h>
+ 
+-static inline int notify_page_fault(struct pt_regs *regs, int trap)
+-{
+-	int ret = 0;
+-
+-	if (kprobes_built_in() && !user_mode(regs)) {
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, trap))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-
+-	return ret;
+-}
+-
+ static void
+ force_sig_info_fault(int si_signo, int si_code, unsigned long address,
+ 		     struct task_struct *tsk)
+diff --git a/arch/sparc/mm/fault_64.c b/arch/sparc/mm/fault_64.c
+index 8f8a604..e5557a1 100644
+--- a/arch/sparc/mm/fault_64.c
++++ b/arch/sparc/mm/fault_64.c
+@@ -38,20 +38,6 @@
+ 
+ int show_unhandled_signals = 1;
+ 
+-static inline __kprobes int notify_page_fault(struct pt_regs *regs)
+-{
+-	int ret = 0;
+-
+-	/* kprobe_running() needs smp_processor_id() */
+-	if (kprobes_built_in() && !user_mode(regs)) {
+-		preempt_disable();
+-		if (kprobe_running() && kprobe_fault_handler(regs, 0))
+-			ret = 1;
+-		preempt_enable();
+-	}
+-	return ret;
+-}
+-
+ static void __kprobes unhandled_fault(unsigned long address,
+ 				      struct task_struct *tsk,
+ 				      struct pt_regs *regs)
+@@ -285,7 +271,7 @@ asmlinkage void __kprobes do_sparc64_fault(struct pt_regs *regs)
+ 
+ 	fault_code = get_thread_fault_code();
+ 
+-	if (notify_page_fault(regs))
++	if (notify_page_fault(regs, 0))
+ 		goto exit_exception;
+ 
+ 	si_code = SEGV_MAPERR;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 0e8834a..c5a8dcf 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1778,6 +1778,7 @@ static inline int pte_devmap(pte_t pte)
+ }
+ #endif
+ 
++int notify_page_fault(struct pt_regs *regs, unsigned int trap);
+ int vma_wants_writenotify(struct vm_area_struct *vma, pgprot_t vm_page_prot);
+ 
+ extern pte_t *__get_locked_pte(struct mm_struct *mm, unsigned long addr,
+diff --git a/mm/memory.c b/mm/memory.c
+index ddf20bd..82022d7 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -52,6 +52,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/memremap.h>
+ #include <linux/ksm.h>
++#include <linux/kprobes.h>
+ #include <linux/rmap.h>
+ #include <linux/export.h>
+ #include <linux/delayacct.h>
+@@ -141,6 +142,19 @@ static int __init init_zero_pfn(void)
+ core_initcall(init_zero_pfn);
+ 
+ 
++int __kprobes notify_page_fault(struct pt_regs *regs, unsigned int trap)
++{
++	int ret = 0;
++
++	if (kprobes_built_in() && !user_mode(regs)) {
++		preempt_disable();
++		if (kprobe_running() && kprobe_fault_handler(regs, trap))
++			ret = 1;
++		preempt_enable();
++	}
++	return ret;
++}
++
+ #if defined(SPLIT_RSS_COUNTING)
+ 
+ void sync_mm_rss(struct mm_struct *mm)
+-- 
+2.7.4
+
 
 _______________________________________________
 linux-arm-kernel mailing list
