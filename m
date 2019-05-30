@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mathieu Malaterre <malat@debian.org>
-Subject: [PATCH] powerpc/power: Expose pfn_is_nosave prototype
-Date: Thu, 23 May 2019 13:47:36 +0200
-Message-Id: <20190523114736.30268-1-malat@debian.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190527111152.16324-1-david@redhat.com> <20190527111152.16324-8-david@redhat.com>
+In-Reply-To: <20190527111152.16324-8-david@redhat.com>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
+Date: Thu, 30 May 2019 17:07:05 -0400
+Message-ID: <CA+CK2bBLtZL8qxsjJt-tdaOraJCbDYfH2cbQ1ABJJ8hYif8LiQ@mail.gmail.com>
+Subject: Re: [PATCH v3 07/11] mm/memory_hotplug: Create memory block devices
+ after arch_add_memory()
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Mathieu Malaterre <malat@debian.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, Andrew Morton <akpm@linux-foundation.org>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Ingo Molnar <mingo@kernel.org>, Andrew Banman <andrew.banman@hpe.com>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
 
-The declaration for pfn_is_nosave is only available in
-kernel/power/power.h. Since this function can be override in arch,
-expose it globally. Having a prototype will make sure to avoid warning
-(sometime treated as error with W=1) such as:
+On Mon, May 27, 2019 at 7:12 AM David Hildenbrand <david@redhat.com> wrote:
+>
+> Only memory to be added to the buddy and to be onlined/offlined by
+> user space using /sys/devices/system/memory/... needs (and should have!)
+> memory block devices.
+>
+> Factor out creation of memory block devices. Create all devices after
+> arch_add_memory() succeeded. We can later drop the want_memblock parameter,
+> because it is now effectively stale.
+>
+> Only after memory block devices have been added, memory can be onlined
+> by user space. This implies, that memory is not visible to user space at
+> all before arch_add_memory() succeeded.
+>
+> While at it
+> - use WARN_ON_ONCE instead of BUG_ON in moved unregister_memory()
+> - introduce find_memory_block_by_id() to search via block id
+> - Use find_memory_block_by_id() in init_memory_block() to catch
+>   duplicates
+>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: "mike.travis@hpe.com" <mike.travis@hpe.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Ingo Molnar <mingo@kernel.org>
+> Cc: Andrew Banman <andrew.banman@hpe.com>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: Arun KS <arunks@codeaurora.org>
+> Cc: Mathieu Malaterre <malat@debian.org>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-  arch/powerpc/kernel/suspend.c:18:5: error: no previous prototype for 'pfn_is_nosave' [-Werror=missing-prototypes]
-
-This moves the declaration into a globally visible header file and add
-missing include to avoid a warning in powerpc.
-
-Signed-off-by: Mathieu Malaterre <malat@debian.org>
----
- arch/powerpc/kernel/suspend.c | 1 +
- include/linux/suspend.h       | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/arch/powerpc/kernel/suspend.c b/arch/powerpc/kernel/suspend.c
-index a531154cc0f3..9e1b6b894245 100644
---- a/arch/powerpc/kernel/suspend.c
-+++ b/arch/powerpc/kernel/suspend.c
-@@ -8,6 +8,7 @@
-  */
- 
- #include <linux/mm.h>
-+#include <linux/suspend.h>
- #include <asm/page.h>
- #include <asm/sections.h>
- 
-diff --git a/include/linux/suspend.h b/include/linux/suspend.h
-index 3f529ad9a9d2..2660bbdf5230 100644
---- a/include/linux/suspend.h
-+++ b/include/linux/suspend.h
-@@ -395,6 +395,7 @@ extern bool system_entering_hibernation(void);
- extern bool hibernation_available(void);
- asmlinkage int swsusp_save(void);
- extern struct pbe *restore_pblist;
-+int pfn_is_nosave(unsigned long pfn);
- #else /* CONFIG_HIBERNATION */
- static inline void register_nosave_region(unsigned long b, unsigned long e) {}
- static inline void register_nosave_region_late(unsigned long b, unsigned long e) {}
--- 
-2.20.1
+LGTM
+Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
