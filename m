@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v9 4/4] s390: ap: kvm: Enable PQAP/AQIC facility for the guest
-Date: Tue, 21 May 2019 17:34:37 +0200
-In-Reply-To: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
-References: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1558452877-27822-5-git-send-email-pmorel@linux.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Subject: [PATCH v8 3/7] s390/pci: add support for IOMMU default DMA mode build options
+Date: Thu, 30 May 2019 11:48:27 +0800
+Message-ID: <20190530034831.4184-4-thunder.leizhen@huawei.com>
+In-Reply-To: <20190530034831.4184-1-thunder.leizhen@huawei.com>
+References: <20190530034831.4184-1-thunder.leizhen@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>, Hanjun Guo <guohanjun@huawei.com>
 
-AP Queue Interruption Control (AQIC) facility gives
-the guest the possibility to control interruption for
-the Cryptographic Adjunct Processor queues.
+The default DMA mode is LAZY on s390, this patch make it can be set to
+STRICT at build time. It can be overridden by boot option.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+There is no functional change.
+
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 ---
- arch/s390/tools/gen_facilities.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/pci/pci_dma.c | 2 +-
+ drivers/iommu/Kconfig   | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-index 61ce5b5..aed14fc 100644
---- a/arch/s390/tools/gen_facilities.c
-+++ b/arch/s390/tools/gen_facilities.c
-@@ -114,6 +114,7 @@ static struct facility_def facility_defs[] = {
- 		.bits = (int[]){
- 			12, /* AP Query Configuration Information */
- 			15, /* AP Facilities Test */
-+			65, /* AP Queue Interruption Control */
- 			156, /* etoken facility */
- 			-1  /* END */
- 		}
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 9e52d1527f71495..784ad1e0acecfb1 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -17,7 +17,7 @@
+ 
+ static struct kmem_cache *dma_region_table_cache;
+ static struct kmem_cache *dma_page_table_cache;
+-static int s390_iommu_strict;
++static int s390_iommu_strict = IS_ENABLED(CONFIG_IOMMU_DEFAULT_STRICT);
+ 
+ static int zpci_refresh_global(struct zpci_dev *zdev)
+ {
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index d6a1a45f80ffbf5..9b48c2fc20e14d3 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -78,6 +78,7 @@ config IOMMU_DEBUGFS
+ choice
+ 	prompt "IOMMU default DMA mode"
+ 	depends on IOMMU_API
++	default IOMMU_DEFAULT_LAZY if S390_IOMMU
+ 	default IOMMU_DEFAULT_STRICT
+ 	help
+ 	  This option allows IOMMU DMA mode to be chose at build time, to
+@@ -87,6 +88,7 @@ choice
+ 
+ config IOMMU_DEFAULT_PASSTHROUGH
+ 	bool "passthrough"
++	depends on !S390_IOMMU
+ 	help
+ 	  In this mode, the DMA access through IOMMU without any addresses
+ 	  translation. That means, the wrong or illegal DMA access can not
 -- 
-2.7.4
+1.8.3
