@@ -1,82 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 05/11] drivers/base/memory: Pass a block_id to init_memory_block()
-Date: Mon, 27 May 2019 13:11:46 +0200
-Message-Id: <20190527111152.16324-6-david@redhat.com>
-In-Reply-To: <20190527111152.16324-1-david@redhat.com>
-References: <20190527111152.16324-1-david@redhat.com>
+Subject: Re: [PATCH v8 1/7] iommu: enhance IOMMU default DMA mode build
+ options
+References: <20190530034831.4184-1-thunder.leizhen@huawei.com>
+ <20190530034831.4184-2-thunder.leizhen@huawei.com>
+ <645bd526-4eb0-4a36-2dda-023f009247ab@huawei.com>
+ <030bafab-58f5-8bb1-0533-2977d6e138b2@huawei.com>
+From: John Garry <john.garry@huawei.com>
+Message-ID: <55d0e30c-5bca-41fc-5bf0-4366dc387afd@huawei.com>
+Date: Fri, 31 May 2019 11:42:45 +0100
 MIME-Version: 1.0
+In-Reply-To: <030bafab-58f5-8bb1-0533-2977d6e138b2@huawei.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, David Hildenbrand <david@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>
+To: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Hanjun Guo <guohanjun@huawei.com>, Linuxarm <linuxarm@huawei.com>
 
-We'll rework hotplug_memory_register() shortly, so it no longer consumes
-pass a section.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/base/memory.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+>>> -config IOMMU_DEFAULT_PASSTHROUGH
+>>> -    bool "IOMMU passthrough by default"
+>>> +choice
+>>> +    prompt "IOMMU default DMA mode"
+>>>      depends on IOMMU_API
+>>> -        help
+>>> -      Enable passthrough by default, removing the need to pass in
+>>> -      iommu.passthrough=on or iommu=pt through command line. If this
+>>> -      is enabled, you can still disable with iommu.passthrough=off
+>>> -      or iommu=nopt depending on the architecture.
+>>> +    default IOMMU_DEFAULT_STRICT
+>>> +    help
+>>> +      This option allows IOMMU DMA mode to be chose at build time, to
+>>
+>> As before:
+>> /s/chose/chosen/, /s/allows IOMMU/allows an IOMMU/
+> I'm sorry that the previous version was not modified.
+>
+>>
+>>> +      override the default DMA mode of each ARCHs, removing the need to
+>>
+>> Again, as before:
+>> ARCHs should be singular
+> OK
+>
+>>
+>>> +      pass in kernel parameters through command line. You can still use
+>>> +      ARCHs specific boot options to override this option again.
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index f180427e48f4..f914fa6fe350 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -651,21 +651,18 @@ int register_memory(struct memory_block *memory)
- 	return ret;
- }
- 
--static int init_memory_block(struct memory_block **memory,
--			     struct mem_section *section, unsigned long state)
-+static int init_memory_block(struct memory_block **memory, int block_id,
-+			     unsigned long state)
- {
- 	struct memory_block *mem;
- 	unsigned long start_pfn;
--	int scn_nr;
- 	int ret = 0;
- 
- 	mem = kzalloc(sizeof(*mem), GFP_KERNEL);
- 	if (!mem)
- 		return -ENOMEM;
- 
--	scn_nr = __section_nr(section);
--	mem->start_section_nr =
--			base_memory_block_id(scn_nr) * sections_per_block;
-+	mem->start_section_nr = block_id * sections_per_block;
- 	mem->end_section_nr = mem->start_section_nr + sections_per_block - 1;
- 	mem->state = state;
- 	start_pfn = section_nr_to_pfn(mem->start_section_nr);
-@@ -694,7 +691,8 @@ static int add_memory_block(int base_section_nr)
- 
- 	if (section_count == 0)
- 		return 0;
--	ret = init_memory_block(&mem, __nr_to_section(section_nr), MEM_ONLINE);
-+	ret = init_memory_block(&mem, base_memory_block_id(base_section_nr),
-+				MEM_ONLINE);
- 	if (ret)
- 		return ret;
- 	mem->section_count = section_count;
-@@ -707,6 +705,7 @@ static int add_memory_block(int base_section_nr)
-  */
- int hotplug_memory_register(int nid, struct mem_section *section)
- {
-+	int block_id = base_memory_block_id(__section_nr(section));
- 	int ret = 0;
- 	struct memory_block *mem;
- 
-@@ -717,7 +716,7 @@ int hotplug_memory_register(int nid, struct mem_section *section)
- 		mem->section_count++;
- 		put_device(&mem->dev);
- 	} else {
--		ret = init_memory_block(&mem, section, MEM_OFFLINE);
-+		ret = init_memory_block(&mem, block_id, MEM_OFFLINE);
- 		if (ret)
- 			goto out;
- 		mem->section_count++;
--- 
-2.20.1
+*
+
+>>> +
+>>> +config IOMMU_DEFAULT_PASSTHROUGH
+>>> +    bool "passthrough"
+>>> +    help
+>>> +      In this mode, the DMA access through IOMMU without any addresses
+>>> +      translation. That means, the wrong or illegal DMA access can not
+>>> +      be caught, no error information will be reported.
+>>>
+>>>        If unsure, say N here.
+>>>
+>>> +config IOMMU_DEFAULT_LAZY
+>>> +    bool "lazy"
+>>> +    help
+>>> +      Support lazy mode, where for every IOMMU DMA unmap operation, the
+>>> +      flush operation of IOTLB and the free operation of IOVA are deferred.
+>>> +      They are only guaranteed to be done before the related IOVA will be
+>>> +      reused.
+>>
+>> why no advisory on how to set if unsure?
+> Because the LAZY and STRICT have their own advantages and disadvantages.
+>
+> Should I say: If unsure, keep the default。
+
+Maybe. So you could put this in the help for the choice, * above, and 
+remove the advisory on IOMMU_DEFAULT_PASSTHROUGH.
+
+However the maintainer may have a different view.
+
+Thanks,
+John
+
+>
+>>
+>>> +
+>>> +config IOMMU_DEFAULT_STRICT
+>>> +    bool "strict"
+>>> +    help
+>>> +      For every IOMMU DMA unmap operation, the flush operation of IOTLB and
+>>> +      the free operation of IOVA are guaranteed to be done in the unmap
+>>> +      function.
+>>> +
+>>> +      This mode is safer than the two above, but it maybe slower in some
+>>> +      high performace scenarios.
+>>
+>> and here?
