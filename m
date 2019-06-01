@@ -1,34 +1,41 @@
-Return-Path: <SRS0=iFEE=UC=vger.kernel.org=kvm-owner@kernel.org>
-Date: Mon, 3 Jun 2019 17:40:32 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 5/8] virtio/s390: use cacheline aligned airq bit
- vectors
-Message-ID: <20190603174032.58dd0532.cohuck@redhat.com>
-In-Reply-To: <20190529122657.166148-6-mimu@linux.ibm.com>
-References: <20190529122657.166148-1-mimu@linux.ibm.com>
-        <20190529122657.166148-6-mimu@linux.ibm.com>
+Return-Path: <SRS0=TpO6=UA=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Sat, 1 Jun 2019 12:22:47 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/purgatory: update .gitignore
+References: <20190531024651.5925-1-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: Michael Mueller <mimu@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190531024651.5925-1-yamada.masahiro@socionext.com>
+Message-Id: <20190601102247.GF3600@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, 29 May 2019 14:26:54 +0200
-Michael Mueller <mimu@linux.ibm.com> wrote:
-
-> From: Halil Pasic <pasic@linux.ibm.com>
+On Fri, May 31, 2019 at 11:46:51AM +0900, Masahiro Yamada wrote:
+> Since commit 4c0f032d4963 ("s390/purgatory: Omit use of bin2c"),
+> kexec-purgatory.c is not generated.
 > 
-> The flag AIRQ_IV_CACHELINE was recently added to airq_iv_create(). Let
-> us use it! We actually wanted the vector to span a cacheline all along.
+> purgatory and purgatory.lds are generated files, so should be ignored
+> by git.
 > 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 > ---
->  drivers/s390/virtio/virtio_ccw.c | 3 ++-
+> 
+>  arch/s390/purgatory/.gitignore | 3 ++-
 >  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/purgatory/.gitignore b/arch/s390/purgatory/.gitignore
+> index e9e66f178a6d..04a03433c720 100644
+> --- a/arch/s390/purgatory/.gitignore
+> +++ b/arch/s390/purgatory/.gitignore
+> @@ -1,2 +1,3 @@
+> -kexec-purgatory.c
+> +purgatory
+> +purgatory.lds
+>  purgatory.ro
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Applied, thanks.
