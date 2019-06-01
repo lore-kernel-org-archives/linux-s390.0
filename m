@@ -1,43 +1,50 @@
 Return-Path: <SRS0=TpO6=UA=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sat, 1 Jun 2019 12:55:35 +0200
+Date: Sat, 1 Jun 2019 12:21:25 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: mmap base does not depend on ADDR_NO_RANDOMIZE
- personality
-References: <20190404061956.25507-1-alex@ghiti.fr>
+Subject: Re: [PATCH 1/4] s390: do not pass $(LINUXINCLUDE) to
+ gen_opcode_table.c
+References: <20190517075428.13496-1-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190404061956.25507-1-alex@ghiti.fr>
-Message-Id: <20190601105534.GG3600@osiris>
+In-Reply-To: <20190517075428.13496-1-yamada.masahiro@socionext.com>
+Message-Id: <20190601102125.GB3600@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Thu, Apr 04, 2019 at 02:19:56AM -0400, Alexandre Ghiti wrote:
-> randomize_stack_top() checks for current task flag PF_RANDOMIZE in order
-> to use stack randomization and PF_RANDOMIZE is set when
-> ADDR_NO_RANDOMIZE is unset, so no need to check for ADDR_NO_RANDOMIZE
-> in stack_maxrandom_size.
+On Fri, May 17, 2019 at 04:54:24PM +0900, Masahiro Yamada wrote:
+> I guess HOSTCFLAGS_gen_opcode_table.o was blindly copied from
+> HOSTCFLAGS_gen_facilities.o
 > 
-> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+> The reason of adding $(LINUXINCLUDE) to HOSTCFLAGS_gen_facilities.o
+> is because gen_facilities.c references some CONFIG options. (Kbuild
+> does not cater to this for host tools automatically.)
+> 
+> On the other hand, gen_opcode_table.c does not reference CONFIG
+> options at all. So, there is no good reason to pass $(LINUXINCLUDE).
+> 
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 > ---
->  arch/s390/mm/mmap.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-> index 687f2a4d3459..5185ed0a0463 100644
-> --- a/arch/s390/mm/mmap.c
-> +++ b/arch/s390/mm/mmap.c
-> @@ -24,8 +24,7 @@ static unsigned long stack_maxrandom_size(void)
->  {
->  	if (!(current->flags & PF_RANDOMIZE))
->  		return 0;
-> -	if (current->personality & ADDR_NO_RANDOMIZE)
-> -		return 0;
-> +
->  	return STACK_RND_MASK << PAGE_SHIFT;
+>  arch/s390/tools/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/tools/Makefile b/arch/s390/tools/Makefile
+> index 2342b84b3386..4ff6a2124522 100644
+> --- a/arch/s390/tools/Makefile
+> +++ b/arch/s390/tools/Makefile
+> @@ -15,7 +15,7 @@ hostprogs-y		    += gen_facilities
+>  hostprogs-y		    += gen_opcode_table
+> 
+>  HOSTCFLAGS_gen_facilities.o += -Wall $(LINUXINCLUDE)
+> -HOSTCFLAGS_gen_opcode_table.o += -Wall $(LINUXINCLUDE)
+> +HOSTCFLAGS_gen_opcode_table.o += -Wall
+> 
+>  # Ensure output directory exists
+>  _dummy := $(shell [ -d '$(kapi)' ] || mkdir -p '$(kapi)')
 
 Applied, thanks.
