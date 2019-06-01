@@ -1,30 +1,41 @@
 Return-Path: <SRS0=TpO6=UA=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sat, 1 Jun 2019 12:56:38 +0200
+Date: Sat, 1 Jun 2019 12:21:04 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: Kconfig: pedantic cleanups
-References: <1551904321-23099-1-git-send-email-info@metux.net>
+Subject: Re: [PATCH] arch: s390: use struct_size() in kmalloc()
+References: <1558077317-12201-1-git-send-email-xiaolinkui@kylinos.cn>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1551904321-23099-1-git-send-email-info@metux.net>
-Message-Id: <20190601105638.GH3600@osiris>
+In-Reply-To: <1558077317-12201-1-git-send-email-xiaolinkui@kylinos.cn>
+Message-Id: <20190601102104.GA3600@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: xiaolinkui <xiaolinkui@kylinos.cn>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Wed, Mar 06, 2019 at 09:32:01PM +0100, Enrico Weigelt, metux IT consult wrote:
-> Formatting of Kconfig files doesn't look so pretty, so just
-> take damp cloth and clean it up.
+On Fri, May 17, 2019 at 03:15:17PM +0800, xiaolinkui wrote:
+> Use the new struct_size() helper to keep code simple.
 > 
-> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+> Signed-off-by: xiaolinkui <xiaolinkui@kylinos.cn>
 > ---
->  arch/s390/Kconfig          |  2 +-
->  drivers/s390/block/Kconfig |  2 +-
->  drivers/s390/char/Kconfig  | 15 +++++++--------
->  drivers/s390/net/Kconfig   |  8 ++++----
->  4 files changed, 13 insertions(+), 14 deletions(-)
+>  arch/s390/include/asm/idals.h | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/idals.h b/arch/s390/include/asm/idals.h
+> index 15578fd..6fb7ace 100644
+> --- a/arch/s390/include/asm/idals.h
+> +++ b/arch/s390/include/asm/idals.h
+> @@ -122,8 +122,7 @@ idal_buffer_alloc(size_t size, int page_order)
+> 
+>  	nr_ptrs = (size + IDA_BLOCK_SIZE - 1) >> IDA_SIZE_LOG;
+>  	nr_chunks = (4096 << page_order) >> IDA_SIZE_LOG;
+> -	ib = kmalloc(sizeof(struct idal_buffer) + nr_ptrs*sizeof(void *),
+> -		     GFP_DMA | GFP_KERNEL);
+> +	ib = kmalloc(struct_size(ib, data, nr_ptrs), GFP_DMA | GFP_KERNEL);
+>  	if (ib == NULL)
+>  		return ERR_PTR(-ENOMEM);
+>  	ib->size = size;
 
 Applied, thanks.
