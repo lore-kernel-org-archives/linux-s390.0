@@ -1,41 +1,43 @@
 Return-Path: <SRS0=TpO6=UA=vger.kernel.org=linux-kernel-owner@kernel.org>
-Date: Sat, 1 Jun 2019 12:21:04 +0200
+Date: Sat, 1 Jun 2019 12:55:35 +0200
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] arch: s390: use struct_size() in kmalloc()
-References: <1558077317-12201-1-git-send-email-xiaolinkui@kylinos.cn>
+Subject: Re: [PATCH] s390: mmap base does not depend on ADDR_NO_RANDOMIZE
+ personality
+References: <20190404061956.25507-1-alex@ghiti.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1558077317-12201-1-git-send-email-xiaolinkui@kylinos.cn>
-Message-Id: <20190601102104.GA3600@osiris>
+In-Reply-To: <20190404061956.25507-1-alex@ghiti.fr>
+Message-Id: <20190601105534.GG3600@osiris>
 Sender: linux-kernel-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/lkml/>
 List-Post: <mailto:linux-kernel@vger.kernel.org>
-To: xiaolinkui <xiaolinkui@kylinos.cn>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-On Fri, May 17, 2019 at 03:15:17PM +0800, xiaolinkui wrote:
-> Use the new struct_size() helper to keep code simple.
+On Thu, Apr 04, 2019 at 02:19:56AM -0400, Alexandre Ghiti wrote:
+> randomize_stack_top() checks for current task flag PF_RANDOMIZE in order
+> to use stack randomization and PF_RANDOMIZE is set when
+> ADDR_NO_RANDOMIZE is unset, so no need to check for ADDR_NO_RANDOMIZE
+> in stack_maxrandom_size.
 > 
-> Signed-off-by: xiaolinkui <xiaolinkui@kylinos.cn>
+> Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 > ---
->  arch/s390/include/asm/idals.h | 3 +--
+>  arch/s390/mm/mmap.c | 3 +--
 >  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/idals.h b/arch/s390/include/asm/idals.h
-> index 15578fd..6fb7ace 100644
-> --- a/arch/s390/include/asm/idals.h
-> +++ b/arch/s390/include/asm/idals.h
-> @@ -122,8 +122,7 @@ idal_buffer_alloc(size_t size, int page_order)
-> 
->  	nr_ptrs = (size + IDA_BLOCK_SIZE - 1) >> IDA_SIZE_LOG;
->  	nr_chunks = (4096 << page_order) >> IDA_SIZE_LOG;
-> -	ib = kmalloc(sizeof(struct idal_buffer) + nr_ptrs*sizeof(void *),
-> -		     GFP_DMA | GFP_KERNEL);
-> +	ib = kmalloc(struct_size(ib, data, nr_ptrs), GFP_DMA | GFP_KERNEL);
->  	if (ib == NULL)
->  		return ERR_PTR(-ENOMEM);
->  	ib->size = size;
+> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+> index 687f2a4d3459..5185ed0a0463 100644
+> --- a/arch/s390/mm/mmap.c
+> +++ b/arch/s390/mm/mmap.c
+> @@ -24,8 +24,7 @@ static unsigned long stack_maxrandom_size(void)
+>  {
+>  	if (!(current->flags & PF_RANDOMIZE))
+>  		return 0;
+> -	if (current->personality & ADDR_NO_RANDOMIZE)
+> -		return 0;
+> +
+>  	return STACK_RND_MASK << PAGE_SHIFT;
 
 Applied, thanks.
