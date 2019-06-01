@@ -1,43 +1,30 @@
-Return-Path: <SRS0=el7m=UC=vger.kernel.org=netdev-owner@kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 0/4] s390/qeth: fixes 2019-06-03
-Date: Mon,  3 Jun 2019 17:04:42 +0200
-Message-Id: <20190603150446.23351-1-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/netdev/>
-List-Post: <mailto:netdev@vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Return-Path: <SRS0=TpO6=UA=vger.kernel.org=linux-kernel-owner@kernel.org>
+Date: Sat, 1 Jun 2019 12:56:38 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: Kconfig: pedantic cleanups
+References: <1551904321-23099-1-git-send-email-info@metux.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1551904321-23099-1-git-send-email-info@metux.net>
+Message-Id: <20190601105638.GH3600@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+To: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 
-Hi Dave,
+On Wed, Mar 06, 2019 at 09:32:01PM +0100, Enrico Weigelt, metux IT consult wrote:
+> Formatting of Kconfig files doesn't look so pretty, so just
+> take damp cloth and clean it up.
+> 
+> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+> ---
+>  arch/s390/Kconfig          |  2 +-
+>  drivers/s390/block/Kconfig |  2 +-
+>  drivers/s390/char/Kconfig  | 15 +++++++--------
+>  drivers/s390/net/Kconfig   |  8 ++++----
+>  4 files changed, 13 insertions(+), 14 deletions(-)
 
-please apply the following set of qeth fixes to -net.
-
-- The first two patches fix issues in the L3 driver's cast type
-  selection for transmitted skbs.
-- Alexandra adds a sanity check when retrieving VLAN information from
-  neighbour address events.
-- The last patch adds some missing error handling for qeth's new
-  multiqueue code.
-
-Thanks,
-Julian
-
-
-Alexandra Winter (1):
-  s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
-
-Julian Wiedmann (3):
-  s390/qeth: handle limited IPv4 broadcast in L3 TX path
-  s390/qeth: don't use obsolete dst entry
-  s390/qeth: handle error when updating TX queue count
-
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c | 22 ++++++++----
- drivers/s390/net/qeth_l2_main.c   |  2 +-
- drivers/s390/net/qeth_l3_main.c   | 59 +++++++++++++++++++------------
- 4 files changed, 55 insertions(+), 30 deletions(-)
-
--- 
-2.17.1
+Applied, thanks.
