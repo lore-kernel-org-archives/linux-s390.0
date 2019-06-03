@@ -1,57 +1,43 @@
 Return-Path: <SRS0=el7m=UC=vger.kernel.org=netdev-owner@kernel.org>
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 3/4] s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
-Date: Mon,  3 Jun 2019 17:04:45 +0200
-In-Reply-To: <20190603150446.23351-1-jwi@linux.ibm.com>
-References: <20190603150446.23351-1-jwi@linux.ibm.com>
-Message-Id: <20190603150446.23351-4-jwi@linux.ibm.com>
+Subject: [PATCH net 0/4] s390/qeth: fixes 2019-06-03
+Date: Mon,  3 Jun 2019 17:04:42 +0200
+Message-Id: <20190603150446.23351-1-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/netdev/>
 List-Post: <mailto:netdev@vger.kernel.org>
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+Hi Dave,
 
-Enabling sysfs attribute bridge_hostnotify triggers a series of udev events
-for the MAC addresses of all currently connected peers. In case no VLAN is
-set for a peer, the device reports the corresponding MAC addresses with
-VLAN ID 4096. This currently results in attribute VLAN=4096 for all
-non-VLAN interfaces in the initial series of events after host-notify is
-enabled.
+please apply the following set of qeth fixes to -net.
 
-Instead, no VLAN attribute should be reported in the udev event for
-non-VLAN interfaces.
+- The first two patches fix issues in the L3 driver's cast type
+  selection for transmitted skbs.
+- Alexandra adds a sanity check when retrieving VLAN information from
+  neighbour address events.
+- The last patch adds some missing error handling for qeth's new
+  multiqueue code.
 
-Only the initial events face this issue. For dynamic changes that are
-reported later, the device uses a validity flag.
+Thanks,
+Julian
 
-This also changes the code so that it now sets the VLAN attribute for
-MAC addresses with VID 0. On Linux, no qeth interface will ever be
-registered with VID 0: Linux kernel registers VID 0 on all network
-interfaces initially, but qeth will drop .ndo_vlan_rx_add_vid for VID 0.
-Peers with other OSs could register MACs with VID 0.
 
-Fixes: 9f48b9db9a22 ("qeth: bridgeport support - address notifications")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l2_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Alexandra Winter (1):
+  s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 218801232ca2..ff8a6cd790b1 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1680,7 +1680,7 @@ static void qeth_bridgeport_an_set_cb(void *priv,
- 
- 	l2entry = (struct qdio_brinfo_entry_l2 *)entry;
- 	code = IPA_ADDR_CHANGE_CODE_MACADDR;
--	if (l2entry->addr_lnid.lnid)
-+	if (l2entry->addr_lnid.lnid < VLAN_N_VID)
- 		code |= IPA_ADDR_CHANGE_CODE_VLANID;
- 	qeth_bridge_emit_host_event(card, anev_reg_unreg, code,
- 		(struct net_if_token *)&l2entry->nit,
+Julian Wiedmann (3):
+  s390/qeth: handle limited IPv4 broadcast in L3 TX path
+  s390/qeth: don't use obsolete dst entry
+  s390/qeth: handle error when updating TX queue count
+
+ drivers/s390/net/qeth_core.h      |  2 +-
+ drivers/s390/net/qeth_core_main.c | 22 ++++++++----
+ drivers/s390/net/qeth_l2_main.c   |  2 +-
+ drivers/s390/net/qeth_l3_main.c   | 59 +++++++++++++++++++------------
+ 4 files changed, 55 insertions(+), 30 deletions(-)
+
 -- 
 2.17.1
