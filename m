@@ -1,163 +1,122 @@
 Return-Path: <SRS0=iFEE=UC=vger.kernel.org=kvm-owner@kernel.org>
 Reply-To: mimu@linux.ibm.com
-Subject: Re: [PATCH v3 2/8] s390/cio: introduce DMA pools to cio
+Subject: Re: [PATCH v3 3/8] s390/cio: add basic protected virtualization
+ support
 References: <20190529122657.166148-1-mimu@linux.ibm.com>
- <20190529122657.166148-3-mimu@linux.ibm.com>
- <20190603133745.240c00a7.cohuck@redhat.com>
+ <20190529122657.166148-4-mimu@linux.ibm.com>
+ <20190603140649.7d5ebc3e.cohuck@redhat.com>
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Mon, 3 Jun 2019 14:09:02 +0200
+Date: Mon, 3 Jun 2019 14:45:03 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190603133745.240c00a7.cohuck@redhat.com>
+In-Reply-To: <20190603140649.7d5ebc3e.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <035b4bd3-5856-e8e5-91bf-ba0b5c7c3736@linux.ibm.com>
+Message-Id: <18348fed-07d1-a11f-215c-f09ac94e9fbf@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
 List-Archive: <https://lore.kernel.org/kvm/>
 List-Post: <mailto:kvm@vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 
 
 
-On 03.06.19 13:37, Cornelia Huck wrote:
-> On Wed, 29 May 2019 14:26:51 +0200
+On 03.06.19 14:06, Cornelia Huck wrote:
+> On Wed, 29 May 2019 14:26:52 +0200
 > Michael Mueller <mimu@linux.ibm.com> wrote:
 > 
 >> From: Halil Pasic <pasic@linux.ibm.com>
 >>
->> To support protected virtualization cio will need to make sure the
->> memory used for communication with the hypervisor is DMA memory.
+>> As virtio-ccw devices are channel devices, we need to use the dma area
+>> for any communication with the hypervisor.
+> 
+> "we need to use the dma area within the common I/O layer for any
+> communication with the hypervisor. Note that we do not need to use that
+> area for control blocks directly referenced by instructions, e.g. the
+> orb."
+
+using this now
+
+> 
+> ...although I'm still not particularly confident about the actual
+> distinction here? I'm trusting you that you actually have tested it,
+> though :)
+> 
 >>
->> Let us introduce one global pool for cio.
+>> It handles neither QDIO in the common code, nor any device type specific
+>> stuff (like channel programs constructed by the DASD driver).
 >>
->> Our DMA pools are implemented as a gen_pool backed with DMA pages. The
->> idea is to avoid each allocation effectively wasting a page, as we
->> typically allocate much less than PAGE_SIZE.
+>> An interesting side effect is that virtio structures are now going to
+>> get allocated in 31 bit addressable storage.
 >>
 >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
 >> Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 >> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >> ---
->>   arch/s390/Kconfig           |   1 +
->>   arch/s390/include/asm/cio.h |  11 ++++
->>   drivers/s390/cio/css.c      | 120 ++++++++++++++++++++++++++++++++++++++++++--
->>   3 files changed, 128 insertions(+), 4 deletions(-)
+>>   arch/s390/include/asm/ccwdev.h   |  4 +++
+>>   drivers/s390/cio/ccwreq.c        |  9 +++---
+>>   drivers/s390/cio/device.c        | 67 +++++++++++++++++++++++++++++++++-------
+>>   drivers/s390/cio/device_fsm.c    | 49 +++++++++++++++++------------
+>>   drivers/s390/cio/device_id.c     | 20 ++++++------
+>>   drivers/s390/cio/device_ops.c    | 21 +++++++++++--
+>>   drivers/s390/cio/device_pgid.c   | 22 +++++++------
+>>   drivers/s390/cio/device_status.c | 24 +++++++-------
+>>   drivers/s390/cio/io_sch.h        | 20 +++++++++---
+>>   drivers/s390/virtio/virtio_ccw.c | 10 ------
+>>   10 files changed, 163 insertions(+), 83 deletions(-)
 > 
 > (...)
 > 
->> diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
->> index 1727180e8ca1..43c007d2775a 100644
->> --- a/arch/s390/include/asm/cio.h
->> +++ b/arch/s390/include/asm/cio.h
->> @@ -328,6 +328,17 @@ static inline u8 pathmask_to_pos(u8 mask)
->>   void channel_subsystem_reinit(void);
->>   extern void css_schedule_reprobe(void);
+>> @@ -1593,20 +1625,31 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
+>>   		return ERR_CAST(sch);
 >>   
->> +extern void *cio_dma_zalloc(size_t size);
->> +extern void cio_dma_free(void *cpu_addr, size_t size);
->> +extern struct device *cio_get_dma_css_dev(void);
->> +
->> +struct gen_pool;
-> 
-> That forward declaration is a bit ugly... I guess the alternative was
-> include hell?
-
-That's an easy one.
-
-  #include <linux/bitops.h>
-+#include <linux/genalloc.h>
-  #include <asm/types.h>
-
-> 
->> +void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
->> +			size_t size);
->> +void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
->> +void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
->> +struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
->> +
->>   /* Function from drivers/s390/cio/chsc.c */
->>   int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
->>   int chsc_sstpi(void *page, void *result, size_t size);
->> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
->> index aea502922646..b97618497848 100644
->> --- a/drivers/s390/cio/css.c
->> +++ b/drivers/s390/cio/css.c
->> @@ -20,6 +20,8 @@
->>   #include <linux/reboot.h>
->>   #include <linux/suspend.h>
->>   #include <linux/proc_fs.h>
->> +#include <linux/genalloc.h>
->> +#include <linux/dma-mapping.h>
->>   #include <asm/isc.h>
->>   #include <asm/crw.h>
->>   
->> @@ -224,6 +226,8 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
->>   	INIT_WORK(&sch->todo_work, css_sch_todo);
->>   	sch->dev.release = &css_subchannel_release;
->>   	device_initialize(&sch->dev);
-> 
-> It might be helpful to add a comment why you use 31 bit here...
-
-@Halil, please let me know what comment you prefere here...
-
-> 
->> +	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
->> +	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
->>   	return sch;
->>   
->>   err:
->> @@ -899,6 +903,8 @@ static int __init setup_css(int nr)
->>   	dev_set_name(&css->device, "css%x", nr);
->>   	css->device.groups = cssdev_attr_groups;
->>   	css->device.release = channel_subsystem_release;
-> 
-> ...and 64 bit here.
-
-and here.
-
-> 
->> +	css->device.coherent_dma_mask = DMA_BIT_MASK(64);
->> +	css->device.dma_mask = &css->device.coherent_dma_mask;
->>   
->>   	mutex_init(&css->mutex);
->>   	css->cssid = chsc_get_cssid(nr);
-> 
-> (...)
-> 
->> @@ -1059,16 +1168,19 @@ static int __init css_bus_init(void)
->>   	if (ret)
->>   		goto out_unregister;
->>   	ret = register_pm_notifier(&css_power_notifier);
->> -	if (ret) {
->> -		unregister_reboot_notifier(&css_reboot_notifier);
->> -		goto out_unregister;
+>>   	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
+>> -	if (!io_priv) {
+>> -		put_device(&sch->dev);
+>> -		return ERR_PTR(-ENOMEM);
 >> -	}
->> +	if (ret)
->> +		goto out_unregister_rn;
->> +	ret = cio_dma_pool_init();
->> +	if (ret)
->> +		goto out_unregister_rn;
+>> +	if (!io_priv)
+>> +		goto err_priv;
+>> +	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
+>> +				sizeof(*io_priv->dma_area),
+>> +				&io_priv->dma_area_dma, GFP_KERNEL);
+>> +	if (!io_priv->dma_area)
+>> +		goto err_dma_area;
+>>   	set_io_private(sch, io_priv);
+>>   	cdev = io_subchannel_create_ccwdev(sch);
+>>   	if (IS_ERR(cdev)) {
+>>   		put_device(&sch->dev);
+>> +		dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+>> +				  io_priv->dma_area, io_priv->dma_area_dma);
+>>   		kfree(io_priv);
 > 
-> Don't you also need to unregister the pm notifier on failure here?
+> <pre-existing, not introduced by this patch>
+> Shouldn't that branch do set_io_private(sch, NULL)? Not sure if any
+> code would make use of it, but it's probably better to clean out
+> references to freed objects.
 
-Mmh, that was the original intention. Thanks!
+Added behind kfree(). I hope nobody asks for a separate patch. ;)
 
+> </pre-existing, not introduced by this patch>
 > 
-> Other than that, I noticed only cosmetic issues; seems reasonable to me.
+>>   		return cdev;
+>>   	}
+>>   	cdev->drv = drv;
+>>   	ccw_device_set_int_class(cdev);
+>>   	return cdev;
+>> +
+>> +err_dma_area:
+>> +	kfree(io_priv);
+>> +err_priv:
+>> +	put_device(&sch->dev);
+>> +	return ERR_PTR(-ENOMEM);
+>>   }
+>>   
+>>   void __init ccw_device_destroy_console(struct ccw_device *cdev)
 > 
->>   	css_init_done = 1;
->>   
->>   	/* Enable default isc for I/O subchannels. */
->>   	isc_register(IO_SCH_ISC);
->>   
->>   	return 0;
->> +out_unregister_rn:
->> +	unregister_reboot_notifier(&css_reboot_notifier);
->>   out_unregister:
->>   	while (i-- > 0) {
->>   		struct channel_subsystem *css = channel_subsystems[i];
+> With the reservations above,
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
 
 Thanks,
