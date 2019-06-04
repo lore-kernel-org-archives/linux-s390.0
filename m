@@ -1,87 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:54110 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729061AbfFNNsk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:40 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/16] dma-mapping: clear __GFP_COMP in dma_alloc_attrs
-Date: Fri, 14 Jun 2019 15:47:25 +0200
-Message-Id: <20190614134726.3827-16-hch@lst.de>
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52424 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727169AbfFDO3W (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 10:29:22 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x54ENosB007761
+        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 10:29:21 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2swss7j98r-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 10:29:20 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Tue, 4 Jun 2019 15:29:16 +0100
+Date: Tue, 4 Jun 2019 16:29:09 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v3 7/8] virtio/s390: use DMA memory for ccw I/O and
+ classic notifiers
+In-Reply-To: <20190604153625.6c03c232.cohuck@redhat.com>
+References: <20190529122657.166148-1-mimu@linux.ibm.com>
+        <20190529122657.166148-8-mimu@linux.ibm.com>
+        <20190603181716.325101d9.cohuck@redhat.com>
+        <20190604150819.1f8707b5.pasic@linux.ibm.com>
+        <20190604153625.6c03c232.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190604162909.54de39fb.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Michael Mueller <mimu@linux.ibm.com>, KVM Mailing List <kvm@vger.kernel.org>, Linux-S390 Mailing List <linux-s390@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S . Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-Lift the code to clear __GFP_COMP from arm into the common DMA
-allocator path.  For one this fixes the various other patches that
-call alloc_pages_exact or split_page in case a bogus driver passes
-the argument, and it also prepares for doing exact allocation in
-the generic dma-direct allocator.
+On Tue, 4 Jun 2019 15:36:25 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/arm/mm/dma-mapping.c | 17 -----------------
- kernel/dma/mapping.c      |  9 +++++++++
- 2 files changed, 9 insertions(+), 17 deletions(-)
+> On Tue, 4 Jun 2019 15:08:19 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
 
-diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-index 0a75058c11f3..86135feb2c05 100644
---- a/arch/arm/mm/dma-mapping.c
-+++ b/arch/arm/mm/dma-mapping.c
-@@ -759,14 +759,6 @@ static void *__dma_alloc(struct device *dev, size_t size, dma_addr_t *handle,
- 	if (mask < 0xffffffffULL)
- 		gfp |= GFP_DMA;
- 
--	/*
--	 * Following is a work-around (a.k.a. hack) to prevent pages
--	 * with __GFP_COMP being passed to split_page() which cannot
--	 * handle them.  The real problem is that this flag probably
--	 * should be 0 on ARM as it is not supported on this
--	 * platform; see CONFIG_HUGETLBFS.
--	 */
--	gfp &= ~(__GFP_COMP);
- 	args.gfp = gfp;
- 
- 	*handle = DMA_MAPPING_ERROR;
-@@ -1527,15 +1519,6 @@ static void *__arm_iommu_alloc_attrs(struct device *dev, size_t size,
- 		return __iommu_alloc_simple(dev, size, gfp, handle,
- 					    coherent_flag, attrs);
- 
--	/*
--	 * Following is a work-around (a.k.a. hack) to prevent pages
--	 * with __GFP_COMP being passed to split_page() which cannot
--	 * handle them.  The real problem is that this flag probably
--	 * should be 0 on ARM as it is not supported on this
--	 * platform; see CONFIG_HUGETLBFS.
--	 */
--	gfp &= ~(__GFP_COMP);
--
- 	pages = __iommu_alloc_buffer(dev, size, gfp, attrs, coherent_flag);
- 	if (!pages)
- 		return NULL;
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index f7afdadb6770..4b618e1abbc1 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -252,6 +252,15 @@ void *dma_alloc_attrs(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 	/* let the implementation decide on the zone to allocate from: */
- 	flag &= ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
- 
-+	/*
-+	 * __GFP_COMP interacts badly with splitting up a larger order
-+	 * allocation.  But as our allocations might not even come from the
-+	 * page allocator, the callers can't rely on the fact that they
-+	 * even get pages, never mind which kind.
-+	 */
-+	if (WARN_ON_ONCE(flag & __GFP_COMP))
-+		flag &= ~__GFP_COMP;
-+
- 	if (dma_is_direct(ops))
- 		cpu_addr = dma_direct_alloc(dev, size, dma_handle, flag, attrs);
- 	else if (ops->alloc)
--- 
-2.20.1
+[..]
+
+> 
+> Two things:
+> - The call path goes from the vcdev to the vdev, then back to the vcdev
+>   and then to the cdev. Going from the vcdev to the cdev  directly
+>   eliminates the roundtrip via the vdev, which I think does not add
+>   anything.
+> - I prefer
+> 	variable = function_returning_a_pointer(...);
+>   over
+> 	function_setting_a_variable(..., variable);
+>   The latter obscures the fact that we change the value of the
+>   variable, unless named very obviously.
+> 
+
+I understand. Here it's especially bad because what looks like a
+function is actually a macro so it ain't even fn(..., &variable) but
+just fn(..., variable). I guess I'm a bit desensitized towards the latter
+because of my c++ background.
+
+
+> > 
+> > I will change this for v4 as you requested. Again sorry for missing it!
+> 
+> np, can happen.
+
+Thanks for the explanation. I will use
+
+ccw_device_dma_zalloc() directly in v4.
+
+Regards,
+Halil
