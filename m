@@ -1,34 +1,22 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55172 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727204AbfFDOzQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 10:55:16 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x54EbR9u071209
-        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 10:55:15 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2swtf6s55d-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 10:55:15 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Tue, 4 Jun 2019 15:55:13 +0100
-Date: Tue, 4 Jun 2019 16:55:07 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390: configs: Remove useless UEVENT_HELPER_PATH
-References: <1559635137-20900-1-git-send-email-krzk@kernel.org>
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:36011 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726940AbfFDIBK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:01:10 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <1559635137-20900-1-git-send-email-krzk@kernel.org>
 In-Reply-To: <1559635137-20900-1-git-send-email-krzk@kernel.org>
-Message-Id: <20190604145506.GF5774@osiris>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 4 Jun 2019 10:00:55 +0200
+Message-ID: <CAMuHMdX04Y2n8v641bv5P+P0oeRfO7arOft_6dk6w0wQF1yzew@mail.gmail.com>
+Subject: Re: [PATCH] s390: configs: Remove useless UEVENT_HELPER_PATH
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>
 
-On Tue, Jun 04, 2019 at 09:58:57AM +0200, Krzysztof Kozlowski wrote:
+On Tue, Jun 4, 2019 at 9:59 AM Krzysztof Kozlowski <krzk@kernel.org> wrote:
 > Remove the CONFIG_UEVENT_HELPER_PATH because:
 > 1. It is disabled since commit 1be01d4a5714 ("driver: base: Disable
 >    CONFIG_UEVENT_HELPER by default") as its dependency (UEVENT_HELPER) was
@@ -38,11 +26,18 @@ On Tue, Jun 04, 2019 at 09:58:57AM +0200, Krzysztof Kozlowski wrote:
 >    userland,
 > 3. Certain userland specifically requests it to be disabled (systemd
 >    README: "Legacy hotplug slows down the system and confuses udev").
-> 
+>
 > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> ---
->  arch/s390/configs/defconfig          | 1 -
->  arch/s390/configs/zfcpdump_defconfig | 1 -
->  2 files changed, 2 deletions(-)
 
-Applied, thanks.
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
