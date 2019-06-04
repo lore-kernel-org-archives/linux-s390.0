@@ -1,83 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728044AbfFDXZb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:25:31 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 17/17] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date: Tue,  4 Jun 2019 19:24:58 -0400
-Message-Id: <20190604232459.7745-17-sashal@kernel.org>
-In-Reply-To: <20190604232459.7745-1-sashal@kernel.org>
-References: <20190604232459.7745-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46208 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727211AbfFDIP0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:15:26 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x548CEqP141748
+        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 04:15:25 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2swhxmqyf3-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 04:15:25 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 4 Jun 2019 09:15:22 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net 2/4] s390/qeth: check dst entry before use
+Date: Tue,  4 Jun 2019 10:15:07 +0200
+In-Reply-To: <20190604081509.56160-1-jwi@linux.ibm.com>
+References: <20190604081509.56160-1-jwi@linux.ibm.com>
+Message-Id: <20190604081509.56160-3-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+While qeth_l3 uses netif_keep_dst() to hold onto the dst, a skb's dst
+may still have been obsoleted (via dst_dev_put()) by the time that we
+end up using it. The dst then points to the loopback interface, which
+means the neighbour lookup in qeth_l3_get_cast_type() determines a bogus
+cast type of RTN_BROADCAST.
+For IQD interfaces this causes us to place such skbs on the wrong
+HW queue, resulting in TX errors.
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+Fix-up the various call sites to first validate the dst entry with
+dst_check(), and fall back accordingly.
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+v1 -> v2: prefer dst_check() over dst->obsolete (davem)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 2032ab81b2d7..07f571900676 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3288,21 +3288,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
+ drivers/s390/net/qeth_l3_main.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 2df67abdfde7..2eae5cd745c9 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1888,13 +1888,19 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
  
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
+ static int qeth_l3_get_cast_type(struct sk_buff *skb)
+ {
++	int ipv = qeth_get_ip_version(skb);
+ 	struct neighbour *n = NULL;
+ 	struct dst_entry *dst;
+ 
+ 	rcu_read_lock();
+ 	dst = skb_dst(skb);
+-	if (dst)
+-		n = dst_neigh_lookup_skb(dst, skb);
++	if (dst) {
++		u32 cookie = (ipv == 6) ? rt6_get_cookie(skb_rt6_info(skb)) : 0;
++
++		if (dst_check(dst, cookie))
++			n = dst_neigh_lookup_skb(dst, skb);
 +	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
++
+ 	if (n) {
+ 		int cast_type = n->type;
+ 
+@@ -1909,7 +1915,7 @@ static int qeth_l3_get_cast_type(struct sk_buff *skb)
+ 	rcu_read_unlock();
+ 
+ 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
+-	switch (qeth_get_ip_version(skb)) {
++	switch (ipv) {
+ 	case 4:
+ 		if (ipv4_is_lbcast(ip_hdr(skb)->daddr))
+ 			return RTN_BROADCAST;
+@@ -1990,6 +1996,9 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 	if (ipv == 4) {
+ 		struct rtable *rt = skb_rtable(skb);
+ 
++		if (rt && !dst_check(skb_dst(skb), 0))
++			rt = NULL;
++
+ 		*((__be32 *) &hdr->hdr.l3.next_hop.ipv4.addr) = (rt) ?
+ 				rt_nexthop(rt, ip_hdr(skb)->daddr) :
+ 				ip_hdr(skb)->daddr;
+@@ -1997,6 +2006,9 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 		/* IPv6 */
+ 		const struct rt6_info *rt = skb_rt6_info(skb);
+ 
++		if (rt && !dst_check(skb_dst(skb), rt6_get_cookie(rt)))
++			rt = NULL;
++
+ 		if (rt && !ipv6_addr_any(&rt->rt6i_gateway))
+ 			l3_hdr->next_hop.ipv6_addr = rt->rt6i_gateway;
+ 		else
 -- 
-2.20.1
+2.17.1
