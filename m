@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48044 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45810 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728019AbfFDPoq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 11:44:46 -0400
-Date: Tue, 4 Jun 2019 17:44:43 +0200
+        id S1726136AbfFDGDl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 4 Jun 2019 02:03:41 -0400
+Date: Tue, 4 Jun 2019 08:03:36 +0200
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v1 1/1] vfio-ccw: Destroy kmem cache region on module
  exit
-Message-ID: <20190604174443.6f29a87e.cohuck@redhat.com>
+Message-ID: <20190604080336.3b56c6d2.cohuck@redhat.com>
 In-Reply-To: <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
 References: <cover.1559576250.git.alifm@linux.ibm.com>
         <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
@@ -23,9 +23,6 @@ On Mon,  3 Jun 2019 11:42:47 -0400
 Farhan Ali <alifm@linux.ibm.com> wrote:
 
 > Free the vfio_ccw_cmd_region on module exit.
-
-Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
-
 > 
 > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
 > ---
@@ -49,4 +46,4 @@ Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
 >  }
 >  module_init(vfio_ccw_sch_init);
 
-Thanks, applied.
+Yes, you're right. Will queue when the pull req has been processed.
