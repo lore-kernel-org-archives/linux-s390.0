@@ -1,46 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga06-in.huawei.com ([45.249.212.32]:47966 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731236AbfFMInd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:33 -0400
-From: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v9 2/7] x86/dma: use IS_ENABLED() to simplify the code
-Date: Thu, 13 Jun 2019 16:42:35 +0800
-Message-ID: <20190613084240.16768-3-thunder.leizhen@huawei.com>
-In-Reply-To: <20190613084240.16768-1-thunder.leizhen@huawei.com>
-References: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+Received: from mx1.redhat.com ([209.132.183.28]:48044 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728019AbfFDPoq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 4 Jun 2019 11:44:46 -0400
+Date: Tue, 4 Jun 2019 17:44:43 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v1 1/1] vfio-ccw: Destroy kmem cache region on module
+ exit
+Message-ID: <20190604174443.6f29a87e.cohuck@redhat.com>
+In-Reply-To: <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
+References: <cover.1559576250.git.alifm@linux.ibm.com>
+        <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com
 
-Remove the ifdefs around CONFIG_IOMMU_DEFAULT_PASSTHROUGH to improve
-readablity.
+On Mon,  3 Jun 2019 11:42:47 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
----
- arch/x86/kernel/pci-dma.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+> Free the vfio_ccw_cmd_region on module exit.
 
-diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-index dcd272dbd0a9330..8c82b2e28a0fe2d 100644
---- a/arch/x86/kernel/pci-dma.c
-+++ b/arch/x86/kernel/pci-dma.c
-@@ -43,11 +43,7 @@
-  * It is also possible to disable by default in kernel config, and enable with
-  * iommu=nopt at boot time.
-  */
--#ifdef CONFIG_IOMMU_DEFAULT_PASSTHROUGH
--int iommu_pass_through __read_mostly = 1;
--#else
--int iommu_pass_through __read_mostly;
--#endif
-+int iommu_pass_through __read_mostly =	IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH);
- 
- extern struct iommu_table_entry __iommu_table[], __iommu_table_end[];
- 
--- 
-1.8.3
+Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
+
+> 
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+> 
+> I guess I missed this earlier while reviewing, but should'nt 
+> we destroy the vfio_ccw_cmd_region on module exit, as well?
+> 
+>  drivers/s390/cio/vfio_ccw_drv.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 66a66ac..9cee9f2 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -299,6 +299,7 @@ static void __exit vfio_ccw_sch_exit(void)
+>  	css_driver_unregister(&vfio_ccw_sch_driver);
+>  	isc_unregister(VFIO_CCW_ISC);
+>  	kmem_cache_destroy(vfio_ccw_io_region);
+> +	kmem_cache_destroy(vfio_ccw_cmd_region);
+>  	destroy_workqueue(vfio_ccw_work_q);
+>  }
+>  module_init(vfio_ccw_sch_init);
+
+Thanks, applied.
