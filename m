@@ -1,69 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34096 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730607AbfFYPGx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jun 2019 11:06:53 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v5 0/2] Use DIAG318 to set Control Program Name & Version Codes
-Date: Tue, 25 Jun 2019 11:03:40 -0400
-Message-Id: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:45504 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbfFDVr5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 17:47:57 -0400
+Date: Tue, 4 Jun 2019 21:47:53 +0000
+From: Wei Yang <richard.weiyang@gmail.com>
+Subject: Re: [PATCH v3 08/11] mm/memory_hotplug: Drop MHP_MEMBLOCK_API
+Message-ID: <20190604214753.utbdrjtjavgi7yhf@master>
+Reply-To: Wei Yang <richard.weiyang@gmail.com>
+References: <20190527111152.16324-1-david@redhat.com>
+ <20190527111152.16324-9-david@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190527111152.16324-9-david@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: cohuck@redhat.com, david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Michal Hocko <mhocko@suse.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, Qian Cai <cai@lca.pw>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
 
-Changelog:
+On Mon, May 27, 2019 at 01:11:49PM +0200, David Hildenbrand wrote:
+>No longer needed, the callers of arch_add_memory() can handle this
+>manually.
+>
+>Cc: Andrew Morton <akpm@linux-foundation.org>
+>Cc: David Hildenbrand <david@redhat.com>
+>Cc: Michal Hocko <mhocko@suse.com>
+>Cc: Oscar Salvador <osalvador@suse.com>
+>Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+>Cc: Wei Yang <richard.weiyang@gmail.com>
+>Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+>Cc: Qian Cai <cai@lca.pw>
+>Cc: Arun KS <arunks@codeaurora.org>
+>Cc: Mathieu Malaterre <malat@debian.org>
+>Signed-off-by: David Hildenbrand <david@redhat.com>
 
-    v5
-        - s/cpc/diag318_info in order to make the relevant data more clear
-        - removed mutex locks for diag318_info get/set
+Reviewed-by: Wei Yang <richardw.yang@linux.intel.com>
 
-    v4
-        - removed setup.c changes introduced in bullet 1 of v3
-        - kept diag318_info struct cleanup
-        - analogous QEMU patches:
-            https://lists.gnu.org/archive/html/qemu-devel/2019-05/msg00164.html
-
-    v3
-        - kernel patch for diag 0x318 instruction call fixup [removed in v4]
-        - removed CPU model code
-        - cleaned up diag318_info struct
-        - cpnc is no longer unshadowed as it was not needed
-        - rebased on 5.1.0-rc3
-
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read Info byte 134, bit 0.
-
-DIAG 318's functionality is also emulated by KVM, which means we can enable 
-this feature for a guest even if the host kernel cannot support it. This
-feature is made available starting with the zEC12-full model (see analogous
-QEMU patches).
-
-The diag318_info is composed of a Control Program Name Code (CPNC) and a
-Control Program Version Code (CPVC). These values are used for problem 
-diagnosis and allows IBM to identify control program information by answering 
-the following question:
-
-    "What environment is this guest running in?" (CPNC)
-    "What are more details regarding the OS?" (CPVC)
-
-In the future, we will implement the CPVC to convey more information about the 
-OS. For now, we set this field to 0 until we come up with a solid plan.
-
-Collin Walling (2):
-  s390/setup: diag318: refactor struct
-  s390/kvm: diagnose 318 handling
-
- Documentation/virtual/kvm/devices/vm.txt | 14 ++++++
- arch/s390/include/asm/diag.h             |  6 +--
- arch/s390/include/asm/kvm_host.h         |  5 +-
- arch/s390/include/uapi/asm/kvm.h         |  4 ++
- arch/s390/kernel/setup.c                 |  3 +-
- arch/s390/kvm/diag.c                     | 17 +++++++
- arch/s390/kvm/kvm-s390.c                 | 81 ++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h                 |  1 +
- arch/s390/kvm/vsie.c                     |  2 +
- 9 files changed, 126 insertions(+), 7 deletions(-)
+>---
+> include/linux/memory_hotplug.h | 8 --------
+> mm/memory_hotplug.c            | 9 +++------
+> 2 files changed, 3 insertions(+), 14 deletions(-)
+>
+>diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+>index 2d4de313926d..2f1f87e13baa 100644
+>--- a/include/linux/memory_hotplug.h
+>+++ b/include/linux/memory_hotplug.h
+>@@ -128,14 +128,6 @@ extern void arch_remove_memory(int nid, u64 start, u64 size,
+> extern void __remove_pages(struct zone *zone, unsigned long start_pfn,
+> 			   unsigned long nr_pages, struct vmem_altmap *altmap);
+> 
+>-/*
+>- * Do we want sysfs memblock files created. This will allow userspace to online
+>- * and offline memory explicitly. Lack of this bit means that the caller has to
+>- * call move_pfn_range_to_zone to finish the initialization.
+>- */
+>-
+>-#define MHP_MEMBLOCK_API               (1<<0)
+>-
+> /* reasonably generic interface to expand the physical pages */
+> extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
+> 		       struct mhp_restrictions *restrictions);
+>diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+>index b1fde90bbf19..9a92549ef23b 100644
+>--- a/mm/memory_hotplug.c
+>+++ b/mm/memory_hotplug.c
+>@@ -251,7 +251,7 @@ void __init register_page_bootmem_info_node(struct pglist_data *pgdat)
+> #endif /* CONFIG_HAVE_BOOTMEM_INFO_NODE */
+> 
+> static int __meminit __add_section(int nid, unsigned long phys_start_pfn,
+>-		struct vmem_altmap *altmap, bool want_memblock)
+>+				   struct vmem_altmap *altmap)
+> {
+> 	int ret;
+> 
+>@@ -294,8 +294,7 @@ int __ref __add_pages(int nid, unsigned long phys_start_pfn,
+> 	}
+> 
+> 	for (i = start_sec; i <= end_sec; i++) {
+>-		err = __add_section(nid, section_nr_to_pfn(i), altmap,
+>-				restrictions->flags & MHP_MEMBLOCK_API);
+>+		err = __add_section(nid, section_nr_to_pfn(i), altmap);
+> 
+> 		/*
+> 		 * EEXIST is finally dealt with by ioresource collision
+>@@ -1067,9 +1066,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
+>  */
+> int __ref add_memory_resource(int nid, struct resource *res)
+> {
+>-	struct mhp_restrictions restrictions = {
+>-		.flags = MHP_MEMBLOCK_API,
+>-	};
+>+	struct mhp_restrictions restrictions = {};
+> 	u64 start, size;
+> 	bool new_node = false;
+> 	int ret;
+>-- 
+>2.20.1
 
 -- 
-2.7.4
+Wei Yang
+Help you, Help me
