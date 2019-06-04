@@ -1,94 +1,83 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 4/4] s390/qeth: handle error when updating TX queue count
-Date: Mon,  3 Jun 2019 17:04:46 +0200
-In-Reply-To: <20190603150446.23351-1-jwi@linux.ibm.com>
-References: <20190603150446.23351-1-jwi@linux.ibm.com>
-Message-Id: <20190603150446.23351-5-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728044AbfFDXZb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:25:31 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 17/17] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
+Date: Tue,  4 Jun 2019 19:24:58 -0400
+Message-Id: <20190604232459.7745-17-sashal@kernel.org>
+In-Reply-To: <20190604232459.7745-1-sashal@kernel.org>
+References: <20190604232459.7745-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-netif_set_real_num_tx_queues() can return an error, deal with it.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+
+kselftests exposed a problem in the s390 handling for memory slots.
+Right now we only do proper memory slot handling for creation of new
+memory slots. Neither MOVE, nor DELETION are handled properly. Let us
+implement those.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 009f2c0ec504..b1823d75dd35 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1274,16 +1274,20 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
- 	return 0;
- }
- 
--static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
-+static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2032ab81b2d7..07f571900676 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3288,21 +3288,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 				const struct kvm_memory_slot *new,
+ 				enum kvm_mr_change change)
  {
- 	unsigned int count = single ? 1 : card->dev->num_tx_queues;
-+	int rc;
- 
- 	rtnl_lock();
--	netif_set_real_num_tx_queues(card->dev, count);
-+	rc = netif_set_real_num_tx_queues(card->dev, count);
- 	rtnl_unlock();
- 
-+	if (rc)
-+		return rc;
-+
- 	if (card->qdio.no_out_queues == count)
+-	int rc;
+-
+-	/* If the basics of the memslot do not change, we do not want
+-	 * to update the gmap. Every update causes several unnecessary
+-	 * segment translation exceptions. This is usually handled just
+-	 * fine by the normal fault handler + gmap, but it will also
+-	 * cause faults on the prefix page of running guest CPUs.
+-	 */
+-	if (old->userspace_addr == mem->userspace_addr &&
+-	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
+-	    old->npages * PAGE_SIZE == mem->memory_size)
 -		return;
-+		return 0;
- 
- 	if (atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED)
- 		qeth_free_qdio_queues(card);
-@@ -1293,12 +1297,14 @@ static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- 
- 	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
- 	card->qdio.no_out_queues = count;
-+	return 0;
- }
- 
- static int qeth_update_from_chp_desc(struct qeth_card *card)
- {
- 	struct ccw_device *ccwdev;
- 	struct channel_path_desc_fmt0 *chp_dsc;
 +	int rc = 0;
  
- 	QETH_DBF_TEXT(SETUP, 2, "chp_desc");
- 
-@@ -1311,12 +1317,12 @@ static int qeth_update_from_chp_desc(struct qeth_card *card)
- 
- 	if (IS_OSD(card) || IS_OSX(card))
- 		/* CHPP field bit 6 == 1 -> single queue */
--		qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
-+		rc = qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
- 
- 	kfree(chp_dsc);
- 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
- 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
--	return 0;
-+	return rc;
- }
- 
- static void qeth_init_qdio_info(struct qeth_card *card)
-@@ -5597,8 +5603,12 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
- 		dev->hw_features |= NETIF_F_SG;
- 		dev->vlan_features |= NETIF_F_SG;
- 		if (IS_IQD(card)) {
--			netif_set_real_num_tx_queues(dev, QETH_IQD_MIN_TXQ);
- 			dev->features |= NETIF_F_SG;
-+			if (netif_set_real_num_tx_queues(dev,
-+							 QETH_IQD_MIN_TXQ)) {
-+				free_netdev(dev);
-+				return NULL;
-+			}
- 		}
- 	}
- 
+-	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
+-		mem->guest_phys_addr, mem->memory_size);
++	switch (change) {
++	case KVM_MR_DELETE:
++		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
++					old->npages * PAGE_SIZE);
++		break;
++	case KVM_MR_MOVE:
++		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
++					old->npages * PAGE_SIZE);
++		if (rc)
++			break;
++		/* FALLTHROUGH */
++	case KVM_MR_CREATE:
++		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
++				      mem->guest_phys_addr, mem->memory_size);
++		break;
++	case KVM_MR_FLAGS_ONLY:
++		break;
++	default:
++		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
++	}
+ 	if (rc)
+ 		pr_warn("failed to commit memory region\n");
+ 	return;
 -- 
-2.17.1
+2.20.1
