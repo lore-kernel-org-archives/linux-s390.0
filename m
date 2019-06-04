@@ -1,58 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:53102 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728034AbfFNNsT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:19 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/16] iwlwifi: stop passing bogus gfp flags arguments to dma_alloc_coherent
-Date: Fri, 14 Jun 2019 15:47:20 +0200
-Message-Id: <20190614134726.3827-11-hch@lst.de>
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37534 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727848AbfFDOyh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 10:54:37 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x54EbDTc050951
+        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 10:54:37 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2swt7gsw59-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 10:54:37 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Tue, 4 Jun 2019 15:54:34 +0100
+Date: Tue, 4 Jun 2019 16:54:29 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: fix unrecognized __aligned() in uapi header
+References: <20190604082947.26328-1-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190604082947.26328-1-yamada.masahiro@socionext.com>
+Message-Id: <20190604145429.GE5774@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-dma_alloc_coherent is not just the page allocator.  The only valid
-arguments to pass are either GFP_ATOMIC or GFP_ATOMIC with possible
-modifiers of __GFP_NORETRY or __GFP_NOWARN.
+On Tue, Jun 04, 2019 at 05:29:47PM +0900, Masahiro Yamada wrote:
+> __aligned() is a shorthand that is only available in the kernel space
+> because it is defined in include/linux/compiler_attributes.h, which is
+> not exported to the user space.
+> 
+> Detected by compile-testing exported headers.
+> 
+> ./usr/include/asm/runtime_instr.h:60:37: error: expected declaration specifiers or ‘...’ before numeric constant
+>  } __attribute__((packed)) __aligned(8);
+>                                      ^
+> 
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> ---
+> 
+>  arch/s390/include/uapi/asm/runtime_instr.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c     | 3 +--
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-index 5f52e40a2903..323dc5d5ee88 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -2361,8 +2361,7 @@ iwl_fw_dbg_buffer_allocation(struct iwl_fw_runtime *fwrt, u32 size)
- 
- 	virtual_addr =
- 		dma_alloc_coherent(fwrt->trans->dev, size, &phys_addr,
--				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO |
--				   __GFP_COMP);
-+				   GFP_KERNEL | __GFP_NOWARN);
- 
- 	/* TODO: alloc fragments if needed */
- 	if (!virtual_addr)
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 803fcbac4152..22a47f928dc8 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -210,8 +210,7 @@ static void iwl_pcie_alloc_fw_monitor_block(struct iwl_trans *trans,
- 	for (power = max_power; power >= min_power; power--) {
- 		size = BIT(power);
- 		cpu_addr = dma_alloc_coherent(trans->dev, size, &phys,
--					      GFP_KERNEL | __GFP_NOWARN |
--					      __GFP_ZERO | __GFP_COMP);
-+					      GFP_KERNEL | __GFP_NOWARN);
- 		if (!cpu_addr)
- 			continue;
- 
--- 
-2.20.1
+Applied, thanks.
