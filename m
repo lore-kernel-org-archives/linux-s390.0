@@ -1,61 +1,78 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52018 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726823AbfFLKWy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 06:22:54 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v3 05/11] drivers/base/memory: Pass a block_id to
+ init_memory_block()
+References: <20190527111152.16324-1-david@redhat.com>
+ <20190527111152.16324-6-david@redhat.com>
+ <20190603214932.3xsvxwiiutcve4tz@master>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 1/4] s390/pkey: Use -ENODEV instead of -EOPNOTSUPP
-Date: Wed, 12 Jun 2019 12:22:45 +0200
-Message-Id: <20190612102248.18903-2-david@redhat.com>
-In-Reply-To: <20190612102248.18903-1-david@redhat.com>
-References: <20190612102248.18903-1-david@redhat.com>
+Message-ID: <cd708cec-f369-4176-16c9-93a3c8ab6947@redhat.com>
+Date: Tue, 4 Jun 2019 08:56:40 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20190603214932.3xsvxwiiutcve4tz@master>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, David Hildenbrand <david@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Wei Yang <richard.weiyang@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>
 
-systemd-modules-load.service automatically tries to load the pkey module
-on systems that have MSA.
+On 03.06.19 23:49, Wei Yang wrote:
+> On Mon, May 27, 2019 at 01:11:46PM +0200, David Hildenbrand wrote:
+>> We'll rework hotplug_memory_register() shortly, so it no longer consumes
+>> pass a section.
+>>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>> drivers/base/memory.c | 15 +++++++--------
+>> 1 file changed, 7 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+>> index f180427e48f4..f914fa6fe350 100644
+>> --- a/drivers/base/memory.c
+>> +++ b/drivers/base/memory.c
+>> @@ -651,21 +651,18 @@ int register_memory(struct memory_block *memory)
+>> 	return ret;
+>> }
+>>
+>> -static int init_memory_block(struct memory_block **memory,
+>> -			     struct mem_section *section, unsigned long state)
+>> +static int init_memory_block(struct memory_block **memory, int block_id,
+>> +			     unsigned long state)
+>> {
+>> 	struct memory_block *mem;
+>> 	unsigned long start_pfn;
+>> -	int scn_nr;
+>> 	int ret = 0;
+>>
+>> 	mem = kzalloc(sizeof(*mem), GFP_KERNEL);
+>> 	if (!mem)
+>> 		return -ENOMEM;
+>>
+>> -	scn_nr = __section_nr(section);
+>> -	mem->start_section_nr =
+>> -			base_memory_block_id(scn_nr) * sections_per_block;
+>> +	mem->start_section_nr = block_id * sections_per_block;
+>> 	mem->end_section_nr = mem->start_section_nr + sections_per_block - 1;
+>> 	mem->state = state;
+>> 	start_pfn = section_nr_to_pfn(mem->start_section_nr);
+>> @@ -694,7 +691,8 @@ static int add_memory_block(int base_section_nr)
+>>
+>> 	if (section_count == 0)
+>> 		return 0;
+>> -	ret = init_memory_block(&mem, __nr_to_section(section_nr), MEM_ONLINE);
+>> +	ret = init_memory_block(&mem, base_memory_block_id(base_section_nr),
+>> +				MEM_ONLINE);
+> 
+> If my understanding is correct, section_nr could be removed too.
 
-Pkey also requires the MSA3 facility and a bunch of subfunctions.
-Failing with -EOPNOTSUPP makes "systemd-modules-load.service" fail on
-any system that does not have all needed subfunctions. For example,
-when running under QEMU TCG (but also on systems where protected keys
-are disabled via the HMC).
+Yes you are, this has already been addressed in linux-next.
 
-Let's use -ENODEV, so systemd-modules-load.service properly ignores
-failing to load the pkey module because of missing HW functionality.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/s390/crypto/pkey_api.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index 45eb0c14b880..ddfcefb47284 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -1695,15 +1695,15 @@ static int __init pkey_init(void)
- 	 * are able to work with protected keys.
- 	 */
- 	if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 
- 	/* check for kmc instructions available */
- 	if (!cpacf_query(CPACF_KMC, &kmc_functions))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 	if (!cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_128) ||
- 	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_192) ||
- 	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_256))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 
- 	pkey_debug_init();
- 
 -- 
-2.21.0
+
+Thanks,
+
+David / dhildenb
