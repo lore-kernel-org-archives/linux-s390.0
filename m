@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v9 4/7] powernv/iommu: add support for IOMMU default DMA mode build options
-Date: Thu, 13 Jun 2019 16:42:37 +0800
-Message-ID: <20190613084240.16768-5-thunder.leizhen@huawei.com>
-In-Reply-To: <20190613084240.16768-1-thunder.leizhen@huawei.com>
-References: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42104 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727953AbfFDPYv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 11:24:51 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x54FF4VD095295
+        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 11:24:50 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2swu4bredf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 11:24:49 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Tue, 4 Jun 2019 16:24:47 +0100
+Date: Tue, 4 Jun 2019 17:24:42 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PULL 0/7] vfio-ccw: fixes
+References: <20190603105038.11788-1-cohuck@redhat.com>
+ <20190603111124.GB20699@osiris>
+ <20190603131641.4ad411f0.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190603131641.4ad411f0.cohuck@redhat.com>
+Message-Id: <20190604152442.GG5774@osiris>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-The default DMA mode is PASSTHROUGH on powernv, this patch make it can be
-set to STRICT at build time. It can be overridden by boot option.
+On Mon, Jun 03, 2019 at 01:16:41PM +0200, Cornelia Huck wrote:
+> On Mon, 3 Jun 2019 13:11:24 +0200
+> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> 
+> > On Mon, Jun 03, 2019 at 12:50:31PM +0200, Cornelia Huck wrote:
+> > > The following changes since commit 674459be116955e025d6a5e6142e2d500103de8e:
+> > > 
+> > >   MAINTAINERS: add Vasily Gorbik and Christian Borntraeger for s390 (2019-05-31 10:14:15 +0200)
+> > > 
+> > > are available in the Git repository at:
+> > > 
+> > >   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20190603
+> > > 
+> > > for you to fetch changes up to 9b6e57e5a51696171de990b3c41bd53d4b8ab8ac:
+> > > 
+> > >   s390/cio: Remove vfio-ccw checks of command codes (2019-06-03 12:02:55 +0200)
+> > > 
+> > > ----------------------------------------------------------------
+> > > various vfio-ccw fixes (ccw translation, state machine)
+> > > 
+> > > ----------------------------------------------------------------
+> > > 
+> > > Eric Farman (7):
+> > >   s390/cio: Update SCSW if it points to the end of the chain
+> > >   s390/cio: Set vfio-ccw FSM state before ioeventfd
+> > >   s390/cio: Split pfn_array_alloc_pin into pieces
+> > >   s390/cio: Initialize the host addresses in pfn_array
+> > >   s390/cio: Don't pin vfio pages for empty transfers
+> > >   s390/cio: Allow zero-length CCWs in vfio-ccw
+> > >   s390/cio: Remove vfio-ccw checks of command codes  
+> > 
+> > Given that none of the commits contains a stable tag, I assume it's ok
+> > to schedule these for the next merge window (aka 'feature branch')?
+> 
+> All are bug fixes, but for what I think are edge cases. Would be nice
+> if they could still make it into 5.2, but I have no real problem with
+> deferring them to the next release, either.
+> 
+> Eric, Farhan: Do you agree?
 
-There is no functional change.
+As discussed on IRC: pulled and pushed to features branch. Urgent
+fixes really should either have a stable and/or fixes tag, if
+possible.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
----
- arch/powerpc/platforms/powernv/pci-ioda.c | 3 ++-
- drivers/iommu/Kconfig                     | 2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
-index 10cc42b9e541c46..27e25e8e3a9c637 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda.c
-@@ -81,7 +81,8 @@ void pe_level_printk(const struct pnv_ioda_pe *pe, const char *level,
- 	va_end(args);
- }
- 
--static bool pnv_iommu_bypass_disabled __read_mostly;
-+static bool pnv_iommu_bypass_disabled __read_mostly =
-+			!IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH);
- static bool pci_reset_phbs __read_mostly;
- 
- static int __init iommu_setup(char *str)
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index a8dd69d175fb3c6..bfbcaa24e283aad 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -78,6 +78,7 @@ config IOMMU_DEBUGFS
- choice
- 	prompt "IOMMU default DMA mode"
- 	depends on IOMMU_API
-+	default IOMMU_DEFAULT_PASSTHROUGH if (PPC_POWERNV && PCI)
- 	default IOMMU_DEFAULT_LAZY if S390_IOMMU
- 	default IOMMU_DEFAULT_STRICT
- 	help
-@@ -98,6 +99,7 @@ config IOMMU_DEFAULT_PASSTHROUGH
- 
- config IOMMU_DEFAULT_LAZY
- 	bool "lazy"
-+	depends on !PPC_POWERNV
- 	help
- 	  Support lazy mode, where for every IOMMU DMA unmap operation, the
- 	  flush operation of IOTLB and the free operation of IOVA are deferred.
--- 
-1.8.3
+Thank you!
