@@ -1,60 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:39163 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726195AbfFSFJR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jun 2019 01:09:17 -0400
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH 0/8] Fix mmap base in bottom-up mmap
-Date: Wed, 19 Jun 2019 01:08:36 -0400
-Message-Id: <20190619050844.5294-1-alex@ghiti.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50592 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727200AbfFDIP0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:15:26 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x548CIZp030887
+        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 04:15:24 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2swhyh70uu-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 04:15:24 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 4 Jun 2019 09:15:22 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net 4/4] s390/qeth: handle error when updating TX queue count
+Date: Tue,  4 Jun 2019 10:15:09 +0200
+In-Reply-To: <20190604081509.56160-1-jwi@linux.ibm.com>
+References: <20190604081509.56160-1-jwi@linux.ibm.com>
+Message-Id: <20190604081509.56160-5-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This series fixes the fallback of the top-down mmap: in case of
-failure, a bottom-up scheme can be tried as a last resort between
-the top-down mmap base and the stack, hoping for a large unused stack
-limit.
+netif_set_real_num_tx_queues() can return an error, deal with it.
 
-Lots of architectures and even mm code start this fallback
-at TASK_UNMAPPED_BASE, which is useless since the top-down scheme
-already failed on the whole address space: instead, simply use
-mmap_base.
+Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-Along the way, it allows to get rid of of mmap_legacy_base and
-mmap_compat_legacy_base from mm_struct.
-
-Note that arm and mips already implement this behaviour. 
-
-Alexandre Ghiti (8):
-  s390: Start fallback of top-down mmap at mm->mmap_base
-  sh: Start fallback of top-down mmap at mm->mmap_base
-  sparc: Start fallback of top-down mmap at mm->mmap_base
-  x86, hugetlbpage: Start fallback of top-down mmap at mm->mmap_base
-  mm: Start fallback top-down mmap at mm->mmap_base
-  parisc: Use mmap_base, not mmap_legacy_base, as low_limit for
-    bottom-up mmap
-  x86: Use mmap_*base, not mmap_*legacy_base, as low_limit for bottom-up
-    mmap
-  mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from
-    mm_struct
-
- arch/parisc/kernel/sys_parisc.c  |  8 +++-----
- arch/s390/mm/mmap.c              |  2 +-
- arch/sh/mm/mmap.c                |  2 +-
- arch/sparc/kernel/sys_sparc_64.c |  2 +-
- arch/sparc/mm/hugetlbpage.c      |  2 +-
- arch/x86/include/asm/elf.h       |  2 +-
- arch/x86/kernel/sys_x86_64.c     |  4 ++--
- arch/x86/mm/hugetlbpage.c        |  7 ++++---
- arch/x86/mm/mmap.c               | 20 +++++++++-----------
- include/linux/mm_types.h         |  2 --
- mm/debug.c                       |  4 ++--
- mm/mmap.c                        |  2 +-
- 12 files changed, 26 insertions(+), 31 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 009f2c0ec504..b1823d75dd35 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1274,16 +1274,20 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
+ 	return 0;
+ }
+ 
+-static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
++static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
+ {
+ 	unsigned int count = single ? 1 : card->dev->num_tx_queues;
++	int rc;
+ 
+ 	rtnl_lock();
+-	netif_set_real_num_tx_queues(card->dev, count);
++	rc = netif_set_real_num_tx_queues(card->dev, count);
+ 	rtnl_unlock();
+ 
++	if (rc)
++		return rc;
++
+ 	if (card->qdio.no_out_queues == count)
+-		return;
++		return 0;
+ 
+ 	if (atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED)
+ 		qeth_free_qdio_queues(card);
+@@ -1293,12 +1297,14 @@ static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
+ 
+ 	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
+ 	card->qdio.no_out_queues = count;
++	return 0;
+ }
+ 
+ static int qeth_update_from_chp_desc(struct qeth_card *card)
+ {
+ 	struct ccw_device *ccwdev;
+ 	struct channel_path_desc_fmt0 *chp_dsc;
++	int rc = 0;
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "chp_desc");
+ 
+@@ -1311,12 +1317,12 @@ static int qeth_update_from_chp_desc(struct qeth_card *card)
+ 
+ 	if (IS_OSD(card) || IS_OSX(card))
+ 		/* CHPP field bit 6 == 1 -> single queue */
+-		qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
++		rc = qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
+ 
+ 	kfree(chp_dsc);
+ 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
+ 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
+-	return 0;
++	return rc;
+ }
+ 
+ static void qeth_init_qdio_info(struct qeth_card *card)
+@@ -5597,8 +5603,12 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
+ 		dev->hw_features |= NETIF_F_SG;
+ 		dev->vlan_features |= NETIF_F_SG;
+ 		if (IS_IQD(card)) {
+-			netif_set_real_num_tx_queues(dev, QETH_IQD_MIN_TXQ);
+ 			dev->features |= NETIF_F_SG;
++			if (netif_set_real_num_tx_queues(dev,
++							 QETH_IQD_MIN_TXQ)) {
++				free_netdev(dev);
++				return NULL;
++			}
+ 		}
+ 	}
+ 
 -- 
-2.20.1
+2.17.1
