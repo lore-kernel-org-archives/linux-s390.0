@@ -1,59 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34510 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725834AbfFNCyU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 22:54:20 -0400
-From: Ming Lei <ming.lei@redhat.com>
-Subject: [PATCH V3 09/15] s390: zfcp_fc: use sg helper to operate scatterlist
-Date: Fri, 14 Jun 2019 10:53:10 +0800
-Message-Id: <20190614025316.7360-10-ming.lei@redhat.com>
-In-Reply-To: <20190614025316.7360-1-ming.lei@redhat.com>
-References: <20190614025316.7360-1-ming.lei@redhat.com>
+        id S1727613AbfFDXYc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:24:32 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 06/24] s390/kasan: fix strncpy_from_user kasan checks
+Date: Tue,  4 Jun 2019 19:23:57 -0400
+Message-Id: <20190604232416.7479-6-sashal@kernel.org>
+In-Reply-To: <20190604232416.7479-1-sashal@kernel.org>
+References: <20190604232416.7479-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-scsi@vger.kernel.org, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Christoph Hellwig <hch@lst.de>, Jim Gill <jgill@vmware.com>, Cathy Avery <cavery@redhat.com>, "Ewan D . Milne" <emilne@redhat.com>, Brian King <brking@us.ibm.com>, James Smart <james.smart@broadcom.com>, "Juergen E . Fischer" <fischer@norbit.de>, Michael Schmitz <schmitzmic@gmail.com>, Finn Thain <fthain@telegraphics.com.au>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>, Benjamin Block <bblock@linux.ibm.com>, Ming Lei <ming.lei@redhat.com>, Steffen Maier <maier@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Use the scatterlist iterators and remove direct indexing of the
-scatterlist array.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-This way allows us to pre-allocate one small scatterlist, which can be
-chained with one runtime allocated scatterlist if the pre-allocated one
-isn't enough for the whole request.
+[ Upstream commit 01eb42afb45719cb41bb32c278e068073738899d ]
 
-Cc: Steffen Maier <maier@linux.ibm.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+arch/s390/lib/uaccess.c is built without kasan instrumentation. Kasan
+checks are performed explicitly in copy_from_user/copy_to_user
+functions. But since those functions could be inlined, calls from
+files like uaccess.c with instrumentation disabled won't generate
+kasan reports. This is currently the case with strncpy_from_user
+function which was revealed by newly added kasan test. Avoid inlining of
+copy_from_user/copy_to_user when the kernel is built with kasan support
+to make sure kasan checks are fully functional.
+
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_fc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/uaccess.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 33eddb02ee30..b018b61bd168 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -620,7 +620,7 @@ static void zfcp_fc_sg_free_table(struct scatterlist *sg, int count)
- {
- 	int i;
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index cdd0f0d999e2..689eae8d3859 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -67,8 +67,10 @@ raw_copy_from_user(void *to, const void __user *from, unsigned long n);
+ unsigned long __must_check
+ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
  
--	for (i = 0; i < count; i++, sg++)
-+	for (i = 0; i < count; i++, sg = sg_next(sg))
- 		if (sg)
- 			free_page((unsigned long) sg_virt(sg));
- 		else
-@@ -641,7 +641,7 @@ static int zfcp_fc_sg_setup_table(struct scatterlist *sg, int count)
- 	int i;
++#ifndef CONFIG_KASAN
+ #define INLINE_COPY_FROM_USER
+ #define INLINE_COPY_TO_USER
++#endif
  
- 	sg_init_table(sg, count);
--	for (i = 0; i < count; i++, sg++) {
-+	for (i = 0; i < count; i++, sg = sg_next(sg)) {
- 		addr = (void *) get_zeroed_page(GFP_KERNEL);
- 		if (!addr) {
- 			zfcp_fc_sg_free_table(sg, i);
+ #ifdef CONFIG_HAVE_MARCH_Z10_FEATURES
+ 
 -- 
 2.20.1
