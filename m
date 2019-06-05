@@ -1,303 +1,117 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: [PATCH v12 01/11] MODSIGN: Export module signature definitions
-Date: Thu, 27 Jun 2019 23:19:24 -0300
-Message-Id: <20190628021934.4260-2-bauerman@linux.ibm.com>
-In-Reply-To: <20190628021934.4260-1-bauerman@linux.ibm.com>
-References: <20190628021934.4260-1-bauerman@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:35086 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726690AbfFEJAs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 5 Jun 2019 05:00:48 -0400
+Subject: Re: [PATCH v3 09/11] mm/memory_hotplug: Remove memory block devices
+ before arch_remove_memory()
+References: <20190527111152.16324-1-david@redhat.com>
+ <20190527111152.16324-10-david@redhat.com>
+ <20190604220715.d4d2ctwjk25vd5sq@master>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <38b8b004-9a26-e4ba-d8e3-a41c8fcc51c1@redhat.com>
+Date: Wed, 5 Jun 2019 11:00:28 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20190604220715.d4d2ctwjk25vd5sq@master>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-integrity@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Jessica Yu <jeyu@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, "AKASHI, Takahiro" <takahiro.akashi@linaro.org>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: Wei Yang <richard.weiyang@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Andrew Banman <andrew.banman@hpe.com>, Ingo Molnar <mingo@kernel.org>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Oscar Salvador <osalvador@suse.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
 
-IMA will use the module_signature format for append signatures, so export
-the relevant definitions and factor out the code which verifies that the
-appended signature trailer is valid.
+On 05.06.19 00:07, Wei Yang wrote:
+> On Mon, May 27, 2019 at 01:11:50PM +0200, David Hildenbrand wrote:
+>> Let's factor out removing of memory block devices, which is only
+>> necessary for memory added via add_memory() and friends that created
+>> memory block devices. Remove the devices before calling
+>> arch_remove_memory().
+>>
+>> This finishes factoring out memory block device handling from
+>> arch_add_memory() and arch_remove_memory().
+>>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+>> Cc: David Hildenbrand <david@redhat.com>
+>> Cc: "mike.travis@hpe.com" <mike.travis@hpe.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Andrew Banman <andrew.banman@hpe.com>
+>> Cc: Ingo Molnar <mingo@kernel.org>
+>> Cc: Alex Deucher <alexander.deucher@amd.com>
+>> Cc: "David S. Miller" <davem@davemloft.net>
+>> Cc: Mark Brown <broonie@kernel.org>
+>> Cc: Chris Wilson <chris@chris-wilson.co.uk>
+>> Cc: Oscar Salvador <osalvador@suse.de>
+>> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> Cc: Michal Hocko <mhocko@suse.com>
+>> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+>> Cc: Arun KS <arunks@codeaurora.org>
+>> Cc: Mathieu Malaterre <malat@debian.org>
+>> Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>> drivers/base/memory.c  | 37 ++++++++++++++++++-------------------
+>> drivers/base/node.c    | 11 ++++++-----
+>> include/linux/memory.h |  2 +-
+>> include/linux/node.h   |  6 ++----
+>> mm/memory_hotplug.c    |  5 +++--
+>> 5 files changed, 30 insertions(+), 31 deletions(-)
+>>
+>> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+>> index 5a0370f0c506..f28efb0bf5c7 100644
+>> --- a/drivers/base/memory.c
+>> +++ b/drivers/base/memory.c
+>> @@ -763,32 +763,31 @@ int create_memory_block_devices(unsigned long start, unsigned long size)
+>> 	return ret;
+>> }
+>>
+>> -void unregister_memory_section(struct mem_section *section)
+>> +/*
+>> + * Remove memory block devices for the given memory area. Start and size
+>> + * have to be aligned to memory block granularity. Memory block devices
+>> + * have to be offline.
+>> + */
+>> +void remove_memory_block_devices(unsigned long start, unsigned long size)
+>> {
+>> +	const int start_block_id = pfn_to_block_id(PFN_DOWN(start));
+>> +	const int end_block_id = pfn_to_block_id(PFN_DOWN(start + size));
+>> 	struct memory_block *mem;
+>> +	int block_id;
+>>
+>> -	if (WARN_ON_ONCE(!present_section(section)))
+>> +	if (WARN_ON_ONCE(!IS_ALIGNED(start, memory_block_size_bytes()) ||
+>> +			 !IS_ALIGNED(size, memory_block_size_bytes())))
+>> 		return;
+>>
+>> 	mutex_lock(&mem_sysfs_mutex);
+>> -
+>> -	/*
+>> -	 * Some users of the memory hotplug do not want/need memblock to
+>> -	 * track all sections. Skip over those.
+>> -	 */
+>> -	mem = find_memory_block(section);
+>> -	if (!mem)
+>> -		goto out_unlock;
+>> -
+>> -	unregister_mem_sect_under_nodes(mem, __section_nr(section));
+>> -
+>> -	mem->section_count--;
+>> -	if (mem->section_count == 0)
+>> +	for (block_id = start_block_id; block_id != end_block_id; block_id++) {
+>> +		mem = find_memory_block_by_id(block_id, NULL);
+>> +		if (WARN_ON_ONCE(!mem))
+>> +			continue;
+>> +		mem->section_count = 0;
+> 
+> Is this step necessary?
 
-Also, create a CONFIG_MODULE_SIG_FORMAT option so that IMA can select it
-and be able to use mod_check_sig() without having to depend on either
-CONFIG_MODULE_SIG or CONFIG_MODULES.
+It's what the previous code does, it might not be - I'll leave it like
+that for now. As mentioned in another reply, I might remove the
+section_count completely, eventually.
 
-Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Jessica Yu <jeyu@kernel.org>
----
- include/linux/module.h           |  3 --
- include/linux/module_signature.h | 44 +++++++++++++++++++++++++
- init/Kconfig                     |  6 +++-
- kernel/Makefile                  |  1 +
- kernel/module.c                  |  1 +
- kernel/module_signature.c        | 46 ++++++++++++++++++++++++++
- kernel/module_signing.c          | 56 +++++---------------------------
- scripts/Makefile                 |  2 +-
- 8 files changed, 106 insertions(+), 53 deletions(-)
+-- 
 
-diff --git a/include/linux/module.h b/include/linux/module.h
-index 188998d3dca9..aa56f531cf1e 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -25,9 +25,6 @@
- #include <linux/percpu.h>
- #include <asm/module.h>
- 
--/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
--#define MODULE_SIG_STRING "~Module signature appended~\n"
--
- /* Not Yet Implemented */
- #define MODULE_SUPPORTED_DEVICE(name)
- 
-diff --git a/include/linux/module_signature.h b/include/linux/module_signature.h
-new file mode 100644
-index 000000000000..523617fc5b6a
---- /dev/null
-+++ b/include/linux/module_signature.h
-@@ -0,0 +1,44 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * Module signature handling.
-+ *
-+ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ */
-+
-+#ifndef _LINUX_MODULE_SIGNATURE_H
-+#define _LINUX_MODULE_SIGNATURE_H
-+
-+/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
-+#define MODULE_SIG_STRING "~Module signature appended~\n"
-+
-+enum pkey_id_type {
-+	PKEY_ID_PGP,		/* OpenPGP generated key ID */
-+	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
-+	PKEY_ID_PKCS7,		/* Signature in PKCS#7 message */
-+};
-+
-+/*
-+ * Module signature information block.
-+ *
-+ * The constituents of the signature section are, in order:
-+ *
-+ *	- Signer's name
-+ *	- Key identifier
-+ *	- Signature data
-+ *	- Information block
-+ */
-+struct module_signature {
-+	u8	algo;		/* Public-key crypto algorithm [0] */
-+	u8	hash;		/* Digest algorithm [0] */
-+	u8	id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
-+	u8	signer_len;	/* Length of signer's name [0] */
-+	u8	key_id_len;	/* Length of key identifier [0] */
-+	u8	__pad[3];
-+	__be32	sig_len;	/* Length of signature data */
-+};
-+
-+int mod_check_sig(const struct module_signature *ms, size_t file_len,
-+		  const char *name);
-+
-+#endif /* _LINUX_MODULE_SIGNATURE_H */
-diff --git a/init/Kconfig b/init/Kconfig
-index 8b9ffe236e4f..c2286a3c74c5 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1852,6 +1852,10 @@ config BASE_SMALL
- 	default 0 if BASE_FULL
- 	default 1 if !BASE_FULL
- 
-+config MODULE_SIG_FORMAT
-+	def_bool n
-+	select SYSTEM_DATA_VERIFICATION
-+
- menuconfig MODULES
- 	bool "Enable loadable module support"
- 	option modules
-@@ -1929,7 +1933,7 @@ config MODULE_SRCVERSION_ALL
- config MODULE_SIG
- 	bool "Module signature verification"
- 	depends on MODULES
--	select SYSTEM_DATA_VERIFICATION
-+	select MODULE_SIG_FORMAT
- 	help
- 	  Check modules for valid signatures upon load: the signature
- 	  is simply appended to the module. For more information see
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 33824f0385b3..f29ae2997a43 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -58,6 +58,7 @@ endif
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += module.o
- obj-$(CONFIG_MODULE_SIG) += module_signing.o
-+obj-$(CONFIG_MODULE_SIG_FORMAT) += module_signature.o
- obj-$(CONFIG_KALLSYMS) += kallsyms.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_CRASH_CORE) += crash_core.o
-diff --git a/kernel/module.c b/kernel/module.c
-index 6e6712b3aaf5..2712f4d217f5 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -19,6 +19,7 @@
- #include <linux/export.h>
- #include <linux/extable.h>
- #include <linux/moduleloader.h>
-+#include <linux/module_signature.h>
- #include <linux/trace_events.h>
- #include <linux/init.h>
- #include <linux/kallsyms.h>
-diff --git a/kernel/module_signature.c b/kernel/module_signature.c
-new file mode 100644
-index 000000000000..4224a1086b7d
---- /dev/null
-+++ b/kernel/module_signature.c
-@@ -0,0 +1,46 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Module signature checker
-+ *
-+ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ */
-+
-+#include <linux/errno.h>
-+#include <linux/printk.h>
-+#include <linux/module_signature.h>
-+#include <asm/byteorder.h>
-+
-+/**
-+ * mod_check_sig - check that the given signature is sane
-+ *
-+ * @ms:		Signature to check.
-+ * @file_len:	Size of the file to which @ms is appended.
-+ * @name:	What is being checked. Used for error messages.
-+ */
-+int mod_check_sig(const struct module_signature *ms, size_t file_len,
-+		  const char *name)
-+{
-+	if (be32_to_cpu(ms->sig_len) >= file_len - sizeof(*ms))
-+		return -EBADMSG;
-+
-+	if (ms->id_type != PKEY_ID_PKCS7) {
-+		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
-+		       name);
-+		return -ENOPKG;
-+	}
-+
-+	if (ms->algo != 0 ||
-+	    ms->hash != 0 ||
-+	    ms->signer_len != 0 ||
-+	    ms->key_id_len != 0 ||
-+	    ms->__pad[0] != 0 ||
-+	    ms->__pad[1] != 0 ||
-+	    ms->__pad[2] != 0) {
-+		pr_err("%s: PKCS#7 signature info has unexpected non-zero params\n",
-+		       name);
-+		return -EBADMSG;
-+	}
-+
-+	return 0;
-+}
-diff --git a/kernel/module_signing.c b/kernel/module_signing.c
-index 6b9a926fd86b..cdd04a6b8074 100644
---- a/kernel/module_signing.c
-+++ b/kernel/module_signing.c
-@@ -11,37 +11,13 @@
- 
- #include <linux/kernel.h>
- #include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/module_signature.h>
- #include <linux/string.h>
- #include <linux/verification.h>
- #include <crypto/public_key.h>
- #include "module-internal.h"
- 
--enum pkey_id_type {
--	PKEY_ID_PGP,		/* OpenPGP generated key ID */
--	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
--	PKEY_ID_PKCS7,		/* Signature in PKCS#7 message */
--};
--
--/*
-- * Module signature information block.
-- *
-- * The constituents of the signature section are, in order:
-- *
-- *	- Signer's name
-- *	- Key identifier
-- *	- Signature data
-- *	- Information block
-- */
--struct module_signature {
--	u8	algo;		/* Public-key crypto algorithm [0] */
--	u8	hash;		/* Digest algorithm [0] */
--	u8	id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
--	u8	signer_len;	/* Length of signer's name [0] */
--	u8	key_id_len;	/* Length of key identifier [0] */
--	u8	__pad[3];
--	__be32	sig_len;	/* Length of signature data */
--};
--
- /*
-  * Verify the signature on a module.
-  */
-@@ -49,6 +25,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
- {
- 	struct module_signature ms;
- 	size_t sig_len, modlen = info->len;
-+	int ret;
- 
- 	pr_devel("==>%s(,%zu)\n", __func__, modlen);
- 
-@@ -56,32 +33,15 @@ int mod_verify_sig(const void *mod, struct load_info *info)
- 		return -EBADMSG;
- 
- 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
--	modlen -= sizeof(ms);
-+
-+	ret = mod_check_sig(&ms, modlen, info->name);
-+	if (ret)
-+		return ret;
- 
- 	sig_len = be32_to_cpu(ms.sig_len);
--	if (sig_len >= modlen)
--		return -EBADMSG;
--	modlen -= sig_len;
-+	modlen -= sig_len + sizeof(ms);
- 	info->len = modlen;
- 
--	if (ms.id_type != PKEY_ID_PKCS7) {
--		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
--		       info->name);
--		return -ENOPKG;
--	}
--
--	if (ms.algo != 0 ||
--	    ms.hash != 0 ||
--	    ms.signer_len != 0 ||
--	    ms.key_id_len != 0 ||
--	    ms.__pad[0] != 0 ||
--	    ms.__pad[1] != 0 ||
--	    ms.__pad[2] != 0) {
--		pr_err("%s: PKCS#7 signature info has unexpected non-zero params\n",
--		       info->name);
--		return -EBADMSG;
--	}
--
- 	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
- 				      VERIFY_USE_SECONDARY_KEYRING,
- 				      VERIFYING_MODULE_SIGNATURE,
-diff --git a/scripts/Makefile b/scripts/Makefile
-index 9d442ee050bd..52098b080ab7 100644
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -17,7 +17,7 @@ hostprogs-$(CONFIG_VT)           += conmakehash
- hostprogs-$(BUILD_C_RECORDMCOUNT) += recordmcount
- hostprogs-$(CONFIG_BUILDTIME_EXTABLE_SORT) += sortextable
- hostprogs-$(CONFIG_ASN1)	 += asn1_compiler
--hostprogs-$(CONFIG_MODULE_SIG)	 += sign-file
-+hostprogs-$(CONFIG_MODULE_SIG_FORMAT) += sign-file
- hostprogs-$(CONFIG_SYSTEM_TRUSTED_KEYRING) += extract-cert
- hostprogs-$(CONFIG_SYSTEM_EXTRA_CERTIFICATE) += insert-sys-cert
- 
+Thanks,
+
+David / dhildenb
