@@ -1,65 +1,28 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v9 0/7] iommu: enhance IOMMU default DMA mode build options
-Date: Thu, 13 Jun 2019 16:42:33 +0800
-Message-ID: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:51614 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726050AbfFEFub (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jun 2019 01:50:31 -0400
+Date: Tue, 4 Jun 2019 22:50:21 -0700
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH v3 1/4] iommu: Add gfp parameter to iommu_ops::map
+Message-ID: <20190605055021.GA15036@infradead.org>
+References: <20190506185207.31069-1-tmurphy@arista.com>
+ <20190506185207.31069-2-tmurphy@arista.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190506185207.31069-2-tmurphy@arista.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
+To: Tom Murphy <tmurphy@arista.com>
+Cc: iommu@lists.linux-foundation.org, Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andy Gross <andy.gross@linaro.org>, linux-tegra@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, murphyt7@tcd.ie, David Woodhouse <dwmw2@infradead.org>
 
-v8--> v9
-1. Fix some text editing errors
+On Mon, May 06, 2019 at 07:52:03PM +0100, Tom Murphy via iommu wrote:
+> We can remove the mutex lock from amd_iommu_map and amd_iommu_unmap.
+> iommu_map doesn’t lock while mapping and so no two calls should touch
+> the same iova range. The AMD driver already handles the page table page
+> allocations without locks so we can safely remove the locks.
 
-v7--> v8
-1. Split into multiple small patches base on ARCHs or IOMMU drivers.
-2. Hide the unsupported build options on the related ARCH or IOMMU.
-
-v6 --> v7:
-1. Fix some text editing errors
-
-v5 --> v6:
-1. give up adding boot option iommu.dma_mode
-
-v4 --> v5:
-As Hanjun and Thomas Gleixner's suggestion:
-1. Keep the old ARCH specific boot options no change.
-2. Keep build option CONFIG_IOMMU_DEFAULT_PASSTHROUGH no change.
-
-v4:
-As Robin Murphy's suggestion:
-"It's also not necessarily obvious to the user how this interacts with
-IOMMU_DEFAULT_PASSTHROUGH, so if we really do go down this route, maybe it
-would be better to refactor the whole lot into a single selection of something
-like IOMMU_DEFAULT_MODE anyway."
-
-In this version, I tried to normalize the IOMMU dma mode boot options for all
-ARCHs. When IOMMU is enabled, there are 3 dma modes: paasthrough(bypass),
-lazy(mapping but defer the IOTLB invalidation), strict. But currently each
-ARCHs defined their private boot options, different with each other. For
-example, to enable/disable "passthrough", ARM64 use iommu.passthrough=1/0,
-X86 use iommu=pt/nopt, PPC/POWERNV use iommu=nobypass.
-
-Zhen Lei (7):
-  iommu: enhance IOMMU default DMA mode build options
-  x86/dma: use IS_ENABLED() to simplify the code
-  s390/pci: add support for IOMMU default DMA mode build options
-  powernv/iommu: add support for IOMMU default DMA mode build options
-  iommu/vt-d: add support for IOMMU default DMA mode build options
-  iommu/amd: add support for IOMMU default DMA mode build options
-  ia64: hide build option IOMMU_DEFAULT_PASSTHROUGH
-
- arch/powerpc/platforms/powernv/pci-ioda.c |  3 +-
- arch/s390/pci/pci_dma.c                   |  2 +-
- arch/x86/kernel/pci-dma.c                 |  6 +---
- drivers/iommu/Kconfig                     | 48 +++++++++++++++++++++++++------
- drivers/iommu/amd_iommu_init.c            |  2 +-
- drivers/iommu/intel-iommu.c               |  2 +-
- drivers/iommu/iommu.c                     |  3 +-
- 7 files changed, 48 insertions(+), 18 deletions(-)
-
--- 
-1.8.3
+Btw, this really should be a separate patch.
