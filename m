@@ -1,78 +1,53 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-Subject: Re: [PATCH v1 0/9] KVM selftests for s390x
-References: <20190523164309.13345-1-thuth@redhat.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <f2daf197-bb5d-15d7-8219-d17cd40c85c9@redhat.com>
-Date: Tue, 4 Jun 2019 19:19:28 +0200
-MIME-Version: 1.0
-In-Reply-To: <20190523164309.13345-1-thuth@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48748 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727285AbfFFLvs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jun 2019 07:51:48 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x56BlqLh072873
+        for <linux-s390@vger.kernel.org>; Thu, 6 Jun 2019 07:51:46 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2sy1s3sj87-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 06 Jun 2019 07:51:46 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Thu, 6 Jun 2019 12:51:44 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH v4 5/8] virtio/s390: use cacheline aligned airq bit vectors
+Date: Thu,  6 Jun 2019 13:51:24 +0200
+In-Reply-To: <20190606115127.55519-1-pasic@linux.ibm.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+Message-Id: <20190606115127.55519-6-pasic@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
 
-On 23/05/19 18:43, Thomas Huth wrote:
-> This patch series enables the KVM selftests for s390x. As a first
-> test, the sync_regs from x86 has been adapted to s390x, and after
-> a fix for KVM_CAP_MAX_VCPU_ID on s390x, the kvm_create_max_vcpus
-> is now enabled here, too.
-> 
-> Please note that the ucall() interface is not used yet - since
-> s390x neither has PIO nor MMIO, this needs some more work first
-> before it becomes usable (we likely should use a DIAG hypercall
-> here, which is what the sync_reg test is currently using, too...
-> I started working on that topic, but did not finish that work
-> yet, so I decided to not include it yet).
+The flag AIRQ_IV_CACHELINE was recently added to airq_iv_create(). Let
+us use it! We actually wanted the vector to span a cacheline all along.
 
-Christian, please include this in your tree (rebasing on top of kvm/next
-as soon as I push it).  Note that Thomas is away for about a month.
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Paolo
-
-> RFC -> v1:
->  - Rebase, needed to add the first patch for vcpu_nested_state_get/set
->  - Added patch to introduce VM_MODE_DEFAULT macro
->  - Improved/cleaned up the code in processor.c
->  - Added patch to fix KVM_CAP_MAX_VCPU_ID on s390x
->  - Added patch to enable the kvm_create_max_vcpus on s390x and aarch64
-> 
-> Andrew Jones (1):
->   kvm: selftests: aarch64: fix default vm mode
-> 
-> Thomas Huth (8):
->   KVM: selftests: Wrap vcpu_nested_state_get/set functions with x86
->     guard
->   KVM: selftests: Guard struct kvm_vcpu_events with
->     __KVM_HAVE_VCPU_EVENTS
->   KVM: selftests: Introduce a VM_MODE_DEFAULT macro for the default bits
->   KVM: selftests: Align memory region addresses to 1M on s390x
->   KVM: selftests: Add processor code for s390x
->   KVM: selftests: Add the sync_regs test for s390x
->   KVM: s390: Do not report unusabled IDs via KVM_CAP_MAX_VCPU_ID
->   KVM: selftests: Move kvm_create_max_vcpus test to generic code
-> 
->  MAINTAINERS                                   |   2 +
->  arch/mips/kvm/mips.c                          |   3 +
->  arch/powerpc/kvm/powerpc.c                    |   3 +
->  arch/s390/kvm/kvm-s390.c                      |   1 +
->  arch/x86/kvm/x86.c                            |   3 +
->  tools/testing/selftests/kvm/Makefile          |   7 +-
->  .../testing/selftests/kvm/include/kvm_util.h  |  10 +
->  .../selftests/kvm/include/s390x/processor.h   |  22 ++
->  .../kvm/{x86_64 => }/kvm_create_max_vcpus.c   |   3 +-
->  .../selftests/kvm/lib/aarch64/processor.c     |   2 +-
->  tools/testing/selftests/kvm/lib/kvm_util.c    |  25 +-
->  .../selftests/kvm/lib/s390x/processor.c       | 286 ++++++++++++++++++
->  .../selftests/kvm/lib/x86_64/processor.c      |   2 +-
->  .../selftests/kvm/s390x/sync_regs_test.c      | 151 +++++++++
->  virt/kvm/arm/arm.c                            |   3 +
->  virt/kvm/kvm_main.c                           |   2 -
->  16 files changed, 514 insertions(+), 11 deletions(-)
->  create mode 100644 tools/testing/selftests/kvm/include/s390x/processor.h
->  rename tools/testing/selftests/kvm/{x86_64 => }/kvm_create_max_vcpus.c (93%)
->  create mode 100644 tools/testing/selftests/kvm/lib/s390x/processor.c
->  create mode 100644 tools/testing/selftests/kvm/s390x/sync_regs_test.c
-> 
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index f995798bb025..1da7430f94c8 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -216,7 +216,8 @@ static struct airq_info *new_airq_info(void)
+ 	if (!info)
+ 		return NULL;
+ 	rwlock_init(&info->lock);
+-	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR);
++	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR
++				   | AIRQ_IV_CACHELINE);
+ 	if (!info->aiv) {
+ 		kfree(info);
+ 		return NULL;
+-- 
+2.17.1
