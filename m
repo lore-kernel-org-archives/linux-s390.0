@@ -1,83 +1,120 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:54840 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728141AbfFDXZs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:25:48 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 10/10] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date: Tue,  4 Jun 2019 19:25:31 -0400
-Message-Id: <20190604232532.7953-10-sashal@kernel.org>
-In-Reply-To: <20190604232532.7953-1-sashal@kernel.org>
-References: <20190604232532.7953-1-sashal@kernel.org>
+        id S1726584AbfFGKAJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 7 Jun 2019 06:00:09 -0400
+Subject: Re: [PATCH v1] s390/pkey: Use -ENODEV instead of -EOPNOTSUPP
+References: <20190531093628.14766-1-david@redhat.com>
+ <3dfea8fd-dbe7-f9d0-f7a7-2c65349c0a81@linux.ibm.com>
+ <67136b8b-251f-4745-a220-2624aeac289e@redhat.com>
+ <20190603110839.1a44f352.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <19c718f4-640a-0566-f92c-95e53ce9e654@redhat.com>
+Date: Fri, 7 Jun 2019 12:00:06 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190603110839.1a44f352.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+On 03.06.19 11:08, Cornelia Huck wrote:
+> On Mon, 3 Jun 2019 10:14:53 +0200
+> David Hildenbrand <david@redhat.com> wrote:
+> 
+>> On 03.06.19 09:48, Harald Freudenberger wrote:
+>>> On 31.05.19 11:36, David Hildenbrand wrote:  
+>>>> systemd-modules-load.service automatically tries to load the pkey module
+>>>> on systems that have MSA.
+>>>>
+>>>> Pkey also requires the MSA3 facility and a bunch of subfunctions.
+>>>> Failing with -EOPNOTSUPP makes "systemd-modules-load.service" fail on
+>>>> any system that does not have all needed subfunctions. For example,
+>>>> when running under QEMU TCG (but also on systems where protected keys
+>>>> are disabled via the HMC).
+>>>>
+>>>> Let's use -ENODEV, so systemd-modules-load.service properly ignores
+>>>> failing to load the pkey module because of missing HW functionality.
+>>>>
+>>>> Cc: Harald Freudenberger <freude@linux.ibm.com>
+>>>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>>>> Cc: Cornelia Huck <cohuck@redhat.com>
+>>>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>> ---
+>>>>  drivers/s390/crypto/pkey_api.c | 6 +++---
+>>>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+>>>> index 45eb0c14b880..ddfcefb47284 100644
+>>>> --- a/drivers/s390/crypto/pkey_api.c
+>>>> +++ b/drivers/s390/crypto/pkey_api.c
+>>>> @@ -1695,15 +1695,15 @@ static int __init pkey_init(void)
+>>>>  	 * are able to work with protected keys.
+>>>>  	 */
+>>>>  	if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
+>>>> -		return -EOPNOTSUPP;
+>>>> +		return -ENODEV;
+>>>>  
+>>>>  	/* check for kmc instructions available */
+>>>>  	if (!cpacf_query(CPACF_KMC, &kmc_functions))
+>>>> -		return -EOPNOTSUPP;
+>>>> +		return -ENODEV;
+>>>>  	if (!cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_128) ||
+>>>>  	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_192) ||
+>>>>  	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_256))
+>>>> -		return -EOPNOTSUPP;
+>>>> +		return -ENODEV;
+>>>>  
+>>>>  	pkey_debug_init();
+>>>>    
+>>> I can't really agree to this: there are a lot more modules returning
+>>> EOPNOTSUPP, for example have a look into the arch/s390/crypto
+>>> subdirectory. The ghash_s390 module also registers for MSA feature
+>>> and also returns EOPNOTSUPPORTED when the required hardware extension  
+>>
+>> For s390x KVM, we return ENODEV in case the SIE (the HW feature) is not
+>> available. Just because s390x crypto is doing it consistently this way
+>> doesn't mean it is the right thing to do.
+>>
+>> Maybe we should change all s390x crypto modules then.
+> 
+> I agree.
+> 
+>>
+>>> is not available. Same with the prng kernel module, sha1_s390, sha256_s390
+>>> and I assume there is a bunch of other kernel modules with same behavior.
+>>> I would prefer having this fixed on the systemd-modules-load.service side.  
+>>
+>>
+>> A very, very bad comparison (because it contains a lot of false positives):
+>>
+>> t460s: ~/git/linux memory_block_devices2 $ git grep -A 20 "_init("  --
+>> 'drivers*.[c]' | grep ENODEV | wc -l
+>> 1552
+>>
+>> t460s: ~/git/linux memory_block_devices2 $ git grep -A 20 "_init("  --
+>> 'drivers*.[c]' | grep EOPNOTSUPP | wc -l
+>> 56
+>>
+>> No, I don't think EOPNOTSUPP is the right thing to do.
+> 
+> If we frame it as
+> -EOPNOTSUPP -> operation not supported (i.e. we cannot perform this
+> operation)
+> -ENODEV -> no such device (i.e. we're lacking hardware support)
+> 
+> I think -ENODEV makes more sense (even though we could argue for both.)
+> And it is an easy change to make...
+> 
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+So do we have an agreement to change all s390x crypto users to ENODEV?
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5ddb1debba95..23911ecfbad6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2721,21 +2721,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
- 
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
 -- 
-2.20.1
+
+Thanks,
+
+David / dhildenb
