@@ -1,111 +1,178 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:48284 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730896AbfFMIaY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:30:24 -0400
-Subject: Re: [PATCH v8 1/7] iommu: enhance IOMMU default DMA mode build
- options
-References: <20190530034831.4184-1-thunder.leizhen@huawei.com>
- <20190530034831.4184-2-thunder.leizhen@huawei.com>
- <645bd526-4eb0-4a36-2dda-023f009247ab@huawei.com>
- <030bafab-58f5-8bb1-0533-2977d6e138b2@huawei.com>
- <55d0e30c-5bca-41fc-5bf0-4366dc387afd@huawei.com>
-From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
-Message-ID: <7d3727e3-a455-3a26-1104-5b85c196bbdf@huawei.com>
-Date: Thu, 13 Jun 2019 16:30:08 +0800
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 44/70] s390/zcrypt: Fix wrong dispatching for control domain CPRBs
+Date: Sat,  8 Jun 2019 07:39:23 -0400
+Message-Id: <20190608113950.8033-44-sashal@kernel.org>
+In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
+References: <20190608113950.8033-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <55d0e30c-5bca-41fc-5bf0-4366dc387afd@huawei.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: John Garry <john.garry@huawei.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Hanjun Guo <guohanjun@huawei.com>, Linuxarm <linuxarm@huawei.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
+From: Harald Freudenberger <freude@linux.ibm.com>
 
+[ Upstream commit 7379e652797c0b9b5f6caea1576f2dff9ce6a708 ]
 
-On 2019/5/31 18:42, John Garry wrote:
-> 
->>>> -config IOMMU_DEFAULT_PASSTHROUGH
->>>> -    bool "IOMMU passthrough by default"
->>>> +choice
->>>> +    prompt "IOMMU default DMA mode"
->>>>      depends on IOMMU_API
->>>> -        help
->>>> -      Enable passthrough by default, removing the need to pass in
->>>> -      iommu.passthrough=on or iommu=pt through command line. If this
->>>> -      is enabled, you can still disable with iommu.passthrough=off
->>>> -      or iommu=nopt depending on the architecture.
->>>> +    default IOMMU_DEFAULT_STRICT
->>>> +    help
->>>> +      This option allows IOMMU DMA mode to be chose at build time, to
->>>
->>> As before:
->>> /s/chose/chosen/, /s/allows IOMMU/allows an IOMMU/
->> I'm sorry that the previous version was not modified.
->>
->>>
->>>> +      override the default DMA mode of each ARCHs, removing the need to
->>>
->>> Again, as before:
->>> ARCHs should be singular
->> OK
->>
->>>
->>>> +      pass in kernel parameters through command line. You can still use
->>>> +      ARCHs specific boot options to override this option again.
-> 
-> *
-> 
->>>> +
->>>> +config IOMMU_DEFAULT_PASSTHROUGH
->>>> +    bool "passthrough"
->>>> +    help
->>>> +      In this mode, the DMA access through IOMMU without any addresses
->>>> +      translation. That means, the wrong or illegal DMA access can not
->>>> +      be caught, no error information will be reported.
->>>>
->>>>        If unsure, say N here.
->>>>
->>>> +config IOMMU_DEFAULT_LAZY
->>>> +    bool "lazy"
->>>> +    help
->>>> +      Support lazy mode, where for every IOMMU DMA unmap operation, the
->>>> +      flush operation of IOTLB and the free operation of IOVA are deferred.
->>>> +      They are only guaranteed to be done before the related IOVA will be
->>>> +      reused.
->>>
->>> why no advisory on how to set if unsure?
->> Because the LAZY and STRICT have their own advantages and disadvantages.
->>
->> Should I say: If unsure, keep the default。
-> 
-> Maybe. So you could put this in the help for the choice, * above, and remove the advisory on IOMMU_DEFAULT_PASSTHROUGH.
+The zcrypt device driver does not handle CPRBs which address
+a control domain correctly. This fix introduces a workaround:
+The domain field of the request CPRB is checked if there is
+a valid domain value in there. If this is true and the value
+is a control only domain (a domain which is enabled in the
+crypto config ADM mask but disabled in the AQM mask) the
+CPRB is forwarded to the default usage domain. If there is
+no default domain, the request is rejected with an ENODEV.
 
-OK, I'll revise it according to this idea in v9.
+This fix is important for maintaining crypto adapters. For
+example one LPAR can use a crypto adapter domain ('Control
+and Usage') but another LPAR needs to be able to maintain
+this adapter domain ('Control'). Scenarios like this did
+not work properly and the patch enables this.
 
-> 
-> However the maintainer may have a different view.
-> 
-> Thanks,
-> John
-> 
->>
->>>
->>>> +
->>>> +config IOMMU_DEFAULT_STRICT
->>>> +    bool "strict"
->>>> +    help
->>>> +      For every IOMMU DMA unmap operation, the flush operation of IOTLB and
->>>> +      the free operation of IOVA are guaranteed to be done in the unmap
->>>> +      function.
->>>> +
->>>> +      This mode is safer than the two above, but it maybe slower in some
->>>> +      high performace scenarios.
->>>
->>> and here?
-> 
-> 
-> .
-> 
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/ap.h       |  4 ++--
+ drivers/s390/crypto/ap_bus.c     | 26 ++++++++++++++++++++++----
+ drivers/s390/crypto/ap_bus.h     |  3 +++
+ drivers/s390/crypto/zcrypt_api.c | 17 ++++++++++++++---
+ 4 files changed, 41 insertions(+), 9 deletions(-)
+
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index e94a0a28b5eb..aea32dda3d14 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -160,8 +160,8 @@ struct ap_config_info {
+ 	unsigned char Nd;		/* max # of Domains - 1 */
+ 	unsigned char _reserved3[10];
+ 	unsigned int apm[8];		/* AP ID mask */
+-	unsigned int aqm[8];		/* AP queue mask */
+-	unsigned int adm[8];		/* AP domain mask */
++	unsigned int aqm[8];		/* AP (usage) queue mask */
++	unsigned int adm[8];		/* AP (control) domain mask */
+ 	unsigned char _reserved4[16];
+ } __aligned(8);
+ 
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 1546389d71db..6717536a633c 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -254,19 +254,37 @@ static inline int ap_test_config_card_id(unsigned int id)
+ }
+ 
+ /*
+- * ap_test_config_domain(): Test, whether an AP usage domain is configured.
++ * ap_test_config_usage_domain(): Test, whether an AP usage domain
++ * is configured.
+  * @domain AP usage domain ID
+  *
+  * Returns 0 if the usage domain is not configured
+  *	   1 if the usage domain is configured or
+  *	     if the configuration information is not available
+  */
+-static inline int ap_test_config_domain(unsigned int domain)
++int ap_test_config_usage_domain(unsigned int domain)
+ {
+ 	if (!ap_configuration)	/* QCI not supported */
+ 		return domain < 16;
+ 	return ap_test_config(ap_configuration->aqm, domain);
+ }
++EXPORT_SYMBOL(ap_test_config_usage_domain);
++
++/*
++ * ap_test_config_ctrl_domain(): Test, whether an AP control domain
++ * is configured.
++ * @domain AP control domain ID
++ *
++ * Returns 1 if the control domain is configured
++ *	   0 in all other cases
++ */
++int ap_test_config_ctrl_domain(unsigned int domain)
++{
++	if (!ap_configuration)	/* QCI not supported */
++		return 0;
++	return ap_test_config(ap_configuration->adm, domain);
++}
++EXPORT_SYMBOL(ap_test_config_ctrl_domain);
+ 
+ /**
+  * ap_query_queue(): Check if an AP queue is available.
+@@ -1267,7 +1285,7 @@ static void ap_select_domain(void)
+ 	best_domain = -1;
+ 	max_count = 0;
+ 	for (i = 0; i < AP_DOMAINS; i++) {
+-		if (!ap_test_config_domain(i) ||
++		if (!ap_test_config_usage_domain(i) ||
+ 		    !test_bit_inv(i, ap_perms.aqm))
+ 			continue;
+ 		count = 0;
+@@ -1442,7 +1460,7 @@ static void _ap_scan_bus_adapter(int id)
+ 				      (void *)(long) qid,
+ 				      __match_queue_device_with_qid);
+ 		aq = dev ? to_ap_queue(dev) : NULL;
+-		if (!ap_test_config_domain(dom)) {
++		if (!ap_test_config_usage_domain(dom)) {
+ 			if (dev) {
+ 				/* Queue device exists but has been
+ 				 * removed from configuration.
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 15a98a673c5c..6f3cf37776ca 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -251,6 +251,9 @@ void ap_wait(enum ap_wait wait);
+ void ap_request_timeout(struct timer_list *t);
+ void ap_bus_force_rescan(void);
+ 
++int ap_test_config_usage_domain(unsigned int domain);
++int ap_test_config_ctrl_domain(unsigned int domain);
++
+ void ap_queue_init_reply(struct ap_queue *aq, struct ap_message *ap_msg);
+ struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type);
+ void ap_queue_prepare_remove(struct ap_queue *aq);
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index c31b2d31cd83..03b1853464db 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -822,7 +822,7 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
+ 	struct ap_message ap_msg;
+ 	unsigned int weight, pref_weight;
+ 	unsigned int func_code;
+-	unsigned short *domain;
++	unsigned short *domain, tdom;
+ 	int qid = 0, rc = -ENODEV;
+ 	struct module *mod;
+ 
+@@ -834,6 +834,17 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
+ 	if (rc)
+ 		goto out;
+ 
++	/*
++	 * If a valid target domain is set and this domain is NOT a usage
++	 * domain but a control only domain, use the default domain as target.
++	 */
++	tdom = *domain;
++	if (tdom >= 0 && tdom < AP_DOMAINS &&
++	    !ap_test_config_usage_domain(tdom) &&
++	    ap_test_config_ctrl_domain(tdom) &&
++	    ap_domain_index >= 0)
++		tdom = ap_domain_index;
++
+ 	pref_zc = NULL;
+ 	pref_zq = NULL;
+ 	spin_lock(&zcrypt_list_lock);
+@@ -856,8 +867,8 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
+ 			/* check if device is online and eligible */
+ 			if (!zq->online ||
+ 			    !zq->ops->send_cprb ||
+-			    ((*domain != (unsigned short) AUTOSELECT) &&
+-			     (*domain != AP_QID_QUEUE(zq->queue->qid))))
++			    (tdom != (unsigned short) AUTOSELECT &&
++			     tdom != AP_QID_QUEUE(zq->queue->qid)))
+ 				continue;
+ 			/* check if device node has admission for this queue */
+ 			if (!zcrypt_check_queue(perms,
+-- 
+2.20.1
