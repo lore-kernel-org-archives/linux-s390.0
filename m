@@ -1,58 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39004 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2436673AbfFLN5r (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 09:57:47 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5CDh8PV073043
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 09:57:46 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2t3242htww-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 09:57:46 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <freude@linux.ibm.com>;
-        Wed, 12 Jun 2019 14:57:42 +0100
-Subject: Re: [PATCH v9 4/4] s390: ap: kvm: Enable PQAP/AQIC facility for the
- guest
-References: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
- <1558452877-27822-5-git-send-email-pmorel@linux.ibm.com>
-From: Harald Freudenberger <freude@linux.ibm.com>
-Date: Wed, 12 Jun 2019 15:57:37 +0200
-MIME-Version: 1.0
-In-Reply-To: <1558452877-27822-5-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-Message-Id: <d9b32e45-43de-aff4-61ef-2b40bf84dcf1@linux.ibm.com>
+Received: from conuserg-11.nifty.com ([210.131.2.78]:44112 "EHLO
+        conuserg-11.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728628AbfFIPkS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Jun 2019 11:40:18 -0400
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 1/2] linux/bits.h: make BIT(), GENMASK(), and friends available in assembly
+Date: Mon, 10 Jun 2019 00:39:40 +0900
+Message-Id: <20190609153941.17249-1-yamada.masahiro@socionext.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, borntraeger@de.ibm.com
-Cc: alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com, david@redhat.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, mimu@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>
 
-On 21.05.19 17:34, Pierre Morel wrote:
-> AP Queue Interruption Control (AQIC) facility gives
-> the guest the possibility to control interruption for
-> the Cryptographic Adjunct Processor queues.
->
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  arch/s390/tools/gen_facilities.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
-> index 61ce5b5..aed14fc 100644
-> --- a/arch/s390/tools/gen_facilities.c
-> +++ b/arch/s390/tools/gen_facilities.c
-> @@ -114,6 +114,7 @@ static struct facility_def facility_defs[] = {
->  		.bits = (int[]){
->  			12, /* AP Query Configuration Information */
->  			15, /* AP Facilities Test */
-> +			65, /* AP Queue Interruption Control */
->  			156, /* etoken facility */
->  			-1  /* END */
->  		}
-acked-by: Harald Freudenberger <freude@linux.ibm.com>
+BIT(), GENMASK(), etc. are useful to define register bits of hardware.
+However, low-level code is often written in assembly, where they are
+not available due to the hard-coded 1UL, 0UL.
+
+In fact, in-kernel headers such as arch/arm64/include/asm/sysreg.h
+use _BITUL() instead of BIT() so that the register bit macros are
+available in assembly.
+
+Using macros in include/uapi/linux/const.h have two reasons:
+
+[1] For use in uapi headers
+  We should use underscore-prefixed variants for user-space.
+
+[2] For use in assembly code
+  Since _BITUL() uses UL(1) instead of 1UL, it can be used as an
+  alternative of BIT().
+
+For [2], it is pretty easy to change BIT() etc. for use in assembly.
+
+This allows to replace _BUTUL() in kernel-space headers with BIT().
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+---
+
+ include/linux/bits.h | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/bits.h b/include/linux/bits.h
+index 2b7b532c1d51..669d69441a62 100644
+--- a/include/linux/bits.h
++++ b/include/linux/bits.h
+@@ -1,13 +1,15 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #ifndef __LINUX_BITS_H
+ #define __LINUX_BITS_H
++
++#include <linux/const.h>
+ #include <asm/bitsperlong.h>
+ 
+-#define BIT(nr)			(1UL << (nr))
+-#define BIT_ULL(nr)		(1ULL << (nr))
+-#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++#define BIT(nr)			(UL(1) << (nr))
++#define BIT_ULL(nr)		(ULL(1) << (nr))
++#define BIT_MASK(nr)		(UL(1) << ((nr) % BITS_PER_LONG))
+ #define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+-#define BIT_ULL_MASK(nr)	(1ULL << ((nr) % BITS_PER_LONG_LONG))
++#define BIT_ULL_MASK(nr)	(ULL(1) << ((nr) % BITS_PER_LONG_LONG))
+ #define BIT_ULL_WORD(nr)	((nr) / BITS_PER_LONG_LONG)
+ #define BITS_PER_BYTE		8
+ 
+@@ -17,10 +19,11 @@
+  * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+  */
+ #define GENMASK(h, l) \
+-	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
++	(((~UL(0)) - (UL(1) << (l)) + 1) & \
++	 (~UL(0) >> (BITS_PER_LONG - 1 - (h))))
+ 
+ #define GENMASK_ULL(h, l) \
+-	(((~0ULL) - (1ULL << (l)) + 1) & \
+-	 (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
++	(((~ULL(0)) - (ULL(1) << (l)) + 1) & \
++	 (~ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))
+ 
+ #endif	/* __LINUX_BITS_H */
+-- 
+2.17.1
