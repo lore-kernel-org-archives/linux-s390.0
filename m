@@ -1,109 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50592 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58970 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727200AbfFDIP0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:15:26 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x548CIZp030887
-        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 04:15:24 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2swhyh70uu-1
+        by vger.kernel.org with ESMTP id S2390550AbfFJPx4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 10 Jun 2019 11:53:56 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5AFpZix015568
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2019 11:53:55 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t1t7er3px-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 04:15:24 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 10 Jun 2019 11:53:55 -0400
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 4 Jun 2019 09:15:22 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net 4/4] s390/qeth: handle error when updating TX queue count
-Date: Tue,  4 Jun 2019 10:15:09 +0200
-In-Reply-To: <20190604081509.56160-1-jwi@linux.ibm.com>
-References: <20190604081509.56160-1-jwi@linux.ibm.com>
-Message-Id: <20190604081509.56160-5-jwi@linux.ibm.com>
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Mon, 10 Jun 2019 16:53:53 +0100
+Date: Mon, 10 Jun 2019 17:53:48 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390: mark __ctl_set_bit and __ctl_clear_bit as
+ __always_inline
+References: <1560112544-10440-1-git-send-email-linux@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1560112544-10440-1-git-send-email-linux@roeck-us.net>
+Message-Id: <20190610155348.GA4031@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-netif_set_real_num_tx_queues() can return an error, deal with it.
+On Sun, Jun 09, 2019 at 01:35:44PM -0700, Guenter Roeck wrote:
+> s390:tinyconfig fails to build with gcc 8.3.0.
+...
+> Marking __ctl_set_bit and __ctl_clear_bit as __always_inline fixes the
+> problem.
+> 
+> Fixes: 9012d011660e ("compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING")
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+>  arch/s390/include/asm/ctl_reg.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 009f2c0ec504..b1823d75dd35 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1274,16 +1274,20 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
- 	return 0;
- }
- 
--static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
-+static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- {
- 	unsigned int count = single ? 1 : card->dev->num_tx_queues;
-+	int rc;
- 
- 	rtnl_lock();
--	netif_set_real_num_tx_queues(card->dev, count);
-+	rc = netif_set_real_num_tx_queues(card->dev, count);
- 	rtnl_unlock();
- 
-+	if (rc)
-+		return rc;
-+
- 	if (card->qdio.no_out_queues == count)
--		return;
-+		return 0;
- 
- 	if (atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED)
- 		qeth_free_qdio_queues(card);
-@@ -1293,12 +1297,14 @@ static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- 
- 	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
- 	card->qdio.no_out_queues = count;
-+	return 0;
- }
- 
- static int qeth_update_from_chp_desc(struct qeth_card *card)
- {
- 	struct ccw_device *ccwdev;
- 	struct channel_path_desc_fmt0 *chp_dsc;
-+	int rc = 0;
- 
- 	QETH_DBF_TEXT(SETUP, 2, "chp_desc");
- 
-@@ -1311,12 +1317,12 @@ static int qeth_update_from_chp_desc(struct qeth_card *card)
- 
- 	if (IS_OSD(card) || IS_OSX(card))
- 		/* CHPP field bit 6 == 1 -> single queue */
--		qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
-+		rc = qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
- 
- 	kfree(chp_dsc);
- 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
- 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
--	return 0;
-+	return rc;
- }
- 
- static void qeth_init_qdio_info(struct qeth_card *card)
-@@ -5597,8 +5603,12 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
- 		dev->hw_features |= NETIF_F_SG;
- 		dev->vlan_features |= NETIF_F_SG;
- 		if (IS_IQD(card)) {
--			netif_set_real_num_tx_queues(dev, QETH_IQD_MIN_TXQ);
- 			dev->features |= NETIF_F_SG;
-+			if (netif_set_real_num_tx_queues(dev,
-+							 QETH_IQD_MIN_TXQ)) {
-+				free_netdev(dev);
-+				return NULL;
-+			}
- 		}
- 	}
- 
--- 
-2.17.1
+Applied, thanks!
