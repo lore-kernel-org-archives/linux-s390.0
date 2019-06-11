@@ -1,41 +1,218 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:53828 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728566AbfFNNsf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:35 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/16] staging/comedi: mark as broken
-Date: Fri, 14 Jun 2019 15:47:22 +0200
-Message-Id: <20190614134726.3827-13-hch@lst.de>
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51390 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404758AbfFKQiU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 12:38:20 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGR8Bs058788
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:19 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2cxr1gwt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:18 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 11 Jun 2019 17:38:14 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 13/13] s390/qeth: allocate a single cmd on read channel
+Date: Tue, 11 Jun 2019 18:38:00 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-14-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-comedi_buf.c abuse the DMA API in gravely broken ways, as it assumes it
-can call virt_to_page on the result, and the just remap it as uncached
-using vmap.  Disable the driver until this API abuse has been fixed.
+We statically allocate 8 cmd buffers on the read channel, when the only
+IO left that's still using them is the long-running READ.
+Replace this with a single allocated cmd, that gets restarted whenever
+the READ completed.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This introduces refcounting for allocated cmds, so that the READ cmd can
+survive the IO completion.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/staging/comedi/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/net/qeth_core.h      |  7 ++++
+ drivers/s390/net/qeth_core_main.c | 54 ++++++++++++++++++-------------
+ drivers/s390/net/qeth_l2_main.c   |  1 -
+ drivers/s390/net/qeth_l3_main.c   |  1 -
+ 4 files changed, 39 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/staging/comedi/Kconfig b/drivers/staging/comedi/Kconfig
-index 049b659fa6ad..e7c021d76cfa 100644
---- a/drivers/staging/comedi/Kconfig
-+++ b/drivers/staging/comedi/Kconfig
-@@ -1,6 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- config COMEDI
- 	tristate "Data acquisition support (comedi)"
-+	depends on BROKEN
- 	help
- 	  Enable support for a wide range of data acquisition devices
- 	  for Linux.
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 962945a63235..5bcdede5e955 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -579,6 +579,7 @@ struct qeth_channel;
+ struct qeth_cmd_buffer {
+ 	enum qeth_cmd_buffer_state state;
+ 	unsigned int length;
++	refcount_t ref_count;
+ 	struct qeth_channel *channel;
+ 	struct qeth_reply *reply;
+ 	long timeout;
+@@ -588,6 +589,11 @@ struct qeth_cmd_buffer {
+ 	void (*callback)(struct qeth_card *card, struct qeth_cmd_buffer *iob);
+ };
+ 
++static inline void qeth_get_cmd(struct qeth_cmd_buffer *iob)
++{
++	refcount_inc(&iob->ref_count);
++}
++
+ static inline struct qeth_ipa_cmd *__ipa_cmd(struct qeth_cmd_buffer *iob)
+ {
+ 	return (struct qeth_ipa_cmd *)(iob->data + IPA_PDU_HEADER_SIZE);
+@@ -771,6 +777,7 @@ struct qeth_card {
+ 	enum qeth_card_states state;
+ 	spinlock_t lock;
+ 	struct ccwgroup_device *gdev;
++	struct qeth_cmd_buffer *read_cmd;
+ 	struct qeth_channel read;
+ 	struct qeth_channel write;
+ 	struct qeth_channel data;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 11e6a3820421..fe3dfeaf5ceb 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -496,26 +496,21 @@ static void qeth_setup_ccw(struct ccw1 *ccw, u8 cmd_code, u8 flags, u32 len,
+ 
+ static int __qeth_issue_next_read(struct qeth_card *card)
+ {
+-	struct qeth_channel *channel = &card->read;
+-	struct qeth_cmd_buffer *iob;
+-	struct ccw1 *ccw;
++	struct qeth_cmd_buffer *iob = card->read_cmd;
++	struct qeth_channel *channel = iob->channel;
++	struct ccw1 *ccw = __ccw_from_cmd(iob);
+ 	int rc;
+ 
+ 	QETH_CARD_TEXT(card, 5, "issnxrd");
+ 	if (channel->state != CH_STATE_UP)
+ 		return -EIO;
+-	iob = qeth_get_buffer(channel);
+-	if (!iob) {
+-		dev_warn(&card->gdev->dev, "The qeth device driver "
+-			"failed to recover an error on the device\n");
+-		QETH_DBF_MESSAGE(2, "issue_next_read on device %x failed: no iob available\n",
+-				 CARD_DEVID(card));
+-		return -ENOMEM;
+-	}
+ 
+-	ccw = __ccw_from_cmd(iob);
+-	qeth_setup_ccw(ccw, CCW_CMD_READ, 0, QETH_BUFSIZE, iob->data);
++	memset(iob->data, 0, iob->length);
++	qeth_setup_ccw(ccw, CCW_CMD_READ, 0, iob->length, iob->data);
+ 	iob->callback = qeth_issue_next_read_cb;
++	/* keep the cmd alive after completion: */
++	qeth_get_cmd(iob);
++
+ 	QETH_CARD_TEXT(card, 6, "noirqpnd");
+ 	rc = ccw_device_start(channel->ccwdev, ccw, (addr_t) iob, 0, 0);
+ 	if (rc) {
+@@ -694,6 +689,16 @@ static int qeth_check_idx_response(struct qeth_card *card,
+ 	return 0;
+ }
+ 
++static void qeth_put_cmd(struct qeth_cmd_buffer *iob)
++{
++	if (refcount_dec_and_test(&iob->ref_count)) {
++		if (iob->reply)
++			qeth_put_reply(iob->reply);
++		kfree(iob->data);
++		kfree(iob);
++	}
++}
++
+ static struct qeth_cmd_buffer *__qeth_get_buffer(struct qeth_channel *channel)
+ {
+ 	__u8 index;
+@@ -720,10 +725,7 @@ void qeth_release_buffer(struct qeth_cmd_buffer *iob)
+ 	unsigned long flags;
+ 
+ 	if (iob->state == BUF_STATE_MALLOC) {
+-		if (iob->reply)
+-			qeth_put_reply(iob->reply);
+-		kfree(iob->data);
+-		kfree(iob);
++		qeth_put_cmd(iob);
+ 		return;
+ 	}
+ 
+@@ -787,6 +789,7 @@ static struct qeth_cmd_buffer *qeth_alloc_cmd(struct qeth_channel *channel,
+ 	}
+ 
+ 	iob->state = BUF_STATE_MALLOC;
++	refcount_set(&iob->ref_count, 1);
+ 	iob->channel = channel;
+ 	iob->timeout = timeout;
+ 	iob->length = length;
+@@ -1445,10 +1448,14 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 						 dev_name(&gdev->dev));
+ 	if (!card->event_wq)
+ 		goto out_wq;
+-	if (qeth_setup_channel(&card->read, true))
+-		goto out_ip;
++
++	card->read_cmd = qeth_alloc_cmd(&card->read, QETH_BUFSIZE, 1, 0);
++	if (!card->read_cmd)
++		goto out_read_cmd;
++	if (qeth_setup_channel(&card->read, false))
++		goto out_read;
+ 	if (qeth_setup_channel(&card->write, true))
+-		goto out_channel;
++		goto out_write;
+ 	if (qeth_setup_channel(&card->data, false))
+ 		goto out_data;
+ 	card->qeth_service_level.seq_print = qeth_core_sl_print;
+@@ -1457,9 +1464,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 
+ out_data:
+ 	qeth_clean_channel(&card->write);
+-out_channel:
++out_write:
+ 	qeth_clean_channel(&card->read);
+-out_ip:
++out_read:
++	qeth_release_buffer(card->read_cmd);
++out_read_cmd:
+ 	destroy_workqueue(card->event_wq);
+ out_wq:
+ 	dev_set_drvdata(&gdev->dev, NULL);
+@@ -4892,6 +4901,7 @@ static void qeth_core_free_card(struct qeth_card *card)
+ 	qeth_clean_channel(&card->read);
+ 	qeth_clean_channel(&card->write);
+ 	qeth_clean_channel(&card->data);
++	qeth_release_buffer(card->read_cmd);
+ 	destroy_workqueue(card->event_wq);
+ 	qeth_free_qdio_queues(card);
+ 	unregister_service_level(&card->qeth_service_level);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index e1b25084dcd4..9565ef9747c1 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -292,7 +292,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
+-	qeth_clear_cmd_buffers(&card->read);
+ 	qeth_clear_cmd_buffers(&card->write);
+ 	flush_workqueue(card->event_wq);
+ 	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 15758f45837d..4d66f9556451 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1436,7 +1436,6 @@ static void qeth_l3_stop_card(struct qeth_card *card)
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
+-	qeth_clear_cmd_buffers(&card->read);
+ 	qeth_clear_cmd_buffers(&card->write);
+ 	flush_workqueue(card->event_wq);
+ }
 -- 
-2.20.1
+2.17.1
