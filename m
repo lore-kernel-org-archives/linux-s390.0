@@ -1,360 +1,201 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729310AbfFMTkV (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58296 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389226AbfFKLVd (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 15:40:21 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v4 5/7] s390: vfio-ap: allow assignment of unavailable AP resources to mdev device
-Date: Thu, 13 Jun 2019 15:39:38 -0400
-Message-Id: <1560454780-20359-6-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+        Tue, 11 Jun 2019 07:21:33 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BBHe6I072379
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 07:21:32 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2t2b0rsbt1-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 07:21:32 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Tue, 11 Jun 2019 12:21:30 +0100
+Date: Tue, 11 Jun 2019 13:21:24 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH/RFC 2/3] s390: improve wait logic of stop_machine
+References: <20190608110853.35961-1-heiko.carstens@de.ibm.com>
+ <20190608110853.35961-3-heiko.carstens@de.ibm.com>
+ <20190611091546.GV3436@hirez.programming.kicks-ass.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190611091546.GV3436@hirez.programming.kicks-ass.net>
+Message-Id: <20190611112124.GA20654@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-The AP architecture does not preclude assignment of AP resources that are
-not available. Let's go ahead and implement this facet of the AP
-architecture for linux guests.
+On Tue, Jun 11, 2019 at 11:15:46AM +0200, Peter Zijlstra wrote:
+> On Sat, Jun 08, 2019 at 01:08:52PM +0200, Heiko Carstens wrote:
+> > --- a/arch/s390/kernel/processor.c
+> > +++ b/arch/s390/kernel/processor.c
+> > @@ -31,6 +31,7 @@ struct cpu_info {
+> >  };
+> >  
+> >  static DEFINE_PER_CPU(struct cpu_info, cpu_info);
+> > +static DEFINE_PER_CPU(int, cpu_relax_retry);
+> >  
+> >  static bool machine_has_cpu_mhz;
+> >  
+> > @@ -58,13 +59,21 @@ void s390_update_cpu_mhz(void)
+> >  		on_each_cpu(update_cpu_mhz, NULL, 0);
+> >  }
+> >  
+> > +void notrace cpu_relax_yield(const struct cpumask *cpumask)
+> >  {
+> > +	int cpu;
+> > +
+> > +	if (__this_cpu_inc_return(cpu_relax_retry) >= spin_retry) {
+> > +		__this_cpu_write(cpu_relax_retry, 0);
+> 
+> I don't mind, but do we really need a per-cpu variable for this? Does it
+> really matter if you spin on a stack variable and occasionally spin a
+> bit longer due to the missed tail of the previous spin?
 
-The current implementation does not allow assignment of AP adapters or
-domains to an mdev device if the APQNs resulting from the assignment
-reference AP queue devices that are not bound to the vfio_ap device
-driver. This patch allows assignment of AP resources to the mdev device as
-long as the APQNs resulting from the assignment are not reserved by the AP
-BUS for use by the zcrypt device drivers and the APQNs are not assigned to
-another mdev device.
+Well, that would have to be on the stack of the caller of this
+function, since this function itself does not spin. I think the idea
+was to hide the architecture details from the common code.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 231 ++++++++------------------------------
- 1 file changed, 44 insertions(+), 187 deletions(-)
+> > +		cpu = cpumask_next(smp_processor_id(), cpumask);
+> > +		if (cpu >= nr_cpu_ids) {
+> > +			cpu = cpumask_first(cpumask);
+> > +			if (cpu == smp_processor_id())
+> > +				return;
+> 
+> If this function is passed an empty cpumask, the above will result in
+> 'cpu == nr_cpu_ids' and the below might be unhappy with that.
+> 
+> (FWIW we do have cpumask_next_wrap(), but I admit it is somewhat awkward
+> to use)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 60efd3d7896d..9db86c0db52e 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -406,122 +406,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
- 	NULL,
+I gave it a try; still compiles and boots, so must be correct ;)
+Updated patch:
+
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index b0fcbc37b637..445ce9ee4404 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -36,6 +36,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#include <linux/cpumask.h>
+ #include <linux/linkage.h>
+ #include <linux/irqflags.h>
+ #include <asm/cpu.h>
+@@ -225,7 +226,7 @@ static __no_kasan_or_inline unsigned short stap(void)
+  * Give up the time slice of the virtual PU.
+  */
+ #define cpu_relax_yield cpu_relax_yield
+-void cpu_relax_yield(void);
++void cpu_relax_yield(const struct cpumask *cpumask);
+ 
+ #define cpu_relax() barrier()
+ 
+diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
+index 5de13307b703..4cdaefec1b7c 100644
+--- a/arch/s390/kernel/processor.c
++++ b/arch/s390/kernel/processor.c
+@@ -31,6 +31,7 @@ struct cpu_info {
  };
  
--struct vfio_ap_queue_reserved {
--	unsigned long *apid;
--	unsigned long *apqi;
--	bool reserved;
--};
--
--/**
-- * vfio_ap_has_queue
-- *
-- * @dev: an AP queue device
-- * @data: a struct vfio_ap_queue_reserved reference
-- *
-- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
-- * apid or apqi specified in @data:
-- *
-- * - If @data contains both an apid and apqi value, then @data will be flagged
-- *   as reserved if the APID and APQI fields for the AP queue device matches
-- *
-- * - If @data contains only an apid value, @data will be flagged as
-- *   reserved if the APID field in the AP queue device matches
-- *
-- * - If @data contains only an apqi value, @data will be flagged as
-- *   reserved if the APQI field in the AP queue device matches
-- *
-- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
-- * @data does not contain either an apid or apqi.
-- */
--static int vfio_ap_has_queue(struct device *dev, void *data)
--{
--	struct vfio_ap_queue_reserved *qres = data;
--	struct ap_queue *ap_queue = to_ap_queue(dev);
--	ap_qid_t qid;
--	unsigned long id;
--
--	if (qres->apid && qres->apqi) {
--		qid = AP_MKQID(*qres->apid, *qres->apqi);
--		if (qid == ap_queue->qid)
--			qres->reserved = true;
--	} else if (qres->apid && !qres->apqi) {
--		id = AP_QID_CARD(ap_queue->qid);
--		if (id == *qres->apid)
--			qres->reserved = true;
--	} else if (!qres->apid && qres->apqi) {
--		id = AP_QID_QUEUE(ap_queue->qid);
--		if (id == *qres->apqi)
--			qres->reserved = true;
--	} else {
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--/**
-- * vfio_ap_verify_queue_reserved
-- *
-- * @matrix_dev: a mediated matrix device
-- * @apid: an AP adapter ID
-- * @apqi: an AP queue index
-- *
-- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
-- * driver according to the following rules:
-- *
-- * - If both @apid and @apqi are not NULL, then there must be an AP queue
-- *   device bound to the vfio_ap driver with the APQN identified by @apid and
-- *   @apqi
-- *
-- * - If only @apid is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apid
-- *
-- * - If only @apqi is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apqi
-- *
-- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
-- */
--static int vfio_ap_verify_queue_reserved(unsigned long *apid,
--					 unsigned long *apqi)
--{
--	int ret;
--	struct vfio_ap_queue_reserved qres;
--
--	qres.apid = apid;
--	qres.apqi = apqi;
--	qres.reserved = false;
--
--	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				     &qres, vfio_ap_has_queue);
--	if (ret)
--		return ret;
--
--	if (qres.reserved)
--		return 0;
--
--	return -EADDRNOTAVAIL;
--}
--
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apid)
--{
--	int ret;
--	unsigned long apqi;
--	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(&apid, NULL);
--
--	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * vfio_ap_mdev_verify_no_sharing
-  *
-@@ -529,18 +413,26 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
-  * and AP queue indexes comprising the AP matrix are not configured for another
-  * mediated device. AP queue sharing is not allowed.
-  *
-- * @matrix_mdev: the mediated matrix device
-+ * @mdev_apm: the mask identifying the adapters assigned to mdev
-+ * @mdev_apm: the mask identifying the adapters assigned to mdev
-  *
-  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-  */
--static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
-+					  unsigned long *mdev_aqm)
- {
- 	struct ap_matrix_mdev *lstdev;
- 	DECLARE_BITMAP(apm, AP_DEVICES);
- 	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ static DEFINE_PER_CPU(struct cpu_info, cpu_info);
++static DEFINE_PER_CPU(int, cpu_relax_retry);
  
- 	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
--		if (matrix_mdev == lstdev)
-+		/*
-+		 * If either of the input masks belongs to the mdev to which an
-+		 * AP resource is being assigned, then we don't need to verify
-+		 * that mdev's masks.
-+		 */
-+		if ((mdev_apm == lstdev->matrix.apm) ||
-+		    (mdev_aqm == lstdev->matrix.aqm))
- 			continue;
+ static bool machine_has_cpu_mhz;
  
- 		memset(apm, 0, sizeof(apm));
-@@ -550,12 +442,10 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 		 * We work on full longs, as we can only exclude the leftover
- 		 * bits in non-inverse order. The leftover is all zeros.
- 		 */
--		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
--				lstdev->matrix.apm, AP_DEVICES))
-+		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
- 			continue;
- 
--		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
--				lstdev->matrix.aqm, AP_DOMAINS))
-+		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
- 			continue;
- 
- 		return -EADDRINUSE;
-@@ -564,6 +454,17 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 	return 0;
+@@ -58,13 +59,19 @@ void s390_update_cpu_mhz(void)
+ 		on_each_cpu(update_cpu_mhz, NULL, 0);
  }
  
-+static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
-+{
-+	int ret;
-+
-+	ret = ap_apqn_in_matrix_owned_by_def_drv(apm, aqm);
-+	if (ret)
-+		return (ret == 1) ? -EADDRNOTAVAIL : ret;
-+
-+	return vfio_ap_mdev_verify_no_sharing(apm, aqm);
-+}
-+
- /**
-  * assign_adapter_store
-  *
-@@ -602,6 +503,7 @@ static ssize_t assign_adapter_store(struct device *dev,
+-void notrace cpu_relax_yield(void)
++void notrace cpu_relax_yield(const struct cpumask *cpumask)
  {
- 	int ret;
- 	unsigned long apid;
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+-	if (!smp_cpu_mtid && MACHINE_HAS_DIAG44) {
+-		diag_stat_inc(DIAG_STAT_X044);
+-		asm volatile("diag 0,0,0x44");
++	int cpu, this_cpu;
++
++	this_cpu = smp_processor_id();
++	if (__this_cpu_inc_return(cpu_relax_retry) >= spin_retry) {
++		__this_cpu_write(cpu_relax_retry, 0);
++		cpu = cpumask_next_wrap(this_cpu, cpumask, this_cpu, false);
++		if (cpu >= nr_cpu_ids)
++			return;
++		if (arch_vcpu_is_preempted(cpu))
++			smp_yield_cpu(cpu);
+ 	}
+-	barrier();
+ }
+ EXPORT_SYMBOL(cpu_relax_yield);
  
-@@ -616,32 +518,19 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (apid > matrix_mdev->matrix.apm_max)
- 		return -ENODEV;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 35fafa2b91a8..a8eef7b7770a 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -418,7 +418,7 @@ void smp_yield_cpu(int cpu)
+ 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
+ 		asm volatile("diag %0,0,0x9c"
+ 			     : : "d" (pcpu_devices[cpu].address));
+-	} else if (MACHINE_HAS_DIAG44) {
++	} else if (MACHINE_HAS_DIAG44 && !smp_cpu_mtid) {
+ 		diag_stat_inc_norecursion(DIAG_STAT_X044);
+ 		asm volatile("diag 0,0,0x44");
+ 	}
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 11837410690f..1f9f3160da7e 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1519,7 +1519,7 @@ static inline int set_cpus_allowed_ptr(struct task_struct *p, const struct cpuma
+ #endif
  
--	/*
--	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
--	 * number (APID). The bits in the mask, from most significant to least
--	 * significant bit, correspond to APIDs 0-255.
--	 */
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
--	if (ret)
--		goto done;
-+	memset(apm, 0, ARRAY_SIZE(apm) * sizeof(*apm));
-+	set_bit_inv(apid, apm);
+ #ifndef cpu_relax_yield
+-#define cpu_relax_yield() cpu_relax()
++#define cpu_relax_yield(cpumask) cpu_relax()
+ #endif
  
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(apm, matrix_mdev->matrix.aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
+ extern int yield_to(struct task_struct *p, bool preempt);
+diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
+index 2b5a6754646f..b8b0c5ff8da9 100644
+--- a/kernel/stop_machine.c
++++ b/kernel/stop_machine.c
+@@ -183,6 +183,7 @@ static int multi_cpu_stop(void *data)
+ 	struct multi_stop_data *msdata = data;
+ 	enum multi_stop_state curstate = MULTI_STOP_NONE;
+ 	int cpu = smp_processor_id(), err = 0;
++	const struct cpumask *cpumask;
+ 	unsigned long flags;
+ 	bool is_active;
+ 
+@@ -192,15 +193,18 @@ static int multi_cpu_stop(void *data)
+ 	 */
+ 	local_save_flags(flags);
+ 
+-	if (!msdata->active_cpus)
+-		is_active = cpu == cpumask_first(cpu_online_mask);
+-	else
+-		is_active = cpumask_test_cpu(cpu, msdata->active_cpus);
++	if (!msdata->active_cpus) {
++		cpumask = cpu_online_mask;
++		is_active = cpu == cpumask_first(cpumask);
++	} else {
++		cpumask = msdata->active_cpus;
++		is_active = cpumask_test_cpu(cpu, cpumask);
 +	}
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
--
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
--	if (ret)
--		goto share_err;
--
--	ret = count;
--	goto done;
--
--share_err:
--	clear_bit_inv(apid, matrix_mdev->matrix.apm);
--done:
- 	mutex_unlock(&matrix_dev->lock);
  
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_adapter);
- 
-@@ -690,26 +579,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- }
- static DEVICE_ATTR_WO(unassign_adapter);
- 
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apqi)
--{
--	int ret;
--	unsigned long apid;
--	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(NULL, &apqi);
--
--	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * assign_domain_store
-  *
-@@ -748,6 +617,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
-+	DECLARE_BITMAP(aqm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-@@ -762,27 +632,19 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (apqi > max_apqi)
- 		return -ENODEV;
- 
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
--	if (ret)
--		goto done;
-+	memset(aqm, 0, ARRAY_SIZE(aqm) * sizeof(*aqm));
-+	set_bit_inv(apqi, aqm);
- 
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev->matrix.apm, aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
--
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
--	if (ret)
--		goto share_err;
--
--	ret = count;
--	goto done;
--
--share_err:
--	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_domain);
- 
-@@ -868,11 +730,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	if (id > matrix_mdev->matrix.adm_max)
- 		return -ENODEV;
- 
--	/* Set the bit in the ADM (bitmask) corresponding to the AP control
--	 * domain number (id). The bits in the mask, from most significant to
--	 * least significant, correspond to IDs 0 up to the one less than the
--	 * number of control domains that can be assigned.
--	 */
- 	mutex_lock(&matrix_dev->lock);
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
- 	mutex_unlock(&matrix_dev->lock);
+ 	/* Simple state machine */
+ 	do {
+ 		/* Chill out and ensure we re-read multi_stop_state. */
+-		cpu_relax_yield();
++		cpu_relax_yield(cpumask);
+ 		if (msdata->state != curstate) {
+ 			curstate = msdata->state;
+ 			switch (curstate) {
 -- 
-2.7.4
+2.17.1
