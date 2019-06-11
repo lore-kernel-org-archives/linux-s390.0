@@ -1,109 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50174 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727398AbfFELtK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jun 2019 07:49:10 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x55BlAan033304
-        for <linux-s390@vger.kernel.org>; Wed, 5 Jun 2019 07:49:09 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2sxbgp43xc-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46832 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404364AbfFKQiM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 12:38:12 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGWQtr008607
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:11 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2ecpwkgv-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 05 Jun 2019 07:49:08 -0400
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:11 -0400
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 5 Jun 2019 12:49:07 +0100
+        Tue, 11 Jun 2019 17:38:09 +0100
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v3 net 4/4] s390/qeth: handle error when updating TX queue count
-Date: Wed,  5 Jun 2019 13:48:51 +0200
-In-Reply-To: <20190605114851.56641-1-jwi@linux.ibm.com>
-References: <20190605114851.56641-1-jwi@linux.ibm.com>
-Message-Id: <20190605114851.56641-5-jwi@linux.ibm.com>
+Subject: [PATCH net-next 01/13] s390/qeth: don't mask TX errors on IQD devices
+Date: Tue, 11 Jun 2019 18:37:48 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-2-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-netif_set_real_num_tx_queues() can return an error, deal with it.
+Current code suppresses debug entries when an TX buffer completes in
+ERROR state with no error indication set in SBALF15.
+This was introduced back with
+commit 58490f18071d ("qeth: HiperSockets SIGA retry support on CC=2.").
+But qeth no longer retries after CC=2, and this sort of suppression
+make no sense anymore. Remove it.
 
-Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 009f2c0ec504..b1823d75dd35 100644
+index b1823d75dd35..cd9e2f70d8f6 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -1274,16 +1274,20 @@ static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
- 	return 0;
- }
+@@ -3236,13 +3236,6 @@ static void qeth_handle_send_error(struct qeth_card *card,
+ 	int sbalf15 = buffer->buffer->element[15].sflags;
  
--static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
-+static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- {
- 	unsigned int count = single ? 1 : card->dev->num_tx_queues;
-+	int rc;
+ 	QETH_CARD_TEXT(card, 6, "hdsnderr");
+-	if (IS_IQD(card)) {
+-		if (sbalf15 == 0) {
+-			qdio_err = 0;
+-		} else {
+-			qdio_err = 1;
+-		}
+-	}
+ 	qeth_check_qdio_errors(card, buffer->buffer, qdio_err, "qouterr");
  
- 	rtnl_lock();
--	netif_set_real_num_tx_queues(card->dev, count);
-+	rc = netif_set_real_num_tx_queues(card->dev, count);
- 	rtnl_unlock();
- 
-+	if (rc)
-+		return rc;
-+
- 	if (card->qdio.no_out_queues == count)
--		return;
-+		return 0;
- 
- 	if (atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED)
- 		qeth_free_qdio_queues(card);
-@@ -1293,12 +1297,14 @@ static void qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- 
- 	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
- 	card->qdio.no_out_queues = count;
-+	return 0;
- }
- 
- static int qeth_update_from_chp_desc(struct qeth_card *card)
- {
- 	struct ccw_device *ccwdev;
- 	struct channel_path_desc_fmt0 *chp_dsc;
-+	int rc = 0;
- 
- 	QETH_DBF_TEXT(SETUP, 2, "chp_desc");
- 
-@@ -1311,12 +1317,12 @@ static int qeth_update_from_chp_desc(struct qeth_card *card)
- 
- 	if (IS_OSD(card) || IS_OSX(card))
- 		/* CHPP field bit 6 == 1 -> single queue */
--		qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
-+		rc = qeth_osa_set_output_queues(card, chp_dsc->chpp & 0x02);
- 
- 	kfree(chp_dsc);
- 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
- 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
--	return 0;
-+	return rc;
- }
- 
- static void qeth_init_qdio_info(struct qeth_card *card)
-@@ -5597,8 +5603,12 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
- 		dev->hw_features |= NETIF_F_SG;
- 		dev->vlan_features |= NETIF_F_SG;
- 		if (IS_IQD(card)) {
--			netif_set_real_num_tx_queues(dev, QETH_IQD_MIN_TXQ);
- 			dev->features |= NETIF_F_SG;
-+			if (netif_set_real_num_tx_queues(dev,
-+							 QETH_IQD_MIN_TXQ)) {
-+				free_netdev(dev);
-+				return NULL;
-+			}
- 		}
- 	}
- 
+ 	if (!qdio_err)
 -- 
 2.17.1
