@@ -1,122 +1,139 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 00/15] kbuild: refactor headers_install and support compile-test of UAPI headers
-Date: Tue,  4 Jun 2019 19:13:54 +0900
-Message-Id: <20190604101409.2078-1-yamada.masahiro@socionext.com>
-Sender: linux-kbuild-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33190 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404659AbfFKQiO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 12:38:14 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGVxL6064117
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:13 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2ed25c44-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:12 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 11 Jun 2019 17:38:10 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 07/13] s390/qeth: remove OSN-specific IO code
+Date: Tue, 11 Jun 2019 18:37:54 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-8-jwi@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kbuild@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Sam Ravnborg <sam@ravnborg.org>, Jani Nikula <jani.nikula@intel.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-riscv@lists.infradead.org, Daniel Borkmann <daniel@iogearbox.net>, linux-s390@vger.kernel.org, Greentime Hu <green.hu@gmail.com>, Helge Deller <deller@gmx.de>, Vineet Gupta <vgupta@synopsys.com>, Palmer Dabbelt <palmer@sifive.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-snps-arc@lists.infradead.org, Song Liu <songliubraving@fb.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Yonghong Song <yhs@fb.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michal Marek <michal.lkml@markovi.net>, Paul Mackerras <paulus@samba.org>, Martin KaFai Lau <kafai@fb.com>, Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>, linux-parisc@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org, Vincent Chen <deanbo422@gmail.com>, netdev@vger.kernel.org, bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
+OSN currently provides a custom code path to submit IPA cmds, without
+waiting for the cmd response. Replace it with qeth_send_ipa_cmd(), which
+uses the common qeth_send_control_data() IO infrastructure.
 
-Multiple people have suggested to compile-test UAPI headers.
+By setting a custom iob->callback, we can now provide feedback to the
+caller about whether the cmd has been successfully submitted to HW.
+Since the callback then immediately wakes up the reply-waiter object, we
+maintain the old behaviour of returning early without waiting for the
+response.
 
-Currently, Kbuild provides simple sanity checks by headers_check
-but they are not enough to catch bugs.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c |  3 ++-
+ drivers/s390/net/qeth_l2_main.c   | 43 +++++--------------------------
+ 3 files changed, 10 insertions(+), 37 deletions(-)
 
-The most recent patch I know is David Howells' work:
-https://patchwork.kernel.org/patch/10590203/
-
-I agree that we need better tests for UAPI headers,
-but I want to integrate it in a clean way.
-
-The idea that has been in my mind is to compile each header
-to make sure the selfcontainedness.
-
-Recently, Jani Nikula proposed a new syntax 'header-test-y'.
-https://patchwork.kernel.org/patch/10947005/
-
-So, I implemented UAPI compile-testing on top of that.
-
-When adding a new feature, cleaning the code first is a
-good practice.
-
-[1] Remove headers_install_all
-
-This target installs UAPI headers of all architectures
-in a single tree.
-It does not make sense to compile test of headers from
-multiple arches at the same time. Hence, removed.
-
-[2] Split header installation into 'make headers' and 'make headers_install'
-
-To compile-test UAPI headers, we need a work-directory somewhere
-to save objects and .*.cmd files.
-
-usr/include/ will be the work-directory.
-
-Since we cannot pollute the final destination of headers_install,
-
-I split the header installation into two stages.
-
-'make headers' will build up
-the ready-to-install headers in usr/include,
-which will be also used as a work-directory for the compile-test.
-
-'make headers_install' will copy headers
-from usr/include to $(INSTALL_HDR_PATH)/include.
-
-[3] Support compile-test of UAPI headers
-
-This is implemented in usr/include/Makefile
-
-
-Jani Nikula (1):
-  kbuild: add support for ensuring headers are self-contained
-
-Masahiro Yamada (14):
-  kbuild: remove headers_{install,check}_all
-  kbuild: remove stale dependency between Documentation/ and
-    headers_install
-  kbuild: make gdb_script depend on prepare0 instead of prepare
-  kbuild: fix Kconfig prompt of CONFIG_HEADERS_CHECK
-  kbuild: add CONFIG_HEADERS_INSTALL and loosen the dependency of
-    samples
-  kbuild: remove build_unifdef target in scripts/Makefile
-  kbuild: build all prerequisite of headers_install simultaneously
-  kbuild: add 'headers' target to build up ready-to-install uapi headers
-  kbuild: re-implement Makefile.headersinst without directory descending
-  kbuild: move hdr-inst shorthand to top Makefile
-  kbuild: simplify scripts/headers_install.sh
-  kbuild: deb-pkg: do not run headers_check
-  fixup: kbuild: add support for ensuring headers are self-contained
-  kbuild: compile test UAPI headers to ensure they are self-contained
-
- Documentation/kbuild/headers_install.txt |   7 --
- Documentation/kbuild/makefiles.txt       |  13 ++-
- Makefile                                 |  56 +++++-----
- arch/arc/configs/tb10x_defconfig         |   1 +
- arch/nds32/configs/defconfig             |   1 +
- arch/parisc/configs/a500_defconfig       |   1 +
- arch/parisc/configs/b180_defconfig       |   1 +
- arch/parisc/configs/c3000_defconfig      |   1 +
- arch/parisc/configs/default_defconfig    |   1 +
- arch/powerpc/configs/ppc6xx_defconfig    |   1 +
- arch/s390/configs/debug_defconfig        |   1 +
- include/uapi/{linux => }/Kbuild          |   6 +-
- init/Kconfig                             |  20 ++++
- lib/Kconfig.debug                        |  25 +++--
- samples/Kconfig                          |  14 ++-
- samples/Makefile                         |   4 +-
- scripts/Kbuild.include                   |   6 --
- scripts/Makefile                         |   5 -
- scripts/Makefile.build                   |   9 ++
- scripts/Makefile.headersinst             | 132 ++++++++++-------------
- scripts/Makefile.lib                     |   3 +
- scripts/cc-system-headers.sh             |   8 ++
- scripts/headers.sh                       |  29 -----
- scripts/headers_install.sh               |  48 ++++-----
- scripts/package/builddeb                 |   2 +-
- usr/.gitignore                           |   1 -
- usr/Makefile                             |   2 +
- usr/include/.gitignore                   |   3 +
- usr/include/Makefile                     | 132 +++++++++++++++++++++++
- 29 files changed, 329 insertions(+), 204 deletions(-)
- rename include/uapi/{linux => }/Kbuild (77%)
- create mode 100755 scripts/cc-system-headers.sh
- delete mode 100755 scripts/headers.sh
- create mode 100644 usr/include/.gitignore
- create mode 100644 usr/include/Makefile
-
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 14e8ab34ab2f..be50e701b744 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -996,6 +996,7 @@ void qeth_setadp_promisc_mode(struct qeth_card *);
+ int qeth_setadpparms_change_macaddr(struct qeth_card *);
+ void qeth_tx_timeout(struct net_device *);
+ void qeth_release_buffer(struct qeth_channel *, struct qeth_cmd_buffer *);
++void qeth_notify_reply(struct qeth_reply *reply, int reason);
+ void qeth_prepare_ipa_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
+ 			  u16 cmd_length);
+ struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 3d25cff404fe..2ad51afa6747 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -577,11 +577,12 @@ static void qeth_dequeue_reply(struct qeth_card *card, struct qeth_reply *reply)
+ 	spin_unlock_irq(&card->lock);
+ }
+ 
+-static void qeth_notify_reply(struct qeth_reply *reply, int reason)
++void qeth_notify_reply(struct qeth_reply *reply, int reason)
+ {
+ 	reply->rc = reason;
+ 	complete(&reply->received);
+ }
++EXPORT_SYMBOL_GPL(qeth_notify_reply);
+ 
+ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
+ 		struct qeth_card *card)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 5fa217382480..7db2c5672e02 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1033,42 +1033,12 @@ struct qeth_discipline qeth_l2_discipline = {
+ };
+ EXPORT_SYMBOL_GPL(qeth_l2_discipline);
+ 
+-static int qeth_osn_send_control_data(struct qeth_card *card, int len,
+-			   struct qeth_cmd_buffer *iob)
++static void qeth_osn_assist_cb(struct qeth_card *card,
++			       struct qeth_channel *channel,
++			       struct qeth_cmd_buffer *iob)
+ {
+-	struct qeth_channel *channel = iob->channel;
+-	int rc = 0;
+-
+-	QETH_CARD_TEXT(card, 5, "osndctrd");
+-
+-	wait_event(card->wait_q, qeth_trylock_channel(channel));
+-	iob->finalize(card, iob, len);
+-	QETH_DBF_HEX(CTRL, 2, iob->data, min(len, QETH_DBF_CTRL_LEN));
+-	QETH_CARD_TEXT(card, 6, "osnoirqp");
+-	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+-	rc = ccw_device_start_timeout(channel->ccwdev, channel->ccw,
+-				      (addr_t) iob, 0, 0, iob->timeout);
+-	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+-	if (rc) {
+-		QETH_DBF_MESSAGE(2, "qeth_osn_send_control_data: "
+-			   "ccw_device_start rc = %i\n", rc);
+-		QETH_CARD_TEXT_(card, 2, " err%d", rc);
+-		qeth_release_buffer(channel, iob);
+-		atomic_set(&channel->irq_pending, 0);
+-		wake_up(&card->wait_q);
+-	}
+-	return rc;
+-}
+-
+-static int qeth_osn_send_ipa_cmd(struct qeth_card *card,
+-				 struct qeth_cmd_buffer *iob)
+-{
+-	u16 length;
+-
+-	QETH_CARD_TEXT(card, 4, "osndipa");
+-
+-	memcpy(&length, QETH_IPA_PDU_LEN_TOTAL(iob->data), 2);
+-	return qeth_osn_send_control_data(card, length, iob);
++	qeth_notify_reply(iob->reply, 0);
++	qeth_release_buffer(channel, iob);
+ }
+ 
+ int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
+@@ -1090,7 +1060,8 @@ int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
+ 
+ 	qeth_prepare_ipa_cmd(card, iob, (u16) data_len);
+ 	memcpy(__ipa_cmd(iob), data, data_len);
+-	return qeth_osn_send_ipa_cmd(card, iob);
++	iob->callback = qeth_osn_assist_cb;
++	return qeth_send_ipa_cmd(card, iob, NULL, NULL);
+ }
+ EXPORT_SYMBOL(qeth_osn_assist);
+ 
 -- 
 2.17.1
