@@ -1,43 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:59159 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725854AbfFSFKS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jun 2019 01:10:18 -0400
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH 1/8] s390: Start fallback of top-down mmap at mm->mmap_base
-Date: Wed, 19 Jun 2019 01:08:37 -0400
-Message-Id: <20190619050844.5294-2-alex@ghiti.fr>
-In-Reply-To: <20190619050844.5294-1-alex@ghiti.fr>
-References: <20190619050844.5294-1-alex@ghiti.fr>
+Received: from mx1.redhat.com ([209.132.183.28]:42508 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387563AbfFKKaX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 06:30:23 -0400
+Date: Tue, 11 Jun 2019 12:30:06 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 7/8] virtio/s390: use DMA memory for ccw I/O and
+ classic notifiers
+Message-ID: <20190611123006.222aa424.cohuck@redhat.com>
+In-Reply-To: <20190606115127.55519-8-pasic@linux.ibm.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+        <20190606115127.55519-8-pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
 
-In case of mmap failure in top-down mode, there is no need to go through
-the whole address space again for the bottom-up fallback: the goal of this
-fallback is to find, as a last resort, space between the top-down mmap base
-and the stack, which is the only place not covered by the top-down mmap.
+On Thu,  6 Jun 2019 13:51:26 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
----
- arch/s390/mm/mmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Before virtio-ccw could get away with not using DMA API for the pieces of
+> memory it does ccw I/O with. With protected virtualization this has to
+> change, since the hypervisor needs to read and sometimes also write these
+> pieces of memory.
+> 
+> The hypervisor is supposed to poke the classic notifiers, if these are
+> used, out of band with regards to ccw I/O. So these need to be allocated
+> as DMA memory (which is shared memory for protected virtualization
+> guests).
+> 
+> Let us factor out everything from struct virtio_ccw_device that needs to
+> be DMA memory in a satellite that is allocated as such.
+> 
+> Note: The control blocks of I/O instructions do not need to be shared.
+> These are marshalled by the ultravisor.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 171 ++++++++++++++++---------------
+>  1 file changed, 90 insertions(+), 81 deletions(-)
 
-diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-index cbc718ba6d78..4a222969843b 100644
---- a/arch/s390/mm/mmap.c
-+++ b/arch/s390/mm/mmap.c
-@@ -166,7 +166,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
- 	if (addr & ~PAGE_MASK) {
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
--		info.low_limit = TASK_UNMAPPED_BASE;
-+		info.low_limit = mm->mmap_base;
- 		info.high_limit = TASK_SIZE;
- 		addr = vm_unmapped_area(&info);
- 		if (addr & ~PAGE_MASK)
--- 
-2.20.1
+(...)
+
+>  static u64 virtio_ccw_get_features(struct virtio_device *vdev)
+>  {
+>  	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+>  	struct virtio_feature_desc *features;
+> +	struct ccw1 *ccw;
+>  	int ret;
+>  	u64 rc;
+> -	struct ccw1 *ccw;
+
+I'd probably not have included unneeded code movement here, but no need
+to respin for that.
+
+>  
+> -	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
+> +	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+>  	if (!ccw)
+>  		return 0;
+>  
+> -	features = kzalloc(sizeof(*features), GFP_DMA | GFP_KERNEL);
+> +	features = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*features));
+>  	if (!features) {
+>  		rc = 0;
+>  		goto out_free;
+
+(...)
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
