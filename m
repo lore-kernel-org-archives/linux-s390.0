@@ -1,83 +1,295 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36336 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726893AbfFDXY6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:24:58 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 24/24] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date: Tue,  4 Jun 2019 19:24:15 -0400
-Message-Id: <20190604232416.7479-24-sashal@kernel.org>
-In-Reply-To: <20190604232416.7479-1-sashal@kernel.org>
-References: <20190604232416.7479-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51478 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2405615AbfFKQiQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 12:38:16 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGR3Ro008899
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:15 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2favt53w-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:14 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 11 Jun 2019 17:38:12 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 11/13] s390/qeth: convert RCD code to common IO infrastructure
+Date: Tue, 11 Jun 2019 18:37:58 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-12-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+The RCD code is the last remaining IO path that doesn't use the
+qeth_send_control_data() infrastructure. Doing so allows us to remove
+all sorts of custom state machinery and logic in the IRQ handler.
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+Instead of introducing statically allocated cmd buffers for this single
+IO on the data channel, use the new qeth_alloc_cmd() helper.
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ drivers/s390/net/qeth_core.h      |   2 -
+ drivers/s390/net/qeth_core_main.c | 132 +++++++++++-------------------
+ drivers/s390/net/qeth_core_mpc.h  |   2 -
+ 3 files changed, 46 insertions(+), 90 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4f6adbea592b..66b7b6383d8b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3912,21 +3912,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 2fee41f773a1..962945a63235 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -537,8 +537,6 @@ enum qeth_channel_states {
+ 	CH_STATE_DOWN,
+ 	CH_STATE_HALTED,
+ 	CH_STATE_STOPPED,
+-	CH_STATE_RCD,
+-	CH_STATE_RCD_DONE,
+ };
+ /**
+  * card state machine
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index e95cfc654ff8..671754a0e591 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1004,7 +1004,7 @@ static int qeth_get_problem(struct qeth_card *card, struct ccw_device *cdev,
+ }
  
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
+ static int qeth_check_irb_error(struct qeth_card *card, struct ccw_device *cdev,
+-				unsigned long intparm, struct irb *irb)
++				struct irb *irb)
+ {
+ 	if (!IS_ERR(irb))
+ 		return 0;
+@@ -1021,12 +1021,6 @@ static int qeth_check_irb_error(struct qeth_card *card, struct ccw_device *cdev,
+ 			" on the device\n");
+ 		QETH_CARD_TEXT(card, 2, "ckirberr");
+ 		QETH_CARD_TEXT_(card, 2, "  rc%d", -ETIMEDOUT);
+-		if (intparm == QETH_RCD_PARM) {
+-			if (card->data.ccwdev == cdev) {
+-				card->data.state = CH_STATE_DOWN;
+-				wake_up(&card->wait_q);
+-			}
+-		}
+ 		return -ETIMEDOUT;
+ 	default:
+ 		QETH_DBF_MESSAGE(2, "unknown error %ld on channel %x\n",
+@@ -1069,7 +1063,7 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	if (qeth_intparm_is_iob(intparm))
+ 		iob = (struct qeth_cmd_buffer *) __va((addr_t)intparm);
+ 
+-	rc = qeth_check_irb_error(card, cdev, intparm, irb);
++	rc = qeth_check_irb_error(card, cdev, irb);
+ 	if (rc) {
+ 		/* IO was terminated, free its resources. */
+ 		if (iob)
+@@ -1087,11 +1081,6 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	if (irb->scsw.cmd.fctl & (SCSW_FCTL_HALT_FUNC))
+ 		channel->state = CH_STATE_HALTED;
+ 
+-	/*let's wake up immediately on data channel*/
+-	if ((channel == &card->data) && (intparm != 0) &&
+-	    (intparm != QETH_RCD_PARM))
+-		goto out;
+-
+ 	if (intparm == QETH_CLEAR_CHANNEL_PARM) {
+ 		QETH_CARD_TEXT(card, 6, "clrchpar");
+ 		/* we don't have to handle this further */
+@@ -1121,10 +1110,7 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 			print_hex_dump(KERN_WARNING, "qeth: sense data ",
+ 				DUMP_PREFIX_OFFSET, 16, 1, irb->ecw, 32, 1);
+ 		}
+-		if (intparm == QETH_RCD_PARM) {
+-			channel->state = CH_STATE_DOWN;
+-			goto out;
+-		}
++
+ 		rc = qeth_get_problem(card, cdev, irb);
+ 		if (rc) {
+ 			card->read_or_write_problem = 1;
+@@ -1136,13 +1122,6 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 		}
+ 	}
+ 
+-	if (intparm == QETH_RCD_PARM) {
+-		channel->state = CH_STATE_RCD_DONE;
+-		goto out;
+-	}
+-	if (channel == &card->data)
+-		return;
+-
+ 	if (iob && iob->callback)
+ 		iob->callback(card, iob);
+ 
+@@ -1606,62 +1585,6 @@ int qeth_qdio_clear_card(struct qeth_card *card, int use_halt)
+ }
+ EXPORT_SYMBOL_GPL(qeth_qdio_clear_card);
+ 
+-static int qeth_read_conf_data(struct qeth_card *card, void **buffer,
+-			       int *length)
+-{
+-	struct ciw *ciw;
+-	char *rcd_buf;
+-	int ret;
+-	struct qeth_channel *channel = &card->data;
+-
+-	/*
+-	 * scan for RCD command in extended SenseID data
+-	 */
+-	ciw = ccw_device_get_ciw(channel->ccwdev, CIW_TYPE_RCD);
+-	if (!ciw || ciw->cmd == 0)
+-		return -EOPNOTSUPP;
+-	rcd_buf = kzalloc(ciw->count, GFP_KERNEL | GFP_DMA);
+-	if (!rcd_buf)
+-		return -ENOMEM;
+-
+-	qeth_setup_ccw(channel->ccw, ciw->cmd, 0, ciw->count, rcd_buf);
+-	channel->state = CH_STATE_RCD;
+-	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+-	ret = ccw_device_start_timeout(channel->ccwdev, channel->ccw,
+-				       QETH_RCD_PARM, LPM_ANYPATH, 0,
+-				       QETH_RCD_TIMEOUT);
+-	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+-	if (!ret)
+-		wait_event(card->wait_q,
+-			   (channel->state == CH_STATE_RCD_DONE ||
+-			    channel->state == CH_STATE_DOWN));
+-	if (channel->state == CH_STATE_DOWN)
+-		ret = -EIO;
+-	else
+-		channel->state = CH_STATE_DOWN;
+-	if (ret) {
+-		kfree(rcd_buf);
+-		*buffer = NULL;
+-		*length = 0;
+-	} else {
+-		*length = ciw->count;
+-		*buffer = rcd_buf;
+-	}
+-	return ret;
+-}
+-
+-static void qeth_configure_unitaddr(struct qeth_card *card, char *prcd)
+-{
+-	QETH_CARD_TEXT(card, 2, "cfgunit");
+-	card->info.chpid = prcd[30];
+-	card->info.unit_addr2 = prcd[31];
+-	card->info.cula = prcd[63];
+-	card->info.is_vm_nic = ((prcd[0x10] == _ascebc['V']) &&
+-				(prcd[0x11] == _ascebc['M']));
+-	card->info.use_v1_blkt = prcd[74] == 0xF0 && prcd[75] == 0xF0 &&
+-				 prcd[76] >= 0xF1 && prcd[76] <= 0xF4;
+-}
+-
+ static enum qeth_discipline_id qeth_vm_detect_layer(struct qeth_card *card)
+ {
+ 	enum qeth_discipline_id disc = QETH_DISCIPLINE_UNDETERMINED;
+@@ -1888,7 +1811,8 @@ static int qeth_send_control_data(struct qeth_card *card, int len,
+ 		return (timeout == -ERESTARTSYS) ? -EINTR : -ETIME;
+ 	}
+ 
+-	iob->finalize(card, iob, len);
++	if (iob->finalize)
++		iob->finalize(card, iob, len);
+ 	QETH_DBF_HEX(CTRL, 2, iob->data, min(len, QETH_DBF_CTRL_LEN));
+ 
+ 	qeth_enqueue_reply(card, reply);
+@@ -1922,6 +1846,46 @@ static int qeth_send_control_data(struct qeth_card *card, int len,
+ 	return rc;
+ }
+ 
++static void qeth_read_conf_data_cb(struct qeth_card *card,
++				   struct qeth_cmd_buffer *iob)
++{
++	unsigned char *prcd = iob->data;
++
++	QETH_CARD_TEXT(card, 2, "cfgunit");
++	card->info.chpid = prcd[30];
++	card->info.unit_addr2 = prcd[31];
++	card->info.cula = prcd[63];
++	card->info.is_vm_nic = ((prcd[0x10] == _ascebc['V']) &&
++				(prcd[0x11] == _ascebc['M']));
++	card->info.use_v1_blkt = prcd[74] == 0xF0 && prcd[75] == 0xF0 &&
++				 prcd[76] >= 0xF1 && prcd[76] <= 0xF4;
++
++	qeth_notify_reply(iob->reply, 0);
++	qeth_release_buffer(iob);
++}
++
++static int qeth_read_conf_data(struct qeth_card *card)
++{
++	struct qeth_channel *channel = &card->data;
++	struct qeth_cmd_buffer *iob;
++	struct ciw *ciw;
++
++	/* scan for RCD command in extended SenseID data */
++	ciw = ccw_device_get_ciw(channel->ccwdev, CIW_TYPE_RCD);
++	if (!ciw || ciw->cmd == 0)
++		return -EOPNOTSUPP;
++
++	iob = qeth_alloc_cmd(channel, ciw->count, 1, QETH_RCD_TIMEOUT);
++	if (!iob)
++		return -ENOMEM;
++
++	iob->callback = qeth_read_conf_data_cb;
++	qeth_setup_ccw(__ccw_from_cmd(iob), ciw->cmd, 0, iob->length,
++		       iob->data);
++
++	return qeth_send_control_data(card, iob->length, iob, NULL, NULL);
++}
++
+ static int qeth_idx_check_activate_response(struct qeth_card *card,
+ 					    struct qeth_channel *channel,
+ 					    struct qeth_cmd_buffer *iob)
+@@ -4772,8 +4736,6 @@ EXPORT_SYMBOL_GPL(qeth_vm_request_mac);
+ static void qeth_determine_capabilities(struct qeth_card *card)
+ {
+ 	int rc;
+-	int length;
+-	char *prcd;
+ 	struct ccw_device *ddev;
+ 	int ddev_offline = 0;
+ 
+@@ -4788,15 +4750,13 @@ static void qeth_determine_capabilities(struct qeth_card *card)
+ 		}
+ 	}
+ 
+-	rc = qeth_read_conf_data(card, (void **) &prcd, &length);
++	rc = qeth_read_conf_data(card);
+ 	if (rc) {
+ 		QETH_DBF_MESSAGE(2, "qeth_read_conf_data on device %x returned %i\n",
+ 				 CARD_DEVID(card), rc);
+ 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
+ 		goto out_offline;
+ 	}
+-	qeth_configure_unitaddr(card, prcd);
+-	kfree(prcd);
+ 
+ 	rc = qdio_get_ssqd_desc(ddev, &card->ssqd);
  	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index f5237b7c14c4..fadafdc0e8e4 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -31,14 +31,12 @@ extern unsigned char IPA_PDU_HEADER[];
+ 
+ #define QETH_CLEAR_CHANNEL_PARM	-10
+ #define QETH_HALT_CHANNEL_PARM	-11
+-#define QETH_RCD_PARM -12
+ 
+ static inline bool qeth_intparm_is_iob(unsigned long intparm)
+ {
+ 	switch (intparm) {
+ 	case QETH_CLEAR_CHANNEL_PARM:
+ 	case QETH_HALT_CHANNEL_PARM:
+-	case QETH_RCD_PARM:
+ 	case 0:
+ 		return false;
+ 	}
 -- 
-2.20.1
+2.17.1
