@@ -1,248 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47730 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729444AbfFMTkY (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40158 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404406AbfFKQiN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 15:40:24 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v4 3/7] s390: zcrypt: driver callback to indicate resource in use
-Date: Thu, 13 Jun 2019 15:39:36 -0400
-Message-Id: <1560454780-20359-4-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+        Tue, 11 Jun 2019 12:38:13 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGR2Ns186438
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:11 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2t2f9qa9hu-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:11 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 11 Jun 2019 17:38:10 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 05/13] s390/qeth: clean up setting of BLKT defaults
+Date: Tue, 11 Jun 2019 18:37:52 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-6-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Introduces a new driver callback to prevent a root user from unbinding
-an AP queue from its device driver if the queue is in use. This prevents
-a root user from inadvertently taking a queue away from a guest and
-giving it to the host, or vice versa. The callback will be invoked
-whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
-result in one or more AP queues being removed from its driver. If the
-callback responds in the affirmative for any driver queried, the change
-to the apmask or aqmask will be rejected with a device in use error.
+When called from qeth_core_probe_device(), qeth_determine_capabilities()
+initializes the device's BLKT defaults. From all other callers, the
+ccw_device has already been set online and the BLKT setting is skipped.
 
-For this patch, only non-default drivers will be queried. Currently,
-there is only one non-default driver, the vfio_ap device driver. The
-vfio_ap device driver manages AP queues passed through to one or more
-guests and we don't want to unexpectedly take AP resources away from
-guests which are most likely independently administered.
+Clean this up by extracting the BLKT setting into a separate helper that
+gets called from the right place.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c | 138 +++++++++++++++++++++++++++++++++++++++++--
- drivers/s390/crypto/ap_bus.h |   3 +
- 2 files changed, 135 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c | 11 ++++++-----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index b9fc502c58c2..1b06f47d0d1c 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <linux/module.h>
- 
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -998,9 +999,11 @@ int ap_parse_mask_str(const char *str,
- 	newmap = kmalloc(size, GFP_KERNEL);
- 	if (!newmap)
- 		return -ENOMEM;
--	if (mutex_lock_interruptible(lock)) {
--		kfree(newmap);
--		return -ERESTARTSYS;
-+	if (lock) {
-+		if (mutex_lock_interruptible(lock)) {
-+			kfree(newmap);
-+			return -ERESTARTSYS;
-+		}
- 	}
- 
- 	if (*str == '+' || *str == '-') {
-@@ -1012,7 +1015,10 @@ int ap_parse_mask_str(const char *str,
- 	}
- 	if (rc == 0)
- 		memcpy(bitmap, newmap, size);
--	mutex_unlock(lock);
-+
-+	if (lock)
-+		mutex_unlock(lock);
-+
- 	kfree(newmap);
- 	return rc;
- }
-@@ -1199,12 +1205,72 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 	return rc;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 784a2e76a1b0..5fab7b3396aa 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -665,6 +665,7 @@ struct qeth_card_info {
+ 	__u16 func_level;
+ 	char mcl_level[QETH_MCL_LENGTH + 1];
+ 	u8 open_when_online:1;
++	u8 use_v1_blkt:1;
+ 	u8 is_vm_nic:1;
+ 	int mac_bits;
+ 	enum qeth_card_types type;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index fade84112e80..0403a1405872 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1633,6 +1633,8 @@ static void qeth_configure_unitaddr(struct qeth_card *card, char *prcd)
+ 	card->info.cula = prcd[63];
+ 	card->info.is_vm_nic = ((prcd[0x10] == _ascebc['V']) &&
+ 				(prcd[0x11] == _ascebc['M']));
++	card->info.use_v1_blkt = prcd[74] == 0xF0 && prcd[75] == 0xF0 &&
++				 prcd[76] >= 0xF1 && prcd[76] <= 0xF4;
  }
  
-+int __verify_card_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newapm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify cards reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(newapm, ap_perms.aqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int apmask_commit(unsigned long *newapm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	/*
-+	 * Check if any bits in the apmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
-+		rc = (bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				       __verify_card_reservations));
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.apm, newapm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t apmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
+ static enum qeth_discipline_id qeth_vm_detect_layer(struct qeth_card *card)
+@@ -1716,12 +1718,11 @@ static enum qeth_discipline_id qeth_enforce_discipline(struct qeth_card *card)
+ 	return disc;
+ }
+ 
+-static void qeth_configure_blkt_default(struct qeth_card *card, char *prcd)
++static void qeth_set_blkt_defaults(struct qeth_card *card)
  {
- 	int rc;
-+	unsigned long newapm[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	memcpy(newapm, ap_perms.apm, APMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newapm, AP_DEVICES, NULL);
-+	if (rc)
-+		return rc;
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	rc = apmask_commit(newapm);
-+	mutex_unlock(&ap_perms_mutex);
+ 	QETH_DBF_TEXT(SETUP, 2, "cfgblkt");
  
--	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
+-	if (prcd[74] == 0xF0 && prcd[75] == 0xF0 &&
+-	    prcd[76] >= 0xF1 && prcd[76] <= 0xF4) {
++	if (card->info.use_v1_blkt) {
+ 		card->info.blkt.time_total = 0;
+ 		card->info.blkt.inter_packet = 0;
+ 		card->info.blkt.inter_packet_jumbo = 0;
+@@ -4761,8 +4762,6 @@ static void qeth_determine_capabilities(struct qeth_card *card)
+ 		goto out_offline;
+ 	}
+ 	qeth_configure_unitaddr(card, prcd);
+-	if (ddev_offline)
+-		qeth_configure_blkt_default(card, prcd);
+ 	kfree(prcd);
+ 
+ 	rc = qdio_get_ssqd_desc(ddev, &card->ssqd);
+@@ -5660,6 +5659,8 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
  	if (rc)
- 		return rc;
- 
-@@ -1230,12 +1296,72 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+int __verify_queue_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newaqm = (unsigned long *)data;
+ 		goto err_chp_desc;
+ 	qeth_determine_capabilities(card);
++	qeth_set_blkt_defaults(card);
 +
-+	/*
-+	 * If the reserved bits do not identify queues reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(ap_perms.apm, newaqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int aqmask_commit(unsigned long *newaqm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
-+
-+	/*
-+	 * Check if any bits in the aqmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
-+		rc = (bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				       __verify_queue_reservations));
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.aqm, newaqm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	unsigned long newaqm[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	memcpy(newaqm, ap_perms.aqm, AQMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newaqm, AP_DOMAINS, NULL);
-+	if (rc)
-+		return rc;
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	rc = aqmask_commit(newaqm);
-+	mutex_unlock(&ap_perms_mutex);
- 
--	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 6f3cf37776ca..0f865c5545f2 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -137,6 +137,7 @@ struct ap_driver {
- 	void (*remove)(struct ap_device *);
- 	void (*suspend)(struct ap_device *);
- 	void (*resume)(struct ap_device *);
-+	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
- };
- 
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-@@ -265,6 +266,8 @@ void ap_queue_reinit_state(struct ap_queue *aq);
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
- 
-+#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
-+#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
- struct ap_perms {
- 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
- 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+ 	enforced_disc = qeth_enforce_discipline(card);
+ 	switch (enforced_disc) {
+ 	case QETH_DISCIPLINE_UNDETERMINED:
 -- 
-2.7.4
+2.17.1
