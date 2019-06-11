@@ -1,200 +1,202 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56742 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726498AbfFUOeU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:20 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 09/14] s390/cio: Combine direct and indirect CCW paths
-Date: Fri, 21 Jun 2019 16:33:50 +0200
-Message-Id: <20190621143355.29175-10-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37334 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404652AbfFKQiN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Jun 2019 12:38:13 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGR5VO110019
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:12 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2em1vvn3-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:12 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 11 Jun 2019 17:38:09 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 06/13] s390/qeth: remove qeth_wait_for_buffer()
+Date: Tue, 11 Jun 2019 18:37:53 +0200
+In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
+References: <20190611163800.64730-1-jwi@linux.ibm.com>
+Message-Id: <20190611163800.64730-7-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Eric Farman <farman@linux.ibm.com>
+The basic MPC initialization sequence is strictly sequential, and
+waiting for an available cmd buffer should never be necessary.
+So this change only affects the OSN path, where dangling waiters on an
+unbounded wait_event() are not desirable. Switch to qeth_get_buffers(),
+and let OSN callers deal with -ENOMEM.
 
-With both the direct-addressed and indirect-addressed CCW paths
-simplified to this point, the amount of shared code between them is
-(hopefully) more easily visible.  Move the processing of IDA-specific
-bits into the direct-addressed path, and add some useful commentary of
-what the individual pieces are doing.  This allows us to remove the
-entire ccwchain_fetch_idal() routine and maintain a single function
-for any non-TIC CCW.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20190606202831.44135-10-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 115 +++++++++++----------------------
- 1 file changed, 39 insertions(+), 76 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 +-
+ drivers/s390/net/qeth_core_main.c | 58 +++++++++++++++++--------------
+ drivers/s390/net/qeth_l2_main.c   |  5 ++-
+ 3 files changed, 37 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 8205d0b527fc..90d86e1354c1 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -534,10 +534,12 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 5fab7b3396aa..14e8ab34ab2f 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -998,7 +998,7 @@ void qeth_tx_timeout(struct net_device *);
+ void qeth_release_buffer(struct qeth_channel *, struct qeth_cmd_buffer *);
+ void qeth_prepare_ipa_cmd(struct qeth_card *card, struct qeth_cmd_buffer *iob,
+ 			  u16 cmd_length);
+-struct qeth_cmd_buffer *qeth_wait_for_buffer(struct qeth_channel *);
++struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel);
+ int qeth_query_switch_attributes(struct qeth_card *card,
+ 				  struct qeth_switch_info *sw_info);
+ int qeth_query_card_info(struct qeth_card *card,
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 0403a1405872..3d25cff404fe 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -65,7 +65,6 @@ static struct lock_class_key qdio_out_skb_queue_key;
+ static void qeth_issue_next_read_cb(struct qeth_card *card,
+ 				    struct qeth_channel *channel,
+ 				    struct qeth_cmd_buffer *iob);
+-static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *);
+ static void qeth_free_buffer_pool(struct qeth_card *);
+ static int qeth_qdio_establish(struct qeth_card *);
+ static void qeth_free_qdio_queues(struct qeth_card *card);
+@@ -746,7 +745,7 @@ static void qeth_cancel_cmd(struct qeth_cmd_buffer *iob, int rc)
+ 	qeth_release_buffer(iob->channel, iob);
+ }
+ 
+-static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel)
++struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel)
  {
- 	struct ccw1 *ccw;
- 	struct pfn_array *pa;
-+	u64 iova;
- 	unsigned long *idaws;
- 	int ret;
- 	int bytes = 1;
--	int idaw_nr;
-+	int idaw_nr, idal_len;
-+	int i;
- 
- 	ccw = chain->ch_ccw + idx;
- 
-@@ -545,7 +547,17 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 		bytes = ccw->count;
- 
- 	/* Calculate size of IDAL */
--	idaw_nr = idal_nr_words((void *)(u64)ccw->cda, bytes);
-+	if (ccw_is_idal(ccw)) {
-+		/* Read first IDAW to see if it's 4K-aligned or not. */
-+		/* All subsequent IDAws will be 4K-aligned. */
-+		ret = copy_from_iova(cp->mdev, &iova, ccw->cda, sizeof(iova));
-+		if (ret)
-+			return ret;
-+	} else {
-+		iova = ccw->cda;
-+	}
-+	idaw_nr = idal_nr_words((void *)iova, bytes);
-+	idal_len = idaw_nr * sizeof(*idaws);
- 
- 	/* Allocate an IDAL from host storage */
- 	idaws = kcalloc(idaw_nr, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
-@@ -555,15 +567,36 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	}
- 
- 	/*
--	 * Pin data page(s) in memory.
--	 * The number of pages actually is the count of the idaws which will be
--	 * needed when translating a direct ccw to a idal ccw.
-+	 * Allocate an array of pfn's for pages to pin/translate.
-+	 * The number of pages is actually the count of the idaws
-+	 * required for the data transfer, since we only only support
-+	 * 4K IDAWs today.
- 	 */
- 	pa = chain->ch_pa + idx;
--	ret = pfn_array_alloc(pa, ccw->cda, bytes);
-+	ret = pfn_array_alloc(pa, iova, bytes);
- 	if (ret < 0)
- 		goto out_free_idaws;
- 
-+	if (ccw_is_idal(ccw)) {
-+		/* Copy guest IDAL into host IDAL */
-+		ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idal_len);
-+		if (ret)
-+			goto out_unpin;
-+
-+		/*
-+		 * Copy guest IDAWs into pfn_array, in case the memory they
-+		 * occupy is not contiguous.
-+		 */
-+		for (i = 0; i < idaw_nr; i++)
-+			pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
-+	} else {
-+		/*
-+		 * No action is required here; the iova addresses in pfn_array
-+		 * were initialized sequentially in pfn_array_alloc() beginning
-+		 * with the contents of ccw->cda.
-+		 */
-+	}
-+
- 	if (ccw_does_data_transfer(ccw)) {
- 		ret = pfn_array_pin(pa, cp->mdev);
- 		if (ret < 0)
-@@ -589,73 +622,6 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
- 	return ret;
+ 	struct qeth_cmd_buffer *buffer = NULL;
+ 	unsigned long flags;
+@@ -756,15 +755,7 @@ static struct qeth_cmd_buffer *qeth_get_buffer(struct qeth_channel *channel)
+ 	spin_unlock_irqrestore(&channel->iob_lock, flags);
+ 	return buffer;
  }
- 
--static int ccwchain_fetch_idal(struct ccwchain *chain,
--			       int idx,
--			       struct channel_program *cp)
+-
+-struct qeth_cmd_buffer *qeth_wait_for_buffer(struct qeth_channel *channel)
 -{
--	struct ccw1 *ccw;
--	struct pfn_array *pa;
--	unsigned long *idaws;
--	u64 idaw_iova;
--	unsigned int idaw_nr, idaw_len;
--	int i, ret;
--	int bytes = 1;
--
--	ccw = chain->ch_ccw + idx;
--
--	if (ccw->count)
--		bytes = ccw->count;
--
--	/* Calculate size of idaws. */
--	ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda, sizeof(idaw_iova));
--	if (ret)
--		return ret;
--	idaw_nr = idal_nr_words((void *)(idaw_iova), bytes);
--	idaw_len = idaw_nr * sizeof(*idaws);
--
--	/* Pin data page(s) in memory. */
--	pa = chain->ch_pa + idx;
--	ret = pfn_array_alloc(pa, idaw_iova, bytes);
--	if (ret)
--		goto out_init;
--
--	/* Translate idal ccw to use new allocated idaws. */
--	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
--	if (!idaws) {
--		ret = -ENOMEM;
--		goto out_unpin;
--	}
--
--	ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idaw_len);
--	if (ret)
--		goto out_free_idaws;
--
--	ccw->cda = virt_to_phys(idaws);
--
--	for (i = 0; i < idaw_nr; i++)
--		pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
--
--	if (ccw_does_data_transfer(ccw)) {
--		ret = pfn_array_pin(pa, cp->mdev);
--		if (ret < 0)
--			goto out_free_idaws;
--	} else {
--		pa->pa_nr = 0;
--	}
--
--	pfn_array_idal_create_words(pa, idaws);
--
--	return 0;
--
--out_free_idaws:
--	kfree(idaws);
--out_unpin:
--	pfn_array_unpin_free(pa, cp->mdev);
--out_init:
--	ccw->cda = 0;
--	return ret;
+-	struct qeth_cmd_buffer *buffer;
+-	wait_event(channel->wait_q,
+-		   ((buffer = qeth_get_buffer(channel)) != NULL));
+-	return buffer;
 -}
--
- /*
-  * Fetch one ccw.
-  * To reduce memory copy, we'll pin the cda page in memory,
-@@ -671,9 +637,6 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
- 	if (ccw_is_tic(ccw))
- 		return ccwchain_fetch_tic(chain, idx, cp);
+-EXPORT_SYMBOL_GPL(qeth_wait_for_buffer);
++EXPORT_SYMBOL_GPL(qeth_get_buffer);
  
--	if (ccw_is_idal(ccw))
--		return ccwchain_fetch_idal(chain, idx, cp);
--
- 	return ccwchain_fetch_direct(chain, idx, cp);
+ void qeth_clear_cmd_buffers(struct qeth_channel *channel)
+ {
+@@ -1794,6 +1785,16 @@ static void qeth_mpc_finalize_cmd(struct qeth_card *card,
+ 	iob->callback = qeth_release_buffer_cb;
  }
  
++static struct qeth_cmd_buffer *qeth_mpc_get_cmd_buffer(struct qeth_card *card)
++{
++	struct qeth_cmd_buffer *iob;
++
++	iob = qeth_get_buffer(&card->write);
++	if (iob)
++		iob->finalize = qeth_mpc_finalize_cmd;
++	return iob;
++}
++
+ /**
+  * qeth_send_control_data() -	send control command to the card
+  * @card:			qeth_card structure pointer
+@@ -2102,10 +2103,11 @@ static int qeth_cm_enable(struct qeth_card *card)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "cmenable");
+ 
+-	iob = qeth_wait_for_buffer(&card->write);
+-	iob->finalize = qeth_mpc_finalize_cmd;
+-	memcpy(iob->data, CM_ENABLE, CM_ENABLE_SIZE);
++	iob = qeth_mpc_get_cmd_buffer(card);
++	if (!iob)
++		return -ENOMEM;
+ 
++	memcpy(iob->data, CM_ENABLE, CM_ENABLE_SIZE);
+ 	memcpy(QETH_CM_ENABLE_ISSUER_RM_TOKEN(iob->data),
+ 	       &card->token.issuer_rm_r, QETH_MPC_TOKEN_LENGTH);
+ 	memcpy(QETH_CM_ENABLE_FILTER_TOKEN(iob->data),
+@@ -2137,10 +2139,11 @@ static int qeth_cm_setup(struct qeth_card *card)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "cmsetup");
+ 
+-	iob = qeth_wait_for_buffer(&card->write);
+-	iob->finalize = qeth_mpc_finalize_cmd;
+-	memcpy(iob->data, CM_SETUP, CM_SETUP_SIZE);
++	iob = qeth_mpc_get_cmd_buffer(card);
++	if (!iob)
++		return -ENOMEM;
+ 
++	memcpy(iob->data, CM_SETUP, CM_SETUP_SIZE);
+ 	memcpy(QETH_CM_SETUP_DEST_ADDR(iob->data),
+ 	       &card->token.issuer_rm_r, QETH_MPC_TOKEN_LENGTH);
+ 	memcpy(QETH_CM_SETUP_CONNECTION_TOKEN(iob->data),
+@@ -2256,10 +2259,11 @@ static int qeth_ulp_enable(struct qeth_card *card)
+ 	/*FIXME: trace view callbacks*/
+ 	QETH_DBF_TEXT(SETUP, 2, "ulpenabl");
+ 
+-	iob = qeth_wait_for_buffer(&card->write);
+-	iob->finalize = qeth_mpc_finalize_cmd;
+-	memcpy(iob->data, ULP_ENABLE, ULP_ENABLE_SIZE);
++	iob = qeth_mpc_get_cmd_buffer(card);
++	if (!iob)
++		return -ENOMEM;
+ 
++	memcpy(iob->data, ULP_ENABLE, ULP_ENABLE_SIZE);
+ 	*(QETH_ULP_ENABLE_LINKNUM(iob->data)) = (u8) card->dev->dev_port;
+ 	memcpy(QETH_ULP_ENABLE_PROT_TYPE(iob->data), &prot_type, 1);
+ 	memcpy(QETH_ULP_ENABLE_DEST_ADDR(iob->data),
+@@ -2303,10 +2307,11 @@ static int qeth_ulp_setup(struct qeth_card *card)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "ulpsetup");
+ 
+-	iob = qeth_wait_for_buffer(&card->write);
+-	iob->finalize = qeth_mpc_finalize_cmd;
+-	memcpy(iob->data, ULP_SETUP, ULP_SETUP_SIZE);
++	iob = qeth_mpc_get_cmd_buffer(card);
++	if (!iob)
++		return -ENOMEM;
+ 
++	memcpy(iob->data, ULP_SETUP, ULP_SETUP_SIZE);
+ 	memcpy(QETH_ULP_SETUP_DEST_ADDR(iob->data),
+ 	       &card->token.cm_connection_r, QETH_MPC_TOKEN_LENGTH);
+ 	memcpy(QETH_ULP_SETUP_CONNECTION_TOKEN(iob->data),
+@@ -2492,10 +2497,11 @@ static int qeth_dm_act(struct qeth_card *card)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "dmact");
+ 
+-	iob = qeth_wait_for_buffer(&card->write);
+-	iob->finalize = qeth_mpc_finalize_cmd;
+-	memcpy(iob->data, DM_ACT, DM_ACT_SIZE);
++	iob = qeth_mpc_get_cmd_buffer(card);
++	if (!iob)
++		return -ENOMEM;
+ 
++	memcpy(iob->data, DM_ACT, DM_ACT_SIZE);
+ 	memcpy(QETH_DM_ACT_DEST_ADDR(iob->data),
+ 	       &card->token.cm_connection_r, QETH_MPC_TOKEN_LENGTH);
+ 	memcpy(QETH_DM_ACT_CONNECTION_TOKEN(iob->data),
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 40e2f6bd0f09..5fa217382480 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1084,7 +1084,10 @@ int qeth_osn_assist(struct net_device *dev, void *data, int data_len)
+ 	QETH_CARD_TEXT(card, 2, "osnsdmc");
+ 	if (!qeth_card_hw_is_reachable(card))
+ 		return -ENODEV;
+-	iob = qeth_wait_for_buffer(&card->write);
++	iob = qeth_get_buffer(&card->write);
++	if (!iob)
++		return -ENOMEM;
++
+ 	qeth_prepare_ipa_cmd(card, iob, (u16) data_len);
+ 	memcpy(__ipa_cmd(iob), data, data_len);
+ 	return qeth_osn_send_ipa_cmd(card, iob);
 -- 
-2.20.1
+2.17.1
