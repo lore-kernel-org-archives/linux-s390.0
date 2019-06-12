@@ -1,141 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45638 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726862AbfFHLJC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 8 Jun 2019 07:09:02 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x58B6it0027960
-        for <linux-s390@vger.kernel.org>; Sat, 8 Jun 2019 07:09:01 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2t09h53m6w-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Sat, 08 Jun 2019 07:09:00 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Sat, 8 Jun 2019 12:08:58 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH/RFC 3/3] processor: get rid of cpu_relax_yield
-Date: Sat,  8 Jun 2019 13:08:53 +0200
-In-Reply-To: <20190608110853.35961-1-heiko.carstens@de.ibm.com>
-References: <20190608110853.35961-1-heiko.carstens@de.ibm.com>
-Message-Id: <20190608110853.35961-4-heiko.carstens@de.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44188 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2436660AbfFLNrJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 09:47:09 -0400
+Date: Wed, 12 Jun 2019 15:46:55 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 4/8] s390/airq: use DMA memory for adapter interrupts
+Message-ID: <20190612154655.1fcc2cd4.cohuck@redhat.com>
+In-Reply-To: <20190612153324.3dc6632c.pasic@linux.ibm.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+        <20190606115127.55519-5-pasic@linux.ibm.com>
+        <20190611121721.61bf09b4.cohuck@redhat.com>
+        <20190611162721.67ca8932.pasic@linux.ibm.com>
+        <20190611181944.5bf2b953.cohuck@redhat.com>
+        <20190612023231.7da4908c.pasic@linux.ibm.com>
+        <20190612082127.3fd63091.cohuck@redhat.com>
+        <20190612153324.3dc6632c.pasic@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
 
-stop_machine is the only user left of cpu_relax_yield. Given that it
-now has special semantics which are tied to stop_machine introduce a
-weak stop_machine_yield function which architectures can override, and
-get rid of the generic cpu_relax_yield implementation.
+On Wed, 12 Jun 2019 15:33:24 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- arch/s390/include/asm/processor.h | 6 ------
- arch/s390/kernel/processor.c      | 4 ++--
- include/linux/sched.h             | 4 ----
- include/linux/stop_machine.h      | 1 +
- kernel/stop_machine.c             | 7 ++++++-
- 5 files changed, 9 insertions(+), 13 deletions(-)
+> On Wed, 12 Jun 2019 08:21:27 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
+> > On Wed, 12 Jun 2019 02:32:31 +0200
+> > Halil Pasic <pasic@linux.ibm.com> wrote:
+> >   
+> > > On Tue, 11 Jun 2019 18:19:44 +0200
+> > > Cornelia Huck <cohuck@redhat.com> wrote:
+> > >     
+> > > > On Tue, 11 Jun 2019 16:27:21 +0200
+> > > > Halil Pasic <pasic@linux.ibm.com> wrote:    
+> >   
+> > > > > IMHO the cleanest thing to do at this stage is to check if the
+> > > > > airq_iv_cache is NULL and fail the allocation if it is (to preserve
+> > > > > previous behavior).      
+> > > > 
+> > > > That's probably the least invasive fix for now. Did you check whether
+> > > > any of the other dma pools this series introduces have a similar
+> > > > problem due to init not failing?
+> > > >      
+> > > 
+> > > Good question!
+> > > 
+> > > I did a quick check. virtio_ccw_init() should be OK, because we don't
+> > > register the driver if allocation fails, so the thing is going to end
+> > > up dysfunctional as expected.
+> > > 
+> > > If however cio_dma_pool_init() fails, then we end up with the same
+> > > problem with airqs, just on the !AIRQ_IV_CACHELINE code path. It can be
+> > > fixed analogously: make cio_dma_zalloc() fail all allocation if
+> > > cio_dma_pool_init() failed before.    
+> > 
+> > Ok, makes sense.  
+> 
+> v5 is out with the fixes. I have no ack/r-b from you for patch 4. Would
+> you like to give some, or should I proceed without?
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 445ce9ee4404..14883b1562e0 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -222,12 +222,6 @@ static __no_kasan_or_inline unsigned short stap(void)
- 	return cpu_address;
- }
- 
--/*
-- * Give up the time slice of the virtual PU.
-- */
--#define cpu_relax_yield cpu_relax_yield
--void cpu_relax_yield(const struct cpumask *cpumask);
--
- #define cpu_relax() barrier()
- 
- #define ECAG_CACHE_ATTRIBUTE	0
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index 2c781e2b0078..f84eaf53c397 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -7,6 +7,7 @@
- #define KMSG_COMPONENT "cpu"
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
- 
-+#include <linux/stop_machine.h>
- #include <linux/cpufeature.h>
- #include <linux/bitops.h>
- #include <linux/kernel.h>
-@@ -59,7 +60,7 @@ void s390_update_cpu_mhz(void)
- 		on_each_cpu(update_cpu_mhz, NULL, 0);
- }
- 
--void notrace cpu_relax_yield(const struct cpumask *cpumask)
-+void notrace stop_machine_yield(const struct cpumask *cpumask)
- {
- 	int cpu;
- 
-@@ -75,7 +76,6 @@ void notrace cpu_relax_yield(const struct cpumask *cpumask)
- 			smp_yield_cpu(cpu);
- 	}
- }
--EXPORT_SYMBOL(cpu_relax_yield);
- 
- /*
-  * cpu_init - initializes state that is per-CPU.
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 1f9f3160da7e..911675416b05 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1518,10 +1518,6 @@ static inline int set_cpus_allowed_ptr(struct task_struct *p, const struct cpuma
- }
- #endif
- 
--#ifndef cpu_relax_yield
--#define cpu_relax_yield(cpumask) cpu_relax()
--#endif
--
- extern int yield_to(struct task_struct *p, bool preempt);
- extern void set_user_nice(struct task_struct *p, long nice);
- extern int task_prio(const struct task_struct *p);
-diff --git a/include/linux/stop_machine.h b/include/linux/stop_machine.h
-index 6d3635c86dbe..f9a0c6189852 100644
---- a/include/linux/stop_machine.h
-+++ b/include/linux/stop_machine.h
-@@ -36,6 +36,7 @@ int stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg);
- int try_stop_cpus(const struct cpumask *cpumask, cpu_stop_fn_t fn, void *arg);
- void stop_machine_park(int cpu);
- void stop_machine_unpark(int cpu);
-+void stop_machine_yield(const struct cpumask *cpumask);
- 
- #else	/* CONFIG_SMP */
- 
-diff --git a/kernel/stop_machine.c b/kernel/stop_machine.c
-index b8b0c5ff8da9..b4f83f7bdf86 100644
---- a/kernel/stop_machine.c
-+++ b/kernel/stop_machine.c
-@@ -177,6 +177,11 @@ static void ack_state(struct multi_stop_data *msdata)
- 		set_state(msdata, msdata->state + 1);
- }
- 
-+void __weak stop_machine_yield(const struct cpumask *cpumask)
-+{
-+	cpu_relax();
-+}
-+
- /* This is the cpu_stop function which stops the CPU. */
- static int multi_cpu_stop(void *data)
- {
-@@ -204,7 +209,7 @@ static int multi_cpu_stop(void *data)
- 	/* Simple state machine */
- 	do {
- 		/* Chill out and ensure we re-read multi_stop_state. */
--		cpu_relax_yield(cpumask);
-+		stop_machine_yield(cpumask);
- 		if (msdata->state != curstate) {
- 			curstate = msdata->state;
- 			switch (curstate) {
--- 
-2.17.1
+Please give this some more time, I will look at this later.
