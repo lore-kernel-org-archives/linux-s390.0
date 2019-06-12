@@ -1,69 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:18137 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726010AbfFLG07 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 02:26:59 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:35156 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725958AbfFLFQe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 01:16:34 -0400
+Date: Wed, 12 Jun 2019 07:16:24 +0200
+From: Borislav Petkov <bp@alien8.de>
 Subject: Re: [PATCH v8 2/7] x86/dma: use IS_ENABLED() to simplify the code
+Message-ID: <20190612051624.GF32652@zn.tnic>
 References: <20190530034831.4184-1-thunder.leizhen@huawei.com>
  <20190530034831.4184-3-thunder.leizhen@huawei.com>
- <20190612051624.GF32652@zn.tnic>
-From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
-Message-ID: <bd743433-73e9-3cf1-c159-4371abebd989@huawei.com>
-Date: Wed, 12 Jun 2019 14:26:43 +0800
 MIME-Version: 1.0
-In-Reply-To: <20190612051624.GF32652@zn.tnic>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20190530034831.4184-3-thunder.leizhen@huawei.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
+To: Zhen Lei <thunder.leizhen@huawei.com>
 Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>, Hanjun Guo <guohanjun@huawei.com>
 
+On Thu, May 30, 2019 at 11:48:26AM +0800, Zhen Lei wrote:
+> This patch removes the ifdefs around CONFIG_IOMMU_DEFAULT_PASSTHROUGH to
+> improve readablity.
 
+Avoid having "This patch" or "This commit" in the commit message. It is
+tautologically useless.
 
-On 2019/6/12 13:16, Borislav Petkov wrote:
-> On Thu, May 30, 2019 at 11:48:26AM +0800, Zhen Lei wrote:
->> This patch removes the ifdefs around CONFIG_IOMMU_DEFAULT_PASSTHROUGH to
->> improve readablity.
-> 
-> Avoid having "This patch" or "This commit" in the commit message. It is
-> tautologically useless.
+Also, do
 
-OK, thanks.
+$ git grep 'This patch' Documentation/process
 
-> 
-> Also, do
-> 
-> $ git grep 'This patch' Documentation/process
-> 
-> for more details.
-> 
->> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
->> ---
->>  arch/x86/kernel/pci-dma.c | 7 ++-----
->>  1 file changed, 2 insertions(+), 5 deletions(-)
->>
->> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
->> index dcd272dbd0a9330..9f2b19c35a060df 100644
->> --- a/arch/x86/kernel/pci-dma.c
->> +++ b/arch/x86/kernel/pci-dma.c
->> @@ -43,11 +43,8 @@
->>   * It is also possible to disable by default in kernel config, and enable with
->>   * iommu=nopt at boot time.
->>   */
->> -#ifdef CONFIG_IOMMU_DEFAULT_PASSTHROUGH
->> -int iommu_pass_through __read_mostly = 1;
->> -#else
->> -int iommu_pass_through __read_mostly;
->> -#endif
->> +int iommu_pass_through __read_mostly =
->> +			IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH);
-> 
-> Let that line stick out.
+for more details.
 
-OK, I will merge them on the same line.
+> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+> ---
+>  arch/x86/kernel/pci-dma.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index dcd272dbd0a9330..9f2b19c35a060df 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -43,11 +43,8 @@
+>   * It is also possible to disable by default in kernel config, and enable with
+>   * iommu=nopt at boot time.
+>   */
+> -#ifdef CONFIG_IOMMU_DEFAULT_PASSTHROUGH
+> -int iommu_pass_through __read_mostly = 1;
+> -#else
+> -int iommu_pass_through __read_mostly;
+> -#endif
+> +int iommu_pass_through __read_mostly =
+> +			IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH);
 
-> 
-> Thx.
-> 
+Let that line stick out.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+Good mailing practices for 400: avoid top-posting and trim the reply.
