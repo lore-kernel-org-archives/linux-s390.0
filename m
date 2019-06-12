@@ -1,77 +1,121 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:53850 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728365AbfFNNsf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:35 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 13/16] mm: rename alloc_pages_exact_nid to alloc_pages_exact_node
-Date: Fri, 14 Jun 2019 15:47:23 +0200
-Message-Id: <20190614134726.3827-14-hch@lst.de>
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
+Received: from mx1.redhat.com ([209.132.183.28]:50222 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726010AbfFLGa3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 02:30:29 -0400
+Date: Wed, 12 Jun 2019 08:30:17 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 2/8] s390/cio: introduce DMA pools to cio
+Message-ID: <20190612083017.0cbbe17b.cohuck@redhat.com>
+In-Reply-To: <20190606115127.55519-3-pasic@linux.ibm.com>
+References: <20190606115127.55519-1-pasic@linux.ibm.com>
+        <20190606115127.55519-3-pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
 
-This fits in with the naming scheme used by alloc_pages_node.
+On Thu,  6 Jun 2019 13:51:21 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/gfp.h | 2 +-
- mm/page_alloc.c     | 4 ++--
- mm/page_ext.c       | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+[just looked at it in the context of failed init]
 
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index fb07b503dc45..4274ea6bc72b 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -532,7 +532,7 @@ extern unsigned long get_zeroed_page(gfp_t gfp_mask);
- 
- void *alloc_pages_exact(size_t size, gfp_t gfp_mask);
- void free_pages_exact(void *virt, size_t size);
--void * __meminit alloc_pages_exact_nid(int nid, size_t size, gfp_t gfp_mask);
-+void * __meminit alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask);
- 
- #define __get_free_page(gfp_mask) \
- 		__get_free_pages((gfp_mask), 0)
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d66bc8abe0af..dd2fed66b656 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4888,7 +4888,7 @@ void *alloc_pages_exact(size_t size, gfp_t gfp_mask)
- EXPORT_SYMBOL(alloc_pages_exact);
- 
- /**
-- * alloc_pages_exact_nid - allocate an exact number of physically-contiguous
-+ * alloc_pages_exact_node - allocate an exact number of physically-contiguous
-  *			   pages on a node.
-  * @nid: the preferred node ID where memory should be allocated
-  * @size: the number of bytes to allocate
-@@ -4899,7 +4899,7 @@ EXPORT_SYMBOL(alloc_pages_exact);
-  *
-  * Return: pointer to the allocated area or %NULL in case of error.
-  */
--void * __meminit alloc_pages_exact_nid(int nid, size_t size, gfp_t gfp_mask)
-+void * __meminit alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask)
- {
- 	unsigned int order = get_order(size);
- 	struct page *p;
-diff --git a/mm/page_ext.c b/mm/page_ext.c
-index d8f1aca4ad43..bca6bb316714 100644
---- a/mm/page_ext.c
-+++ b/mm/page_ext.c
-@@ -215,7 +215,7 @@ static void *__meminit alloc_page_ext(size_t size, int nid)
- 	gfp_t flags = GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN;
- 	void *addr = NULL;
- 
--	addr = alloc_pages_exact_nid(nid, size, flags);
-+	addr = alloc_pages_exact_node(nid, size, flags);
- 	if (addr) {
- 		kmemleak_alloc(addr, size, 1, flags);
- 		return addr;
--- 
-2.20.1
+> +static void __gp_dma_free_dma(struct gen_pool *pool,
+> +			      struct gen_pool_chunk *chunk, void *data)
+
+Just to note: the 'pool' is mandated by the api for this callback.
+
+> +{
+> +	size_t chunk_size = chunk->end_addr - chunk->start_addr + 1;
+> +
+> +	dma_free_coherent((struct device *) data, chunk_size,
+> +			 (void *) chunk->start_addr,
+> +			 (dma_addr_t) chunk->phys_addr);
+> +}
+> +
+> +void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
+> +{
+> +	if (!gp_dma)
+> +		return;
+
+So this seems fine.
+
+> +	/* this is qite ugly but no better idea */
+> +	gen_pool_for_each_chunk(gp_dma, __gp_dma_free_dma, dma_dev);
+> +	gen_pool_destroy(gp_dma);
+> +}
+> +
+> +static int cio_dma_pool_init(void)
+> +{
+> +	/* No need to free up the resources: compiled in */
+> +	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
+> +	if (!cio_dma_pool)
+> +		return -ENOMEM;
+> +	return 0;
+> +}
+> +
+> +void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+> +			size_t size)
+> +{
+> +	dma_addr_t dma_addr;
+> +	unsigned long addr;
+> +	size_t chunk_size;
+> +
+
+I'd probably do a quick exit for !gp_dma here as well (just to be on
+the safe side).
+
+> +	addr = gen_pool_alloc(gp_dma, size);
+> +	while (!addr) {
+> +		chunk_size = round_up(size, PAGE_SIZE);
+> +		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+> +					 chunk_size, &dma_addr, CIO_DMA_GFP);
+> +		if (!addr)
+> +			return NULL;
+> +		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+> +		addr = gen_pool_alloc(gp_dma, size);
+> +	}
+> +	return (void *) addr;
+> +}
+> +
+> +void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+> +{
+> +	if (!cpu_addr)
+> +		return;
+
+This already makes it safe enough.
+
+> +	memset(cpu_addr, 0, size);
+> +	gen_pool_free(gp_dma, (unsigned long) cpu_addr, size);
+> +}
+> +
+> +/*
+> + * Allocate dma memory from the css global pool. Intended for memory not
+> + * specific to any single device within the css. The allocated memory
+> + * is not guaranteed to be 31-bit addressable.
+> + *
+> + * Caution: Not suitable for early stuff like console.
+> + */
+> +void *cio_dma_zalloc(size_t size)
+> +{
+
+If you check in the called function, you do not need to check here.
+Probably a matter of taste.
+
+> +	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
+> +}
+> +
+> +void cio_dma_free(void *cpu_addr, size_t size)
+> +{
+
+This one should be safe due to the check in the called function.
+
+> +	cio_gp_dma_free(cio_dma_pool, cpu_addr, size);
+> +}
+> +
+>  /*
+>   * Now that the driver core is running, we can setup our channel subsystem.
+>   * The struct subchannel's are created during probing.
