@@ -1,56 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34008 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:32962 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726485AbfFUOeO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:14 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 06/14] vfio-ccw: Adjust the first IDAW outside of the nested loops
-Date: Fri, 21 Jun 2019 16:33:47 +0200
-Message-Id: <20190621143355.29175-7-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
+        id S1728540AbfFLNdX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 09:33:23 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 3/4] s390/crypto: prng: Use -ENODEV instead of -EOPNOTSUPP
+Date: Wed, 12 Jun 2019 15:33:05 +0200
+Message-Id: <20190612133306.10231-4-david@redhat.com>
+In-Reply-To: <20190612133306.10231-1-david@redhat.com>
+References: <20190612133306.10231-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, David Hildenbrand <david@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-From: Eric Farman <farman@linux.ibm.com>
+Let's use the error value that is typically used if HW support is not
+available when trying to load a module - this is also what systemd's
+systemd-modules-load.service expects.
 
-Now that pfn_array_table[] is always an array of 1, it seems silly to
-check for the very first entry in an array in the middle of two nested
-loops, since we know it'll only ever happen once.
-
-Let's move this outside the loops to simplify things, even though
-the "k" variable is still necessary.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20190606202831.44135-7-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/crypto/prng.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 86a0e76ef2b5..ab9f8f0d1b44 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -201,11 +201,12 @@ static inline void pfn_array_table_idal_create_words(
- 		pa = pat->pat_pa + i;
- 		for (j = 0; j < pa->pa_nr; j++) {
- 			idaws[k] = pa->pa_pfn[j] << PAGE_SHIFT;
--			if (k == 0)
--				idaws[k] += pa->pa_iova & (PAGE_SIZE - 1);
- 			k++;
- 		}
- 	}
-+
-+	/* Adjust the first IDAW, since it may not start on a page boundary */
-+	idaws[0] += pat->pat_pa->pa_iova & (PAGE_SIZE - 1);
- }
+diff --git a/arch/s390/crypto/prng.c b/arch/s390/crypto/prng.c
+index 12cca467af7d..d977643fa627 100644
+--- a/arch/s390/crypto/prng.c
++++ b/arch/s390/crypto/prng.c
+@@ -824,7 +824,7 @@ static int __init prng_init(void)
  
+ 	/* check if the CPU has a PRNG */
+ 	if (!cpacf_query_func(CPACF_KMC, CPACF_KMC_PRNG))
+-		return -EOPNOTSUPP;
++		return -ENODEV;
  
+ 	/* check if TRNG subfunction is available */
+ 	if (cpacf_query_func(CPACF_PRNO, CPACF_PRNO_TRNG))
+@@ -837,7 +837,7 @@ static int __init prng_init(void)
+ 			if (prng_mode == PRNG_MODE_SHA512) {
+ 				pr_err("The prng module cannot "
+ 				       "start in SHA-512 mode\n");
+-				return -EOPNOTSUPP;
++				return -ENODEV;
+ 			}
+ 			prng_mode = PRNG_MODE_TDES;
+ 		} else
 -- 
-2.20.1
+2.21.0
