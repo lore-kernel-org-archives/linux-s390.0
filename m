@@ -1,60 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54208 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33364 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727383AbfFQDGe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 16 Jun 2019 23:06:34 -0400
-From: Ming Lei <ming.lei@redhat.com>
-Subject: [PATCH V4 10/16] s390: zfcp_fc: use sg helper to operate scatterlist
-Date: Mon, 17 Jun 2019 11:03:43 +0800
-Message-Id: <20190617030349.26415-11-ming.lei@redhat.com>
-In-Reply-To: <20190617030349.26415-1-ming.lei@redhat.com>
-References: <20190617030349.26415-1-ming.lei@redhat.com>
+        id S1726761AbfFLKQt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 06:16:49 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 0/1] vfio-ccw: bugfix
+Date: Wed, 12 Jun 2019 12:16:44 +0200
+Message-Id: <20190612101645.9439-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-scsi@vger.kernel.org, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Christoph Hellwig <hch@lst.de>, Jim Gill <jgill@vmware.com>, Cathy Avery <cavery@redhat.com>, "Ewan D . Milne" <emilne@redhat.com>, Brian King <brking@us.ibm.com>, James Smart <james.smart@broadcom.com>, "Juergen E . Fischer" <fischer@norbit.de>, Michael Schmitz <schmitzmic@gmail.com>, Finn Thain <fthain@telegraphics.com.au>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>, Benjamin Block <bblock@linux.ibm.com>, Ming Lei <ming.lei@redhat.com>, Steffen Maier <maier@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-Use the scatterlist iterators and remove direct indexing of the
-scatterlist array.
+The following changes since commit 753469a23b42d0c4a2b28de35826af74a4d554ab:
 
-This way allows us to pre-allocate one small scatterlist, which can be
-chained with one runtime allocated scatterlist if the pre-allocated one
-isn't enough for the whole request.
+  Merge tag 'vfio-ccw-20190603' of https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw into features (2019-06-04 15:04:53 +0200)
 
-Cc: Steffen Maier <maier@linux.ibm.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Acked-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
----
- drivers/s390/scsi/zfcp_fc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+are available in the Git repository at:
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 33eddb02ee30..b018b61bd168 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -620,7 +620,7 @@ static void zfcp_fc_sg_free_table(struct scatterlist *sg, int count)
- {
- 	int i;
- 
--	for (i = 0; i < count; i++, sg++)
-+	for (i = 0; i < count; i++, sg = sg_next(sg))
- 		if (sg)
- 			free_page((unsigned long) sg_virt(sg));
- 		else
-@@ -641,7 +641,7 @@ static int zfcp_fc_sg_setup_table(struct scatterlist *sg, int count)
- 	int i;
- 
- 	sg_init_table(sg, count);
--	for (i = 0; i < count; i++, sg++) {
-+	for (i = 0; i < count; i++, sg = sg_next(sg)) {
- 		addr = (void *) get_zeroed_page(GFP_KERNEL);
- 		if (!addr) {
- 			zfcp_fc_sg_free_table(sg, i);
+  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20190612
+
+for you to fetch changes up to 5398331c8c218cc9298fe95380b8b87a3a62defa:
+
+  vfio-ccw: Destroy kmem cache region on module exit (2019-06-04 17:32:01 +0200)
+
+----------------------------------------------------------------
+Fix a memory leak on exit.
+
+----------------------------------------------------------------
+
+Farhan Ali (1):
+  vfio-ccw: Destroy kmem cache region on module exit
+
+ drivers/s390/cio/vfio_ccw_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
+
 -- 
 2.20.1
