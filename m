@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
 From: YueHaibing <yuehaibing@huawei.com>
 Subject: [PATCH net-next] defconfigs: remove obsolete CONFIG_INET_XFRM_MODE_* and CONFIG_INET6_XFRM_MODE_*
-Date: Wed, 12 Jun 2019 15:06:41 +0800
-Message-ID: <20190612070641.15244-1-yuehaibing@huawei.com>
+Date: Wed, 12 Jun 2019 15:19:01 +0800
+Message-ID: <20190612071901.21736-1-yuehaibing@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux@armlinux.org.uk, fw@strlen.de, steffen.klassert@secunet.com, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, netdev@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
 
 These Kconfig options has been removed in
 commit 4c145dce2601 ("xfrm: make xfrm modes builtin")
