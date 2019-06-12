@@ -1,65 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50224 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726480AbfFUOe3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:29 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 14/14] vfio-ccw: Remove copy_ccw_from_iova()
-Date: Fri, 21 Jun 2019 16:33:55 +0200
-Message-Id: <20190621143355.29175-15-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:18137 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726010AbfFLG07 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Jun 2019 02:26:59 -0400
+Subject: Re: [PATCH v8 2/7] x86/dma: use IS_ENABLED() to simplify the code
+References: <20190530034831.4184-1-thunder.leizhen@huawei.com>
+ <20190530034831.4184-3-thunder.leizhen@huawei.com>
+ <20190612051624.GF32652@zn.tnic>
+From: "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>
+Message-ID: <bd743433-73e9-3cf1-c159-4371abebd989@huawei.com>
+Date: Wed, 12 Jun 2019 14:26:43 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190612051624.GF32652@zn.tnic>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>, Hanjun Guo <guohanjun@huawei.com>
 
-From: Eric Farman <farman@linux.ibm.com>
 
-Just to keep things tidy.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20190618202352.39702-6-farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+On 2019/6/12 13:16, Borislav Petkov wrote:
+> On Thu, May 30, 2019 at 11:48:26AM +0800, Zhen Lei wrote:
+>> This patch removes the ifdefs around CONFIG_IOMMU_DEFAULT_PASSTHROUGH to
+>> improve readablity.
+> 
+> Avoid having "This patch" or "This commit" in the commit message. It is
+> tautologically useless.
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 9a8bf06281e0..9cddc1288059 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -228,17 +228,6 @@ static long copy_from_iova(struct device *mdev,
- 	return l;
- }
- 
--static long copy_ccw_from_iova(struct channel_program *cp,
--			       struct ccw1 *to, u64 iova,
--			       unsigned long len)
--{
--	int ret;
--
--	ret = copy_from_iova(cp->mdev, to, iova, len * sizeof(struct ccw1));
--
--	return ret;
--}
--
- /*
-  * Helpers to operate ccwchain.
-  */
-@@ -435,7 +424,8 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 	int len;
- 
- 	/* Copy 2K (the most we support today) of possible CCWs */
--	len = copy_ccw_from_iova(cp, cp->guest_cp, cda, CCWCHAIN_LEN_MAX);
-+	len = copy_from_iova(cp->mdev, cp->guest_cp, cda,
-+			     CCWCHAIN_LEN_MAX * sizeof(struct ccw1));
- 	if (len)
- 		return len;
- 
--- 
-2.20.1
+OK, thanks.
+
+> 
+> Also, do
+> 
+> $ git grep 'This patch' Documentation/process
+> 
+> for more details.
+> 
+>> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+>> ---
+>>  arch/x86/kernel/pci-dma.c | 7 ++-----
+>>  1 file changed, 2 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+>> index dcd272dbd0a9330..9f2b19c35a060df 100644
+>> --- a/arch/x86/kernel/pci-dma.c
+>> +++ b/arch/x86/kernel/pci-dma.c
+>> @@ -43,11 +43,8 @@
+>>   * It is also possible to disable by default in kernel config, and enable with
+>>   * iommu=nopt at boot time.
+>>   */
+>> -#ifdef CONFIG_IOMMU_DEFAULT_PASSTHROUGH
+>> -int iommu_pass_through __read_mostly = 1;
+>> -#else
+>> -int iommu_pass_through __read_mostly;
+>> -#endif
+>> +int iommu_pass_through __read_mostly =
+>> +			IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH);
+> 
+> Let that line stick out.
+
+OK, I will merge them on the same line.
+
+> 
+> Thx.
+> 
