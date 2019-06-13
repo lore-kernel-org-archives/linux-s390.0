@@ -1,67 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:51937 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725857AbfFTFNa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jun 2019 01:13:30 -0400
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH RESEND 8/8] mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from mm_struct
-Date: Thu, 20 Jun 2019 01:03:28 -0400
-Message-Id: <20190620050328.8942-9-alex@ghiti.fr>
-In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
-References: <20190620050328.8942-1-alex@ghiti.fr>
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:41642 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727192AbfFMWjd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jun 2019 18:39:33 -0400
+Received: by mail-ed1-f68.google.com with SMTP id p15so486556eds.8
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jun 2019 15:39:32 -0700 (PDT)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH v4 3/5] iommu/dma-iommu: Handle deferred devices
+Date: Thu, 13 Jun 2019 23:38:58 +0100
+Message-Id: <20190613223901.9523-4-murphyt7@tcd.ie>
+In-Reply-To: <20190613223901.9523-1-murphyt7@tcd.ie>
+References: <20190613223901.9523-1-murphyt7@tcd.ie>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-Now that x86 and parisc do not use those fields anymore, remove them from
-mm code.
+Handle devices which defer their attach to the iommu in the dma-iommu api
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- include/linux/mm_types.h | 2 --
- mm/debug.c               | 4 ++--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/iommu/dma-iommu.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 1d1093474c1a..9a5935f9cc7e 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -364,11 +364,9 @@ struct mm_struct {
- 				unsigned long pgoff, unsigned long flags);
- #endif
- 		unsigned long mmap_base;	/* base of mmap area */
--		unsigned long mmap_legacy_base;	/* base of mmap area in bottom-up allocations */
- #ifdef CONFIG_HAVE_ARCH_COMPAT_MMAP_BASES
- 		/* Base adresses for compatible mmap() */
- 		unsigned long mmap_compat_base;
--		unsigned long mmap_compat_legacy_base;
- #endif
- 		unsigned long task_size;	/* size of task vm space */
- 		unsigned long highest_vm_end;	/* highest vma end address */
-diff --git a/mm/debug.c b/mm/debug.c
-index 8345bb6e4769..3ddffe1efcda 100644
---- a/mm/debug.c
-+++ b/mm/debug.c
-@@ -134,7 +134,7 @@ void dump_mm(const struct mm_struct *mm)
- #ifdef CONFIG_MMU
- 		"get_unmapped_area %px\n"
- #endif
--		"mmap_base %lu mmap_legacy_base %lu highest_vm_end %lu\n"
-+		"mmap_base %lu highest_vm_end %lu\n"
- 		"pgd %px mm_users %d mm_count %d pgtables_bytes %lu map_count %d\n"
- 		"hiwater_rss %lx hiwater_vm %lx total_vm %lx locked_vm %lx\n"
- 		"pinned_vm %llx data_vm %lx exec_vm %lx stack_vm %lx\n"
-@@ -162,7 +162,7 @@ void dump_mm(const struct mm_struct *mm)
- #ifdef CONFIG_MMU
- 		mm->get_unmapped_area,
- #endif
--		mm->mmap_base, mm->mmap_legacy_base, mm->highest_vm_end,
-+		mm->mmap_base, mm->highest_vm_end,
- 		mm->pgd, atomic_read(&mm->mm_users),
- 		atomic_read(&mm->mm_count),
- 		mm_pgtables_bytes(mm),
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index e64dbbcde63c..f303bbe20e51 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -22,6 +22,7 @@
+ #include <linux/pci.h>
+ #include <linux/scatterlist.h>
+ #include <linux/vmalloc.h>
++#include <linux/crash_dump.h>
+ 
+ struct iommu_dma_msi_page {
+ 	struct list_head	list;
+@@ -351,6 +352,21 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+ 	return iova_reserve_iommu_regions(dev, domain);
+ }
+ 
++static int handle_deferred_device(struct device *dev,
++	struct iommu_domain *domain)
++{
++	const struct iommu_ops *ops = domain->ops;
++
++	if (!is_kdump_kernel())
++		return 0;
++
++	if (unlikely(ops->is_attach_deferred &&
++		ops->is_attach_deferred(domain, dev)))
++		return iommu_attach_device(domain, dev);
++
++	return 0;
++}
++
+ /**
+  * dma_info_to_prot - Translate DMA API directions and attributes to IOMMU API
+  *                    page flags.
+@@ -462,6 +478,9 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+ 	size_t iova_off = 0;
+ 	dma_addr_t iova;
+ 
++	if (unlikely(handle_deferred_device(dev, domain)))
++		return DMA_MAPPING_ERROR;
++
+ 	if (cookie->type == IOMMU_DMA_IOVA_COOKIE) {
+ 		iova_off = iova_offset(&cookie->iovad, phys);
+ 		size = iova_align(&cookie->iovad, size + iova_off);
+@@ -583,6 +602,9 @@ static void *iommu_dma_alloc_remap(struct device *dev, size_t size,
+ 
+ 	*dma_handle = DMA_MAPPING_ERROR;
+ 
++	if (unlikely(handle_deferred_device(dev, domain)))
++		return NULL;
++
+ 	min_size = alloc_sizes & -alloc_sizes;
+ 	if (min_size < PAGE_SIZE) {
+ 		min_size = PAGE_SIZE;
+@@ -715,7 +737,7 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+ 	int prot = dma_info_to_prot(dir, coherent, attrs);
+ 	dma_addr_t dma_handle;
+ 
+-	dma_handle =__iommu_dma_map(dev, phys, size, prot);
++	dma_handle = __iommu_dma_map(dev, phys, size, prot);
+ 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+ 	    dma_handle != DMA_MAPPING_ERROR)
+ 		arch_sync_dma_for_device(dev, phys, size, dir);
+@@ -825,6 +847,9 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	unsigned long mask = dma_get_seg_boundary(dev);
+ 	int i;
+ 
++	if (unlikely(handle_deferred_device(dev, domain)))
++		return 0;
++
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+ 		iommu_dma_sync_sg_for_device(dev, sg, nents, dir);
+ 
 -- 
 2.20.1
