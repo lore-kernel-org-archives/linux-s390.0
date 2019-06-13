@@ -1,98 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:42726 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726076AbfFCVtf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jun 2019 17:49:35 -0400
-Date: Mon, 3 Jun 2019 21:49:32 +0000
-From: Wei Yang <richard.weiyang@gmail.com>
-Subject: Re: [PATCH v3 05/11] drivers/base/memory: Pass a block_id to
- init_memory_block()
-Message-ID: <20190603214932.3xsvxwiiutcve4tz@master>
-Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-6-david@redhat.com>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:18145 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731246AbfFMIno (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:44 -0400
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Subject: [PATCH v9 6/7] iommu/amd: add support for IOMMU default DMA mode build options
+Date: Thu, 13 Jun 2019 16:42:39 +0800
+Message-ID: <20190613084240.16768-7-thunder.leizhen@huawei.com>
+In-Reply-To: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+References: <20190613084240.16768-1-thunder.leizhen@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-6-david@redhat.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
 
-On Mon, May 27, 2019 at 01:11:46PM +0200, David Hildenbrand wrote:
->We'll rework hotplug_memory_register() shortly, so it no longer consumes
->pass a section.
->
->Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->Cc: "Rafael J. Wysocki" <rafael@kernel.org>
->Signed-off-by: David Hildenbrand <david@redhat.com>
->---
-> drivers/base/memory.c | 15 +++++++--------
-> 1 file changed, 7 insertions(+), 8 deletions(-)
->
->diff --git a/drivers/base/memory.c b/drivers/base/memory.c
->index f180427e48f4..f914fa6fe350 100644
->--- a/drivers/base/memory.c
->+++ b/drivers/base/memory.c
->@@ -651,21 +651,18 @@ int register_memory(struct memory_block *memory)
-> 	return ret;
-> }
-> 
->-static int init_memory_block(struct memory_block **memory,
->-			     struct mem_section *section, unsigned long state)
->+static int init_memory_block(struct memory_block **memory, int block_id,
->+			     unsigned long state)
-> {
-> 	struct memory_block *mem;
-> 	unsigned long start_pfn;
->-	int scn_nr;
-> 	int ret = 0;
-> 
-> 	mem = kzalloc(sizeof(*mem), GFP_KERNEL);
-> 	if (!mem)
-> 		return -ENOMEM;
-> 
->-	scn_nr = __section_nr(section);
->-	mem->start_section_nr =
->-			base_memory_block_id(scn_nr) * sections_per_block;
->+	mem->start_section_nr = block_id * sections_per_block;
-> 	mem->end_section_nr = mem->start_section_nr + sections_per_block - 1;
-> 	mem->state = state;
-> 	start_pfn = section_nr_to_pfn(mem->start_section_nr);
->@@ -694,7 +691,8 @@ static int add_memory_block(int base_section_nr)
-> 
-> 	if (section_count == 0)
-> 		return 0;
->-	ret = init_memory_block(&mem, __nr_to_section(section_nr), MEM_ONLINE);
->+	ret = init_memory_block(&mem, base_memory_block_id(base_section_nr),
->+				MEM_ONLINE);
+The default DMA mode of AMD IOMMU is LAZY, this patch make it can be set
+to STRICT at build time. It can be overridden by boot option.
 
-If my understanding is correct, section_nr could be removed too.
+There is no functional change.
 
-> 	if (ret)
-> 		return ret;
-> 	mem->section_count = section_count;
->@@ -707,6 +705,7 @@ static int add_memory_block(int base_section_nr)
->  */
-> int hotplug_memory_register(int nid, struct mem_section *section)
-> {
->+	int block_id = base_memory_block_id(__section_nr(section));
-> 	int ret = 0;
-> 	struct memory_block *mem;
-> 
->@@ -717,7 +716,7 @@ int hotplug_memory_register(int nid, struct mem_section *section)
-> 		mem->section_count++;
-> 		put_device(&mem->dev);
-> 	} else {
->-		ret = init_memory_block(&mem, section, MEM_OFFLINE);
->+		ret = init_memory_block(&mem, block_id, MEM_OFFLINE);
-> 		if (ret)
-> 			goto out;
-> 		mem->section_count++;
->-- 
->2.20.1
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+---
+ drivers/iommu/Kconfig          | 2 +-
+ drivers/iommu/amd_iommu_init.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index fd297b0e0330d27..70741fd73b07785 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -79,7 +79,7 @@ choice
+ 	prompt "IOMMU default DMA mode"
+ 	depends on IOMMU_API
+ 	default IOMMU_DEFAULT_PASSTHROUGH if (PPC_POWERNV && PCI)
+-	default IOMMU_DEFAULT_LAZY if (INTEL_IOMMU || S390_IOMMU)
++	default IOMMU_DEFAULT_LAZY if (AMD_IOMMU || INTEL_IOMMU || S390_IOMMU)
+ 	default IOMMU_DEFAULT_STRICT
+ 	help
+ 	  This option allows an IOMMU DMA mode to be chosen at build time, to
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 07d84dbab564e4d..b7d5c1757425946 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -154,7 +154,7 @@ struct ivmd_header {
+ 					   to handle */
+ LIST_HEAD(amd_iommu_unity_map);		/* a list of required unity mappings
+ 					   we find in ACPI */
+-bool amd_iommu_unmap_flush;		/* if true, flush on every unmap */
++bool amd_iommu_unmap_flush = IS_ENABLED(CONFIG_IOMMU_DEFAULT_STRICT);	/* if true, flush on every unmap */
+ 
+ LIST_HEAD(amd_iommu_list);		/* list of all AMD IOMMUs in the
+ 					   system */
 -- 
-Wei Yang
-Help you, Help me
+1.8.3
