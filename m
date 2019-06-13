@@ -1,63 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:39387 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbfFIUfs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Jun 2019 16:35:48 -0400
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] s390: mark __ctl_set_bit and __ctl_clear_bit as __always_inline
-Date: Sun,  9 Jun 2019 13:35:44 -0700
-Message-Id: <1560112544-10440-1-git-send-email-linux@roeck-us.net>
+Received: from foss.arm.com ([217.140.110.172]:42400 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731965AbfFMPWx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Jun 2019 11:22:53 -0400
+Subject: Re: [PATCH v4 3/3] kselftest: Extend vDSO selftest to clock_getres
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
+ <20190523112116.19233-4-vincenzo.frascino@arm.com>
+ <87lfyrp0d2.fsf@concordia.ellerman.id.au>
+ <afb7395f-43e9-c304-2db2-349e6727b687@arm.com>
+Message-ID: <5262a024-7af1-4792-ec74-4cb5f2b0e76c@arm.com>
+Date: Thu, 13 Jun 2019 16:22:49 +0100
+MIME-Version: 1.0
+In-Reply-To: <afb7395f-43e9-c304-2db2-349e6727b687@arm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+To: Michael Ellerman <mpe@ellerman.id.au>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@arndb.de>
 
-s390:tinyconfig fails to build with gcc 8.3.0.
+Hi Michael,
 
-arch/s390/include/asm/ctl_reg.h:52:2: error: impossible constraint in 'asm'
-  asm volatile(       \
-  ^~~
-arch/s390/include/asm/ctl_reg.h:62:2: note: in expansion of macro '__ctl_store'
-  __ctl_store(reg, cr, cr);
-  ^~~~~~~~~~~
-s390/include/asm/ctl_reg.h:41:2: error: impossible constraint in 'asm'
-  asm volatile(       \
-  ^~~
-arch/s390/include/asm/ctl_reg.h:64:2:
-note: in expansion of macro '__ctl_load'
-  __ctl_load(reg, cr, cr);
-  ^~~~~~~~~~
+I wanted to check with you if you had time to have a look at my new version (v5)
+of the patches with the fixed test, and if they are ready to be merged or if
+there is anything else I can do.
 
-Marking __ctl_set_bit and __ctl_clear_bit as __always_inline fixes the
-problem.
+Thanks and Regards,
+Vincenzo
 
-Fixes: 9012d011660e ("compiler: allow all arches to enable CONFIG_OPTIMIZE_INLINING")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- arch/s390/include/asm/ctl_reg.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/include/asm/ctl_reg.h b/arch/s390/include/asm/ctl_reg.h
-index 4600453536c2..3bda757317cf 100644
---- a/arch/s390/include/asm/ctl_reg.h
-+++ b/arch/s390/include/asm/ctl_reg.h
-@@ -55,7 +55,7 @@
- 		: "i" (low), "i" (high));				\
- } while (0)
- 
--static inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
-+static __always_inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
- {
- 	unsigned long reg;
- 
-@@ -64,7 +64,7 @@ static inline void __ctl_set_bit(unsigned int cr, unsigned int bit)
- 	__ctl_load(reg, cr, cr);
- }
- 
--static inline void __ctl_clear_bit(unsigned int cr, unsigned int bit)
-+static __always_inline void __ctl_clear_bit(unsigned int cr, unsigned int bit)
- {
- 	unsigned long reg;
- 
--- 
-2.7.4
+On 28/05/2019 12:57, Vincenzo Frascino wrote:
+> Hi Michael,
+> 
+> thank you for your reply.
+> 
+> On 28/05/2019 07:19, Michael Ellerman wrote:
+>> Vincenzo Frascino <vincenzo.frascino@arm.com> writes:
+>>
+>>> The current version of the multiarch vDSO selftest verifies only
+>>> gettimeofday.
+>>>
+>>> Extend the vDSO selftest to clock_getres, to verify that the
+>>> syscall and the vDSO library function return the same information.
+>>>
+>>> The extension has been used to verify the hrtimer_resoltion fix.
+>>
+>> This is passing for me even without patch 1 applied, shouldn't it fail
+>> without the fix? What am I missing?
+>>
+> 
+> This is correct, because during the refactoring process I missed an "n" :)
+> 
+> if·((x.tv_sec·!=·y.tv_sec)·||·(x.tv_sec·!=·y.tv_sec))
+> 
+> Should be:
+> 
+> if·((x.tv_sec·!=·y.tv_sec)·||·(x.tv_nsec·!=·y.tv_nsec))
+> 
+> My mistake, I am going to fix the test and re-post v5 of this set.
+> 
+> Without my patch if you pass "highres=off" to the kernel (as a command line
+> parameter) it leads to a broken implementation of clock_getres since the value
+> of CLOCK_REALTIME_RES does not change at runtime.
+> 
+> Expected result (with highres=off):
+> 
+> # uname -r
+> 5.2.0-rc2
+> # ./vdso_clock_getres
+> clock_id: CLOCK_REALTIME [FAIL]
+> clock_id: CLOCK_BOOTTIME [PASS]
+> clock_id: CLOCK_TAI [PASS]
+> clock_id: CLOCK_REALTIME_COARSE [PASS]
+> clock_id: CLOCK_MONOTONIC [FAIL]
+> clock_id: CLOCK_MONOTONIC_RAW [PASS]
+> clock_id: CLOCK_MONOTONIC_COARSE [PASS]
+> 
+> The reason of this behavior is that the only clocks supported by getres on
+> powerpc are CLOCK_REALTIME and CLOCK_MONOTONIC, the rest on the clocks use
+> always syscalls.
+> 
+>> # uname -r
+>> 5.2.0-rc2-gcc-8.2.0
+>>
+>> # ./vdso_clock_getres
+>> clock_id: CLOCK_REALTIME [PASS]
+>> clock_id: CLOCK_BOOTTIME [PASS]
+>> clock_id: CLOCK_TAI [PASS]
+>> clock_id: CLOCK_REALTIME_COARSE [PASS]
+>> clock_id: CLOCK_MONOTONIC [PASS]
+>> clock_id: CLOCK_MONOTONIC_RAW [PASS]
+>> clock_id: CLOCK_MONOTONIC_COARSE [PASS]
+>>
+>> cheers
+>>
+>>> Cc: Shuah Khan <shuah@kernel.org>
+>>> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+>>> ---
+>>>
+>>> Note: This patch is independent from the others in this series, hence it
+>>> can be merged singularly by the kselftest maintainers.
+>>>
+>>>  tools/testing/selftests/vDSO/Makefile         |   2 +
+>>>  .../selftests/vDSO/vdso_clock_getres.c        | 124 ++++++++++++++++++
+>>>  2 files changed, 126 insertions(+)
+>>>  create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
+> 
