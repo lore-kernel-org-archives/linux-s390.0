@@ -1,173 +1,99 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48048 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726519AbfFUOeW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:22 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 10/14] vfio-ccw: Move guest_cp storage into common struct
-Date: Fri, 21 Jun 2019 16:33:51 +0200
-Message-Id: <20190621143355.29175-11-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v4 4/7] s390: vfio-ap: implement in-use callback for vfio_ap driver
+Date: Thu, 13 Jun 2019 15:39:37 -0400
+In-Reply-To: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+Message-Id: <1560454780-20359-5-git-send-email-akrowiak@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-From: Eric Farman <farman@linux.ibm.com>
+Let's implement the callback to indicate when an APQN
+is in use by the vfio_ap device driver. The callback is
+invoked whenever a change to the apmask or aqmask may
+result in one or APQNs being removed from the driver. The
+vfio_ap device driver will indicate a resource is in use
+if any of the removed APQNs are assigned to any of the matrix
+mdev devices.
 
-Rather than allocating/freeing a piece of memory every time
-we try to figure out how long a CCW chain is, let's use a piece
-of memory allocated for each device.
+To ensure that the AP bus apmask/aqmask interfaces are used to control
+which AP queues get manually bound to or unbound from the
+vfio_ap device driver, the bind/unbind sysfs interfaces will
+be disabled for the vfio_ap device driver. The reasons for this are:
 
-The io_mutex added with commit 4f76617378ee9 ("vfio-ccw: protect
-the I/O region") is held for the duration of the VFIO_CCW_EVENT_IO_REQ
-event that accesses/uses this space, so there should be no race
-concerns with another CPU attempting an (unexpected) SSCH for the
-same device.
+* To prevent unbinding an AP queue device from the vfio_ap device
+  driver representing a queue that is assigned to an mdev device.
 
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20190618202352.39702-2-farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+* To enforce the policy that the the AP resources must first be
+  unassigned from the mdev device - which will hot unplug them from a
+  guest using the mdev device - before changing ownership of APQNs
+  from the vfio_ap driver to a zcrypt driver. This ensures that private
+  crypto data intended for the guest will never be accessible from the
+  host.
+
+* It takes advantage of the AP architecture to prevent dynamic changes
+  to the LPAR configuration using the SE or SCLP commands from
+  compromising the guest crypto devices. For example:
+
+  * Even if an adapter is configured off, if and when it is configured
+    back on, the queue devices associated with the adapter will be bound
+    back to the vfio_ap driver and the queues will automatically be
+    available to a guest using the mdev to which the APQN of the queue
+    device is assigned.
+
+  * If adapters or domains are dynamically unassigned from the LPAR
+    in which the linux guest is running, effective masking will
+    prevent access to the AP resources by a guest using them.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c  | 23 ++++-------------------
- drivers/s390/cio/vfio_ccw_cp.h  |  7 +++++++
- drivers/s390/cio/vfio_ccw_drv.c |  7 +++++++
- 3 files changed, 18 insertions(+), 19 deletions(-)
+ drivers/s390/crypto/vfio_ap_drv.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 90d86e1354c1..f358502376be 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -16,12 +16,6 @@
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 3c60df70891b..7b52393007c6 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -164,6 +164,28 @@ static void vfio_ap_matrix_dev_destroy(void)
+ 	root_device_unregister(root_device);
+ }
  
- #include "vfio_ccw_cp.h"
- 
--/*
-- * Max length for ccw chain.
-- * XXX: Limit to 256, need to check more?
-- */
--#define CCWCHAIN_LEN_MAX	256
--
- struct pfn_array {
- 	/* Starting guest physical I/O address. */
- 	unsigned long		pa_iova;
-@@ -386,7 +380,7 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
-  */
- static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
++static bool vfio_ap_resource_in_use(unsigned long *apm, unsigned long *aqm)
++{
++	bool in_use = false;
++	struct ap_matrix_mdev *matrix_mdev;
++
++	mutex_lock(&matrix_dev->lock);
++
++	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++		if (bitmap_intersects(matrix_mdev->matrix.apm,
++				      apm, AP_DEVICES) &&
++		    bitmap_intersects(matrix_mdev->matrix.aqm,
++				      aqm, AP_DOMAINS)) {
++			in_use = true;
++			break;
++		}
++	}
++
++	mutex_unlock(&matrix_dev->lock);
++
++	return in_use;
++}
++
+ static int __init vfio_ap_init(void)
  {
--	struct ccw1 *ccw, *p;
-+	struct ccw1 *ccw = cp->guest_cp;
- 	int cnt;
+ 	int ret;
+@@ -179,7 +201,9 @@ static int __init vfio_ap_init(void)
+ 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
+ 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
+ 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
++	vfio_ap_drv.in_use = vfio_ap_resource_in_use;
+ 	vfio_ap_drv.ids = ap_queue_ids;
++	vfio_ap_drv.driver.suppress_bind_attrs = true;
  
- 	/*
-@@ -394,15 +388,9 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 	 * Currently the chain length is limited to CCWCHAIN_LEN_MAX (256).
- 	 * So copying 2K is enough (safe).
- 	 */
--	p = ccw = kcalloc(CCWCHAIN_LEN_MAX, sizeof(*ccw), GFP_KERNEL);
--	if (!ccw)
--		return -ENOMEM;
--
- 	cnt = copy_ccw_from_iova(cp, ccw, iova, CCWCHAIN_LEN_MAX);
--	if (cnt) {
--		kfree(ccw);
-+	if (cnt)
- 		return cnt;
--	}
- 
- 	cnt = 0;
- 	do {
-@@ -413,10 +401,8 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 		 * orb specified one of the unsupported formats, we defer
- 		 * checking for IDAWs in unsupported formats to here.
- 		 */
--		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
--			kfree(p);
-+		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
- 			return -EOPNOTSUPP;
--		}
- 
- 		/*
- 		 * We want to keep counting if the current CCW has the
-@@ -435,7 +421,6 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
- 	if (cnt == CCWCHAIN_LEN_MAX + 1)
- 		cnt = -EINVAL;
- 
--	kfree(p);
- 	return cnt;
- }
- 
-@@ -461,7 +446,7 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 	struct ccwchain *chain;
- 	int len, ret;
- 
--	/* Get chain length. */
-+	/* Copy the chain from cda to cp, and count the CCWs in it */
- 	len = ccwchain_calc_length(cda, cp);
- 	if (len < 0)
- 		return len;
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
-index 3c20cd208da5..7cdc38049033 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -16,6 +16,12 @@
- 
- #include "orb.h"
- 
-+/*
-+ * Max length for ccw chain.
-+ * XXX: Limit to 256, need to check more?
-+ */
-+#define CCWCHAIN_LEN_MAX	256
-+
- /**
-  * struct channel_program - manage information for channel program
-  * @ccwchain_list: list head of ccwchains
-@@ -32,6 +38,7 @@ struct channel_program {
- 	union orb orb;
- 	struct device *mdev;
- 	bool initialized;
-+	struct ccw1 *guest_cp;
- };
- 
- extern int cp_init(struct channel_program *cp, struct device *mdev,
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 66a66ac1f3d1..34a9a5e3fd36 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -129,6 +129,11 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (!private)
- 		return -ENOMEM;
- 
-+	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
-+				       GFP_KERNEL);
-+	if (!private->cp.guest_cp)
-+		goto out_free;
-+
- 	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
- 					       GFP_KERNEL | GFP_DMA);
- 	if (!private->io_region)
-@@ -169,6 +174,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
- 	if (private->io_region)
- 		kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+	kfree(private->cp.guest_cp);
- 	kfree(private);
- 	return ret;
- }
-@@ -185,6 +191,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
- 
- 	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
- 	kmem_cache_free(vfio_ccw_io_region, private->io_region);
-+	kfree(private->cp.guest_cp);
- 	kfree(private);
- 
- 	return 0;
+ 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+ 	if (ret) {
 -- 
-2.20.1
+2.7.4
