@@ -1,122 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36460 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727320AbfFELtJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Jun 2019 07:49:09 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x55BlA0S022075
-        for <linux-s390@vger.kernel.org>; Wed, 5 Jun 2019 07:49:08 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2sx9nf8m4e-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 05 Jun 2019 07:49:08 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 5 Jun 2019 12:49:06 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v3 net 2/4] s390/qeth: check dst entry before use
-Date: Wed,  5 Jun 2019 13:48:49 +0200
-In-Reply-To: <20190605114851.56641-1-jwi@linux.ibm.com>
-References: <20190605114851.56641-1-jwi@linux.ibm.com>
-Message-Id: <20190605114851.56641-3-jwi@linux.ibm.com>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:18565 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731238AbfFMInd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:33 -0400
+From: Zhen Lei <thunder.leizhen@huawei.com>
+Subject: [PATCH v9 3/7] s390/pci: add support for IOMMU default DMA mode build options
+Date: Thu, 13 Jun 2019 16:42:36 +0800
+Message-ID: <20190613084240.16768-4-thunder.leizhen@huawei.com>
+In-Reply-To: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+References: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
 
-While qeth_l3 uses netif_keep_dst() to hold onto the dst, a skb's dst
-may still have been obsoleted (via dst_dev_put()) by the time that we
-end up using it. The dst then points to the loopback interface, which
-means the neighbour lookup in qeth_l3_get_cast_type() determines a bogus
-cast type of RTN_BROADCAST.
-For IQD interfaces this causes us to place such skbs on the wrong
-HW queue, resulting in TX errors.
+The default DMA mode is LAZY on s390, this patch make it can be set to
+STRICT at build time. It can be overridden by boot option.
 
-Fix-up the various call sites to first validate the dst entry with
-dst_check(), and fall back accordingly.
+There is no functional change.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-by: Sebastian Ott <sebott@linux.ibm.com>
 ---
-v1 -> v2: prefer dst_check() over dst->obsolete (davem)
-v2 -> v3: use the dst entry that dst_check() returns (davem)
+ arch/s390/pci/pci_dma.c | 2 +-
+ drivers/iommu/Kconfig   | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
- drivers/s390/net/qeth_l3_main.c | 30 +++++++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 2df67abdfde7..13bf3e2e9cea 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1888,13 +1888,20 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
+index 9e52d1527f71495..784ad1e0acecfb1 100644
+--- a/arch/s390/pci/pci_dma.c
++++ b/arch/s390/pci/pci_dma.c
+@@ -17,7 +17,7 @@
  
- static int qeth_l3_get_cast_type(struct sk_buff *skb)
+ static struct kmem_cache *dma_region_table_cache;
+ static struct kmem_cache *dma_page_table_cache;
+-static int s390_iommu_strict;
++static int s390_iommu_strict = IS_ENABLED(CONFIG_IOMMU_DEFAULT_STRICT);
+ 
+ static int zpci_refresh_global(struct zpci_dev *zdev)
  {
-+	int ipv = qeth_get_ip_version(skb);
- 	struct neighbour *n = NULL;
- 	struct dst_entry *dst;
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index fe715fb295c6ed2..a8dd69d175fb3c6 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -78,6 +78,7 @@ config IOMMU_DEBUGFS
+ choice
+ 	prompt "IOMMU default DMA mode"
+ 	depends on IOMMU_API
++	default IOMMU_DEFAULT_LAZY if S390_IOMMU
+ 	default IOMMU_DEFAULT_STRICT
+ 	help
+ 	  This option allows an IOMMU DMA mode to be chosen at build time, to
+@@ -89,6 +90,7 @@ choice
  
- 	rcu_read_lock();
- 	dst = skb_dst(skb);
--	if (dst)
--		n = dst_neigh_lookup_skb(dst, skb);
-+	if (dst) {
-+		struct rt6_info *rt = (struct rt6_info *) dst;
-+
-+		dst = dst_check(dst, (ipv == 6) ? rt6_get_cookie(rt) : 0);
-+		if (dst)
-+			n = dst_neigh_lookup_skb(dst, skb);
-+	}
-+
- 	if (n) {
- 		int cast_type = n->type;
- 
-@@ -1909,7 +1916,7 @@ static int qeth_l3_get_cast_type(struct sk_buff *skb)
- 	rcu_read_unlock();
- 
- 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
--	switch (qeth_get_ip_version(skb)) {
-+	switch (ipv) {
- 	case 4:
- 		if (ipv4_is_lbcast(ip_hdr(skb)->daddr))
- 			return RTN_BROADCAST;
-@@ -1942,6 +1949,7 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 	struct qeth_hdr_layer3 *l3_hdr = &hdr->hdr.l3;
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
- 	struct qeth_card *card = queue->card;
-+	struct dst_entry *dst;
- 
- 	hdr->hdr.l3.length = data_len;
- 
-@@ -1987,15 +1995,27 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 	}
- 
- 	rcu_read_lock();
-+	dst = skb_dst(skb);
-+
- 	if (ipv == 4) {
--		struct rtable *rt = skb_rtable(skb);
-+		struct rtable *rt;
-+
-+		if (dst)
-+			dst = dst_check(dst, 0);
-+		rt = (struct rtable *) dst;
- 
- 		*((__be32 *) &hdr->hdr.l3.next_hop.ipv4.addr) = (rt) ?
- 				rt_nexthop(rt, ip_hdr(skb)->daddr) :
- 				ip_hdr(skb)->daddr;
- 	} else {
- 		/* IPv6 */
--		const struct rt6_info *rt = skb_rt6_info(skb);
-+		struct rt6_info *rt;
-+
-+		if (dst) {
-+			rt = (struct rt6_info *) dst;
-+			dst = dst_check(dst, rt6_get_cookie(rt));
-+		}
-+		rt = (struct rt6_info *) dst;
- 
- 		if (rt && !ipv6_addr_any(&rt->rt6i_gateway))
- 			l3_hdr->next_hop.ipv6_addr = rt->rt6i_gateway;
+ config IOMMU_DEFAULT_PASSTHROUGH
+ 	bool "passthrough"
++	depends on !S390_IOMMU
+ 	help
+ 	  In this mode, the DMA access through IOMMU without any addresses
+ 	  translation. That means, the wrong or illegal DMA access can not
 -- 
-2.17.1
+1.8.3
