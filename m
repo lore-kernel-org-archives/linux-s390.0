@@ -1,211 +1,177 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:39341 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbfFDWHU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 18:07:20 -0400
-Date: Tue, 4 Jun 2019 22:07:15 +0000
-From: Wei Yang <richard.weiyang@gmail.com>
-Subject: Re: [PATCH v3 09/11] mm/memory_hotplug: Remove memory block devices
- before arch_remove_memory()
-Message-ID: <20190604220715.d4d2ctwjk25vd5sq@master>
-Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-10-david@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-10-david@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40780 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729376AbfFMTkX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Jun 2019 15:40:23 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v4 0/7] s390: vfio-ap: dynamic configuration support
+Date: Thu, 13 Jun 2019 15:39:33 -0400
+Message-Id: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "mike.travis@hpe.com" <mike.travis@hpe.com>, Andrew Banman <andrew.banman@hpe.com>, Ingo Molnar <mingo@kernel.org>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Oscar Salvador <osalvador@suse.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Arun KS <arunks@codeaurora.org>, Mathieu Malaterre <malat@debian.org>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-On Mon, May 27, 2019 at 01:11:50PM +0200, David Hildenbrand wrote:
->Let's factor out removing of memory block devices, which is only
->necessary for memory added via add_memory() and friends that created
->memory block devices. Remove the devices before calling
->arch_remove_memory().
->
->This finishes factoring out memory block device handling from
->arch_add_memory() and arch_remove_memory().
->
->Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->Cc: "Rafael J. Wysocki" <rafael@kernel.org>
->Cc: David Hildenbrand <david@redhat.com>
->Cc: "mike.travis@hpe.com" <mike.travis@hpe.com>
->Cc: Andrew Morton <akpm@linux-foundation.org>
->Cc: Andrew Banman <andrew.banman@hpe.com>
->Cc: Ingo Molnar <mingo@kernel.org>
->Cc: Alex Deucher <alexander.deucher@amd.com>
->Cc: "David S. Miller" <davem@davemloft.net>
->Cc: Mark Brown <broonie@kernel.org>
->Cc: Chris Wilson <chris@chris-wilson.co.uk>
->Cc: Oscar Salvador <osalvador@suse.de>
->Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
->Cc: Michal Hocko <mhocko@suse.com>
->Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
->Cc: Arun KS <arunks@codeaurora.org>
->Cc: Mathieu Malaterre <malat@debian.org>
->Reviewed-by: Dan Williams <dan.j.williams@intel.com>
->Signed-off-by: David Hildenbrand <david@redhat.com>
->---
-> drivers/base/memory.c  | 37 ++++++++++++++++++-------------------
-> drivers/base/node.c    | 11 ++++++-----
-> include/linux/memory.h |  2 +-
-> include/linux/node.h   |  6 ++----
-> mm/memory_hotplug.c    |  5 +++--
-> 5 files changed, 30 insertions(+), 31 deletions(-)
->
->diff --git a/drivers/base/memory.c b/drivers/base/memory.c
->index 5a0370f0c506..f28efb0bf5c7 100644
->--- a/drivers/base/memory.c
->+++ b/drivers/base/memory.c
->@@ -763,32 +763,31 @@ int create_memory_block_devices(unsigned long start, unsigned long size)
-> 	return ret;
-> }
-> 
->-void unregister_memory_section(struct mem_section *section)
->+/*
->+ * Remove memory block devices for the given memory area. Start and size
->+ * have to be aligned to memory block granularity. Memory block devices
->+ * have to be offline.
->+ */
->+void remove_memory_block_devices(unsigned long start, unsigned long size)
-> {
->+	const int start_block_id = pfn_to_block_id(PFN_DOWN(start));
->+	const int end_block_id = pfn_to_block_id(PFN_DOWN(start + size));
-> 	struct memory_block *mem;
->+	int block_id;
-> 
->-	if (WARN_ON_ONCE(!present_section(section)))
->+	if (WARN_ON_ONCE(!IS_ALIGNED(start, memory_block_size_bytes()) ||
->+			 !IS_ALIGNED(size, memory_block_size_bytes())))
-> 		return;
-> 
-> 	mutex_lock(&mem_sysfs_mutex);
->-
->-	/*
->-	 * Some users of the memory hotplug do not want/need memblock to
->-	 * track all sections. Skip over those.
->-	 */
->-	mem = find_memory_block(section);
->-	if (!mem)
->-		goto out_unlock;
->-
->-	unregister_mem_sect_under_nodes(mem, __section_nr(section));
->-
->-	mem->section_count--;
->-	if (mem->section_count == 0)
->+	for (block_id = start_block_id; block_id != end_block_id; block_id++) {
->+		mem = find_memory_block_by_id(block_id, NULL);
->+		if (WARN_ON_ONCE(!mem))
->+			continue;
->+		mem->section_count = 0;
+The current design for AP pass-through does not support making dynamic
+changes to the AP matrix of a running guest resulting in three deficiencies
+this patch series is intended to mitigate:
 
-Is this step necessary?
+1. Adapters, domains and control domains can not be added to or removed
+   from a running guest. In order to modify a guest's AP configuration,
+   the guest must be terminated; only then can AP resources be assigned
+   to or unassigned from the guest's matrix mdev. The new AP configuration
+   becomes available to the guest when it is subsequently restarted.
 
->+		unregister_memory_block_under_nodes(mem);
-> 		unregister_memory(mem);
->-	else
->-		put_device(&mem->dev);
->-
->-out_unlock:
->+	}
-> 	mutex_unlock(&mem_sysfs_mutex);
-> }
-> 
->diff --git a/drivers/base/node.c b/drivers/base/node.c
->index 8598fcbd2a17..04fdfa99b8bc 100644
->--- a/drivers/base/node.c
->+++ b/drivers/base/node.c
->@@ -801,9 +801,10 @@ int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
-> 	return 0;
-> }
-> 
->-/* unregister memory section under all nodes that it spans */
->-int unregister_mem_sect_under_nodes(struct memory_block *mem_blk,
->-				    unsigned long phys_index)
->+/*
->+ * Unregister memory block device under all nodes that it spans.
->+ */
->+int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
-> {
-> 	NODEMASK_ALLOC(nodemask_t, unlinked_nodes, GFP_KERNEL);
-> 	unsigned long pfn, sect_start_pfn, sect_end_pfn;
->@@ -816,8 +817,8 @@ int unregister_mem_sect_under_nodes(struct memory_block *mem_blk,
-> 		return -ENOMEM;
-> 	nodes_clear(*unlinked_nodes);
-> 
->-	sect_start_pfn = section_nr_to_pfn(phys_index);
->-	sect_end_pfn = sect_start_pfn + PAGES_PER_SECTION - 1;
->+	sect_start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
->+	sect_end_pfn = section_nr_to_pfn(mem_blk->end_section_nr);
-> 	for (pfn = sect_start_pfn; pfn <= sect_end_pfn; pfn++) {
-> 		int nid;
-> 
->diff --git a/include/linux/memory.h b/include/linux/memory.h
->index db3e8567f900..f26a5417ec5d 100644
->--- a/include/linux/memory.h
->+++ b/include/linux/memory.h
->@@ -112,7 +112,7 @@ extern void unregister_memory_notifier(struct notifier_block *nb);
-> extern int register_memory_isolate_notifier(struct notifier_block *nb);
-> extern void unregister_memory_isolate_notifier(struct notifier_block *nb);
-> int create_memory_block_devices(unsigned long start, unsigned long size);
->-extern void unregister_memory_section(struct mem_section *);
->+void remove_memory_block_devices(unsigned long start, unsigned long size);
-> extern int memory_dev_init(void);
-> extern int memory_notify(unsigned long val, void *v);
-> extern int memory_isolate_notify(unsigned long val, void *v);
->diff --git a/include/linux/node.h b/include/linux/node.h
->index 1a557c589ecb..02a29e71b175 100644
->--- a/include/linux/node.h
->+++ b/include/linux/node.h
->@@ -139,8 +139,7 @@ extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
-> extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
-> extern int register_mem_sect_under_node(struct memory_block *mem_blk,
-> 						void *arg);
->-extern int unregister_mem_sect_under_nodes(struct memory_block *mem_blk,
->-					   unsigned long phys_index);
->+extern int unregister_memory_block_under_nodes(struct memory_block *mem_blk);
-> 
-> extern int register_memory_node_under_compute_node(unsigned int mem_nid,
-> 						   unsigned int cpu_nid,
->@@ -176,8 +175,7 @@ static inline int register_mem_sect_under_node(struct memory_block *mem_blk,
-> {
-> 	return 0;
-> }
->-static inline int unregister_mem_sect_under_nodes(struct memory_block *mem_blk,
->-						  unsigned long phys_index)
->+static inline int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
-> {
-> 	return 0;
-> }
->diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->index 9a92549ef23b..82136c5b4c5f 100644
->--- a/mm/memory_hotplug.c
->+++ b/mm/memory_hotplug.c
->@@ -520,8 +520,6 @@ static void __remove_section(struct zone *zone, struct mem_section *ms,
-> 	if (WARN_ON_ONCE(!valid_section(ms)))
-> 		return;
-> 
->-	unregister_memory_section(ms);
->-
-> 	scn_nr = __section_nr(ms);
-> 	start_pfn = section_nr_to_pfn((unsigned long)scn_nr);
-> 	__remove_zone(zone, start_pfn);
->@@ -1845,6 +1843,9 @@ void __ref __remove_memory(int nid, u64 start, u64 size)
-> 	memblock_free(start, size);
-> 	memblock_remove(start, size);
-> 
->+	/* remove memory block devices before removing memory */
->+	remove_memory_block_devices(start, size);
->+
-> 	arch_remove_memory(nid, start, size, NULL);
-> 	__release_memory_resource(start, size);
-> 
->-- 
->2.20.1
+2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+   be modified by a root user without any restrictions. A change to either
+   mask can result in AP queue devices being unbound from the vfio_ap
+   device driver and bound to a zcrypt device driver even if a guest is
+   using the queues, thus giving the host access to the guest's private
+   crypto data and vice versa.
+
+3. The APQNs derived from the Cartesian product of the APIDs of the
+   adapters and APQIs of the domains assigned to a matrix mdev must
+   an AP queue device bound to the vfio_ap device driver. 
+
+This patch series introduces the following changes to the current design
+to alleviate the shortcomings described above as well as to implement more
+of the AP architecture:
+
+1. A root user will be prevented from making changes to the AP bus's
+   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the ownership of an APQN
+   changes from the vfio_ap device driver to a zcrypt driver if the APQN is
+   assigned to a matrix mdev.
+
+2. The sysfs bind/unbind interfaces will be disabled for the vfio_ap device
+   driver.
+
+3. Allow AP resources to be assigned to or removed from a matrix mdev
+   while a guest is using it and hot plug the resource into or hot unplug
+   the resource from the running guest.
+
+4. Allow assignment of an AP adapter or domain to a matrix mdev even if it
+   results in assignment of an APQN that does not reference an AP queue
+   device bound to the vfio_ap device driver, as long as the APQN is owned
+   by the vfio_ap driver. Allowing over-provisioning of AP resources
+   better models the architecture which does not preclude assigning AP
+   resources that are not yet available in the system.
+
+1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+----------------------------------------------------------
+Due to the extremely sensitive nature of cryptographic data, it is
+imperative that great care be taken to ensure that such data is secured.
+Allowing a root user, either inadvertently or maliciously, to configure
+these masks such that a queue is shared between the host and a guest is
+not only avoidable, it is advisable. It was suggested that this scenario
+is better handled in user space with management software, but that does
+not preclude a malicious administrator from using the sysfs interfaces
+to gain access to a guest's crypto data. It was also suggested that this
+scenario could be avoided by taking access to the adapter away from the
+guest and zeroing out the queues prior to the vfio_ap driver releasing the
+device; however, stealing an adapter in use from a guest as a by-product
+of an operation is bad and will likely cause problems for the guest
+unnecessarily. It was decided that the most effective solution with the
+least number of negative side effects is to prevent the situation at the
+source. It is not out of the ordinary for the kernel to prevent a root
+user from performing an action under certain circumstances; for example,
+a root user is prevented from removing a module until all references to it
+are given up. An even more pertinent example is the device driver bind
+interface. Binding a device to a driver that does not meet the match
+criteria will be rejected by the kernel.
+
+2. Rationale for disabling bind/unbind interfaces for vfio_ap driver:
+-----------------------------------------------------------------
+By disabling the bind/unbind interfaces for the vfio_ap device driver, 
+the user is forced to use the AP bus's apmask/aqmask interfaces to control
+the probing and removing of AP queues. There are two primary reasons for
+disabling the bind/unbind interfaces for the vfio_ap device driver:
+
+* The device architecture does not provide a means to prevent unbinding
+  a device from a device driver, so an AP queue device can be unbound
+  from the vfio_ap driver even the queue is in use by a guest. By
+  disabling the unbind interface, the user is forced to use the AP bus's
+  apmask/aqmask interfaces which will prevent this.
+
+* Binding of AP queues is controlled by the AP bus /sys/bus/ap/apmask and
+  /sys/bus/ap/aqmask interfaces. If the masks indicate that an APQN is
+  owned by zcrypt, trying to bind it to the vfio_ap device driver will
+  fail; therefore, the bind interface is somewhat redundant and certainly
+  unnecessary.        
+  
+3. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
+----------------------------------------------------------------
+Allowing a user to hot plug/unplug AP resources using the matrix mdev
+sysfs interfaces circumvents the need to terminate the guest in order to
+modify its AP configuration. Allowing dynamic configuration makes 
+reconfiguring a guest's AP matrix much less disruptive.
+
+4. Rationale for allowing over-provisioning of AP resources:
+----------------------------------------------------------- 
+Allowing assignment of AP resources to a matrix mdev and ultimately to a
+guest better models the AP architecture. The architecture does not
+preclude assignment of unavailable AP resources. If a queue subsequently
+becomes available while a guest using the matrix mdev to which its APQN
+is assigned, the guest will automatically acquire access to it. If an APQN
+is dynamically unassigned from the underlying host system, it will 
+automatically become unavailable to the guest.
+
+Note: This patch series is rebased on top of the patch series for
+      'vfio: ap: AP Queue Interrupt Control' (v9) to make merging of the
+      two series simpler. 
+ 
+
+Change log v3->v4:
+-----------------
+* Restored patches preventing root user from changing ownership of
+  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
+  assigned to an mdev.
+
+* No longer enforcing requirement restricting guest access to
+  queues represented by a queue device bound to the vfio_ap
+  device driver.
+
+* Removed shadow CRYCB and now directly updating the guest CRYCB
+  from the matrix mdev's matrix.
+
+* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
+  Control' patches.
+
+* Disabled bind/unbind sysfs interfaces for vfio_ap driver
+
+Change log v2->v3:
+-----------------
+* Allow guest access to an AP queue only if the queue is bound to
+  the vfio_ap device driver.
+
+* Removed the patch to test CRYCB masks before taking the vCPUs
+  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
+
+Change log v1->v2:
+-----------------
+* Removed patches preventing root user from unbinding AP queues from 
+  the vfio_ap device driver
+* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
+  changes to the AP guest configuration due to root user interventions
+  or hardware anomalies.
+
+Tony Krowiak (7):
+  s390: vfio-ap: Refactor vfio_ap driver probe and remove callbacks
+  s390: vfio-ap: wait for queue empty on queue reset
+  s390: zcrypt: driver callback to indicate resource in use
+  s390: vfio-ap: implement in-use callback for vfio_ap driver
+  s390: vfio-ap: allow assignment of unavailable AP resources to mdev
+    device
+  s390: vfio-ap: allow hot plug/unplug of AP resources using mdev device
+  s390: vfio-ap: update documentation
+
+ Documentation/s390/vfio-ap.txt        | 292 +++++++++++++++++++--------
+ drivers/s390/crypto/ap_bus.c          | 138 ++++++++++++-
+ drivers/s390/crypto/ap_bus.h          |   3 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  51 +++--
+ drivers/s390/crypto/vfio_ap_ops.c     | 370 +++++++++++++---------------------
+ drivers/s390/crypto/vfio_ap_private.h |   6 +-
+ 6 files changed, 526 insertions(+), 334 deletions(-)
 
 -- 
-Wei Yang
-Help you, Help me
+2.7.4
