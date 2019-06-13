@@ -1,40 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:50584 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732286AbfFMNtM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jun 2019 09:49:12 -0400
-Date: Thu, 13 Jun 2019 15:48:58 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCHv2 0/3] improve wait logic of stop_machine
-Message-ID: <20190613134858.GL3436@hirez.programming.kicks-ass.net>
-References: <20190613103510.60529-1-heiko.carstens@de.ibm.com>
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:45607 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726857AbfFMWjj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jun 2019 18:39:39 -0400
+Received: by mail-ed1-f65.google.com with SMTP id a14so457489edv.12
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jun 2019 15:39:38 -0700 (PDT)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH v4 4/5] iommu/dma-iommu: Use the dev->coherent_dma_mask
+Date: Thu, 13 Jun 2019 23:38:59 +0100
+Message-Id: <20190613223901.9523-5-murphyt7@tcd.ie>
+In-Reply-To: <20190613223901.9523-1-murphyt7@tcd.ie>
+References: <20190613223901.9523-1-murphyt7@tcd.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190613103510.60529-1-heiko.carstens@de.ibm.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-On Thu, Jun 13, 2019 at 12:35:07PM +0200, Heiko Carstens wrote:
-> Heiko Carstens (2):
->   processor: remove spin_cpu_yield
->   processor: get rid of cpu_relax_yield
-> 
-> Martin Schwidefsky (1):
->   s390: improve wait logic of stop_machine
-> 
->  arch/powerpc/include/asm/processor.h |  2 --
->  arch/s390/include/asm/processor.h    |  7 +------
->  arch/s390/kernel/processor.c         | 19 +++++++++++++------
->  arch/s390/kernel/smp.c               |  2 +-
->  include/linux/processor.h            |  9 ---------
->  include/linux/sched.h                |  4 ----
->  include/linux/stop_machine.h         |  1 +
->  kernel/stop_machine.c                | 19 ++++++++++++++-----
->  8 files changed, 30 insertions(+), 33 deletions(-)
+Use the dev->coherent_dma_mask when allocating in the dma-iommu ops api.
 
-Seems sensible to me.
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+---
+ drivers/iommu/dma-iommu.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index f303bbe20e51..082fb789e3cf 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -471,7 +471,7 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
+ }
+ 
+ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+-		size_t size, int prot)
++		size_t size, int prot, dma_addr_t dma_mask)
+ {
+ 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
+ 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
+@@ -486,7 +486,7 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+ 		size = iova_align(&cookie->iovad, size + iova_off);
+ 	}
+ 
+-	iova = iommu_dma_alloc_iova(domain, size, dma_get_mask(dev), dev);
++	iova = iommu_dma_alloc_iova(domain, size, dma_mask, dev);
+ 	if (!iova)
+ 		return DMA_MAPPING_ERROR;
+ 
+@@ -737,7 +737,7 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+ 	int prot = dma_info_to_prot(dir, coherent, attrs);
+ 	dma_addr_t dma_handle;
+ 
+-	dma_handle = __iommu_dma_map(dev, phys, size, prot);
++	dma_handle = __iommu_dma_map(dev, phys, size, prot, dma_get_mask(dev));
+ 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+ 	    dma_handle != DMA_MAPPING_ERROR)
+ 		arch_sync_dma_for_device(dev, phys, size, dir);
+@@ -940,7 +940,8 @@ static dma_addr_t iommu_dma_map_resource(struct device *dev, phys_addr_t phys,
+ 		size_t size, enum dma_data_direction dir, unsigned long attrs)
+ {
+ 	return __iommu_dma_map(dev, phys, size,
+-			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO);
++			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO,
++			dma_get_mask(dev));
+ }
+ 
+ static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
+@@ -1049,7 +1050,8 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
+ 	if (!cpu_addr)
+ 		return NULL;
+ 
+-	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot);
++	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
++			dev->coherent_dma_mask);
+ 	if (*handle == DMA_MAPPING_ERROR) {
+ 		__iommu_dma_free(dev, size, cpu_addr);
+ 		return NULL;
+@@ -1178,7 +1180,7 @@ static struct iommu_dma_msi_page *iommu_dma_get_msi_page(struct device *dev,
+ 	if (!msi_page)
+ 		return NULL;
+ 
+-	iova = __iommu_dma_map(dev, msi_addr, size, prot);
++	iova = __iommu_dma_map(dev, msi_addr, size, prot, dma_get_mask(dev));
+ 	if (iova == DMA_MAPPING_ERROR)
+ 		goto out_free_page;
+ 
+-- 
+2.20.1
