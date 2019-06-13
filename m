@@ -1,66 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:18565 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731238AbfFMInd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:33 -0400
-From: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH v9 3/7] s390/pci: add support for IOMMU default DMA mode build options
-Date: Thu, 13 Jun 2019 16:42:36 +0800
-Message-ID: <20190613084240.16768-4-thunder.leizhen@huawei.com>
-In-Reply-To: <20190613084240.16768-1-thunder.leizhen@huawei.com>
-References: <20190613084240.16768-1-thunder.leizhen@huawei.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51848 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730885AbfFMI1Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:27:24 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5D8Nddv040050
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jun 2019 04:27:23 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2t3hepby07-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 13 Jun 2019 04:27:22 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <mimu@linux.ibm.com>;
+        Thu, 13 Jun 2019 09:27:20 +0100
+Reply-To: mimu@linux.ibm.com
+Subject: Re: [PATCH v5 5/8] virtio/s390: use cacheline aligned airq bit
+ vectors
+References: <20190612111236.99538-1-pasic@linux.ibm.com>
+ <20190612111236.99538-6-pasic@linux.ibm.com>
+From: Michael Mueller <mimu@linux.ibm.com>
+Date: Thu, 13 Jun 2019 10:27:15 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190612111236.99538-6-pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <a537837f-5b74-604b-f4d9-a579b09a4d5e@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, John Garry <john.garry@huawei.com>, Robin Murphy <robin.murphy@arm.com>, Will Deacon <will.deacon@arm.com>, Joerg Roedel <joro@8bytes.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc <linux-doc@vger.kernel.org>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, David Woodhouse <dwmw2@infradead.org>, iommu <iommu@lists.linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, x86 <x86@kernel.org>, linux-ia64 <linux-ia64@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
+To: Halil Pasic <pasic@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
 
-The default DMA mode is LAZY on s390, this patch make it can be set to
-STRICT at build time. It can be overridden by boot option.
 
-There is no functional change.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-by: Sebastian Ott <sebott@linux.ibm.com>
----
- arch/s390/pci/pci_dma.c | 2 +-
- drivers/iommu/Kconfig   | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+On 12.06.19 13:12, Halil Pasic wrote:
+> The flag AIRQ_IV_CACHELINE was recently added to airq_iv_create(). Let
+> us use it! We actually wanted the vector to span a cacheline all along.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>   drivers/s390/virtio/virtio_ccw.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index f995798bb025..1da7430f94c8 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -216,7 +216,8 @@ static struct airq_info *new_airq_info(void)
+>   	if (!info)
+>   		return NULL;
+>   	rwlock_init(&info->lock);
+> -	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR);
+> +	info->aiv = airq_iv_create(VIRTIO_IV_BITS, AIRQ_IV_ALLOC | AIRQ_IV_PTR
+> +				   | AIRQ_IV_CACHELINE);
+>   	if (!info->aiv) {
+>   		kfree(info);
+>   		return NULL;
+> 
 
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 9e52d1527f71495..784ad1e0acecfb1 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -17,7 +17,7 @@
- 
- static struct kmem_cache *dma_region_table_cache;
- static struct kmem_cache *dma_page_table_cache;
--static int s390_iommu_strict;
-+static int s390_iommu_strict = IS_ENABLED(CONFIG_IOMMU_DEFAULT_STRICT);
- 
- static int zpci_refresh_global(struct zpci_dev *zdev)
- {
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index fe715fb295c6ed2..a8dd69d175fb3c6 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -78,6 +78,7 @@ config IOMMU_DEBUGFS
- choice
- 	prompt "IOMMU default DMA mode"
- 	depends on IOMMU_API
-+	default IOMMU_DEFAULT_LAZY if S390_IOMMU
- 	default IOMMU_DEFAULT_STRICT
- 	help
- 	  This option allows an IOMMU DMA mode to be chosen at build time, to
-@@ -89,6 +90,7 @@ choice
- 
- config IOMMU_DEFAULT_PASSTHROUGH
- 	bool "passthrough"
-+	depends on !S390_IOMMU
- 	help
- 	  In this mode, the DMA access through IOMMU without any addresses
- 	  translation. That means, the wrong or illegal DMA access can not
--- 
-1.8.3
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+
+Michael
