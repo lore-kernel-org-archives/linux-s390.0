@@ -1,86 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:35021 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725852AbfFMWjY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 13 Jun 2019 18:39:24 -0400
-Received: by mail-ed1-f65.google.com with SMTP id p26so535407edr.2
-        for <linux-s390@vger.kernel.org>; Thu, 13 Jun 2019 15:39:22 -0700 (PDT)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH v4 1/5] iommu/amd: Remove unnecessary locking from AMD iommu driver
-Date: Thu, 13 Jun 2019 23:38:56 +0100
-Message-Id: <20190613223901.9523-2-murphyt7@tcd.ie>
-In-Reply-To: <20190613223901.9523-1-murphyt7@tcd.ie>
-References: <20190613223901.9523-1-murphyt7@tcd.ie>
+Received: from bombadil.infradead.org ([198.137.202.133]:54062 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729047AbfFNNsj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:39 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 14/16] mm: use alloc_pages_exact_node to implement alloc_pages_exact
+Date: Fri, 14 Jun 2019 15:47:24 +0200
+Message-Id: <20190614134726.3827-15-hch@lst.de>
+In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+References: <20190614134726.3827-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-We can remove the mutex lock from amd_iommu_map and amd_iommu_unmap.
-iommu_map doesn’t lock while mapping and so no two calls should touch
-the same iova range. The AMD driver already handles the page table page
-allocations without locks so we can safely remove the locks.
+No need to duplicate the logic over two functions that are almost the
+same.
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/iommu/amd_iommu.c       | 10 +---------
- drivers/iommu/amd_iommu_types.h |  1 -
- 2 files changed, 1 insertion(+), 10 deletions(-)
+ include/linux/gfp.h |  5 +++--
+ mm/page_alloc.c     | 39 +++++++--------------------------------
+ 2 files changed, 10 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 73740b969e62..065639e090fe 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2858,7 +2858,6 @@ static void protection_domain_free(struct protection_domain *domain)
- static int protection_domain_init(struct protection_domain *domain)
- {
- 	spin_lock_init(&domain->lock);
--	mutex_init(&domain->api_lock);
- 	domain->id = domain_id_alloc();
- 	if (!domain->id)
- 		return -ENOMEM;
-@@ -3045,9 +3044,7 @@ static int amd_iommu_map(struct iommu_domain *dom, unsigned long iova,
- 	if (iommu_prot & IOMMU_WRITE)
- 		prot |= IOMMU_PROT_IW;
+diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+index 4274ea6bc72b..c616a23a3f81 100644
+--- a/include/linux/gfp.h
++++ b/include/linux/gfp.h
+@@ -530,9 +530,10 @@ extern struct page *alloc_pages_vma(gfp_t gfp_mask, int order,
+ extern unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order);
+ extern unsigned long get_zeroed_page(gfp_t gfp_mask);
  
--	mutex_lock(&domain->api_lock);
- 	ret = iommu_map_page(domain, iova, paddr, page_size, prot, GFP_KERNEL);
--	mutex_unlock(&domain->api_lock);
+-void *alloc_pages_exact(size_t size, gfp_t gfp_mask);
+ void free_pages_exact(void *virt, size_t size);
+-void * __meminit alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask);
++void *alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask);
++#define alloc_pages_exact(size, gfp_mask) \
++	alloc_pages_exact_node(NUMA_NO_NODE, size, gfp_mask)
  
- 	domain_flush_np_cache(domain, iova, page_size);
- 
-@@ -3058,16 +3055,11 @@ static size_t amd_iommu_unmap(struct iommu_domain *dom, unsigned long iova,
- 			   size_t page_size)
- {
- 	struct protection_domain *domain = to_pdomain(dom);
--	size_t unmap_size;
- 
- 	if (domain->mode == PAGE_MODE_NONE)
- 		return 0;
- 
--	mutex_lock(&domain->api_lock);
--	unmap_size = iommu_unmap_page(domain, iova, page_size);
--	mutex_unlock(&domain->api_lock);
--
--	return unmap_size;
-+	return iommu_unmap_page(domain, iova, page_size);
+ #define __get_free_page(gfp_mask) \
+ 		__get_free_pages((gfp_mask), 0)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index dd2fed66b656..dec68bd21a71 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4859,34 +4859,6 @@ static void *make_alloc_exact(unsigned long addr, unsigned int order,
+ 	return (void *)addr;
  }
  
- static phys_addr_t amd_iommu_iova_to_phys(struct iommu_domain *dom,
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index 52c35d557fad..5d5f5d009b19 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -461,7 +461,6 @@ struct protection_domain {
- 	struct iommu_domain domain; /* generic domain handle used by
- 				       iommu core code */
- 	spinlock_t lock;	/* mostly used to lock the page table*/
--	struct mutex api_lock;	/* protect page tables in the iommu-api path */
- 	u16 id;			/* the domain id written to the device table */
- 	int mode;		/* paging mode (0-6 levels) */
- 	u64 *pt_root;		/* page table root pointer */
+-/**
+- * alloc_pages_exact - allocate an exact number physically-contiguous pages.
+- * @size: the number of bytes to allocate
+- * @gfp_mask: GFP flags for the allocation, must not contain __GFP_COMP
+- *
+- * This function is similar to alloc_pages(), except that it allocates the
+- * minimum number of pages to satisfy the request.  alloc_pages() can only
+- * allocate memory in power-of-two pages.
+- *
+- * This function is also limited by MAX_ORDER.
+- *
+- * Memory allocated by this function must be released by free_pages_exact().
+- *
+- * Return: pointer to the allocated area or %NULL in case of error.
+- */
+-void *alloc_pages_exact(size_t size, gfp_t gfp_mask)
+-{
+-	unsigned int order = get_order(size);
+-	unsigned long addr;
+-
+-	if (WARN_ON_ONCE(gfp_mask & __GFP_COMP))
+-		gfp_mask &= ~__GFP_COMP;
+-
+-	addr = __get_free_pages(gfp_mask, order);
+-	return make_alloc_exact(addr, order, size);
+-}
+-EXPORT_SYMBOL(alloc_pages_exact);
+-
+ /**
+  * alloc_pages_exact_node - allocate an exact number of physically-contiguous
+  *			   pages on a node.
+@@ -4894,12 +4866,15 @@ EXPORT_SYMBOL(alloc_pages_exact);
+  * @size: the number of bytes to allocate
+  * @gfp_mask: GFP flags for the allocation, must not contain __GFP_COMP
+  *
+- * Like alloc_pages_exact(), but try to allocate on node nid first before falling
+- * back.
++ * This function is similar to alloc_pages_node(), except that it allocates the
++ * minimum number of pages to satisfy the request while alloc_pages() can only
++ * allocate memory in power-of-two pages.  This function is also limited by
++ * MAX_ORDER.
+  *
+- * Return: pointer to the allocated area or %NULL in case of error.
++ * Returns a pointer to the allocated area or %NULL in case of error, memory
++ * allocated by this function must be released by free_pages_exact().
+  */
+-void * __meminit alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask)
++void *alloc_pages_exact_node(int nid, size_t size, gfp_t gfp_mask)
+ {
+ 	unsigned int order = get_order(size);
+ 	struct page *p;
 -- 
 2.20.1
