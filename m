@@ -1,69 +1,37 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18942 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729961AbfFRUYB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Jun 2019 16:24:01 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5IKHCOj064323
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2019 16:24:00 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2t74dnq1hn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2019 16:23:59 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Tue, 18 Jun 2019 21:23:58 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v1 5/5] vfio-ccw: Remove copy_ccw_from_iova()
-Date: Tue, 18 Jun 2019 22:23:52 +0200
-In-Reply-To: <20190618202352.39702-1-farman@linux.ibm.com>
-References: <20190618202352.39702-1-farman@linux.ibm.com>
-Message-Id: <20190618202352.39702-6-farman@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 06/16] drm: don't pass __GFP_COMP to dma_alloc_coherent in drm_pci_alloc
+Date: Fri, 14 Jun 2019 15:47:16 +0200
+Message-Id: <20190614134726.3827-7-hch@lst.de>
+In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+References: <20190614134726.3827-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Just to keep things tidy.
+The memory returned from dma_alloc_coherent is opaqueue to the user,
+thus the exact way of page refcounting shall not matter either.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/drm_bufs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 9a8bf06281e0..9cddc1288059 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -228,17 +228,6 @@ static long copy_from_iova(struct device *mdev,
- 	return l;
- }
+diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
+index b640437ce90f..7a79a16a055c 100644
+--- a/drivers/gpu/drm/drm_bufs.c
++++ b/drivers/gpu/drm/drm_bufs.c
+@@ -70,7 +70,7 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
+ 	dmah->size = size;
+ 	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
+ 					 &dmah->busaddr,
+-					 GFP_KERNEL | __GFP_COMP);
++					 GFP_KERNEL);
  
--static long copy_ccw_from_iova(struct channel_program *cp,
--			       struct ccw1 *to, u64 iova,
--			       unsigned long len)
--{
--	int ret;
--
--	ret = copy_from_iova(cp->mdev, to, iova, len * sizeof(struct ccw1));
--
--	return ret;
--}
--
- /*
-  * Helpers to operate ccwchain.
-  */
-@@ -435,7 +424,8 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 	int len;
- 
- 	/* Copy 2K (the most we support today) of possible CCWs */
--	len = copy_ccw_from_iova(cp, cp->guest_cp, cda, CCWCHAIN_LEN_MAX);
-+	len = copy_from_iova(cp->mdev, cp->guest_cp, cda,
-+			     CCWCHAIN_LEN_MAX * sizeof(struct ccw1));
- 	if (len)
- 		return len;
- 
+ 	if (dmah->vaddr == NULL) {
+ 		kfree(dmah);
 -- 
-2.17.1
+2.20.1
