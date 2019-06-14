@@ -1,67 +1,86 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:40273 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725857AbfFTFLX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jun 2019 01:11:23 -0400
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH RESEND 6/8] parisc: Use mmap_base, not mmap_legacy_base, as low_limit for bottom-up mmap
-Date: Thu, 20 Jun 2019 01:03:26 -0400
-Message-Id: <20190620050328.8942-7-alex@ghiti.fr>
-In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
-References: <20190620050328.8942-1-alex@ghiti.fr>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 07/16] IB/hfi1: stop passing bogus gfp flags arguments to dma_alloc_coherent
+Date: Fri, 14 Jun 2019 15:47:17 +0200
+Message-Id: <20190614134726.3827-8-hch@lst.de>
+In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+References: <20190614134726.3827-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-Bottom-up mmap scheme is used twice:
+dma_alloc_coherent is not just the page allocator.  The only valid
+arguments to pass are either GFP_ATOMIC or GFP_ATOMIC with possible
+modifiers of __GFP_NORETRY or __GFP_NOWARN.
 
-- for legacy mode, in which mmap_legacy_base and mmap_base are equal.
-
-- in case of mmap failure in top-down mode, where there is no need to go
-through the whole address space again for the bottom-up fallback: the goal
-of this fallback is to find, as a last resort, space between the top-down
-mmap base and the stack, which is the only place not covered by the
-top-down mmap.
-
-Then this commit removes the usage of mmap_legacy_base field from parisc
-code.
-
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/parisc/kernel/sys_parisc.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/hfi1/init.c | 22 +++-------------------
+ 1 file changed, 3 insertions(+), 19 deletions(-)
 
-diff --git a/arch/parisc/kernel/sys_parisc.c b/arch/parisc/kernel/sys_parisc.c
-index 5d458a44b09c..e987f3a8eb0b 100644
---- a/arch/parisc/kernel/sys_parisc.c
-+++ b/arch/parisc/kernel/sys_parisc.c
-@@ -119,7 +119,7 @@ unsigned long arch_get_unmapped_area(struct file *filp, unsigned long addr,
+diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
+index 71cb9525c074..ff9d106ee784 100644
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -1846,17 +1846,10 @@ int hfi1_create_rcvhdrq(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd)
+ 	u64 reg;
  
- 	info.flags = 0;
- 	info.length = len;
--	info.low_limit = mm->mmap_legacy_base;
-+	info.low_limit = mm->mmap_base;
- 	info.high_limit = mmap_upper_limit(NULL);
- 	info.align_mask = last_mmap ? (PAGE_MASK & (SHM_COLOUR - 1)) : 0;
- 	info.align_offset = shared_align_offset(last_mmap, pgoff);
-@@ -240,13 +240,11 @@ static unsigned long mmap_legacy_base(void)
-  */
- void arch_pick_mmap_layout(struct mm_struct *mm, struct rlimit *rlim_stack)
- {
--	mm->mmap_legacy_base = mmap_legacy_base();
--	mm->mmap_base = mmap_upper_limit(rlim_stack);
+ 	if (!rcd->rcvhdrq) {
+-		gfp_t gfp_flags;
 -
- 	if (mmap_is_legacy()) {
--		mm->mmap_base = mm->mmap_legacy_base;
-+		mm->mmap_base = mmap_legacy_base();
- 		mm->get_unmapped_area = arch_get_unmapped_area;
- 	} else {
-+		mm->mmap_base = mmap_upper_limit(rlim_stack);
- 		mm->get_unmapped_area = arch_get_unmapped_area_topdown;
- 	}
- }
+ 		amt = rcvhdrq_size(rcd);
+ 
+-		if (rcd->ctxt < dd->first_dyn_alloc_ctxt || rcd->is_vnic)
+-			gfp_flags = GFP_KERNEL;
+-		else
+-			gfp_flags = GFP_USER;
+ 		rcd->rcvhdrq = dma_alloc_coherent(&dd->pcidev->dev, amt,
+-						  &rcd->rcvhdrq_dma,
+-						  gfp_flags | __GFP_COMP);
++						  &rcd->rcvhdrq_dma, GFP_KERNEL);
+ 
+ 		if (!rcd->rcvhdrq) {
+ 			dd_dev_err(dd,
+@@ -1870,7 +1863,7 @@ int hfi1_create_rcvhdrq(struct hfi1_devdata *dd, struct hfi1_ctxtdata *rcd)
+ 			rcd->rcvhdrtail_kvaddr = dma_alloc_coherent(&dd->pcidev->dev,
+ 								    PAGE_SIZE,
+ 								    &rcd->rcvhdrqtailaddr_dma,
+-								    gfp_flags);
++								    GFP_KERNEL);
+ 			if (!rcd->rcvhdrtail_kvaddr)
+ 				goto bail_free;
+ 		}
+@@ -1926,19 +1919,10 @@ int hfi1_setup_eagerbufs(struct hfi1_ctxtdata *rcd)
+ {
+ 	struct hfi1_devdata *dd = rcd->dd;
+ 	u32 max_entries, egrtop, alloced_bytes = 0;
+-	gfp_t gfp_flags;
+ 	u16 order, idx = 0;
+ 	int ret = 0;
+ 	u16 round_mtu = roundup_pow_of_two(hfi1_max_mtu);
+ 
+-	/*
+-	 * GFP_USER, but without GFP_FS, so buffer cache can be
+-	 * coalesced (we hope); otherwise, even at order 4,
+-	 * heavy filesystem activity makes these fail, and we can
+-	 * use compound pages.
+-	 */
+-	gfp_flags = __GFP_RECLAIM | __GFP_IO | __GFP_COMP;
+-
+ 	/*
+ 	 * The minimum size of the eager buffers is a groups of MTU-sized
+ 	 * buffers.
+@@ -1969,7 +1953,7 @@ int hfi1_setup_eagerbufs(struct hfi1_ctxtdata *rcd)
+ 			dma_alloc_coherent(&dd->pcidev->dev,
+ 					   rcd->egrbufs.rcvtid_size,
+ 					   &rcd->egrbufs.buffers[idx].dma,
+-					   gfp_flags);
++					   GFP_KERNEL);
+ 		if (rcd->egrbufs.buffers[idx].addr) {
+ 			rcd->egrbufs.buffers[idx].len =
+ 				rcd->egrbufs.rcvtid_size;
 -- 
 2.20.1
