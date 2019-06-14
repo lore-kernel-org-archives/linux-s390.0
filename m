@@ -1,65 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726227AbfFZPsH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Jun 2019 11:48:07 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5QFgtCa145383
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2019 11:48:06 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tc9hvxph9-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2019 11:48:05 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
-        Wed, 26 Jun 2019 16:48:02 +0100
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net 2/2] net/smc: Fix error path in smc_init
-Date: Wed, 26 Jun 2019 17:47:50 +0200
-In-Reply-To: <20190626154750.46127-1-ubraun@linux.ibm.com>
-References: <20190626154750.46127-1-ubraun@linux.ibm.com>
-Message-Id: <20190626154750.46127-3-ubraun@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 05/16] drm: don't mark pages returned from drm_pci_alloc reserved
+Date: Fri, 14 Jun 2019 15:47:15 +0200
+Message-Id: <20190614134726.3827-6-hch@lst.de>
+In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+References: <20190614134726.3827-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com, zhp@smail.nju.edu.cn, yuehaibing@huawei.com
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+We are not allowed to call virt_to_page on pages returned from
+dma_alloc_coherent, as in many cases the virtual address returned
+is aactually a kernel direct mapping.  Also there generally is no
+need to mark dma memory as reserved.
 
-If register_pernet_subsys success in smc_init,
-we should cleanup it in case any other error.
-
-Fixes: 64e28b52c7a6 (net/smc: add pnet table namespace support")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/af_smc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_bufs.c | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 0c874e996f85..7621ec2f539c 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2029,7 +2029,7 @@ static int __init smc_init(void)
+diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
+index 7418872d87c6..b640437ce90f 100644
+--- a/drivers/gpu/drm/drm_bufs.c
++++ b/drivers/gpu/drm/drm_bufs.c
+@@ -77,13 +77,6 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
+ 		return NULL;
+ 	}
  
- 	rc = smc_pnet_init();
- 	if (rc)
--		return rc;
-+		goto out_pernet_subsys;
- 
- 	rc = smc_llc_init();
- 	if (rc) {
-@@ -2080,6 +2080,9 @@ static int __init smc_init(void)
- 	proto_unregister(&smc_proto);
- out_pnet:
- 	smc_pnet_exit();
-+out_pernet_subsys:
-+	unregister_pernet_subsys(&smc_net_ops);
-+
- 	return rc;
+-	/* XXX - Is virt_to_page() legal for consistent mem? */
+-	/* Reserve */
+-	for (addr = (unsigned long)dmah->vaddr, sz = size;
+-	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-		SetPageReserved(virt_to_page((void *)addr));
+-	}
+-
+ 	return dmah;
  }
  
+@@ -97,16 +90,9 @@ void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
+ 	unsigned long addr;
+ 	size_t sz;
+ 
+-	if (dmah->vaddr) {
+-		/* XXX - Is virt_to_page() legal for consistent mem? */
+-		/* Unreserve */
+-		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
+-		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-			ClearPageReserved(virt_to_page((void *)addr));
+-		}
++	if (dmah->vaddr)
+ 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
+ 				  dmah->busaddr);
+-	}
+ }
+ 
+ /**
 -- 
-2.17.1
+2.20.1
