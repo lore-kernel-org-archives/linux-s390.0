@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45800 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36644 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725884AbfFQNcb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Jun 2019 09:32:31 -0400
-Date: Mon, 17 Jun 2019 15:32:28 +0200
+        id S1726831AbfFNKDY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Jun 2019 06:03:24 -0400
+Date: Fri, 14 Jun 2019 12:03:21 +0200
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v2 0/9] s390: vfio-ccw code rework
-Message-ID: <20190617153228.0c5dca9f.cohuck@redhat.com>
+Message-ID: <20190614120321.1c662472.cohuck@redhat.com>
 In-Reply-To: <20190606202831.44135-1-farman@linux.ibm.com>
 References: <20190606202831.44135-1-farman@linux.ibm.com>
 MIME-Version: 1.0
@@ -47,28 +47,8 @@ Eric Farman <farman@linux.ibm.com> wrote:
 > one layer of the nested arrays.  There are no functional/behavioral
 > changes with this series; all the tests that I would run previously
 > continue to pass/fail as they today.
-> 
-> Changelog:
->  v1/RFC->v2:
->   - [Eric] Dropped first two patches, as they have been merged
->   - [Eric] Shuffling of patches for readability/understandability
->   - [Halil] Actually added meaningful comments/commit messages
->     in the patches
->  v1/RFC: https://patchwork.kernel.org/cover/10675251/
-> 
-> Eric Farman (9):
->   s390/cio: Squash cp_free() and cp_unpin_free()
->   s390/cio: Refactor the routine that handles TIC CCWs
->   s390/cio: Generalize the TIC handler
->   s390/cio: Use generalized CCW handler in cp_init()
->   vfio-ccw: Rearrange pfn_array and pfn_array_table arrays
->   vfio-ccw: Adjust the first IDAW outside of the nested loops
->   vfio-ccw: Remove pfn_array_table
->   vfio-ccw: Rearrange IDAL allocation in direct CCW
->   s390/cio: Combine direct and indirect CCW paths
-> 
->  drivers/s390/cio/vfio_ccw_cp.c | 313 +++++++++++----------------------
->  1 file changed, 102 insertions(+), 211 deletions(-)
-> 
 
-Thanks, applied.
+Very nice cleanup!
+
+All the patches look good to me; I'll wait if anyone else has any
+comments and will probably pick them next week if nobody objects.
