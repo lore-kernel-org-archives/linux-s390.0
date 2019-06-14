@@ -1,73 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59490 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728399AbfFLNdV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 09:33:21 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 1/4] s390/pkey: Use -ENODEV instead of -EOPNOTSUPP
-Date: Wed, 12 Jun 2019 15:33:03 +0200
-Message-Id: <20190612133306.10231-2-david@redhat.com>
-In-Reply-To: <20190612133306.10231-1-david@redhat.com>
-References: <20190612133306.10231-1-david@redhat.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:53666 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728966AbfFNNsc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:32 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 11/16] s390/ism: stop passing bogus gfp flags arguments to dma_alloc_coherent
+Date: Fri, 14 Jun 2019 15:47:21 +0200
+Message-Id: <20190614134726.3827-12-hch@lst.de>
+In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+References: <20190614134726.3827-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, David Hildenbrand <david@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-systemd-modules-load.service automatically tries to load the pkey module
-on systems that have MSA.
+dma_alloc_coherent is not just the page allocator.  The only valid
+arguments to pass are either GFP_ATOMIC or GFP_ATOMIC with possible
+modifiers of __GFP_NORETRY or __GFP_NOWARN.
 
-Pkey also requires the MSA3 facility and a bunch of subfunctions.
-Failing with -EOPNOTSUPP makes "systemd-modules-load.service" fail on
-any system that does not have all needed subfunctions. For example,
-when running under QEMU TCG (but also on systems where protected keys
-are disabled via the HMC).
-
-Let's use -ENODEV, so systemd-modules-load.service properly ignores
-failing to load the pkey module because of missing HW functionality.
-
-While at it, also convert the -EOPNOTSUPP in pkey_clr2protkey() to -ENODEV.
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/crypto/pkey_api.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/net/ism_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index 45eb0c14b880..7f418d2d8cdf 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -690,7 +690,7 @@ int pkey_clr2protkey(u32 keytype,
- 	 */
- 	if (!cpacf_test_func(&pckmo_functions, fc)) {
- 		DEBUG_ERR("%s pckmo functions not available\n", __func__);
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 	}
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 4fc2056bd227..4ff5506fa4c6 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -241,7 +241,8 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
  
- 	/* prepare param block */
-@@ -1695,15 +1695,15 @@ static int __init pkey_init(void)
- 	 * are able to work with protected keys.
- 	 */
- 	if (!cpacf_query(CPACF_PCKMO, &pckmo_functions))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 
- 	/* check for kmc instructions available */
- 	if (!cpacf_query(CPACF_KMC, &kmc_functions))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 	if (!cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_128) ||
- 	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_192) ||
- 	    !cpacf_test_func(&kmc_functions, CPACF_KMC_PAES_256))
--		return -EOPNOTSUPP;
-+		return -ENODEV;
- 
- 	pkey_debug_init();
+ 	dmb->cpu_addr = dma_alloc_coherent(&ism->pdev->dev, dmb->dmb_len,
+ 					   &dmb->dma_addr,
+-					   GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC | __GFP_COMP | __GFP_NORETRY);
++					   GFP_KERNEL | __GFP_NOWARN |
++					   __GFP_NORETRY);
+ 	if (!dmb->cpu_addr)
+ 		clear_bit(dmb->sba_idx, ism->sba_bitmap);
  
 -- 
-2.21.0
+2.20.1
