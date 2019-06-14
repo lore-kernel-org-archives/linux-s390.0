@@ -1,57 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34251 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51978 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725985AbfFUOeA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:00 -0400
+        id S1726900AbfFNJmG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Jun 2019 05:42:06 -0400
+Date: Fri, 14 Jun 2019 11:42:02 +0200
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 00/14] more vfio-ccw updates for 5.3
-Date: Fri, 21 Jun 2019 16:33:41 +0200
-Message-Id: <20190621143355.29175-1-cohuck@redhat.com>
+Subject: Re: [PATCH v2 8/9] vfio-ccw: Rearrange IDAL allocation in direct
+ CCW
+Message-ID: <20190614114202.1ddb6264.cohuck@redhat.com>
+In-Reply-To: <20190606202831.44135-9-farman@linux.ibm.com>
+References: <20190606202831.44135-1-farman@linux.ibm.com>
+        <20190606202831.44135-9-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-The following changes since commit 39c00378e337c869b0c9cd35e108fc0c8671d644:
+On Thu,  6 Jun 2019 22:28:30 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-  Update default configuration (2019-06-15 12:27:29 +0200)
+> This is purely deck furniture, to help understand the merge of the
+> direct and indirect handlers.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
 
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20190621
-
-for you to fetch changes up to 5223bee837e8d90d752de744c5702706a7bb13d9:
-
-  vfio-ccw: Remove copy_ccw_from_iova() (2019-06-21 14:13:37 +0200)
-
-----------------------------------------------------------------
-Refactoring of the vfio-ccw cp handling, simplifying the
-code and avoiding unneeded allocating/copying.
-
-----------------------------------------------------------------
-
-Eric Farman (14):
-  s390/cio: Squash cp_free() and cp_unpin_free()
-  s390/cio: Refactor the routine that handles TIC CCWs
-  s390/cio: Generalize the TIC handler
-  s390/cio: Use generalized CCW handler in cp_init()
-  vfio-ccw: Rearrange pfn_array and pfn_array_table arrays
-  vfio-ccw: Adjust the first IDAW outside of the nested loops
-  vfio-ccw: Remove pfn_array_table
-  vfio-ccw: Rearrange IDAL allocation in direct CCW
-  s390/cio: Combine direct and indirect CCW paths
-  vfio-ccw: Move guest_cp storage into common struct
-  vfio-ccw: Skip second copy of guest cp to host
-  vfio-ccw: Copy CCW data outside length calculation
-  vfio-ccw: Factor out the ccw0-to-ccw1 transition
-  vfio-ccw: Remove copy_ccw_from_iova()
-
- drivers/s390/cio/vfio_ccw_cp.c  | 415 +++++++++++---------------------
- drivers/s390/cio/vfio_ccw_cp.h  |   7 +
- drivers/s390/cio/vfio_ccw_drv.c |   7 +
- 3 files changed, 151 insertions(+), 278 deletions(-)
-
--- 
-2.20.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
