@@ -1,57 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:43689 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbfFSFNA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jun 2019 01:13:00 -0400
-From: Alexandre Ghiti <alex@ghiti.fr>
-Subject: [PATCH 3/8] sparc: Start fallback of top-down mmap at mm->mmap_base
-Date: Wed, 19 Jun 2019 01:08:39 -0400
-Message-Id: <20190619050844.5294-4-alex@ghiti.fr>
-In-Reply-To: <20190619050844.5294-1-alex@ghiti.fr>
-References: <20190619050844.5294-1-alex@ghiti.fr>
+Received: from smtp119.ord1c.emailsrvr.com ([108.166.43.119]:42302 "EHLO
+        smtp119.ord1c.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727536AbfFQNVs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 Jun 2019 09:21:48 -0400
+Subject: Re: [PATCH 12/16] staging/comedi: mark as broken
+References: <20190614134726.3827-1-hch@lst.de>
+ <20190614134726.3827-13-hch@lst.de> <20190614140239.GA7234@kroah.com>
+ <20190614144857.GA9088@lst.de> <20190614153032.GD18049@kroah.com>
+ <20190614153428.GA10008@lst.de>
+From: Ian Abbott <abbotti@mev.co.uk>
+Message-ID: <60c6af3d-d8e4-5745-8d2b-9791a2f4ff56@mev.co.uk>
+Date: Mon, 17 Jun 2019 14:15:43 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190614153428.GA10008@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
+To: Christoph Hellwig <hch@lst.de>, Greg KH <gregkh@linuxfoundation.org>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, H Hartley Sweeten <hsweeten@visionengravers.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Intel Linux Wireless <linuxwifi@intel.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org
 
-In case of mmap failure in top-down mode, there is no need to go through
-the whole address space again for the bottom-up fallback: the goal of this
-fallback is to find, as a last resort, space between the top-down mmap base
-and the stack, which is the only place not covered by the top-down mmap.
+On 14/06/2019 16:34, Christoph Hellwig wrote:
+> On Fri, Jun 14, 2019 at 05:30:32PM +0200, Greg KH wrote:
+>> On Fri, Jun 14, 2019 at 04:48:57PM +0200, Christoph Hellwig wrote:
+>>> On Fri, Jun 14, 2019 at 04:02:39PM +0200, Greg KH wrote:
+>>>> Perhaps a hint as to how we can fix this up?  This is the first time
+>>>> I've heard of the comedi code not handling dma properly.
+>>>
+>>> It can be fixed by:
+>>>
+>>>   a) never calling virt_to_page (or vmalloc_to_page for that matter)
+>>>      on dma allocation
+>>>   b) never remapping dma allocation with conflicting cache modes
+>>>      (no remapping should be doable after a) anyway).
+>>
+>> Ok, fair enough, have any pointers of drivers/core code that does this
+>> correctly?  I can put it on my todo list, but might take a week or so...
+> 
+> Just about everyone else.  They just need to remove the vmap and
+> either do one large allocation, or live with the fact that they need
+> helpers to access multiple array elements instead of one net vmap,
+> which most of the users already seem to do anyway, with just a few
+> using the vmap (which might explain why we didn't see blowups yet).
 
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
----
- arch/sparc/kernel/sys_sparc_64.c | 2 +-
- arch/sparc/mm/hugetlbpage.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Avoiding the vmap in comedi should be do-able as it already has other 
+means to get at the buffer pages.
 
-diff --git a/arch/sparc/kernel/sys_sparc_64.c b/arch/sparc/kernel/sys_sparc_64.c
-index ccc88926bc00..ea1de1e5fa8d 100644
---- a/arch/sparc/kernel/sys_sparc_64.c
-+++ b/arch/sparc/kernel/sys_sparc_64.c
-@@ -206,7 +206,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
- 	if (addr & ~PAGE_MASK) {
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
--		info.low_limit = TASK_UNMAPPED_BASE;
-+		info.low_limit = mm->mmap_base;
- 		info.high_limit = STACK_TOP32;
- 		addr = vm_unmapped_area(&info);
- 	}
-diff --git a/arch/sparc/mm/hugetlbpage.c b/arch/sparc/mm/hugetlbpage.c
-index f78793a06bbd..9c67f805abc8 100644
---- a/arch/sparc/mm/hugetlbpage.c
-+++ b/arch/sparc/mm/hugetlbpage.c
-@@ -86,7 +86,7 @@ hugetlb_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
- 	if (addr & ~PAGE_MASK) {
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
--		info.low_limit = TASK_UNMAPPED_BASE;
-+		info.low_limit = mm->mmap_base;
- 		info.high_limit = STACK_TOP32;
- 		addr = vm_unmapped_area(&info);
- 	}
+When comedi makes the buffer from DMA coherent memory, it currently 
+allocates it as a series of page-sized chunks.  That cannot be mmap'ed 
+in one go with dma_mmap_coherent(), so I see the following solutions.
+
+1. Change the buffer allocation to allocate a single chunk of DMA 
+coherent memory and use dma_mmap_coherent() to mmap it.
+
+2. Call dma_mmap_coherent() in a loop, adjusting vma->vm_start and 
+vma->vm_end for each iteration (vma->vm_pgoff will be 0), and restoring 
+the vma->vm_start and vma->vm_end at the end.
+
+I'm not sure if 2 is a legal option.
+
 -- 
-2.20.1
+-=( Ian Abbott <abbotti@mev.co.uk> || Web: www.mev.co.uk )=-
+-=( MEV Ltd. is a company registered in England & Wales. )=-
+-=( Registered number: 02862268.  Registered address:    )=-
+-=( 15 West Park Road, Bramhall, STOCKPORT, SK7 3JZ, UK. )=-
