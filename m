@@ -1,112 +1,140 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14856 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726480AbfF0PBy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jun 2019 11:01:54 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5RF0ma3132578
-        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:52 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2tcwrf081h-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:50 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 27 Jun 2019 16:01:42 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 10/12] s390/qeth: consolidate skb RX processing in L3 driver
-Date: Thu, 27 Jun 2019 17:01:31 +0200
-In-Reply-To: <20190627150133.58746-1-jwi@linux.ibm.com>
-References: <20190627150133.58746-1-jwi@linux.ibm.com>
-Message-Id: <20190627150133.58746-11-jwi@linux.ibm.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:34504 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730786AbfFRVFw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Jun 2019 17:05:52 -0400
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH v1 17/22] docs: add arch doc directories to the index
+Date: Tue, 18 Jun 2019 18:05:41 -0300
+Message-Id: <361595adad058766dd3429db996dd78b5e234621.1560891322.git.mchehab+samsung@kernel.org>
+In-Reply-To: <cover.1560891322.git.mchehab+samsung@kernel.org>
+References: <cover.1560891322.git.mchehab+samsung@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Palmer Dabbelt <palmer@sifive.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
 
-Use napi_gro_receive() to pass up all types of packets that a L3 device
-may receive.
-1) For proper L2 packets received by the IQD sniffer, this is the
-   obvious thing to do.
-2) For af_iucv (which doesn't provide a GRO assist), the GRO code will
-   transparently fall back to netif_receive_skb(). So there's no need to
-   special-case this traffic in our code.
+Now that several arch documents were converted to ReST,
+add their indexes to Documentation/index.rst and remove the
+:orphan:  from them.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 ---
- drivers/s390/net/qeth_l3_main.c | 30 ++++++++++++------------------
- 1 file changed, 12 insertions(+), 18 deletions(-)
+ Documentation/arm/index.rst    |  2 --
+ Documentation/arm64/index.rst  |  2 --
+ Documentation/ia64/index.rst   |  2 --
+ Documentation/index.rst        | 10 ++++++++++
+ Documentation/m68k/index.rst   |  2 --
+ Documentation/riscv/index.rst  |  2 --
+ Documentation/s390/index.rst   |  2 --
+ Documentation/sparc/index.rst  |  2 --
+ Documentation/xtensa/index.rst |  2 --
+ 9 files changed, 10 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 44a602aa12ec..15351922b209 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1312,6 +1312,15 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
- static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
- 				struct qeth_hdr *hdr)
- {
-+	struct af_iucv_trans_hdr *iucv = (struct af_iucv_trans_hdr *) skb->data;
-+	struct net_device *dev = skb->dev;
-+
-+	if (IS_IQD(card) && iucv->magic == ETH_P_AF_IUCV) {
-+		dev_hard_header(skb, dev, ETH_P_AF_IUCV, dev->dev_addr,
-+				"FAKELL", skb->len);
-+		return;
-+	}
-+
- 	if (!(hdr->hdr.l3.flags & QETH_HDR_PASSTHRU)) {
- 		u16 prot = (hdr->hdr.l3.flags & QETH_HDR_IPV6) ? ETH_P_IPV6 :
- 								 ETH_P_IP;
-@@ -1345,8 +1354,6 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
- 				tg_addr, "FAKELL", skb->len);
- 	}
- 
--	skb->protocol = eth_type_trans(skb, card->dev);
+diff --git a/Documentation/arm/index.rst b/Documentation/arm/index.rst
+index bd316d1a1802..9c2f781f4685 100644
+--- a/Documentation/arm/index.rst
++++ b/Documentation/arm/index.rst
+@@ -1,5 +1,3 @@
+-﻿:orphan:
 -
- 	/* copy VLAN tag from hdr into skb */
- 	if (!card->options.sniffer &&
- 	    (hdr->hdr.l3.ext_flags & (QETH_HDR_EXT_VLAN_FRAME |
-@@ -1363,12 +1370,10 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
- static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 				int budget, int *done)
- {
--	struct net_device *dev = card->dev;
- 	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct qeth_hdr *hdr;
- 	unsigned int len;
--	__u16 magic;
+ ================
+ ARM Architecture
+ ================
+diff --git a/Documentation/arm64/index.rst b/Documentation/arm64/index.rst
+index 018b7836ecb7..96b696ba4e6c 100644
+--- a/Documentation/arm64/index.rst
++++ b/Documentation/arm64/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ ==================
+ ARM64 Architecture
+ ==================
+diff --git a/Documentation/ia64/index.rst b/Documentation/ia64/index.rst
+index a3e3052ad6e2..ef99475f672b 100644
+--- a/Documentation/ia64/index.rst
++++ b/Documentation/ia64/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ ==================
+ IA-64 Architecture
+ ==================
+diff --git a/Documentation/index.rst b/Documentation/index.rst
+index 2f9bf37b8989..82cd9528dff0 100644
+--- a/Documentation/index.rst
++++ b/Documentation/index.rst
+@@ -116,7 +116,17 @@ implementation.
+    :maxdepth: 2
  
- 	*done = 0;
- 	WARN_ON_ONCE(!budget);
-@@ -1382,23 +1387,12 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 		}
- 		switch (hdr->hdr.l3.id) {
- 		case QETH_HEADER_TYPE_LAYER3:
--			magic = *(__u16 *)skb->data;
--			if (IS_IQD(card) && magic == ETH_P_AF_IUCV) {
--				len = skb->len;
--				dev_hard_header(skb, dev, ETH_P_AF_IUCV,
--						dev->dev_addr, "FAKELL", len);
--				skb->protocol = eth_type_trans(skb, dev);
--				netif_receive_skb(skb);
--			} else {
--				qeth_l3_rebuild_skb(card, skb, hdr);
--				len = skb->len;
--				napi_gro_receive(&card->napi, skb);
--			}
--			break;
-+			qeth_l3_rebuild_skb(card, skb, hdr);
-+			/* fall through */
- 		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			len = skb->len;
--			netif_receive_skb(skb);
-+			napi_gro_receive(&card->napi, skb);
- 			break;
- 		default:
- 			dev_kfree_skb_any(skb);
+    sh/index
++   arm/index
++   arm64/index
++   ia64/index
++   m68k/index
++   powerpc/index
++   riscv/index
++   s390/index
++   sh/index
++   sparc/index
+    x86/index
++   xtensa/index
+ 
+ Filesystem Documentation
+ ------------------------
+diff --git a/Documentation/m68k/index.rst b/Documentation/m68k/index.rst
+index f3273ec075c3..aa121cfcbbd9 100644
+--- a/Documentation/m68k/index.rst
++++ b/Documentation/m68k/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ =================
+ m68k Architecture
+ =================
+diff --git a/Documentation/riscv/index.rst b/Documentation/riscv/index.rst
+index c4b906d9b5a7..e3ca0922a8c2 100644
+--- a/Documentation/riscv/index.rst
++++ b/Documentation/riscv/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ ===================
+ RISC-V architecture
+ ===================
+diff --git a/Documentation/s390/index.rst b/Documentation/s390/index.rst
+index 1a914da2a07b..4602312909d3 100644
+--- a/Documentation/s390/index.rst
++++ b/Documentation/s390/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ =================
+ s390 Architecture
+ =================
+diff --git a/Documentation/sparc/index.rst b/Documentation/sparc/index.rst
+index 91f7d6643dd5..71cff621f243 100644
+--- a/Documentation/sparc/index.rst
++++ b/Documentation/sparc/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ ==================
+ Sparc Architecture
+ ==================
+diff --git a/Documentation/xtensa/index.rst b/Documentation/xtensa/index.rst
+index 5a24e365e35f..239c5f0a5c67 100644
+--- a/Documentation/xtensa/index.rst
++++ b/Documentation/xtensa/index.rst
+@@ -1,5 +1,3 @@
+-:orphan:
+-
+ ===================
+ Xtensa Architecture
+ ===================
 -- 
-2.17.1
+2.21.0
