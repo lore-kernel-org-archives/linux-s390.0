@@ -1,106 +1,145 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42116 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726098AbfFTU10 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Jun 2019 16:27:26 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5KKMJ7F118576
-        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2019 16:27:24 -0400
-Received: from e35.co.us.ibm.com (e35.co.us.ibm.com [32.97.110.153])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2t8fwbu29q-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Jun 2019 16:27:24 -0400
-Received: from localhost
-        by e35.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Thu, 20 Jun 2019 21:27:23 +0100
-Subject: Re: [RFC v1 1/1] vfio-ccw: Don't call cp_free if we are processing a
- channel program
-References: <cover.1561055076.git.alifm@linux.ibm.com>
- <46dc0cbdcb8a414d70b7807fceb1cca6229408d5.1561055076.git.alifm@linux.ibm.com>
-From: Eric Farman <farman@linux.ibm.com>
-Date: Thu, 20 Jun 2019 16:27:19 -0400
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <46dc0cbdcb8a414d70b7807fceb1cca6229408d5.1561055076.git.alifm@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <638804dc-53c0-ff2f-d123-13c257ad593f@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+References: <20190604101409.2078-1-yamada.masahiro@socionext.com>
+In-Reply-To: <20190604101409.2078-1-yamada.masahiro@socionext.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Wed, 19 Jun 2019 00:46:04 +0900
+Message-ID: <CAK7LNASv7WP+X2_oEEmp5tGqOxiv2VCj84CLuHhSsesF6AiD8A@mail.gmail.com>
+Subject: Re: [PATCH 00/15] kbuild: refactor headers_install and support
+ compile-test of UAPI headers
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Farhan Ali <alifm@linux.ibm.com>, cohuck@redhat.com
-Cc: pasic@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>
+Cc: Song Liu <songliubraving@fb.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Palmer Dabbelt <palmer@sifive.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Alexei Starovoitov <ast@kernel.org>, David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Jonathan Corbet <corbet@lwn.net>, Michael Ellerman <mpe@ellerman.id.au>, Helge Deller <deller@gmx.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Yonghong Song <yhs@fb.com>, arcml <linux-snps-arc@lists.infradead.org>, Albert Ou <aou@eecs.berkeley.edu>, Arnd Bergmann <arnd@arndb.de>, Jani Nikula <jani.nikula@intel.com>, Greentime Hu <green.hu@gmail.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Michal Marek <michal.lkml@markovi.net>, linux-parisc@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>, Randy Dunlap <rdunlap@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Networking <netdev@vger.kernel.org>, bpf@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Martin KaFai Lau <kafai@fb.com>
+
+On Tue, Jun 4, 2019 at 7:15 PM Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+>
+>
+> Multiple people have suggested to compile-test UAPI headers.
+>
+> Currently, Kbuild provides simple sanity checks by headers_check
+> but they are not enough to catch bugs.
+>
+> The most recent patch I know is David Howells' work:
+> https://patchwork.kernel.org/patch/10590203/
+>
+> I agree that we need better tests for UAPI headers,
+> but I want to integrate it in a clean way.
+>
+> The idea that has been in my mind is to compile each header
+> to make sure the selfcontainedness.
+>
+> Recently, Jani Nikula proposed a new syntax 'header-test-y'.
+> https://patchwork.kernel.org/patch/10947005/
+>
+> So, I implemented UAPI compile-testing on top of that.
+>
+> When adding a new feature, cleaning the code first is a
+> good practice.
+>
+> [1] Remove headers_install_all
+>
+> This target installs UAPI headers of all architectures
+> in a single tree.
+> It does not make sense to compile test of headers from
+> multiple arches at the same time. Hence, removed.
+>
+> [2] Split header installation into 'make headers' and 'make headers_install'
+>
+> To compile-test UAPI headers, we need a work-directory somewhere
+> to save objects and .*.cmd files.
+>
+> usr/include/ will be the work-directory.
+>
+> Since we cannot pollute the final destination of headers_install,
+>
+> I split the header installation into two stages.
+>
+> 'make headers' will build up
+> the ready-to-install headers in usr/include,
+> which will be also used as a work-directory for the compile-test.
+>
+> 'make headers_install' will copy headers
+> from usr/include to $(INSTALL_HDR_PATH)/include.
+>
+> [3] Support compile-test of UAPI headers
+>
+> This is implemented in usr/include/Makefile
+>
+>
+> Jani Nikula (1):
+>   kbuild: add support for ensuring headers are self-contained
+>
+> Masahiro Yamada (14):
+>   kbuild: remove headers_{install,check}_all
+>   kbuild: remove stale dependency between Documentation/ and
+>     headers_install
+>   kbuild: make gdb_script depend on prepare0 instead of prepare
+>   kbuild: fix Kconfig prompt of CONFIG_HEADERS_CHECK
+>   kbuild: add CONFIG_HEADERS_INSTALL and loosen the dependency of
+>     samples
+>   kbuild: remove build_unifdef target in scripts/Makefile
+>   kbuild: build all prerequisite of headers_install simultaneously
+>   kbuild: add 'headers' target to build up ready-to-install uapi headers
+>   kbuild: re-implement Makefile.headersinst without directory descending
+>   kbuild: move hdr-inst shorthand to top Makefile
+>   kbuild: simplify scripts/headers_install.sh
+>   kbuild: deb-pkg: do not run headers_check
+>   fixup: kbuild: add support for ensuring headers are self-contained
+>   kbuild: compile test UAPI headers to ensure they are self-contained
+
+Series, applied to linux-kbuild.
+
+
+>  Documentation/kbuild/headers_install.txt |   7 --
+>  Documentation/kbuild/makefiles.txt       |  13 ++-
+>  Makefile                                 |  56 +++++-----
+>  arch/arc/configs/tb10x_defconfig         |   1 +
+>  arch/nds32/configs/defconfig             |   1 +
+>  arch/parisc/configs/a500_defconfig       |   1 +
+>  arch/parisc/configs/b180_defconfig       |   1 +
+>  arch/parisc/configs/c3000_defconfig      |   1 +
+>  arch/parisc/configs/default_defconfig    |   1 +
+>  arch/powerpc/configs/ppc6xx_defconfig    |   1 +
+>  arch/s390/configs/debug_defconfig        |   1 +
+>  include/uapi/{linux => }/Kbuild          |   6 +-
+>  init/Kconfig                             |  20 ++++
+>  lib/Kconfig.debug                        |  25 +++--
+>  samples/Kconfig                          |  14 ++-
+>  samples/Makefile                         |   4 +-
+>  scripts/Kbuild.include                   |   6 --
+>  scripts/Makefile                         |   5 -
+>  scripts/Makefile.build                   |   9 ++
+>  scripts/Makefile.headersinst             | 132 ++++++++++-------------
+>  scripts/Makefile.lib                     |   3 +
+>  scripts/cc-system-headers.sh             |   8 ++
+>  scripts/headers.sh                       |  29 -----
+>  scripts/headers_install.sh               |  48 ++++-----
+>  scripts/package/builddeb                 |   2 +-
+>  usr/.gitignore                           |   1 -
+>  usr/Makefile                             |   2 +
+>  usr/include/.gitignore                   |   3 +
+>  usr/include/Makefile                     | 132 +++++++++++++++++++++++
+>  29 files changed, 329 insertions(+), 204 deletions(-)
+>  rename include/uapi/{linux => }/Kbuild (77%)
+>  create mode 100755 scripts/cc-system-headers.sh
+>  delete mode 100755 scripts/headers.sh
+>  create mode 100644 usr/include/.gitignore
+>  create mode 100644 usr/include/Makefile
+>
+> --
+> 2.17.1
+>
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
 
 
 
-On 6/20/19 3:40 PM, Farhan Ali wrote:
-> There is a small window where it's possible that an interrupt can
-> arrive and can call cp_free, while we are still processing a channel
-> program (i.e allocating memory, pinnging pages, translating
-
-s/pinnging/pinning/
-
-> addresses etc). This can lead to allocating and freeing at the same
-> time and can cause memory corruption.
-> 
-> Let's not call cp_free if we are currently processing a channel program.
-
-The check around this cp_free() call is for a solicited interrupt, so
-it's presumably in response to a SSCH we issued.  But if we're still
-processing a CP, then we hadn't issued the SSCH to the hardware yet.  So
-what is this interrupt for?  Do the contents of irb.cpa provide any
-clues, perhaps if it's in the current cp or for someone else?
-
-> 
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
-> 
-> I have been running my test overnight with this patch and I haven't
-> seen the stack traces that I mentioned about earlier. I would like
-> to get some reviews on this and also if this is the right thing to
-> do?
-> 
-> Thanks
-> Farhan
-> 
->  drivers/s390/cio/vfio_ccw_drv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index 66a66ac..61ece3f 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -88,7 +88,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
->  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
->  	if (scsw_is_solicited(&irb->scsw)) {
->  		cp_update_scsw(&private->cp, &irb->scsw);
-
-As I alluded earlier, do we know this irb is for this cp?  If no, what
-does this function end up putting in the scsw?
-
-> -		if (is_final)
-> +		if (is_final && private->state != VFIO_CCW_STATE_CP_PROCESSING)
-
-In looking at how we set this state, and how we exit it, I see we do:
-
-if SSCH got CC0, CP_PROCESSING -> CP_PENDING
-if SSCH got !CC0, CP_PROCESSING -> IDLE
-
-While the first scenario happens immediately after the SSCH instruction,
-I guess it could be just tiny enough, like the io_trigger FSM patch I
-sent a few weeks ago.
-
-Meanwhile, the latter happens way after we return from the jump table.
-So that scenario leaves considerable time for such an interrupt to
-occur, though I don't understand why it would if we got a CC(1-3) on the
-SSCH.
-
-And anyway, the return from fsm_io_helper() in that case will also call
-cp_free().  So why does the cp->initialized check provide protection
-from a double-free in that direction, but not here?  I'm confused.
-
->  			cp_free(&private->cp);
->  	}
->  	mutex_lock(&private->io_mutex);
-> 
+-- 
+Best Regards
+Masahiro Yamada
