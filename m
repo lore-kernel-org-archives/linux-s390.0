@@ -1,44 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60380 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725916AbfFXJHZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:07:25 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] vfio-ccw: make convert_ccw0_to_ccw1 static
-Date: Mon, 24 Jun 2019 11:07:21 +0200
-Message-Id: <20190624090721.16241-1-cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3870 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730142AbfFRSnT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Jun 2019 14:43:19 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5IIgbeC134301
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2019 14:43:18 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2t74dnk64w-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 18 Jun 2019 14:43:17 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 18 Jun 2019 19:43:16 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/3] net/af_iucv: always register net_device notifier
+Date: Tue, 18 Jun 2019 20:43:01 +0200
+In-Reply-To: <20190618184301.96472-1-jwi@linux.ibm.com>
+References: <20190618184301.96472-1-jwi@linux.ibm.com>
+Message-Id: <20190618184301.96472-4-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Reported by sparse.
+Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
+open HiperTransport-based connections. For robust operation these
+connections require the af_iucv_netdev_notifier, so register it
+unconditionally.
 
-Fixes: 7f8e89a8f2fd ("vfio-ccw: Factor out the ccw0-to-ccw1 transition")
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Also handle any error that register_netdevice_notifier() returns.
+
+Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
-On top of my vfio-ccw branch.
+ net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-s390 arch maintainers: let me know if I should queue it and send
-a pull request, or if you prefer to apply it directly.
----
- drivers/s390/cio/vfio_ccw_cp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 9cddc1288059..a7b9dfd5b464 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -161,7 +161,7 @@ static inline void pfn_array_idal_create_words(
- 	idaws[0] += pa->pa_iova & (PAGE_SIZE - 1);
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 5264a182d2c3..09e1694b6d34 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -2440,6 +2440,13 @@ static int afiucv_iucv_init(void)
+ 	return err;
  }
  
--void convert_ccw0_to_ccw1(struct ccw1 *source, unsigned long len)
-+static void convert_ccw0_to_ccw1(struct ccw1 *source, unsigned long len)
++static void afiucv_iucv_exit(void)
++{
++	device_unregister(af_iucv_dev);
++	driver_unregister(&af_iucv_driver);
++	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
++}
++
+ static int __init afiucv_init(void)
  {
- 	struct ccw0 ccw0;
- 	struct ccw1 *pccw1 = source;
+ 	int err;
+@@ -2473,11 +2480,18 @@ static int __init afiucv_init(void)
+ 		err = afiucv_iucv_init();
+ 		if (err)
+ 			goto out_sock;
+-	} else
+-		register_netdevice_notifier(&afiucv_netdev_notifier);
++	}
++
++	err = register_netdevice_notifier(&afiucv_netdev_notifier);
++	if (err)
++		goto out_notifier;
++
+ 	dev_add_pack(&iucv_packet_type);
+ 	return 0;
+ 
++out_notifier:
++	if (pr_iucv)
++		afiucv_iucv_exit();
+ out_sock:
+ 	sock_unregister(PF_IUCV);
+ out_proto:
+@@ -2491,12 +2505,11 @@ static int __init afiucv_init(void)
+ static void __exit afiucv_exit(void)
+ {
+ 	if (pr_iucv) {
+-		device_unregister(af_iucv_dev);
+-		driver_unregister(&af_iucv_driver);
+-		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
++		afiucv_iucv_exit();
+ 		symbol_put(iucv_if);
+-	} else
+-		unregister_netdevice_notifier(&afiucv_netdev_notifier);
++	}
++
++	unregister_netdevice_notifier(&afiucv_netdev_notifier);
+ 	dev_remove_pack(&iucv_packet_type);
+ 	sock_unregister(PF_IUCV);
+ 	proto_unregister(&iucv_proto);
 -- 
-2.20.1
+2.17.1
