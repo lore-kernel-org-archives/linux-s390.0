@@ -1,44 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47204 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726260AbfFUMZn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 08:25:43 -0400
-Date: Fri, 21 Jun 2019 14:25:40 +0200
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7682 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726230AbfFSVPY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Jun 2019 17:15:24 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5JLEIoG022484
+        for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2019 17:15:23 -0400
+Received: from e16.ny.us.ibm.com (e16.ny.us.ibm.com [129.33.205.206])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t7utfa7ud-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2019 17:15:23 -0400
+Received: from localhost
+        by e16.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <alifm@linux.ibm.com>;
+        Wed, 19 Jun 2019 22:15:22 +0100
 Subject: Re: [RFC PATCH v1 0/5] s390: more vfio-ccw code rework
-Message-ID: <20190621142540.4ed5f943.cohuck@redhat.com>
-In-Reply-To: <20190618202352.39702-1-farman@linux.ibm.com>
 References: <20190618202352.39702-1-farman@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+Date: Wed, 19 Jun 2019 17:15:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190618202352.39702-1-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <2eed767e-9e49-0dd5-6dcd-9e3ece84dc24@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-On Tue, 18 Jun 2019 22:23:47 +0200
-Eric Farman <farman@linux.ibm.com> wrote:
 
+
+On 06/18/2019 04:23 PM, Eric Farman wrote:
 > A couple little improvements to the malloc load in vfio-ccw.
 > Really, there were just (the first) two patches, but then I
 > got excited and added a few stylistic ones to the end.
 > 
 > The routine ccwchain_calc_length() has this basic structure:
 > 
->   ccwchain_calc_length
->     a0 = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1))
->     copy_ccw_from_iova(a0, src)
->       copy_from_iova
->         pfn_array_alloc
->           b = kcalloc(len, sizeof(*pa_iova_pfn + *pa_pfn)
->         pfn_array_pin
->           vfio_pin_pages
->         memcpy(a0, src)
->         pfn_array_unpin_free
->           vfio_unpin_pages
->           kfree(b)
->     kfree(a0)
+>    ccwchain_calc_length
+>      a0 = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1))
+>      copy_ccw_from_iova(a0, src)
+>        copy_from_iova
+>          pfn_array_alloc
+>            b = kcalloc(len, sizeof(*pa_iova_pfn + *pa_pfn)
+>          pfn_array_pin
+>            vfio_pin_pages
+>          memcpy(a0, src)
+>          pfn_array_unpin_free
+>            vfio_unpin_pages
+>            kfree(b)
+>      kfree(a0)
 > 
 > We do this EVERY time we process a new channel program chain,
 > meaning at least once per SSCH and more if TICs are involved,
@@ -68,16 +81,17 @@ Eric Farman <farman@linux.ibm.com> wrote:
 > be structured weird.  Maybe that's one bridge too far.
 > 
 > Eric Farman (5):
->   vfio-ccw: Move guest_cp storage into common struct
->   vfio-ccw: Skip second copy of guest cp to host
->   vfio-ccw: Copy CCW data outside length calculation
->   vfio-ccw: Factor out the ccw0-to-ccw1 transition
->   vfio-ccw: Remove copy_ccw_from_iova()
+>    vfio-ccw: Move guest_cp storage into common struct
+>    vfio-ccw: Skip second copy of guest cp to host
+>    vfio-ccw: Copy CCW data outside length calculation
+>    vfio-ccw: Factor out the ccw0-to-ccw1 transition
+>    vfio-ccw: Remove copy_ccw_from_iova()
 > 
->  drivers/s390/cio/vfio_ccw_cp.c  | 108 +++++++++++---------------------
->  drivers/s390/cio/vfio_ccw_cp.h  |   7 +++
->  drivers/s390/cio/vfio_ccw_drv.c |   7 +++
->  3 files changed, 52 insertions(+), 70 deletions(-)
+>   drivers/s390/cio/vfio_ccw_cp.c  | 108 +++++++++++---------------------
+>   drivers/s390/cio/vfio_ccw_cp.h  |   7 +++
+>   drivers/s390/cio/vfio_ccw_drv.c |   7 +++
+>   3 files changed, 52 insertions(+), 70 deletions(-)
 > 
 
-Thanks, applied.
+For this series:
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
