@@ -1,115 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48100 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726092AbfFUOe1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:27 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 13/14] vfio-ccw: Factor out the ccw0-to-ccw1 transition
-Date: Fri, 21 Jun 2019 16:33:54 +0200
-Message-Id: <20190621143355.29175-14-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:59159 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725854AbfFSFKS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 19 Jun 2019 01:10:18 -0400
+From: Alexandre Ghiti <alex@ghiti.fr>
+Subject: [PATCH 1/8] s390: Start fallback of top-down mmap at mm->mmap_base
+Date: Wed, 19 Jun 2019 01:08:37 -0400
+Message-Id: <20190619050844.5294-2-alex@ghiti.fr>
+In-Reply-To: <20190619050844.5294-1-alex@ghiti.fr>
+References: <20190619050844.5294-1-alex@ghiti.fr>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
 
-From: Eric Farman <farman@linux.ibm.com>
+In case of mmap failure in top-down mode, there is no need to go through
+the whole address space again for the bottom-up fallback: the goal of this
+fallback is to find, as a last resort, space between the top-down mmap base
+and the stack, which is the only place not covered by the top-down mmap.
 
-This is a really useful function, but it's buried in the
-copy_ccw_from_iova() routine so that ccwchain_calc_length()
-can just work with Format-1 CCWs while doing its counting.
-But it means we're translating a full 2K of "CCWs" to Format-1,
-when in reality there's probably far fewer in that space.
-
-Let's factor it out, so maybe we can do something with it later.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20190618202352.39702-5-farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 48 ++++++++++++++++++----------------
- 1 file changed, 25 insertions(+), 23 deletions(-)
+ arch/s390/mm/mmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index a55f8d110920..9a8bf06281e0 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -161,6 +161,27 @@ static inline void pfn_array_idal_create_words(
- 	idaws[0] += pa->pa_iova & (PAGE_SIZE - 1);
- }
- 
-+void convert_ccw0_to_ccw1(struct ccw1 *source, unsigned long len)
-+{
-+	struct ccw0 ccw0;
-+	struct ccw1 *pccw1 = source;
-+	int i;
-+
-+	for (i = 0; i < len; i++) {
-+		ccw0 = *(struct ccw0 *)pccw1;
-+		if ((pccw1->cmd_code & 0x0f) == CCW_CMD_TIC) {
-+			pccw1->cmd_code = CCW_CMD_TIC;
-+			pccw1->flags = 0;
-+			pccw1->count = 0;
-+		} else {
-+			pccw1->cmd_code = ccw0.cmd_code;
-+			pccw1->flags = ccw0.flags;
-+			pccw1->count = ccw0.count;
-+		}
-+		pccw1->cda = ccw0.cda;
-+		pccw1++;
-+	}
-+}
- 
- /*
-  * Within the domain (@mdev), copy @n bytes from a guest physical
-@@ -211,32 +232,9 @@ static long copy_ccw_from_iova(struct channel_program *cp,
- 			       struct ccw1 *to, u64 iova,
- 			       unsigned long len)
- {
--	struct ccw0 ccw0;
--	struct ccw1 *pccw1;
- 	int ret;
--	int i;
- 
- 	ret = copy_from_iova(cp->mdev, to, iova, len * sizeof(struct ccw1));
--	if (ret)
--		return ret;
--
--	if (!cp->orb.cmd.fmt) {
--		pccw1 = to;
--		for (i = 0; i < len; i++) {
--			ccw0 = *(struct ccw0 *)pccw1;
--			if ((pccw1->cmd_code & 0x0f) == CCW_CMD_TIC) {
--				pccw1->cmd_code = CCW_CMD_TIC;
--				pccw1->flags = 0;
--				pccw1->count = 0;
--			} else {
--				pccw1->cmd_code = ccw0.cmd_code;
--				pccw1->flags = ccw0.flags;
--				pccw1->count = ccw0.count;
--			}
--			pccw1->cda = ccw0.cda;
--			pccw1++;
--		}
--	}
- 
- 	return ret;
- }
-@@ -441,6 +439,10 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 	if (len)
- 		return len;
- 
-+	/* Convert any Format-0 CCWs to Format-1 */
-+	if (!cp->orb.cmd.fmt)
-+		convert_ccw0_to_ccw1(cp->guest_cp, len);
-+
- 	/* Count the CCWs in the current chain */
- 	len = ccwchain_calc_length(cda, cp);
- 	if (len < 0)
+diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+index cbc718ba6d78..4a222969843b 100644
+--- a/arch/s390/mm/mmap.c
++++ b/arch/s390/mm/mmap.c
+@@ -166,7 +166,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 	if (addr & ~PAGE_MASK) {
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+-		info.low_limit = TASK_UNMAPPED_BASE;
++		info.low_limit = mm->mmap_base;
+ 		info.high_limit = TASK_SIZE;
+ 		addr = vm_unmapped_area(&info);
+ 		if (addr & ~PAGE_MASK)
 -- 
 2.20.1
