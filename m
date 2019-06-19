@@ -1,43 +1,119 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:53666 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728966AbfFNNsc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 14 Jun 2019 09:48:32 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/16] s390/ism: stop passing bogus gfp flags arguments to dma_alloc_coherent
-Date: Fri, 14 Jun 2019 15:47:21 +0200
-Message-Id: <20190614134726.3827-12-hch@lst.de>
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v4 1/7] s390: vfio-ap: Refactor vfio_ap driver probe and
+ remove callbacks
+References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+ <1560454780-20359-2-git-send-email-akrowiak@linux.ibm.com>
+ <20190618181456.0252227b.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Date: Wed, 19 Jun 2019 08:31:58 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20190618181456.0252227b.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <b4a77364-3924-20d7-42cd-e011106e0301@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Intel Linux Wireless <linuxwifi@intel.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-dma_alloc_coherent is not just the page allocator.  The only valid
-arguments to pass are either GFP_ATOMIC or GFP_ATOMIC with possible
-modifiers of __GFP_NORETRY or __GFP_NOWARN.
+On 6/18/19 12:14 PM, Cornelia Huck wrote:
+> On Thu, 13 Jun 2019 15:39:34 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> 
+>> In order to limit the number of private mdev functions called from the
+>> vfio_ap device driver as well as to provide a landing spot for dynamic
+>> configuration code related to binding/unbinding AP queue devices to/from
+>> the vfio_ap driver, the following changes are being introduced:
+>>
+>> * Move code from the vfio_ap driver's probe callback into a function
+>>    defined in the mdev private operations file.
+>>
+>> * Move code from the vfio_ap driver's remove callback into a function
+>>    defined in the mdev private operations file.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_drv.c     | 27 ++++++++++-----------------
+>>   drivers/s390/crypto/vfio_ap_ops.c     | 28 ++++++++++++++++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |  6 +++---
+>>   3 files changed, 41 insertions(+), 20 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+>> index 003662aa8060..3c60df70891b 100644
+>> --- a/drivers/s390/crypto/vfio_ap_drv.c
+>> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+>> @@ -49,15 +49,15 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+>>    */
+>>   static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+>>   {
+>> -	struct vfio_ap_queue *q;
+>> -
+>> -	q = kzalloc(sizeof(*q), GFP_KERNEL);
+>> -	if (!q)
+>> -		return -ENOMEM;
+>> -	dev_set_drvdata(&apdev->device, q);
+>> -	q->apqn = to_ap_queue(&apdev->device)->qid;
+>> -	q->saved_isc = VFIO_AP_ISC_INVALID;
+>> +	int ret;
+>> +	struct ap_queue *queue = to_ap_queue(&apdev->device);
+>> +
+>> +	ret = vfio_ap_mdev_probe_queue(queue);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>>   	return 0;
+>> +
+> 
+> Maybe you could even condense this into a simple
+> 
+> return vfio_ap_mdev_probe_queue(to_ap_queue(&apdev->device));
+> 
+> (Unless you plan to do more things with queue in a future patch, of
+> course.)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/s390/net/ism_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Consider it done.
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 4fc2056bd227..4ff5506fa4c6 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -241,7 +241,8 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
- 
- 	dmb->cpu_addr = dma_alloc_coherent(&ism->pdev->dev, dmb->dmb_len,
- 					   &dmb->dma_addr,
--					   GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC | __GFP_COMP | __GFP_NORETRY);
-+					   GFP_KERNEL | __GFP_NOWARN |
-+					   __GFP_NORETRY);
- 	if (!dmb->cpu_addr)
- 		clear_bit(dmb->sba_idx, ism->sba_bitmap);
- 
--- 
-2.20.1
+> 
+>>   }
+>>   
+>>   /**
+> 
+> (...)
+> 
+>> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+>> index f46dde56b464..5cc3c2ebf151 100644
+>> --- a/drivers/s390/crypto/vfio_ap_private.h
+>> +++ b/drivers/s390/crypto/vfio_ap_private.h
+>> @@ -90,8 +90,6 @@ struct ap_matrix_mdev {
+>>   
+>>   extern int vfio_ap_mdev_register(void);
+>>   extern void vfio_ap_mdev_unregister(void);
+>> -int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+>> -			     unsigned int retry);
+> 
+> If you don't need that function across files anymore, you probably want
+> to make it static.
+
+Yes.
+
+> 
+>>   
+>>   struct vfio_ap_queue {
+>>   	struct ap_matrix_mdev *matrix_mdev;
+>> @@ -100,5 +98,7 @@ struct vfio_ap_queue {
+>>   #define VFIO_AP_ISC_INVALID 0xff
+>>   	unsigned char saved_isc;
+>>   };
+>> -struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
+> 
+> Same here.
+
+Yes again.
+
+> 
+>> +int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
+>> +void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
+>> +
+>>   #endif /* _VFIO_AP_PRIVATE_H_ */
+> 
