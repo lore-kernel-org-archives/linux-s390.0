@@ -1,88 +1,202 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42696 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726933AbfFFU2k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jun 2019 16:28:40 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x56KQvif019192
-        for <linux-s390@vger.kernel.org>; Thu, 6 Jun 2019 16:28:39 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2sy86xmmq7-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 06 Jun 2019 16:28:39 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Thu, 6 Jun 2019 21:28:36 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 4/9] s390/cio: Use generalized CCW handler in cp_init()
-Date: Thu,  6 Jun 2019 22:28:26 +0200
-In-Reply-To: <20190606202831.44135-1-farman@linux.ibm.com>
-References: <20190606202831.44135-1-farman@linux.ibm.com>
-Message-Id: <20190606202831.44135-5-farman@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18016 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726175AbfFSVOC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Jun 2019 17:14:02 -0400
+Subject: Re: [RFC PATCH v1 1/5] vfio-ccw: Move guest_cp storage into common
+ struct
+References: <20190618202352.39702-1-farman@linux.ibm.com>
+ <20190618202352.39702-2-farman@linux.ibm.com>
+ <0e55d558-08ee-996e-f9c2-f51e8695064a@linux.ibm.com>
+ <50cf003b-017d-f475-238d-83aef2df7200@linux.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+Message-ID: <79904d5c-c6f7-dae0-8f11-d3db37337eea@linux.ibm.com>
+Date: Wed, 19 Jun 2019 17:12:44 -0400
+MIME-Version: 1.0
+In-Reply-To: <50cf003b-017d-f475-238d-83aef2df7200@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-It is now pretty apparent that ccwchain_handle_ccw()
-(nee ccwchain_handle_tic()) does everything that cp_init()
-wants to do.
 
-Let's remove that duplicated code from cp_init() and let
-ccwchain_handle_ccw() handle it itself.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+On 06/19/2019 04:53 PM, Eric Farman wrote:
+> 
+> 
+> On 6/19/19 4:13 PM, Farhan Ali wrote:
+>>
+>>
+>> On 06/18/2019 04:23 PM, Eric Farman wrote:
+>>> Rather than allocating/freeing a piece of memory every time
+>>> we try to figure out how long a CCW chain is, let's use a piece
+>>> of memory allocated for each device.
+>>>
+>>> The io_mutex added with commit 4f76617378ee9 ("vfio-ccw: protect
+>>> the I/O region") is held for the duration of the VFIO_CCW_EVENT_IO_REQ
+>>> event that accesses/uses this space, so there should be no race
+>>> concerns with another CPU attempting an (unexpected) SSCH for the
+>>> same device.
+>>>
+>>> Suggested-by: Cornelia Huck <cohuck@redhat.com>
+>>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>>> ---
+>>> Conny, your suggestion [1] did not go unnoticed.  :)
+>>>
+>>> [1] https://patchwork.kernel.org/comment/22312659/
+>>> ---
+>>>    drivers/s390/cio/vfio_ccw_cp.c  | 23 ++++-------------------
+>>>    drivers/s390/cio/vfio_ccw_cp.h  |  7 +++++++
+>>>    drivers/s390/cio/vfio_ccw_drv.c |  7 +++++++
+>>>    3 files changed, 18 insertions(+), 19 deletions(-)
+>>>
+>>> diff --git a/drivers/s390/cio/vfio_ccw_cp.c
+>>> b/drivers/s390/cio/vfio_ccw_cp.c
+>>> index 90d86e1354c1..f358502376be 100644
+>>> --- a/drivers/s390/cio/vfio_ccw_cp.c
+>>> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+>>> @@ -16,12 +16,6 @@
+>>>      #include "vfio_ccw_cp.h"
+>>>    -/*
+>>> - * Max length for ccw chain.
+>>> - * XXX: Limit to 256, need to check more?
+>>> - */
+>>> -#define CCWCHAIN_LEN_MAX    256
+>>> -
+>>>    struct pfn_array {
+>>>        /* Starting guest physical I/O address. */
+>>>        unsigned long        pa_iova;
+>>> @@ -386,7 +380,7 @@ static void ccwchain_cda_free(struct ccwchain
+>>> *chain, int idx)
+>>>     */
+>>>    static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+>>>    {
+>>> -    struct ccw1 *ccw, *p;
+>>> +    struct ccw1 *ccw = cp->guest_cp;
+>>>        int cnt;
+>>>          /*
+>>> @@ -394,15 +388,9 @@ static int ccwchain_calc_length(u64 iova, struct
+>>> channel_program *cp)
+>>>         * Currently the chain length is limited to CCWCHAIN_LEN_MAX (256).
+>>>         * So copying 2K is enough (safe).
+>>>         */
+>>> -    p = ccw = kcalloc(CCWCHAIN_LEN_MAX, sizeof(*ccw), GFP_KERNEL);
+>>> -    if (!ccw)
+>>> -        return -ENOMEM;
+>>> -
+>>>        cnt = copy_ccw_from_iova(cp, ccw, iova, CCWCHAIN_LEN_MAX);
+>>
+>> Just a minor concern, should we clear out cp->guest_cp memory before we
+>> do the copying? Given that the ccwchain_calc_length will also call be
+>> called during tic handling, it's possible there might be some garbage
+>> data in guest_cp, no?
+> 
+> Yeah, they'll be garbage there, but I'm not sure it's a problem.  By the
+> time we get here again (ccwchain_loop_tic() -> ccwchain_handle_ccw()),
+> we'll have saved the relevant CCWs for the first segment.  And the
+> second time through we'll be copying a fresh 2K from the target of the
+> TIC to cp->guest_cp, overwriting all that stale data with new CCWs (and
+> new garbage data).
+> 
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 52735cdb0270..5b98bea433b7 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -744,9 +744,7 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
-  */
- int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- {
--	u64 iova = orb->cmd.cpa;
--	struct ccwchain *chain;
--	int len, ret;
-+	int ret;
- 
- 	/*
- 	 * XXX:
-@@ -759,28 +757,11 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	memcpy(&cp->orb, orb, sizeof(*orb));
- 	cp->mdev = mdev;
- 
--	/* Get chain length. */
--	len = ccwchain_calc_length(iova, cp);
--	if (len < 0)
--		return len;
--
--	/* Alloc mem for the head chain. */
--	chain = ccwchain_alloc(cp, len);
--	if (!chain)
--		return -ENOMEM;
--	chain->ch_iova = iova;
--
--	/* Copy the head chain from guest. */
--	ret = copy_ccw_from_iova(cp, chain->ch_ccw, iova, len);
--	if (ret) {
--		ccwchain_free(chain);
--		return ret;
--	}
--
--	/* Now loop for its TICs. */
--	ret = ccwchain_loop_tic(chain, cp);
-+	/* Build a ccwchain for the first CCW segment */
-+	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
- 	if (ret)
- 		cp_free(cp);
-+
- 	/* It is safe to force: if not set but idals used
- 	 * ccwchain_calc_length returns an error.
- 	 */
--- 
-2.17.1
+Yes, you are right. Please disregard my concern :)
+
+>>
+>>
+>>> -    if (cnt) {
+>>> -        kfree(ccw);
+>>> +    if (cnt)
+>>>            return cnt;
+>>> -    }
+>>>          cnt = 0;
+>>>        do {
+>>> @@ -413,10 +401,8 @@ static int ccwchain_calc_length(u64 iova, struct
+>>> channel_program *cp)
+>>>             * orb specified one of the unsupported formats, we defer
+>>>             * checking for IDAWs in unsupported formats to here.
+>>>             */
+>>> -        if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
+>>> -            kfree(p);
+>>> +        if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
+>>>                return -EOPNOTSUPP;
+>>> -        }
+>>>              /*
+>>>             * We want to keep counting if the current CCW has the
+>>> @@ -435,7 +421,6 @@ static int ccwchain_calc_length(u64 iova, struct
+>>> channel_program *cp)
+>>>        if (cnt == CCWCHAIN_LEN_MAX + 1)
+>>>            cnt = -EINVAL;
+>>>    -    kfree(p);
+>>>        return cnt;
+>>>    }
+>>>    @@ -461,7 +446,7 @@ static int ccwchain_handle_ccw(u32 cda, struct
+>>> channel_program *cp)
+>>>        struct ccwchain *chain;
+>>>        int len, ret;
+>>>    -    /* Get chain length. */
+>>> +    /* Copy the chain from cda to cp, and count the CCWs in it */
+>>>        len = ccwchain_calc_length(cda, cp);
+>>>        if (len < 0)
+>>>            return len;
+>>> diff --git a/drivers/s390/cio/vfio_ccw_cp.h
+>>> b/drivers/s390/cio/vfio_ccw_cp.h
+>>> index 3c20cd208da5..7cdc38049033 100644
+>>> --- a/drivers/s390/cio/vfio_ccw_cp.h
+>>> +++ b/drivers/s390/cio/vfio_ccw_cp.h
+>>> @@ -16,6 +16,12 @@
+>>>      #include "orb.h"
+>>>    +/*
+>>> + * Max length for ccw chain.
+>>> + * XXX: Limit to 256, need to check more?
+>>> + */
+>>> +#define CCWCHAIN_LEN_MAX    256
+>>> +
+>>>    /**
+>>>     * struct channel_program - manage information for channel program
+>>>     * @ccwchain_list: list head of ccwchains
+>>> @@ -32,6 +38,7 @@ struct channel_program {
+>>>        union orb orb;
+>>>        struct device *mdev;
+>>>        bool initialized;
+>>> +    struct ccw1 *guest_cp;
+>>>    };
+>>>      extern int cp_init(struct channel_program *cp, struct device *mdev,
+>>> diff --git a/drivers/s390/cio/vfio_ccw_drv.c
+>>> b/drivers/s390/cio/vfio_ccw_drv.c
+>>> index 66a66ac1f3d1..34a9a5e3fd36 100644
+>>> --- a/drivers/s390/cio/vfio_ccw_drv.c
+>>> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+>>> @@ -129,6 +129,11 @@ static int vfio_ccw_sch_probe(struct subchannel
+>>> *sch)
+>>>        if (!private)
+>>>            return -ENOMEM;
+>>>    +    private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct
+>>> ccw1),
+>>> +                       GFP_KERNEL);
+>>> +    if (!private->cp.guest_cp)
+>>> +        goto out_free;
+>>> +
+>>>        private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
+>>>                               GFP_KERNEL | GFP_DMA);
+>>>        if (!private->io_region)
+>>> @@ -169,6 +174,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>>>            kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+>>>        if (private->io_region)
+>>>            kmem_cache_free(vfio_ccw_io_region, private->io_region);
+>>> +    kfree(private->cp.guest_cp);
+>>>        kfree(private);
+>>>        return ret;
+>>>    }
+>>> @@ -185,6 +191,7 @@ static int vfio_ccw_sch_remove(struct subchannel
+>>> *sch)
+>>>          kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+>>>        kmem_cache_free(vfio_ccw_io_region, private->io_region);
+>>> +    kfree(private->cp.guest_cp);
+>>>        kfree(private);
+>>>          return 0;
+>>>
+> 
