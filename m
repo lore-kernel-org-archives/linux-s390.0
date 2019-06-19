@@ -1,759 +1,410 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48432 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4068 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727193AbfFFLvq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Jun 2019 07:51:46 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x56BnYNt048609
-        for <linux-s390@vger.kernel.org>; Thu, 6 Jun 2019 07:51:45 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2sy0w947vt-1
+        by vger.kernel.org with ESMTP id S1730340AbfFSNjO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Jun 2019 09:39:14 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5JDbsBX028985
+        for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2019 09:39:10 -0400
+Received: from e12.ny.us.ibm.com (e12.ny.us.ibm.com [129.33.205.202])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2t7nd5avtu-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 06 Jun 2019 07:51:44 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 19 Jun 2019 09:39:10 -0400
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Thu, 6 Jun 2019 12:51:43 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH v4 3/8] s390/cio: add basic protected virtualization support
-Date: Thu,  6 Jun 2019 13:51:22 +0200
-In-Reply-To: <20190606115127.55519-1-pasic@linux.ibm.com>
-References: <20190606115127.55519-1-pasic@linux.ibm.com>
-Message-Id: <20190606115127.55519-4-pasic@linux.ibm.com>
+        by e12.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <akrowiak@linux.ibm.com>;
+        Wed, 19 Jun 2019 14:39:09 +0100
+Subject: Re: [PATCH v4 5/7] s390: vfio-ap: allow assignment of unavailable AP
+ resources to mdev device
+References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+ <1560454780-20359-6-git-send-email-akrowiak@linux.ibm.com>
+ <21cdd1ec-27aa-5f9a-8ac2-db2b2cef7d61@linux.ibm.com>
+ <8c029b68-1084-8d17-6064-3209910c04b9@linux.ibm.com>
+ <80639474-8d9f-2f95-be0b-ae44cbbac3fe@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Date: Wed, 19 Jun 2019 09:39:02 -0400
+MIME-Version: 1.0
+In-Reply-To: <80639474-8d9f-2f95-be0b-ae44cbbac3fe@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <c9c255e2-6059-3b0e-6f36-9ca5c208a003@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-As virtio-ccw devices are channel devices, we need to use the
-dma area within the common I/O layer for any communication with
-the hypervisor.
+On 6/18/19 2:49 AM, Harald Freudenberger wrote:
+> On 17.06.19 17:07, Tony Krowiak wrote:
+>> On 6/17/19 6:05 AM, Harald Freudenberger wrote:
+>>> On 13.06.19 21:39, Tony Krowiak wrote:
+>>>> The AP architecture does not preclude assignment of AP resources that are
+>>>> not available. Let's go ahead and implement this facet of the AP
+>>>> architecture for linux guests.
+>>>>
+>>>> The current implementation does not allow assignment of AP adapters or
+>>>> domains to an mdev device if the APQNs resulting from the assignment
+>>>> reference AP queue devices that are not bound to the vfio_ap device
+>>>> driver. This patch allows assignment of AP resources to the mdev device as
+>>>> long as the APQNs resulting from the assignment are not reserved by the AP
+>>>> BUS for use by the zcrypt device drivers and the APQNs are not assigned to
+>>>> another mdev device.
+>>>>
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_ops.c | 231 ++++++++------------------------------
+>>>>    1 file changed, 44 insertions(+), 187 deletions(-)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> index 60efd3d7896d..9db86c0db52e 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -406,122 +406,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
+>>>>        NULL,
+>>>>    };
+>>>>    -struct vfio_ap_queue_reserved {
+>>>> -    unsigned long *apid;
+>>>> -    unsigned long *apqi;
+>>>> -    bool reserved;
+>>>> -};
+>>>> -
+>>>> -/**
+>>>> - * vfio_ap_has_queue
+>>>> - *
+>>>> - * @dev: an AP queue device
+>>>> - * @data: a struct vfio_ap_queue_reserved reference
+>>>> - *
+>>>> - * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
+>>>> - * apid or apqi specified in @data:
+>>>> - *
+>>>> - * - If @data contains both an apid and apqi value, then @data will be flagged
+>>>> - *   as reserved if the APID and APQI fields for the AP queue device matches
+>>>> - *
+>>>> - * - If @data contains only an apid value, @data will be flagged as
+>>>> - *   reserved if the APID field in the AP queue device matches
+>>>> - *
+>>>> - * - If @data contains only an apqi value, @data will be flagged as
+>>>> - *   reserved if the APQI field in the AP queue device matches
+>>>> - *
+>>>> - * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
+>>>> - * @data does not contain either an apid or apqi.
+>>>> - */
+>>>> -static int vfio_ap_has_queue(struct device *dev, void *data)
+>>>> -{
+>>>> -    struct vfio_ap_queue_reserved *qres = data;
+>>>> -    struct ap_queue *ap_queue = to_ap_queue(dev);
+>>>> -    ap_qid_t qid;
+>>>> -    unsigned long id;
+>>>> -
+>>>> -    if (qres->apid && qres->apqi) {
+>>>> -        qid = AP_MKQID(*qres->apid, *qres->apqi);
+>>>> -        if (qid == ap_queue->qid)
+>>>> -            qres->reserved = true;
+>>>> -    } else if (qres->apid && !qres->apqi) {
+>>>> -        id = AP_QID_CARD(ap_queue->qid);
+>>>> -        if (id == *qres->apid)
+>>>> -            qres->reserved = true;
+>>>> -    } else if (!qres->apid && qres->apqi) {
+>>>> -        id = AP_QID_QUEUE(ap_queue->qid);
+>>>> -        if (id == *qres->apqi)
+>>>> -            qres->reserved = true;
+>>>> -    } else {
+>>>> -        return -EINVAL;
+>>>> -    }
+>>>> -
+>>>> -    return 0;
+>>>> -}
+>>>> -
+>>>> -/**
+>>>> - * vfio_ap_verify_queue_reserved
+>>>> - *
+>>>> - * @matrix_dev: a mediated matrix device
+>>>> - * @apid: an AP adapter ID
+>>>> - * @apqi: an AP queue index
+>>>> - *
+>>>> - * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
+>>>> - * driver according to the following rules:
+>>>> - *
+>>>> - * - If both @apid and @apqi are not NULL, then there must be an AP queue
+>>>> - *   device bound to the vfio_ap driver with the APQN identified by @apid and
+>>>> - *   @apqi
+>>>> - *
+>>>> - * - If only @apid is not NULL, then there must be an AP queue device bound
+>>>> - *   to the vfio_ap driver with an APQN containing @apid
+>>>> - *
+>>>> - * - If only @apqi is not NULL, then there must be an AP queue device bound
+>>>> - *   to the vfio_ap driver with an APQN containing @apqi
+>>>> - *
+>>>> - * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+>>>> - */
+>>>> -static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+>>>> -                     unsigned long *apqi)
+>>>> -{
+>>>> -    int ret;
+>>>> -    struct vfio_ap_queue_reserved qres;
+>>>> -
+>>>> -    qres.apid = apid;
+>>>> -    qres.apqi = apqi;
+>>>> -    qres.reserved = false;
+>>>> -
+>>>> -    ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>>>> -                     &qres, vfio_ap_has_queue);
+>>>> -    if (ret)
+>>>> -        return ret;
+>>>> -
+>>>> -    if (qres.reserved)
+>>>> -        return 0;
+>>>> -
+>>>> -    return -EADDRNOTAVAIL;
+>>>> -}
+>>>> -
+>>>> -static int
+>>>> -vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+>>>> -                         unsigned long apid)
+>>>> -{
+>>>> -    int ret;
+>>>> -    unsigned long apqi;
+>>>> -    unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
+>>>> -
+>>>> -    if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
+>>>> -        return vfio_ap_verify_queue_reserved(&apid, NULL);
+>>>> -
+>>>> -    for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
+>>>> -        ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+>>>> -        if (ret)
+>>>> -            return ret;
+>>>> -    }
+>>>> -
+>>>> -    return 0;
+>>>> -}
+>>>> -
+>>>>    /**
+>>>>     * vfio_ap_mdev_verify_no_sharing
+>>>>     *
+>>>> @@ -529,18 +413,26 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+>>>>     * and AP queue indexes comprising the AP matrix are not configured for another
+>>>>     * mediated device. AP queue sharing is not allowed.
+>>>>     *
+>>>> - * @matrix_mdev: the mediated matrix device
+>>>> + * @mdev_apm: the mask identifying the adapters assigned to mdev
+>>>> + * @mdev_apm: the mask identifying the adapters assigned to mdev
+>>> I assume you wanted to write @mdev_aqm ... queues ... at the 2nd line.
+>>
+>> You assumed correctly. I also mean to say "domains assigned to mdev".
+>>
+>>>>     *
+>>>>     * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
+>>>>     */
+>>>> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>>>> +static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+>>>> +                      unsigned long *mdev_aqm)
+>>>>    {
+>>>>        struct ap_matrix_mdev *lstdev;
+>>>>        DECLARE_BITMAP(apm, AP_DEVICES);
+>>>>        DECLARE_BITMAP(aqm, AP_DOMAINS);
+>>>>          list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
+>>>> -        if (matrix_mdev == lstdev)
+>>>> +        /*
+>>>> +         * If either of the input masks belongs to the mdev to which an
+>>>> +         * AP resource is being assigned, then we don't need to verify
+>>>> +         * that mdev's masks.
+>>>> +         */
+>>>> +        if ((mdev_apm == lstdev->matrix.apm) ||
+>>>> +            (mdev_aqm == lstdev->matrix.aqm))
+>>>>                continue;
+>>>>              memset(apm, 0, sizeof(apm));
+>>>> @@ -550,12 +442,10 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>>>>             * We work on full longs, as we can only exclude the leftover
+>>>>             * bits in non-inverse order. The leftover is all zeros.
+>>>>             */
+>>>> -        if (!bitmap_and(apm, matrix_mdev->matrix.apm,
+>>>> -                lstdev->matrix.apm, AP_DEVICES))
+>>>> +        if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
+>>>>                continue;
+>>>>    -        if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
+>>>> -                lstdev->matrix.aqm, AP_DOMAINS))
+>>>> +        if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
+>>>>                continue;
+>>>>              return -EADDRINUSE;
+>>>> @@ -564,6 +454,17 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>>>>        return 0;
+>>>>    }
+>>>>    +static int vfio_ap_mdev_validate_masks(unsigned long *apm, unsigned long *aqm)
+>>>> +{
+>>>> +    int ret;
+>>>> +
+>>>> +    ret = ap_apqn_in_matrix_owned_by_def_drv(apm, aqm);
+>>>> +    if (ret)
+>>>> +        return (ret == 1) ? -EADDRNOTAVAIL : ret;
+>>>> +
+>>>> +    return vfio_ap_mdev_verify_no_sharing(apm, aqm);
+>>>> +}
+>>>> +
+>>>>    /**
+>>>>     * assign_adapter_store
+>>>>     *
+>>>> @@ -602,6 +503,7 @@ static ssize_t assign_adapter_store(struct device *dev,
+>>>>    {
+>>>>        int ret;
+>>>>        unsigned long apid;
+>>>> +    DECLARE_BITMAP(apm, AP_DEVICES);
+>>>>        struct mdev_device *mdev = mdev_from_dev(dev);
+>>>>        struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>>    @@ -616,32 +518,19 @@ static ssize_t assign_adapter_store(struct device *dev,
+>>>>        if (apid > matrix_mdev->matrix.apm_max)
+>>>>            return -ENODEV;
+>>>>    -    /*
+>>>> -     * Set the bit in the AP mask (APM) corresponding to the AP adapter
+>>>> -     * number (APID). The bits in the mask, from most significant to least
+>>>> -     * significant bit, correspond to APIDs 0-255.
+>>>> -     */
+>>>> -    mutex_lock(&matrix_dev->lock);
+>>>> -
+>>>> -    ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
+>>>> -    if (ret)
+>>>> -        goto done;
+>>>> +    memset(apm, 0, ARRAY_SIZE(apm) * sizeof(*apm));
+>>> What about just memset(apm, 0, sizeof(apm));
+>>
+>> apm is a pointer to an array of unsigned long, so sizeof(apm) will
+>> yield the number of bytes in the pointer (8), not the number of bytes in
+>> the array (32); or am I wrong about that?
+> The
+>    DECLARE_BITMAP(apm, AP_DEVICES);
+> with the macro definition in types.h:
+>    #define DECLARE_BITMAP(name,bits) \
+>      unsigned long name[BITS_TO_LONGS(bits)]
+> gives this expanded code:
+>    unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+> which is an ordinary unsigned long array.
+> So sizeof(apm) gives the size of the array in bytes:
+>    sizeof(apm) = 32
+> I know this is weird, but it is common practice.
 
-Note that we do not need to use that area for control blocks
-directly referenced by instructions, e.g. the orb.
+It must be the compiler figures out that apm points to
+an array. Although probably not necessary, I will make
+the change.
 
-It handles neither QDIO in the common code, nor any device type specific
-stuff (like channel programs constructed by the DASD driver).
-
-An interesting side effect is that virtio structures are now going to
-get allocated in 31 bit addressable storage.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- arch/s390/include/asm/ccwdev.h   |  4 ++
- drivers/s390/cio/ccwreq.c        |  9 +++--
- drivers/s390/cio/device.c        | 68 ++++++++++++++++++++++++++------
- drivers/s390/cio/device_fsm.c    | 49 +++++++++++++----------
- drivers/s390/cio/device_id.c     | 20 +++++-----
- drivers/s390/cio/device_ops.c    | 21 +++++++++-
- drivers/s390/cio/device_pgid.c   | 22 ++++++-----
- drivers/s390/cio/device_status.c | 24 +++++------
- drivers/s390/cio/io_sch.h        | 20 +++++++---
- drivers/s390/virtio/virtio_ccw.c | 10 -----
- 10 files changed, 164 insertions(+), 83 deletions(-)
-
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index a29dd430fb40..865ce1cb86d5 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -226,6 +226,10 @@ extern int ccw_device_enable_console(struct ccw_device *);
- extern void ccw_device_wait_idle(struct ccw_device *);
- extern int ccw_device_force_console(struct ccw_device *);
- 
-+extern void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size);
-+extern void ccw_device_dma_free(struct ccw_device *cdev,
-+				void *cpu_addr, size_t size);
-+
- int ccw_device_siosl(struct ccw_device *);
- 
- extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
-diff --git a/drivers/s390/cio/ccwreq.c b/drivers/s390/cio/ccwreq.c
-index 603268a33ea1..73582a0a2622 100644
---- a/drivers/s390/cio/ccwreq.c
-+++ b/drivers/s390/cio/ccwreq.c
-@@ -63,7 +63,7 @@ static void ccwreq_stop(struct ccw_device *cdev, int rc)
- 		return;
- 	req->done = 1;
- 	ccw_device_set_timeout(cdev, 0);
--	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 	if (rc && rc != -ENODEV && req->drc)
- 		rc = req->drc;
- 	req->callback(cdev, req->data, rc);
-@@ -86,7 +86,7 @@ static void ccwreq_do(struct ccw_device *cdev)
- 			continue;
- 		}
- 		/* Perform start function. */
--		memset(&cdev->private->irb, 0, sizeof(struct irb));
-+		memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 		rc = cio_start(sch, cp, (u8) req->mask);
- 		if (rc == 0) {
- 			/* I/O started successfully. */
-@@ -169,7 +169,7 @@ int ccw_request_cancel(struct ccw_device *cdev)
-  */
- static enum io_status ccwreq_status(struct ccw_device *cdev, struct irb *lcirb)
- {
--	struct irb *irb = &cdev->private->irb;
-+	struct irb *irb = &cdev->private->dma_area->irb;
- 	struct cmd_scsw *scsw = &irb->scsw.cmd;
- 	enum uc_todo todo;
- 
-@@ -187,7 +187,8 @@ static enum io_status ccwreq_status(struct ccw_device *cdev, struct irb *lcirb)
- 		CIO_TRACE_EVENT(2, "sensedata");
- 		CIO_HEX_EVENT(2, &cdev->private->dev_id,
- 			      sizeof(struct ccw_dev_id));
--		CIO_HEX_EVENT(2, &cdev->private->irb.ecw, SENSE_MAX_COUNT);
-+		CIO_HEX_EVENT(2, &cdev->private->dma_area->irb.ecw,
-+			      SENSE_MAX_COUNT);
- 		/* Check for command reject. */
- 		if (irb->ecw[0] & SNS0_CMD_REJECT)
- 			return IO_REJECTED;
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 1540229a37bb..6a3a14097ab9 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -24,6 +24,7 @@
- #include <linux/timer.h>
- #include <linux/kernel_stat.h>
- #include <linux/sched/signal.h>
-+#include <linux/dma-mapping.h>
- 
- #include <asm/ccwdev.h>
- #include <asm/cio.h>
-@@ -687,6 +688,9 @@ ccw_device_release(struct device *dev)
- 	struct ccw_device *cdev;
- 
- 	cdev = to_ccwdev(dev);
-+	cio_gp_dma_free(cdev->private->dma_pool, cdev->private->dma_area,
-+			sizeof(*cdev->private->dma_area));
-+	cio_gp_dma_destroy(cdev->private->dma_pool, &cdev->dev);
- 	/* Release reference of parent subchannel. */
- 	put_device(cdev->dev.parent);
- 	kfree(cdev->private);
-@@ -696,15 +700,33 @@ ccw_device_release(struct device *dev)
- static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
- {
- 	struct ccw_device *cdev;
-+	struct gen_pool *dma_pool;
- 
- 	cdev  = kzalloc(sizeof(*cdev), GFP_KERNEL);
--	if (cdev) {
--		cdev->private = kzalloc(sizeof(struct ccw_device_private),
--					GFP_KERNEL | GFP_DMA);
--		if (cdev->private)
--			return cdev;
--	}
-+	if (!cdev)
-+		goto err_cdev;
-+	cdev->private = kzalloc(sizeof(struct ccw_device_private),
-+				GFP_KERNEL | GFP_DMA);
-+	if (!cdev->private)
-+		goto err_priv;
-+	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
-+	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
-+	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
-+	if (!dma_pool)
-+		goto err_dma_pool;
-+	cdev->private->dma_pool = dma_pool;
-+	cdev->private->dma_area = cio_gp_dma_zalloc(dma_pool, &cdev->dev,
-+					sizeof(*cdev->private->dma_area));
-+	if (!cdev->private->dma_area)
-+		goto err_dma_area;
-+	return cdev;
-+err_dma_area:
-+	cio_gp_dma_destroy(dma_pool, &cdev->dev);
-+err_dma_pool:
-+	kfree(cdev->private);
-+err_priv:
- 	kfree(cdev);
-+err_cdev:
- 	return ERR_PTR(-ENOMEM);
- }
- 
-@@ -884,7 +906,7 @@ io_subchannel_recog_done(struct ccw_device *cdev)
- 			wake_up(&ccw_device_init_wq);
- 		break;
- 	case DEV_STATE_OFFLINE:
--		/* 
-+		/*
- 		 * We can't register the device in interrupt context so
- 		 * we schedule a work item.
- 		 */
-@@ -1062,6 +1084,14 @@ static int io_subchannel_probe(struct subchannel *sch)
- 	if (!io_priv)
- 		goto out_schedule;
- 
-+	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
-+				sizeof(*io_priv->dma_area),
-+				&io_priv->dma_area_dma, GFP_KERNEL);
-+	if (!io_priv->dma_area) {
-+		kfree(io_priv);
-+		goto out_schedule;
-+	}
-+
- 	set_io_private(sch, io_priv);
- 	css_schedule_eval(sch->schid);
- 	return 0;
-@@ -1088,6 +1118,8 @@ static int io_subchannel_remove(struct subchannel *sch)
- 	set_io_private(sch, NULL);
- 	spin_unlock_irq(sch->lock);
- out_free:
-+	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
-+			  io_priv->dma_area, io_priv->dma_area_dma);
- 	kfree(io_priv);
- 	sysfs_remove_group(&sch->dev.kobj, &io_subchannel_attr_group);
- 	return 0;
-@@ -1593,20 +1625,32 @@ struct ccw_device * __init ccw_device_create_console(struct ccw_driver *drv)
- 		return ERR_CAST(sch);
- 
- 	io_priv = kzalloc(sizeof(*io_priv), GFP_KERNEL | GFP_DMA);
--	if (!io_priv) {
--		put_device(&sch->dev);
--		return ERR_PTR(-ENOMEM);
--	}
-+	if (!io_priv)
-+		goto err_priv;
-+	io_priv->dma_area = dma_alloc_coherent(&sch->dev,
-+				sizeof(*io_priv->dma_area),
-+				&io_priv->dma_area_dma, GFP_KERNEL);
-+	if (!io_priv->dma_area)
-+		goto err_dma_area;
- 	set_io_private(sch, io_priv);
- 	cdev = io_subchannel_create_ccwdev(sch);
- 	if (IS_ERR(cdev)) {
- 		put_device(&sch->dev);
-+		dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
-+				  io_priv->dma_area, io_priv->dma_area_dma);
-+		set_io_private(sch, NULL);
- 		kfree(io_priv);
- 		return cdev;
- 	}
- 	cdev->drv = drv;
- 	ccw_device_set_int_class(cdev);
- 	return cdev;
-+
-+err_dma_area:
-+	kfree(io_priv);
-+err_priv:
-+	put_device(&sch->dev);
-+	return ERR_PTR(-ENOMEM);
- }
- 
- void __init ccw_device_destroy_console(struct ccw_device *cdev)
-@@ -1617,6 +1661,8 @@ void __init ccw_device_destroy_console(struct ccw_device *cdev)
- 	set_io_private(sch, NULL);
- 	put_device(&sch->dev);
- 	put_device(&cdev->dev);
-+	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
-+			  io_priv->dma_area, io_priv->dma_area_dma);
- 	kfree(io_priv);
- }
- 
-diff --git a/drivers/s390/cio/device_fsm.c b/drivers/s390/cio/device_fsm.c
-index 9169af7dbb43..8fc267324ebb 100644
---- a/drivers/s390/cio/device_fsm.c
-+++ b/drivers/s390/cio/device_fsm.c
-@@ -67,8 +67,10 @@ static void ccw_timeout_log(struct ccw_device *cdev)
- 			       sizeof(struct tcw), 0);
- 	} else {
- 		printk(KERN_WARNING "cio: orb indicates command mode\n");
--		if ((void *)(addr_t)orb->cmd.cpa == &private->sense_ccw ||
--		    (void *)(addr_t)orb->cmd.cpa == cdev->private->iccws)
-+		if ((void *)(addr_t)orb->cmd.cpa ==
-+		    &private->dma_area->sense_ccw ||
-+		    (void *)(addr_t)orb->cmd.cpa ==
-+		    cdev->private->dma_area->iccws)
- 			printk(KERN_WARNING "cio: last channel program "
- 			       "(intern):\n");
- 		else
-@@ -143,18 +145,22 @@ ccw_device_cancel_halt_clear(struct ccw_device *cdev)
- void ccw_device_update_sense_data(struct ccw_device *cdev)
- {
- 	memset(&cdev->id, 0, sizeof(cdev->id));
--	cdev->id.cu_type   = cdev->private->senseid.cu_type;
--	cdev->id.cu_model  = cdev->private->senseid.cu_model;
--	cdev->id.dev_type  = cdev->private->senseid.dev_type;
--	cdev->id.dev_model = cdev->private->senseid.dev_model;
-+	cdev->id.cu_type = cdev->private->dma_area->senseid.cu_type;
-+	cdev->id.cu_model = cdev->private->dma_area->senseid.cu_model;
-+	cdev->id.dev_type = cdev->private->dma_area->senseid.dev_type;
-+	cdev->id.dev_model = cdev->private->dma_area->senseid.dev_model;
- }
- 
- int ccw_device_test_sense_data(struct ccw_device *cdev)
- {
--	return cdev->id.cu_type == cdev->private->senseid.cu_type &&
--		cdev->id.cu_model == cdev->private->senseid.cu_model &&
--		cdev->id.dev_type == cdev->private->senseid.dev_type &&
--		cdev->id.dev_model == cdev->private->senseid.dev_model;
-+	return cdev->id.cu_type ==
-+		cdev->private->dma_area->senseid.cu_type &&
-+		cdev->id.cu_model ==
-+		cdev->private->dma_area->senseid.cu_model &&
-+		cdev->id.dev_type ==
-+		cdev->private->dma_area->senseid.dev_type &&
-+		cdev->id.dev_model ==
-+		cdev->private->dma_area->senseid.dev_model;
- }
- 
- /*
-@@ -342,7 +348,7 @@ ccw_device_done(struct ccw_device *cdev, int state)
- 		cio_disable_subchannel(sch);
- 
- 	/* Reset device status. */
--	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 
- 	cdev->private->state = state;
- 
-@@ -509,13 +515,14 @@ void ccw_device_verify_done(struct ccw_device *cdev, int err)
- 		ccw_device_done(cdev, DEV_STATE_ONLINE);
- 		/* Deliver fake irb to device driver, if needed. */
- 		if (cdev->private->flags.fake_irb) {
--			create_fake_irb(&cdev->private->irb,
-+			create_fake_irb(&cdev->private->dma_area->irb,
- 					cdev->private->flags.fake_irb);
- 			cdev->private->flags.fake_irb = 0;
- 			if (cdev->handler)
- 				cdev->handler(cdev, cdev->private->intparm,
--					      &cdev->private->irb);
--			memset(&cdev->private->irb, 0, sizeof(struct irb));
-+					      &cdev->private->dma_area->irb);
-+			memset(&cdev->private->dma_area->irb, 0,
-+			       sizeof(struct irb));
- 		}
- 		ccw_device_report_path_events(cdev);
- 		ccw_device_handle_broken_paths(cdev);
-@@ -672,7 +679,8 @@ ccw_device_online_verify(struct ccw_device *cdev, enum dev_event dev_event)
- 
- 	if (scsw_actl(&sch->schib.scsw) != 0 ||
- 	    (scsw_stctl(&sch->schib.scsw) & SCSW_STCTL_STATUS_PEND) ||
--	    (scsw_stctl(&cdev->private->irb.scsw) & SCSW_STCTL_STATUS_PEND)) {
-+	    (scsw_stctl(&cdev->private->dma_area->irb.scsw) &
-+	     SCSW_STCTL_STATUS_PEND)) {
- 		/*
- 		 * No final status yet or final status not yet delivered
- 		 * to the device driver. Can't do path verification now,
-@@ -719,7 +727,7 @@ static int ccw_device_call_handler(struct ccw_device *cdev)
- 	 *  - fast notification was requested (primary status)
- 	 *  - unsolicited interrupts
- 	 */
--	stctl = scsw_stctl(&cdev->private->irb.scsw);
-+	stctl = scsw_stctl(&cdev->private->dma_area->irb.scsw);
- 	ending_status = (stctl & SCSW_STCTL_SEC_STATUS) ||
- 		(stctl == (SCSW_STCTL_ALERT_STATUS | SCSW_STCTL_STATUS_PEND)) ||
- 		(stctl == SCSW_STCTL_STATUS_PEND);
-@@ -735,9 +743,9 @@ static int ccw_device_call_handler(struct ccw_device *cdev)
- 
- 	if (cdev->handler)
- 		cdev->handler(cdev, cdev->private->intparm,
--			      &cdev->private->irb);
-+			      &cdev->private->dma_area->irb);
- 
--	memset(&cdev->private->irb, 0, sizeof(struct irb));
-+	memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 	return 1;
- }
- 
-@@ -759,7 +767,8 @@ ccw_device_irq(struct ccw_device *cdev, enum dev_event dev_event)
- 			/* Unit check but no sense data. Need basic sense. */
- 			if (ccw_device_do_sense(cdev, irb) != 0)
- 				goto call_handler_unsol;
--			memcpy(&cdev->private->irb, irb, sizeof(struct irb));
-+			memcpy(&cdev->private->dma_area->irb, irb,
-+			       sizeof(struct irb));
- 			cdev->private->state = DEV_STATE_W4SENSE;
- 			cdev->private->intparm = 0;
- 			return;
-@@ -842,7 +851,7 @@ ccw_device_w4sense(struct ccw_device *cdev, enum dev_event dev_event)
- 	if (scsw_fctl(&irb->scsw) &
- 	    (SCSW_FCTL_CLEAR_FUNC | SCSW_FCTL_HALT_FUNC)) {
- 		cdev->private->flags.dosense = 0;
--		memset(&cdev->private->irb, 0, sizeof(struct irb));
-+		memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 		ccw_device_accumulate_irb(cdev, irb);
- 		goto call_handler;
- 	}
-diff --git a/drivers/s390/cio/device_id.c b/drivers/s390/cio/device_id.c
-index f6df83a9dfbb..740996d0dc8c 100644
---- a/drivers/s390/cio/device_id.c
-+++ b/drivers/s390/cio/device_id.c
-@@ -99,7 +99,7 @@ static int diag210_to_senseid(struct senseid *senseid, struct diag210 *diag)
- static int diag210_get_dev_info(struct ccw_device *cdev)
- {
- 	struct ccw_dev_id *dev_id = &cdev->private->dev_id;
--	struct senseid *senseid = &cdev->private->senseid;
-+	struct senseid *senseid = &cdev->private->dma_area->senseid;
- 	struct diag210 diag_data;
- 	int rc;
- 
-@@ -134,8 +134,10 @@ static int diag210_get_dev_info(struct ccw_device *cdev)
- static void snsid_init(struct ccw_device *cdev)
- {
- 	cdev->private->flags.esid = 0;
--	memset(&cdev->private->senseid, 0, sizeof(cdev->private->senseid));
--	cdev->private->senseid.cu_type = 0xffff;
-+
-+	memset(&cdev->private->dma_area->senseid, 0,
-+	       sizeof(cdev->private->dma_area->senseid));
-+	cdev->private->dma_area->senseid.cu_type = 0xffff;
- }
- 
- /*
-@@ -143,16 +145,16 @@ static void snsid_init(struct ccw_device *cdev)
-  */
- static int snsid_check(struct ccw_device *cdev, void *data)
- {
--	struct cmd_scsw *scsw = &cdev->private->irb.scsw.cmd;
-+	struct cmd_scsw *scsw = &cdev->private->dma_area->irb.scsw.cmd;
- 	int len = sizeof(struct senseid) - scsw->count;
- 
- 	/* Check for incomplete SENSE ID data. */
- 	if (len < SENSE_ID_MIN_LEN)
- 		goto out_restart;
--	if (cdev->private->senseid.cu_type == 0xffff)
-+	if (cdev->private->dma_area->senseid.cu_type == 0xffff)
- 		goto out_restart;
- 	/* Check for incompatible SENSE ID data. */
--	if (cdev->private->senseid.reserved != 0xff)
-+	if (cdev->private->dma_area->senseid.reserved != 0xff)
- 		return -EOPNOTSUPP;
- 	/* Check for extended-identification information. */
- 	if (len > SENSE_ID_BASIC_LEN)
-@@ -170,7 +172,7 @@ static int snsid_check(struct ccw_device *cdev, void *data)
- static void snsid_callback(struct ccw_device *cdev, void *data, int rc)
- {
- 	struct ccw_dev_id *id = &cdev->private->dev_id;
--	struct senseid *senseid = &cdev->private->senseid;
-+	struct senseid *senseid = &cdev->private->dma_area->senseid;
- 	int vm = 0;
- 
- 	if (rc && MACHINE_IS_VM) {
-@@ -200,7 +202,7 @@ void ccw_device_sense_id_start(struct ccw_device *cdev)
- {
- 	struct subchannel *sch = to_subchannel(cdev->dev.parent);
- 	struct ccw_request *req = &cdev->private->req;
--	struct ccw1 *cp = cdev->private->iccws;
-+	struct ccw1 *cp = cdev->private->dma_area->iccws;
- 
- 	CIO_TRACE_EVENT(4, "snsid");
- 	CIO_HEX_EVENT(4, &cdev->private->dev_id, sizeof(cdev->private->dev_id));
-@@ -208,7 +210,7 @@ void ccw_device_sense_id_start(struct ccw_device *cdev)
- 	snsid_init(cdev);
- 	/* Channel program setup. */
- 	cp->cmd_code	= CCW_CMD_SENSE_ID;
--	cp->cda		= (u32) (addr_t) &cdev->private->senseid;
-+	cp->cda		= (u32) (addr_t) &cdev->private->dma_area->senseid;
- 	cp->count	= sizeof(struct senseid);
- 	cp->flags	= CCW_FLAG_SLI;
- 	/* Request setup. */
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index 4435ae0b3027..d722458c5928 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -429,8 +429,8 @@ struct ciw *ccw_device_get_ciw(struct ccw_device *cdev, __u32 ct)
- 	if (cdev->private->flags.esid == 0)
- 		return NULL;
- 	for (ciw_cnt = 0; ciw_cnt < MAX_CIWS; ciw_cnt++)
--		if (cdev->private->senseid.ciw[ciw_cnt].ct == ct)
--			return cdev->private->senseid.ciw + ciw_cnt;
-+		if (cdev->private->dma_area->senseid.ciw[ciw_cnt].ct == ct)
-+			return cdev->private->dma_area->senseid.ciw + ciw_cnt;
- 	return NULL;
- }
- 
-@@ -699,6 +699,23 @@ void ccw_device_get_schid(struct ccw_device *cdev, struct subchannel_id *schid)
- }
- EXPORT_SYMBOL_GPL(ccw_device_get_schid);
- 
-+/*
-+ * Allocate zeroed dma coherent 31 bit addressable memory using
-+ * the subchannels dma pool. Maximal size of allocation supported
-+ * is PAGE_SIZE.
-+ */
-+void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
-+{
-+	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+}
-+EXPORT_SYMBOL(ccw_device_dma_zalloc);
-+
-+void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
-+{
-+	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
-+}
-+EXPORT_SYMBOL(ccw_device_dma_free);
-+
- EXPORT_SYMBOL(ccw_device_set_options_mask);
- EXPORT_SYMBOL(ccw_device_set_options);
- EXPORT_SYMBOL(ccw_device_clear_options);
-diff --git a/drivers/s390/cio/device_pgid.c b/drivers/s390/cio/device_pgid.c
-index d30a3babf176..767a85635a0f 100644
---- a/drivers/s390/cio/device_pgid.c
-+++ b/drivers/s390/cio/device_pgid.c
-@@ -57,7 +57,7 @@ static void verify_done(struct ccw_device *cdev, int rc)
- static void nop_build_cp(struct ccw_device *cdev)
- {
- 	struct ccw_request *req = &cdev->private->req;
--	struct ccw1 *cp = cdev->private->iccws;
-+	struct ccw1 *cp = cdev->private->dma_area->iccws;
- 
- 	cp->cmd_code	= CCW_CMD_NOOP;
- 	cp->cda		= 0;
-@@ -134,9 +134,9 @@ static void nop_callback(struct ccw_device *cdev, void *data, int rc)
- static void spid_build_cp(struct ccw_device *cdev, u8 fn)
- {
- 	struct ccw_request *req = &cdev->private->req;
--	struct ccw1 *cp = cdev->private->iccws;
-+	struct ccw1 *cp = cdev->private->dma_area->iccws;
- 	int i = pathmask_to_pos(req->lpm);
--	struct pgid *pgid = &cdev->private->pgid[i];
-+	struct pgid *pgid = &cdev->private->dma_area->pgid[i];
- 
- 	pgid->inf.fc	= fn;
- 	cp->cmd_code	= CCW_CMD_SET_PGID;
-@@ -300,7 +300,7 @@ static int pgid_cmp(struct pgid *p1, struct pgid *p2)
- static void pgid_analyze(struct ccw_device *cdev, struct pgid **p,
- 			 int *mismatch, u8 *reserved, u8 *reset)
- {
--	struct pgid *pgid = &cdev->private->pgid[0];
-+	struct pgid *pgid = &cdev->private->dma_area->pgid[0];
- 	struct pgid *first = NULL;
- 	int lpm;
- 	int i;
-@@ -342,7 +342,7 @@ static u8 pgid_to_donepm(struct ccw_device *cdev)
- 		lpm = 0x80 >> i;
- 		if ((cdev->private->pgid_valid_mask & lpm) == 0)
- 			continue;
--		pgid = &cdev->private->pgid[i];
-+		pgid = &cdev->private->dma_area->pgid[i];
- 		if (sch->opm & lpm) {
- 			if (pgid->inf.ps.state1 != SNID_STATE1_GROUPED)
- 				continue;
-@@ -368,7 +368,8 @@ static void pgid_fill(struct ccw_device *cdev, struct pgid *pgid)
- 	int i;
- 
- 	for (i = 0; i < 8; i++)
--		memcpy(&cdev->private->pgid[i], pgid, sizeof(struct pgid));
-+		memcpy(&cdev->private->dma_area->pgid[i], pgid,
-+		       sizeof(struct pgid));
- }
- 
- /*
-@@ -435,12 +436,12 @@ static void snid_done(struct ccw_device *cdev, int rc)
- static void snid_build_cp(struct ccw_device *cdev)
- {
- 	struct ccw_request *req = &cdev->private->req;
--	struct ccw1 *cp = cdev->private->iccws;
-+	struct ccw1 *cp = cdev->private->dma_area->iccws;
- 	int i = pathmask_to_pos(req->lpm);
- 
- 	/* Channel program setup. */
- 	cp->cmd_code	= CCW_CMD_SENSE_PGID;
--	cp->cda		= (u32) (addr_t) &cdev->private->pgid[i];
-+	cp->cda		= (u32) (addr_t) &cdev->private->dma_area->pgid[i];
- 	cp->count	= sizeof(struct pgid);
- 	cp->flags	= CCW_FLAG_SLI;
- 	req->cp		= cp;
-@@ -516,7 +517,8 @@ static void verify_start(struct ccw_device *cdev)
- 	sch->lpm = sch->schib.pmcw.pam;
- 
- 	/* Initialize PGID data. */
--	memset(cdev->private->pgid, 0, sizeof(cdev->private->pgid));
-+	memset(cdev->private->dma_area->pgid, 0,
-+	       sizeof(cdev->private->dma_area->pgid));
- 	cdev->private->pgid_valid_mask = 0;
- 	cdev->private->pgid_todo_mask = sch->schib.pmcw.pam;
- 	cdev->private->path_notoper_mask = 0;
-@@ -626,7 +628,7 @@ struct stlck_data {
- static void stlck_build_cp(struct ccw_device *cdev, void *buf1, void *buf2)
- {
- 	struct ccw_request *req = &cdev->private->req;
--	struct ccw1 *cp = cdev->private->iccws;
-+	struct ccw1 *cp = cdev->private->dma_area->iccws;
- 
- 	cp[0].cmd_code = CCW_CMD_STLCK;
- 	cp[0].cda = (u32) (addr_t) buf1;
-diff --git a/drivers/s390/cio/device_status.c b/drivers/s390/cio/device_status.c
-index 7d5c7892b2c4..0bd8f2642732 100644
---- a/drivers/s390/cio/device_status.c
-+++ b/drivers/s390/cio/device_status.c
-@@ -79,15 +79,15 @@ ccw_device_accumulate_ecw(struct ccw_device *cdev, struct irb *irb)
- 	 * are condition that have to be met for the extended control
- 	 * bit to have meaning. Sick.
- 	 */
--	cdev->private->irb.scsw.cmd.ectl = 0;
-+	cdev->private->dma_area->irb.scsw.cmd.ectl = 0;
- 	if ((irb->scsw.cmd.stctl & SCSW_STCTL_ALERT_STATUS) &&
- 	    !(irb->scsw.cmd.stctl & SCSW_STCTL_INTER_STATUS))
--		cdev->private->irb.scsw.cmd.ectl = irb->scsw.cmd.ectl;
-+		cdev->private->dma_area->irb.scsw.cmd.ectl = irb->scsw.cmd.ectl;
- 	/* Check if extended control word is valid. */
--	if (!cdev->private->irb.scsw.cmd.ectl)
-+	if (!cdev->private->dma_area->irb.scsw.cmd.ectl)
- 		return;
- 	/* Copy concurrent sense / model dependent information. */
--	memcpy (&cdev->private->irb.ecw, irb->ecw, sizeof (irb->ecw));
-+	memcpy(&cdev->private->dma_area->irb.ecw, irb->ecw, sizeof(irb->ecw));
- }
- 
- /*
-@@ -118,7 +118,7 @@ ccw_device_accumulate_esw(struct ccw_device *cdev, struct irb *irb)
- 	if (!ccw_device_accumulate_esw_valid(irb))
- 		return;
- 
--	cdev_irb = &cdev->private->irb;
-+	cdev_irb = &cdev->private->dma_area->irb;
- 
- 	/* Copy last path used mask. */
- 	cdev_irb->esw.esw1.lpum = irb->esw.esw1.lpum;
-@@ -210,7 +210,7 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
- 		ccw_device_path_notoper(cdev);
- 	/* No irb accumulation for transport mode irbs. */
- 	if (scsw_is_tm(&irb->scsw)) {
--		memcpy(&cdev->private->irb, irb, sizeof(struct irb));
-+		memcpy(&cdev->private->dma_area->irb, irb, sizeof(struct irb));
- 		return;
- 	}
- 	/*
-@@ -219,7 +219,7 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
- 	if (!scsw_is_solicited(&irb->scsw))
- 		return;
- 
--	cdev_irb = &cdev->private->irb;
-+	cdev_irb = &cdev->private->dma_area->irb;
- 
- 	/*
- 	 * If the clear function had been performed, all formerly pending
-@@ -227,7 +227,7 @@ ccw_device_accumulate_irb(struct ccw_device *cdev, struct irb *irb)
- 	 * intermediate accumulated status to the device driver.
- 	 */
- 	if (irb->scsw.cmd.fctl & SCSW_FCTL_CLEAR_FUNC)
--		memset(&cdev->private->irb, 0, sizeof(struct irb));
-+		memset(&cdev->private->dma_area->irb, 0, sizeof(struct irb));
- 
- 	/* Copy bits which are valid only for the start function. */
- 	if (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC) {
-@@ -329,9 +329,9 @@ ccw_device_do_sense(struct ccw_device *cdev, struct irb *irb)
- 	/*
- 	 * We have ending status but no sense information. Do a basic sense.
- 	 */
--	sense_ccw = &to_io_private(sch)->sense_ccw;
-+	sense_ccw = &to_io_private(sch)->dma_area->sense_ccw;
- 	sense_ccw->cmd_code = CCW_CMD_BASIC_SENSE;
--	sense_ccw->cda = (__u32) __pa(cdev->private->irb.ecw);
-+	sense_ccw->cda = (__u32) __pa(cdev->private->dma_area->irb.ecw);
- 	sense_ccw->count = SENSE_MAX_COUNT;
- 	sense_ccw->flags = CCW_FLAG_SLI;
- 
-@@ -364,7 +364,7 @@ ccw_device_accumulate_basic_sense(struct ccw_device *cdev, struct irb *irb)
- 
- 	if (!(irb->scsw.cmd.dstat & DEV_STAT_UNIT_CHECK) &&
- 	    (irb->scsw.cmd.dstat & DEV_STAT_CHN_END)) {
--		cdev->private->irb.esw.esw0.erw.cons = 1;
-+		cdev->private->dma_area->irb.esw.esw0.erw.cons = 1;
- 		cdev->private->flags.dosense = 0;
- 	}
- 	/* Check if path verification is required. */
-@@ -386,7 +386,7 @@ ccw_device_accumulate_and_sense(struct ccw_device *cdev, struct irb *irb)
- 	/* Check for basic sense. */
- 	if (cdev->private->flags.dosense &&
- 	    !(irb->scsw.cmd.dstat & DEV_STAT_UNIT_CHECK)) {
--		cdev->private->irb.esw.esw0.erw.cons = 1;
-+		cdev->private->dma_area->irb.esw.esw0.erw.cons = 1;
- 		cdev->private->flags.dosense = 0;
- 		return 0;
- 	}
-diff --git a/drivers/s390/cio/io_sch.h b/drivers/s390/cio/io_sch.h
-index 90e4e3a7841b..c03b4a19974e 100644
---- a/drivers/s390/cio/io_sch.h
-+++ b/drivers/s390/cio/io_sch.h
-@@ -9,15 +9,20 @@
- #include "css.h"
- #include "orb.h"
- 
-+struct io_subchannel_dma_area {
-+	struct ccw1 sense_ccw;	/* static ccw for sense command */
-+};
-+
- struct io_subchannel_private {
- 	union orb orb;		/* operation request block */
--	struct ccw1 sense_ccw;	/* static ccw for sense command */
- 	struct ccw_device *cdev;/* pointer to the child ccw device */
- 	struct {
- 		unsigned int suspend:1;	/* allow suspend */
- 		unsigned int prefetch:1;/* deny prefetch */
- 		unsigned int inter:1;	/* suppress intermediate interrupts */
- 	} __packed options;
-+	struct io_subchannel_dma_area *dma_area;
-+	dma_addr_t dma_area_dma;
- } __aligned(8);
- 
- #define to_io_private(n) ((struct io_subchannel_private *) \
-@@ -115,6 +120,13 @@ enum cdev_todo {
- #define FAKE_CMD_IRB	1
- #define FAKE_TM_IRB	2
- 
-+struct ccw_device_dma_area {
-+	struct senseid senseid;	/* SenseID info */
-+	struct ccw1 iccws[2];	/* ccws for SNID/SID/SPGID commands */
-+	struct irb irb;		/* device status */
-+	struct pgid pgid[8];	/* path group IDs per chpid*/
-+};
-+
- struct ccw_device_private {
- 	struct ccw_device *cdev;
- 	struct subchannel *sch;
-@@ -156,11 +168,7 @@ struct ccw_device_private {
- 	} __attribute__((packed)) flags;
- 	unsigned long intparm;	/* user interruption parameter */
- 	struct qdio_irq *qdio_data;
--	struct irb irb;		/* device status */
- 	int async_kill_io_rc;
--	struct senseid senseid;	/* SenseID info */
--	struct pgid pgid[8];	/* path group IDs per chpid*/
--	struct ccw1 iccws[2];	/* ccws for SNID/SID/SPGID commands */
- 	struct work_struct todo_work;
- 	enum cdev_todo todo;
- 	wait_queue_head_t wait_q;
-@@ -169,6 +177,8 @@ struct ccw_device_private {
- 	struct list_head cmb_list;	/* list of measured devices */
- 	u64 cmb_start_time;		/* clock value of cmb reset */
- 	void *cmb_wait;			/* deferred cmb enable/disable */
-+	struct gen_pool *dma_pool;
-+	struct ccw_device_dma_area *dma_area;
- 	enum interruption_class int_class;
- };
- 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 6a3076881321..f995798bb025 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -66,7 +66,6 @@ struct virtio_ccw_device {
- 	bool device_lost;
- 	unsigned int config_ready;
- 	void *airq_info;
--	u64 dma_mask;
- };
- 
- struct vq_info_block_legacy {
-@@ -1255,16 +1254,7 @@ static int virtio_ccw_online(struct ccw_device *cdev)
- 		ret = -ENOMEM;
- 		goto out_free;
- 	}
--
- 	vcdev->vdev.dev.parent = &cdev->dev;
--	cdev->dev.dma_mask = &vcdev->dma_mask;
--	/* we are fine with common virtio infrastructure using 64 bit DMA */
--	ret = dma_set_mask_and_coherent(&cdev->dev, DMA_BIT_MASK(64));
--	if (ret) {
--		dev_warn(&cdev->dev, "Failed to enable 64-bit DMA.\n");
--		goto out_free;
--	}
--
- 	vcdev->config_block = kzalloc(sizeof(*vcdev->config_block),
- 				   GFP_DMA | GFP_KERNEL);
- 	if (!vcdev->config_block) {
--- 
-2.17.1
+> 
+> Funnily look at this code:
+>    int blubber[10];
+>    int *ptr = blubber;
+> sizeof(blubber) gives 10*sizeof(int) but
+> sizeof(ptr) gives the size of the pointer pointing to
+> the blubber array.
+> 
+>>
+>>>> +    set_bit_inv(apid, apm);
+>>>>    +    mutex_lock(&matrix_dev->lock);
+>>>> +    ret = vfio_ap_mdev_validate_masks(apm, matrix_mdev->matrix.aqm);
+>>>> +    if (ret) {
+>>>> +        mutex_unlock(&matrix_dev->lock);
+>>>> +        return ret;
+>>>> +    }
+>>>>        set_bit_inv(apid, matrix_mdev->matrix.apm);
+>>>> -
+>>>> -    ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+>>>> -    if (ret)
+>>>> -        goto share_err;
+>>>> -
+>>>> -    ret = count;
+>>>> -    goto done;
+>>>> -
+>>>> -share_err:
+>>>> -    clear_bit_inv(apid, matrix_mdev->matrix.apm);
+>>>> -done:
+>>>>        mutex_unlock(&matrix_dev->lock);
+>>>>    -    return ret;
+>>>> +    return count;
+>>>>    }
+>>>>    static DEVICE_ATTR_WO(assign_adapter);
+>>>>    @@ -690,26 +579,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>>>>    }
+>>>>    static DEVICE_ATTR_WO(unassign_adapter);
+>>>>    -static int
+>>>> -vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+>>>> -                         unsigned long apqi)
+>>>> -{
+>>>> -    int ret;
+>>>> -    unsigned long apid;
+>>>> -    unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
+>>>> -
+>>>> -    if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
+>>>> -        return vfio_ap_verify_queue_reserved(NULL, &apqi);
+>>>> -
+>>>> -    for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
+>>>> -        ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+>>>> -        if (ret)
+>>>> -            return ret;
+>>>> -    }
+>>>> -
+>>>> -    return 0;
+>>>> -}
+>>>> -
+>>>>    /**
+>>>>     * assign_domain_store
+>>>>     *
+>>>> @@ -748,6 +617,7 @@ static ssize_t assign_domain_store(struct device *dev,
+>>>>    {
+>>>>        int ret;
+>>>>        unsigned long apqi;
+>>>> +    DECLARE_BITMAP(aqm, AP_DEVICES);
+>>> AP_DEVICES -> AP_DOMAINS
+>>
+>> Copy and paste error, it should be AP_DOMAINS.
+>>
+>>>>        struct mdev_device *mdev = mdev_from_dev(dev);
+>>>>        struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>>        unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
+>>>> @@ -762,27 +632,19 @@ static ssize_t assign_domain_store(struct device *dev,
+>>>>        if (apqi > max_apqi)
+>>>>            return -ENODEV;
+>>>>    -    mutex_lock(&matrix_dev->lock);
+>>>> -
+>>>> -    ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
+>>>> -    if (ret)
+>>>> -        goto done;
+>>>> +    memset(aqm, 0, ARRAY_SIZE(aqm) * sizeof(*aqm));
+>>> memset(aqm, 0, sizeof(aqm));
+>>
+>> See response above.
+>>
+>>>> +    set_bit_inv(apqi, aqm);
+>>>>    +    mutex_lock(&matrix_dev->lock);
+>>>> +    ret = vfio_ap_mdev_validate_masks(matrix_mdev->matrix.apm, aqm);
+>>>> +    if (ret) {
+>>>> +        mutex_unlock(&matrix_dev->lock);
+>>>> +        return ret;
+>>>> +    }
+>>>>        set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>>>> -
+>>>> -    ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+>>>> -    if (ret)
+>>>> -        goto share_err;
+>>>> -
+>>>> -    ret = count;
+>>>> -    goto done;
+>>>> -
+>>>> -share_err:
+>>>> -    clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
+>>>> -done:
+>>>>        mutex_unlock(&matrix_dev->lock);
+>>>>    -    return ret;
+>>>> +    return count;
+>>>>    }
+>>>>    static DEVICE_ATTR_WO(assign_domain);
+>>>>    @@ -868,11 +730,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
+>>>>        if (id > matrix_mdev->matrix.adm_max)
+>>>>            return -ENODEV;
+>>>>    -    /* Set the bit in the ADM (bitmask) corresponding to the AP control
+>>>> -     * domain number (id). The bits in the mask, from most significant to
+>>>> -     * least significant, correspond to IDs 0 up to the one less than the
+>>>> -     * number of control domains that can be assigned.
+>>>> -     */
+>>>>        mutex_lock(&matrix_dev->lock);
+>>>>        set_bit_inv(id, matrix_mdev->matrix.adm);
+>>>>        mutex_unlock(&matrix_dev->lock);
+>>>
+>>
+> 
