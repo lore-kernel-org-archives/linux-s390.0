@@ -1,108 +1,43 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v4 2/7] s390: vfio-ap: wait for queue empty on queue reset
-Date: Thu, 13 Jun 2019 15:39:35 -0400
-Message-Id: <1560454780-20359-3-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:57929 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725857AbfFTFFL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Jun 2019 01:05:11 -0400
+From: Alexandre Ghiti <alex@ghiti.fr>
+Subject: [PATCH RESEND 1/8] s390: Start fallback of top-down mmap at mm->mmap_base
+Date: Thu, 20 Jun 2019 01:03:21 -0400
+Message-Id: <20190620050328.8942-2-alex@ghiti.fr>
+In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
+References: <20190620050328.8942-1-alex@ghiti.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org, Alexandre Ghiti <alex@ghiti.fr>
 
-Refactors the AP queue reset function to wait until the queue is empty
-after the PQAP(ZAPQ) instruction is executed to zero out the queue as
-required by the AP architecture.
+In case of mmap failure in top-down mode, there is no need to go through
+the whole address space again for the bottom-up fallback: the goal of this
+fallback is to find, as a last resort, space between the top-down mmap base
+and the stack, which is the only place not covered by the top-down mmap.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 49 +++++++++++++++++++++++++++------------
- 1 file changed, 34 insertions(+), 15 deletions(-)
+ arch/s390/mm/mmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index bf2ab02b9a0b..60efd3d7896d 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1128,23 +1128,46 @@ static void vfio_ap_irq_disable_apqn(int apqn)
- 	}
- }
- 
--int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
--			     unsigned int retry)
-+static void vfio_ap_mdev_wait_for_qempty(ap_qid_t qid)
-+{
-+	struct ap_queue_status status;
-+	int retry = 5;
-+
-+	do {
-+		status = ap_tapq(qid, NULL);
-+		switch (status.response_code) {
-+		case AP_RESPONSE_NORMAL:
-+			if (status.queue_empty)
-+				return;
-+		case AP_RESPONSE_RESET_IN_PROGRESS:
-+		case AP_RESPONSE_BUSY:
-+			msleep(20);
-+			break;
-+		default:
-+			pr_warn("%s: tapq response %02x waiting for queue %04x.%02x empty\n",
-+				__func__, status.response_code,
-+				AP_QID_CARD(qid), AP_QID_QUEUE(qid));
-+			return;
-+		}
-+	} while (--retry);
-+
-+	WARN_ON_ONCE(retry <= 0);
-+}
-+
-+int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi)
- {
- 	struct ap_queue_status status;
--	int retry2 = 2;
- 	int apqn = AP_MKQID(apid, apqi);
-+	int retry = 5;
- 
- 	do {
- 		status = ap_zapq(apqn);
- 		switch (status.response_code) {
- 		case AP_RESPONSE_NORMAL:
--			while (!status.queue_empty && retry2--) {
--				msleep(20);
--				status = ap_tapq(apqn, NULL);
--			}
--			WARN_ON_ONCE(retry <= 0);
-+			vfio_ap_mdev_wait_for_qempty(AP_MKQID(apid, apqi));
- 			return 0;
-+		case AP_RESPONSE_DECONFIGURED:
-+			return -ENODEV;
- 		case AP_RESPONSE_RESET_IN_PROGRESS:
- 		case AP_RESPONSE_BUSY:
- 			msleep(20);
-@@ -1169,14 +1192,10 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 			     matrix_mdev->matrix.apm_max + 1) {
- 		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
- 				     matrix_mdev->matrix.aqm_max + 1) {
--			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
--			/*
--			 * Regardless whether a queue turns out to be busy, or
--			 * is not operational, we need to continue resetting
--			 * the remaining queues.
--			 */
-+			ret = vfio_ap_mdev_reset_queue(apid, apqi);
- 			if (ret)
- 				rc = ret;
-+
- 			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
- 		}
- 	}
-@@ -1326,7 +1345,7 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	dev_set_drvdata(&queue->ap_dev.device, NULL);
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
--	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-+	vfio_ap_mdev_reset_queue(apid, apqi);
- 	vfio_ap_irq_disable(q);
- 	kfree(q);
- }
+diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+index cbc718ba6d78..4a222969843b 100644
+--- a/arch/s390/mm/mmap.c
++++ b/arch/s390/mm/mmap.c
+@@ -166,7 +166,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 	if (addr & ~PAGE_MASK) {
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+-		info.low_limit = TASK_UNMAPPED_BASE;
++		info.low_limit = mm->mmap_base;
+ 		info.high_limit = TASK_SIZE;
+ 		addr = vm_unmapped_area(&info);
+ 		if (addr & ~PAGE_MASK)
 -- 
-2.7.4
+2.20.1
