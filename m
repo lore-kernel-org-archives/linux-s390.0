@@ -1,72 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7700 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730607AbfFYPEQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Jun 2019 11:04:16 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5PF3oLV012927
-        for <linux-s390@vger.kernel.org>; Tue, 25 Jun 2019 11:04:15 -0400
-Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tbmf04qrx-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 25 Jun 2019 11:04:14 -0400
-Received: from localhost
-        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <walling@linux.ibm.com>;
-        Tue, 25 Jun 2019 16:04:10 +0100
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v5 1/2] s390/setup: diag318: refactor struct
-Date: Tue, 25 Jun 2019 11:03:41 -0400
-In-Reply-To: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
-References: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
-Message-Id: <1561475022-18348-2-git-send-email-walling@linux.ibm.com>
+Received: from verein.lst.de ([213.95.11.211]:59434 "EHLO newverein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726211AbfFTKv4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Jun 2019 06:51:56 -0400
+Date: Thu, 20 Jun 2019 12:51:24 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: use exact allocation for dma coherent memory
+Message-ID: <20190620105124.GA25233@lst.de>
+References: <20190614134726.3827-1-hch@lst.de> <20190617082148.GF28859@kadam> <20190617083342.GA7883@lst.de> <20190619162903.GF9360@ziepe.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190619162903.GF9360@ziepe.ca>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: cohuck@redhat.com, david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Christoph Hellwig <hch@lst.de>, Potnuri Bharat Teja <bharat@chelsio.com>, Dan Carpenter <dan.carpenter@oracle.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Intel Linux Wireless <linuxwifi@intel.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org
 
-The diag318 struct introduced in include/asm/diag.h can be
-reused in KVM, so let's condense the version code fields in the
-diag318_info struct for easier usage and simplify it until we
-can determine how the data should be formatted.
+On Wed, Jun 19, 2019 at 01:29:03PM -0300, Jason Gunthorpe wrote:
+> > Yes.  This will blow up badly on many platforms, as sq->queue
+> > might be vmapped, ioremapped, come from a pool without page backing.
+> 
+> Gah, this addr gets fed into io_remap_pfn_range/remap_pfn_range too..
+> 
+> Potnuri, you should fix this.. 
+> 
+> You probably need to use dma_mmap_from_dev_coherent() in the mmap ?
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/include/asm/diag.h | 6 ++----
- arch/s390/kernel/setup.c     | 3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
+The function to use is dma_mmap_coherent, dma_mmap_from_dev_coherent is
+just an internal helper.
 
-diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
-index 0036eab..ca8f85b 100644
---- a/arch/s390/include/asm/diag.h
-+++ b/arch/s390/include/asm/diag.h
-@@ -298,10 +298,8 @@ struct diag26c_mac_resp {
- union diag318_info {
- 	unsigned long val;
- 	struct {
--		unsigned int cpnc : 8;
--		unsigned int cpvc_linux : 24;
--		unsigned char cpvc_distro[3];
--		unsigned char zero;
-+		unsigned long cpnc : 8;
-+		unsigned long cpvc : 56;
- 	};
- };
- 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index f8544d5..b66c41f 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1045,8 +1045,7 @@ static void __init setup_control_program_code(void)
- {
- 	union diag318_info diag318_info = {
- 		.cpnc = CPNC_LINUX,
--		.cpvc_linux = 0,
--		.cpvc_distro = {0},
-+		.cpvc = 0,
- 	};
- 
- 	if (!sclp.has_diag318)
--- 
-2.7.4
+That beiŋ said the drivers/infiniband code has a lot of
+*remap_pfn_range, and a lot of them look like they might be for
+DMA memory.
