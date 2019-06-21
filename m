@@ -1,230 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39566 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726587AbfF0PBs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Jun 2019 11:01:48 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5REwN8H078218
-        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:48 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tcyf9jjxe-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:47 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 27 Jun 2019 16:01:43 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 12/12] s390/qeth: move cast type selection into fill_header()
-Date: Thu, 27 Jun 2019 17:01:33 +0200
-In-Reply-To: <20190627150133.58746-1-jwi@linux.ibm.com>
-References: <20190627150133.58746-1-jwi@linux.ibm.com>
-Message-Id: <20190627150133.58746-13-jwi@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:48152 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726455AbfFUOeK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 10:34:10 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 04/14] s390/cio: Use generalized CCW handler in cp_init()
+Date: Fri, 21 Jun 2019 16:33:45 +0200
+Message-Id: <20190621143355.29175-5-cohuck@redhat.com>
+In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
+References: <20190621143355.29175-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-The cast type currently gets selected in .ndo_start_xmit, and is then
-piped through several layers until it's stored into the HW header.
-Push the selection down into qeth_l?_fill_header() to (1) reduce the
-number of xmit-wide parameters, and (2) merge the two route validation
-checks into just one.
+From: Eric Farman <farman@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+It is now pretty apparent that ccwchain_handle_ccw()
+(nee ccwchain_handle_tic()) does everything that cp_init()
+wants to do.
+
+Let's remove that duplicated code from cp_init() and let
+ccwchain_handle_ccw() handle it itself.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20190606202831.44135-5-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/net/qeth_core.h      |  5 ++--
- drivers/s390/net/qeth_core_main.c |  7 +++--
- drivers/s390/net/qeth_l2_main.c   |  4 +--
- drivers/s390/net/qeth_l3_main.c   | 43 ++++++++++++++-----------------
- 4 files changed, 26 insertions(+), 33 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index d354b39cdf4b..c7ee07ce3615 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1040,11 +1040,10 @@ int qeth_stop(struct net_device *dev);
- 
- int qeth_vm_request_mac(struct qeth_card *card);
- int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
--	      struct qeth_qdio_out_q *queue, int ipv, int cast_type,
-+	      struct qeth_qdio_out_q *queue, int ipv,
- 	      void (*fill_header)(struct qeth_qdio_out_q *queue,
- 				  struct qeth_hdr *hdr, struct sk_buff *skb,
--				  int ipv, int cast_type,
--				  unsigned int data_len));
-+				  int ipv, unsigned int data_len));
- 
- /* exports for OSN */
- int qeth_osn_assist(struct net_device *, void *, int);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 3011cae00391..4d0caeebc802 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3908,11 +3908,10 @@ static void qeth_fill_tso_ext(struct qeth_hdr_tso *hdr,
- }
- 
- int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
--	      struct qeth_qdio_out_q *queue, int ipv, int cast_type,
-+	      struct qeth_qdio_out_q *queue, int ipv,
- 	      void (*fill_header)(struct qeth_qdio_out_q *queue,
- 				  struct qeth_hdr *hdr, struct sk_buff *skb,
--				  int ipv, int cast_type,
--				  unsigned int data_len))
-+				  int ipv, unsigned int data_len))
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 52735cdb0270..5b98bea433b7 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -744,9 +744,7 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+  */
+ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
  {
- 	unsigned int proto_len, hw_hdr_len;
- 	unsigned int frame_len = skb->len;
-@@ -3946,7 +3945,7 @@ int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
- 		data_offset = push_len + proto_len;
- 	}
- 	memset(hdr, 0, hw_hdr_len);
--	fill_header(queue, hdr, skb, ipv, cast_type, frame_len);
-+	fill_header(queue, hdr, skb, ipv, frame_len);
- 	if (is_tso)
- 		qeth_fill_tso_ext((struct qeth_hdr_tso *) hdr,
- 				  frame_len - proto_len, skb, proto_len);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 4a2ff9d8aa5f..fd64bc3f4062 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -164,8 +164,9 @@ static void qeth_l2_drain_rx_mode_cache(struct qeth_card *card)
+-	u64 iova = orb->cmd.cpa;
+-	struct ccwchain *chain;
+-	int len, ret;
++	int ret;
  
- static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
- 				struct qeth_hdr *hdr, struct sk_buff *skb,
--				int ipv, int cast_type, unsigned int data_len)
-+				int ipv, unsigned int data_len)
- {
-+	int cast_type = qeth_get_ether_cast_type(skb);
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
+ 	/*
+ 	 * XXX:
+@@ -759,28 +757,11 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
+ 	cp->mdev = mdev;
  
- 	hdr->hdr.l2.pkt_length = data_len;
-@@ -598,7 +599,6 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 		rc = qeth_l2_xmit_osn(card, skb, queue);
- 	else
- 		rc = qeth_xmit(card, skb, queue, qeth_get_ip_version(skb),
--			       qeth_get_ether_cast_type(skb),
- 			       qeth_l2_fill_header);
- 
- 	if (!rc) {
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 5bf5129ddcd4..2dd99f103671 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1939,12 +1939,13 @@ static u8 qeth_l3_cast_type_to_flag(int cast_type)
- 
- static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 				struct qeth_hdr *hdr, struct sk_buff *skb,
--				int ipv, int cast_type, unsigned int data_len)
-+				int ipv, unsigned int data_len)
- {
- 	struct qeth_hdr_layer3 *l3_hdr = &hdr->hdr.l3;
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
- 	struct qeth_card *card = queue->card;
- 	struct dst_entry *dst;
-+	int cast_type;
- 
- 	hdr->hdr.l3.length = data_len;
- 
-@@ -1981,25 +1982,22 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 		hdr->hdr.l3.vlan_id = ntohs(veth->h_vlan_TCI);
- 	}
- 
--	l3_hdr->flags = qeth_l3_cast_type_to_flag(cast_type);
+-	/* Get chain length. */
+-	len = ccwchain_calc_length(iova, cp);
+-	if (len < 0)
+-		return len;
 -
--	/* OSA only: */
--	if (!ipv) {
--		l3_hdr->flags |= QETH_HDR_PASSTHRU;
--		return;
+-	/* Alloc mem for the head chain. */
+-	chain = ccwchain_alloc(cp, len);
+-	if (!chain)
+-		return -ENOMEM;
+-	chain->ch_iova = iova;
+-
+-	/* Copy the head chain from guest. */
+-	ret = copy_ccw_from_iova(cp, chain->ch_ccw, iova, len);
+-	if (ret) {
+-		ccwchain_free(chain);
+-		return ret;
 -	}
 -
- 	rcu_read_lock();
- 	dst = qeth_dst_check_rcu(skb, ipv);
- 
-+	if (IS_IQD(card) && skb_get_queue_mapping(skb) != QETH_IQD_MCAST_TXQ)
-+		cast_type = RTN_UNICAST;
-+	else
-+		cast_type = qeth_l3_get_cast_type_rcu(skb, dst, ipv);
-+	l3_hdr->flags |= qeth_l3_cast_type_to_flag(cast_type);
+-	/* Now loop for its TICs. */
+-	ret = ccwchain_loop_tic(chain, cp);
++	/* Build a ccwchain for the first CCW segment */
++	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
+ 	if (ret)
+ 		cp_free(cp);
 +
- 	if (ipv == 4) {
- 		struct rtable *rt = (struct rtable *) dst;
- 
- 		*((__be32 *) &hdr->hdr.l3.next_hop.ipv4.addr) = (rt) ?
- 				rt_nexthop(rt, ip_hdr(skb)->daddr) :
- 				ip_hdr(skb)->daddr;
--	} else {
--		/* IPv6 */
-+	} else if (ipv == 6) {
- 		struct rt6_info *rt = (struct rt6_info *) dst;
- 
- 		if (rt && !ipv6_addr_any(&rt->rt6i_gateway))
-@@ -2010,6 +2008,9 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 		hdr->hdr.l3.flags |= QETH_HDR_IPV6;
- 		if (!IS_IQD(card))
- 			hdr->hdr.l3.flags |= QETH_HDR_PASSTHRU;
-+	} else {
-+		/* OSA only: */
-+		l3_hdr->flags |= QETH_HDR_PASSTHRU;
- 	}
- 	rcu_read_unlock();
- }
-@@ -2029,7 +2030,7 @@ static void qeth_l3_fixup_headers(struct sk_buff *skb)
- }
- 
- static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
--			struct qeth_qdio_out_q *queue, int ipv, int cast_type)
-+			struct qeth_qdio_out_q *queue, int ipv)
- {
- 	unsigned int hw_hdr_len;
- 	int rc;
-@@ -2043,7 +2044,7 @@ static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
- 	skb_pull(skb, ETH_HLEN);
- 
- 	qeth_l3_fixup_headers(skb);
--	return qeth_xmit(card, skb, queue, ipv, cast_type, qeth_l3_fill_header);
-+	return qeth_xmit(card, skb, queue, ipv, qeth_l3_fill_header);
- }
- 
- static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
-@@ -2054,7 +2055,7 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	int ipv = qeth_get_ip_version(skb);
- 	struct qeth_qdio_out_q *queue;
- 	int tx_bytes = skb->len;
--	int cast_type, rc;
-+	int rc;
- 
- 	if (IS_IQD(card)) {
- 		queue = card->qdio.out_qs[qeth_iqd_translate_txq(dev, txq)];
-@@ -2065,24 +2066,18 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 		    (card->options.cq == QETH_CQ_ENABLED &&
- 		     skb->protocol != htons(ETH_P_AF_IUCV)))
- 			goto tx_drop;
--
--		if (txq == QETH_IQD_MCAST_TXQ)
--			cast_type = qeth_l3_get_cast_type(skb);
--		else
--			cast_type = RTN_UNICAST;
- 	} else {
- 		queue = card->qdio.out_qs[txq];
--		cast_type = qeth_l3_get_cast_type(skb);
- 	}
- 
--	if (cast_type == RTN_BROADCAST && !card->info.broadcast_capable)
-+	if (!(dev->flags & IFF_BROADCAST) &&
-+	    qeth_l3_get_cast_type(skb) == RTN_BROADCAST)
- 		goto tx_drop;
- 
- 	if (ipv == 4 || IS_IQD(card))
--		rc = qeth_l3_xmit(card, skb, queue, ipv, cast_type);
-+		rc = qeth_l3_xmit(card, skb, queue, ipv);
- 	else
--		rc = qeth_xmit(card, skb, queue, ipv, cast_type,
--			       qeth_l3_fill_header);
-+		rc = qeth_xmit(card, skb, queue, ipv, qeth_l3_fill_header);
- 
- 	if (!rc) {
- 		QETH_TXQ_STAT_INC(queue, tx_packets);
+ 	/* It is safe to force: if not set but idals used
+ 	 * ccwchain_calc_length returns an error.
+ 	 */
 -- 
-2.17.1
+2.20.1
