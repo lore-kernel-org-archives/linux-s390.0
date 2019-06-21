@@ -1,151 +1,317 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39644 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727127AbfF1Map (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 28 Jun 2019 08:30:45 -0400
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 13/39] docs: add arch doc directories to the index
-Date: Fri, 28 Jun 2019 09:30:06 -0300
-Message-Id: <df4b7dbf72f2ca0695adc6e5997ad852be2332a7.1561724493.git.mchehab+samsung@kernel.org>
-In-Reply-To: <cover.1561724493.git.mchehab+samsung@kernel.org>
-References: <cover.1561724493.git.mchehab+samsung@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62114 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725947AbfFUTNZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 15:13:25 -0400
+Subject: Re: [PULL 07/14] vfio-ccw: Remove pfn_array_table
+References: <20190621143355.29175-1-cohuck@redhat.com>
+ <20190621143355.29175-8-cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <58e33772-280e-205b-ebfd-820c4f8d9f59@linux.ibm.com>
+Date: Fri, 21 Jun 2019 15:13:01 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190621143355.29175-8-cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt <palmer@sifive.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Now that several arch documents were converted to ReST,
-add their indexes to Documentation/index.rst and remove the
-:orphan:  from them.
+Conny,
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- Documentation/arm/index.rst     |  2 --
- Documentation/arm64/index.rst   |  2 --
- Documentation/ia64/index.rst    |  2 --
- Documentation/index.rst         | 10 ++++++++++
- Documentation/m68k/index.rst    |  2 +-
- Documentation/powerpc/index.rst |  2 +-
- Documentation/riscv/index.rst   |  2 --
- Documentation/s390/index.rst    |  2 --
- Documentation/sparc/index.rst   |  2 --
- Documentation/xtensa/index.rst  |  2 +-
- 10 files changed, 13 insertions(+), 15 deletions(-)
+FYI, I missed a warning for unused label "out_init" after this patch
+applies, which was fixed in patch 08.  This one needs the fixup below,
+and patch 8 will still change it to "goto out_free_idaws;"
 
-diff --git a/Documentation/arm/index.rst b/Documentation/arm/index.rst
-index bd316d1a1802..9c2f781f4685 100644
---- a/Documentation/arm/index.rst
-+++ b/Documentation/arm/index.rst
-@@ -1,5 +1,3 @@
--﻿:orphan:
--
- ================
- ARM Architecture
- ================
-diff --git a/Documentation/arm64/index.rst b/Documentation/arm64/index.rst
-index 018b7836ecb7..96b696ba4e6c 100644
---- a/Documentation/arm64/index.rst
-+++ b/Documentation/arm64/index.rst
-@@ -1,5 +1,3 @@
--:orphan:
--
- ==================
- ARM64 Architecture
- ==================
-diff --git a/Documentation/ia64/index.rst b/Documentation/ia64/index.rst
-index a3e3052ad6e2..ef99475f672b 100644
---- a/Documentation/ia64/index.rst
-+++ b/Documentation/ia64/index.rst
-@@ -1,5 +1,3 @@
--:orphan:
--
- ==================
- IA-64 Architecture
- ==================
-diff --git a/Documentation/index.rst b/Documentation/index.rst
-index 95db26bf2899..f898def833f4 100644
---- a/Documentation/index.rst
-+++ b/Documentation/index.rst
-@@ -118,7 +118,17 @@ implementation.
-    :maxdepth: 2
- 
-    sh/index
-+   arm/index
-+   arm64/index
-+   ia64/index
-+   m68k/index
-+   powerpc/index
-+   riscv/index
-+   s390/index
-+   sh/index
-+   sparc/index
-    x86/index
-+   xtensa/index
- 
- Filesystem Documentation
- ------------------------
-diff --git a/Documentation/m68k/index.rst b/Documentation/m68k/index.rst
-index f3273ec075c3..3a5ba7fe1703 100644
---- a/Documentation/m68k/index.rst
-+++ b/Documentation/m68k/index.rst
-@@ -1,4 +1,4 @@
--:orphan:
-+.. SPDX-License-Identifier: GPL-2.0
- 
- =================
- m68k Architecture
-diff --git a/Documentation/powerpc/index.rst b/Documentation/powerpc/index.rst
-index 1ff17268db46..549b1cdd77ae 100644
---- a/Documentation/powerpc/index.rst
-+++ b/Documentation/powerpc/index.rst
-@@ -1,4 +1,4 @@
--:orphan:
-+.. SPDX-License-Identifier: GPL-2.0
- 
- =======
- powerpc
-diff --git a/Documentation/riscv/index.rst b/Documentation/riscv/index.rst
-index c4b906d9b5a7..e3ca0922a8c2 100644
---- a/Documentation/riscv/index.rst
-+++ b/Documentation/riscv/index.rst
-@@ -1,5 +1,3 @@
--:orphan:
--
- ===================
- RISC-V architecture
- ===================
-diff --git a/Documentation/s390/index.rst b/Documentation/s390/index.rst
-index 1a914da2a07b..4602312909d3 100644
---- a/Documentation/s390/index.rst
-+++ b/Documentation/s390/index.rst
-@@ -1,5 +1,3 @@
--:orphan:
--
- =================
- s390 Architecture
- =================
-diff --git a/Documentation/sparc/index.rst b/Documentation/sparc/index.rst
-index 91f7d6643dd5..71cff621f243 100644
---- a/Documentation/sparc/index.rst
-+++ b/Documentation/sparc/index.rst
-@@ -1,5 +1,3 @@
--:orphan:
--
- ==================
- Sparc Architecture
- ==================
-diff --git a/Documentation/xtensa/index.rst b/Documentation/xtensa/index.rst
-index 5a24e365e35f..52fa04eb39a3 100644
---- a/Documentation/xtensa/index.rst
-+++ b/Documentation/xtensa/index.rst
-@@ -1,4 +1,4 @@
--:orphan:
-+.. SPDX-License-Identifier: GPL-2.0
- 
- ===================
- Xtensa Architecture
--- 
-2.21.0
+Not sure how to handle it on the pull request, but wanted to mention it.
+
+My apologies,
+Eric
+
+On 6/21/19 10:33 AM, Cornelia Huck wrote:
+> From: Eric Farman <farman@linux.ibm.com>
+> 
+> Now that both CCW codepaths build this nested array:
+> 
+>   ccwchain->pfn_array_table[1]->pfn_array[#idaws/#pages]
+> 
+> We can collapse this into simply:
+> 
+>   ccwchain->pfn_array[#idaws/#pages]
+> 
+> Let's do that, so that we don't have to continually navigate two
+> nested arrays when the first array always has a count of one.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Message-Id: <20190606202831.44135-8-farman@linux.ibm.com>
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 118 +++++++++------------------------
+>  1 file changed, 33 insertions(+), 85 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index ab9f8f0d1b44..76ffcc823944 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -33,11 +33,6 @@ struct pfn_array {
+>  	int			pa_nr;
+>  };
+>  
+> -struct pfn_array_table {
+> -	struct pfn_array	*pat_pa;
+> -	int			pat_nr;
+> -};
+> -
+>  struct ccwchain {
+>  	struct list_head	next;
+>  	struct ccw1		*ch_ccw;
+> @@ -46,7 +41,7 @@ struct ccwchain {
+>  	/* Count of the valid ccws in chain. */
+>  	int			ch_len;
+>  	/* Pinned PAGEs for the original data. */
+> -	struct pfn_array_table	*ch_pat;
+> +	struct pfn_array	*ch_pa;
+>  };
+>  
+>  /*
+> @@ -139,55 +134,23 @@ static void pfn_array_unpin_free(struct pfn_array *pa, struct device *mdev)
+>  	kfree(pa->pa_iova_pfn);
+>  }
+>  
+> -static int pfn_array_table_init(struct pfn_array_table *pat, int nr)
+> -{
+> -	pat->pat_pa = kcalloc(nr, sizeof(*pat->pat_pa), GFP_KERNEL);
+> -	if (unlikely(ZERO_OR_NULL_PTR(pat->pat_pa))) {
+> -		pat->pat_nr = 0;
+> -		return -ENOMEM;
+> -	}
+> -
+> -	pat->pat_nr = nr;
+> -
+> -	return 0;
+> -}
+> -
+> -static void pfn_array_table_unpin_free(struct pfn_array_table *pat,
+> -				       struct device *mdev)
+> -{
+> -	int i;
+> -
+> -	for (i = 0; i < pat->pat_nr; i++)
+> -		pfn_array_unpin_free(pat->pat_pa + i, mdev);
+> -
+> -	if (pat->pat_nr) {
+> -		kfree(pat->pat_pa);
+> -		pat->pat_pa = NULL;
+> -		pat->pat_nr = 0;
+> -	}
+> -}
+> -
+> -static bool pfn_array_table_iova_pinned(struct pfn_array_table *pat,
+> -					unsigned long iova)
+> +static bool pfn_array_iova_pinned(struct pfn_array *pa, unsigned long iova)
+>  {
+> -	struct pfn_array *pa = pat->pat_pa;
+>  	unsigned long iova_pfn = iova >> PAGE_SHIFT;
+> -	int i, j;
+> +	int i;
+>  
+> -	for (i = 0; i < pat->pat_nr; i++, pa++)
+> -		for (j = 0; j < pa->pa_nr; j++)
+> -			if (pa->pa_iova_pfn[j] == iova_pfn)
+> -				return true;
+> +	for (i = 0; i < pa->pa_nr; i++)
+> +		if (pa->pa_iova_pfn[i] == iova_pfn)
+> +			return true;
+>  
+>  	return false;
+>  }
+> -/* Create the list idal words for a pfn_array_table. */
+> -static inline void pfn_array_table_idal_create_words(
+> -	struct pfn_array_table *pat,
+> +/* Create the list of IDAL words for a pfn_array. */
+> +static inline void pfn_array_idal_create_words(
+> +	struct pfn_array *pa,
+>  	unsigned long *idaws)
+>  {
+> -	struct pfn_array *pa;
+> -	int i, j, k;
+> +	int i;
+>  
+>  	/*
+>  	 * Idal words (execept the first one) rely on the memory being 4k
+> @@ -196,17 +159,12 @@ static inline void pfn_array_table_idal_create_words(
+>  	 * there will be no problem here to simply use the phys to create an
+>  	 * idaw.
+>  	 */
+> -	k = 0;
+> -	for (i = 0; i < pat->pat_nr; i++) {
+> -		pa = pat->pat_pa + i;
+> -		for (j = 0; j < pa->pa_nr; j++) {
+> -			idaws[k] = pa->pa_pfn[j] << PAGE_SHIFT;
+> -			k++;
+> -		}
+> -	}
+> +
+> +	for (i = 0; i < pa->pa_nr; i++)
+> +		idaws[i] = pa->pa_pfn[i] << PAGE_SHIFT;
+>  
+>  	/* Adjust the first IDAW, since it may not start on a page boundary */
+> -	idaws[0] += pat->pat_pa->pa_iova & (PAGE_SIZE - 1);
+> +	idaws[0] += pa->pa_iova & (PAGE_SIZE - 1);
+>  }
+>  
+>  
+> @@ -378,7 +336,7 @@ static struct ccwchain *ccwchain_alloc(struct channel_program *cp, int len)
+>  	/* Make ccw address aligned to 8. */
+>  	size = ((sizeof(*chain) + 7L) & -8L) +
+>  		sizeof(*chain->ch_ccw) * len +
+> -		sizeof(*chain->ch_pat) * len;
+> +		sizeof(*chain->ch_pa) * len;
+>  	chain = kzalloc(size, GFP_DMA | GFP_KERNEL);
+>  	if (!chain)
+>  		return NULL;
+> @@ -387,7 +345,7 @@ static struct ccwchain *ccwchain_alloc(struct channel_program *cp, int len)
+>  	chain->ch_ccw = (struct ccw1 *)data;
+>  
+>  	data = (u8 *)(chain->ch_ccw) + sizeof(*chain->ch_ccw) * len;
+> -	chain->ch_pat = (struct pfn_array_table *)data;
+> +	chain->ch_pa = (struct pfn_array *)data;
+>  
+>  	chain->ch_len = len;
+>  
+> @@ -575,7 +533,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+>  				 struct channel_program *cp)
+>  {
+>  	struct ccw1 *ccw;
+> -	struct pfn_array_table *pat;
+> +	struct pfn_array *pa;
+>  	unsigned long *idaws;
+>  	int ret;
+>  	int bytes = 1;
+> @@ -593,21 +551,17 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+>  	 * The number of pages actually is the count of the idaws which will be
+>  	 * needed when translating a direct ccw to a idal ccw.
+>  	 */
+> -	pat = chain->ch_pat + idx;
+> -	ret = pfn_array_table_init(pat, 1);
+> -	if (ret)
+> -		goto out_init;
+> -
+> -	ret = pfn_array_alloc(pat->pat_pa, ccw->cda, bytes);
+> +	pa = chain->ch_pa + idx;
+> +	ret = pfn_array_alloc(pa, ccw->cda, bytes);
+>  	if (ret < 0)
+>  		goto out_unpin;
+
+-		goto out_unpin;
++		goto out_init;
+
+>  
+>  	if (ccw_does_data_transfer(ccw)) {
+> -		ret = pfn_array_pin(pat->pat_pa, cp->mdev);
+> +		ret = pfn_array_pin(pa, cp->mdev);
+>  		if (ret < 0)
+>  			goto out_unpin;
+>  	} else {
+> -		pat->pat_pa->pa_nr = 0;
+> +		pa->pa_nr = 0;
+>  	}
+>  
+>  	/* Translate this direct ccw to a idal ccw. */
+> @@ -619,12 +573,12 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+>  	ccw->cda = (__u32) virt_to_phys(idaws);
+>  	ccw->flags |= CCW_FLAG_IDA;
+>  
+> -	pfn_array_table_idal_create_words(pat, idaws);
+> +	pfn_array_idal_create_words(pa, idaws);
+>  
+>  	return 0;
+>  
+>  out_unpin:
+> -	pfn_array_table_unpin_free(pat, cp->mdev);
+> +	pfn_array_unpin_free(pa, cp->mdev);
+>  out_init:
+>  	ccw->cda = 0;
+>  	return ret;
+> @@ -635,7 +589,7 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+>  			       struct channel_program *cp)
+>  {
+>  	struct ccw1 *ccw;
+> -	struct pfn_array_table *pat;
+> +	struct pfn_array *pa;
+>  	unsigned long *idaws;
+>  	u64 idaw_iova;
+>  	unsigned int idaw_nr, idaw_len;
+> @@ -655,15 +609,11 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+>  	idaw_len = idaw_nr * sizeof(*idaws);
+>  
+>  	/* Pin data page(s) in memory. */
+> -	pat = chain->ch_pat + idx;
+> -	ret = pfn_array_table_init(pat, 1);
+> +	pa = chain->ch_pa + idx;
+> +	ret = pfn_array_alloc(pa, idaw_iova, bytes);
+>  	if (ret)
+>  		goto out_init;
+>  
+> -	ret = pfn_array_alloc(pat->pat_pa, idaw_iova, bytes);
+> -	if (ret)
+> -		goto out_unpin;
+> -
+>  	/* Translate idal ccw to use new allocated idaws. */
+>  	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
+>  	if (!idaws) {
+> @@ -678,24 +628,24 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+>  	ccw->cda = virt_to_phys(idaws);
+>  
+>  	for (i = 0; i < idaw_nr; i++)
+> -		pat->pat_pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
+> +		pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
+>  
+>  	if (ccw_does_data_transfer(ccw)) {
+> -		ret = pfn_array_pin(pat->pat_pa, cp->mdev);
+> +		ret = pfn_array_pin(pa, cp->mdev);
+>  		if (ret < 0)
+>  			goto out_free_idaws;
+>  	} else {
+> -		pat->pat_pa->pa_nr = 0;
+> +		pa->pa_nr = 0;
+>  	}
+>  
+> -	pfn_array_table_idal_create_words(pat, idaws);
+> +	pfn_array_idal_create_words(pa, idaws);
+>  
+>  	return 0;
+>  
+>  out_free_idaws:
+>  	kfree(idaws);
+>  out_unpin:
+> -	pfn_array_table_unpin_free(pat, cp->mdev);
+> +	pfn_array_unpin_free(pa, cp->mdev);
+>  out_init:
+>  	ccw->cda = 0;
+>  	return ret;
+> @@ -790,8 +740,7 @@ void cp_free(struct channel_program *cp)
+>  	cp->initialized = false;
+>  	list_for_each_entry_safe(chain, temp, &cp->ccwchain_list, next) {
+>  		for (i = 0; i < chain->ch_len; i++) {
+> -			pfn_array_table_unpin_free(chain->ch_pat + i,
+> -						   cp->mdev);
+> +			pfn_array_unpin_free(chain->ch_pa + i, cp->mdev);
+>  			ccwchain_cda_free(chain, i);
+>  		}
+>  		ccwchain_free(chain);
+> @@ -967,8 +916,7 @@ bool cp_iova_pinned(struct channel_program *cp, u64 iova)
+>  
+>  	list_for_each_entry(chain, &cp->ccwchain_list, next) {
+>  		for (i = 0; i < chain->ch_len; i++)
+> -			if (pfn_array_table_iova_pinned(chain->ch_pat + i,
+> -							iova))
+> +			if (pfn_array_iova_pinned(chain->ch_pa + i, iova))
+>  				return true;
+>  	}
+>  
+> 
