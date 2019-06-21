@@ -1,110 +1,125 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from pegase1.c-s.fr ([93.17.236.30]:46577 "EHLO pegase1.c-s.fr"
+Received: from mx1.redhat.com ([209.132.183.28]:7925 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727074AbfFDNQU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 09:16:20 -0400
-Subject: Re: [PATCH v4 3/3] kselftest: Extend vDSO selftest to clock_getres
-References: <20190523112116.19233-1-vincenzo.frascino@arm.com>
- <20190523112116.19233-4-vincenzo.frascino@arm.com>
- <87lfyrp0d2.fsf@concordia.ellerman.id.au>
- <afb7395f-43e9-c304-2db2-349e6727b687@arm.com>
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Message-ID: <5c99721a-ce6b-10a0-99f2-6c37c1da4542@c-s.fr>
-Date: Tue, 4 Jun 2019 15:16:16 +0200
+        id S1726460AbfFUOeN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 10:34:13 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 05/14] vfio-ccw: Rearrange pfn_array and pfn_array_table arrays
+Date: Fri, 21 Jun 2019 16:33:46 +0200
+Message-Id: <20190621143355.29175-6-cohuck@redhat.com>
+In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
+References: <20190621143355.29175-1-cohuck@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <afb7395f-43e9-c304-2db2-349e6727b687@arm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: fr
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Vincenzo Frascino <vincenzo.frascino@arm.com>, Michael Ellerman <mpe@ellerman.id.au>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Shuah Khan <shuah@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Arnd Bergmann <arnd@arndb.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-Hi Vincenzo
+From: Eric Farman <farman@linux.ibm.com>
 
-Le 28/05/2019 à 13:57, Vincenzo Frascino a écrit :
-> Hi Michael,
-> 
-> thank you for your reply.
-> 
-> On 28/05/2019 07:19, Michael Ellerman wrote:
->> Vincenzo Frascino <vincenzo.frascino@arm.com> writes:
->>
->>> The current version of the multiarch vDSO selftest verifies only
->>> gettimeofday.
->>>
->>> Extend the vDSO selftest to clock_getres, to verify that the
->>> syscall and the vDSO library function return the same information.
->>>
->>> The extension has been used to verify the hrtimer_resoltion fix.
->>
->> This is passing for me even without patch 1 applied, shouldn't it fail
->> without the fix? What am I missing?
->>
-> 
-> This is correct, because during the refactoring process I missed an "n" :)
-> 
-> if·((x.tv_sec·!=·y.tv_sec)·||·(x.tv_sec·!=·y.tv_sec))
-> 
-> Should be:
-> 
-> if·((x.tv_sec·!=·y.tv_sec)·||·(x.tv_nsec·!=·y.tv_nsec))
-> 
-> My mistake, I am going to fix the test and re-post v5 of this set.
-> 
-> Without my patch if you pass "highres=off" to the kernel (as a command line
-> parameter) it leads to a broken implementation of clock_getres since the value
-> of CLOCK_REALTIME_RES does not change at runtime.
-> 
-> Expected result (with highres=off):
-> 
-> # uname -r
-> 5.2.0-rc2
-> # ./vdso_clock_getres
-> clock_id: CLOCK_REALTIME [FAIL]
-> clock_id: CLOCK_BOOTTIME [PASS]
-> clock_id: CLOCK_TAI [PASS]
-> clock_id: CLOCK_REALTIME_COARSE [PASS]
-> clock_id: CLOCK_MONOTONIC [FAIL]
-> clock_id: CLOCK_MONOTONIC_RAW [PASS]
-> clock_id: CLOCK_MONOTONIC_COARSE [PASS]
-> 
-> The reason of this behavior is that the only clocks supported by getres on
-> powerpc are CLOCK_REALTIME and CLOCK_MONOTONIC, the rest on the clocks use
-> always syscalls.
+While processing a channel program, we currently have two nested
+arrays that carry a slightly different structure.  The direct CCW
+path creates this:
 
-vdso64 is supposed to implement CLOCK_{REALTIME/MONOTONIC}_COARSE, so I 
-guess it should fail for them too ?
+  ccwchain->pfn_array_table[1]->pfn_array[#pages]
 
-Or is your test done on vdso32 ?
+while an IDA CCW creates:
 
-Christophe
+  ccwchain->pfn_array_table[#idaws]->pfn_array[1]
 
-> 
->> # uname -r
->> 5.2.0-rc2-gcc-8.2.0
->>
->> # ./vdso_clock_getres
->> clock_id: CLOCK_REALTIME [PASS]
->> clock_id: CLOCK_BOOTTIME [PASS]
->> clock_id: CLOCK_TAI [PASS]
->> clock_id: CLOCK_REALTIME_COARSE [PASS]
->> clock_id: CLOCK_MONOTONIC [PASS]
->> clock_id: CLOCK_MONOTONIC_RAW [PASS]
->> clock_id: CLOCK_MONOTONIC_COARSE [PASS]
->>
->> cheers
->>
->>> Cc: Shuah Khan <shuah@kernel.org>
->>> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
->>> ---
->>>
->>> Note: This patch is independent from the others in this series, hence it
->>> can be merged singularly by the kselftest maintainers.
->>>
->>>   tools/testing/selftests/vDSO/Makefile         |   2 +
->>>   .../selftests/vDSO/vdso_clock_getres.c        | 124 ++++++++++++++++++
->>>   2 files changed, 126 insertions(+)
->>>   create mode 100644 tools/testing/selftests/vDSO/vdso_clock_getres.c
-> 
+The distinction appears to state that each pfn_array_table entry
+points to an array of contiguous pages, represented by a pfn_array,
+um, array.  Since the direct-addressed scenario can ONLY represent
+contiguous pages, it makes the intermediate array necessary but
+difficult to recognize.  Meanwhile, since an IDAL can contain
+non-contiguous pages and there is no logic in vfio-ccw to detect
+adjacent IDAWs, it is the second array that is necessary but appearing
+to be superfluous.
+
+I am not aware of any documentation that states the pfn_array[] needs
+to be of contiguous pages; it is just what the code does today.
+I don't see any reason for this either, let's just flip the IDA
+codepath around so that it generates:
+
+  ch_pat->pfn_array_table[1]->pfn_array[#idaws]
+
+This will bring it in line with the direct-addressed codepath,
+so that we can understand the behavior of this memory regardless
+of what type of CCW is being processed.  And it means the casual
+observer does not need to know/care whether the pfn_array[]
+represents contiguous pages or not.
+
+NB: The existing vfio-ccw code only supports 4K-block Format-2 IDAs,
+so that "#pages" == "#idaws" in this area.  This means that we will
+have difficulty with this overlap in terminology if support for
+Format-1 or 2K-block Format-2 IDAs is ever added.  I don't think that
+this patch changes our ability to make that distinction.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20190606202831.44135-6-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 5b98bea433b7..86a0e76ef2b5 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -635,7 +635,6 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ {
+ 	struct ccw1 *ccw;
+ 	struct pfn_array_table *pat;
+-	struct pfn_array *pa;
+ 	unsigned long *idaws;
+ 	u64 idaw_iova;
+ 	unsigned int idaw_nr, idaw_len;
+@@ -656,10 +655,14 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ 
+ 	/* Pin data page(s) in memory. */
+ 	pat = chain->ch_pat + idx;
+-	ret = pfn_array_table_init(pat, idaw_nr);
++	ret = pfn_array_table_init(pat, 1);
+ 	if (ret)
+ 		goto out_init;
+ 
++	ret = pfn_array_alloc(pat->pat_pa, idaw_iova, bytes);
++	if (ret)
++		goto out_unpin;
++
+ 	/* Translate idal ccw to use new allocated idaws. */
+ 	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
+ 	if (!idaws) {
+@@ -673,22 +676,15 @@ static int ccwchain_fetch_idal(struct ccwchain *chain,
+ 
+ 	ccw->cda = virt_to_phys(idaws);
+ 
+-	for (i = 0; i < idaw_nr; i++) {
+-		idaw_iova = *(idaws + i);
+-		pa = pat->pat_pa + i;
+-
+-		ret = pfn_array_alloc(pa, idaw_iova, 1);
+-		if (ret < 0)
+-			goto out_free_idaws;
+-
+-		if (!ccw_does_data_transfer(ccw)) {
+-			pa->pa_nr = 0;
+-			continue;
+-		}
++	for (i = 0; i < idaw_nr; i++)
++		pat->pat_pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
+ 
+-		ret = pfn_array_pin(pa, cp->mdev);
++	if (ccw_does_data_transfer(ccw)) {
++		ret = pfn_array_pin(pat->pat_pa, cp->mdev);
+ 		if (ret < 0)
+ 			goto out_free_idaws;
++	} else {
++		pat->pat_pa->pa_nr = 0;
+ 	}
+ 
+ 	pfn_array_table_idal_create_words(pat, idaws);
+-- 
+2.20.1
