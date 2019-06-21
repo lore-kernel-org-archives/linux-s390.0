@@ -1,146 +1,200 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35688 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438166AbfFLLNN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 07:13:13 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5CB8EmM014257
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 07:13:11 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2t2xxekyyv-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 07:13:11 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Wed, 12 Jun 2019 12:13:09 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH v5 6/8] virtio/s390: add indirection to indicators access
-Date: Wed, 12 Jun 2019 13:12:34 +0200
-In-Reply-To: <20190612111236.99538-1-pasic@linux.ibm.com>
-References: <20190612111236.99538-1-pasic@linux.ibm.com>
-Message-Id: <20190612111236.99538-7-pasic@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56742 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726498AbfFUOeU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 10:34:20 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 09/14] s390/cio: Combine direct and indirect CCW paths
+Date: Fri, 21 Jun 2019 16:33:50 +0200
+Message-Id: <20190621143355.29175-10-cohuck@redhat.com>
+In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
+References: <20190621143355.29175-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-This will come in handy soon when we pull out the indicators from
-virtio_ccw_device to a memory area that is shared with the hypervisor
-(in particular for protected virtualization guests).
+From: Eric Farman <farman@linux.ibm.com>
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+With both the direct-addressed and indirect-addressed CCW paths
+simplified to this point, the amount of shared code between them is
+(hopefully) more easily visible.  Move the processing of IDA-specific
+bits into the direct-addressed path, and add some useful commentary of
+what the individual pieces are doing.  This allows us to remove the
+entire ccwchain_fetch_idal() routine and maintain a single function
+for any non-TIC CCW.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20190606202831.44135-10-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/virtio/virtio_ccw.c | 40 ++++++++++++++++++++------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 115 +++++++++++----------------------
+ 1 file changed, 39 insertions(+), 76 deletions(-)
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 1da7430f94c8..e96a8cc56ec2 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -68,6 +68,16 @@ struct virtio_ccw_device {
- 	void *airq_info;
- };
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 8205d0b527fc..90d86e1354c1 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -534,10 +534,12 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ {
+ 	struct ccw1 *ccw;
+ 	struct pfn_array *pa;
++	u64 iova;
+ 	unsigned long *idaws;
+ 	int ret;
+ 	int bytes = 1;
+-	int idaw_nr;
++	int idaw_nr, idal_len;
++	int i;
  
-+static inline unsigned long *indicators(struct virtio_ccw_device *vcdev)
-+{
-+	return &vcdev->indicators;
-+}
+ 	ccw = chain->ch_ccw + idx;
+ 
+@@ -545,7 +547,17 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 		bytes = ccw->count;
+ 
+ 	/* Calculate size of IDAL */
+-	idaw_nr = idal_nr_words((void *)(u64)ccw->cda, bytes);
++	if (ccw_is_idal(ccw)) {
++		/* Read first IDAW to see if it's 4K-aligned or not. */
++		/* All subsequent IDAws will be 4K-aligned. */
++		ret = copy_from_iova(cp->mdev, &iova, ccw->cda, sizeof(iova));
++		if (ret)
++			return ret;
++	} else {
++		iova = ccw->cda;
++	}
++	idaw_nr = idal_nr_words((void *)iova, bytes);
++	idal_len = idaw_nr * sizeof(*idaws);
+ 
+ 	/* Allocate an IDAL from host storage */
+ 	idaws = kcalloc(idaw_nr, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
+@@ -555,15 +567,36 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	}
+ 
+ 	/*
+-	 * Pin data page(s) in memory.
+-	 * The number of pages actually is the count of the idaws which will be
+-	 * needed when translating a direct ccw to a idal ccw.
++	 * Allocate an array of pfn's for pages to pin/translate.
++	 * The number of pages is actually the count of the idaws
++	 * required for the data transfer, since we only only support
++	 * 4K IDAWs today.
+ 	 */
+ 	pa = chain->ch_pa + idx;
+-	ret = pfn_array_alloc(pa, ccw->cda, bytes);
++	ret = pfn_array_alloc(pa, iova, bytes);
+ 	if (ret < 0)
+ 		goto out_free_idaws;
+ 
++	if (ccw_is_idal(ccw)) {
++		/* Copy guest IDAL into host IDAL */
++		ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idal_len);
++		if (ret)
++			goto out_unpin;
 +
-+static inline unsigned long *indicators2(struct virtio_ccw_device *vcdev)
-+{
-+	return &vcdev->indicators2;
-+}
++		/*
++		 * Copy guest IDAWs into pfn_array, in case the memory they
++		 * occupy is not contiguous.
++		 */
++		for (i = 0; i < idaw_nr; i++)
++			pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
++	} else {
++		/*
++		 * No action is required here; the iova addresses in pfn_array
++		 * were initialized sequentially in pfn_array_alloc() beginning
++		 * with the contents of ccw->cda.
++		 */
++	}
 +
- struct vq_info_block_legacy {
- 	__u64 queue;
- 	__u32 align;
-@@ -338,17 +348,17 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
- 		ccw->cda = (__u32)(unsigned long) thinint_area;
- 	} else {
- 		/* payload is the address of the indicators */
--		indicatorp = kmalloc(sizeof(&vcdev->indicators),
-+		indicatorp = kmalloc(sizeof(indicators(vcdev)),
- 				     GFP_DMA | GFP_KERNEL);
- 		if (!indicatorp)
- 			return;
- 		*indicatorp = 0;
- 		ccw->cmd_code = CCW_CMD_SET_IND;
--		ccw->count = sizeof(&vcdev->indicators);
-+		ccw->count = sizeof(indicators(vcdev));
- 		ccw->cda = (__u32)(unsigned long) indicatorp;
- 	}
- 	/* Deregister indicators from host. */
--	vcdev->indicators = 0;
-+	*indicators(vcdev) = 0;
- 	ccw->flags = 0;
- 	ret = ccw_io_helper(vcdev, ccw,
- 			    vcdev->is_thinint ?
-@@ -657,10 +667,10 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	 * We need a data area under 2G to communicate. Our payload is
- 	 * the address of the indicators.
- 	*/
--	indicatorp = kmalloc(sizeof(&vcdev->indicators), GFP_DMA | GFP_KERNEL);
-+	indicatorp = kmalloc(sizeof(indicators(vcdev)), GFP_DMA | GFP_KERNEL);
- 	if (!indicatorp)
- 		goto out;
--	*indicatorp = (unsigned long) &vcdev->indicators;
-+	*indicatorp = (unsigned long) indicators(vcdev);
- 	if (vcdev->is_thinint) {
- 		ret = virtio_ccw_register_adapter_ind(vcdev, vqs, nvqs, ccw);
- 		if (ret)
-@@ -669,21 +679,21 @@ static int virtio_ccw_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	}
- 	if (!vcdev->is_thinint) {
- 		/* Register queue indicators with host. */
--		vcdev->indicators = 0;
-+		*indicators(vcdev) = 0;
- 		ccw->cmd_code = CCW_CMD_SET_IND;
- 		ccw->flags = 0;
--		ccw->count = sizeof(&vcdev->indicators);
-+		ccw->count = sizeof(indicators(vcdev));
- 		ccw->cda = (__u32)(unsigned long) indicatorp;
- 		ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_IND);
- 		if (ret)
- 			goto out;
- 	}
- 	/* Register indicators2 with host for config changes */
--	*indicatorp = (unsigned long) &vcdev->indicators2;
--	vcdev->indicators2 = 0;
-+	*indicatorp = (unsigned long) indicators2(vcdev);
-+	*indicators2(vcdev) = 0;
- 	ccw->cmd_code = CCW_CMD_SET_CONF_IND;
- 	ccw->flags = 0;
--	ccw->count = sizeof(&vcdev->indicators2);
-+	ccw->count = sizeof(indicators2(vcdev));
- 	ccw->cda = (__u32)(unsigned long) indicatorp;
- 	ret = ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_SET_CONF_IND);
- 	if (ret)
-@@ -1093,17 +1103,17 @@ static void virtio_ccw_int_handler(struct ccw_device *cdev,
- 			vcdev->err = -EIO;
- 	}
- 	virtio_ccw_check_activity(vcdev, activity);
--	for_each_set_bit(i, &vcdev->indicators,
--			 sizeof(vcdev->indicators) * BITS_PER_BYTE) {
-+	for_each_set_bit(i, indicators(vcdev),
-+			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
- 		/* The bit clear must happen before the vring kick. */
--		clear_bit(i, &vcdev->indicators);
-+		clear_bit(i, indicators(vcdev));
- 		barrier();
- 		vq = virtio_ccw_vq_by_ind(vcdev, i);
- 		vring_interrupt(0, vq);
- 	}
--	if (test_bit(0, &vcdev->indicators2)) {
-+	if (test_bit(0, indicators2(vcdev))) {
- 		virtio_config_changed(&vcdev->vdev);
--		clear_bit(0, &vcdev->indicators2);
-+		clear_bit(0, indicators2(vcdev));
- 	}
+ 	if (ccw_does_data_transfer(ccw)) {
+ 		ret = pfn_array_pin(pa, cp->mdev);
+ 		if (ret < 0)
+@@ -589,73 +622,6 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	return ret;
+ }
+ 
+-static int ccwchain_fetch_idal(struct ccwchain *chain,
+-			       int idx,
+-			       struct channel_program *cp)
+-{
+-	struct ccw1 *ccw;
+-	struct pfn_array *pa;
+-	unsigned long *idaws;
+-	u64 idaw_iova;
+-	unsigned int idaw_nr, idaw_len;
+-	int i, ret;
+-	int bytes = 1;
+-
+-	ccw = chain->ch_ccw + idx;
+-
+-	if (ccw->count)
+-		bytes = ccw->count;
+-
+-	/* Calculate size of idaws. */
+-	ret = copy_from_iova(cp->mdev, &idaw_iova, ccw->cda, sizeof(idaw_iova));
+-	if (ret)
+-		return ret;
+-	idaw_nr = idal_nr_words((void *)(idaw_iova), bytes);
+-	idaw_len = idaw_nr * sizeof(*idaws);
+-
+-	/* Pin data page(s) in memory. */
+-	pa = chain->ch_pa + idx;
+-	ret = pfn_array_alloc(pa, idaw_iova, bytes);
+-	if (ret)
+-		goto out_init;
+-
+-	/* Translate idal ccw to use new allocated idaws. */
+-	idaws = kzalloc(idaw_len, GFP_DMA | GFP_KERNEL);
+-	if (!idaws) {
+-		ret = -ENOMEM;
+-		goto out_unpin;
+-	}
+-
+-	ret = copy_from_iova(cp->mdev, idaws, ccw->cda, idaw_len);
+-	if (ret)
+-		goto out_free_idaws;
+-
+-	ccw->cda = virt_to_phys(idaws);
+-
+-	for (i = 0; i < idaw_nr; i++)
+-		pa->pa_iova_pfn[i] = idaws[i] >> PAGE_SHIFT;
+-
+-	if (ccw_does_data_transfer(ccw)) {
+-		ret = pfn_array_pin(pa, cp->mdev);
+-		if (ret < 0)
+-			goto out_free_idaws;
+-	} else {
+-		pa->pa_nr = 0;
+-	}
+-
+-	pfn_array_idal_create_words(pa, idaws);
+-
+-	return 0;
+-
+-out_free_idaws:
+-	kfree(idaws);
+-out_unpin:
+-	pfn_array_unpin_free(pa, cp->mdev);
+-out_init:
+-	ccw->cda = 0;
+-	return ret;
+-}
+-
+ /*
+  * Fetch one ccw.
+  * To reduce memory copy, we'll pin the cda page in memory,
+@@ -671,9 +637,6 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+ 	if (ccw_is_tic(ccw))
+ 		return ccwchain_fetch_tic(chain, idx, cp);
+ 
+-	if (ccw_is_idal(ccw))
+-		return ccwchain_fetch_idal(chain, idx, cp);
+-
+ 	return ccwchain_fetch_direct(chain, idx, cp);
  }
  
 -- 
-2.17.1
+2.20.1
