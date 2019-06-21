@@ -1,49 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45810 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50088 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726136AbfFDGDl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Jun 2019 02:03:41 -0400
-Date: Tue, 4 Jun 2019 08:03:36 +0200
+        id S1726293AbfFUOeS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 10:34:18 -0400
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v1 1/1] vfio-ccw: Destroy kmem cache region on module
- exit
-Message-ID: <20190604080336.3b56c6d2.cohuck@redhat.com>
-In-Reply-To: <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
-References: <cover.1559576250.git.alifm@linux.ibm.com>
-        <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
+Subject: [PULL 08/14] vfio-ccw: Rearrange IDAL allocation in direct CCW
+Date: Fri, 21 Jun 2019 16:33:49 +0200
+Message-Id: <20190621143355.29175-9-cohuck@redhat.com>
+In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
+References: <20190621143355.29175-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, farman@linux.ibm.com, pasic@linux.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-On Mon,  3 Jun 2019 11:42:47 -0400
-Farhan Ali <alifm@linux.ibm.com> wrote:
+From: Eric Farman <farman@linux.ibm.com>
 
-> Free the vfio_ccw_cmd_region on module exit.
-> 
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> ---
-> 
-> I guess I missed this earlier while reviewing, but should'nt 
-> we destroy the vfio_ccw_cmd_region on module exit, as well?
-> 
->  drivers/s390/cio/vfio_ccw_drv.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-> index 66a66ac..9cee9f2 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -299,6 +299,7 @@ static void __exit vfio_ccw_sch_exit(void)
->  	css_driver_unregister(&vfio_ccw_sch_driver);
->  	isc_unregister(VFIO_CCW_ISC);
->  	kmem_cache_destroy(vfio_ccw_io_region);
-> +	kmem_cache_destroy(vfio_ccw_cmd_region);
->  	destroy_workqueue(vfio_ccw_work_q);
->  }
->  module_init(vfio_ccw_sch_init);
+This is purely deck furniture, to help understand the merge of the
+direct and indirect handlers.
 
-Yes, you're right. Will queue when the pull req has been processed.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20190606202831.44135-9-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 76ffcc823944..8205d0b527fc 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -537,13 +537,21 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	unsigned long *idaws;
+ 	int ret;
+ 	int bytes = 1;
+-	int idaw_nr = 1;
++	int idaw_nr;
+ 
+ 	ccw = chain->ch_ccw + idx;
+ 
+-	if (ccw->count) {
++	if (ccw->count)
+ 		bytes = ccw->count;
+-		idaw_nr = idal_nr_words((void *)(u64)ccw->cda, ccw->count);
++
++	/* Calculate size of IDAL */
++	idaw_nr = idal_nr_words((void *)(u64)ccw->cda, bytes);
++
++	/* Allocate an IDAL from host storage */
++	idaws = kcalloc(idaw_nr, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
++	if (!idaws) {
++		ret = -ENOMEM;
++		goto out_init;
+ 	}
+ 
+ 	/*
+@@ -554,7 +562,7 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 	pa = chain->ch_pa + idx;
+ 	ret = pfn_array_alloc(pa, ccw->cda, bytes);
+ 	if (ret < 0)
+-		goto out_unpin;
++		goto out_free_idaws;
+ 
+ 	if (ccw_does_data_transfer(ccw)) {
+ 		ret = pfn_array_pin(pa, cp->mdev);
+@@ -564,21 +572,18 @@ static int ccwchain_fetch_direct(struct ccwchain *chain,
+ 		pa->pa_nr = 0;
+ 	}
+ 
+-	/* Translate this direct ccw to a idal ccw. */
+-	idaws = kcalloc(idaw_nr, sizeof(*idaws), GFP_DMA | GFP_KERNEL);
+-	if (!idaws) {
+-		ret = -ENOMEM;
+-		goto out_unpin;
+-	}
+ 	ccw->cda = (__u32) virt_to_phys(idaws);
+ 	ccw->flags |= CCW_FLAG_IDA;
+ 
++	/* Populate the IDAL with pinned/translated addresses from pfn */
+ 	pfn_array_idal_create_words(pa, idaws);
+ 
+ 	return 0;
+ 
+ out_unpin:
+ 	pfn_array_unpin_free(pa, cp->mdev);
++out_free_idaws:
++	kfree(idaws);
+ out_init:
+ 	ccw->cda = 0;
+ 	return ret;
+-- 
+2.20.1
