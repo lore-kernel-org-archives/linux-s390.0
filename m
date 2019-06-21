@@ -1,178 +1,173 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 44/70] s390/zcrypt: Fix wrong dispatching for control domain CPRBs
-Date: Sat,  8 Jun 2019 07:39:23 -0400
-Message-Id: <20190608113950.8033-44-sashal@kernel.org>
-In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
-References: <20190608113950.8033-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:48048 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726519AbfFUOeW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Jun 2019 10:34:22 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 10/14] vfio-ccw: Move guest_cp storage into common struct
+Date: Fri, 21 Jun 2019 16:33:51 +0200
+Message-Id: <20190621143355.29175-11-cohuck@redhat.com>
+In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
+References: <20190621143355.29175-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit 7379e652797c0b9b5f6caea1576f2dff9ce6a708 ]
+Rather than allocating/freeing a piece of memory every time
+we try to figure out how long a CCW chain is, let's use a piece
+of memory allocated for each device.
 
-The zcrypt device driver does not handle CPRBs which address
-a control domain correctly. This fix introduces a workaround:
-The domain field of the request CPRB is checked if there is
-a valid domain value in there. If this is true and the value
-is a control only domain (a domain which is enabled in the
-crypto config ADM mask but disabled in the AQM mask) the
-CPRB is forwarded to the default usage domain. If there is
-no default domain, the request is rejected with an ENODEV.
+The io_mutex added with commit 4f76617378ee9 ("vfio-ccw: protect
+the I/O region") is held for the duration of the VFIO_CCW_EVENT_IO_REQ
+event that accesses/uses this space, so there should be no race
+concerns with another CPU attempting an (unexpected) SSCH for the
+same device.
 
-This fix is important for maintaining crypto adapters. For
-example one LPAR can use a crypto adapter domain ('Control
-and Usage') but another LPAR needs to be able to maintain
-this adapter domain ('Control'). Scenarios like this did
-not work properly and the patch enables this.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20190618202352.39702-2-farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/include/asm/ap.h       |  4 ++--
- drivers/s390/crypto/ap_bus.c     | 26 ++++++++++++++++++++++----
- drivers/s390/crypto/ap_bus.h     |  3 +++
- drivers/s390/crypto/zcrypt_api.c | 17 ++++++++++++++---
- 4 files changed, 41 insertions(+), 9 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c  | 23 ++++-------------------
+ drivers/s390/cio/vfio_ccw_cp.h  |  7 +++++++
+ drivers/s390/cio/vfio_ccw_drv.c |  7 +++++++
+ 3 files changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
-index e94a0a28b5eb..aea32dda3d14 100644
---- a/arch/s390/include/asm/ap.h
-+++ b/arch/s390/include/asm/ap.h
-@@ -160,8 +160,8 @@ struct ap_config_info {
- 	unsigned char Nd;		/* max # of Domains - 1 */
- 	unsigned char _reserved3[10];
- 	unsigned int apm[8];		/* AP ID mask */
--	unsigned int aqm[8];		/* AP queue mask */
--	unsigned int adm[8];		/* AP domain mask */
-+	unsigned int aqm[8];		/* AP (usage) queue mask */
-+	unsigned int adm[8];		/* AP (control) domain mask */
- 	unsigned char _reserved4[16];
- } __aligned(8);
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 90d86e1354c1..f358502376be 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -16,12 +16,6 @@
  
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 1546389d71db..6717536a633c 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -254,19 +254,37 @@ static inline int ap_test_config_card_id(unsigned int id)
- }
+ #include "vfio_ccw_cp.h"
  
- /*
-- * ap_test_config_domain(): Test, whether an AP usage domain is configured.
-+ * ap_test_config_usage_domain(): Test, whether an AP usage domain
-+ * is configured.
-  * @domain AP usage domain ID
-  *
-  * Returns 0 if the usage domain is not configured
-  *	   1 if the usage domain is configured or
-  *	     if the configuration information is not available
+-/*
+- * Max length for ccw chain.
+- * XXX: Limit to 256, need to check more?
+- */
+-#define CCWCHAIN_LEN_MAX	256
+-
+ struct pfn_array {
+ 	/* Starting guest physical I/O address. */
+ 	unsigned long		pa_iova;
+@@ -386,7 +380,7 @@ static void ccwchain_cda_free(struct ccwchain *chain, int idx)
   */
--static inline int ap_test_config_domain(unsigned int domain)
-+int ap_test_config_usage_domain(unsigned int domain)
+ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
  {
- 	if (!ap_configuration)	/* QCI not supported */
- 		return domain < 16;
- 	return ap_test_config(ap_configuration->aqm, domain);
+-	struct ccw1 *ccw, *p;
++	struct ccw1 *ccw = cp->guest_cp;
+ 	int cnt;
+ 
+ 	/*
+@@ -394,15 +388,9 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 	 * Currently the chain length is limited to CCWCHAIN_LEN_MAX (256).
+ 	 * So copying 2K is enough (safe).
+ 	 */
+-	p = ccw = kcalloc(CCWCHAIN_LEN_MAX, sizeof(*ccw), GFP_KERNEL);
+-	if (!ccw)
+-		return -ENOMEM;
+-
+ 	cnt = copy_ccw_from_iova(cp, ccw, iova, CCWCHAIN_LEN_MAX);
+-	if (cnt) {
+-		kfree(ccw);
++	if (cnt)
+ 		return cnt;
+-	}
+ 
+ 	cnt = 0;
+ 	do {
+@@ -413,10 +401,8 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 		 * orb specified one of the unsupported formats, we defer
+ 		 * checking for IDAWs in unsupported formats to here.
+ 		 */
+-		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw)) {
+-			kfree(p);
++		if ((!cp->orb.cmd.c64 || cp->orb.cmd.i2k) && ccw_is_idal(ccw))
+ 			return -EOPNOTSUPP;
+-		}
+ 
+ 		/*
+ 		 * We want to keep counting if the current CCW has the
+@@ -435,7 +421,6 @@ static int ccwchain_calc_length(u64 iova, struct channel_program *cp)
+ 	if (cnt == CCWCHAIN_LEN_MAX + 1)
+ 		cnt = -EINVAL;
+ 
+-	kfree(p);
+ 	return cnt;
  }
-+EXPORT_SYMBOL(ap_test_config_usage_domain);
-+
+ 
+@@ -461,7 +446,7 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
+ 	struct ccwchain *chain;
+ 	int len, ret;
+ 
+-	/* Get chain length. */
++	/* Copy the chain from cda to cp, and count the CCWs in it */
+ 	len = ccwchain_calc_length(cda, cp);
+ 	if (len < 0)
+ 		return len;
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index 3c20cd208da5..7cdc38049033 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -16,6 +16,12 @@
+ 
+ #include "orb.h"
+ 
 +/*
-+ * ap_test_config_ctrl_domain(): Test, whether an AP control domain
-+ * is configured.
-+ * @domain AP control domain ID
-+ *
-+ * Returns 1 if the control domain is configured
-+ *	   0 in all other cases
++ * Max length for ccw chain.
++ * XXX: Limit to 256, need to check more?
 + */
-+int ap_test_config_ctrl_domain(unsigned int domain)
-+{
-+	if (!ap_configuration)	/* QCI not supported */
-+		return 0;
-+	return ap_test_config(ap_configuration->adm, domain);
-+}
-+EXPORT_SYMBOL(ap_test_config_ctrl_domain);
- 
++#define CCWCHAIN_LEN_MAX	256
++
  /**
-  * ap_query_queue(): Check if an AP queue is available.
-@@ -1267,7 +1285,7 @@ static void ap_select_domain(void)
- 	best_domain = -1;
- 	max_count = 0;
- 	for (i = 0; i < AP_DOMAINS; i++) {
--		if (!ap_test_config_domain(i) ||
-+		if (!ap_test_config_usage_domain(i) ||
- 		    !test_bit_inv(i, ap_perms.aqm))
- 			continue;
- 		count = 0;
-@@ -1442,7 +1460,7 @@ static void _ap_scan_bus_adapter(int id)
- 				      (void *)(long) qid,
- 				      __match_queue_device_with_qid);
- 		aq = dev ? to_ap_queue(dev) : NULL;
--		if (!ap_test_config_domain(dom)) {
-+		if (!ap_test_config_usage_domain(dom)) {
- 			if (dev) {
- 				/* Queue device exists but has been
- 				 * removed from configuration.
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 15a98a673c5c..6f3cf37776ca 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -251,6 +251,9 @@ void ap_wait(enum ap_wait wait);
- void ap_request_timeout(struct timer_list *t);
- void ap_bus_force_rescan(void);
+  * struct channel_program - manage information for channel program
+  * @ccwchain_list: list head of ccwchains
+@@ -32,6 +38,7 @@ struct channel_program {
+ 	union orb orb;
+ 	struct device *mdev;
+ 	bool initialized;
++	struct ccw1 *guest_cp;
+ };
  
-+int ap_test_config_usage_domain(unsigned int domain);
-+int ap_test_config_ctrl_domain(unsigned int domain);
+ extern int cp_init(struct channel_program *cp, struct device *mdev,
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 66a66ac1f3d1..34a9a5e3fd36 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -129,6 +129,11 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (!private)
+ 		return -ENOMEM;
+ 
++	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
++				       GFP_KERNEL);
++	if (!private->cp.guest_cp)
++		goto out_free;
 +
- void ap_queue_init_reply(struct ap_queue *aq, struct ap_message *ap_msg);
- struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type);
- void ap_queue_prepare_remove(struct ap_queue *aq);
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index c31b2d31cd83..03b1853464db 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -822,7 +822,7 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
- 	struct ap_message ap_msg;
- 	unsigned int weight, pref_weight;
- 	unsigned int func_code;
--	unsigned short *domain;
-+	unsigned short *domain, tdom;
- 	int qid = 0, rc = -ENODEV;
- 	struct module *mod;
+ 	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
+ 					       GFP_KERNEL | GFP_DMA);
+ 	if (!private->io_region)
+@@ -169,6 +174,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+ 	if (private->io_region)
+ 		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 	return ret;
+ }
+@@ -185,6 +191,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
  
-@@ -834,6 +834,17 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
- 	if (rc)
- 		goto out;
+ 	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+ 	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	kfree(private->cp.guest_cp);
+ 	kfree(private);
  
-+	/*
-+	 * If a valid target domain is set and this domain is NOT a usage
-+	 * domain but a control only domain, use the default domain as target.
-+	 */
-+	tdom = *domain;
-+	if (tdom >= 0 && tdom < AP_DOMAINS &&
-+	    !ap_test_config_usage_domain(tdom) &&
-+	    ap_test_config_ctrl_domain(tdom) &&
-+	    ap_domain_index >= 0)
-+		tdom = ap_domain_index;
-+
- 	pref_zc = NULL;
- 	pref_zq = NULL;
- 	spin_lock(&zcrypt_list_lock);
-@@ -856,8 +867,8 @@ static long _zcrypt_send_cprb(struct ap_perms *perms,
- 			/* check if device is online and eligible */
- 			if (!zq->online ||
- 			    !zq->ops->send_cprb ||
--			    ((*domain != (unsigned short) AUTOSELECT) &&
--			     (*domain != AP_QID_QUEUE(zq->queue->qid))))
-+			    (tdom != (unsigned short) AUTOSELECT &&
-+			     tdom != AP_QID_QUEUE(zq->queue->qid)))
- 				continue;
- 			/* check if device node has admission for this queue */
- 			if (!zcrypt_check_queue(perms,
+ 	return 0;
 -- 
 2.20.1
