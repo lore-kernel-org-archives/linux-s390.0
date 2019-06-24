@@ -1,24 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727525AbfFXLbP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Jun 2019 07:31:15 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5OBRfbh013100
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jun 2019 07:31:14 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2taw5k9dr9-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 24 Jun 2019 07:31:13 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Mon, 24 Jun 2019 12:31:12 +0100
-Date: Mon, 24 Jun 2019 13:31:07 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:49868 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729887AbfFXKFS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:18 -0400
+Date: Mon, 24 Jun 2019 12:05:14 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC v1 1/1] vfio-ccw: Don't call cp_free if we are processing
  a channel program
+Message-ID: <20190624120514.4b528db5.cohuck@redhat.com>
 In-Reply-To: <20190624114231.2d81e36f.cohuck@redhat.com>
 References: <cover.1561055076.git.alifm@linux.ibm.com>
         <46dc0cbdcb8a414d70b7807fceb1cca6229408d5.1561055076.git.alifm@linux.ibm.com>
@@ -30,58 +19,203 @@ References: <cover.1561055076.git.alifm@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20190624133107.791601be.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, pasic@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
 On Mon, 24 Jun 2019 11:42:31 +0200
 Cornelia Huck <cohuck@redhat.com> wrote:
 
+> On Fri, 21 Jun 2019 14:34:10 -0400
+> Farhan Ali <alifm@linux.ibm.com> wrote:
+> 
+> > On 06/21/2019 01:40 PM, Eric Farman wrote:
+> > > 
+> > > 
+> > > On 6/21/19 10:17 AM, Farhan Ali wrote:  
+> > >>
+> > >>
+> > >> On 06/20/2019 04:27 PM, Eric Farman wrote:  
+> > >>>
+> > >>>
+> > >>> On 6/20/19 3:40 PM, Farhan Ali wrote:  
+> > >>>> There is a small window where it's possible that an interrupt can
+> > >>>> arrive and can call cp_free, while we are still processing a channel
+> > >>>> program (i.e allocating memory, pinnging pages, translating  
+> > >>>
+> > >>> s/pinnging/pinning/
+> > >>>  
+> > >>>> addresses etc). This can lead to allocating and freeing at the same
+> > >>>> time and can cause memory corruption.
+> > >>>>
+> > >>>> Let's not call cp_free if we are currently processing a channel program.  
+> > >>>
+> > >>> The check around this cp_free() call is for a solicited interrupt, so
+> > >>> it's presumably in response to a SSCH we issued.  But if we're still
+> > >>> processing a CP, then we hadn't issued the SSCH to the hardware yet.  So
+> > >>> what is this interrupt for?  Do the contents of irb.cpa provide any
+> > >>> clues, perhaps if it's in the current cp or for someone else?
+> > >>>  
+> > >>
+> > >> I don't think the interrupt is in response to an ssch but rather due to
+> > >> an csch/hsch.
+> 
+> The solicited check only checks if it is solicited. It can be for any
+> channel I/O instruction that causes an interrupt... we probably should
+> adapt the check.
+> 
+> > >>  
+> > >>>>
+> > >>>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> > >>>> ---
+> > >>>>
+> > >>>> I have been running my test overnight with this patch and I haven't
+> > >>>> seen the stack traces that I mentioned about earlier. I would like
+> > >>>> to get some reviews on this and also if this is the right thing to
+> > >>>> do?
+> > >>>>
+> > >>>> Thanks
+> > >>>> Farhan
+> > >>>>
+> > >>>>    drivers/s390/cio/vfio_ccw_drv.c | 2 +-
+> > >>>>    1 file changed, 1 insertion(+), 1 deletion(-)
+> > >>>>
+> > >>>> diff --git a/drivers/s390/cio/vfio_ccw_drv.c
+> > >>>> b/drivers/s390/cio/vfio_ccw_drv.c
+> > >>>> index 66a66ac..61ece3f 100644
+> > >>>> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> > >>>> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> > >>>> @@ -88,7 +88,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct
+> > >>>> *work)
+> > >>>>                 (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+> > >>>>        if (scsw_is_solicited(&irb->scsw)) {
+> > >>>>            cp_update_scsw(&private->cp, &irb->scsw);  
+> > >>>
+> > >>> As I alluded earlier, do we know this irb is for this cp?  If no, what
+> > >>> does this function end up putting in the scsw?
+> 
+> Yes, I think this also needs to check whether we have at least a prior
+> start function around. (We use the orb provided by the guest; maybe we
+> should check if that intparm is set in the irb?)
+
+Hrm; not so easy as we always set the intparm to the address of the
+subchannel structure... 
+
+Maybe check if we have have one of the conditions of the large table
+16-6 and correlate to the ccw address? Or is it enough to check the
+function control? (Don't remember when the hardware resets it.)
+
+> 
+> > >>>  
+> > >>>> -        if (is_final)
+> > >>>> +        if (is_final && private->state != VFIO_CCW_STATE_CP_PROCESSING)  
+> > >>>
+> > >>> In looking at how we set this state, and how we exit it, I see we do:
+> > >>>
+> > >>> if SSCH got CC0, CP_PROCESSING -> CP_PENDING
+> > >>> if SSCH got !CC0, CP_PROCESSING -> IDLE
+> > >>>
+> > >>> While the first scenario happens immediately after the SSCH instruction,
+> > >>> I guess it could be just tiny enough, like the io_trigger FSM patch I
+> > >>> sent a few weeks ago.
+> > >>>
+> > >>> Meanwhile, the latter happens way after we return from the jump table.
+> > >>> So that scenario leaves considerable time for such an interrupt to
+> > >>> occur, though I don't understand why it would if we got a CC(1-3) on the
+> > >>> SSCH.
+> > >>>
+> > >>> And anyway, the return from fsm_io_helper() in that case will also call
+> > >>> cp_free().  So why does the cp->initialized check provide protection
+> > >>> from a double-free in that direction, but not here?  I'm confused.  
+> > >>
+> > >> I have a theory where I think it's possible to have 2 different threads
+> > >> executing cp_free
+> > >>
+> > >> If we start with private->state == IDLE and the guest issues a
+> > >> clear/halt and then an ssch
+> > >>
+> > >> - clear/halt will be issued to hardware, and if succeeds we will return
+> > >> cc=0 to guest
+> > >>
+> > >> - the guest can then issue ssch  
+> > > 
 > > > It can issue whatever it wants, but shouldn't the SSCH get a CC2 until
 > > > the halt/clear pending state is cleared?  Hrm, fsm_io_request() doesn't
 > > > look.  Rather, it (fsm_io_helper()) relies on the CC2 to be signalled
 > > > from the SSCH issued to the device.  There's a lot of stuff that happens
-> > > before we get to that point.
-
-Yes CC2 would be the correct thing to do in this situation. Doesn't QEMU
-do some sort of logic of this kind already. AFAIR QEMU should reject the
-SSCH because it knows that the halt/clear function is in progress or
-pending. Or am I worng?
-
-Even if QEMU does it, the kernel must not rely on QEMU or
-whatever userspace doing it correctly. What I'm trying to say, if QEMU
-can do it vfio_ccw should do it as well.
-
-I'm almost always in favor of sticking close to what PoP says.
-
-    
+> > > before we get to that point.  
 > > 
 > > Yes, and stuff that happens is memory allocation, pinning and other 
 > > things which can take time.
-> >   
+> > 
 > > > 
 > > > I'm wondering if there's a way we could/should return the SSCH here
 > > > before we do any processing.  After all, until the interrupt on the
 > > > workqueue is processed, we are busy.
-> > >     
+> > >   
 > > 
 > > you mean return the csch/hsch before processing the ssch? Maybe we could 
 > > extend CP_PENDING state, to just PENDING and use that to reject any ssch 
-> > if we have a pending csch/hsch?  
+> > if we have a pending csch/hsch?
 > 
 > I'd probably not rely on the state for this. Maybe we could look at the
 > work queue? But it might be that the check for the intparm I suggested
 > above is already enough.
-
-PoP says function control bits are what matter here:
-"""
-Condition code 2 is set, and no other action is
-taken, when a start, halt, or clear function is currently
-in progress at the subchannel (see “Function Control
-(FC)” on page 13).
-"""
-
-Regards,
-Halil
+> 
+> > 
+> > >>
+> > >> - we get an interrupt for csch/hsch and we queue the interrupt in the
+> > >> workqueue
+> > >>
+> > >> - we start processing the ssch and then at the same time another cpu
+> > >> could be working on the  
+> > >> interrupt>  
+> > >>
+> > >> Thread 1                                        Thread 2
+> > >> --------                                        --------
+> > >>
+> > >> fsm_io_request                                  vfio_ccw_sch_io_todo
+> > >>      cp_init                                         cp_free
+> > >>      cp_prefetch
+> > >>      fsm_io_helper
+> > >>          cp_free
+> > >>
+> > >>
+> > >>
+> > >> The test that I am trying is with a guest running an fio workload, while
+> > >> at the same time stressing the error recovery path in the guest. So
+> > >> there is a lot of ssch and lot of csch.
+> > >>
+> > >> Of course I don't think my patch completely solves the problem, I think
+> > >> it just makes the window narrower. I just wanted to get a discussion
+> > >> started :)
+> > >>
+> > >>
+> > >> Now that I am thinking more about it, I think we might have to protect
+> > >> cp with it's own mutex.  
+> > > 
+> > > That seems like a big hammer, and I wonder if the existing SCHIB/FSM/CP
+> > > state data doesn't provide that information to us.  But I gotta wander
+> > > around some code before I say.  
+> > 
+> > Any ideas are welcome :)
+> 
+> See above :) That certainly looks like a much smaller hammer.
+> 
+> > 
+> > >   
+> > >>
+> > >> Thanks
+> > >> Farhan
+> > >>
+> > >>  
+> > >>>  
+> > >>>>                cp_free(&private->cp);
+> > >>>>        }
+> > >>>>        mutex_lock(&private->io_mutex);
+> > >>>>  
+> > >>>  
+> > >>  
+> > >   
+> 
