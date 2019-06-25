@@ -1,54 +1,68 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50570 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727196AbfFDIPZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:15:25 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x548CHXC030764
-        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 04:15:24 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2swhyh70ts-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 04:15:23 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 4 Jun 2019 09:15:21 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net 1/4] s390/qeth: handle limited IPv4 broadcast in L3 TX path
-Date: Tue,  4 Jun 2019 10:15:06 +0200
-In-Reply-To: <20190604081509.56160-1-jwi@linux.ibm.com>
-References: <20190604081509.56160-1-jwi@linux.ibm.com>
-Message-Id: <20190604081509.56160-2-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 26 Jun 2019 00:45:41 +0200 (CEST)
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 3/5] x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+In-Reply-To: <1561501810-25163-4-git-send-email-Hoan@os.amperecomputing.com>
+Message-ID: <alpine.DEB.2.21.1906260032250.32342@nanos.tec.linutronix.de>
+References: <1561501810-25163-1-git-send-email-Hoan@os.amperecomputing.com> <1561501810-25163-4-git-send-email-Hoan@os.amperecomputing.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Hoan Tran OS <hoan@os.amperecomputing.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>
 
-When selecting the cast type of a neighbourless IPv4 skb (eg. on a raw
-socket), qeth_l3 falls back to the packet's destination IP address.
-For this case we should classify traffic sent to 255.255.255.255 as
-broadcast.
-This fixes DHCP requests, which were misclassified as unicast
-(and for IQD interfaces thus ended up on the wrong HW queue).
+Hoan,
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+On Tue, 25 Jun 2019, Hoan Tran OS wrote:
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 0271833da6a2..2df67abdfde7 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1911,6 +1911,8 @@ static int qeth_l3_get_cast_type(struct sk_buff *skb)
- 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
- 	switch (qeth_get_ip_version(skb)) {
- 	case 4:
-+		if (ipv4_is_lbcast(ip_hdr(skb)->daddr))
-+			return RTN_BROADCAST;
- 		return ipv4_is_multicast(ip_hdr(skb)->daddr) ?
- 				RTN_MULTICAST : RTN_UNICAST;
- 	case 6:
--- 
-2.17.1
+Please use 'x86/Kconfig: ' as prefix.
+
+> This patch removes CONFIG_NODES_SPAN_OTHER_NODES as it's
+> enabled by default with NUMA.
+
+Please do not use 'This patch' in changelogs. It's pointless because we
+already know that this is a patch.
+
+See also Documentation/process/submitting-patches.rst and search for 'This
+patch'
+
+Simply say:
+
+  Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled by default with
+  NUMA.
+
+But .....
+
+> @@ -1567,15 +1567,6 @@ config X86_64_ACPI_NUMA
+>  	---help---
+>  	  Enable ACPI SRAT based node topology detection.
+>  
+> -# Some NUMA nodes have memory ranges that span
+> -# other nodes.  Even though a pfn is valid and
+> -# between a node's start and end pfns, it may not
+> -# reside on that node.  See memmap_init_zone()
+> -# for details.
+> -config NODES_SPAN_OTHER_NODES
+> -	def_bool y
+> -	depends on X86_64_ACPI_NUMA
+
+the changelog does not mention that this lifts the dependency on
+X86_64_ACPI_NUMA and therefore enables that functionality for anything
+which has NUMA enabled including 32bit.
+
+The core mm change gives no helpful information either. You just copied the
+above comment text from some random Kconfig.
+
+This needs a bit more data in the changelogs and the cover letter:
+
+     - Why is it useful to enable it unconditionally
+
+     - Why is it safe to do so, even if the architecture had constraints on
+       it
+
+     - What's the potential impact
+
+Thanks,
+
+	tglx
