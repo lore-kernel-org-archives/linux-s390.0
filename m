@@ -1,61 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50220 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727181AbfFDIPX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Jun 2019 04:15:23 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x548CIZo030887
-        for <linux-s390@vger.kernel.org>; Tue, 4 Jun 2019 04:15:22 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2swhyh70sp-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42792 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726227AbfFZPsH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 Jun 2019 11:48:07 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5QFgtCa145383
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2019 11:48:06 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tc9hvxph9-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 04 Jun 2019 04:15:22 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 26 Jun 2019 11:48:05 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 4 Jun 2019 09:15:20 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net 0/4] s390/qeth: fixes 2019-06-04
-Date: Tue,  4 Jun 2019 10:15:05 +0200
-Message-Id: <20190604081509.56160-1-jwi@linux.ibm.com>
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
+        Wed, 26 Jun 2019 16:48:02 +0100
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net 2/2] net/smc: Fix error path in smc_init
+Date: Wed, 26 Jun 2019 17:47:50 +0200
+In-Reply-To: <20190626154750.46127-1-ubraun@linux.ibm.com>
+References: <20190626154750.46127-1-ubraun@linux.ibm.com>
+Message-Id: <20190626154750.46127-3-ubraun@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com, zhp@smail.nju.edu.cn, yuehaibing@huawei.com
 
-Hi Dave,
+From: YueHaibing <yuehaibing@huawei.com>
 
-same patch series as yesterday, except that patch 2 has been adjusted
-as per your review to use dst_check(). Please have another look.
+If register_pernet_subsys success in smc_init,
+we should cleanup it in case any other error.
 
+Fixes: 64e28b52c7a6 (net/smc: add pnet table namespace support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/af_smc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-From the v1 cover letter:
-
-Please apply the following set of qeth fixes to -net.
-
-- The first two patches fix issues in the L3 driver's cast type
-  selection for transmitted skbs.
-- Alexandra adds a sanity check when retrieving VLAN information from
-  neighbour address events.
-- The last patch adds some missing error handling for qeth's new
-  multiqueue code.
-
-Thanks,
-Julian
-
-
-Alexandra Winter (1):
-  s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
-
-Julian Wiedmann (3):
-  s390/qeth: handle limited IPv4 broadcast in L3 TX path
-  s390/qeth: check dst entry before use
-  s390/qeth: handle error when updating TX queue count
-
- drivers/s390/net/qeth_core_main.c | 22 ++++++++++++++++------
- drivers/s390/net/qeth_l2_main.c   |  2 +-
- drivers/s390/net/qeth_l3_main.c   | 20 +++++++++++++++++---
- 3 files changed, 34 insertions(+), 10 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 0c874e996f85..7621ec2f539c 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2029,7 +2029,7 @@ static int __init smc_init(void)
+ 
+ 	rc = smc_pnet_init();
+ 	if (rc)
+-		return rc;
++		goto out_pernet_subsys;
+ 
+ 	rc = smc_llc_init();
+ 	if (rc) {
+@@ -2080,6 +2080,9 @@ static int __init smc_init(void)
+ 	proto_unregister(&smc_proto);
+ out_pnet:
+ 	smc_pnet_exit();
++out_pernet_subsys:
++	unregister_pernet_subsys(&smc_net_ops);
++
+ 	return rc;
+ }
+ 
 -- 
 2.17.1
