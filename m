@@ -1,94 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:34499 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725956AbfFCVln (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 3 Jun 2019 17:41:43 -0400
-Date: Mon, 3 Jun 2019 21:41:39 +0000
-From: Wei Yang <richard.weiyang@gmail.com>
-Subject: Re: [PATCH v3 04/11] arm64/mm: Add temporary arch_remove_memory()
- implementation
-Message-ID: <20190603214139.mercn5hol2yyfl2s@master>
-Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-5-david@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:36890 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725930AbfFZLmw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 Jun 2019 07:42:52 -0400
+Date: Wed, 26 Jun 2019 13:42:47 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v5 1/2] s390/setup: diag318: refactor struct
+Message-ID: <20190626134247.532ac998.cohuck@redhat.com>
+In-Reply-To: <1561475022-18348-2-git-send-email-walling@linux.ibm.com>
+References: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
+        <1561475022-18348-2-git-send-email-walling@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-5-david@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Chintan Pandya <cpandya@codeaurora.org>, Mike Rapoport <rppt@linux.ibm.com>, Jun Yao <yaojun8558363@gmail.com>, Yu Zhao <yuzhao@google.com>, Robin Murphy <robin.murphy@arm.com>, Anshuman Khandual <anshuman.khandual@arm.com>
+To: Collin Walling <walling@linux.ibm.com>
+Cc: david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Mon, May 27, 2019 at 01:11:45PM +0200, David Hildenbrand wrote:
->A proper arch_remove_memory() implementation is on its way, which also
->cleanly removes page tables in arch_add_memory() in case something goes
->wrong.
+On Tue, 25 Jun 2019 11:03:41 -0400
+Collin Walling <walling@linux.ibm.com> wrote:
 
-Would this be better to understand?
+> The diag318 struct introduced in include/asm/diag.h can be
+> reused in KVM, so let's condense the version code fields in the
+> diag318_info struct for easier usage and simplify it until we
+> can determine how the data should be formatted.
+> 
+> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/include/asm/diag.h | 6 ++----
+>  arch/s390/kernel/setup.c     | 3 +--
+>  2 files changed, 3 insertions(+), 6 deletions(-)
 
-    removes page tables created in arch_add_memory
-
->
->As we want to use arch_remove_memory() in case something goes wrong
->during memory hotplug after arch_add_memory() finished, let's add
->a temporary hack that is sufficient enough until we get a proper
->implementation that cleans up page table entries.
->
->We will remove CONFIG_MEMORY_HOTREMOVE around this code in follow up
->patches.
->
->Cc: Catalin Marinas <catalin.marinas@arm.com>
->Cc: Will Deacon <will.deacon@arm.com>
->Cc: Mark Rutland <mark.rutland@arm.com>
->Cc: Andrew Morton <akpm@linux-foundation.org>
->Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->Cc: Chintan Pandya <cpandya@codeaurora.org>
->Cc: Mike Rapoport <rppt@linux.ibm.com>
->Cc: Jun Yao <yaojun8558363@gmail.com>
->Cc: Yu Zhao <yuzhao@google.com>
->Cc: Robin Murphy <robin.murphy@arm.com>
->Cc: Anshuman Khandual <anshuman.khandual@arm.com>
->Signed-off-by: David Hildenbrand <david@redhat.com>
->---
-> arch/arm64/mm/mmu.c | 19 +++++++++++++++++++
-> 1 file changed, 19 insertions(+)
->
->diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
->index a1bfc4413982..e569a543c384 100644
->--- a/arch/arm64/mm/mmu.c
->+++ b/arch/arm64/mm/mmu.c
->@@ -1084,4 +1084,23 @@ int arch_add_memory(int nid, u64 start, u64 size,
-> 	return __add_pages(nid, start >> PAGE_SHIFT, size >> PAGE_SHIFT,
-> 			   restrictions);
-> }
->+#ifdef CONFIG_MEMORY_HOTREMOVE
->+void arch_remove_memory(int nid, u64 start, u64 size,
->+			struct vmem_altmap *altmap)
->+{
->+	unsigned long start_pfn = start >> PAGE_SHIFT;
->+	unsigned long nr_pages = size >> PAGE_SHIFT;
->+	struct zone *zone;
->+
->+	/*
->+	 * FIXME: Cleanup page tables (also in arch_add_memory() in case
->+	 * adding fails). Until then, this function should only be used
->+	 * during memory hotplug (adding memory), not for memory
->+	 * unplug. ARCH_ENABLE_MEMORY_HOTREMOVE must not be
->+	 * unlocked yet.
->+	 */
->+	zone = page_zone(pfn_to_page(start_pfn));
-
-Compared with arch_remove_memory in x86. If altmap is not NULL, zone will be
-retrieved from page related to altmap. Not sure why this is not the same?
-
->+	__remove_pages(zone, start_pfn, nr_pages, altmap);
->+}
->+#endif
-> #endif
->-- 
->2.20.1
-
--- 
-Wei Yang
-Help you, Help me
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
