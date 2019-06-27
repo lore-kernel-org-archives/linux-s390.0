@@ -1,84 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48152 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbfFUOeK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Jun 2019 10:34:10 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 04/14] s390/cio: Use generalized CCW handler in cp_init()
-Date: Fri, 21 Jun 2019 16:33:45 +0200
-Message-Id: <20190621143355.29175-5-cohuck@redhat.com>
-In-Reply-To: <20190621143355.29175-1-cohuck@redhat.com>
-References: <20190621143355.29175-1-cohuck@redhat.com>
+Received: from cloudserver094114.home.pl ([79.96.170.134]:46740 "EHLO
+        cloudserver094114.home.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726498AbfF0WAD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Jun 2019 18:00:03 -0400
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v2] powerpc/power: Expose pfn_is_nosave prototype
+Date: Fri, 28 Jun 2019 00:00:00 +0200
+Message-ID: <2178909.1BmBeJAm6j@kreacher>
+In-Reply-To: <20190524104418.17194-1-malat@debian.org>
+References: <20190523114736.30268-1-malat@debian.org> <20190524104418.17194-1-malat@debian.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Mathieu Malaterre <malat@debian.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@c-s.fr>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+On Friday, May 24, 2019 12:44:18 PM CEST Mathieu Malaterre wrote:
+> The declaration for pfn_is_nosave is only available in
+> kernel/power/power.h. Since this function can be override in arch,
+> expose it globally. Having a prototype will make sure to avoid warning
+> (sometime treated as error with W=1) such as:
+> 
+>   arch/powerpc/kernel/suspend.c:18:5: error: no previous prototype for 'pfn_is_nosave' [-Werror=missing-prototypes]
+> 
+> This moves the declaration into a globally visible header file and add
+> missing include to avoid a warning on powerpc. Also remove the
+> duplicated prototypes since not required anymore.
+> 
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Signed-off-by: Mathieu Malaterre <malat@debian.org>
+> ---
+> v2: As suggestion by christophe remove duplicates prototypes
+> 
+>  arch/powerpc/kernel/suspend.c | 1 +
+>  arch/s390/kernel/entry.h      | 1 -
+>  include/linux/suspend.h       | 1 +
+>  kernel/power/power.h          | 2 --
+>  4 files changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/powerpc/kernel/suspend.c b/arch/powerpc/kernel/suspend.c
+> index a531154cc0f3..9e1b6b894245 100644
+> --- a/arch/powerpc/kernel/suspend.c
+> +++ b/arch/powerpc/kernel/suspend.c
+> @@ -8,6 +8,7 @@
+>   */
+>  
+>  #include <linux/mm.h>
+> +#include <linux/suspend.h>
+>  #include <asm/page.h>
+>  #include <asm/sections.h>
+>  
+> diff --git a/arch/s390/kernel/entry.h b/arch/s390/kernel/entry.h
+> index 20420c2b8a14..b2956d49b6ad 100644
+> --- a/arch/s390/kernel/entry.h
+> +++ b/arch/s390/kernel/entry.h
+> @@ -63,7 +63,6 @@ void __init startup_init(void);
+>  void die(struct pt_regs *regs, const char *str);
+>  int setup_profiling_timer(unsigned int multiplier);
+>  void __init time_init(void);
+> -int pfn_is_nosave(unsigned long);
+>  void s390_early_resume(void);
+>  unsigned long prepare_ftrace_return(unsigned long parent, unsigned long sp, unsigned long ip);
+>  
+> diff --git a/include/linux/suspend.h b/include/linux/suspend.h
+> index 6b3ea9ea6a9e..e8b8a7bede90 100644
+> --- a/include/linux/suspend.h
+> +++ b/include/linux/suspend.h
+> @@ -395,6 +395,7 @@ extern bool system_entering_hibernation(void);
+>  extern bool hibernation_available(void);
+>  asmlinkage int swsusp_save(void);
+>  extern struct pbe *restore_pblist;
+> +int pfn_is_nosave(unsigned long pfn);
+>  #else /* CONFIG_HIBERNATION */
+>  static inline void register_nosave_region(unsigned long b, unsigned long e) {}
+>  static inline void register_nosave_region_late(unsigned long b, unsigned long e) {}
+> diff --git a/kernel/power/power.h b/kernel/power/power.h
+> index 9e58bdc8a562..44bee462ff57 100644
+> --- a/kernel/power/power.h
+> +++ b/kernel/power/power.h
+> @@ -75,8 +75,6 @@ static inline void hibernate_reserved_size_init(void) {}
+>  static inline void hibernate_image_size_init(void) {}
+>  #endif /* !CONFIG_HIBERNATION */
+>  
+> -extern int pfn_is_nosave(unsigned long);
+> -
+>  #define power_attr(_name) \
+>  static struct kobj_attribute _name##_attr = {	\
+>  	.attr	= {				\
+> 
 
-It is now pretty apparent that ccwchain_handle_ccw()
-(nee ccwchain_handle_tic()) does everything that cp_init()
-wants to do.
-
-Let's remove that duplicated code from cp_init() and let
-ccwchain_handle_ccw() handle it itself.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20190606202831.44135-5-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 52735cdb0270..5b98bea433b7 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -744,9 +744,7 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
-  */
- int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- {
--	u64 iova = orb->cmd.cpa;
--	struct ccwchain *chain;
--	int len, ret;
-+	int ret;
- 
- 	/*
- 	 * XXX:
-@@ -759,28 +757,11 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	memcpy(&cp->orb, orb, sizeof(*orb));
- 	cp->mdev = mdev;
- 
--	/* Get chain length. */
--	len = ccwchain_calc_length(iova, cp);
--	if (len < 0)
--		return len;
--
--	/* Alloc mem for the head chain. */
--	chain = ccwchain_alloc(cp, len);
--	if (!chain)
--		return -ENOMEM;
--	chain->ch_iova = iova;
--
--	/* Copy the head chain from guest. */
--	ret = copy_ccw_from_iova(cp, chain->ch_ccw, iova, len);
--	if (ret) {
--		ccwchain_free(chain);
--		return ret;
--	}
--
--	/* Now loop for its TICs. */
--	ret = ccwchain_loop_tic(chain, cp);
-+	/* Build a ccwchain for the first CCW segment */
-+	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
- 	if (ret)
- 		cp_free(cp);
-+
- 	/* It is safe to force: if not set but idals used
- 	 * ccwchain_calc_length returns an error.
- 	 */
--- 
-2.20.1
+Applied, thanks!
