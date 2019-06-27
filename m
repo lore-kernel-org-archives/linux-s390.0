@@ -1,218 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51390 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64718 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404758AbfFKQiU (ORCPT
+        by vger.kernel.org with ESMTP id S1726375AbfF0NAX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 11 Jun 2019 12:38:20 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5BGR8Bs058788
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:19 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2cxr1gwt-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 11 Jun 2019 12:38:18 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 11 Jun 2019 17:38:14 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 13/13] s390/qeth: allocate a single cmd on read channel
-Date: Tue, 11 Jun 2019 18:38:00 +0200
-In-Reply-To: <20190611163800.64730-1-jwi@linux.ibm.com>
-References: <20190611163800.64730-1-jwi@linux.ibm.com>
-Message-Id: <20190611163800.64730-14-jwi@linux.ibm.com>
+        Thu, 27 Jun 2019 09:00:23 -0400
+Subject: Re: [PATCH v4 3/7] s390: zcrypt: driver callback to indicate resource
+ in use
+References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
+ <1560454780-20359-4-git-send-email-akrowiak@linux.ibm.com>
+ <20190618182558.7d7e025a.cohuck@redhat.com>
+ <2366c6b6-fd9e-0c32-0e9d-018cd601a0ad@linux.ibm.com>
+ <44f13e89-2fb4-bf8c-7849-641aae8d08cc@linux.ibm.com>
+ <20190627092518.1f8d7d48.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <315c8220-3dfa-1b19-266a-b9d9069bbe73@linux.ibm.com>
+Date: Thu, 27 Jun 2019 08:59:59 -0400
+MIME-Version: 1.0
+In-Reply-To: <20190627092518.1f8d7d48.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-We statically allocate 8 cmd buffers on the read channel, when the only
-IO left that's still using them is the long-running READ.
-Replace this with a single allocated cmd, that gets restarted whenever
-the READ completed.
+On 6/27/19 3:25 AM, Cornelia Huck wrote:
+> On Wed, 26 Jun 2019 17:13:50 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> 
+>> On 6/19/19 9:04 AM, Tony Krowiak wrote:
+>>> On 6/18/19 12:25 PM, Cornelia Huck wrote:
+>>>> On Thu, 13 Jun 2019 15:39:36 -0400
+>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>>   
+>>>>> Introduces a new driver callback to prevent a root user from unbinding
+>>>>> an AP queue from its device driver if the queue is in use. This prevents
+>>>>> a root user from inadvertently taking a queue away from a guest and
+>>>>> giving it to the host, or vice versa. The callback will be invoked
+>>>>> whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
+>>>>> result in one or more AP queues being removed from its driver. If the
+>>>>> callback responds in the affirmative for any driver queried, the change
+>>>>> to the apmask or aqmask will be rejected with a device in use error.
+>>>>>
+>>>>> For this patch, only non-default drivers will be queried. Currently,
+>>>>> there is only one non-default driver, the vfio_ap device driver. The
+>>>>> vfio_ap device driver manages AP queues passed through to one or more
+>>>>> guests and we don't want to unexpectedly take AP resources away from
+>>>>> guests which are most likely independently administered.
+>>>>>
+>>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>>> ---
+>>>>>    drivers/s390/crypto/ap_bus.c | 138
+>>>>> +++++++++++++++++++++++++++++++++++++++++--
+>>>>>    drivers/s390/crypto/ap_bus.h |   3 +
+>>>>>    2 files changed, 135 insertions(+), 6 deletions(-)
+>>>>
+>>>> Hm... I recall objecting to this patch before, fearing that it makes it
+>>>> possible for a bad actor to hog resources that can't be removed by
+>>>> root, even forcefully. (I have not had time to look at the intervening
+>>>> versions, so I might be missing something.)
+>>>>
+>>>> Is there a way for root to forcefully override this?
+>>>
+>>> You recall correctly; however, after many internal crypto team
+>>> discussions, it was decided that this feature was important
+>>> and should be kept.
+>>>
+>>> Allow me to first address your fear that a bad actor can hog
+>>> resources that can't be removed by root. With this enhancement,
+>>> there is nothing preventing a root user from taking resources
+>>> from a matrix mdev, it simply forces him/her to follow the
+>>> proper procedure. The resources to be removed must first be
+>>> unassigned from the matrix mdev to which they are assigned.
+>>> The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask
+>>> sysfs attributes can then be edited to transfer ownership
+>>> of the resources to zcrypt.
+>>>
+>>> The rationale for keeping this feature is:
+>>>
+>>> * It is a bad idea to steal an adapter in use from a guest. In the worst
+>>>     case, the guest could end up without access to any crypto adapters
+>>>     without knowing why. This could lead to performance issues on guests
+>>>     that rely heavily on crypto such as guests used for blockchain
+>>>     transactions.
+>>>
+>>> * There are plenty of examples in linux of the kernel preventing a root
+>>>     user from performing a task. For example, a module can't be removed
+>>>     if references are still held for it. Another example would be trying
+>>>     to bind a CEX4 adapter to a device driver not registered for CEX4;
+>>>     this action will also be rejected.
+>>>
+>>> * The semantics are much cleaner and the logic is far less complicated.
+>>>
+>>> * It forces the use of the proper procedure to change ownership of AP
+>>>     queues.
+>>>   
+>>
+>> Any feedback on this?
+> 
+> Had not yet time to look at this, sorry.
 
-This introduces refcounting for allocated cmds, so that the READ cmd can
-survive the IO completion.
+No problem, just wanted to make sure it didn't get lost in the shuffle.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  7 ++++
- drivers/s390/net/qeth_core_main.c | 54 ++++++++++++++++++-------------
- drivers/s390/net/qeth_l2_main.c   |  1 -
- drivers/s390/net/qeth_l3_main.c   |  1 -
- 4 files changed, 39 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 962945a63235..5bcdede5e955 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -579,6 +579,7 @@ struct qeth_channel;
- struct qeth_cmd_buffer {
- 	enum qeth_cmd_buffer_state state;
- 	unsigned int length;
-+	refcount_t ref_count;
- 	struct qeth_channel *channel;
- 	struct qeth_reply *reply;
- 	long timeout;
-@@ -588,6 +589,11 @@ struct qeth_cmd_buffer {
- 	void (*callback)(struct qeth_card *card, struct qeth_cmd_buffer *iob);
- };
- 
-+static inline void qeth_get_cmd(struct qeth_cmd_buffer *iob)
-+{
-+	refcount_inc(&iob->ref_count);
-+}
-+
- static inline struct qeth_ipa_cmd *__ipa_cmd(struct qeth_cmd_buffer *iob)
- {
- 	return (struct qeth_ipa_cmd *)(iob->data + IPA_PDU_HEADER_SIZE);
-@@ -771,6 +777,7 @@ struct qeth_card {
- 	enum qeth_card_states state;
- 	spinlock_t lock;
- 	struct ccwgroup_device *gdev;
-+	struct qeth_cmd_buffer *read_cmd;
- 	struct qeth_channel read;
- 	struct qeth_channel write;
- 	struct qeth_channel data;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 11e6a3820421..fe3dfeaf5ceb 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -496,26 +496,21 @@ static void qeth_setup_ccw(struct ccw1 *ccw, u8 cmd_code, u8 flags, u32 len,
- 
- static int __qeth_issue_next_read(struct qeth_card *card)
- {
--	struct qeth_channel *channel = &card->read;
--	struct qeth_cmd_buffer *iob;
--	struct ccw1 *ccw;
-+	struct qeth_cmd_buffer *iob = card->read_cmd;
-+	struct qeth_channel *channel = iob->channel;
-+	struct ccw1 *ccw = __ccw_from_cmd(iob);
- 	int rc;
- 
- 	QETH_CARD_TEXT(card, 5, "issnxrd");
- 	if (channel->state != CH_STATE_UP)
- 		return -EIO;
--	iob = qeth_get_buffer(channel);
--	if (!iob) {
--		dev_warn(&card->gdev->dev, "The qeth device driver "
--			"failed to recover an error on the device\n");
--		QETH_DBF_MESSAGE(2, "issue_next_read on device %x failed: no iob available\n",
--				 CARD_DEVID(card));
--		return -ENOMEM;
--	}
- 
--	ccw = __ccw_from_cmd(iob);
--	qeth_setup_ccw(ccw, CCW_CMD_READ, 0, QETH_BUFSIZE, iob->data);
-+	memset(iob->data, 0, iob->length);
-+	qeth_setup_ccw(ccw, CCW_CMD_READ, 0, iob->length, iob->data);
- 	iob->callback = qeth_issue_next_read_cb;
-+	/* keep the cmd alive after completion: */
-+	qeth_get_cmd(iob);
-+
- 	QETH_CARD_TEXT(card, 6, "noirqpnd");
- 	rc = ccw_device_start(channel->ccwdev, ccw, (addr_t) iob, 0, 0);
- 	if (rc) {
-@@ -694,6 +689,16 @@ static int qeth_check_idx_response(struct qeth_card *card,
- 	return 0;
- }
- 
-+static void qeth_put_cmd(struct qeth_cmd_buffer *iob)
-+{
-+	if (refcount_dec_and_test(&iob->ref_count)) {
-+		if (iob->reply)
-+			qeth_put_reply(iob->reply);
-+		kfree(iob->data);
-+		kfree(iob);
-+	}
-+}
-+
- static struct qeth_cmd_buffer *__qeth_get_buffer(struct qeth_channel *channel)
- {
- 	__u8 index;
-@@ -720,10 +725,7 @@ void qeth_release_buffer(struct qeth_cmd_buffer *iob)
- 	unsigned long flags;
- 
- 	if (iob->state == BUF_STATE_MALLOC) {
--		if (iob->reply)
--			qeth_put_reply(iob->reply);
--		kfree(iob->data);
--		kfree(iob);
-+		qeth_put_cmd(iob);
- 		return;
- 	}
- 
-@@ -787,6 +789,7 @@ static struct qeth_cmd_buffer *qeth_alloc_cmd(struct qeth_channel *channel,
- 	}
- 
- 	iob->state = BUF_STATE_MALLOC;
-+	refcount_set(&iob->ref_count, 1);
- 	iob->channel = channel;
- 	iob->timeout = timeout;
- 	iob->length = length;
-@@ -1445,10 +1448,14 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
- 						 dev_name(&gdev->dev));
- 	if (!card->event_wq)
- 		goto out_wq;
--	if (qeth_setup_channel(&card->read, true))
--		goto out_ip;
-+
-+	card->read_cmd = qeth_alloc_cmd(&card->read, QETH_BUFSIZE, 1, 0);
-+	if (!card->read_cmd)
-+		goto out_read_cmd;
-+	if (qeth_setup_channel(&card->read, false))
-+		goto out_read;
- 	if (qeth_setup_channel(&card->write, true))
--		goto out_channel;
-+		goto out_write;
- 	if (qeth_setup_channel(&card->data, false))
- 		goto out_data;
- 	card->qeth_service_level.seq_print = qeth_core_sl_print;
-@@ -1457,9 +1464,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
- 
- out_data:
- 	qeth_clean_channel(&card->write);
--out_channel:
-+out_write:
- 	qeth_clean_channel(&card->read);
--out_ip:
-+out_read:
-+	qeth_release_buffer(card->read_cmd);
-+out_read_cmd:
- 	destroy_workqueue(card->event_wq);
- out_wq:
- 	dev_set_drvdata(&gdev->dev, NULL);
-@@ -4892,6 +4901,7 @@ static void qeth_core_free_card(struct qeth_card *card)
- 	qeth_clean_channel(&card->read);
- 	qeth_clean_channel(&card->write);
- 	qeth_clean_channel(&card->data);
-+	qeth_release_buffer(card->read_cmd);
- 	destroy_workqueue(card->event_wq);
- 	qeth_free_qdio_queues(card);
- 	unregister_service_level(&card->qeth_service_level);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index e1b25084dcd4..9565ef9747c1 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -292,7 +292,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
--	qeth_clear_cmd_buffers(&card->read);
- 	qeth_clear_cmd_buffers(&card->write);
- 	flush_workqueue(card->event_wq);
- 	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 15758f45837d..4d66f9556451 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1436,7 +1436,6 @@ static void qeth_l3_stop_card(struct qeth_card *card)
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
--	qeth_clear_cmd_buffers(&card->read);
- 	qeth_clear_cmd_buffers(&card->write);
- 	flush_workqueue(card->event_wq);
- }
--- 
-2.17.1
+> 
+> 
+>>
+>> Tony K
+>>
+>>>    
+>>>>   
+>>>    
+>>
+> 
