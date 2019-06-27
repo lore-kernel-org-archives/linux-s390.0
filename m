@@ -1,44 +1,112 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 3 Jun 2019 12:51:58 +0200
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v3 0/4] iommu/amd: Convert the AMD iommu driver to the
- dma-iommu api
-Message-ID: <20190603105158.GL12745@8bytes.org>
-References: <20190506185207.31069-1-tmurphy@arista.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190506185207.31069-1-tmurphy@arista.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14856 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726480AbfF0PBy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Jun 2019 11:01:54 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5RF0ma3132578
+        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:52 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2tcwrf081h-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 11:01:50 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 27 Jun 2019 16:01:42 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 10/12] s390/qeth: consolidate skb RX processing in L3 driver
+Date: Thu, 27 Jun 2019 17:01:31 +0200
+In-Reply-To: <20190627150133.58746-1-jwi@linux.ibm.com>
+References: <20190627150133.58746-1-jwi@linux.ibm.com>
+Message-Id: <20190627150133.58746-11-jwi@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tom Murphy <tmurphy@arista.com>
-Cc: iommu@lists.linux-foundation.org, murphyt7@tcd.ie, Will Deacon <will.deacon@arm.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Hi Tom,
+Use napi_gro_receive() to pass up all types of packets that a L3 device
+may receive.
+1) For proper L2 packets received by the IQD sniffer, this is the
+   obvious thing to do.
+2) For af_iucv (which doesn't provide a GRO assist), the GRO code will
+   transparently fall back to netif_receive_skb(). So there's no need to
+   special-case this traffic in our code.
 
-On Mon, May 06, 2019 at 07:52:02PM +0100, Tom Murphy wrote:
-> Convert the AMD iommu driver to the dma-iommu api. Remove the iova
-> handling and reserve region code from the AMD iommu driver.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
 
-Thank you for your work on this! I appreciate that much, but I am not
-sure we are ready to make that move for the AMD and Intel IOMMU drivers
-yet.
-
-My main concern right now is that these changes will add a per-page
-table lock into the fast-path for dma-mapping operations. There has been
-much work in the past to remove all locking from these code-paths and
-make it scalable on x86.
-
-The dma-ops implementations in the x86 IOMMU drivers have the benefit
-that they can call their page-table manipulation functions directly and
-without locks, because they can make the necessary assumptions. The
-IOMMU-API mapping/unmapping path can't make these assumptions because it
-is also used for non-DMA-API use-cases.
-
-So before we can move the AMD and Intel drivers to the generic DMA-API
-implementation we need to solve this problem to not introduce new
-scalability regressions.
-
-Regards,
-
-	Joerg
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 44a602aa12ec..15351922b209 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1312,6 +1312,15 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
+ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ 				struct qeth_hdr *hdr)
+ {
++	struct af_iucv_trans_hdr *iucv = (struct af_iucv_trans_hdr *) skb->data;
++	struct net_device *dev = skb->dev;
++
++	if (IS_IQD(card) && iucv->magic == ETH_P_AF_IUCV) {
++		dev_hard_header(skb, dev, ETH_P_AF_IUCV, dev->dev_addr,
++				"FAKELL", skb->len);
++		return;
++	}
++
+ 	if (!(hdr->hdr.l3.flags & QETH_HDR_PASSTHRU)) {
+ 		u16 prot = (hdr->hdr.l3.flags & QETH_HDR_IPV6) ? ETH_P_IPV6 :
+ 								 ETH_P_IP;
+@@ -1345,8 +1354,6 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ 				tg_addr, "FAKELL", skb->len);
+ 	}
+ 
+-	skb->protocol = eth_type_trans(skb, card->dev);
+-
+ 	/* copy VLAN tag from hdr into skb */
+ 	if (!card->options.sniffer &&
+ 	    (hdr->hdr.l3.ext_flags & (QETH_HDR_EXT_VLAN_FRAME |
+@@ -1363,12 +1370,10 @@ static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
+ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 				int budget, int *done)
+ {
+-	struct net_device *dev = card->dev;
+ 	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct qeth_hdr *hdr;
+ 	unsigned int len;
+-	__u16 magic;
+ 
+ 	*done = 0;
+ 	WARN_ON_ONCE(!budget);
+@@ -1382,23 +1387,12 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 		}
+ 		switch (hdr->hdr.l3.id) {
+ 		case QETH_HEADER_TYPE_LAYER3:
+-			magic = *(__u16 *)skb->data;
+-			if (IS_IQD(card) && magic == ETH_P_AF_IUCV) {
+-				len = skb->len;
+-				dev_hard_header(skb, dev, ETH_P_AF_IUCV,
+-						dev->dev_addr, "FAKELL", len);
+-				skb->protocol = eth_type_trans(skb, dev);
+-				netif_receive_skb(skb);
+-			} else {
+-				qeth_l3_rebuild_skb(card, skb, hdr);
+-				len = skb->len;
+-				napi_gro_receive(&card->napi, skb);
+-			}
+-			break;
++			qeth_l3_rebuild_skb(card, skb, hdr);
++			/* fall through */
+ 		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
+ 			skb->protocol = eth_type_trans(skb, skb->dev);
+ 			len = skb->len;
+-			netif_receive_skb(skb);
++			napi_gro_receive(&card->napi, skb);
+ 			break;
+ 		default:
+ 			dev_kfree_skb_any(skb);
+-- 
+2.17.1
