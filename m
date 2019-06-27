@@ -1,99 +1,111 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v4 4/7] s390: vfio-ap: implement in-use callback for vfio_ap driver
-Date: Thu, 13 Jun 2019 15:39:37 -0400
-In-Reply-To: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1560454780-20359-1-git-send-email-akrowiak@linux.ibm.com>
-Message-Id: <1560454780-20359-5-git-send-email-akrowiak@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57000 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726908AbfF0ME3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Jun 2019 08:04:29 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5RBwD6B058132
+        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 08:04:28 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2tcvwjsqy2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 27 Jun 2019 08:04:27 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Thu, 27 Jun 2019 13:04:25 +0100
+Date: Thu, 27 Jun 2019 14:04:19 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v9 4/4] s390: ap: kvm: Enable PQAP/AQIC facility for the
+ guest
+In-Reply-To: <69ca50bd-3f5c-98b1-3b39-04af75151baf@de.ibm.com>
+References: <1558452877-27822-1-git-send-email-pmorel@linux.ibm.com>
+        <1558452877-27822-5-git-send-email-pmorel@linux.ibm.com>
+        <69ca50bd-3f5c-98b1-3b39-04af75151baf@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20190627140419.1df5f519.pasic@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, alex.williamson@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com, akrowiak@linux.ibm.com, david@redhat.com, heiko.carstens@de.ibm.com, freude@linux.ibm.com, mimu@linux.ibm.com
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask may
-result in one or APQNs being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if any of the removed APQNs are assigned to any of the matrix
-mdev devices.
+On Tue, 25 Jun 2019 22:13:12 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-To ensure that the AP bus apmask/aqmask interfaces are used to control
-which AP queues get manually bound to or unbound from the
-vfio_ap device driver, the bind/unbind sysfs interfaces will
-be disabled for the vfio_ap device driver. The reasons for this are:
+> 
+> 
+> On 21.05.19 17:34, Pierre Morel wrote:
+> > AP Queue Interruption Control (AQIC) facility gives
+> > the guest the possibility to control interruption for
+> > the Cryptographic Adjunct Processor queues.
+> > 
+> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> > Reviewed-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> > ---
+> >  arch/s390/tools/gen_facilities.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+> > index 61ce5b5..aed14fc 100644
+> > --- a/arch/s390/tools/gen_facilities.c
+> > +++ b/arch/s390/tools/gen_facilities.c
+> > @@ -114,6 +114,7 @@ static struct facility_def facility_defs[] = {
+> >  		.bits = (int[]){
+> >  			12, /* AP Query Configuration Information */
+> >  			15, /* AP Facilities Test */
+> > +			65, /* AP Queue Interruption Control */
+> >  			156, /* etoken facility */
+> >  			-1  /* END */
+> >  		}
+> > 
+> 
+> I think we should only set stfle.65 if we have the aiv facility (Because we do not
+> have a GISA otherwise)
+> 
+> So something like this instead?
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 28ebd64..1501cd6 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2461,6 +2461,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>                 set_kvm_facility(kvm->arch.model.fac_list, 147);
+>         }
+>  
+> +       if (css_general_characteristics.aiv)
+> +               set_kvm_facility(kvm->arch.model.fac_mask, 65);
+> +       
+>         kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
+>         kvm->arch.model.ibc = sclp.ibc & 0x0fff;
 
-* To prevent unbinding an AP queue device from the vfio_ap device
-  driver representing a queue that is assigned to an mdev device.
+I will go with this option because it is more readable (easier to find)
+IMHO. Will also add a chech for host sltfle.65. So I end up with:
 
-* To enforce the policy that the the AP resources must first be
-  unassigned from the mdev device - which will hot unplug them from a
-  guest using the mdev device - before changing ownership of APQNs
-  from the vfio_ap driver to a zcrypt driver. This ensures that private
-  crypto data intended for the guest will never be accessible from the
-  host.
-
-* It takes advantage of the AP architecture to prevent dynamic changes
-  to the LPAR configuration using the SE or SCLP commands from
-  compromising the guest crypto devices. For example:
-
-  * Even if an adapter is configured off, if and when it is configured
-    back on, the queue devices associated with the adapter will be bound
-    back to the vfio_ap driver and the queues will automatically be
-    available to a guest using the mdev to which the APQN of the queue
-    device is assigned.
-
-  * If adapters or domains are dynamically unassigned from the LPAR
-    in which the linux guest is running, effective masking will
-    prevent access to the AP resources by a guest using them.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 3c60df70891b..7b52393007c6 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -164,6 +164,28 @@ static void vfio_ap_matrix_dev_destroy(void)
- 	root_device_unregister(root_device);
- }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 28ebd647784c..1c4113f0f2a8 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2461,6 +2461,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+                set_kvm_facility(kvm->arch.model.fac_list, 147);
+        }
  
-+static bool vfio_ap_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	bool in_use = false;
-+	struct ap_matrix_mdev *matrix_mdev;
++       if (css_general_characteristics.aiv && test_facility(65))
++               set_kvm_facility(kvm->arch.model.fac_mask, 65);
 +
-+	mutex_lock(&matrix_dev->lock);
-+
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (bitmap_intersects(matrix_mdev->matrix.apm,
-+				      apm, AP_DEVICES) &&
-+		    bitmap_intersects(matrix_mdev->matrix.aqm,
-+				      aqm, AP_DOMAINS)) {
-+			in_use = true;
-+			break;
-+		}
-+	}
-+
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
-+}
-+
- static int __init vfio_ap_init(void)
- {
- 	int ret;
-@@ -179,7 +201,9 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.in_use = vfio_ap_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
-+	vfio_ap_drv.driver.suppress_bind_attrs = true;
+        kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
+        kvm->arch.model.ibc = sclp.ibc & 0x0fff;
  
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
- 	if (ret) {
--- 
-2.7.4
+diff --git a/arch/s390/tools/gen_facilities.c b/arch/s390/tools/gen_facilities.c
+index d52f537b7169..cead9e0dcffb 100644
+--- a/arch/s390/tools/gen_facilities.c
++++ b/arch/s390/tools/gen_facilities.c
+@@ -111,7 +111,6 @@ static struct facility_def facility_defs[] = {
+                .bits = (int[]){
+                        12, /* AP Query Configuration Information */
+                        15, /* AP Facilities Test */
+-                       65, /* AP Queue Interruption Control */
+                        156, /* etoken facility */
+                        -1  /* END */
