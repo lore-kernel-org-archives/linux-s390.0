@@ -1,176 +1,303 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52836 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729403AbfFLLNI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Jun 2019 07:13:08 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5CB9KNl038416
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 07:13:07 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2t2yamjy9y-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 12 Jun 2019 07:13:07 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Wed, 12 Jun 2019 12:13:05 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH v5 1/8] s390/mm: force swiotlb for protected virtualization
-Date: Wed, 12 Jun 2019 13:12:29 +0200
-In-Reply-To: <20190612111236.99538-1-pasic@linux.ibm.com>
-References: <20190612111236.99538-1-pasic@linux.ibm.com>
-Message-Id: <20190612111236.99538-2-pasic@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH v12 01/11] MODSIGN: Export module signature definitions
+Date: Thu, 27 Jun 2019 23:19:24 -0300
+Message-Id: <20190628021934.4260-2-bauerman@linux.ibm.com>
+In-Reply-To: <20190628021934.4260-1-bauerman@linux.ibm.com>
+References: <20190628021934.4260-1-bauerman@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>
+To: linux-integrity@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Jessica Yu <jeyu@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, "AKASHI, Takahiro" <takahiro.akashi@linaro.org>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
 
-On s390, protected virtualization guests have to use bounced I/O
-buffers.  That requires some plumbing.
+IMA will use the module_signature format for append signatures, so export
+the relevant definitions and factor out the code which verifies that the
+appended signature trailer is valid.
 
-Let us make sure, any device that uses DMA API with direct ops correctly
-is spared from the problems, that a hypervisor attempting I/O to a
-non-shared page would bring.
+Also, create a CONFIG_MODULE_SIG_FORMAT option so that IMA can select it
+and be able to use mod_check_sig() without having to depend on either
+CONFIG_MODULE_SIG or CONFIG_MODULES.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Jessica Yu <jeyu@kernel.org>
 ---
- arch/s390/Kconfig                   |  4 +++
- arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++
- arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++
- 3 files changed, 69 insertions(+)
- create mode 100644 arch/s390/include/asm/mem_encrypt.h
+ include/linux/module.h           |  3 --
+ include/linux/module_signature.h | 44 +++++++++++++++++++++++++
+ init/Kconfig                     |  6 +++-
+ kernel/Makefile                  |  1 +
+ kernel/module.c                  |  1 +
+ kernel/module_signature.c        | 46 ++++++++++++++++++++++++++
+ kernel/module_signing.c          | 56 +++++---------------------------
+ scripts/Makefile                 |  2 +-
+ 8 files changed, 106 insertions(+), 53 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 109243fdb6ec..88d8355b7bf7 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -1,4 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
-+config ARCH_HAS_MEM_ENCRYPT
-+        def_bool y
-+
- config MMU
- 	def_bool y
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 188998d3dca9..aa56f531cf1e 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -25,9 +25,6 @@
+ #include <linux/percpu.h>
+ #include <asm/module.h>
  
-@@ -187,6 +190,7 @@ config S390
- 	select VIRT_CPU_ACCOUNTING
- 	select ARCH_HAS_SCALED_CPUTIME
- 	select HAVE_NMI
-+	select SWIOTLB
+-/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
+-#define MODULE_SIG_STRING "~Module signature appended~\n"
+-
+ /* Not Yet Implemented */
+ #define MODULE_SUPPORTED_DEVICE(name)
  
- 
- config SCHED_OMIT_FRAME_POINTER
-diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+diff --git a/include/linux/module_signature.h b/include/linux/module_signature.h
 new file mode 100644
-index 000000000000..0898c09a888c
+index 000000000000..523617fc5b6a
 --- /dev/null
-+++ b/arch/s390/include/asm/mem_encrypt.h
-@@ -0,0 +1,18 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef S390_MEM_ENCRYPT_H__
-+#define S390_MEM_ENCRYPT_H__
++++ b/include/linux/module_signature.h
+@@ -0,0 +1,44 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Module signature handling.
++ *
++ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
 +
-+#ifndef __ASSEMBLY__
++#ifndef _LINUX_MODULE_SIGNATURE_H
++#define _LINUX_MODULE_SIGNATURE_H
 +
-+#define sme_me_mask	0ULL
++/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
++#define MODULE_SIG_STRING "~Module signature appended~\n"
 +
-+static inline bool sme_active(void) { return false; }
-+extern bool sev_active(void);
++enum pkey_id_type {
++	PKEY_ID_PGP,		/* OpenPGP generated key ID */
++	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
++	PKEY_ID_PKCS7,		/* Signature in PKCS#7 message */
++};
 +
-+int set_memory_encrypted(unsigned long addr, int numpages);
-+int set_memory_decrypted(unsigned long addr, int numpages);
++/*
++ * Module signature information block.
++ *
++ * The constituents of the signature section are, in order:
++ *
++ *	- Signer's name
++ *	- Key identifier
++ *	- Signature data
++ *	- Information block
++ */
++struct module_signature {
++	u8	algo;		/* Public-key crypto algorithm [0] */
++	u8	hash;		/* Digest algorithm [0] */
++	u8	id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
++	u8	signer_len;	/* Length of signer's name [0] */
++	u8	key_id_len;	/* Length of key identifier [0] */
++	u8	__pad[3];
++	__be32	sig_len;	/* Length of signature data */
++};
 +
-+#endif	/* __ASSEMBLY__ */
++int mod_check_sig(const struct module_signature *ms, size_t file_len,
++		  const char *name);
 +
-+#endif	/* S390_MEM_ENCRYPT_H__ */
++#endif /* _LINUX_MODULE_SIGNATURE_H */
+diff --git a/init/Kconfig b/init/Kconfig
+index 8b9ffe236e4f..c2286a3c74c5 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1852,6 +1852,10 @@ config BASE_SMALL
+ 	default 0 if BASE_FULL
+ 	default 1 if !BASE_FULL
+ 
++config MODULE_SIG_FORMAT
++	def_bool n
++	select SYSTEM_DATA_VERIFICATION
 +
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 14d1eae9fe43..f0bee6af3960 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -18,6 +18,7 @@
- #include <linux/mman.h>
- #include <linux/mm.h>
- #include <linux/swap.h>
-+#include <linux/swiotlb.h>
- #include <linux/smp.h>
- #include <linux/init.h>
- #include <linux/pagemap.h>
-@@ -29,6 +30,7 @@
+ menuconfig MODULES
+ 	bool "Enable loadable module support"
+ 	option modules
+@@ -1929,7 +1933,7 @@ config MODULE_SRCVERSION_ALL
+ config MODULE_SIG
+ 	bool "Module signature verification"
+ 	depends on MODULES
+-	select SYSTEM_DATA_VERIFICATION
++	select MODULE_SIG_FORMAT
+ 	help
+ 	  Check modules for valid signatures upon load: the signature
+ 	  is simply appended to the module. For more information see
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 33824f0385b3..f29ae2997a43 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -58,6 +58,7 @@ endif
+ obj-$(CONFIG_UID16) += uid16.o
+ obj-$(CONFIG_MODULES) += module.o
+ obj-$(CONFIG_MODULE_SIG) += module_signing.o
++obj-$(CONFIG_MODULE_SIG_FORMAT) += module_signature.o
+ obj-$(CONFIG_KALLSYMS) += kallsyms.o
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_CRASH_CORE) += crash_core.o
+diff --git a/kernel/module.c b/kernel/module.c
+index 6e6712b3aaf5..2712f4d217f5 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -19,6 +19,7 @@
  #include <linux/export.h>
- #include <linux/cma.h>
- #include <linux/gfp.h>
-+#include <linux/dma-mapping.h>
- #include <asm/processor.h>
- #include <linux/uaccess.h>
- #include <asm/pgtable.h>
-@@ -42,6 +44,8 @@
- #include <asm/sclp.h>
- #include <asm/set_memory.h>
- #include <asm/kasan.h>
-+#include <asm/dma-mapping.h>
-+#include <asm/uv.h>
- 
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
- 
-@@ -128,6 +132,47 @@ void mark_rodata_ro(void)
- 	pr_info("Write protected read-only-after-init data: %luk\n", size >> 10);
- }
- 
-+int set_memory_encrypted(unsigned long addr, int numpages)
-+{
-+	int i;
+ #include <linux/extable.h>
+ #include <linux/moduleloader.h>
++#include <linux/module_signature.h>
+ #include <linux/trace_events.h>
+ #include <linux/init.h>
+ #include <linux/kallsyms.h>
+diff --git a/kernel/module_signature.c b/kernel/module_signature.c
+new file mode 100644
+index 000000000000..4224a1086b7d
+--- /dev/null
++++ b/kernel/module_signature.c
+@@ -0,0 +1,46 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Module signature checker
++ *
++ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
 +
-+	/* make specified pages unshared, (swiotlb, dma_free) */
-+	for (i = 0; i < numpages; ++i) {
-+		uv_remove_shared(addr);
-+		addr += PAGE_SIZE;
++#include <linux/errno.h>
++#include <linux/printk.h>
++#include <linux/module_signature.h>
++#include <asm/byteorder.h>
++
++/**
++ * mod_check_sig - check that the given signature is sane
++ *
++ * @ms:		Signature to check.
++ * @file_len:	Size of the file to which @ms is appended.
++ * @name:	What is being checked. Used for error messages.
++ */
++int mod_check_sig(const struct module_signature *ms, size_t file_len,
++		  const char *name)
++{
++	if (be32_to_cpu(ms->sig_len) >= file_len - sizeof(*ms))
++		return -EBADMSG;
++
++	if (ms->id_type != PKEY_ID_PKCS7) {
++		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
++		       name);
++		return -ENOPKG;
 +	}
++
++	if (ms->algo != 0 ||
++	    ms->hash != 0 ||
++	    ms->signer_len != 0 ||
++	    ms->key_id_len != 0 ||
++	    ms->__pad[0] != 0 ||
++	    ms->__pad[1] != 0 ||
++	    ms->__pad[2] != 0) {
++		pr_err("%s: PKCS#7 signature info has unexpected non-zero params\n",
++		       name);
++		return -EBADMSG;
++	}
++
 +	return 0;
 +}
-+
-+int set_memory_decrypted(unsigned long addr, int numpages)
-+{
-+	int i;
-+	/* make specified pages shared (swiotlb, dma_alloca) */
-+	for (i = 0; i < numpages; ++i) {
-+		uv_set_shared(addr);
-+		addr += PAGE_SIZE;
-+	}
-+	return 0;
-+}
-+
-+/* are we a protected virtualization guest? */
-+bool sev_active(void)
-+{
-+	return is_prot_virt_guest();
-+}
-+
-+/* protected virtualization */
-+static void pv_init(void)
-+{
-+	if (!is_prot_virt_guest())
-+		return;
-+
-+	/* make sure bounce buffers are shared */
-+	swiotlb_init(1);
-+	swiotlb_update_mem_attributes();
-+	swiotlb_force = SWIOTLB_FORCE;
-+}
-+
- void __init mem_init(void)
+diff --git a/kernel/module_signing.c b/kernel/module_signing.c
+index 6b9a926fd86b..cdd04a6b8074 100644
+--- a/kernel/module_signing.c
++++ b/kernel/module_signing.c
+@@ -11,37 +11,13 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/module_signature.h>
+ #include <linux/string.h>
+ #include <linux/verification.h>
+ #include <crypto/public_key.h>
+ #include "module-internal.h"
+ 
+-enum pkey_id_type {
+-	PKEY_ID_PGP,		/* OpenPGP generated key ID */
+-	PKEY_ID_X509,		/* X.509 arbitrary subjectKeyIdentifier */
+-	PKEY_ID_PKCS7,		/* Signature in PKCS#7 message */
+-};
+-
+-/*
+- * Module signature information block.
+- *
+- * The constituents of the signature section are, in order:
+- *
+- *	- Signer's name
+- *	- Key identifier
+- *	- Signature data
+- *	- Information block
+- */
+-struct module_signature {
+-	u8	algo;		/* Public-key crypto algorithm [0] */
+-	u8	hash;		/* Digest algorithm [0] */
+-	u8	id_type;	/* Key identifier type [PKEY_ID_PKCS7] */
+-	u8	signer_len;	/* Length of signer's name [0] */
+-	u8	key_id_len;	/* Length of key identifier [0] */
+-	u8	__pad[3];
+-	__be32	sig_len;	/* Length of signature data */
+-};
+-
+ /*
+  * Verify the signature on a module.
+  */
+@@ -49,6 +25,7 @@ int mod_verify_sig(const void *mod, struct load_info *info)
  {
- 	cpumask_set_cpu(0, &init_mm.context.cpu_attach_mask);
-@@ -136,6 +181,8 @@ void __init mem_init(void)
- 	set_max_mapnr(max_low_pfn);
-         high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
+ 	struct module_signature ms;
+ 	size_t sig_len, modlen = info->len;
++	int ret;
  
-+	pv_init();
+ 	pr_devel("==>%s(,%zu)\n", __func__, modlen);
+ 
+@@ -56,32 +33,15 @@ int mod_verify_sig(const void *mod, struct load_info *info)
+ 		return -EBADMSG;
+ 
+ 	memcpy(&ms, mod + (modlen - sizeof(ms)), sizeof(ms));
+-	modlen -= sizeof(ms);
 +
- 	/* Setup guest page hinting */
- 	cmma_init();
++	ret = mod_check_sig(&ms, modlen, info->name);
++	if (ret)
++		return ret;
  
--- 
-2.17.1
+ 	sig_len = be32_to_cpu(ms.sig_len);
+-	if (sig_len >= modlen)
+-		return -EBADMSG;
+-	modlen -= sig_len;
++	modlen -= sig_len + sizeof(ms);
+ 	info->len = modlen;
+ 
+-	if (ms.id_type != PKEY_ID_PKCS7) {
+-		pr_err("%s: Module is not signed with expected PKCS#7 message\n",
+-		       info->name);
+-		return -ENOPKG;
+-	}
+-
+-	if (ms.algo != 0 ||
+-	    ms.hash != 0 ||
+-	    ms.signer_len != 0 ||
+-	    ms.key_id_len != 0 ||
+-	    ms.__pad[0] != 0 ||
+-	    ms.__pad[1] != 0 ||
+-	    ms.__pad[2] != 0) {
+-		pr_err("%s: PKCS#7 signature info has unexpected non-zero params\n",
+-		       info->name);
+-		return -EBADMSG;
+-	}
+-
+ 	return verify_pkcs7_signature(mod, modlen, mod + modlen, sig_len,
+ 				      VERIFY_USE_SECONDARY_KEYRING,
+ 				      VERIFYING_MODULE_SIGNATURE,
+diff --git a/scripts/Makefile b/scripts/Makefile
+index 9d442ee050bd..52098b080ab7 100644
+--- a/scripts/Makefile
++++ b/scripts/Makefile
+@@ -17,7 +17,7 @@ hostprogs-$(CONFIG_VT)           += conmakehash
+ hostprogs-$(BUILD_C_RECORDMCOUNT) += recordmcount
+ hostprogs-$(CONFIG_BUILDTIME_EXTABLE_SORT) += sortextable
+ hostprogs-$(CONFIG_ASN1)	 += asn1_compiler
+-hostprogs-$(CONFIG_MODULE_SIG)	 += sign-file
++hostprogs-$(CONFIG_MODULE_SIG_FORMAT) += sign-file
+ hostprogs-$(CONFIG_SYSTEM_TRUSTED_KEYRING) += extract-cert
+ hostprogs-$(CONFIG_SYSTEM_EXTRA_CERTIFICATE) += insert-sys-cert
+ 
