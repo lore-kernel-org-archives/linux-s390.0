@@ -1,48 +1,232 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:57848 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729216AbfGLCUk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 22:20:40 -0400
-From: Alex Shi <alex.shi@linux.alibaba.com>
-Subject: [PATCH 12/12] Documentation/xtensa: repointer docs to Documentation/arch/
-Date: Fri, 12 Jul 2019 10:20:18 +0800
-Message-Id: <20190712022018.27989-12-alex.shi@linux.alibaba.com>
-In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
-References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2432 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726329AbfGAM67 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Jul 2019 08:58:59 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x61Cv1jG135171
+        for <linux-s390@vger.kernel.org>; Mon, 1 Jul 2019 08:58:58 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tfg9agu4m-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 01 Jul 2019 08:58:57 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 1 Jul 2019 13:58:55 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 5/7] KVM: selftests: Add the sync_regs test for s390x
+Date: Mon,  1 Jul 2019 14:58:46 +0200
+In-Reply-To: <20190701125848.276133-1-borntraeger@de.ibm.com>
+References: <20190701125848.276133-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20190701125848.276133-6-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-xtensa@linux-xtensa.org
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 
-Since we move Documentation/xtensa docs to Documentation/arch/xtensa
-dir, redirect the doc pointer to them.
+From: Thomas Huth <thuth@redhat.com>
 
-Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-xtensa@linux-xtensa.org
-Cc: linux-kernel@vger.kernel.org
+The test is an adaption of the same test for x86. Note that there
+are some differences in the way how s390x deals with the kvm_valid_regs
+in struct kvm_run, so some of the tests had to be removed. Also this
+test is not using the ucall() interface on s390x yet (which would need
+some work to be usable on s390x), so it simply drops out of the VM with
+a diag 0x501 breakpoint instead.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Message-Id: <20190523164309.13345-8-thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/xtensa/include/asm/initialize_mmu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ MAINTAINERS                                   |   1 +
+ tools/testing/selftests/kvm/Makefile          |   2 +
+ .../selftests/kvm/s390x/sync_regs_test.c      | 151 ++++++++++++++++++
+ 3 files changed, 154 insertions(+)
+ create mode 100644 tools/testing/selftests/kvm/s390x/sync_regs_test.c
 
-diff --git a/arch/xtensa/include/asm/initialize_mmu.h b/arch/xtensa/include/asm/initialize_mmu.h
-index 323d05789159..499fe4847490 100644
---- a/arch/xtensa/include/asm/initialize_mmu.h
-+++ b/arch/xtensa/include/asm/initialize_mmu.h
-@@ -42,7 +42,7 @@
- #if XCHAL_HAVE_S32C1I && (XCHAL_HW_MIN_VERSION >= XTENSA_HWVERSION_RC_2009_0)
- /*
-  * We Have Atomic Operation Control (ATOMCTL) Register; Initialize it.
-- * For details see Documentation/xtensa/atomctl.txt
-+ * For details see Documentation/arch/xtensa/atomctl.txt
-  */
- #if XCHAL_DCACHE_IS_COHERENT
- 	movi	a3, 0x25	/* For SMP/MX -- internal for writeback,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 68ce91fffeaf9..c8264e9723640 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8674,6 +8674,7 @@ F:	arch/s390/include/asm/gmap.h
+ F:	arch/s390/include/asm/kvm*
+ F:	arch/s390/kvm/
+ F:	arch/s390/mm/gmap.c
++F:	tools/testing/selftests/kvm/s390x/
+ F:	tools/testing/selftests/kvm/*/s390x/
+ 
+ KERNEL VIRTUAL MACHINE FOR X86 (KVM/x86)
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index b4a07cd0b48e8..ed8eb6007566b 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -30,6 +30,8 @@ TEST_GEN_PROGS_x86_64 += clear_dirty_log_test
+ TEST_GEN_PROGS_aarch64 += dirty_log_test
+ TEST_GEN_PROGS_aarch64 += clear_dirty_log_test
+ 
++TEST_GEN_PROGS_s390x += s390x/sync_regs_test
++
+ TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(UNAME_M))
+ LIBKVM += $(LIBKVM_$(UNAME_M))
+ 
+diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+new file mode 100644
+index 0000000000000..e85ff0d695489
+--- /dev/null
++++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+@@ -0,0 +1,151 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Test for s390x KVM_CAP_SYNC_REGS
++ *
++ * Based on the same test for x86:
++ * Copyright (C) 2018, Google LLC.
++ *
++ * Adaptions for s390x:
++ * Copyright (C) 2019, Red Hat, Inc.
++ *
++ * Test expected behavior of the KVM_CAP_SYNC_REGS functionality.
++ */
++
++#define _GNU_SOURCE /* for program_invocation_short_name */
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/ioctl.h>
++
++#include "test_util.h"
++#include "kvm_util.h"
++
++#define VCPU_ID 5
++
++static void guest_code(void)
++{
++	for (;;) {
++		asm volatile ("diag 0,0,0x501");
++		asm volatile ("ahi 11,1");
++	}
++}
++
++#define REG_COMPARE(reg) \
++	TEST_ASSERT(left->reg == right->reg, \
++		    "Register " #reg \
++		    " values did not match: 0x%llx, 0x%llx\n", \
++		    left->reg, right->reg)
++
++static void compare_regs(struct kvm_regs *left, struct kvm_sync_regs *right)
++{
++	int i;
++
++	for (i = 0; i < 16; i++)
++		REG_COMPARE(gprs[i]);
++}
++
++static void compare_sregs(struct kvm_sregs *left, struct kvm_sync_regs *right)
++{
++	int i;
++
++	for (i = 0; i < 16; i++)
++		REG_COMPARE(acrs[i]);
++
++	for (i = 0; i < 16; i++)
++		REG_COMPARE(crs[i]);
++}
++
++#undef REG_COMPARE
++
++#define TEST_SYNC_FIELDS   (KVM_SYNC_GPRS|KVM_SYNC_ACRS|KVM_SYNC_CRS)
++#define INVALID_SYNC_FIELD 0x80000000
++
++int main(int argc, char *argv[])
++{
++	struct kvm_vm *vm;
++	struct kvm_run *run;
++	struct kvm_regs regs;
++	struct kvm_sregs sregs;
++	int rv, cap;
++
++	/* Tell stdout not to buffer its content */
++	setbuf(stdout, NULL);
++
++	cap = kvm_check_cap(KVM_CAP_SYNC_REGS);
++	if (!cap) {
++		fprintf(stderr, "CAP_SYNC_REGS not supported, skipping test\n");
++		exit(KSFT_SKIP);
++	}
++
++	/* Create VM */
++	vm = vm_create_default(VCPU_ID, 0, guest_code);
++
++	run = vcpu_state(vm, VCPU_ID);
++
++	/* Request and verify all valid register sets. */
++	run->kvm_valid_regs = TEST_SYNC_FIELDS;
++	rv = _vcpu_run(vm, VCPU_ID);
++	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
++	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
++		    "Unexpected exit reason: %u (%s)\n",
++		    run->exit_reason,
++		    exit_reason_str(run->exit_reason));
++	TEST_ASSERT(run->s390_sieic.icptcode == 4 &&
++		    (run->s390_sieic.ipa >> 8) == 0x83 &&
++		    (run->s390_sieic.ipb >> 16) == 0x501,
++		    "Unexpected interception code: ic=%u, ipa=0x%x, ipb=0x%x\n",
++		    run->s390_sieic.icptcode, run->s390_sieic.ipa,
++		    run->s390_sieic.ipb);
++
++	vcpu_regs_get(vm, VCPU_ID, &regs);
++	compare_regs(&regs, &run->s.regs);
++
++	vcpu_sregs_get(vm, VCPU_ID, &sregs);
++	compare_sregs(&sregs, &run->s.regs);
++
++	/* Set and verify various register values */
++	run->s.regs.gprs[11] = 0xBAD1DEA;
++	run->s.regs.acrs[0] = 1 << 11;
++
++	run->kvm_valid_regs = TEST_SYNC_FIELDS;
++	run->kvm_dirty_regs = KVM_SYNC_GPRS | KVM_SYNC_ACRS;
++	rv = _vcpu_run(vm, VCPU_ID);
++	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
++	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
++		    "Unexpected exit reason: %u (%s)\n",
++		    run->exit_reason,
++		    exit_reason_str(run->exit_reason));
++	TEST_ASSERT(run->s.regs.gprs[11] == 0xBAD1DEA + 1,
++		    "r11 sync regs value incorrect 0x%llx.",
++		    run->s.regs.gprs[11]);
++	TEST_ASSERT(run->s.regs.acrs[0]  == 1 << 11,
++		    "acr0 sync regs value incorrect 0x%llx.",
++		    run->s.regs.acrs[0]);
++
++	vcpu_regs_get(vm, VCPU_ID, &regs);
++	compare_regs(&regs, &run->s.regs);
++
++	vcpu_sregs_get(vm, VCPU_ID, &sregs);
++	compare_sregs(&sregs, &run->s.regs);
++
++	/* Clear kvm_dirty_regs bits, verify new s.regs values are
++	 * overwritten with existing guest values.
++	 */
++	run->kvm_valid_regs = TEST_SYNC_FIELDS;
++	run->kvm_dirty_regs = 0;
++	run->s.regs.gprs[11] = 0xDEADBEEF;
++	rv = _vcpu_run(vm, VCPU_ID);
++	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
++	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
++		    "Unexpected exit reason: %u (%s)\n",
++		    run->exit_reason,
++		    exit_reason_str(run->exit_reason));
++	TEST_ASSERT(run->s.regs.gprs[11] != 0xDEADBEEF,
++		    "r11 sync regs value incorrect 0x%llx.",
++		    run->s.regs.gprs[11]);
++
++	kvm_vm_free(vm);
++
++	return 0;
++}
 -- 
-2.19.1.856.g8858448bb
+2.21.0
