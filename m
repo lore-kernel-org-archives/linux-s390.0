@@ -1,53 +1,93 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54028 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41162 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727638AbfGaI62 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 04:58:28 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6V8l1Bl089759
-        for <linux-s390@vger.kernel.org>; Wed, 31 Jul 2019 04:58:27 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2u37hnh89r-1
+        by vger.kernel.org with ESMTP id S1727049AbfGCAyD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jul 2019 20:54:03 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x62JvW76082520
+        for <linux-s390@vger.kernel.org>; Tue, 2 Jul 2019 16:00:21 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tgcpp2jmw-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 31 Jul 2019 04:58:27 -0400
+        for <linux-s390@vger.kernel.org>; Tue, 02 Jul 2019 16:00:21 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Wed, 31 Jul 2019 09:58:25 +0100
-Date: Wed, 31 Jul 2019 10:58:20 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: linux-next: Tree for Jul 31 - s390 crypto build breakage
-References: <20190731163915.3fdfcb14@canb.auug.org.au>
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 2 Jul 2019 21:00:19 +0100
+Subject: Re: [PATCH v5 2/2] s390/kvm: diagnose 318 handling
+References: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
+ <1561475022-18348-3-git-send-email-walling@linux.ibm.com>
+ <19c73246-48dd-ddc6-c5b1-b93f15cbf2f0@redhat.com>
+ <17fe3423-91b1-2351-54cb-26cd9e1b0e3f@de.ibm.com>
+ <dd1f4c39-9937-b223-adc8-01a764cf9462@linux.ibm.com>
+ <a7f4b3aa-b9d8-59b3-22c4-251acc2ef20f@redhat.com>
+ <ae6e3725-2d5e-3fc6-96bf-7875fb14d919@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 2 Jul 2019 22:00:14 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731163915.3fdfcb14@canb.auug.org.au>
-Message-Id: <20190731085819.GA3488@osiris>
+In-Reply-To: <ae6e3725-2d5e-3fc6-96bf-7875fb14d919@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <78617ca5-d822-ea4e-60ef-7a545b23ef15@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Patrick Steuer <steuer@linux.ibm.com>
+To: Collin Walling <walling@linux.ibm.com>, David Hildenbrand <david@redhat.com>, cohuck@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Wed, Jul 31, 2019 at 04:39:15PM +1000, Stephen Rothwell wrote:
-> Hi all,
+
+
+On 02.07.19 21:50, Collin Walling wrote:
+> On 6/26/19 10:31 AM, David Hildenbrand wrote:
+>> On 26.06.19 16:30, Collin Walling wrote:
+>>> On 6/26/19 6:28 AM, Christian Borntraeger wrote:
+>>>>
+>>>>
+>>>> On 26.06.19 11:45, David Hildenbrand wrote:
+>>>>
+>>>>>
+>>>>> BTW. there is currently no mechanism to fake absence of diag318. Should
+>>>>> we have one? (in contrast, for CMMA we have, which is also a CPU feature)
+>>>>
+>>>> Yes, we want to be able to disable diag318 via a CPU model feature. That actually
+>>>> means that the kernel must not answer this if we disable it.
+>>>>
+>>> Correct. If the guest specifies diag318=off, then the instruction
+>>> shouldn't be executed (it is fenced off in the kernel by checking the
+>>> Read SCP Info bit).
+>>
+>> But the guest *could* execute it and not get an exception.
+>>
 > 
-> Changes since 20190730:
+> IIUC, you're talking about the situation where QEMU supports diag318,
+> but KVM does not. The worst case is the guest specifies diag318=on, and
+> nothing will stop the guest from attempting to execute the instruction.
+> 
+> However, this is fenced in my QEMU patches. In (v5), I have this
+> following snippet:
+> 
+> @@ -2323,6 +2345,13 @@ void kvm_s390_get_host_cpu_model(S390CPUModel *model, Error **errp)
+>          KVM_S390_VM_CRYPTO_ENABLE_APIE)) {
+>          set_bit(S390_FEAT_AP, model->features);
+>      }
+> +
+> +    /* if KVM supports interception of diag318, then let's provide the bit */
+> +    if (kvm_vm_check_attr(kvm_state, KVM_S390_VM_MISC,
+> +        KVM_S390_VM_MISC_DIAG318)) {
+> +        set_bit(S390_FEAT_DIAG318, model->features);
+> +    }
+> +
+>      /* strip of features that are not part of the maximum model */
+>      bitmap_and(model->features, model->features, model->def->full_feat,
+>                 S390_FEAT_MAX);
+> 
+> If the guest specifies diag318=on, and KVM does *not* support emulation,
+> then the following message will be observed:
+> 
+> qemu-system-s390x: Some features requested in the CPU model are not
+> available in the configuration: diag318
+> 
+> and the guest will fail to start. Does this suffice?
 
-Hello Ard,
-
-two of your patches in the crypto tree cause build breakage on s390:
-
-The patch ("crypto: aes - create AES library based on the fixed time AES code")
-causes this:
-
-arch/s390/crypto/aes_s390.c:111:13: error: conflicting types for 'aes_encrypt'
-  111 | static void aes_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
-      |             ^~~~~~~~~~~
-
-And the commit ("crypto: aegis128 - add support for SIMD acceleration") causes
-another build breakage:
-
-crypto/aegis128-core.c:19:10: fatal error: asm/simd.h: No such file or directory
-   19 | #include <asm/simd.h>
-      |          ^~~~~~~~~~~~
+But what happens if the guest ignores read scp info and executes diag318 anyway.
+It should get a specification exception, but it does not instead diag318 is
+executed.
