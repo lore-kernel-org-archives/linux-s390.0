@@ -1,329 +1,135 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v11 4/8] namei: O_BENEATH-style path resolution flags
-Date: Sun, 28 Jul 2019 11:02:03 +1000
-Message-Id: <20190728010207.9781-5-cyphar@cyphar.com>
-In-Reply-To: <20190728010207.9781-1-cyphar@cyphar.com>
-References: <20190728010207.9781-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28994 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726457AbfGCAaX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jul 2019 20:30:23 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x62L1ckh067205
+        for <linux-s390@vger.kernel.org>; Tue, 2 Jul 2019 17:02:09 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tgb3tr93v-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 02 Jul 2019 17:02:09 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Tue, 2 Jul 2019 22:02:07 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 3/3] zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
+Date: Tue,  2 Jul 2019 23:02:02 +0200
+In-Reply-To: <cover.1562098940.git.bblock@linux.ibm.com>
+References: <cover.1562098940.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Message-Id: <8d531fd6170e5dbc4908bddda28f8f80f7312019.1562098940.git.bblock@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian@brauner.io>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-Add the following flags to allow various restrictions on path resolution
-(these affect the *entire* resolution, rather than just the final path
-component -- as is the case with LOOKUP_FOLLOW).
+GCC v9 emits this warning:
+      CC      drivers/s390/scsi/zfcp_erp.o
+    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
+    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
+      217 |  struct zfcp_erp_action *erp_action;
+          |                          ^~~~~~~~~~
 
-The primary justification for these flags is to allow for programs to be
-far more strict about how they want path resolution to handle symlinks,
-mountpoint crossings, and paths that escape the dirfd (through an
-absolute path or ".." shenanigans).
+This is a possible false positive case, as also documented in the GCC
+documentations:
+    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
 
-This is of particular concern to container runtimes that want to be very
-careful about malicious root filesystems that a container's init might
-have screwed around with (and there is no real way to protect against
-this in userspace if you consider potential races against a malicious
-container's init). More classical applications (which have their own
-potentially buggy userspace path sanitisation code) include web servers,
-archive extraction tools, network file servers, and so on.
+The actual code-sequence is like this:
+    Various callers can invoke the function below with the argument "want"
+    being one of:
+    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+    ZFCP_ERP_ACTION_REOPEN_PORT, or
+    ZFCP_ERP_ACTION_REOPEN_LUN.
 
-These flags are exposed to userspace through openat2(2) in a later
-patchset.
+    zfcp_erp_action_enqueue(want, ...)
+        ...
+        need = zfcp_erp_required_act(want, ...)
+            need = want
+            ...
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
+            ...
+            return need
+        ...
+        zfcp_erp_setup_act(need, ...)
+            struct zfcp_erp_action *erp_action; // <== line 217
+            ...
+            switch(need) {
+            case ZFCP_ERP_ACTION_REOPEN_LUN:
+                    ...
+                    erp_action = &zfcp_sdev->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_PORT:
+            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+                    ...
+                    erp_action = &port->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+                    ...
+                    erp_action = &adapter->erp_action;
+                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
+                    ...
+                    break;
+            }
+            ...
+            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
 
-* LOOKUP_NO_XDEV: Disallow mount-point crossing (both *down* into one,
-  or *up* from one). Both bind-mounts and cross-filesystem mounts are
-  blocked by this flag. The naming is based on "find -xdev" as well as
-  -EXDEV (though find(1) doesn't walk upwards, the semantics seem
-  obvious).
+When zfcp_erp_setup_act() is called, 'need' will never be anything else
+than one of the 4 possible enumeration-names that are used in the
+switch-case, and 'erp_action' is initialized for every one of them,
+before it is used. Thus the warning is a false positive, as documented.
 
-* LOOKUP_NO_MAGICLINKS: Disallows ->get_link "symlink" (or rather,
-  magic-link) jumping. This is a very specific restriction, and it
-  exists because /proc/$pid/fd/... "symlinks" allow for access outside
-  nd->root and pose risk to container runtimes that don't want to be
-  tricked into accessing a host path (but do want to allow
-  no-funny-business symlink resolution).
+We introduce the extra if{} in the beginning to create an extra code-flow,
+so the compiler can be convinced that the switch-case will never see any
+other value.
 
-* LOOKUP_NO_SYMLINKS: Disallows resolution through symlinks of any kind
-  (including magic-links).
+BUG_ON()/BUG() is intentionally not used to not crash anything, should
+this ever happen anyway - right now it's impossible, as argued above; and
+it doesn't introduce a 'default:' switch-case to retain warnings should
+'enum zfcp_erp_act_type' ever be extended and no explicit case be
+introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
+default switch case which might paper over missing case").
 
-* LOOKUP_BENEATH: Disallow "escapes" from the starting point of the
-  filesystem tree during resolution (you must stay "beneath" the
-  starting point at all times). Currently this is done by disallowing
-  ".." and absolute paths (either in the given path or found during
-  symlink resolution) entirely, as well as all magic-link jumping.
-
-  The wholesale banning of ".." is because it is currently not safe to
-  allow ".." resolution (races can cause the path to be moved outside of
-  the root -- this is conceptually similar to historical chroot(2)
-  escape attacks). Future patches in this series will address this, and
-  will re-enable ".." resolution once it is safe. With those patches,
-  ".." resolution will only be allowed if it remains in the root
-  throughout resolution (such as "a/../b" not "a/../../outside/b").
-
-  The banning of magic-link jumping is done because it is not clear
-  whether semantically they should be allowed -- while some magic-links
-  are safe there are many that can cause escapes (and once a
-  resolution is outside of the root, O_BENEATH will no longer detect
-  it). Future patches may re-enable magic-link jumping when such jumps
-  would remain inside the root.
-
-The LOOKUP_NO_*LINK flags return -ELOOP if path resolution would
-violates their requirement, while the others all return -EXDEV.
-
-This is a refresh of Al's AT_NO_JUMPS patchset[1] (which was a variation
-on David Drysdale's O_BENEATH patchset[2], which in turn was based on
-the Capsicum project[3]). Input from Linus and Andy in the AT_NO_JUMPS
-thread[4] determined most of the API changes made in this refresh.
-
-[1]: https://lwn.net/Articles/721443/
-[2]: https://lwn.net/Articles/619151/
-[3]: https://lwn.net/Articles/603929/
-[4]: https://lwn.net/Articles/723057/
-
-Cc: Christian Brauner <christian@brauner.io>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 ---
- fs/namei.c            | 85 ++++++++++++++++++++++++++++++++++++-------
- include/linux/namei.h |  7 ++++
- 2 files changed, 78 insertions(+), 14 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index e39b573fcc4d..2e18ce5a313e 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -674,7 +674,11 @@ static int unlazy_walk(struct nameidata *nd)
- 		goto out2;
- 	if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
- 		goto out1;
--	if (nd->root.mnt && !(nd->flags & LOOKUP_ROOT)) {
-+	if (!nd->root.mnt) {
-+		/* Restart from path_init() if nd->root was cleared. */
-+		if (nd->flags & LOOKUP_BENEATH)
-+			goto out;
-+	} else if (!(nd->flags & LOOKUP_ROOT)) {
- 		if (unlikely(!legitimize_path(nd, &nd->root, nd->root_seq)))
- 			goto out;
- 	}
-@@ -843,6 +847,13 @@ static inline void path_to_nameidata(const struct path *path,
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index e8fc28dba8df..96f0d34e9459 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
- static int nd_jump_root(struct nameidata *nd)
- {
-+	if (unlikely(nd->flags & LOOKUP_BENEATH))
-+		return -EXDEV;
-+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
-+		/* Absolute path arguments to path_init() are allowed. */
-+		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
-+			return -EXDEV;
-+	}
- 	if (nd->flags & LOOKUP_RCU) {
- 		struct dentry *d;
- 		nd->path = nd->root;
-@@ -1051,6 +1062,9 @@ const char *get_link(struct nameidata *nd)
- 	int error;
- 	const char *res;
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
  
-+	if (unlikely(nd->flags & LOOKUP_NO_SYMLINKS))
-+		return ERR_PTR(-ELOOP);
+@@ -217,6 +218,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(enum zfcp_erp_act_type need,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
+ 
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
 +
- 	if (!(nd->flags & LOOKUP_RCU)) {
- 		touch_atime(&last->link);
- 		cond_resched();
-@@ -1082,14 +1096,22 @@ const char *get_link(struct nameidata *nd)
- 		} else {
- 			res = get(dentry, inode, &last->done);
- 		}
-+		if (nd->flags & LOOKUP_MAGICLINK_JUMPED) {
-+			if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
-+				return ERR_PTR(-ELOOP);
-+			/* Not currently safe. */
-+			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+				return ERR_PTR(-EXDEV);
-+		}
- 		if (IS_ERR_OR_NULL(res))
- 			return res;
- 	}
- 	if (*res == '/') {
- 		if (!nd->root.mnt)
- 			set_root(nd);
--		if (unlikely(nd_jump_root(nd)))
--			return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
- 		while (unlikely(*++res == '/'))
- 			;
- 	}
-@@ -1270,12 +1292,16 @@ static int follow_managed(struct path *path, struct nameidata *nd)
- 		break;
- 	}
- 
--	if (need_mntput && path->mnt == mnt)
--		mntput(path->mnt);
-+	if (need_mntput) {
-+		if (path->mnt == mnt)
-+			mntput(path->mnt);
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			ret = -EXDEV;
-+		else
-+			nd->flags |= LOOKUP_JUMPED;
-+	}
- 	if (ret == -EISDIR || !ret)
- 		ret = 1;
--	if (need_mntput)
--		nd->flags |= LOOKUP_JUMPED;
- 	if (unlikely(ret < 0))
- 		path_put_conditional(path, nd);
- 	return ret;
-@@ -1332,6 +1358,8 @@ static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
- 		mounted = __lookup_mnt(path->mnt, path->dentry);
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return false;
- 		path->mnt = &mounted->mnt;
- 		path->dentry = mounted->mnt.mnt_root;
- 		nd->flags |= LOOKUP_JUMPED;
-@@ -1352,8 +1380,11 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 	struct inode *inode = nd->inode;
- 
- 	while (1) {
--		if (path_equal(&nd->path, &nd->root))
-+		if (path_equal(&nd->path, &nd->root)) {
-+			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+				return -EXDEV;
- 			break;
-+		}
- 		if (nd->path.dentry != nd->path.mnt->mnt_root) {
- 			struct dentry *old = nd->path.dentry;
- 			struct dentry *parent = old->d_parent;
-@@ -1378,6 +1409,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 				return -ECHILD;
- 			if (&mparent->mnt == nd->path.mnt)
- 				break;
-+			if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+				return -EXDEV;
- 			/* we know that mountpoint was pinned */
- 			nd->path.dentry = mountpoint;
- 			nd->path.mnt = &mparent->mnt;
-@@ -1392,6 +1425,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 			return -ECHILD;
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -EXDEV;
- 		nd->path.mnt = &mounted->mnt;
- 		nd->path.dentry = mounted->mnt.mnt_root;
- 		inode = nd->path.dentry->d_inode;
-@@ -1480,8 +1515,11 @@ static int path_parent_directory(struct path *path)
- static int follow_dotdot(struct nameidata *nd)
- {
- 	while(1) {
--		if (path_equal(&nd->path, &nd->root))
-+		if (path_equal(&nd->path, &nd->root)) {
-+			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+				return -EXDEV;
- 			break;
-+		}
- 		if (nd->path.dentry != nd->path.mnt->mnt_root) {
- 			int ret = path_parent_directory(&nd->path);
- 			if (ret)
-@@ -1490,6 +1528,8 @@ static int follow_dotdot(struct nameidata *nd)
- 		}
- 		if (!follow_up(&nd->path))
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -EXDEV;
- 	}
- 	follow_mount(&nd->path);
- 	nd->inode = nd->path.dentry->d_inode;
-@@ -1704,6 +1744,13 @@ static inline int may_lookup(struct nameidata *nd)
- static inline int handle_dots(struct nameidata *nd, int type)
- {
- 	if (type == LAST_DOTDOT) {
-+		/*
-+		 * LOOKUP_BENEATH resolving ".." is not currently safe -- races
-+		 * can cause our parent to have moved outside of the root and
-+		 * us to skip over it.
-+		 */
-+		if (unlikely(nd->flags & LOOKUP_BENEATH))
-+			return -EXDEV;
- 		if (!nd->root.mnt)
- 			set_root(nd);
- 		if (nd->flags & LOOKUP_RCU) {
-@@ -2170,6 +2217,7 @@ static int link_path_walk(const char *name, struct nameidata *nd)
- /* must be paired with terminate_walk() */
- static const char *path_init(struct nameidata *nd, unsigned flags)
- {
-+	int error;
- 	const char *s = nd->name->name;
- 
- 	if (!*s)
-@@ -2202,11 +2250,13 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 	nd->path.dentry = NULL;
- 
- 	nd->m_seq = read_seqbegin(&mount_lock);
-+
-+	/* Figure out the starting path and root (if needed). */
- 	if (*s == '/') {
- 		set_root(nd);
--		if (likely(!nd_jump_root(nd)))
--			return s;
--		return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
- 	} else if (nd->dfd == AT_FDCWD) {
- 		if (flags & LOOKUP_RCU) {
- 			struct fs_struct *fs = current->fs;
-@@ -2222,7 +2272,6 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 			get_fs_pwd(current->fs, &nd->path);
- 			nd->inode = nd->path.dentry->d_inode;
- 		}
--		return s;
- 	} else {
- 		/* Caller must check execute permissions on the starting path component */
- 		struct fd f = fdget_raw(nd->dfd);
-@@ -2247,8 +2296,16 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 			nd->inode = nd->path.dentry->d_inode;
- 		}
- 		fdput(f);
--		return s;
- 	}
-+	/* For scoped-lookups we need to set the root to the dirfd as well. */
-+	if (flags & LOOKUP_BENEATH) {
-+		nd->root = nd->path;
-+		if (flags & LOOKUP_RCU)
-+			nd->root_seq = nd->seq;
-+		else
-+			path_get(&nd->root);
-+	}
-+	return s;
- }
- 
- static const char *trailing_symlink(struct nameidata *nd)
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index bd6d3eb7764d..be407415c28a 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -51,6 +51,13 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_DOWN		0x8000
- #define LOOKUP_MAGICLINK_JUMPED	0x10000
- 
-+/* Scoping flags for lookup. */
-+#define LOOKUP_BENEATH		0x020000 /* No escaping from starting point. */
-+#define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
-+#define LOOKUP_NO_MAGICLINKS	0x080000 /* No /proc/$pid/fd/ "symlink" crossing. */
-+#define LOOKUP_NO_SYMLINKS	0x100000 /* No symlink crossing *at all*.
-+					    Implies LOOKUP_NO_MAGICLINKS. */
-+
- extern int path_pts(struct path *path);
- 
- extern int user_path_at_empty(int, const char __user *, unsigned, struct path *, int *empty);
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
 -- 
-2.22.0
+2.17.1
