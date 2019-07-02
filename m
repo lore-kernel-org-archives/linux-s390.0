@@ -1,33 +1,57 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-Date: Mon, 8 Jul 2019 20:43:51 +0200
-From: Christoph Hellwig <hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:39856 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726455AbfGBJsu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jul 2019 05:48:50 -0400
+Received: by mail-wr1-f66.google.com with SMTP id x4so17009465wrt.6
+        for <linux-s390@vger.kernel.org>; Tue, 02 Jul 2019 02:48:48 -0700 (PDT)
 Subject: Re: use exact allocation for dma coherent memory
-Message-ID: <20190708184351.GA12877@lst.de>
-References: <20190614134726.3827-1-hch@lst.de> <20190701084833.GA22927@lst.de> <74eb9d99-6aa6-d1ad-e66d-6cc9c496b2f3@broadcom.com>
+References: <20190614134726.3827-1-hch@lst.de> <20190701084833.GA22927@lst.de>
+From: Arend Van Spriel <arend.vanspriel@broadcom.com>
+Message-ID: <74eb9d99-6aa6-d1ad-e66d-6cc9c496b2f3@broadcom.com>
+Date: Tue, 2 Jul 2019 11:48:44 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <74eb9d99-6aa6-d1ad-e66d-6cc9c496b2f3@broadcom.com>
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20190701084833.GA22927@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arend Van Spriel <arend.vanspriel@broadcom.com>
-Cc: Christoph Hellwig <hch@lst.de>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Intel Linux Wireless <linuxwifi@intel.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Intel Linux Wireless <linuxwifi@intel.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 11:48:44AM +0200, Arend Van Spriel wrote:
-> You made me look ;-) Actually not touching my drivers so I'm off the hook. 
-> However, I was wondering if drivers could know so I decided to look into 
-> the DMA-API.txt documentation which currently states:
->
-> """
-> The flag parameter (dma_alloc_coherent() only) allows the caller to
-> specify the ``GFP_`` flags (see kmalloc()) for the allocation (the
-> implementation may choose to ignore flags that affect the location of
-> the returned memory, like GFP_DMA).
-> """
->
-> I do expect you are going to change that description as well now that you 
-> are going to issue a warning on __GFP_COMP. Maybe include that in patch 
-> 15/16 where you introduce that warning.
 
-Yes, that description needs an updated, even without this series.
-I'll make sure it is more clear.
+
+On 7/1/2019 10:48 AM, Christoph Hellwig wrote:
+> On Fri, Jun 14, 2019 at 03:47:10PM +0200, Christoph Hellwig wrote:
+>> Switching to a slightly cleaned up alloc_pages_exact is pretty easy,
+>> but it turns out that because we didn't filter valid gfp_t flags
+>> on the DMA allocator, a bunch of drivers were passing __GFP_COMP
+>> to it, which is rather bogus in too many ways to explain.  Arm has
+>> been filtering it for a while, but this series instead tries to fix
+>> the drivers and warn when __GFP_COMP is passed, which makes it much
+>> larger than just adding the functionality.
+> 
+> Dear driver maintainers,
+> 
+> can you look over the patches touching your drivers, please?  I'd
+> like to get as much as possible of the driver patches into this
+> merge window, so that it can you through your maintainer trees.
+
+You made me look ;-) Actually not touching my drivers so I'm off the 
+hook. However, I was wondering if drivers could know so I decided to 
+look into the DMA-API.txt documentation which currently states:
+
+"""
+The flag parameter (dma_alloc_coherent() only) allows the caller to
+specify the ``GFP_`` flags (see kmalloc()) for the allocation (the
+implementation may choose to ignore flags that affect the location of
+the returned memory, like GFP_DMA).
+"""
+
+I do expect you are going to change that description as well now that 
+you are going to issue a warning on __GFP_COMP. Maybe include that in 
+patch 15/16 where you introduce that warning.
+
+Regards,
+Arend
