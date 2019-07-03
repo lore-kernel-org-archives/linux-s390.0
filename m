@@ -1,58 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55650 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727308AbfGJKnz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Jul 2019 06:43:55 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6AAbgMl144490
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2019 06:43:54 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tne42gyt4-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 10 Jul 2019 06:43:54 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Wed, 10 Jul 2019 11:43:52 +0100
-Date: Wed, 10 Jul 2019 12:43:45 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH] MAINTAINERS: update BPF JIT S390 maintainers
+Received: from mx1.redhat.com ([209.132.183.28]:36958 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725933AbfGCP2k (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 3 Jul 2019 11:28:40 -0400
+Date: Wed, 3 Jul 2019 17:28:34 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390/cio: introduce driver_override on the css bus
+Message-ID: <20190703172834.31ed1848.cohuck@redhat.com>
+In-Reply-To: <your-ad-here.call-01562166593-ext-0522@work.hours>
+References: <20190613110815.17251-1-cohuck@redhat.com>
+        <alpine.LFD.2.21.1906211817010.2388@schleppi>
+        <20190624091740.1d9c6c1d.cohuck@redhat.com>
+        <20190703165506.53d3911c.cohuck@redhat.com>
+        <your-ad-here.call-01562166593-ext-0522@work.hours>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <patch.git-d365382dfc69.your-ad-here.call-01562755343-ext-3127@work.hours>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Alex Williamson <alex.williamson@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Ilya Leoshkevich is joining as s390 bpf maintainer. With his background
-as gcc developer he would be valuable for the team and community as a
-whole. Ilya, have fun!
+On Wed, 3 Jul 2019 17:09:53 +0200
+Vasily Gorbik <gor@linux.ibm.com> wrote:
 
-Since there is now enough eyes on s390 bpf, relieve Christian Borntraeger,
-so that he could focus on his maintainer tasks for other components.
+> On Wed, Jul 03, 2019 at 04:55:06PM +0200, Cornelia Huck wrote:
+> > On Mon, 24 Jun 2019 09:17:40 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >   
+> > > On Fri, 21 Jun 2019 18:19:36 +0200 (CEST)
+> > > Sebastian Ott <sebott@linux.ibm.com> wrote:
+> > >   
+> > > > On Thu, 13 Jun 2019, Cornelia Huck wrote:    
+> > > > > Sometimes, we want to control which of the matching drivers
+> > > > > binds to a subchannel device (e.g. for subchannels we want to
+> > > > > handle via vfio-ccw).
+> > > > > 
+> > > > > For pci devices, a mechanism to do so has been introduced in
+> > > > > 782a985d7af2 ("PCI: Introduce new device binding path using
+> > > > > pci_dev.driver_override"). It makes sense to introduce the
+> > > > > driver_override attribute for subchannel devices as well, so
+> > > > > that we can easily extend the 'driverctl' tool (which makes
+> > > > > use of the driver_override attribute for pci).
+> > > > > 
+> > > > > Note that unlike pci we still require a driver override to
+> > > > > match the subchannel type; matching more than one subchannel
+> > > > > type is probably not useful anyway.
+> > > > > 
+> > > > > Signed-off-by: Cornelia Huck <cohuck@redhat.com>      
+> > > > 
+> > > > Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+> > > > 
+> > > > Should I take that via our git tree or do you have other patches depending 
+> > > > on this one?
+> > > >     
+> > > 
+> > > No, this patch is stand-alone; everything else is happening in user
+> > > space, so taking it via your tree would be great. Thanks!  
+> > 
+> > Friendly ping (I don't see it on s390/features yet; or is this going
+> > via some other path?)
+> >   
+> 
+> It is there now. Just waited until latest ci results to push the branch.
+> Sorry for delay.
+> 
 
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 558acf24ea1e..98e7411dfe56 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3066,9 +3066,9 @@ S:	Maintained
- F:	arch/riscv/net/
- 
- BPF JIT for S390
-+M:	Ilya Leoshkevich <iii@linux.ibm.com>
- M:	Heiko Carstens <heiko.carstens@de.ibm.com>
- M:	Vasily Gorbik <gor@linux.ibm.com>
--M:	Christian Borntraeger <borntraeger@de.ibm.com>
- L:	netdev@vger.kernel.org
- L:	bpf@vger.kernel.org
- S:	Maintained
--- 
-2.21.0
+Awesome, thanks!
