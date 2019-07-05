@@ -1,91 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ozlabs.org ([203.11.71.1]:51465 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728684AbfGHLUh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 8 Jul 2019 07:20:37 -0400
-Date: Mon, 8 Jul 2019 21:20:30 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26730 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727510AbfGEI7K (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jul 2019 04:59:10 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x658vPK9005862
+        for <linux-s390@vger.kernel.org>; Fri, 5 Jul 2019 04:59:08 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2tj2bnad59-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 05 Jul 2019 04:59:08 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 5 Jul 2019 09:59:06 +0100
 Subject: Re: linux-next: Tree for Jul 4 -> conflict between s390 and
  driver-core tree
-Message-ID: <20190708212030.4540f81b@canb.auug.org.au>
-In-Reply-To: <e9889ea3-0286-df1c-864c-ba67a0286855@de.ibm.com>
 References: <20190704220945.27728dd9@canb.auug.org.au>
-        <e9889ea3-0286-df1c-864c-ba67a0286855@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Fri, 5 Jul 2019 10:59:01 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/E+fA_B45RM4/Jdz2PL=40nh"; protocol="application/pgp-signature"
+In-Reply-To: <20190704220945.27728dd9@canb.auug.org.au>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <e9889ea3-0286-df1c-864c-ba67a0286855@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Suzuki K Poulose <suzuki.poulose@arm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Suzuki K Poulose <suzuki.poulose@arm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
 
---Sig_/E+fA_B45RM4/Jdz2PL=40nh
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Linus, Vasily, for your attention in the next merge window. (I would sugges=
+t to apply
+belows fixup during the merge of whatever tree is merged 2nd).
 
-Hi Christian,
 
-On Fri, 5 Jul 2019 10:59:01 +0200 Christian Borntraeger <borntraeger@de.ibm=
-.com> wrote:
->
-> Linus, Vasily, for your attention in the next merge window. (I would sugg=
-est to apply
-> belows fixup during the merge of whatever tree is merged 2nd).
->=20
->=20
-> There is now a build conflict between the s390/features branch and the dr=
-iver-core/driver-core-next
-> especially between
->=20
-> commit 92ce7e83b4e5 ("driver_find_device: Unify the match function with c=
-lass_find_device()")
-> and
-> commit ec89b55e3bce ("s390: ap: implement PAPQ AQIC interception in kerne=
-l")
+There is now a build conflict between the s390/features branch and the driv=
+er-core/driver-core-next
+especially between
 
-I have applied the suggested fix below to linux-next today and will
-apply it to the driver-core tree merge from now on.
-
-> Stephen, can you maybe add something like this to make linux-next build a=
-gain
-> on s390?
->=20
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 2c9fb1423a39..7e85ba7c6ef0 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -26,7 +26,7 @@
-> =20
->  static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-> =20
-> -static int match_apqn(struct device *dev, void *data)
-> +static int match_apqn(struct device *dev, const void *data)
->  {
->  	struct vfio_ap_queue *q =3D dev_get_drvdata(dev);
-> =20
->=20
+commit 92ce7e83b4e5 ("driver_find_device: Unify the match function with cla=
+ss_find_device()")
+and
+commit ec89b55e3bce ("s390: ap: implement PAPQ AQIC interception in kernel")
 
 
 
---=20
-Cheers,
-Stephen Rothwell
 
---Sig_/E+fA_B45RM4/Jdz2PL=40nh
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+----------- snip---------------------------
+drivers/s390/crypto/vfio_ap_ops.c: In function =EF=BF=BDvfio_ap_get_queue=
+=EF=BF=BD:
+drivers/s390/crypto/vfio_ap_ops.c:60:13: error: passing argument 4 of =EF=
+=BF=BDdriver_find_device=EF=BF=BD from incompatible pointer type [-Werror=
+=3Dincompatible-pointer-types]
+   60 |      &apqn, match_apqn);
+      |             ^~~~~~~~~~
+      |             |
+      |             int (*)(struct device *, void *)
+In file included from ./include/linux/iommu.h:11,
+                 from ./include/linux/vfio.h:12,
+                 from drivers/s390/crypto/vfio_ap_ops.c:12:
+./include/linux/device.h:341:16: note: expected =EF=BF=BDint (*)(struct dev=
+ice *, const void *)=EF=BF=BD but argument is of type =EF=BF=BDint (*)(stru=
+ct device *, void *)=EF=BF=BD
+  341 | struct device *driver_find_device(struct device_driver *drv,
+      |                ^~~~~~~~~~~~~~~~~~
+drivers/s390/crypto/vfio_ap_ops.c: In function =EF=BF=BDvfio_ap_irq_disable=
+_apqn=EF=BF=BD:
+drivers/s390/crypto/vfio_ap_ops.c:1124:13: error: passing argument 4 of =EF=
+=BF=BDdriver_find_device=EF=BF=BD from incompatible pointer type [-Werror=
+=3Dincompatible-pointer-types]
+ 1124 |      &apqn, match_apqn);
+      |             ^~~~~~~~~~
+      |             |
+      |             int (*)(struct device *, void *)
+In file included from ./include/linux/iommu.h:11,
+                 from ./include/linux/vfio.h:12,
+                 from drivers/s390/crypto/vfio_ap_ops.c:12:
+./include/linux/device.h:341:16: note: expected =EF=BF=BDint (*)(struct dev=
+ice *, const void *)=EF=BF=BD but argument is of type =EF=BF=BDint (*)(stru=
+ct device *, void *)=EF=BF=BD
+  341 | struct device *driver_find_device(struct device_driver *drv,
+      |                ^~~~~~~~~~~~~~~~~~
+----------- snip---------------------------
 
------BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl0jJv4ACgkQAVBC80lX
-0Gzj2wgAireRW4yZvEvuHNIGpIEiUp8XMbmrYdVXI3lf9VSTOAleq7vsS4RgX9tl
-0cLg6vbumKyUEB/3DPtQdSobmAaJ16+2jEzOpAl4JYCLprowO5KmT1WfcohiQEhu
-HDyi598H17GAdV1vr6ME2jcp9GzPTJutoU9kTFww3ljAyl4TXs1lHuvqnF5xU61V
-Er2LB0Ki1wcd7yV0B1+uS/bYdMaXQGRGMEWAzD6gTSZzgjE8L2N86FXlfMfw/kPZ
-B4cEey5t7TtnnydGexQEcm7W6eiB93MamYowlUMck+GkAM9NOomQuS7j0AmDnxNy
-xEng27jlup2og3xq/BYL5HJetvJFJw==
-=Rczw
------END PGP SIGNATURE-----
+The fix is straighforward but it cannot be added to any of the branches as =
+it is
+only necessary (and right) when both branches are merged together.
 
---Sig_/E+fA_B45RM4/Jdz2PL=40nh--
+Stephen, can you maybe add something like this to make linux-next build aga=
+in
+on s390?
+
+
+
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_a=
+p_ops.c
+index 2c9fb1423a39..7e85ba7c6ef0 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -26,7 +26,7 @@
+=20
+ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+=20
+-static int match_apqn(struct device *dev, void *data)
++static int match_apqn(struct device *dev, const void *data)
+ {
+ 	struct vfio_ap_queue *q =3D dev_get_drvdata(dev);
+=20
