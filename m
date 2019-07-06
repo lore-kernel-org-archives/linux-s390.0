@@ -1,57 +1,133 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Wanpeng Li <kernellwp@gmail.com>
-Subject: [PATCH v2 2/2] KVM:390: Use kvm_vcpu_wake_up in kvm_s390_vcpu_wakeup
-Date: Thu, 18 Jul 2019 19:39:07 +0800
-Message-Id: <1563449947-7749-2-git-send-email-wanpengli@tencent.com>
-In-Reply-To: <1563449947-7749-1-git-send-email-wanpengli@tencent.com>
-References: <1563449947-7749-1-git-send-email-wanpengli@tencent.com>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v9 09/10] kselftest: save-and-restore errno to allow for %m formatting
+Date: Sun,  7 Jul 2019 00:57:36 +1000
+Message-Id: <20190706145737.5299-10-cyphar@cyphar.com>
+In-Reply-To: <20190706145737.5299-1-cyphar@cyphar.com>
+References: <20190706145737.5299-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+Previously, using "%m" in a ksft_* format string can result in strange
+output because the errno value wasn't saved before calling other libc
+functions. The solution is to simply save and restore the errno before
+we format the user-supplied format string.
 
-Use kvm_vcpu_wake_up() in kvm_s390_vcpu_wakeup().
-
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/s390/kvm/interrupt.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ tools/testing/selftests/kselftest.h | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 26f8bf4..881cc5a 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1229,21 +1229,8 @@ void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu)
- 	 * in kvm_vcpu_block without having the waitqueue set (polling)
- 	 */
- 	vcpu->valid_wakeup = true;
--	/*
--	 * This is mostly to document, that the read in swait_active could
--	 * be moved before other stores, leading to subtle races.
--	 * All current users do not store or use an atomic like update
--	 */
--	smp_mb__after_atomic();
--	if (swait_active(&vcpu->wq)) {
--		/*
--		 * The vcpu gave up the cpu voluntarily, mark it as a good
--		 * yield-candidate.
--		 */
-+	if (kvm_vcpu_wake_up(vcpu))
- 		vcpu->ready = true;
--		swake_up_one(&vcpu->wq);
--		vcpu->stat.halt_wakeup++;
--	}
- 	/*
- 	 * The VCPU might not be sleeping but is executing the VSIE. Let's
- 	 * kick it, so it leaves the SIE to process the request.
+diff --git a/tools/testing/selftests/kselftest.h b/tools/testing/selftests/kselftest.h
+index ec15c4f6af55..0ac49d91a260 100644
+--- a/tools/testing/selftests/kselftest.h
++++ b/tools/testing/selftests/kselftest.h
+@@ -10,6 +10,7 @@
+ #ifndef __KSELFTEST_H
+ #define __KSELFTEST_H
+ 
++#include <errno.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <stdarg.h>
+@@ -81,58 +82,68 @@ static inline void ksft_print_cnts(void)
+ 
+ static inline void ksft_print_msg(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	va_start(args, msg);
+ 	printf("# ");
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ }
+ 
+ static inline void ksft_test_result_pass(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	ksft_cnt.ksft_pass++;
+ 
+ 	va_start(args, msg);
+ 	printf("ok %d ", ksft_test_num());
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ }
+ 
+ static inline void ksft_test_result_fail(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	ksft_cnt.ksft_fail++;
+ 
+ 	va_start(args, msg);
+ 	printf("not ok %d ", ksft_test_num());
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ }
+ 
+ static inline void ksft_test_result_skip(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	ksft_cnt.ksft_xskip++;
+ 
+ 	va_start(args, msg);
+ 	printf("not ok %d # SKIP ", ksft_test_num());
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ }
+ 
+ static inline void ksft_test_result_error(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	ksft_cnt.ksft_error++;
+ 
+ 	va_start(args, msg);
+ 	printf("not ok %d # error ", ksft_test_num());
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ }
+@@ -152,10 +163,12 @@ static inline int ksft_exit_fail(void)
+ 
+ static inline int ksft_exit_fail_msg(const char *msg, ...)
+ {
++	int saved_errno = errno;
+ 	va_list args;
+ 
+ 	va_start(args, msg);
+ 	printf("Bail out! ");
++	errno = saved_errno;
+ 	vprintf(msg, args);
+ 	va_end(args);
+ 
+@@ -178,10 +191,12 @@ static inline int ksft_exit_xpass(void)
+ static inline int ksft_exit_skip(const char *msg, ...)
+ {
+ 	if (msg) {
++		int saved_errno = errno;
+ 		va_list args;
+ 
+ 		va_start(args, msg);
+ 		printf("not ok %d # SKIP ", 1 + ksft_test_num());
++		errno = saved_errno;
+ 		vprintf(msg, args);
+ 		va_end(args);
+ 	} else {
 -- 
-2.7.4
+2.22.0
