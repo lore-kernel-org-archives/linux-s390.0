@@ -1,57 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:40204 "EHLO foss.arm.com"
+Received: from mail.kernel.org ([198.145.29.99]:36728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729752AbfGVPmp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Jul 2019 11:42:45 -0400
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v9 07/21] s390: mm: Add p?d_leaf() definitions
-Date: Mon, 22 Jul 2019 16:41:56 +0100
-Message-Id: <20190722154210.42799-8-steven.price@arm.com>
-In-Reply-To: <20190722154210.42799-1-steven.price@arm.com>
-References: <20190722154210.42799-1-steven.price@arm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726072AbfGHTaG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 8 Jul 2019 15:30:06 -0400
+Subject: Re: [GIT PULL] s390 patches for the 5.3 merge window
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01562573328-ext-8139@work.hours>
+References: <your-ad-here.call-01562573328-ext-8139@work.hours>
+Message-Id: <156261420606.31351.17681092519828073675.pr-tracker-bot@kernel.org>
+Date: Mon, 08 Jul 2019 19:30:06 +0000
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_leaf() functions/macros.
+The pull request you sent on Mon, 8 Jul 2019 10:22:54 +0200:
 
-For s390, pud_large() and pmd_large() are already implemented as static
-inline functions. Add a macro to provide the p?d_leaf names for the
-generic code to use.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git s390-5.3-1
 
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
----
- arch/s390/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/1758feddb0f9751debdc865fefde94b45907c948
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 9b274fcaacb6..f99a5f546e5e 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -674,6 +674,7 @@ static inline int pud_none(pud_t pud)
- 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
- }
- 
-+#define pud_leaf	pud_large
- static inline int pud_large(pud_t pud)
- {
- 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-@@ -691,6 +692,7 @@ static inline unsigned long pud_pfn(pud_t pud)
- 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
- }
- 
-+#define pmd_leaf	pmd_large
- static inline int pmd_large(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
+Thank you!
+
 -- 
-2.20.1
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
