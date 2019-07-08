@@ -1,86 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51130 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727479AbfGAMsM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 1 Jul 2019 08:48:12 -0400
-Date: Mon, 1 Jul 2019 14:48:09 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 04/11] arm64/mm: Add temporary arch_remove_memory()
- implementation
-Message-ID: <20190701124809.GV6376@dhcp22.suse.cz>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-5-david@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60422 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726084AbfGHIXG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jul 2019 04:23:06 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x688MplM107076
+        for <linux-s390@vger.kernel.org>; Mon, 8 Jul 2019 04:23:05 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tkysjwamv-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 08 Jul 2019 04:23:05 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
+        Mon, 8 Jul 2019 09:23:03 +0100
+Date: Mon, 8 Jul 2019 10:22:57 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH] s390: ap: constify parameter of match_apqn
+References: <your-ad-here.call-01562573328-ext-8139@work.hours>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-5-david@redhat.com>
+In-Reply-To: <your-ad-here.call-01562573328-ext-8139@work.hours>
+Message-Id: <patch.git-14fdf13eac05.your-ad-here.call-01562573328-ext-8139@work.hours>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Chintan Pandya <cpandya@codeaurora.org>, Mike Rapoport <rppt@linux.ibm.com>, Jun Yao <yaojun8558363@gmail.com>, Yu Zhao <yuzhao@google.com>, Robin Murphy <robin.murphy@arm.com>, Anshuman Khandual <anshuman.khandual@arm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Mon 27-05-19 13:11:45, David Hildenbrand wrote:
-> A proper arch_remove_memory() implementation is on its way, which also
-> cleanly removes page tables in arch_add_memory() in case something goes
-> wrong.
-> 
-> As we want to use arch_remove_memory() in case something goes wrong
-> during memory hotplug after arch_add_memory() finished, let's add
-> a temporary hack that is sufficient enough until we get a proper
-> implementation that cleans up page table entries.
-> 
-> We will remove CONFIG_MEMORY_HOTREMOVE around this code in follow up
-> patches.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-I would drop this one as well (like s390 counterpart).
+commit 92ce7e83b4e5 ("driver_find_device: Unify the match function with
+class_find_device()") changed the prototype of driver_find_device to
+use a const void pointer.
+
+Change match_apqn accordingly.
+
+Fixes: ec89b55e3bce ("s390: ap: implement PAPQ AQIC interception in kernel")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 2c9fb1423a39..7e85ba7c6ef0 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -26,7 +26,7 @@
  
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will.deacon@arm.com>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: Chintan Pandya <cpandya@codeaurora.org>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: Jun Yao <yaojun8558363@gmail.com>
-> Cc: Yu Zhao <yuzhao@google.com>
-> Cc: Robin Murphy <robin.murphy@arm.com>
-> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/arm64/mm/mmu.c | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
-> 
-> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> index a1bfc4413982..e569a543c384 100644
-> --- a/arch/arm64/mm/mmu.c
-> +++ b/arch/arm64/mm/mmu.c
-> @@ -1084,4 +1084,23 @@ int arch_add_memory(int nid, u64 start, u64 size,
->  	return __add_pages(nid, start >> PAGE_SHIFT, size >> PAGE_SHIFT,
->  			   restrictions);
->  }
-> +#ifdef CONFIG_MEMORY_HOTREMOVE
-> +void arch_remove_memory(int nid, u64 start, u64 size,
-> +			struct vmem_altmap *altmap)
-> +{
-> +	unsigned long start_pfn = start >> PAGE_SHIFT;
-> +	unsigned long nr_pages = size >> PAGE_SHIFT;
-> +	struct zone *zone;
-> +
-> +	/*
-> +	 * FIXME: Cleanup page tables (also in arch_add_memory() in case
-> +	 * adding fails). Until then, this function should only be used
-> +	 * during memory hotplug (adding memory), not for memory
-> +	 * unplug. ARCH_ENABLE_MEMORY_HOTREMOVE must not be
-> +	 * unlocked yet.
-> +	 */
-> +	zone = page_zone(pfn_to_page(start_pfn));
-> +	__remove_pages(zone, start_pfn, nr_pages, altmap);
-> +}
-> +#endif
->  #endif
-> -- 
-> 2.20.1
-
+ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+ 
+-static int match_apqn(struct device *dev, void *data)
++static int match_apqn(struct device *dev, const void *data)
+ {
+ 	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+ 
 -- 
-Michal Hocko
-SUSE Labs
+2.21.0
