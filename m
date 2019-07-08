@@ -1,161 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:50302 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728998AbfGLCVg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 22:21:36 -0400
-From: Alex Shi <alex.shi@linux.alibaba.com>
-Subject: [PATCH 08/12] Dcumentation/powerpc: repointer docs to Documentation/arch/
-Date: Fri, 12 Jul 2019 10:20:14 +0800
-Message-Id: <20190712022018.27989-8-alex.shi@linux.alibaba.com>
-In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
-References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54778 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728827AbfGHTQM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jul 2019 15:16:12 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x68JBqvT094068
+        for <linux-s390@vger.kernel.org>; Mon, 8 Jul 2019 15:16:11 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tma953k34-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 08 Jul 2019 15:16:11 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 8 Jul 2019 20:16:09 +0100
+Subject: Re: linux-next: Tree for Jul 8 --> bootup failure on s390x (bisected)
+References: <20190708224238.60bd0aff@canb.auug.org.au>
+ <0be7464d-f8ed-0567-b0ff-a6d31ecfd7a8@de.ibm.com>
+ <20190708180657.GV17978@ZenIV.linux.org.uk>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 8 Jul 2019 21:16:03 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190708180657.GV17978@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <90645322-01ca-248c-b53d-9bb103223d1b@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>, "Manoj N. Kumar" <manoj@linux.ibm.com>, "Matthew R. Ochs" <mrochs@linux.ibm.com>, Uma Krishnan <ukrishn@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, markward@linux.ibm.com, linux-s390 <linux-s390@vger.kernel.org>
 
-Since we move Documentation/powerpc docs to Documentation/arch/powerpc
-dir, redirect the doc pointer to them.
 
-Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Sam Bobroff <sbobroff@linux.ibm.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: "Manoj N. Kumar" <manoj@linux.ibm.com>
-Cc: "Matthew R. Ochs" <mrochs@linux.ibm.com>
-Cc: Uma Krishnan <ukrishn@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- Documentation/PCI/pci-error-recovery.txt | 2 +-
- Documentation/arch/powerpc/cxlflash.txt  | 2 +-
- MAINTAINERS                              | 8 ++++----
- arch/powerpc/kernel/exceptions-64s.S     | 2 +-
- drivers/soc/fsl/qe/qe.c                  | 2 +-
- drivers/tty/hvc/hvcs.c                   | 2 +-
- include/soc/fsl/qe/qe.h                  | 2 +-
- 7 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/PCI/pci-error-recovery.txt b/Documentation/PCI/pci-error-recovery.txt
-index 0b6bb3ef449e..339e7394ef1d 100644
---- a/Documentation/PCI/pci-error-recovery.txt
-+++ b/Documentation/PCI/pci-error-recovery.txt
-@@ -389,7 +389,7 @@ platforms aren't supposed to share interrupts between many devices
- anyway :)
- 
- >>> Implementation details for the powerpc platform are discussed in
-->>> the file Documentation/powerpc/eeh-pci-error-recovery.txt
-+>>> the file Documentation/arch/powerpc/eeh-pci-error-recovery.txt
- 
- >>> As of this writing, there is a growing list of device drivers with
- >>> patches implementing error recovery. Not all of these patches are in
-diff --git a/Documentation/arch/powerpc/cxlflash.txt b/Documentation/arch/powerpc/cxlflash.txt
-index a64bdaa0a1cf..479cdb9a44f4 100644
---- a/Documentation/arch/powerpc/cxlflash.txt
-+++ b/Documentation/arch/powerpc/cxlflash.txt
-@@ -28,7 +28,7 @@ Introduction
-     responsible for the initialization of the adapter, setting up the
-     special path for user space access, and performing error recovery. It
-     communicates directly the Flash Accelerator Functional Unit (AFU)
--    as described in Documentation/powerpc/cxl.txt.
-+    as described in Documentation/arch/powerpc/cxl.txt.
- 
-     The cxlflash driver supports two, mutually exclusive, modes of
-     operation at the device (LUN) level:
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e1aad1b8224c..7a245d3f02fd 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4420,7 +4420,7 @@ F:	arch/powerpc/platforms/powernv/pci-cxl.c
- F:	drivers/misc/cxl/
- F:	include/misc/cxl*
- F:	include/uapi/misc/cxl.h
--F:	Documentation/powerpc/cxl.txt
-+F:	Documentation/arch/powerpc/cxl.txt
- F:	Documentation/ABI/testing/sysfs-class-cxl
- 
- CXLFLASH (IBM Coherent Accelerator Processor Interface CAPI Flash) SCSI DRIVER
-@@ -4431,7 +4431,7 @@ L:	linux-scsi@vger.kernel.org
- S:	Supported
- F:	drivers/scsi/cxlflash/
- F:	include/uapi/scsi/cxlflash_ioctl.h
--F:	Documentation/powerpc/cxlflash.txt
-+F:	Documentation/arch/powerpc/cxlflash.txt
- 
- CYBERPRO FB DRIVER
- M:	Russell King <linux@armlinux.org.uk>
-@@ -9101,7 +9101,7 @@ F:	Documentation/ABI/stable/sysfs-firmware-opal-*
- F:	Documentation/devicetree/bindings/powerpc/
- F:	Documentation/devicetree/bindings/rtc/rtc-opal.txt
- F:	Documentation/devicetree/bindings/i2c/i2c-opal.txt
--F:	Documentation/powerpc/
-+F:	Documentation/arch/powerpc/
- F:	arch/powerpc/
- F:	drivers/char/tpm/tpm_ibmvtpm*
- F:	drivers/crypto/nx/
-@@ -12235,7 +12235,7 @@ F:	Documentation/PCI/pci-error-recovery.txt
- F:	drivers/pci/pcie/aer.c
- F:	drivers/pci/pcie/dpc.c
- F:	drivers/pci/pcie/err.c
--F:	Documentation/powerpc/eeh-pci-error-recovery.txt
-+F:	Documentation/arch/powerpc/eeh-pci-error-recovery.txt
- F:	arch/powerpc/kernel/eeh*.c
- F:	arch/powerpc/platforms/*/eeh*.c
- F:	arch/powerpc/include/*/eeh*.h
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 73ba246ca11d..5fa2a348a28e 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -910,7 +910,7 @@ EXC_COMMON(trap_0b_common, 0xb00, unknown_exception)
-  *
-  * Call convention:
-  *
-- * syscall register convention is in Documentation/powerpc/syscall64-abi.txt
-+ * syscall register convention is in Documentation/arch/powerpc/syscall64-abi.txt
-  *
-  * For hypercalls, the register convention is as follows:
-  * r0 volatile
-diff --git a/drivers/soc/fsl/qe/qe.c b/drivers/soc/fsl/qe/qe.c
-index 62c6ba17991a..c83467942b70 100644
---- a/drivers/soc/fsl/qe/qe.c
-+++ b/drivers/soc/fsl/qe/qe.c
-@@ -419,7 +419,7 @@ static void qe_upload_microcode(const void *base,
- /*
-  * Upload a microcode to the I-RAM at a specific address.
-  *
-- * See Documentation/powerpc/qe_firmware.txt for information on QE microcode
-+ * See Documentation/arch/powerpc/qe_firmware.txt for information on QE microcode
-  * uploading.
-  *
-  * Currently, only version 1 is supported, so the 'version' field must be
-diff --git a/drivers/tty/hvc/hvcs.c b/drivers/tty/hvc/hvcs.c
-index cb4db1b3ca3c..5a1c76055117 100644
---- a/drivers/tty/hvc/hvcs.c
-+++ b/drivers/tty/hvc/hvcs.c
-@@ -47,7 +47,7 @@
-  * using the 2.6 Linux kernel kref construct.
-  *
-  * For direction on installation and usage of this driver please reference
-- * Documentation/powerpc/hvcs.txt.
-+ * Documentation/arch/powerpc/hvcs.txt.
-  */
- 
- #include <linux/device.h>
-diff --git a/include/soc/fsl/qe/qe.h b/include/soc/fsl/qe/qe.h
-index 3f9d6b6a5691..c07872582b30 100644
---- a/include/soc/fsl/qe/qe.h
-+++ b/include/soc/fsl/qe/qe.h
-@@ -259,7 +259,7 @@ static inline int qe_alive_during_sleep(void)
- 
- /* Structure that defines QE firmware binary files.
-  *
-- * See Documentation/powerpc/qe_firmware.txt for a description of these
-+ * See Documentation/arch/powerpc/qe_firmware.txt for a description of these
-  * fields.
-  */
- struct qe_firmware {
--- 
-2.19.1.856.g8858448bb
+On 08.07.19 20:06, Al Viro wrote:
+> On Mon, Jul 08, 2019 at 06:52:14PM +0200, Christian Borntraeger wrote:
+> 
+>> smp: Brought up 1 node, 1 CPU
+>> Unable to handle kernel pointer dereference in virtual kernel address space
+>> Failing address: 000000003a070000 TEID: 000000003a070407
+>> Fault in home space mode while using kernel ASCE.
+>> AS:000000003a780007 R3:000000007ffd0007 S:000000007ffd4800 P:000000003a07021d 
+>> Oops: 0004 ilc:2 [#1] SMP 
+>> Modules linked in:
+>> CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.0-rc5-00101-gcb8f0b366109 #14
+>> Hardware name: IBM 2964 NC9 712 (KVM/Linux)
+>> Krnl PSW : 0704e00180000000 000000003974b580 (shmem_parse_monolithic+0x88/0x100)
+>>            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+>> Krnl GPRS: 0000000000000000 000000000000003d 000000003a07040e 000000000000003d
+>>            000000003a07040f 000000000000006d 0000000000000001 0000000000000000
+>>            000000007f7c1c00 0000000000000000 000000003a07040a 0000000000000000
+>>            000000007f7e4000 000000003a190d78 000000003974b56c 000003e00031fd38
+>> Krnl Code: 000000003974b574: b920002a		cgr	%r2,%r10
+>>            000000003974b578: a784001b		brc	8,3974b5ae
+>>           #000000003974b57c: 41402001		la	%r4,1(%r2)
+>>           >000000003974b580: 92002000		mvi	0(%r2),0
+>>            000000003974b584: a7090000		lghi	%r0,0
+>>            000000003974b588: b9040014		lgr	%r1,%r4
+>>            000000003974b58c: b25e0001		srst	%r0,%r1
+>>            000000003974b590: a714fffe		brc	1,3974b58c
+>> Call Trace:
+>> ([<000003e00031fd80>] 0x3e00031fd80)
+>>  [<0000000039811662>] vfs_kern_mount.part.0+0x9a/0xc8 
+>>  [<000000003a302fc0>] devtmpfs_init+0x38/0x140 
+>>  [<000000003a302e0a>] driver_init+0x22/0x60 
+>>  [<000000003a2beff8>] kernel_init_freeable+0x298/0x4f0 
+>>  [<0000000039e7b53a>] kernel_init+0x22/0x148 
+>>  [<0000000039e87b70>] ret_from_fork+0x30/0x34 
+>>  [<0000000039e87b74>] kernel_thread_starter+0x0/0xc 
+>> INFO: lockdep is turned off.
+>> [...]
+> 
+> Oh, fuck...  OK, I understand what's going on; sorry, my fault.  Could you
+> verify that the following helps?
+
+Yes, it does. 
+
+
+
+> 
+> diff --git a/drivers/base/devtmpfs.c b/drivers/base/devtmpfs.c
+> index 52312c665a38..30d0523014e0 100644
+> --- a/drivers/base/devtmpfs.c
+> +++ b/drivers/base/devtmpfs.c
+> @@ -431,9 +431,10 @@ static int devtmpfsd(void *p)
+>   */
+>  int __init devtmpfs_init(void)
+>  {
+> +	char opts[] = "mode=0755";
+>  	int err;
+>  
+> -	mnt = vfs_kern_mount(&internal_fs_type, 0, "devtmpfs", "mode=0755");
+> +	mnt = vfs_kern_mount(&internal_fs_type, 0, "devtmpfs", opts);
+>  	if (IS_ERR(mnt)) {
+>  		printk(KERN_ERR "devtmpfs: unable to create devtmpfs %ld\n",
+>  				PTR_ERR(mnt));
+> 
