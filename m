@@ -1,84 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14404 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727049AbfGAM64 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Jul 2019 08:58:56 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x61CwEt2121518
-        for <linux-s390@vger.kernel.org>; Mon, 1 Jul 2019 08:58:55 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tfhy9jj87-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 01 Jul 2019 08:58:54 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 1 Jul 2019 13:58:52 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/7] KVM: selftests: Guard struct kvm_vcpu_events with __KVM_HAVE_VCPU_EVENTS
-Date: Mon,  1 Jul 2019 14:58:42 +0200
-In-Reply-To: <20190701125848.276133-1-borntraeger@de.ibm.com>
-References: <20190701125848.276133-1-borntraeger@de.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:46700 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726046AbfGIOTB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 9 Jul 2019 10:19:01 -0400
+Date: Tue, 9 Jul 2019 16:18:56 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC v2 2/5] vfio-ccw: Fix memory leak and don't call cp_free
+ in cp_init
+Message-ID: <20190709161856.269aca0d.cohuck@redhat.com>
+In-Reply-To: <1a6f6e71-037f-455a-062d-0e8fdd2476c5@linux.ibm.com>
+References: <cover.1562616169.git.alifm@linux.ibm.com>
+        <fbb44bc85f5dfe4fdaebaf9cb74efcfae4743fba.1562616169.git.alifm@linux.ibm.com>
+        <20190709120651.06d7666e.cohuck@redhat.com>
+        <1a6f6e71-037f-455a-062d-0e8fdd2476c5@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190701125848.276133-2-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: farman@linux.ibm.com, pasic@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+On Tue, 9 Jul 2019 10:07:57 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-The struct kvm_vcpu_events code is only available on certain architectures
-(arm, arm64 and x86). To be able to compile kvm_util.c also for other
-architectures, we have to fence the code with __KVM_HAVE_VCPU_EVENTS.
+> On 07/09/2019 06:06 AM, Cornelia Huck wrote:
+> > On Mon,  8 Jul 2019 16:10:35 -0400
+> > Farhan Ali <alifm@linux.ibm.com> wrote:
+> >   
+> >> We don't set cp->initialized to true so calling cp_free
+> >> will just return and not do anything.
+> >>
+> >> Also fix a memory leak where we fail to free a ccwchain
+> >> on an error.
+> >>
+> >> Fixes: 812271b910 ("s390/cio: Squash cp_free() and cp_unpin_free()")
+> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> >> ---
+> >>   drivers/s390/cio/vfio_ccw_cp.c | 11 +++++++----
+> >>   1 file changed, 7 insertions(+), 4 deletions(-)  
+> > 
+> > (...)
+> >   
+> >> @@ -642,8 +647,6 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+> >>   
+> >>   	/* Build a ccwchain for the first CCW segment */
+> >>   	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
+> >> -	if (ret)
+> >> -		cp_free(cp);  
+> > 
+> > Now that I look again: it's a bit odd that we set the bit in all cases,
+> > even if we have an error. We could move that into the !ret branch that
+> > sets ->initialized; but it does not really hurt.  
+> 
+> By setting the bit, I am assuming you meant cmd.c64?
+> 
+> Yes, it doesn't harm anything but for better code readability you have a 
+> good point. I will move it into !ret branch in the first patch since I 
+> think it would be more appropriate there, no?
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Message-Id: <20190523164309.13345-3-thuth@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- tools/testing/selftests/kvm/include/kvm_util.h | 2 ++
- tools/testing/selftests/kvm/lib/kvm_util.c     | 2 ++
- 2 files changed, 4 insertions(+)
+Yes to all of that :)
 
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index a5a4b28f14d8e..b8bf961074fea 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -114,10 +114,12 @@ void vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		    struct kvm_sregs *sregs);
- int _vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		    struct kvm_sregs *sregs);
-+#ifdef __KVM_HAVE_VCPU_EVENTS
- void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events);
- void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events);
-+#endif
- #ifdef __x86_64__
- void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
- 			   struct kvm_nested_state *state);
-diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index 633b22df46a46..9ea9ba28af1f1 100644
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -1222,6 +1222,7 @@ void vcpu_regs_set(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_regs *regs)
- 		ret, errno);
- }
- 
-+#ifdef __KVM_HAVE_VCPU_EVENTS
- void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events)
- {
-@@ -1247,6 +1248,7 @@ void vcpu_events_set(struct kvm_vm *vm, uint32_t vcpuid,
- 	TEST_ASSERT(ret == 0, "KVM_SET_VCPU_EVENTS, failed, rc: %i errno: %i",
- 		ret, errno);
- }
-+#endif
- 
- #ifdef __x86_64__
- void vcpu_nested_state_get(struct kvm_vm *vm, uint32_t vcpuid,
--- 
-2.21.0
+> 
+> >   
+> >>   
+> >>   	/* It is safe to force: if it was not set but idals used
+> >>   	 * ccwchain_calc_length would have returned an error.  
+> > 
+> > The rest of the patch looks good to me.
+> > 
+> >   
+> 
