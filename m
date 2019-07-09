@@ -1,79 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56000 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727701AbfGAM65 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Jul 2019 08:58:57 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x61CvWNf138964
-        for <linux-s390@vger.kernel.org>; Mon, 1 Jul 2019 08:58:56 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tfgmsykf0-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 01 Jul 2019 08:58:56 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 1 Jul 2019 13:58:53 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/7] KVM: s390: add kselftests
-Date: Mon,  1 Jul 2019 14:58:41 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:60850 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726018AbfGIKI1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 9 Jul 2019 06:08:27 -0400
+Date: Tue, 9 Jul 2019 12:08:22 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC v2 3/5] vfio-ccw: Set pa_nr to 0 if memory allocation
+ fails for pa_iova_pfn
+Message-ID: <20190709120822.34a17f9b.cohuck@redhat.com>
+In-Reply-To: <452bf0756d8b0efdb9fd1e1aa5d8c0e6a7f31c03.1562616169.git.alifm@linux.ibm.com>
+References: <cover.1562616169.git.alifm@linux.ibm.com>
+        <452bf0756d8b0efdb9fd1e1aa5d8c0e6a7f31c03.1562616169.git.alifm@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190701125848.276133-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: farman@linux.ibm.com, pasic@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Paolo, Radim,
+On Mon,  8 Jul 2019 16:10:36 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-kselftest for s390x. There is a small conflict with Linus tree due to
-61cfcd545e42 ("kvm: tests: Sort tests in the Makefile alphabetically")
-which is part of kvm/master but not kvm/next.
-Other than that this looks good.
+> So we don't call try to call vfio_unpin_pages() incorrectly.
+> 
+> Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
 
+So that was there since the beginning :)
 
-The following changes since commit f2c7c76c5d0a443053e94adb9f0918fa2fb85c3a:
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Reviewed-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 31a04a5..1b93863 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -72,8 +72,10 @@ static int pfn_array_alloc(struct pfn_array *pa, u64 iova, unsigned int len)
+>  				  sizeof(*pa->pa_iova_pfn) +
+>  				  sizeof(*pa->pa_pfn),
+>  				  GFP_KERNEL);
+> -	if (unlikely(!pa->pa_iova_pfn))
+> +	if (unlikely(!pa->pa_iova_pfn)) {
+> +		pa->pa_nr = 0;
+>  		return -ENOMEM;
+> +	}
+>  	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
+>  
+>  	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
 
-  Linux 5.2-rc3 (2019-06-02 13:55:33 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.3-1
-
-for you to fetch changes up to 8343ba2d4820b1738bbb7cb40ec18ea0a3b0b331:
-
-  KVM: selftests: enable pgste option for the linker on s390 (2019-06-04 14:05:38 +0200)
-
-----------------------------------------------------------------
-KVM: s390: add kselftests
-
-This is the initial implementation for KVM selftests on s390.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      KVM: selftests: enable pgste option for the linker on s390
-
-Thomas Huth (6):
-      KVM: selftests: Guard struct kvm_vcpu_events with __KVM_HAVE_VCPU_EVENTS
-      KVM: selftests: Introduce a VM_MODE_DEFAULT macro for the default bits
-      KVM: selftests: Align memory region addresses to 1M on s390x
-      KVM: selftests: Add processor code for s390x
-      KVM: selftests: Add the sync_regs test for s390x
-      KVM: selftests: Move kvm_create_max_vcpus test to generic code
-
- MAINTAINERS                                        |   2 +
- tools/testing/selftests/kvm/Makefile               |  14 +-
- tools/testing/selftests/kvm/include/kvm_util.h     |   8 +
- .../selftests/kvm/include/s390x/processor.h        |  22 ++
- .../kvm/{x86_64 => }/kvm_create_max_vcpus.c        |   3 +-
- .../testing/selftests/kvm/lib/aarch64/processor.c  |   2 +-
- tools/testing/selftests/kvm/lib/kvm_util.c         |  23 +-
- tools/testing/selftests/kvm/lib/s390x/processor.c  | 286 +++++++++++++++++++++
- tools/testing/selftests/kvm/lib/x86_64/processor.c |   2 +-
- tools/testing/selftests/kvm/s390x/sync_regs_test.c | 151 +++++++++++
- 10 files changed, 503 insertions(+), 10 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/include/s390x/processor.h
- rename tools/testing/selftests/kvm/{x86_64 => }/kvm_create_max_vcpus.c (93%)
- create mode 100644 tools/testing/selftests/kvm/lib/s390x/processor.c
- create mode 100644 tools/testing/selftests/kvm/s390x/sync_regs_test.c
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
