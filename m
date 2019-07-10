@@ -1,109 +1,52 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24442 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725791AbfGLFlo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Jul 2019 01:41:44 -0400
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: [PATCH 3/3] fs/core/vmcore: Move sev_active() reference to x86 arch code
-Date: Fri, 12 Jul 2019 02:36:31 -0300
-Message-Id: <20190712053631.9814-4-bauerman@linux.ibm.com>
-In-Reply-To: <20190712053631.9814-1-bauerman@linux.ibm.com>
-References: <20190712053631.9814-1-bauerman@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Hoan Tran OS <hoan@os.amperecomputing.com>
+Subject: Re: [PATCH 3/5] x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+Date: Wed, 10 Jul 2019 06:14:23 +0000
+Message-ID: <50032a84-9453-8ab3-8d42-5bd8c1504640@os.amperecomputing.com>
+References: <1561501810-25163-1-git-send-email-Hoan@os.amperecomputing.com>
+ <1561501810-25163-4-git-send-email-Hoan@os.amperecomputing.com>
+ <alpine.DEB.2.21.1906260032250.32342@nanos.tec.linutronix.de>
+ <1c5bc3a8-0c6f-dce3-95a2-8aec765408a2@os.amperecomputing.com>
+ <alpine.DEB.2.21.1907100755010.1758@nanos.tec.linutronix.de>
+In-Reply-To: <alpine.DEB.2.21.1907100755010.1758@nanos.tec.linutronix.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <8083A5B2C8C78E4686C4EDE0FC38BDB0@prod.exchangelabs.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: x86@kernel.org
-Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>
 
-Secure Encrypted Virtualization is an x86-specific feature, so it shouldn't
-appear in generic kernel code because it forces non-x86 architectures to
-define the sev_active() function, which doesn't make a lot of sense.
-
-To solve this problem, add an x86 elfcorehdr_read() function to override
-the generic weak implementation. To do that, it's necessary to make
-read_from_oldmem() public so that it can be used outside of vmcore.c.
-
-Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
----
- arch/x86/kernel/crash_dump_64.c |  5 +++++
- fs/proc/vmcore.c                |  8 ++++----
- include/linux/crash_dump.h      | 14 ++++++++++++++
- include/linux/mem_encrypt.h     |  1 -
- 4 files changed, 23 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
-index 22369dd5de3b..045e82e8945b 100644
---- a/arch/x86/kernel/crash_dump_64.c
-+++ b/arch/x86/kernel/crash_dump_64.c
-@@ -70,3 +70,8 @@ ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
- {
- 	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, true);
- }
-+
-+ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
-+{
-+	return read_from_oldmem(buf, count, ppos, 0, sev_active());
-+}
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 57957c91c6df..ca1f20bedd8c 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -100,9 +100,9 @@ static int pfn_is_ram(unsigned long pfn)
- }
- 
- /* Reads a page from the oldmem device from given offset. */
--static ssize_t read_from_oldmem(char *buf, size_t count,
--				u64 *ppos, int userbuf,
--				bool encrypted)
-+ssize_t read_from_oldmem(char *buf, size_t count,
-+			 u64 *ppos, int userbuf,
-+			 bool encrypted)
- {
- 	unsigned long pfn, offset;
- 	size_t nr_bytes;
-@@ -166,7 +166,7 @@ void __weak elfcorehdr_free(unsigned long long addr)
-  */
- ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
- {
--	return read_from_oldmem(buf, count, ppos, 0, sev_active());
-+	return read_from_oldmem(buf, count, ppos, 0, false);
- }
- 
- /*
-diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
-index f774c5eb9e3c..4664fc1871de 100644
---- a/include/linux/crash_dump.h
-+++ b/include/linux/crash_dump.h
-@@ -115,4 +115,18 @@ static inline int vmcore_add_device_dump(struct vmcoredd_data *data)
- 	return -EOPNOTSUPP;
- }
- #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
-+
-+#ifdef CONFIG_PROC_VMCORE
-+ssize_t read_from_oldmem(char *buf, size_t count,
-+			 u64 *ppos, int userbuf,
-+			 bool encrypted);
-+#else
-+static inline ssize_t read_from_oldmem(char *buf, size_t count,
-+				       u64 *ppos, int userbuf,
-+				       bool encrypted)
-+{
-+	return -EOPNOTSUPP;
-+}
-+#endif /* CONFIG_PROC_VMCORE */
-+
- #endif /* LINUX_CRASHDUMP_H */
-diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
-index f2e399fb626b..a3747fcae466 100644
---- a/include/linux/mem_encrypt.h
-+++ b/include/linux/mem_encrypt.h
-@@ -21,7 +21,6 @@
- 
- #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
--static inline bool sev_active(void) { return false; }
- static inline bool mem_encrypt_active(void) { return false; }
- 
- #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
+SGkgVGhvbWFzLA0KDQoNCk9uIDcvMTAvMTkgMTI6NTggUE0sIFRob21hcyBHbGVpeG5lciB3cm90
+ZToNCj4gSG9hbiwNCj4gDQo+IE9uIFdlZCwgMTAgSnVsIDIwMTksIEhvYW4gVHJhbiBPUyB3cm90
+ZToNCj4+IE9uIDYvMjUvMTkgMzo0NSBQTSwgVGhvbWFzIEdsZWl4bmVyIHdyb3RlOg0KPj4+IE9u
+IFR1ZSwgMjUgSnVuIDIwMTksIEhvYW4gVHJhbiBPUyB3cm90ZToNCj4+Pj4gQEAgLTE1NjcsMTUg
+KzE1NjcsNiBAQCBjb25maWcgWDg2XzY0X0FDUElfTlVNQQ0KPj4+PiAgICAJLS0taGVscC0tLQ0K
+Pj4+PiAgICAJICBFbmFibGUgQUNQSSBTUkFUIGJhc2VkIG5vZGUgdG9wb2xvZ3kgZGV0ZWN0aW9u
+Lg0KPj4+PiAgICANCj4+Pj4gLSMgU29tZSBOVU1BIG5vZGVzIGhhdmUgbWVtb3J5IHJhbmdlcyB0
+aGF0IHNwYW4NCj4+Pj4gLSMgb3RoZXIgbm9kZXMuICBFdmVuIHRob3VnaCBhIHBmbiBpcyB2YWxp
+ZCBhbmQNCj4+Pj4gLSMgYmV0d2VlbiBhIG5vZGUncyBzdGFydCBhbmQgZW5kIHBmbnMsIGl0IG1h
+eSBub3QNCj4+Pj4gLSMgcmVzaWRlIG9uIHRoYXQgbm9kZS4gIFNlZSBtZW1tYXBfaW5pdF96b25l
+KCkNCj4+Pj4gLSMgZm9yIGRldGFpbHMuDQo+Pj4+IC1jb25maWcgTk9ERVNfU1BBTl9PVEhFUl9O
+T0RFUw0KPj4+PiAtCWRlZl9ib29sIHkNCj4+Pj4gLQlkZXBlbmRzIG9uIFg4Nl82NF9BQ1BJX05V
+TUENCj4+Pg0KPj4+IHRoZSBjaGFuZ2Vsb2cgZG9lcyBub3QgbWVudGlvbiB0aGF0IHRoaXMgbGlm
+dHMgdGhlIGRlcGVuZGVuY3kgb24NCj4+PiBYODZfNjRfQUNQSV9OVU1BIGFuZCB0aGVyZWZvcmUg
+ZW5hYmxlcyB0aGF0IGZ1bmN0aW9uYWxpdHkgZm9yIGFueXRoaW5nDQo+Pj4gd2hpY2ggaGFzIE5V
+TUEgZW5hYmxlZCBpbmNsdWRpbmcgMzJiaXQuDQo+Pj4NCj4+DQo+PiBJIHRoaW5rIHRoaXMgY29u
+ZmlnIGlzIHVzZWQgZm9yIGEgTlVNQSBsYXlvdXQgd2hpY2ggTlVNQSBub2RlcyBhZGRyZXNzZXMN
+Cj4+IGFyZSBzcGFubmVkIHRvIG90aGVyIG5vZGVzLiBJIHRoaW5rIDMyYml0IE5VTUEgYWxzbyBo
+YXZlIHRoZSBzYW1lIGlzc3VlDQo+PiB3aXRoIHRoYXQgbGF5b3V0LiBQbGVhc2UgY29ycmVjdCBt
+ZSBpZiBJJ20gd3JvbmcuDQo+IA0KPiBJJ20gbm90IHNheWluZyB5b3UncmUgd3JvbmcsIGJ1dCBp
+dCdzIHlvdXIgZHV0eSB0byBwcm92aWRlIHRoZSBhbmFseXNpcyB3aHkNCj4gdGhpcyBpcyBjb3Jy
+ZWN0IGZvciBldmVyeXRoaW5nIHdoaWNoIGhhcyBOVU1BIGVuYWJsZWQuDQo+IA0KPj4+IFRoZSBj
+b3JlIG1tIGNoYW5nZSBnaXZlcyBubyBoZWxwZnVsIGluZm9ybWF0aW9uIGVpdGhlci4gWW91IGp1
+c3QgY29waWVkIHRoZQ0KPj4+IGFib3ZlIGNvbW1lbnQgdGV4dCBmcm9tIHNvbWUgcmFuZG9tIEtj
+b25maWcuDQo+Pg0KPj4gWWVzLCBhcyBpdCdzIGEgY29ycmVjdCBjb21tZW50IGFuZCBpcyB1c2Vk
+IGF0IG11bHRpcGxlIHBsYWNlcy4NCj4gDQo+IFdlbGwgaXQgbWF5YmUgY29ycmVjdCBpbiB0ZXJt
+cyBvZiBleHBsYWluaW5nIHdoYXQgdGhpcyBpcyBhYm91dCwgaXQgc3RpbGwNCj4gZG9lcyBub3Qg
+ZXhwbGFpbiB3aHkgdGhpcyBpcyBuZWVkZWQgYnkgZGVmYXVsdCBvbiBldmVyeXRoaW5nIHdoaWNo
+IGhhcyBOVU1BDQo+IGVuYWJsZWQuDQoNCkxldCBtZSBzZW5kIGFub3RoZXIgcGF0Y2ggd2l0aCB0
+aGUgZGV0YWlsIGV4cGxhbmF0aW9uLg0KDQpUaGFua3MNCkhvYW4NCg0KPiANCj4gVGhhbmtzLA0K
+PiANCj4gCXRnbHgNCj4gDQo=
