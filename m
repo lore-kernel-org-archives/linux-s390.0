@@ -1,61 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:57042 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729351AbfGISde (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jul 2019 14:33:34 -0400
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 0/5] PDF output fixes
-Date: Tue,  9 Jul 2019 15:33:18 -0300
-Message-Id: <cover.1562696797.git.mchehab+samsung@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40268 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726181AbfGKVtF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 17:49:05 -0400
+References: <20190612111236.99538-1-pasic@linux.ibm.com> <20190612111236.99538-2-pasic@linux.ibm.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH v5 1/8] s390/mm: force swiotlb for protected virtualization
+In-reply-to: <20190612111236.99538-2-pasic@linux.ibm.com>
+Date: Thu, 11 Jul 2019 18:48:40 -0300
+Message-ID: <87k1codyyv.fsf@morokweng.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Hannes Reinecke <hare@suse.com>, linux-kbuild@vger.kernel.org, Jens Axboe <axboe@kernel.dk>, Andy Shevchenko <andy.shevchenko@gmail.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Michal Marek <michal.lkml@markovi.net>, Masahiro Yamada <yamada.masahiro@socionext.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, Omar Sandoval <osandov@fb.com>
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 
-In order to be able to build all PDF books, besides the two patches I
-already sent:
 
-    docs: pdf: add all Documentation/*/index.rst to PDF output
-    docs: automarkup.py: ignore exceptions when seeking for xrefs
+Hello Halil,
 
-A few others are needed:
+Halil Pasic <pasic@linux.ibm.com> writes:
 
-- patch 1 removes nested tables for a few files I converted, as 
-  Sphinx LaTeX builder doesn't support it;
-- Patches 2 to 4 addresses some minor issues on some books,
-  usually requiring some blank lines, extra whitespaces or some
-  tag replacement;
-- Patch 5 is required in order to be able to build the translations
-  PDF book, as it adds Asian fonts support to XeLaTeX.
+> On s390, protected virtualization guests have to use bounced I/O
+> buffers.  That requires some plumbing.
+>
+> Let us make sure, any device that uses DMA API with direct ops correctly
+> is spared from the problems, that a hypervisor attempting I/O to a
+> non-shared page would bring.
+>
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/Kconfig                   |  4 +++
+>  arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++
+>  arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++
+>  3 files changed, 69 insertions(+)
+>  create mode 100644 arch/s390/include/asm/mem_encrypt.h
+>
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 109243fdb6ec..88d8355b7bf7 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -1,4 +1,7 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> +config ARCH_HAS_MEM_ENCRYPT
+> +        def_bool y
+> +
+>  config MMU
+>  	def_bool y
+>  
 
-This patch series is at:
+ARCH_HAS_MEM_ENCRYPT is already defined in arch/Kconfig, so I think you
+can just select it in config S390 like you do with SWIOTLB.
 
-	https://git.linuxtv.org/mchehab/experimental.git/log/?h=extra_fixes_v1
-
-And it is on the top of the ReST conversions that IMO should be
-sent at the end of this merge window.
-
-Mauro Carvalho Chehab (5):
-  docs: don't use nested tables
-  docs: arm: fix a breakage with pdf output
-  docs: block: fix pdf output
-  docs: kbuild: fix build with pdf and fix some minor issues
-  docs: conf.py: add CJK package needed by translations
-
- Documentation/admin-guide/laptops/sonypi.rst  | 26 +++++++++----------
- .../admin-guide/laptops/toshiba_haps.rst      |  8 +++---
- Documentation/arm/spear/overview.rst          |  1 +
- Documentation/block/biodoc.rst                |  9 ++++---
- Documentation/conf.py                         |  4 +++
- Documentation/driver-api/nvdimm/btt.rst       |  2 +-
- Documentation/kbuild/issues.rst               | 20 ++++++++------
- Documentation/kbuild/kbuild.rst               |  3 ++-
- Documentation/kbuild/kconfig-language.rst     | 12 +++++++++
- Documentation/kbuild/kconfig.rst              |  8 ++++--
- Documentation/kbuild/makefiles.rst            |  1 +
- Documentation/s390/debugging390.rst           |  2 +-
- 12 files changed, 61 insertions(+), 35 deletions(-)
+> @@ -187,6 +190,7 @@ config S390
+>  	select VIRT_CPU_ACCOUNTING
+>  	select ARCH_HAS_SCALED_CPUTIME
+>  	select HAVE_NMI
+> +	select SWIOTLB
+>  
+>  
+>  config SCHED_OMIT_FRAME_POINTER
 
 -- 
-2.21.0
+Thiago Jung Bauermann
+IBM Linux Technology Center
