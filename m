@@ -2,15 +2,13 @@ Return-Path: <linux-s390-owner@vger.kernel.org>
 Received: from mail-eopbgr740122.outbound.protection.outlook.com ([40.107.74.122]:20938
         "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728532AbfGKXZx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 19:25:53 -0400
+        id S1727956AbfGKXZv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 19:25:51 -0400
 From: Hoan Tran OS <hoan@os.amperecomputing.com>
-Subject: [PATCH v2 1/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default
+Subject: [PATCH v2 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default
  for NUMA
-Date: Thu, 11 Jul 2019 23:25:46 +0000
-Message-ID: <1562887528-5896-2-git-send-email-Hoan@os.amperecomputing.com>
-References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
+Date: Thu, 11 Jul 2019 23:25:44 +0000
+Message-ID: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -43,24 +41,22 @@ Node 1 address: xxxx 1111 1111 1111
 This layout could occur on any architecture. This patch enables
 CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA to fix this issue.
 
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
----
- mm/page_alloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+V2:
+ * Revise the patch description
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d66bc8a..6335505 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1413,7 +1413,7 @@ int __meminit early_pfn_to_nid(unsigned long pfn)
- }
- #endif
-=20
--#ifdef CONFIG_NODES_SPAN_OTHER_NODES
-+#ifdef CONFIG_NUMA
- /* Only safe to use early in boot when initialisation is single-threaded *=
-/
- static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
- {
+Hoan Tran (5):
+  mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA
+  powerpc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+  x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+  sparc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+  s390: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+
+ arch/powerpc/Kconfig | 9 ---------
+ arch/s390/Kconfig    | 8 --------
+ arch/sparc/Kconfig   | 9 ---------
+ arch/x86/Kconfig     | 9 ---------
+ mm/page_alloc.c      | 2 +-
+ 5 files changed, 1 insertion(+), 36 deletions(-)
+
 --=20
 2.7.4
