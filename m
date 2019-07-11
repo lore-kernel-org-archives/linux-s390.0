@@ -1,50 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28218 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387777AbfGXVfy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Jul 2019 17:35:54 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6OLWvu7026456
-        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 17:35:53 -0400
-Received: from e32.co.us.ibm.com (e32.co.us.ibm.com [32.97.110.150])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2txv5uqmf5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 17:35:53 -0400
-Received: from localhost
-        by e32.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <alifm@linux.ibm.com>;
-        Wed, 24 Jul 2019 22:35:52 +0100
-From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [PATCH 1/1] MAINTAINERS: vfio-ccw: Remove myself as the maintainer
-Date: Wed, 24 Jul 2019 17:35:46 -0400
-In-Reply-To: <cover.1564003698.git.alifm@linux.ibm.com>
-References: <cover.1564003698.git.alifm@linux.ibm.com>
-Message-Id: <355a4ac2923ff3dcf2171cb23d477440bd010b34.1564003698.git.alifm@linux.ibm.com>
+Received: from mail-eopbgr740122.outbound.protection.outlook.com ([40.107.74.122]:20938
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727956AbfGKX0Q (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 19:26:16 -0400
+From: Hoan Tran OS <hoan@os.amperecomputing.com>
+Subject: [PATCH v2 4/5] sparc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
+Date: Thu, 11 Jul 2019 23:25:54 +0000
+Message-ID: <1562887528-5896-5-git-send-email-Hoan@os.amperecomputing.com>
+References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
+In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: cohuck@redhat.com, farman@linux.ibm.com, pasic@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, alifm@linux.ibm.com
+To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>, Hoan Tran OS <hoan@os.amperecomputing.com>
 
-I will not be able to continue with my maintainership responsibilities
-going forward, so remove myself as the maintainer.
+Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled
+by default with NUMA.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
 ---
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
+ arch/sparc/Kconfig | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index acbad13..fe2797a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1452,7 +1452,6 @@ F: include/hw/vfio/
- vfio-ccw
- M: Cornelia Huck <cohuck@redhat.com>
- M: Eric Farman <farman@linux.ibm.com>
--M: Farhan Ali <alifm@linux.ibm.com>
- S: Supported
- F: hw/vfio/ccw.c
- F: hw/s390x/s390-ccw.c
--- 
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index 26ab6f5..13449ea 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -291,15 +291,6 @@ config NODES_SHIFT
+ 	  Specify the maximum number of NUMA Nodes available on the target
+ 	  system.  Increases memory reserved to accommodate various tables.
+=20
+-# Some NUMA nodes have memory ranges that span
+-# other nodes.  Even though a pfn is valid and
+-# between a node's start and end pfns, it may not
+-# reside on that node.  See memmap_init_zone()
+-# for details.
+-config NODES_SPAN_OTHER_NODES
+-	def_bool y
+-	depends on NEED_MULTIPLE_NODES
+-
+ config ARCH_SELECT_MEMORY_MODEL
+ 	def_bool y if SPARC64
+=20
+--=20
 2.7.4
