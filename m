@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:46300 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725866AbfGLHCw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Jul 2019 03:02:52 -0400
-Date: Fri, 12 Jul 2019 09:02:47 +0200
-From: Michal Hocko <mhocko@kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:48254 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729051AbfGLCqU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 11 Jul 2019 22:46:20 -0400
+Date: Thu, 11 Jul 2019 19:45:29 -0700
+From: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [PATCH v2 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by
  default for NUMA
-Message-ID: <20190712070247.GM29483@dhcp22.suse.cz>
+Message-ID: <20190712024529.GU32320@bombadil.infradead.org>
 References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -16,9 +16,9 @@ In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Hoan Tran OS <hoan@os.amperecomputing.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>
 
-On Thu 11-07-19 23:25:44, Hoan Tran OS wrote:
+On Thu, Jul 11, 2019 at 11:25:44PM +0000, Hoan Tran OS wrote:
 > In NUMA layout which nodes have memory ranges that span across other nodes,
 > the mm driver can detect the memory node id incorrectly.
 > 
@@ -42,10 +42,5 @@ On Thu 11-07-19 23:25:44, Hoan Tran OS wrote:
 > This layout could occur on any architecture. This patch enables
 > CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA to fix this issue.
 
-Yes it can occur on any arch but most sane platforms simply do not
-overlap physical ranges. So I do not really see any reason to
-unconditionally enable the config for everybody. What is an advantage?
-
--- 
-Michal Hocko
-SUSE Labs
+How do you know it could occur on any architecture?  Surely you should
+just enable this for the architecture where you've noticed the problem.
