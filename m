@@ -1,55 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36300 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731690AbfGPKJY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jul 2019 06:09:24 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 4/5] vfio-ccw: Don't call cp_free if we are processing a channel program
-Date: Tue, 16 Jul 2019 12:09:07 +0200
-Message-Id: <20190716100908.3460-5-cohuck@redhat.com>
-In-Reply-To: <20190716100908.3460-1-cohuck@redhat.com>
-References: <20190716100908.3460-1-cohuck@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40414 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727708AbfGLXgR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 12 Jul 2019 19:36:17 -0400
+References: <20190712053631.9814-1-bauerman@linux.ibm.com> <20190712053631.9814-2-bauerman@linux.ibm.com> <alpine.DEB.2.21.1907121804230.1788@nanos.tec.linutronix.de>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH 1/3] x86/Kconfig: Move ARCH_HAS_MEM_ENCRYPT to arch/Kconfig
+In-reply-to: <alpine.DEB.2.21.1907121804230.1788@nanos.tec.linutronix.de>
+Date: Fri, 12 Jul 2019 20:35:37 -0300
+Message-ID: <87sgrag71y.fsf@morokweng.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86@kernel.org, iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
 
-There is a small window where it's possible that we could be working
-on an interrupt (queued in the workqueue) and setting up a channel
-program (i.e allocating memory, pinning pages, translating address).
-This can lead to allocating and freeing the channel program at the
-same time and can cause memory corruption.
+Hello Thomas,
 
-Let's not call cp_free if we are currently processing a channel program.
-The only way we know for sure that we don't have a thread setting
-up a channel program is when the state is set to VFIO_CCW_STATE_CP_PENDING.
+Thanks for quickly reviewing the patches.
 
-Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <62e87bf67b38dc8d5760586e7c96d400db854ebe.1562854091.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thomas Gleixner <tglx@linutronix.de> writes:
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 2b90a5ecaeb9..9208c0e56c33 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -88,7 +88,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
- 	if (scsw_is_solicited(&irb->scsw)) {
- 		cp_update_scsw(&private->cp, &irb->scsw);
--		if (is_final)
-+		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
- 			cp_free(&private->cp);
- 	}
- 	mutex_lock(&private->io_mutex);
+> On Fri, 12 Jul 2019, Thiago Jung Bauermann wrote:
+>
+>> powerpc and s390 are going to use this feature as well, so put it in a
+>> generic location.
+>> 
+>> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+>
+> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+
+Thanks!
+
 -- 
-2.20.1
+Thiago Jung Bauermann
+IBM Linux Technology Center
