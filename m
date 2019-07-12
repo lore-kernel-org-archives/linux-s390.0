@@ -1,100 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:35316 "EHLO mx2.mailbox.org"
+Received: from mx1.redhat.com ([209.132.183.28]:49404 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726522AbfGFPAG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 6 Jul 2019 11:00:06 -0400
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v9 06/10] namei: LOOKUP_IN_ROOT: chroot-like path resolution
-Date: Sun,  7 Jul 2019 00:57:33 +1000
-Message-Id: <20190706145737.5299-7-cyphar@cyphar.com>
-In-Reply-To: <20190706145737.5299-1-cyphar@cyphar.com>
-References: <20190706145737.5299-1-cyphar@cyphar.com>
+        id S1726196AbfGLL0Z (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 12 Jul 2019 07:26:25 -0400
+Date: Fri, 12 Jul 2019 13:26:22 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 2/5] vfio-ccw: Fix memory leak and don't call cp_free
+ in cp_init
+Message-ID: <20190712132622.750cf61f.cohuck@redhat.com>
+In-Reply-To: <3173c4216f4555d9765eb6e4922534982bc820e4.1562854091.git.alifm@linux.ibm.com>
+References: <cover.1562854091.git.alifm@linux.ibm.com>
+        <3173c4216f4555d9765eb6e4922534982bc820e4.1562854091.git.alifm@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian@brauner.io>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: farman@linux.ibm.com, pasic@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-The primary motivation for the need for this flag is container runtimes
-which have to interact with malicious root filesystems in the host
-namespaces. One of the first requirements for a container runtime to be
-secure against a malicious rootfs is that they correctly scope symlinks
-(that is, they should be scoped as though they are chroot(2)ed into the
-container's rootfs) and ".."-style paths[*]. The already-existing
-LOOKUP_XDEV and LOOKUP_NO_MAGICLINKS help defend against other potential
-attacks in a malicious rootfs scenario.
+On Thu, 11 Jul 2019 10:28:52 -0400
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-Currently most container runtimes try to do this resolution in
-userspace[1], causing many potential race conditions. In addition, the
-"obvious" alternative (actually performing a {ch,pivot_}root(2))
-requires a fork+exec (for some runtimes) which is *very* costly if
-necessary for every filesystem operation involving a container.
+> We don't set cp->initialized to true so calling cp_free
+> will just return and not do anything.
+> 
+> Also fix a memory leak where we fail to free a ccwchain
+> on an error.
+> 
+> Fixes: 812271b910 ("s390/cio: Squash cp_free() and cp_unpin_free()")
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
 
-[*] At the moment, ".." and magic-link jumping are disallowed for the
-    same reason it is disabled for LOOKUP_BENEATH -- currently it is not
-    safe to allow it. Future patches may enable it unconditionally once
-    we have resolved the possible races (for "..") and semantics (for
-    magic-link jumping).
-
-The most significant *at(2) semantic change with LOOKUP_IN_ROOT is that
-absolute pathnames no longer cause dirfd to be ignored completely. The
-rationale is that LOOKUP_IN_ROOT must necessarily chroot-scope symlinks
-with absolute paths to dirfd, and so doing it for the base path seems to
-be the most consistent behaviour (and also avoids foot-gunning users who
-want to scope paths that are absolute).
-
-[1]: https://github.com/cyphar/filepath-securejoin
-
-Co-developed-by: Christian Brauner <christian@brauner.io>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c            | 6 +++---
- include/linux/namei.h | 1 +
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 9c3ed597466b..ff016b9e9082 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1149,7 +1149,7 @@ const char *get_link(struct nameidata *nd, bool trailing)
- 			if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
- 				return ERR_PTR(-ELOOP);
- 			/* Not currently safe. */
--			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+			if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)))
- 				return ERR_PTR(-EXDEV);
- 			/*
- 			 * For trailing_symlink we check whether the symlink's
-@@ -1833,7 +1833,7 @@ static inline int handle_dots(struct nameidata *nd, int type)
- 		 * cause our parent to have moved outside of the root and us to skip
- 		 * over it.
- 		 */
--		if (unlikely(nd->flags & LOOKUP_BENEATH))
-+		if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)))
- 			return -EXDEV;
- 		if (!nd->root.mnt)
- 			set_root(nd);
-@@ -2384,7 +2384,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 
- 	nd->m_seq = read_seqbegin(&mount_lock);
- 
--	if (unlikely(nd->flags & LOOKUP_BENEATH)) {
-+	if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT))) {
- 		error = dirfd_path_init(nd);
- 		if (unlikely(error))
- 			return ERR_PTR(error);
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 7bc819ad0cd3..4b1ee717cb14 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -56,6 +56,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_NO_MAGICLINKS	0x040000 /* No /proc/$pid/fd/ "symlink" crossing. */
- #define LOOKUP_NO_SYMLINKS	0x080000 /* No symlink crossing *at all*.
- 					    Implies LOOKUP_NO_MAGICLINKS. */
-+#define LOOKUP_IN_ROOT		0x100000 /* Treat dirfd as %current->fs->root. */
- 
- extern int path_pts(struct path *path);
- 
--- 
-2.22.0
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
