@@ -1,53 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731803AbfGONvE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:51:04 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 077/249] s390/qdio: handle PENDING state for QEBSM devices
-Date: Mon, 15 Jul 2019 09:44:02 -0400
-Message-Id: <20190715134655.4076-77-sashal@kernel.org>
-In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
-References: <20190715134655.4076-1-sashal@kernel.org>
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:60437 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728737AbfGLCUh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 22:20:37 -0400
+From: Alex Shi <alex.shi@linux.alibaba.com>
+Subject: [PATCH 03/12] Documentation/ia64: repointer docs to Documentation/arch/ia64
+Date: Fri, 12 Jul 2019 10:20:09 +0800
+Message-Id: <20190712022018.27989-3-alex.shi@linux.alibaba.com>
+In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+Since we move 'ia64' docs to Documentation/arch/ia64 dir,
+redirect the doc pointer to them.
 
-[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
-
-When a CQ-enabled device uses QEBSM for SBAL state inspection,
-get_buf_states() can return the PENDING state for an Output Queue.
-get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
-buffer will permanently stall all further completion processing on this
-Queue.
-
-This isn't a concern for non-QEBSM devices, as get_buf_states() for such
-devices will manually turn PENDING buffers into EMPTY ones.
-
-Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org
 ---
- drivers/s390/cio/qdio_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS             | 2 +-
+ arch/ia64/kernel/efi.c  | 2 +-
+ arch/ia64/kernel/fsys.S | 2 +-
+ arch/ia64/mm/ioremap.c  | 2 +-
+ arch/ia64/pci/pci.c     | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 7b7620de2acd..730c4e68094b 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -736,6 +736,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c21d5464c86f..583c35cba7bc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14286,7 +14286,7 @@ SGI SN-IA64 (Altix) SERIAL CONSOLE DRIVER
+ M:	Pat Gefre <pfg@sgi.com>
+ L:	linux-ia64@vger.kernel.org
+ S:	Supported
+-F:	Documentation/ia64/serial.txt
++F:	Documentation/arch/ia64/serial.txt
+ F:	drivers/tty/serial/ioc?_serial.c
+ F:	include/linux/ioc?.h
  
- 	switch (state) {
- 	case SLSB_P_OUTPUT_EMPTY:
-+	case SLSB_P_OUTPUT_PENDING:
- 		/* the adapter got it */
- 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
- 			"out empty:%1d %02x", q->nr, count);
+diff --git a/arch/ia64/kernel/efi.c b/arch/ia64/kernel/efi.c
+index 8f106638913c..02cdc38d15e8 100644
+--- a/arch/ia64/kernel/efi.c
++++ b/arch/ia64/kernel/efi.c
+@@ -852,7 +852,7 @@ valid_phys_addr_range (phys_addr_t phys_addr, unsigned long size)
+ 	 * /dev/mem reads and writes use copy_to_user(), which implicitly
+ 	 * uses a granule-sized kernel identity mapping.  It's really
+ 	 * only safe to do this for regions in kern_memmap.  For more
+-	 * details, see Documentation/ia64/aliasing.txt.
++	 * details, see Documentation/arch/ia64/aliasing.txt.
+ 	 */
+ 	attr = kern_mem_attribute(phys_addr, size);
+ 	if (attr & EFI_MEMORY_WB || attr & EFI_MEMORY_UC)
+diff --git a/arch/ia64/kernel/fsys.S b/arch/ia64/kernel/fsys.S
+index d80c99a5f55d..b493ca74890a 100644
+--- a/arch/ia64/kernel/fsys.S
++++ b/arch/ia64/kernel/fsys.S
+@@ -28,7 +28,7 @@
+ #include <asm/native/inst.h>
+ 
+ /*
+- * See Documentation/ia64/fsys.txt for details on fsyscalls.
++ * See Documentation/arch/ia64/fsys.txt for details on fsyscalls.
+  *
+  * On entry to an fsyscall handler:
+  *   r10	= 0 (i.e., defaults to "successful syscall return")
+diff --git a/arch/ia64/mm/ioremap.c b/arch/ia64/mm/ioremap.c
+index 5e3e7b1fdac5..989cc4df9087 100644
+--- a/arch/ia64/mm/ioremap.c
++++ b/arch/ia64/mm/ioremap.c
+@@ -42,7 +42,7 @@ ioremap (unsigned long phys_addr, unsigned long size)
+ 	/*
+ 	 * For things in kern_memmap, we must use the same attribute
+ 	 * as the rest of the kernel.  For more details, see
+-	 * Documentation/ia64/aliasing.txt.
++	 * Documentation/arch/ia64/aliasing.txt.
+ 	 */
+ 	attr = kern_mem_attribute(phys_addr, size);
+ 	if (attr & EFI_MEMORY_WB)
+diff --git a/arch/ia64/pci/pci.c b/arch/ia64/pci/pci.c
+index e308196c2229..6ba87b70e30c 100644
+--- a/arch/ia64/pci/pci.c
++++ b/arch/ia64/pci/pci.c
+@@ -450,7 +450,7 @@ pci_mmap_legacy_page_range(struct pci_bus *bus, struct vm_area_struct *vma,
+ 		return -ENOSYS;
+ 
+ 	/*
+-	 * Avoid attribute aliasing.  See Documentation/ia64/aliasing.txt
++	 * Avoid attribute aliasing.  See Documentation/arch/ia64/aliasing.txt
+ 	 * for more details.
+ 	 */
+ 	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size))
 -- 
-2.20.1
+2.19.1.856.g8858448bb
