@@ -1,106 +1,56 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:48318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388967AbfGSEMs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:12:48 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 52/60] s390/dasd: Make layout analysis ESE compatible
-Date: Fri, 19 Jul 2019 00:11:01 -0400
-Message-Id: <20190719041109.18262-52-sashal@kernel.org>
-In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
-References: <20190719041109.18262-1-sashal@kernel.org>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Sat, 13 Jul 2019 01:32:27 +1000
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH v9 00/10] namei: openat2(2) path resolution restrictions
+Message-ID: <20190712153227.owkjmx47lzrggweo@yavin>
+References: <20190706145737.5299-1-cyphar@cyphar.com>
+ <20190712151118.GP17978@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="whm56wbfs3ehouyz"
+Content-Disposition: inline
+In-Reply-To: <20190712151118.GP17978@ZenIV.linux.org.uk>
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, David Drysdale <drysdale@google.com>, Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
+--whm56wbfs3ehouyz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The disk layout and volume information of a DASD reside in the first two
-tracks of cylinder 0. When a DASD is set online, currently the first
-three tracks are read and analysed to confirm an expected layout.
+On 2019-07-12, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> On Sun, Jul 07, 2019 at 12:57:27AM +1000, Aleksa Sarai wrote:
+> > Patch changelog:
+> >   v9:
+> >     * Replace resolveat(2) with openat2(2). [Linus]
+> >     * Output a warning to dmesg if may_open_magiclink() is violated.
+> >     * Add an openat2(O_CREAT) testcase.
+>=20
+> One general note for the future, BTW: for such series it's generally
+> a good idea to put it into a public git tree somewhere and mention that
+> in the announcement...
 
-For CDL (Compatible Disk Layout) only count area data of the first track
-is evaluated and checked against expected key and data lengths. For LDL
-(Linux Disk Layout) the first and third track is evaluated. However,
-an LDL formatted volume is expected to be in the same format across all
-tracks. Checking the third track therefore doesn't have any more value
-than checking any other track at random.
+Sure, I'll mention it next time. For the record the tree is
+  <https://github.com/cyphar/linux/tree/resolveat/master>
 
-Now, an Extent Space Efficient (ESE) DASD is initialised by only
-formatting the first two tracks, as those tracks always contain all
-information necessarry.
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
 
-Checking the third track on an ESE volume will therefore most likely
-fail with a record not found error, as the third track will be empty.
-This in turn leads to the device being recognised with a volume size of
-0. Attempts to write volume information on the first two tracks then
-fail with "no space left on device" errors.
+--whm56wbfs3ehouyz
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Initialising the first three tracks for an ESE volume is not a viable
-solution, because the third track is already a regular track and could
-contain user data. With that there is potential for data corruption.
+-----BEGIN PGP SIGNATURE-----
 
-Instead, always only analyse the first two tracks, as it is sufficiant
-for both CDL and LDL, and allow ESE volumes to be recognised as well.
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXSioAwAKCRCdlLljIbnQ
+EgzkAQChn28FqDC8mwoRBSpKSsYawQ4zVuMzbt7zKNknJNg7nQD/cmJDlKpmnt40
+Jbd8FP1RPFVHA8Y7yVeIE+cOpg3nbw4=
+=RciL
+-----END PGP SIGNATURE-----
 
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/block/dasd_eckd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 0d5e2d92e05b..090c312eae32 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -156,7 +156,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
- #define LABEL_SIZE 140
- 
- /* head and record addresses of count_area read in analysis ccw */
--static const int count_area_head[] = { 0, 0, 0, 0, 2 };
-+static const int count_area_head[] = { 0, 0, 0, 0, 1 };
- static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
- 
- static inline unsigned int
-@@ -1820,8 +1820,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 	if (IS_ERR(cqr))
- 		return cqr;
- 	ccw = cqr->cpaddr;
--	/* Define extent for the first 3 tracks. */
--	define_extent(ccw++, cqr->data, 0, 2,
-+	/* Define extent for the first 2 tracks. */
-+	define_extent(ccw++, cqr->data, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
- 	/* Locate record for the first 4 records on track 0. */
-@@ -1840,9 +1840,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 		count_data++;
- 	}
- 
--	/* Locate record for the first record on track 2. */
-+	/* Locate record for the first record on track 1. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
--	locate_record(ccw++, LO_data++, 2, 0, 1,
-+	locate_record(ccw++, LO_data++, 1, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	/* Read count ccw. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
-@@ -1964,7 +1964,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 		}
- 	}
- 	if (i == 3)
--		count_area = &private->count_area[4];
-+		count_area = &private->count_area[3];
- 
- 	if (private->uses_cdl == 0) {
- 		for (i = 0; i < 5; i++) {
--- 
-2.20.1
+--whm56wbfs3ehouyz--
