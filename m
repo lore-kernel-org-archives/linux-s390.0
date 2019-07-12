@@ -1,32 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58136 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726423AbfGRHRC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Jul 2019 03:17:02 -0400
-Date: Thu, 18 Jul 2019 09:17:00 +0200
-From: Petr Tesarik <ptesarik@suse.cz>
-Subject: Is __dma_direct_alloc_pages broken on s390?
-Message-ID: <20190718091700.353b3721@ezekiel.suse.cz>
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:39351 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728644AbfGLCVU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 22:21:20 -0400
+From: Alex Shi <alex.shi@linux.alibaba.com>
+Subject: [PATCH 04/12] Documentation/m68k: repointer docs to Documentation/arch/
+Date: Fri, 12 Jul 2019 10:20:10 +0800
+Message-Id: <20190712022018.27989-4-alex.shi@linux.alibaba.com>
+In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Will Deacon <will@kernel.org>
 
-Hi all,
+Since we move Documentation/m68k docs to Documentation/arch/m68k
+dir, redirect the doc pointer to them.
 
-while looking into DMA allocation, I noticed that
-__dma_direct_optimal_gfp_mask() in kernel/dma/direct.c can probably be
-improved. It uses GFP_DMA if dev->coherent_dma_mask is less than
-DMA_BIT_MASK(ARCH_ZONE_DMA_BITS). There is no s390-specific definition
-of ARCH_ZONE_DMA_BITS. The default is 24 bits, but the DMA zone on s390
-is 31 bits. CCW subchannel devices set sch->dev.coherent_dma_mask to
-DMA_BIT_MASK(31), which is greater than DMA_BIT_MASK(24), so buffers
-are allocated from the Normal zone first.
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ Documentation/admin-guide/kernel-parameters.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Would it make sense to set ARCH_ZONE_BITS to 31 on s390, or did I miss
-something?
-
-Petr T
+diff --git a/Documentation/admin-guide/kernel-parameters.rst b/Documentation/admin-guide/kernel-parameters.rst
+index 5d29ba5ad88c..dc283dcffae8 100644
+--- a/Documentation/admin-guide/kernel-parameters.rst
++++ b/Documentation/admin-guide/kernel-parameters.rst
+@@ -118,7 +118,7 @@ parameter is applicable::
+ 	LOOP	Loopback device support is enabled.
+ 	M68k	M68k architecture is enabled.
+ 			These options have more detailed description inside of
+-			Documentation/m68k/kernel-options.txt.
++			Documentation/arch/m68k/kernel-options.txt.
+ 	MDA	MDA console support is enabled.
+ 	MIPS	MIPS architecture is enabled.
+ 	MOUSE	Appropriate mouse support is enabled.
+-- 
+2.19.1.856.g8858448bb
