@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:48113 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729062AbfGLCUj (ORCPT
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:45861 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728931AbfGLCUi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 22:20:39 -0400
+        Thu, 11 Jul 2019 22:20:38 -0400
 From: Alex Shi <alex.shi@linux.alibaba.com>
-Subject: [PATCH 09/12] Dcumentation/sh: repointer docs to Documentation/arch/
-Date: Fri, 12 Jul 2019 10:20:15 +0800
-Message-Id: <20190712022018.27989-9-alex.shi@linux.alibaba.com>
+Subject: [PATCH 07/12] Documentation/parisc: repointer docs to Documentation/arch/
+Date: Fri, 12 Jul 2019 10:20:13 +0800
+Message-Id: <20190712022018.27989-7-alex.shi@linux.alibaba.com>
 In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
 References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
 MIME-Version: 1.0
@@ -15,60 +15,30 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org
+Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-Since we move Documentation/sh docs to Documentation/arch/sh
+Since we move Documentation/parisc docs to Documentation/arch/parisc
 dir, redirect the doc pointer to them.
 
 Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-doc@vger.kernel.org
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Cc: linux-kernel@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
 ---
- Documentation/conf.py | 2 +-
- MAINTAINERS           | 2 +-
- arch/sh/Kconfig.cpu   | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/conf.py b/Documentation/conf.py
-index 3b2397bcb565..8bbe421c1d97 100644
---- a/Documentation/conf.py
-+++ b/Documentation/conf.py
-@@ -402,7 +402,7 @@ latex_documents = [
-      'The kernel development community', 'manual'),
-     ('security/index', 'security.tex', 'The kernel security subsystem manual',
-      'The kernel development community', 'manual'),
--    ('sh/index', 'sh.tex', 'SuperH architecture implementation manual',
-+    ('arch/sh/index', 'sh.tex', 'SuperH architecture implementation manual',
-      'The kernel development community', 'manual'),
-     ('sound/index', 'sound.tex', 'Linux Sound Subsystem Documentation',
-      'The kernel development community', 'manual'),
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 7a245d3f02fd..84448d5838b7 100644
+index 03a8c687f87f..e1aad1b8224c 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -15169,7 +15169,7 @@ M:	Rich Felker <dalias@libc.org>
- L:	linux-sh@vger.kernel.org
- Q:	http://patchwork.kernel.org/project/linux-sh/list/
+@@ -12000,7 +12000,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/jejb/parisc-2.6.git
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/deller/parisc-linux.git
  S:	Maintained
--F:	Documentation/sh/
-+F:	Documentation/arch/sh/
- F:	arch/sh/
- F:	drivers/sh/
- 
-diff --git a/arch/sh/Kconfig.cpu b/arch/sh/Kconfig.cpu
-index 4a4edc7e03d4..fdc8b565241b 100644
---- a/arch/sh/Kconfig.cpu
-+++ b/arch/sh/Kconfig.cpu
-@@ -94,7 +94,7 @@ config CPU_HAS_SR_RB
- 	  that are lacking this bit must have another method in place for
- 	  accomplishing what is taken care of by the banked registers.
- 
--	  See <file:Documentation/sh/register-banks.txt> for further
-+	  See <file:Documentation/arch/sh/register-banks.txt> for further
- 	  information on SR.RB and register banking in the kernel in general.
- 
- config CPU_HAS_PTEAEX
+ F:	arch/parisc/
+-F:	Documentation/parisc/
++F:	Documentation/arch/parisc/
+ F:	drivers/parisc/
+ F:	drivers/char/agp/parisc-agp.c
+ F:	drivers/input/serio/gscps2.c
 -- 
 2.19.1.856.g8858448bb
