@@ -1,133 +1,48 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v9 09/10] kselftest: save-and-restore errno to allow for %m formatting
-Date: Sun,  7 Jul 2019 00:57:36 +1000
-Message-Id: <20190706145737.5299-10-cyphar@cyphar.com>
-In-Reply-To: <20190706145737.5299-1-cyphar@cyphar.com>
-References: <20190706145737.5299-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:57848 "EHLO
+        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729216AbfGLCUk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 11 Jul 2019 22:20:40 -0400
+From: Alex Shi <alex.shi@linux.alibaba.com>
+Subject: [PATCH 12/12] Documentation/xtensa: repointer docs to Documentation/arch/
+Date: Fri, 12 Jul 2019 10:20:18 +0800
+Message-Id: <20190712022018.27989-12-alex.shi@linux.alibaba.com>
+In-Reply-To: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, linux-xtensa@linux-xtensa.org
 
-Previously, using "%m" in a ksft_* format string can result in strange
-output because the errno value wasn't saved before calling other libc
-functions. The solution is to simply save and restore the errno before
-we format the user-supplied format string.
+Since we move Documentation/xtensa docs to Documentation/arch/xtensa
+dir, redirect the doc pointer to them.
 
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-kernel@vger.kernel.org
 ---
- tools/testing/selftests/kselftest.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/xtensa/include/asm/initialize_mmu.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kselftest.h b/tools/testing/selftests/kselftest.h
-index ec15c4f6af55..0ac49d91a260 100644
---- a/tools/testing/selftests/kselftest.h
-+++ b/tools/testing/selftests/kselftest.h
-@@ -10,6 +10,7 @@
- #ifndef __KSELFTEST_H
- #define __KSELFTEST_H
- 
-+#include <errno.h>
- #include <stdlib.h>
- #include <unistd.h>
- #include <stdarg.h>
-@@ -81,58 +82,68 @@ static inline void ksft_print_cnts(void)
- 
- static inline void ksft_print_msg(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	va_start(args, msg);
- 	printf("# ");
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
- 
- static inline void ksft_test_result_pass(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_pass++;
- 
- 	va_start(args, msg);
- 	printf("ok %d ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
- 
- static inline void ksft_test_result_fail(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_fail++;
- 
- 	va_start(args, msg);
- 	printf("not ok %d ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
- 
- static inline void ksft_test_result_skip(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_xskip++;
- 
- 	va_start(args, msg);
- 	printf("not ok %d # SKIP ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
- 
- static inline void ksft_test_result_error(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_error++;
- 
- 	va_start(args, msg);
- 	printf("not ok %d # error ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
-@@ -152,10 +163,12 @@ static inline int ksft_exit_fail(void)
- 
- static inline int ksft_exit_fail_msg(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	va_start(args, msg);
- 	printf("Bail out! ");
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- 
-@@ -178,10 +191,12 @@ static inline int ksft_exit_xpass(void)
- static inline int ksft_exit_skip(const char *msg, ...)
- {
- 	if (msg) {
-+		int saved_errno = errno;
- 		va_list args;
- 
- 		va_start(args, msg);
- 		printf("not ok %d # SKIP ", 1 + ksft_test_num());
-+		errno = saved_errno;
- 		vprintf(msg, args);
- 		va_end(args);
- 	} else {
+diff --git a/arch/xtensa/include/asm/initialize_mmu.h b/arch/xtensa/include/asm/initialize_mmu.h
+index 323d05789159..499fe4847490 100644
+--- a/arch/xtensa/include/asm/initialize_mmu.h
++++ b/arch/xtensa/include/asm/initialize_mmu.h
+@@ -42,7 +42,7 @@
+ #if XCHAL_HAVE_S32C1I && (XCHAL_HW_MIN_VERSION >= XTENSA_HWVERSION_RC_2009_0)
+ /*
+  * We Have Atomic Operation Control (ATOMCTL) Register; Initialize it.
+- * For details see Documentation/xtensa/atomctl.txt
++ * For details see Documentation/arch/xtensa/atomctl.txt
+  */
+ #if XCHAL_DCACHE_IS_COHERENT
+ 	movi	a3, 0x25	/* For SMP/MX -- internal for writeback,
 -- 
-2.22.0
+2.19.1.856.g8858448bb
