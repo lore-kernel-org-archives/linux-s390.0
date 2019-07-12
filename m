@@ -1,56 +1,29 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-Date: Sat, 13 Jul 2019 01:32:27 +1000
-From: Aleksa Sarai <cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from zeniv.linux.org.uk ([195.92.253.2]:39802 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726449AbfGLPLl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 Jul 2019 11:11:41 -0400
+Date: Fri, 12 Jul 2019 16:11:18 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
 Subject: Re: [PATCH v9 00/10] namei: openat2(2) path resolution restrictions
-Message-ID: <20190712153227.owkjmx47lzrggweo@yavin>
+Message-ID: <20190712151118.GP17978@ZenIV.linux.org.uk>
 References: <20190706145737.5299-1-cyphar@cyphar.com>
- <20190712151118.GP17978@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="whm56wbfs3ehouyz"
-Content-Disposition: inline
-In-Reply-To: <20190712151118.GP17978@ZenIV.linux.org.uk>
-Sender: linux-kselftest-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, David Drysdale <drysdale@google.com>, Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
-
-
---whm56wbfs3ehouyz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190706145737.5299-1-cyphar@cyphar.com>
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, David Drysdale <drysdale@google.com>, Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-On 2019-07-12, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> On Sun, Jul 07, 2019 at 12:57:27AM +1000, Aleksa Sarai wrote:
-> > Patch changelog:
-> >   v9:
-> >     * Replace resolveat(2) with openat2(2). [Linus]
-> >     * Output a warning to dmesg if may_open_magiclink() is violated.
-> >     * Add an openat2(O_CREAT) testcase.
->=20
-> One general note for the future, BTW: for such series it's generally
-> a good idea to put it into a public git tree somewhere and mention that
-> in the announcement...
+On Sun, Jul 07, 2019 at 12:57:27AM +1000, Aleksa Sarai wrote:
+> Patch changelog:
+>   v9:
+>     * Replace resolveat(2) with openat2(2). [Linus]
+>     * Output a warning to dmesg if may_open_magiclink() is violated.
+>     * Add an openat2(O_CREAT) testcase.
 
-Sure, I'll mention it next time. For the record the tree is
-  <https://github.com/cyphar/linux/tree/resolveat/master>
-
---=20
-Aleksa Sarai
-Senior Software Engineer (Containers)
-SUSE Linux GmbH
-<https://www.cyphar.com/>
-
---whm56wbfs3ehouyz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXSioAwAKCRCdlLljIbnQ
-EgzkAQChn28FqDC8mwoRBSpKSsYawQ4zVuMzbt7zKNknJNg7nQD/cmJDlKpmnt40
-Jbd8FP1RPFVHA8Y7yVeIE+cOpg3nbw4=
-=RciL
------END PGP SIGNATURE-----
-
---whm56wbfs3ehouyz--
+One general note for the future, BTW: for such series it's generally
+a good idea to put it into a public git tree somewhere and mention that
+in the announcement...
