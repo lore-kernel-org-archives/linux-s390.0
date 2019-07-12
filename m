@@ -1,127 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36792 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726010AbfGIMM7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jul 2019 08:12:59 -0400
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH] docs: don't use nested tables
-Date: Tue,  9 Jul 2019 09:12:50 -0300
-Message-Id: <925686792c61b584f05dd9f13f078cd82d5b6a54.1562674354.git.mchehab+samsung@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1540 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727557AbfGLNYA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 12 Jul 2019 09:24:00 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6CDDNR6047360
+        for <linux-s390@vger.kernel.org>; Fri, 12 Jul 2019 09:23:57 -0400
+Received: from e11.ny.us.ibm.com (e11.ny.us.ibm.com [129.33.205.201])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tps3cd3ke-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 12 Jul 2019 09:23:57 -0400
+Received: from localhost
+        by e11.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 12 Jul 2019 14:23:56 +0100
+Subject: Re: [PATCH v3 4/5] vfio-ccw: Don't call cp_free if we are processing
+ a channel program
+References: <cover.1562854091.git.alifm@linux.ibm.com>
+ <62e87bf67b38dc8d5760586e7c96d400db854ebe.1562854091.git.alifm@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Date: Fri, 12 Jul 2019 09:19:38 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <62e87bf67b38dc8d5760586e7c96d400db854ebe.1562854091.git.alifm@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <32c1c941-2971-f956-c532-b606336ea74b@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Dan Williams <dan.j.williams@intel.com>, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org
+To: Farhan Ali <alifm@linux.ibm.com>, cohuck@redhat.com, pasic@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Nested tables aren't supported for pdf output on Sphinx 1.7.9:
 
-	admin-guide/laptops/sonypi:: nested tables are not yet implemented.
-	admin-guide/laptops/toshiba_haps:: nested tables are not yet implemented.
-	driver-api/nvdimm/btt:: nested tables are not yet implemented.
-	s390/debugging390:: nested tables are not yet implemented.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- Documentation/admin-guide/laptops/sonypi.rst  | 26 +++++++++----------
- .../admin-guide/laptops/toshiba_haps.rst      |  8 +++---
- Documentation/driver-api/nvdimm/btt.rst       |  2 +-
- Documentation/s390/debugging390.rst           |  2 +-
- 4 files changed, 18 insertions(+), 20 deletions(-)
+On 7/11/19 10:28 AM, Farhan Ali wrote:
+> There is a small window where it's possible that we could be working
+> on an interrupt (queued in the workqueue) and setting up a channel
+> program (i.e allocating memory, pinning pages, translating address).
+> This can lead to allocating and freeing the channel program at the
+> same time and can cause memory corruption.
+> 
+> Let's not call cp_free if we are currently processing a channel program.
+> The only way we know for sure that we don't have a thread setting
+> up a channel program is when the state is set to VFIO_CCW_STATE_CP_PENDING.>
+> Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-diff --git a/Documentation/admin-guide/laptops/sonypi.rst b/Documentation/admin-guide/laptops/sonypi.rst
-index 2a1975ed7ee4..c6eaaf48f7c1 100644
---- a/Documentation/admin-guide/laptops/sonypi.rst
-+++ b/Documentation/admin-guide/laptops/sonypi.rst
-@@ -53,7 +53,7 @@ module or sonypi.<param>=<value> on the kernel boot line when sonypi is
- statically linked into the kernel). Those options are:
- 
- 	=============== =======================================================
--	minor: 		minor number of the misc device /dev/sonypi,
-+	minor:		minor number of the misc device /dev/sonypi,
- 			default is -1 (automatic allocation, see /proc/misc
- 			or kernel logs)
- 
-@@ -89,24 +89,22 @@ statically linked into the kernel). Those options are:
- 			set to 0xffffffff, meaning that all possible events
- 			will be tried. You can use the following bits to
- 			construct your own event mask (from
--			drivers/char/sonypi.h):
-+			drivers/char/sonypi.h)::
- 
--				========================	======
--				SONYPI_JOGGER_MASK 		0x0001
--				SONYPI_CAPTURE_MASK 		0x0002
--				SONYPI_FNKEY_MASK 		0x0004
--				SONYPI_BLUETOOTH_MASK 		0x0008
--				SONYPI_PKEY_MASK 		0x0010
--				SONYPI_BACK_MASK 		0x0020
--				SONYPI_HELP_MASK 		0x0040
--				SONYPI_LID_MASK 		0x0080
--				SONYPI_ZOOM_MASK 		0x0100
--				SONYPI_THUMBPHRASE_MASK 	0x0200
-+				SONYPI_JOGGER_MASK		0x0001
-+				SONYPI_CAPTURE_MASK		0x0002
-+				SONYPI_FNKEY_MASK		0x0004
-+				SONYPI_BLUETOOTH_MASK		0x0008
-+				SONYPI_PKEY_MASK		0x0010
-+				SONYPI_BACK_MASK		0x0020
-+				SONYPI_HELP_MASK		0x0040
-+				SONYPI_LID_MASK			0x0080
-+				SONYPI_ZOOM_MASK		0x0100
-+				SONYPI_THUMBPHRASE_MASK		0x0200
- 				SONYPI_MEYE_MASK		0x0400
- 				SONYPI_MEMORYSTICK_MASK		0x0800
- 				SONYPI_BATTERY_MASK		0x1000
- 				SONYPI_WIRELESS_MASK		0x2000
--				========================	======
- 
- 	useinput:	if set (which is the default) two input devices are
- 			created, one which interprets the jogdial events as
-diff --git a/Documentation/admin-guide/laptops/toshiba_haps.rst b/Documentation/admin-guide/laptops/toshiba_haps.rst
-index 11dfc428c080..d28b6c3f2849 100644
---- a/Documentation/admin-guide/laptops/toshiba_haps.rst
-+++ b/Documentation/admin-guide/laptops/toshiba_haps.rst
-@@ -75,11 +75,11 @@ The sysfs files under /sys/devices/LNXSYSTM:00/LNXSYBUS:00/TOS620A:00/ are:
- protection_level   The protection_level is readable and writeable, and
- 		   provides a way to let userspace query the current protection
- 		   level, as well as set the desired protection level, the
--		   available protection levels are:
-+		   available protection levels are::
- 
--		   ============   =======   ==========   ========
--		   0 - Disabled   1 - Low   2 - Medium   3 - High
--		   ============   =======   ==========   ========
-+		     ============   =======   ==========   ========
-+		     0 - Disabled   1 - Low   2 - Medium   3 - High
-+		     ============   =======   ==========   ========
- 
- reset_protection   The reset_protection entry is writeable only, being "1"
- 		   the only parameter it accepts, it is used to trigger
-diff --git a/Documentation/driver-api/nvdimm/btt.rst b/Documentation/driver-api/nvdimm/btt.rst
-index 2d8269f834bd..107395c042ae 100644
---- a/Documentation/driver-api/nvdimm/btt.rst
-+++ b/Documentation/driver-api/nvdimm/btt.rst
-@@ -83,7 +83,7 @@ flags, and the remaining form the internal block number.
- ======== =============================================================
- Bit      Description
- ======== =============================================================
--31 - 30	 Error and Zero flags - Used in the following way:
-+31 - 30	 Error and Zero flags - Used in the following way::
- 
- 	   == ==  ====================================================
- 	   31 30  Description
-diff --git a/Documentation/s390/debugging390.rst b/Documentation/s390/debugging390.rst
-index d49305fd5e1a..73ad0b06c666 100644
---- a/Documentation/s390/debugging390.rst
-+++ b/Documentation/s390/debugging390.rst
-@@ -170,7 +170,7 @@ currently running at.
- |        +----------------+-------------------------------------------------+
- |        |    32          | Basic Addressing Mode                           |
- |        |                |                                                 |
--|        |                | Used to set addressing mode                     |
-+|        |                | Used to set addressing mode::                   |
- |        |                |                                                 |
- |        |                |    +---------+----------+----------+            |
- |        |                |    | PSW 31  | PSW 32   |          |            |
--- 
-2.21.0
+I think this seems like a reasonable fix.
+
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 4e3a903..0357165 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -92,7 +92,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+>  	if (scsw_is_solicited(&irb->scsw)) {
+>  		cp_update_scsw(&private->cp, &irb->scsw);
+> -		if (is_final)
+> +		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
+>  			cp_free(&private->cp);
+>  	}
+>  	mutex_lock(&private->io_mutex);
+> 
