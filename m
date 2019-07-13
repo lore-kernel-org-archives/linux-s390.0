@@ -1,74 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54462 "EHLO mx1.redhat.com"
+Received: from verein.lst.de ([213.95.11.211]:43748 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731732AbfGPKJO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jul 2019 06:09:14 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/5] vfio-ccw: Fix misleading comment when setting orb.cmd.c64
-Date: Tue, 16 Jul 2019 12:09:04 +0200
-Message-Id: <20190716100908.3460-2-cohuck@redhat.com>
-In-Reply-To: <20190716100908.3460-1-cohuck@redhat.com>
-References: <20190716100908.3460-1-cohuck@redhat.com>
+        id S1726274AbfGMH3J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 13 Jul 2019 03:29:09 -0400
+Date: Sat, 13 Jul 2019 09:29:04 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 2/3] DMA mapping: Move SME handling to x86-specific
+ files
+Message-ID: <20190713072904.GC17589@lst.de>
+References: <20190713044554.28719-1-bauerman@linux.ibm.com> <20190713044554.28719-3-bauerman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190713044554.28719-3-bauerman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: x86@kernel.org, iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+While this looks generally good to me, I think we want to split this
+into three patches:
 
-The comment is misleading because it tells us that
-we should set orb.cmd.c64 before calling ccwchain_calc_length,
-otherwise the function ccwchain_calc_length would return an
-error. This is not completely accurate.
-
-We want to allow an orb without cmd.c64, and this is fine
-as long as the channel program does not use IDALs. But we do
-want to reject any channel program that uses IDALs and does
-not set the flag, which is what we do in ccwchain_calc_length.
-
-After we have done the ccw processing, we need to set cmd.c64,
-as we use IDALs for all translated channel programs.
-
-Also for better code readability let's move the setting of
-cmd.c64 within the non error path.
-
-Fixes: fb9e7880af35 ("vfio: ccw: push down unsupported IDA check")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <f68636106aef0faeb6ce9712584d102d1b315ff8.1562854091.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 1d4c893ead23..46967c664c0f 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -645,14 +645,15 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	if (ret)
- 		cp_free(cp);
- 
--	/* It is safe to force: if not set but idals used
--	 * ccwchain_calc_length returns an error.
--	 */
--	cp->orb.cmd.c64 = 1;
--
--	if (!ret)
-+	if (!ret) {
- 		cp->initialized = true;
- 
-+		/* It is safe to force: if it was not set but idals used
-+		 * ccwchain_calc_length would have returned an error.
-+		 */
-+		cp->orb.cmd.c64 = 1;
-+	}
-+
- 	return ret;
- }
- 
--- 
-2.20.1
+ 1) update the swiotlb printk
+ 2) removing the dma-mapping check and printk
+ 3) clean up the mem_encrypt.h interface.
