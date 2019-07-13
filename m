@@ -1,133 +1,120 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v10 8/9] kselftest: save-and-restore errno to allow for %m formatting
-Date: Sat, 20 Jul 2019 02:42:24 +1000
-Message-Id: <20190719164225.27083-9-cyphar@cyphar.com>
-In-Reply-To: <20190719164225.27083-1-cyphar@cyphar.com>
-References: <20190719164225.27083-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12220 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726009AbfGMEqc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 13 Jul 2019 00:46:32 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6D4fZaa071154
+        for <linux-s390@vger.kernel.org>; Sat, 13 Jul 2019 00:46:31 -0400
+Received: from e34.co.us.ibm.com (e34.co.us.ibm.com [32.97.110.152])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2tq86b8hmg-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Sat, 13 Jul 2019 00:46:31 -0400
+Received: from localhost
+        by e34.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bauerman@linux.ibm.com>;
+        Sat, 13 Jul 2019 05:46:30 +0100
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH 3/3] fs/core/vmcore: Move sev_active() reference to x86 arch code
+Date: Sat, 13 Jul 2019 01:45:54 -0300
+In-Reply-To: <20190713044554.28719-1-bauerman@linux.ibm.com>
+References: <20190713044554.28719-1-bauerman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Message-Id: <20190713044554.28719-4-bauerman@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: x86@kernel.org
+Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
 
-Previously, using "%m" in a ksft_* format string can result in strange
-output because the errno value wasn't saved before calling other libc
-functions. The solution is to simply save and restore the errno before
-we format the user-supplied format string.
+Secure Encrypted Virtualization is an x86-specific feature, so it shouldn't
+appear in generic kernel code because it forces non-x86 architectures to
+define the sev_active() function, which doesn't make a lot of sense.
 
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+To solve this problem, add an x86 elfcorehdr_read() function to override
+the generic weak implementation. To do that, it's necessary to make
+read_from_oldmem() public so that it can be used outside of vmcore.c.
+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 ---
- tools/testing/selftests/kselftest.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/x86/kernel/crash_dump_64.c |  5 +++++
+ fs/proc/vmcore.c                |  8 ++++----
+ include/linux/crash_dump.h      | 14 ++++++++++++++
+ include/linux/mem_encrypt.h     |  1 -
+ 4 files changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/kselftest.h b/tools/testing/selftests/kselftest.h
-index ec15c4f6af55..0ac49d91a260 100644
---- a/tools/testing/selftests/kselftest.h
-+++ b/tools/testing/selftests/kselftest.h
-@@ -10,6 +10,7 @@
- #ifndef __KSELFTEST_H
- #define __KSELFTEST_H
- 
-+#include <errno.h>
- #include <stdlib.h>
- #include <unistd.h>
- #include <stdarg.h>
-@@ -81,58 +82,68 @@ static inline void ksft_print_cnts(void)
- 
- static inline void ksft_print_msg(const char *msg, ...)
+diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
+index 22369dd5de3b..045e82e8945b 100644
+--- a/arch/x86/kernel/crash_dump_64.c
++++ b/arch/x86/kernel/crash_dump_64.c
+@@ -70,3 +70,8 @@ ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
  {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	va_start(args, msg);
- 	printf("# ");
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
+ 	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, true);
+ }
++
++ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
++{
++	return read_from_oldmem(buf, count, ppos, 0, sev_active());
++}
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 57957c91c6df..ca1f20bedd8c 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -100,9 +100,9 @@ static int pfn_is_ram(unsigned long pfn)
  }
  
- static inline void ksft_test_result_pass(const char *msg, ...)
+ /* Reads a page from the oldmem device from given offset. */
+-static ssize_t read_from_oldmem(char *buf, size_t count,
+-				u64 *ppos, int userbuf,
+-				bool encrypted)
++ssize_t read_from_oldmem(char *buf, size_t count,
++			 u64 *ppos, int userbuf,
++			 bool encrypted)
  {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_pass++;
- 
- 	va_start(args, msg);
- 	printf("ok %d ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
+ 	unsigned long pfn, offset;
+ 	size_t nr_bytes;
+@@ -166,7 +166,7 @@ void __weak elfcorehdr_free(unsigned long long addr)
+  */
+ ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+ {
+-	return read_from_oldmem(buf, count, ppos, 0, sev_active());
++	return read_from_oldmem(buf, count, ppos, 0, false);
  }
  
- static inline void ksft_test_result_fail(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_fail++;
- 
- 	va_start(args, msg);
- 	printf("not ok %d ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
+ /*
+diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+index f774c5eb9e3c..4664fc1871de 100644
+--- a/include/linux/crash_dump.h
++++ b/include/linux/crash_dump.h
+@@ -115,4 +115,18 @@ static inline int vmcore_add_device_dump(struct vmcoredd_data *data)
+ 	return -EOPNOTSUPP;
  }
+ #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
++
++#ifdef CONFIG_PROC_VMCORE
++ssize_t read_from_oldmem(char *buf, size_t count,
++			 u64 *ppos, int userbuf,
++			 bool encrypted);
++#else
++static inline ssize_t read_from_oldmem(char *buf, size_t count,
++				       u64 *ppos, int userbuf,
++				       bool encrypted)
++{
++	return -EOPNOTSUPP;
++}
++#endif /* CONFIG_PROC_VMCORE */
++
+ #endif /* LINUX_CRASHDUMP_H */
+diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
+index 0c5b0ff9eb29..5c4a18a91f89 100644
+--- a/include/linux/mem_encrypt.h
++++ b/include/linux/mem_encrypt.h
+@@ -19,7 +19,6 @@
+ #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
  
- static inline void ksft_test_result_skip(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
+ static inline bool mem_encrypt_active(void) { return false; }
+-static inline bool sev_active(void) { return false; }
  
- 	ksft_cnt.ksft_xskip++;
+ #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
  
- 	va_start(args, msg);
- 	printf("not ok %d # SKIP ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
- 
- static inline void ksft_test_result_error(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	ksft_cnt.ksft_error++;
- 
- 	va_start(args, msg);
- 	printf("not ok %d # error ", ksft_test_num());
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- }
-@@ -152,10 +163,12 @@ static inline int ksft_exit_fail(void)
- 
- static inline int ksft_exit_fail_msg(const char *msg, ...)
- {
-+	int saved_errno = errno;
- 	va_list args;
- 
- 	va_start(args, msg);
- 	printf("Bail out! ");
-+	errno = saved_errno;
- 	vprintf(msg, args);
- 	va_end(args);
- 
-@@ -178,10 +191,12 @@ static inline int ksft_exit_xpass(void)
- static inline int ksft_exit_skip(const char *msg, ...)
- {
- 	if (msg) {
-+		int saved_errno = errno;
- 		va_list args;
- 
- 		va_start(args, msg);
- 		printf("not ok %d # SKIP ", 1 + ksft_test_num());
-+		errno = saved_errno;
- 		vprintf(msg, args);
- 		va_end(args);
- 	} else {
--- 
-2.22.0
