@@ -1,50 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32898 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726765AbfGCKUP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jul 2019 06:20:15 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x63AJGtC146420
-        for <linux-s390@vger.kernel.org>; Wed, 3 Jul 2019 06:20:13 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2tgrdrwm4k-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 03 Jul 2019 06:20:13 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Wed, 3 Jul 2019 11:20:11 +0100
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 0/3] docs: s390: restore content and update s390dbf.rst
-Date: Wed,  3 Jul 2019 12:19:46 +0200
-Message-Id: <1562149189-1417-1-git-send-email-maier@linux.ibm.com>
+Received: from out4437.biz.mail.alibaba.com ([47.88.44.37]:40350 "EHLO
+        out4437.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726403AbfGNPVJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 14 Jul 2019 11:21:09 -0400
+Subject: Re: [PATCH 01/12] Documentation: move architectures together
+References: <20190712022018.27989-1-alex.shi@linux.alibaba.com>
+ <20190712113427.62fa7ffc@lwn.net>
+From: Alex Shi <alex.shi@linux.alibaba.com>
+Message-ID: <36c522c5-975e-e38e-daad-0f3d9f93b186@linux.alibaba.com>
+Date: Sun, 14 Jul 2019 23:21:03 +0800
+MIME-Version: 1.0
+In-Reply-To: <20190712113427.62fa7ffc@lwn.net>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: base64
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-doc@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-omap@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org
 
-This is based on top of the 3 s390 patches Heiko already queued on our
-s390 features branch.
-[("Re: [PATCH v3 00/33] Convert files to ReST - part 1")
- https://www.spinics.net/lists/linux-doc/msg66137.html
- https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/log/Documentation/s390?h=features]
-
-If I was not mistaken, some documentation was accidentally lost
-and patch 1 restores it.
-
-After having looked closer, I came up with patches 2 and 3.
-Rendered successfully on a current Fedora 30 and it looks good:
-$ make SPHINXDIRS="s390" htmldocs
-
-Steffen Maier (3):
-  docs: s390: restore important non-kdoc parts of s390dbf.rst
-  docs: s390: unify and update s390dbf kdocs at debug.c
-  docs: s390: s390dbf: typos and formatting, update crash command
-
- Documentation/s390/s390dbf.rst | 390 +++++++++++++++++++++++++++++++++++++++--
- arch/s390/include/asm/debug.h  | 112 ++----------
- arch/s390/kernel/debug.c       | 105 +++++++++--
- 3 files changed, 473 insertions(+), 134 deletions(-)
-
--- 
-1.8.3.1
+SGkgSm9uLAoKVGhhbmtzIGZvciBxdWljayByZXNwb25zZSEKCu+/ve+/vSAyMDE5LzcvMTMg77+9
+77+977+977+9MTozNCwgSm9uYXRoYW4gQ29yYmV0INC077+977+9Ogo+IE9uIEZyaSwgMTIgSnVs
+IDIwMTkgMTA6MjA6MDcgKzA4MDAKPiBBbGV4IFNoaSA8YWxleC5zaGlAbGludXguYWxpYmFiYS5j
+b20+IHdyb3RlOgo+IAo+PiBUaGVyZSBhcmUgbWFueSBkaWZmZXJlbnQgYXJjaHMgaW4gRG9jdW1l
+bnRhdGlvbi8gZGlyLCBpdCdzIGJldHRlciB0bwo+PiBtb3ZlIHRoZW0gdG9nZXRoZXIgaW4gJ0Rv
+Y3VtZW50YXRpb24vYXJjaCcgd2hpY2ggZm9sbG93cyBmcm9tIGtlcm5lbCBzb3VyY2UuCj4gCj4g
+U28gdGhpcyBzZWVtcyBjZXJ0YWluIHRvIGNvbGxpZGUgYmFkbHkgd2l0aCBNYXVybydzIFJTVC1j
+b252ZXJzaW9uIG1vbnN0ZXIKPiBwYXRjaCBzZXQuCgpJIGRvbid0IG1lYW4gdGhhdCwgc29ycnks
+IGFuZCB3ZSBjYW4gZmlndXJlIG91dCBpZiBib3RoIG9mIHRoZW0gYXJlIHdvcnRoeSB0byBiZSBw
+aWNrZWQgdXAuCgo+IAo+IE1vcmUgdG8gdGhlIHBvaW50LCB0aG91Z2guLi5pZiB3ZSBhcmUgZ29p
+bmcgdG8gdGhyYXNoIHVwIHRoaW5ncyB0aGlzCj4gYmFkbHksIHdlIHdhbnQgdG8gYmUgc3VyZSB0
+aGF0IHdlJ3JlIGRvaW5nIGl0IHJpZ2h0IHNvIHdlIGRvbid0IGVuZCB1cAo+IHJlbmFtaW5nIGV2
+ZXJ5dGhpbmcgYWdhaW4uICBHcm91cGluZyBzdHVmZiBpbnRvIGEgbmV3IGFyY2gvIHN1YmRpcmVj
+dG9yeQo+IGFkZHMgYSBiaXQgb2Ygb3JkZXIsIGJ1dCBpdCBkb2Vzbid0IGRvIG11Y2ggdG93YXJk
+IHRyeWluZyB0byBvcmdhbml6ZSBvdXIKPiBkb2N1bWVudGF0aW9uIGZvciBpdHMgcmVhZGVycywg
+YW5kIGl0IGRvZXNuJ3QgaGVscCB1cyB0byBtb2Rlcm5pemUgdGhlCj4gZG9jcyBhbmQgZ2V0IHJp
+ZCBvZiB0aGUgb2xkLCB1c2VsZXNzIHN0dWZmLiAgQSBxdWljayBjaGVjayBzaG93cyB0aGF0IG1h
+bnkKPiBvZiB0aGVzZSBmaWxlcyBoYXZlIHNlZW4gbm8gY2hhbmdlcyBvdGhlciB0aGFuIHR5cG8g
+Zml4ZXMgc2luY2UgdGhlCj4gYmVnaW5uaW5nIG9mIHRoZSBHaXQgZXJhLgoKUmlnaHQsIHRoZXJl
+IGlzIHNvbWUgZG9jcyB3aGljaCBuZWVkIHRvIGJlIHVwZGF0ZSBvciBldmVuIGRyb3AsIGFuZCBh
+IHJlb3JkZXIgd291bGQgYmUgYSB0aW1pbmcgdG8gcHVzaCBlYWNoIG9mIGFyY2ggbWFpbnRhaW5l
+ciB0byBkbyBzb21ldGhpbmcsIGlzbid0IGl0PyBBbnl3YXksIHJlb3JkZXJpbmcgIGRvY3VtZW50
+cyBsaWtlIGtlcm5lbCBzb3VyY2UgZGlyIGNvdWxkIGJlIG9uZSBvZiBjaG9pY2VzLiA6KQoKPiAK
+PiBTbywgaW4gbXkgbWluZCwgdGhpcyBuZWVkcyBzb21lIHRob3VnaHQuICBNYXliZSB3ZSB3YW50
+IGEKPiBEb2N1bWVudGF0aW9uL2FyY2ggaW4gdGhlIGVuZCwgYnV0IEknbSBub3QgY29udmluY2Vk
+IHRoYXQgd2Ugc2hvdWxkIGp1c3QKPiBjcmVhdGUgaXQgYW5kIGZpbGwgaXQgd2l0aCBhIHNub3cg
+c2hvdmVsLiAgVGhpcyBtaWdodCBiZSBhIGdvb2QgdGhpbmcgdG8KPiBkaXNjdXNzIGF0IHRoZSBr
+ZXJuZWwgc3VtbWl0IGluIFNlcHRlbWJlci4KClRoYW5rcyBmb3IgY29uc2lkZXJpbmcsIGFueXdh
+eSwgaXQgY291bGQgYmUgYSBnb29kIHN0YXJ0IHRvIGdldCBoYW5kcyBkaXJ0eSB3aGV0aGVyIHRo
+ZSBhcmNoIGRpciBpcyBuZWVkZWQuIAoKVGhhbmtzCkFsZXgK
