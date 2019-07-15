@@ -1,33 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr810053.outbound.protection.outlook.com ([40.107.81.53]:56768
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730650AbfGOPZs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jul 2019 11:25:48 -0400
-From: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24332 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2391334AbfGOOZd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:25:33 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6FEMR5R142594
+        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2019 10:25:33 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2trsahey5g-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2019 10:25:32 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Mon, 15 Jul 2019 15:25:30 +0100
+Date: Mon, 15 Jul 2019 16:25:23 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH 1/1] s390/protvirt: restore force_dma_unencrypted()
-Date: Mon, 15 Jul 2019 15:25:45 +0000
-Message-ID: <3f6616a5-7fd5-c706-4d2b-90341882e602@amd.com>
-References: <20190715131719.100650-1-pasic@linux.ibm.com>
- <20190715132027.GA18357@infradead.org>
- <7e393b48-4165-e1d4-0450-e52dd914a3cd@amd.com>
- <20190715142045.GA908@infradead.org>
 In-Reply-To: <20190715142045.GA908@infradead.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C0B0E7303168684AABB6319B9CC87D6B@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+References: <20190715131719.100650-1-pasic@linux.ibm.com>
+        <20190715132027.GA18357@infradead.org>
+        <7e393b48-4165-e1d4-0450-e52dd914a3cd@amd.com>
+        <20190715142045.GA908@infradead.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20190715162523.10803828.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christoph Hellwig <hch@infradead.org>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-T24gNy8xNS8xOSA5OjIwIEFNLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToNCj4gT2ssDQo+IA0K
-PiBJJ3ZlIGZvbGRlZCB0aGUgbWluaW1hbCBzMzkwIGZpeCBpbiwgcGxlYXNlIGJvdGggZG91Ymxl
-IGNoZWNrIHRoYXQgdGhpcw0KPiBpcyBvayBhcyB0aGUgbWluaW1hbGx5IGludmFzaXZlIGZpeDoN
-Cg0KTG9va3MgZ29vZCB0byBtZS4NCg0KVGhhbmtzLA0KVG9tDQoNCj4gDQo+IGh0dHA6Ly9naXQu
-aW5mcmFkZWFkLm9yZy91c2Vycy9oY2gvZG1hLW1hcHBpbmcuZ2l0L2NvbW1pdGRpZmYvN2JiOWJi
-Y2VlODg0NWFmNjYzYTdhNjBkZjllMmNjMjQ0MjJiM2RlNQ0KPiANCj4gVGhlIHMzOTAgZml4IHRv
-IGNsZWFuIHVwIHNldl9hY3RpdmUgY2FuIHRoZW4gZ28gaW50byB0aGUgc2VyaWVzIHRoYXQNCj4g
-VGhpYWdvIGlzIHdvcmtpbmcgb24uDQo+IA0K
+On Mon, 15 Jul 2019 07:20:45 -0700
+Christoph Hellwig <hch@infradead.org> wrote:
+
+> Ok,
+> 
+> I've folded the minimal s390 fix in, please both double check that this
+> is ok as the minimally invasive fix:
+> 
+> http://git.infradead.org/users/hch/dma-mapping.git/commitdiff/7bb9bbcee8845af663a7a60df9e2cc24422b3de5
+> 
+> The s390 fix to clean up sev_active can then go into the series that
+> Thiago is working on.
+> 
+
+Works with me.
+
+Regards,
+Halil
