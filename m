@@ -1,31 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57916 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726976AbfGLRVM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Jul 2019 13:21:12 -0400
-From: Petr Tesarik <ptesarik@suse.com>
-Subject: [PATCH 0/2] Add uncompressed Linux banner to s390 bzImage
-Date: Fri, 12 Jul 2019 19:20:59 +0200
-Message-Id: <cover.1562950641.git.ptesarik@suse.com>
+Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731803AbfGONvE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:51:04 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 077/249] s390/qdio: handle PENDING state for QEBSM devices
+Date: Mon, 15 Jul 2019 09:44:02 -0400
+Message-Id: <20190715134655.4076-77-sashal@kernel.org>
+In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
+References: <20190715134655.4076-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Laura Abbott <labbott@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: Petr Tesarik <ptesarik@suse.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-These patches make it easy to determine the kernel version from a
-compressed binary by scanning for the Linux banner string in the
-uncompressed portion of bzImage.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Petr Tesarik (2):
-  init: Separate banner from init_uts_ns
-  s390: add Linux banner to the compressed image
+[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
 
- arch/s390/boot/compressed/Makefile |  1 +
- init/Makefile                      |  2 +-
- init/banner.c                      | 21 +++++++++++++++++++++
- init/version.c                     | 10 ----------
- 4 files changed, 23 insertions(+), 11 deletions(-)
- create mode 100644 init/banner.c
+When a CQ-enabled device uses QEBSM for SBAL state inspection,
+get_buf_states() can return the PENDING state for an Output Queue.
+get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
+buffer will permanently stall all further completion processing on this
+Queue.
 
+This isn't a concern for non-QEBSM devices, as get_buf_states() for such
+devices will manually turn PENDING buffers into EMPTY ones.
+
+Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/cio/qdio_main.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 7b7620de2acd..730c4e68094b 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -736,6 +736,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q, unsigned int start)
+ 
+ 	switch (state) {
+ 	case SLSB_P_OUTPUT_EMPTY:
++	case SLSB_P_OUTPUT_PENDING:
+ 		/* the adapter got it */
+ 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
+ 			"out empty:%1d %02x", q->nr, count);
 -- 
-2.16.4
+2.20.1
