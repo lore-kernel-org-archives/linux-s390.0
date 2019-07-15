@@ -1,147 +1,111 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7720 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732464AbfGOUAe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jul 2019 16:00:34 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6FJw8VN097096
+        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2019 16:00:31 -0400
+Received: from e12.ny.us.ibm.com (e12.ny.us.ibm.com [129.33.205.202])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2trvcma983-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 15 Jul 2019 16:00:31 -0400
+Received: from localhost
+        by e12.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bauerman@linux.ibm.com>;
+        Mon, 15 Jul 2019 21:00:30 +0100
+References: <20190713044554.28719-1-bauerman@linux.ibm.com> <20190713044554.28719-2-bauerman@linux.ibm.com> <3dc137a99c73b1b6582fc854844a417e@linux.vnet.ibm.com>
 From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: [PATCH 2/3] DMA mapping: Move SME handling to x86-specific files
-Date: Sat, 13 Jul 2019 01:45:53 -0300
-Message-Id: <20190713044554.28719-3-bauerman@linux.ibm.com>
-In-Reply-To: <20190713044554.28719-1-bauerman@linux.ibm.com>
-References: <20190713044554.28719-1-bauerman@linux.ibm.com>
+Subject: Re: [PATCH 1/3] x86, s390: Move ARCH_HAS_MEM_ENCRYPT definition to arch/Kconfig
+In-reply-to: <3dc137a99c73b1b6582fc854844a417e@linux.vnet.ibm.com>
+Date: Mon, 15 Jul 2019 17:00:01 -0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <877e8jnk5a.fsf@morokweng.localdomain>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: x86@kernel.org
-Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: janani@linux.ibm.com
+Cc: x86@kernel.org, linux-s390@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Robin Murphy <robin.murphy@arm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, iommu@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Linuxppc-dev <linuxppc-dev-bounces+janani=linux.ibm.com@lists.ozlabs.org>
 
-Secure Memory Encryption is an x86-specific feature, so it shouldn't appear
-in generic kernel code.
 
-In DMA mapping code, Christoph Hellwig mentioned that "There is no reason
-why we should have a special debug printk just for one specific reason why
-there is a requirement for a large DMA mask.", so we just remove
-dma_check_mask().
+Hello Janani,
 
-In SWIOTLB code, there's no need to mention which memory encryption feature
-is active, so just use a more generic warning. Besides, other architectures
-will have different names for similar technology.
+Thanks for reviewing the patch.
 
-Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
----
- arch/s390/include/asm/mem_encrypt.h |  4 +---
- arch/x86/include/asm/mem_encrypt.h  | 10 ++++++++++
- include/linux/mem_encrypt.h         | 14 +-------------
- kernel/dma/mapping.c                |  8 --------
- kernel/dma/swiotlb.c                |  3 +--
- 5 files changed, 13 insertions(+), 26 deletions(-)
+janani <janani@linux.ibm.com> writes:
 
-diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
-index 3eb018508190..ff813a56bc30 100644
---- a/arch/s390/include/asm/mem_encrypt.h
-+++ b/arch/s390/include/asm/mem_encrypt.h
-@@ -4,9 +4,7 @@
- 
- #ifndef __ASSEMBLY__
- 
--#define sme_me_mask	0ULL
--
--static inline bool sme_active(void) { return false; }
-+static inline bool mem_encrypt_active(void) { return false; }
- extern bool sev_active(void);
- 
- int set_memory_encrypted(unsigned long addr, int numpages);
-diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
-index 0c196c47d621..848ce43b9040 100644
---- a/arch/x86/include/asm/mem_encrypt.h
-+++ b/arch/x86/include/asm/mem_encrypt.h
-@@ -92,6 +92,16 @@ early_set_memory_encrypted(unsigned long vaddr, unsigned long size) { return 0;
- 
- extern char __start_bss_decrypted[], __end_bss_decrypted[], __start_bss_decrypted_unused[];
- 
-+static inline bool mem_encrypt_active(void)
-+{
-+	return sme_me_mask;
-+}
-+
-+static inline u64 sme_get_me_mask(void)
-+{
-+	return sme_me_mask;
-+}
-+
- #endif	/* __ASSEMBLY__ */
- 
- #endif	/* __X86_MEM_ENCRYPT_H__ */
-diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
-index 470bd53a89df..0c5b0ff9eb29 100644
---- a/include/linux/mem_encrypt.h
-+++ b/include/linux/mem_encrypt.h
-@@ -18,23 +18,11 @@
- 
- #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
--#define sme_me_mask	0ULL
--
--static inline bool sme_active(void) { return false; }
-+static inline bool mem_encrypt_active(void) { return false; }
- static inline bool sev_active(void) { return false; }
- 
- #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
--static inline bool mem_encrypt_active(void)
--{
--	return sme_me_mask;
--}
--
--static inline u64 sme_get_me_mask(void)
--{
--	return sme_me_mask;
--}
--
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- /*
-  * The __sme_set() and __sme_clr() macros are useful for adding or removing
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index f7afdadb6770..b53fc7ec4914 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -291,12 +291,6 @@ void dma_free_attrs(struct device *dev, size_t size, void *cpu_addr,
- }
- EXPORT_SYMBOL(dma_free_attrs);
- 
--static inline void dma_check_mask(struct device *dev, u64 mask)
--{
--	if (sme_active() && (mask < (((u64)sme_get_me_mask() << 1) - 1)))
--		dev_warn(dev, "SME is active, device will require DMA bounce buffers\n");
--}
--
- int dma_supported(struct device *dev, u64 mask)
- {
- 	const struct dma_map_ops *ops = get_dma_ops(dev);
-@@ -321,7 +315,6 @@ int dma_set_mask(struct device *dev, u64 mask)
- 		return -EIO;
- 
- 	arch_dma_set_mask(dev, mask);
--	dma_check_mask(dev, mask);
- 	*dev->dma_mask = mask;
- 	return 0;
- }
-@@ -333,7 +326,6 @@ int dma_set_coherent_mask(struct device *dev, u64 mask)
- 	if (!dma_supported(dev, mask))
- 		return -EIO;
- 
--	dma_check_mask(dev, mask);
- 	dev->coherent_dma_mask = mask;
- 	return 0;
- }
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 62fa5a82a065..e52401f94e91 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -459,8 +459,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
- 		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
- 
- 	if (mem_encrypt_active())
--		pr_warn_once("%s is active and system is using DMA bounce buffers\n",
--			     sme_active() ? "SME" : "SEV");
-+		pr_warn_once("Memory encryption is active and system is using DMA bounce buffers\n");
- 
- 	mask = dma_get_seg_boundary(hwdev);
- 
+> On 2019-07-12 23:45, Thiago Jung Bauermann wrote:
+>> powerpc is also going to use this feature, so put it in a generic location.
+>>
+>> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+>> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+>> ---
+>>  arch/Kconfig      | 3 +++
+>>  arch/s390/Kconfig | 3 ---
+>>  arch/x86/Kconfig  | 4 +---
+>>  3 files changed, 4 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/arch/Kconfig b/arch/Kconfig
+>> index c47b328eada0..4ef3499d4480 100644
+>> --- a/arch/Kconfig
+>> +++ b/arch/Kconfig
+>> @@ -927,6 +927,9 @@ config LOCK_EVENT_COUNTS
+>>  	  the chance of application behavior change because of timing
+>>  	  differences. The counts are reported via debugfs.
+>>
+>> +config ARCH_HAS_MEM_ENCRYPT
+>> +	bool
+>> +
+>>  source "kernel/gcov/Kconfig"
+>>
+>>  source "scripts/gcc-plugins/Kconfig"
+>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+>> index 5d8570ed6cab..f820e631bf89 100644
+>> --- a/arch/s390/Kconfig
+>> +++ b/arch/s390/Kconfig
+>> @@ -1,7 +1,4 @@
+>>  # SPDX-License-Identifier: GPL-2.0
+>> -config ARCH_HAS_MEM_ENCRYPT
+>> -        def_bool y
+>> -
+>
+>  Since you are removing the "def_bool y" when ARCH_HAS_MEM_ENCRYPT is moved to
+> arch/Kconfig, does the s390/Kconfig need "select ARCH_HAS_MEM_ENCRYPT" added
+> like you do for x86/Kconfig?
+
+Indeed, I missed that. Thanks for spotting it!
+
+>
+>  - Janani
+>
+>>  config MMU
+>>  	def_bool y
+>>
+>> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+>> index c9f331bb538b..5d3295f2df94 100644
+>> --- a/arch/x86/Kconfig
+>> +++ b/arch/x86/Kconfig
+>> @@ -68,6 +68,7 @@ config X86
+>>  	select ARCH_HAS_FORTIFY_SOURCE
+>>  	select ARCH_HAS_GCOV_PROFILE_ALL
+>>  	select ARCH_HAS_KCOV			if X86_64
+>> +	select ARCH_HAS_MEM_ENCRYPT
+>>  	select ARCH_HAS_MEMBARRIER_SYNC_CORE
+>>  	select ARCH_HAS_PMEM_API		if X86_64
+>>  	select ARCH_HAS_PTE_SPECIAL
+>> @@ -1520,9 +1521,6 @@ config X86_CPA_STATISTICS
+>>  	  helps to determine the effectiveness of preserving large and huge
+>>  	  page mappings when mapping protections are changed.
+>>
+>> -config ARCH_HAS_MEM_ENCRYPT
+>> -	def_bool y
+>> -
+>>  config AMD_MEM_ENCRYPT
+>>  	bool "AMD Secure Memory Encryption (SME) support"
+>>  	depends on X86_64 && CPU_SUP_AMD
+
+
+-- 
+Thiago Jung Bauermann
+IBM Linux Technology Center
