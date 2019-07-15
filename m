@@ -1,51 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr740122.outbound.protection.outlook.com ([40.107.74.122]:20938
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727956AbfGKX0Q (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 19:26:16 -0400
-From: Hoan Tran OS <hoan@os.amperecomputing.com>
-Subject: [PATCH v2 4/5] sparc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-Date: Thu, 11 Jul 2019 23:25:54 +0000
-Message-ID: <1562887528-5896-5-git-send-email-Hoan@os.amperecomputing.com>
-References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from mail.kernel.org ([198.145.29.99]:35588 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404766AbfGOOi0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:38:26 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 30/73] s390/qdio: handle PENDING state for QEBSM devices
+Date: Mon, 15 Jul 2019 10:35:46 -0400
+Message-Id: <20190715143629.10893-30-sashal@kernel.org>
+In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
+References: <20190715143629.10893-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>, Hoan Tran OS <hoan@os.amperecomputing.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled
-by default with NUMA.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
+[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
+
+When a CQ-enabled device uses QEBSM for SBAL state inspection,
+get_buf_states() can return the PENDING state for an Output Queue.
+get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
+buffer will permanently stall all further completion processing on this
+Queue.
+
+This isn't a concern for non-QEBSM devices, as get_buf_states() for such
+devices will manually turn PENDING buffers into EMPTY ones.
+
+Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/Kconfig | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/s390/cio/qdio_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 26ab6f5..13449ea 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -291,15 +291,6 @@ config NODES_SHIFT
- 	  Specify the maximum number of NUMA Nodes available on the target
- 	  system.  Increases memory reserved to accommodate various tables.
-=20
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on NEED_MULTIPLE_NODES
--
- config ARCH_SELECT_MEMORY_MODEL
- 	def_bool y if SPARC64
-=20
---=20
-2.7.4
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 18ab84e9c6b2..58cd0e0c9680 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -758,6 +758,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
+ 
+ 	switch (state) {
+ 	case SLSB_P_OUTPUT_EMPTY:
++	case SLSB_P_OUTPUT_PENDING:
+ 		/* the adapter got it */
+ 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
+ 			"out empty:%1d %02x", q->nr, count);
+-- 
+2.20.1
