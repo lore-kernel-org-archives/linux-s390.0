@@ -1,181 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34540 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729538AbfGaNca (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 09:32:30 -0400
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v2 3/3] KVM: selftests: Enable dirty_log_test on s390x
-Date: Wed, 31 Jul 2019 15:32:16 +0200
-Message-Id: <20190731133216.5620-4-thuth@redhat.com>
-In-Reply-To: <20190731133216.5620-1-thuth@redhat.com>
-References: <20190731133216.5620-1-thuth@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 16 Jul 2019 00:05:30 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH 2/2] s390: add Linux banner to the compressed image
+References: <cover.1562950641.git.ptesarik@suse.com>
+ <aa477dd145aa2beb37fe813619b0723744a22a0a.1562950641.git.ptesarik@suse.com>
+ <your-ad-here.call-01563114933-ext-9422@work.hours>
+ <20190714175041.194c98be@ezekiel.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20190714175041.194c98be@ezekiel.suse.cz>
+Message-Id: <your-ad-here.call-01563228330-ext-8076@work.hours>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
+To: Petr Tesarik <PTesarik@suse.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Philipp Rudo <prudo@linux.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Laura Abbott <labbott@redhat.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Raymund Will <rw@suse.com>
 
-To run the dirty_log_test on s390x, we have to make sure that we
-access the dirty log bitmap with little endian byte ordering and
-we have to properly align the memslot of the guest.
-Also all dirty bits of a segment are set once on s390x when one
-of the pages of a segment are written to for the first time, so
-we have to make sure that we touch all pages during the first
-iteration to keep the test in sync here.
-DEFAULT_GUEST_TEST_MEM needs an adjustment, too. On some s390x
-distributions, the ELF binary is linked to address 0x80000000,
-so we have to avoid that our test region overlaps into this area.
-0xc0000000 seems to be a good alternative that should work on x86
-and aarch64, too.
+On Sun, Jul 14, 2019 at 03:52:52PM +0000, Petr Tesarik wrote:
+> On Sun, 14 Jul 2019 16:35:33 +0200
+> Vasily Gorbik <gor@linux.ibm.com> wrote:
+> 
+> > On Fri, Jul 12, 2019 at 07:21:01PM +0200, Petr Tesarik wrote:
+> > > Various tools determine the kernel version from a given binary by
+> > > scanning for the Linux banner string. This does not work if the
+> > > banner string is compressed, but we can link it once more into the
+> > > uncompressed portion of bzImage.
+> 
+> > But even before discussing solutions I would like to understand the
+> > problem first. Which specific tools are you referring to? What are they
+> > good for? And how do they get the kernel version from other architectures
+> > compressed images?
+> 
+> The tool I'm aware of is called get_kernel_version. It's built as part
+> of openSUSE aaa_base and is used at install time. I'm not quite sure
+> how it is used, but I have added Raymund Will to Cc; he can provide
+> more information. There's also an open bug for it:
+> 
+>   https://bugzilla.opensuse.org/show_bug.cgi?id=1139939
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- tools/testing/selftests/kvm/Makefile         |  1 +
- tools/testing/selftests/kvm/dirty_log_test.c | 59 +++++++++++++++++---
- 2 files changed, 53 insertions(+), 7 deletions(-)
+Oh, I see, found it, thanks. Very interesting tool.
+https://github.com/openSUSE/aaa_base/blob/master/get_kernel_version.c
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 75ea1ecbf85a..1b48a94b4350 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -33,6 +33,7 @@ TEST_GEN_PROGS_aarch64 += dirty_log_test
- TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
- 
- TEST_GEN_PROGS_s390x += s390x/sync_regs_test
-+TEST_GEN_PROGS_s390x += dirty_log_test
- TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
- 
- TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(UNAME_M))
-diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
-index 5d5ae1be4984..dc3346e090f5 100644
---- a/tools/testing/selftests/kvm/dirty_log_test.c
-+++ b/tools/testing/selftests/kvm/dirty_log_test.c
-@@ -26,8 +26,8 @@
- /* The memory slot index to track dirty pages */
- #define TEST_MEM_SLOT_INDEX		1
- 
--/* Default guest test memory offset, 1G */
--#define DEFAULT_GUEST_TEST_MEM		0x40000000
-+/* Default guest test virtual memory offset */
-+#define DEFAULT_GUEST_TEST_MEM		0xc0000000
- 
- /* How many pages to dirty for each guest loop */
- #define TEST_PAGES_PER_LOOP		1024
-@@ -38,6 +38,27 @@
- /* Interval for each host loop (ms) */
- #define TEST_HOST_LOOP_INTERVAL		10UL
- 
-+/* Dirty bitmaps are always little endian, so we need to swap on big endian */
-+#if defined(__s390x__)
-+# define BITOP_LE_SWIZZLE	((BITS_PER_LONG-1) & ~0x7)
-+# define test_bit_le(nr, addr) \
-+	test_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
-+# define set_bit_le(nr, addr) \
-+	set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
-+# define clear_bit_le(nr, addr) \
-+	clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
-+# define test_and_set_bit_le(nr, addr) \
-+	test_and_set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
-+# define test_and_clear_bit_le(nr, addr) \
-+	test_and_clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
-+#else
-+# define test_bit_le		test_bit
-+# define set_bit_le		set_bit
-+# define clear_bit_le		clear_bit
-+# define test_and_set_bit_le	test_and_set_bit
-+# define test_and_clear_bit_le	test_and_clear_bit
-+#endif
-+
- /*
-  * Guest/Host shared variables. Ensure addr_gva2hva() and/or
-  * sync_global_to/from_guest() are used when accessing from
-@@ -69,11 +90,23 @@ static uint64_t guest_test_virt_mem = DEFAULT_GUEST_TEST_MEM;
-  */
- static void guest_code(void)
- {
-+	uint64_t addr;
- 	int i;
- 
-+	/*
-+	 * On s390x, all pages of a 1M segment are initially marked as dirty
-+	 * when a page of the segment is written to for the very first time.
-+	 * To compensate this specialty in this test, we need to touch all
-+	 * pages during the first iteration.
-+	 */
-+	for (i = 0; i < guest_num_pages; i++) {
-+		addr = guest_test_virt_mem + i * guest_page_size;
-+		*(uint64_t *)addr = READ_ONCE(iteration);
-+	}
-+
- 	while (true) {
- 		for (i = 0; i < TEST_PAGES_PER_LOOP; i++) {
--			uint64_t addr = guest_test_virt_mem;
-+			addr = guest_test_virt_mem;
- 			addr += (READ_ONCE(random_array[i]) % guest_num_pages)
- 				* guest_page_size;
- 			addr &= ~(host_page_size - 1);
-@@ -158,15 +191,15 @@ static void vm_dirty_log_verify(unsigned long *bmap)
- 		value_ptr = host_test_mem + page * host_page_size;
- 
- 		/* If this is a special page that we were tracking... */
--		if (test_and_clear_bit(page, host_bmap_track)) {
-+		if (test_and_clear_bit_le(page, host_bmap_track)) {
- 			host_track_next_count++;
--			TEST_ASSERT(test_bit(page, bmap),
-+			TEST_ASSERT(test_bit_le(page, bmap),
- 				    "Page %"PRIu64" should have its dirty bit "
- 				    "set in this iteration but it is missing",
- 				    page);
- 		}
- 
--		if (test_bit(page, bmap)) {
-+		if (test_bit_le(page, bmap)) {
- 			host_dirty_count++;
- 			/*
- 			 * If the bit is set, the value written onto
-@@ -209,7 +242,7 @@ static void vm_dirty_log_verify(unsigned long *bmap)
- 				 * should report its dirtyness in the
- 				 * next run
- 				 */
--				set_bit(page, host_bmap_track);
-+				set_bit_le(page, host_bmap_track);
- 			}
- 		}
- 	}
-@@ -293,6 +326,10 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
- 	 * case where the size is not aligned to 64 pages.
- 	 */
- 	guest_num_pages = (1ul << (30 - guest_page_shift)) + 16;
-+#ifdef __s390x__
-+	/* Round up to multiple of 1M (segment size) */
-+	guest_num_pages = (guest_num_pages + 0xff) & ~0xffUL;
-+#endif
- 	host_page_size = getpagesize();
- 	host_num_pages = (guest_num_pages * guest_page_size) / host_page_size +
- 			 !!((guest_num_pages * guest_page_size) % host_page_size);
-@@ -304,6 +341,11 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
- 		guest_test_phys_mem = phys_offset;
- 	}
- 
-+#ifdef __s390x__
-+	/* Align to 1M (segment size) */
-+	guest_test_phys_mem &= ~((1 << 20) - 1);
-+#endif
-+
- 	DEBUG("guest physical test memory offset: 0x%lx\n", guest_test_phys_mem);
- 
- 	bmap = bitmap_alloc(host_num_pages);
-@@ -454,6 +496,9 @@ int main(int argc, char *argv[])
- 		vm_guest_mode_params_init(VM_MODE_P48V48_64K, true, true);
- 	}
- #endif
-+#ifdef __s390x__
-+	vm_guest_mode_params_init(VM_MODE_P40V48_4K, true, true);
-+#endif
- 
- 	while ((opt = getopt(argc, argv, "hi:I:p:m:")) != -1) {
- 		switch (opt) {
--- 
-2.21.0
+And the only usage of this tool I found is to get the kernel version of
+/boot/image (on s390) to run depmod during
+yast-installation/src/clients/network_finish.rb
+
+I also see that queries to rpm are already done from
+yast-yast2/library/system/src/modules/Kernel.rb
+Wouldn't it be more reliable (and portable) to just get the kernel
+version from rpm metadata? Without using unreliable tools? Or find some
+other solution, since this is the only use case for the tool?
+$ rpm -qf --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' /boot/vmlinuz-5.1.17-300.fc30.x86_64
+5.1.17-300.fc30.x86_64
+[it looks like openSUSE kernel rpms don't have metadata to reconstruct
+full kernel version currently, but that could be improved?]
+
+Anyhow, I'm not opposed to an idea to make it possible to detect the
+kernel version from bzImage. But it should be reliable. So, see the
+follow on patch I'm sending.
