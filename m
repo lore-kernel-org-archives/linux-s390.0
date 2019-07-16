@@ -1,68 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1192 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729283AbfGHULF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jul 2019 16:11:05 -0400
-From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [RFC v2 2/5] vfio-ccw: Fix memory leak and don't call cp_free in cp_init
-Date: Mon,  8 Jul 2019 16:10:35 -0400
-Message-Id: <fbb44bc85f5dfe4fdaebaf9cb74efcfae4743fba.1562616169.git.alifm@linux.ibm.com>
-In-Reply-To: <cover.1562616169.git.alifm@linux.ibm.com>
-References: <cover.1562616169.git.alifm@linux.ibm.com>
-In-Reply-To: <cover.1562616169.git.alifm@linux.ibm.com>
-References: <cover.1562616169.git.alifm@linux.ibm.com>
+Received: from m9a0002g.houston.softwaregrp.com ([15.124.64.67]:39044 "EHLO
+        m9a0002g.houston.softwaregrp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728137AbfGPPTz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Jul 2019 11:19:55 -0400
+From: Petr Tesarik <PTesarik@suse.com>
+Subject: Re: [PATCH] s390: enable detection of kernel version from bzImage
+Date: Tue, 16 Jul 2019 15:10:32 +0000
+Message-ID: <20190716171019.0313d3d9@ezekiel.suse.cz>
+References: <your-ad-here.call-01563228330-ext-8076@work.hours>
+        <patch.git-94e9726bbfe5.your-ad-here.call-01563228538-ext-5706@work.hours>
+        <20190716123006.2d426ec8@ezekiel.suse.cz>
+        <your-ad-here.call-01563282698-ext-9575@work.hours>
+In-Reply-To: <your-ad-here.call-01563282698-ext-9575@work.hours>
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        boundary="Sig_/QOVQTxMmYG2vTcfhSUNHucV";
+        protocol="application/pgp-signature"
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: cohuck@redhat.com, farman@linux.ibm.com, pasic@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, alifm@linux.ibm.com
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Philipp Rudo <prudo@linux.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Laura Abbott <labbott@redhat.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Raymund Will <rw@suse.com>
 
-We don't set cp->initialized to true so calling cp_free
-will just return and not do anything.
+--Sig_/QOVQTxMmYG2vTcfhSUNHucV
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Also fix a memory leak where we fail to free a ccwchain
-on an error.
+On Tue, 16 Jul 2019 15:11:38 +0200
+Vasily Gorbik <gor@linux.ibm.com> wrote:
 
-Fixes: 812271b910 ("s390/cio: Squash cp_free() and cp_unpin_free()")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+> On Tue, Jul 16, 2019 at 10:30:14AM +0000, Petr Tesarik wrote:
+> > On Tue, 16 Jul 2019 00:12:19 +0200
+> > Vasily Gorbik <gor@linux.ibm.com> wrote:
+> >  =20
+> > > Extend "parmarea" to include an offset of the version string, which is
+> > > stored as 8-byte big endian value.
+> > >=20
+> > > To retrieve version string from bzImage reliably, one should check the
+> > > presence of "S390EP" ascii string at 0x10008 (available since v3.2),
+> > > then read the version string offset from 0x10428 (which has been 0
+> > > since v3.2 up to now). The string is null terminated.
+> > >=20
+> > > Could be retrieved with the following "file" command magic (requires
+> > > file v5.34):
+> > > 8 string \x02\x00\x00\x18\x60\x00\x00\x50\x02\x00\x00\x68\x60\x00\x00=
+\x50\x40\x40\x40\x40\x40\x40\x40\x40 Linux S390 =20
+> > > >0x10008       string          S390EP   =20
+> > > >>0x10428      bequad          >0   =20
+> > > >>>(0x10428.Q) string          >\0             \b, version %s   =20
+> > >=20
+> > > Signed-off-by: Vasily Gorbik <gor@linux.ibm.com> =20
+> >=20
+> > This looks great! Much cleaner than the original approach.
+> >=20
+> > Thank you,
+> > Petr T =20
+>=20
+> Then I'll add
+> Reported-by: Petr Tesarik <ptesarik@suse.com>
+> Suggested-by: Petr Tesarik <ptesarik@suse.com>
+> if you don't mind and try to queue that for 5.3.
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 7622b72..31a04a5 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -421,7 +421,7 @@ static int ccwchain_loop_tic(struct ccwchain *chain,
- static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- {
- 	struct ccwchain *chain;
--	int len;
-+	int len, ret;
- 
- 	/* Copy 2K (the most we support today) of possible CCWs */
- 	len = copy_from_iova(cp->mdev, cp->guest_cp, cda,
-@@ -448,7 +448,12 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 	memcpy(chain->ch_ccw, cp->guest_cp, len * sizeof(struct ccw1));
- 
- 	/* Loop for tics on this new chain. */
--	return ccwchain_loop_tic(chain, cp);
-+	ret = ccwchain_loop_tic(chain, cp);
-+
-+	if (ret)
-+		ccwchain_free(chain);
-+
-+	return ret;
- }
- 
- /* Loop for TICs. */
-@@ -642,8 +647,6 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 
- 	/* Build a ccwchain for the first CCW segment */
- 	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
--	if (ret)
--		cp_free(cp);
- 
- 	/* It is safe to force: if it was not set but idals used
- 	 * ccwchain_calc_length would have returned an error.
--- 
-2.7.4
+Oh, sure, please add these lines and go ahead.
+
+Thank you again,
+Petr T
+
+--Sig_/QOVQTxMmYG2vTcfhSUNHucV
+Content-Type: application/pgp-signature
+Content-Description: =?unknown-8bit?q?Digit=C3=A1ln=C3=AD?= podpis OpenPGP
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEHl2YIZkIo5VO2MxYqlA7ya4PR6cFAl0t6NsACgkQqlA7ya4P
+R6d7Xwf+JNE4QIkYg1+FqAdL+wSIawGHgDsRlLflNNiFUtSyXFP6YQ2QiNVZkW6u
+IAI8Q9hexXcHBcPttgIxoc7spvMxWnsUnfdy75BlyeUIpmArKUeoWyOoA4CycAuo
+MIBwcXWkLv59+7VrZYCSHuquMjtRisnYLj7iwGshjLjlrT4BCfwboJozfGvjRDDB
+1fbPen/3fnYtACRZWZ6lXrWHo+q0qdnGzi3Q3MtDRRgcn2NvMGk43V2Qf/KGJ7kf
+WDpkJqqcLUS2yq9By7X6m3Exx/AimjomPgSJv43qJnHRKeRkCePX8g/0l0JcZxi3
+FKC3BMjzl1UEuf1YZ2UwubO+6YvuNg==
+=YyiZ
+-----END PGP SIGNATURE-----
+
+--Sig_/QOVQTxMmYG2vTcfhSUNHucV--
