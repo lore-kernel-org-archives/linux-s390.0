@@ -1,60 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60422 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726084AbfGHIXG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jul 2019 04:23:06 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x688MplM107076
-        for <linux-s390@vger.kernel.org>; Mon, 8 Jul 2019 04:23:05 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tkysjwamv-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 08 Jul 2019 04:23:05 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Mon, 8 Jul 2019 09:23:03 +0100
-Date: Mon, 8 Jul 2019 10:22:57 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH] s390: ap: constify parameter of match_apqn
-References: <your-ad-here.call-01562573328-ext-8139@work.hours>
+Received: from mx1.redhat.com ([209.132.183.28]:55940 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731690AbfGPKJT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Jul 2019 06:09:19 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 2/5] vfio-ccw: Fix memory leak and don't call cp_free in cp_init
+Date: Tue, 16 Jul 2019 12:09:05 +0200
+Message-Id: <20190716100908.3460-3-cohuck@redhat.com>
+In-Reply-To: <20190716100908.3460-1-cohuck@redhat.com>
+References: <20190716100908.3460-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <your-ad-here.call-01562573328-ext-8139@work.hours>
-Message-Id: <patch.git-14fdf13eac05.your-ad-here.call-01562573328-ext-8139@work.hours>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
 
-commit 92ce7e83b4e5 ("driver_find_device: Unify the match function with
-class_find_device()") changed the prototype of driver_find_device to
-use a const void pointer.
+We don't set cp->initialized to true so calling cp_free
+will just return and not do anything.
 
-Change match_apqn accordingly.
+Also fix a memory leak where we fail to free a ccwchain
+on an error.
 
-Fixes: ec89b55e3bce ("s390: ap: implement PAPQ AQIC interception in kernel")
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 812271b910 ("s390/cio: Squash cp_free() and cp_unpin_free()")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Message-Id: <3173c4216f4555d9765eb6e4922534982bc820e4.1562854091.git.alifm@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 2c9fb1423a39..7e85ba7c6ef0 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -26,7 +26,7 @@
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
- 
--static int match_apqn(struct device *dev, void *data)
-+static int match_apqn(struct device *dev, const void *data)
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 46967c664c0f..e4e8724eddaa 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -421,7 +421,7 @@ static int ccwchain_loop_tic(struct ccwchain *chain,
+ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
  {
- 	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+ 	struct ccwchain *chain;
+-	int len;
++	int len, ret;
  
+ 	/* Copy 2K (the most we support today) of possible CCWs */
+ 	len = copy_from_iova(cp->mdev, cp->guest_cp, cda,
+@@ -448,7 +448,12 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
+ 	memcpy(chain->ch_ccw, cp->guest_cp, len * sizeof(struct ccw1));
+ 
+ 	/* Loop for tics on this new chain. */
+-	return ccwchain_loop_tic(chain, cp);
++	ret = ccwchain_loop_tic(chain, cp);
++
++	if (ret)
++		ccwchain_free(chain);
++
++	return ret;
+ }
+ 
+ /* Loop for TICs. */
+@@ -642,8 +647,6 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 
+ 	/* Build a ccwchain for the first CCW segment */
+ 	ret = ccwchain_handle_ccw(orb->cmd.cpa, cp);
+-	if (ret)
+-		cp_free(cp);
+ 
+ 	if (!ret) {
+ 		cp->initialized = true;
 -- 
-2.21.0
+2.20.1
