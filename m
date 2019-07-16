@@ -1,8 +1,8 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45548 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57686 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733200AbfGPLJO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jul 2019 07:09:14 -0400
+        id S1733200AbfGPLJE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Jul 2019 07:09:04 -0400
 Subject: Re: [PATCH v3 10/11] mm/memory_hotplug: Make
  unregister_memory_block_under_nodes() never fail
 References: <20190527111152.16324-1-david@redhat.com>
@@ -12,8 +12,8 @@ References: <20190527111152.16324-1-david@redhat.com>
  <d450488d-7a82-f7a9-c8d3-b69a0bca48c6@redhat.com>
  <20190716084626.GA12394@linux>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <eb51f770-b0a3-f50c-daa4-babe6e8d3fc4@redhat.com>
-Date: Tue, 16 Jul 2019 13:09:06 +0200
+Message-ID: <d9e63646-f81d-c349-a54c-e17cdccb0760@redhat.com>
+Date: Tue, 16 Jul 2019 13:08:56 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190716084626.GA12394@linux>
 Content-Type: text/plain; charset=utf-8
@@ -68,7 +68,7 @@ On 16.07.19 10:46, Oscar Salvador wrote:
 As far as I can tell we
 
 a) don't allow offlining of memory that belongs to multiple nodes
-already (as pointed out by Michal recently)
+already (as pointed out by Michael recently)
 
 b) users cannot add memory blocks that belong to multiple nodes via
 add_memory()
