@@ -1,56 +1,42 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51028 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726329AbfGBSJi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jul 2019 14:09:38 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x62I6u3T061266
-        for <linux-s390@vger.kernel.org>; Tue, 2 Jul 2019 14:09:36 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tgb3tjqjg-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jul 2019 14:09:36 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Tue, 2 Jul 2019 19:09:34 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH] vfio-ccw: Fix the conversion of Format-0 CCWs to Format-1
-Date: Tue,  2 Jul 2019 20:09:28 +0200
-Message-Id: <20190702180928.18113-1-farman@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 3/4] arch: Register fchmodat4, usually as syscall 434
+Date: Wed, 17 Jul 2019 09:54:02 +0200
+Message-ID: <CAK8P3a2SGNJXqbHGFhVoPDZLpPYWGDVJ42D2476DLPU4nvf85g@mail.gmail.com>
+References: <20190717012719.5524-1-palmer@sifive.com>
+ <20190717012719.5524-4-palmer@sifive.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20190717012719.5524-4-palmer@sifive.com>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+List-Archive: <https://lore.kernel.org/linux-api/>
+List-Post: <mailto:linux-api@vger.kernel.org>
+To: Palmer Dabbelt <palmer@sifive.com>
+Cc: Rich Felker <dalias@libc.org>, Catalin Marinas <catalin.marinas@arm.com>, Linux-sh list <linux-sh@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Agner <stefan@agner.ch>, linux-mips@vger.kernel.org, James Bottomley <James.Bottomley@hansenpartnership.com>, Namhyung Kim <namhyung@kernel.org>, kim.phillips@arm.com, Paul Mackerras <paulus@samba.org>, Deepa Dinamani <deepa.kernel@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux <sparclinux@vger.kernel.org>, linux-ia64@vger.kernel.org, Will Deacon <will@kernel.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Hannes Reinecke <hare@suse.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Helge Deller <deller@gmx.de>, the arch/x86 maintainers <x86@kernel.org>, Russell King - ARM Linux <linux@armlinux.org.uk>, Christian
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Farhan Ali <alifm@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 
-When processing Format-0 CCWs, we use the "len" variable as the
-number of CCWs to convert to Format-1.  But that variable
-contains zero here, and is not a meaningful CCW count until
-ccwchain_calc_length() returns.  Since that routine requires and
-expects Format-1 CCWs to identify the chaining behavior, the
-format conversion must be done first.
+On Wed, Jul 17, 2019 at 3:29 AM Palmer Dabbelt <palmer@sifive.com> wrote:
+>
+> This registers the new fchmodat4 syscall in most places as nuber 434,
+> with alpha being the exception where it's 544.  I found all these sites
+> by grepping for fspick, which I assume has found me everything.
 
-Convert the 2KB we copied even if it's more than we need.
+434 is now pidfd_open, the next free one is 436.
 
-Fixes: 7f8e89a8f2fd ("vfio-ccw: Factor out the ccw0-to-ccw1 transition")
-Reported-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_cp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>  arch/alpha/kernel/syscalls/syscall.tbl      | 1 +
+>  arch/arm/tools/syscall.tbl                  | 1 +
+>  arch/arm64/include/asm/unistd32.h           | 2 ++
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 9cddc1288059..a870bde10445 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -431,7 +431,7 @@ static int ccwchain_handle_ccw(u32 cda, struct channel_program *cp)
- 
- 	/* Convert any Format-0 CCWs to Format-1 */
- 	if (!cp->orb.cmd.fmt)
--		convert_ccw0_to_ccw1(cp->guest_cp, len);
-+		convert_ccw0_to_ccw1(cp->guest_cp, CCWCHAIN_LEN_MAX);
- 
- 	/* Count the CCWs in the current chain */
- 	len = ccwchain_calc_length(cda, cp);
--- 
-2.17.1
+You missed arch/arm64/include/asm/unistd.h, which
+contains __NR_compat_syscalls
+
+      Arnd
