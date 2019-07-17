@@ -1,39 +1,132 @@
-Return-Path: <SRS0=iFEE=UC=vger.kernel.org=kvm-owner@kernel.org>
-From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [PATCH v1 1/1] vfio-ccw: Destroy kmem cache region on module exit
-Date: Mon,  3 Jun 2019 11:42:47 -0400
-Message-Id: <c0f39039d28af39ea2939391bf005e3495d890fd.1559576250.git.alifm@linux.ibm.com>
-In-Reply-To: <cover.1559576250.git.alifm@linux.ibm.com>
-References: <cover.1559576250.git.alifm@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-List-Archive: <https://lore.kernel.org/kvm/>
-List-Post: <mailto:kvm@vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: cohuck@redhat.com, farman@linux.ibm.com, alifm@linux.ibm.com, pasic@linux.ibm.com
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:39926 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbfGQB3M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 16 Jul 2019 21:29:12 -0400
+Received: by mail-pg1-f196.google.com with SMTP id u17so10301439pgi.6
+        for <linux-s390@vger.kernel.org>; Tue, 16 Jul 2019 18:29:11 -0700 (PDT)
+Subject: Add a new fchmodat4() syscall, v2
+Date: Tue, 16 Jul 2019 18:27:15 -0700
+Message-Id: <20190717012719.5524-1-palmer@sifive.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+From: Palmer Dabbelt <palmer@sifive.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
+To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org
+Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, peterz@infradead.org, acme@kernel.org, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, Palmer Dabbelt <palmer@sifive.com>, dhowells@redhat.com, firoz.khan@linaro.org, stefan@agner.ch, schwidefsky@de.ibm.com, axboe@kernel.dk, christian@brauner.io, hare@suse.com, deepa.kernel@gmail.com, tycho@tycho.ws, kim.phillips@arm.com, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
 
-Free the vfio_ccw_cmd_region on module exit.
+This patch set adds fchmodat4(), a new syscall. The actual
+implementation is super simple: essentially it's just the same as
+fchmodat(), but LOOKUP_FOLLOW is conditionally set based on the flags.
+I've attempted to make this match "man 2 fchmodat" as closely as
+possible, which says EINVAL is returned for invalid flags (as opposed to
+ENOTSUPP, which is currently returned by glibc for AT_SYMLINK_NOFOLLOW).
+I have a sketch of a glibc patch that I haven't even compiled yet, but
+seems fairly straight-forward:
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
+    diff --git a/sysdeps/unix/sysv/linux/fchmodat.c b/sysdeps/unix/sysv/linux/fchmodat.c
+    index 6d9cbc1ce9e0..b1beab76d56c 100644
+    --- a/sysdeps/unix/sysv/linux/fchmodat.c
+    +++ b/sysdeps/unix/sysv/linux/fchmodat.c
+    @@ -29,12 +29,36 @@
+     int
+     fchmodat (int fd, const char *file, mode_t mode, int flag)
+     {
+    -  if (flag & ~AT_SYMLINK_NOFOLLOW)
+    -    return INLINE_SYSCALL_ERROR_RETURN_VALUE (EINVAL);
+    -#ifndef __NR_lchmod		/* Linux so far has no lchmod syscall.  */
+    +  /* There are four paths through this code:
+    +      - The flags are zero.  In this case it's fine to call fchmodat.
+    +      - The flags are non-zero and glibc doesn't have access to
+    +	__NR_fchmodat4.  In this case all we can do is emulate the error codes
+    +	defined by the glibc interface from userspace.
+    +      - The flags are non-zero, glibc has __NR_fchmodat4, and the kernel has
+    +	fchmodat4.  This is the simplest case, as the fchmodat4 syscall exactly
+    +	matches glibc's library interface so it can be called directly.
+    +      - The flags are non-zero, glibc has __NR_fchmodat4, but the kernel does
+    +	not.  In this case we must respect the error codes defined by the glibc
+    +	interface instead of returning ENOSYS.
+    +    The intent here is to ensure that the kernel is called at most once per
+    +    library call, and that the error types defined by glibc are always
+    +    respected.  */
+    +
+    +#ifdef __NR_fchmodat4
+    +  long result;
+    +#endif
+    +
+    +  if (flag == 0)
+    +    return INLINE_SYSCALL (fchmodat, 3, fd, file, mode);
+    +
+    +#ifdef __NR_fchmodat4
+    +  result = INLINE_SYSCALL (fchmodat4, 4, fd, file, mode, flag);
+    +  if (result == 0 || errno != ENOSYS)
+    +    return result;
+    +#endif
+    +
+       if (flag & AT_SYMLINK_NOFOLLOW)
+         return INLINE_SYSCALL_ERROR_RETURN_VALUE (ENOTSUP);
+    -#endif
 
-I guess I missed this earlier while reviewing, but should'nt 
-we destroy the vfio_ccw_cmd_region on module exit, as well?
+    -  return INLINE_SYSCALL (fchmodat, 3, fd, file, mode);
+    +  return INLINE_SYSCALL_ERROR_RETURN_VALUE (EINVAL);
+     }
 
- drivers/s390/cio/vfio_ccw_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+I've never added a new syscall before so I'm not really sure what the
+proper procedure to follow is.  Based on the feedback from my v1 patch
+set it seems this is somewhat uncontroversial.  At this point I don't
+think there's anything I'm missing, though note that I haven't gotten
+around to testing it this time because the diff from v1 is trivial for
+any platform I could reasonably test on.  The v1 patches suggest a
+simple test case, but I didn't re-run it because I don't want to reboot
+my laptop.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 66a66ac..9cee9f2 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -299,6 +299,7 @@ static void __exit vfio_ccw_sch_exit(void)
- 	css_driver_unregister(&vfio_ccw_sch_driver);
- 	isc_unregister(VFIO_CCW_ISC);
- 	kmem_cache_destroy(vfio_ccw_io_region);
-+	kmem_cache_destroy(vfio_ccw_cmd_region);
- 	destroy_workqueue(vfio_ccw_work_q);
- }
- module_init(vfio_ccw_sch_init);
--- 
-2.7.4
+    $ touch test-file
+    $ ln -s test-file test-link
+    $ cat > test.c
+    #include <fcntl.h>
+    #include <stdio.h>
+    #include <unistd.h>
+
+    int main(int argc, char **argv)
+    {
+            long out;
+
+            out = syscall(434, AT_FDCWD, "test-file", 0x888, AT_SYMLINK_NOFOLLOW);
+            printf("fchmodat4(AT_FDCWD, \"test-file\", 0x888, AT_SYMLINK_NOFOLLOW): %ld\n", out);
+
+            out = syscall(434, AT_FDCWD, "test-file", 0x888, 0);
+            printf("fchmodat4(AT_FDCWD, \"test-file\", 0x888, 0): %ld\n", out);
+
+            out = syscall(268, AT_FDCWD, "test-file", 0x888);
+            printf("fchmodat(AT_FDCWD, \"test-file\", 0x888): %ld\n", out);
+
+            out = syscall(434, AT_FDCWD, "test-link", 0x888, AT_SYMLINK_NOFOLLOW);
+            printf("fchmodat4(AT_FDCWD, \"test-link\", 0x888, AT_SYMLINK_NOFOLLOW): %ld\n", out);
+
+            out = syscall(434, AT_FDCWD, "test-link", 0x888, 0);
+            printf("fchmodat4(AT_FDCWD, \"test-link\", 0x888, 0): %ld\n", out);
+
+            out = syscall(268, AT_FDCWD, "test-link", 0x888);
+            printf("fchmodat(AT_FDCWD, \"test-link\", 0x888): %ld\n", out);
+
+            return 0;
+    }
+    $ gcc test.c -o test
+    $ ./test
+    fchmodat4(AT_FDCWD, "test-file", 0x888, AT_SYMLINK_NOFOLLOW): 0
+    fchmodat4(AT_FDCWD, "test-file", 0x888, 0): 0
+    fchmodat(AT_FDCWD, "test-file", 0x888): 0
+    fchmodat4(AT_FDCWD, "test-link", 0x888, AT_SYMLINK_NOFOLLOW): -1
+    fchmodat4(AT_FDCWD, "test-link", 0x888, 0): 0
+    fchmodat(AT_FDCWD, "test-link", 0x888): 0
+
+I've only built this on 64-bit x86.
+
+Changes since v1 [20190531191204.4044-1-palmer@sifive.com]:
+
+* All architectures are now supported, which support squashed into a
+  single patch.
+* The do_fchmodat() helper function has been removed, in favor of directly
+  calling do_fchmodat4().
+* The patches are based on 5.2 instead of 5.1.
