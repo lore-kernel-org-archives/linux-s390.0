@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: linux-next: Tree for Jul 8 --> bootup failure on s390x (bisected)
-References: <20190708224238.60bd0aff@canb.auug.org.au>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 8 Jul 2019 18:52:14 +0200
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Wed, 17 Jul 2019 04:02:58 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH v2 2/4] Add fchmodat4(), a new syscall
+Message-ID: <20190717030258.GT17978@ZenIV.linux.org.uk>
+References: <20190717012719.5524-1-palmer@sifive.com>
+ <20190717012719.5524-3-palmer@sifive.com>
+ <20190717024046.GI1506@brightrain.aerifal.cx>
 MIME-Version: 1.0
-In-Reply-To: <20190708224238.60bd0aff@canb.auug.org.au>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <0be7464d-f8ed-0567-b0ff-a6d31ecfd7a8@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190717024046.GI1506@brightrain.aerifal.cx>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, markward@linux.ibm.com
+To: Rich Felker <dalias@libc.org>
+Cc: Palmer Dabbelt <palmer@sifive.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, James.Bottomley@hansenpartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, x86@kernel.org, peterz@infradead.org, acme@kernel.org, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, dhowells@redhat.com, firoz.khan@linaro.org, stefan@agner.ch, schwidefsky@de.ibm.com, axboe@kernel.dk, christian@brauner.io, hare@suse.com, deepa.kernel@gmail.com, tycho@tycho.ws, kim.phillips@arm.com, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-Al,
+On Tue, Jul 16, 2019 at 10:40:46PM -0400, Rich Felker wrote:
+> On Tue, Jul 16, 2019 at 06:27:17PM -0700, Palmer Dabbelt wrote:
+> > man 3p says that fchmodat() takes a flags argument, but the Linux
+> > syscall does not.  There doesn't appear to be a good userspace
+> > workaround for this issue but the implementation in the kernel is pretty
+> > straight-forward.  The specific use case where the missing flags came up
+> > was WRT a fuse filesystem implemenation, but the functionality is pretty
+> > generic so I'm assuming there would be other use cases.
+> 
+> Note that we do have a workaround in musl libc with O_PATH and
+> /proc/self/fd, but a syscall that allows a proper fix with the ugly
+> workaround only in the fallback path for old kernels will be much
+> appreciated!
+> 
+> What about also doing a new SYS_faccessat4 with working AT_EACCESS
+> flag? The workaround we have to do for it is far worse.
 
-linux-next July 8th fails to bootup on s390x (linux-next from July 4th did still work)
+Umm...  That's doable, but getting into the "don't switch creds unless
+needed" territory.  I'll need to play with that a bit and see what
+gives a tolerable variant...
 
-[...]
-smp: Brought up 1 node, 1 CPU
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 000000003a070000 TEID: 000000003a070407
-Fault in home space mode while using kernel ASCE.
-AS:000000003a780007 R3:000000007ffd0007 S:000000007ffd4800 P:000000003a07021d 
-Oops: 0004 ilc:2 [#1] SMP 
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.0-rc5-00101-gcb8f0b366109 #14
-Hardware name: IBM 2964 NC9 712 (KVM/Linux)
-Krnl PSW : 0704e00180000000 000000003974b580 (shmem_parse_monolithic+0x88/0x100)
-           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000000 000000000000003d 000000003a07040e 000000000000003d
-           000000003a07040f 000000000000006d 0000000000000001 0000000000000000
-           000000007f7c1c00 0000000000000000 000000003a07040a 0000000000000000
-           000000007f7e4000 000000003a190d78 000000003974b56c 000003e00031fd38
-Krnl Code: 000000003974b574: b920002a		cgr	%r2,%r10
-           000000003974b578: a784001b		brc	8,3974b5ae
-          #000000003974b57c: 41402001		la	%r4,1(%r2)
-          >000000003974b580: 92002000		mvi	0(%r2),0
-           000000003974b584: a7090000		lghi	%r0,0
-           000000003974b588: b9040014		lgr	%r1,%r4
-           000000003974b58c: b25e0001		srst	%r0,%r1
-           000000003974b590: a714fffe		brc	1,3974b58c
-Call Trace:
-([<000003e00031fd80>] 0x3e00031fd80)
- [<0000000039811662>] vfs_kern_mount.part.0+0x9a/0xc8 
- [<000000003a302fc0>] devtmpfs_init+0x38/0x140 
- [<000000003a302e0a>] driver_init+0x22/0x60 
- [<000000003a2beff8>] kernel_init_freeable+0x298/0x4f0 
- [<0000000039e7b53a>] kernel_init+0x22/0x148 
- [<0000000039e87b70>] ret_from_fork+0x30/0x34 
- [<0000000039e87b74>] kernel_thread_starter+0x0/0xc 
-INFO: lockdep is turned off.
-[...]
-
-bisect points to
-
-
-f6ab6e953ab3b37b10646aabede8d8731f54cc61 is the first bad commit
-commit f6ab6e953ab3b37b10646aabede8d8731f54cc61
-Author: Al Viro <viro@zeniv.linux.org.uk>
-Date:   Sat Jun 1 18:43:09 2019 -0400
-
-    devtmpfs: don't mix {ramfs,shmem}_fill_super() with mount_single()
-    
-    Create an internal-only type matching the current devtmpfs, never
-    register it and have one kernel-internal mount done.  That thing
-    gets mounted only once, so it is free to use mount_nodev().
-    
-    The "public" devtmpfs (the one we do register, and only after
-    the internal mount of the real thing is done) simply gets and
-    returns an extra reference to the internal superblock.
-    
-    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
-:040000 040000 4874d86e78685322401d6284d458ae323620573c e3c5780581792df416a4c272b583f76b98321080 M	drivers
-
-
-
-I can confirm that 
-f6ab6e953ab3b37b10646aabede8d8731f54cc61
-has the issue and 
-f6ab6e953ab3b37b10646aabede8d8731f54cc61^
-has not.
+What of this part wrt AT_EACCESS?
+        if (!issecure(SECURE_NO_SETUID_FIXUP)) {
+                /* Clear the capabilities if we switch to a non-root user */
+                kuid_t root_uid = make_kuid(override_cred->user_ns, 0);
+                if (!uid_eq(override_cred->uid, root_uid))
+                        cap_clear(override_cred->cap_effective);
+                else
+                        override_cred->cap_effective =
+                                override_cred->cap_permitted;
+        }
