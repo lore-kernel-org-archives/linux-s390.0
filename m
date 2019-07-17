@@ -1,139 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41720 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726442AbfGAIvs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 1 Jul 2019 04:51:48 -0400
-Date: Mon, 1 Jul 2019 10:51:44 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 10/11] mm/memory_hotplug: Make
- unregister_memory_block_under_nodes() never fail
-Message-ID: <20190701085144.GJ6376@dhcp22.suse.cz>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-11-david@redhat.com>
+Received: from mx1.redhat.com ([209.132.183.28]:40728 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726326AbfGQJoA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jul 2019 05:44:00 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 1/6] vfio-ccw: Fix misleading comment when setting orb.cmd.c64
+Date: Wed, 17 Jul 2019 11:43:45 +0200
+Message-Id: <20190717094350.13620-2-cohuck@redhat.com>
+In-Reply-To: <20190717094350.13620-1-cohuck@redhat.com>
+References: <20190717094350.13620-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-11-david@redhat.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Alex Deucher <alexander.deucher@amd.com>, "David S. Miller" <davem@davemloft.net>, Mark Brown <broonie@kernel.org>, Chris Wilson <chris@chris-wilson.co.uk>, Oscar Salvador <osalvador@suse.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-On Mon 27-05-19 13:11:51, David Hildenbrand wrote:
-> We really don't want anything during memory hotunplug to fail.
-> We always pass a valid memory block device, that check can go. Avoid
-> allocating memory and eventually failing. As we are always called under
-> lock, we can use a static piece of memory. This avoids having to put
-> the structure onto the stack, having to guess about the stack size
-> of callers.
-> 
-> Patch inspired by a patch from Oscar Salvador.
-> 
-> In the future, there might be no need to iterate over nodes at all.
-> mem->nid should tell us exactly what to remove. Memory block devices
-> with mixed nodes (added during boot) should properly fenced off and never
-> removed.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-Yeah, we do not allow to offline multi zone (node) ranges so the current
-code seems to be over engineered.
+The comment is misleading because it tells us that
+we should set orb.cmd.c64 before calling ccwchain_calc_length,
+otherwise the function ccwchain_calc_length would return an
+error. This is not completely accurate.
 
-Anyway, I am wondering why do we have to strictly check for already
-removed nodes links. Is the sysfs code going to complain we we try to
-remove again?
+We want to allow an orb without cmd.c64, and this is fine
+as long as the channel program does not use IDALs. But we do
+want to reject any channel program that uses IDALs and does
+not set the flag, which is what we do in ccwchain_calc_length.
+
+After we have done the ccw processing, we need to set cmd.c64,
+as we use IDALs for all translated channel programs.
+
+Also for better code readability let's move the setting of
+cmd.c64 within the non error path.
+
+Fixes: fb9e7880af35 ("vfio: ccw: push down unsupported IDA check")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <f68636106aef0faeb6ce9712584d102d1b315ff8.1562854091.git.alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_cp.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 1d4c893ead23..46967c664c0f 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -645,14 +645,15 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+ 	if (ret)
+ 		cp_free(cp);
  
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Anyway
-Acked-by: Michal Hocko <mhocko@suse.com>
-
-> ---
->  drivers/base/node.c  | 18 +++++-------------
->  include/linux/node.h |  5 ++---
->  2 files changed, 7 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/base/node.c b/drivers/base/node.c
-> index 04fdfa99b8bc..9be88fd05147 100644
-> --- a/drivers/base/node.c
-> +++ b/drivers/base/node.c
-> @@ -803,20 +803,14 @@ int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
->  
->  /*
->   * Unregister memory block device under all nodes that it spans.
-> + * Has to be called with mem_sysfs_mutex held (due to unlinked_nodes).
->   */
-> -int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
-> +void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->  {
-> -	NODEMASK_ALLOC(nodemask_t, unlinked_nodes, GFP_KERNEL);
->  	unsigned long pfn, sect_start_pfn, sect_end_pfn;
-> +	static nodemask_t unlinked_nodes;
->  
-> -	if (!mem_blk) {
-> -		NODEMASK_FREE(unlinked_nodes);
-> -		return -EFAULT;
-> -	}
-> -	if (!unlinked_nodes)
-> -		return -ENOMEM;
-> -	nodes_clear(*unlinked_nodes);
-> -
-> +	nodes_clear(unlinked_nodes);
->  	sect_start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
->  	sect_end_pfn = section_nr_to_pfn(mem_blk->end_section_nr);
->  	for (pfn = sect_start_pfn; pfn <= sect_end_pfn; pfn++) {
-> @@ -827,15 +821,13 @@ int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->  			continue;
->  		if (!node_online(nid))
->  			continue;
-> -		if (node_test_and_set(nid, *unlinked_nodes))
-> +		if (node_test_and_set(nid, unlinked_nodes))
->  			continue;
->  		sysfs_remove_link(&node_devices[nid]->dev.kobj,
->  			 kobject_name(&mem_blk->dev.kobj));
->  		sysfs_remove_link(&mem_blk->dev.kobj,
->  			 kobject_name(&node_devices[nid]->dev.kobj));
->  	}
-> -	NODEMASK_FREE(unlinked_nodes);
-> -	return 0;
->  }
->  
->  int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
-> diff --git a/include/linux/node.h b/include/linux/node.h
-> index 02a29e71b175..548c226966a2 100644
-> --- a/include/linux/node.h
-> +++ b/include/linux/node.h
-> @@ -139,7 +139,7 @@ extern int register_cpu_under_node(unsigned int cpu, unsigned int nid);
->  extern int unregister_cpu_under_node(unsigned int cpu, unsigned int nid);
->  extern int register_mem_sect_under_node(struct memory_block *mem_blk,
->  						void *arg);
-> -extern int unregister_memory_block_under_nodes(struct memory_block *mem_blk);
-> +extern void unregister_memory_block_under_nodes(struct memory_block *mem_blk);
->  
->  extern int register_memory_node_under_compute_node(unsigned int mem_nid,
->  						   unsigned int cpu_nid,
-> @@ -175,9 +175,8 @@ static inline int register_mem_sect_under_node(struct memory_block *mem_blk,
->  {
->  	return 0;
->  }
-> -static inline int unregister_memory_block_under_nodes(struct memory_block *mem_blk)
-> +static inline void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->  {
-> -	return 0;
->  }
->  
->  static inline void register_hugetlbfs_with_node(node_registration_func_t reg,
-> -- 
-> 2.20.1
-
+-	/* It is safe to force: if not set but idals used
+-	 * ccwchain_calc_length returns an error.
+-	 */
+-	cp->orb.cmd.c64 = 1;
+-
+-	if (!ret)
++	if (!ret) {
+ 		cp->initialized = true;
+ 
++		/* It is safe to force: if it was not set but idals used
++		 * ccwchain_calc_length would have returned an error.
++		 */
++		cp->orb.cmd.c64 = 1;
++	}
++
+ 	return ret;
+ }
+ 
 -- 
-Michal Hocko
-SUSE Labs
+2.20.1
