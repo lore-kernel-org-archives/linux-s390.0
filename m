@@ -1,26 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:33070 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726715AbfGRR47 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Jul 2019 13:56:59 -0400
-Date: Thu, 18 Jul 2019 19:56:55 +0200
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v3 4/6] x86,s390/mm: Move sme_active() and sme_me_mask
- to x86-specific header
-Message-ID: <20190718175655.GA361@lst.de>
-References: <20190718032858.28744-1-bauerman@linux.ibm.com> <20190718032858.28744-5-bauerman@linux.ibm.com> <cf48e778-130a-df2a-d94b-170bd85d692c@amd.com>
+Received: from mail-eopbgr800041.outbound.protection.outlook.com ([40.107.80.41]:54228
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728014AbfGRRmX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Jul 2019 13:42:23 -0400
+From: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
+Subject: Re: [PATCH v3 4/6] x86,s390/mm: Move sme_active() and sme_me_mask to
+ x86-specific header
+Date: Thu, 18 Jul 2019 17:42:18 +0000
+Message-ID: <cf48e778-130a-df2a-d94b-170bd85d692c@amd.com>
+References: <20190718032858.28744-1-bauerman@linux.ibm.com>
+ <20190718032858.28744-5-bauerman@linux.ibm.com>
+In-Reply-To: <20190718032858.28744-5-bauerman@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D30328A1E6D7174797D57B6D36556B92@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cf48e778-130a-df2a-d94b-170bd85d692c@amd.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>
+Cc: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-On Thu, Jul 18, 2019 at 05:42:18PM +0000, Lendacky, Thomas wrote:
-> You may want to try and build the out-of-tree nvidia driver just to be
-> sure you can remove the EXPORT_SYMBOL(). But I believe that was related
-> to the DMA mask check, which now removed, may no longer be a problem.
-
-Out of tree driver simply don't matter for kernel development decisions.
+T24gNy8xNy8xOSAxMDoyOCBQTSwgVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIHdyb3RlOg0KPiBOb3cg
+dGhhdCBnZW5lcmljIGNvZGUgZG9lc24ndCByZWZlcmVuY2UgdGhlbSwgbW92ZSBzbWVfYWN0aXZl
+KCkgYW5kDQo+IHNtZV9tZV9tYXNrIHRvIHg4NidzIDxhc20vbWVtX2VuY3J5cHQuaD4uDQo+IA0K
+PiBBbHNvIHJlbW92ZSB0aGUgZXhwb3J0IGZvciBzbWVfYWN0aXZlKCkgc2luY2UgaXQncyBvbmx5
+IHVzZWQgaW4gZmlsZXMgdGhhdA0KPiB3b24ndCBiZSBidWlsdCBhcyBtb2R1bGVzLiBzbWVfbWVf
+bWFzayBvbiB0aGUgb3RoZXIgaGFuZCBpcyB1c2VkIGluDQo+IGFyY2gveDg2L2t2bS9zdm0uYyAo
+dmlhIF9fc21lX3NldCgpIGFuZCBfX3BzcF9wYSgpKSB3aGljaCBjYW4gYmUgYnVpbHQgYXMgYQ0K
+PiBtb2R1bGUgc28gaXRzIGV4cG9ydCBuZWVkcyB0byBzdGF5Lg0KDQpZb3UgbWF5IHdhbnQgdG8g
+dHJ5IGFuZCBidWlsZCB0aGUgb3V0LW9mLXRyZWUgbnZpZGlhIGRyaXZlciBqdXN0IHRvIGJlDQpz
+dXJlIHlvdSBjYW4gcmVtb3ZlIHRoZSBFWFBPUlRfU1lNQk9MKCkuIEJ1dCBJIGJlbGlldmUgdGhh
+dCB3YXMgcmVsYXRlZA0KdG8gdGhlIERNQSBtYXNrIGNoZWNrLCB3aGljaCBub3cgcmVtb3ZlZCwg
+bWF5IG5vIGxvbmdlciBiZSBhIHByb2JsZW0uDQoNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFRoaWFn
+byBKdW5nIEJhdWVybWFubiA8YmF1ZXJtYW5AbGludXguaWJtLmNvbT4NCg0KUmV2aWV3ZWQtYnk6
+IFRvbSBMZW5kYWNreSA8dGhvbWFzLmxlbmRhY2t5QGFtZC5jb20+DQoNCj4gLS0tDQo+ICBhcmNo
+L3MzOTAvaW5jbHVkZS9hc20vbWVtX2VuY3J5cHQuaCB8ICA0ICstLS0NCj4gIGFyY2gveDg2L2lu
+Y2x1ZGUvYXNtL21lbV9lbmNyeXB0LmggIHwgMTAgKysrKysrKysrKw0KPiAgYXJjaC94ODYvbW0v
+bWVtX2VuY3J5cHQuYyAgICAgICAgICAgfCAgMSAtDQo+ICBpbmNsdWRlL2xpbnV4L21lbV9lbmNy
+eXB0LmggICAgICAgICB8IDE0ICstLS0tLS0tLS0tLS0tDQo+ICA0IGZpbGVzIGNoYW5nZWQsIDEy
+IGluc2VydGlvbnMoKyksIDE3IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2FyY2gv
+czM5MC9pbmNsdWRlL2FzbS9tZW1fZW5jcnlwdC5oIGIvYXJjaC9zMzkwL2luY2x1ZGUvYXNtL21l
+bV9lbmNyeXB0LmgNCj4gaW5kZXggM2ViMDE4NTA4MTkwLi5mZjgxM2E1NmJjMzAgMTAwNjQ0DQo+
+IC0tLSBhL2FyY2gvczM5MC9pbmNsdWRlL2FzbS9tZW1fZW5jcnlwdC5oDQo+ICsrKyBiL2FyY2gv
+czM5MC9pbmNsdWRlL2FzbS9tZW1fZW5jcnlwdC5oDQo+IEBAIC00LDkgKzQsNyBAQA0KPiAgDQo+
+ICAjaWZuZGVmIF9fQVNTRU1CTFlfXw0KPiAgDQo+IC0jZGVmaW5lIHNtZV9tZV9tYXNrCTBVTEwN
+Cj4gLQ0KPiAtc3RhdGljIGlubGluZSBib29sIHNtZV9hY3RpdmUodm9pZCkgeyByZXR1cm4gZmFs
+c2U7IH0NCj4gK3N0YXRpYyBpbmxpbmUgYm9vbCBtZW1fZW5jcnlwdF9hY3RpdmUodm9pZCkgeyBy
+ZXR1cm4gZmFsc2U7IH0NCj4gIGV4dGVybiBib29sIHNldl9hY3RpdmUodm9pZCk7DQo+ICANCj4g
+IGludCBzZXRfbWVtb3J5X2VuY3J5cHRlZCh1bnNpZ25lZCBsb25nIGFkZHIsIGludCBudW1wYWdl
+cyk7DQo+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9tZW1fZW5jcnlwdC5oIGIv
+YXJjaC94ODYvaW5jbHVkZS9hc20vbWVtX2VuY3J5cHQuaA0KPiBpbmRleCAwYzE5NmM0N2Q2MjEu
+Ljg0OGNlNDNiOTA0MCAxMDA2NDQNCj4gLS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20vbWVtX2Vu
+Y3J5cHQuaA0KPiArKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9tZW1fZW5jcnlwdC5oDQo+IEBA
+IC05Miw2ICs5MiwxNiBAQCBlYXJseV9zZXRfbWVtb3J5X2VuY3J5cHRlZCh1bnNpZ25lZCBsb25n
+IHZhZGRyLCB1bnNpZ25lZCBsb25nIHNpemUpIHsgcmV0dXJuIDA7DQo+ICANCj4gIGV4dGVybiBj
+aGFyIF9fc3RhcnRfYnNzX2RlY3J5cHRlZFtdLCBfX2VuZF9ic3NfZGVjcnlwdGVkW10sIF9fc3Rh
+cnRfYnNzX2RlY3J5cHRlZF91bnVzZWRbXTsNCj4gIA0KPiArc3RhdGljIGlubGluZSBib29sIG1l
+bV9lbmNyeXB0X2FjdGl2ZSh2b2lkKQ0KPiArew0KPiArCXJldHVybiBzbWVfbWVfbWFzazsNCj4g
+K30NCj4gKw0KPiArc3RhdGljIGlubGluZSB1NjQgc21lX2dldF9tZV9tYXNrKHZvaWQpDQo+ICt7
+DQo+ICsJcmV0dXJuIHNtZV9tZV9tYXNrOw0KPiArfQ0KPiArDQo+ICAjZW5kaWYJLyogX19BU1NF
+TUJMWV9fICovDQo+ICANCj4gICNlbmRpZgkvKiBfX1g4Nl9NRU1fRU5DUllQVF9IX18gKi8NCj4g
+ZGlmZiAtLWdpdCBhL2FyY2gveDg2L21tL21lbV9lbmNyeXB0LmMgYi9hcmNoL3g4Ni9tbS9tZW1f
+ZW5jcnlwdC5jDQo+IGluZGV4IGM4MDVmMGE1YzE2ZS4uNzEzOWYyZjQzOTU1IDEwMDY0NA0KPiAt
+LS0gYS9hcmNoL3g4Ni9tbS9tZW1fZW5jcnlwdC5jDQo+ICsrKyBiL2FyY2gveDg2L21tL21lbV9l
+bmNyeXB0LmMNCj4gQEAgLTM0NCw3ICszNDQsNiBAQCBib29sIHNtZV9hY3RpdmUodm9pZCkNCj4g
+IHsNCj4gIAlyZXR1cm4gc21lX21lX21hc2sgJiYgIXNldl9lbmFibGVkOw0KPiAgfQ0KPiAtRVhQ
+T1JUX1NZTUJPTChzbWVfYWN0aXZlKTsNCj4gIA0KPiAgYm9vbCBzZXZfYWN0aXZlKHZvaWQpDQo+
+ICB7DQo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L21lbV9lbmNyeXB0LmggYi9pbmNsdWRl
+L2xpbnV4L21lbV9lbmNyeXB0LmgNCj4gaW5kZXggNDcwYmQ1M2E4OWRmLi4wYzViMGZmOWViMjkg
+MTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUvbGludXgvbWVtX2VuY3J5cHQuaA0KPiArKysgYi9pbmNs
+dWRlL2xpbnV4L21lbV9lbmNyeXB0LmgNCj4gQEAgLTE4LDIzICsxOCwxMSBAQA0KPiAgDQo+ICAj
+ZWxzZQkvKiAhQ09ORklHX0FSQ0hfSEFTX01FTV9FTkNSWVBUICovDQo+ICANCj4gLSNkZWZpbmUg
+c21lX21lX21hc2sJMFVMTA0KPiAtDQo+IC1zdGF0aWMgaW5saW5lIGJvb2wgc21lX2FjdGl2ZSh2
+b2lkKSB7IHJldHVybiBmYWxzZTsgfQ0KPiArc3RhdGljIGlubGluZSBib29sIG1lbV9lbmNyeXB0
+X2FjdGl2ZSh2b2lkKSB7IHJldHVybiBmYWxzZTsgfQ0KPiAgc3RhdGljIGlubGluZSBib29sIHNl
+dl9hY3RpdmUodm9pZCkgeyByZXR1cm4gZmFsc2U7IH0NCj4gIA0KPiAgI2VuZGlmCS8qIENPTkZJ
+R19BUkNIX0hBU19NRU1fRU5DUllQVCAqLw0KPiAgDQo+IC1zdGF0aWMgaW5saW5lIGJvb2wgbWVt
+X2VuY3J5cHRfYWN0aXZlKHZvaWQpDQo+IC17DQo+IC0JcmV0dXJuIHNtZV9tZV9tYXNrOw0KPiAt
+fQ0KPiAtDQo+IC1zdGF0aWMgaW5saW5lIHU2NCBzbWVfZ2V0X21lX21hc2sodm9pZCkNCj4gLXsN
+Cj4gLQlyZXR1cm4gc21lX21lX21hc2s7DQo+IC19DQo+IC0NCj4gICNpZmRlZiBDT05GSUdfQU1E
+X01FTV9FTkNSWVBUDQo+ICAvKg0KPiAgICogVGhlIF9fc21lX3NldCgpIGFuZCBfX3NtZV9jbHIo
+KSBtYWNyb3MgYXJlIHVzZWZ1bCBmb3IgYWRkaW5nIG9yIHJlbW92aW5nDQo+IA0K
