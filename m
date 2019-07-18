@@ -1,142 +1,97 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-eopbgr690050.outbound.protection.outlook.com ([40.107.69.50]:19584
+        "EHLO NAM04-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726715AbfGRRrF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Jul 2019 13:47:05 -0400
+From: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
 Subject: Re: [PATCH v3 5/6] fs/core/vmcore: Move sev_active() reference to x86
  arch code
+Date: Thu, 18 Jul 2019 17:47:01 +0000
+Message-ID: <4a07bf75-b516-c81b-da7a-4b323e6d7e52@amd.com>
 References: <20190718032858.28744-1-bauerman@linux.ibm.com>
  <20190718032858.28744-6-bauerman@linux.ibm.com>
- <4a07bf75-b516-c81b-da7a-4b323e6d7e52@amd.com>
-From: lijiang <lijiang@redhat.com>
-Message-ID: <c85ae8ff-3b7b-88bf-6b6a-c41b159c9cc2@redhat.com>
-Date: Fri, 19 Jul 2019 12:59:41 +0800
-MIME-Version: 1.0
-In-Reply-To: <4a07bf75-b516-c81b-da7a-4b323e6d7e52@amd.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20190718032858.28744-6-bauerman@linux.ibm.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F2202C485E8ABF4BBFF76860864A3C18@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>
-Cc: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Baoquan He <bhe@redhat.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>
+Cc: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Baoquan He <bhe@redhat.com>
 
-在 2019年07月19日 01:47, Lendacky, Thomas 写道:
-> On 7/17/19 10:28 PM, Thiago Jung Bauermann wrote:
->> Secure Encrypted Virtualization is an x86-specific feature, so it shouldn't
->> appear in generic kernel code because it forces non-x86 architectures to
->> define the sev_active() function, which doesn't make a lot of sense.
->>
->> To solve this problem, add an x86 elfcorehdr_read() function to override
->> the generic weak implementation. To do that, it's necessary to make
->> read_from_oldmem() public so that it can be used outside of vmcore.c.
->>
->> Also, remove the export for sev_active() since it's only used in files that
->> won't be built as modules.
->>
->> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-> 
-> Adding Lianbo and Baoquan, who recently worked on this, for their review.
-> 
-
-This change looks good to me.
-
-Reviewed-by: Lianbo Jiang <lijiang@redhat.com>
-
-Thanks.
-Lianbo
-
-> Thanks,
-> Tom
-> 
->> ---
->>  arch/x86/kernel/crash_dump_64.c |  5 +++++
->>  arch/x86/mm/mem_encrypt.c       |  1 -
->>  fs/proc/vmcore.c                |  8 ++++----
->>  include/linux/crash_dump.h      | 14 ++++++++++++++
->>  include/linux/mem_encrypt.h     |  1 -
->>  5 files changed, 23 insertions(+), 6 deletions(-)
->>
->> diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
->> index 22369dd5de3b..045e82e8945b 100644
->> --- a/arch/x86/kernel/crash_dump_64.c
->> +++ b/arch/x86/kernel/crash_dump_64.c
->> @@ -70,3 +70,8 @@ ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
->>  {
->>  	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, true);
->>  }
->> +
->> +ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
->> +{
->> +	return read_from_oldmem(buf, count, ppos, 0, sev_active());
->> +}
->> diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
->> index 7139f2f43955..b1e823441093 100644
->> --- a/arch/x86/mm/mem_encrypt.c
->> +++ b/arch/x86/mm/mem_encrypt.c
->> @@ -349,7 +349,6 @@ bool sev_active(void)
->>  {
->>  	return sme_me_mask && sev_enabled;
->>  }
->> -EXPORT_SYMBOL(sev_active);
->>  
->>  /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
->>  bool force_dma_unencrypted(struct device *dev)
->> diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
->> index 57957c91c6df..ca1f20bedd8c 100644
->> --- a/fs/proc/vmcore.c
->> +++ b/fs/proc/vmcore.c
->> @@ -100,9 +100,9 @@ static int pfn_is_ram(unsigned long pfn)
->>  }
->>  
->>  /* Reads a page from the oldmem device from given offset. */
->> -static ssize_t read_from_oldmem(char *buf, size_t count,
->> -				u64 *ppos, int userbuf,
->> -				bool encrypted)
->> +ssize_t read_from_oldmem(char *buf, size_t count,
->> +			 u64 *ppos, int userbuf,
->> +			 bool encrypted)
->>  {
->>  	unsigned long pfn, offset;
->>  	size_t nr_bytes;
->> @@ -166,7 +166,7 @@ void __weak elfcorehdr_free(unsigned long long addr)
->>   */
->>  ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
->>  {
->> -	return read_from_oldmem(buf, count, ppos, 0, sev_active());
->> +	return read_from_oldmem(buf, count, ppos, 0, false);
->>  }
->>  
->>  /*
->> diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
->> index f774c5eb9e3c..4664fc1871de 100644
->> --- a/include/linux/crash_dump.h
->> +++ b/include/linux/crash_dump.h
->> @@ -115,4 +115,18 @@ static inline int vmcore_add_device_dump(struct vmcoredd_data *data)
->>  	return -EOPNOTSUPP;
->>  }
->>  #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
->> +
->> +#ifdef CONFIG_PROC_VMCORE
->> +ssize_t read_from_oldmem(char *buf, size_t count,
->> +			 u64 *ppos, int userbuf,
->> +			 bool encrypted);
->> +#else
->> +static inline ssize_t read_from_oldmem(char *buf, size_t count,
->> +				       u64 *ppos, int userbuf,
->> +				       bool encrypted)
->> +{
->> +	return -EOPNOTSUPP;
->> +}
->> +#endif /* CONFIG_PROC_VMCORE */
->> +
->>  #endif /* LINUX_CRASHDUMP_H */
->> diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
->> index 0c5b0ff9eb29..5c4a18a91f89 100644
->> --- a/include/linux/mem_encrypt.h
->> +++ b/include/linux/mem_encrypt.h
->> @@ -19,7 +19,6 @@
->>  #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
->>  
->>  static inline bool mem_encrypt_active(void) { return false; }
->> -static inline bool sev_active(void) { return false; }
->>  
->>  #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
->>  
->>
+T24gNy8xNy8xOSAxMDoyOCBQTSwgVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIHdyb3RlOg0KPiBTZWN1
+cmUgRW5jcnlwdGVkIFZpcnR1YWxpemF0aW9uIGlzIGFuIHg4Ni1zcGVjaWZpYyBmZWF0dXJlLCBz
+byBpdCBzaG91bGRuJ3QNCj4gYXBwZWFyIGluIGdlbmVyaWMga2VybmVsIGNvZGUgYmVjYXVzZSBp
+dCBmb3JjZXMgbm9uLXg4NiBhcmNoaXRlY3R1cmVzIHRvDQo+IGRlZmluZSB0aGUgc2V2X2FjdGl2
+ZSgpIGZ1bmN0aW9uLCB3aGljaCBkb2Vzbid0IG1ha2UgYSBsb3Qgb2Ygc2Vuc2UuDQo+IA0KPiBU
+byBzb2x2ZSB0aGlzIHByb2JsZW0sIGFkZCBhbiB4ODYgZWxmY29yZWhkcl9yZWFkKCkgZnVuY3Rp
+b24gdG8gb3ZlcnJpZGUNCj4gdGhlIGdlbmVyaWMgd2VhayBpbXBsZW1lbnRhdGlvbi4gVG8gZG8g
+dGhhdCwgaXQncyBuZWNlc3NhcnkgdG8gbWFrZQ0KPiByZWFkX2Zyb21fb2xkbWVtKCkgcHVibGlj
+IHNvIHRoYXQgaXQgY2FuIGJlIHVzZWQgb3V0c2lkZSBvZiB2bWNvcmUuYy4NCj4gDQo+IEFsc28s
+IHJlbW92ZSB0aGUgZXhwb3J0IGZvciBzZXZfYWN0aXZlKCkgc2luY2UgaXQncyBvbmx5IHVzZWQg
+aW4gZmlsZXMgdGhhdA0KPiB3b24ndCBiZSBidWlsdCBhcyBtb2R1bGVzLg0KPiANCj4gU2lnbmVk
+LW9mZi1ieTogVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIDxiYXVlcm1hbkBsaW51eC5pYm0uY29tPg0K
+DQpBZGRpbmcgTGlhbmJvIGFuZCBCYW9xdWFuLCB3aG8gcmVjZW50bHkgd29ya2VkIG9uIHRoaXMs
+IGZvciB0aGVpciByZXZpZXcuDQoNClRoYW5rcywNClRvbQ0KDQo+IC0tLQ0KPiAgYXJjaC94ODYv
+a2VybmVsL2NyYXNoX2R1bXBfNjQuYyB8ICA1ICsrKysrDQo+ICBhcmNoL3g4Ni9tbS9tZW1fZW5j
+cnlwdC5jICAgICAgIHwgIDEgLQ0KPiAgZnMvcHJvYy92bWNvcmUuYyAgICAgICAgICAgICAgICB8
+ICA4ICsrKystLS0tDQo+ICBpbmNsdWRlL2xpbnV4L2NyYXNoX2R1bXAuaCAgICAgIHwgMTQgKysr
+KysrKysrKysrKysNCj4gIGluY2x1ZGUvbGludXgvbWVtX2VuY3J5cHQuaCAgICAgfCAgMSAtDQo+
+ICA1IGZpbGVzIGNoYW5nZWQsIDIzIGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pDQo+IA0K
+PiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYva2VybmVsL2NyYXNoX2R1bXBfNjQuYyBiL2FyY2gveDg2
+L2tlcm5lbC9jcmFzaF9kdW1wXzY0LmMNCj4gaW5kZXggMjIzNjlkZDVkZTNiLi4wNDVlODJlODk0
+NWIgMTAwNjQ0DQo+IC0tLSBhL2FyY2gveDg2L2tlcm5lbC9jcmFzaF9kdW1wXzY0LmMNCj4gKysr
+IGIvYXJjaC94ODYva2VybmVsL2NyYXNoX2R1bXBfNjQuYw0KPiBAQCAtNzAsMyArNzAsOCBAQCBz
+c2l6ZV90IGNvcHlfb2xkbWVtX3BhZ2VfZW5jcnlwdGVkKHVuc2lnbmVkIGxvbmcgcGZuLCBjaGFy
+ICpidWYsIHNpemVfdCBjc2l6ZSwNCj4gIHsNCj4gIAlyZXR1cm4gX19jb3B5X29sZG1lbV9wYWdl
+KHBmbiwgYnVmLCBjc2l6ZSwgb2Zmc2V0LCB1c2VyYnVmLCB0cnVlKTsNCj4gIH0NCj4gKw0KPiAr
+c3NpemVfdCBlbGZjb3JlaGRyX3JlYWQoY2hhciAqYnVmLCBzaXplX3QgY291bnQsIHU2NCAqcHBv
+cykNCj4gK3sNCj4gKwlyZXR1cm4gcmVhZF9mcm9tX29sZG1lbShidWYsIGNvdW50LCBwcG9zLCAw
+LCBzZXZfYWN0aXZlKCkpOw0KPiArfQ0KPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYvbW0vbWVtX2Vu
+Y3J5cHQuYyBiL2FyY2gveDg2L21tL21lbV9lbmNyeXB0LmMNCj4gaW5kZXggNzEzOWYyZjQzOTU1
+Li5iMWU4MjM0NDEwOTMgMTAwNjQ0DQo+IC0tLSBhL2FyY2gveDg2L21tL21lbV9lbmNyeXB0LmMN
+Cj4gKysrIGIvYXJjaC94ODYvbW0vbWVtX2VuY3J5cHQuYw0KPiBAQCAtMzQ5LDcgKzM0OSw2IEBA
+IGJvb2wgc2V2X2FjdGl2ZSh2b2lkKQ0KPiAgew0KPiAgCXJldHVybiBzbWVfbWVfbWFzayAmJiBz
+ZXZfZW5hYmxlZDsNCj4gIH0NCj4gLUVYUE9SVF9TWU1CT0woc2V2X2FjdGl2ZSk7DQo+ICANCj4g
+IC8qIE92ZXJyaWRlIGZvciBETUEgZGlyZWN0IGFsbG9jYXRpb24gY2hlY2sgLSBBUkNIX0hBU19G
+T1JDRV9ETUFfVU5FTkNSWVBURUQgKi8NCj4gIGJvb2wgZm9yY2VfZG1hX3VuZW5jcnlwdGVkKHN0
+cnVjdCBkZXZpY2UgKmRldikNCj4gZGlmZiAtLWdpdCBhL2ZzL3Byb2Mvdm1jb3JlLmMgYi9mcy9w
+cm9jL3ZtY29yZS5jDQo+IGluZGV4IDU3OTU3YzkxYzZkZi4uY2ExZjIwYmVkZDhjIDEwMDY0NA0K
+PiAtLS0gYS9mcy9wcm9jL3ZtY29yZS5jDQo+ICsrKyBiL2ZzL3Byb2Mvdm1jb3JlLmMNCj4gQEAg
+LTEwMCw5ICsxMDAsOSBAQCBzdGF0aWMgaW50IHBmbl9pc19yYW0odW5zaWduZWQgbG9uZyBwZm4p
+DQo+ICB9DQo+ICANCj4gIC8qIFJlYWRzIGEgcGFnZSBmcm9tIHRoZSBvbGRtZW0gZGV2aWNlIGZy
+b20gZ2l2ZW4gb2Zmc2V0LiAqLw0KPiAtc3RhdGljIHNzaXplX3QgcmVhZF9mcm9tX29sZG1lbShj
+aGFyICpidWYsIHNpemVfdCBjb3VudCwNCj4gLQkJCQl1NjQgKnBwb3MsIGludCB1c2VyYnVmLA0K
+PiAtCQkJCWJvb2wgZW5jcnlwdGVkKQ0KPiArc3NpemVfdCByZWFkX2Zyb21fb2xkbWVtKGNoYXIg
+KmJ1Ziwgc2l6ZV90IGNvdW50LA0KPiArCQkJIHU2NCAqcHBvcywgaW50IHVzZXJidWYsDQo+ICsJ
+CQkgYm9vbCBlbmNyeXB0ZWQpDQo+ICB7DQo+ICAJdW5zaWduZWQgbG9uZyBwZm4sIG9mZnNldDsN
+Cj4gIAlzaXplX3QgbnJfYnl0ZXM7DQo+IEBAIC0xNjYsNyArMTY2LDcgQEAgdm9pZCBfX3dlYWsg
+ZWxmY29yZWhkcl9mcmVlKHVuc2lnbmVkIGxvbmcgbG9uZyBhZGRyKQ0KPiAgICovDQo+ICBzc2l6
+ZV90IF9fd2VhayBlbGZjb3JlaGRyX3JlYWQoY2hhciAqYnVmLCBzaXplX3QgY291bnQsIHU2NCAq
+cHBvcykNCj4gIHsNCj4gLQlyZXR1cm4gcmVhZF9mcm9tX29sZG1lbShidWYsIGNvdW50LCBwcG9z
+LCAwLCBzZXZfYWN0aXZlKCkpOw0KPiArCXJldHVybiByZWFkX2Zyb21fb2xkbWVtKGJ1ZiwgY291
+bnQsIHBwb3MsIDAsIGZhbHNlKTsNCj4gIH0NCj4gIA0KPiAgLyoNCj4gZGlmZiAtLWdpdCBhL2lu
+Y2x1ZGUvbGludXgvY3Jhc2hfZHVtcC5oIGIvaW5jbHVkZS9saW51eC9jcmFzaF9kdW1wLmgNCj4g
+aW5kZXggZjc3NGM1ZWI5ZTNjLi40NjY0ZmMxODcxZGUgMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUv
+bGludXgvY3Jhc2hfZHVtcC5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvY3Jhc2hfZHVtcC5oDQo+
+IEBAIC0xMTUsNCArMTE1LDE4IEBAIHN0YXRpYyBpbmxpbmUgaW50IHZtY29yZV9hZGRfZGV2aWNl
+X2R1bXAoc3RydWN0IHZtY29yZWRkX2RhdGEgKmRhdGEpDQo+ICAJcmV0dXJuIC1FT1BOT1RTVVBQ
+Ow0KPiAgfQ0KPiAgI2VuZGlmIC8qIENPTkZJR19QUk9DX1ZNQ09SRV9ERVZJQ0VfRFVNUCAqLw0K
+PiArDQo+ICsjaWZkZWYgQ09ORklHX1BST0NfVk1DT1JFDQo+ICtzc2l6ZV90IHJlYWRfZnJvbV9v
+bGRtZW0oY2hhciAqYnVmLCBzaXplX3QgY291bnQsDQo+ICsJCQkgdTY0ICpwcG9zLCBpbnQgdXNl
+cmJ1ZiwNCj4gKwkJCSBib29sIGVuY3J5cHRlZCk7DQo+ICsjZWxzZQ0KPiArc3RhdGljIGlubGlu
+ZSBzc2l6ZV90IHJlYWRfZnJvbV9vbGRtZW0oY2hhciAqYnVmLCBzaXplX3QgY291bnQsDQo+ICsJ
+CQkJICAgICAgIHU2NCAqcHBvcywgaW50IHVzZXJidWYsDQo+ICsJCQkJICAgICAgIGJvb2wgZW5j
+cnlwdGVkKQ0KPiArew0KPiArCXJldHVybiAtRU9QTk9UU1VQUDsNCj4gK30NCj4gKyNlbmRpZiAv
+KiBDT05GSUdfUFJPQ19WTUNPUkUgKi8NCj4gKw0KPiAgI2VuZGlmIC8qIExJTlVYX0NSQVNIRFVN
+UF9IICovDQo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L21lbV9lbmNyeXB0LmggYi9pbmNs
+dWRlL2xpbnV4L21lbV9lbmNyeXB0LmgNCj4gaW5kZXggMGM1YjBmZjllYjI5Li41YzRhMThhOTFm
+ODkgMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUvbGludXgvbWVtX2VuY3J5cHQuaA0KPiArKysgYi9p
+bmNsdWRlL2xpbnV4L21lbV9lbmNyeXB0LmgNCj4gQEAgLTE5LDcgKzE5LDYgQEANCj4gICNlbHNl
+CS8qICFDT05GSUdfQVJDSF9IQVNfTUVNX0VOQ1JZUFQgKi8NCj4gIA0KPiAgc3RhdGljIGlubGlu
+ZSBib29sIG1lbV9lbmNyeXB0X2FjdGl2ZSh2b2lkKSB7IHJldHVybiBmYWxzZTsgfQ0KPiAtc3Rh
+dGljIGlubGluZSBib29sIHNldl9hY3RpdmUodm9pZCkgeyByZXR1cm4gZmFsc2U7IH0NCj4gIA0K
+PiAgI2VuZGlmCS8qIENPTkZJR19BUkNIX0hBU19NRU1fRU5DUllQVCAqLw0KPiAgDQo+IA0K
