@@ -1,51 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr740122.outbound.protection.outlook.com ([40.107.74.122]:20938
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727956AbfGKXZ4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 19:25:56 -0400
-From: Hoan Tran OS <hoan@os.amperecomputing.com>
-Subject: [PATCH v2 2/5] powerpc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-Date: Thu, 11 Jul 2019 23:25:49 +0000
-Message-ID: <1562887528-5896-3-git-send-email-Hoan@os.amperecomputing.com>
-References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38242 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388249AbfGRQnx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Jul 2019 12:43:53 -0400
+References: <20190718032858.28744-1-bauerman@linux.ibm.com> <20190718032858.28744-7-bauerman@linux.ibm.com> <20190718084456.GE24562@lst.de> <20190718150123.4230a00c.pasic@linux.ibm.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH v3 6/6] s390/mm: Remove sev_active() function
+In-reply-to: <20190718150123.4230a00c.pasic@linux.ibm.com>
+Date: Thu, 18 Jul 2019 13:43:20 -0300
+Message-ID: <87blxr47kn.fsf@morokweng.localdomain>
 MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>, Hoan Tran OS <hoan@os.amperecomputing.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>, x86@kernel.org, iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled by
-default with NUMA.
 
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
+Halil Pasic <pasic@linux.ibm.com> writes:
+
+> On Thu, 18 Jul 2019 10:44:56 +0200
+> Christoph Hellwig <hch@lst.de> wrote:
+>
+>> > -/* are we a protected virtualization guest? */
+>> > -bool sev_active(void)
+>> > -{
+>> > -	return is_prot_virt_guest();
+>> > -}
+>> > -
+>> >  bool force_dma_unencrypted(struct device *dev)
+>> >  {
+>> > -	return sev_active();
+>> > +	return is_prot_virt_guest();
+>> >  }
+>> 
+>> Do we want to keep the comment for force_dma_unencrypted?
+>
+> Yes we do. With the comment transferred:
+>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+
+Thanks for your review.
+
+Here is the new version. Should I send a new patch series with this
+patch and the Reviewed-by on the other ones?
+
+-- 
+Thiago Jung Bauermann
+IBM Linux Technology Center
+
+
+From 1726205c73fb9e29feaa3d8909c5a1b0f2054c04 Mon Sep 17 00:00:00 2001
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Date: Mon, 15 Jul 2019 20:50:43 -0300
+Subject: [PATCH v4] s390/mm: Remove sev_active() function
+
+All references to sev_active() were moved to arch/x86 so we don't need to
+define it for s390 anymore.
+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/powerpc/Kconfig | 9 ---------
- 1 file changed, 9 deletions(-)
+ arch/s390/include/asm/mem_encrypt.h | 1 -
+ arch/s390/mm/init.c                 | 7 +------
+ 2 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 8c1c636..bdde8bc 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -629,15 +629,6 @@ config ARCH_MEMORY_PROBE
- 	def_bool y
- 	depends on MEMORY_HOTPLUG
-=20
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on NEED_MULTIPLE_NODES
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+index ff813a56bc30..2542cbf7e2d1 100644
+--- a/arch/s390/include/asm/mem_encrypt.h
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -5,7 +5,6 @@
+ #ifndef __ASSEMBLY__
+ 
+ static inline bool mem_encrypt_active(void) { return false; }
+-extern bool sev_active(void);
+ 
+ int set_memory_encrypted(unsigned long addr, int numpages);
+ int set_memory_decrypted(unsigned long addr, int numpages);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 78c319c5ce48..6c43a1ed1beb 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -156,14 +156,9 @@ int set_memory_decrypted(unsigned long addr, int numpages)
+ }
+ 
+ /* are we a protected virtualization guest? */
+-bool sev_active(void)
+-{
+-	return is_prot_virt_guest();
+-}
 -
- config STDBINUTILS
- 	bool "Using standard binutils settings"
- 	depends on 44x
---=20
-2.7.4
+ bool force_dma_unencrypted(struct device *dev)
+ {
+-	return sev_active();
++	return is_prot_virt_guest();
+ }
+ 
+ /* protected virtualization */
