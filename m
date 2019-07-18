@@ -1,44 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64556 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404101AbfGRTp3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 18 Jul 2019 15:45:29 -0400
-References: <20190718032858.28744-1-bauerman@linux.ibm.com> <680bb92e-66eb-8959-88a5-3447a6a282c8@amd.com>
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Received: from mail-eopbgr800055.outbound.protection.outlook.com ([40.107.80.55]:23161
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727685AbfGRRsZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 18 Jul 2019 13:48:25 -0400
+From: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
 Subject: Re: [PATCH v3 0/6] Remove x86-specific code from generic headers
-In-reply-to: <680bb92e-66eb-8959-88a5-3447a6a282c8@amd.com>
-Date: Thu, 18 Jul 2019 16:44:47 -0300
-Message-ID: <87a7db3z68.fsf@morokweng.localdomain>
+Date: Thu, 18 Jul 2019 17:48:21 +0000
+Message-ID: <680bb92e-66eb-8959-88a5-3447a6a282c8@amd.com>
+References: <20190718032858.28744-1-bauerman@linux.ibm.com>
+In-Reply-To: <20190718032858.28744-1-bauerman@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <F722F6675EEF4B4E824FE180F10FA466@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
-Cc: "x86@kernel.org" <x86@kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
+To: Thiago Jung Bauermann <bauerman@linux.ibm.com>, "x86@kernel.org" <x86@kernel.org>
+Cc: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-
-Lendacky, Thomas <Thomas.Lendacky@amd.com> writes:
-
-> On 7/17/19 10:28 PM, Thiago Jung Bauermann wrote:
->> Hello,
->> 
->> This version is mostly about splitting up patch 2/3 into three separate
->> patches, as suggested by Christoph Hellwig. Two other changes are a fix in
->> patch 1 which wasn't selecting ARCH_HAS_MEM_ENCRYPT for s390 spotted by
->> Janani and removal of sme_active and sev_active symbol exports as suggested
->> by Christoph Hellwig.
->> 
->> These patches are applied on top of today's dma-mapping/for-next.
->> 
->> I don't have a way to test SME, SEV, nor s390's PEF so the patches have only
->> been build tested.
->
-> I'll try and get this tested quickly to be sure everything works for SME
-> and SEV.
-
-Thanks! And thanks for reviewing the patches.
-
--- 
-Thiago Jung Bauermann
-IBM Linux Technology Center
+T24gNy8xNy8xOSAxMDoyOCBQTSwgVGhpYWdvIEp1bmcgQmF1ZXJtYW5uIHdyb3RlOg0KPiBIZWxs
+bywNCj4gDQo+IFRoaXMgdmVyc2lvbiBpcyBtb3N0bHkgYWJvdXQgc3BsaXR0aW5nIHVwIHBhdGNo
+IDIvMyBpbnRvIHRocmVlIHNlcGFyYXRlDQo+IHBhdGNoZXMsIGFzIHN1Z2dlc3RlZCBieSBDaHJp
+c3RvcGggSGVsbHdpZy4gVHdvIG90aGVyIGNoYW5nZXMgYXJlIGEgZml4IGluDQo+IHBhdGNoIDEg
+d2hpY2ggd2Fzbid0IHNlbGVjdGluZyBBUkNIX0hBU19NRU1fRU5DUllQVCBmb3IgczM5MCBzcG90
+dGVkIGJ5DQo+IEphbmFuaSBhbmQgcmVtb3ZhbCBvZiBzbWVfYWN0aXZlIGFuZCBzZXZfYWN0aXZl
+IHN5bWJvbCBleHBvcnRzIGFzIHN1Z2dlc3RlZA0KPiBieSBDaHJpc3RvcGggSGVsbHdpZy4NCj4g
+DQo+IFRoZXNlIHBhdGNoZXMgYXJlIGFwcGxpZWQgb24gdG9wIG9mIHRvZGF5J3MgZG1hLW1hcHBp
+bmcvZm9yLW5leHQuDQo+IA0KPiBJIGRvbid0IGhhdmUgYSB3YXkgdG8gdGVzdCBTTUUsIFNFViwg
+bm9yIHMzOTAncyBQRUYgc28gdGhlIHBhdGNoZXMgaGF2ZSBvbmx5DQo+IGJlZW4gYnVpbGQgdGVz
+dGVkLg0KDQpJJ2xsIHRyeSBhbmQgZ2V0IHRoaXMgdGVzdGVkIHF1aWNrbHkgdG8gYmUgc3VyZSBl
+dmVyeXRoaW5nIHdvcmtzIGZvciBTTUUNCmFuZCBTRVYuDQoNClRoYW5rcywNClRvbQ0KDQo+IA0K
+PiBDaGFuZ2Vsb2cNCj4gDQo+IFNpbmNlIHYyOg0KPiANCj4gLSBQYXRjaCAieDg2LHMzOTA6IE1v
+dmUgQVJDSF9IQVNfTUVNX0VOQ1JZUFQgZGVmaW5pdGlvbiB0byBhcmNoL0tjb25maWciDQo+ICAg
+LSBBZGRlZCAic2VsZWN0IEFSQ0hfSEFTX01FTV9FTkNSWVBUIiB0byBjb25maWcgUzM5MC4gU3Vn
+Z2VzdGVkIGJ5IEphbmFuaS4NCj4gDQo+IC0gUGF0Y2ggIkRNQSBtYXBwaW5nOiBNb3ZlIFNNRSBo
+YW5kbGluZyB0byB4ODYtc3BlY2lmaWMgZmlsZXMiDQo+ICAgLSBTcGxpdCB1cCBpbnRvIDMgbmV3
+IHBhdGNoZXMuIFN1Z2dlc3RlZCBieSBDaHJpc3RvcGggSGVsbHdpZy4NCj4gDQo+IC0gUGF0Y2gg
+InN3aW90bGI6IFJlbW92ZSBjYWxsIHRvIHNtZV9hY3RpdmUoKSINCj4gICAtIE5ldyBwYXRjaC4N
+Cj4gDQo+IC0gUGF0Y2ggImRtYS1tYXBwaW5nOiBSZW1vdmUgZG1hX2NoZWNrX21hc2soKSINCj4g
+ICAtIE5ldyBwYXRjaC4NCj4gDQo+IC0gUGF0Y2ggIng4NixzMzkwL21tOiBNb3ZlIHNtZV9hY3Rp
+dmUoKSBhbmQgc21lX21lX21hc2sgdG8geDg2LXNwZWNpZmljIGhlYWRlciINCj4gICAtIE5ldyBw
+YXRjaC4NCj4gICAtIFJlbW92ZWQgZXhwb3J0IG9mIHNtZV9hY3RpdmUgc3ltYm9sLiBTdWdnZXN0
+ZWQgYnkgQ2hyaXN0b3BoIEhlbGx3aWcuDQo+IA0KPiAtIFBhdGNoICJmcy9jb3JlL3ZtY29yZTog
+TW92ZSBzZXZfYWN0aXZlKCkgcmVmZXJlbmNlIHRvIHg4NiBhcmNoIGNvZGUiDQo+ICAgLSBSZW1v
+dmVkIGV4cG9ydCBvZiBzZXZfYWN0aXZlIHN5bWJvbC4gU3VnZ2VzdGVkIGJ5IENocmlzdG9waCBI
+ZWxsd2lnLg0KPiANCj4gLSBQYXRjaCAiczM5MC9tbTogUmVtb3ZlIHNldl9hY3RpdmUoKSBmdW5j
+dGlvbiINCj4gICAtIE5ldyBwYXRjaC4NCj4gDQo+IFNpbmNlIHYxOg0KPiANCj4gLSBQYXRjaCAi
+eDg2LHMzOTA6IE1vdmUgQVJDSF9IQVNfTUVNX0VOQ1JZUFQgZGVmaW5pdGlvbiB0byBhcmNoL0tj
+b25maWciDQo+ICAgLSBSZW1vdmUgZGVmaW5pdGlvbiBvZiBBUkNIX0hBU19NRU1fRU5DUllQVCBm
+cm9tIHMzOTAvS2NvbmZpZyBhcyB3ZWxsLg0KPiAgIC0gUmV3b3JkZWQgcGF0Y2ggdGl0bGUgYW5k
+IG1lc3NhZ2UgYSBsaXR0bGUgYml0Lg0KPiANCj4gLSBQYXRjaCAiRE1BIG1hcHBpbmc6IE1vdmUg
+U01FIGhhbmRsaW5nIHRvIHg4Ni1zcGVjaWZpYyBmaWxlcyINCj4gICAtIEFkYXB0IHMzOTAncyA8
+YXNtL21lbV9lbmNyeXB0Lmg+IGFzIHdlbGwuDQo+ICAgLSBSZW1vdmUgZG1hX2NoZWNrX21hc2so
+KSBmcm9tIGtlcm5lbC9kbWEvbWFwcGluZy5jLiBTdWdnZXN0ZWQgYnkNCj4gICAgIENocmlzdG9w
+aCBIZWxsd2lnLg0KPiANCj4gVGhpYWdvIEp1bmcgQmF1ZXJtYW5uICg2KToNCj4gICB4ODYsczM5
+MDogTW92ZSBBUkNIX0hBU19NRU1fRU5DUllQVCBkZWZpbml0aW9uIHRvIGFyY2gvS2NvbmZpZw0K
+PiAgIHN3aW90bGI6IFJlbW92ZSBjYWxsIHRvIHNtZV9hY3RpdmUoKQ0KPiAgIGRtYS1tYXBwaW5n
+OiBSZW1vdmUgZG1hX2NoZWNrX21hc2soKQ0KPiAgIHg4NixzMzkwL21tOiBNb3ZlIHNtZV9hY3Rp
+dmUoKSBhbmQgc21lX21lX21hc2sgdG8geDg2LXNwZWNpZmljIGhlYWRlcg0KPiAgIGZzL2NvcmUv
+dm1jb3JlOiBNb3ZlIHNldl9hY3RpdmUoKSByZWZlcmVuY2UgdG8geDg2IGFyY2ggY29kZQ0KPiAg
+IHMzOTAvbW06IFJlbW92ZSBzZXZfYWN0aXZlKCkgZnVuY3Rpb24NCj4gDQo+ICBhcmNoL0tjb25m
+aWcgICAgICAgICAgICAgICAgICAgICAgICB8ICAzICsrKw0KPiAgYXJjaC9zMzkwL0tjb25maWcg
+ICAgICAgICAgICAgICAgICAgfCAgNCArLS0tDQo+ICBhcmNoL3MzOTAvaW5jbHVkZS9hc20vbWVt
+X2VuY3J5cHQuaCB8ICA1ICstLS0tDQo+ICBhcmNoL3MzOTAvbW0vaW5pdC5jICAgICAgICAgICAg
+ICAgICB8ICA4ICstLS0tLS0tDQo+ICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAgICAgICAgICAg
+ICB8ICA0ICstLS0NCj4gIGFyY2gveDg2L2luY2x1ZGUvYXNtL21lbV9lbmNyeXB0LmggIHwgMTAg
+KysrKysrKysrKw0KPiAgYXJjaC94ODYva2VybmVsL2NyYXNoX2R1bXBfNjQuYyAgICAgfCAgNSAr
+KysrKw0KPiAgYXJjaC94ODYvbW0vbWVtX2VuY3J5cHQuYyAgICAgICAgICAgfCAgMiAtLQ0KPiAg
+ZnMvcHJvYy92bWNvcmUuYyAgICAgICAgICAgICAgICAgICAgfCAgOCArKysrLS0tLQ0KPiAgaW5j
+bHVkZS9saW51eC9jcmFzaF9kdW1wLmggICAgICAgICAgfCAxNCArKysrKysrKysrKysrKw0KPiAg
+aW5jbHVkZS9saW51eC9tZW1fZW5jcnlwdC5oICAgICAgICAgfCAxNSArLS0tLS0tLS0tLS0tLS0N
+Cj4gIGtlcm5lbC9kbWEvbWFwcGluZy5jICAgICAgICAgICAgICAgIHwgIDggLS0tLS0tLS0NCj4g
+IGtlcm5lbC9kbWEvc3dpb3RsYi5jICAgICAgICAgICAgICAgIHwgIDMgKy0tDQo+ICAxMyBmaWxl
+cyBjaGFuZ2VkLCA0MiBpbnNlcnRpb25zKCspLCA0NyBkZWxldGlvbnMoLSkNCj4gDQo=
