@@ -1,37 +1,102 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:33632 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbfGAMTR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 1 Jul 2019 08:19:17 -0400
-Date: Mon, 1 Jul 2019 14:19:14 +0200
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v4 0/5] iommu/amd: Convert the AMD iommu driver to the
- dma-iommu api
-Message-ID: <20190701121914.GD8166@8bytes.org>
-References: <20190613223901.9523-1-murphyt7@tcd.ie>
- <20190624061945.GA4912@infradead.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 085/101] s390/dasd: Make layout analysis ESE compatible
+Date: Fri, 19 Jul 2019 00:07:16 -0400
+Message-Id: <20190719040732.17285-85-sashal@kernel.org>
+In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
+References: <20190719040732.17285-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190624061945.GA4912@infradead.org>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org, Heiko Stuebner <heiko@sntech.de>, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, David Brown <david.brown@linaro.org>, Thierry Reding <thierry.reding@gmail.com>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jean-Philippe Brucker <jean-philippe.brucker@arm.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-tegra@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Hi,
-	
-On Sun, Jun 23, 2019 at 11:19:45PM -0700, Christoph Hellwig wrote:
-> Joerg, any chance you could review this?  Toms patches to convert the
-> AMD and Intel IOMMU drivers to the dma-iommu code are going to make my
-> life in DMA land significantly easier, so I have a vested interest
-> in this series moving forward :)
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-I really appreciate Toms work on this. Tom, please rebase and resubmit
-this series after the next merge window and I will do more performance
-testing on it. If all goes well I and no other issues show up I can
-apply it for v5.4.
+[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
 
-Regards,
+The disk layout and volume information of a DASD reside in the first two
+tracks of cylinder 0. When a DASD is set online, currently the first
+three tracks are read and analysed to confirm an expected layout.
 
-	Joerg
+For CDL (Compatible Disk Layout) only count area data of the first track
+is evaluated and checked against expected key and data lengths. For LDL
+(Linux Disk Layout) the first and third track is evaluated. However,
+an LDL formatted volume is expected to be in the same format across all
+tracks. Checking the third track therefore doesn't have any more value
+than checking any other track at random.
+
+Now, an Extent Space Efficient (ESE) DASD is initialised by only
+formatting the first two tracks, as those tracks always contain all
+information necessarry.
+
+Checking the third track on an ESE volume will therefore most likely
+fail with a record not found error, as the third track will be empty.
+This in turn leads to the device being recognised with a volume size of
+0. Attempts to write volume information on the first two tracks then
+fail with "no space left on device" errors.
+
+Initialising the first three tracks for an ESE volume is not a viable
+solution, because the third track is already a regular track and could
+contain user data. With that there is potential for data corruption.
+
+Instead, always only analyse the first two tracks, as it is sufficiant
+for both CDL and LDL, and allow ESE volumes to be recognised as well.
+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/block/dasd_eckd.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index f89f9d02e788..fccdf9812c1f 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
+ #define LABEL_SIZE 140
+ 
+ /* head and record addresses of count_area read in analysis ccw */
+-static const int count_area_head[] = { 0, 0, 0, 0, 2 };
++static const int count_area_head[] = { 0, 0, 0, 0, 1 };
+ static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
+ 
+ static inline unsigned int
+@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 	if (IS_ERR(cqr))
+ 		return cqr;
+ 	ccw = cqr->cpaddr;
+-	/* Define extent for the first 3 tracks. */
+-	define_extent(ccw++, cqr->data, 0, 2,
++	/* Define extent for the first 2 tracks. */
++	define_extent(ccw++, cqr->data, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
+ 	/* Locate record for the first 4 records on track 0. */
+@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 		count_data++;
+ 	}
+ 
+-	/* Locate record for the first record on track 2. */
++	/* Locate record for the first record on track 1. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+-	locate_record(ccw++, LO_data++, 2, 0, 1,
++	locate_record(ccw++, LO_data++, 1, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	/* Read count ccw. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+ 		}
+ 	}
+ 	if (i == 3)
+-		count_area = &private->count_area[4];
++		count_area = &private->count_area[3];
+ 
+ 	if (private->uses_cdl == 0) {
+ 		for (i = 0; i < 5; i++) {
+-- 
+2.20.1
