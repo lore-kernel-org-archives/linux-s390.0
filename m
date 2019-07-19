@@ -1,81 +1,102 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-Date: Mon, 29 Jul 2019 09:59:47 -0500
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] net/af_iucv: mark expected switch fall-throughs
-Message-ID: <20190729145947.GA9494@embeddedor>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 120/141] s390/dasd: Make layout analysis ESE compatible
+Date: Fri, 19 Jul 2019 00:02:25 -0400
+Message-Id: <20190719040246.15945-120-sashal@kernel.org>
+In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
+References: <20190719040246.15945-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kees Cook <keescook@chromium.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Mark switch cases where we are expecting to fall through.
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-This patch fixes the following warnings:
+[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
 
-net/iucv/af_iucv.c: warning: this statement may fall
-through [-Wimplicit-fallthrough=]:  => 537:3, 519:6, 2246:6, 510:6
+The disk layout and volume information of a DASD reside in the first two
+tracks of cylinder 0. When a DASD is set online, currently the first
+three tracks are read and analysed to confirm an expected layout.
 
-Notice that, in this particular case, the code comment is
-modified in accordance with what GCC is expecting to find.
+For CDL (Compatible Disk Layout) only count area data of the first track
+is evaluated and checked against expected key and data lengths. For LDL
+(Linux Disk Layout) the first and third track is evaluated. However,
+an LDL formatted volume is expected to be in the same format across all
+tracks. Checking the third track therefore doesn't have any more value
+than checking any other track at random.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Now, an Extent Space Efficient (ESE) DASD is initialised by only
+formatting the first two tracks, as those tracks always contain all
+information necessarry.
+
+Checking the third track on an ESE volume will therefore most likely
+fail with a record not found error, as the third track will be empty.
+This in turn leads to the device being recognised with a volume size of
+0. Attempts to write volume information on the first two tracks then
+fail with "no space left on device" errors.
+
+Initialising the first three tracks for an ESE volume is not a viable
+solution, because the third track is already a regular track and could
+contain user data. With that there is potential for data corruption.
+
+Instead, always only analyse the first two tracks, as it is sufficiant
+for both CDL and LDL, and allow ESE volumes to be recognised as well.
+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/iucv/af_iucv.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 09e1694b6d34..ebb62a4ebe30 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -512,7 +512,9 @@ static void iucv_sock_close(struct sock *sk)
- 			sk->sk_state = IUCV_DISCONN;
- 			sk->sk_state_change(sk);
- 		}
--	case IUCV_DISCONN:   /* fall through */
-+		/* fall through */
-+
-+	case IUCV_DISCONN:
- 		sk->sk_state = IUCV_CLOSING;
- 		sk->sk_state_change(sk);
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index f89f9d02e788..fccdf9812c1f 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
+ #define LABEL_SIZE 140
  
-@@ -525,8 +527,9 @@ static void iucv_sock_close(struct sock *sk)
- 					iucv_sock_in_state(sk, IUCV_CLOSED, 0),
- 					timeo);
- 		}
-+		/* fall through */
+ /* head and record addresses of count_area read in analysis ccw */
+-static const int count_area_head[] = { 0, 0, 0, 0, 2 };
++static const int count_area_head[] = { 0, 0, 0, 0, 1 };
+ static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
  
--	case IUCV_CLOSING:   /* fall through */
-+	case IUCV_CLOSING:
- 		sk->sk_state = IUCV_CLOSED;
- 		sk->sk_state_change(sk);
- 
-@@ -535,8 +538,9 @@ static void iucv_sock_close(struct sock *sk)
- 
- 		skb_queue_purge(&iucv->send_skb_q);
- 		skb_queue_purge(&iucv->backlog_skb_q);
-+		/* fall through */
- 
--	default:   /* fall through */
-+	default:
- 		iucv_sever_path(sk, 1);
+ static inline unsigned int
+@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 	if (IS_ERR(cqr))
+ 		return cqr;
+ 	ccw = cqr->cpaddr;
+-	/* Define extent for the first 3 tracks. */
+-	define_extent(ccw++, cqr->data, 0, 2,
++	/* Define extent for the first 2 tracks. */
++	define_extent(ccw++, cqr->data, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
+ 	/* Locate record for the first 4 records on track 0. */
+@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 		count_data++;
  	}
  
-@@ -2247,10 +2251,10 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
- 			kfree_skb(skb);
- 			break;
+-	/* Locate record for the first record on track 2. */
++	/* Locate record for the first record on track 1. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+-	locate_record(ccw++, LO_data++, 2, 0, 1,
++	locate_record(ccw++, LO_data++, 1, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	/* Read count ccw. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
  		}
--		/* fall through and receive non-zero length data */
-+		/* fall through - and receive non-zero length data */
- 	case (AF_IUCV_FLAG_SHT):
- 		/* shutdown request */
--		/* fall through and receive zero length data */
-+		/* fall through - and receive zero length data */
- 	case 0:
- 		/* plain data frame */
- 		IUCV_SKB_CB(skb)->class = trans_hdr->iucv_hdr.class;
+ 	}
+ 	if (i == 3)
+-		count_area = &private->count_area[4];
++		count_area = &private->count_area[3];
+ 
+ 	if (private->uses_cdl == 0) {
+ 		for (i = 0; i < 5; i++) {
 -- 
-2.22.0
+2.20.1
