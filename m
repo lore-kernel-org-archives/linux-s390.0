@@ -1,58 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:49736 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729758AbfGaPqg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 11:46:36 -0400
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v10 08/22] s390: mm: Add p?d_leaf() definitions
-Date: Wed, 31 Jul 2019 16:45:49 +0100
-Message-Id: <20190731154603.41797-9-steven.price@arm.com>
-In-Reply-To: <20190731154603.41797-1-steven.price@arm.com>
-References: <20190731154603.41797-1-steven.price@arm.com>
+Received: from mx2.suse.de ([195.135.220.15]:37648 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725616AbfGSGpN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Jul 2019 02:45:13 -0400
+Date: Fri, 19 Jul 2019 08:45:10 +0200
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v3 02/11] s390x/mm: Fail when an altmap is used for
+ arch_add_memory()
+Message-ID: <20190719064510.GL30461@dhcp22.suse.cz>
+References: <20190527111152.16324-1-david@redhat.com>
+ <20190527111152.16324-3-david@redhat.com>
+ <20190701074306.GC6376@dhcp22.suse.cz>
+ <20190701124628.GT6376@dhcp22.suse.cz>
+ <86f3ff3d-d035-a806-88b7-b8c7b77c206e@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86f3ff3d-d035-a806-88b7-b8c7b77c206e@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Oscar Salvador <osalvador@suse.com>
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_leaf() functions/macros.
+On Mon 15-07-19 12:51:27, David Hildenbrand wrote:
+> On 01.07.19 14:46, Michal Hocko wrote:
+> > On Mon 01-07-19 09:43:06, Michal Hocko wrote:
+> >> On Mon 27-05-19 13:11:43, David Hildenbrand wrote:
+> >>> ZONE_DEVICE is not yet supported, fail if an altmap is passed, so we
+> >>> don't forget arch_add_memory()/arch_remove_memory() when unlocking
+> >>> support.
+> >>
+> >> Why do we need this? Sure ZONE_DEVICE is not supported for s390 and so
+> >> might be the case for other arches which support hotplug. I do not see
+> >> much point in adding warning to each of them.
+> > 
+> > I would drop this one. If there is a strong reason to have something
+> > like that it should come with a better explanation and it can be done on
+> > top.
+> > 
+> 
+> This was requested by Dan and I agree it is the right thing to do.
 
-For s390, pud_large() and pmd_large() are already implemented as static
-inline functions. Add a macro to provide the p?d_leaf names for the
-generic code to use.
+This is probably a matter of taste. I would argue that altmap doesn't
+really equal ZONE_DEVICE. This is more a mechanism to use an alternative
+memmap allocator. Sure ZONE_DEVICE is the only in tree user of the
+feature but I really do not see why the arh specific code should care
+about it. The lack of altmap allocator is handled in the sparse code so
+this is just adding an early check which might confuse people in future.
 
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
----
- arch/s390/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+> In
+> the context of paravirtualized devices (e.g., virtio-pmem), it makes
+> sense to block functionality an arch does not support.
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 9b274fcaacb6..f99a5f546e5e 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -674,6 +674,7 @@ static inline int pud_none(pud_t pud)
- 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
- }
- 
-+#define pud_leaf	pud_large
- static inline int pud_large(pud_t pud)
- {
- 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-@@ -691,6 +692,7 @@ static inline unsigned long pud_pfn(pud_t pud)
- 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
- }
- 
-+#define pmd_leaf	pmd_large
- static inline int pmd_large(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
+Then block it on the config dependences.
+
 -- 
-2.20.1
+Michal Hocko
+SUSE Labs
