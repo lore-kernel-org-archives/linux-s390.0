@@ -1,130 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54860 "EHLO mail.kernel.org"
+Received: from mx1.mailbox.org ([80.241.60.212]:32242 "EHLO mx1.mailbox.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728228AbfGZNpn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:45:43 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 09/23] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
-Date: Fri, 26 Jul 2019 09:45:08 -0400
-Message-Id: <20190726134522.13308-9-sashal@kernel.org>
-In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
-References: <20190726134522.13308-1-sashal@kernel.org>
+        id S1728435AbfGSQnp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Jul 2019 12:43:45 -0400
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v10 2/9] procfs: switch magic-link modes to be more sane
+Date: Sat, 20 Jul 2019 02:42:18 +1000
+Message-Id: <20190719164225.27083-3-cyphar@cyphar.com>
+In-Reply-To: <20190719164225.27083-1-cyphar@cyphar.com>
+References: <20190719164225.27083-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Benjamin Block <bblock@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+Now that magic-link modes are obeyed for file re-opening purposes, some
+of the pre-existing magic-link modes need to be adjusted to be more
+semantically correct.
 
-[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+The most blatant example of this is /proc/self/exe, which had a mode of
+a+rwx even though tautologically the file could never be opened for
+writing (because it is the current->mm of a live process).
 
-GCC v9 emits this warning:
-      CC      drivers/s390/scsi/zfcp_erp.o
-    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
-    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
-      217 |  struct zfcp_erp_action *erp_action;
-          |                          ^~~~~~~~~~
+With the new O_PATH restrictions, changing the default mode of these
+magic-links allows us to avoid delayed-access attacks such as we saw in
+CVE-2019-5736.
 
-This is a possible false positive case, as also documented in the GCC
-documentations:
-    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
-
-The actual code-sequence is like this:
-    Various callers can invoke the function below with the argument "want"
-    being one of:
-    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
-    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
-    ZFCP_ERP_ACTION_REOPEN_PORT, or
-    ZFCP_ERP_ACTION_REOPEN_LUN.
-
-    zfcp_erp_action_enqueue(want, ...)
-        ...
-        need = zfcp_erp_required_act(want, ...)
-            need = want
-            ...
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
-            ...
-            return need
-        ...
-        zfcp_erp_setup_act(need, ...)
-            struct zfcp_erp_action *erp_action; // <== line 217
-            ...
-            switch(need) {
-            case ZFCP_ERP_ACTION_REOPEN_LUN:
-                    ...
-                    erp_action = &zfcp_sdev->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_PORT:
-            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
-                    ...
-                    erp_action = &port->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
-                    ...
-                    erp_action = &adapter->erp_action;
-                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
-                    ...
-                    break;
-            }
-            ...
-            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
-
-When zfcp_erp_setup_act() is called, 'need' will never be anything else
-than one of the 4 possible enumeration-names that are used in the
-switch-case, and 'erp_action' is initialized for every one of them, before
-it is used. Thus the warning is a false positive, as documented.
-
-We introduce the extra if{} in the beginning to create an extra code-flow,
-so the compiler can be convinced that the switch-case will never see any
-other value.
-
-BUG_ON()/BUG() is intentionally not used to not crash anything, should
-this ever happen anyway - right now it's impossible, as argued above; and
-it doesn't introduce a 'default:' switch-case to retain warnings should
-'enum zfcp_erp_act_type' ever be extended and no explicit case be
-introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
-default switch case which might paper over missing case").
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/scsi/zfcp_erp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/proc/base.c       | 20 ++++++++++----------
+ fs/proc/namespaces.c |  2 +-
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index abe460eac712..cc62d8cc8cfd 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -10,6 +10,7 @@
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 255f6754c70d..82c06c21e69d 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -133,9 +133,9 @@ struct pid_entry {
  
- #include <linux/kthread.h>
-+#include <linux/bug.h>
- #include "zfcp_ext.h"
- #include "zfcp_reqlist.h"
+ #define DIR(NAME, MODE, iops, fops)	\
+ 	NOD(NAME, (S_IFDIR|(MODE)), &iops, &fops, {} )
+-#define LNK(NAME, get_link)					\
+-	NOD(NAME, (S_IFLNK|S_IRWXUGO),				\
+-		&proc_pid_link_inode_operations, NULL,		\
++#define LNK(NAME, MODE, get_link)			\
++	NOD(NAME, (S_IFLNK|(MODE)),			\
++		&proc_pid_link_inode_operations, NULL,	\
+ 		{ .proc_get_link = get_link } )
+ #define REG(NAME, MODE, fops)				\
+ 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
+@@ -2995,9 +2995,9 @@ static const struct pid_entry tgid_base_stuff[] = {
+ 	REG("numa_maps",  S_IRUGO, proc_pid_numa_maps_operations),
+ #endif
+ 	REG("mem",        S_IRUSR|S_IWUSR, proc_mem_operations),
+-	LNK("cwd",        proc_cwd_link),
+-	LNK("root",       proc_root_link),
+-	LNK("exe",        proc_exe_link),
++	LNK("cwd",        S_IRWXUGO, proc_cwd_link),
++	LNK("root",       S_IRWXUGO, proc_root_link),
++	LNK("exe",        S_IRUGO|S_IXUGO, proc_exe_link),
+ 	REG("mounts",     S_IRUGO, proc_mounts_operations),
+ 	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
+ 	REG("mountstats", S_IRUSR, proc_mountstats_operations),
+@@ -3393,11 +3393,11 @@ static const struct pid_entry tid_base_stuff[] = {
+ 	REG("numa_maps", S_IRUGO, proc_pid_numa_maps_operations),
+ #endif
+ 	REG("mem",       S_IRUSR|S_IWUSR, proc_mem_operations),
+-	LNK("cwd",       proc_cwd_link),
+-	LNK("root",      proc_root_link),
+-	LNK("exe",       proc_exe_link),
++	LNK("cwd",       S_IRWXUGO, proc_cwd_link),
++	LNK("root",      S_IRWXUGO, proc_root_link),
++	LNK("exe",       S_IRUGO|S_IXUGO, proc_exe_link),
+ 	REG("mounts",    S_IRUGO, proc_mounts_operations),
+-	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
++	REG("mountinfo", S_IRUGO, proc_mountinfo_operations),
+ #ifdef CONFIG_PROC_PAGE_MONITOR
+ 	REG("clear_refs", S_IWUSR, proc_clear_refs_operations),
+ 	REG("smaps",     S_IRUGO, proc_pid_smaps_operations),
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index dd2b35f78b09..cd1e130913f7 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -94,7 +94,7 @@ static struct dentry *proc_ns_instantiate(struct dentry *dentry,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
  
-@@ -244,6 +245,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
- 	struct zfcp_erp_action *erp_action;
- 	struct zfcp_scsi_dev *zfcp_sdev;
+-	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRWXUGO);
++	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRUGO);
+ 	if (!inode)
+ 		return ERR_PTR(-ENOENT);
  
-+	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
-+		return NULL;
-+
- 	switch (need) {
- 	case ZFCP_ERP_ACTION_REOPEN_LUN:
- 		zfcp_sdev = sdev_to_zfcp(sdev);
 -- 
-2.20.1
+2.22.0
