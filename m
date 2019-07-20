@@ -1,55 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49898 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725890AbfGQJoG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jul 2019 05:44:06 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 4/6] vfio-ccw: Don't call cp_free if we are processing a channel program
-Date: Wed, 17 Jul 2019 11:43:48 +0200
-Message-Id: <20190717094350.13620-5-cohuck@redhat.com>
-In-Reply-To: <20190717094350.13620-1-cohuck@redhat.com>
-References: <20190717094350.13620-1-cohuck@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35366 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728850AbfGTAWx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Jul 2019 20:22:53 -0400
+References: <20190712053631.9814-3-bauerman@linux.ibm.com> <201907191711.8BlpwBo2%lkp@intel.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH 2/3] DMA mapping: Move SME handling to x86-specific files
+In-reply-to: <201907191711.8BlpwBo2%lkp@intel.com>
+Date: Fri, 19 Jul 2019 21:22:09 -0300
+Message-ID: <87ef2lh7wu.fsf@morokweng.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@01.org, x86@kernel.org, iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
 
-There is a small window where it's possible that we could be working
-on an interrupt (queued in the workqueue) and setting up a channel
-program (i.e allocating memory, pinning pages, translating address).
-This can lead to allocating and freeing the channel program at the
-same time and can cause memory corruption.
+kbuild test robot <lkp@intel.com> writes:
 
-Let's not call cp_free if we are currently processing a channel program.
-The only way we know for sure that we don't have a thread setting
-up a channel program is when the state is set to VFIO_CCW_STATE_CP_PENDING.
+> Hi Thiago,
+>
+> Thank you for the patch! Yet something to improve:
+>
+> [auto build test ERROR on linus/master]
+> [cannot apply to v5.2 next-20190718]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+>
+> url:    https://github.com/0day-ci/linux/commits/Thiago-Jung-Bauermann/Remove-x86-specific-code-from-generic-headers/20190715-063006
+> config: s390-allnoconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 7.4.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=7.4.0 make.cross ARCH=s390
+>
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>    kernel/dma/swiotlb.c: In function 'swiotlb_tbl_map_single':
+>>> kernel/dma/swiotlb.c:461:6: error: implicit declaration of function 'mem_encrypt_active'; did you mean 'set_cpu_active'? [-Werror=implicit-function-declaration]
+>      if (mem_encrypt_active())
+>          ^~~~~~~~~~~~~~~~~~
+>          set_cpu_active
+>    cc1: some warnings being treated as errors
 
-Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <62e87bf67b38dc8d5760586e7c96d400db854ebe.1562854091.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This error was reported for v1 of the patch series. I wasn't able to
+reproduce this problem on v1 but found a similar issue on v2.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 2b90a5ecaeb9..9208c0e56c33 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -88,7 +88,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
- 	if (scsw_is_solicited(&irb->scsw)) {
- 		cp_update_scsw(&private->cp, &irb->scsw);
--		if (is_final)
-+		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
- 			cp_free(&private->cp);
- 	}
- 	mutex_lock(&private->io_mutex);
--- 
-2.20.1
+I just did a build test of each patch of the latest version (v3) with an
+s390 cross-toolchain and the config file from this report and didn't
+find any build issues, so I believe this problem is solved.
+
+--
+Thiago Jung Bauermann
+IBM Linux Technology Center
