@@ -1,121 +1,111 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v2 2/3] KVM: selftests: Implement ucall() for s390x
-Date: Wed, 31 Jul 2019 15:32:15 +0200
-Message-Id: <20190731133216.5620-3-thuth@redhat.com>
-In-Reply-To: <20190731133216.5620-1-thuth@redhat.com>
-References: <20190731133216.5620-1-thuth@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from conssluserg-04.nifty.com ([210.131.2.83]:62942 "EHLO
+        conssluserg-04.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728083AbfGVOYI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 22 Jul 2019 10:24:08 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+References: <20190721142008.30093-1-yamada.masahiro@socionext.com> <20190722123009.GA5864@osiris>
+In-Reply-To: <20190722123009.GA5864@osiris>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Mon, 22 Jul 2019 23:23:18 +0900
+Message-ID: <CAK7LNARSq=vchY4CT_17zHzJgv8a=Gtow599gJKq2HbM4Ffguw@mail.gmail.com>
+Subject: Re: [PATCH] s390: use __u{16,32,64} instead of uint{16,32,64}_t in
+ uapi header
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Harald Freudenberger <freude@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On s390x, we can neither exit via PIO nor MMIO, but have to use an
-instruction like DIAGNOSE. Now that ucall() is implemented, we can
-use it in the sync_reg_test on s390x, too.
+On Mon, Jul 22, 2019 at 9:30 PM Heiko Carstens
+<heiko.carstens@de.ibm.com> wrote:
+>
+> On Sun, Jul 21, 2019 at 11:20:08PM +0900, Masahiro Yamada wrote:
+> > When CONFIG_UAPI_HEADER_TEST=y, exported headers are compile-tested to
+> > make sure they can be included from user-space.
+> >
+> > Currently, zcrypt.h is excluded from the test coverage. To make it
+> > join the compile-test, we need to fix the build errors attached below.
+> >
+> > For a case like this, we decided to use __u{8,16,32,64} variable types
+> > in this discussion:
+> >
+> >   https://lkml.org/lkml/2019/6/5/18
+> ...
+> > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > ---
+> >
+> >  arch/s390/include/uapi/asm/zcrypt.h | 35 +++++++++++++++--------------
+> >  1 file changed, 18 insertions(+), 17 deletions(-)
+>
+> Applied, thanks!
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- tools/testing/selftests/kvm/Makefile          |  2 +-
- tools/testing/selftests/kvm/lib/s390x/ucall.c | 56 +++++++++++++++++++
- .../selftests/kvm/s390x/sync_regs_test.c      |  6 +-
- 3 files changed, 61 insertions(+), 3 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
+Thanks.
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index a51e3b83df40..75ea1ecbf85a 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -10,7 +10,7 @@ UNAME_M := $(shell uname -m)
- LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c
- LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/ucall.c
- LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
--LIBKVM_s390x = lib/s390x/processor.c
-+LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c
- 
- TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
- TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
-diff --git a/tools/testing/selftests/kvm/lib/s390x/ucall.c b/tools/testing/selftests/kvm/lib/s390x/ucall.c
-new file mode 100644
-index 000000000000..fd589dc9bfab
---- /dev/null
-+++ b/tools/testing/selftests/kvm/lib/s390x/ucall.c
-@@ -0,0 +1,56 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * ucall support. A ucall is a "hypercall to userspace".
-+ *
-+ * Copyright (C) 2019 Red Hat, Inc.
-+ */
-+#include "kvm_util.h"
-+
-+void ucall_init(struct kvm_vm *vm, void *arg)
-+{
-+}
-+
-+void ucall_uninit(struct kvm_vm *vm)
-+{
-+}
-+
-+void ucall(uint64_t cmd, int nargs, ...)
-+{
-+	struct ucall uc = {
-+		.cmd = cmd,
-+	};
-+	va_list va;
-+	int i;
-+
-+	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
-+
-+	va_start(va, nargs);
-+	for (i = 0; i < nargs; ++i)
-+		uc.args[i] = va_arg(va, uint64_t);
-+	va_end(va);
-+
-+	/* Exit via DIAGNOSE 0x501 (normally used for breakpoints) */
-+	asm volatile ("diag 0,%0,0x501" : : "a"(&uc) : "memory");
-+}
-+
-+uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
-+{
-+	struct kvm_run *run = vcpu_state(vm, vcpu_id);
-+	struct ucall ucall = {};
-+
-+	if (run->exit_reason == KVM_EXIT_S390_SIEIC &&
-+	    run->s390_sieic.icptcode == 4 &&
-+	    (run->s390_sieic.ipa >> 8) == 0x83 &&    /* 0x83 means DIAGNOSE */
-+	    (run->s390_sieic.ipb >> 16) == 0x501) {
-+		int reg = run->s390_sieic.ipa & 0xf;
-+
-+		memcpy(&ucall, addr_gva2hva(vm, run->s.regs.gprs[reg]),
-+		       sizeof(ucall));
-+
-+		vcpu_run_complete_io(vm, vcpu_id);
-+		if (uc)
-+			memcpy(uc, &ucall, sizeof(ucall));
-+	}
-+
-+	return ucall.cmd;
-+}
-diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-index e85ff0d69548..bbc93094519b 100644
---- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-+++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-@@ -25,9 +25,11 @@
- 
- static void guest_code(void)
- {
-+	register u64 stage asm("11") = 0;
-+
- 	for (;;) {
--		asm volatile ("diag 0,0,0x501");
--		asm volatile ("ahi 11,1");
-+		GUEST_SYNC(0);
-+		asm volatile ("ahi %0,1" : : "r"(stage));
- 	}
- }
- 
+> I also added the patch below:
+>
+> From b312d5e2244f635f83cbf19b850e26c1c443f465 Mon Sep 17 00:00:00 2001
+> From: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Date: Mon, 22 Jul 2019 14:16:46 +0200
+> Subject: [PATCH 2/2] kbuild: enable arch/s390/include/uapi/asm/zcrypt.h for
+>  uapi header test
+>
+> Masahiro Yamada changed the zcrypt.h header file to use __u{16,32,64}
+> instead of uint{16,32,64}_t with ("s390: use __u{16,32,64} instead of
+> uint{16,32,64}_t in uapi header").
+>
+> This makes all s390 header files pass - remove zcrypt.h from the blacklist.
+>
+> Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+
+Yeah, I had noticed this.
+
+I am sending out various patches to various subsystems.
+
+To avoid potential conflicts, my plan was to sync the blacklist
+from time to time, like the following commit:
+
+commit 67bf47452ea00edd90e796054229b651e64b82c1
+Author: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date:   Wed Jul 17 15:29:13 2019 +0900
+
+    kbuild: update compile-test header list for v5.3-rc1
+
+
+For this particular case, probably a merge conflict will not happen,
+so either is fine.
+
+
+
+
+
+
+> ---
+>  usr/include/Makefile | 4 ----
+>  1 file changed, 4 deletions(-)
+>
+> diff --git a/usr/include/Makefile b/usr/include/Makefile
+> index aa316d99e035..1fb6abe29b2f 100644
+> --- a/usr/include/Makefile
+> +++ b/usr/include/Makefile
+> @@ -101,10 +101,6 @@ ifeq ($(SRCARCH),riscv)
+>  header-test- += linux/bpf_perf_event.h
+>  endif
+>
+> -ifeq ($(SRCARCH),s390)
+> -header-test- += asm/zcrypt.h
+> -endif
+> -
+>  ifeq ($(SRCARCH),sparc)
+>  header-test- += asm/stat.h
+>  header-test- += asm/uctx.h
+> --
+> 2.17.1
+>
+
+
 -- 
-2.21.0
+Best Regards
+Masahiro Yamada
