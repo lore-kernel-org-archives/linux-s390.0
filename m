@@ -1,130 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50144 "EHLO mail.kernel.org"
+Received: from foss.arm.com ([217.140.110.172]:40204 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388039AbfGZNmr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 26 Jul 2019 09:42:47 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 22/47] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
-Date: Fri, 26 Jul 2019 09:41:45 -0400
-Message-Id: <20190726134210.12156-22-sashal@kernel.org>
-In-Reply-To: <20190726134210.12156-1-sashal@kernel.org>
-References: <20190726134210.12156-1-sashal@kernel.org>
+        id S1729752AbfGVPmp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Jul 2019 11:42:45 -0400
+From: Steven Price <steven.price@arm.com>
+Subject: [PATCH v9 07/21] s390: mm: Add p?d_leaf() definitions
+Date: Mon, 22 Jul 2019 16:41:56 +0100
+Message-Id: <20190722154210.42799-8-steven.price@arm.com>
+In-Reply-To: <20190722154210.42799-1-steven.price@arm.com>
+References: <20190722154210.42799-1-steven.price@arm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Benjamin Block <bblock@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-mm@kvack.org
+Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 
-From: Benjamin Block <bblock@linux.ibm.com>
+walk_page_range() is going to be allowed to walk page tables other than
+those of user space. For this it needs to know when it has reached a
+'leaf' entry in the page tables. This information is provided by the
+p?d_leaf() functions/macros.
 
-[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+For s390, pud_large() and pmd_large() are already implemented as static
+inline functions. Add a macro to provide the p?d_leaf names for the
+generic code to use.
 
-GCC v9 emits this warning:
-      CC      drivers/s390/scsi/zfcp_erp.o
-    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
-    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
-      217 |  struct zfcp_erp_action *erp_action;
-          |                          ^~~~~~~~~~
-
-This is a possible false positive case, as also documented in the GCC
-documentations:
-    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
-
-The actual code-sequence is like this:
-    Various callers can invoke the function below with the argument "want"
-    being one of:
-    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
-    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
-    ZFCP_ERP_ACTION_REOPEN_PORT, or
-    ZFCP_ERP_ACTION_REOPEN_LUN.
-
-    zfcp_erp_action_enqueue(want, ...)
-        ...
-        need = zfcp_erp_required_act(want, ...)
-            need = want
-            ...
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
-            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
-            ...
-            return need
-        ...
-        zfcp_erp_setup_act(need, ...)
-            struct zfcp_erp_action *erp_action; // <== line 217
-            ...
-            switch(need) {
-            case ZFCP_ERP_ACTION_REOPEN_LUN:
-                    ...
-                    erp_action = &zfcp_sdev->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_PORT:
-            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
-                    ...
-                    erp_action = &port->erp_action;
-                    WARN_ON_ONCE(erp_action->port != port); // <== access
-                    ...
-                    break;
-            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
-                    ...
-                    erp_action = &adapter->erp_action;
-                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
-                    ...
-                    break;
-            }
-            ...
-            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
-
-When zfcp_erp_setup_act() is called, 'need' will never be anything else
-than one of the 4 possible enumeration-names that are used in the
-switch-case, and 'erp_action' is initialized for every one of them, before
-it is used. Thus the warning is a false positive, as documented.
-
-We introduce the extra if{} in the beginning to create an extra code-flow,
-so the compiler can be convinced that the switch-case will never see any
-other value.
-
-BUG_ON()/BUG() is intentionally not used to not crash anything, should
-this ever happen anyway - right now it's impossible, as argued above; and
-it doesn't introduce a 'default:' switch-case to retain warnings should
-'enum zfcp_erp_act_type' ever be extended and no explicit case be
-introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
-default switch case which might paper over missing case").
-
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Steven Price <steven.price@arm.com>
 ---
- drivers/s390/scsi/zfcp_erp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/s390/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index ebdbc457003f..332701db7379 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -11,6 +11,7 @@
- #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 9b274fcaacb6..f99a5f546e5e 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -674,6 +674,7 @@ static inline int pud_none(pud_t pud)
+ 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
+ }
  
- #include <linux/kthread.h>
-+#include <linux/bug.h>
- #include "zfcp_ext.h"
- #include "zfcp_reqlist.h"
++#define pud_leaf	pud_large
+ static inline int pud_large(pud_t pud)
+ {
+ 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
+@@ -691,6 +692,7 @@ static inline unsigned long pud_pfn(pud_t pud)
+ 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
+ }
  
-@@ -238,6 +239,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
- 	struct zfcp_erp_action *erp_action;
- 	struct zfcp_scsi_dev *zfcp_sdev;
- 
-+	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
-+			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
-+		return NULL;
-+
- 	switch (need) {
- 	case ZFCP_ERP_ACTION_REOPEN_LUN:
- 		zfcp_sdev = sdev_to_zfcp(sdev);
++#define pmd_leaf	pmd_large
+ static inline int pmd_large(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
 -- 
 2.20.1
