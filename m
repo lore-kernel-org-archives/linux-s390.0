@@ -1,67 +1,104 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40268 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726181AbfGKVtF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 17:49:05 -0400
-References: <20190612111236.99538-1-pasic@linux.ibm.com> <20190612111236.99538-2-pasic@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+References: <20190628021934.4260-1-bauerman@linux.ibm.com> <20190628021934.4260-2-bauerman@linux.ibm.com> <20190701144752.GC25484@linux-8ccs> <87lfxel2q6.fsf@morokweng.localdomain> <20190704125427.31146026@laptop-ibm> <874l41ocf5.fsf@morokweng.localdomain> <20190705150000.372345b0@laptop-ibm>
 From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: Re: [PATCH v5 1/8] s390/mm: force swiotlb for protected virtualization
-In-reply-to: <20190612111236.99538-2-pasic@linux.ibm.com>
-Date: Thu, 11 Jul 2019 18:48:40 -0300
-Message-ID: <87k1codyyv.fsf@morokweng.localdomain>
+Subject: Re: [PATCH v12 01/11] MODSIGN: Export module signature definitions
+In-reply-to: <20190705150000.372345b0@laptop-ibm>
+Date: Tue, 23 Jul 2019 19:39:27 -0300
 MIME-Version: 1.0
 Content-Type: text/plain
-Sender: linux-s390-owner@vger.kernel.org
+Message-Id: <8736iw9y00.fsf@morokweng.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Sebastian Ott <sebott@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Jason J. Herne" <jjherne@linux.ibm.com>, Christoph Hellwig <hch@infradead.org>, Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: Philipp Rudo <prudo@linux.ibm.com>
+Cc: Jessica Yu <jeyu@kernel.org>, linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, "AKASHI, Takahiro" <takahiro.akashi@linaro.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 
 
-Hello Halil,
+Hello Philipp,
 
-Halil Pasic <pasic@linux.ibm.com> writes:
 
-> On s390, protected virtualization guests have to use bounced I/O
-> buffers.  That requires some plumbing.
+Philipp Rudo <prudo@linux.ibm.com> writes:
+
+> Hi Thiago,
 >
-> Let us make sure, any device that uses DMA API with direct ops correctly
-> is spared from the problems, that a hypervisor attempting I/O to a
-> non-shared page would bring.
+> On Thu, 04 Jul 2019 15:57:34 -0300
+> Thiago Jung Bauermann <bauerman@linux.ibm.com> wrote:
 >
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/Kconfig                   |  4 +++
->  arch/s390/include/asm/mem_encrypt.h | 18 +++++++++++
->  arch/s390/mm/init.c                 | 47 +++++++++++++++++++++++++++++
->  3 files changed, 69 insertions(+)
->  create mode 100644 arch/s390/include/asm/mem_encrypt.h
+>> Hello Philipp,
+>> 
+>> Philipp Rudo <prudo@linux.ibm.com> writes:
+>> 
+>> > Hi Thiago,
+>> >
+>> >
+>> > On Thu, 04 Jul 2019 03:42:57 -0300
+>> > Thiago Jung Bauermann <bauerman@linux.ibm.com> wrote:
+>> >  
+>> >> Jessica Yu <jeyu@kernel.org> writes:
+>> >>   
+>> >> > +++ Thiago Jung Bauermann [27/06/19 23:19 -0300]:    
+>> >> >>IMA will use the module_signature format for append signatures, so export
+>> >> >>the relevant definitions and factor out the code which verifies that the
+>> >> >>appended signature trailer is valid.
+>> >> >>
+>> >> >>Also, create a CONFIG_MODULE_SIG_FORMAT option so that IMA can select it
+>> >> >>and be able to use mod_check_sig() without having to depend on either
+>> >> >>CONFIG_MODULE_SIG or CONFIG_MODULES.
+>> >> >>
+>> >> >>Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+>> >> >>Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+>> >> >>Cc: Jessica Yu <jeyu@kernel.org>
+>> >> >>---
+>> >> >> include/linux/module.h           |  3 --
+>> >> >> include/linux/module_signature.h | 44 +++++++++++++++++++++++++
+>> >> >> init/Kconfig                     |  6 +++-
+>> >> >> kernel/Makefile                  |  1 +
+>> >> >> kernel/module.c                  |  1 +
+>> >> >> kernel/module_signature.c        | 46 ++++++++++++++++++++++++++
+>> >> >> kernel/module_signing.c          | 56 +++++---------------------------
+>> >> >> scripts/Makefile                 |  2 +-
+>> >> >> 8 files changed, 106 insertions(+), 53 deletions(-)
+>> >> >>
+>> >> >>diff --git a/include/linux/module.h b/include/linux/module.h
+>> >> >>index 188998d3dca9..aa56f531cf1e 100644
+>> >> >>--- a/include/linux/module.h
+>> >> >>+++ b/include/linux/module.h
+>> >> >>@@ -25,9 +25,6 @@
+>> >> >> #include <linux/percpu.h>
+>> >> >> #include <asm/module.h>
+>> >> >>
+>> >> >>-/* In stripped ARM and x86-64 modules, ~ is surprisingly rare. */
+>> >> >>-#define MODULE_SIG_STRING "~Module signature appended~\n"
+>> >> >>-    
+>> >> >
+>> >> > Hi Thiago, apologies for the delay.    
+>> >> 
+>> >> Hello Jessica, thanks for reviewing the patch!
+>> >>   
+>> >> > It looks like arch/s390/kernel/machine_kexec_file.c also relies on
+>> >> > MODULE_SIG_STRING being defined, so module_signature.h will need to be
+>> >> > included there too, otherwise we'll run into a compilation error.    
+>> >> 
+>> >> Indeed. Thanks for spotting that. The patch below fixes it. It's
+>> >> identical to the previous version except for the changes in 
+>> >> arch/s390/kernel/machine_kexec_file.c and their description in the
+>> >> commit message. I'm also copying some s390 people in this email.  
+>> >
+>> > to me the s390 part looks good but for one minor nit.  
+>> 
+>> Thanks for the prompt review!
+>> 
+>> > In arch/s390/Kconfig KEXEC_VERIFY_SIG currently depends on
+>> > SYSTEM_DATA_VERIFICATION. I'd prefer when you update this to the new
+>> > MODULE_SIG_FORMAT. It shouldn't make any difference right now, as we don't
+>> > use mod_check_sig in our code path. But it could cause problems in the future,
+>> > when more code might be shared.  
+>> 
+>> Makes sense. Here is the updated patch with the Kconfig change.
+>> 
 >
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index 109243fdb6ec..88d8355b7bf7 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -1,4 +1,7 @@
->  # SPDX-License-Identifier: GPL-2.0
-> +config ARCH_HAS_MEM_ENCRYPT
-> +        def_bool y
-> +
->  config MMU
->  	def_bool y
->  
+> The patch looks good now.
 
-ARCH_HAS_MEM_ENCRYPT is already defined in arch/Kconfig, so I think you
-can just select it in config S390 like you do with SWIOTLB.
-
-> @@ -187,6 +190,7 @@ config S390
->  	select VIRT_CPU_ACCOUNTING
->  	select ARCH_HAS_SCALED_CPUTIME
->  	select HAVE_NMI
-> +	select SWIOTLB
->  
->  
->  config SCHED_OMIT_FRAME_POINTER
+Thanks! Can I add your Reviewed-by?
 
 -- 
 Thiago Jung Bauermann
