@@ -1,33 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:59641 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726442AbfGAIsh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 1 Jul 2019 04:48:37 -0400
-Date: Mon, 1 Jul 2019 10:48:33 +0200
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: use exact allocation for dma coherent memory
-Message-ID: <20190701084833.GA22927@lst.de>
-References: <20190614134726.3827-1-hch@lst.de>
+Received: from bombadil.infradead.org ([198.137.202.133]:53224 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728497AbfGWPwt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Jul 2019 11:52:49 -0400
+Date: Tue, 23 Jul 2019 08:52:49 -0700
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/1] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
+Message-ID: <20190723155249.GA30643@infradead.org>
+References: <20190718172120.69947-1-pasic@linux.ibm.com>
+ <20190719063249.GA4852@osiris>
+ <20190719130130.3ef4fa9c.pasic@linux.ibm.com>
+ <20190723143226.6d929d7a.pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190614134726.3827-1-hch@lst.de>
+In-Reply-To: <20190723143226.6d929d7a.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Ian Abbott <abbotti@mev.co.uk>, H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, Intel Linux Wireless <linuxwifi@intel.com>, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, linux-media@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Vasily Gorbik <gor@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-On Fri, Jun 14, 2019 at 03:47:10PM +0200, Christoph Hellwig wrote:
-> Switching to a slightly cleaned up alloc_pages_exact is pretty easy,
-> but it turns out that because we didn't filter valid gfp_t flags
-> on the DMA allocator, a bunch of drivers were passing __GFP_COMP
-> to it, which is rather bogus in too many ways to explain.  Arm has
-> been filtering it for a while, but this series instead tries to fix
-> the drivers and warn when __GFP_COMP is passed, which makes it much
-> larger than just adding the functionality.
+On Tue, Jul 23, 2019 at 02:32:26PM +0200, Halil Pasic wrote:
+> On Fri, 19 Jul 2019 13:01:30 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > > > diff --git a/arch/s390/include/asm/dma.h b/arch/s390/include/asm/dma.h
+> > > > index 6f26f35d4a71..3b0329665b13 100644
+> > > > --- a/arch/s390/include/asm/dma.h
+> > > > +++ b/arch/s390/include/asm/dma.h
+> > > > @@ -10,6 +10,7 @@
+> > > >   * by the 31 bit heritage.
+> > > >   */
+> > > >  #define MAX_DMA_ADDRESS         0x80000000
+> > > > +#define ARCH_ZONE_DMA_BITS      31  
+> > > 
+> > > powerpc has this in arch/powerpc/include/asm/page.h. This really
+> > > should be consistently defined in the same header file across
+> > > architectures.
+> > > 
+> > > Christoph, what is the preferred header file for this definition?
+> 
+> ping
+> 
+> Christoph could you please answer Heiko's question, so I can do my
+> respin.
 
-Dear driver maintainers,
-
-can you look over the patches touching your drivers, please?  I'd
-like to get as much as possible of the driver patches into this
-merge window, so that it can you through your maintainer trees.
+page.h is fine for now.  dma.h is odd for sure as it is for legacy
+ISA DMA only.
