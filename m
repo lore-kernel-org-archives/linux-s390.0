@@ -1,129 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:56964 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728080AbfGISdd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jul 2019 14:33:33 -0400
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 1/5] docs: don't use nested tables
-Date: Tue,  9 Jul 2019 15:33:19 -0300
-Message-Id: <925686792c61b584f05dd9f13f078cd82d5b6a54.1562696797.git.mchehab+samsung@kernel.org>
-In-Reply-To: <cover.1562696797.git.mchehab+samsung@kernel.org>
-References: <cover.1562696797.git.mchehab+samsung@kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:33734 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727170AbfGWHzE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 23 Jul 2019 03:55:04 -0400
+Date: Tue, 23 Jul 2019 09:55:00 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] vt: Grab console_lock around con_is_bound in show_bind
+Message-ID: <20190723075500.GA27243@kroah.com>
+References: <20190718080903.22622-1-daniel.vetter@ffwll.ch>
+ <20190723073820.GU15868@phenom.ffwll.local>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190723073820.GU15868@phenom.ffwll.local>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Dan Williams <dan.j.williams@intel.com>, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org
+To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Jens Remus <jremus@linux.ibm.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-s390@vger.kernel.org, Nicolas Pitre <nicolas.pitre@linaro.org>, Martin Hostettler <textshell@uchuujin.de>, Adam Borowski <kilobyte@angband.pl>, Mikulas Patocka <mpatocka@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>
 
-Nested tables aren't supported for pdf output on Sphinx 1.7.9:
+On Tue, Jul 23, 2019 at 09:38:20AM +0200, Daniel Vetter wrote:
+> Hi Greg,
+> 
+> Do you plan to pick this up in your console/vt/whatever-fixes branch?
 
-	admin-guide/laptops/sonypi:: nested tables are not yet implemented.
-	admin-guide/laptops/toshiba_haps:: nested tables are not yet implemented.
-	driver-api/nvdimm/btt:: nested tables are not yet implemented.
-	s390/debugging390:: nested tables are not yet implemented.
+Yes, now that the merge window is closed, I will be picking this up.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- Documentation/admin-guide/laptops/sonypi.rst  | 26 +++++++++----------
- .../admin-guide/laptops/toshiba_haps.rst      |  8 +++---
- Documentation/driver-api/nvdimm/btt.rst       |  2 +-
- Documentation/s390/debugging390.rst           |  2 +-
- 4 files changed, 18 insertions(+), 20 deletions(-)
+thanks,
 
-diff --git a/Documentation/admin-guide/laptops/sonypi.rst b/Documentation/admin-guide/laptops/sonypi.rst
-index 2a1975ed7ee4..c6eaaf48f7c1 100644
---- a/Documentation/admin-guide/laptops/sonypi.rst
-+++ b/Documentation/admin-guide/laptops/sonypi.rst
-@@ -53,7 +53,7 @@ module or sonypi.<param>=<value> on the kernel boot line when sonypi is
- statically linked into the kernel). Those options are:
- 
- 	=============== =======================================================
--	minor: 		minor number of the misc device /dev/sonypi,
-+	minor:		minor number of the misc device /dev/sonypi,
- 			default is -1 (automatic allocation, see /proc/misc
- 			or kernel logs)
- 
-@@ -89,24 +89,22 @@ statically linked into the kernel). Those options are:
- 			set to 0xffffffff, meaning that all possible events
- 			will be tried. You can use the following bits to
- 			construct your own event mask (from
--			drivers/char/sonypi.h):
-+			drivers/char/sonypi.h)::
- 
--				========================	======
--				SONYPI_JOGGER_MASK 		0x0001
--				SONYPI_CAPTURE_MASK 		0x0002
--				SONYPI_FNKEY_MASK 		0x0004
--				SONYPI_BLUETOOTH_MASK 		0x0008
--				SONYPI_PKEY_MASK 		0x0010
--				SONYPI_BACK_MASK 		0x0020
--				SONYPI_HELP_MASK 		0x0040
--				SONYPI_LID_MASK 		0x0080
--				SONYPI_ZOOM_MASK 		0x0100
--				SONYPI_THUMBPHRASE_MASK 	0x0200
-+				SONYPI_JOGGER_MASK		0x0001
-+				SONYPI_CAPTURE_MASK		0x0002
-+				SONYPI_FNKEY_MASK		0x0004
-+				SONYPI_BLUETOOTH_MASK		0x0008
-+				SONYPI_PKEY_MASK		0x0010
-+				SONYPI_BACK_MASK		0x0020
-+				SONYPI_HELP_MASK		0x0040
-+				SONYPI_LID_MASK			0x0080
-+				SONYPI_ZOOM_MASK		0x0100
-+				SONYPI_THUMBPHRASE_MASK		0x0200
- 				SONYPI_MEYE_MASK		0x0400
- 				SONYPI_MEMORYSTICK_MASK		0x0800
- 				SONYPI_BATTERY_MASK		0x1000
- 				SONYPI_WIRELESS_MASK		0x2000
--				========================	======
- 
- 	useinput:	if set (which is the default) two input devices are
- 			created, one which interprets the jogdial events as
-diff --git a/Documentation/admin-guide/laptops/toshiba_haps.rst b/Documentation/admin-guide/laptops/toshiba_haps.rst
-index 11dfc428c080..d28b6c3f2849 100644
---- a/Documentation/admin-guide/laptops/toshiba_haps.rst
-+++ b/Documentation/admin-guide/laptops/toshiba_haps.rst
-@@ -75,11 +75,11 @@ The sysfs files under /sys/devices/LNXSYSTM:00/LNXSYBUS:00/TOS620A:00/ are:
- protection_level   The protection_level is readable and writeable, and
- 		   provides a way to let userspace query the current protection
- 		   level, as well as set the desired protection level, the
--		   available protection levels are:
-+		   available protection levels are::
- 
--		   ============   =======   ==========   ========
--		   0 - Disabled   1 - Low   2 - Medium   3 - High
--		   ============   =======   ==========   ========
-+		     ============   =======   ==========   ========
-+		     0 - Disabled   1 - Low   2 - Medium   3 - High
-+		     ============   =======   ==========   ========
- 
- reset_protection   The reset_protection entry is writeable only, being "1"
- 		   the only parameter it accepts, it is used to trigger
-diff --git a/Documentation/driver-api/nvdimm/btt.rst b/Documentation/driver-api/nvdimm/btt.rst
-index 2d8269f834bd..107395c042ae 100644
---- a/Documentation/driver-api/nvdimm/btt.rst
-+++ b/Documentation/driver-api/nvdimm/btt.rst
-@@ -83,7 +83,7 @@ flags, and the remaining form the internal block number.
- ======== =============================================================
- Bit      Description
- ======== =============================================================
--31 - 30	 Error and Zero flags - Used in the following way:
-+31 - 30	 Error and Zero flags - Used in the following way::
- 
- 	   == ==  ====================================================
- 	   31 30  Description
-diff --git a/Documentation/s390/debugging390.rst b/Documentation/s390/debugging390.rst
-index d49305fd5e1a..73ad0b06c666 100644
---- a/Documentation/s390/debugging390.rst
-+++ b/Documentation/s390/debugging390.rst
-@@ -170,7 +170,7 @@ currently running at.
- |        +----------------+-------------------------------------------------+
- |        |    32          | Basic Addressing Mode                           |
- |        |                |                                                 |
--|        |                | Used to set addressing mode                     |
-+|        |                | Used to set addressing mode::                   |
- |        |                |                                                 |
- |        |                |    +---------+----------+----------+            |
- |        |                |    | PSW 31  | PSW 32   |          |            |
--- 
-2.21.0
+greg k-h
