@@ -1,372 +1,276 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19710 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727013AbfGCKVF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jul 2019 06:21:05 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x63AL0gn058807
-        for <linux-s390@vger.kernel.org>; Wed, 3 Jul 2019 06:21:05 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tgst024ek-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 03 Jul 2019 06:21:03 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Wed, 3 Jul 2019 11:20:19 +0100
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 3/3] docs: s390: s390dbf: typos and formatting, update crash command
-Date: Wed,  3 Jul 2019 12:19:49 +0200
-In-Reply-To: <1562149189-1417-1-git-send-email-maier@linux.ibm.com>
-References: <1562149189-1417-1-git-send-email-maier@linux.ibm.com>
-Message-Id: <1562149189-1417-4-git-send-email-maier@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Christian Brauner <christian@brauner.io>
+Subject: [PATCH 3/5] arch: wire-up pidfd_wait()
+Date: Wed, 24 Jul 2019 16:46:49 +0200
+Message-Id: <20190724144651.28272-4-christian@brauner.io>
+In-Reply-To: <20190724144651.28272-1-christian@brauner.io>
+References: <20190724144651.28272-1-christian@brauner.io>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-doc@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, oleg@redhat.com
+Cc: arnd@arndb.de, ebiederm@xmission.com, keescook@chromium.org, joel@joelfernandes.org, tglx@linutronix.de, tj@kernel.org, dhowells@redhat.com, jannh@google.com, luto@kernel.org, akpm@linux-foundation.org, cyphar@cyphar.com, torvalds@linux-foundation.org, viro@zeniv.linux.org.uk, kernel-team@android.com, Christian Brauner <christian@brauner.io>, linux-api@vger.kernel.org, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, x86@kernel.org
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+This wires up the pidfd_wait() syscall into all arches at once.
+
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jann Horn <jannh@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Andy Lutomirsky <luto@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-api@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: linux-arch@vger.kernel.org
+Cc: x86@kernel.org
 ---
- Documentation/s390/s390dbf.rst | 122 +++++++++++++++++++++++------------------
- 1 file changed, 68 insertions(+), 54 deletions(-)
+ arch/alpha/kernel/syscalls/syscall.tbl      | 1 +
+ arch/arm/tools/syscall.tbl                  | 1 +
+ arch/arm64/include/asm/unistd.h             | 2 +-
+ arch/arm64/include/asm/unistd32.h           | 4 +++-
+ arch/ia64/kernel/syscalls/syscall.tbl       | 1 +
+ arch/m68k/kernel/syscalls/syscall.tbl       | 1 +
+ arch/microblaze/kernel/syscalls/syscall.tbl | 1 +
+ arch/mips/kernel/syscalls/syscall_n32.tbl   | 1 +
+ arch/mips/kernel/syscalls/syscall_n64.tbl   | 1 +
+ arch/mips/kernel/syscalls/syscall_o32.tbl   | 1 +
+ arch/parisc/kernel/syscalls/syscall.tbl     | 1 +
+ arch/powerpc/kernel/syscalls/syscall.tbl    | 1 +
+ arch/s390/kernel/syscalls/syscall.tbl       | 1 +
+ arch/sh/kernel/syscalls/syscall.tbl         | 1 +
+ arch/sparc/kernel/syscalls/syscall.tbl      | 1 +
+ arch/x86/entry/syscalls/syscall_32.tbl      | 1 +
+ arch/x86/entry/syscalls/syscall_64.tbl      | 1 +
+ arch/xtensa/kernel/syscalls/syscall.tbl     | 1 +
+ include/linux/syscalls.h                    | 4 ++++
+ include/uapi/asm-generic/unistd.h           | 4 +++-
+ 20 files changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/s390/s390dbf.rst b/Documentation/s390/s390dbf.rst
-index be42892b159e..cdb36842b898 100644
---- a/Documentation/s390/s390dbf.rst
-+++ b/Documentation/s390/s390dbf.rst
-@@ -23,7 +23,8 @@ The debug feature may also very useful for kernel and driver development.
- Design:
- -------
- Kernel components (e.g. device drivers) can register themselves at the debug
--feature with the function call debug_register(). This function initializes a
-+feature with the function call :c:func:`debug_register()`.
-+This function initializes a
- debug log for the caller. For each debug log exists a number of debug areas
- where exactly one is active at one time.  Each debug area consists of contiguous
- pages in memory. In the debug areas there are stored debug entries (log records)
-@@ -44,8 +45,9 @@ The debug areas themselves are also ordered in form of a ring buffer.
- When an exception is thrown in the last debug area, the following debug
- entries are then written again in the very first area.
- 
--There are three versions for the event- and exception-calls: One for
--logging raw data, one for text and one for numbers.
-+There are four versions for the event- and exception-calls: One for
-+logging raw data, one for text, one for numbers (unsigned int and long),
-+and one for sprintf-like formatted strings.
- 
- Each debug entry contains the following data:
- 
-@@ -56,29 +58,29 @@ Each debug entry contains the following data:
- - Flag, if entry is an exception or not
- 
- The debug logs can be inspected in a live system through entries in
--the debugfs-filesystem. Under the toplevel directory "s390dbf" there is
-+the debugfs-filesystem. Under the toplevel directory "``s390dbf``" there is
- a directory for each registered component, which is named like the
- corresponding component. The debugfs normally should be mounted to
--/sys/kernel/debug therefore the debug feature can be accessed under
--/sys/kernel/debug/s390dbf.
-+``/sys/kernel/debug`` therefore the debug feature can be accessed under
-+``/sys/kernel/debug/s390dbf``.
- 
- The content of the directories are files which represent different views
- to the debug log. Each component can decide which views should be
--used through registering them with the function debug_register_view().
-+used through registering them with the function :c:func:`debug_register_view()`.
- Predefined views for hex/ascii, sprintf and raw binary data are provided.
- It is also possible to define other views. The content of
- a view can be inspected simply by reading the corresponding debugfs file.
- 
- All debug logs have an actual debug level (range from 0 to 6).
--The default level is 3. Event and Exception functions have a 'level'
-+The default level is 3. Event and Exception functions have a :c:data:`level`
- parameter. Only debug entries with a level that is lower or equal
- than the actual level are written to the log. This means, when
- writing events, high priority log entries should have a low level
- value whereas low priority entries should have a high one.
- The actual debug level can be changed with the help of the debugfs-filesystem
--through writing a number string "x" to the 'level' debugfs file which is
-+through writing a number string "x" to the ``level`` debugfs file which is
- provided for every debug log. Debugging can be switched off completely
--by using "-" on the 'level' debugfs file.
-+by using "-" on the ``level`` debugfs file.
- 
- Example::
- 
-@@ -86,21 +88,21 @@ Example::
- 
- It is also possible to deactivate the debug feature globally for every
- debug log. You can change the behavior using  2 sysctl parameters in
--/proc/sys/s390dbf:
-+``/proc/sys/s390dbf``:
- 
- There are currently 2 possible triggers, which stop the debug feature
--globally. The first possibility is to use the "debug_active" sysctl. If
--set to 1 the debug feature is running. If "debug_active" is set to 0 the
-+globally. The first possibility is to use the ``debug_active`` sysctl. If
-+set to 1 the debug feature is running. If ``debug_active`` is set to 0 the
- debug feature is turned off.
- 
- The second trigger which stops the debug feature is a kernel oops.
- That prevents the debug feature from overwriting debug information that
- happened before the oops. After an oops you can reactivate the debug feature
--by piping 1 to /proc/sys/s390dbf/debug_active. Nevertheless, its not
-+by piping 1 to ``/proc/sys/s390dbf/debug_active``. Nevertheless, it's not
- suggested to use an oopsed kernel in a production environment.
- 
- If you want to disallow the deactivation of the debug feature, you can use
--the "debug_stoppable" sysctl. If you set "debug_stoppable" to 0 the debug
-+the ``debug_stoppable`` sysctl. If you set ``debug_stoppable`` to 0 the debug
- feature cannot be stopped. If the debug feature is already stopped, it
- will stay deactivated.
- 
-@@ -113,16 +115,18 @@ Kernel Interfaces:
- Predefined views:
- -----------------
- 
--extern struct debug_view debug_hex_ascii_view;
-+.. code-block:: c
- 
--extern struct debug_view debug_raw_view;
-+  extern struct debug_view debug_hex_ascii_view;
- 
--extern struct debug_view debug_sprintf_view;
-+  extern struct debug_view debug_raw_view;
-+
-+  extern struct debug_view debug_sprintf_view;
- 
- Examples
- --------
- 
--::
-+.. code-block:: c
- 
-   /*
-    * hex_ascii- + raw-view Example
-@@ -131,15 +135,15 @@ Examples
-   #include <linux/init.h>
-   #include <asm/debug.h>
- 
--  static debug_info_t* debug_info;
-+  static debug_info_t *debug_info;
- 
-   static int init(void)
-   {
-       /* register 4 debug areas with one page each and 4 byte data field */
- 
--      debug_info = debug_register ("test", 1, 4, 4 );
--      debug_register_view(debug_info,&debug_hex_ascii_view);
--      debug_register_view(debug_info,&debug_raw_view);
-+      debug_info = debug_register("test", 1, 4, 4 );
-+      debug_register_view(debug_info, &debug_hex_ascii_view);
-+      debug_register_view(debug_info, &debug_raw_view);
- 
-       debug_text_event(debug_info, 4 , "one ");
-       debug_int_exception(debug_info, 4, 4711);
-@@ -150,13 +154,13 @@ Examples
- 
-   static void cleanup(void)
-   {
--      debug_unregister (debug_info);
-+      debug_unregister(debug_info);
-   }
- 
-   module_init(init);
-   module_exit(cleanup);
- 
--::
-+.. code-block:: c
- 
-   /*
-    * sprintf-view Example
-@@ -165,15 +169,15 @@ Examples
-   #include <linux/init.h>
-   #include <asm/debug.h>
- 
--  static debug_info_t* debug_info;
-+  static debug_info_t *debug_info;
- 
-   static int init(void)
-   {
-       /* register 4 debug areas with one page each and data field for */
-       /* format string pointer + 2 varargs (= 3 * sizeof(long))       */
- 
--      debug_info = debug_register ("test", 1, 4, sizeof(long) * 3);
--      debug_register_view(debug_info,&debug_sprintf_view);
-+      debug_info = debug_register("test", 1, 4, sizeof(long) * 3);
-+      debug_register_view(debug_info, &debug_sprintf_view);
- 
-       debug_sprintf_event(debug_info, 2 , "first event in %s:%i\n",__FILE__,__LINE__);
-       debug_sprintf_exception(debug_info, 1, "pointer to debug info: %p\n",&debug_info);
-@@ -183,7 +187,7 @@ Examples
- 
-   static void cleanup(void)
-   {
--      debug_unregister (debug_info);
-+      debug_unregister(debug_info);
-   }
- 
-   module_init(init);
-@@ -252,7 +256,7 @@ Define 4 pages for the debug areas of debug feature "dasd"::
- 
-   > echo "4" > /sys/kernel/debug/s390dbf/dasd/pages
- 
--Stooping the debug feature
-+Stopping the debug feature
- --------------------------
- Example:
- 
-@@ -264,10 +268,11 @@ Example:
- 
-      > echo 0 > /proc/sys/s390dbf/debug_active
- 
--lcrash Interface
-+crash Interface
- ----------------
--It is planned that the dump analysis tool lcrash gets an additional command
--'s390dbf' to display all the debug logs. With this tool it will be possible
-+The ``crash`` tool since v5.1.0 has a built-in command
-+``s390dbf`` to display all the debug logs or export them to the file system.
-+With this tool it is possible
- to investigate the debug logs on a live system and with a memory dump after
- a system crash.
- 
-@@ -276,8 +281,8 @@ Investigating raw memory
- One last possibility to investigate the debug logs at a live
- system and after a system crash is to look at the raw memory
- under VM or at the Service Element.
--It is possible to find the anker of the debug-logs through
--the 'debug_area_first' symbol in the System map. Then one has
-+It is possible to find the anchor of the debug-logs through
-+the ``debug_area_first`` symbol in the System map. Then one has
- to follow the correct pointers of the data-structures defined
- in debug.h and find the debug-areas in memory.
- Normally modules which use the debug feature will also have
-@@ -286,7 +291,7 @@ this pointer it will also be possible to find the debug logs in
- memory.
- 
- For this method it is recommended to use '16 * x + 4' byte (x = 0..n)
--for the length of the data field in debug_register() in
-+for the length of the data field in :c:func:`debug_register()` in
- order to see the debug entries well formatted.
- 
- 
-@@ -295,7 +300,7 @@ Predefined Views
- 
- There are three predefined views: hex_ascii, raw and sprintf.
- The hex_ascii view shows the data field in hex and ascii representation
--(e.g. '45 43 4b 44 | ECKD').
-+(e.g. ``45 43 4b 44 | ECKD``).
- The raw view returns a bytestream as the debug areas are stored in memory.
- 
- The sprintf view formats the debug entries in the same way as the sprintf
-@@ -335,18 +340,20 @@ The format of the raw view is:
- - datafield
- 
- A typical line of the hex_ascii view will look like the following (first line
--is only for explanation and will not be displayed when 'cating' the view):
-+is only for explanation and will not be displayed when 'cating' the view)::
- 
--area  time           level exception cpu caller    data (hex + ascii)
----------------------------------------------------------------------------
--00    00964419409:440690 1 -         00  88023fe
-+  area  time           level exception cpu caller    data (hex + ascii)
-+  --------------------------------------------------------------------------
-+  00    00964419409:440690 1 -         00  88023fe
- 
- 
- Defining views
- --------------
- 
- Views are specified with the 'debug_view' structure. There are defined
--callback functions which are used for reading and writing the debugfs files::
-+callback functions which are used for reading and writing the debugfs files:
-+
-+.. code-block:: c
- 
-   struct debug_view {
- 	char name[DEBUG_MAX_PROCF_LEN];
-@@ -357,7 +364,9 @@ callback functions which are used for reading and writing the debugfs files::
- 	void*                private_data;
-   };
- 
--where::
-+where:
-+
-+.. code-block:: c
- 
-   typedef int (debug_header_proc_t) (debug_info_t* id,
- 				     struct debug_view* view,
-@@ -395,10 +404,10 @@ Then 'header_proc' and 'format_proc' are called for each
- existing debug entry.
- 
- The input_proc can be used to implement functionality when it is written to
--the view (e.g. like with 'echo "0" > /sys/kernel/debug/s390dbf/dasd/level).
-+the view (e.g. like with ``echo "0" > /sys/kernel/debug/s390dbf/dasd/level``).
- 
- For header_proc there can be used the default function
--debug_dflt_header_fn() which is defined in debug.h.
-+:c:func:`debug_dflt_header_fn()` which is defined in debug.h.
- and which produces the same header output as the predefined views.
- E.g::
- 
-@@ -407,7 +416,9 @@ E.g::
- In order to see how to use the callback functions check the implementation
- of the default views!
- 
--Example::
-+Example:
-+
-+.. code-block:: c
- 
-   #include <asm/debug.h>
- 
-@@ -423,21 +434,20 @@ Example::
-   };
- 
-   static int debug_test_format_fn(
--     debug_info_t * id, struct debug_view *view,
-+     debug_info_t *id, struct debug_view *view,
-      char *out_buf, const char *in_buf
-   )
-   {
-     int i, rc = 0;
- 
--    if(id->buf_size >= 4) {
-+    if (id->buf_size >= 4) {
-        int msg_nr = *((int*)in_buf);
--       if(msg_nr < sizeof(messages)/sizeof(char*) - 1)
-+       if (msg_nr < sizeof(messages) / sizeof(char*) - 1)
- 	  rc += sprintf(out_buf, "%s", messages[msg_nr]);
-        else
- 	  rc += sprintf(out_buf, UNKNOWNSTR, msg_nr);
-     }
--   out:
--     return rc;
-+    return rc;
-   }
- 
-   struct debug_view debug_test_view = {
-@@ -452,13 +462,17 @@ Example::
- test:
- =====
- 
--::
-+.. code-block:: c
- 
-   debug_info_t *debug_info;
-+  int i;
-   ...
--  debug_info = debug_register ("test", 0, 4, 4 ));
-+  debug_info = debug_register("test", 0, 4, 4);
-   debug_register_view(debug_info, &debug_test_view);
--  for(i = 0; i < 10; i ++) debug_int_event(debug_info, 1, i);
-+  for (i = 0; i < 10; i ++)
-+    debug_int_event(debug_info, 1, i);
-+
-+::
- 
-   > cat /sys/kernel/debug/s390dbf/test/myview
-   00 00964419734:611402 1 - 00 88042ca   This error...........
+diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
+index 728fe028c02c..ca3e593f0c7a 100644
+--- a/arch/alpha/kernel/syscalls/syscall.tbl
++++ b/arch/alpha/kernel/syscalls/syscall.tbl
+@@ -475,3 +475,4 @@
+ 543	common	fspick				sys_fspick
+ 544	common	pidfd_open			sys_pidfd_open
+ # 545 reserved for clone3
++548	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index 6da7dc4d79cc..5e448d915b2f 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -449,3 +449,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 2629a68b8724..b722e47377a5 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -38,7 +38,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
+ 
+-#define __NR_compat_syscalls		436
++#define __NR_compat_syscalls		439
+ #endif
+ 
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index 94ab29cf4f00..ca77c9d4f7a1 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -877,7 +877,9 @@ __SYSCALL(__NR_fsmount, sys_fsmount)
+ __SYSCALL(__NR_fspick, sys_fspick)
+ #define __NR_pidfd_open 434
+ __SYSCALL(__NR_pidfd_open, sys_pidfd_open)
+-#define __NR_clone3 435
++#define __NR_pidfd_wait 438
++__SYSCALL(__NR_pidfd_wait, sys_pidfd_wait)
++#define __NR_clone3 439
+ __SYSCALL(__NR_clone3, sys_clone3)
+ 
+ /*
+diff --git a/arch/ia64/kernel/syscalls/syscall.tbl b/arch/ia64/kernel/syscalls/syscall.tbl
+index 36d5faf4c86c..f038afaced9b 100644
+--- a/arch/ia64/kernel/syscalls/syscall.tbl
++++ b/arch/ia64/kernel/syscalls/syscall.tbl
+@@ -356,3 +356,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/m68k/kernel/syscalls/syscall.tbl b/arch/m68k/kernel/syscalls/syscall.tbl
+index a88a285a0e5f..51f86f7b4cec 100644
+--- a/arch/m68k/kernel/syscalls/syscall.tbl
++++ b/arch/m68k/kernel/syscalls/syscall.tbl
+@@ -435,3 +435,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/microblaze/kernel/syscalls/syscall.tbl b/arch/microblaze/kernel/syscalls/syscall.tbl
+index 09b0cd7dab0a..24f912ac5dfa 100644
+--- a/arch/microblaze/kernel/syscalls/syscall.tbl
++++ b/arch/microblaze/kernel/syscalls/syscall.tbl
+@@ -441,3 +441,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
+index c9c879ec9b6d..edc144c4040c 100644
+--- a/arch/mips/kernel/syscalls/syscall_n32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
+@@ -374,3 +374,4 @@
+ 433	n32	fspick				sys_fspick
+ 434	n32	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	n32	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/mips/kernel/syscalls/syscall_n64.tbl b/arch/mips/kernel/syscalls/syscall_n64.tbl
+index bbce9159caa1..da4486ea0f4f 100644
+--- a/arch/mips/kernel/syscalls/syscall_n64.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n64.tbl
+@@ -350,3 +350,4 @@
+ 433	n64	fspick				sys_fspick
+ 434	n64	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	n64	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 9653591428ec..d738688e50d8 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -423,3 +423,4 @@
+ 433	o32	fspick				sys_fspick
+ 434	o32	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	o32	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
+index 670d1371aca1..d60f44d8145c 100644
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -432,3 +432,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3_wrapper
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index 3331749aab20..3309bf5f5370 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -517,3 +517,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index a90d3e945445..ef8ba9a9c3bb 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -438,3 +438,4 @@
+ 433  common	fspick			sys_fspick			sys_fspick
+ 434  common	pidfd_open		sys_pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438  common	pidfd_wait		sys_pidfd_wait			sys_pidfd_wait
+diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
+index b5ed26c4c005..9e786a198bfd 100644
+--- a/arch/sh/kernel/syscalls/syscall.tbl
++++ b/arch/sh/kernel/syscalls/syscall.tbl
+@@ -438,3 +438,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index 8c8cc7537fb2..ef4f13907894 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -481,3 +481,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index c00019abd076..76ec8c905745 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -440,3 +440,4 @@
+ 433	i386	fspick			sys_fspick			__ia32_sys_fspick
+ 434	i386	pidfd_open		sys_pidfd_open			__ia32_sys_pidfd_open
+ 435	i386	clone3			sys_clone3			__ia32_sys_clone3
++438	i386	pidfd_wait		sys_pidfd_wait			__ia32_sys_pidfd_wait
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index c29976eca4a8..733c206130f8 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -357,6 +357,7 @@
+ 433	common	fspick			__x64_sys_fspick
+ 434	common	pidfd_open		__x64_sys_pidfd_open
+ 435	common	clone3			__x64_sys_clone3/ptregs
++438	common	pidfd_wait		__x64_sys_pidfd_wait
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/arch/xtensa/kernel/syscalls/syscall.tbl b/arch/xtensa/kernel/syscalls/syscall.tbl
+index 25f4de729a6d..417203971292 100644
+--- a/arch/xtensa/kernel/syscalls/syscall.tbl
++++ b/arch/xtensa/kernel/syscalls/syscall.tbl
+@@ -406,3 +406,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++438	common	pidfd_wait			sys_pidfd_wait
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 88145da7d140..760e8eacb93c 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -932,6 +932,10 @@ asmlinkage long sys_clock_adjtime32(clockid_t which_clock,
+ asmlinkage long sys_syncfs(int fd);
+ asmlinkage long sys_setns(int fd, int nstype);
+ asmlinkage long sys_pidfd_open(pid_t pid, unsigned int flags);
++asmlinkage long sys_pidfd_wait(int pidfd, int __user *stat_addr,
++			       struct siginfo __user *info,
++			       struct rusage __user *ru, unsigned int states,
++			       unsigned int flags);
+ asmlinkage long sys_sendmmsg(int fd, struct mmsghdr __user *msg,
+ 			     unsigned int vlen, unsigned flags);
+ asmlinkage long sys_process_vm_readv(pid_t pid,
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 1be0e798e362..0dd5b9d4dba0 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -850,9 +850,11 @@ __SYSCALL(__NR_pidfd_open, sys_pidfd_open)
+ #define __NR_clone3 435
+ __SYSCALL(__NR_clone3, sys_clone3)
+ #endif
++#define __NR_pidfd_wait 438
++__SYSCALL(__NR_pidfd_wait, sys_pidfd_wait)
+ 
+ #undef __NR_syscalls
+-#define __NR_syscalls 436
++#define __NR_syscalls 439
+ 
+ /*
+  * 32 bit systems traditionally used different
 -- 
-1.8.3.1
+2.22.0
