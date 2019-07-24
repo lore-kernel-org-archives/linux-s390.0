@@ -1,55 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32936 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729707AbfGQJoJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jul 2019 05:44:09 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 6/6] Documentation: fix vfio-ccw doc
-Date: Wed, 17 Jul 2019 11:43:50 +0200
-Message-Id: <20190717094350.13620-7-cohuck@redhat.com>
-In-Reply-To: <20190717094350.13620-1-cohuck@redhat.com>
-References: <20190717094350.13620-1-cohuck@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53620 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725870AbfGXFou (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 24 Jul 2019 01:44:50 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6O5gO89183550
+        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 01:44:49 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2txhcqr70g-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 01:44:49 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Wed, 24 Jul 2019 06:44:47 +0100
+Date: Wed, 24 Jul 2019 07:44:40 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v2 1/1] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
+References: <20190723225155.3915-1-pasic@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190723225155.3915-1-pasic@linux.ibm.com>
+Message-Id: <20190724054440.GA4412@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, Vasily Gorbik <gor@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-*Really* mark the literal block as such.
+On Wed, Jul 24, 2019 at 12:51:55AM +0200, Halil Pasic wrote:
+> On s390 ZONE_DMA is up to 2G, i.e. ARCH_ZONE_DMA_BITS should be 31 bits.
+> The current value is 24 and makes __dma_direct_alloc_pages() take a
+> wrong turn first (but __dma_direct_alloc_pages() recovers then).
+> 
+> Let's correct ARCH_ZONE_DMA_BITS value and avoid wrong turns.
+> 
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Reported-by: Petr Tesarik <ptesarik@suse.cz>
+> Fixes: c61e9637340e ("dma-direct: add support for allocation from ZONE_DMA and ZONE_DMA32")
+> ---
+>  arch/s390/include/asm/page.h | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Fixes: 127e62174041 ("vfio-ccw: Update documentation for csch/hsch")
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- Documentation/s390/vfio-ccw.rst | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index be2af10e12b4..3fe918f0c80d 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -218,14 +218,14 @@ vfio-ccw cmd region
- -------------------
- 
- The vfio-ccw cmd region is used to accept asynchronous instructions
--from userspace.
--
--#define VFIO_CCW_ASYNC_CMD_HSCH (1 << 0)
--#define VFIO_CCW_ASYNC_CMD_CSCH (1 << 1)
--struct ccw_cmd_region {
--       __u32 command;
--       __u32 ret_code;
--} __packed;
-+from userspace::
-+
-+  #define VFIO_CCW_ASYNC_CMD_HSCH (1 << 0)
-+  #define VFIO_CCW_ASYNC_CMD_CSCH (1 << 1)
-+  struct ccw_cmd_region {
-+         __u32 command;
-+         __u32 ret_code;
-+  } __packed;
- 
- This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
- 
--- 
-2.20.1
+Applied, thanks!
