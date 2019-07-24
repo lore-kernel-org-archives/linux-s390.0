@@ -1,153 +1,121 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v9 04/10] namei: split out nd->dfd handling to dirfd_path_init
-Date: Sun,  7 Jul 2019 00:57:31 +1000
-Message-Id: <20190706145737.5299-5-cyphar@cyphar.com>
-In-Reply-To: <20190706145737.5299-1-cyphar@cyphar.com>
-References: <20190706145737.5299-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64956 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727202AbfGXLRr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 24 Jul 2019 07:17:47 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6OBH8V8069581
+        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 07:17:46 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2txnw8hcsm-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 24 Jul 2019 07:17:45 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Wed, 24 Jul 2019 12:17:43 +0100
+Date: Wed, 24 Jul 2019 13:17:37 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix race on airq_areas[]
+In-Reply-To: <4a6d82b5-db9d-ed2e-2d07-e14aee3884af@de.ibm.com>
+References: <20190723225817.12800-1-pasic@linux.ibm.com>
+        <74087255-fdae-01a1-7152-f6fac8e13019@de.ibm.com>
+        <20190724103410.574dd259.cohuck@redhat.com>
+        <4a6d82b5-db9d-ed2e-2d07-e14aee3884af@de.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Message-Id: <20190724131737.24347915.pasic@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, virtualization@lists.linux-foundation.org
 
-Previously, path_init's handling of *at(dfd, ...) was only done once,
-but with LOOKUP_BENEATH (and LOOKUP_IN_ROOT) we have to parse the
-initial nd->path at different times (before or after absolute path
-handling) depending on whether we have been asked to scope resolution
-within a root.
+On Wed, 24 Jul 2019 10:39:13 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c | 103 ++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 59 insertions(+), 44 deletions(-)
+> 
+> 
+> On 24.07.19 10:34, Cornelia Huck wrote:
+> > On Wed, 24 Jul 2019 08:44:19 +0200
+> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> > 
+> >> On 24.07.19 00:58, Halil Pasic wrote:
+> >>> The access to airq_areas was racy ever since the adapter interrupts got
+> >>> introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
+> >>> make airq summary indicators DMA") this became an issue in practice as
+> >>> well. Namely before that commit the airq_info that got overwritten was
+> >>> still functional. After that commit however the two infos share a
+> >>> summary_indicator, which aggravates the situation. Which means
+> >>> auto-online mechanism occasionally hangs the boot with virtio_blk.
+> >>>
+> >>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >>> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> >>> Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
+> >>> ---
+> >>> * We need definitely this fixed for 5.3. For older stable kernels it is
+> >>> to be discussed. @Connie what do you think: do we need a cc stable?  
+> >>
+> >> Unless you can prove that the problem could never happen on old version
+> >> we absolutely do need cc stable. 
+> > 
+> > Yes, this needs to be cc:stable.
+> > 
+> >>
+> >>>
+> >>> * I have a variant that does not need the extra mutex but uses cmpxchg().
+> >>> Decided to post this one because that one is more complex. But if there
+> >>> is interest we can have a look at it as well.  
+> >>
+> >> This is slow path (startup) and never called in hot path. Correct? Mutex should be
+> >> fine.
+> > 
+> > Yes, this is ultimately called through the ->probe functions of virtio
+> > drivers.
+> > 
+> >>> ---
+> >>>  drivers/s390/virtio/virtio_ccw.c | 4 ++++
+> >>>  1 file changed, 4 insertions(+)
+> >>>
+> >>> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> >>> index 1a55e5942d36..d97742662755 100644
+> >>> --- a/drivers/s390/virtio/virtio_ccw.c
+> >>> +++ b/drivers/s390/virtio/virtio_ccw.c
+> >>> @@ -145,6 +145,8 @@ struct airq_info {
+> >>>  	struct airq_iv *aiv;
+> >>>  };
+> >>>  static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
+> >>> +DEFINE_MUTEX(airq_areas_lock);
+> >>> +
+> >>>  static u8 *summary_indicators;
+> >>>  
+> >>>  static inline u8 *get_summary_indicator(struct airq_info *info)
+> >>> @@ -265,9 +267,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+> >>>  	unsigned long bit, flags;
+> >>>  
+> >>>  	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
+> >>> +		mutex_lock(&airq_areas_lock);
+> >>>  		if (!airq_areas[i])
+> >>>  			airq_areas[i] = new_airq_info(i);
+> >>>  		info = airq_areas[i];
+> >>> +		mutex_unlock(&airq_areas_lock);
+> >>>  		if (!info)
+> >>>  			return 0;
+> >>>  		write_lock_irqsave(&info->lock, flags);
+> >>>   
+> >>
+> > 
+> > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> > 
+> > Should I pick this and send a pull request, or is it quicker to just
+> > take this directly?
+> 
+> I think we can you did via a fast path. Halil, can you push to the s390 tree?
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 4895717d2760..b490bcf855f8 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2257,9 +2257,59 @@ static int link_path_walk(const char *name, struct nameidata *nd)
- 	}
- }
- 
-+/*
-+ * Configure nd->path based on the nd->dfd. This is only used as part of
-+ * path_init().
-+ */
-+static inline int dirfd_path_init(struct nameidata *nd)
-+{
-+	if (nd->dfd == AT_FDCWD) {
-+		if (nd->flags & LOOKUP_RCU) {
-+			struct fs_struct *fs = current->fs;
-+			unsigned seq;
-+
-+			do {
-+				seq = read_seqcount_begin(&fs->seq);
-+				nd->path = fs->pwd;
-+				nd->inode = nd->path.dentry->d_inode;
-+				nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
-+			} while (read_seqcount_retry(&fs->seq, seq));
-+		} else {
-+			get_fs_pwd(current->fs, &nd->path);
-+			nd->inode = nd->path.dentry->d_inode;
-+		}
-+	} else {
-+		/* Caller must check execute permissions on the starting path component */
-+		struct fd f = fdget_raw(nd->dfd);
-+		struct dentry *dentry;
-+
-+		if (!f.file)
-+			return -EBADF;
-+
-+		dentry = f.file->f_path.dentry;
-+
-+		if (*nd->name->name && unlikely(!d_can_lookup(dentry))) {
-+			fdput(f);
-+			return -ENOTDIR;
-+		}
-+
-+		nd->path = f.file->f_path;
-+		if (nd->flags & LOOKUP_RCU) {
-+			nd->inode = nd->path.dentry->d_inode;
-+			nd->seq = read_seqcount_begin(&nd->path.dentry->d_seq);
-+		} else {
-+			path_get(&nd->path);
-+			nd->inode = nd->path.dentry->d_inode;
-+		}
-+		fdput(f);
-+	}
-+	return 0;
-+}
-+
- /* must be paired with terminate_walk() */
- static const char *path_init(struct nameidata *nd, unsigned flags)
- {
-+	int error;
- 	const char *s = nd->name->name;
- 
- 	if (!*s)
-@@ -2293,52 +2343,17 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 
- 	nd->m_seq = read_seqbegin(&mount_lock);
- 	if (*s == '/') {
--		set_root(nd);
--		if (likely(!nd_jump_root(nd)))
--			return s;
--		return ERR_PTR(-ECHILD);
--	} else if (nd->dfd == AT_FDCWD) {
--		if (flags & LOOKUP_RCU) {
--			struct fs_struct *fs = current->fs;
--			unsigned seq;
--
--			do {
--				seq = read_seqcount_begin(&fs->seq);
--				nd->path = fs->pwd;
--				nd->inode = nd->path.dentry->d_inode;
--				nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
--			} while (read_seqcount_retry(&fs->seq, seq));
--		} else {
--			get_fs_pwd(current->fs, &nd->path);
--			nd->inode = nd->path.dentry->d_inode;
--		}
--		return s;
--	} else {
--		/* Caller must check execute permissions on the starting path component */
--		struct fd f = fdget_raw(nd->dfd);
--		struct dentry *dentry;
--
--		if (!f.file)
--			return ERR_PTR(-EBADF);
--
--		dentry = f.file->f_path.dentry;
--
--		if (*s && unlikely(!d_can_lookup(dentry))) {
--			fdput(f);
--			return ERR_PTR(-ENOTDIR);
--		}
--
--		nd->path = f.file->f_path;
--		if (flags & LOOKUP_RCU) {
--			nd->inode = nd->path.dentry->d_inode;
--			nd->seq = read_seqcount_begin(&nd->path.dentry->d_seq);
--		} else {
--			path_get(&nd->path);
--			nd->inode = nd->path.dentry->d_inode;
--		}
--		fdput(f);
-+		if (likely(!nd->root.mnt))
-+			set_root(nd);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			s = ERR_PTR(error);
- 		return s;
- 	}
-+	error = dirfd_path_init(nd);
-+	if (unlikely(error))
-+		return ERR_PTR(error);
-+	return s;
- }
- 
- static const char *trailing_symlink(struct nameidata *nd)
--- 
-2.22.0
+Sure!
+
+Regards,
+Halil
+
+> 
