@@ -1,97 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49276 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728755AbfGKOaC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 10:30:02 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6BETjTb120326
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jul 2019 10:30:01 -0400
-Received: from e16.ny.us.ibm.com (e16.ny.us.ibm.com [129.33.205.206])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tp4r1xksn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 11 Jul 2019 10:29:49 -0400
-Received: from localhost
-        by e16.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <alifm@linux.ibm.com>;
-        Thu, 11 Jul 2019 15:28:59 +0100
-From: Farhan Ali <alifm@linux.ibm.com>
-Subject: [PATCH v3 5/5] vfio-ccw: Update documentation for csch/hsch
-Date: Thu, 11 Jul 2019 10:28:55 -0400
-In-Reply-To: <cover.1562854091.git.alifm@linux.ibm.com>
-References: <cover.1562854091.git.alifm@linux.ibm.com>
-In-Reply-To: <cover.1562854091.git.alifm@linux.ibm.com>
-References: <cover.1562854091.git.alifm@linux.ibm.com>
-Message-Id: <7d977612c3f3152ffb950d77ae11b4b25c1e20c4.1562854091.git.alifm@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387512AbfGZNkh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:40:37 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 38/85] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
+Date: Fri, 26 Jul 2019 09:38:48 -0400
+Message-Id: <20190726133936.11177-38-sashal@kernel.org>
+In-Reply-To: <20190726133936.11177-1-sashal@kernel.org>
+References: <20190726133936.11177-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: cohuck@redhat.com, farman@linux.ibm.com, pasic@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, alifm@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Benjamin Block <bblock@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-We now support CLEAR SUBCHANNEL and HALT SUBCHANNEL
-via ccw_cmd_region.
+From: Benjamin Block <bblock@linux.ibm.com>
 
-Fixes: d5afd5d135c8 ("vfio-ccw: add handling for async channel instructions")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+
+GCC v9 emits this warning:
+      CC      drivers/s390/scsi/zfcp_erp.o
+    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
+    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
+      217 |  struct zfcp_erp_action *erp_action;
+          |                          ^~~~~~~~~~
+
+This is a possible false positive case, as also documented in the GCC
+documentations:
+    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
+
+The actual code-sequence is like this:
+    Various callers can invoke the function below with the argument "want"
+    being one of:
+    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+    ZFCP_ERP_ACTION_REOPEN_PORT, or
+    ZFCP_ERP_ACTION_REOPEN_LUN.
+
+    zfcp_erp_action_enqueue(want, ...)
+        ...
+        need = zfcp_erp_required_act(want, ...)
+            need = want
+            ...
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
+            ...
+            return need
+        ...
+        zfcp_erp_setup_act(need, ...)
+            struct zfcp_erp_action *erp_action; // <== line 217
+            ...
+            switch(need) {
+            case ZFCP_ERP_ACTION_REOPEN_LUN:
+                    ...
+                    erp_action = &zfcp_sdev->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_PORT:
+            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+                    ...
+                    erp_action = &port->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+                    ...
+                    erp_action = &adapter->erp_action;
+                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
+                    ...
+                    break;
+            }
+            ...
+            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
+
+When zfcp_erp_setup_act() is called, 'need' will never be anything else
+than one of the 4 possible enumeration-names that are used in the
+switch-case, and 'erp_action' is initialized for every one of them, before
+it is used. Thus the warning is a false positive, as documented.
+
+We introduce the extra if{} in the beginning to create an extra code-flow,
+so the compiler can be convinced that the switch-case will never see any
+other value.
+
+BUG_ON()/BUG() is intentionally not used to not crash anything, should
+this ever happen anyway - right now it's impossible, as argued above; and
+it doesn't introduce a 'default:' switch-case to retain warnings should
+'enum zfcp_erp_act_type' ever be extended and no explicit case be
+introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
+default switch case which might paper over missing case").
+
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/s390/vfio-ccw.rst | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index 1f6d0b5..be2af10 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -180,6 +180,13 @@ The process of how these work together.
-    add it to an iommu_group and a vfio_group. Then we could pass through
-    the mdev to a guest.
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index e8fc28dba8df..96f0d34e9459 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
  
-+
-+VFIO-CCW Regions
-+----------------
-+
-+The vfio-ccw driver exposes MMIO regions to accept requests from and return
-+results to userspace.
-+
- vfio-ccw I/O region
- -------------------
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
  
-@@ -205,6 +212,25 @@ irb_area stores the I/O result.
+@@ -217,6 +218,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(enum zfcp_erp_act_type need,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
  
- ret_code stores a return code for each access of the region.
- 
-+This region is always available.
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
 +
-+vfio-ccw cmd region
-+-------------------
-+
-+The vfio-ccw cmd region is used to accept asynchronous instructions
-+from userspace.
-+
-+#define VFIO_CCW_ASYNC_CMD_HSCH (1 << 0)
-+#define VFIO_CCW_ASYNC_CMD_CSCH (1 << 1)
-+struct ccw_cmd_region {
-+       __u32 command;
-+       __u32 ret_code;
-+} __packed;
-+
-+This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
-+
-+Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
-+
- vfio-ccw operation details
- --------------------------
- 
-@@ -306,9 +332,8 @@ Together with the corresponding work in QEMU, we can bring the passed
- through DASD/ECKD device online in a guest now and use it as a block
- device.
- 
--While the current code allows the guest to start channel programs via
--START SUBCHANNEL, support for HALT SUBCHANNEL or CLEAR SUBCHANNEL is
--not yet implemented.
-+The current code allows the guest to start channel programs via
-+START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
- 
- vfio-ccw supports classic (command mode) channel I/O only. Transport
- mode (HPF) is not supported.
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
 -- 
-2.7.4
+2.20.1
