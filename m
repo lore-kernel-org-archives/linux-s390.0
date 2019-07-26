@@ -1,60 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr680115.outbound.protection.outlook.com ([40.107.68.115]:42119
-        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726444AbfGJAfD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 9 Jul 2019 20:35:03 -0400
-From: Hoan Tran OS <hoan@os.amperecomputing.com>
-Subject: Re: [PATCH 3/5] x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-Date: Wed, 10 Jul 2019 00:34:19 +0000
-Message-ID: <1c5bc3a8-0c6f-dce3-95a2-8aec765408a2@os.amperecomputing.com>
-References: <1561501810-25163-1-git-send-email-Hoan@os.amperecomputing.com>
- <1561501810-25163-4-git-send-email-Hoan@os.amperecomputing.com>
- <alpine.DEB.2.21.1906260032250.32342@nanos.tec.linutronix.de>
-In-Reply-To: <alpine.DEB.2.21.1906260032250.32342@nanos.tec.linutronix.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <856DBE6A98D2C64F9203DA2E92E3CCD6@prod.exchangelabs.com>
-Content-Transfer-Encoding: base64
+Received: from mail.kernel.org ([198.145.29.99]:54860 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728228AbfGZNpn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Jul 2019 09:45:43 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 09/23] scsi: zfcp: fix GCC compiler warning emitted with -Wmaybe-uninitialized
+Date: Fri, 26 Jul 2019 09:45:08 -0400
+Message-Id: <20190726134522.13308-9-sashal@kernel.org>
+In-Reply-To: <20190726134522.13308-1-sashal@kernel.org>
+References: <20190726134522.13308-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Benjamin Block <bblock@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-SGkgVGhvbWFzLA0KDQpUaGFua3MgZm9yIHlvdSBjb21tZW50cw0KDQpPbiA2LzI1LzE5IDM6NDUg
-UE0sIFRob21hcyBHbGVpeG5lciB3cm90ZToNCj4gSG9hbiwNCj4gDQo+IE9uIFR1ZSwgMjUgSnVu
-IDIwMTksIEhvYW4gVHJhbiBPUyB3cm90ZToNCj4gDQo+IFBsZWFzZSB1c2UgJ3g4Ni9LY29uZmln
-OiAnIGFzIHByZWZpeC4NCj4gDQo+PiBUaGlzIHBhdGNoIHJlbW92ZXMgQ09ORklHX05PREVTX1NQ
-QU5fT1RIRVJfTk9ERVMgYXMgaXQncw0KPj4gZW5hYmxlZCBieSBkZWZhdWx0IHdpdGggTlVNQS4N
-Cj4gDQo+IFBsZWFzZSBkbyBub3QgdXNlICdUaGlzIHBhdGNoJyBpbiBjaGFuZ2Vsb2dzLiBJdCdz
-IHBvaW50bGVzcyBiZWNhdXNlIHdlDQo+IGFscmVhZHkga25vdyB0aGF0IHRoaXMgaXMgYSBwYXRj
-aC4NCj4gDQo+IFNlZSBhbHNvIERvY3VtZW50YXRpb24vcHJvY2Vzcy9zdWJtaXR0aW5nLXBhdGNo
-ZXMucnN0IGFuZCBzZWFyY2ggZm9yICdUaGlzDQo+IHBhdGNoJw0KPiANCj4gU2ltcGx5IHNheToN
-Cj4gDQo+ICAgIFJlbW92ZSBDT05GSUdfTk9ERVNfU1BBTl9PVEhFUl9OT0RFUyBhcyBpdCdzIGVu
-YWJsZWQgYnkgZGVmYXVsdCB3aXRoDQo+ICAgIE5VTUEuDQo+IA0KDQpHb3QgaXQsIHdpbGwgZml4
-DQoNCj4gQnV0IC4uLi4uDQo+IA0KPj4gQEAgLTE1NjcsMTUgKzE1NjcsNiBAQCBjb25maWcgWDg2
-XzY0X0FDUElfTlVNQQ0KPj4gICAJLS0taGVscC0tLQ0KPj4gICAJICBFbmFibGUgQUNQSSBTUkFU
-IGJhc2VkIG5vZGUgdG9wb2xvZ3kgZGV0ZWN0aW9uLg0KPj4gICANCj4+IC0jIFNvbWUgTlVNQSBu
-b2RlcyBoYXZlIG1lbW9yeSByYW5nZXMgdGhhdCBzcGFuDQo+PiAtIyBvdGhlciBub2Rlcy4gIEV2
-ZW4gdGhvdWdoIGEgcGZuIGlzIHZhbGlkIGFuZA0KPj4gLSMgYmV0d2VlbiBhIG5vZGUncyBzdGFy
-dCBhbmQgZW5kIHBmbnMsIGl0IG1heSBub3QNCj4+IC0jIHJlc2lkZSBvbiB0aGF0IG5vZGUuICBT
-ZWUgbWVtbWFwX2luaXRfem9uZSgpDQo+PiAtIyBmb3IgZGV0YWlscy4NCj4+IC1jb25maWcgTk9E
-RVNfU1BBTl9PVEhFUl9OT0RFUw0KPj4gLQlkZWZfYm9vbCB5DQo+PiAtCWRlcGVuZHMgb24gWDg2
-XzY0X0FDUElfTlVNQQ0KPiANCj4gdGhlIGNoYW5nZWxvZyBkb2VzIG5vdCBtZW50aW9uIHRoYXQg
-dGhpcyBsaWZ0cyB0aGUgZGVwZW5kZW5jeSBvbg0KPiBYODZfNjRfQUNQSV9OVU1BIGFuZCB0aGVy
-ZWZvcmUgZW5hYmxlcyB0aGF0IGZ1bmN0aW9uYWxpdHkgZm9yIGFueXRoaW5nDQo+IHdoaWNoIGhh
-cyBOVU1BIGVuYWJsZWQgaW5jbHVkaW5nIDMyYml0Lg0KPiANCg0KSSB0aGluayB0aGlzIGNvbmZp
-ZyBpcyB1c2VkIGZvciBhIE5VTUEgbGF5b3V0IHdoaWNoIE5VTUEgbm9kZXMgYWRkcmVzc2VzIA0K
-YXJlIHNwYW5uZWQgdG8gb3RoZXIgbm9kZXMuIEkgdGhpbmsgMzJiaXQgTlVNQSBhbHNvIGhhdmUg
-dGhlIHNhbWUgaXNzdWUgDQp3aXRoIHRoYXQgbGF5b3V0LiBQbGVhc2UgY29ycmVjdCBtZSBpZiBJ
-J20gd3JvbmcuDQoNCj4gVGhlIGNvcmUgbW0gY2hhbmdlIGdpdmVzIG5vIGhlbHBmdWwgaW5mb3Jt
-YXRpb24gZWl0aGVyLiBZb3UganVzdCBjb3BpZWQgdGhlDQo+IGFib3ZlIGNvbW1lbnQgdGV4dCBm
-cm9tIHNvbWUgcmFuZG9tIEtjb25maWcuDQoNClllcywgYXMgaXQncyBhIGNvcnJlY3QgY29tbWVu
-dCBhbmQgaXMgdXNlZCBhdCBtdWx0aXBsZSBwbGFjZXMuDQoNClRoYW5rcw0KSG9hbg0KDQo+IA0K
-PiBUaGlzIG5lZWRzIGEgYml0IG1vcmUgZGF0YSBpbiB0aGUgY2hhbmdlbG9ncyBhbmQgdGhlIGNv
-dmVyIGxldHRlcjoNCj4gDQo+ICAgICAgIC0gV2h5IGlzIGl0IHVzZWZ1bCB0byBlbmFibGUgaXQg
-dW5jb25kaXRpb25hbGx5DQo+IA0KPiAgICAgICAtIFdoeSBpcyBpdCBzYWZlIHRvIGRvIHNvLCBl
-dmVuIGlmIHRoZSBhcmNoaXRlY3R1cmUgaGFkIGNvbnN0cmFpbnRzIG9uDQo+ICAgICAgICAgaXQN
-Cj4gDQo+ICAgICAgIC0gV2hhdCdzIHRoZSBwb3RlbnRpYWwgaW1wYWN0DQo+IA0KPiBUaGFua3Ms
-DQo+IA0KPiAJdGdseA0KPiANCg==
+From: Benjamin Block <bblock@linux.ibm.com>
+
+[ Upstream commit 484647088826f2f651acbda6bcf9536b8a466703 ]
+
+GCC v9 emits this warning:
+      CC      drivers/s390/scsi/zfcp_erp.o
+    drivers/s390/scsi/zfcp_erp.c: In function 'zfcp_erp_action_enqueue':
+    drivers/s390/scsi/zfcp_erp.c:217:26: warning: 'erp_action' may be used uninitialized in this function [-Wmaybe-uninitialized]
+      217 |  struct zfcp_erp_action *erp_action;
+          |                          ^~~~~~~~~~
+
+This is a possible false positive case, as also documented in the GCC
+documentations:
+    https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wmaybe-uninitialized
+
+The actual code-sequence is like this:
+    Various callers can invoke the function below with the argument "want"
+    being one of:
+    ZFCP_ERP_ACTION_REOPEN_ADAPTER,
+    ZFCP_ERP_ACTION_REOPEN_PORT_FORCED,
+    ZFCP_ERP_ACTION_REOPEN_PORT, or
+    ZFCP_ERP_ACTION_REOPEN_LUN.
+
+    zfcp_erp_action_enqueue(want, ...)
+        ...
+        need = zfcp_erp_required_act(want, ...)
+            need = want
+            ...
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_PORT
+            maybe: need = ZFCP_ERP_ACTION_REOPEN_ADAPTER
+            ...
+            return need
+        ...
+        zfcp_erp_setup_act(need, ...)
+            struct zfcp_erp_action *erp_action; // <== line 217
+            ...
+            switch(need) {
+            case ZFCP_ERP_ACTION_REOPEN_LUN:
+                    ...
+                    erp_action = &zfcp_sdev->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_PORT:
+            case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+                    ...
+                    erp_action = &port->erp_action;
+                    WARN_ON_ONCE(erp_action->port != port); // <== access
+                    ...
+                    break;
+            case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+                    ...
+                    erp_action = &adapter->erp_action;
+                    WARN_ON_ONCE(erp_action->port != NULL); // <== access
+                    ...
+                    break;
+            }
+            ...
+            WARN_ON_ONCE(erp_action->adapter != adapter); // <== access
+
+When zfcp_erp_setup_act() is called, 'need' will never be anything else
+than one of the 4 possible enumeration-names that are used in the
+switch-case, and 'erp_action' is initialized for every one of them, before
+it is used. Thus the warning is a false positive, as documented.
+
+We introduce the extra if{} in the beginning to create an extra code-flow,
+so the compiler can be convinced that the switch-case will never see any
+other value.
+
+BUG_ON()/BUG() is intentionally not used to not crash anything, should
+this ever happen anyway - right now it's impossible, as argued above; and
+it doesn't introduce a 'default:' switch-case to retain warnings should
+'enum zfcp_erp_act_type' ever be extended and no explicit case be
+introduced. See also v5.0 commit 399b6c8bc9f7 ("scsi: zfcp: drop old
+default switch case which might paper over missing case").
+
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/scsi/zfcp_erp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index abe460eac712..cc62d8cc8cfd 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -10,6 +10,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/kthread.h>
++#include <linux/bug.h>
+ #include "zfcp_ext.h"
+ #include "zfcp_reqlist.h"
+ 
+@@ -244,6 +245,12 @@ static struct zfcp_erp_action *zfcp_erp_setup_act(int need, u32 act_status,
+ 	struct zfcp_erp_action *erp_action;
+ 	struct zfcp_scsi_dev *zfcp_sdev;
+ 
++	if (WARN_ON_ONCE(need != ZFCP_ERP_ACTION_REOPEN_LUN &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT &&
++			 need != ZFCP_ERP_ACTION_REOPEN_PORT_FORCED &&
++			 need != ZFCP_ERP_ACTION_REOPEN_ADAPTER))
++		return NULL;
++
+ 	switch (need) {
+ 	case ZFCP_ERP_ACTION_REOPEN_LUN:
+ 		zfcp_sdev = sdev_to_zfcp(sdev);
+-- 
+2.20.1
