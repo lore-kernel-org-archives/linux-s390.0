@@ -1,105 +1,44 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Subject: [PATCH v2 2/4] Add fchmodat4(), a new syscall
-Date: Tue, 16 Jul 2019 18:27:17 -0700
-Message-Id: <20190717012719.5524-3-palmer@sifive.com>
-In-Reply-To: <20190717012719.5524-1-palmer@sifive.com>
-References: <20190717012719.5524-1-palmer@sifive.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:47014 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726046AbfG1P3R (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 28 Jul 2019 11:29:17 -0400
+Date: Sun, 28 Jul 2019 11:29:15 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.2 149/171] s390/dasd: Make layout analysis ESE
+ compatible
+Message-ID: <20190728152915.GF8637@sasha-vm>
+References: <20190719035643.14300-1-sashal@kernel.org>
+ <20190719035643.14300-149-sashal@kernel.org>
+ <a8ad62c7-383a-a890-ca20-4348d8ab9dec@de.ibm.com>
+ <018f17c4-07c9-7fcf-1f22-0a712b452b25@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: Palmer Dabbelt <palmer@sifive.com>
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"; format="flowed"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <018f17c4-07c9-7fcf-1f22-0a712b452b25@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org
-Cc: rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, peterz@infradead.org, acme@kernel.org, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, Palmer Dabbelt <palmer@sifive.com>, dhowells@redhat.com, firoz.khan@linaro.org, stefan@agner.ch, schwidefsky@de.ibm.com, axboe@kernel.dk, christian@brauner.io, hare@suse.com, deepa.kernel@gmail.com, tycho@tycho.ws, kim.phillips@arm.com, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+To: Jan =?iso-8859-1?Q?H=F6ppner?= <hoeppner@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-man 3p says that fchmodat() takes a flags argument, but the Linux
-syscall does not.  There doesn't appear to be a good userspace
-workaround for this issue but the implementation in the kernel is pretty
-straight-forward.  The specific use case where the missing flags came up
-was WRT a fuse filesystem implemenation, but the functionality is pretty
-generic so I'm assuming there would be other use cases.
+On Fri, Jul 19, 2019 at 10:47:42AM +0200, Jan H=EF=BF=BDppner wrote:
+>On 19.07.19 09:47, Christian Borntraeger wrote:
+>> The comment is true for all stable versions.
+>>
+>> This patch is part of a larger series that enables ESE volumes.
+>> I think it should not go alone as other patches like
+>> 5e2b17e712cf s390/dasd: Add dynamic formatting support for ESE volumes
+>> are needed to actually work with ESE volumes.
+>> So I suggest to drop this patch.
+>> Jan, Stefan, do you agree?
+>>
+>
+>This patch is a requirement for ESE volumes to work and doesn't
+>add any value alone. I suggest to drop this patch as well.
 
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
----
- fs/open.c                | 20 ++++++++++++++++----
- include/linux/syscalls.h |  7 +++++--
- 2 files changed, 21 insertions(+), 6 deletions(-)
+I've dropped it from everywhere, thank you!
 
-diff --git a/fs/open.c b/fs/open.c
-index b5b80469b93d..2f72b4d6a2c1 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -569,11 +569,17 @@ SYSCALL_DEFINE2(fchmod, unsigned int, fd, umode_t, mode)
- 	return ksys_fchmod(fd, mode);
- }
- 
--int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
-+int do_fchmodat4(int dfd, const char __user *filename, umode_t mode, int flags)
- {
- 	struct path path;
- 	int error;
--	unsigned int lookup_flags = LOOKUP_FOLLOW;
-+	unsigned int lookup_flags;
-+
-+	if (unlikely(flags & ~AT_SYMLINK_NOFOLLOW))
-+		return -EINVAL;
-+
-+	lookup_flags = flags & AT_SYMLINK_NOFOLLOW ? 0 : LOOKUP_FOLLOW;
-+
- retry:
- 	error = user_path_at(dfd, filename, lookup_flags, &path);
- 	if (!error) {
-@@ -587,15 +593,21 @@ int do_fchmodat(int dfd, const char __user *filename, umode_t mode)
- 	return error;
- }
- 
-+SYSCALL_DEFINE4(fchmodat4, int, dfd, const char __user *, filename,
-+		umode_t, mode, int, flags)
-+{
-+	return do_fchmodat4(dfd, filename, mode, flags);
-+}
-+
- SYSCALL_DEFINE3(fchmodat, int, dfd, const char __user *, filename,
- 		umode_t, mode)
- {
--	return do_fchmodat(dfd, filename, mode);
-+	return do_fchmodat4(dfd, filename, mode, 0);
- }
- 
- SYSCALL_DEFINE2(chmod, const char __user *, filename, umode_t, mode)
- {
--	return do_fchmodat(AT_FDCWD, filename, mode);
-+	return do_fchmodat4(AT_FDCWD, filename, mode, 0);
- }
- 
- static int chown_common(const struct path *path, uid_t user, gid_t group)
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index e1c20f1d0525..a4bde25ad264 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -433,6 +433,8 @@ asmlinkage long sys_chroot(const char __user *filename);
- asmlinkage long sys_fchmod(unsigned int fd, umode_t mode);
- asmlinkage long sys_fchmodat(int dfd, const char __user *filename,
- 			     umode_t mode);
-+asmlinkage long sys_fchmodat4(int dfd, const char __user *filename,
-+			     umode_t mode, int flags);
- asmlinkage long sys_fchownat(int dfd, const char __user *filename, uid_t user,
- 			     gid_t group, int flag);
- asmlinkage long sys_fchown(unsigned int fd, uid_t user, gid_t group);
-@@ -1320,11 +1322,12 @@ static inline long ksys_link(const char __user *oldname,
- 	return do_linkat(AT_FDCWD, oldname, AT_FDCWD, newname, 0);
- }
- 
--extern int do_fchmodat(int dfd, const char __user *filename, umode_t mode);
-+extern int do_fchmodat4(int dfd, const char __user *filename, umode_t mode,
-+			int flags);
- 
- static inline int ksys_chmod(const char __user *filename, umode_t mode)
- {
--	return do_fchmodat(AT_FDCWD, filename, mode);
-+	return do_fchmodat4(AT_FDCWD, filename, mode, 0);
- }
- 
- extern long do_faccessat(int dfd, const char __user *filename, int mode);
--- 
-2.21.0
+--
+Thanks,
+Sasha
