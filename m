@@ -1,380 +1,181 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43576 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726043AbfGJK73 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Jul 2019 06:59:29 -0400
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: [PATCH] s390/livepatch: Implement reliable stack tracing for the consistency model
-Date: Wed, 10 Jul 2019 12:59:18 +0200
-Message-Id: <20190710105918.22487-1-mbenes@suse.cz>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v11 6/8] namei: aggressively check for nd->root escape on ".." resolution
+Date: Sun, 28 Jul 2019 11:02:05 +1000
+Message-Id: <20190728010207.9781-7-cyphar@cyphar.com>
+In-Reply-To: <20190728010207.9781-1-cyphar@cyphar.com>
+References: <20190728010207.9781-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jpoimboe@redhat.com, jikos@kernel.org, pmladek@suse.com, joe.lawrence@redhat.com, nstange@suse.de, live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Jann Horn <jannh@google.com>, Kees Cook <keescook@chromium.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The livepatch consistency model requires reliable stack tracing
-architecture support in order to work properly. In order to achieve
-this, two main issues have to be solved. First, reliable and consistent
-call chain backtracing has to be ensured. Second, the unwinder needs to
-be able to detect stack corruptions and return errors.
+This patch allows for LOOKUP_BENEATH and LOOKUP_IN_ROOT to safely permit
+".." resolution (in the case of LOOKUP_BENEATH the resolution will still
+fail if ".." resolution would resolve a path outside of the root --
+while LOOKUP_IN_ROOT will chroot(2)-style scope it). Magic-link jumps
+are still disallowed entirely because now they could result in
+inconsistent behaviour if resolution encounters a subsequent ".."[*].
 
-The "zSeries ELF Application Binary Interface Supplement" says:
+The need for this patch is explained by observing there is a fairly
+easy-to-exploit race condition with chroot(2) (and thus by extension
+LOOKUP_IN_ROOT and LOOKUP_BENEATH if ".." is allowed) where a rename(2)
+of a path can be used to "skip over" nd->root and thus escape to the
+filesystem above nd->root.
 
-  "The stack pointer points to the first word of the lowest allocated
-  stack frame. If the "back chain" is implemented this word will point to
-  the previously allocated stack frame (towards higher addresses), except
-  for the first stack frame, which shall have a back chain of zero (NULL).
-  The stack shall grow downwards, in other words towards lower addresses."
+  thread1 [attacker]:
+    for (;;)
+      renameat2(AT_FDCWD, "/a/b/c", AT_FDCWD, "/a/d", RENAME_EXCHANGE);
+  thread2 [victim]:
+    for (;;)
+      openat2(dirb, "b/c/../../etc/shadow",
+              { .flags = O_PATH, .resolve = RESOLVE_IN_ROOT } );
 
-"back chain" is optional. GCC option -mbackchain enables it. Quoting
-Martin Schwidefsky [1]:
+With fairly significant regularity, thread2 will resolve to
+"/etc/shadow" rather than "/a/b/etc/shadow". There is also a similar
+(though somewhat more privileged) attack using MS_MOVE.
 
-  "The compiler is called with the -mbackchain option, all normal C
-  function will store the backchain in the function prologue. All
-  functions written in assembler code should do the same, if you find one
-  that does not we should fix that. The end result is that a task that
-  *voluntarily* called schedule() should have a proper backchain at all
-  times.
+With this patch, such cases will be detected *during* ".." resolution
+(which is the weak point of chroot(2) -- since walking *into* a
+subdirectory tautologically cannot result in you walking *outside*
+nd->root -- except through a bind-mount or magic-link). By detecting
+this at ".." resolution (rather than checking only at the end of the
+entire resolution) we can both correct escapes by jumping back to the
+root (in the case of LOOKUP_IN_ROOT), as well as avoid revealing to
+attackers the structure of the filesystem outside of the root (through
+timing attacks for instance).
 
-  Dependent on the use case this may or may not be enough. Asynchronous
-  interrupts may stop the CPU at the beginning of a function, if kernel
-  preemption is enabled we can end up with a broken backchain.  The
-  production kernels for IBM Z are all compiled *without* kernel
-  preemption. So yes, we might get away without the objtool support.
+In order to avoid a quadratic lookup with each ".." entry, we only
+activate the slow path if a write through &rename_lock or &mount_lock
+has occurred during path resolution (&rename_lock and &mount_lock are
+re-taken to further optimise the lookup). Since the primary attack being
+protected against is MS_MOVE or rename(2), not doing additional checks
+unless a mount or rename have occurred avoids making the common case
+slow.
 
-  On a side-note, we do have a line item to implement the ORC unwinder for
-  the kernel, that includes the objtool support. Once we have that we can
-  drop the -mbackchain option for the kernel build. That gives us a nice
-  little performance benefit. I hope that the change from backchain to the
-  ORC unwinder will not be too hard to implement in the livepatch tools."
+The use of path_is_under() here might seem suspect, but on further
+inspection of the most important race (a path was *inside* the root but
+is now *outside*), there appears to be no attack potential:
 
-Thus, the call chain backtracing should be currently ensured and objtool
-should not be necessary for livepatch purposes.
+  * If path_is_under() occurs before the rename, then the path will be
+    resolved -- however the path was originally inside the root and thus
+    there is no escape (and to userspace it'd look like the rename
+    occurred after the path was resolved). If path_is_under() occurs
+    afterwards, the resolution is blocked.
 
-Regarding the second issue, stack corruptions and non-reliable states
-have to be recognized by the unwinder. Mainly it means to detect
-preemption or page faults, the end of the task stack must be reached,
-return addresses must be valid text addresses and hacks like function
-graph tracing and kretprobes must be properly detected.
+  * Subsequent ".." jumps are guaranteed to check path_is_under() -- by
+    construction, &rename_lock or &mount_lock must have been taken by
+    the attacker after path_is_under() returned in the victim. Thus ".."
+    will not be able to escape from the previously-inside-root path.
 
-Unwinding a running task's stack is not a problem, because there is a
-livepatch requirement that every checked task is blocked, except for the
-current task. Due to that, the implementation can be much simpler
-compared to the existing non-reliable infrastructure. We can consider a
-task's kernel/thread stack only and skip the other stacks.
+  * Walking down in the moved path is still safe since the entire
+    subtree was moved (either by rename(2) or MS_MOVE) and because (as
+    discussed above) walking down is safe.
 
-Idle tasks are a bit special. Their final back chains point to no_dat
-stacks. See for reference CALL_ON_STACK() in smp_start_secondary()
-callback used in __cpu_up(). The unwinding is stopped there and it is
-not considered to be a stack corruption.
+A variant of the above attack is included in the selftests for
+openat2(2) later in this patch series. I've run this test on several
+machines for several days and no instances of a breakout were detected.
+While this is not concrete proof that this is safe, when combined with
+the above argument it should lend some trustworthiness to this
+construction.
 
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
+[*] It may be acceptable in the future to do a path_is_under() check
+    after resolving a magic-link and permit resolution if the
+    nd_jump_link() result is still within the dirfd. However this seems
+    unlikely to be a feature that people *really* need* -- it can be
+    added later if it turns out a lot of people want it.
+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jann Horn <jannh@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
-- based on Linus' master
-- passes livepatch kselftests
-- passes tests from https://github.com/lpechacek/qa_test_klp, which
-  stress the consistency model and the unwinder a bit more
+ fs/namei.c | 45 +++++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 14 deletions(-)
 
- arch/s390/Kconfig                  |  1 +
- arch/s390/include/asm/stacktrace.h |  5 ++
- arch/s390/include/asm/unwind.h     | 19 ++++++
- arch/s390/kernel/dumpstack.c       | 28 +++++++++
- arch/s390/kernel/stacktrace.c      | 78 +++++++++++++++++++++++++
- arch/s390/kernel/unwind_bc.c       | 93 ++++++++++++++++++++++++++++++
- 6 files changed, 224 insertions(+)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index fdb4246265a5..ea73e555063d 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -170,6 +170,7 @@ config S390
- 	select HAVE_PERF_EVENTS
- 	select HAVE_RCU_TABLE_FREE
- 	select HAVE_REGS_AND_STACK_ACCESS_API
-+	select HAVE_RELIABLE_STACKTRACE
- 	select HAVE_RSEQ
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HAVE_VIRT_CPU_ACCOUNTING
-diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-index 0ae4bbf7779c..2b5c913c408f 100644
---- a/arch/s390/include/asm/stacktrace.h
-+++ b/arch/s390/include/asm/stacktrace.h
-@@ -23,6 +23,11 @@ const char *stack_type_name(enum stack_type type);
- int get_stack_info(unsigned long sp, struct task_struct *task,
- 		   struct stack_info *info, unsigned long *visit_mask);
+diff --git a/fs/namei.c b/fs/namei.c
+index 0352d275bd13..fd1eb5ce8baa 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -491,7 +491,7 @@ struct nameidata {
+ 	struct path	root;
+ 	struct inode	*inode; /* path.dentry.d_inode */
+ 	unsigned int	flags;
+-	unsigned	seq, m_seq;
++	unsigned	seq, m_seq, r_seq;
+ 	int		last_type;
+ 	unsigned	depth;
+ 	int		total_link_count;
+@@ -1758,22 +1758,36 @@ static inline int handle_dots(struct nameidata *nd, int type)
+ 	if (type == LAST_DOTDOT) {
+ 		int error = 0;
  
-+#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
-+int get_stack_info_reliable(unsigned long sp, struct task_struct *task,
-+			    struct stack_info *info);
-+#endif
+-		/*
+-		 * LOOKUP_BENEATH resolving ".." is not currently safe -- races
+-		 * can cause our parent to have moved outside of the root and
+-		 * us to skip over it.
+-		 */
+-		if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)))
+-			return -EXDEV;
+ 		if (!nd->root.mnt) {
+ 			error = set_root(nd);
+ 			if (error)
+ 				return error;
+ 		}
+-		if (nd->flags & LOOKUP_RCU) {
+-			return follow_dotdot_rcu(nd);
+-		} else
+-			return follow_dotdot(nd);
++		if (nd->flags & LOOKUP_RCU)
++			error = follow_dotdot_rcu(nd);
++		else
++			error = follow_dotdot(nd);
++		if (error)
++			return error;
 +
- static inline bool on_stack(struct stack_info *info,
- 			    unsigned long addr, size_t len)
- {
-diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
-index d827b5b9a32c..1cc96c54169c 100644
---- a/arch/s390/include/asm/unwind.h
-+++ b/arch/s390/include/asm/unwind.h
-@@ -45,6 +45,25 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- bool unwind_next_frame(struct unwind_state *state);
- unsigned long unwind_get_return_address(struct unwind_state *state);
- 
-+#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
-+void __unwind_start_reliable(struct unwind_state *state,
-+			     struct task_struct *task, unsigned long sp);
-+bool unwind_next_frame_reliable(struct unwind_state *state);
++		if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT))) {
++			bool m_retry = read_seqretry(&mount_lock, nd->m_seq);
++			bool r_retry = read_seqretry(&rename_lock, nd->r_seq);
 +
-+static inline void unwind_start_reliable(struct unwind_state *state,
-+					 struct task_struct *task)
-+{
-+	unsigned long sp;
++			/*
++			 * Don't bother checking unless there's a racing
++			 * rename(2) or MS_MOVE.
++			 */
++			if (likely(!m_retry && !r_retry))
++				return 0;
 +
-+	if (task == current)
-+		sp = current_stack_pointer();
-+	else
-+		sp = task->thread.ksp;
-+
-+	__unwind_start_reliable(state, task, sp);
-+}
-+#endif
-+
- static inline bool unwind_done(struct unwind_state *state)
- {
- 	return state->stack_info.type == STACK_TYPE_UNKNOWN;
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index ac06c3949ab3..b21ef2a766ff 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -127,6 +127,34 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
- 	return -EINVAL;
- }
- 
-+#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
-+int get_stack_info_reliable(unsigned long sp, struct task_struct *task,
-+			    struct stack_info *info)
-+{
-+	if (!sp)
-+		goto error;
-+
-+	/* Sanity check: ABI requires SP to be aligned 8 bytes. */
-+	if (sp & 0x7)
-+		goto error;
-+
-+	if (!task)
-+		goto error;
-+
-+	/*
-+	 * The unwinding should not start on nodat_stack, async_stack or
-+	 * restart_stack. The task is either current or must be inactive.
-+	 */
-+	if (!in_task_stack(sp, task, info))
-+		goto error;
-+
-+	return 0;
-+error:
-+	info->type = STACK_TYPE_UNKNOWN;
-+	return -EINVAL;
-+}
-+#endif
-+
- void show_stack(struct task_struct *task, unsigned long *stack)
- {
- 	struct unwind_state state;
-diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
-index f6a620f854e1..7d774a325163 100644
---- a/arch/s390/kernel/stacktrace.c
-+++ b/arch/s390/kernel/stacktrace.c
-@@ -13,6 +13,7 @@
- #include <linux/export.h>
- #include <asm/stacktrace.h>
- #include <asm/unwind.h>
-+#include <asm/kprobes.h>
- 
- void save_stack_trace(struct stack_trace *trace)
- {
-@@ -60,3 +61,80 @@ void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
++			if (m_retry && !(nd->flags & LOOKUP_RCU))
++				nd->m_seq = read_seqbegin(&mount_lock);
++			if (r_retry)
++				nd->r_seq = read_seqbegin(&rename_lock);
++			if (!path_is_under(&nd->path, &nd->root))
++				return -EXDEV;
++		}
  	}
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(save_stack_trace_regs);
+@@ -2245,6 +2259,11 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+ 	nd->flags = flags | LOOKUP_JUMPED | LOOKUP_PARENT;
+ 	nd->depth = 0;
 +
-+#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
-+/*
-+ * This function returns an error if it detects any unreliable features of the
-+ * stack.  Otherwise it guarantees that the stack trace is reliable.
-+ *
-+ * If the task is not 'current', the caller *must* ensure the task is inactive.
-+ */
-+static __always_inline int
-+__save_stack_trace_tsk_reliable(struct task_struct *tsk,
-+				struct stack_trace *trace)
-+{
-+	struct unwind_state state;
++	nd->m_seq = read_seqbegin(&mount_lock);
++	if (flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT))
++		nd->r_seq = read_seqbegin(&rename_lock);
 +
-+	for (unwind_start_reliable(&state, tsk);
-+	     !unwind_done(&state) && !unwind_error(&state);
-+	     unwind_next_frame_reliable(&state)) {
-+
-+		if (!__kernel_text_address(state.ip))
-+			return -EINVAL;
-+
-+#ifdef CONFIG_KPROBES
-+		/*
-+		 * Mark stacktraces with kretprobed functions on them
-+		 * as unreliable.
-+		 */
-+		if (state.ip == (unsigned long)kretprobe_trampoline)
-+			return -EINVAL;
-+#endif
-+
-+		if (trace->nr_entries >= trace->max_entries)
-+			return -E2BIG;
-+
-+		if (!trace->skip)
-+			trace->entries[trace->nr_entries++] = state.ip;
-+		else
-+			trace->skip--;
-+	}
-+
-+	/* Check for stack corruption */
-+	if (unwind_error(&state))
-+		return -EINVAL;
-+
-+	/* Store kernel_thread_starter, null for swapper/0 */
-+	if (tsk->flags & (PF_KTHREAD | PF_IDLE)) {
-+		if (trace->nr_entries >= trace->max_entries)
-+			return -E2BIG;
-+
-+		if (!trace->skip)
-+			trace->entries[trace->nr_entries++] =
-+				state.regs->psw.addr;
-+		else
-+			trace->skip--;
-+	}
-+
-+	return 0;
-+}
-+
-+int save_stack_trace_tsk_reliable(struct task_struct *tsk,
-+				  struct stack_trace *trace)
-+{
-+	int ret;
-+
-+	/*
-+	 * If the task doesn't have a stack (e.g., a zombie), the stack is
-+	 * "reliably" empty.
-+	 */
-+	if (!try_get_task_stack(tsk))
-+		return 0;
-+
-+	ret = __save_stack_trace_tsk_reliable(tsk, trace);
-+
-+	put_task_stack(tsk);
-+
-+	return ret;
-+}
-+#endif
-diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
-index 3ce8a0808059..ada3a8538961 100644
---- a/arch/s390/kernel/unwind_bc.c
-+++ b/arch/s390/kernel/unwind_bc.c
-@@ -153,3 +153,96 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 	state->reliable = reliable;
- }
- EXPORT_SYMBOL_GPL(__unwind_start);
-+
-+#ifdef CONFIG_HAVE_RELIABLE_STACKTRACE
-+void __unwind_start_reliable(struct unwind_state *state,
-+			     struct task_struct *task, unsigned long sp)
-+{
-+	struct stack_info *info = &state->stack_info;
-+	struct stack_frame *sf;
-+	unsigned long ip;
-+
-+	memset(state, 0, sizeof(*state));
-+	state->task = task;
-+
-+	/* Get current stack pointer and initialize stack info */
-+	if (get_stack_info_reliable(sp, task, info) ||
-+	    !on_stack(info, sp, sizeof(struct stack_frame))) {
-+		/* Something is wrong with the stack pointer */
-+		info->type = STACK_TYPE_UNKNOWN;
-+		state->error = true;
-+		return;
-+	}
-+
-+	/* Get the instruction pointer from the stack frame */
-+	sf = (struct stack_frame *) sp;
-+	ip = READ_ONCE_NOCHECK(sf->gprs[8]);
-+
-+#ifdef CONFIG_FUNCTION_GRAPH_TRACER
-+	/* Decode any ftrace redirection */
-+	if (ip == (unsigned long) return_to_handler)
-+		ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
-+					   ip, NULL);
-+#endif
-+
-+	/* Update unwind state */
-+	state->sp = sp;
-+	state->ip = ip;
-+}
-+
-+bool unwind_next_frame_reliable(struct unwind_state *state)
-+{
-+	struct stack_info *info = &state->stack_info;
-+	struct stack_frame *sf;
-+	struct pt_regs *regs;
-+	unsigned long sp, ip;
-+
-+	sf = (struct stack_frame *) state->sp;
-+	sp = READ_ONCE_NOCHECK(sf->back_chain);
-+	/*
-+	 * Idle tasks are special. The final back-chain points to nodat_stack.
-+	 * See CALL_ON_STACK() in smp_start_secondary() callback used in
-+	 * __cpu_up(). We just accept it, go to else branch and look for
-+	 * pt_regs.
-+	 */
-+	if (likely(sp && !(is_idle_task(state->task) &&
-+			   outside_of_stack(state, sp)))) {
-+		/* Non-zero back-chain points to the previous frame */
-+		if (unlikely(outside_of_stack(state, sp)))
-+			goto out_err;
-+
-+		sf = (struct stack_frame *) sp;
-+		ip = READ_ONCE_NOCHECK(sf->gprs[8]);
-+	} else {
-+		/* No back-chain, look for a pt_regs structure */
-+		sp = state->sp + STACK_FRAME_OVERHEAD;
-+		regs = (struct pt_regs *) sp;
-+		if ((unsigned long)regs != info->end - sizeof(struct pt_regs))
-+			goto out_err;
-+		if (!(state->task->flags & (PF_KTHREAD | PF_IDLE)) &&
-+		     !user_mode(regs))
-+			goto out_err;
-+
-+		state->regs = regs;
-+		goto out_stop;
-+	}
-+
-+#ifdef CONFIG_FUNCTION_GRAPH_TRACER
-+	/* Decode any ftrace redirection */
-+	if (ip == (unsigned long) return_to_handler)
-+		ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
-+					   ip, (void *) sp);
-+#endif
-+
-+	/* Update unwind state */
-+	state->sp = sp;
-+	state->ip = ip;
-+	return true;
-+
-+out_err:
-+	state->error = true;
-+out_stop:
-+	state->stack_info.type = STACK_TYPE_UNKNOWN;
-+	return false;
-+}
-+#endif
+ 	if (flags & LOOKUP_ROOT) {
+ 		struct dentry *root = nd->root.dentry;
+ 		struct inode *inode = root->d_inode;
+@@ -2266,8 +2285,6 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 	nd->path.mnt = NULL;
+ 	nd->path.dentry = NULL;
+ 
+-	nd->m_seq = read_seqbegin(&mount_lock);
+-
+ 	/* LOOKUP_IN_ROOT treats absolute paths as being relative-to-dirfd. */
+ 	if (flags & LOOKUP_IN_ROOT)
+ 		while (*s == '/')
 -- 
 2.22.0
