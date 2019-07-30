@@ -1,138 +1,137 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH 1/2] KVM: selftests: Implement ucall() for s390x
-Date: Tue, 30 Jul 2019 12:01:11 +0200
-Message-Id: <20190730100112.18205-2-thuth@redhat.com>
-In-Reply-To: <20190730100112.18205-1-thuth@redhat.com>
-References: <20190730100112.18205-1-thuth@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:45254 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730292AbfG3Q7F (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Jul 2019 12:59:05 -0400
+Received: by mail-pf1-f196.google.com with SMTP id r1so30147080pfq.12
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jul 2019 09:59:04 -0700 (PDT)
+Date: Tue, 30 Jul 2019 09:59:02 -0700
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] s390/net: Mark expected switch fall-throughs
+Message-ID: <201907300959.12D21B6F09@keescook>
+References: <20190730001715.GA20706@embeddedor>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+In-Reply-To: <20190730001715.GA20706@embeddedor>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Peter Xu <peterx@redhat.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On s390x, we can neither exit via PIO nor MMIO, but have to use
-an instruction like DIAGNOSE. While we're at it, rename UCALL_PIO
-to UCALL_DEFAULT, since PIO only works on x86 anyway, and this
-way we can re-use the "default" type for the DIAGNOSE exit on s390x.
+On Mon, Jul 29, 2019 at 07:17:15PM -0500, Gustavo A. R. Silva wrote:
+> Mark switch cases where we are expecting to fall through.
+> 
+> This patch fixes the following warnings (Building: s390):
+> 
+> drivers/s390/net/ctcm_fsms.c: In function ‘ctcmpc_chx_attnbusy’:
+> drivers/s390/net/ctcm_fsms.c:1703:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (grp->changed_side == 1) {
+>       ^
+> drivers/s390/net/ctcm_fsms.c:1707:2: note: here
+>   case MPCG_STATE_XID0IOWAIX:
+>   ^~~~
+> 
+> drivers/s390/net/ctcm_mpc.c: In function ‘ctc_mpc_alloc_channel’:
+> drivers/s390/net/ctcm_mpc.c:358:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (callback)
+>       ^
+> drivers/s390/net/ctcm_mpc.c:360:2: note: here
+>   case MPCG_STATE_XID0IOWAIT:
+>   ^~~~
+> 
+> drivers/s390/net/ctcm_mpc.c: In function ‘mpc_action_timeout’:
+> drivers/s390/net/ctcm_mpc.c:1469:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if ((fsm_getstate(rch->fsm) == CH_XID0_PENDING) &&
+>       ^
+> drivers/s390/net/ctcm_mpc.c:1472:2: note: here
+>   default:
+>   ^~~~~~~
+> drivers/s390/net/ctcm_mpc.c: In function ‘mpc_send_qllc_discontact’:
+> drivers/s390/net/ctcm_mpc.c:2087:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (grp->estconnfunc) {
+>       ^
+> drivers/s390/net/ctcm_mpc.c:2092:2: note: here
+>   case MPCG_STATE_FLOWC:
+>   ^~~~
+> 
+> drivers/s390/net/qeth_l2_main.c: In function ‘qeth_l2_process_inbound_buffer’:
+> drivers/s390/net/qeth_l2_main.c:328:7: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>     if (IS_OSN(card)) {
+>        ^
+> drivers/s390/net/qeth_l2_main.c:337:3: note: here
+>    default:
+>    ^~~~~~~
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-Now that ucall() is implemented, we can use it in the sync_reg_test
-on s390x, too.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- .../testing/selftests/kvm/include/kvm_util.h  |  2 +-
- tools/testing/selftests/kvm/lib/ucall.c       | 34 +++++++++++++++----
- .../selftests/kvm/s390x/sync_regs_test.c      |  6 ++--
- 3 files changed, 32 insertions(+), 10 deletions(-)
+-Kees
 
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index e0e66b115ef2..c37aea2e33e5 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -167,7 +167,7 @@ int vm_create_device(struct kvm_vm *vm, struct kvm_create_device *cd);
- 
- /* ucall implementation types */
- typedef enum {
--	UCALL_PIO,
-+	UCALL_DEFAULT,
- 	UCALL_MMIO,
- } ucall_type_t;
- 
-diff --git a/tools/testing/selftests/kvm/lib/ucall.c b/tools/testing/selftests/kvm/lib/ucall.c
-index dd9a66700f96..55534dd014dc 100644
---- a/tools/testing/selftests/kvm/lib/ucall.c
-+++ b/tools/testing/selftests/kvm/lib/ucall.c
-@@ -30,7 +30,7 @@ void ucall_init(struct kvm_vm *vm, ucall_type_t type, void *arg)
- 	ucall_type = type;
- 	sync_global_to_guest(vm, ucall_type);
- 
--	if (type == UCALL_PIO)
-+	if (type == UCALL_DEFAULT)
- 		return;
- 
- 	if (type == UCALL_MMIO) {
-@@ -84,11 +84,18 @@ void ucall_uninit(struct kvm_vm *vm)
- 	sync_global_to_guest(vm, ucall_exit_mmio_addr);
- }
- 
--static void ucall_pio_exit(struct ucall *uc)
-+static void ucall_default_exit(struct ucall *uc)
- {
--#ifdef __x86_64__
-+#if defined(__x86_64__)
-+	/* Exit via PIO */
- 	asm volatile("in %[port], %%al"
- 		: : [port] "d" (UCALL_PIO_PORT), "D" (uc) : "rax");
-+#elif defined(__s390x__)
-+	/* Exit via DIAGNOSE 0x501 (normally used for breakpoints) */
-+	asm volatile ("diag 0,%0,0x501" : : "a"(uc) : "memory");
-+#else
-+	fprintf(stderr, "No default ucall available on this architecture.\n");
-+	exit(1);
- #endif
- }
- 
-@@ -113,8 +120,8 @@ void ucall(uint64_t cmd, int nargs, ...)
- 	va_end(va);
- 
- 	switch (ucall_type) {
--	case UCALL_PIO:
--		ucall_pio_exit(&uc);
-+	case UCALL_DEFAULT:
-+		ucall_default_exit(&uc);
- 		break;
- 	case UCALL_MMIO:
- 		ucall_mmio_exit(&uc);
-@@ -128,15 +135,28 @@ uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
- 	struct ucall ucall = {};
- 	bool got_ucall = false;
- 
--#ifdef __x86_64__
--	if (ucall_type == UCALL_PIO && run->exit_reason == KVM_EXIT_IO &&
-+#if defined(__x86_64__)
-+	if (ucall_type == UCALL_DEFAULT && run->exit_reason == KVM_EXIT_IO &&
- 	    run->io.port == UCALL_PIO_PORT) {
- 		struct kvm_regs regs;
- 		vcpu_regs_get(vm, vcpu_id, &regs);
- 		memcpy(&ucall, addr_gva2hva(vm, (vm_vaddr_t)regs.rdi), sizeof(ucall));
- 		got_ucall = true;
- 	}
-+#elif defined(__s390x__)
-+	if (ucall_type == UCALL_DEFAULT &&
-+	    run->exit_reason == KVM_EXIT_S390_SIEIC &&
-+	    run->s390_sieic.icptcode == 4 &&
-+	    (run->s390_sieic.ipa >> 8) == 0x83 &&    /* 0x83 means DIAGNOSE */
-+	    (run->s390_sieic.ipb >> 16) == 0x501) {
-+		int reg = run->s390_sieic.ipa & 0xf;
-+
-+		memcpy(&ucall, addr_gva2hva(vm, run->s.regs.gprs[reg]),
-+		       sizeof(ucall));
-+		got_ucall = true;
-+	}
- #endif
-+
- 	if (ucall_type == UCALL_MMIO && run->exit_reason == KVM_EXIT_MMIO &&
- 	    run->mmio.phys_addr == (uint64_t)ucall_exit_mmio_addr) {
- 		vm_vaddr_t gva;
-diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-index e85ff0d69548..bbc93094519b 100644
---- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-+++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-@@ -25,9 +25,11 @@
- 
- static void guest_code(void)
- {
-+	register u64 stage asm("11") = 0;
-+
- 	for (;;) {
--		asm volatile ("diag 0,0,0x501");
--		asm volatile ("ahi 11,1");
-+		GUEST_SYNC(0);
-+		asm volatile ("ahi %0,1" : : "r"(stage));
- 	}
- }
- 
+> ---
+>  drivers/s390/net/ctcm_fsms.c    | 1 +
+>  drivers/s390/net/ctcm_mpc.c     | 3 +++
+>  drivers/s390/net/qeth_l2_main.c | 2 +-
+>  3 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+> index 1b4ee570b712..4a8a5373cb35 100644
+> --- a/drivers/s390/net/ctcm_fsms.c
+> +++ b/drivers/s390/net/ctcm_fsms.c
+> @@ -1704,6 +1704,7 @@ static void ctcmpc_chx_attnbusy(fsm_instance *fsm, int event, void *arg)
+>  			grp->changed_side = 2;
+>  			break;
+>  		}
+> +		/* Else, fall through */
+>  	case MPCG_STATE_XID0IOWAIX:
+>  	case MPCG_STATE_XID7INITW:
+>  	case MPCG_STATE_XID7INITX:
+> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+> index e02f295d38a9..1534420a0243 100644
+> --- a/drivers/s390/net/ctcm_mpc.c
+> +++ b/drivers/s390/net/ctcm_mpc.c
+> @@ -357,6 +357,7 @@ int ctc_mpc_alloc_channel(int port_num, void (*callback)(int, int))
+>  		/*fsm_newstate(grp->fsm, MPCG_STATE_XID2INITW);*/
+>  		if (callback)
+>  			grp->send_qllc_disc = 1;
+> +		/* Else, fall through */
+>  	case MPCG_STATE_XID0IOWAIT:
+>  		fsm_deltimer(&grp->timer);
+>  		grp->outstanding_xid2 = 0;
+> @@ -1469,6 +1470,7 @@ static void mpc_action_timeout(fsm_instance *fi, int event, void *arg)
+>  		if ((fsm_getstate(rch->fsm) == CH_XID0_PENDING) &&
+>  		   (fsm_getstate(wch->fsm) == CH_XID0_PENDING))
+>  			break;
+> +		/* Else, fall through */
+>  	default:
+>  		fsm_event(grp->fsm, MPCG_EVENT_INOP, dev);
+>  	}
+> @@ -2089,6 +2091,7 @@ static int mpc_send_qllc_discontact(struct net_device *dev)
+>  			grp->estconnfunc = NULL;
+>  			break;
+>  		}
+> +		/* Else, fall through */
+>  	case MPCG_STATE_FLOWC:
+>  	case MPCG_STATE_READY:
+>  		grp->send_qllc_disc = 2;
+> diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+> index fd64bc3f4062..cbead3d1b2fd 100644
+> --- a/drivers/s390/net/qeth_l2_main.c
+> +++ b/drivers/s390/net/qeth_l2_main.c
+> @@ -333,7 +333,7 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
+>  				card->osn_info.data_cb(skb);
+>  				break;
+>  			}
+> -			/* else unknown */
+> +			/* Else, fall through */
+>  		default:
+>  			dev_kfree_skb_any(skb);
+>  			QETH_CARD_TEXT(card, 3, "inbunkno");
+> -- 
+> 2.22.0
+> 
+
 -- 
-2.21.0
+Kees Cook
