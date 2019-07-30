@@ -1,247 +1,300 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41720 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1900 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729340AbfGaWld (ORCPT
+        by vger.kernel.org with ESMTP id S1725974AbfG3PtW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 18:41:33 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v5 2/7] s390: zcrypt: driver callback to indicate resource in use
-Date: Wed, 31 Jul 2019 18:41:12 -0400
-Message-Id: <1564612877-7598-3-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
+        Tue, 30 Jul 2019 11:49:22 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x6UFlLMW074473
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jul 2019 11:49:21 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2u2r94sqcy-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 30 Jul 2019 11:49:20 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Tue, 30 Jul 2019 16:49:19 +0100
+Date: Tue, 30 Jul 2019 17:49:10 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH RFC UNTESTED] vfio-ccw: indirect access to translated
+ cps
+In-Reply-To: <20190726100617.19718-1-cohuck@redhat.com>
+References: <20190726100617.19718-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20190730174910.47930494.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Introduces a new driver callback to prevent a root user from unbinding
-an AP queue from its device driver if the queue is in use. This prevents
-a root user from inadvertently taking a queue away from a guest and
-giving it to the host, or vice versa. The callback will be invoked
-whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
-result in one or more AP queues being removed from its driver. If the
-callback responds in the affirmative for any driver queried, the change
-to the apmask or aqmask will be rejected with a device in use error.
+On Fri, 26 Jul 2019 12:06:17 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-For this patch, only non-default drivers will be queried. Currently,
-there is only one non-default driver, the vfio_ap device driver. The
-vfio_ap device driver manages AP queues passed through to one or more
-guests and we don't want to unexpectedly take AP resources away from
-guests which are most likely independently administered.
+> We're currently keeping a single area for translated channel
+> programs in our private structure, which is filled out when
+> we are translating a channel program we have been given by
+> user space and marked invalid again when we received an final
+> interrupt for that I/O.
+> 
+> Unfortunately, properly tracking the lifetime of that cp is
+> not easy: failures may happen during translation or right when
+> it is sent to the hardware, unsolicited interrupts may trigger
+> a deferred condition code, a halt/clear request may be issued
+> while the I/O is supposed to be running, or a reset request may
+> come in from the side. The _PROCESSING state and the ->initialized
+> flag help a bit, but not enough.
+> 
+> We want to have a way to figure out whether we actually have a cp
+> currently in progress, so we can update/free only when applicable.
+> Points to keep in mind:
+> - We will get an interrupt after a cp has been submitted iff ssch
+>   finished with cc 0.
+> - We will get more interrupts for a cp if the interrupt status is
+>   not final.
+> - We can have only one cp in flight at a time.
+> 
+> Let's decouple the actual area in the private structure from the
+> means to access it: Only after we have successfully submitted a
+> cp (ssch with cc 0), update the pointer in the private structure
+> to point to the area used. Therefore, the interrupt handler won't
+> access the cp if we don't actually expect an interrupt pertaining
+> to it.
+> 
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+> 
+> Just hacked this up to get some feedback, did not actually try it
+> out. Not even sure if this is a sensible approach; if not, let's
+> blame it on the heat and pretend it didn't happen :)
+> 
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/ap_bus.c | 137 +++++++++++++++++++++++++++++++++++++++++--
- drivers/s390/crypto/ap_bus.h |   3 +
- 2 files changed, 134 insertions(+), 6 deletions(-)
+Do not multiple threads access this new cp pointer (and at least one of
+them writes)? If that is the case, it smells like a data race to me.
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index a76b8a8bcbbb..8d0877c821b0 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <linux/module.h>
- 
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -997,9 +998,11 @@ int ap_parse_mask_str(const char *str,
- 	newmap = kmalloc(size, GFP_KERNEL);
- 	if (!newmap)
- 		return -ENOMEM;
--	if (mutex_lock_interruptible(lock)) {
--		kfree(newmap);
--		return -ERESTARTSYS;
-+	if (lock) {
-+		if (mutex_lock_interruptible(lock)) {
-+			kfree(newmap);
-+			return -ERESTARTSYS;
-+		}
- 	}
- 
- 	if (*str == '+' || *str == '-') {
-@@ -1011,7 +1014,10 @@ int ap_parse_mask_str(const char *str,
- 	}
- 	if (rc == 0)
- 		memcpy(bitmap, newmap, size);
--	mutex_unlock(lock);
-+
-+	if (lock)
-+		mutex_unlock(lock);
-+
- 	kfree(newmap);
- 	return rc;
- }
-@@ -1198,12 +1204,71 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+int __verify_card_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newapm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify cards reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(newapm, ap_perms.aqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int apmask_commit(unsigned long *newapm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	/*
-+	 * Check if any bits in the apmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_card_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.apm, newapm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t apmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	unsigned long newapm[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
- 
--	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
-+	memcpy(newapm, ap_perms.apm, APMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newapm, AP_DEVICES, NULL);
-+	if (rc)
-+		return rc;
-+
-+	rc = apmask_commit(newapm);
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-@@ -1229,12 +1294,72 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+int __verify_queue_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newaqm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify queues reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(ap_perms.apm, newaqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int aqmask_commit(unsigned long *newaqm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
-+
-+	/*
-+	 * Check if any bits in the aqmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_queue_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.aqm, newaqm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	unsigned long newaqm[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	memcpy(newaqm, ap_perms.aqm, AQMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newaqm, AP_DOMAINS, NULL);
-+	if (rc)
-+		return rc;
-+
-+	rc = aqmask_commit(newaqm);
-+	mutex_unlock(&ap_perms_mutex);
- 
--	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 6f3cf37776ca..0f865c5545f2 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -137,6 +137,7 @@ struct ap_driver {
- 	void (*remove)(struct ap_device *);
- 	void (*suspend)(struct ap_device *);
- 	void (*resume)(struct ap_device *);
-+	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
- };
- 
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-@@ -265,6 +266,8 @@ void ap_queue_reinit_state(struct ap_queue *aq);
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
- 
-+#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
-+#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
- struct ap_perms {
- 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
- 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
--- 
-2.7.4
+Besides the only point of converting cp to a pointer seems to be
+policing access to cp_area (which used to be cp). I.e. if it is
+NULL: don't touch it, otherwise: go ahead. We can do that with a single
+bit, we don't need a pointer for that.
+
+Could we convert initialized into some sort of cp.status that
+tracks/controls access and responsibilities? By working with bits we
+could benefit from the atomicity of bit-ops -- if I'm not wrong.
+
+> I also thought about having *two* translation areas and switching
+> the pointer between them; this might be too complicated, though?
+
+We only have one channel program at a time or? I can't see the benefit
+of having two areas.
+
+Sorry I didn't intend to open a huge discussion, as I'm on vacation
+starting Thursday -- means expect delays. If the rest of the bunch
+happens to see this differently, please feel free to not seek my consent.
+
+Regards,
+Halil
+
+
+> 
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c     | 19 +++++++++++--------
+>  drivers/s390/cio/vfio_ccw_fsm.c     | 25 +++++++++++++++++--------
+>  drivers/s390/cio/vfio_ccw_ops.c     | 11 +++++++----
+>  drivers/s390/cio/vfio_ccw_private.h |  6 ++++--
+>  4 files changed, 39 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 9208c0e56c33..059b88c94378 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -86,10 +86,13 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+>  
+>  	is_final = !(scsw_actl(&irb->scsw) &
+>  		     (SCSW_ACTL_DEVACT | SCSW_ACTL_SCHACT));
+> -	if (scsw_is_solicited(&irb->scsw)) {
+> -		cp_update_scsw(&private->cp, &irb->scsw);
+> -		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING)
+> -			cp_free(&private->cp);
+> +	if (scsw_is_solicited(&irb->scsw) && private->cp) {
+> +		cp_update_scsw(private->cp, &irb->scsw);
+> +		if (is_final && private->state == VFIO_CCW_STATE_CP_PENDING) {
+> +			struct channel_program *cp = private->cp;
+> +			private->cp = NULL;
+> +			cp_free(cp);
+> +		}
+>  	}
+>  	mutex_lock(&private->io_mutex);
+>  	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+> @@ -129,9 +132,9 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>  	if (!private)
+>  		return -ENOMEM;
+>  
+> -	private->cp.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
+> +	private->cp_area.guest_cp = kcalloc(CCWCHAIN_LEN_MAX, sizeof(struct ccw1),
+>  				       GFP_KERNEL);
+> -	if (!private->cp.guest_cp)
+> +	if (!private->cp_area.guest_cp)
+>  		goto out_free;
+>  
+>  	private->io_region = kmem_cache_zalloc(vfio_ccw_io_region,
+> @@ -174,7 +177,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>  		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+>  	if (private->io_region)
+>  		kmem_cache_free(vfio_ccw_io_region, private->io_region);
+> -	kfree(private->cp.guest_cp);
+> +	kfree(private->cp_area.guest_cp);
+>  	kfree(private);
+>  	return ret;
+>  }
+> @@ -191,7 +194,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+>  
+>  	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+>  	kmem_cache_free(vfio_ccw_io_region, private->io_region);
+> -	kfree(private->cp.guest_cp);
+> +	kfree(private->cp_area.guest_cp);
+>  	kfree(private);
+>  
+>  	return 0;
+> diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+> index 49d9d3da0282..543d007ddc46 100644
+> --- a/drivers/s390/cio/vfio_ccw_fsm.c
+> +++ b/drivers/s390/cio/vfio_ccw_fsm.c
+> @@ -18,7 +18,8 @@
+>  #define CREATE_TRACE_POINTS
+>  #include "vfio_ccw_trace.h"
+>  
+> -static int fsm_io_helper(struct vfio_ccw_private *private)
+> +static int fsm_io_helper(struct vfio_ccw_private *private,
+> +			 struct channel_program *cp)
+>  {
+>  	struct subchannel *sch;
+>  	union orb *orb;
+> @@ -31,7 +32,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+>  
+>  	spin_lock_irqsave(sch->lock, flags);
+>  
+> -	orb = cp_get_orb(&private->cp, (u32)(addr_t)sch, sch->lpm);
+> +	orb = cp_get_orb(cp, (u32)(addr_t)sch, sch->lpm);
+>  	if (!orb) {
+>  		ret = -EIO;
+>  		goto out;
+> @@ -47,6 +48,7 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+>  		 */
+>  		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
+>  		ret = 0;
+> +		private->cp = cp;
+>  		private->state = VFIO_CCW_STATE_CP_PENDING;
+>  		break;
+>  	case 1:		/* Status pending */
+> @@ -236,31 +238,38 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+>  	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
+>  		orb = (union orb *)io_region->orb_area;
+>  
+> +		/* I/O already in progress? Should not happen (bug in FSM?). */
+> +		if (private->cp) {
+> +			io_region->ret_code = -EBUSY;
+> +			errstr = "cp in progress";
+> +			goto err_out;
+> +		}
+>  		/* Don't try to build a cp if transport mode is specified. */
+>  		if (orb->tm.b) {
+>  			io_region->ret_code = -EOPNOTSUPP;
+>  			errstr = "transport mode";
+>  			goto err_out;
+>  		}
+> -		io_region->ret_code = cp_init(&private->cp, mdev_dev(mdev),
+> -					      orb);
+> +		io_region->ret_code = cp_init(&private->cp_area,
+> +					      mdev_dev(mdev), orb);
+>  		if (io_region->ret_code) {
+>  			errstr = "cp init";
+>  			goto err_out;
+>  		}
+>  
+> -		io_region->ret_code = cp_prefetch(&private->cp);
+> +		io_region->ret_code = cp_prefetch(&private->cp_area);
+>  		if (io_region->ret_code) {
+>  			errstr = "cp prefetch";
+> -			cp_free(&private->cp);
+> +			cp_free(&private->cp_area);
+>  			goto err_out;
+>  		}
+>  
+>  		/* Start channel program and wait for I/O interrupt. */
+> -		io_region->ret_code = fsm_io_helper(private);
+> +		io_region->ret_code = fsm_io_helper(private,
+> +						    &private->cp_area);
+>  		if (io_region->ret_code) {
+>  			errstr = "cp fsm_io_helper";
+> -			cp_free(&private->cp);
+> +			cp_free(&private->cp_area);
+>  			goto err_out;
+>  		}
+>  		return;
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+> index 5eb61116ca6f..5ad6a7b672bd 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -58,13 +58,14 @@ static int vfio_ccw_mdev_notifier(struct notifier_block *nb,
+>  	if (action == VFIO_IOMMU_NOTIFY_DMA_UNMAP) {
+>  		struct vfio_iommu_type1_dma_unmap *unmap = data;
+>  
+> -		if (!cp_iova_pinned(&private->cp, unmap->iova))
+> +		if (!cp_iova_pinned(&private->cp_area, unmap->iova))
+>  			return NOTIFY_OK;
+>  
+>  		if (vfio_ccw_mdev_reset(private->mdev))
+>  			return NOTIFY_BAD;
+>  
+> -		cp_free(&private->cp);
+> +		private->cp = NULL;
+> +		cp_free(&private->cp_area);
+>  		return NOTIFY_OK;
+>  	}
+>  
+> @@ -139,7 +140,8 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+>  		/* The state will be NOT_OPER on error. */
+>  	}
+>  
+> -	cp_free(&private->cp);
+> +	private->cp = NULL;
+> +	cp_free(&private->cp_area);
+>  	private->mdev = NULL;
+>  	atomic_inc(&private->avail);
+>  
+> @@ -180,7 +182,8 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+>  		/* The state will be NOT_OPER on error. */
+>  	}
+>  
+> -	cp_free(&private->cp);
+> +	private->cp = NULL;
+> +	cp_free(&private->cp_area);
+>  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+>  				 &private->nb);
+>  
+> diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+> index f1092c3dc1b1..e792a20202c3 100644
+> --- a/drivers/s390/cio/vfio_ccw_private.h
+> +++ b/drivers/s390/cio/vfio_ccw_private.h
+> @@ -68,7 +68,8 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+>   * @region: additional regions for other subchannel operations
+>   * @cmd_region: MMIO region for asynchronous I/O commands other than START
+>   * @num_regions: number of additional regions
+> - * @cp: channel program for the current I/O operation
+> + * @cp_area: channel program memory area
+> + * @cp: pointer to channel program for the current I/O operation
+>   * @irb: irb info received from interrupt
+>   * @scsw: scsw info
+>   * @io_trigger: eventfd ctx for signaling userspace I/O results
+> @@ -87,7 +88,8 @@ struct vfio_ccw_private {
+>  	struct ccw_cmd_region	*cmd_region;
+>  	int num_regions;
+>  
+> -	struct channel_program	cp;
+> +	struct channel_program cp_area;
+> +	struct channel_program	*cp;
+>  	struct irb		irb;
+>  	union scsw		scsw;
+>  
