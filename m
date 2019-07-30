@@ -1,116 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54362 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726259AbfGaNAn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 09:00:43 -0400
-Date: Wed, 31 Jul 2019 15:00:37 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: microblaze HAVE_MEMBLOCK_NODE_MAP dependency (was Re: [PATCH v2 0/5]
- mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA)
-Message-ID: <20190731130037.GN9330@dhcp22.suse.cz>
-References: <20190712121223.GR29483@dhcp22.suse.cz>
- <20190712143730.au3662g4ua2tjudu@willie-the-truck>
- <20190712150007.GU29483@dhcp22.suse.cz>
- <730368c5-1711-89ae-e3ef-65418b17ddc9@os.amperecomputing.com>
- <20190730081415.GN9330@dhcp22.suse.cz>
- <20190731062420.GC21422@rapoport-lnx>
- <20190731080309.GZ9330@dhcp22.suse.cz>
- <20190731111422.GA14538@rapoport-lnx>
- <20190731114016.GI9330@dhcp22.suse.cz>
- <20190731122631.GB14538@rapoport-lnx>
+Received: from relay10.mail.gandi.net ([217.70.178.230]:40455 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726128AbfG3GM3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Jul 2019 02:12:29 -0400
+Subject: Re: [PATCH RESEND 0/8] Fix mmap base in bottom-up mmap
+References: <20190620050328.8942-1-alex@ghiti.fr>
+From: Alexandre Ghiti <alex@ghiti.fr>
+Message-ID: <175168c1-d25f-7a93-e19b-dbb6ae6289e1@ghiti.fr>
+Date: Tue, 30 Jul 2019 08:12:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731122631.GB14538@rapoport-lnx>
+In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: fr
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Hoan Tran OS <hoan@os.amperecomputing.com>, Will Deacon <will@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, "x86@kernel.org" <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Open Source Submission <patches@amperecomputing.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will.deacon@arm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Oscar Salvador <osalvador@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "David S . Miller" <davem@davemloft.net>, "willy@infradead.org" <willy@infradead.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
-On Wed 31-07-19 15:26:32, Mike Rapoport wrote:
-> On Wed, Jul 31, 2019 at 01:40:16PM +0200, Michal Hocko wrote:
-> > On Wed 31-07-19 14:14:22, Mike Rapoport wrote:
-> > > On Wed, Jul 31, 2019 at 10:03:09AM +0200, Michal Hocko wrote:
-> > > > On Wed 31-07-19 09:24:21, Mike Rapoport wrote:
-> > > > > [ sorry for a late reply too, somehow I missed this thread before ]
-> > > > > 
-> > > > > On Tue, Jul 30, 2019 at 10:14:15AM +0200, Michal Hocko wrote:
-> > > > > > [Sorry for a late reply]
-> > > > > > 
-> > > > > > On Mon 15-07-19 17:55:07, Hoan Tran OS wrote:
-> > > > > > > Hi,
-> > > > > > > 
-> > > > > > > On 7/12/19 10:00 PM, Michal Hocko wrote:
-> > > > > > [...]
-> > > > > > > > Hmm, I thought this was selectable. But I am obviously wrong here.
-> > > > > > > > Looking more closely, it seems that this is indeed only about
-> > > > > > > > __early_pfn_to_nid and as such not something that should add a config
-> > > > > > > > symbol. This should have been called out in the changelog though.
-> > > > > > > 
-> > > > > > > Yes, do you have any other comments about my patch?
-> > > > > > 
-> > > > > > Not really. Just make sure to explicitly state that
-> > > > > > CONFIG_NODES_SPAN_OTHER_NODES is only about __early_pfn_to_nid and that
-> > > > > > doesn't really deserve it's own config and can be pulled under NUMA.
-> > > > > > 
-> > > > > > > > Also while at it, does HAVE_MEMBLOCK_NODE_MAP fall into a similar
-> > > > > > > > bucket? Do we have any NUMA architecture that doesn't enable it?
-> > > > > > > > 
-> > > > > 
-> > > > > HAVE_MEMBLOCK_NODE_MAP makes huge difference in node/zone initialization
-> > > > > sequence so it's not only about a singe function.
-> > > > 
-> > > > The question is whether we want to have this a config option or enable
-> > > > it unconditionally for each NUMA system.
-> > > 
-> > > We can make it 'default NUMA', but we can't drop it completely because
-> > > microblaze uses sparse_memory_present_with_active_regions() which is
-> > > unavailable when HAVE_MEMBLOCK_NODE_MAP=n.
-> > 
-> > I suppose you mean that microblaze is using
-> > sparse_memory_present_with_active_regions even without CONFIG_NUMA,
-> > right?
-> 
-> Yes.
-> 
-> > I have to confess I do not understand that code. What is the deal
-> > with setting node id there?
-> 
-> The sparse_memory_present_with_active_regions() iterates over
-> memblock.memory regions and uses the node id of each region as the
-> parameter to memory_present(). The assumption here is that sometime before
-> each region was assigned a proper non-negative node id. 
-> 
-> microblaze uses device tree for memory enumeration and the current FDT code
-> does memblock_add() that implicitly sets nid in memblock.memory regions to -1.
-> 
-> So in order to have proper node id passed to memory_present() microblaze
-> has to call memblock_set_node() before it can use
-> sparse_memory_present_with_active_regions().
+On 6/20/19 7:03 AM, Alexandre Ghiti wrote:
+> This series fixes the fallback of the top-down mmap: in case of
+> failure, a bottom-up scheme can be tried as a last resort between
+> the top-down mmap base and the stack, hoping for a large unused stack
+> limit.
+>
+> Lots of architectures and even mm code start this fallback
+> at TASK_UNMAPPED_BASE, which is useless since the top-down scheme
+> already failed on the whole address space: instead, simply use
+> mmap_base.
+>
+> Along the way, it allows to get rid of of mmap_legacy_base and
+> mmap_compat_legacy_base from mm_struct.
+>
+> Note that arm and mips already implement this behaviour.
+>
+> Alexandre Ghiti (8):
+>    s390: Start fallback of top-down mmap at mm->mmap_base
+>    sh: Start fallback of top-down mmap at mm->mmap_base
+>    sparc: Start fallback of top-down mmap at mm->mmap_base
+>    x86, hugetlbpage: Start fallback of top-down mmap at mm->mmap_base
+>    mm: Start fallback top-down mmap at mm->mmap_base
+>    parisc: Use mmap_base, not mmap_legacy_base, as low_limit for
+>      bottom-up mmap
+>    x86: Use mmap_*base, not mmap_*legacy_base, as low_limit for bottom-up
+>      mmap
+>    mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from
+>      mm_struct
+>
+>   arch/parisc/kernel/sys_parisc.c  |  8 +++-----
+>   arch/s390/mm/mmap.c              |  2 +-
+>   arch/sh/mm/mmap.c                |  2 +-
+>   arch/sparc/kernel/sys_sparc_64.c |  2 +-
+>   arch/sparc/mm/hugetlbpage.c      |  2 +-
+>   arch/x86/include/asm/elf.h       |  2 +-
+>   arch/x86/kernel/sys_x86_64.c     |  4 ++--
+>   arch/x86/mm/hugetlbpage.c        |  7 ++++---
+>   arch/x86/mm/mmap.c               | 20 +++++++++-----------
+>   include/linux/mm_types.h         |  2 --
+>   mm/debug.c                       |  4 ++--
+>   mm/mmap.c                        |  2 +-
+>   12 files changed, 26 insertions(+), 31 deletions(-)
+>
 
-I am sorry, but I still do not follow. Who is consuming that node id
-information when NUMA=n. In other words why cannot we simply do
+Hi everyone,
 
-diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
-index a015a951c8b7..3a47e8db8d1c 100644
---- a/arch/microblaze/mm/init.c
-+++ b/arch/microblaze/mm/init.c
-@@ -175,14 +175,9 @@ void __init setup_memory(void)
- 
- 		start_pfn = memblock_region_memory_base_pfn(reg);
- 		end_pfn = memblock_region_memory_end_pfn(reg);
--		memblock_set_node(start_pfn << PAGE_SHIFT,
--				  (end_pfn - start_pfn) << PAGE_SHIFT,
--				  &memblock.memory, 0);
-+		memory_present(0, start_pfn << PAGE_SHIFT, end_pfn << PAGE_SHIFT);
- 	}
- 
--	/* XXX need to clip this if using highmem? */
--	sparse_memory_present_with_active_regions(0);
--
- 	paging_init();
- }
- 
--- 
-Michal Hocko
-SUSE Labs
+This is just a preparatory series for the merging of x86 mmap top-down 
+functions with
+the generic ones (those should get into v5.3), if you could take some 
+time to take a look,
+that would be great :)
+
+Thanks,
+
+Alex
