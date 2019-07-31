@@ -1,303 +1,361 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-io1-f66.google.com ([209.85.166.66]:36489 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725816AbfGIRCu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jul 2019 13:02:50 -0400
-Date: Tue, 9 Jul 2019 11:02:45 -0600
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v1 01/22] docs: Documentation/*.txt: rename all ReST
- files to *.rst
-Message-ID: <20190709170245.GA7073@bogus>
-References: <cover.1560891322.git.mchehab+samsung@kernel.org>
- <6b6b6db8d6de9b66223dd6d4b43eb60ead4c71d7.1560891322.git.mchehab+samsung@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6b6b6db8d6de9b66223dd6d4b43eb60ead4c71d7.1560891322.git.mchehab+samsung@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42472 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729651AbfGaWlk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 31 Jul 2019 18:41:40 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v5 4/7] s390: vfio-ap: allow assignment of unavailable AP resources to mdev device
+Date: Wed, 31 Jul 2019 18:41:14 -0400
+Message-Id: <1564612877-7598-5-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-fbdev@vger.kernel.org, linux-ia64@vger.kernel.org, kvm@vger.kernel.org, linux-sh@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, platform-driver-x86@vger.kernel.org, kernel-hardening@lists.openwall.com, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, x86@kernel.org, linux-security-module@vger.kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-block@vger.kernel.org, linux-gpio@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org, linaro-mm-sig@lists.linaro.org, linux-parisc@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, linux-crypto@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-On Tue, Jun 18, 2019 at 06:05:25PM -0300, Mauro Carvalho Chehab wrote:
-> Those files are actually at ReST format. Ok, currently, they
-> don't belong to any place yet at the organized book series,
-> but we don't want patches to break them as ReST files. So,
-> rename them and add a :orphan: in order to shut up warning
-> messages like those:
-> 
-> ...
->     Documentation/svga.rst: WARNING: document isn't included in any toctree
->     Documentation/switchtec.rst: WARNING: document isn't included in any toctree
-> ...
-> 
-> Later patches will move them to a better place and remove the
-> :orphan: markup.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> ---
-> 
-> I had to remove the long list of maintainers got by
-> getpatch.pl, as it was too long. I opted to keep only the
-> mailing lists.
-> 
->  Documentation/ABI/removed/sysfs-class-rfkill  |  2 +-
->  Documentation/ABI/stable/sysfs-class-rfkill   |  2 +-
->  Documentation/ABI/stable/sysfs-devices-node   |  2 +-
->  Documentation/ABI/testing/procfs-diskstats    |  2 +-
->  Documentation/ABI/testing/sysfs-block         |  2 +-
->  .../ABI/testing/sysfs-class-switchtec         |  2 +-
->  .../ABI/testing/sysfs-devices-system-cpu      |  4 +-
->  .../{DMA-API-HOWTO.txt => DMA-API-HOWTO.rst}  |  2 +
->  Documentation/{DMA-API.txt => DMA-API.rst}    |  8 ++-
->  .../{DMA-ISA-LPC.txt => DMA-ISA-LPC.rst}      |  4 +-
->  ...{DMA-attributes.txt => DMA-attributes.rst} |  2 +
->  Documentation/{IPMI.txt => IPMI.rst}          |  2 +
->  .../{IRQ-affinity.txt => IRQ-affinity.rst}    |  2 +
->  .../{IRQ-domain.txt => IRQ-domain.rst}        |  2 +
->  Documentation/{IRQ.txt => IRQ.rst}            |  2 +
->  .../{Intel-IOMMU.txt => Intel-IOMMU.rst}      |  2 +
->  Documentation/PCI/pci.rst                     |  8 +--
->  Documentation/{SAK.txt => SAK.rst}            |  3 +-
->  Documentation/{SM501.txt => SM501.rst}        |  2 +
->  Documentation/admin-guide/hw-vuln/l1tf.rst    |  2 +-
->  .../admin-guide/kernel-parameters.txt         |  4 +-
->  .../{atomic_bitops.txt => atomic_bitops.rst}  |  3 +-
->  Documentation/block/biodoc.txt                |  2 +-
->  .../{bt8xxgpio.txt => bt8xxgpio.rst}          |  3 +-
->  Documentation/{btmrvl.txt => btmrvl.rst}      |  2 +
->  ...-mapping.txt => bus-virt-phys-mapping.rst} | 54 +++++++++---------
->  ...g-warn-once.txt => clearing-warn-once.rst} |  2 +
->  Documentation/{cpu-load.txt => cpu-load.rst}  |  2 +
->  .../{cputopology.txt => cputopology.rst}      |  2 +
->  Documentation/{crc32.txt => crc32.rst}        |  2 +
->  Documentation/{dcdbas.txt => dcdbas.rst}      |  2 +
->  ...ging-modules.txt => debugging-modules.rst} |  2 +
->  ...hci1394.txt => debugging-via-ohci1394.rst} |  2 +
->  Documentation/{dell_rbu.txt => dell_rbu.rst}  |  3 +-
->  Documentation/device-mapper/statistics.rst    |  4 +-
->  .../devicetree/bindings/phy/phy-bindings.txt  |  2 +-
+The AP architecture does not preclude assignment of AP resources that are
+not available. Let's go ahead and implement this facet of the AP
+architecture for linux guests.
 
-Acked-by: Rob Herring <robh@kernel.org>
+The current implementation does not allow assignment of AP adapters or
+domains to an mdev device if the APQNs resulting from the assignment
+reference AP queue devices that are not bound to the vfio_ap device
+driver. This patch allows assignment of AP resources to the mdev device as
+long as the APQNs resulting from the assignment are not reserved by the AP
+BUS for use by the zcrypt device drivers and the APQNs are not assigned to
+another mdev device.
 
->  Documentation/{digsig.txt => digsig.rst}      |  2 +
->  Documentation/driver-api/usb/dma.rst          |  6 +-
->  Documentation/driver-model/device.rst         |  2 +-
->  Documentation/{efi-stub.txt => efi-stub.rst}  |  2 +
->  Documentation/{eisa.txt => eisa.rst}          |  2 +
->  Documentation/fb/vesafb.rst                   |  2 +-
->  Documentation/filesystems/sysfs.txt           |  2 +-
->  ...ex-requeue-pi.txt => futex-requeue-pi.rst} |  2 +
->  .../{gcc-plugins.txt => gcc-plugins.rst}      |  2 +
->  Documentation/gpu/drm-mm.rst                  |  2 +-
->  Documentation/{highuid.txt => highuid.rst}    |  4 +-
->  .../{hw_random.txt => hw_random.rst}          |  2 +
->  .../{hwspinlock.txt => hwspinlock.rst}        |  2 +
->  Documentation/ia64/irq-redir.rst              |  2 +-
->  .../{intel_txt.txt => intel_txt.rst}          |  2 +
->  .../{io-mapping.txt => io-mapping.rst}        |  2 +
->  .../{io_ordering.txt => io_ordering.rst}      |  2 +
->  Documentation/{iostats.txt => iostats.rst}    |  2 +
->  ...flags-tracing.txt => irqflags-tracing.rst} |  3 +-
->  Documentation/{isa.txt => isa.rst}            |  2 +
->  Documentation/{isapnp.txt => isapnp.rst}      |  2 +
->  ...hreads.txt => kernel-per-CPU-kthreads.rst} |  4 +-
->  Documentation/{kobject.txt => kobject.rst}    |  6 +-
->  Documentation/{kprobes.txt => kprobes.rst}    |  3 +-
->  Documentation/{kref.txt => kref.rst}          |  2 +
->  Documentation/laptops/thinkpad-acpi.rst       |  6 +-
->  Documentation/{ldm.txt => ldm.rst}            |  5 +-
->  Documentation/locking/rt-mutex.rst            |  2 +-
->  ...kup-watchdogs.txt => lockup-watchdogs.rst} |  2 +
->  Documentation/{lsm.txt => lsm.rst}            |  2 +
->  Documentation/{lzo.txt => lzo.rst}            |  2 +
->  Documentation/{mailbox.txt => mailbox.rst}    |  2 +
->  Documentation/memory-barriers.txt             |  6 +-
->  ...hameleon-bus.txt => men-chameleon-bus.rst} |  2 +
->  Documentation/networking/scaling.rst          |  4 +-
->  .../{nommu-mmap.txt => nommu-mmap.rst}        |  2 +
->  Documentation/{ntb.txt => ntb.rst}            |  2 +
->  Documentation/{numastat.txt => numastat.rst}  |  3 +-
->  Documentation/{padata.txt => padata.rst}      |  2 +
->  ...port-lowlevel.txt => parport-lowlevel.rst} |  2 +
->  ...-semaphore.txt => percpu-rw-semaphore.rst} |  2 +
->  Documentation/{phy.txt => phy.rst}            |  2 +
->  Documentation/{pi-futex.txt => pi-futex.rst}  |  2 +
->  Documentation/{pnp.txt => pnp.rst}            | 13 +++--
->  ...reempt-locking.txt => preempt-locking.rst} |  4 +-
->  Documentation/{pwm.txt => pwm.rst}            |  2 +
->  Documentation/{rbtree.txt => rbtree.rst}      | 54 +++++++++---------
->  .../{remoteproc.txt => remoteproc.rst}        |  4 +-
->  Documentation/{rfkill.txt => rfkill.rst}      |  2 +
->  ...ust-futex-ABI.txt => robust-futex-ABI.rst} |  2 +
->  ...{robust-futexes.txt => robust-futexes.rst} |  2 +
->  Documentation/{rpmsg.txt => rpmsg.rst}        |  2 +
->  Documentation/{rtc.txt => rtc.rst}            |  8 ++-
->  Documentation/s390/vfio-ccw.rst               |  6 +-
->  Documentation/{sgi-ioc4.txt => sgi-ioc4.rst}  |  2 +
->  Documentation/{siphash.txt => siphash.rst}    |  2 +
->  .../{smsc_ece1099.txt => smsc_ece1099.rst}    |  2 +
->  .../{speculation.txt => speculation.rst}      |  2 +
->  .../{static-keys.txt => static-keys.rst}      |  2 +
->  Documentation/{svga.txt => svga.rst}          |  2 +
->  .../{switchtec.txt => switchtec.rst}          |  4 +-
->  .../{sync_file.txt => sync_file.rst}          |  2 +
->  Documentation/sysctl/kernel.txt               |  4 +-
->  Documentation/sysctl/vm.txt                   |  2 +-
->  Documentation/{tee.txt => tee.rst}            |  2 +
->  .../{this_cpu_ops.txt => this_cpu_ops.rst}    |  2 +
->  Documentation/trace/kprobetrace.rst           |  2 +-
->  .../translations/ko_KR/memory-barriers.txt    |  6 +-
->  Documentation/translations/zh_CN/IRQ.txt      |  4 +-
->  .../translations/zh_CN/filesystems/sysfs.txt  |  2 +-
->  .../translations/zh_CN/io_ordering.txt        |  4 +-
->  ...access.txt => unaligned-memory-access.rst} |  2 +
->  ...ed-device.txt => vfio-mediated-device.rst} |  4 +-
->  Documentation/{vfio.txt => vfio.rst}          |  2 +
->  .../{video-output.txt => video-output.rst}    |  3 +-
->  Documentation/watchdog/hpwdt.rst              |  2 +-
->  Documentation/x86/topology.rst                |  2 +-
->  Documentation/{xillybus.txt => xillybus.rst}  |  2 +
->  Documentation/{xz.txt => xz.rst}              |  2 +
->  Documentation/{zorro.txt => zorro.rst}        |  7 ++-
->  MAINTAINERS                                   | 56 +++++++++----------
->  arch/Kconfig                                  |  4 +-
->  arch/arm/Kconfig                              |  2 +-
->  arch/ia64/hp/common/sba_iommu.c               | 12 ++--
->  arch/ia64/sn/pci/pci_dma.c                    |  4 +-
->  arch/parisc/Kconfig                           |  2 +-
->  arch/parisc/kernel/pci-dma.c                  |  2 +-
->  arch/sh/Kconfig                               |  2 +-
->  arch/sparc/Kconfig                            |  2 +-
->  arch/unicore32/include/asm/io.h               |  2 +-
->  arch/x86/Kconfig                              |  4 +-
->  arch/x86/include/asm/dma-mapping.h            |  4 +-
->  arch/x86/kernel/amd_gart_64.c                 |  2 +-
->  block/partitions/Kconfig                      |  2 +-
->  drivers/base/core.c                           |  2 +-
->  drivers/char/Kconfig                          |  4 +-
->  drivers/char/hw_random/core.c                 |  2 +-
->  drivers/char/ipmi/Kconfig                     |  2 +-
->  drivers/char/ipmi/ipmi_si_hotmod.c            |  2 +-
->  drivers/char/ipmi/ipmi_si_intf.c              |  2 +-
->  drivers/dma-buf/Kconfig                       |  2 +-
->  drivers/gpio/Kconfig                          |  2 +-
->  drivers/parisc/sba_iommu.c                    | 16 +++---
->  drivers/pci/switch/Kconfig                    |  2 +-
->  drivers/platform/x86/Kconfig                  |  4 +-
->  drivers/platform/x86/dcdbas.c                 |  2 +-
->  drivers/platform/x86/dell_rbu.c               |  2 +-
->  drivers/pnp/isapnp/Kconfig                    |  2 +-
->  drivers/vfio/Kconfig                          |  2 +-
->  drivers/vfio/mdev/Kconfig                     |  2 +-
->  include/asm-generic/bitops/atomic.h           |  2 +-
->  include/linux/dma-mapping.h                   |  2 +-
->  include/linux/hw_random.h                     |  2 +-
->  include/linux/io-mapping.h                    |  2 +-
->  include/linux/jump_label.h                    |  2 +-
->  include/linux/kobject.h                       |  2 +-
->  include/linux/kobject_ns.h                    |  2 +-
->  include/linux/rbtree.h                        |  2 +-
->  include/linux/rbtree_augmented.h              |  2 +-
->  include/media/videobuf-dma-sg.h               |  2 +-
->  init/Kconfig                                  |  2 +-
->  kernel/dma/debug.c                            |  2 +-
->  kernel/padata.c                               |  2 +-
->  lib/Kconfig                                   |  2 +-
->  lib/Kconfig.debug                             |  2 +-
->  lib/crc32.c                                   |  2 +-
->  lib/kobject.c                                 |  4 +-
->  lib/lzo/lzo1x_decompress_safe.c               |  2 +-
->  lib/xz/Kconfig                                |  2 +-
->  mm/Kconfig                                    |  2 +-
->  mm/nommu.c                                    |  2 +-
->  samples/kprobes/kprobe_example.c              |  2 +-
->  samples/kprobes/kretprobe_example.c           |  2 +-
->  scripts/gcc-plugins/Kconfig                   |  2 +-
->  security/Kconfig                              |  2 +-
->  tools/include/linux/rbtree.h                  |  2 +-
->  tools/include/linux/rbtree_augmented.h        |  2 +-
->  173 files changed, 397 insertions(+), 242 deletions(-)
->  rename Documentation/{DMA-API-HOWTO.txt => DMA-API-HOWTO.rst} (99%)
->  rename Documentation/{DMA-API.txt => DMA-API.rst} (99%)
->  rename Documentation/{DMA-ISA-LPC.txt => DMA-ISA-LPC.rst} (98%)
->  rename Documentation/{DMA-attributes.txt => DMA-attributes.rst} (99%)
->  rename Documentation/{IPMI.txt => IPMI.rst} (99%)
->  rename Documentation/{IRQ-affinity.txt => IRQ-affinity.rst} (99%)
->  rename Documentation/{IRQ-domain.txt => IRQ-domain.rst} (99%)
->  rename Documentation/{IRQ.txt => IRQ.rst} (99%)
->  rename Documentation/{Intel-IOMMU.txt => Intel-IOMMU.rst} (99%)
->  rename Documentation/{SAK.txt => SAK.rst} (99%)
->  rename Documentation/{SM501.txt => SM501.rst} (99%)
->  rename Documentation/{atomic_bitops.txt => atomic_bitops.rst} (99%)
->  rename Documentation/{bt8xxgpio.txt => bt8xxgpio.rst} (99%)
->  rename Documentation/{btmrvl.txt => btmrvl.rst} (99%)
->  rename Documentation/{bus-virt-phys-mapping.txt => bus-virt-phys-mapping.rst} (93%)
->  rename Documentation/{clearing-warn-once.txt => clearing-warn-once.rst} (96%)
->  rename Documentation/{cpu-load.txt => cpu-load.rst} (99%)
->  rename Documentation/{cputopology.txt => cputopology.rst} (99%)
->  rename Documentation/{crc32.txt => crc32.rst} (99%)
->  rename Documentation/{dcdbas.txt => dcdbas.rst} (99%)
->  rename Documentation/{debugging-modules.txt => debugging-modules.rst} (98%)
->  rename Documentation/{debugging-via-ohci1394.txt => debugging-via-ohci1394.rst} (99%)
->  rename Documentation/{dell_rbu.txt => dell_rbu.rst} (99%)
->  rename Documentation/{digsig.txt => digsig.rst} (99%)
->  rename Documentation/{efi-stub.txt => efi-stub.rst} (99%)
->  rename Documentation/{eisa.txt => eisa.rst} (99%)
->  rename Documentation/{futex-requeue-pi.txt => futex-requeue-pi.rst} (99%)
->  rename Documentation/{gcc-plugins.txt => gcc-plugins.rst} (99%)
->  rename Documentation/{highuid.txt => highuid.rst} (99%)
->  rename Documentation/{hw_random.txt => hw_random.rst} (99%)
->  rename Documentation/{hwspinlock.txt => hwspinlock.rst} (99%)
->  rename Documentation/{intel_txt.txt => intel_txt.rst} (99%)
->  rename Documentation/{io-mapping.txt => io-mapping.rst} (99%)
->  rename Documentation/{io_ordering.txt => io_ordering.rst} (99%)
->  rename Documentation/{iostats.txt => iostats.rst} (99%)
->  rename Documentation/{irqflags-tracing.txt => irqflags-tracing.rst} (99%)
->  rename Documentation/{isa.txt => isa.rst} (99%)
->  rename Documentation/{isapnp.txt => isapnp.rst} (98%)
->  rename Documentation/{kernel-per-CPU-kthreads.txt => kernel-per-CPU-kthreads.rst} (99%)
->  rename Documentation/{kobject.txt => kobject.rst} (99%)
->  rename Documentation/{kprobes.txt => kprobes.rst} (99%)
->  rename Documentation/{kref.txt => kref.rst} (99%)
->  rename Documentation/{ldm.txt => ldm.rst} (98%)
->  rename Documentation/{lockup-watchdogs.txt => lockup-watchdogs.rst} (99%)
->  rename Documentation/{lsm.txt => lsm.rst} (99%)
->  rename Documentation/{lzo.txt => lzo.rst} (99%)
->  rename Documentation/{mailbox.txt => mailbox.rst} (99%)
->  rename Documentation/{men-chameleon-bus.txt => men-chameleon-bus.rst} (99%)
->  rename Documentation/{nommu-mmap.txt => nommu-mmap.rst} (99%)
->  rename Documentation/{ntb.txt => ntb.rst} (99%)
->  rename Documentation/{numastat.txt => numastat.rst} (99%)
->  rename Documentation/{padata.txt => padata.rst} (99%)
->  rename Documentation/{parport-lowlevel.txt => parport-lowlevel.rst} (99%)
->  rename Documentation/{percpu-rw-semaphore.txt => percpu-rw-semaphore.rst} (99%)
->  rename Documentation/{phy.txt => phy.rst} (99%)
->  rename Documentation/{pi-futex.txt => pi-futex.rst} (99%)
->  rename Documentation/{pnp.txt => pnp.rst} (98%)
->  rename Documentation/{preempt-locking.txt => preempt-locking.rst} (99%)
->  rename Documentation/{pwm.txt => pwm.rst} (99%)
->  rename Documentation/{rbtree.txt => rbtree.rst} (94%)
->  rename Documentation/{remoteproc.txt => remoteproc.rst} (99%)
->  rename Documentation/{rfkill.txt => rfkill.rst} (99%)
->  rename Documentation/{robust-futex-ABI.txt => robust-futex-ABI.rst} (99%)
->  rename Documentation/{robust-futexes.txt => robust-futexes.rst} (99%)
->  rename Documentation/{rpmsg.txt => rpmsg.rst} (99%)
->  rename Documentation/{rtc.txt => rtc.rst} (99%)
->  rename Documentation/{sgi-ioc4.txt => sgi-ioc4.rst} (99%)
->  rename Documentation/{siphash.txt => siphash.rst} (99%)
->  rename Documentation/{smsc_ece1099.txt => smsc_ece1099.rst} (99%)
->  rename Documentation/{speculation.txt => speculation.rst} (99%)
->  rename Documentation/{static-keys.txt => static-keys.rst} (99%)
->  rename Documentation/{svga.txt => svga.rst} (99%)
->  rename Documentation/{switchtec.txt => switchtec.rst} (98%)
->  rename Documentation/{sync_file.txt => sync_file.rst} (99%)
->  rename Documentation/{tee.txt => tee.rst} (99%)
->  rename Documentation/{this_cpu_ops.txt => this_cpu_ops.rst} (99%)
->  rename Documentation/{unaligned-memory-access.txt => unaligned-memory-access.rst} (99%)
->  rename Documentation/{vfio-mediated-device.txt => vfio-mediated-device.rst} (99%)
->  rename Documentation/{vfio.txt => vfio.rst} (99%)
->  rename Documentation/{video-output.txt => video-output.rst} (99%)
->  rename Documentation/{xillybus.txt => xillybus.rst} (99%)
->  rename Documentation/{xz.txt => xz.rst} (99%)
->  rename Documentation/{zorro.txt => zorro.rst} (99%)
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 232 ++++++++------------------------------
+ 1 file changed, 46 insertions(+), 186 deletions(-)
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e9a6a7d8395d..360a16d025dd 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -406,122 +406,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
+ 	NULL,
+ };
+ 
+-struct vfio_ap_queue_reserved {
+-	unsigned long *apid;
+-	unsigned long *apqi;
+-	bool reserved;
+-};
+-
+-/**
+- * vfio_ap_has_queue
+- *
+- * @dev: an AP queue device
+- * @data: a struct vfio_ap_queue_reserved reference
+- *
+- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
+- * apid or apqi specified in @data:
+- *
+- * - If @data contains both an apid and apqi value, then @data will be flagged
+- *   as reserved if the APID and APQI fields for the AP queue device matches
+- *
+- * - If @data contains only an apid value, @data will be flagged as
+- *   reserved if the APID field in the AP queue device matches
+- *
+- * - If @data contains only an apqi value, @data will be flagged as
+- *   reserved if the APQI field in the AP queue device matches
+- *
+- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
+- * @data does not contain either an apid or apqi.
+- */
+-static int vfio_ap_has_queue(struct device *dev, void *data)
+-{
+-	struct vfio_ap_queue_reserved *qres = data;
+-	struct ap_queue *ap_queue = to_ap_queue(dev);
+-	ap_qid_t qid;
+-	unsigned long id;
+-
+-	if (qres->apid && qres->apqi) {
+-		qid = AP_MKQID(*qres->apid, *qres->apqi);
+-		if (qid == ap_queue->qid)
+-			qres->reserved = true;
+-	} else if (qres->apid && !qres->apqi) {
+-		id = AP_QID_CARD(ap_queue->qid);
+-		if (id == *qres->apid)
+-			qres->reserved = true;
+-	} else if (!qres->apid && qres->apqi) {
+-		id = AP_QID_QUEUE(ap_queue->qid);
+-		if (id == *qres->apqi)
+-			qres->reserved = true;
+-	} else {
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-/**
+- * vfio_ap_verify_queue_reserved
+- *
+- * @matrix_dev: a mediated matrix device
+- * @apid: an AP adapter ID
+- * @apqi: an AP queue index
+- *
+- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
+- * driver according to the following rules:
+- *
+- * - If both @apid and @apqi are not NULL, then there must be an AP queue
+- *   device bound to the vfio_ap driver with the APQN identified by @apid and
+- *   @apqi
+- *
+- * - If only @apid is not NULL, then there must be an AP queue device bound
+- *   to the vfio_ap driver with an APQN containing @apid
+- *
+- * - If only @apqi is not NULL, then there must be an AP queue device bound
+- *   to the vfio_ap driver with an APQN containing @apqi
+- *
+- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+- */
+-static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+-					 unsigned long *apqi)
+-{
+-	int ret;
+-	struct vfio_ap_queue_reserved qres;
+-
+-	qres.apid = apid;
+-	qres.apqi = apqi;
+-	qres.reserved = false;
+-
+-	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+-				     &qres, vfio_ap_has_queue);
+-	if (ret)
+-		return ret;
+-
+-	if (qres.reserved)
+-		return 0;
+-
+-	return -EADDRNOTAVAIL;
+-}
+-
+-static int
+-vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+-					     unsigned long apid)
+-{
+-	int ret;
+-	unsigned long apqi;
+-	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
+-
+-	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
+-		return vfio_ap_verify_queue_reserved(&apid, NULL);
+-
+-	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
+-		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+-		if (ret)
+-			return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ /**
+  * vfio_ap_mdev_verify_no_sharing
+  *
+@@ -529,17 +413,25 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+  * and AP queue indexes comprising the AP matrix are not configured for another
+  * mediated device. AP queue sharing is not allowed.
+  *
+- * @matrix_mdev: the mediated matrix device
++ * @mdev_apm: the mask identifying the adapters assigned to mdev
++ * @mdev_aqm: the mask identifying the domains (queues) assigned to mdev
+  *
+  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
+  */
+-static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
++static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
++					  unsigned long *mdev_apm,
++					  unsigned long *mdev_aqm)
+ {
+ 	struct ap_matrix_mdev *lstdev;
+ 	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 
+ 	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
++		/*
++		 * If either of the input masks belongs to the mdev to which an
++		 * AP resource is being assigned, then we don't need to verify
++		 * that mdev's masks.
++		 */
+ 		if (matrix_mdev == lstdev)
+ 			continue;
+ 
+@@ -550,12 +442,10 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+ 		 * We work on full longs, as we can only exclude the leftover
+ 		 * bits in non-inverse order. The leftover is all zeros.
+ 		 */
+-		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
+-				lstdev->matrix.apm, AP_DEVICES))
++		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
+ 			continue;
+ 
+-		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
+-				lstdev->matrix.aqm, AP_DOMAINS))
++		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
+ 			continue;
+ 
+ 		return -EADDRINUSE;
+@@ -564,6 +454,18 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+ 	return 0;
+ }
+ 
++static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
++				       unsigned long *apm, unsigned long *aqm)
++{
++	int ret;
++
++	ret = ap_apqn_in_matrix_owned_by_def_drv(apm, aqm);
++	if (ret)
++		return (ret == 1) ? -EADDRNOTAVAIL : ret;
++
++	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm, aqm);
++}
++
+ /**
+  * assign_adapter_store
+  *
+@@ -602,6 +504,7 @@ static ssize_t assign_adapter_store(struct device *dev,
+ {
+ 	int ret;
+ 	unsigned long apid;
++	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+@@ -616,32 +519,20 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 	if (apid > matrix_mdev->matrix.apm_max)
+ 		return -ENODEV;
+ 
+-	/*
+-	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
+-	 * number (APID). The bits in the mask, from most significant to least
+-	 * significant bit, correspond to APIDs 0-255.
+-	 */
+-	mutex_lock(&matrix_dev->lock);
+-
+-	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
+-	if (ret)
+-		goto done;
++	memset(apm, 0, sizeof(apm));
++	set_bit_inv(apid, apm);
+ 
++	mutex_lock(&matrix_dev->lock);
++	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
++					  matrix_mdev->matrix.aqm);
++	if (ret) {
++		mutex_unlock(&matrix_dev->lock);
++		return ret;
++	}
+ 	set_bit_inv(apid, matrix_mdev->matrix.apm);
+-
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+-	if (ret)
+-		goto share_err;
+-
+-	ret = count;
+-	goto done;
+-
+-share_err:
+-	clear_bit_inv(apid, matrix_mdev->matrix.apm);
+-done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+-	return ret;
++	return count;
+ }
+ static DEVICE_ATTR_WO(assign_adapter);
+ 
+@@ -690,26 +581,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ }
+ static DEVICE_ATTR_WO(unassign_adapter);
+ 
+-static int
+-vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+-					     unsigned long apqi)
+-{
+-	int ret;
+-	unsigned long apid;
+-	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
+-
+-	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
+-		return vfio_ap_verify_queue_reserved(NULL, &apqi);
+-
+-	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
+-		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+-		if (ret)
+-			return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ /**
+  * assign_domain_store
+  *
+@@ -748,6 +619,7 @@ static ssize_t assign_domain_store(struct device *dev,
+ {
+ 	int ret;
+ 	unsigned long apqi;
++	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
+@@ -762,27 +634,20 @@ static ssize_t assign_domain_store(struct device *dev,
+ 	if (apqi > max_apqi)
+ 		return -ENODEV;
+ 
+-	mutex_lock(&matrix_dev->lock);
+-
+-	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
+-	if (ret)
+-		goto done;
++	memset(aqm, 0, sizeof(aqm));
++	set_bit_inv(apqi, aqm);
+ 
++	mutex_lock(&matrix_dev->lock);
++	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
++					  aqm);
++	if (ret) {
++		mutex_unlock(&matrix_dev->lock);
++		return ret;
++	}
+ 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+-
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
+-	if (ret)
+-		goto share_err;
+-
+-	ret = count;
+-	goto done;
+-
+-share_err:
+-	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
+-done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+-	return ret;
++	return count;
+ }
+ static DEVICE_ATTR_WO(assign_domain);
+ 
+@@ -868,11 +733,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 	if (id > matrix_mdev->matrix.adm_max)
+ 		return -ENODEV;
+ 
+-	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+-	 * domain number (id). The bits in the mask, from most significant to
+-	 * least significant, correspond to IDs 0 up to the one less than the
+-	 * number of control domains that can be assigned.
+-	 */
+ 	mutex_lock(&matrix_dev->lock);
+ 	set_bit_inv(id, matrix_mdev->matrix.adm);
+ 	mutex_unlock(&matrix_dev->lock);
+-- 
+2.7.4
