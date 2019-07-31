@@ -1,106 +1,182 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33442 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:53152 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729620AbfGSEBm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:42 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 149/171] s390/dasd: Make layout analysis ESE compatible
-Date: Thu, 18 Jul 2019 23:56:20 -0400
-Message-Id: <20190719035643.14300-149-sashal@kernel.org>
-In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
-References: <20190719035643.14300-1-sashal@kernel.org>
+        id S1726219AbfGaPQW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 31 Jul 2019 11:16:22 -0400
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v3 3/3] KVM: selftests: Enable dirty_log_test on s390x
+Date: Wed, 31 Jul 2019 17:15:25 +0200
+Message-Id: <20190731151525.17156-4-thuth@redhat.com>
+In-Reply-To: <20190731151525.17156-1-thuth@redhat.com>
+References: <20190731151525.17156-1-thuth@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+To run the dirty_log_test on s390x, we have to make sure that we
+access the dirty log bitmap with little endian byte ordering and
+we have to properly align the memslot of the guest.
+Also all dirty bits of a segment are set once on s390x when one
+of the pages of a segment are written to for the first time, so
+we have to make sure that we touch all pages during the first
+iteration to keep the test in sync here.
+DEFAULT_GUEST_TEST_MEM needs an adjustment, too. On some s390x
+distributions, the ELF binary is linked to address 0x80000000,
+so we have to avoid that our test region overlaps into this area.
+0xc0000000 seems to be a good alternative that should work on x86
+and aarch64, too.
 
-[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
-
-The disk layout and volume information of a DASD reside in the first two
-tracks of cylinder 0. When a DASD is set online, currently the first
-three tracks are read and analysed to confirm an expected layout.
-
-For CDL (Compatible Disk Layout) only count area data of the first track
-is evaluated and checked against expected key and data lengths. For LDL
-(Linux Disk Layout) the first and third track is evaluated. However,
-an LDL formatted volume is expected to be in the same format across all
-tracks. Checking the third track therefore doesn't have any more value
-than checking any other track at random.
-
-Now, an Extent Space Efficient (ESE) DASD is initialised by only
-formatting the first two tracks, as those tracks always contain all
-information necessarry.
-
-Checking the third track on an ESE volume will therefore most likely
-fail with a record not found error, as the third track will be empty.
-This in turn leads to the device being recognised with a volume size of
-0. Attempts to write volume information on the first two tracks then
-fail with "no space left on device" errors.
-
-Initialising the first three tracks for an ESE volume is not a viable
-solution, because the third track is already a regular track and could
-contain user data. With that there is potential for data corruption.
-
-Instead, always only analyse the first two tracks, as it is sufficiant
-for both CDL and LDL, and allow ESE volumes to be recognised as well.
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
- drivers/s390/block/dasd_eckd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kvm/Makefile         |  1 +
+ tools/testing/selftests/kvm/dirty_log_test.c | 59 +++++++++++++++++---
+ 2 files changed, 53 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index c09039eea707..c7aec1b44b7c 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
- #define LABEL_SIZE 140
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 75ea1ecbf85a..1b48a94b4350 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -33,6 +33,7 @@ TEST_GEN_PROGS_aarch64 += dirty_log_test
+ TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
  
- /* head and record addresses of count_area read in analysis ccw */
--static const int count_area_head[] = { 0, 0, 0, 0, 2 };
-+static const int count_area_head[] = { 0, 0, 0, 0, 1 };
- static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
+ TEST_GEN_PROGS_s390x += s390x/sync_regs_test
++TEST_GEN_PROGS_s390x += dirty_log_test
+ TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
  
- static inline unsigned int
-@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 	if (IS_ERR(cqr))
- 		return cqr;
- 	ccw = cqr->cpaddr;
--	/* Define extent for the first 3 tracks. */
--	define_extent(ccw++, cqr->data, 0, 2,
-+	/* Define extent for the first 2 tracks. */
-+	define_extent(ccw++, cqr->data, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
- 	/* Locate record for the first 4 records on track 0. */
-@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 		count_data++;
- 	}
+ TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(UNAME_M))
+diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+index 5d5ae1be4984..dc3346e090f5 100644
+--- a/tools/testing/selftests/kvm/dirty_log_test.c
++++ b/tools/testing/selftests/kvm/dirty_log_test.c
+@@ -26,8 +26,8 @@
+ /* The memory slot index to track dirty pages */
+ #define TEST_MEM_SLOT_INDEX		1
  
--	/* Locate record for the first record on track 2. */
-+	/* Locate record for the first record on track 1. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
--	locate_record(ccw++, LO_data++, 2, 0, 1,
-+	locate_record(ccw++, LO_data++, 1, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	/* Read count ccw. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
-@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+-/* Default guest test memory offset, 1G */
+-#define DEFAULT_GUEST_TEST_MEM		0x40000000
++/* Default guest test virtual memory offset */
++#define DEFAULT_GUEST_TEST_MEM		0xc0000000
+ 
+ /* How many pages to dirty for each guest loop */
+ #define TEST_PAGES_PER_LOOP		1024
+@@ -38,6 +38,27 @@
+ /* Interval for each host loop (ms) */
+ #define TEST_HOST_LOOP_INTERVAL		10UL
+ 
++/* Dirty bitmaps are always little endian, so we need to swap on big endian */
++#if defined(__s390x__)
++# define BITOP_LE_SWIZZLE	((BITS_PER_LONG-1) & ~0x7)
++# define test_bit_le(nr, addr) \
++	test_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define set_bit_le(nr, addr) \
++	set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define clear_bit_le(nr, addr) \
++	clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define test_and_set_bit_le(nr, addr) \
++	test_and_set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define test_and_clear_bit_le(nr, addr) \
++	test_and_clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++#else
++# define test_bit_le		test_bit
++# define set_bit_le		set_bit
++# define clear_bit_le		clear_bit
++# define test_and_set_bit_le	test_and_set_bit
++# define test_and_clear_bit_le	test_and_clear_bit
++#endif
++
+ /*
+  * Guest/Host shared variables. Ensure addr_gva2hva() and/or
+  * sync_global_to/from_guest() are used when accessing from
+@@ -69,11 +90,23 @@ static uint64_t guest_test_virt_mem = DEFAULT_GUEST_TEST_MEM;
+  */
+ static void guest_code(void)
+ {
++	uint64_t addr;
+ 	int i;
+ 
++	/*
++	 * On s390x, all pages of a 1M segment are initially marked as dirty
++	 * when a page of the segment is written to for the very first time.
++	 * To compensate this specialty in this test, we need to touch all
++	 * pages during the first iteration.
++	 */
++	for (i = 0; i < guest_num_pages; i++) {
++		addr = guest_test_virt_mem + i * guest_page_size;
++		*(uint64_t *)addr = READ_ONCE(iteration);
++	}
++
+ 	while (true) {
+ 		for (i = 0; i < TEST_PAGES_PER_LOOP; i++) {
+-			uint64_t addr = guest_test_virt_mem;
++			addr = guest_test_virt_mem;
+ 			addr += (READ_ONCE(random_array[i]) % guest_num_pages)
+ 				* guest_page_size;
+ 			addr &= ~(host_page_size - 1);
+@@ -158,15 +191,15 @@ static void vm_dirty_log_verify(unsigned long *bmap)
+ 		value_ptr = host_test_mem + page * host_page_size;
+ 
+ 		/* If this is a special page that we were tracking... */
+-		if (test_and_clear_bit(page, host_bmap_track)) {
++		if (test_and_clear_bit_le(page, host_bmap_track)) {
+ 			host_track_next_count++;
+-			TEST_ASSERT(test_bit(page, bmap),
++			TEST_ASSERT(test_bit_le(page, bmap),
+ 				    "Page %"PRIu64" should have its dirty bit "
+ 				    "set in this iteration but it is missing",
+ 				    page);
+ 		}
+ 
+-		if (test_bit(page, bmap)) {
++		if (test_bit_le(page, bmap)) {
+ 			host_dirty_count++;
+ 			/*
+ 			 * If the bit is set, the value written onto
+@@ -209,7 +242,7 @@ static void vm_dirty_log_verify(unsigned long *bmap)
+ 				 * should report its dirtyness in the
+ 				 * next run
+ 				 */
+-				set_bit(page, host_bmap_track);
++				set_bit_le(page, host_bmap_track);
+ 			}
  		}
  	}
- 	if (i == 3)
--		count_area = &private->count_area[4];
-+		count_area = &private->count_area[3];
+@@ -293,6 +326,10 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+ 	 * case where the size is not aligned to 64 pages.
+ 	 */
+ 	guest_num_pages = (1ul << (30 - guest_page_shift)) + 16;
++#ifdef __s390x__
++	/* Round up to multiple of 1M (segment size) */
++	guest_num_pages = (guest_num_pages + 0xff) & ~0xffUL;
++#endif
+ 	host_page_size = getpagesize();
+ 	host_num_pages = (guest_num_pages * guest_page_size) / host_page_size +
+ 			 !!((guest_num_pages * guest_page_size) % host_page_size);
+@@ -304,6 +341,11 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+ 		guest_test_phys_mem = phys_offset;
+ 	}
  
- 	if (private->uses_cdl == 0) {
- 		for (i = 0; i < 5; i++) {
++#ifdef __s390x__
++	/* Align to 1M (segment size) */
++	guest_test_phys_mem &= ~((1 << 20) - 1);
++#endif
++
+ 	DEBUG("guest physical test memory offset: 0x%lx\n", guest_test_phys_mem);
+ 
+ 	bmap = bitmap_alloc(host_num_pages);
+@@ -454,6 +496,9 @@ int main(int argc, char *argv[])
+ 		vm_guest_mode_params_init(VM_MODE_P48V48_64K, true, true);
+ 	}
+ #endif
++#ifdef __s390x__
++	vm_guest_mode_params_init(VM_MODE_P40V48_4K, true, true);
++#endif
+ 
+ 	while ((opt = getopt(argc, argv, "hi:I:p:m:")) != -1) {
+ 		switch (opt) {
 -- 
-2.20.1
+2.21.0
