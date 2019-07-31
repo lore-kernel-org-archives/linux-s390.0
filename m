@@ -1,87 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4258 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726291AbfGBTuW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jul 2019 15:50:22 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x62Jkge9035841
-        for <linux-s390@vger.kernel.org>; Tue, 2 Jul 2019 15:50:20 -0400
-Received: from e12.ny.us.ibm.com (e12.ny.us.ibm.com [129.33.205.202])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2tgb3tp46x-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 02 Jul 2019 15:50:20 -0400
-Received: from localhost
-        by e12.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <walling@linux.ibm.com>;
-        Tue, 2 Jul 2019 20:50:19 +0100
-Subject: Re: [PATCH v5 2/2] s390/kvm: diagnose 318 handling
-References: <1561475022-18348-1-git-send-email-walling@linux.ibm.com>
- <1561475022-18348-3-git-send-email-walling@linux.ibm.com>
- <19c73246-48dd-ddc6-c5b1-b93f15cbf2f0@redhat.com>
- <17fe3423-91b1-2351-54cb-26cd9e1b0e3f@de.ibm.com>
- <dd1f4c39-9937-b223-adc8-01a764cf9462@linux.ibm.com>
- <a7f4b3aa-b9d8-59b3-22c4-251acc2ef20f@redhat.com>
-From: Collin Walling <walling@linux.ibm.com>
-Date: Tue, 2 Jul 2019 15:50:16 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49972 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727349AbfGaPsC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 31 Jul 2019 11:48:02 -0400
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 0/8] Raspberry Pi 4 DMA addressing support
+Date: Wed, 31 Jul 2019 17:47:43 +0200
+Message-Id: <20190731154752.16557-1-nsaenzjulienne@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <a7f4b3aa-b9d8-59b3-22c4-251acc2ef20f@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <ae6e3725-2d5e-3fc6-96bf-7875fb14d919@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, cohuck@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org
+Cc: phill@raspberryi.org, f.fainelli@gmail.com, will@kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, eric@anholt.net, mbrugger@suse.com, nsaenzjulienne@suse.de, akpm@linux-foundation.org, frowand.list@gmail.com, m.szyprowski@samsung.com, linux-rpi-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-On 6/26/19 10:31 AM, David Hildenbrand wrote:
-> On 26.06.19 16:30, Collin Walling wrote:
->> On 6/26/19 6:28 AM, Christian Borntraeger wrote:
->>>
->>>
->>> On 26.06.19 11:45, David Hildenbrand wrote:
->>>
->>>>
->>>> BTW. there is currently no mechanism to fake absence of diag318. Should
->>>> we have one? (in contrast, for CMMA we have, which is also a CPU feature)
->>>
->>> Yes, we want to be able to disable diag318 via a CPU model feature. That actually
->>> means that the kernel must not answer this if we disable it.
->>>
->> Correct. If the guest specifies diag318=off, then the instruction
->> shouldn't be executed (it is fenced off in the kernel by checking the
->> Read SCP Info bit).
-> 
-> But the guest *could* execute it and not get an exception.
-> 
+Hi all,
+this series attempts to address some issues we found while bringing up
+the new Raspberry Pi 4 in arm64 and it's intended to serve as a follow
+up of this discussion:
+https://lkml.org/lkml/2019/7/17/476
 
-IIUC, you're talking about the situation where QEMU supports diag318,
-but KVM does not. The worst case is the guest specifies diag318=on, and
-nothing will stop the guest from attempting to execute the instruction.
+The new Raspberry Pi 4 has up to 4GB of memory but most peripherals can
+only address the first GB: their DMA address range is
+0xc0000000-0xfc000000 which is aliased to the first GB of physical
+memory 0x00000000-0x3c000000. Note that only some peripherals have these
+limitations: the ARM cores, PCIe, V3D, GENET, and 40-bit DMA channels
+have a wider view of the address space.
 
-However, this is fenced in my QEMU patches. In (v5), I have this
-following snippet:
+Part of this is solved in arm32 by setting up the machine specific
+'.dma_zone_size = SZ_1G', which takes care of the allocating the
+coherent memory area at the right spot. Yet no buffer bouncing (needed
+for dma streaming) is available at the moment, but that's a story for
+another series.
 
-@@ -2323,6 +2345,13 @@ void kvm_s390_get_host_cpu_model(S390CPUModel 
-*model, Error **errp)
-          KVM_S390_VM_CRYPTO_ENABLE_APIE)) {
-          set_bit(S390_FEAT_AP, model->features);
-      }
-+
-+    /* if KVM supports interception of diag318, then let's provide the 
-bit */
-+    if (kvm_vm_check_attr(kvm_state, KVM_S390_VM_MISC,
-+        KVM_S390_VM_MISC_DIAG318)) {
-+        set_bit(S390_FEAT_DIAG318, model->features);
-+    }
-+
-      /* strip of features that are not part of the maximum model */
-      bitmap_and(model->features, model->features, model->def->full_feat,
-                 S390_FEAT_MAX);
+Unfortunately there is no such thing as '.dma_zone_size' in arm64 also
+only ZONE_DMA32 is created which is interpreted by dma-direct and the
+arm64 code as if all peripherals where be able to address the first 4GB
+of memory.
 
-If the guest specifies diag318=on, and KVM does *not* support emulation,
-then the following message will be observed:
+In the light of this, the series implements the following changes:
 
-qemu-system-s390x: Some features requested in the CPU model are not
-available in the configuration: diag318
+- Add code that parses the device-tree in oder to find the SoC's common
+  DMA area.
 
-and the guest will fail to start. Does this suffice?
+- Create a ZONE_DMA whenever that area is needed and add the rest of the
+  lower 4 GB of memory to ZONE_DMA32*.
+
+- Create the CMA area in a place suitable for all peripherals.
+
+- Inform dma-direct of the new runtime calculated min_mask*.
+
+That's all.
+
+Regards,
+Nicolas
+
+* These solutions where already discussed on the previous RFC (see link
+above).
+
+---
+
+Nicolas Saenz Julienne (8):
+  arm64: mm: use arm64_dma_phys_limit instead of calling
+    max_zone_dma_phys()
+  arm64: rename variables used to calculate ZONE_DMA32's size
+  of/fdt: add function to get the SoC wide DMA addressable memory size
+  arm64: re-introduce max_zone_dma_phys()
+  arm64: use ZONE_DMA on DMA addressing limited devices
+  dma-direct: turn ARCH_ZONE_DMA_BITS into a variable
+  arm64: update arch_zone_dma_bits to fine tune dma-direct min mask
+  mm: comment arm64's usage of 'enum zone_type'
+
+ arch/arm64/Kconfig              |  4 ++
+ arch/arm64/mm/init.c            | 78 ++++++++++++++++++++++++++-------
+ arch/powerpc/include/asm/page.h |  9 ----
+ arch/powerpc/mm/mem.c           | 14 +++++-
+ arch/s390/include/asm/page.h    |  2 -
+ arch/s390/mm/init.c             |  1 +
+ drivers/of/fdt.c                | 72 ++++++++++++++++++++++++++++++
+ include/linux/dma-direct.h      |  2 +
+ include/linux/mmzone.h          | 21 ++++-----
+ include/linux/of_fdt.h          |  2 +
+ kernel/dma/direct.c             |  8 ++--
+ 11 files changed, 168 insertions(+), 45 deletions(-)
+
+-- 
+2.22.0
