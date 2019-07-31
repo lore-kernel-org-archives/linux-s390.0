@@ -1,51 +1,122 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr740122.outbound.protection.outlook.com ([40.107.74.122]:20938
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728532AbfGKX0C (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 11 Jul 2019 19:26:02 -0400
-From: Hoan Tran OS <hoan@os.amperecomputing.com>
-Subject: [PATCH v2 3/5] x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-Date: Thu, 11 Jul 2019 23:25:51 +0000
-Message-ID: <1562887528-5896-4-git-send-email-Hoan@os.amperecomputing.com>
-References: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-In-Reply-To: <1562887528-5896-1-git-send-email-Hoan@os.amperecomputing.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v3 2/3] KVM: selftests: Implement ucall() for s390x
+Date: Wed, 31 Jul 2019 17:15:24 +0200
+Message-Id: <20190731151525.17156-3-thuth@redhat.com>
+In-Reply-To: <20190731151525.17156-1-thuth@redhat.com>
+References: <20190731151525.17156-1-thuth@redhat.com>
 MIME-Version: 1.0
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, "David S . Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Open Source Submission <patches@amperecomputing.com>, Hoan Tran OS <hoan@os.amperecomputing.com>
+To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
 
-Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled
-by default with NUMA.
+On s390x, we can neither exit via PIO nor MMIO, but have to use an
+instruction like DIAGNOSE. Now that ucall() is implemented, we can
+use it in the sync_reg_test on s390x, too.
 
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
- arch/x86/Kconfig | 9 ---------
- 1 file changed, 9 deletions(-)
+ tools/testing/selftests/kvm/Makefile          |  2 +-
+ tools/testing/selftests/kvm/lib/s390x/ucall.c | 56 +++++++++++++++++++
+ .../selftests/kvm/s390x/sync_regs_test.c      |  6 +-
+ 3 files changed, 61 insertions(+), 3 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 2bbbd4d..fa9318c 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1567,15 +1567,6 @@ config X86_64_ACPI_NUMA
- 	---help---
- 	  Enable ACPI SRAT based node topology detection.
-=20
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on X86_64_ACPI_NUMA
--
- config NUMA_EMU
- 	bool "NUMA emulation"
- 	depends on NUMA
---=20
-2.7.4
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index a51e3b83df40..75ea1ecbf85a 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -10,7 +10,7 @@ UNAME_M := $(shell uname -m)
+ LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c
+ LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/ucall.c
+ LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
+-LIBKVM_s390x = lib/s390x/processor.c
++LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c
+ 
+ TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
+ TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
+diff --git a/tools/testing/selftests/kvm/lib/s390x/ucall.c b/tools/testing/selftests/kvm/lib/s390x/ucall.c
+new file mode 100644
+index 000000000000..fd589dc9bfab
+--- /dev/null
++++ b/tools/testing/selftests/kvm/lib/s390x/ucall.c
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ucall support. A ucall is a "hypercall to userspace".
++ *
++ * Copyright (C) 2019 Red Hat, Inc.
++ */
++#include "kvm_util.h"
++
++void ucall_init(struct kvm_vm *vm, void *arg)
++{
++}
++
++void ucall_uninit(struct kvm_vm *vm)
++{
++}
++
++void ucall(uint64_t cmd, int nargs, ...)
++{
++	struct ucall uc = {
++		.cmd = cmd,
++	};
++	va_list va;
++	int i;
++
++	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
++
++	va_start(va, nargs);
++	for (i = 0; i < nargs; ++i)
++		uc.args[i] = va_arg(va, uint64_t);
++	va_end(va);
++
++	/* Exit via DIAGNOSE 0x501 (normally used for breakpoints) */
++	asm volatile ("diag 0,%0,0x501" : : "a"(&uc) : "memory");
++}
++
++uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
++{
++	struct kvm_run *run = vcpu_state(vm, vcpu_id);
++	struct ucall ucall = {};
++
++	if (run->exit_reason == KVM_EXIT_S390_SIEIC &&
++	    run->s390_sieic.icptcode == 4 &&
++	    (run->s390_sieic.ipa >> 8) == 0x83 &&    /* 0x83 means DIAGNOSE */
++	    (run->s390_sieic.ipb >> 16) == 0x501) {
++		int reg = run->s390_sieic.ipa & 0xf;
++
++		memcpy(&ucall, addr_gva2hva(vm, run->s.regs.gprs[reg]),
++		       sizeof(ucall));
++
++		vcpu_run_complete_io(vm, vcpu_id);
++		if (uc)
++			memcpy(uc, &ucall, sizeof(ucall));
++	}
++
++	return ucall.cmd;
++}
+diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+index e85ff0d69548..bbc93094519b 100644
+--- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
++++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+@@ -25,9 +25,11 @@
+ 
+ static void guest_code(void)
+ {
++	register u64 stage asm("11") = 0;
++
+ 	for (;;) {
+-		asm volatile ("diag 0,0,0x501");
+-		asm volatile ("ahi 11,1");
++		GUEST_SYNC(0);
++		asm volatile ("ahi %0,1" : : "r"(stage));
+ 	}
+ }
+ 
+-- 
+2.21.0
