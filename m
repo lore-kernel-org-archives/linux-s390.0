@@ -1,441 +1,247 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55930 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbfGaNc0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 09:32:26 -0400
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v2 1/3] KVM: selftests: Split ucall.c into architecture specific files
-Date: Wed, 31 Jul 2019 15:32:14 +0200
-Message-Id: <20190731133216.5620-2-thuth@redhat.com>
-In-Reply-To: <20190731133216.5620-1-thuth@redhat.com>
-References: <20190731133216.5620-1-thuth@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41720 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729340AbfGaWld (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 31 Jul 2019 18:41:33 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v5 2/7] s390: zcrypt: driver callback to indicate resource in use
+Date: Wed, 31 Jul 2019 18:41:12 -0400
+Message-Id: <1564612877-7598-3-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-The way we exit from a guest to userspace is very specific to the
-architecture: On x86, we use PIO, on aarch64 we are using MMIO and on
-s390x we're going to use an instruction instead. The possibility to
-select a type via the ucall_type_t enum is currently also completely
-unused, so the code in ucall.c currently looks more complex than
-required. Let's split this up into architecture specific ucall.c
-files instead, so we can get rid of the #ifdefs and the unnecessary
-ucall_type_t handling.
+Introduces a new driver callback to prevent a root user from unbinding
+an AP queue from its device driver if the queue is in use. This prevents
+a root user from inadvertently taking a queue away from a guest and
+giving it to the host, or vice versa. The callback will be invoked
+whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
+result in one or more AP queues being removed from its driver. If the
+callback responds in the affirmative for any driver queried, the change
+to the apmask or aqmask will be rejected with a device in use error.
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
+For this patch, only non-default drivers will be queried. Currently,
+there is only one non-default driver, the vfio_ap device driver. The
+vfio_ap device driver manages AP queues passed through to one or more
+guests and we don't want to unexpectedly take AP resources away from
+guests which are most likely independently administered.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/Makefile          |   6 +-
- tools/testing/selftests/kvm/dirty_log_test.c  |   2 +-
- .../testing/selftests/kvm/include/kvm_util.h  |   8 +-
- .../testing/selftests/kvm/lib/aarch64/ucall.c | 112 +++++++++++++
- tools/testing/selftests/kvm/lib/ucall.c       | 157 ------------------
- .../testing/selftests/kvm/lib/x86_64/ucall.c  |  56 +++++++
- 6 files changed, 173 insertions(+), 168 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/lib/aarch64/ucall.c
- delete mode 100644 tools/testing/selftests/kvm/lib/ucall.c
- create mode 100644 tools/testing/selftests/kvm/lib/x86_64/ucall.c
+ drivers/s390/crypto/ap_bus.c | 137 +++++++++++++++++++++++++++++++++++++++++--
+ drivers/s390/crypto/ap_bus.h |   3 +
+ 2 files changed, 134 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index ba7849751989..a51e3b83df40 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -7,9 +7,9 @@ top_srcdir = ../../../..
- KSFT_KHDR_INSTALL := 1
- UNAME_M := $(shell uname -m)
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index a76b8a8bcbbb..8d0877c821b0 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -35,6 +35,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/debugfs.h>
+ #include <linux/ctype.h>
++#include <linux/module.h>
  
--LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/ucall.c lib/sparsebit.c
--LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c
--LIBKVM_aarch64 = lib/aarch64/processor.c
-+LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c
-+LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/ucall.c
-+LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
- LIBKVM_s390x = lib/s390x/processor.c
+ #include "ap_bus.h"
+ #include "ap_debug.h"
+@@ -997,9 +998,11 @@ int ap_parse_mask_str(const char *str,
+ 	newmap = kmalloc(size, GFP_KERNEL);
+ 	if (!newmap)
+ 		return -ENOMEM;
+-	if (mutex_lock_interruptible(lock)) {
+-		kfree(newmap);
+-		return -ERESTARTSYS;
++	if (lock) {
++		if (mutex_lock_interruptible(lock)) {
++			kfree(newmap);
++			return -ERESTARTSYS;
++		}
+ 	}
  
- TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
-diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
-index ceb52b952637..5d5ae1be4984 100644
---- a/tools/testing/selftests/kvm/dirty_log_test.c
-+++ b/tools/testing/selftests/kvm/dirty_log_test.c
-@@ -337,7 +337,7 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
- 	vcpu_set_cpuid(vm, VCPU_ID, kvm_get_supported_cpuid());
- #endif
- #ifdef __aarch64__
--	ucall_init(vm, UCALL_MMIO, NULL);
-+	ucall_init(vm, NULL);
- #endif
- 
- 	/* Export the shared variables to the guest */
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index e0e66b115ef2..5463b7896a0a 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -165,12 +165,6 @@ int vm_create_device(struct kvm_vm *vm, struct kvm_create_device *cd);
- 	memcpy(&(g), _p, sizeof(g));				\
- })
- 
--/* ucall implementation types */
--typedef enum {
--	UCALL_PIO,
--	UCALL_MMIO,
--} ucall_type_t;
--
- /* Common ucalls */
- enum {
- 	UCALL_NONE,
-@@ -186,7 +180,7 @@ struct ucall {
- 	uint64_t args[UCALL_MAX_ARGS];
- };
- 
--void ucall_init(struct kvm_vm *vm, ucall_type_t type, void *arg);
-+void ucall_init(struct kvm_vm *vm, void *arg);
- void ucall_uninit(struct kvm_vm *vm);
- void ucall(uint64_t cmd, int nargs, ...);
- uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc);
-diff --git a/tools/testing/selftests/kvm/lib/aarch64/ucall.c b/tools/testing/selftests/kvm/lib/aarch64/ucall.c
-new file mode 100644
-index 000000000000..f69f951a48c0
---- /dev/null
-+++ b/tools/testing/selftests/kvm/lib/aarch64/ucall.c
-@@ -0,0 +1,112 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * ucall support. A ucall is a "hypercall to userspace".
-+ *
-+ * Copyright (C) 2018, Red Hat, Inc.
-+ */
-+#include "kvm_util.h"
-+#include "kvm_util_internal.h"
+ 	if (*str == '+' || *str == '-') {
+@@ -1011,7 +1014,10 @@ int ap_parse_mask_str(const char *str,
+ 	}
+ 	if (rc == 0)
+ 		memcpy(bitmap, newmap, size);
+-	mutex_unlock(lock);
 +
-+static vm_vaddr_t *ucall_exit_mmio_addr;
++	if (lock)
++		mutex_unlock(lock);
 +
-+static bool ucall_mmio_init(struct kvm_vm *vm, vm_paddr_t gpa)
+ 	kfree(newmap);
+ 	return rc;
+ }
+@@ -1198,12 +1204,71 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
+ 
++int __verify_card_reservations(struct device_driver *drv, void *data)
 +{
-+	if (kvm_userspace_memory_region_find(vm, gpa, gpa + 1))
-+		return false;
-+
-+	virt_pg_map(vm, gpa, gpa, 0);
-+
-+	ucall_exit_mmio_addr = (vm_vaddr_t *)gpa;
-+	sync_global_to_guest(vm, ucall_exit_mmio_addr);
-+
-+	return true;
-+}
-+
-+void ucall_init(struct kvm_vm *vm, void *arg)
-+{
-+	vm_paddr_t gpa, start, end, step, offset;
-+	unsigned int bits;
-+	bool ret;
-+
-+	if (arg) {
-+		gpa = (vm_paddr_t)arg;
-+		ret = ucall_mmio_init(vm, gpa);
-+		TEST_ASSERT(ret, "Can't set ucall mmio address to %lx", gpa);
-+		return;
-+	}
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newapm = (unsigned long *)data;
 +
 +	/*
-+	 * Find an address within the allowed physical and virtual address
-+	 * spaces, that does _not_ have a KVM memory region associated with
-+	 * it. Identity mapping an address like this allows the guest to
-+	 * access it, but as KVM doesn't know what to do with it, it
-+	 * will assume it's something userspace handles and exit with
-+	 * KVM_EXIT_MMIO. Well, at least that's how it works for AArch64.
-+	 * Here we start with a guess that the addresses around 5/8th
-+	 * of the allowed space are unmapped and then work both down and
-+	 * up from there in 1/16th allowed space sized steps.
-+	 *
-+	 * Note, we need to use VA-bits - 1 when calculating the allowed
-+	 * virtual address space for an identity mapping because the upper
-+	 * half of the virtual address space is the two's complement of the
-+	 * lower and won't match physical addresses.
++	 * If the reserved bits do not identify cards reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
 +	 */
-+	bits = vm->va_bits - 1;
-+	bits = vm->pa_bits < bits ? vm->pa_bits : bits;
-+	end = 1ul << bits;
-+	start = end * 5 / 8;
-+	step = end / 16;
-+	for (offset = 0; offset < end - start; offset += step) {
-+		if (ucall_mmio_init(vm, start - offset))
-+			return;
-+		if (ucall_mmio_init(vm, start + offset))
-+			return;
-+	}
-+	TEST_ASSERT(false, "Can't find a ucall mmio address");
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(newapm, ap_perms.aqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
 +}
 +
-+void ucall_uninit(struct kvm_vm *vm)
++static int apmask_commit(unsigned long *newapm)
 +{
-+	ucall_exit_mmio_addr = 0;
-+	sync_global_to_guest(vm, ucall_exit_mmio_addr);
-+}
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
 +
-+void ucall(uint64_t cmd, int nargs, ...)
-+{
-+	struct ucall uc = {
-+		.cmd = cmd,
-+	};
-+	va_list va;
-+	int i;
-+
-+	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
-+
-+	va_start(va, nargs);
-+	for (i = 0; i < nargs; ++i)
-+		uc.args[i] = va_arg(va, uint64_t);
-+	va_end(va);
-+
-+	*ucall_exit_mmio_addr = (vm_vaddr_t)&uc;
-+}
-+
-+uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
-+{
-+	struct kvm_run *run = vcpu_state(vm, vcpu_id);
-+	struct ucall ucall = {};
-+
-+	if (run->exit_reason == KVM_EXIT_MMIO &&
-+	    run->mmio.phys_addr == (uint64_t)ucall_exit_mmio_addr) {
-+		vm_vaddr_t gva;
-+
-+		TEST_ASSERT(run->mmio.is_write && run->mmio.len == 8,
-+			    "Unexpected ucall exit mmio address access");
-+		memcpy(&gva, run->mmio.data, sizeof(gva));
-+		memcpy(&ucall, addr_gva2hva(vm, gva), sizeof(ucall));
-+
-+		vcpu_run_complete_io(vm, vcpu_id);
-+		if (uc)
-+			memcpy(uc, &ucall, sizeof(ucall));
++	/*
++	 * Check if any bits in the apmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_card_reservations);
++		if (rc)
++			return rc;
 +	}
 +
-+	return ucall.cmd;
-+}
-diff --git a/tools/testing/selftests/kvm/lib/ucall.c b/tools/testing/selftests/kvm/lib/ucall.c
-deleted file mode 100644
-index dd9a66700f96..000000000000
---- a/tools/testing/selftests/kvm/lib/ucall.c
-+++ /dev/null
-@@ -1,157 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * ucall support. A ucall is a "hypercall to userspace".
-- *
-- * Copyright (C) 2018, Red Hat, Inc.
-- */
--#include "kvm_util.h"
--#include "kvm_util_internal.h"
--
--#define UCALL_PIO_PORT ((uint16_t)0x1000)
--
--static ucall_type_t ucall_type;
--static vm_vaddr_t *ucall_exit_mmio_addr;
--
--static bool ucall_mmio_init(struct kvm_vm *vm, vm_paddr_t gpa)
--{
--	if (kvm_userspace_memory_region_find(vm, gpa, gpa + 1))
--		return false;
--
--	virt_pg_map(vm, gpa, gpa, 0);
--
--	ucall_exit_mmio_addr = (vm_vaddr_t *)gpa;
--	sync_global_to_guest(vm, ucall_exit_mmio_addr);
--
--	return true;
--}
--
--void ucall_init(struct kvm_vm *vm, ucall_type_t type, void *arg)
--{
--	ucall_type = type;
--	sync_global_to_guest(vm, ucall_type);
--
--	if (type == UCALL_PIO)
--		return;
--
--	if (type == UCALL_MMIO) {
--		vm_paddr_t gpa, start, end, step, offset;
--		unsigned bits;
--		bool ret;
--
--		if (arg) {
--			gpa = (vm_paddr_t)arg;
--			ret = ucall_mmio_init(vm, gpa);
--			TEST_ASSERT(ret, "Can't set ucall mmio address to %lx", gpa);
--			return;
--		}
--
--		/*
--		 * Find an address within the allowed physical and virtual address
--		 * spaces, that does _not_ have a KVM memory region associated with
--		 * it. Identity mapping an address like this allows the guest to
--		 * access it, but as KVM doesn't know what to do with it, it
--		 * will assume it's something userspace handles and exit with
--		 * KVM_EXIT_MMIO. Well, at least that's how it works for AArch64.
--		 * Here we start with a guess that the addresses around 5/8th
--		 * of the allowed space are unmapped and then work both down and
--		 * up from there in 1/16th allowed space sized steps.
--		 *
--		 * Note, we need to use VA-bits - 1 when calculating the allowed
--		 * virtual address space for an identity mapping because the upper
--		 * half of the virtual address space is the two's complement of the
--		 * lower and won't match physical addresses.
--		 */
--		bits = vm->va_bits - 1;
--		bits = vm->pa_bits < bits ? vm->pa_bits : bits;
--		end = 1ul << bits;
--		start = end * 5 / 8;
--		step = end / 16;
--		for (offset = 0; offset < end - start; offset += step) {
--			if (ucall_mmio_init(vm, start - offset))
--				return;
--			if (ucall_mmio_init(vm, start + offset))
--				return;
--		}
--		TEST_ASSERT(false, "Can't find a ucall mmio address");
--	}
--}
--
--void ucall_uninit(struct kvm_vm *vm)
--{
--	ucall_type = 0;
--	sync_global_to_guest(vm, ucall_type);
--	ucall_exit_mmio_addr = 0;
--	sync_global_to_guest(vm, ucall_exit_mmio_addr);
--}
--
--static void ucall_pio_exit(struct ucall *uc)
--{
--#ifdef __x86_64__
--	asm volatile("in %[port], %%al"
--		: : [port] "d" (UCALL_PIO_PORT), "D" (uc) : "rax");
--#endif
--}
--
--static void ucall_mmio_exit(struct ucall *uc)
--{
--	*ucall_exit_mmio_addr = (vm_vaddr_t)uc;
--}
--
--void ucall(uint64_t cmd, int nargs, ...)
--{
--	struct ucall uc = {
--		.cmd = cmd,
--	};
--	va_list va;
--	int i;
--
--	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
--
--	va_start(va, nargs);
--	for (i = 0; i < nargs; ++i)
--		uc.args[i] = va_arg(va, uint64_t);
--	va_end(va);
--
--	switch (ucall_type) {
--	case UCALL_PIO:
--		ucall_pio_exit(&uc);
--		break;
--	case UCALL_MMIO:
--		ucall_mmio_exit(&uc);
--		break;
--	};
--}
--
--uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
--{
--	struct kvm_run *run = vcpu_state(vm, vcpu_id);
--	struct ucall ucall = {};
--	bool got_ucall = false;
--
--#ifdef __x86_64__
--	if (ucall_type == UCALL_PIO && run->exit_reason == KVM_EXIT_IO &&
--	    run->io.port == UCALL_PIO_PORT) {
--		struct kvm_regs regs;
--		vcpu_regs_get(vm, vcpu_id, &regs);
--		memcpy(&ucall, addr_gva2hva(vm, (vm_vaddr_t)regs.rdi), sizeof(ucall));
--		got_ucall = true;
--	}
--#endif
--	if (ucall_type == UCALL_MMIO && run->exit_reason == KVM_EXIT_MMIO &&
--	    run->mmio.phys_addr == (uint64_t)ucall_exit_mmio_addr) {
--		vm_vaddr_t gva;
--		TEST_ASSERT(run->mmio.is_write && run->mmio.len == 8,
--			    "Unexpected ucall exit mmio address access");
--		memcpy(&gva, run->mmio.data, sizeof(gva));
--		memcpy(&ucall, addr_gva2hva(vm, gva), sizeof(ucall));
--		got_ucall = true;
--	}
--
--	if (got_ucall) {
--		vcpu_run_complete_io(vm, vcpu_id);
--		if (uc)
--			memcpy(uc, &ucall, sizeof(ucall));
--	}
--
--	return ucall.cmd;
--}
-diff --git a/tools/testing/selftests/kvm/lib/x86_64/ucall.c b/tools/testing/selftests/kvm/lib/x86_64/ucall.c
-new file mode 100644
-index 000000000000..4bfc9a90b1de
---- /dev/null
-+++ b/tools/testing/selftests/kvm/lib/x86_64/ucall.c
-@@ -0,0 +1,56 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * ucall support. A ucall is a "hypercall to userspace".
-+ *
-+ * Copyright (C) 2018, Red Hat, Inc.
-+ */
-+#include "kvm_util.h"
++	memcpy(ap_perms.apm, newapm, APMASKSIZE);
 +
-+#define UCALL_PIO_PORT ((uint16_t)0x1000)
-+
-+void ucall_init(struct kvm_vm *vm, void *arg)
-+{
++	return 0;
 +}
 +
-+void ucall_uninit(struct kvm_vm *vm)
+ static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	unsigned long newapm[BITS_TO_LONGS(AP_DEVICES)];
++
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
+ 
+-	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
++	memcpy(newapm, ap_perms.apm, APMASKSIZE);
++
++	rc = ap_parse_mask_str(buf, newapm, AP_DEVICES, NULL);
++	if (rc)
++		return rc;
++
++	rc = apmask_commit(newapm);
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1229,12 +1294,72 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
+ 
++int __verify_queue_reservations(struct device_driver *drv, void *data)
 +{
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newaqm = (unsigned long *)data;
++
++	/*
++	 * If the reserved bits do not identify queues reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(ap_perms.apm, newaqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
 +}
 +
-+void ucall(uint64_t cmd, int nargs, ...)
++static int aqmask_commit(unsigned long *newaqm)
 +{
-+	struct ucall uc = {
-+		.cmd = cmd,
-+	};
-+	va_list va;
-+	int i;
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
 +
-+	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
-+
-+	va_start(va, nargs);
-+	for (i = 0; i < nargs; ++i)
-+		uc.args[i] = va_arg(va, uint64_t);
-+	va_end(va);
-+
-+	asm volatile("in %[port], %%al"
-+		: : [port] "d" (UCALL_PIO_PORT), "D" (&uc) : "rax");
-+}
-+
-+uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
-+{
-+	struct kvm_run *run = vcpu_state(vm, vcpu_id);
-+	struct ucall ucall = {};
-+
-+	if (run->exit_reason == KVM_EXIT_IO && run->io.port == UCALL_PIO_PORT) {
-+		struct kvm_regs regs;
-+
-+		vcpu_regs_get(vm, vcpu_id, &regs);
-+		memcpy(&ucall, addr_gva2hva(vm, (vm_vaddr_t)regs.rdi),
-+		       sizeof(ucall));
-+
-+		vcpu_run_complete_io(vm, vcpu_id);
-+		if (uc)
-+			memcpy(uc, &ucall, sizeof(ucall));
++	/*
++	 * Check if any bits in the aqmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_queue_reservations);
++		if (rc)
++			return rc;
 +	}
 +
-+	return ucall.cmd;
++	memcpy(ap_perms.aqm, newaqm, APMASKSIZE);
++
++	return 0;
 +}
++
+ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	unsigned long newaqm[BITS_TO_LONGS(AP_DEVICES)];
++
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
++
++	memcpy(newaqm, ap_perms.aqm, AQMASKSIZE);
++
++	rc = ap_parse_mask_str(buf, newaqm, AP_DOMAINS, NULL);
++	if (rc)
++		return rc;
++
++	rc = aqmask_commit(newaqm);
++	mutex_unlock(&ap_perms_mutex);
+ 
+-	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 6f3cf37776ca..0f865c5545f2 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -137,6 +137,7 @@ struct ap_driver {
+ 	void (*remove)(struct ap_device *);
+ 	void (*suspend)(struct ap_device *);
+ 	void (*resume)(struct ap_device *);
++	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+ };
+ 
+ #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+@@ -265,6 +266,8 @@ void ap_queue_reinit_state(struct ap_queue *aq);
+ struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+ 			       int comp_device_type, unsigned int functions);
+ 
++#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
++#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
+ struct ap_perms {
+ 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+ 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
 -- 
-2.21.0
+2.7.4
