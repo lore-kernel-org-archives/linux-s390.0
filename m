@@ -1,44 +1,34 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42752 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbfGaNcX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 09:32:23 -0400
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v2 0/3] KVM: selftests: Enable ucall and dirty_log_test on s390x
-Date: Wed, 31 Jul 2019 15:32:13 +0200
-Message-Id: <20190731133216.5620-1-thuth@redhat.com>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Subject: Re: [PATCH 2/2] KVM: selftests: Enable dirty_log_test on s390x
+References: <20190730100112.18205-1-thuth@redhat.com>
+ <20190730100112.18205-3-thuth@redhat.com>
+ <20190730105721.z4zsul7uxl2igoue@kamzik.brq.redhat.com>
+ <a9824265-daf8-db36-86b8-ad890dc73f14@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <afdf2b18-47fd-aa48-41b7-130122590068@redhat.com>
+Date: Wed, 31 Jul 2019 14:58:23 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <a9824265-daf8-db36-86b8-ad890dc73f14@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
+To: Thomas Huth <thuth@redhat.com>, Andrew Jones <drjones@redhat.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Peter Xu <peterx@redhat.com>
 
-Implement the ucall() interface on s390x to be able to use the
-dirty_log_test KVM selftest on s390x, too.
+On 31/07/19 10:19, Thomas Huth wrote:
+>>> @@ -293,6 +341,10 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+>>>  	 * case where the size is not aligned to 64 pages.
+>>>  	 */
+>>>  	guest_num_pages = (1ul << (30 - guest_page_shift)) + 16;
+>>> +#ifdef __s390x__
+>>> +	/* Round up to multiple of 1M (segment size) */
+>>> +	guest_num_pages = (guest_num_pages + 0xff) & ~0xffUL;
+>> We could maybe do this for all architectures as well.
+> It's really only needed on s390x, so I think we should keep the #ifdef here.
 
-v2:
- - Split up ucall.c into architecture specific files
- - Removed some #ifdef __s390x__  in the dirty_log patch
+Yes, on non-s390 we should keep covering the case where the size is not
+a multiple of BITS_PER_LONG.
 
-Thomas Huth (3):
-  KVM: selftests: Split ucall.c into architecture specific files
-  KVM: selftests: Implement ucall() for s390x
-  KVM: selftests: Enable dirty_log_test on s390x
-
- tools/testing/selftests/kvm/Makefile          |   9 +-
- tools/testing/selftests/kvm/dirty_log_test.c  |  61 ++++++-
- .../testing/selftests/kvm/include/kvm_util.h  |   8 +-
- .../testing/selftests/kvm/lib/aarch64/ucall.c | 112 +++++++++++++
- tools/testing/selftests/kvm/lib/s390x/ucall.c |  56 +++++++
- tools/testing/selftests/kvm/lib/ucall.c       | 157 ------------------
- .../testing/selftests/kvm/lib/x86_64/ucall.c  |  56 +++++++
- .../selftests/kvm/s390x/sync_regs_test.c      |   6 +-
- 8 files changed, 287 insertions(+), 178 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/lib/aarch64/ucall.c
- create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
- delete mode 100644 tools/testing/selftests/kvm/lib/ucall.c
- create mode 100644 tools/testing/selftests/kvm/lib/x86_64/ucall.c
-
--- 
-2.21.0
+Paolo
