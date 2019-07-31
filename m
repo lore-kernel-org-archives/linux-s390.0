@@ -1,102 +1,121 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 085/101] s390/dasd: Make layout analysis ESE compatible
-Date: Fri, 19 Jul 2019 00:07:16 -0400
-Message-Id: <20190719040732.17285-85-sashal@kernel.org>
-In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
-References: <20190719040732.17285-1-sashal@kernel.org>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v2 2/3] KVM: selftests: Implement ucall() for s390x
+Date: Wed, 31 Jul 2019 15:32:15 +0200
+Message-Id: <20190731133216.5620-3-thuth@redhat.com>
+In-Reply-To: <20190731133216.5620-1-thuth@redhat.com>
+References: <20190731133216.5620-1-thuth@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+On s390x, we can neither exit via PIO nor MMIO, but have to use an
+instruction like DIAGNOSE. Now that ucall() is implemented, we can
+use it in the sync_reg_test on s390x, too.
 
-[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
-
-The disk layout and volume information of a DASD reside in the first two
-tracks of cylinder 0. When a DASD is set online, currently the first
-three tracks are read and analysed to confirm an expected layout.
-
-For CDL (Compatible Disk Layout) only count area data of the first track
-is evaluated and checked against expected key and data lengths. For LDL
-(Linux Disk Layout) the first and third track is evaluated. However,
-an LDL formatted volume is expected to be in the same format across all
-tracks. Checking the third track therefore doesn't have any more value
-than checking any other track at random.
-
-Now, an Extent Space Efficient (ESE) DASD is initialised by only
-formatting the first two tracks, as those tracks always contain all
-information necessarry.
-
-Checking the third track on an ESE volume will therefore most likely
-fail with a record not found error, as the third track will be empty.
-This in turn leads to the device being recognised with a volume size of
-0. Attempts to write volume information on the first two tracks then
-fail with "no space left on device" errors.
-
-Initialising the first three tracks for an ESE volume is not a viable
-solution, because the third track is already a regular track and could
-contain user data. With that there is potential for data corruption.
-
-Instead, always only analyse the first two tracks, as it is sufficiant
-for both CDL and LDL, and allow ESE volumes to be recognised as well.
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
- drivers/s390/block/dasd_eckd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kvm/Makefile          |  2 +-
+ tools/testing/selftests/kvm/lib/s390x/ucall.c | 56 +++++++++++++++++++
+ .../selftests/kvm/s390x/sync_regs_test.c      |  6 +-
+ 3 files changed, 61 insertions(+), 3 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index f89f9d02e788..fccdf9812c1f 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
- #define LABEL_SIZE 140
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index a51e3b83df40..75ea1ecbf85a 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -10,7 +10,7 @@ UNAME_M := $(shell uname -m)
+ LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c
+ LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/ucall.c
+ LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
+-LIBKVM_s390x = lib/s390x/processor.c
++LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c
  
- /* head and record addresses of count_area read in analysis ccw */
--static const int count_area_head[] = { 0, 0, 0, 0, 2 };
-+static const int count_area_head[] = { 0, 0, 0, 0, 1 };
- static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
+ TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
+ TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
+diff --git a/tools/testing/selftests/kvm/lib/s390x/ucall.c b/tools/testing/selftests/kvm/lib/s390x/ucall.c
+new file mode 100644
+index 000000000000..fd589dc9bfab
+--- /dev/null
++++ b/tools/testing/selftests/kvm/lib/s390x/ucall.c
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * ucall support. A ucall is a "hypercall to userspace".
++ *
++ * Copyright (C) 2019 Red Hat, Inc.
++ */
++#include "kvm_util.h"
++
++void ucall_init(struct kvm_vm *vm, void *arg)
++{
++}
++
++void ucall_uninit(struct kvm_vm *vm)
++{
++}
++
++void ucall(uint64_t cmd, int nargs, ...)
++{
++	struct ucall uc = {
++		.cmd = cmd,
++	};
++	va_list va;
++	int i;
++
++	nargs = nargs <= UCALL_MAX_ARGS ? nargs : UCALL_MAX_ARGS;
++
++	va_start(va, nargs);
++	for (i = 0; i < nargs; ++i)
++		uc.args[i] = va_arg(va, uint64_t);
++	va_end(va);
++
++	/* Exit via DIAGNOSE 0x501 (normally used for breakpoints) */
++	asm volatile ("diag 0,%0,0x501" : : "a"(&uc) : "memory");
++}
++
++uint64_t get_ucall(struct kvm_vm *vm, uint32_t vcpu_id, struct ucall *uc)
++{
++	struct kvm_run *run = vcpu_state(vm, vcpu_id);
++	struct ucall ucall = {};
++
++	if (run->exit_reason == KVM_EXIT_S390_SIEIC &&
++	    run->s390_sieic.icptcode == 4 &&
++	    (run->s390_sieic.ipa >> 8) == 0x83 &&    /* 0x83 means DIAGNOSE */
++	    (run->s390_sieic.ipb >> 16) == 0x501) {
++		int reg = run->s390_sieic.ipa & 0xf;
++
++		memcpy(&ucall, addr_gva2hva(vm, run->s.regs.gprs[reg]),
++		       sizeof(ucall));
++
++		vcpu_run_complete_io(vm, vcpu_id);
++		if (uc)
++			memcpy(uc, &ucall, sizeof(ucall));
++	}
++
++	return ucall.cmd;
++}
+diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+index e85ff0d69548..bbc93094519b 100644
+--- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
++++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+@@ -25,9 +25,11 @@
  
- static inline unsigned int
-@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 	if (IS_ERR(cqr))
- 		return cqr;
- 	ccw = cqr->cpaddr;
--	/* Define extent for the first 3 tracks. */
--	define_extent(ccw++, cqr->data, 0, 2,
-+	/* Define extent for the first 2 tracks. */
-+	define_extent(ccw++, cqr->data, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
- 	/* Locate record for the first 4 records on track 0. */
-@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 		count_data++;
+ static void guest_code(void)
+ {
++	register u64 stage asm("11") = 0;
++
+ 	for (;;) {
+-		asm volatile ("diag 0,0,0x501");
+-		asm volatile ("ahi 11,1");
++		GUEST_SYNC(0);
++		asm volatile ("ahi %0,1" : : "r"(stage));
  	}
+ }
  
--	/* Locate record for the first record on track 2. */
-+	/* Locate record for the first record on track 1. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
--	locate_record(ccw++, LO_data++, 2, 0, 1,
-+	locate_record(ccw++, LO_data++, 1, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	/* Read count ccw. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
-@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 		}
- 	}
- 	if (i == 3)
--		count_area = &private->count_area[4];
-+		count_area = &private->count_area[3];
- 
- 	if (private->uses_cdl == 0) {
- 		for (i = 0; i < 5; i++) {
 -- 
-2.20.1
+2.21.0
