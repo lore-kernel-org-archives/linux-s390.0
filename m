@@ -1,62 +1,100 @@
 Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Wed, 31 Jul 2019 10:44:05 +0200
+From: Andrew Jones <drjones@redhat.com>
 Subject: Re: [PATCH 2/2] KVM: selftests: Enable dirty_log_test on s390x
+Message-ID: <20190731084405.tn3x6nmt2svkjkiq@kamzik.brq.redhat.com>
 References: <20190730100112.18205-1-thuth@redhat.com>
  <20190730100112.18205-3-thuth@redhat.com>
- <d48ac43b-c960-54af-a145-360a67b4a3d9@de.ibm.com>
- <02c5c7b4-c45e-4573-d2c3-ebfa2cd2c9d1@redhat.com>
- <341c3705-c2cb-9e87-cc03-42e0cefba308@de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <03e7f73e-2b21-688b-83c6-c10eaafdebd5@redhat.com>
-Date: Wed, 31 Jul 2019 13:06:03 +0200
+ <20190730105721.z4zsul7uxl2igoue@kamzik.brq.redhat.com>
+ <a9824265-daf8-db36-86b8-ad890dc73f14@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <341c3705-c2cb-9e87-cc03-42e0cefba308@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a9824265-daf8-db36-86b8-ad890dc73f14@redhat.com>
 Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Peter Xu <peterx@redhat.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>, Shuah Khan <shuah@kernel.org>, Peter Xu <peterx@redhat.com>
 
-On 30.07.19 20:04, Christian Borntraeger wrote:
+On Wed, Jul 31, 2019 at 10:19:57AM +0200, Thomas Huth wrote:
+> On 30/07/2019 12.57, Andrew Jones wrote:
+> > On Tue, Jul 30, 2019 at 12:01:12PM +0200, Thomas Huth wrote:
+> >> To run the dirty_log_test on s390x, we have to make sure that we
+> >> access the dirty log bitmap with little endian byte ordering and
+> >> we have to properly align the memslot of the guest.
+> >> Also all dirty bits of a segment are set once on s390x when one
+> >> of the pages of a segment are written to for the first time, so
+> >> we have to make sure that we touch all pages during the first
+> >> iteration to keep the test in sync here.
+> >>
+> >> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> >> ---
+> [...]
+> >> diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+> >> index ceb52b952637..7a1223ad0ff3 100644
+> >> --- a/tools/testing/selftests/kvm/dirty_log_test.c
+> >> +++ b/tools/testing/selftests/kvm/dirty_log_test.c
+> >> @@ -26,9 +26,22 @@
+> >>  /* The memory slot index to track dirty pages */
+> >>  #define TEST_MEM_SLOT_INDEX		1
+> >>  
+> >> +#ifdef __s390x__
+> >> +
+> >> +/*
+> >> + * On s390x, the ELF program is sometimes linked at 0x80000000, so we can
+> >> + * not use 0x40000000 here without overlapping into that region. Thus let's
+> >> + * use 0xc0000000 as base address there instead.
+> >> + */
+> >> +#define DEFAULT_GUEST_TEST_MEM		0xc0000000
+> > 
+> > I think both x86 and aarch64 should be ok with this offset. If testing
+> > proves it does, then we can just change it for all architecture.
 > 
+> Ok. It seems to work on x86 - could you please check aarch64, since I
+> don't have such a system available right now?
+
+Tested it. It works on aarch64 too.
+
 > 
-> On 30.07.19 19:11, Thomas Huth wrote:
->> On 30/07/2019 16.57, Christian Borntraeger wrote:
->>>
->>>
->>> On 30.07.19 12:01, Thomas Huth wrote:
->>>> To run the dirty_log_test on s390x, we have to make sure that we
->>>> access the dirty log bitmap with little endian byte ordering and
->>>> we have to properly align the memslot of the guest.
->>>> Also all dirty bits of a segment are set once on s390x when one
->>>> of the pages of a segment are written to for the first time, so
->>>> we have to make sure that we touch all pages during the first
->>>> iteration to keep the test in sync here.
->>>
->>> While this fixes the test (and the migration does work fine), it still
->>> means that s390x overindicates the dirty bit for sparsely populated
->>> 1M segments. It is just a performance issue, but maybe we should try 
->>> to get this fixed.
->>
->> I hope you don't expect me to fix this - the gmap code is really not my
->> turf...
+> >> +/* Dirty bitmaps are always little endian, so we need to swap on big endian */
+> >> +#if defined(__s390x__)
+> >> +# define BITOP_LE_SWIZZLE	((BITS_PER_LONG-1) & ~0x7)
+> >> +# define test_bit_le(nr, addr) \
+> >> +	test_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
+> >> +# define set_bit_le(nr, addr) \
+> >> +	set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
+> >> +# define clear_bit_le(nr, addr) \
+> >> +	clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
+> >> +# define test_and_set_bit_le(nr, addr) \
+> >> +	test_and_set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
+> >> +# define test_and_clear_bit_le(nr, addr) \
+> >> +	test_and_clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
+> >> +#else
+> >> +# define test_bit_le	test_bit
+> >> +# define set_bit_le	set_bit
+> >> +# define clear_bit_le	clear_bit
+> >> +# define test_and_set_bit_le	test_and_set_bit
+> >> +# define test_and_clear_bit_le	test_and_clear_bit
+> >> +#endif
+> > 
+> > nit: does the formatting above look right after applying the patch?
 > 
-> No, this is clearly on our turf. 
+> It looked ok to me, but I can add some more tabs to even make it nicer :)
+> 
+> >> @@ -293,6 +341,10 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+> >>  	 * case where the size is not aligned to 64 pages.
+> >>  	 */
+> >>  	guest_num_pages = (1ul << (30 - guest_page_shift)) + 16;
+> >> +#ifdef __s390x__
+> >> +	/* Round up to multiple of 1M (segment size) */
+> >> +	guest_num_pages = (guest_num_pages + 0xff) & ~0xffUL;
+> > 
+> > We could maybe do this for all architectures as well.
+> 
+> It's really only needed on s390x, so I think we should keep the #ifdef here.
+>
 
-FWIW, we share the pagetables with the userspace process. We mark a page
-as dirty (PGSTE_UC_BIT) when
-- We modify the storage key
-- We map a PTE as RW (pgste_set_pte())
-
-I assume all PTEs of the segment are mapped RW (for example, if user
-space wrote to such a PTE), that is why we have the PGSTE_UC_BIT bit set.
-
-As PGSTE_UC_BIT also tracks what userspace did, not only KVM via the
-GMAP, this might indeed be correct.
-
--- 
+OK
 
 Thanks,
-
-David / dhildenb
+drew 
