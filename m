@@ -1,99 +1,70 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:44310 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726382AbfGaRpp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 31 Jul 2019 13:45:45 -0400
+Subject: Re: microblaze HAVE_MEMBLOCK_NODE_MAP dependency (was Re: [PATCH v2
+ 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA)
+References: <730368c5-1711-89ae-e3ef-65418b17ddc9@os.amperecomputing.com>
+ <20190730081415.GN9330@dhcp22.suse.cz> <20190731062420.GC21422@rapoport-lnx>
+ <20190731080309.GZ9330@dhcp22.suse.cz> <20190731111422.GA14538@rapoport-lnx>
+ <20190731114016.GI9330@dhcp22.suse.cz> <20190731122631.GB14538@rapoport-lnx>
+ <20190731130037.GN9330@dhcp22.suse.cz> <20190731142129.GA24998@rapoport-lnx>
+ <20190731144114.GY9330@dhcp22.suse.cz> <20190731171510.GB24998@rapoport-lnx>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <57b08afb-d07e-a24f-4cfe-5a633227ed6b@infradead.org>
+Date: Wed, 31 Jul 2019 10:45:24 -0700
 MIME-Version: 1.0
-Date: Tue, 16 Jul 2019 00:38:05 -0700
-Message-ID: <000000000000111cbe058dc7754d@google.com>
-Subject: memory leak in new_inode_pseudo (2)
-From: syzbot <syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20190731171510.GB24998@rapoport-lnx>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Mike Rapoport <rppt@linux.ibm.com>, Michal Hocko <mhocko@kernel.org>
+Cc: Hoan Tran OS <hoan@os.amperecomputing.com>, Will Deacon <will@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, "H . Peter Anvin" <hpa@zytor.com>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, "x86@kernel.org" <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Open Source Submission <patches@amperecomputing.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will.deacon@arm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Oscar Salvador <osalvador@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "David S . Miller" <davem@davemloft.net>, "willy@infradead.org" <willy@infradead.org>, Michal Simek <monstr@monstr.eu>
 
-Hello,
+On 7/31/19 10:15 AM, Mike Rapoport wrote:
+> On Wed, Jul 31, 2019 at 04:41:14PM +0200, Michal Hocko wrote:
+>> On Wed 31-07-19 17:21:29, Mike Rapoport wrote:
+>>> On Wed, Jul 31, 2019 at 03:00:37PM +0200, Michal Hocko wrote:
+>>>>
+>>>> I am sorry, but I still do not follow. Who is consuming that node id
+>>>> information when NUMA=n. In other words why cannot we simply do
+>>>  
+>>> We can, I think nobody cared to change it.
+>>
+>> It would be great if somebody with the actual HW could try it out.
+>> I can throw a patch but I do not even have a cross compiler in my
+>> toolbox.
+> 
+> Well, it compiles :)
 
-syzbot found the following crash on:
+Adding Michal Simek <monstr@monstr.eu>.
 
-HEAD commit:    fec88ab0 Merge tag 'for-linus-hmm' of git://git.kernel.org..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=15a3da1fa00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=8422fa55ce69212c
-dashboard link: https://syzkaller.appspot.com/bug?extid=e682cca30bc101a4d9d9
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16ca5aa4600000
+It's not clear that the MICROBLAZE maintainer is still supporting MICROBLAZE.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com
-
-BUG: memory leak
-unreferenced object 0xffff8881223e5980 (size 768):
-   comm "syz-executor.0", pid 7093, jiffies 4294950175 (age 8.140s)
-   hex dump (first 32 bytes):
-     01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
-     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-   backtrace:
-     [<0000000030f6ab07>] kmemleak_alloc_recursive  
-include/linux/kmemleak.h:43 [inline]
-     [<0000000030f6ab07>] slab_post_alloc_hook mm/slab.h:522 [inline]
-     [<0000000030f6ab07>] slab_alloc mm/slab.c:3319 [inline]
-     [<0000000030f6ab07>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
-     [<0000000005b17a67>] sock_alloc_inode+0x1c/0xa0 net/socket.c:238
-     [<00000000cae2a9b4>] alloc_inode+0x2c/0xe0 fs/inode.c:227
-     [<000000004d22e56a>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
-     [<000000007bb4d82d>] sock_alloc+0x1c/0x90 net/socket.c:554
-     [<00000000884dfd41>] __sock_create+0x8f/0x250 net/socket.c:1378
-     [<000000009dc85063>] sock_create_kern+0x3b/0x50 net/socket.c:1483
-     [<00000000ca0afb1d>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
-     [<00000000ff903d89>] __sock_create+0x164/0x250 net/socket.c:1414
-     [<00000000c0787cdf>] sock_create net/socket.c:1465 [inline]
-     [<00000000c0787cdf>] __sys_socket+0x69/0x110 net/socket.c:1507
-     [<0000000067a4ade6>] __do_sys_socket net/socket.c:1516 [inline]
-     [<0000000067a4ade6>] __se_sys_socket net/socket.c:1514 [inline]
-     [<0000000067a4ade6>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
-     [<000000001e7b04ac>] do_syscall_64+0x76/0x1a0  
-arch/x86/entry/common.c:296
-     [<000000003fe40e36>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-BUG: memory leak
-unreferenced object 0xffff88811f269f50 (size 56):
-   comm "syz-executor.0", pid 7093, jiffies 4294950175 (age 8.140s)
-   hex dump (first 32 bytes):
-     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-     00 5a 3e 22 81 88 ff ff 68 9f 26 1f 81 88 ff ff  .Z>"....h.&.....
-   backtrace:
-     [<0000000030f6ab07>] kmemleak_alloc_recursive  
-include/linux/kmemleak.h:43 [inline]
-     [<0000000030f6ab07>] slab_post_alloc_hook mm/slab.h:522 [inline]
-     [<0000000030f6ab07>] slab_alloc mm/slab.c:3319 [inline]
-     [<0000000030f6ab07>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
-     [<000000005d4d6be7>] kmem_cache_zalloc include/linux/slab.h:738 [inline]
-     [<000000005d4d6be7>] lsm_inode_alloc security/security.c:522 [inline]
-     [<000000005d4d6be7>] security_inode_alloc+0x33/0xb0  
-security/security.c:875
-     [<00000000ef89212c>] inode_init_always+0x108/0x200 fs/inode.c:169
-     [<00000000647feaf5>] alloc_inode+0x49/0xe0 fs/inode.c:234
-     [<000000004d22e56a>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
-     [<000000007bb4d82d>] sock_alloc+0x1c/0x90 net/socket.c:554
-     [<00000000884dfd41>] __sock_create+0x8f/0x250 net/socket.c:1378
-     [<000000009dc85063>] sock_create_kern+0x3b/0x50 net/socket.c:1483
-     [<00000000ca0afb1d>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
-     [<00000000ff903d89>] __sock_create+0x164/0x250 net/socket.c:1414
-     [<00000000c0787cdf>] sock_create net/socket.c:1465 [inline]
-     [<00000000c0787cdf>] __sys_socket+0x69/0x110 net/socket.c:1507
-     [<0000000067a4ade6>] __do_sys_socket net/socket.c:1516 [inline]
-     [<0000000067a4ade6>] __se_sys_socket net/socket.c:1514 [inline]
-     [<0000000067a4ade6>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
-     [<000000001e7b04ac>] do_syscall_64+0x76/0x1a0  
-arch/x86/entry/common.c:296
-     [<000000003fe40e36>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>>> diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
+>>>> index a015a951c8b7..3a47e8db8d1c 100644
+>>>> --- a/arch/microblaze/mm/init.c
+>>>> +++ b/arch/microblaze/mm/init.c
+>>>> @@ -175,14 +175,9 @@ void __init setup_memory(void)
+>>>>  
+>>>>  		start_pfn = memblock_region_memory_base_pfn(reg);
+>>>>  		end_pfn = memblock_region_memory_end_pfn(reg);
+>>>> -		memblock_set_node(start_pfn << PAGE_SHIFT,
+>>>> -				  (end_pfn - start_pfn) << PAGE_SHIFT,
+>>>> -				  &memblock.memory, 0);
+>>>> +		memory_present(0, start_pfn << PAGE_SHIFT, end_pfn << PAGE_SHIFT);
+>>>
+>>> memory_present() expects pfns, the shift is not needed.
+>>
+>> Right.
+>>
+>> -- 
+>> Michal Hocko
+>> SUSE Labs
 
 
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+-- 
+~Randy
