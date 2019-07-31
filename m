@@ -1,75 +1,44 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay10.mail.gandi.net ([217.70.178.230]:40455 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726128AbfG3GM3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 30 Jul 2019 02:12:29 -0400
-Subject: Re: [PATCH RESEND 0/8] Fix mmap base in bottom-up mmap
-References: <20190620050328.8942-1-alex@ghiti.fr>
-From: Alexandre Ghiti <alex@ghiti.fr>
-Message-ID: <175168c1-d25f-7a93-e19b-dbb6ae6289e1@ghiti.fr>
-Date: Tue, 30 Jul 2019 08:12:20 +0200
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Thomas Huth <thuth@redhat.com>
+Subject: [PATCH v3 0/3] KVM: selftests: Enable ucall and dirty_log_test on s390x
+Date: Wed, 31 Jul 2019 17:15:22 +0200
+Message-Id: <20190731151525.17156-1-thuth@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: fr
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+To: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
 
-On 6/20/19 7:03 AM, Alexandre Ghiti wrote:
-> This series fixes the fallback of the top-down mmap: in case of
-> failure, a bottom-up scheme can be tried as a last resort between
-> the top-down mmap base and the stack, hoping for a large unused stack
-> limit.
->
-> Lots of architectures and even mm code start this fallback
-> at TASK_UNMAPPED_BASE, which is useless since the top-down scheme
-> already failed on the whole address space: instead, simply use
-> mmap_base.
->
-> Along the way, it allows to get rid of of mmap_legacy_base and
-> mmap_compat_legacy_base from mm_struct.
->
-> Note that arm and mips already implement this behaviour.
->
-> Alexandre Ghiti (8):
->    s390: Start fallback of top-down mmap at mm->mmap_base
->    sh: Start fallback of top-down mmap at mm->mmap_base
->    sparc: Start fallback of top-down mmap at mm->mmap_base
->    x86, hugetlbpage: Start fallback of top-down mmap at mm->mmap_base
->    mm: Start fallback top-down mmap at mm->mmap_base
->    parisc: Use mmap_base, not mmap_legacy_base, as low_limit for
->      bottom-up mmap
->    x86: Use mmap_*base, not mmap_*legacy_base, as low_limit for bottom-up
->      mmap
->    mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from
->      mm_struct
->
->   arch/parisc/kernel/sys_parisc.c  |  8 +++-----
->   arch/s390/mm/mmap.c              |  2 +-
->   arch/sh/mm/mmap.c                |  2 +-
->   arch/sparc/kernel/sys_sparc_64.c |  2 +-
->   arch/sparc/mm/hugetlbpage.c      |  2 +-
->   arch/x86/include/asm/elf.h       |  2 +-
->   arch/x86/kernel/sys_x86_64.c     |  4 ++--
->   arch/x86/mm/hugetlbpage.c        |  7 ++++---
->   arch/x86/mm/mmap.c               | 20 +++++++++-----------
->   include/linux/mm_types.h         |  2 --
->   mm/debug.c                       |  4 ++--
->   mm/mmap.c                        |  2 +-
->   12 files changed, 26 insertions(+), 31 deletions(-)
->
+Implement the ucall() interface on s390x to be able to use the
+dirty_log_test KVM selftest on s390x, too.
 
-Hi everyone,
+v3:
+ - Fix compilation issue on aarch64 (thanks to Andrew for testing it!)
+ - Added Reviewed-bys
 
-This is just a preparatory series for the merging of x86 mmap top-down 
-functions with
-the generic ones (those should get into v5.3), if you could take some 
-time to take a look,
-that would be great :)
+v2:
+ - Split up ucall.c into architecture specific files
+ - Removed some #ifdef __s390x__  in the dirty_log patch
 
-Thanks,
+Thomas Huth (3):
+  KVM: selftests: Split ucall.c into architecture specific files
+  KVM: selftests: Implement ucall() for s390x
+  KVM: selftests: Enable dirty_log_test on s390x
 
-Alex
+ tools/testing/selftests/kvm/Makefile          |   9 +-
+ tools/testing/selftests/kvm/dirty_log_test.c  |  61 ++++++-
+ .../testing/selftests/kvm/include/kvm_util.h  |   8 +-
+ .../testing/selftests/kvm/lib/aarch64/ucall.c | 112 +++++++++++++
+ tools/testing/selftests/kvm/lib/s390x/ucall.c |  56 +++++++
+ tools/testing/selftests/kvm/lib/ucall.c       | 157 ------------------
+ .../testing/selftests/kvm/lib/x86_64/ucall.c  |  56 +++++++
+ .../selftests/kvm/s390x/sync_regs_test.c      |   6 +-
+ 8 files changed, 287 insertions(+), 178 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/lib/aarch64/ucall.c
+ create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
+ delete mode 100644 tools/testing/selftests/kvm/lib/ucall.c
+ create mode 100644 tools/testing/selftests/kvm/lib/x86_64/ucall.c
+
+-- 
+2.21.0
