@@ -1,65 +1,105 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50338 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726036AbfGAHnI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 1 Jul 2019 03:43:08 -0400
-Date: Mon, 1 Jul 2019 09:43:06 +0200
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 02/11] s390x/mm: Fail when an altmap is used for
- arch_add_memory()
-Message-ID: <20190701074306.GC6376@dhcp22.suse.cz>
-References: <20190527111152.16324-1-david@redhat.com>
- <20190527111152.16324-3-david@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190527111152.16324-3-david@redhat.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v5 3/7] s390: vfio-ap: implement in-use callback for vfio_ap driver
+Date: Wed, 31 Jul 2019 18:41:13 -0400
+In-Reply-To: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1564612877-7598-1-git-send-email-akrowiak@linux.ibm.com>
+Message-Id: <1564612877-7598-4-git-send-email-akrowiak@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, akpm@linux-foundation.org, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richard.weiyang@gmail.com>, Igor Mammedov <imammedo@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Oscar Salvador <osalvador@suse.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, david@redhat.com, mjrosato@linux.ibm.com, schwidefsky@de.ibm.com, heiko.carstens@de.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-On Mon 27-05-19 13:11:43, David Hildenbrand wrote:
-> ZONE_DEVICE is not yet supported, fail if an altmap is passed, so we
-> don't forget arch_add_memory()/arch_remove_memory() when unlocking
-> support.
+Let's implement the callback to indicate when an APQN
+is in use by the vfio_ap device driver. The callback is
+invoked whenever a change to the apmask or aqmask may
+result in one or APQNs being removed from the driver. The
+vfio_ap device driver will indicate a resource is in use
+if any of the removed APQNs are assigned to any of the matrix
+mdev devices.
 
-Why do we need this? Sure ZONE_DEVICE is not supported for s390 and so
-might be the case for other arches which support hotplug. I do not see
-much point in adding warning to each of them.
+To ensure that the AP bus apmask/aqmask interfaces are used to control
+which AP queues get manually bound to or unbound from the
+vfio_ap device driver, the bind/unbind sysfs interfaces will
+be disabled for the vfio_ap device driver. The reasons for this are:
 
-> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Oscar Salvador <osalvador@suse.com>
-> Suggested-by: Dan Williams <dan.j.williams@intel.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/mm/init.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 14d1eae9fe43..d552e330fbcc 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -226,6 +226,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
->  	unsigned long size_pages = PFN_DOWN(size);
->  	int rc;
->  
-> +	if (WARN_ON_ONCE(restrictions->altmap))
-> +		return -EINVAL;
-> +
->  	rc = vmem_add_mapping(start, size);
->  	if (rc)
->  		return rc;
-> -- 
-> 2.20.1
-> 
+* To prevent unbinding an AP queue device from the vfio_ap device
+  driver representing a queue that is assigned to an mdev device.
 
+* To enforce the policy that the the AP resources must first be
+  unassigned from the mdev device - which will hot unplug them from a
+  guest using the mdev device - before changing ownership of APQNs
+  from the vfio_ap driver to a zcrypt driver. This ensures that private
+  crypto data intended for the guest will never be accessible from the
+  host.
+
+* It takes advantage of the AP architecture to prevent dynamic changes
+  to the LPAR configuration using the SE or SCLP commands from
+  compromising the guest crypto devices. For example:
+
+  * Even if an adapter is configured off, if and when it is configured
+    back on, the queue devices associated with the adapter will be bound
+    back to the vfio_ap driver and the queues will automatically be
+    available to a guest using the mdev to which the APQN of the queue
+    device is assigned.
+
+  * If adapters or domains are dynamically unassigned from the LPAR
+    in which the linux guest is running, effective masking will
+    prevent access to the AP resources by a guest using them.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_drv.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 9e61d4c6e6b5..d8da520ae1fa 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -158,6 +158,34 @@ static void vfio_ap_matrix_dev_destroy(void)
+ 	root_device_unregister(root_device);
+ }
+ 
++static bool vfio_ap_resource_in_use(unsigned long *apm, unsigned long *aqm)
++{
++	bool in_use = false;
++	struct ap_matrix_mdev *matrix_mdev;
++	DECLARE_BITMAP(apm_intrsctn, AP_DEVICES);
++	DECLARE_BITMAP(aqm_intrsctn, AP_DOMAINS);
++
++	mutex_lock(&matrix_dev->lock);
++
++	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++		bitmap_and(apm_intrsctn, apm, matrix_mdev->matrix.apm,
++			   AP_DEVICES);
++		if (find_first_bit_inv(apm_intrsctn, AP_DEVICES) == AP_DEVICES)
++			continue;
++
++		bitmap_and(aqm_intrsctn, aqm, matrix_mdev->matrix.aqm,
++			   AP_DOMAINS);
++		if (find_first_bit_inv(aqm_intrsctn, AP_DEVICES) == AP_DOMAINS)
++			continue;
++
++		in_use = true;
++	}
++
++	mutex_unlock(&matrix_dev->lock);
++
++	return in_use;
++}
++
+ static int __init vfio_ap_init(void)
+ {
+ 	int ret;
+@@ -173,7 +201,9 @@ static int __init vfio_ap_init(void)
+ 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
+ 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
+ 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
++	vfio_ap_drv.in_use = vfio_ap_resource_in_use;
+ 	vfio_ap_drv.ids = ap_queue_ids;
++	vfio_ap_drv.driver.suppress_bind_attrs = true;
+ 
+ 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+ 	if (ret) {
 -- 
-Michal Hocko
-SUSE Labs
+2.7.4
