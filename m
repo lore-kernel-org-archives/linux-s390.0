@@ -1,24 +1,25 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45026 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42148 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387593AbfGaOvW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 31 Jul 2019 10:51:22 -0400
-Date: Wed, 31 Jul 2019 16:51:15 +0200
-From: Andrew Jones <drjones@redhat.com>
-Subject: Re: [PATCH v2 0/3] KVM: selftests: Enable ucall and dirty_log_test
- on s390x
-Message-ID: <20190731145115.lxdsjtqmjszzcbug@kamzik.brq.redhat.com>
+        id S2387612AbfGaNjs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 31 Jul 2019 09:39:48 -0400
+Subject: Re: [PATCH v2 0/3] KVM: selftests: Enable ucall and dirty_log_test on
+ s390x
+From: Thomas Huth <thuth@redhat.com>
 References: <20190731133216.5620-1-thuth@redhat.com>
+Message-ID: <9a2d3e3c-67f1-d53b-944e-5f3b6a1fc8b0@redhat.com>
+Date: Wed, 31 Jul 2019 15:39:40 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20190731133216.5620-1-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>
-Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>
+To: kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>
 
-On Wed, Jul 31, 2019 at 03:32:13PM +0200, Thomas Huth wrote:
+On 31/07/2019 15.32, Thomas Huth wrote:
 > Implement the ucall() interface on s390x to be able to use the
 > dirty_log_test KVM selftest on s390x, too.
 > 
@@ -28,27 +29,11 @@ On Wed, Jul 31, 2019 at 03:32:13PM +0200, Thomas Huth wrote:
 > 
 > Thomas Huth (3):
 >   KVM: selftests: Split ucall.c into architecture specific files
->   KVM: selftests: Implement ucall() for s390x
->   KVM: selftests: Enable dirty_log_test on s390x
-> 
->  tools/testing/selftests/kvm/Makefile          |   9 +-
->  tools/testing/selftests/kvm/dirty_log_test.c  |  61 ++++++-
->  .../testing/selftests/kvm/include/kvm_util.h  |   8 +-
->  .../testing/selftests/kvm/lib/aarch64/ucall.c | 112 +++++++++++++
->  tools/testing/selftests/kvm/lib/s390x/ucall.c |  56 +++++++
->  tools/testing/selftests/kvm/lib/ucall.c       | 157 ------------------
->  .../testing/selftests/kvm/lib/x86_64/ucall.c  |  56 +++++++
->  .../selftests/kvm/s390x/sync_regs_test.c      |   6 +-
->  8 files changed, 287 insertions(+), 178 deletions(-)
->  create mode 100644 tools/testing/selftests/kvm/lib/aarch64/ucall.c
->  create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
->  delete mode 100644 tools/testing/selftests/kvm/lib/ucall.c
->  create mode 100644 tools/testing/selftests/kvm/lib/x86_64/ucall.c
-> 
-> -- 
-> 2.21.0
->
 
-With the include change to fix compilation on aarch64, for the series
+I forgot to say: I only checked x86 and s390x ... Andrew, could you
+please check that the dirty_log_test still builds and runs fine on
+aarch64 after applying my patches? (Sorry, I tried to get a aarch64
+machine here, but so far I failed...)
 
-Reviewed-by: Andrew Jones <drjones@redhat.com>
+ Thanks,
+  Thomas
