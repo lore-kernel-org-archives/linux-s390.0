@@ -1,65 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41816 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730545AbfHWJ3f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Aug 2019 05:29:35 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7N9RLqN008033
-        for <linux-s390@vger.kernel.org>; Fri, 23 Aug 2019 05:29:34 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ujd6s8sfk-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 23 Aug 2019 05:29:33 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Fri, 23 Aug 2019 10:29:32 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net] s390/qeth: reject oversized SNMP requests
-Date: Fri, 23 Aug 2019 11:29:23 +0200
-Message-Id: <20190823092923.8507-1-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:35582 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2394272AbfHBNYw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:52 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 14/30] s390/qdio: add sanity checks to the fast-requeue path
+Date: Fri,  2 Aug 2019 09:24:06 -0400
+Message-Id: <20190802132422.13963-14-sashal@kernel.org>
+In-Reply-To: <20190802132422.13963-1-sashal@kernel.org>
+References: <20190802132422.13963-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Commit d4c08afafa04 ("s390/qeth: streamline SNMP cmd code") removed
-the bounds checking for req_len, under the assumption that the check in
-qeth_alloc_cmd() would suffice.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-But that code path isn't sufficiently robust to handle a user-provided
-data_length, which could overflow (when adding the cmd header overhead)
-before being checked against QETH_BUFSIZE. We end up allocating just a
-tiny iob, and the subsequent copy_from_user() writes past the end of
-that iob.
+[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
 
-Special-case this path and add a coarse bounds check, to protect against
-maliciuous requests. This let's the subsequent code flow do its normal
-job and precise checking, without risk of overflow.
+If the device driver were to send out a full queue's worth of SBALs,
+current code would end up discovering the last of those SBALs as PRIMED
+and erroneously skip the SIGA-w. This immediately stalls the queue.
 
-Fixes: d4c08afafa04 ("s390/qeth: streamline SNMP cmd code")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Add a check to not attempt fast-requeue in this case. While at it also
+make sure that the state of the previous SBAL was successfully extracted
+before inspecting it.
+
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/s390/cio/qdio_main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 9c3310c4d61d..6502b148541e 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4374,6 +4374,10 @@ static int qeth_snmp_command(struct qeth_card *card, char __user *udata)
- 	    get_user(req_len, &ureq->hdr.req_len))
- 		return -EFAULT;
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index ab8dd81fbc2b1..1a40c73961b83 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1577,13 +1577,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
+ 		rc = qdio_kick_outbound_q(q, phys_aob);
+ 	} else if (need_siga_sync(q)) {
+ 		rc = qdio_siga_sync_q(q);
++	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
++		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
++		   state == SLSB_CU_OUTPUT_PRIMED) {
++		/* The previous buffer is not processed yet, tack on. */
++		qperf_inc(q, fast_requeue);
+ 	} else {
+-		/* try to fast requeue buffers */
+-		get_buf_state(q, prev_buf(bufnr), &state, 0);
+-		if (state != SLSB_CU_OUTPUT_PRIMED)
+-			rc = qdio_kick_outbound_q(q, 0);
+-		else
+-			qperf_inc(q, fast_requeue);
++		rc = qdio_kick_outbound_q(q, 0);
+ 	}
  
-+	/* Sanitize user input, to avoid overflows in iob size calculation: */
-+	if (req_len > QETH_BUFSIZE)
-+		return -EINVAL;
-+
- 	iob = qeth_get_adapter_cmd(card, IPA_SETADP_SET_SNMP_CONTROL, req_len);
- 	if (!iob)
- 		return -ENOMEM;
+ 	/* in case of SIGA errors we must process the error immediately */
 -- 
-2.17.1
+2.20.1
