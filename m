@@ -1,131 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38896 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726952AbfHQHt2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:28 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 23/26] lib: provide a simple generic ioremap implementation
-Date: Sat, 17 Aug 2019 09:32:50 +0200
-Message-Id: <20190817073253.27819-24-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:33549 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730809AbfHBNnj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Aug 2019 09:43:39 -0400
+Received: by mail-wr1-f68.google.com with SMTP id n9so77347488wru.0
+        for <linux-s390@vger.kernel.org>; Fri, 02 Aug 2019 06:43:38 -0700 (PDT)
+Subject: Re: [PATCH v3 0/3] KVM: selftests: Enable ucall and dirty_log_test on
+ s390x
+References: <20190731151525.17156-1-thuth@redhat.com>
+ <551b42ae-78a1-e55a-e4b8-bb5cc3a8eb8b@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <9684b15d-39a4-2c1b-3269-466ceb37ef90@redhat.com>
+Date: Fri, 2 Aug 2019 15:43:36 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <551b42ae-78a1-e55a-e4b8-bb5cc3a8eb8b@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: Janosch Frank <frankja@linux.ibm.com>, linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Peter Xu <peterx@redhat.com>, Andrew Jones <drjones@redhat.com>
 
-A lot of architectures reuse the same simple ioremap implementation, so
-start lifting the most simple variant to lib/ioremap.c.  It provides
-ioremap_prot and iounmap, plus a default ioremap that uses prot_noncached,
-although that can be overridden by asm/io.h.
+On 02/08/19 15:39, Christian Borntraeger wrote:
+> On 31.07.19 17:15, Thomas Huth wrote:
+>> Implement the ucall() interface on s390x to be able to use the
+>> dirty_log_test KVM selftest on s390x, too.
+>>
+>> v3:
+>>  - Fix compilation issue on aarch64 (thanks to Andrew for testing it!)
+>>  - Added Reviewed-bys
+>>
+>> v2:
+>>  - Split up ucall.c into architecture specific files
+>>  - Removed some #ifdef __s390x__  in the dirty_log patch
+>>
+>> Thomas Huth (3):
+>>   KVM: selftests: Split ucall.c into architecture specific files
+>>   KVM: selftests: Implement ucall() for s390x
+>>   KVM: selftests: Enable dirty_log_test on s390x
+>>
+>>  tools/testing/selftests/kvm/Makefile          |   9 +-
+>>  tools/testing/selftests/kvm/dirty_log_test.c  |  61 ++++++-
+>>  .../testing/selftests/kvm/include/kvm_util.h  |   8 +-
+>>  .../testing/selftests/kvm/lib/aarch64/ucall.c | 112 +++++++++++++
+>>  tools/testing/selftests/kvm/lib/s390x/ucall.c |  56 +++++++
+>>  tools/testing/selftests/kvm/lib/ucall.c       | 157 ------------------
+>>  .../testing/selftests/kvm/lib/x86_64/ucall.c  |  56 +++++++
+>>  .../selftests/kvm/s390x/sync_regs_test.c      |   6 +-
+>>  8 files changed, 287 insertions(+), 178 deletions(-)
+>>  create mode 100644 tools/testing/selftests/kvm/lib/aarch64/ucall.c
+>>  create mode 100644 tools/testing/selftests/kvm/lib/s390x/ucall.c
+>>  delete mode 100644 tools/testing/selftests/kvm/lib/ucall.c
+>>  create mode 100644 tools/testing/selftests/kvm/lib/x86_64/ucall.c
+>>
+> 
+> Paolo, I guess you do not mind if I carry patch 1 also via the s390x tree?
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/asm-generic/io.h | 20 ++++++++++++++++----
- lib/Kconfig              |  3 +++
- lib/ioremap.c            | 39 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 58 insertions(+), 4 deletions(-)
+Sure,
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index 4e45e1cb6560..4a661fdd1937 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -923,9 +923,10 @@ static inline void *phys_to_virt(unsigned long address)
-  * DOC: ioremap() and ioremap_*() variants
-  *
-  * Architectures with an MMU are expected to provide ioremap() and iounmap()
-- * themselves.  For NOMMU architectures we provide a default nop-op
-- * implementation that expect that the physical address used for MMIO are
-- * already marked as uncached, and can be used as kernel virtual addresses.
-+ * themselves or rely on GENERIC_IOREMAP.  For NOMMU architectures we provide
-+ * a default nop-op implementation that expect that the physical address used
-+ * for MMIO are already marked as uncached, and can be used as kernel virtual
-+ * addresses.
-  *
-  * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
-  * for specific drivers if the architecture choses to implement them.  If they
-@@ -946,7 +947,18 @@ static inline void iounmap(void __iomem *addr)
- {
- }
- #endif
--#endif /* CONFIG_MMU */
-+#elif defined(CONFIG_GENERIC_IOREMAP)
-+#include <asm/pgtable.h>
-+
-+void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
-+void iounmap(volatile void __iomem *addr);
-+
-+static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
-+{
-+	/* _PAGE_IOREMAP needs to be supplied by the architecture */
-+	return ioremap_prot(addr, size, _PAGE_IOREMAP);
-+}
-+#endif /* !CONFIG_MMU || CONFIG_GENERIC_IOREMAP */
- 
- #ifndef ioremap_nocache
- #define ioremap_nocache ioremap
-diff --git a/lib/Kconfig b/lib/Kconfig
-index f33d66fc0e86..5d452e1072ab 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -636,6 +636,9 @@ config STRING_SELFTEST
- 
- endmenu
- 
-+config GENERIC_IOREMAP
-+	bool
-+
- config GENERIC_LIB_ASHLDI3
- 	bool
- 
-diff --git a/lib/ioremap.c b/lib/ioremap.c
-index 0a2ffadc6d71..3f0e18543de8 100644
---- a/lib/ioremap.c
-+++ b/lib/ioremap.c
-@@ -231,3 +231,42 @@ int ioremap_page_range(unsigned long addr,
- 
- 	return err;
- }
-+
-+#ifdef CONFIG_GENERIC_IOREMAP
-+void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
-+{
-+	unsigned long offset, vaddr;
-+	phys_addr_t last_addr;
-+	struct vm_struct *area;
-+
-+	/* Disallow wrap-around or zero size */
-+	last_addr = addr + size - 1;
-+	if (!size || last_addr < addr)
-+		return NULL;
-+
-+	/* Page-align mappings */
-+	offset = addr & (~PAGE_MASK);
-+	addr -= offset;
-+	size = PAGE_ALIGN(size + offset);
-+
-+	area = get_vm_area_caller(size, VM_IOREMAP,
-+			__builtin_return_address(0));
-+	if (!area)
-+		return NULL;
-+	vaddr = (unsigned long)area->addr;
-+
-+	if (ioremap_page_range(vaddr, vaddr + size, addr, __pgprot(prot))) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	return (void __iomem *)(vaddr + offset);
-+}
-+EXPORT_SYMBOL(ioremap_prot);
-+
-+void iounmap(volatile void __iomem *addr)
-+{
-+	vunmap((void *)((unsigned long)addr & PAGE_MASK));
-+}
-+EXPORT_SYMBOL(iounmap);
-+#endif /* CONFIG_GENERIC_IOREMAP */
--- 
-2.20.1
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+
+Paolo
