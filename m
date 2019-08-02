@@ -1,76 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41876 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729968AbfHGOuU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Aug 2019 10:50:20 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x77Eks6J061648
-        for <linux-s390@vger.kernel.org>; Wed, 7 Aug 2019 10:50:19 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2u7y774vj3-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2019 10:50:18 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Wed, 7 Aug 2019 15:50:16 +0100
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 2/2] scsi: core: fix dh and multipathing for SCSI hosts without request batching
-Date: Wed,  7 Aug 2019 16:49:48 +0200
-In-Reply-To: <20190807144948.28265-1-maier@linux.ibm.com>
-References: <20190807144948.28265-1-maier@linux.ibm.com>
-Message-Id: <20190807144948.28265-3-maier@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393864AbfHBNWx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:22:53 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 75/76] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
+Date: Fri,  2 Aug 2019 09:19:49 -0400
+Message-Id: <20190802131951.11600-75-sashal@kernel.org>
+In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
+References: <20190802131951.11600-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Paolo Bonzini <pbonzini@redhat.com>, Ming Lei <ming.lei@redhat.com>
-Cc: linux-next@vger.kernel.org, linux-scsi@vger.kernel.org, linux-block@vger.kernel.org, dm-devel@redhat.com, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>, "Ewan D . Milne" <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>, Mike Snitzer <snitzer@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-This was missing from scsi_device_from_queue() due to the introduction
-of another new scsi_mq_ops_no_commit of linux-next commit
-8930a6c20791 ("scsi: core: add support for request batching")
-from Martin's scsi/5.4/scsi-queue or James' scsi/misc.
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Only devicehandler code seems to call scsi_device_from_queue():
-*** drivers/scsi/scsi_dh.c:
-scsi_dh_activate[255]          sdev = scsi_device_from_queue(q);
-scsi_dh_set_params[302]        sdev = scsi_device_from_queue(q);
-scsi_dh_attach[325]            sdev = scsi_device_from_queue(q);
-scsi_dh_attached_handler_name[363] sdev = scsi_device_from_queue(q);
+[ Upstream commit 1a2dcff881059dedc14fafc8a442664c8dbd60f1 ]
 
-Fixes multipath tools follow-on errors:
+On s390 ZONE_DMA is up to 2G, i.e. ARCH_ZONE_DMA_BITS should be 31 bits.
+The current value is 24 and makes __dma_direct_alloc_pages() take a
+wrong turn first (but __dma_direct_alloc_pages() recovers then).
 
-$ multipath -v6
-...
-libdevmapper: ioctl/libdm-iface.c(1887): device-mapper: reload ioctl on mpatha  failed: No such device
-...
-mpatha: failed to load map, error 19
-...
+Let's correct ARCH_ZONE_DMA_BITS value and avoid wrong turns.
 
-showing also as kernel messages:
-
-device-mapper: table: 252:0: multipath: error attaching hardware handler
-device-mapper: ioctl: error adding target to table
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: 8930a6c20791 ("scsi: core: add support for request batching")
-Cc: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Petr Tesarik <ptesarik@suse.cz>
+Fixes: c61e9637340e ("dma-direct: add support for allocation from ZONE_DMA and ZONE_DMA32")
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_lib.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/page.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 90c257622bb0..73e7d29fbd66 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1922,7 +1922,8 @@ struct scsi_device *scsi_device_from_queue(struct request_queue *q)
- {
- 	struct scsi_device *sdev = NULL;
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index a4d38092530ab..823578c6b9e2c 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -177,6 +177,8 @@ static inline int devmem_is_allowed(unsigned long pfn)
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
  
--	if (q->mq_ops == &scsi_mq_ops)
-+	if (q->mq_ops == &scsi_mq_ops_no_commit ||
-+	    q->mq_ops == &scsi_mq_ops)
- 		sdev = q->queuedata;
- 	if (!sdev || !get_device(&sdev->sdev_gendev))
- 		sdev = NULL;
++#define ARCH_ZONE_DMA_BITS	31
++
+ #include <asm-generic/memory_model.h>
+ #include <asm-generic/getorder.h>
+ 
 -- 
-2.17.1
+2.20.1
