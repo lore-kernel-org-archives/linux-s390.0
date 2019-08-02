@@ -1,73 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:50529 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726864AbfHPJZF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 16 Aug 2019 05:25:05 -0400
-From: Denis Efremov <efremov@linux.com>
-Subject: [PATCH v2 01/10] PCI: Add define for the number of standard PCI BARs
-Date: Fri, 16 Aug 2019 12:24:28 +0300
-Message-Id: <20190816092437.31846-2-efremov@linux.com>
-In-Reply-To: <20190816092437.31846-1-efremov@linux.com>
-References: <20190816092437.31846-1-efremov@linux.com>
+Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2394169AbfHBNY1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:24:27 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/30] vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
+Date: Fri,  2 Aug 2019 09:23:54 -0400
+Message-Id: <20190802132422.13963-2-sashal@kernel.org>
+In-Reply-To: <20190802132422.13963-1-sashal@kernel.org>
+References: <20190802132422.13963-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Denis Efremov <efremov@linux.com>, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Alexandre Torgue <alexandre.torgue@st.com>, Matt Porter <mporter@kernel.crashing.org>, Alexandre Bounine <alex.bou9@gmail.com>, Peter Jones <pjones@redhat.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, Andrew Murray <andrew.murray@arm.com>, Jose Abreu <Jose.Abreu@synopsys.com>, kvm@vger.kernel.org, linux-fbdev@vger.kernel.org, netdev@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Code that iterates over all standard PCI BARs typically uses
-PCI_STD_RESOURCE_END. However, it requires the "unusual" loop condition
-"i <= PCI_STD_RESOURCE_END" rather than something more standard like
-"i < PCI_STD_NUM_BARS".
+From: Farhan Ali <alifm@linux.ibm.com>
 
-This patch adds the definition PCI_STD_NUM_BARS which is equivalent to
-"PCI_STD_RESOURCE_END + 1" and updates loop conditions to use it.
+[ Upstream commit c1ab69268d124ebdbb3864580808188ccd3ea355 ]
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
+So we don't call try to call vfio_unpin_pages() incorrectly.
+
+Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <33a89467ad6369196ae6edf820cbcb1e2d8d050c.1562854091.git.alifm@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c          | 2 +-
- include/linux/pci.h           | 2 +-
- include/uapi/linux/pci_regs.h | 1 +
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 208aacf39329..02bdf3a0231e 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -475,7 +475,7 @@ static void quirk_extend_bar_to_page(struct pci_dev *dev)
- {
- 	int i;
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 1419eaea03d84..5a9e457caef33 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -119,8 +119,10 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
+ 				  sizeof(*pa->pa_iova_pfn) +
+ 				  sizeof(*pa->pa_pfn),
+ 				  GFP_KERNEL);
+-	if (unlikely(!pa->pa_iova_pfn))
++	if (unlikely(!pa->pa_iova_pfn)) {
++		pa->pa_nr = 0;
+ 		return -ENOMEM;
++	}
+ 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
  
--	for (i = 0; i <= PCI_STD_RESOURCE_END; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		struct resource *r = &dev->resource[i];
- 
- 		if (r->flags & IORESOURCE_MEM && resource_size(r) < PAGE_SIZE) {
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 9e700d9f9f28..7b9590d5dc2d 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -76,7 +76,7 @@ enum pci_mmap_state {
- enum {
- 	/* #0-5: standard PCI resources */
- 	PCI_STD_RESOURCES,
--	PCI_STD_RESOURCE_END = 5,
-+	PCI_STD_RESOURCE_END = PCI_STD_RESOURCES + PCI_STD_NUM_BARS - 1,
- 
- 	/* #6: expansion ROM resource */
- 	PCI_ROM_RESOURCE,
-diff --git a/include/uapi/linux/pci_regs.h b/include/uapi/linux/pci_regs.h
-index f28e562d7ca8..68b571d491eb 100644
---- a/include/uapi/linux/pci_regs.h
-+++ b/include/uapi/linux/pci_regs.h
-@@ -34,6 +34,7 @@
-  * of which the first 64 bytes are standardized as follows:
-  */
- #define PCI_STD_HEADER_SIZEOF	64
-+#define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
- #define PCI_VENDOR_ID		0x00	/* 16 bits */
- #define PCI_DEVICE_ID		0x02	/* 16 bits */
- #define PCI_COMMAND		0x04	/* 16 bits */
+ 	ret = pfn_array_pin(pa, mdev);
 -- 
-2.21.0
+2.20.1
