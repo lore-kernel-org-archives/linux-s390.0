@@ -1,44 +1,57 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from helcar.hmeau.com ([216.24.177.18]:49158 "EHLO fornost.hmeau.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389053AbfHBGvC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 02:51:02 -0400
-Date: Fri, 2 Aug 2019 16:50:50 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: linux-next: Tree for Jul 31 - s390 crypto build breakage
-Message-ID: <20190802065050.GC19278@gondor.apana.org.au>
-References: <20190731085819.GA3488@osiris>
- <20190731110816.GA20753@gondor.apana.org.au>
- <20190731111520.GC3488@osiris>
- <20190731113216.GA21068@gondor.apana.org.au>
- <20190731114453.GD3488@osiris>
- <20190801122849.GB4163@osiris>
- <CAKv+Gu_1HP2NapMk5O_-XpJdga5zyFJDkVudTRT6CWm+tqPndA@mail.gmail.com>
- <20190802102019.6a789c51@canb.auug.org.au>
- <20190802031414.GB14879@gondor.apana.org.au>
- <CAKv+Gu_dohBsU3HN_J8cZBSKakKM61g++K1V0T1CJ6JtkJ8V-A@mail.gmail.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKv+Gu_dohBsU3HN_J8cZBSKakKM61g++K1V0T1CJ6JtkJ8V-A@mail.gmail.com>
-Sender: linux-s390-owner@vger.kernel.org
+References: <20190731163915.3fdfcb14@canb.auug.org.au> <20190731085819.GA3488@osiris>
+ <20190731110816.GA20753@gondor.apana.org.au> <20190731111520.GC3488@osiris>
+ <20190731113216.GA21068@gondor.apana.org.au> <20190731114453.GD3488@osiris>
+ <20190801122849.GB4163@osiris> <CAKv+Gu_1HP2NapMk5O_-XpJdga5zyFJDkVudTRT6CWm+tqPndA@mail.gmail.com>
+ <20190802064605.GA4158@osiris>
+In-Reply-To: <20190802064605.GA4158@osiris>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Fri, 2 Aug 2019 09:49:25 +0300
+Message-ID: <CAKv+Gu_66Lrhrju_mUiONq_rxmBq-n0AyaFqeese5T2T=x3RJg@mail.gmail.com>
+Subject: Re: linux-next: Tree for Jul 31 - s390 crypto build breakage
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Harald Freudenberger <freude@linux.ibm.com>, Patrick Steuer <steuer@linux.ibm.com>, Ondrej Mosnacek <omosnace@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Harald Freudenberger <freude@linux.ibm.com>, Patrick Steuer <steuer@linux.ibm.com>
 
-On Fri, Aug 02, 2019 at 09:44:43AM +0300, Ard Biesheuvel wrote:
+On Fri, 2 Aug 2019 at 09:46, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
 >
-> OK. I will adopt this mechanism [0] after all and resubmit, once I get
-> confirmation from either Voldis or Heiko that this makes the issue go
-> away (given that my local GCC does not reproduce the issue)
-> 
-> [0] https://lore.kernel.org/linux-crypto/20190729074434.21064-1-ard.biesheuvel@linaro.org/
+> On Thu, Aug 01, 2019 at 08:28:56PM +0300, Ard Biesheuvel wrote:
+> > On Thu, 1 Aug 2019 at 15:28, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> > > Still not... with linux-next as of today I get this (s390 defconfig):
+> > >
+> > > ERROR: "crypto_aegis128_decrypt_chunk_simd" [crypto/aegis128.ko] undefined!
+> > > ERROR: "crypto_aegis128_update_simd" [crypto/aegis128.ko] undefined!
+> > > ERROR: "crypto_aegis128_encrypt_chunk_simd" [crypto/aegis128.ko] undefined!
+> > > scripts/Makefile.modpost:105: recipe for target 'modules-modpost' failed
+> > >
+> >
+> > Hello Heiko,
+> >
+> > Apologies for the breakage. The first two fixes addressed obvious
+> > shortcomings in my code, but with this issue, I'm a bit puzzled tbh.
+> > The calls to these missing functions should be optimized away, since
+> > have_simd never gets assigned if CONFIG_CRYPTO_AEGIS128_SIMD is not
+> > defined, but for some reason, this isn't working. Which version of GCC
+> > are you using?
+>
+> Plain vanilla gcc 9.1.0.
+>
+> > Also, could you please try whether the patch below fixes the problem? Thanks
+> > https://lore.kernel.org/linux-crypto/20190729074434.21064-1-ard.biesheuvel@linaro.org/
+>
+> Yes, with that patch applied the code compiles.
+>
 
-Please drop the ifdefs around the header files since we've already
-fixed that.
+Thanks for confirming.
+
+Since Voldis is reporting GCC 9.1.x as well, this might be a compiler
+regression (and it explains why I did not see the issue locally)
+
+In any case, the patches have been reverted now, so I will resubmit
+them with the above change folded in.
 
 Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Ard.
