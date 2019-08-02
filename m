@@ -1,110 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:59318 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725267AbfHQHqR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:46:17 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 05/26] openrisc: map as uncached in ioremap
-Date: Sat, 17 Aug 2019 09:32:32 +0200
-Message-Id: <20190817073253.27819-6-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2394496AbfHBN0J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 2 Aug 2019 09:26:09 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/22] s390/qdio: add sanity checks to the fast-requeue path
+Date: Fri,  2 Aug 2019 09:25:33 -0400
+Message-Id: <20190802132547.14517-9-sashal@kernel.org>
+In-Reply-To: <20190802132547.14517-1-sashal@kernel.org>
+References: <20190802132547.14517-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Openrisc is the only architecture not mapping ioremap as uncached,
-which has been the default since the Linux 2.6.x days.  Switch it
-over to implement uncached semantics by default.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
+
+If the device driver were to send out a full queue's worth of SBALs,
+current code would end up discovering the last of those SBALs as PRIMED
+and erroneously skip the SIGA-w. This immediately stalls the queue.
+
+Add a check to not attempt fast-requeue in this case. While at it also
+make sure that the state of the previous SBAL was successfully extracted
+before inspecting it.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/io.h      | 20 +++-----------------
- arch/openrisc/include/asm/pgtable.h |  2 +-
- arch/openrisc/mm/ioremap.c          |  8 ++++----
- 3 files changed, 8 insertions(+), 22 deletions(-)
+ drivers/s390/cio/qdio_main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/openrisc/include/asm/io.h b/arch/openrisc/include/asm/io.h
-index 06a710757789..5b81a96ab85e 100644
---- a/arch/openrisc/include/asm/io.h
-+++ b/arch/openrisc/include/asm/io.h
-@@ -25,25 +25,11 @@
- #define PIO_OFFSET		0
- #define PIO_MASK		0
- 
--#define ioremap_nocache ioremap_nocache
-+#define ioremap_nocache ioremap
- #include <asm-generic/io.h>
- #include <asm/pgtable.h>
- 
--extern void __iomem *__ioremap(phys_addr_t offset, unsigned long size,
--				pgprot_t prot);
--
--static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
--{
--	return __ioremap(offset, size, PAGE_KERNEL);
--}
--
--/* #define _PAGE_CI       0x002 */
--static inline void __iomem *ioremap_nocache(phys_addr_t offset,
--					     unsigned long size)
--{
--	return __ioremap(offset, size,
--			 __pgprot(pgprot_val(PAGE_KERNEL) | _PAGE_CI));
--}
--
-+void __iomem *ioremap(phys_addr_t offset, unsigned long size);
- extern void iounmap(void *addr);
-+
- #endif
-diff --git a/arch/openrisc/include/asm/pgtable.h b/arch/openrisc/include/asm/pgtable.h
-index 497fd908a4c4..2fe9ff5b5d6f 100644
---- a/arch/openrisc/include/asm/pgtable.h
-+++ b/arch/openrisc/include/asm/pgtable.h
-@@ -97,7 +97,7 @@ extern void paging_init(void);
- /* Define some higher level generic page attributes.
-  *
-  * If you change _PAGE_CI definition be sure to change it in
-- * io.h for ioremap_nocache() too.
-+ * io.h for ioremap() too.
-  */
- 
- /*
-diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
-index e0c551ca0891..8f8e97f7eac9 100644
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -34,8 +34,7 @@ static unsigned int fixmaps_used __initdata;
-  * have to convert them into an offset in a page-aligned mapping, but the
-  * caller shouldn't need to know that small detail.
-  */
--void __iomem *__ref
--__ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
-+void __iomem *__ref ioremap(phys_addr_t addr, unsigned long size)
- {
- 	phys_addr_t p;
- 	unsigned long v;
-@@ -66,7 +65,8 @@ __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
- 		fixmaps_used += (size >> PAGE_SHIFT);
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 18ab84e9c6b2a..fa7aabbbffac3 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1575,13 +1575,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
+ 		rc = qdio_kick_outbound_q(q, phys_aob);
+ 	} else if (need_siga_sync(q)) {
+ 		rc = qdio_siga_sync_q(q);
++	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
++		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
++		   state == SLSB_CU_OUTPUT_PRIMED) {
++		/* The previous buffer is not processed yet, tack on. */
++		qperf_inc(q, fast_requeue);
+ 	} else {
+-		/* try to fast requeue buffers */
+-		get_buf_state(q, prev_buf(bufnr), &state, 0);
+-		if (state != SLSB_CU_OUTPUT_PRIMED)
+-			rc = qdio_kick_outbound_q(q, 0);
+-		else
+-			qperf_inc(q, fast_requeue);
++		rc = qdio_kick_outbound_q(q, 0);
  	}
  
--	if (ioremap_page_range(v, v + size, p, prot)) {
-+	if (ioremap_page_range(v, v + size, p,
-+			__pgprot(pgprot_val(PAGE_KERNEL) | _PAGE_CI))) {
- 		if (likely(mem_init_done))
- 			vfree(area->addr);
- 		else
-@@ -76,7 +76,7 @@ __ioremap(phys_addr_t addr, unsigned long size, pgprot_t prot)
- 
- 	return (void __iomem *)(offset + (char *)v);
- }
--EXPORT_SYMBOL(__ioremap);
-+EXPORT_SYMBOL(ioremap);
- 
- void iounmap(void *addr)
- {
+ 	/* in case of SIGA errors we must process the error immediately */
 -- 
 2.20.1
