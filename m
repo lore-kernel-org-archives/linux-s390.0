@@ -1,80 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38388 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbfHQHtW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:22 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/26] hexagon: remove __iounmap
-Date: Sat, 17 Aug 2019 09:32:47 +0200
-Message-Id: <20190817073253.27819-21-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20164 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726394AbfHEHZc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Aug 2019 03:25:32 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x757NSq1025262
+        for <linux-s390@vger.kernel.org>; Mon, 5 Aug 2019 03:25:30 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2u6dv55faf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 05 Aug 2019 03:25:30 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Mon, 5 Aug 2019 08:25:28 +0100
+Subject: Re: [PATCH] s390/net: Mark expected switch fall-throughs
+References: <20190730001715.GA20706@embeddedor>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Mon, 5 Aug 2019 09:25:24 +0200
 MIME-Version: 1.0
+In-Reply-To: <20190730001715.GA20706@embeddedor>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Message-Id: <9d2534f3-246b-ad01-6cae-b9c461b28bac@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Ursula Braun <ubraun@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>
 
-No need to indirect iounmap for hexagon.
+On 30.07.19 02:17, Gustavo A. R. Silva wrote:
+> Mark switch cases where we are expecting to fall through.
+> 
+> This patch fixes the following warnings (Building: s390):
+> 
+> drivers/s390/net/ctcm_fsms.c: In function ‘ctcmpc_chx_attnbusy’:
+> drivers/s390/net/ctcm_fsms.c:1703:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (grp->changed_side == 1) {
+>       ^
+> drivers/s390/net/ctcm_fsms.c:1707:2: note: here
+>   case MPCG_STATE_XID0IOWAIX:
+>   ^~~~
+> 
+> drivers/s390/net/ctcm_mpc.c: In function ‘ctc_mpc_alloc_channel’:
+> drivers/s390/net/ctcm_mpc.c:358:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (callback)
+>       ^
+> drivers/s390/net/ctcm_mpc.c:360:2: note: here
+>   case MPCG_STATE_XID0IOWAIT:
+>   ^~~~
+> 
+> drivers/s390/net/ctcm_mpc.c: In function ‘mpc_action_timeout’:
+> drivers/s390/net/ctcm_mpc.c:1469:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if ((fsm_getstate(rch->fsm) == CH_XID0_PENDING) &&
+>       ^
+> drivers/s390/net/ctcm_mpc.c:1472:2: note: here
+>   default:
+>   ^~~~~~~
+> drivers/s390/net/ctcm_mpc.c: In function ‘mpc_send_qllc_discontact’:
+> drivers/s390/net/ctcm_mpc.c:2087:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (grp->estconnfunc) {
+>       ^
+> drivers/s390/net/ctcm_mpc.c:2092:2: note: here
+>   case MPCG_STATE_FLOWC:
+>   ^~~~
+> 
+> drivers/s390/net/qeth_l2_main.c: In function ‘qeth_l2_process_inbound_buffer’:
+> drivers/s390/net/qeth_l2_main.c:328:7: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>     if (IS_OSN(card)) {
+>        ^
+> drivers/s390/net/qeth_l2_main.c:337:3: note: here
+>    default:
+>    ^~~~~~~
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/s390/net/ctcm_fsms.c    | 1 +
+>  drivers/s390/net/ctcm_mpc.c     | 3 +++
+>  drivers/s390/net/qeth_l2_main.c | 2 +-
+>  3 files changed, 5 insertions(+), 1 deletion(-)
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/hexagon/include/asm/io.h       | 7 +------
- arch/hexagon/kernel/hexagon_ksyms.c | 2 +-
- arch/hexagon/mm/ioremap.c           | 2 +-
- 3 files changed, 3 insertions(+), 8 deletions(-)
-
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index 89537dc1cf97..539e3efcf39c 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -27,7 +27,7 @@
- extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
- 				unsigned long end, unsigned long flags);
- 
--extern void __iounmap(const volatile void __iomem *addr);
-+extern void iounmap(const volatile void __iomem *addr);
- 
- /* Defined in lib/io.c, needed for smc91x driver. */
- extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
-@@ -175,11 +175,6 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
- #define ioremap_nocache ioremap
- 
- 
--static inline void iounmap(volatile void __iomem *addr)
--{
--	__iounmap(addr);
--}
--
- #define __raw_writel writel
- 
- static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
-diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
-index b3dbb472572e..6fb1aaab1c29 100644
---- a/arch/hexagon/kernel/hexagon_ksyms.c
-+++ b/arch/hexagon/kernel/hexagon_ksyms.c
-@@ -14,7 +14,7 @@
- EXPORT_SYMBOL(__clear_user_hexagon);
- EXPORT_SYMBOL(raw_copy_from_user);
- EXPORT_SYMBOL(raw_copy_to_user);
--EXPORT_SYMBOL(__iounmap);
-+EXPORT_SYMBOL(iounmap);
- EXPORT_SYMBOL(__strnlen_user);
- EXPORT_SYMBOL(__vmgetie);
- EXPORT_SYMBOL(__vmsetie);
-diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
-index b103d83b5fbb..255c5b1ee1a7 100644
---- a/arch/hexagon/mm/ioremap.c
-+++ b/arch/hexagon/mm/ioremap.c
-@@ -38,7 +38,7 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
- 	return (void __iomem *) (offset + addr);
- }
- 
--void __iounmap(const volatile void __iomem *addr)
-+void iounmap(const volatile void __iomem *addr)
- {
- 	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
- }
--- 
-2.20.1
+Applied, thanks.
