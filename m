@@ -1,94 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:37078 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726386AbfHQHtC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:02 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/26] asm-generic: ioremap_uc should behave the same with and without MMU
-Date: Sat, 17 Aug 2019 09:32:42 +0200
-Message-Id: <20190817073253.27819-16-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
-MIME-Version: 1.0
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728043AbfHEO0D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Aug 2019 10:26:03 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x75EMXPc014284
+        for <linux-s390@vger.kernel.org>; Mon, 5 Aug 2019 10:26:02 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2u6jwf21k2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 05 Aug 2019 10:25:58 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Mon, 5 Aug 2019 15:25:51 +0100
+Subject: Re: [PATCH v12 01/11] MODSIGN: Export module signature definitions
+From: Mimi Zohar <zohar@linux.ibm.com>
+Date: Mon, 05 Aug 2019 10:25:41 -0400
+In-Reply-To: <20190805151123.12510d72@laptop-ibm>
+References: <20190628021934.4260-1-bauerman@linux.ibm.com>
+         <20190628021934.4260-2-bauerman@linux.ibm.com>
+         <20190701144752.GC25484@linux-8ccs> <87lfxel2q6.fsf@morokweng.localdomain>
+         <20190704125427.31146026@laptop-ibm> <874l41ocf5.fsf@morokweng.localdomain>
+         <20190705150000.372345b0@laptop-ibm> <8736iw9y00.fsf@morokweng.localdomain>
+         <20190805151123.12510d72@laptop-ibm>
+Content-Type: text/plain; charset="utf-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <1565015141.11223.145.camel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Philipp Rudo <prudo@linux.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Jessica Yu <jeyu@kernel.org>, linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, "AKASHI, Takahiro" <takahiro.akashi@linaro.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
 
-Whatever reason there is for the existence of ioremap_uc, and the fact
-that it returns NULL by default on architectures with an MMU applies
-equally to nommu architectures, so don't provide different defaults.
+On Mon, 2019-08-05 at 15:11 +0200, Philipp Rudo wrote:
+> Hi Thiago,
+> 
+> > > The patch looks good now.  
+> > 
+> > Thanks! Can I add your Reviewed-by?
+> 
+> sorry, for the late answer, but I was on vacation the last two weeks. I hope
+> it's not too late now.
+> 
+> Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
 
-In practice the difference is meaningless as the only portable driver
-that uses ioremap_uc is atyfb which probably doesn't show up on nommu
-devices.
+Thanks!  This patch set is still in the #next-queued-testing
+branch.  I'm still hoping for a few more tags, before pushing it out
+to the #next-integrity branch later today.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/asm-generic/io.h | 36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
-
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index d02806513670..a98ed6325727 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -935,18 +935,7 @@ static inline void *phys_to_virt(unsigned long address)
-  * defined your own ioremap_*() variant you must then declare your own
-  * ioremap_*() variant as defined to itself to avoid the default NULL return.
-  */
--
--#ifdef CONFIG_MMU
--
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return NULL;
--}
--#endif
--
--#else /* !CONFIG_MMU */
-+#ifndef CONFIG_MMU
- 
- /*
-  * Change "struct page" to physical address.
-@@ -980,14 +969,6 @@ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
- }
- #endif
- 
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return ioremap_nocache(offset, size);
--}
--#endif
--
- #ifndef ioremap_wc
- #define ioremap_wc ioremap_wc
- static inline void __iomem *ioremap_wc(phys_addr_t offset, size_t size)
-@@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
- }
- #endif
- 
-+/*
-+ * ioremap_uc is special in that we do require an explicit architecture
-+ * implementation.  In general you do now want to use this function in a
-+ * driver and use plain ioremap, which is uncached by default.  Similarly
-+ * architectures should not implement it unless they have a very good
-+ * reason.
-+ */
-+#ifndef ioremap_uc
-+#define ioremap_uc ioremap_uc
-+static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-+{
-+	return NULL;
-+}
-+#endif
-+
- #ifdef CONFIG_HAS_IOPORT_MAP
- #ifndef CONFIG_GENERIC_IOMAP
- #ifndef ioport_map
--- 
-2.20.1
+Mimi
