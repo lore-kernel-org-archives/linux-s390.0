@@ -1,324 +1,126 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/7] crypto: sha256_generic - Fix some coding style issues
-Date: Sat, 17 Aug 2019 16:24:30 +0200
-Message-Id: <20190817142435.8532-3-hdegoede@redhat.com>
-In-Reply-To: <20190817142435.8532-1-hdegoede@redhat.com>
-References: <20190817142435.8532-1-hdegoede@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20058 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725798AbfHFEwb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Aug 2019 00:52:31 -0400
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH v4 5/6] fs/core/vmcore: Move sev_active() reference to x86 arch code
+Date: Tue,  6 Aug 2019 01:49:18 -0300
+Message-Id: <20190806044919.10622-6-bauerman@linux.ibm.com>
+In-Reply-To: <20190806044919.10622-1-bauerman@linux.ibm.com>
+References: <20190806044919.10622-1-bauerman@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: x86@kernel.org
+Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
 
-Add a bunch of missing spaces after commas and arround operators.
+Secure Encrypted Virtualization is an x86-specific feature, so it shouldn't
+appear in generic kernel code because it forces non-x86 architectures to
+define the sev_active() function, which doesn't make a lot of sense.
 
-Note the main goal of this is to make sha256_transform and its helpers
-identical in formatting too the duplcate implementation in lib/sha256.c,
-so that "diff -u" can be used to compare them to prove that no functional
-changes are made when further patches in this series consolidate the 2
-implementations into 1.
+To solve this problem, add an x86 elfcorehdr_read() function to override
+the generic weak implementation. To do that, it's necessary to make
+read_from_oldmem() public so that it can be used outside of vmcore.c.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Also, remove the export for sev_active() since it's only used in files that
+won't be built as modules.
+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Lianbo Jiang <lijiang@redhat.com>
 ---
- crypto/sha256_generic.c | 268 ++++++++++++++++++++--------------------
- 1 file changed, 134 insertions(+), 134 deletions(-)
+ arch/x86/kernel/crash_dump_64.c |  5 +++++
+ arch/x86/mm/mem_encrypt.c       |  1 -
+ fs/proc/vmcore.c                |  8 ++++----
+ include/linux/crash_dump.h      | 14 ++++++++++++++
+ include/linux/mem_encrypt.h     |  1 -
+ 5 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/crypto/sha256_generic.c b/crypto/sha256_generic.c
-index b7502a96a0d4..dac930ca827d 100644
---- a/crypto/sha256_generic.c
-+++ b/crypto/sha256_generic.c
-@@ -48,10 +48,10 @@ static inline u32 Maj(u32 x, u32 y, u32 z)
- 	return (x & y) | (z & (x | y));
+diff --git a/arch/x86/kernel/crash_dump_64.c b/arch/x86/kernel/crash_dump_64.c
+index 22369dd5de3b..045e82e8945b 100644
+--- a/arch/x86/kernel/crash_dump_64.c
++++ b/arch/x86/kernel/crash_dump_64.c
+@@ -70,3 +70,8 @@ ssize_t copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
+ {
+ 	return __copy_oldmem_page(pfn, buf, csize, offset, userbuf, true);
+ }
++
++ssize_t elfcorehdr_read(char *buf, size_t count, u64 *ppos)
++{
++	return read_from_oldmem(buf, count, ppos, 0, sev_active());
++}
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index 94da5a88abe6..9268c12458c8 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -349,7 +349,6 @@ bool sev_active(void)
+ {
+ 	return sme_me_mask && sev_enabled;
+ }
+-EXPORT_SYMBOL(sev_active);
+ 
+ /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
+ bool force_dma_unencrypted(struct device *dev)
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 7bcc92add72c..7b13988796e1 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -104,9 +104,9 @@ static int pfn_is_ram(unsigned long pfn)
  }
  
--#define e0(x)       (ror32(x, 2) ^ ror32(x,13) ^ ror32(x,22))
--#define e1(x)       (ror32(x, 6) ^ ror32(x,11) ^ ror32(x,25))
--#define s0(x)       (ror32(x, 7) ^ ror32(x,18) ^ (x >> 3))
--#define s1(x)       (ror32(x,17) ^ ror32(x,19) ^ (x >> 10))
-+#define e0(x)       (ror32(x, 2) ^ ror32(x, 13) ^ ror32(x, 22))
-+#define e1(x)       (ror32(x, 6) ^ ror32(x, 11) ^ ror32(x, 25))
-+#define s0(x)       (ror32(x, 7) ^ ror32(x, 18) ^ (x >> 3))
-+#define s1(x)       (ror32(x, 17) ^ ror32(x, 19) ^ (x >> 10))
- 
- static inline void LOAD_OP(int I, u32 *W, const u8 *input)
+ /* Reads a page from the oldmem device from given offset. */
+-static ssize_t read_from_oldmem(char *buf, size_t count,
+-				u64 *ppos, int userbuf,
+-				bool encrypted)
++ssize_t read_from_oldmem(char *buf, size_t count,
++			 u64 *ppos, int userbuf,
++			 bool encrypted)
  {
-@@ -78,145 +78,145 @@ static void sha256_transform(u32 *state, const u8 *input)
- 		BLEND_OP(i, W);
+ 	unsigned long pfn, offset;
+ 	size_t nr_bytes;
+@@ -170,7 +170,7 @@ void __weak elfcorehdr_free(unsigned long long addr)
+  */
+ ssize_t __weak elfcorehdr_read(char *buf, size_t count, u64 *ppos)
+ {
+-	return read_from_oldmem(buf, count, ppos, 0, sev_active());
++	return read_from_oldmem(buf, count, ppos, 0, false);
+ }
  
- 	/* load the state into our registers */
--	a=state[0];  b=state[1];  c=state[2];  d=state[3];
--	e=state[4];  f=state[5];  g=state[6];  h=state[7];
-+	a = state[0];  b = state[1];  c = state[2];  d = state[3];
-+	e = state[4];  f = state[5];  g = state[6];  h = state[7];
+ /*
+diff --git a/include/linux/crash_dump.h b/include/linux/crash_dump.h
+index f774c5eb9e3c..4664fc1871de 100644
+--- a/include/linux/crash_dump.h
++++ b/include/linux/crash_dump.h
+@@ -115,4 +115,18 @@ static inline int vmcore_add_device_dump(struct vmcoredd_data *data)
+ 	return -EOPNOTSUPP;
+ }
+ #endif /* CONFIG_PROC_VMCORE_DEVICE_DUMP */
++
++#ifdef CONFIG_PROC_VMCORE
++ssize_t read_from_oldmem(char *buf, size_t count,
++			 u64 *ppos, int userbuf,
++			 bool encrypted);
++#else
++static inline ssize_t read_from_oldmem(char *buf, size_t count,
++				       u64 *ppos, int userbuf,
++				       bool encrypted)
++{
++	return -EOPNOTSUPP;
++}
++#endif /* CONFIG_PROC_VMCORE */
++
+ #endif /* LINUX_CRASHDUMP_H */
+diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
+index 0c5b0ff9eb29..5c4a18a91f89 100644
+--- a/include/linux/mem_encrypt.h
++++ b/include/linux/mem_encrypt.h
+@@ -19,7 +19,6 @@
+ #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
  
- 	/* now iterate */
--	t1 = h + e1(e) + Ch(e,f,g) + 0x428a2f98 + W[ 0];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0x71374491 + W[ 1];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0xb5c0fbcf + W[ 2];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0xe9b5dba5 + W[ 3];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x3956c25b + W[ 4];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0x59f111f1 + W[ 5];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x923f82a4 + W[ 6];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0xab1c5ed5 + W[ 7];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0x428a2f98 + W[0];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0x71374491 + W[1];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0xb5c0fbcf + W[2];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0xe9b5dba5 + W[3];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x3956c25b + W[4];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0x59f111f1 + W[5];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x923f82a4 + W[6];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0xab1c5ed5 + W[7];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
+ static inline bool mem_encrypt_active(void) { return false; }
+-static inline bool sev_active(void) { return false; }
  
--	t1 = h + e1(e) + Ch(e,f,g) + 0xd807aa98 + W[ 8];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0x12835b01 + W[ 9];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0x243185be + W[10];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0x550c7dc3 + W[11];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x72be5d74 + W[12];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0x80deb1fe + W[13];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x9bdc06a7 + W[14];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0xc19bf174 + W[15];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0xd807aa98 + W[8];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0x12835b01 + W[9];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0x243185be + W[10];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0x550c7dc3 + W[11];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x72be5d74 + W[12];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0x80deb1fe + W[13];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x9bdc06a7 + W[14];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0xc19bf174 + W[15];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
+ #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
  
--	t1 = h + e1(e) + Ch(e,f,g) + 0xe49b69c1 + W[16];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0xefbe4786 + W[17];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0x0fc19dc6 + W[18];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0x240ca1cc + W[19];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x2de92c6f + W[20];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0x4a7484aa + W[21];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x5cb0a9dc + W[22];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0x76f988da + W[23];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0xe49b69c1 + W[16];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0xefbe4786 + W[17];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0x0fc19dc6 + W[18];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0x240ca1cc + W[19];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x2de92c6f + W[20];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0x4a7484aa + W[21];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x5cb0a9dc + W[22];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0x76f988da + W[23];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
--	t1 = h + e1(e) + Ch(e,f,g) + 0x983e5152 + W[24];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0xa831c66d + W[25];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0xb00327c8 + W[26];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0xbf597fc7 + W[27];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0xc6e00bf3 + W[28];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0xd5a79147 + W[29];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x06ca6351 + W[30];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0x14292967 + W[31];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0x983e5152 + W[24];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0xa831c66d + W[25];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0xb00327c8 + W[26];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0xbf597fc7 + W[27];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0xc6e00bf3 + W[28];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0xd5a79147 + W[29];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x06ca6351 + W[30];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0x14292967 + W[31];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
--	t1 = h + e1(e) + Ch(e,f,g) + 0x27b70a85 + W[32];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0x2e1b2138 + W[33];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0x4d2c6dfc + W[34];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0x53380d13 + W[35];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x650a7354 + W[36];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0x766a0abb + W[37];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x81c2c92e + W[38];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0x92722c85 + W[39];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0x27b70a85 + W[32];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0x2e1b2138 + W[33];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0x4d2c6dfc + W[34];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0x53380d13 + W[35];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x650a7354 + W[36];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0x766a0abb + W[37];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x81c2c92e + W[38];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0x92722c85 + W[39];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
--	t1 = h + e1(e) + Ch(e,f,g) + 0xa2bfe8a1 + W[40];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0xa81a664b + W[41];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0xc24b8b70 + W[42];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0xc76c51a3 + W[43];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0xd192e819 + W[44];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0xd6990624 + W[45];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0xf40e3585 + W[46];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0x106aa070 + W[47];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0xa2bfe8a1 + W[40];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0xa81a664b + W[41];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0xc24b8b70 + W[42];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0xc76c51a3 + W[43];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0xd192e819 + W[44];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0xd6990624 + W[45];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0xf40e3585 + W[46];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0x106aa070 + W[47];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
--	t1 = h + e1(e) + Ch(e,f,g) + 0x19a4c116 + W[48];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0x1e376c08 + W[49];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0x2748774c + W[50];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0x34b0bcb5 + W[51];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x391c0cb3 + W[52];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0x4ed8aa4a + W[53];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0x5b9cca4f + W[54];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0x682e6ff3 + W[55];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0x19a4c116 + W[48];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0x1e376c08 + W[49];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0x2748774c + W[50];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0x34b0bcb5 + W[51];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x391c0cb3 + W[52];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0x4ed8aa4a + W[53];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0x5b9cca4f + W[54];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0x682e6ff3 + W[55];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
--	t1 = h + e1(e) + Ch(e,f,g) + 0x748f82ee + W[56];
--	t2 = e0(a) + Maj(a,b,c);    d+=t1;    h=t1+t2;
--	t1 = g + e1(d) + Ch(d,e,f) + 0x78a5636f + W[57];
--	t2 = e0(h) + Maj(h,a,b);    c+=t1;    g=t1+t2;
--	t1 = f + e1(c) + Ch(c,d,e) + 0x84c87814 + W[58];
--	t2 = e0(g) + Maj(g,h,a);    b+=t1;    f=t1+t2;
--	t1 = e + e1(b) + Ch(b,c,d) + 0x8cc70208 + W[59];
--	t2 = e0(f) + Maj(f,g,h);    a+=t1;    e=t1+t2;
--	t1 = d + e1(a) + Ch(a,b,c) + 0x90befffa + W[60];
--	t2 = e0(e) + Maj(e,f,g);    h+=t1;    d=t1+t2;
--	t1 = c + e1(h) + Ch(h,a,b) + 0xa4506ceb + W[61];
--	t2 = e0(d) + Maj(d,e,f);    g+=t1;    c=t1+t2;
--	t1 = b + e1(g) + Ch(g,h,a) + 0xbef9a3f7 + W[62];
--	t2 = e0(c) + Maj(c,d,e);    f+=t1;    b=t1+t2;
--	t1 = a + e1(f) + Ch(f,g,h) + 0xc67178f2 + W[63];
--	t2 = e0(b) + Maj(b,c,d);    e+=t1;    a=t1+t2;
-+	t1 = h + e1(e) + Ch(e, f, g) + 0x748f82ee + W[56];
-+	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
-+	t1 = g + e1(d) + Ch(d, e, f) + 0x78a5636f + W[57];
-+	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
-+	t1 = f + e1(c) + Ch(c, d, e) + 0x84c87814 + W[58];
-+	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
-+	t1 = e + e1(b) + Ch(b, c, d) + 0x8cc70208 + W[59];
-+	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
-+	t1 = d + e1(a) + Ch(a, b, c) + 0x90befffa + W[60];
-+	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
-+	t1 = c + e1(h) + Ch(h, a, b) + 0xa4506ceb + W[61];
-+	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
-+	t1 = b + e1(g) + Ch(g, h, a) + 0xbef9a3f7 + W[62];
-+	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
-+	t1 = a + e1(f) + Ch(f, g, h) + 0xc67178f2 + W[63];
-+	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
- 
- 	state[0] += a; state[1] += b; state[2] += c; state[3] += d;
- 	state[4] += e; state[5] += f; state[6] += g; state[7] += h;
--- 
-2.23.0.rc2
