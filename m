@@ -1,81 +1,109 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43668 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726987AbfHSRtA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Aug 2019 13:49:00 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2] s390: vfio-ap: remove unnecessary calls to disable queue interrupts
-Date: Mon, 19 Aug 2019 13:48:49 -0400
-Message-Id: <1566236929-18995-1-git-send-email-akrowiak@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: [PATCH v4 4/6] x86,s390/mm: Move sme_active() and sme_me_mask to x86-specific header
+Date: Tue,  6 Aug 2019 01:49:17 -0300
+Message-Id: <20190806044919.10622-5-bauerman@linux.ibm.com>
+In-Reply-To: <20190806044919.10622-1-bauerman@linux.ibm.com>
+References: <20190806044919.10622-1-bauerman@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: freude@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, pasic@linux.vnet.ibm.com, frankja@linux.ibm.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: x86@kernel.org
+Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, Tom Lendacky <thomas.lendacky@amd.com>
 
-When an AP queue is reset (zeroized), interrupts are disabled. The queue
-reset function currently tries to disable interrupts unnecessarily. This patch
-removes the unnecessary calls to disable interrupts after queue reset.
+Now that generic code doesn't reference them, move sme_active() and
+sme_me_mask to x86's <asm/mem_encrypt.h>.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Also remove the export for sme_active() since it's only used in files that
+won't be built as modules. sme_me_mask on the other hand is used in
+arch/x86/kvm/svm.c (via __sme_set() and __psp_pa()) which can be built as a
+module so its export needs to stay.
+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/mem_encrypt.h |  4 +---
+ arch/x86/include/asm/mem_encrypt.h  | 10 ++++++++++
+ arch/x86/mm/mem_encrypt.c           |  1 -
+ include/linux/mem_encrypt.h         | 14 +-------------
+ 4 files changed, 12 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 0604b49a4d32..e3bcb430e214 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1114,18 +1114,19 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
+diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
+index 3eb018508190..ff813a56bc30 100644
+--- a/arch/s390/include/asm/mem_encrypt.h
++++ b/arch/s390/include/asm/mem_encrypt.h
+@@ -4,9 +4,7 @@
  
--static void vfio_ap_irq_disable_apqn(int apqn)
-+static struct vfio_ap_queue *vfio_ap_find_qdev(int apqn)
+ #ifndef __ASSEMBLY__
+ 
+-#define sme_me_mask	0ULL
+-
+-static inline bool sme_active(void) { return false; }
++static inline bool mem_encrypt_active(void) { return false; }
+ extern bool sev_active(void);
+ 
+ int set_memory_encrypted(unsigned long addr, int numpages);
+diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
+index 0c196c47d621..848ce43b9040 100644
+--- a/arch/x86/include/asm/mem_encrypt.h
++++ b/arch/x86/include/asm/mem_encrypt.h
+@@ -92,6 +92,16 @@ early_set_memory_encrypted(unsigned long vaddr, unsigned long size) { return 0;
+ 
+ extern char __start_bss_decrypted[], __end_bss_decrypted[], __start_bss_decrypted_unused[];
+ 
++static inline bool mem_encrypt_active(void)
++{
++	return sme_me_mask;
++}
++
++static inline u64 sme_get_me_mask(void)
++{
++	return sme_me_mask;
++}
++
+ #endif	/* __ASSEMBLY__ */
+ 
+ #endif	/* __X86_MEM_ENCRYPT_H__ */
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index fece30ca8b0c..94da5a88abe6 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -344,7 +344,6 @@ bool sme_active(void)
  {
- 	struct device *dev;
--	struct vfio_ap_queue *q;
-+	struct vfio_ap_queue *q = NULL;
- 
- 	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
- 				 &apqn, match_apqn);
- 	if (dev) {
- 		q = dev_get_drvdata(dev);
--		vfio_ap_irq_disable(q);
- 		put_device(dev);
- 	}
-+
-+	return q;
+ 	return sme_me_mask && !sev_enabled;
  }
+-EXPORT_SYMBOL(sme_active);
  
- int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-@@ -1164,6 +1165,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 	int rc = 0;
- 	unsigned long apid, apqi;
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	struct vfio_ap_queue *q;
+ bool sev_active(void)
+ {
+diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
+index 470bd53a89df..0c5b0ff9eb29 100644
+--- a/include/linux/mem_encrypt.h
++++ b/include/linux/mem_encrypt.h
+@@ -18,23 +18,11 @@
  
- 	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
- 			     matrix_mdev->matrix.apm_max + 1) {
-@@ -1177,7 +1179,18 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 			 */
- 			if (ret)
- 				rc = ret;
--			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
-+
-+			/*
-+			 * Resetting a queue disables interrupts as a side
-+			 * effect, so there is no need to disable interrupts
-+			 * here. Note that an error on reset indicates the
-+			 * queue is inaccessible, so an attempt to disable
-+			 * interrupts would fail and is therefore unnecessary.
-+			 * Just free up the resources used by IRQ processing.
-+			 */
-+			q = vfio_ap_find_qdev(AP_MKQID(apid, apqi));
-+			if (q)
-+				vfio_ap_free_aqic_resources(q);
- 		}
- 	}
+ #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
  
--- 
-2.7.4
+-#define sme_me_mask	0ULL
+-
+-static inline bool sme_active(void) { return false; }
++static inline bool mem_encrypt_active(void) { return false; }
+ static inline bool sev_active(void) { return false; }
+ 
+ #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
+ 
+-static inline bool mem_encrypt_active(void)
+-{
+-	return sme_me_mask;
+-}
+-
+-static inline u64 sme_get_me_mask(void)
+-{
+-	return sme_me_mask;
+-}
+-
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ /*
+  * The __sme_set() and __sme_clr() macros are useful for adding or removing
