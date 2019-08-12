@@ -1,58 +1,35 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:52642 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbfHQHlv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:41:51 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/26] m68k, microblaze: remove ioremap_fullcache
-Date: Sat, 17 Aug 2019 09:32:30 +0200
-Message-Id: <20190817073253.27819-4-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
+Return-Path: <netdev-owner@vger.kernel.org>
+Subject: Re: [PATCH 0/7] Add definition for the number of standard PCI BARs
+References: <20190811150802.2418-1-efremov@linux.com>
+ <20190812090639.GX56241@e119886-lin.cambridge.arm.com>
+From: Denis Efremov <efremov@linux.com>
+Message-ID: <4a8e0b95-192b-335e-653a-5a973f18ba2e@linux.com>
+Date: Tue, 13 Aug 2019 00:00:34 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20190812090639.GX56241@e119886-lin.cambridge.arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Murray <andrew.murray@arm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Alexandre Torgue <alexandre.torgue@st.com>, Matt Porter <mporter@kernel.crashing.org>, Alexandre Bounine <alex.bou9@gmail.com>, Peter Jones <pjones@redhat.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, kvm@vger.kernel.org, linux-fbdev@vger.kernel.org, netdev@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
 
-No callers of this function.
+On 12.08.2019 12:06, Andrew Murray wrote:
+> 
+> Hi Denis,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/m68k/include/asm/kmap.h     | 7 -------
- arch/microblaze/include/asm/io.h | 1 -
- 2 files changed, 8 deletions(-)
+Hi!
 
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index aac7f045f7f0..03d904fe6087 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -43,13 +43,6 @@ static inline void __iomem *ioremap_wt(unsigned long physaddr,
- 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
- }
- 
--#define ioremap_fullcache ioremap_fullcache
--static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
--					      unsigned long size)
--{
--	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
--}
--
- #define memset_io memset_io
- static inline void memset_io(volatile void __iomem *addr, unsigned char val,
- 			     int count)
-diff --git a/arch/microblaze/include/asm/io.h b/arch/microblaze/include/asm/io.h
-index c7968139486f..86c95b2a1ce1 100644
---- a/arch/microblaze/include/asm/io.h
-+++ b/arch/microblaze/include/asm/io.h
-@@ -40,7 +40,6 @@ extern void iounmap(volatile void __iomem *addr);
- 
- extern void __iomem *ioremap(phys_addr_t address, unsigned long size);
- #define ioremap_nocache(addr, size)		ioremap((addr), (size))
--#define ioremap_fullcache(addr, size)		ioremap((addr), (size))
- #define ioremap_wc(addr, size)			ioremap((addr), (size))
- #define ioremap_wt(addr, size)			ioremap((addr), (size))
- 
--- 
-2.20.1
+> 
+> You could also fix up a few cases where the number of BARs is hard coded in
+> loops, e.g.
+> 
+> drivers/pci/controller/pci-hyperv.c - look for uses of probed_bar in loops
+> drivers/pci/pci.c - pci_release_selected_regions and __pci_request_selected_regions
+> drivers/pci/quirks.c - quirk_alder_ioapic
+> 
+
+Thanks for pointing me on that. I will take this into account in v2.
+
+Denis
