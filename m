@@ -1,71 +1,41 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:44406 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730919AbfHOLKO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Aug 2019 07:10:14 -0400
-Received: by mail-pg1-f193.google.com with SMTP id i18so1154676pgl.11
-        for <linux-s390@vger.kernel.org>; Thu, 15 Aug 2019 04:10:13 -0700 (PDT)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V5 0/5] iommu/amd: Convert the AMD iommu driver to the dma-iommu api
-Date: Thu, 15 Aug 2019 12:09:38 +0100
-Message-Id: <20190815110944.3579-1-murphyt7@tcd.ie>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+Date: Mon, 12 Aug 2019 14:50:34 -0700
+Message-Id: <20190812215052.71840-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+Subject: [PATCH 01/16] s390/boot: fix section name escaping
+From: Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: akpm@linux-foundation.org
+Cc: sedat.dilek@gmail.com, jpoimboe@redhat.com, yhs@fb.com, miguel.ojeda.sandonis@gmail.com, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org
 
-Convert the AMD iommu driver to the dma-iommu api. Remove the iova
-handling and reserve region code from the AMD iommu driver.
+GCC unescapes escaped string section names while Clang does not. Because
+__section uses the `#` stringification operator for the section name, it
+doesn't need to be escaped.
 
-Change-log:
-V5:
--Rebase on top of linux-next
-V4:
--Rebase on top of linux-next
--Split the removing of the unnecessary locking in the amd iommu driver into a seperate patch
--refactor the "iommu/dma-iommu: Handle deferred devices" patch and address comments
-v3:
--rename dma_limit to dma_mask
--exit handle_deferred_device early if (!is_kdump_kernel())
--remove pointless calls to handle_deferred_device
-v2:
--Rebase on top of this series:
- http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
--Add a gfp_t parameter to the iommu_ops::map function.
--Made use of the reserve region code inside the dma-iommu api
+This antipattern was found with:
+$ grep -e __section\(\" -e __section__\(\" -r
 
-Tom Murphy (5):
-  iommu/amd: Remove unnecessary locking from AMD iommu driver
-  iommu: Add gfp parameter to iommu_ops::map
-  iommu/dma-iommu: Handle deferred devices
-  iommu/dma-iommu: Use the dev->coherent_dma_mask
-  iommu/amd: Convert AMD iommu driver to the dma-iommu api
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Suggested-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ arch/s390/boot/startup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/iommu/Kconfig           |   1 +
- drivers/iommu/amd_iommu.c       | 690 ++++----------------------------
- drivers/iommu/amd_iommu_types.h |   1 -
- drivers/iommu/arm-smmu-v3.c     |   2 +-
- drivers/iommu/arm-smmu.c        |   2 +-
- drivers/iommu/dma-iommu.c       |  43 +-
- drivers/iommu/exynos-iommu.c    |   2 +-
- drivers/iommu/intel-iommu.c     |   2 +-
- drivers/iommu/iommu.c           |  43 +-
- drivers/iommu/ipmmu-vmsa.c      |   2 +-
- drivers/iommu/msm_iommu.c       |   2 +-
- drivers/iommu/mtk_iommu.c       |   2 +-
- drivers/iommu/mtk_iommu_v1.c    |   2 +-
- drivers/iommu/omap-iommu.c      |   2 +-
- drivers/iommu/qcom_iommu.c      |   2 +-
- drivers/iommu/rockchip-iommu.c  |   2 +-
- drivers/iommu/s390-iommu.c      |   2 +-
- drivers/iommu/tegra-gart.c      |   2 +-
- drivers/iommu/tegra-smmu.c      |   2 +-
- drivers/iommu/virtio-iommu.c    |   2 +-
- include/linux/iommu.h           |  21 +-
- 21 files changed, 178 insertions(+), 651 deletions(-)
-
+diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
+index 7b0d05414618..26493c4ff04b 100644
+--- a/arch/s390/boot/startup.c
++++ b/arch/s390/boot/startup.c
+@@ -46,7 +46,7 @@ struct diag_ops __bootdata_preserved(diag_dma_ops) = {
+ 	.diag0c = _diag0c_dma,
+ 	.diag308_reset = _diag308_reset_dma
+ };
+-static struct diag210 _diag210_tmp_dma __section(".dma.data");
++static struct diag210 _diag210_tmp_dma __section(.dma.data);
+ struct diag210 *__bootdata_preserved(__diag210_tmp_dma) = &_diag210_tmp_dma;
+ void _swsusp_reset_dma(void);
+ unsigned long __bootdata_preserved(__swsusp_reset_dma) = __pa(_swsusp_reset_dma);
 -- 
-2.20.1
+2.23.0.rc1.153.gdeed80330f-goog
