@@ -1,64 +1,77 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394496AbfHBN0J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:26:09 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 09/22] s390/qdio: add sanity checks to the fast-requeue path
-Date: Fri,  2 Aug 2019 09:25:33 -0400
-Message-Id: <20190802132547.14517-9-sashal@kernel.org>
-In-Reply-To: <20190802132547.14517-1-sashal@kernel.org>
-References: <20190802132547.14517-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 098/123] s390/mm: fix dump_pagetables top level page table walking
+Date: Tue, 13 Aug 2019 22:10:22 -0400
+Message-Id: <20190814021047.14828-98-sashal@kernel.org>
+In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
+References: <20190814021047.14828-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
+[ Upstream commit 8024b5a9fc2bed9a00f0bdba60b443fa3cc4bb5d ]
 
-If the device driver were to send out a full queue's worth of SBALs,
-current code would end up discovering the last of those SBALs as PRIMED
-and erroneously skip the SIGA-w. This immediately stalls the queue.
+Since commit d1874a0c2805 ("s390/mm: make the pxd_offset functions more
+robust") behaviour of p4d_offset, pud_offset and pmd_offset has been
+changed so that they cannot be used to iterate through top level page
+table, because the index for the top level page table is now calculated
+in pgd_offset. To avoid dumping the very first region/segment top level
+table entry 2048 times simply iterate entry pointer like it is already
+done in other page walking cases.
 
-Add a check to not attempt fast-requeue in this case. While at it also
-make sure that the state of the previous SBAL was successfully extracted
-before inspecting it.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: d1874a0c2805 ("s390/mm: make the pxd_offset functions more robust")
+Reported-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/qdio_main.c | 12 ++++++------
+ arch/s390/mm/dump_pagetables.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 18ab84e9c6b2a..fa7aabbbffac3 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1575,13 +1575,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		rc = qdio_kick_outbound_q(q, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
-+	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-+		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
-+		   state == SLSB_CU_OUTPUT_PRIMED) {
-+		/* The previous buffer is not processed yet, tack on. */
-+		qperf_inc(q, fast_requeue);
- 	} else {
--		/* try to fast requeue buffers */
--		get_buf_state(q, prev_buf(bufnr), &state, 0);
--		if (state != SLSB_CU_OUTPUT_PRIMED)
--			rc = qdio_kick_outbound_q(q, 0);
--		else
--			qperf_inc(q, fast_requeue);
-+		rc = qdio_kick_outbound_q(q, 0);
+diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+index 3b93ba0b5d8d6..5d67b81c704a4 100644
+--- a/arch/s390/mm/dump_pagetables.c
++++ b/arch/s390/mm/dump_pagetables.c
+@@ -161,9 +161,9 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
  	}
+ #endif
  
- 	/* in case of SIGA errors we must process the error immediately */
+-	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++) {
++	pmd = pmd_offset(pud, addr);
++	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++, pmd++) {
+ 		st->current_address = addr;
+-		pmd = pmd_offset(pud, addr);
+ 		if (!pmd_none(*pmd)) {
+ 			if (pmd_large(*pmd)) {
+ 				prot = pmd_val(*pmd) &
+@@ -192,9 +192,9 @@ static void walk_pud_level(struct seq_file *m, struct pg_state *st,
+ 	}
+ #endif
+ 
+-	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++) {
++	pud = pud_offset(p4d, addr);
++	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++, pud++) {
+ 		st->current_address = addr;
+-		pud = pud_offset(p4d, addr);
+ 		if (!pud_none(*pud))
+ 			if (pud_large(*pud)) {
+ 				prot = pud_val(*pud) &
+@@ -222,9 +222,9 @@ static void walk_p4d_level(struct seq_file *m, struct pg_state *st,
+ 	}
+ #endif
+ 
+-	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++) {
++	p4d = p4d_offset(pgd, addr);
++	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++, p4d++) {
+ 		st->current_address = addr;
+-		p4d = p4d_offset(pgd, addr);
+ 		if (!p4d_none(*p4d))
+ 			walk_pud_level(m, st, p4d, addr);
+ 		else
 -- 
 2.20.1
