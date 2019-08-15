@@ -1,66 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55812 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728842AbfHTK4M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Aug 2019 06:56:12 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7KAqhpf015326
-        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 06:56:11 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ugdc5pajg-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 06:56:11 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 20 Aug 2019 11:56:09 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 1/3] s390x: Support PSW restart boot
-Date: Tue, 20 Aug 2019 12:55:48 +0200
-In-Reply-To: <20190820105550.4991-1-frankja@linux.ibm.com>
-References: <20190820105550.4991-1-frankja@linux.ibm.com>
-Message-Id: <20190820105550.4991-2-frankja@linux.ibm.com>
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:44406 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730919AbfHOLKO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 15 Aug 2019 07:10:14 -0400
+Received: by mail-pg1-f193.google.com with SMTP id i18so1154676pgl.11
+        for <linux-s390@vger.kernel.org>; Thu, 15 Aug 2019 04:10:13 -0700 (PDT)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH V5 0/5] iommu/amd: Convert the AMD iommu driver to the dma-iommu api
+Date: Thu, 15 Aug 2019 12:09:38 +0100
+Message-Id: <20190815110944.3579-1-murphyt7@tcd.ie>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-Add a boot PSW to PSW restart new, so we can also boot via a PSW
-restart.
+Convert the AMD iommu driver to the dma-iommu api. Remove the iova
+handling and reserve region code from the AMD iommu driver.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/flat.lds | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+Change-log:
+V5:
+-Rebase on top of linux-next
+V4:
+-Rebase on top of linux-next
+-Split the removing of the unnecessary locking in the amd iommu driver into a seperate patch
+-refactor the "iommu/dma-iommu: Handle deferred devices" patch and address comments
+v3:
+-rename dma_limit to dma_mask
+-exit handle_deferred_device early if (!is_kdump_kernel())
+-remove pointless calls to handle_deferred_device
+v2:
+-Rebase on top of this series:
+ http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dma-iommu-ops.3
+-Add a gfp_t parameter to the iommu_ops::map function.
+-Made use of the reserve region code inside the dma-iommu api
 
-diff --git a/s390x/flat.lds b/s390x/flat.lds
-index 403d967..86dffac 100644
---- a/s390x/flat.lds
-+++ b/s390x/flat.lds
-@@ -1,14 +1,18 @@
- SECTIONS
- {
--	/*
--	 * Initial short psw for disk boot, with 31 bit addressing for
--	 * non z/Arch environment compatibility and the instruction
--	 * address 0x10000 (cstart64.S .init).
--	 */
- 	.lowcore : {
-+		/*
-+		 * Initial short psw for disk boot, with 31 bit addressing for
-+		 * non z/Arch environment compatibility and the instruction
-+		 * address 0x10000 (cstart64.S .init).
-+		 */
- 		. = 0;
- 		 LONG(0x00080000)
- 		 LONG(0x80010000)
-+		 /* Restart new PSW for booting via PSW restart. */
-+		 . = 0x1a0;
-+		 QUAD(0x0000000180000000)
-+		 QUAD(0x0000000000010000)
- 	}
- 	. = 0x10000;
- 	.text : {
+Tom Murphy (5):
+  iommu/amd: Remove unnecessary locking from AMD iommu driver
+  iommu: Add gfp parameter to iommu_ops::map
+  iommu/dma-iommu: Handle deferred devices
+  iommu/dma-iommu: Use the dev->coherent_dma_mask
+  iommu/amd: Convert AMD iommu driver to the dma-iommu api
+
+ drivers/iommu/Kconfig           |   1 +
+ drivers/iommu/amd_iommu.c       | 690 ++++----------------------------
+ drivers/iommu/amd_iommu_types.h |   1 -
+ drivers/iommu/arm-smmu-v3.c     |   2 +-
+ drivers/iommu/arm-smmu.c        |   2 +-
+ drivers/iommu/dma-iommu.c       |  43 +-
+ drivers/iommu/exynos-iommu.c    |   2 +-
+ drivers/iommu/intel-iommu.c     |   2 +-
+ drivers/iommu/iommu.c           |  43 +-
+ drivers/iommu/ipmmu-vmsa.c      |   2 +-
+ drivers/iommu/msm_iommu.c       |   2 +-
+ drivers/iommu/mtk_iommu.c       |   2 +-
+ drivers/iommu/mtk_iommu_v1.c    |   2 +-
+ drivers/iommu/omap-iommu.c      |   2 +-
+ drivers/iommu/qcom_iommu.c      |   2 +-
+ drivers/iommu/rockchip-iommu.c  |   2 +-
+ drivers/iommu/s390-iommu.c      |   2 +-
+ drivers/iommu/tegra-gart.c      |   2 +-
+ drivers/iommu/tegra-smmu.c      |   2 +-
+ drivers/iommu/virtio-iommu.c    |   2 +-
+ include/linux/iommu.h           |  21 +-
+ 21 files changed, 178 insertions(+), 651 deletions(-)
+
 -- 
-2.17.0
+2.20.1
