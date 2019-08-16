@@ -1,168 +1,199 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34532 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726310AbfH1Lga (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Aug 2019 07:36:30 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7SBX5AU023105
-        for <linux-s390@vger.kernel.org>; Wed, 28 Aug 2019 07:36:29 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2unqrwakrw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 28 Aug 2019 07:36:29 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 28 Aug 2019 12:36:27 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 2/4] s390x: Storage key library functions now take void ptr addresses
-Date: Wed, 28 Aug 2019 13:36:13 +0200
-In-Reply-To: <20190828113615.4769-1-frankja@linux.ibm.com>
-References: <20190828113615.4769-1-frankja@linux.ibm.com>
-Message-Id: <20190828113615.4769-3-frankja@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:32870 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727572AbfHPVQZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Aug 2019 17:16:25 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/6] crypto: sha256 - Fix some coding style issues
+Date: Fri, 16 Aug 2019 23:16:06 +0200
+Message-Id: <20190816211611.2568-2-hdegoede@redhat.com>
+In-Reply-To: <20190816211611.2568-1-hdegoede@redhat.com>
+References: <20190816211611.2568-1-hdegoede@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Now all mem.h functions are consistent in how they take a memory
-address. Also we have less casting in the future.
+For some reason after the first 15 steps the last statement of each
+step ends with "t1+t2", missing spaces around the "+". This commit
+fixes this. This was done with a 's/= t1+t2/= t1 + t2/' to make sure
+no functional changes are introduced.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Note the main goal of this is to make lib/sha256.c's sha256_transform
+and its helpers identical in formatting too the duplcate implementation
+in crypto/sha256_generic.c so that "diff -u" can be used to compare them
+to prove that no functional changes are made when further patches in
+this series consolidate the 2 implementations into 1.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- lib/s390x/asm/mem.h |  9 +++------
- s390x/pfmf.c        |  4 ++--
- s390x/skey.c        | 24 +++++++++++-------------
- 3 files changed, 16 insertions(+), 21 deletions(-)
+ lib/sha256.c | 98 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 49 insertions(+), 49 deletions(-)
 
-diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
-index 9b8fd70..c78bfa2 100644
---- a/lib/s390x/asm/mem.h
-+++ b/lib/s390x/asm/mem.h
-@@ -26,9 +26,7 @@ union skey {
- 	uint8_t val;
- };
+diff --git a/lib/sha256.c b/lib/sha256.c
+index d9af148d4349..ba4dce0b3711 100644
+--- a/lib/sha256.c
++++ b/lib/sha256.c
+@@ -92,109 +92,109 @@ static void sha256_transform(u32 *state, const u8 *input)
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x9bdc06a7 + W[14];
+ 	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0xc19bf174 + W[15];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
--static inline void set_storage_key(unsigned long addr,
--				   unsigned char skey,
--				   int nq)
-+static inline void set_storage_key(void *addr, unsigned char skey, int nq)
- {
- 	if (nq)
- 		asm volatile(".insn rrf,0xb22b0000,%0,%1,8,0"
-@@ -37,8 +35,7 @@ static inline void set_storage_key(unsigned long addr,
- 		asm volatile("sske %0,%1" : : "d" (skey), "a" (addr));
- }
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0xe49b69c1 + W[16];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xefbe4786 + W[17];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x0fc19dc6 + W[18];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x240ca1cc + W[19];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x2de92c6f + W[20];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x4a7484aa + W[21];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x5cb0a9dc + W[22];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x76f988da + W[23];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
--static inline unsigned long set_storage_key_mb(unsigned long addr,
--					       unsigned char skey)
-+static inline void *set_storage_key_mb(void *addr, unsigned char skey)
- {
- 	assert(test_facility(8));
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x983e5152 + W[24];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xa831c66d + W[25];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0xb00327c8 + W[26];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0xbf597fc7 + W[27];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0xc6e00bf3 + W[28];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xd5a79147 + W[29];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x06ca6351 + W[30];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x14292967 + W[31];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
-@@ -47,7 +44,7 @@ static inline unsigned long set_storage_key_mb(unsigned long addr,
- 	return addr;
- }
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x27b70a85 + W[32];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x2e1b2138 + W[33];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x4d2c6dfc + W[34];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x53380d13 + W[35];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x650a7354 + W[36];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x766a0abb + W[37];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x81c2c92e + W[38];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x92722c85 + W[39];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
--static inline unsigned char get_storage_key(unsigned long addr)
-+static inline unsigned char get_storage_key(void *addr)
- {
- 	unsigned char skey;
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0xa2bfe8a1 + W[40];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xa81a664b + W[41];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0xc24b8b70 + W[42];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0xc76c51a3 + W[43];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0xd192e819 + W[44];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xd6990624 + W[45];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0xf40e3585 + W[46];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x106aa070 + W[47];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
-diff --git a/s390x/pfmf.c b/s390x/pfmf.c
-index 9986624..0b3e70b 100644
---- a/s390x/pfmf.c
-+++ b/s390x/pfmf.c
-@@ -39,7 +39,7 @@ static void test_4k_key(void)
- 	r1.reg.fsc = PFMF_FSC_4K;
- 	r1.reg.key = 0x30;
- 	pfmf(r1.val, pagebuf);
--	skey.val = get_storage_key((unsigned long) pagebuf);
-+	skey.val = get_storage_key(pagebuf);
- 	skey.val &= SKEY_ACC | SKEY_FP;
- 	report("set storage keys", skey.val == 0x30);
- 	report_prefix_pop();
-@@ -59,7 +59,7 @@ static void test_1m_key(void)
- 	r1.reg.key = 0x30;
- 	pfmf(r1.val, pagebuf);
- 	for (i = 0; i < 256; i++) {
--		skey.val = get_storage_key((unsigned long) pagebuf + i * PAGE_SIZE);
-+		skey.val = get_storage_key(pagebuf + i * PAGE_SIZE);
- 		skey.val &= SKEY_ACC | SKEY_FP;
- 		if (skey.val != 0x30) {
- 			rp = false;
-diff --git a/s390x/skey.c b/s390x/skey.c
-index fd4fcc7..efc4eca 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -18,14 +18,12 @@
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x19a4c116 + W[48];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x1e376c08 + W[49];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x2748774c + W[50];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x34b0bcb5 + W[51];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x391c0cb3 + W[52];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x4ed8aa4a + W[53];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x5b9cca4f + W[54];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x682e6ff3 + W[55];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x748f82ee + W[56];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x78a5636f + W[57];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x84c87814 + W[58];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x8cc70208 + W[59];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x90befffa + W[60];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xa4506ceb + W[61];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0xbef9a3f7 + W[62];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0xc67178f2 + W[63];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
- static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
--const unsigned long page0 = (unsigned long)pagebuf;
--const unsigned long page1 = (unsigned long)(pagebuf + PAGE_SIZE);
- 
- static void test_set_mb(void)
- {
- 	union skey skey, ret1, ret2;
--	unsigned long addr = 0x10000 - 2 * PAGE_SIZE;
--	unsigned long end = 0x10000;
-+	void *addr = (void *)0x10000 - 2 * PAGE_SIZE;
-+	void *end = (void *)0x10000;
- 
- 	/* Multi block support came with EDAT 1 */
- 	if (!test_facility(8))
-@@ -46,10 +44,10 @@ static void test_chg(void)
- 	union skey skey1, skey2;
- 
- 	skey1.val = 0x30;
--	set_storage_key(page0, skey1.val, 0);
--	skey1.val = get_storage_key(page0);
-+	set_storage_key(pagebuf, skey1.val, 0);
-+	skey1.val = get_storage_key(pagebuf);
- 	pagebuf[0] = 3;
--	skey2.val = get_storage_key(page0);
-+	skey2.val = get_storage_key(pagebuf);
- 	report("chg bit test", !skey1.str.ch && skey2.str.ch);
- }
- 
-@@ -58,9 +56,9 @@ static void test_set(void)
- 	union skey skey, ret;
- 
- 	skey.val = 0x30;
--	ret.val = get_storage_key(page0);
--	set_storage_key(page0, skey.val, 0);
--	ret.val = get_storage_key(page0);
-+	ret.val = get_storage_key(pagebuf);
-+	set_storage_key(pagebuf, skey.val, 0);
-+	ret.val = get_storage_key(pagebuf);
- 	/*
- 	 * For all set tests we only test the ACC and FP bits. RF and
- 	 * CH are set by the machine for memory references and changes
-@@ -103,11 +101,11 @@ static void test_priv(void)
- 	report_prefix_push("sske");
- 	expect_pgm_int();
- 	enter_pstate();
--	set_storage_key(page0, 0x30, 0);
-+	set_storage_key(pagebuf, 0x30, 0);
- 	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
- 	report_prefix_pop();
- 
--	skey.val = get_storage_key(page0);
-+	skey.val = get_storage_key(pagebuf);
- 	report("skey did not change on exception", skey.str.acc != 3);
- 
- 	report_prefix_push("iske");
-@@ -117,7 +115,7 @@ static void test_priv(void)
- 	} else {
- 		expect_pgm_int();
- 		enter_pstate();
--		get_storage_key(page0);
-+		get_storage_key(pagebuf);
- 		check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
- 	}
- 	report_prefix_pop();
+ 	state[0] += a; state[1] += b; state[2] += c; state[3] += d;
+ 	state[4] += e; state[5] += f; state[6] += g; state[7] += h;
 -- 
-2.17.0
+2.22.0
