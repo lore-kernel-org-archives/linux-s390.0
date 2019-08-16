@@ -1,53 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:58204 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:41236 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731146AbfHBNT4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:19:56 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 03/76] vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
-Date: Fri,  2 Aug 2019 09:18:37 -0400
-Message-Id: <20190802131951.11600-3-sashal@kernel.org>
-In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
-References: <20190802131951.11600-1-sashal@kernel.org>
+        id S1727324AbfHPPPO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Aug 2019 11:15:14 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH RFC 0/1] s390dbf logging for vfio-ccw
+Date: Fri, 16 Aug 2019 17:15:04 +0200
+Message-Id: <20190816151505.9853-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+The current discussions around uuids and mdev devices got me thinking,
+and I realized that the uuid is an interesting information for
+debugging devices.
 
-[ Upstream commit c1ab69268d124ebdbb3864580808188ccd3ea355 ]
+Currently, vfio-ccw does not really log any debug data (there's just
+a lone trace event). The common I/O layer has logged interesting
+information into the s390dbf for a long time; this has been very
+useful in the past, as the logged information can be accessed in a
+crash dump (e.g. by the crash tool). We cannot log directly into
+the common I/O layer debug features, though, as vfio-ccw may be a
+module.
 
-So we don't call try to call vfio_unpin_pages() incorrectly.
+Another limitation is that for the sprintf-type debug feature, any
+string logged via '%s' must outlive the debug feature (as it is not
+copied for performance reasons). That means that logging the device
+name is right out, as devices may go away (the current common I/O
+layer code logs the numerical values of ssid/subchannel number instead);
+logging the uuid of an mdev device via %pU just works fine, though.
 
-Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <33a89467ad6369196ae6edf820cbcb1e2d8d050c.1562854091.git.alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+My patch just logs some basics right now, we can certainly add more
+events. We should also think about adding more trace events: they
+may serve a similar purpose, especially if we should enhance the vfio
+code with trace events in the future (so that we can correlate those
+trace events with the vfio-ccw trace events, just as we can correlate
+the s390dbf events with the common I/O layer dbf events to get a more
+complete picture.)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 0e79799e9a719..79eb40bdaf9f4 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -89,8 +89,10 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
- 				  sizeof(*pa->pa_iova_pfn) +
- 				  sizeof(*pa->pa_pfn),
- 				  GFP_KERNEL);
--	if (unlikely(!pa->pa_iova_pfn))
-+	if (unlikely(!pa->pa_iova_pfn)) {
-+		pa->pa_nr = 0;
- 		return -ENOMEM;
-+	}
- 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
- 
- 	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
+Cornelia Huck (1):
+  vfio-ccw: add some logging
+
+ drivers/s390/cio/vfio_ccw_drv.c     | 50 ++++++++++++++++++++++++++--
+ drivers/s390/cio/vfio_ccw_fsm.c     | 51 ++++++++++++++++++++++++++++-
+ drivers/s390/cio/vfio_ccw_ops.c     | 10 ++++++
+ drivers/s390/cio/vfio_ccw_private.h | 17 ++++++++++
+ 4 files changed, 124 insertions(+), 4 deletions(-)
+
 -- 
 2.20.1
