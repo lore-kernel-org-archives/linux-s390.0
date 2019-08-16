@@ -1,93 +1,151 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH RESEND v11 2/8] procfs: switch magic-link modes to be more sane
-Date: Tue, 20 Aug 2019 13:34:00 +1000
-Message-Id: <20190820033406.29796-3-cyphar@cyphar.com>
-In-Reply-To: <20190820033406.29796-1-cyphar@cyphar.com>
-References: <20190820033406.29796-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:38382 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727859AbfHPVQl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Aug 2019 17:16:41 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5/6] crypto: sha256 - Make lib/crypto/sha256.c suitable for generic use
+Date: Fri, 16 Aug 2019 23:16:10 +0200
+Message-Id: <20190816211611.2568-6-hdegoede@redhat.com>
+In-Reply-To: <20190816211611.2568-1-hdegoede@redhat.com>
+References: <20190816211611.2568-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Now that magic-link modes are obeyed for file re-opening purposes, some
-of the pre-existing magic-link modes need to be adjusted to be more
-semantically correct.
+Before this commit lib/crypto/sha256.c has only been used in the s390 and
+x86 purgatory code, make it suitable for generic use:
 
-The most blatant example of this is /proc/self/exe, which had a mode of
-a+rwx even though tautologically the file could never be opened for
-writing (because it is the current->mm of a live process).
+* Export interesting symbols
+* Add  -D__DISABLE_EXPORTS to CFLAGS_sha256.o for purgatory builds to
+  avoid the exports for the purgatory builds
+* Add to lib/crypto/Makefile and crypto/Kconfig
 
-With the new O_PATH restrictions, changing the default mode of these
-magic-links allows us to avoid delayed-access attacks such as we saw in
-CVE-2019-5736.
-
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- fs/proc/base.c       | 20 ++++++++++----------
- fs/proc/namespaces.c |  2 +-
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ arch/s390/purgatory/Makefile | 2 ++
+ arch/x86/purgatory/Makefile  | 2 ++
+ crypto/Kconfig               | 3 +++
+ include/crypto/sha256.h      | 1 +
+ lib/crypto/Makefile          | 3 +++
+ lib/crypto/sha256.c          | 7 ++++++-
+ 6 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ebea9501afb8..297242174402 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -133,9 +133,9 @@ struct pid_entry {
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index 85b05c9e40f5..bc0d7a0d0394 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -10,6 +10,8 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
  
- #define DIR(NAME, MODE, iops, fops)	\
- 	NOD(NAME, (S_IFDIR|(MODE)), &iops, &fops, {} )
--#define LNK(NAME, get_link)					\
--	NOD(NAME, (S_IFLNK|S_IRWXUGO),				\
--		&proc_pid_link_inode_operations, NULL,		\
-+#define LNK(NAME, MODE, get_link)			\
-+	NOD(NAME, (S_IFLNK|(MODE)),			\
-+		&proc_pid_link_inode_operations, NULL,	\
- 		{ .proc_get_link = get_link } )
- #define REG(NAME, MODE, fops)				\
- 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
-@@ -3028,9 +3028,9 @@ static const struct pid_entry tgid_base_stuff[] = {
- 	REG("numa_maps",  S_IRUGO, proc_pid_numa_maps_operations),
- #endif
- 	REG("mem",        S_IRUSR|S_IWUSR, proc_mem_operations),
--	LNK("cwd",        proc_cwd_link),
--	LNK("root",       proc_root_link),
--	LNK("exe",        proc_exe_link),
-+	LNK("cwd",        S_IRWXUGO, proc_cwd_link),
-+	LNK("root",       S_IRWXUGO, proc_root_link),
-+	LNK("exe",        S_IRUGO|S_IXUGO, proc_exe_link),
- 	REG("mounts",     S_IRUGO, proc_mounts_operations),
- 	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
- 	REG("mountstats", S_IRUSR, proc_mountstats_operations),
-@@ -3429,11 +3429,11 @@ static const struct pid_entry tid_base_stuff[] = {
- 	REG("numa_maps", S_IRUGO, proc_pid_numa_maps_operations),
- #endif
- 	REG("mem",       S_IRUSR|S_IWUSR, proc_mem_operations),
--	LNK("cwd",       proc_cwd_link),
--	LNK("root",      proc_root_link),
--	LNK("exe",       proc_exe_link),
-+	LNK("cwd",       S_IRWXUGO, proc_cwd_link),
-+	LNK("root",      S_IRWXUGO, proc_root_link),
-+	LNK("exe",       S_IRUGO|S_IXUGO, proc_exe_link),
- 	REG("mounts",    S_IRUGO, proc_mounts_operations),
--	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
-+	REG("mountinfo", S_IRUGO, proc_mountinfo_operations),
- #ifdef CONFIG_PROC_PAGE_MONITOR
- 	REG("clear_refs", S_IWUSR, proc_clear_refs_operations),
- 	REG("smaps",     S_IRUGO, proc_pid_smaps_operations),
-diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-index dd2b35f78b09..cd1e130913f7 100644
---- a/fs/proc/namespaces.c
-+++ b/fs/proc/namespaces.c
-@@ -94,7 +94,7 @@ static struct dentry *proc_ns_instantiate(struct dentry *dentry,
- 	struct inode *inode;
- 	struct proc_inode *ei;
++CFLAGS_sha256.o := -D__DISABLE_EXPORTS
++
+ $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+ 	$(call if_changed_rule,as_o_S)
  
--	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRWXUGO);
-+	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRUGO);
- 	if (!inode)
- 		return ERR_PTR(-ENOENT);
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 6ebd0739106e..a455083512c1 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -12,6 +12,8 @@ $(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
+ $(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
  
++CFLAGS_sha256.o := -D__DISABLE_EXPORTS
++
+ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
+ targets += purgatory.ro
+ 
+diff --git a/crypto/Kconfig b/crypto/Kconfig
+index df6f0be66574..3ac665dac35f 100644
+--- a/crypto/Kconfig
++++ b/crypto/Kconfig
+@@ -929,6 +929,9 @@ config CRYPTO_SHA1_PPC_SPE
+ 	  SHA-1 secure hash standard (DFIPS 180-4) implemented
+ 	  using powerpc SPE SIMD instruction set.
+ 
++config CRYPTO_LIB_SHA256
++	tristate
++
+ config CRYPTO_SHA256
+ 	tristate "SHA224 and SHA256 digest algorithm"
+ 	select CRYPTO_HASH
+diff --git a/include/crypto/sha256.h b/include/crypto/sha256.h
+index 26972b9e92db..f596202ad85f 100644
+--- a/include/crypto/sha256.h
++++ b/include/crypto/sha256.h
+@@ -21,6 +21,7 @@
+  */
+ 
+ extern int sha256_init(struct sha256_state *sctx);
++extern void sha256_transform(u32 *state, const u8 *input);
+ extern int sha256_update(struct sha256_state *sctx, const u8 *input,
+ 			 unsigned int length);
+ extern int sha256_final(struct sha256_state *sctx, u8 *hash);
+diff --git a/lib/crypto/Makefile b/lib/crypto/Makefile
+index 42a91c62d96d..5423482c1efd 100644
+--- a/lib/crypto/Makefile
++++ b/lib/crypto/Makefile
+@@ -5,3 +5,6 @@ libaes-y := aes.o
+ 
+ obj-$(CONFIG_CRYPTO_LIB_ARC4) += libarc4.o
+ libarc4-y := arc4.o
++
++obj-$(CONFIG_CRYPTO_LIB_SHA256) += libsha256.o
++libsha256-y := sha256.o
+diff --git a/lib/crypto/sha256.c b/lib/crypto/sha256.c
+index 09a435d845fc..3e9cc54f7e1c 100644
+--- a/lib/crypto/sha256.c
++++ b/lib/crypto/sha256.c
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/bitops.h>
++#include <linux/export.h>
+ #include <linux/string.h>
+ #include <crypto/sha256.h>
+ #include <asm/unaligned.h>
+@@ -41,7 +42,7 @@ static inline void BLEND_OP(int I, u32 *W)
+ 	W[I] = s1(W[I-2]) + W[I-7] + s0(W[I-15]) + W[I-16];
+ }
+ 
+-static void sha256_transform(u32 *state, const u8 *input)
++void sha256_transform(u32 *state, const u8 *input)
+ {
+ 	u32 a, b, c, d, e, f, g, h, t1, t2;
+ 	u32 W[64];
+@@ -203,6 +204,7 @@ static void sha256_transform(u32 *state, const u8 *input)
+ 	a = b = c = d = e = f = g = h = t1 = t2 = 0;
+ 	memzero_explicit(W, 64 * sizeof(u32));
+ }
++EXPORT_SYMBOL(sha256_transform);
+ 
+ int sha256_init(struct sha256_state *sctx)
+ {
+@@ -218,6 +220,7 @@ int sha256_init(struct sha256_state *sctx)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(sha256_init);
+ 
+ int sha256_update(struct sha256_state *sctx, const u8 *data, unsigned int len)
+ {
+@@ -248,6 +251,7 @@ int sha256_update(struct sha256_state *sctx, const u8 *data, unsigned int len)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(sha256_update);
+ 
+ int sha256_final(struct sha256_state *sctx, u8 *out)
+ {
+@@ -277,3 +281,4 @@ int sha256_final(struct sha256_state *sctx, u8 *out)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(sha256_final);
 -- 
 2.22.0
