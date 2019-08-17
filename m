@@ -1,52 +1,99 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393864AbfHBNWx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:22:53 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 75/76] s390/dma: provide proper ARCH_ZONE_DMA_BITS value
-Date: Fri,  2 Aug 2019 09:19:49 -0400
-Message-Id: <20190802131951.11600-75-sashal@kernel.org>
-In-Reply-To: <20190802131951.11600-1-sashal@kernel.org>
-References: <20190802131951.11600-1-sashal@kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:35932 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726477AbfHQHst (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:48:49 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 11/26] parisc: remove __ioremap
+Date: Sat, 17 Aug 2019 09:32:38 +0200
+Message-Id: <20190817073253.27819-12-hch@lst.de>
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, Petr Tesarik <ptesarik@suse.cz>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+__ioremap is always called with the _PAGE_NO_CACHE, so fold the whole
+thing and rename it to ioremap.  This allows allows to remove the
+special EISA quirk to force _PAGE_NO_CACHE.
 
-[ Upstream commit 1a2dcff881059dedc14fafc8a442664c8dbd60f1 ]
-
-On s390 ZONE_DMA is up to 2G, i.e. ARCH_ZONE_DMA_BITS should be 31 bits.
-The current value is 24 and makes __dma_direct_alloc_pages() take a
-wrong turn first (but __dma_direct_alloc_pages() recovers then).
-
-Let's correct ARCH_ZONE_DMA_BITS value and avoid wrong turns.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Petr Tesarik <ptesarik@suse.cz>
-Fixes: c61e9637340e ("dma-direct: add support for allocation from ZONE_DMA and ZONE_DMA32")
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/page.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/parisc/include/asm/io.h | 11 +----------
+ arch/parisc/mm/ioremap.c     | 16 +++-------------
+ 2 files changed, 4 insertions(+), 23 deletions(-)
 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index a4d38092530ab..823578c6b9e2c 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -177,6 +177,8 @@ static inline int devmem_is_allowed(unsigned long pfn)
- #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
- 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+diff --git a/arch/parisc/include/asm/io.h b/arch/parisc/include/asm/io.h
+index 93d37010b375..46212b52c23e 100644
+--- a/arch/parisc/include/asm/io.h
++++ b/arch/parisc/include/asm/io.h
+@@ -127,16 +127,7 @@ static inline void gsc_writeq(unsigned long long val, unsigned long addr)
+ /*
+  * The standard PCI ioremap interfaces
+  */
+-
+-extern void __iomem * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
+-
+-/* Most machines react poorly to I/O-space being cacheable... Instead let's
+- * define ioremap() in terms of ioremap_nocache().
+- */
+-static inline void __iomem * ioremap(unsigned long offset, unsigned long size)
+-{
+-	return __ioremap(offset, size, _PAGE_NO_CACHE);
+-}
++void __iomem *ioremap(unsigned long offset, unsigned long size);
+ #define ioremap_nocache(off, sz)	ioremap((off), (sz))
+ #define ioremap_wc			ioremap_nocache
+ #define ioremap_uc			ioremap_nocache
+diff --git a/arch/parisc/mm/ioremap.c b/arch/parisc/mm/ioremap.c
+index 92a9b5f12f98..fe65e27f882b 100644
+--- a/arch/parisc/mm/ioremap.c
++++ b/arch/parisc/mm/ioremap.c
+@@ -25,23 +25,13 @@
+  * have to convert them into an offset in a page-aligned mapping, but the
+  * caller shouldn't need to know that small detail.
+  */
+-void __iomem * __ioremap(unsigned long phys_addr, unsigned long size, unsigned long flags)
++void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ {
+ 	void __iomem *addr;
+ 	struct vm_struct *area;
+ 	unsigned long offset, last_addr;
+ 	pgprot_t pgprot;
  
-+#define ARCH_ZONE_DMA_BITS	31
-+
- #include <asm-generic/memory_model.h>
- #include <asm-generic/getorder.h>
+-#ifdef CONFIG_EISA
+-	unsigned long end = phys_addr + size - 1;
+-	/* Support EISA addresses */
+-	if ((phys_addr >= 0x00080000 && end < 0x000fffff) ||
+-	    (phys_addr >= 0x00500000 && end < 0x03bfffff)) {
+-		phys_addr |= F_EXTEND(0xfc000000);
+-		flags |= _PAGE_NO_CACHE;
+-	}
+-#endif
+-
+ 	/* Don't allow wraparound or zero size */
+ 	last_addr = phys_addr + size - 1;
+ 	if (!size || last_addr < phys_addr)
+@@ -65,7 +55,7 @@ void __iomem * __ioremap(unsigned long phys_addr, unsigned long size, unsigned l
+ 	}
  
+ 	pgprot = __pgprot(_PAGE_PRESENT | _PAGE_RW | _PAGE_DIRTY |
+-			  _PAGE_ACCESSED | flags);
++			  _PAGE_ACCESSED | _PAGE_NO_CACHE);
+ 
+ 	/*
+ 	 * Mappings have to be page-aligned
+@@ -90,7 +80,7 @@ void __iomem * __ioremap(unsigned long phys_addr, unsigned long size, unsigned l
+ 
+ 	return (void __iomem *) (offset + (char __iomem *)addr);
+ }
+-EXPORT_SYMBOL(__ioremap);
++EXPORT_SYMBOL(ioremap);
+ 
+ void iounmap(const volatile void __iomem *addr)
+ {
 -- 
 2.20.1
