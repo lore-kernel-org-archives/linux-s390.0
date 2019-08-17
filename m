@@ -1,113 +1,77 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41342 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729516AbfHGLXQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 7 Aug 2019 07:23:16 -0400
-Date: Wed, 7 Aug 2019 13:23:11 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH RFC UNTESTED] vfio-ccw: indirect access to translated
- cps
-Message-ID: <20190807132311.5238bc24.cohuck@redhat.com>
-In-Reply-To: <20190730174910.47930494.pasic@linux.ibm.com>
-References: <20190726100617.19718-1-cohuck@redhat.com>
-        <20190730174910.47930494.pasic@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 22/26] sh: remove __iounmap
+Date: Sat, 17 Aug 2019 09:32:49 +0200
+Message-Id: <20190817073253.27819-23-hch@lst.de>
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 30 Jul 2019 17:49:10 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+No need to indirect iounmap for sh.
 
-> On Fri, 26 Jul 2019 12:06:17 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
-> 
-> > We're currently keeping a single area for translated channel
-> > programs in our private structure, which is filled out when
-> > we are translating a channel program we have been given by
-> > user space and marked invalid again when we received an final
-> > interrupt for that I/O.
-> > 
-> > Unfortunately, properly tracking the lifetime of that cp is
-> > not easy: failures may happen during translation or right when
-> > it is sent to the hardware, unsolicited interrupts may trigger
-> > a deferred condition code, a halt/clear request may be issued
-> > while the I/O is supposed to be running, or a reset request may
-> > come in from the side. The _PROCESSING state and the ->initialized
-> > flag help a bit, but not enough.
-> > 
-> > We want to have a way to figure out whether we actually have a cp
-> > currently in progress, so we can update/free only when applicable.
-> > Points to keep in mind:
-> > - We will get an interrupt after a cp has been submitted iff ssch
-> >   finished with cc 0.
-> > - We will get more interrupts for a cp if the interrupt status is
-> >   not final.
-> > - We can have only one cp in flight at a time.
-> > 
-> > Let's decouple the actual area in the private structure from the
-> > means to access it: Only after we have successfully submitted a
-> > cp (ssch with cc 0), update the pointer in the private structure
-> > to point to the area used. Therefore, the interrupt handler won't
-> > access the cp if we don't actually expect an interrupt pertaining
-> > to it.
-> > 
-> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> > ---
-> > 
-> > Just hacked this up to get some feedback, did not actually try it
-> > out. Not even sure if this is a sensible approach; if not, let's
-> > blame it on the heat and pretend it didn't happen :)
-> >   
-> 
-> Do not multiple threads access this new cp pointer (and at least one of
-> them writes)? If that is the case, it smells like a data race to me.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/sh/include/asm/io.h | 9 ++-------
+ arch/sh/mm/ioremap.c     | 4 ++--
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-We might need some additional concurrent read/write handling on top, if
-state machine guarantees are not enough. (We may need a respin of the
-state machine locking for that, which we probably want anyway.)
-
-> 
-> Besides the only point of converting cp to a pointer seems to be
-> policing access to cp_area (which used to be cp). I.e. if it is
-> NULL: don't touch it, otherwise: go ahead. We can do that with a single
-> bit, we don't need a pointer for that.
-
-The idea was
-- do translation etc. on an area only accessed by the thread doing the
-  translation
-- switch the pointer to that area once the cp has been submitted
-  successfully (and it is therefore associated with further interrupts
-  etc.)
-The approach in this patch is probably a bit simplistic.
-
-I think one bit is not enough, we have at least three states:
-- idle; start using the area if you like
-- translating; i.e. only the translator is touching the area, keep off
-- submitted; we wait for interrupts, handle them or free if no (more)
-  interrupts can happen
-
-> 
-> Could we convert initialized into some sort of cp.status that
-> tracks/controls access and responsibilities? By working with bits we
-> could benefit from the atomicity of bit-ops -- if I'm not wrong.
-
-We have both the state of the device (state machine) and the state of a
-cp, then. If we keep to a single cp area, we should track that within a
-single state (i.e. the device state).
-
-> 
-> > I also thought about having *two* translation areas and switching
-> > the pointer between them; this might be too complicated, though?  
-> 
-> We only have one channel program at a time or? I can't see the benefit
-> of having two areas.
-
-We can only have one in flight at a time; we could conceivably have
-another one that is currently in the process of being built. The idea
-was to switch between the two (so processing an in-flight one cannot
-overwrite one that is currently being built); but I think this is too
-complicated.
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index ac0561960c52..1495489225ac 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -267,7 +267,7 @@ unsigned long long poke_real_address_q(unsigned long long addr,
+ #ifdef CONFIG_MMU
+ void __iomem *__ioremap_caller(phys_addr_t offset, unsigned long size,
+ 			       pgprot_t prot, void *caller);
+-void __iounmap(void __iomem *addr);
++void iounmap(void __iomem *addr);
+ 
+ static inline void __iomem *
+ __ioremap(phys_addr_t offset, unsigned long size, pgprot_t prot)
+@@ -328,7 +328,7 @@ __ioremap_mode(phys_addr_t offset, unsigned long size, pgprot_t prot)
+ #else
+ #define __ioremap(offset, size, prot)		((void __iomem *)(offset))
+ #define __ioremap_mode(offset, size, prot)	((void __iomem *)(offset))
+-#define __iounmap(addr)				do { } while (0)
++#define iounmap(addr)				do { } while (0)
+ #endif /* CONFIG_MMU */
+ 
+ static inline void __iomem *ioremap(phys_addr_t offset, unsigned long size)
+@@ -370,11 +370,6 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
+ #define ioremap_nocache	ioremap
+ #define ioremap_uc	ioremap
+ 
+-static inline void iounmap(void __iomem *addr)
+-{
+-	__iounmap(addr);
+-}
+-
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+diff --git a/arch/sh/mm/ioremap.c b/arch/sh/mm/ioremap.c
+index d09ddfe58fd8..f6d02246d665 100644
+--- a/arch/sh/mm/ioremap.c
++++ b/arch/sh/mm/ioremap.c
+@@ -103,7 +103,7 @@ static inline int iomapping_nontranslatable(unsigned long offset)
+ 	return 0;
+ }
+ 
+-void __iounmap(void __iomem *addr)
++void iounmap(void __iomem *addr)
+ {
+ 	unsigned long vaddr = (unsigned long __force)addr;
+ 	struct vm_struct *p;
+@@ -134,4 +134,4 @@ void __iounmap(void __iomem *addr)
+ 
+ 	kfree(p);
+ }
+-EXPORT_SYMBOL(__iounmap);
++EXPORT_SYMBOL(iounmap);
+-- 
+2.20.1
