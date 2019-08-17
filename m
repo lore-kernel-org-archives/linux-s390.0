@@ -1,61 +1,199 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13484 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726076AbfHFEug (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Aug 2019 00:50:36 -0400
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: [PATCH v4 6/6] s390/mm: Remove sev_active() function
-Date: Tue,  6 Aug 2019 01:49:19 -0300
-Message-Id: <20190806044919.10622-7-bauerman@linux.ibm.com>
-In-Reply-To: <20190806044919.10622-1-bauerman@linux.ibm.com>
-References: <20190806044919.10622-1-bauerman@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:39756 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725925AbfHQOYn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 17 Aug 2019 10:24:43 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 1/7] crypto: sha256 - Fix some coding style issues
+Date: Sat, 17 Aug 2019 16:24:29 +0200
+Message-Id: <20190817142435.8532-2-hdegoede@redhat.com>
+In-Reply-To: <20190817142435.8532-1-hdegoede@redhat.com>
+References: <20190817142435.8532-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: x86@kernel.org
-Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-All references to sev_active() were moved to arch/x86 so we don't need to
-define it for s390 anymore.
+For some reason after the first 15 steps the last statement of each
+step ends with "t1+t2", missing spaces around the "+". This commit
+fixes this. This was done with a 's/= t1+t2/= t1 + t2/' to make sure
+no functional changes are introduced.
 
-Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Note the main goal of this is to make lib/sha256.c's sha256_transform
+and its helpers identical in formatting too the duplcate implementation
+in crypto/sha256_generic.c so that "diff -u" can be used to compare them
+to prove that no functional changes are made when further patches in
+this series consolidate the 2 implementations into 1.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/s390/include/asm/mem_encrypt.h | 1 -
- arch/s390/mm/init.c                 | 7 +------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ lib/sha256.c | 98 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 49 insertions(+), 49 deletions(-)
 
-diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
-index ff813a56bc30..2542cbf7e2d1 100644
---- a/arch/s390/include/asm/mem_encrypt.h
-+++ b/arch/s390/include/asm/mem_encrypt.h
-@@ -5,7 +5,6 @@
- #ifndef __ASSEMBLY__
+diff --git a/lib/sha256.c b/lib/sha256.c
+index d9af148d4349..ba4dce0b3711 100644
+--- a/lib/sha256.c
++++ b/lib/sha256.c
+@@ -92,109 +92,109 @@ static void sha256_transform(u32 *state, const u8 *input)
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x9bdc06a7 + W[14];
+ 	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0xc19bf174 + W[15];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
- static inline bool mem_encrypt_active(void) { return false; }
--extern bool sev_active(void);
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0xe49b69c1 + W[16];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xefbe4786 + W[17];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x0fc19dc6 + W[18];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x240ca1cc + W[19];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x2de92c6f + W[20];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x4a7484aa + W[21];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x5cb0a9dc + W[22];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x76f988da + W[23];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
- int set_memory_encrypted(unsigned long addr, int numpages);
- int set_memory_decrypted(unsigned long addr, int numpages);
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 20340a03ad90..a124f19f7b3c 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -156,14 +156,9 @@ int set_memory_decrypted(unsigned long addr, int numpages)
- }
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x983e5152 + W[24];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xa831c66d + W[25];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0xb00327c8 + W[26];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0xbf597fc7 + W[27];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0xc6e00bf3 + W[28];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xd5a79147 + W[29];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x06ca6351 + W[30];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x14292967 + W[31];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
- /* are we a protected virtualization guest? */
--bool sev_active(void)
--{
--	return is_prot_virt_guest();
--}
--
- bool force_dma_unencrypted(struct device *dev)
- {
--	return sev_active();
-+	return is_prot_virt_guest();
- }
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x27b70a85 + W[32];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x2e1b2138 + W[33];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x4d2c6dfc + W[34];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x53380d13 + W[35];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x650a7354 + W[36];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x766a0abb + W[37];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x81c2c92e + W[38];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x92722c85 + W[39];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
  
- /* protected virtualization */
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0xa2bfe8a1 + W[40];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0xa81a664b + W[41];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0xc24b8b70 + W[42];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0xc76c51a3 + W[43];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0xd192e819 + W[44];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xd6990624 + W[45];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0xf40e3585 + W[46];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x106aa070 + W[47];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
+ 
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x19a4c116 + W[48];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x1e376c08 + W[49];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x2748774c + W[50];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x34b0bcb5 + W[51];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x391c0cb3 + W[52];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0x4ed8aa4a + W[53];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0x5b9cca4f + W[54];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0x682e6ff3 + W[55];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
+ 
+ 	t1 = h + e1(e) + Ch(e, f, g) + 0x748f82ee + W[56];
+-	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1+t2;
++	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
+ 	t1 = g + e1(d) + Ch(d, e, f) + 0x78a5636f + W[57];
+-	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1+t2;
++	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
+ 	t1 = f + e1(c) + Ch(c, d, e) + 0x84c87814 + W[58];
+-	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1+t2;
++	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
+ 	t1 = e + e1(b) + Ch(b, c, d) + 0x8cc70208 + W[59];
+-	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1+t2;
++	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
+ 	t1 = d + e1(a) + Ch(a, b, c) + 0x90befffa + W[60];
+-	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1+t2;
++	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
+ 	t1 = c + e1(h) + Ch(h, a, b) + 0xa4506ceb + W[61];
+-	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1+t2;
++	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
+ 	t1 = b + e1(g) + Ch(g, h, a) + 0xbef9a3f7 + W[62];
+-	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1+t2;
++	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
+ 	t1 = a + e1(f) + Ch(f, g, h) + 0xc67178f2 + W[63];
+-	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1+t2;
++	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
+ 
+ 	state[0] += a; state[1] += b; state[2] += c; state[3] += d;
+ 	state[4] += e; state[5] += f; state[6] += g; state[7] += h;
+-- 
+2.23.0.rc2
