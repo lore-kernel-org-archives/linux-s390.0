@@ -1,135 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:36557 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727132AbfHYNX4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Aug 2019 09:23:56 -0400
-From: Changbin Du <changbin.du@gmail.com>
-Subject: [PATCH 01/11] ftrace: move recordmcount tools to scripts/ftrace
-Date: Sun, 25 Aug 2019 21:23:20 +0800
-Message-Id: <20190825132330.5015-2-changbin.du@gmail.com>
-In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
-References: <20190825132330.5015-1-changbin.du@gmail.com>
+Received: from mail-io1-f66.google.com ([209.85.166.66]:39743 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726298AbfHQVWQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 17:22:16 -0400
+Received: by mail-io1-f66.google.com with SMTP id l7so13248555ioj.6
+        for <linux-s390@vger.kernel.org>; Sat, 17 Aug 2019 14:22:16 -0700 (PDT)
+Date: Sat, 17 Aug 2019 14:22:15 -0700 (PDT)
+From: Paul Walmsley <paul.walmsley@sifive.com>
+Subject: Re: [PATCH 24/26] riscv: use the generic ioremap code
+In-Reply-To: <20190817073253.27819-25-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com>
+References: <20190817073253.27819-1-hch@lst.de> <20190817073253.27819-25-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>, "John F . Reiser" <jreiser@BitWagon.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
-Move ftrace tools to its own directory. We will add another tool later.
+On Sat, 17 Aug 2019, Christoph Hellwig wrote:
 
-Cc: John F. Reiser <jreiser@BitWagon.com>
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
----
- scripts/.gitignore                   |  1 -
- scripts/Makefile                     |  2 +-
- scripts/Makefile.build               | 10 +++++-----
- scripts/ftrace/.gitignore            |  4 ++++
- scripts/ftrace/Makefile              |  4 ++++
- scripts/{ => ftrace}/recordmcount.c  |  0
- scripts/{ => ftrace}/recordmcount.h  |  0
- scripts/{ => ftrace}/recordmcount.pl |  0
- 8 files changed, 14 insertions(+), 7 deletions(-)
- create mode 100644 scripts/ftrace/.gitignore
- create mode 100644 scripts/ftrace/Makefile
- rename scripts/{ => ftrace}/recordmcount.c (100%)
- rename scripts/{ => ftrace}/recordmcount.h (100%)
- rename scripts/{ => ftrace}/recordmcount.pl (100%)
- mode change 100755 => 100644
+> Use the generic ioremap code instead of providing a local version.
+> Note that this relies on the asm-generic no-op definition of
+> pgprot_noncached.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/riscv/Kconfig               |  1 +
+>  arch/riscv/include/asm/io.h      |  3 --
+>  arch/riscv/include/asm/pgtable.h |  6 +++
+>  arch/riscv/mm/Makefile           |  1 -
+>  arch/riscv/mm/ioremap.c          | 84 --------------------------------
+>  5 files changed, 7 insertions(+), 88 deletions(-)
+>  delete mode 100644 arch/riscv/mm/ioremap.c
 
-diff --git a/scripts/.gitignore b/scripts/.gitignore
-index 17f8cef88fa8..1b5b5d595d80 100644
---- a/scripts/.gitignore
-+++ b/scripts/.gitignore
-@@ -6,7 +6,6 @@ conmakehash
- kallsyms
- pnmtologo
- unifdef
--recordmcount
- sortextable
- asn1_compiler
- extract-cert
-diff --git a/scripts/Makefile b/scripts/Makefile
-index 16bcb8087899..d5992def49a8 100644
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -14,7 +14,6 @@ hostprogs-$(CONFIG_BUILD_BIN2C)  += bin2c
- hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
- hostprogs-$(CONFIG_LOGO)         += pnmtologo
- hostprogs-$(CONFIG_VT)           += conmakehash
--hostprogs-$(BUILD_C_RECORDMCOUNT) += recordmcount
- hostprogs-$(CONFIG_BUILDTIME_EXTABLE_SORT) += sortextable
- hostprogs-$(CONFIG_ASN1)	 += asn1_compiler
- hostprogs-$(CONFIG_MODULE_SIG)	 += sign-file
-@@ -34,6 +33,7 @@ hostprogs-y += unifdef
- subdir-$(CONFIG_GCC_PLUGINS) += gcc-plugins
- subdir-$(CONFIG_MODVERSIONS) += genksyms
- subdir-$(CONFIG_SECURITY_SELINUX) += selinux
-+subdir-$(CONFIG_FTRACE) += ftrace
- 
- # Let clean descend into subdirs
- subdir-	+= basic dtc gdb kconfig mod package
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 2f66ed388d1c..67558983c518 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -188,18 +188,18 @@ endif
- # files, including recordmcount.
- sub_cmd_record_mcount =					\
- 	if [ $(@) != "scripts/mod/empty.o" ]; then	\
--		$(objtree)/scripts/recordmcount $(RECORDMCOUNT_FLAGS) "$(@)";	\
-+		$(objtree)/scripts/ftrace/recordmcount $(RECORDMCOUNT_FLAGS) "$(@)"; \
- 	fi;
--recordmcount_source := $(srctree)/scripts/recordmcount.c \
--		    $(srctree)/scripts/recordmcount.h
-+recordmcount_source := $(srctree)/scripts/ftrace/recordmcount.c \
-+		       $(srctree)/scripts/ftrace/recordmcount.h
- else
--sub_cmd_record_mcount = perl $(srctree)/scripts/recordmcount.pl "$(ARCH)" \
-+sub_cmd_record_mcount = perl $(srctree)/scripts/ftrace/recordmcount.pl "$(ARCH)" \
- 	"$(if $(CONFIG_CPU_BIG_ENDIAN),big,little)" \
- 	"$(if $(CONFIG_64BIT),64,32)" \
- 	"$(OBJDUMP)" "$(OBJCOPY)" "$(CC) $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS)" \
- 	"$(LD) $(KBUILD_LDFLAGS)" "$(NM)" "$(RM)" "$(MV)" \
- 	"$(if $(part-of-module),1,0)" "$(@)";
--recordmcount_source := $(srctree)/scripts/recordmcount.pl
-+recordmcount_source := $(srctree)/scripts/ftrace/recordmcount.pl
- endif # BUILD_C_RECORDMCOUNT
- cmd_record_mcount = $(if $(findstring $(strip $(CC_FLAGS_FTRACE)),$(_c_flags)),	\
- 	$(sub_cmd_record_mcount))
-diff --git a/scripts/ftrace/.gitignore b/scripts/ftrace/.gitignore
-new file mode 100644
-index 000000000000..54d582c8faad
---- /dev/null
-+++ b/scripts/ftrace/.gitignore
-@@ -0,0 +1,4 @@
-+#
-+# Generated files
-+#
-+recordmcount
-diff --git a/scripts/ftrace/Makefile b/scripts/ftrace/Makefile
-new file mode 100644
-index 000000000000..6797e51473e5
---- /dev/null
-+++ b/scripts/ftrace/Makefile
-@@ -0,0 +1,4 @@
-+# SPDX-License-Identifier: GPL-2.0
-+
-+hostprogs-$(BUILD_C_RECORDMCOUNT) += recordmcount
-+always         := $(hostprogs-y)
-diff --git a/scripts/recordmcount.c b/scripts/ftrace/recordmcount.c
-similarity index 100%
-rename from scripts/recordmcount.c
-rename to scripts/ftrace/recordmcount.c
-diff --git a/scripts/recordmcount.h b/scripts/ftrace/recordmcount.h
-similarity index 100%
-rename from scripts/recordmcount.h
-rename to scripts/ftrace/recordmcount.h
-diff --git a/scripts/recordmcount.pl b/scripts/ftrace/recordmcount.pl
-old mode 100755
-new mode 100644
-similarity index 100%
-rename from scripts/recordmcount.pl
-rename to scripts/ftrace/recordmcount.pl
--- 
-2.20.1
+Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
+Tested-by: Paul Walmsley <paul.walmsley@sifive.com> # rv32, rv64 boot
+Acked-by: Paul Walmsley <paul.walmsley@sifive.com> # arch/riscv
+
+
+- Paul
