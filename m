@@ -1,73 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:42827 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728168AbfHZHeT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Aug 2019 03:34:19 -0400
-Subject: Re: [PATCH RESEND 0/8] Fix mmap base in bottom-up mmap
-References: <20190620050328.8942-1-alex@ghiti.fr>
-From: Alexandre Ghiti <alex@ghiti.fr>
-Message-ID: <abc7ed75-0f51-7f21-5a74-d389f968ee55@ghiti.fr>
-Date: Mon, 26 Aug 2019 09:34:11 +0200
+Received: from bombadil.infradead.org ([198.137.202.133]:38896 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726952AbfHQHt2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:28 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 23/26] lib: provide a simple generic ioremap implementation
+Date: Sat, 17 Aug 2019 09:32:50 +0200
+Message-Id: <20190817073253.27819-24-hch@lst.de>
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20190620050328.8942-1-alex@ghiti.fr>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 6/20/19 7:03 AM, Alexandre Ghiti wrote:
-> This series fixes the fallback of the top-down mmap: in case of
-> failure, a bottom-up scheme can be tried as a last resort between
-> the top-down mmap base and the stack, hoping for a large unused stack
-> limit.
->
-> Lots of architectures and even mm code start this fallback
-> at TASK_UNMAPPED_BASE, which is useless since the top-down scheme
-> already failed on the whole address space: instead, simply use
-> mmap_base.
->
-> Along the way, it allows to get rid of of mmap_legacy_base and
-> mmap_compat_legacy_base from mm_struct.
->
-> Note that arm and mips already implement this behaviour.
->
-> Alexandre Ghiti (8):
->    s390: Start fallback of top-down mmap at mm->mmap_base
->    sh: Start fallback of top-down mmap at mm->mmap_base
->    sparc: Start fallback of top-down mmap at mm->mmap_base
->    x86, hugetlbpage: Start fallback of top-down mmap at mm->mmap_base
->    mm: Start fallback top-down mmap at mm->mmap_base
->    parisc: Use mmap_base, not mmap_legacy_base, as low_limit for
->      bottom-up mmap
->    x86: Use mmap_*base, not mmap_*legacy_base, as low_limit for bottom-up
->      mmap
->    mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from
->      mm_struct
->
->   arch/parisc/kernel/sys_parisc.c  |  8 +++-----
->   arch/s390/mm/mmap.c              |  2 +-
->   arch/sh/mm/mmap.c                |  2 +-
->   arch/sparc/kernel/sys_sparc_64.c |  2 +-
->   arch/sparc/mm/hugetlbpage.c      |  2 +-
->   arch/x86/include/asm/elf.h       |  2 +-
->   arch/x86/kernel/sys_x86_64.c     |  4 ++--
->   arch/x86/mm/hugetlbpage.c        |  7 ++++---
->   arch/x86/mm/mmap.c               | 20 +++++++++-----------
->   include/linux/mm_types.h         |  2 --
->   mm/debug.c                       |  4 ++--
->   mm/mmap.c                        |  2 +-
->   12 files changed, 26 insertions(+), 31 deletions(-)
->
+A lot of architectures reuse the same simple ioremap implementation, so
+start lifting the most simple variant to lib/ioremap.c.  It provides
+ioremap_prot and iounmap, plus a default ioremap that uses prot_noncached,
+although that can be overridden by asm/io.h.
 
-Hi everyone,
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/asm-generic/io.h | 20 ++++++++++++++++----
+ lib/Kconfig              |  3 +++
+ lib/ioremap.c            | 39 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 58 insertions(+), 4 deletions(-)
 
-Any thoughts about that series ? As said before, this is just a 
-preparatory patchset in order to
-merge x86 mmap top down code with the generic version.
-
-Thanks for taking a look,
-
-Alex
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index 4e45e1cb6560..4a661fdd1937 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -923,9 +923,10 @@ static inline void *phys_to_virt(unsigned long address)
+  * DOC: ioremap() and ioremap_*() variants
+  *
+  * Architectures with an MMU are expected to provide ioremap() and iounmap()
+- * themselves.  For NOMMU architectures we provide a default nop-op
+- * implementation that expect that the physical address used for MMIO are
+- * already marked as uncached, and can be used as kernel virtual addresses.
++ * themselves or rely on GENERIC_IOREMAP.  For NOMMU architectures we provide
++ * a default nop-op implementation that expect that the physical address used
++ * for MMIO are already marked as uncached, and can be used as kernel virtual
++ * addresses.
+  *
+  * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
+  * for specific drivers if the architecture choses to implement them.  If they
+@@ -946,7 +947,18 @@ static inline void iounmap(void __iomem *addr)
+ {
+ }
+ #endif
+-#endif /* CONFIG_MMU */
++#elif defined(CONFIG_GENERIC_IOREMAP)
++#include <asm/pgtable.h>
++
++void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
++void iounmap(volatile void __iomem *addr);
++
++static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
++{
++	/* _PAGE_IOREMAP needs to be supplied by the architecture */
++	return ioremap_prot(addr, size, _PAGE_IOREMAP);
++}
++#endif /* !CONFIG_MMU || CONFIG_GENERIC_IOREMAP */
+ 
+ #ifndef ioremap_nocache
+ #define ioremap_nocache ioremap
+diff --git a/lib/Kconfig b/lib/Kconfig
+index f33d66fc0e86..5d452e1072ab 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -636,6 +636,9 @@ config STRING_SELFTEST
+ 
+ endmenu
+ 
++config GENERIC_IOREMAP
++	bool
++
+ config GENERIC_LIB_ASHLDI3
+ 	bool
+ 
+diff --git a/lib/ioremap.c b/lib/ioremap.c
+index 0a2ffadc6d71..3f0e18543de8 100644
+--- a/lib/ioremap.c
++++ b/lib/ioremap.c
+@@ -231,3 +231,42 @@ int ioremap_page_range(unsigned long addr,
+ 
+ 	return err;
+ }
++
++#ifdef CONFIG_GENERIC_IOREMAP
++void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
++{
++	unsigned long offset, vaddr;
++	phys_addr_t last_addr;
++	struct vm_struct *area;
++
++	/* Disallow wrap-around or zero size */
++	last_addr = addr + size - 1;
++	if (!size || last_addr < addr)
++		return NULL;
++
++	/* Page-align mappings */
++	offset = addr & (~PAGE_MASK);
++	addr -= offset;
++	size = PAGE_ALIGN(size + offset);
++
++	area = get_vm_area_caller(size, VM_IOREMAP,
++			__builtin_return_address(0));
++	if (!area)
++		return NULL;
++	vaddr = (unsigned long)area->addr;
++
++	if (ioremap_page_range(vaddr, vaddr + size, addr, __pgprot(prot))) {
++		free_vm_area(area);
++		return NULL;
++	}
++
++	return (void __iomem *)(vaddr + offset);
++}
++EXPORT_SYMBOL(ioremap_prot);
++
++void iounmap(volatile void __iomem *addr)
++{
++	vunmap((void *)((unsigned long)addr & PAGE_MASK));
++}
++EXPORT_SYMBOL(iounmap);
++#endif /* CONFIG_GENERIC_IOREMAP */
+-- 
+2.20.1
