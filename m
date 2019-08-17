@@ -1,95 +1,76 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46118 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728535AbfHNCOE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Aug 2019 22:14:04 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 097/123] s390/protvirt: avoid memory sharing for diag 308 set/store
-Date: Tue, 13 Aug 2019 22:10:21 -0400
-Message-Id: <20190814021047.14828-97-sashal@kernel.org>
-In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
-References: <20190814021047.14828-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 4/7] crypto: sha256 - Use get/put_unaligned_be32 to get input, memzero_explicit
+Date: Sat, 17 Aug 2019 16:24:32 +0200
+Message-Id: <20190817142435.8532-5-hdegoede@redhat.com>
+In-Reply-To: <20190817142435.8532-1-hdegoede@redhat.com>
+References: <20190817142435.8532-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+Use get/put_unaligned_be32 in lib/crypto/sha256.c to load / store data
+so that it can be used with unaligned buffers too, making it more generic.
 
-[ Upstream commit a287a49e672d9762bb85de117b477bdf3ef20bd5 ]
+And use memzero_explicit for better clearing of sensitive data.
 
-This reverts commit db9492cef45e ("s390/protvirt: add memory sharing for
-diag 308 set/store") which due to ultravisor implementation change is
-not needed after all.
+Note unlike other patches in this series this commit actually makes
+functional changes to the sha256 code as used by the purgatory code.
 
-Fixes: db9492cef45e ("s390/protvirt: add memory sharing for diag 308 set/store")
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fully aligns the lib/crypto/sha256.c sha256 implementation with the
+one from crypto/sha256_generic.c allowing us to remove the latter in
+further patches in this series.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/s390/boot/ipl_parm.c | 2 --
- arch/s390/kernel/ipl.c    | 9 ---------
- 2 files changed, 11 deletions(-)
+Changes in v2:
+- Also switch to put_unaligned_be32 to store the hash
+---
+ lib/crypto/sha256.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
-index 3c49bde8aa5e3..b8aa6a9f937b2 100644
---- a/arch/s390/boot/ipl_parm.c
-+++ b/arch/s390/boot/ipl_parm.c
-@@ -48,9 +48,7 @@ void store_ipl_parmblock(void)
- {
- 	int rc;
+diff --git a/lib/crypto/sha256.c b/lib/crypto/sha256.c
+index b8114028d06f..1458a20d53a5 100644
+--- a/lib/crypto/sha256.c
++++ b/lib/crypto/sha256.c
+@@ -14,7 +14,7 @@
+ #include <linux/bitops.h>
+ #include <linux/string.h>
+ #include <crypto/sha256.h>
+-#include <asm/byteorder.h>
++#include <asm/unaligned.h>
  
--	uv_set_shared(__pa(&ipl_block));
- 	rc = __diag308(DIAG308_STORE, &ipl_block);
--	uv_remove_shared(__pa(&ipl_block));
- 	if (rc == DIAG308_RC_OK &&
- 	    ipl_block.hdr.version <= IPL_MAX_SUPPORTED_VERSION)
- 		ipl_block_valid = 1;
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 2c0a515428d61..6837affc19e81 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -31,7 +31,6 @@
- #include <asm/os_info.h>
- #include <asm/sections.h>
- #include <asm/boot_data.h>
--#include <asm/uv.h>
- #include "entry.h"
- 
- #define IPL_PARM_BLOCK_VERSION 0
-@@ -892,21 +891,15 @@ static void __reipl_run(void *unused)
+ static inline u32 Ch(u32 x, u32 y, u32 z)
  {
- 	switch (reipl_type) {
- 	case IPL_TYPE_CCW:
--		uv_set_shared(__pa(reipl_block_ccw));
- 		diag308(DIAG308_SET, reipl_block_ccw);
--		uv_remove_shared(__pa(reipl_block_ccw));
- 		diag308(DIAG308_LOAD_CLEAR, NULL);
- 		break;
- 	case IPL_TYPE_FCP:
--		uv_set_shared(__pa(reipl_block_fcp));
- 		diag308(DIAG308_SET, reipl_block_fcp);
--		uv_remove_shared(__pa(reipl_block_fcp));
- 		diag308(DIAG308_LOAD_CLEAR, NULL);
- 		break;
- 	case IPL_TYPE_NSS:
--		uv_set_shared(__pa(reipl_block_nss));
- 		diag308(DIAG308_SET, reipl_block_nss);
--		uv_remove_shared(__pa(reipl_block_nss));
- 		diag308(DIAG308_LOAD_CLEAR, NULL);
- 		break;
- 	case IPL_TYPE_UNKNOWN:
-@@ -1176,9 +1169,7 @@ static struct kset *dump_kset;
+@@ -33,7 +33,7 @@ static inline u32 Maj(u32 x, u32 y, u32 z)
  
- static void diag308_dump(void *dump_block)
+ static inline void LOAD_OP(int I, u32 *W, const u8 *input)
  {
--	uv_set_shared(__pa(dump_block));
- 	diag308(DIAG308_SET, dump_block);
--	uv_remove_shared(__pa(dump_block));
- 	while (1) {
- 		if (diag308(DIAG308_LOAD_NORMAL_DUMP, NULL) != 0x302)
- 			break;
+-	W[I] = __be32_to_cpu(((__be32 *)(input))[I]);
++	W[I] = get_unaligned_be32((__u32 *)input + I);
+ }
+ 
+ static inline void BLEND_OP(int I, u32 *W)
+@@ -201,7 +201,7 @@ static void sha256_transform(u32 *state, const u8 *input)
+ 
+ 	/* clear any sensitive info... */
+ 	a = b = c = d = e = f = g = h = t1 = t2 = 0;
+-	memset(W, 0, 64 * sizeof(u32));
++	memzero_explicit(W, 64 * sizeof(u32));
+ }
+ 
+ int sha256_init(struct sha256_state *sctx)
+@@ -270,7 +270,7 @@ int sha256_final(struct sha256_state *sctx, u8 *out)
+ 
+ 	/* Store state in digest */
+ 	for (i = 0; i < 8; i++)
+-		dst[i] = cpu_to_be32(sctx->state[i]);
++		put_unaligned_be32(sctx->state[i], &dst[i]);
+ 
+ 	/* Zeroize sensitive information. */
+ 	memset(sctx, 0, sizeof(*sctx));
 -- 
-2.20.1
+2.23.0.rc2
