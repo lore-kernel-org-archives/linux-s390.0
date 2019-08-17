@@ -1,64 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394272AbfHBNYw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:24:52 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/30] s390/qdio: add sanity checks to the fast-requeue path
-Date: Fri,  2 Aug 2019 09:24:06 -0400
-Message-Id: <20190802132422.13963-14-sashal@kernel.org>
-In-Reply-To: <20190802132422.13963-1-sashal@kernel.org>
-References: <20190802132422.13963-1-sashal@kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:38388 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726239AbfHQHtW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:22 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 20/26] hexagon: remove __iounmap
+Date: Sat, 17 Aug 2019 09:32:47 +0200
+Message-Id: <20190817073253.27819-21-hch@lst.de>
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+No need to indirect iounmap for hexagon.
 
-[ Upstream commit a6ec414a4dd529eeac5c3ea51c661daba3397108 ]
-
-If the device driver were to send out a full queue's worth of SBALs,
-current code would end up discovering the last of those SBALs as PRIMED
-and erroneously skip the SIGA-w. This immediately stalls the queue.
-
-Add a check to not attempt fast-requeue in this case. While at it also
-make sure that the state of the previous SBAL was successfully extracted
-before inspecting it.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/qdio_main.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/hexagon/include/asm/io.h       | 7 +------
+ arch/hexagon/kernel/hexagon_ksyms.c | 2 +-
+ arch/hexagon/mm/ioremap.c           | 2 +-
+ 3 files changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index ab8dd81fbc2b1..1a40c73961b83 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1577,13 +1577,13 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		rc = qdio_kick_outbound_q(q, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
-+	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-+		   get_buf_state(q, prev_buf(bufnr), &state, 0) > 0 &&
-+		   state == SLSB_CU_OUTPUT_PRIMED) {
-+		/* The previous buffer is not processed yet, tack on. */
-+		qperf_inc(q, fast_requeue);
- 	} else {
--		/* try to fast requeue buffers */
--		get_buf_state(q, prev_buf(bufnr), &state, 0);
--		if (state != SLSB_CU_OUTPUT_PRIMED)
--			rc = qdio_kick_outbound_q(q, 0);
--		else
--			qperf_inc(q, fast_requeue);
-+		rc = qdio_kick_outbound_q(q, 0);
- 	}
+diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
+index 89537dc1cf97..539e3efcf39c 100644
+--- a/arch/hexagon/include/asm/io.h
++++ b/arch/hexagon/include/asm/io.h
+@@ -27,7 +27,7 @@
+ extern int remap_area_pages(unsigned long start, unsigned long phys_addr,
+ 				unsigned long end, unsigned long flags);
  
- 	/* in case of SIGA errors we must process the error immediately */
+-extern void __iounmap(const volatile void __iomem *addr);
++extern void iounmap(const volatile void __iomem *addr);
+ 
+ /* Defined in lib/io.c, needed for smc91x driver. */
+ extern void __raw_readsw(const void __iomem *addr, void *data, int wordlen);
+@@ -175,11 +175,6 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
+ #define ioremap_nocache ioremap
+ 
+ 
+-static inline void iounmap(volatile void __iomem *addr)
+-{
+-	__iounmap(addr);
+-}
+-
+ #define __raw_writel writel
+ 
+ static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
+index b3dbb472572e..6fb1aaab1c29 100644
+--- a/arch/hexagon/kernel/hexagon_ksyms.c
++++ b/arch/hexagon/kernel/hexagon_ksyms.c
+@@ -14,7 +14,7 @@
+ EXPORT_SYMBOL(__clear_user_hexagon);
+ EXPORT_SYMBOL(raw_copy_from_user);
+ EXPORT_SYMBOL(raw_copy_to_user);
+-EXPORT_SYMBOL(__iounmap);
++EXPORT_SYMBOL(iounmap);
+ EXPORT_SYMBOL(__strnlen_user);
+ EXPORT_SYMBOL(__vmgetie);
+ EXPORT_SYMBOL(__vmsetie);
+diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
+index b103d83b5fbb..255c5b1ee1a7 100644
+--- a/arch/hexagon/mm/ioremap.c
++++ b/arch/hexagon/mm/ioremap.c
+@@ -38,7 +38,7 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ 	return (void __iomem *) (offset + addr);
+ }
+ 
+-void __iounmap(const volatile void __iomem *addr)
++void iounmap(const volatile void __iomem *addr)
+ {
+ 	vunmap((void *) ((unsigned long) addr & PAGE_MASK));
+ }
 -- 
 2.20.1
