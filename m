@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Subject: [PATCH v4 4/6] x86,s390/mm: Move sme_active() and sme_me_mask to x86-specific header
-Date: Tue,  6 Aug 2019 01:49:17 -0300
-Message-Id: <20190806044919.10622-5-bauerman@linux.ibm.com>
-In-Reply-To: <20190806044919.10622-1-bauerman@linux.ibm.com>
-References: <20190806044919.10622-1-bauerman@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:38374 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbfHQHtV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:21 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 21/26] nios2: remove __iounmap
+Date: Sat, 17 Aug 2019 09:32:48 +0200
+Message-Id: <20190817073253.27819-22-hch@lst.de>
+In-Reply-To: <20190817073253.27819-1-hch@lst.de>
+References: <20190817073253.27819-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: x86@kernel.org
-Cc: iommu@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Alexey Dobriyan <adobriyan@gmail.com>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Halil Pasic <pasic@linux.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, Tom Lendacky <thomas.lendacky@amd.com>
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Now that generic code doesn't reference them, move sme_active() and
-sme_me_mask to x86's <asm/mem_encrypt.h>.
+No need to indirect iounmap for nios2.
 
-Also remove the export for sme_active() since it's only used in files that
-won't be built as modules. sme_me_mask on the other hand is used in
-arch/x86/kvm/svm.c (via __sme_set() and __psp_pa()) which can be built as a
-module so its export needs to stay.
-
-Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/mem_encrypt.h |  4 +---
- arch/x86/include/asm/mem_encrypt.h  | 10 ++++++++++
- arch/x86/mm/mem_encrypt.c           |  1 -
- include/linux/mem_encrypt.h         | 14 +-------------
- 4 files changed, 12 insertions(+), 17 deletions(-)
+ arch/nios2/include/asm/io.h | 7 +------
+ arch/nios2/mm/ioremap.c     | 6 +++---
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/include/asm/mem_encrypt.h b/arch/s390/include/asm/mem_encrypt.h
-index 3eb018508190..ff813a56bc30 100644
---- a/arch/s390/include/asm/mem_encrypt.h
-+++ b/arch/s390/include/asm/mem_encrypt.h
-@@ -4,9 +4,7 @@
+diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
+index d108937c321e..746853ac7d8d 100644
+--- a/arch/nios2/include/asm/io.h
++++ b/arch/nios2/include/asm/io.h
+@@ -26,12 +26,7 @@
+ #define writel_relaxed(x, addr)	writel(x, addr)
  
- #ifndef __ASSEMBLY__
- 
--#define sme_me_mask	0ULL
+ void __iomem *ioremap(unsigned long physaddr, unsigned long size);
+-extern void __iounmap(void __iomem *addr);
 -
--static inline bool sme_active(void) { return false; }
-+static inline bool mem_encrypt_active(void) { return false; }
- extern bool sev_active(void);
- 
- int set_memory_encrypted(unsigned long addr, int numpages);
-diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
-index 0c196c47d621..848ce43b9040 100644
---- a/arch/x86/include/asm/mem_encrypt.h
-+++ b/arch/x86/include/asm/mem_encrypt.h
-@@ -92,6 +92,16 @@ early_set_memory_encrypted(unsigned long vaddr, unsigned long size) { return 0;
- 
- extern char __start_bss_decrypted[], __end_bss_decrypted[], __start_bss_decrypted_unused[];
- 
-+static inline bool mem_encrypt_active(void)
-+{
-+	return sme_me_mask;
-+}
-+
-+static inline u64 sme_get_me_mask(void)
-+{
-+	return sme_me_mask;
-+}
-+
- #endif	/* __ASSEMBLY__ */
- 
- #endif	/* __X86_MEM_ENCRYPT_H__ */
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index fece30ca8b0c..94da5a88abe6 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -344,7 +344,6 @@ bool sme_active(void)
- {
- 	return sme_me_mask && !sev_enabled;
- }
--EXPORT_SYMBOL(sme_active);
- 
- bool sev_active(void)
- {
-diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
-index 470bd53a89df..0c5b0ff9eb29 100644
---- a/include/linux/mem_encrypt.h
-+++ b/include/linux/mem_encrypt.h
-@@ -18,23 +18,11 @@
- 
- #else	/* !CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
--#define sme_me_mask	0ULL
--
--static inline bool sme_active(void) { return false; }
-+static inline bool mem_encrypt_active(void) { return false; }
- static inline bool sev_active(void) { return false; }
- 
- #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
--static inline bool mem_encrypt_active(void)
+-static inline void iounmap(void __iomem *addr)
 -{
--	return sme_me_mask;
+-	__iounmap(addr);
 -}
--
--static inline u64 sme_get_me_mask(void)
--{
--	return sme_me_mask;
--}
--
- #ifdef CONFIG_AMD_MEM_ENCRYPT
++void iounmap(void __iomem *addr);
+ 
+ /* Pages to physical address... */
+ #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
+diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
+index 7a1a27f3daa3..b56af759dcdf 100644
+--- a/arch/nios2/mm/ioremap.c
++++ b/arch/nios2/mm/ioremap.c
+@@ -157,11 +157,11 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ EXPORT_SYMBOL(ioremap);
+ 
  /*
-  * The __sme_set() and __sme_clr() macros are useful for adding or removing
+- * __iounmap unmaps nearly everything, so be careful
++ * iounmap unmaps nearly everything, so be careful
+  * it doesn't free currently pointer/page tables anymore but it
+  * wasn't used anyway and might be added later.
+  */
+-void __iounmap(void __iomem *addr)
++void iounmap(void __iomem *addr)
+ {
+ 	struct vm_struct *p;
+ 
+@@ -173,4 +173,4 @@ void __iounmap(void __iomem *addr)
+ 		pr_err("iounmap: bad address %p\n", addr);
+ 	kfree(p);
+ }
+-EXPORT_SYMBOL(__iounmap);
++EXPORT_SYMBOL(iounmap);
+-- 
+2.20.1
