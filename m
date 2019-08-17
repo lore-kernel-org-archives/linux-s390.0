@@ -1,49 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65016 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726739AbfHALGh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Aug 2019 07:06:37 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x71B3hR8096177
-        for <linux-s390@vger.kernel.org>; Thu, 1 Aug 2019 07:06:36 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2u3x7f1thw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 01 Aug 2019 07:06:35 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <sth@linux.ibm.com>;
-        Thu, 1 Aug 2019 12:06:34 +0100
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/1] sending DASD patches through linux-block
-Date: Thu,  1 Aug 2019 13:06:29 +0200
-Message-Id: <20190801110630.82432-1-sth@linux.ibm.com>
+Received: from mail-io1-f65.google.com ([209.85.166.65]:33066 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726252AbfHQVPI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 17:15:08 -0400
+Received: by mail-io1-f65.google.com with SMTP id z3so13226891iog.0
+        for <linux-s390@vger.kernel.org>; Sat, 17 Aug 2019 14:15:08 -0700 (PDT)
+Date: Sat, 17 Aug 2019 14:15:06 -0700 (PDT)
+From: Paul Walmsley <paul.walmsley@sifive.com>
+Subject: Re: [PATCH 16/26] asm-generic: don't provide ioremap for
+ CONFIG_MMU
+In-Reply-To: <20190817073253.27819-17-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.9999.1908171414260.4130@viisi.sifive.com>
+References: <20190817073253.27819-1-hch@lst.de> <20190817073253.27819-17-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org, hoeppner@linux.ibm.com, heiko.carstens@de.ibm.com, borntraeger@de.ibm.com, gor@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
-Hi Jens,
+On Sat, 17 Aug 2019, Christoph Hellwig wrote:
 
-we would like to get our DASD related patches upstream through your
-linux-block git tree in the future.
-We hope to get a better integration and that we are able to identify
-potential conflicts with generic blocklayer changes earlier.
+> All MMU-enabled ports have a non-trivial ioremap and should thus provide
+> the prototype for their implementation instead of providing a generic
+> one unless a different symbol is not defined.  Note that this only
+> affects sparc32 nds32 as all others do provide their own version.
+> 
+> Also update the kerneldoc comments in asm-generic/io.h to explain the
+> situation around the default ioremap* implementations correctly.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/nds32/include/asm/io.h    |  2 ++
+>  arch/sparc/include/asm/io_32.h |  1 +
+>  include/asm-generic/io.h       | 29 ++++++++---------------------
+>  3 files changed, 11 insertions(+), 21 deletions(-)
+> 
 
-I hope this is OK for you. I have attached a first patch that fixes a
-bug in the DASD driver. This patch is based on the master branch of your
-linux-block git tree.
+[ ... ]
 
-Please let me know if I should change something in my workflow.
+> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+> index a98ed6325727..6a5edc23afe2 100644
+> --- a/include/asm-generic/io.h
+> +++ b/include/asm-generic/io.h
+> @@ -922,28 +922,16 @@ static inline void *phys_to_virt(unsigned long address)
+>  /**
+>   * DOC: ioremap() and ioremap_*() variants
+>   *
+> - * If you have an IOMMU your architecture is expected to have both ioremap()
+> - * and iounmap() implemented otherwise the asm-generic helpers will provide a
+> - * direct mapping.
+> + * Architectures with an MMU are expected to provide ioremap() and iounmap()
+> + * themselves.  For NOMMU architectures we provide a default nop-op
+> + * implementation that expect that the physical address used for MMIO are
+> + * already marked as uncached, and can be used as kernel virtual addresses.
+>   *
+> - * There are ioremap_*() call variants, if you have no IOMMU we naturally will
+> - * default to direct mapping for all of them, you can override these defaults.
+> - * If you have an IOMMU you are highly encouraged to provide your own
+> - * ioremap variant implementation as there currently is no safe architecture
+> - * agnostic default. To avoid possible improper behaviour default asm-generic
+> - * ioremap_*() variants all return NULL when an IOMMU is available. If you've
+> - * defined your own ioremap_*() variant you must then declare your own
+> - * ioremap_*() variant as defined to itself to avoid the default NULL return.
+> + * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
+> + * for specific drivers if the architecture choses to implement them.  If they
+                                               ^^^ chooses
 
-Kind regards,
-Stefan
 
-Stefan Haberland (1):
-  s390/dasd: fix endless loop after read unit address configuration
 
- drivers/s390/block/dasd_alias.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
-
--- 
-2.17.1
+- Paul
