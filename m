@@ -1,114 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40664 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727674AbfHPVQd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 16 Aug 2019 17:16:33 -0400
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/6] crypto: sha256 - Move lib/sha256.c to lib/crypto
-Date: Fri, 16 Aug 2019 23:16:08 +0200
-Message-Id: <20190816211611.2568-4-hdegoede@redhat.com>
-In-Reply-To: <20190816211611.2568-1-hdegoede@redhat.com>
-References: <20190816211611.2568-1-hdegoede@redhat.com>
+Received: from mail-io1-f65.google.com ([209.85.166.65]:33236 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726464AbfHQVHb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 17:07:31 -0400
+Received: by mail-io1-f65.google.com with SMTP id z3so13208464iog.0
+        for <linux-s390@vger.kernel.org>; Sat, 17 Aug 2019 14:07:31 -0700 (PDT)
+Date: Sat, 17 Aug 2019 14:07:29 -0700 (PDT)
+From: Paul Walmsley <paul.walmsley@sifive.com>
+Subject: Re: [PATCH 15/26] asm-generic: ioremap_uc should behave the same
+ with and without MMU
+In-Reply-To: <20190817073253.27819-16-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.9999.1908171403330.4130@viisi.sifive.com>
+References: <20190817073253.27819-1-hch@lst.de> <20190817073253.27819-16-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
-Generic crypto implementations belong under lib/crypto not directly in
-lib, likewise the header should be in include/crypto, not include/linux.
+On Sat, 17 Aug 2019, Christoph Hellwig wrote:
 
-Note that the code in lib/crypto/sha256.c is not yet available for
-generic use after this commit, it is still only used by the s390 and x86
-purgatory code. Making it suitable for generic use is done in further
-patches in this series.
+> Whatever reason there is for the existence of ioremap_uc, and the fact 
+> that it returns NULL by default on architectures with an MMU applies 
+> equally to nommu architectures, so don't provide different defaults.
+> 
+> In practice the difference is meaningless as the only portable driver
+> that uses ioremap_uc is atyfb which probably doesn't show up on nommu
+> devices.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- arch/s390/purgatory/Makefile       | 2 +-
- arch/s390/purgatory/purgatory.c    | 2 +-
- arch/x86/purgatory/Makefile        | 2 +-
- arch/x86/purgatory/purgatory.c     | 2 +-
- include/{linux => crypto}/sha256.h | 0
- lib/{ => crypto}/sha256.c          | 2 +-
- 6 files changed, 5 insertions(+), 5 deletions(-)
- rename include/{linux => crypto}/sha256.h (100%)
- rename lib/{ => crypto}/sha256.c (99%)
+[ ... ]
 
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index dc1ae4ff79d7..85b05c9e40f5 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -7,7 +7,7 @@ purgatory-y := head.o purgatory.o string.o sha256.o mem.o
- targets += $(purgatory-y) purgatory.lds purgatory purgatory.ro
- PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
- 
--$(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
-+$(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
- $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
-diff --git a/arch/s390/purgatory/purgatory.c b/arch/s390/purgatory/purgatory.c
-index 3528e6da4e87..a80c78da9985 100644
---- a/arch/s390/purgatory/purgatory.c
-+++ b/arch/s390/purgatory/purgatory.c
-@@ -8,8 +8,8 @@
-  */
- 
- #include <linux/kexec.h>
--#include <linux/sha256.h>
- #include <linux/string.h>
-+#include <crypto/sha256.h>
- #include <asm/purgatory.h>
- 
- int verify_sha256_digest(void)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 8901a1f89cf5..6ebd0739106e 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -9,7 +9,7 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
- $(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
--$(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
-+$(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
- LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
-diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
-index b607bda786f6..7f90a86eff49 100644
---- a/arch/x86/purgatory/purgatory.c
-+++ b/arch/x86/purgatory/purgatory.c
-@@ -9,7 +9,7 @@
-  */
- 
- #include <linux/bug.h>
--#include <linux/sha256.h>
-+#include <crypto/sha256.h>
- #include <asm/purgatory.h>
- 
- #include "../boot/string.h"
-diff --git a/include/linux/sha256.h b/include/crypto/sha256.h
-similarity index 100%
-rename from include/linux/sha256.h
-rename to include/crypto/sha256.h
-diff --git a/lib/sha256.c b/lib/crypto/sha256.c
-similarity index 99%
-rename from lib/sha256.c
-rename to lib/crypto/sha256.c
-index ba4dce0b3711..b8114028d06f 100644
---- a/lib/sha256.c
-+++ b/lib/crypto/sha256.c
-@@ -12,8 +12,8 @@
-  */
- 
- #include <linux/bitops.h>
--#include <linux/sha256.h>
- #include <linux/string.h>
-+#include <crypto/sha256.h>
- #include <asm/byteorder.h>
- 
- static inline u32 Ch(u32 x, u32 y, u32 z)
--- 
-2.22.0
+> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+> index d02806513670..a98ed6325727 100644
+> --- a/include/asm-generic/io.h
+> +++ b/include/asm-generic/io.h
+
+[ ... ]
+
+> @@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
+>  }
+>  #endif
+>  
+> +/*
+> + * ioremap_uc is special in that we do require an explicit architecture
+> + * implementation.  In general you do now want to use this function in a
+                                         ^^^ not
+
+> + * driver and use plain ioremap, which is uncached by default.  Similarly
+                ^ instead 
+
+> + * architectures should not implement it unless they have a very good
+> + * reason.
+> + */
+
+Looks like this mess is only needed on x86 with certain graphics drivers 
+and conflicts between MTRR and page table-based MMU attributes.
+
+
+Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
+Tested-by: Paul Walmsley <paul.walmsley@sifive.com> # rv32, rv64 boot
+
+
+- Paul
