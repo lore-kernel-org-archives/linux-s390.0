@@ -1,74 +1,124 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:43759 "EHLO verein.lst.de"
+Received: from mx1.redhat.com ([209.132.183.28]:33306 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730581AbfHAOE5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 1 Aug 2019 10:04:57 -0400
-Date: Thu, 1 Aug 2019 16:04:52 +0200
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 6/8] dma-direct: turn ARCH_ZONE_DMA_BITS into a variable
-Message-ID: <20190801140452.GB23435@lst.de>
-References: <20190731154752.16557-1-nsaenzjulienne@suse.de> <20190731154752.16557-7-nsaenzjulienne@suse.de>
+        id S1726270AbfHRQIJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 18 Aug 2019 12:08:09 -0400
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com [209.85.221.70])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CD9F0C057E29
+        for <linux-s390@vger.kernel.org>; Sun, 18 Aug 2019 16:08:08 +0000 (UTC)
+Received: by mail-wr1-f70.google.com with SMTP id a2so3881827wrs.8
+        for <linux-s390@vger.kernel.org>; Sun, 18 Aug 2019 09:08:08 -0700 (PDT)
+Subject: Re: [PATCH 3/6] crypto: sha256 - Move lib/sha256.c to lib/crypto
+References: <20190816211611.2568-1-hdegoede@redhat.com>
+ <20190816211611.2568-4-hdegoede@redhat.com>
+ <20190817051942.GB8209@sol.localdomain>
+ <909d255d-a648-13b5-100f-fe67be547961@redhat.com>
+ <20190818155453.GC1118@sol.localdomain>
+From: Hans de Goede <hdegoede@redhat.com>
+Message-ID: <52363837-5f5f-53ed-d97c-0de47145987b@redhat.com>
+Date: Sun, 18 Aug 2019 18:08:05 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190731154752.16557-7-nsaenzjulienne@suse.de>
+In-Reply-To: <20190818155453.GC1118@sol.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org, Marek Szyprowski <m.szyprowski@samsung.com>, phill@raspberryi.org, f.fainelli@gmail.com, will@kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, eric@anholt.net, mbrugger@suse.com, akpm@linux-foundation.org, frowand.list@gmail.com, linux-rpi-kernel@lists.infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-A few nitpicks, otherwise this looks great:
+Hi,
 
-> @@ -201,7 +202,7 @@ static int __init mark_nonram_nosave(void)
->   * everything else. GFP_DMA32 page allocations automatically fall back to
->   * ZONE_DMA.
->   *
-> - * By using 31-bit unconditionally, we can exploit ARCH_ZONE_DMA_BITS to
-> + * By using 31-bit unconditionally, we can exploit arch_zone_dma_bits to
->   * inform the generic DMA mapping code.  32-bit only devices (if not handled
->   * by an IOMMU anyway) will take a first dip into ZONE_NORMAL and get
->   * otherwise served by ZONE_DMA.
-> @@ -237,9 +238,18 @@ void __init paging_init(void)
->  	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
->  	       (long int)((top_of_ram - total_ram) >> 20));
->  
-> +	/*
-> +	 * Allow 30-bit DMA for very limited Broadcom wifi chips on many
-> +	 * powerbooks.
-> +	 */
-> +	if (IS_ENABLED(CONFIG_PPC32))
-> +		arch_zone_dma_bits = 30;
-> +	else
-> +		arch_zone_dma_bits = 31;
-> +
+On 18-08-19 17:54, Eric Biggers wrote:
+> On Sat, Aug 17, 2019 at 10:28:04AM +0200, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 17-08-19 07:19, Eric Biggers wrote:
+>>> On Fri, Aug 16, 2019 at 11:16:08PM +0200, Hans de Goede wrote:
+>>>> diff --git a/include/linux/sha256.h b/include/crypto/sha256.h
+>>>> similarity index 100%
+>>>> rename from include/linux/sha256.h
+>>>> rename to include/crypto/sha256.h
+>>>
+>>> <crypto/sha.h> already has the declarations for both SHA-1 and SHA-2, including
+>>> SHA-256.  So I'm not sure a separate sha256.h is appropriate.  How about putting
+>>> these declarations in <crypto/sha.h>?
+>>
+>> The problems with that is that the sha256_init, etc. names are quite generic
+>> and they have not been reserved before, so a lot of the crypto hw-accel
+>> drivers use them, for private file-local (static) code, e.g.:
+>>
+>> [hans@shalem linux]$ ack -l sha256_init
+>> include/crypto/sha256.h
+>> drivers/crypto/marvell/hash.c
+>> drivers/crypto/ccp/ccp-ops.c
+>> drivers/crypto/nx/nx-sha256.c
+>> drivers/crypto/ux500/hash/hash_core.c
+>> drivers/crypto/inside-secure/safexcel_hash.c
+>> drivers/crypto/chelsio/chcr_algo.h
+>> drivers/crypto/stm32/stm32-hash.c
+>> drivers/crypto/omap-sham.c
+>> drivers/crypto/padlock-sha.c
+>> drivers/crypto/n2_core.c
+>> drivers/crypto/atmel-aes.c
+>> drivers/crypto/axis/artpec6_crypto.c
+>> drivers/crypto/mediatek/mtk-sha.c
+>> drivers/crypto/qat/qat_common/qat_algs.c
+>> drivers/crypto/img-hash.c
+>> drivers/crypto/ccree/cc_hash.c
+>> lib/crypto/sha256.c
+>> arch/powerpc/crypto/sha256-spe-glue.c
+>> arch/mips/cavium-octeon/crypto/octeon-sha256.c
+>> arch/x86/purgatory/purgatory.c
+>> arch/s390/crypto/sha256_s390.c
+>> arch/s390/purgatory/purgatory.c
+>>
+>> (in case you do not know ack is a smarter grep, which skips .o files, etc.)
+> 
+> You need to match at word boundaries to avoid matching on ${foo}_sha256_init().
+> So it's actually a somewhat shorter list:
+> 
+> $ git grep -l -E '\<sha(224|256)_(init|update|final)\>'
+> arch/arm/crypto/sha256_glue.c
+> arch/arm/crypto/sha256_neon_glue.c
+> arch/arm64/crypto/sha256-glue.c
+> arch/s390/crypto/sha256_s390.c
+> arch/s390/purgatory/purgatory.c
+> arch/x86/crypto/sha256_ssse3_glue.c
+> arch/x86/purgatory/purgatory.c
+> crypto/sha256_generic.c
+> drivers/crypto/ccree/cc_hash.c
+> drivers/crypto/chelsio/chcr_algo.h
+> drivers/crypto/n2_core.c
+> include/linux/sha256.h
+> lib/sha256.c
+> 
+> 5 of these are already edited by this patchset, so that leaves only 8 files.
 
-So the above unconditionally comment obviously isn't true any more, and
-Ben also said for the recent ppc32 hack he'd prefer dynamic detection.
+Good point.
 
-Maybe Ben and or other ppc folks can chime in an add a patch to the series
-to sort this out now that we have a dynamic ZONE_DMA threshold?
+>> All these do include crypto/sha.h and putting the stuff which is in what
+>> was linux/sha256.h into crypto/sha.h leads to name collisions which causes
+>> more churn then I would like this series to cause.
+>>
+>> I guess we could do a cleanup afterwards, with one patch per file above
+>> to fix the name collision issue, and then merge the 2 headers. I do not
+>> want to do that for this series, as I want to keep this series as KISS
+>> as possible since it is messing with somewhat sensitive stuff.
+>>
+>> And TBH I even wonder if a follow-up series is worth the churn...
+>>
+> 
+> I think it should be done; the same was done when introducing the AES library.
+> But I'm okay with it being done later, if you want to keep this patchset
+> shorter.
 
-> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> index 59bdceea3737..40dfc9b4ee4c 100644
-> --- a/kernel/dma/direct.c
-> +++ b/kernel/dma/direct.c
-> @@ -19,9 +19,7 @@
->   * Most architectures use ZONE_DMA for the first 16 Megabytes, but
->   * some use it for entirely different regions:
->   */
-> -#ifndef ARCH_ZONE_DMA_BITS
-> -#define ARCH_ZONE_DMA_BITS 24
-> -#endif
-> +unsigned int arch_zone_dma_bits __ro_after_init = 24;
+I would prefer to do this later, so that we can focus on the basis
+of merging the 2 implementations now.
 
-I'd prefer to drop the arch_ prefix and just calls this zone_dma_bits.
-In the long run we really need to find a way to just automatically set
-this from the meminit code, but that is out of scope for this series.
-For now can you please just update the comment above to say something
-like:
+I'm willing to commit to doing the cleanup once the base series has been merged.
 
-/*
- * Most architectures use ZONE_DMA for the first 16 Megabytes, but some use it
- * it for entirely different regions.  In that case the arch code needs to
- * override the variable below for dma-direct to work properly.
- */
+Regards,
+
+Hans
