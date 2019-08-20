@@ -1,50 +1,93 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23994 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725811AbfH0Ntx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Aug 2019 09:49:53 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7RDm0vH146349
-        for <linux-s390@vger.kernel.org>; Tue, 27 Aug 2019 09:49:52 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2un3qpe14v-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 27 Aug 2019 09:49:52 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 27 Aug 2019 14:49:50 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/3] s390x: Add skey removal facility test
-Date: Tue, 27 Aug 2019 15:49:33 +0200
-Message-Id: <20190827134936.1705-1-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v11 2/8] procfs: switch magic-link modes to be more sane
+Date: Tue, 20 Aug 2019 13:34:00 +1000
+Message-Id: <20190820033406.29796-3-cyphar@cyphar.com>
+In-Reply-To: <20190820033406.29796-1-cyphar@cyphar.com>
+References: <20190820033406.29796-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The storage key removal facility (skrf) is an anti-facility, which
-makes skey related instructions result in a special operation
-exception when they handle storage keys. E.g. pfmf in clearing mode
-does not result in an exception, but pfmf key setting does.
+Now that magic-link modes are obeyed for file re-opening purposes, some
+of the pre-existing magic-link modes need to be adjusted to be more
+semantically correct.
 
-The skrf is always active in protected virtualization guests and can
-be emulated by KVM (expected to be upstreamed with the remaining hpage
-patches).
+The most blatant example of this is /proc/self/exe, which had a mode of
+a+rwx even though tautologically the file could never be opened for
+writing (because it is the current->mm of a live process).
 
-Janosch Frank (3):
-  s390x: Move pfmf to lib and make address void
-  s390x: Storage key library functions now take void ptr addresses
-  s390x: Add storage key removal facility
+With the new O_PATH restrictions, changing the default mode of these
+magic-links allows us to avoid delayed-access attacks such as we saw in
+CVE-2019-5736.
 
- lib/s390x/asm/mem.h |  40 ++++++++++++--
- s390x/Makefile      |   1 +
- s390x/pfmf.c        |  77 +++++++++++---------------
- s390x/skey.c        |  29 +++++-----
- s390x/skrf.c        | 130 ++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 212 insertions(+), 65 deletions(-)
- create mode 100644 s390x/skrf.c
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/proc/base.c       | 20 ++++++++++----------
+ fs/proc/namespaces.c |  2 +-
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea9501afb8..297242174402 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -133,9 +133,9 @@ struct pid_entry {
+ 
+ #define DIR(NAME, MODE, iops, fops)	\
+ 	NOD(NAME, (S_IFDIR|(MODE)), &iops, &fops, {} )
+-#define LNK(NAME, get_link)					\
+-	NOD(NAME, (S_IFLNK|S_IRWXUGO),				\
+-		&proc_pid_link_inode_operations, NULL,		\
++#define LNK(NAME, MODE, get_link)			\
++	NOD(NAME, (S_IFLNK|(MODE)),			\
++		&proc_pid_link_inode_operations, NULL,	\
+ 		{ .proc_get_link = get_link } )
+ #define REG(NAME, MODE, fops)				\
+ 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
+@@ -3028,9 +3028,9 @@ static const struct pid_entry tgid_base_stuff[] = {
+ 	REG("numa_maps",  S_IRUGO, proc_pid_numa_maps_operations),
+ #endif
+ 	REG("mem",        S_IRUSR|S_IWUSR, proc_mem_operations),
+-	LNK("cwd",        proc_cwd_link),
+-	LNK("root",       proc_root_link),
+-	LNK("exe",        proc_exe_link),
++	LNK("cwd",        S_IRWXUGO, proc_cwd_link),
++	LNK("root",       S_IRWXUGO, proc_root_link),
++	LNK("exe",        S_IRUGO|S_IXUGO, proc_exe_link),
+ 	REG("mounts",     S_IRUGO, proc_mounts_operations),
+ 	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
+ 	REG("mountstats", S_IRUSR, proc_mountstats_operations),
+@@ -3429,11 +3429,11 @@ static const struct pid_entry tid_base_stuff[] = {
+ 	REG("numa_maps", S_IRUGO, proc_pid_numa_maps_operations),
+ #endif
+ 	REG("mem",       S_IRUSR|S_IWUSR, proc_mem_operations),
+-	LNK("cwd",       proc_cwd_link),
+-	LNK("root",      proc_root_link),
+-	LNK("exe",       proc_exe_link),
++	LNK("cwd",       S_IRWXUGO, proc_cwd_link),
++	LNK("root",      S_IRWXUGO, proc_root_link),
++	LNK("exe",       S_IRUGO|S_IXUGO, proc_exe_link),
+ 	REG("mounts",    S_IRUGO, proc_mounts_operations),
+-	REG("mountinfo",  S_IRUGO, proc_mountinfo_operations),
++	REG("mountinfo", S_IRUGO, proc_mountinfo_operations),
+ #ifdef CONFIG_PROC_PAGE_MONITOR
+ 	REG("clear_refs", S_IWUSR, proc_clear_refs_operations),
+ 	REG("smaps",     S_IRUGO, proc_pid_smaps_operations),
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index dd2b35f78b09..cd1e130913f7 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -94,7 +94,7 @@ static struct dentry *proc_ns_instantiate(struct dentry *dentry,
+ 	struct inode *inode;
+ 	struct proc_inode *ei;
+ 
+-	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRWXUGO);
++	inode = proc_pid_make_inode(dentry->d_sb, task, S_IFLNK | S_IRUGO);
+ 	if (!inode)
+ 		return ERR_PTR(-ENOENT);
+ 
 -- 
-2.17.0
+2.22.0
