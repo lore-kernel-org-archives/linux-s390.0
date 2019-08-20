@@ -1,36 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:44184 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727077AbfHTQnK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 20 Aug 2019 12:43:10 -0400
-Received: by mail-pg1-f195.google.com with SMTP id i18so3543368pgl.11
-        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 09:43:09 -0700 (PDT)
-Date: Tue, 20 Aug 2019 09:43:07 -0700
-From: Kees Cook <keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31262 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729203AbfHTN5E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 20 Aug 2019 09:57:04 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7KDv1OA033413
+        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 09:57:03 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ughxq8tdq-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 09:57:03 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 20 Aug 2019 14:56:51 +0100
 Subject: Re: [bug report] s390/qeth: streamline SNMP cmd code
-Message-ID: <201908200941.93D8BB7B@keescook>
 References: <20190820110504.GA1847@mwanda>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Tue, 20 Aug 2019 15:56:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20190820110504.GA1847@mwanda>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <95addda5-aa7e-32f3-0665-42fb7847788a@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: jwi@linux.ibm.com, linux-s390@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, Kees Cook <keescook@chromium.org>, Ursula Braun <ubraun@linux.ibm.com>
 
-On Tue, Aug 20, 2019 at 02:05:04PM +0300, Dan Carpenter wrote:
+On 20.08.19 13:05, Dan Carpenter wrote:
 > [  Kees, could we make copy_from_user() just fail if size is more than
 >    INT_MAX? ]
-
-We already have similar limits in the VFS and other helpers. We might as
-well do it in copy_*_user() too. Let me put together a patch...
-
--Kees
-
 > 
 > Hello Julian Wiedmann,
 > 
+
+Heya Dan - thanks! Agreed, that looks wrong. I'll put together a fix...
+
+
 > The patch d4c08afafa04: "s390/qeth: streamline SNMP cmd code" from
 > Jun 27, 2019, leads to the following static checker warning:
 > 
@@ -84,6 +93,4 @@ well do it in copy_*_user() too. Let me put together a patch...
 > 
 > regards,
 > dan carpenter
-
--- 
-Kees Cook
+> 
