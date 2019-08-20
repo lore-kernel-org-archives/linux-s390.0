@@ -1,56 +1,112 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:56160 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725911AbfHQHoD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:44:03 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/26] mips: remove ioremap_cachable
-Date: Sat, 17 Aug 2019 09:32:31 +0200
-Message-Id: <20190817073253.27819-5-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/9] s390/qeth: get vnicc sub-cmd type from reply data
+Date: Tue, 20 Aug 2019 16:46:40 +0200
+In-Reply-To: <20190820144643.64041-1-jwi@linux.ibm.com>
+References: <20190820144643.64041-1-jwi@linux.ibm.com>
+Message-Id: <20190820144643.64041-7-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Just define ioremap_cache directly.
+When processing the reply for a vnicc cmd, there's no need to remember
+which specific sub-cmd type we initially sent. The reply itself contains
+all the needed information.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/mips/include/asm/io.h | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/arch/mips/include/asm/io.h b/arch/mips/include/asm/io.h
-index 97a280640daf..c02db986ddf5 100644
---- a/arch/mips/include/asm/io.h
-+++ b/arch/mips/include/asm/io.h
-@@ -262,11 +262,11 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
- #define ioremap_uc ioremap_nocache
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index ad7ee3bfd63c..1f534f489a79 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1704,7 +1704,6 @@ static int qeth_l2_vnicc_makerc(struct qeth_card *card, u16 ipa_rc)
  
- /*
-- * ioremap_cachable -	map bus memory into CPU space
-+ * ioremap_cache -	map bus memory into CPU space
-  * @offset:	    bus address of the memory
-  * @size:	    size of the resource to map
-  *
-- * ioremap_nocache performs a platform specific sequence of operations to
-+ * ioremap_cache performs a platform specific sequence of operations to
-  * make bus memory CPU accessible via the readb/readw/readl/writeb/
-  * writew/writel functions and the other mmio helpers. The returned
-  * address is not guaranteed to be usable directly as a virtual
-@@ -276,9 +276,8 @@ static inline void __iomem *ioremap_prot(phys_addr_t offset,
-  * the CPU.  Also enables full write-combining.	 Useful for some
-  * memory-like regions on I/O busses.
-  */
--#define ioremap_cachable(offset, size)					\
-+#define ioremap_cache(offset, size)					\
- 	__ioremap_mode((offset), (size), _page_cachable_default)
--#define ioremap_cache ioremap_cachable
+ /* generic VNICC request call back control */
+ struct _qeth_l2_vnicc_request_cbctl {
+-	u32 sub_cmd;
+ 	struct {
+ 		union{
+ 			u32 *sup_cmds;
+@@ -1722,6 +1721,7 @@ static int qeth_l2_vnicc_request_cb(struct qeth_card *card,
+ 		(struct _qeth_l2_vnicc_request_cbctl *) reply->param;
+ 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
+ 	struct qeth_ipacmd_vnicc *rep = &cmd->data.vnicc;
++	u32 sub_cmd = cmd->data.vnicc.hdr.sub_command;
  
- /*
-  * ioremap_wc     -   map bus memory into CPU space
+ 	QETH_CARD_TEXT(card, 2, "vniccrcb");
+ 	if (cmd->hdr.return_code)
+@@ -1730,10 +1730,9 @@ static int qeth_l2_vnicc_request_cb(struct qeth_card *card,
+ 	card->options.vnicc.sup_chars = rep->vnicc_cmds.supported;
+ 	card->options.vnicc.cur_chars = rep->vnicc_cmds.enabled;
+ 
+-	if (cbctl->sub_cmd == IPA_VNICC_QUERY_CMDS)
++	if (sub_cmd == IPA_VNICC_QUERY_CMDS)
+ 		*cbctl->result.sup_cmds = rep->data.query_cmds.sup_cmds;
+-
+-	if (cbctl->sub_cmd == IPA_VNICC_GET_TIMEOUT)
++	else if (sub_cmd == IPA_VNICC_GET_TIMEOUT)
+ 		*cbctl->result.timeout = rep->data.getset_timeout.timeout;
+ 
+ 	return 0;
+@@ -1761,7 +1760,6 @@ static struct qeth_cmd_buffer *qeth_l2_vnicc_build_cmd(struct qeth_card *card,
+ /* VNICC query VNIC characteristics request */
+ static int qeth_l2_vnicc_query_chars(struct qeth_card *card)
+ {
+-	struct _qeth_l2_vnicc_request_cbctl cbctl;
+ 	struct qeth_cmd_buffer *iob;
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccqch");
+@@ -1769,10 +1767,7 @@ static int qeth_l2_vnicc_query_chars(struct qeth_card *card)
+ 	if (!iob)
+ 		return -ENOMEM;
+ 
+-	/* prepare callback control */
+-	cbctl.sub_cmd = IPA_VNICC_QUERY_CHARS;
+-
+-	return qeth_send_ipa_cmd(card, iob, qeth_l2_vnicc_request_cb, &cbctl);
++	return qeth_send_ipa_cmd(card, iob, qeth_l2_vnicc_request_cb, NULL);
+ }
+ 
+ /* VNICC query sub commands request */
+@@ -1791,7 +1786,6 @@ static int qeth_l2_vnicc_query_cmds(struct qeth_card *card, u32 vnic_char,
+ 	__ipa_cmd(iob)->data.vnicc.data.query_cmds.vnic_char = vnic_char;
+ 
+ 	/* prepare callback control */
+-	cbctl.sub_cmd = IPA_VNICC_QUERY_CMDS;
+ 	cbctl.result.sup_cmds = sup_cmds;
+ 
+ 	return qeth_send_ipa_cmd(card, iob, qeth_l2_vnicc_request_cb, &cbctl);
+@@ -1801,7 +1795,6 @@ static int qeth_l2_vnicc_query_cmds(struct qeth_card *card, u32 vnic_char,
+ static int qeth_l2_vnicc_set_char(struct qeth_card *card, u32 vnic_char,
+ 				      u32 cmd)
+ {
+-	struct _qeth_l2_vnicc_request_cbctl cbctl;
+ 	struct qeth_cmd_buffer *iob;
+ 
+ 	QETH_CARD_TEXT(card, 2, "vniccedc");
+@@ -1811,10 +1804,7 @@ static int qeth_l2_vnicc_set_char(struct qeth_card *card, u32 vnic_char,
+ 
+ 	__ipa_cmd(iob)->data.vnicc.data.set_char.vnic_char = vnic_char;
+ 
+-	/* prepare callback control */
+-	cbctl.sub_cmd = cmd;
+-
+-	return qeth_send_ipa_cmd(card, iob, qeth_l2_vnicc_request_cb, &cbctl);
++	return qeth_send_ipa_cmd(card, iob, qeth_l2_vnicc_request_cb, NULL);
+ }
+ 
+ /* VNICC get/set timeout for characteristic request */
+@@ -1838,7 +1828,6 @@ static int qeth_l2_vnicc_getset_timeout(struct qeth_card *card, u32 vnicc,
+ 		getset_timeout->timeout = *timeout;
+ 
+ 	/* prepare callback control */
+-	cbctl.sub_cmd = cmd;
+ 	if (cmd == IPA_VNICC_GET_TIMEOUT)
+ 		cbctl.result.timeout = timeout;
+ 
 -- 
-2.20.1
+2.17.1
