@@ -1,153 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11570 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730569AbfHZQf0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Aug 2019 12:35:26 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGQFXo002042
-        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:25 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2umjt4gm0r-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:25 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Mon, 26 Aug 2019 17:35:23 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 4/5] s390x: STSI tests
-Date: Mon, 26 Aug 2019 18:35:01 +0200
-In-Reply-To: <20190826163502.1298-1-frankja@linux.ibm.com>
-References: <20190826163502.1298-1-frankja@linux.ibm.com>
-Message-Id: <20190826163502.1298-5-frankja@linux.ibm.com>
+Received: from mx2.suse.de ([195.135.220.15]:59630 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726345AbfHTO6b (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 20 Aug 2019 10:58:31 -0400
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH v2 00/11] Raspberry Pi 4 DMA addressing support
+Date: Tue, 20 Aug 2019 16:58:08 +0200
+Message-Id: <20190820145821.27214-1-nsaenzjulienne@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-arch@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org
+Cc: phill@raspberryi.org, f.fainelli@gmail.com, will@kernel.org, nsaenzjulienne@suse.de, linux-kernel@vger.kernel.org, eric@anholt.net, mbrugger@suse.com, linux-rpi-kernel@lists.infradead.org, akpm@linux-foundation.org, frowand.list@gmail.com, m.szyprowski@samsung.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-For now let's concentrate on the error conditions.
+Hi all,
+this series attempts to address some issues we found while bringing up
+the new Raspberry Pi 4 in arm64 and it's intended to serve as a follow
+up of these discussions:
+v1: https://lkml.org/lkml/2019/7/31/922
+RFC: https://lkml.org/lkml/2019/7/17/476
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+The new Raspberry Pi 4 has up to 4GB of memory but most peripherals can
+only address the first GB: their DMA address range is
+0xc0000000-0xfc000000 which is aliased to the first GB of physical
+memory 0x00000000-0x3c000000. Note that only some peripherals have these
+limitations: the PCIe, V3D, GENET, and 40-bit DMA channels have a wider
+view of the address space by virtue of being hooked up trough a second
+interconnect.
+
+Part of this is solved in arm32 by setting up the machine specific
+'.dma_zone_size = SZ_1G', which takes care of reserving the coherent
+memory area at the right spot. That said no buffer bouncing (needed for
+dma streaming) is available at the moment, but that's a story for
+another series.
+
+Unfortunately there is no such thing as 'dma_zone_size' in arm64. Only
+ZONE_DMA32 is created which is interpreted by dma-direct and the arm64
+arch code as if all peripherals where be able to address the first 4GB
+of memory.
+
+In the light of this, the series implements the following changes:
+
+- Create generic 'dma_zone_size' in order for hardware description code
+  to set it up when needed.
+
+- Add a function in early_init_dt_scan() to setup 'dma_zone_size' for
+  the RPi4.
+
+- Create both DMA zones in arm64, ZONE_DMA will contain the area
+  addressable by all peripherals and ZONE_DMA32 the rest of the 32 bit
+  addressable memory. ZONE_DMA32 might be left empty.
+
+- Reserve the CMA area in a place suitable for all peripherals.
+
+- Inform dma-direct of the new runtime calculated min_mask.
+
+This series has been tested on multiple devices both by checking the
+zones setup matches the expectations and by double-checking physical
+addresses on pages allocated on the three relevant areas GFP_DMA,
+GFP_DMA32, GFP_KERNEL:
+
+- On an RPi4 with variations on the ram memory size. But also forcing
+  the situation where all three memory zones are nonempty by setting a 3G
+  ZONE_DMA32 ceiling on a 4G setup. Both with and without NUMA support.
+
+- On a Synquacer box[1] with 32G of memory.
+
+- On an ACPI based Huawei TaiShan server[2] with 256G of memory.
+
+- On a QEMU virtual machine running arm64's OpenSUSE Tumbleweed.
+
+That's all.
+
+Regards,
+Nicolas
+
+[1] https://www.96boards.org/product/developerbox/
+[2] https://e.huawei.com/en/products/cloud-computing-dc/servers/taishan-server/taishan-2280-v2
+
 ---
- s390x/Makefile      |  1 +
- s390x/stsi.c        | 84 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |  3 ++
- 3 files changed, 88 insertions(+)
- create mode 100644 s390x/stsi.c
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 3453373..76db0bb 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -13,6 +13,7 @@ tests += $(TEST_DIR)/gs.elf
- tests += $(TEST_DIR)/iep.elf
- tests += $(TEST_DIR)/cpumodel.elf
- tests += $(TEST_DIR)/diag288.elf
-+tests += $(TEST_DIR)/stsi.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-diff --git a/s390x/stsi.c b/s390x/stsi.c
-new file mode 100644
-index 0000000..b8195b2
---- /dev/null
-+++ b/s390x/stsi.c
-@@ -0,0 +1,84 @@
-+/*
-+ * Store System Information tests
-+ *
-+ * Copyright (c) 2019 IBM Corp
-+ *
-+ * Authors:
-+ *  Janosch Frank <frankja@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU Library General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <asm/page.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+
-+static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
-+
-+static void test_specs(void)
-+{
-+	report_prefix_push("specification");
-+
-+	report_prefix_push("inv r0");
-+	expect_pgm_int();
-+	stsi(pagebuf, 0, 1 << 8, 0);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("inv r1");
-+	expect_pgm_int();
-+	stsi(pagebuf, 1, 0, 1 << 16);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("unaligned");
-+	expect_pgm_int();
-+	stsi(pagebuf + 42, 1, 0, 0);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_priv(void)
-+{
-+	report_prefix_push("privileged");
-+	expect_pgm_int();
-+	enter_pstate();
-+	stsi(pagebuf, 0, 0, 0);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+}
-+
-+static inline unsigned long stsi_get_fc(void *addr)
-+{
-+	register unsigned long r0 asm("0") = 0;
-+	register unsigned long r1 asm("1") = 0;
-+	int cc;
-+
-+	asm volatile("stsi	0(%3)\n"
-+		     "ipm	%[cc]\n"
-+		     "srl	%[cc],28\n"
-+		     : "+d" (r0), [cc] "=d" (cc)
-+		     : "d" (r1), "a" (addr)
-+		     : "cc", "memory");
-+	assert(!cc);
-+	return r0 >> 28;
-+}
-+
-+static void test_fc(void)
-+{
-+	report("invalid fc",  stsi(pagebuf, 7, 0, 0) == 3);
-+	report("query fc >= 2",  stsi_get_fc(pagebuf) >= 2);
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("stsi");
-+	test_priv();
-+	test_specs();
-+	test_fc();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 9dd288a..cc79a4e 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -68,3 +68,6 @@ file = cpumodel.elf
- [diag288]
- file = diag288.elf
- extra_params=-device diag288,id=watchdog0 --watchdog-action inject-nmi
-+
-+[stsi]
-+file = stsi.elf
+Changes in v2:
+- More in depth testing.
+- Create new global 'dma_zone_size'.
+- New approach to getting the dma_zone_size, instead of parsing the dts
+  we hardcode it conditionally to the machine compatible name.
+- Fix ZONE_DMA and ZONE_DMA32 split, now ZONE_DMA32 remains empty if
+  ZONE_DMA fits the whole 32 bit addressable space.
+- Take into account devices with DMA offset.
+- Rename new dma-direct variable to zone_dma_bits.
+- Try new approach by merging both ZONE_DMA and ZONE_DMA32 comments
+  in mmzone.h, add new up to date examples.
+
+Nicolas Saenz Julienne (11):
+  asm-generic: add dma_zone_size
+  arm: use generic dma_zone_size
+  of/fdt: add of_fdt_machine_is_compatible function
+  of/fdt: add early_init_dt_get_dma_zone_size()
+  arm64: mm: use arm64_dma_phys_limit instead of calling
+    max_zone_dma_phys()
+  arm64: rename variables used to calculate ZONE_DMA32's size
+  arm64: re-introduce max_zone_dma_phys()
+  arm64: use both ZONE_DMA and ZONE_DMA32
+  dma-direct: turn ARCH_ZONE_DMA_BITS into a variable
+  arm64: edit zone_dma_bits to fine tune dma-direct min mask
+  mm: refresh ZONE_DMA and ZONE_DMA32 comments in 'enum zone_type'
+
+ arch/arm/include/asm/dma.h      |  8 ++--
+ arch/arm/mm/init.c              | 12 ++----
+ arch/arm64/Kconfig              |  4 ++
+ arch/arm64/mm/init.c            | 73 +++++++++++++++++++++++++--------
+ arch/powerpc/include/asm/page.h |  9 ----
+ arch/powerpc/mm/mem.c           | 16 +++++---
+ arch/s390/include/asm/page.h    |  2 -
+ arch/s390/mm/init.c             |  1 +
+ drivers/of/fdt.c                | 15 +++++++
+ include/asm-generic/dma.h       |  8 +++-
+ include/linux/dma-direct.h      |  2 +
+ include/linux/mmzone.h          | 46 ++++++++++++---------
+ kernel/dma/direct.c             | 13 +++---
+ mm/page_alloc.c                 |  3 ++
+ 14 files changed, 140 insertions(+), 72 deletions(-)
+
 -- 
-2.17.0
+2.22.0
