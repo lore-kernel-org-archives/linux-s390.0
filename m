@@ -1,126 +1,106 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44360 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725925AbfHQOYu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 17 Aug 2019 10:24:50 -0400
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 3/7] crypto: sha256 - Move lib/sha256.c to lib/crypto
-Date: Sat, 17 Aug 2019 16:24:31 +0200
-Message-Id: <20190817142435.8532-4-hdegoede@redhat.com>
-In-Reply-To: <20190817142435.8532-1-hdegoede@redhat.com>
-References: <20190817142435.8532-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18318 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729810AbfHTOq5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 20 Aug 2019 10:46:57 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7KEdcOO046800
+        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 10:46:56 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ugjtsgcfc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 10:46:56 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 20 Aug 2019 15:46:53 +0100
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/9] s390/qeth: use node_descriptor struct
+Date: Tue, 20 Aug 2019 16:46:35 +0200
+In-Reply-To: <20190820144643.64041-1-jwi@linux.ibm.com>
+References: <20190820144643.64041-1-jwi@linux.ibm.com>
+Message-Id: <20190820144643.64041-2-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Generic crypto implementations belong under lib/crypto not directly in
-lib, likewise the header should be in include/crypto, not include/linux.
+Rather than fumbling with hard-coded offsets, use the proper struct to
+access the retrieved RCD information.
 
-Note that the code in lib/crypto/sha256.c is not yet available for
-generic use after this commit, it is still only used by the s390 and x86
-purgatory code. Making it suitable for generic use is done in further
-patches in this series.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/purgatory/Makefile       | 2 +-
- arch/s390/purgatory/purgatory.c    | 2 +-
- arch/x86/purgatory/Makefile        | 2 +-
- arch/x86/purgatory/purgatory.c     | 2 +-
- include/{linux => crypto}/sha256.h | 2 +-
- lib/{ => crypto}/sha256.c          | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
- rename include/{linux => crypto}/sha256.h (94%)
- rename lib/{ => crypto}/sha256.c (99%)
+ drivers/s390/net/qeth_core.h      |  2 +-
+ drivers/s390/net/qeth_core_main.c | 31 +++++++++++++++++++++++--------
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index dc1ae4ff79d7..85b05c9e40f5 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -7,7 +7,7 @@ purgatory-y := head.o purgatory.o string.o sha256.o mem.o
- targets += $(purgatory-y) purgatory.lds purgatory purgatory.ro
- PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 28db887d38ed..47e01cdd1775 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -651,7 +651,7 @@ struct qeth_card_blkt {
+ struct qeth_card_info {
+ 	unsigned short unit_addr2;
+ 	unsigned short cula;
+-	unsigned short chpid;
++	u8 chpid;
+ 	__u16 func_level;
+ 	char mcl_level[QETH_MCL_LENGTH + 1];
+ 	u8 open_when_online:1;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 0803070246aa..50f2773a1f8c 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1775,19 +1775,32 @@ static int qeth_send_control_data(struct qeth_card *card,
+ 	return rc;
+ }
  
--$(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
-+$(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
++struct qeth_node_desc {
++	struct node_descriptor nd1;
++	struct node_descriptor nd2;
++	struct node_descriptor nd3;
++};
++
+ static void qeth_read_conf_data_cb(struct qeth_card *card,
+ 				   struct qeth_cmd_buffer *iob)
+ {
+-	unsigned char *prcd = iob->data;
++	struct qeth_node_desc *nd = (struct qeth_node_desc *) iob->data;
++	u8 *tag;
  
- $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
-diff --git a/arch/s390/purgatory/purgatory.c b/arch/s390/purgatory/purgatory.c
-index 3528e6da4e87..a80c78da9985 100644
---- a/arch/s390/purgatory/purgatory.c
-+++ b/arch/s390/purgatory/purgatory.c
-@@ -8,8 +8,8 @@
-  */
+ 	QETH_CARD_TEXT(card, 2, "cfgunit");
+-	card->info.chpid = prcd[30];
+-	card->info.unit_addr2 = prcd[31];
+-	card->info.cula = prcd[63];
+-	card->info.is_vm_nic = ((prcd[0x10] == _ascebc['V']) &&
+-				(prcd[0x11] == _ascebc['M']));
+-	card->info.use_v1_blkt = prcd[74] == 0xF0 && prcd[75] == 0xF0 &&
+-				 prcd[76] >= 0xF1 && prcd[76] <= 0xF4;
++	card->info.is_vm_nic = nd->nd1.plant[0] == _ascebc['V'] &&
++			       nd->nd1.plant[1] == _ascebc['M'];
++	tag = (u8 *)&nd->nd1.tag;
++	card->info.chpid = tag[0];
++	card->info.unit_addr2 = tag[1];
++
++	tag = (u8 *)&nd->nd2.tag;
++	card->info.cula = tag[1];
++
++	card->info.use_v1_blkt = nd->nd3.model[0] == 0xF0 &&
++				 nd->nd3.model[1] == 0xF0 &&
++				 nd->nd3.model[2] >= 0xF1 &&
++				 nd->nd3.model[2] <= 0xF4;
  
- #include <linux/kexec.h>
--#include <linux/sha256.h>
- #include <linux/string.h>
-+#include <crypto/sha256.h>
- #include <asm/purgatory.h>
+ 	qeth_notify_reply(iob->reply, 0);
+ 	qeth_put_cmd(iob);
+@@ -1803,6 +1816,8 @@ static int qeth_read_conf_data(struct qeth_card *card)
+ 	ciw = ccw_device_get_ciw(channel->ccwdev, CIW_TYPE_RCD);
+ 	if (!ciw || ciw->cmd == 0)
+ 		return -EOPNOTSUPP;
++	if (ciw->count < sizeof(struct qeth_node_desc))
++		return -EINVAL;
  
- int verify_sha256_digest(void)
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index 8901a1f89cf5..6ebd0739106e 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -9,7 +9,7 @@ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
- $(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
--$(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
-+$(obj)/sha256.o: $(srctree)/lib/crypto/sha256.c FORCE
- 	$(call if_changed_rule,cc_o_c)
- 
- LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
-diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
-index b607bda786f6..7f90a86eff49 100644
---- a/arch/x86/purgatory/purgatory.c
-+++ b/arch/x86/purgatory/purgatory.c
-@@ -9,7 +9,7 @@
-  */
- 
- #include <linux/bug.h>
--#include <linux/sha256.h>
-+#include <crypto/sha256.h>
- #include <asm/purgatory.h>
- 
- #include "../boot/string.h"
-diff --git a/include/linux/sha256.h b/include/crypto/sha256.h
-similarity index 94%
-rename from include/linux/sha256.h
-rename to include/crypto/sha256.h
-index 26972b9e92db..b1f9c6781082 100644
---- a/include/linux/sha256.h
-+++ b/include/crypto/sha256.h
-@@ -17,7 +17,7 @@
-  * kexec_file purgatory. In other cases you should use the implementation in
-  * crypto/.
-  *
-- * For details see lib/sha256.c
-+ * For details see lib/crypto/sha256.c
-  */
- 
- extern int sha256_init(struct sha256_state *sctx);
-diff --git a/lib/sha256.c b/lib/crypto/sha256.c
-similarity index 99%
-rename from lib/sha256.c
-rename to lib/crypto/sha256.c
-index ba4dce0b3711..b8114028d06f 100644
---- a/lib/sha256.c
-+++ b/lib/crypto/sha256.c
-@@ -12,8 +12,8 @@
-  */
- 
- #include <linux/bitops.h>
--#include <linux/sha256.h>
- #include <linux/string.h>
-+#include <crypto/sha256.h>
- #include <asm/byteorder.h>
- 
- static inline u32 Ch(u32 x, u32 y, u32 z)
+ 	iob = qeth_alloc_cmd(channel, ciw->count, 1, QETH_RCD_TIMEOUT);
+ 	if (!iob)
 -- 
-2.23.0.rc2
+2.17.1
