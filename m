@@ -1,282 +1,207 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6/6] crypto: sha256_generic - Use sha256_transform from generic sha256 lib
-Date: Fri, 16 Aug 2019 23:16:11 +0200
-Message-Id: <20190816211611.2568-7-hdegoede@redhat.com>
-In-Reply-To: <20190816211611.2568-1-hdegoede@redhat.com>
-References: <20190816211611.2568-1-hdegoede@redhat.com>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v11 0/8] openat2(2)
+Date: Tue, 20 Aug 2019 13:33:58 +1000
+Message-Id: <20190820033406.29796-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>, Christian Brauner <christian@brauner.io>, David Drysdale <drysdale@google.com>, Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Drop the duplicate sha256_transform function from crypto/sha256_generic.c
-and use the implementation from lib/crypto/sha256.c instead.
-"diff -u lib/crypto/sha256.c sha256_generic.c"
-shows that both implementations are identical.
+This patchset is being developed here:
+    <https://github.com/cyphar/linux/tree/resolveat/master>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- crypto/Kconfig          |   1 +
- crypto/sha256_generic.c | 197 +---------------------------------------
- 2 files changed, 6 insertions(+), 192 deletions(-)
+Patch changelog:
+ v11: [RESEND: <https://lore.kernel.org/lkml/20190728010207.9781-1-cyphar@cyphar.com/>]
+    * Fix checkpatch.pl errors and warnings where reasonable.
+    * Minor cleanup to pr_warn logging for may_open_magiclink().
+    * Drop kselftests patch to handle %m formatting correctly, and send
+      it through the kselftests tree directly. [Shuah Khan]
+ v10: <https://lore.kernel.org/lkml/20190719164225.27083-1-cyphar@cyphar.com/>
+ v09: <https://lore.kernel.org/lkml/20190706145737.5299-1-cyphar@cyphar.com/>
+ v08: <https://lore.kernel.org/lkml/20190520133305.11925-1-cyphar@cyphar.com/>
+ v07: <https://lore.kernel.org/lkml/20190507164317.13562-1-cyphar@cyphar.com/>
+ v06: <https://lore.kernel.org/lkml/20190506165439.9155-1-cyphar@cyphar.com/>
+ v05: <https://lore.kernel.org/lkml/20190320143717.2523-1-cyphar@cyphar.com/>
+ v04: <https://lore.kernel.org/lkml/20181112142654.341-1-cyphar@cyphar.com/>
+ v03: <https://lore.kernel.org/lkml/20181009070230.12884-1-cyphar@cyphar.com/>
+ v02: <https://lore.kernel.org/lkml/20181009065300.11053-1-cyphar@cyphar.com/>
+ v01: <https://lore.kernel.org/lkml/20180929103453.12025-1-cyphar@cyphar.com/>
 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 3ac665dac35f..05ab624dcca7 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -935,6 +935,7 @@ config CRYPTO_LIB_SHA256
- config CRYPTO_SHA256
- 	tristate "SHA224 and SHA256 digest algorithm"
- 	select CRYPTO_HASH
-+	select CRYPTO_LIB_SHA256
- 	help
- 	  SHA256 secure hash standard (DFIPS 180-2).
- 
-diff --git a/crypto/sha256_generic.c b/crypto/sha256_generic.c
-index dac930ca827d..51b3afcb5407 100644
---- a/crypto/sha256_generic.c
-+++ b/crypto/sha256_generic.c
-@@ -18,6 +18,7 @@
- #include <linux/mm.h>
- #include <linux/types.h>
- #include <crypto/sha.h>
-+#include <crypto/sha256.h>
- #include <crypto/sha256_base.h>
- #include <asm/byteorder.h>
- #include <asm/unaligned.h>
-@@ -38,194 +39,6 @@ const u8 sha256_zero_message_hash[SHA256_DIGEST_SIZE] = {
- };
- EXPORT_SYMBOL_GPL(sha256_zero_message_hash);
- 
--static inline u32 Ch(u32 x, u32 y, u32 z)
--{
--	return z ^ (x & (y ^ z));
--}
--
--static inline u32 Maj(u32 x, u32 y, u32 z)
--{
--	return (x & y) | (z & (x | y));
--}
--
--#define e0(x)       (ror32(x, 2) ^ ror32(x, 13) ^ ror32(x, 22))
--#define e1(x)       (ror32(x, 6) ^ ror32(x, 11) ^ ror32(x, 25))
--#define s0(x)       (ror32(x, 7) ^ ror32(x, 18) ^ (x >> 3))
--#define s1(x)       (ror32(x, 17) ^ ror32(x, 19) ^ (x >> 10))
--
--static inline void LOAD_OP(int I, u32 *W, const u8 *input)
--{
--	W[I] = get_unaligned_be32((__u32 *)input + I);
--}
--
--static inline void BLEND_OP(int I, u32 *W)
--{
--	W[I] = s1(W[I-2]) + W[I-7] + s0(W[I-15]) + W[I-16];
--}
--
--static void sha256_transform(u32 *state, const u8 *input)
--{
--	u32 a, b, c, d, e, f, g, h, t1, t2;
--	u32 W[64];
--	int i;
--
--	/* load the input */
--	for (i = 0; i < 16; i++)
--		LOAD_OP(i, W, input);
--
--	/* now blend */
--	for (i = 16; i < 64; i++)
--		BLEND_OP(i, W);
--
--	/* load the state into our registers */
--	a = state[0];  b = state[1];  c = state[2];  d = state[3];
--	e = state[4];  f = state[5];  g = state[6];  h = state[7];
--
--	/* now iterate */
--	t1 = h + e1(e) + Ch(e, f, g) + 0x428a2f98 + W[0];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0x71374491 + W[1];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0xb5c0fbcf + W[2];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0xe9b5dba5 + W[3];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x3956c25b + W[4];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0x59f111f1 + W[5];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x923f82a4 + W[6];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0xab1c5ed5 + W[7];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0xd807aa98 + W[8];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0x12835b01 + W[9];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0x243185be + W[10];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0x550c7dc3 + W[11];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x72be5d74 + W[12];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0x80deb1fe + W[13];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x9bdc06a7 + W[14];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0xc19bf174 + W[15];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0xe49b69c1 + W[16];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0xefbe4786 + W[17];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0x0fc19dc6 + W[18];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0x240ca1cc + W[19];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x2de92c6f + W[20];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0x4a7484aa + W[21];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x5cb0a9dc + W[22];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0x76f988da + W[23];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0x983e5152 + W[24];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0xa831c66d + W[25];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0xb00327c8 + W[26];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0xbf597fc7 + W[27];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0xc6e00bf3 + W[28];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0xd5a79147 + W[29];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x06ca6351 + W[30];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0x14292967 + W[31];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0x27b70a85 + W[32];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0x2e1b2138 + W[33];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0x4d2c6dfc + W[34];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0x53380d13 + W[35];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x650a7354 + W[36];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0x766a0abb + W[37];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x81c2c92e + W[38];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0x92722c85 + W[39];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0xa2bfe8a1 + W[40];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0xa81a664b + W[41];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0xc24b8b70 + W[42];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0xc76c51a3 + W[43];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0xd192e819 + W[44];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0xd6990624 + W[45];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0xf40e3585 + W[46];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0x106aa070 + W[47];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0x19a4c116 + W[48];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0x1e376c08 + W[49];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0x2748774c + W[50];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0x34b0bcb5 + W[51];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x391c0cb3 + W[52];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0x4ed8aa4a + W[53];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0x5b9cca4f + W[54];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0x682e6ff3 + W[55];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	t1 = h + e1(e) + Ch(e, f, g) + 0x748f82ee + W[56];
--	t2 = e0(a) + Maj(a, b, c);    d += t1;    h = t1 + t2;
--	t1 = g + e1(d) + Ch(d, e, f) + 0x78a5636f + W[57];
--	t2 = e0(h) + Maj(h, a, b);    c += t1;    g = t1 + t2;
--	t1 = f + e1(c) + Ch(c, d, e) + 0x84c87814 + W[58];
--	t2 = e0(g) + Maj(g, h, a);    b += t1;    f = t1 + t2;
--	t1 = e + e1(b) + Ch(b, c, d) + 0x8cc70208 + W[59];
--	t2 = e0(f) + Maj(f, g, h);    a += t1;    e = t1 + t2;
--	t1 = d + e1(a) + Ch(a, b, c) + 0x90befffa + W[60];
--	t2 = e0(e) + Maj(e, f, g);    h += t1;    d = t1 + t2;
--	t1 = c + e1(h) + Ch(h, a, b) + 0xa4506ceb + W[61];
--	t2 = e0(d) + Maj(d, e, f);    g += t1;    c = t1 + t2;
--	t1 = b + e1(g) + Ch(g, h, a) + 0xbef9a3f7 + W[62];
--	t2 = e0(c) + Maj(c, d, e);    f += t1;    b = t1 + t2;
--	t1 = a + e1(f) + Ch(f, g, h) + 0xc67178f2 + W[63];
--	t2 = e0(b) + Maj(b, c, d);    e += t1;    a = t1 + t2;
--
--	state[0] += a; state[1] += b; state[2] += c; state[3] += d;
--	state[4] += e; state[5] += f; state[6] += g; state[7] += h;
--
--	/* clear any sensitive info... */
--	a = b = c = d = e = f = g = h = t1 = t2 = 0;
--	memzero_explicit(W, 64 * sizeof(u32));
--}
--
- static void sha256_generic_block_fn(struct sha256_state *sst, u8 const *src,
- 				    int blocks)
- {
-@@ -242,7 +55,7 @@ int crypto_sha256_update(struct shash_desc *desc, const u8 *data,
- }
- EXPORT_SYMBOL(crypto_sha256_update);
- 
--static int sha256_final(struct shash_desc *desc, u8 *out)
-+static int crypto_sha256_final(struct shash_desc *desc, u8 *out)
- {
- 	sha256_base_do_finalize(desc, sha256_generic_block_fn);
- 	return sha256_base_finish(desc, out);
-@@ -252,7 +65,7 @@ int crypto_sha256_finup(struct shash_desc *desc, const u8 *data,
- 			unsigned int len, u8 *hash)
- {
- 	sha256_base_do_update(desc, data, len, sha256_generic_block_fn);
--	return sha256_final(desc, hash);
-+	return crypto_sha256_final(desc, hash);
- }
- EXPORT_SYMBOL(crypto_sha256_finup);
- 
-@@ -260,7 +73,7 @@ static struct shash_alg sha256_algs[2] = { {
- 	.digestsize	=	SHA256_DIGEST_SIZE,
- 	.init		=	sha256_base_init,
- 	.update		=	crypto_sha256_update,
--	.final		=	sha256_final,
-+	.final		=	crypto_sha256_final,
- 	.finup		=	crypto_sha256_finup,
- 	.descsize	=	sizeof(struct sha256_state),
- 	.base		=	{
-@@ -274,7 +87,7 @@ static struct shash_alg sha256_algs[2] = { {
- 	.digestsize	=	SHA224_DIGEST_SIZE,
- 	.init		=	sha224_base_init,
- 	.update		=	crypto_sha256_update,
--	.final		=	sha256_final,
-+	.final		=	crypto_sha256_final,
- 	.finup		=	crypto_sha256_finup,
- 	.descsize	=	sizeof(struct sha256_state),
- 	.base		=	{
+The need for some sort of control over VFS's path resolution (to avoid
+malicious paths resulting in inadvertent breakouts) has been a very
+long-standing desire of many userspace applications. This patchset is a
+revival of Al Viro's old AT_NO_JUMPS[1,2] patchset (which was a variant
+of David Drysdale's O_BENEATH patchset[3] which was a spin-off of the
+Capsicum project[4]) with a few additions and changes made based on the
+previous discussion within [5] as well as others I felt were useful.
+
+In line with the conclusions of the original discussion of AT_NO_JUMPS,
+the flag has been split up into separate flags. However, instead of
+being an openat(2) flag it is provided through a new syscall openat2(2)
+which provides several other improvements to the openat(2) interface (see the
+patch description for more details). The following new LOOKUP_* flags are
+added:
+
+  * LOOKUP_NO_XDEV blocks all mountpoint crossings (upwards, downwards,
+    or through absolute links). Absolute pathnames alone in openat(2) do
+    not trigger this.
+
+  * LOOKUP_NO_MAGICLINKS blocks resolution through /proc/$pid/fd-style
+    links. This is done by blocking the usage of nd_jump_link() during
+    resolution in a filesystem. The term "magic-links" is used to match
+    with the only reference to these links in Documentation/, but I'm
+    happy to change the name.
+
+    It should be noted that this is different to the scope of
+    ~LOOKUP_FOLLOW in that it applies to all path components. However,
+    you can do openat2(NO_FOLLOW|NO_MAGICLINKS) on a magic-link and it
+    will *not* fail (assuming that no parent component was a
+    magic-link), and you will have an fd for the magic-link.
+
+  * LOOKUP_BENEATH disallows escapes to outside the starting dirfd's
+    tree, using techniques such as ".." or absolute links. Absolute
+    paths in openat(2) are also disallowed. Conceptually this flag is to
+    ensure you "stay below" a certain point in the filesystem tree --
+    but this requires some additional to protect against various races
+    that would allow escape using "..".
+
+    Currently LOOKUP_BENEATH implies LOOKUP_NO_MAGICLINKS, because it
+    can trivially beam you around the filesystem (breaking the
+    protection). In future, there might be similar safety checks done as
+    in LOOKUP_IN_ROOT, but that requires more discussion.
+
+In addition, two new flags are added that expand on the above ideas:
+
+  * LOOKUP_NO_SYMLINKS does what it says on the tin. No symlink
+    resolution is allowed at all, including magic-links. Just as with
+    LOOKUP_NO_MAGICLINKS this can still be used with NOFOLLOW to open an
+    fd for the symlink as long as no parent path had a symlink
+    component.
+
+  * LOOKUP_IN_ROOT is an extension of LOOKUP_BENEATH that, rather than
+    blocking attempts to move past the root, forces all such movements
+    to be scoped to the starting point. This provides chroot(2)-like
+    protection but without the cost of a chroot(2) for each filesystem
+    operation, as well as being safe against race attacks that chroot(2)
+    is not.
+
+    If a race is detected (as with LOOKUP_BENEATH) then an error is
+    generated, and similar to LOOKUP_BENEATH it is not permitted to cross
+    magic-links with LOOKUP_IN_ROOT.
+
+    The primary need for this is from container runtimes, which
+    currently need to do symlink scoping in userspace[6] when opening
+    paths in a potentially malicious container. There is a long list of
+    CVEs that could have bene mitigated by having RESOLVE_THIS_ROOT
+    (such as CVE-2017-1002101, CVE-2017-1002102, CVE-2018-15664, and
+    CVE-2019-5736, just to name a few).
+
+And further, several semantics of file descriptor "re-opening" are now
+changed to prevent attacks like CVE-2019-5736 by restricting how
+magic-links can be resolved (based on their mode). This required some
+other changes to the semantics of the modes of O_PATH file descriptor's
+associated /proc/self/fd magic-links. openat2(2) has the ability to
+further restrict re-opening of its own O_PATH fds, so that users can
+make even better use of this feature.
+
+Finally, O_EMPTYPATH was added so that users can do /proc/self/fd-style
+re-opening without depending on procfs. The new restricted semantics for
+magic-links are applied here too.
+
+In order to make all of the above more usable, I'm working on
+libpathrs[7] which is a C-friendly library for safe path resolution. It
+features a userspace-emulated backend if the kernel doesn't support
+openat2(2). Hopefully we can get userspace to switch to using it, and
+thus get openat2(2) support for free once it's ready.
+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Christian Brauner <christian@brauner.io>
+Cc: David Drysdale <drysdale@google.com>
+Cc: Tycho Andersen <tycho@tycho.ws>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <containers@lists.linux-foundation.org>
+Cc: <linux-fsdevel@vger.kernel.org>
+Cc: <linux-api@vger.kernel.org>
+
+[1]: https://lwn.net/Articles/721443/
+[2]: https://lore.kernel.org/patchwork/patch/784221/
+[3]: https://lwn.net/Articles/619151/
+[4]: https://lwn.net/Articles/603929/
+[5]: https://lwn.net/Articles/723057/
+[6]: https://github.com/cyphar/filepath-securejoin
+[7]: https://github.com/openSUSE/libpathrs
+
+Aleksa Sarai (8):
+  namei: obey trailing magic-link DAC permissions
+  procfs: switch magic-link modes to be more sane
+  open: O_EMPTYPATH: procfs-less file descriptor re-opening
+  namei: O_BENEATH-style path resolution flags
+  namei: LOOKUP_IN_ROOT: chroot-like path resolution
+  namei: aggressively check for nd->root escape on ".." resolution
+  open: openat2(2) syscall
+  selftests: add openat2(2) selftests
+
+ Documentation/filesystems/path-lookup.rst     |  12 +-
+ arch/alpha/include/uapi/asm/fcntl.h           |   1 +
+ arch/alpha/kernel/syscalls/syscall.tbl        |   1 +
+ arch/arm/tools/syscall.tbl                    |   1 +
+ arch/arm64/include/asm/unistd.h               |   2 +-
+ arch/arm64/include/asm/unistd32.h             |   2 +
+ arch/ia64/kernel/syscalls/syscall.tbl         |   1 +
+ arch/m68k/kernel/syscalls/syscall.tbl         |   1 +
+ arch/microblaze/kernel/syscalls/syscall.tbl   |   1 +
+ arch/mips/kernel/syscalls/syscall_n32.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_n64.tbl     |   1 +
+ arch/mips/kernel/syscalls/syscall_o32.tbl     |   1 +
+ arch/parisc/include/uapi/asm/fcntl.h          |  39 +-
+ arch/parisc/kernel/syscalls/syscall.tbl       |   1 +
+ arch/powerpc/kernel/syscalls/syscall.tbl      |   1 +
+ arch/s390/kernel/syscalls/syscall.tbl         |   1 +
+ arch/sh/kernel/syscalls/syscall.tbl           |   1 +
+ arch/sparc/include/uapi/asm/fcntl.h           |   1 +
+ arch/sparc/kernel/syscalls/syscall.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_32.tbl        |   1 +
+ arch/x86/entry/syscalls/syscall_64.tbl        |   1 +
+ arch/xtensa/kernel/syscalls/syscall.tbl       |   1 +
+ fs/fcntl.c                                    |   2 +-
+ fs/internal.h                                 |   1 +
+ fs/namei.c                                    | 270 ++++++++++--
+ fs/open.c                                     | 112 ++++-
+ fs/proc/base.c                                |  20 +-
+ fs/proc/fd.c                                  |  23 +-
+ fs/proc/namespaces.c                          |   2 +-
+ include/linux/fcntl.h                         |  17 +-
+ include/linux/fs.h                            |   8 +-
+ include/linux/namei.h                         |   9 +
+ include/linux/syscalls.h                      |  17 +-
+ include/uapi/asm-generic/fcntl.h              |   4 +
+ include/uapi/asm-generic/unistd.h             |   5 +-
+ include/uapi/linux/fcntl.h                    |  42 ++
+ tools/testing/selftests/Makefile              |   1 +
+ tools/testing/selftests/memfd/memfd_test.c    |   7 +-
+ tools/testing/selftests/openat2/.gitignore    |   1 +
+ tools/testing/selftests/openat2/Makefile      |   8 +
+ tools/testing/selftests/openat2/helpers.c     | 162 +++++++
+ tools/testing/selftests/openat2/helpers.h     | 116 +++++
+ .../testing/selftests/openat2/linkmode_test.c | 333 +++++++++++++++
+ .../selftests/openat2/rename_attack_test.c    | 127 ++++++
+ .../testing/selftests/openat2/resolve_test.c  | 402 ++++++++++++++++++
+ 45 files changed, 1655 insertions(+), 107 deletions(-)
+ create mode 100644 tools/testing/selftests/openat2/.gitignore
+ create mode 100644 tools/testing/selftests/openat2/Makefile
+ create mode 100644 tools/testing/selftests/openat2/helpers.c
+ create mode 100644 tools/testing/selftests/openat2/helpers.h
+ create mode 100644 tools/testing/selftests/openat2/linkmode_test.c
+ create mode 100644 tools/testing/selftests/openat2/rename_attack_test.c
+ create mode 100644 tools/testing/selftests/openat2/resolve_test.c
+
 -- 
 2.22.0
