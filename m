@@ -1,121 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:37368 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726087AbfHQHtG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:49:06 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/26] asm-generic: don't provide ioremap for CONFIG_MMU
-Date: Sat, 17 Aug 2019 09:32:43 +0200
-Message-Id: <20190817073253.27819-17-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2348 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726967AbfHUKtP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Aug 2019 06:49:15 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7LAn2xf019572
+        for <linux-s390@vger.kernel.org>; Wed, 21 Aug 2019 06:49:14 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2uh3rtj39a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 21 Aug 2019 06:49:09 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Wed, 21 Aug 2019 11:48:16 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/4] s390x: More emulation tests
+Date: Wed, 21 Aug 2019 12:47:32 +0200
+Message-Id: <20190821104736.1470-1-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-All MMU-enabled ports have a non-trivial ioremap and should thus provide
-the prototype for their implementation instead of providing a generic
-one unless a different symbol is not defined.  Note that this only
-affects sparc32 nds32 as all others do provide their own version.
+The first patch allows for CECSIM booting via PSW restart.
+The other ones add diag288 and STSI tests.
 
-Also update the kerneldoc comments in asm-generic/io.h to explain the
-situation around the default ioremap* implementations correctly.
+v2:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/nds32/include/asm/io.h    |  2 ++
- arch/sparc/include/asm/io_32.h |  1 +
- include/asm-generic/io.h       | 29 ++++++++---------------------
- 3 files changed, 11 insertions(+), 21 deletions(-)
+* Tested under TCG
+* Split out stsi into library
+* Addressed review
 
-diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-index 16f262322b8f..fb0e8a24c7af 100644
---- a/arch/nds32/include/asm/io.h
-+++ b/arch/nds32/include/asm/io.h
-@@ -6,6 +6,7 @@
- 
- #include <linux/types.h>
- 
-+void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
- extern void iounmap(volatile void __iomem *addr);
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-@@ -80,4 +81,5 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
- #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
- #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
- #include <asm-generic/io.h>
-+
- #endif /* __ASM_NDS32_IO_H */
-diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
-index df2dc1784673..9a52d9506f80 100644
---- a/arch/sparc/include/asm/io_32.h
-+++ b/arch/sparc/include/asm/io_32.h
-@@ -127,6 +127,7 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
-  * Bus number may be embedded in the higher bits of the physical address.
-  * This is why we have no bus number argument to ioremap().
-  */
-+void __iomem *ioremap(phys_addr_t offset, size_t size);
- void iounmap(volatile void __iomem *addr);
- /* Create a virtual mapping cookie for an IO port range */
- void __iomem *ioport_map(unsigned long port, unsigned int nr);
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index a98ed6325727..6a5edc23afe2 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -922,28 +922,16 @@ static inline void *phys_to_virt(unsigned long address)
- /**
-  * DOC: ioremap() and ioremap_*() variants
-  *
-- * If you have an IOMMU your architecture is expected to have both ioremap()
-- * and iounmap() implemented otherwise the asm-generic helpers will provide a
-- * direct mapping.
-+ * Architectures with an MMU are expected to provide ioremap() and iounmap()
-+ * themselves.  For NOMMU architectures we provide a default nop-op
-+ * implementation that expect that the physical address used for MMIO are
-+ * already marked as uncached, and can be used as kernel virtual addresses.
-  *
-- * There are ioremap_*() call variants, if you have no IOMMU we naturally will
-- * default to direct mapping for all of them, you can override these defaults.
-- * If you have an IOMMU you are highly encouraged to provide your own
-- * ioremap variant implementation as there currently is no safe architecture
-- * agnostic default. To avoid possible improper behaviour default asm-generic
-- * ioremap_*() variants all return NULL when an IOMMU is available. If you've
-- * defined your own ioremap_*() variant you must then declare your own
-- * ioremap_*() variant as defined to itself to avoid the default NULL return.
-+ * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
-+ * for specific drivers if the architecture choses to implement them.  If they
-+ * are not implemented we fall back to plain ioremap.
-  */
- #ifndef CONFIG_MMU
--
--/*
-- * Change "struct page" to physical address.
-- *
-- * This implementation is for the no-MMU case only... if you have an MMU
-- * you'll need to provide your own definitions.
-- */
--
- #ifndef ioremap
- #define ioremap ioremap
- static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
-@@ -954,14 +942,13 @@ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
- 
- #ifndef iounmap
- #define iounmap iounmap
--
- static inline void iounmap(void __iomem *addr)
- {
- }
- #endif
- #endif /* CONFIG_MMU */
-+
- #ifndef ioremap_nocache
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
- #define ioremap_nocache ioremap_nocache
- static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
- {
+Janosch Frank (4):
+  s390x: Support PSW restart boot
+  s390x: Diag288 test
+  s390x: Move stsi to library
+  s390x: STSI tests
+
+ lib/s390x/asm/arch_def.h |  17 +++++
+ s390x/Makefile           |   2 +
+ s390x/diag288.c          | 131 +++++++++++++++++++++++++++++++++++++++
+ s390x/flat.lds           |  14 +++--
+ s390x/skey.c             |  18 ------
+ s390x/stsi.c             |  84 +++++++++++++++++++++++++
+ s390x/unittests.cfg      |   7 +++
+ 7 files changed, 250 insertions(+), 23 deletions(-)
+ create mode 100644 s390x/diag288.c
+ create mode 100644 s390x/stsi.c
+
 -- 
-2.20.1
+2.17.0
