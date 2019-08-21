@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:3293 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:42166 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733308AbfHWKbe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Aug 2019 06:31:34 -0400
+        id S1726372AbfHUNXj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Aug 2019 09:23:39 -0400
 Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x: Support PSW restart boot
 References: <20190821104736.1470-1-frankja@linux.ibm.com>
  <20190821104736.1470-2-frankja@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <e03efe10-8271-a8d8-87d1-436c7d3aed01@redhat.com>
-Date: Fri, 23 Aug 2019 12:31:32 +0200
+Message-ID: <05b86a55-2f5b-5692-110f-beb04b9d1ca0@redhat.com>
+Date: Wed, 21 Aug 2019 15:23:36 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190821104736.1470-2-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
@@ -58,8 +58,6 @@ On 21.08.19 12:47, Janosch Frank wrote:
 >  	. = 0x10000;
 >  	.text : {
 > 
-
-Seems you missed my
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
