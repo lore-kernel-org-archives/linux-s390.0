@@ -1,179 +1,191 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:40600 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726566AbfHKPIk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 11 Aug 2019 11:08:40 -0400
-From: Denis Efremov <efremov@linux.com>
-Subject: [PATCH 2/7] s390/pci: Replace PCI_BAR_COUNT with PCI_STD_NUM_BARS
-Date: Sun, 11 Aug 2019 18:07:57 +0300
-Message-Id: <20190811150802.2418-3-efremov@linux.com>
-In-Reply-To: <20190811150802.2418-1-efremov@linux.com>
-References: <20190811150802.2418-1-efremov@linux.com>
+Received: from mx1.redhat.com ([209.132.183.28]:56766 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390545AbfHWKbB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Aug 2019 06:31:01 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 2/4] s390x: Diag288 test
+References: <20190821104736.1470-1-frankja@linux.ibm.com>
+ <20190821104736.1470-3-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <ac96277b-f2ae-3855-639e-9a4e7273aaba@redhat.com>
+Date: Fri, 23 Aug 2019 12:30:58 +0200
 MIME-Version: 1.0
+In-Reply-To: <20190821104736.1470-3-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Denis Efremov <efremov@linux.com>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-This patch replaces local define PCI_BAR_COUNT with global
-PCI_STD_NUM_BARS.
+On 8/21/19 12:47 PM, Janosch Frank wrote:
+> A small test for the watchdog via diag288.
+> 
+> Minimum timer value is 15 (seconds) and the only supported action with
+> QEMU is restart.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/arch_def.h |   1 +
+>  s390x/Makefile           |   1 +
+>  s390x/diag288.c          | 131 +++++++++++++++++++++++++++++++++++++++
+>  s390x/unittests.cfg      |   4 ++
+>  4 files changed, 137 insertions(+)
+>  create mode 100644 s390x/diag288.c
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index d2cd727..4bbb428 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -15,6 +15,7 @@ struct psw {
+>  	uint64_t	addr;
+>  };
+>  
+> +#define PSW_MASK_EXT			0x0100000000000000UL
+>  #define PSW_MASK_DAT			0x0400000000000000UL
+>  #define PSW_MASK_PSTATE			0x0001000000000000UL
+>  
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 574a9a2..3453373 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -12,6 +12,7 @@ tests += $(TEST_DIR)/vector.elf
+>  tests += $(TEST_DIR)/gs.elf
+>  tests += $(TEST_DIR)/iep.elf
+>  tests += $(TEST_DIR)/cpumodel.elf
+> +tests += $(TEST_DIR)/diag288.elf
+>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>  
+>  all: directories test_cases test_cases_binary
+> diff --git a/s390x/diag288.c b/s390x/diag288.c
+> new file mode 100644
+> index 0000000..c129b6a
+> --- /dev/null
+> +++ b/s390x/diag288.c
+[...]
+> +static void test_specs(void)
+> +{
+> +	report_prefix_push("specification");
+> +
+> +	report_prefix_push("uneven");
+> +	expect_pgm_int();
+> +	asm volatile("diag %r1,%r2,0x288");
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- arch/s390/include/asm/pci.h     |  5 +----
- arch/s390/include/asm/pci_clp.h |  6 +++---
- arch/s390/pci/pci.c             | 16 ++++++++--------
- arch/s390/pci/pci_clp.c         |  6 +++---
- 4 files changed, 15 insertions(+), 18 deletions(-)
+Don't you have to use "%%" in that case? ... well, if it also works
+without, I don't mind, but in case you respin better play safe:
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index a2399eff84ca..3a06c264ea53 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -2,9 +2,6 @@
- #ifndef __ASM_S390_PCI_H
- #define __ASM_S390_PCI_H
- 
--/* must be set before including pci_clp.h */
--#define PCI_BAR_COUNT	6
--
- #include <linux/pci.h>
- #include <linux/mutex.h>
- #include <linux/iommu.h>
-@@ -138,7 +135,7 @@ struct zpci_dev {
- 
- 	char res_name[16];
- 	bool mio_capable;
--	struct zpci_bar_struct bars[PCI_BAR_COUNT];
-+	struct zpci_bar_struct bars[PCI_STD_NUM_BARS];
- 
- 	u64		start_dma;	/* Start of available DMA addresses */
- 	u64		end_dma;	/* End of available DMA addresses */
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 50359172cc48..bd2cb4ea7d93 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -77,7 +77,7 @@ struct mio_info {
- 	struct {
- 		u64 wb;
- 		u64 wt;
--	} addr[PCI_BAR_COUNT];
-+	} addr[PCI_STD_NUM_BARS];
- 	u32 reserved[6];
- } __packed;
- 
-@@ -98,9 +98,9 @@ struct clp_rsp_query_pci {
- 	u16 util_str_avail	:  1;	/* utility string available? */
- 	u16 pfgid		:  8;	/* pci function group id */
- 	u32 fid;			/* pci function id */
--	u8 bar_size[PCI_BAR_COUNT];
-+	u8 bar_size[PCI_STD_NUM_BARS];
- 	u16 pchid;
--	__le32 bar[PCI_BAR_COUNT];
-+	__le32 bar[PCI_STD_NUM_BARS];
- 	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
- 	u32			: 16;
- 	u8 fmb_len;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index b0e3b9a0e488..c57ccac25c02 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -43,7 +43,7 @@ static DECLARE_BITMAP(zpci_domain, ZPCI_NR_DEVICES);
- static DEFINE_SPINLOCK(zpci_domain_lock);
- 
- #define ZPCI_IOMAP_ENTRIES						\
--	min(((unsigned long) ZPCI_NR_DEVICES * PCI_BAR_COUNT / 2),	\
-+	min(((unsigned long) ZPCI_NR_DEVICES * PCI_STD_NUM_BARS / 2),	\
- 	    ZPCI_IOMAP_MAX_ENTRIES)
- 
- static DEFINE_SPINLOCK(zpci_iomap_lock);
-@@ -294,7 +294,7 @@ static void __iomem *pci_iomap_range_mio(struct pci_dev *pdev, int bar,
- void __iomem *pci_iomap_range(struct pci_dev *pdev, int bar,
- 			      unsigned long offset, unsigned long max)
- {
--	if (!pci_resource_len(pdev, bar) || bar >= PCI_BAR_COUNT)
-+	if (!pci_resource_len(pdev, bar) || bar >= PCI_STD_NUM_BARS)
- 		return NULL;
- 
- 	if (static_branch_likely(&have_mio))
-@@ -324,7 +324,7 @@ static void __iomem *pci_iomap_wc_range_mio(struct pci_dev *pdev, int bar,
- void __iomem *pci_iomap_wc_range(struct pci_dev *pdev, int bar,
- 				 unsigned long offset, unsigned long max)
- {
--	if (!pci_resource_len(pdev, bar) || bar >= PCI_BAR_COUNT)
-+	if (!pci_resource_len(pdev, bar) || bar >= PCI_STD_NUM_BARS)
- 		return NULL;
- 
- 	if (static_branch_likely(&have_mio))
-@@ -416,7 +416,7 @@ static void zpci_map_resources(struct pci_dev *pdev)
- 	resource_size_t len;
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		len = pci_resource_len(pdev, i);
- 		if (!len)
- 			continue;
-@@ -451,7 +451,7 @@ static void zpci_unmap_resources(struct pci_dev *pdev)
- 	if (zpci_use_mio(zdev))
- 		return;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		len = pci_resource_len(pdev, i);
- 		if (!len)
- 			continue;
-@@ -514,7 +514,7 @@ static int zpci_setup_bus_resources(struct zpci_dev *zdev,
- 	snprintf(zdev->res_name, sizeof(zdev->res_name),
- 		 "PCI Bus %04x:%02x", zdev->domain, ZPCI_BUS_NR);
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		if (!zdev->bars[i].size)
- 			continue;
- 		entry = zpci_alloc_iomap(zdev);
-@@ -551,7 +551,7 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
- {
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		if (!zdev->bars[i].size || !zdev->bars[i].res)
- 			continue;
- 
-@@ -573,7 +573,7 @@ int pcibios_add_device(struct pci_dev *pdev)
- 	pdev->dev.dma_ops = &s390_pci_dma_ops;
- 	zpci_map_resources(pdev);
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		res = &pdev->resource[i];
- 		if (res->parent || !res->flags)
- 			continue;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 9bdff4defef1..8b729b5f2972 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -145,7 +145,7 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- {
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		zdev->bars[i].val = le32_to_cpu(response->bar[i]);
- 		zdev->bars[i].size = response->bar_size[i];
- 	}
-@@ -164,8 +164,8 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 		       sizeof(zdev->util_str));
- 	}
- 	zdev->mio_capable = response->mio_addr_avail;
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
--		if (!(response->mio.valid & (1 << (PCI_BAR_COUNT - i - 1))))
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+		if (!(response->mio.valid & (1 << (PCI_STD_NUM_BARS - i - 1))))
- 			continue;
- 
- 		zdev->bars[i].mio_wb = (void __iomem *) response->mio.addr[i].wb;
--- 
-2.21.0
+    asm volatile("diag %%r1,%%r2,0x288");
+
+> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("unsupported action");
+> +	expect_pgm_int();
+> +	diag288(CODE_INIT, 15, 42);
+> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("unsupported function");
+> +	expect_pgm_int();
+> +	diag288(42, 15, ACTION_RESTART);
+> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("no init");
+> +	expect_pgm_int();
+> +	diag288(CODE_CANCEL, 15, ACTION_RESTART);
+> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("min timer");
+> +	expect_pgm_int();
+> +	diag288(CODE_INIT, 14, ACTION_RESTART);
+> +	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_priv(void)
+> +{
+> +	report_prefix_push("privileged");
+> +	expect_pgm_int();
+> +	enter_pstate();
+> +	diag288(CODE_INIT, 15, ACTION_RESTART);
+> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> +	report_prefix_pop();
+> +}
+> +
+> +static inline void get_tod_clock_ext(char *clk)
+> +{
+> +	typedef struct { char _[16]; } addrtype;
+> +
+> +	asm volatile("stcke %0" : "=Q" (*(addrtype *) clk) : : "cc");
+> +}
+> +
+> +static inline unsigned long long get_tod_clock(void)
+> +{
+> +	char clk[16];
+> +
+> +	get_tod_clock_ext(clk);
+> +	return *((unsigned long long *)&clk[1]);
+
+You could use uint64_t instead of "unsigned long long".
+
+> +}
+> +
+> +static void test_bite(void)
+> +{
+> +	unsigned long time;
+> +	uint64_t mask;
+> +
+> +	/* If watchdog doesn't bite, the cpu timer does */
+> +	time = get_tod_clock();
+> +	time += (uint64_t)(16000 * 1000) << 12;
+> +	asm volatile("sckc %0" : : "Q" (time));
+> +	ctl_set_bit(0, 11);
+> +	mask = extract_psw_mask();
+> +	mask |= PSW_MASK_EXT;
+> +	load_psw_mask(mask);
+> +
+> +	/* Arm watchdog */
+> +	lc->restart_new_psw.mask = extract_psw_mask() & ~PSW_MASK_EXT;
+> +	diag288(CODE_INIT, 15, ACTION_RESTART);
+> +	asm volatile("		larl	%r0, 1f\n"
+> +		     "		stg	%r0, 424\n"
+> +		     "0:	nop\n"
+> +		     "		j	0b\n"
+> +		     "1:");
+> +	report("restart", true);
+> +	return;
+
+Superfluous return statement.
+
+> +}
+> +
+> +int main(void)
+> +{
+> +	report_prefix_push("diag288");
+> +	test_priv();
+> +	test_specs();
+> +	test_bite();
+> +	return report_summary();
+> +}
+> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> index db58bad..9dd288a 100644
+> --- a/s390x/unittests.cfg
+> +++ b/s390x/unittests.cfg
+> @@ -64,3 +64,7 @@ file = iep.elf
+>  
+>  [cpumodel]
+>  file = cpumodel.elf
+> +
+> +[diag288]
+> +file = diag288.elf
+> +extra_params=-device diag288,id=watchdog0 --watchdog-action inject-nmi
+> 
+
+Apart from the cosmetic nits, looks fine to me.
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
