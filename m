@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: =?UTF-8?Q?=5bPATCH=5d_s390/ctcm=3a_Delete_unnecessary_checks_before?=
- =?UTF-8?B?IHRoZSBtYWNybyBjYWxsIOKAnGRldl9rZnJlZV9za2LigJ0=?=
-Message-ID: <84733436-46d1-8f43-780e-7b3ab9f2a0ae@web.de>
-Date: Thu, 22 Aug 2019 11:04:43 +0200
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54846 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728903AbfHWKee (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 23 Aug 2019 06:34:34 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 3/4] s390x: Move stsi to library
+References: <20190821104736.1470-1-frankja@linux.ibm.com>
+ <20190821104736.1470-4-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <bb1eab5b-de78-686d-0d3a-783b1353be6a@redhat.com>
+Date: Fri, 23 Aug 2019 12:34:29 +0200
 MIME-Version: 1.0
+In-Reply-To: <20190821104736.1470-4-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 22 Aug 2019 10:55:33 +0200
+On 8/21/19 12:47 PM, Janosch Frank wrote:
+> It's needed in multiple tests now.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/arch_def.h | 16 ++++++++++++++++
+>  s390x/skey.c             | 18 ------------------
+>  2 files changed, 16 insertions(+), 18 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 4bbb428..5f8f45e 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -240,4 +240,20 @@ static inline void enter_pstate(void)
+>  	load_psw_mask(mask);
+>  }
+>  
+> +static inline int stsi(void *addr, int fc, int sel1, int sel2)
+> +{
+> +	register int r0 asm("0") = (fc << 28) | sel1;
+> +	register int r1 asm("1") = sel2;
+> +	int cc;
+> +
+> +	asm volatile(
+> +		"stsi	0(%3)\n"
+> +		"ipm	%[cc]\n"
+> +		"srl	%[cc],28\n"
+> +		: "+d" (r0), [cc] "=d" (cc)
+> +		: "d" (r1), "a" (addr)
+> +		: "cc", "memory");
+> +	return cc;
 
-The dev_kfree_skb() function performs also input parameter validation.
-Thus the test around the shown calls is not needed.
+Maybe mention the changed return value in the patch description.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
- drivers/s390/net/ctcm_main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index f63c5c871d3d..90025d1923d2 100644
-=2D-- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1074,10 +1074,8 @@ static void ctcm_free_netdevice(struct net_device *=
-dev)
- 		if (grp) {
- 			if (grp->fsm)
- 				kfree_fsm(grp->fsm);
--			if (grp->xid_skb)
--				dev_kfree_skb(grp->xid_skb);
--			if (grp->rcvd_xid_skb)
--				dev_kfree_skb(grp->rcvd_xid_skb);
-+			dev_kfree_skb(grp->xid_skb);
-+			dev_kfree_skb(grp->rcvd_xid_skb);
- 			tasklet_kill(&grp->mpc_tasklet2);
- 			kfree(grp);
- 			priv->mpcg =3D NULL;
-=2D-
-2.23.0
+Reviewed-by: Thomas Huth <thuth@redhat.com>
