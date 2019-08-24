@@ -1,47 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12266 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729462AbfHENLh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Aug 2019 09:11:37 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x75D3QNK140689
-        for <linux-s390@vger.kernel.org>; Mon, 5 Aug 2019 09:11:36 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2u6m1yb8rf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 05 Aug 2019 09:11:35 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <prudo@linux.ibm.com>;
-        Mon, 5 Aug 2019 14:11:32 +0100
-Date: Mon, 5 Aug 2019 15:11:23 +0200
-From: Philipp Rudo <prudo@linux.ibm.com>
-Subject: Re: [PATCH v12 01/11] MODSIGN: Export module signature definitions
-In-Reply-To: <8736iw9y00.fsf@morokweng.localdomain>
-References: <20190628021934.4260-1-bauerman@linux.ibm.com>
-        <20190628021934.4260-2-bauerman@linux.ibm.com>
-        <20190701144752.GC25484@linux-8ccs>
-        <87lfxel2q6.fsf@morokweng.localdomain>
-        <20190704125427.31146026@laptop-ibm>
-        <874l41ocf5.fsf@morokweng.localdomain>
-        <20190705150000.372345b0@laptop-ibm>
-        <8736iw9y00.fsf@morokweng.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: from shards.monkeyblade.net ([23.128.96.9]:48596 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727937AbfHXXfH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 24 Aug 2019 19:35:07 -0400
+Date: Sat, 24 Aug 2019 16:35:06 -0700 (PDT)
+Message-Id: <20190824.163506.328898476555373543.davem@davemloft.net>
+Subject: Re: [PATCH net] s390/qeth: reject oversized SNMP requests
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20190823092923.8507-1-jwi@linux.ibm.com>
+References: <20190823092923.8507-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190805151123.12510d72@laptop-ibm>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Jessica Yu <jeyu@kernel.org>, linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, "AKASHI, Takahiro" <takahiro.akashi@linaro.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Hi Thiago,
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Fri, 23 Aug 2019 11:29:23 +0200
 
-> > The patch looks good now.  
+> Commit d4c08afafa04 ("s390/qeth: streamline SNMP cmd code") removed
+> the bounds checking for req_len, under the assumption that the check in
+> qeth_alloc_cmd() would suffice.
 > 
-> Thanks! Can I add your Reviewed-by?
+> But that code path isn't sufficiently robust to handle a user-provided
+> data_length, which could overflow (when adding the cmd header overhead)
+> before being checked against QETH_BUFSIZE. We end up allocating just a
+> tiny iob, and the subsequent copy_from_user() writes past the end of
+> that iob.
+> 
+> Special-case this path and add a coarse bounds check, to protect against
+> maliciuous requests. This let's the subsequent code flow do its normal
+> job and precise checking, without risk of overflow.
+> 
+> Fixes: d4c08afafa04 ("s390/qeth: streamline SNMP cmd code")
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+> Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 
-sorry, for the late answer, but I was on vacation the last two weeks. I hope
-it's not too late now.
-
-Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
+Applied.
