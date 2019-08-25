@@ -1,56 +1,187 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16696 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729968AbfHGOuS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Aug 2019 10:50:18 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x77EmGY0134434
-        for <linux-s390@vger.kernel.org>; Wed, 7 Aug 2019 10:50:16 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2u7xyn5hx7-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 07 Aug 2019 10:50:16 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Wed, 7 Aug 2019 15:50:14 +0100
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 1/2] scsi: core: fix missing .cleanup_rq for SCSI hosts without request batching
-Date: Wed,  7 Aug 2019 16:49:47 +0200
-In-Reply-To: <20190807144948.28265-1-maier@linux.ibm.com>
-References: <20190807144948.28265-1-maier@linux.ibm.com>
-Message-Id: <20190807144948.28265-2-maier@linux.ibm.com>
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37602 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725922AbfHYNZA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Aug 2019 09:25:00 -0400
+From: Changbin Du <changbin.du@gmail.com>
+Subject: [PATCH 09/11] x86_64: add function prototype recording support
+Date: Sun, 25 Aug 2019 21:23:28 +0800
+Message-Id: <20190825132330.5015-10-changbin.du@gmail.com>
+In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
+References: <20190825132330.5015-1-changbin.du@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Paolo Bonzini <pbonzini@redhat.com>, Ming Lei <ming.lei@redhat.com>
-Cc: linux-next@vger.kernel.org, linux-scsi@vger.kernel.org, linux-block@vger.kernel.org, dm-devel@redhat.com, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>, "Ewan D . Milne" <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>, Mike Snitzer <snitzer@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
 
-This was missing from scsi_mq_ops_no_commit of linux-next commit
-8930a6c20791 ("scsi: core: add support for request batching")
-from Martin's scsi/5.4/scsi-queue or James' scsi/misc.
+This patch implements the arch_fgraph_record_params() function for x86_64
+platform and deliver the return value of function to ftrace core part.
 
-See also linux-next commit b7e9e1fb7a92 ("scsi: implement .cleanup_rq
-callback") from block/for-next.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: 8930a6c20791 ("scsi: core: add support for request batching")
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
 ---
- drivers/scsi/scsi_lib.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/Kconfig            |  1 +
+ arch/x86/kernel/ftrace.c    | 84 +++++++++++++++++++++++++++++++++++--
+ arch/x86/kernel/ftrace_64.S |  4 +-
+ 3 files changed, 85 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index ae03d3e2600f..90c257622bb0 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1834,6 +1834,7 @@ static const struct blk_mq_ops scsi_mq_ops_no_commit = {
- 	.init_request	= scsi_mq_init_request,
- 	.exit_request	= scsi_mq_exit_request,
- 	.initialize_rq_fn = scsi_initialize_rq,
-+	.cleanup_rq	= scsi_cleanup_rq,
- 	.busy		= scsi_mq_lld_busy,
- 	.map_queues	= scsi_map_queues,
- };
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 222855cc0158..34e583bfdab8 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -31,6 +31,7 @@ config X86_64
+ 	select NEED_DMA_MAP_STATE
+ 	select SWIOTLB
+ 	select ARCH_HAS_SYSCALL_WRAPPER
++	select HAVE_FTRACE_FUNC_PROTOTYPE
+ 
+ config FORCE_DYNAMIC_FTRACE
+ 	def_bool y
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index a044734167af..fc0a062ce762 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -31,6 +31,7 @@
+ #include <asm/ftrace.h>
+ #include <asm/nops.h>
+ #include <asm/text-patching.h>
++#include <asm-generic/dwarf.h>
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ 
+@@ -918,7 +919,8 @@ static void *addr_from_call(void *ptr)
+ }
+ 
+ void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
+-			   unsigned long frame_pointer);
++			   unsigned long frame_pointer,
++			   struct pt_regs *pt_regs);
+ 
+ /*
+  * If the ops->trampoline was not allocated, then it probably
+@@ -973,6 +975,82 @@ void arch_ftrace_trampoline_free(struct ftrace_ops *ops)
+ 	ops->trampoline = 0;
+ }
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++void arch_fgraph_record_params(struct ftrace_graph_ent *trace,
++			       struct func_prototype *proto,
++			       struct pt_regs *pt_regs)
++{
++	int i;
++
++	trace->nr_param = min(proto->nr_param, (uint8_t)FTRACE_MAX_FUNC_PARAMS);
++
++	for (i = 0; i < trace->nr_param; i++) {
++		struct func_param *param = &proto->params[i];
++		unsigned int sz = FTRACE_PROTOTYPE_SIZE(param->type);
++		long off = (char)param->loc[1];
++		unsigned long value = 0;
++		bool good = true;
++
++		if (sz > sizeof(value)) {
++			/* Don't record value of complex type. */
++			trace->param_types[i] = param->type;
++			trace->param_values[i] = 0;
++			continue;
++		}
++
++		switch (param->loc[0]) {
++		case DW_OP_reg1:
++			value = pt_regs->dx;
++			break;
++		case DW_OP_reg2:
++			value = pt_regs->cx;
++			break;
++		case DW_OP_reg3:
++			value = pt_regs->bx;
++			break;
++		case DW_OP_reg4:
++			value = pt_regs->si;
++			break;
++		case DW_OP_reg5:
++			value = pt_regs->di;
++			break;
++		case DW_OP_reg6:
++			value = pt_regs->bp;
++			break;
++		case DW_OP_reg8:
++			value = pt_regs->r8;
++			break;
++		case DW_OP_reg9:
++			value = pt_regs->r9;
++			break;
++		case DW_OP_fbreg:
++			if (probe_kernel_read(&value,
++					(void *)pt_regs->bp + off,
++					sz))
++				good = false;
++			break;
++		case DW_OP_breg7:
++			if (probe_kernel_read(&value,
++					(void *)pt_regs->sp + off,
++					sz))
++				good = false;
++			break;
++		default:
++			/* unexpected loc expression */
++			good = false;
++		}
++
++		trace->param_names[i] = param->name;
++		if (good) {
++			trace->param_types[i] = param->type;
++			trace->param_values[i] = value;
++		} else {
++			/* set the type to 0 so we skip it when printing. */
++			trace->param_types[i] = 0;
++		}
++	}
++}
++#endif /* CONFIG_FTRACE_FUNC_PROTOTYPE */
+ #endif /* CONFIG_X86_64 */
+ #endif /* CONFIG_DYNAMIC_FTRACE */
+ 
+@@ -1017,7 +1095,7 @@ int ftrace_disable_ftrace_graph_caller(void)
+  * in current thread info.
+  */
+ void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
+-			   unsigned long frame_pointer)
++			   unsigned long frame_pointer, struct pt_regs *pt_regs)
+ {
+ 	unsigned long old;
+ 	int faulted;
+@@ -1072,7 +1150,7 @@ void prepare_ftrace_return(unsigned long self_addr, unsigned long *parent,
+ 		return;
+ 	}
+ 
+-	if (function_graph_enter(old, self_addr, frame_pointer, parent, NULL))
++	if (function_graph_enter(old, self_addr, frame_pointer, parent, pt_regs))
+ 		*parent = old;
+ }
+ #endif /* CONFIG_FUNCTION_GRAPH_TRACER */
+diff --git a/arch/x86/kernel/ftrace_64.S b/arch/x86/kernel/ftrace_64.S
+index 809d54397dba..e01d6358e859 100644
+--- a/arch/x86/kernel/ftrace_64.S
++++ b/arch/x86/kernel/ftrace_64.S
+@@ -289,7 +289,8 @@ ENTRY(ftrace_graph_caller)
+ 
+ 	leaq MCOUNT_REG_SIZE+8(%rsp), %rsi
+ 	movq $0, %rdx	/* No framepointers needed */
+-	call	prepare_ftrace_return
++	movq %rsp, %rcx /* the fourth parameter */
++	call prepare_ftrace_return
+ 
+ 	restore_mcount_regs
+ 
+@@ -304,6 +305,7 @@ ENTRY(return_to_handler)
+ 	movq %rax, (%rsp)
+ 	movq %rdx, 8(%rsp)
+ 	movq %rbp, %rdi
++	movq %rax, %rsi
+ 
+ 	call ftrace_return_to_handler
+ 
 -- 
-2.17.1
+2.20.1
