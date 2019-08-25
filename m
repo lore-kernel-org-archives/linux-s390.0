@@ -1,294 +1,308 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43950 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2390339AbfHWJtC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Aug 2019 05:49:02 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7N9kj3f056791
-        for <linux-s390@vger.kernel.org>; Fri, 23 Aug 2019 05:49:01 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ujd6s9e49-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 23 Aug 2019 05:49:00 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Fri, 23 Aug 2019 10:48:59 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/7] s390/qeth: collect accurate TX statistics
-Date: Fri, 23 Aug 2019 11:48:49 +0200
-In-Reply-To: <20190823094853.63814-1-jwi@linux.ibm.com>
-References: <20190823094853.63814-1-jwi@linux.ibm.com>
-Message-Id: <20190823094853.63814-4-jwi@linux.ibm.com>
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:33368 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725922AbfHYNYg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Aug 2019 09:24:36 -0400
+From: Changbin Du <changbin.du@gmail.com>
+Subject: [PATCH 06/11] ftrace: process function prototype data in vmlinux and modules
+Date: Sun, 25 Aug 2019 21:23:25 +0800
+Message-Id: <20190825132330.5015-7-changbin.du@gmail.com>
+In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
+References: <20190825132330.5015-1-changbin.du@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
 
-This consolidates the SW statistics code, and improves it to
-(1) account for the header overhead of each segment on a TSO skb,
-(2) count dangling packets as in-error (during eg. shutdown), and
-(3) only count offloads when the skb was successfully transmitted.
+Walk through the '__funcproto' section in vmlinux and kernel modules.
+For each item we add it to a new ftrace hash table ftrace_prototype_hash.
+When unloading a module, its items are removed from hash table.
 
-We also count each segment of an TSO skb as one packet - except for
-tx_dropped, to be consistent with dev->tx_dropped.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
 ---
- drivers/s390/net/qeth_core.h      |  1 +
- drivers/s390/net/qeth_core_main.c | 66 +++++++++++++++++++------------
- drivers/s390/net/qeth_l2_main.c   | 12 ++----
- drivers/s390/net/qeth_l3_main.c   |  9 ++---
- 4 files changed, 49 insertions(+), 39 deletions(-)
+ include/asm-generic/vmlinux.lds.h | 18 ++++++++
+ include/linux/ftrace.h            | 18 ++++++++
+ include/linux/module.h            |  4 ++
+ kernel/module.c                   | 25 ++++++++--
+ kernel/trace/ftrace.c             | 76 ++++++++++++++++++++++++++++++-
+ kernel/trace/trace.h              |  4 ++
+ 6 files changed, 140 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 72755a025b4d..a0911ce55db3 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -30,6 +30,7 @@
- #include <net/ipv6.h>
- #include <net/if_inet6.h>
- #include <net/addrconf.h>
-+#include <net/sch_generic.h>
- #include <net/tcp.h>
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index cd28f63bfbc7..3b0a10cbf0ca 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -125,6 +125,23 @@
+ #define MCOUNT_REC()
+ #endif
  
- #include <asm/debug.h>
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 44fbaa4f7264..d7a15a88bdba 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -71,7 +71,7 @@ static void qeth_free_qdio_queues(struct qeth_card *card);
- static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
- 		struct qeth_qdio_out_buffer *buf,
- 		enum iucv_tx_notify notification);
--static void qeth_release_skbs(struct qeth_qdio_out_buffer *buf);
-+static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error);
- static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *, int);
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++#define FUNC_PROTOTYPE							\
++	. = ALIGN(8);							\
++	__funcprotostr : AT(ADDR(__funcprotostr) - LOAD_OFFSET) {	\
++		KEEP(*(__funcprotostr)) 				\
++	}								\
++									\
++	. = ALIGN(8);							\
++	__funcproto : AT(ADDR(__funcproto) - LOAD_OFFSET) {		\
++		__start_funcproto = .;					\
++		KEEP(*(__funcproto))					\
++		__stop_funcproto = .;					\
++	}
++#else
++#define	FUNC_PROTOTYPE
++#endif
++
+ #ifdef CONFIG_TRACE_BRANCH_PROFILING
+ #define LIKELY_PROFILE()	__start_annotated_branch_profile = .;	\
+ 				KEEP(*(_ftrace_annotated_branch))	\
+@@ -396,6 +413,7 @@
+ 	}								\
+ 									\
+ 	TRACEDATA							\
++	FUNC_PROTOTYPE							\
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+ 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
+diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+index 8a8cb3c401b2..f5aab37a8c34 100644
+--- a/include/linux/ftrace.h
++++ b/include/linux/ftrace.h
+@@ -361,6 +361,24 @@ struct dyn_ftrace {
+ 	struct dyn_arch_ftrace	arch;
+ };
  
- static void qeth_close_dev_handler(struct work_struct *work)
-@@ -411,7 +411,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- 				/* release here to avoid interleaving between
- 				   outbound tasklet and inbound tasklet
- 				   regarding notifications and lifecycle */
--				qeth_release_skbs(c);
-+				qeth_tx_complete_buf(c, forced_cleanup);
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++struct func_param {
++	char *name;
++	uint8_t type;
++	uint8_t loc[2];
++} __packed;
++
++struct func_prototype {
++	unsigned long ip;
++	uint8_t ret_type;
++	uint8_t nr_param;
++	struct func_param params[0];
++} __packed;
++
++#define FTRACE_PROTOTYPE_SIGNED(t)	(t & BIT(7))
++#define FTRACE_PROTOTYPE_SIZE(t)	(t & GENMASK(6, 0))
++#endif
++
+ int ftrace_force_update(void);
+ int ftrace_set_filter_ip(struct ftrace_ops *ops, unsigned long ip,
+ 			 int remove, int reset);
+diff --git a/include/linux/module.h b/include/linux/module.h
+index 1455812dd325..516062dfe567 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -477,6 +477,10 @@ struct module {
+ 	unsigned int num_ftrace_callsites;
+ 	unsigned long *ftrace_callsites;
+ #endif
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	struct func_prototype *funcproto_start;
++	size_t funcproto_sec_size;
++#endif
  
- 				c = f->next_pending;
- 				WARN_ON_ONCE(head->next_pending != f);
-@@ -1077,22 +1077,51 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *q,
- 	}
+ #ifdef CONFIG_LIVEPATCH
+ 	bool klp; /* Is this a livepatch module? */
+diff --git a/kernel/module.c b/kernel/module.c
+index 9ee93421269c..1c5eea7b6a28 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -360,17 +360,30 @@ static void *section_addr(const struct load_info *info, const char *name)
+ 	return (void *)info->sechdrs[find_sec(info, name)].sh_addr;
  }
  
--static void qeth_release_skbs(struct qeth_qdio_out_buffer *buf)
-+static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error)
++/* Get info of a module section. */
++static void *section_info(const struct load_info *info,
++			  const char *name,
++			  size_t *size)
++{
++	unsigned int sec = find_sec(info, name);
++
++	/* Section 0 has sh_addr 0 and sh_size 0. */
++	*size = info->sechdrs[sec].sh_size;
++	return (void *)info->sechdrs[sec].sh_addr;
++}
++
+ /* Find a module section, or NULL.  Fill in number of "objects" in section. */
+ static void *section_objs(const struct load_info *info,
+ 			  const char *name,
+ 			  size_t object_size,
+ 			  unsigned int *num)
  {
-+	struct qeth_qdio_out_q *queue = buf->q;
- 	struct sk_buff *skb;
+-	unsigned int sec = find_sec(info, name);
++	void *addr;
++	size_t sz;
  
- 	/* release may never happen from within CQ tasklet scope */
- 	WARN_ON_ONCE(atomic_read(&buf->state) == QETH_QDIO_BUF_IN_CQ);
+-	/* Section 0 has sh_addr 0 and sh_size 0. */
+-	*num = info->sechdrs[sec].sh_size / object_size;
+-	return (void *)info->sechdrs[sec].sh_addr;
++	addr = section_info(info, name, &sz);
++	*num = sz / object_size;
++	return addr;
+ }
  
- 	if (atomic_read(&buf->state) == QETH_QDIO_BUF_PENDING)
--		qeth_notify_skbs(buf->q, buf, TX_NOTIFY_GENERALERROR);
-+		qeth_notify_skbs(queue, buf, TX_NOTIFY_GENERALERROR);
+ /* Provided by the linker */
+@@ -3140,6 +3153,10 @@ static int find_module_sections(struct module *mod, struct load_info *info)
+ 					     sizeof(*mod->ftrace_callsites),
+ 					     &mod->num_ftrace_callsites);
+ #endif
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	mod->funcproto_start = section_info(info, "__funcproto",
++					    &mod->funcproto_sec_size);
++#endif
+ #ifdef CONFIG_FUNCTION_ERROR_INJECTION
+ 	mod->ei_funcs = section_objs(info, "_error_injection_whitelist",
+ 					    sizeof(*mod->ei_funcs),
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index cfcb8dad93ea..438b8b47198f 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5060,6 +5060,9 @@ static DEFINE_MUTEX(graph_lock);
+ 
+ struct ftrace_hash *ftrace_graph_hash = EMPTY_HASH;
+ struct ftrace_hash *ftrace_graph_notrace_hash = EMPTY_HASH;
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++struct ftrace_hash *ftrace_prototype_hash = EMPTY_HASH;
++#endif
+ 
+ enum graph_filter_type {
+ 	GRAPH_FILTER_NOTRACE	= 0,
+@@ -5615,6 +5618,46 @@ static int ftrace_process_locs(struct module *mod,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++static int ftrace_process_funcproto(struct module *mod,
++			       struct func_prototype *start,
++			       struct func_prototype *end,
++			       bool remove)
++{
++	struct ftrace_func_entry *ent;
++	struct func_prototype *proto;
++	int ret = 0;
 +
-+	/* Empty buffer? */
-+	if (buf->next_element_to_fill == 0)
-+		return;
++	mutex_lock(&ftrace_lock);
 +
-+	QETH_TXQ_STAT_INC(queue, bufs);
-+	QETH_TXQ_STAT_ADD(queue, buf_elements, buf->next_element_to_fill);
-+	while ((skb = __skb_dequeue(&buf->skb_list)) != NULL) {
-+		unsigned int bytes = qdisc_pkt_len(skb);
-+		bool is_tso = skb_is_gso(skb);
-+		unsigned int packets;
-+
-+		packets = is_tso ? skb_shinfo(skb)->gso_segs : 1;
-+		if (error) {
-+			QETH_TXQ_STAT_ADD(queue, tx_errors, packets);
++restart:
++	proto = start;
++	while (proto < end) {
++		if (remove) {
++			ent = ftrace_lookup_ip(ftrace_prototype_hash,
++					       proto->ip);
++			if (ent)
++				free_hash_entry(ftrace_prototype_hash, ent);
 +		} else {
-+			QETH_TXQ_STAT_ADD(queue, tx_packets, packets);
-+			QETH_TXQ_STAT_ADD(queue, tx_bytes, bytes);
-+			if (skb->ip_summed == CHECKSUM_PARTIAL)
-+				QETH_TXQ_STAT_ADD(queue, skbs_csum, packets);
-+			if (skb_is_nonlinear(skb))
-+				QETH_TXQ_STAT_INC(queue, skbs_sg);
-+			if (is_tso) {
-+				QETH_TXQ_STAT_INC(queue, skbs_tso);
-+				QETH_TXQ_STAT_ADD(queue, tso_bytes, bytes);
++			ret = add_hash_entry(ftrace_prototype_hash,
++					     proto->ip, proto);
++			if (ret < 0) {
++				end = proto;
++				remove = 1;
++				goto restart;
 +			}
 +		}
- 
--	while ((skb = __skb_dequeue(&buf->skb_list)) != NULL)
- 		consume_skb(skb);
++		proto = (struct func_prototype *)((char *)proto +
++			sizeof(*proto) +
++			sizeof(proto->params[0]) * proto->nr_param);
 +	}
- }
- 
- static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
--				     struct qeth_qdio_out_buffer *buf)
-+				     struct qeth_qdio_out_buffer *buf,
-+				     bool error)
- {
- 	int i;
- 
-@@ -1100,7 +1129,7 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
- 	if (buf->buffer->element[0].sflags & SBAL_SFLAGS0_PCI_REQ)
- 		atomic_dec(&queue->set_pci_flags_count);
- 
--	qeth_release_skbs(buf);
-+	qeth_tx_complete_buf(buf, error);
- 
- 	for (i = 0; i < queue->max_elements; ++i) {
- 		if (buf->buffer->element[i].addr && buf->is_header[i])
-@@ -1122,7 +1151,7 @@ static void qeth_drain_output_queue(struct qeth_qdio_out_q *q, bool free)
- 		if (!q->bufs[j])
- 			continue;
- 		qeth_cleanup_handled_pending(q, j, 1);
--		qeth_clear_output_buffer(q, q->bufs[j]);
-+		qeth_clear_output_buffer(q, q->bufs[j], true);
- 		if (free) {
- 			kmem_cache_free(qeth_qdio_outbuf_cache, q->bufs[j]);
- 			q->bufs[j] = NULL;
-@@ -3240,14 +3269,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		}
- 	}
- 
--	QETH_TXQ_STAT_ADD(queue, bufs, count);
- 	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
- 	if (atomic_read(&queue->set_pci_flags_count))
- 		qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
- 		     queue->queue_no, index, count);
- 	if (rc) {
--		QETH_TXQ_STAT_ADD(queue, tx_errors, count);
- 		/* ignore temporary SIGA errors without busy condition */
- 		if (rc == -ENOBUFS)
- 			return;
-@@ -3456,7 +3483,7 @@ static void qeth_qdio_output_handler(struct ccw_device *ccwdev,
- 				qeth_notify_skbs(queue, buffer, n);
- 			}
- 
--			qeth_clear_output_buffer(queue, buffer);
-+			qeth_clear_output_buffer(queue, buffer, qdio_error);
- 		}
- 		qeth_cleanup_handled_pending(queue, bidx, 0);
- 	}
-@@ -3942,7 +3969,6 @@ int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
- 	unsigned int hd_len = 0;
- 	unsigned int elements;
- 	int push_len, rc;
--	bool is_sg;
- 
- 	if (is_tso) {
- 		hw_hdr_len = sizeof(struct qeth_hdr_tso);
-@@ -3971,7 +3997,6 @@ int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
- 		qeth_fill_tso_ext((struct qeth_hdr_tso *) hdr,
- 				  frame_len - proto_len, skb, proto_len);
- 
--	is_sg = skb_is_nonlinear(skb);
- 	if (IS_IQD(card)) {
- 		rc = qeth_do_send_packet_fast(queue, skb, hdr, data_offset,
- 					      hd_len);
-@@ -3982,18 +4007,9 @@ int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
- 					 hd_len, elements);
- 	}
- 
--	if (!rc) {
--		QETH_TXQ_STAT_ADD(queue, buf_elements, elements);
--		if (is_sg)
--			QETH_TXQ_STAT_INC(queue, skbs_sg);
--		if (is_tso) {
--			QETH_TXQ_STAT_INC(queue, skbs_tso);
--			QETH_TXQ_STAT_ADD(queue, tso_bytes, frame_len);
--		}
--	} else {
--		if (!push_len)
--			kmem_cache_free(qeth_core_header_cache, hdr);
--	}
-+	if (rc && !push_len)
-+		kmem_cache_free(qeth_core_header_cache, hdr);
 +
- 	return rc;
++	mutex_unlock(&ftrace_lock);
++
++	return ret;
++}
++#endif
++
+ struct ftrace_mod_func {
+ 	struct list_head	list;
+ 	char			*name;
+@@ -5707,7 +5750,7 @@ static void ftrace_free_mod_map(struct rcu_head *rcu)
+ 	kfree(mod_map);
  }
- EXPORT_SYMBOL_GPL(qeth_xmit);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 662bd51f922f..b8799cd3e7aa 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -175,10 +175,8 @@ static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
- 		hdr->hdr.l2.id = QETH_HEADER_TYPE_L2_TSO;
- 	} else {
- 		hdr->hdr.l2.id = QETH_HEADER_TYPE_LAYER2;
--		if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		if (skb->ip_summed == CHECKSUM_PARTIAL)
- 			qeth_tx_csum(skb, &hdr->hdr.l2.flags[1], ipv);
--			QETH_TXQ_STAT_INC(queue, skbs_csum);
--		}
+ 
+-void ftrace_release_mod(struct module *mod)
++void ftrace_release_dyn(struct module *mod)
+ {
+ 	struct ftrace_mod_map *mod_map;
+ 	struct ftrace_mod_map *n;
+@@ -5773,6 +5816,17 @@ void ftrace_release_mod(struct module *mod)
  	}
+ }
  
- 	/* set byte byte 3 to casting flags */
-@@ -588,9 +586,10 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 	struct qeth_card *card = dev->ml_priv;
- 	u16 txq = skb_get_queue_mapping(skb);
- 	struct qeth_qdio_out_q *queue;
--	int tx_bytes = skb->len;
- 	int rc;
++void ftrace_release_mod(struct module *mod)
++{
++	ftrace_release_dyn(mod);
++
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	ftrace_process_funcproto(mod, mod->funcproto_start,
++			(void *)mod->funcproto_start + mod->funcproto_sec_size,
++			true);
++#endif
++}
++
+ void ftrace_module_enable(struct module *mod)
+ {
+ 	struct dyn_ftrace *rec;
+@@ -5852,6 +5906,11 @@ void ftrace_module_init(struct module *mod)
  
-+	if (!skb_is_gso(skb))
-+		qdisc_skb_cb(skb)->pkt_len = skb->len;
- 	if (IS_IQD(card))
- 		txq = qeth_iqd_translate_txq(dev, txq);
- 	queue = card->qdio.out_qs[txq];
-@@ -601,11 +600,8 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 		rc = qeth_xmit(card, skb, queue, qeth_get_ip_version(skb),
- 			       qeth_l2_fill_header);
+ 	ftrace_process_locs(mod, mod->ftrace_callsites,
+ 			    mod->ftrace_callsites + mod->num_ftrace_callsites);
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	ftrace_process_funcproto(mod, mod->funcproto_start,
++			(void *)mod->funcproto_start + mod->funcproto_sec_size,
++			false);
++#endif
+ }
  
--	if (!rc) {
--		QETH_TXQ_STAT_INC(queue, tx_packets);
--		QETH_TXQ_STAT_ADD(queue, tx_bytes, tx_bytes);
-+	if (!rc)
- 		return NETDEV_TX_OK;
--	}
+ static void save_ftrace_mod_rec(struct ftrace_mod_map *mod_map,
+@@ -6146,6 +6205,10 @@ void __init ftrace_init(void)
+ {
+ 	extern unsigned long __start_mcount_loc[];
+ 	extern unsigned long __stop_mcount_loc[];
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	extern struct func_prototype __start_funcproto[];
++	extern struct func_prototype __stop_funcproto[];
++#endif
+ 	unsigned long count, flags;
+ 	int ret;
  
- 	QETH_TXQ_STAT_INC(queue, tx_dropped);
- 	kfree_skb(skb);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 54799fe6a700..d7bfc7a0e4c0 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1957,7 +1957,6 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 			/* some HW requires combined L3+L4 csum offload: */
- 			if (ipv == 4)
- 				hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_HDR_REQ;
--			QETH_TXQ_STAT_INC(queue, skbs_csum);
- 		}
- 	}
+@@ -6179,6 +6242,17 @@ void __init ftrace_init(void)
+ 				  __start_mcount_loc,
+ 				  __stop_mcount_loc);
  
-@@ -2044,9 +2043,10 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	u16 txq = skb_get_queue_mapping(skb);
- 	int ipv = qeth_get_ip_version(skb);
- 	struct qeth_qdio_out_q *queue;
--	int tx_bytes = skb->len;
- 	int rc;
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	ftrace_prototype_hash = alloc_ftrace_hash(FTRACE_HASH_DEFAULT_BITS);
++	if (WARN_ON(!ftrace_prototype_hash))
++		goto failed;
++
++	ftrace_process_funcproto(NULL,
++				 __start_funcproto,
++				 __stop_funcproto,
++				 false);
++#endif
++
+ 	set_ftrace_early_filters();
  
-+	if (!skb_is_gso(skb))
-+		qdisc_skb_cb(skb)->pkt_len = skb->len;
- 	if (IS_IQD(card)) {
- 		queue = card->qdio.out_qs[qeth_iqd_translate_txq(dev, txq)];
+ 	return;
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index ad619c73a505..22433a15e340 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -940,6 +940,10 @@ extern void __trace_graph_return(struct trace_array *tr,
+ extern struct ftrace_hash *ftrace_graph_hash;
+ extern struct ftrace_hash *ftrace_graph_notrace_hash;
  
-@@ -2069,11 +2069,8 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	else
- 		rc = qeth_xmit(card, skb, queue, ipv, qeth_l3_fill_header);
- 
--	if (!rc) {
--		QETH_TXQ_STAT_INC(queue, tx_packets);
--		QETH_TXQ_STAT_ADD(queue, tx_bytes, tx_bytes);
-+	if (!rc)
- 		return NETDEV_TX_OK;
--	}
- 
- tx_drop:
- 	QETH_TXQ_STAT_INC(queue, tx_dropped);
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++extern struct ftrace_hash *ftrace_prototype_hash;
++#endif
++
+ static inline int ftrace_graph_addr(struct ftrace_graph_ent *trace)
+ {
+ 	unsigned long addr = trace->func;
 -- 
-2.17.1
+2.20.1
