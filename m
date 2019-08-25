@@ -1,350 +1,443 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:61224 "EHLO mx2.mailbox.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbfHTDfD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 19 Aug 2019 23:35:03 -0400
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH RESEND v11 1/8] namei: obey trailing magic-link DAC permissions
-Date: Tue, 20 Aug 2019 13:33:59 +1000
-Message-Id: <20190820033406.29796-2-cyphar@cyphar.com>
-In-Reply-To: <20190820033406.29796-1-cyphar@cyphar.com>
-References: <20190820033406.29796-1-cyphar@cyphar.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Changbin Du <changbin.du@gmail.com>
+Subject: [PATCH 08/11] ftrace: introduce core part of function prototype recording
+Date: Sun, 25 Aug 2019 21:23:27 +0800
+Message-Id: <20190825132330.5015-9-changbin.du@gmail.com>
+In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
+References: <20190825132330.5015-1-changbin.du@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Andy Lutomirski <luto@kernel.org>, Christian Brauner <christian@brauner.io>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
 
-The ability for userspace to "re-open" file descriptors through
-/proc/self/fd has been a very useful tool for all sorts of usecases
-(container runtimes are one common example). However, the current
-interface for doing this has resulted in some pretty subtle security
-holes. Userspace can re-open a file descriptor with more permissions
-than the original, which can result in cases such as /proc/$pid/exe
-being re-opened O_RDWR at a later date even though (by definition)
-/proc/$pid/exe cannot be opened for writing. When combined with O_PATH
-the results can get even more confusing.
+This patch introduces the core part of our new CONFIG_FTRACE_FUNC_PROTOTYPE
+feature. For arch which supports this feature must implement a new
+arch-specific interface arch_fgraph_record_params().
 
-We cannot block this outright. Aside from userspace already depending on
-it, it's a useful feature which can actually increase the security of
-userspace. For instance, LXC keeps an O_PATH of the container's
-/dev/pts/ptmx that gets re-opened to create new ptys and then uses
-TIOCGPTPEER to get the slave end. This allows for pty allocation without
-resolving paths inside an (untrusted) container's rootfs. There isn't a
-trivial way of doing this that is as straight-forward and safe as O_PATH
-re-opening.
+In this patch, we add a new trace option "record-funcproto", and by now
+only function graph tracer is supported. The major work is to handle
+the printing stuff.
 
-Instead we have to restrict it in such a way that it doesn't break
-(good) users but does block potential attackers. The solution applied in
-this patch is to restrict *re-opening* (not resolution through)
-magic-links by requiring that mode of the link be obeyed. Normal
-symlinks have modes of a+rwx but magic-links have other modes. These
-magic-link modes were historically ignored during path resolution, but
-they've now been re-purposed for more useful ends.
+Here is an example of the graph trace of function pick_next_task_fair().
+Note that we only record the parameter and return value of global
+functions.
 
-It is also necessary to define semantics for the mode of an O_PATH
-descriptor, since re-opening a magic-link through an O_PATH needs to be
-just as restricted as the corresponding magic-link -- otherwise the
-above protection can be bypassed. There are two distinct cases:
+ 2)               |  pick_next_task_fair() {
+ 2)               |    update_blocked_averages() {
+ 2)   0.765 us    |      _raw_spin_lock_irqsave(lock=0xffff88807da2b100); /* ret=0x0000000000000082 */
+ 2)   0.944 us    |      update_rq_clock(rq=0xffff88807da2b100);
+ 2)   0.612 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff8880754f7488); /* ret=0 */
+ 2)   0.654 us    |      __update_load_avg_se(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180, se=0xffff88807be2e0d8); /* ret=0 */
+ 2)   0.206 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180); /* ret=0 */
+ 2)               |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff888079b5fb18) {
+ 2)   2.410 us    |        __accumulate_pelt_segments();
+ 2)   3.103 us    |      } /* ret=1 */
+ 2)   0.193 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180); /* ret=0 */
+ 2)               |      update_rt_rq_load_avg(now=0x000000251b8516ee, rq=0xffff88807da2b100, running=0) {
+ 2)   0.258 us    |        __accumulate_pelt_segments();
+ 2)   1.617 us    |      } /* ret=1 */
+ 2)               |      update_dl_rq_load_avg(now=0x000000251b8516ee, rq=0xffff88807da2b100, running=0) {
+ 2)   0.230 us    |        __accumulate_pelt_segments();
+ 2)   1.511 us    |      } /* ret=1 */
+ 2)   1.040 us    |      _raw_spin_unlock_irqrestore(lock=0xffff88807da2b100, flags=0x0000000000000082);
+ 2) + 14.739 us   |    }
+ 2)               |    load_balance() {
+ 2)               |      find_busiest_group() {
+ 2)   0.874 us    |        update_group_capacity(sd=0xffff88807c1d37d0, cpu=2);
+ 2)   1.761 us    |        idle_cpu();
+ 2)   0.262 us    |        idle_cpu();
+ 2)   0.217 us    |        idle_cpu();
+ 2)   6.338 us    |      }
+ 2)   8.442 us    |    }
+ 2)   1.823 us    |    __msecs_to_jiffies(m=0x00000006); /* ret=0x0000000000000002 */
+ 2)               |    load_balance() {
+ 2)               |      find_busiest_group() {
+ 2)   0.434 us    |        idle_cpu();
+ 2)   0.233 us    |        idle_cpu();
+ 2)   0.210 us    |        idle_cpu();
+ 2)   2.308 us    |      }
+ 2)   2.821 us    |    }
+ 2)   0.263 us    |    __msecs_to_jiffies(m=0x00000008); /* ret=0x0000000000000002 */
+ 2)   0.977 us    |    _raw_spin_lock(lock=0xffff88807da2b100);
+ 2) + 32.262 us   |  }
 
- 1. The target is a regular file (not a magic-link). Userspace depends
-    on being able to re-open the O_PATH of a regular file, so we must
-    define the mode to be a+rwx.
+The printing rules of each value is:
+  o For signed value, it is always printed as decimal number.
+  o For unsigned value,
+    - For value has size great than 8, it is printed as '{..}'.
+    - For value has size of 1,2,4,8, it is printed as hexadecimal number.
+    - If failed to record a parameter, it is printed as '?'.
 
- 2. The target is a magic-link. In this case, we simply copy the mode of
-    the magic-link. This results in an O_PATH of a magic-link
-    effectively acting as a no-op in terms of how much re-opening
-    privileges a process has.
-
-CAP_DAC_OVERRIDE can be used to override all of these restrictions, but
-we only permit &init_userns's capabilities to affect these semantics.
-The reason for this is that there isn't a clear way to track what
-user_ns is the original owner of a given O_PATH chain -- thus an
-unprivileged user could create a new userns and O_PATH the file
-descriptor, owning it. All signs would indicate that the user really
-does have CAP_DAC_OVERRIDE over the new descriptor and the protection
-would be bypassed. We thus opt for the more conservative approach.
-
-I have run this patch on several machines for several days. So far, the
-only processes which have hit this case ("loadkeys" and "kbd_mode" from
-the kbd package[1]) gracefully handle the permission error and do not
-cause any user-visible problems. In order to give users a heads-up, a
-warning is output to dmesg whenever may_open_magiclink() refuses access.
-
-[1]: http://git.altlinux.org/people/legion/packages/kbd.git
-
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Christian Brauner <christian@brauner.io>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
 ---
- Documentation/filesystems/path-lookup.rst |  12 +--
- fs/internal.h                             |   1 +
- fs/namei.c                                | 105 +++++++++++++++++++---
- fs/open.c                                 |   3 +-
- fs/proc/fd.c                              |  23 ++++-
- include/linux/fs.h                        |   4 +
- include/linux/namei.h                     |   1 +
- 7 files changed, 130 insertions(+), 19 deletions(-)
+ include/linux/ftrace.h               |  27 +++++++
+ kernel/trace/fgraph.c                |   5 ++
+ kernel/trace/ftrace.c                |  50 +++++++++++++
+ kernel/trace/trace.h                 |   8 ++
+ kernel/trace/trace_entries.h         |  10 +++
+ kernel/trace/trace_functions_graph.c | 106 +++++++++++++++++++++++++--
+ 6 files changed, 201 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/filesystems/path-lookup.rst b/Documentation/filesystems/path-lookup.rst
-index 434a07b0002b..a57d78ec8bee 100644
---- a/Documentation/filesystems/path-lookup.rst
-+++ b/Documentation/filesystems/path-lookup.rst
-@@ -1310,12 +1310,14 @@ longer needed.
- ``LOOKUP_JUMPED`` means that the current dentry was chosen not because
- it had the right name but for some other reason.  This happens when
- following "``..``", following a symlink to ``/``, crossing a mount point
--or accessing a "``/proc/$PID/fd/$FD``" symlink.  In this case the
--filesystem has not been asked to revalidate the name (with
--``d_revalidate()``).  In such cases the inode may still need to be
--revalidated, so ``d_op->d_weak_revalidate()`` is called if
-+or accessing a "``/proc/$PID/fd/$FD``" symlink (also known as a "magic
-+link"). In this case the filesystem has not been asked to revalidate the
-+name (with ``d_revalidate()``).  In such cases the inode may still need
-+to be revalidated, so ``d_op->d_weak_revalidate()`` is called if
- ``LOOKUP_JUMPED`` is set when the look completes - which may be at the
--final component or, when creating, unlinking, or renaming, at the penultimate component.
-+final component or, when creating, unlinking, or renaming, at the
-+penultimate component. ``LOOKUP_MAGICLINK_JUMPED`` is set alongside
-+``LOOKUP_JUMPED`` if a magic-link was traversed.
+diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
+index e615b5e639aa..82b92d355431 100644
+--- a/include/linux/ftrace.h
++++ b/include/linux/ftrace.h
+@@ -17,6 +17,7 @@
+ #include <linux/types.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
++#include <linux/trace_seq.h>
  
- Final-component flags
- ~~~~~~~~~~~~~~~~~~~~~
-diff --git a/fs/internal.h b/fs/internal.h
-index 315fcd8d237c..f48449a43626 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -119,6 +119,7 @@ struct open_flags {
- 	int acc_mode;
- 	int intent;
- 	int lookup_flags;
-+	fmode_t opath_mask;
- };
- extern struct file *do_filp_open(int dfd, struct filename *pathname,
- 		const struct open_flags *op);
-diff --git a/fs/namei.c b/fs/namei.c
-index 209c51a5226c..54d57dad0f91 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -872,7 +872,7 @@ void nd_jump_link(struct path *path)
+ #include <asm/ftrace.h>
  
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
--	nd->flags |= LOOKUP_JUMPED;
-+	nd->flags |= LOOKUP_JUMPED | LOOKUP_MAGICLINK_JUMPED;
- }
+@@ -377,6 +378,9 @@ struct func_prototype {
  
- static inline void put_link(struct nameidata *nd)
-@@ -1066,6 +1066,7 @@ const char *get_link(struct nameidata *nd)
- 		return ERR_PTR(error);
- 
- 	nd->last_type = LAST_BIND;
-+	nd->flags &= ~LOOKUP_MAGICLINK_JUMPED;
- 	res = READ_ONCE(inode->i_link);
- 	if (!res) {
- 		const char * (*get)(struct dentry *, struct inode *,
-@@ -3501,16 +3502,73 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
- 	return error;
- }
- 
--static int do_o_path(struct nameidata *nd, unsigned flags, struct file *file)
-+/**
-+ * may_reopen_magiclink - Check permissions for opening a trailing magic-link
-+ * @upgrade_mask: the upgrade-mask of the magic-link
-+ * @acc_mode: ACC_MODE which the user is attempting
-+ *
-+ * We block magic-link re-opening if the @upgrade_mask is more strict than the
-+ * @acc_mode being requested, unless the user is capable(CAP_DAC_OVERRIDE).
-+ *
-+ * Returns 0 if successful, -EACCES on error.
-+ */
-+static int may_open_magiclink(fmode_t upgrade_mask, int acc_mode)
- {
--	struct path path;
--	int error = path_lookupat(nd, flags, &path);
--	if (!error) {
--		audit_inode(nd->name, path.dentry, 0);
--		error = vfs_open(&path, file);
--		path_put(&path);
--	}
--	return error;
-+	/*
-+	 * We only allow for init_userns to be able to override magic-links.
-+	 * This is done to avoid cases where an unprivileged userns could take
-+	 * an O_PATH of the fd, resulting in it being very unclear whether
-+	 * CAP_DAC_OVERRIDE should work on the new O_PATH fd (given that it
-+	 * pipes through to the underlying file).
-+	 */
-+	if (capable(CAP_DAC_OVERRIDE))
-+		return 0;
+ #define FTRACE_PROTOTYPE_SIGNED(t)	(t & BIT(7))
+ #define FTRACE_PROTOTYPE_SIZE(t)	(t & GENMASK(6, 0))
 +
-+	if ((acc_mode & MAY_READ) &&
-+	    !(upgrade_mask & (FMODE_READ | FMODE_PATH_READ)))
-+		goto err;
-+	if ((acc_mode & MAY_WRITE) &&
-+	    !(upgrade_mask & (FMODE_WRITE | FMODE_PATH_WRITE)))
-+		goto err;
-+
-+	return 0;
-+
-+err:
-+	pr_warn_ratelimited("%s[%d]: magic-link re-open blocked ('%s%s%s' requested with an upgrade-mask of '%s%s%s%s')",
-+		current->comm, task_pid_nr(current),
-+		(acc_mode & MAY_READ) ? "r" : "",
-+		(acc_mode & MAY_WRITE) ? "w" : "",
-+		(acc_mode & MAY_EXEC) ? "x" : "",
-+		(upgrade_mask & FMODE_READ) ? "r" : "",
-+		(upgrade_mask & FMODE_PATH_READ) ? "R" : "",
-+		(upgrade_mask & FMODE_WRITE) ? "w" : "",
-+		(upgrade_mask & FMODE_PATH_WRITE) ? "W" : "");
-+	return -EACCES;
-+}
-+
-+static int trailing_magiclink(struct nameidata *nd, int acc_mode,
-+			      fmode_t *opath_mask)
-+{
-+	struct inode *inode = nd->link_inode;
-+	fmode_t upgrade_mask = 0;
-+
-+	/* Was the trailing_symlink() a magic-link? */
-+	if (!(nd->flags & LOOKUP_MAGICLINK_JUMPED))
-+		return 0;
-+
-+	/*
-+	 * Figure out the upgrade-mask of the link_inode. Since these aren't
-+	 * strictly POSIX semantics we don't do an acl_permission_check() here,
-+	 * so we only care that at least one bit is set for each upgrade-mode.
-+	 */
-+	if (inode->i_mode & S_IRUGO)
-+		upgrade_mask |= FMODE_PATH_READ;
-+	if (inode->i_mode & S_IWUGO)
-+		upgrade_mask |= FMODE_PATH_WRITE;
-+	/* Restrict the O_PATH upgrade-mask of the caller. */
-+	if (opath_mask)
-+		*opath_mask &= upgrade_mask;
-+	return may_open_magiclink(upgrade_mask, acc_mode);
- }
++void ftrace_print_typed_val(struct trace_seq *s, uint8_t type,
++			    unsigned long val);
+ #endif
  
- static struct file *path_openat(struct nameidata *nd,
-@@ -3526,13 +3584,38 @@ static struct file *path_openat(struct nameidata *nd,
- 	if (unlikely(file->f_flags & __O_TMPFILE)) {
- 		error = do_tmpfile(nd, flags, op, file);
- 	} else if (unlikely(file->f_flags & O_PATH)) {
--		error = do_o_path(nd, flags, file);
-+		/* Inlined path_lookupat() with a trailing_magiclink() check. */
-+		fmode_t opath_mask = op->opath_mask;
-+		const char *s = path_init(nd, flags);
+ int ftrace_force_update(void);
+@@ -731,6 +735,13 @@ extern void ftrace_init(void);
+ static inline void ftrace_init(void) { }
+ #endif
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++# define FTRACE_MAX_FUNC_PARAMS		10
 +
-+		while (!(error = link_path_walk(s, nd))
-+			&& ((error = lookup_last(nd)) > 0)) {
-+			s = trailing_symlink(nd);
-+			error = trailing_magiclink(nd, op->acc_mode, &opath_mask);
-+			if (error)
-+				s = ERR_PTR(error);
-+		}
-+		if (!error)
-+			error = complete_walk(nd);
-+
-+		if (!error && nd->flags & LOOKUP_DIRECTORY)
-+			if (!d_can_lookup(nd->path.dentry))
-+				error = -ENOTDIR;
-+		if (!error) {
-+			audit_inode(nd->name, nd->path.dentry, 0);
-+			error = vfs_open(&nd->path, file);
-+			file->f_mode |= opath_mask;
-+		}
-+		terminate_walk(nd);
- 	} else {
- 		const char *s = path_init(nd, flags);
- 		while (!(error = link_path_walk(s, nd)) &&
- 			(error = do_last(nd, file, op)) > 0) {
- 			nd->flags &= ~(LOOKUP_OPEN|LOOKUP_CREATE|LOOKUP_EXCL);
- 			s = trailing_symlink(nd);
-+			error = trailing_magiclink(nd, op->acc_mode, NULL);
-+			if (error)
-+				s = ERR_PTR(error);
- 		}
- 		terminate_walk(nd);
- 	}
-diff --git a/fs/open.c b/fs/open.c
-index a59abe3c669a..806a75d685e1 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -1001,8 +1001,9 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
- 		acc_mode |= MAY_APPEND;
- 
- 	op->acc_mode = acc_mode;
--
- 	op->intent = flags & O_PATH ? 0 : LOOKUP_OPEN;
-+	/* For O_PATH backwards-compatibility we default to an all-set mask. */
-+	op->opath_mask = FMODE_PATH_READ | FMODE_PATH_WRITE;
- 
- 	if (flags & O_CREAT) {
- 		op->intent |= LOOKUP_CREATE;
-diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index 81882a13212d..9b7d8becb002 100644
---- a/fs/proc/fd.c
-+++ b/fs/proc/fd.c
-@@ -104,11 +104,30 @@ static void tid_fd_update_inode(struct task_struct *task, struct inode *inode,
- 	task_dump_owner(task, 0, &inode->i_uid, &inode->i_gid);
- 
- 	if (S_ISLNK(inode->i_mode)) {
-+		/*
-+		 * Always set +x (depending on the fmode type), since there
-+		 * currently aren't FMODE_PATH_EXEC restrictions and there is
-+		 * no O_MAYEXEC yet. This might change in the future, in which
-+		 * case we will restrict +x.
-+		 */
- 		unsigned i_mode = S_IFLNK;
-+		if (f_mode & FMODE_PATH)
-+			i_mode |= S_IXGRP;
-+		else
-+			i_mode |= S_IXUSR;
-+		/*
-+		 * Construct the mode bits based on the open-mode. The u+rwx
-+		 * bits are for "ordinary" open modes while g+rwx are for
-+		 * O_PATH modes.
-+		 */
- 		if (f_mode & FMODE_READ)
--			i_mode |= S_IRUSR | S_IXUSR;
-+			i_mode |= S_IRUSR;
- 		if (f_mode & FMODE_WRITE)
--			i_mode |= S_IWUSR | S_IXUSR;
-+			i_mode |= S_IWUSR;
-+		if (f_mode & FMODE_PATH_READ)
-+			i_mode |= S_IRGRP;
-+		if (f_mode & FMODE_PATH_WRITE)
-+			i_mode |= S_IWGRP;
- 		inode->i_mode = i_mode;
- 	}
- 	security_task_to_inode(task, inode);
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 997a530ff4e9..a9ad596b28e2 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -173,6 +173,10 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
- /* File does not contribute to nr_files count */
- #define FMODE_NOACCOUNT		((__force fmode_t)0x20000000)
- 
-+/* File is an O_PATH descriptor which can be upgraded to (read, write). */
-+#define FMODE_PATH_READ		((__force fmode_t)0x40000000)
-+#define FMODE_PATH_WRITE	((__force fmode_t)0x80000000)
++# define FTRACE_PROTOTYPE_SIGNED(t)	(t & BIT(7))
++# define FTRACE_PROTOTYPE_SIZE(t)	(t & GENMASK(6, 0))
++#endif
 +
  /*
-  * Flag for rw_copy_check_uvector and compat_rw_copy_check_uvector
-  * that indicates that they should check the contents of the iovec are
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 9138b4471dbf..bd6d3eb7764d 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -49,6 +49,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_ROOT		0x2000
- #define LOOKUP_EMPTY		0x4000
- #define LOOKUP_DOWN		0x8000
-+#define LOOKUP_MAGICLINK_JUMPED	0x10000
+  * Structure that defines an entry function trace.
+  * It's already packed but the attribute "packed" is needed
+@@ -739,6 +750,12 @@ static inline void ftrace_init(void) { }
+ struct ftrace_graph_ent {
+ 	unsigned long func; /* Current function */
+ 	int depth;
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	uint8_t nr_param;
++	char *param_names[FTRACE_MAX_FUNC_PARAMS];
++	uint8_t param_types[FTRACE_MAX_FUNC_PARAMS];
++	unsigned long param_values[FTRACE_MAX_FUNC_PARAMS];
++#endif
+ } __packed;
  
- extern int path_pts(struct path *path);
+ /*
+@@ -753,8 +770,13 @@ struct ftrace_graph_ret {
+ 	unsigned long long calltime;
+ 	unsigned long long rettime;
+ 	int depth;
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	uint8_t ret_type;
++	unsigned long retval;
++#endif
+ } __packed;
  
++
+ /* Type of the callback handlers for tracing function graph*/
+ typedef void (*trace_func_graph_ret_t)(struct ftrace_graph_ret *); /* return */
+ /* @pt_regs is only available for CONFIG_FTRACE_FUNC_PROTOTYPE. */
+@@ -842,6 +864,11 @@ static inline void unpause_graph_tracing(void)
+ {
+ 	atomic_dec(&current->tracing_graph_pause);
+ }
++
++void arch_fgraph_record_params(struct ftrace_graph_ent *trace,
++			       struct func_prototype *proto,
++			       struct pt_regs *pt_regs);
++
+ #else /* !CONFIG_FUNCTION_GRAPH_TRACER */
+ 
+ #define __notrace_funcgraph
+diff --git a/kernel/trace/fgraph.c b/kernel/trace/fgraph.c
+index 7451dba84fee..26e452418249 100644
+--- a/kernel/trace/fgraph.c
++++ b/kernel/trace/fgraph.c
+@@ -220,6 +220,11 @@ unsigned long ftrace_return_to_handler(unsigned long frame_pointer,
+ 
+ 	ftrace_pop_return_trace(&trace, &ret, frame_pointer);
+ 	trace.rettime = trace_clock_local();
++
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	trace.retval = retval;
++#endif
++
+ 	ftrace_graph_return(&trace);
+ 	/*
+ 	 * The ftrace_graph_return() may still access the current
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index a1683cc55838..1e6a96f1986b 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -5658,6 +5658,56 @@ static int ftrace_process_funcproto(struct module *mod,
+ 
+ 	return ret;
+ }
++
++void ftrace_print_typed_val(struct trace_seq *s, uint8_t type,
++			    unsigned long val)
++{
++	unsigned int sz = FTRACE_PROTOTYPE_SIZE(type);
++	bool is_signed = FTRACE_PROTOTYPE_SIGNED(type);
++
++	/* Don't show complex types */
++	if (sz > sizeof(long)) {
++		trace_seq_printf(s, "{..}");
++		return;
++	}
++
++	switch (sz) {
++	case 0:
++		/* The value is not valid. */
++		trace_seq_printf(s, "?");
++		break;
++	case 1:
++		val &= GENMASK_ULL(7, 0);
++		if (is_signed)
++			trace_seq_printf(s, "%d", (char)val);
++		else
++			trace_seq_printf(s, "0x%02lx", val);
++		break;
++	case 2:
++		val &= GENMASK_ULL(15, 0);
++		if (is_signed)
++			trace_seq_printf(s, "%d", (short)val);
++		else
++			trace_seq_printf(s, "0x%04lx", val);
++		break;
++	case 4:
++		val &= GENMASK_ULL(31, 0);
++		if (is_signed)
++			trace_seq_printf(s, "%d", (int)val);
++		else
++			trace_seq_printf(s, "0x%08lx", val);
++		break;
++	case 8:
++		val &= GENMASK_ULL(63, 0);
++		if (is_signed)
++			trace_seq_printf(s, "%lld", (long long)val);
++		else
++			trace_seq_printf(s, "0x%016lx", val);
++		break;
++	default:
++		trace_seq_printf(s, "{badsize%d}", sz);
++	}
++}
+ #endif
+ 
+ struct ftrace_mod_func {
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index 4b31176d443e..f10acad0140f 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1231,6 +1231,13 @@ extern int trace_get_user(struct trace_parser *parser, const char __user *ubuf,
+ # define STACK_FLAGS
+ #endif
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++# define FUNCPROTO_FLAGS			\
++		C(RECORD_FUNCPROTO,     "record-funcproto"),
++#else
++# define FUNCPROTO_FLAGS
++#endif
++
+ /*
+  * trace_iterator_flags is an enumeration that defines bit
+  * positions into trace_flags that controls the output.
+@@ -1256,6 +1263,7 @@ extern int trace_get_user(struct trace_parser *parser, const char __user *ubuf,
+ 		C(LATENCY_FMT,		"latency-format"),	\
+ 		C(RECORD_CMD,		"record-cmd"),		\
+ 		C(RECORD_TGID,		"record-tgid"),		\
++		FUNCPROTO_FLAGS					\
+ 		C(OVERWRITE,		"overwrite"),		\
+ 		C(STOP_ON_FREE,		"disable_on_free"),	\
+ 		C(IRQ_INFO,		"irq-info"),		\
+diff --git a/kernel/trace/trace_entries.h b/kernel/trace/trace_entries.h
+index fc8e97328e54..68b044ea8440 100644
+--- a/kernel/trace/trace_entries.h
++++ b/kernel/trace/trace_entries.h
+@@ -82,6 +82,12 @@ FTRACE_ENTRY_PACKED(funcgraph_entry, ftrace_graph_ent_entry,
+ 		__field_struct(	struct ftrace_graph_ent,	graph_ent	)
+ 		__field_desc(	unsigned long,	graph_ent,	func		)
+ 		__field_desc(	int,		graph_ent,	depth		)
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++		__field_desc(	unsigned char,	graph_ent,	nr_param	)
++		__array_desc(	char *,		graph_ent,	param_names,	FTRACE_MAX_FUNC_PARAMS)
++		__array_desc(	uint8_t,	graph_ent,	param_types,	FTRACE_MAX_FUNC_PARAMS)
++		__array_desc(	unsigned long,	graph_ent,	param_values,	FTRACE_MAX_FUNC_PARAMS)
++#endif
+ 	),
+ 
+ 	F_printk("--> %ps (%d)", (void *)__entry->func, __entry->depth),
+@@ -101,6 +107,10 @@ FTRACE_ENTRY_PACKED(funcgraph_exit, ftrace_graph_ret_entry,
+ 		__field_desc(	unsigned long long, ret,	rettime	)
+ 		__field_desc(	unsigned long,	ret,		overrun	)
+ 		__field_desc(	int,		ret,		depth	)
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++		__field_desc(	unsigned char,	ret,		ret_type)
++		__field_desc(	unsigned long,	ret,		retval	)
++#endif
+ 	),
+ 
+ 	F_printk("<-- %ps (%d) (start: %llx  end: %llx) over: %d",
+diff --git a/kernel/trace/trace_functions_graph.c b/kernel/trace/trace_functions_graph.c
+index f331a9ba946d..ba4eb71646e9 100644
+--- a/kernel/trace/trace_functions_graph.c
++++ b/kernel/trace/trace_functions_graph.c
+@@ -169,6 +169,17 @@ int trace_graph_entry(struct ftrace_graph_ent *trace, struct pt_regs *pt_regs)
+ 	if (tracing_thresh)
+ 		return 1;
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	trace->nr_param = 0;
++	if (tr->trace_flags & TRACE_ITER_RECORD_FUNCPROTO) {
++		struct ftrace_func_entry *ent;
++
++		ent = ftrace_lookup_ip(ftrace_prototype_hash, trace->func);
++		if (ent)
++			arch_fgraph_record_params(trace, ent->priv, pt_regs);
++	}
++#endif
++
+ 	local_irq_save(flags);
+ 	cpu = raw_smp_processor_id();
+ 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+@@ -250,6 +261,21 @@ void trace_graph_return(struct ftrace_graph_ret *trace)
+ 		return;
+ 	}
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++	if (tr->trace_flags & TRACE_ITER_RECORD_FUNCPROTO) {
++		struct ftrace_func_entry *ent;
++
++		ent = ftrace_lookup_ip(ftrace_prototype_hash, trace->func);
++		if (ent) {
++			/* The retval has been saved by trace_graph_return(). */
++			trace->ret_type =
++				((struct func_prototype *)ent->priv)->ret_type;
++		} else
++			trace->ret_type = 0;
++	} else
++		trace->ret_type = 0;
++#endif
++
+ 	local_irq_save(flags);
+ 	cpu = raw_smp_processor_id();
+ 	data = per_cpu_ptr(tr->trace_buffer.data, cpu);
+@@ -380,6 +406,71 @@ static void print_graph_lat_fmt(struct trace_seq *s, struct trace_entry *entry)
+ 	trace_seq_puts(s, " | ");
+ }
+ 
++#ifdef CONFIG_FTRACE_FUNC_PROTOTYPE
++static void print_graph_params(struct trace_seq *s,
++			       struct ftrace_graph_ent *call,
++			       struct ftrace_graph_ret *graph_ret)
++{
++	int i;
++
++	BUG_ON(call->nr_param > FTRACE_MAX_FUNC_PARAMS);
++
++	trace_seq_printf(s, "%ps(", (void *)call->func);
++	for (i = 0; i < call->nr_param; i++) {
++		if (i > 0)
++			trace_seq_printf(s, ", ");
++		trace_seq_printf(s, "%s=", call->param_names[i]);
++		ftrace_print_typed_val(s, call->param_types[i],
++				       call->param_values[i]);
++	}
++
++	if (graph_ret) {
++		/* leaf */
++		if (graph_ret->ret_type) {
++			trace_seq_printf(s, "); /* ret=");
++			ftrace_print_typed_val(s, graph_ret->ret_type,
++					       graph_ret->retval);
++			trace_seq_puts(s, " */\n");
++		} else
++			trace_seq_puts(s, ");\n");
++	} else
++		trace_seq_printf(s, ") {\n");
++}
++
++static void print_graph_retval(struct trace_seq *s,
++			       struct ftrace_graph_ret *trace,
++			       bool tail)
++{
++	if (trace->ret_type) {
++		if (tail)
++			trace_seq_puts(s, ", ");
++		else
++			trace_seq_puts(s, " /* ");
++
++		trace_seq_printf(s, "ret=");
++		ftrace_print_typed_val(s, trace->ret_type, trace->retval);
++
++		trace_seq_printf(s, " */");
++	}
++}
++#else
++static void print_graph_params(struct trace_seq *s,
++			       struct ftrace_graph_ent *call,
++			       struct ftrace_graph_ret *graph_ret)
++{
++	if (graph_ret)
++		trace_seq_printf(s, "%ps();\n", (void *)call->func);
++	else
++		trace_seq_printf(s, "%ps() {\n", (void *)call->func);
++}
++
++static void print_graph_retval(struct trace_seq *s,
++			       struct ftrace_graph_ret *trace,
++			       bool tail)
++{
++}
++#endif
++
+ /* If the pid changed since the last trace, output this event */
+ static void
+ verif_pid(struct trace_seq *s, pid_t pid, int cpu, struct fgraph_data *data)
+@@ -665,7 +756,7 @@ print_graph_entry_leaf(struct trace_iterator *iter,
+ 	for (i = 0; i < call->depth * TRACE_GRAPH_INDENT; i++)
+ 		trace_seq_putc(s, ' ');
+ 
+-	trace_seq_printf(s, "%ps();\n", (void *)call->func);
++	print_graph_params(s, call, graph_ret);
+ 
+ 	print_graph_irq(iter, graph_ret->func, TRACE_GRAPH_RET,
+ 			cpu, iter->ent->pid, flags);
+@@ -703,7 +794,7 @@ print_graph_entry_nested(struct trace_iterator *iter,
+ 	for (i = 0; i < call->depth * TRACE_GRAPH_INDENT; i++)
+ 		trace_seq_putc(s, ' ');
+ 
+-	trace_seq_printf(s, "%ps() {\n", (void *)call->func);
++	print_graph_params(s, call, NULL);
+ 
+ 	if (trace_seq_has_overflowed(s))
+ 		return TRACE_TYPE_PARTIAL_LINE;
+@@ -950,10 +1041,15 @@ print_graph_return(struct ftrace_graph_ret *trace, struct trace_seq *s,
+ 	 * belongs to, write out the function name. Always do
+ 	 * that if the funcgraph-tail option is enabled.
+ 	 */
+-	if (func_match && !(flags & TRACE_GRAPH_PRINT_TAIL))
+-		trace_seq_puts(s, "}\n");
+-	else
++	if (func_match && !(flags & TRACE_GRAPH_PRINT_TAIL)) {
++		trace_seq_puts(s, "}");
++		print_graph_retval(s, trace, false);
++		trace_seq_puts(s, "\n");
++	} else {
+ 		trace_seq_printf(s, "} /* %ps */\n", (void *)trace->func);
++		print_graph_retval(s, trace, true);
++		trace_seq_puts(s, "\n");
++	}
+ 
+ 	/* Overrun */
+ 	if (flags & TRACE_GRAPH_PRINT_OVERRUN)
 -- 
-2.22.0
+2.20.1
