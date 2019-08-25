@@ -1,127 +1,175 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59630 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726345AbfHTO6b (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Aug 2019 10:58:31 -0400
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v2 00/11] Raspberry Pi 4 DMA addressing support
-Date: Tue, 20 Aug 2019 16:58:08 +0200
-Message-Id: <20190820145821.27214-1-nsaenzjulienne@suse.de>
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+From: Changbin Du <changbin.du@gmail.com>
+Subject: [PATCH 00/11] ftrace: add support for recording function parameters and return value
+Date: Sun, 25 Aug 2019 21:23:19 +0800
+Message-Id: <20190825132330.5015-1-changbin.du@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-arch@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org
-Cc: phill@raspberryi.org, f.fainelli@gmail.com, will@kernel.org, nsaenzjulienne@suse.de, linux-kernel@vger.kernel.org, eric@anholt.net, mbrugger@suse.com, linux-rpi-kernel@lists.infradead.org, akpm@linux-foundation.org, frowand.list@gmail.com, m.szyprowski@samsung.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
 
-Hi all,
-this series attempts to address some issues we found while bringing up
-the new Raspberry Pi 4 in arm64 and it's intended to serve as a follow
-up of these discussions:
-v1: https://lkml.org/lkml/2019/7/31/922
-RFC: https://lkml.org/lkml/2019/7/17/476
+This series introduces a new ftrace feature CONFIG_FTRACE_FUNC_PROTOTYPE to
+record function parameters and return value. It can be enabled/disabled at
+runtime by a new trace option "record-funcproto".
 
-The new Raspberry Pi 4 has up to 4GB of memory but most peripherals can
-only address the first GB: their DMA address range is
-0xc0000000-0xfc000000 which is aliased to the first GB of physical
-memory 0x00000000-0x3c000000. Note that only some peripherals have these
-limitations: the PCIe, V3D, GENET, and 40-bit DMA channels have a wider
-view of the address space by virtue of being hooked up trough a second
-interconnect.
+To achieve this, we need the function prototype infomation and the location of
+parameters. A new tool scripts/ftrace/funcprototype is provided to collect such
+necessary infomation and put them into kernel. It walks through the DWARF debug
+sections in each object file and output assembly code which defines the function
+prototype data. Then the assembly code is built into the original object file.
 
-Part of this is solved in arm32 by setting up the machine specific
-'.dma_zone_size = SZ_1G', which takes care of reserving the coherent
-memory area at the right spot. That said no buffer bouncing (needed for
-dma streaming) is available at the moment, but that's a story for
-another series.
+Here is an example of memremap() function:
+            .section __funcprotostr, "a"
+    .P_memremap_0:
+            .string "offset"
+    .P_memremap_1:
+            .string "size"
+    .P_memremap_2:
+            .string "flags"
+    
+            .section __funcproto,  "a"
+            .quad memremap
+            .byte 0x8
+            .byte 0x3
+            .quad .P_memremap_0
+            .byte 0x8
+            .byte 0x55
+            .byte 0x0
+            .quad .P_memremap_1
+            .byte 0x8
+            .byte 0x54
+            .byte 0x0
+            .quad .P_memremap_2
+            .byte 0x8
+            .byte 0x51
+            .byte 0x0
 
-Unfortunately there is no such thing as 'dma_zone_size' in arm64. Only
-ZONE_DMA32 is created which is interpreted by dma-direct and the arm64
-arch code as if all peripherals where be able to address the first 4GB
-of memory.
+Note that currently funcprototype only support global functions. Local functions
+can also be supported by using the idea described in recordmcount.pl - temporary
+change local functions to global.
 
-In the light of this, the series implements the following changes:
+The C ABI is arch specific. For arch which supports this feature must
+implement a new  arch-specific interface arch_fgraph_record_params() and
+deliver the return value of function to ftrace core part.
 
-- Create generic 'dma_zone_size' in order for hardware description code
-  to set it up when needed.
+This series only add support for x86_64 platform. Other platforms can be
+supported in the future.
 
-- Add a function in early_init_dt_scan() to setup 'dma_zone_size' for
-  the RPi4.
+Here is an example of the graph trace of function pick_next_task_fair().
+Note that we only record the parameter and return value of global
+functions.
+    
+     2)               |  pick_next_task_fair() {
+     2)               |    update_blocked_averages() {
+     2)   0.765 us    |      _raw_spin_lock_irqsave(lock=0xffff88807da2b100); /* ret=0x0000000000000082 */
+     2)   0.944 us    |      update_rq_clock(rq=0xffff88807da2b100);
+     2)   0.612 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff8880754f7488); /* ret=0 */
+     2)   0.654 us    |      __update_load_avg_se(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180, se=0xffff88807be2e0d8); /* ret=0 */
+     2)   0.206 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180); /* ret=0 */
+     2)               |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff888079b5fb18) {
+     2)   2.410 us    |        __accumulate_pelt_segments();
+     2)   3.103 us    |      } /* ret=1 */
+     2)   0.193 us    |      __update_load_avg_cfs_rq(now=0x000000251b8516ee, cfs_rq=0xffff88807da2b180); /* ret=0 */
+     2)               |      update_rt_rq_load_avg(now=0x000000251b8516ee, rq=0xffff88807da2b100, running=0) {
+     2)   0.258 us    |        __accumulate_pelt_segments();
+     2)   1.617 us    |      } /* ret=1 */
+     2)               |      update_dl_rq_load_avg(now=0x000000251b8516ee, rq=0xffff88807da2b100, running=0) {
+     2)   0.230 us    |        __accumulate_pelt_segments();
+     2)   1.511 us    |      } /* ret=1 */
+     2)   1.040 us    |      _raw_spin_unlock_irqrestore(lock=0xffff88807da2b100, flags=0x0000000000000082);
+     2) + 14.739 us   |    }
+     2)               |    load_balance() {
+     2)               |      find_busiest_group() {
+     2)   0.874 us    |        update_group_capacity(sd=0xffff88807c1d37d0, cpu=2);
+     2)   1.761 us    |        idle_cpu();
+     2)   0.262 us    |        idle_cpu();
+     2)   0.217 us    |        idle_cpu();
+     2)   6.338 us    |      }
+     2)   8.442 us    |    }
+     2)   1.823 us    |    __msecs_to_jiffies(m=0x00000006); /* ret=0x0000000000000002 */
+     2)               |    load_balance() {
+     2)               |      find_busiest_group() {
+     2)   0.434 us    |        idle_cpu();
+     2)   0.233 us    |        idle_cpu();
+     2)   0.210 us    |        idle_cpu();
+     2)   2.308 us    |      }
+     2)   2.821 us    |    }
+     2)   0.263 us    |    __msecs_to_jiffies(m=0x00000008); /* ret=0x0000000000000002 */
+     2)   0.977 us    |    _raw_spin_lock(lock=0xffff88807da2b100);
+     2) + 32.262 us   |  }
+    
+The printing rules of each value is:
+   o For signed value, it is always printed as decimal number.
+   o For unsigned value,
+     - For value has size great than 8, it is printed as '{..}'.
+     - For value has size of 1,2,4,8, it is printed as hexadecimal number.
+     - If failed to record a parameter, it is printed as '?'.
 
-- Create both DMA zones in arm64, ZONE_DMA will contain the area
-  addressable by all peripherals and ZONE_DMA32 the rest of the 32 bit
-  addressable memory. ZONE_DMA32 might be left empty.
 
-- Reserve the CMA area in a place suitable for all peripherals.
+Changbin Du (11):
+  ftrace: move recordmcount tools to scripts/ftrace
+  ftrace: introduce new building tool funcprototype
+  asm-generic: add generic dwarf definition
+  ftrace/hash: add private data field
+  ftrace: create memcache for hash entries
+  ftrace: process function prototype data in vmlinux and modules
+  ftrace: prepare arch specific interfaces for function prototype
+    feature
+  ftrace: introduce core part of function prototype recording
+  x86_64: add function prototype recording support
+  ftrace: add doc for new option record-funcproto
+  MAINTAINERS: make scripts/ftrace/ maintained
 
-- Inform dma-direct of the new runtime calculated min_mask.
-
-This series has been tested on multiple devices both by checking the
-zones setup matches the expectations and by double-checking physical
-addresses on pages allocated on the three relevant areas GFP_DMA,
-GFP_DMA32, GFP_KERNEL:
-
-- On an RPi4 with variations on the ram memory size. But also forcing
-  the situation where all three memory zones are nonempty by setting a 3G
-  ZONE_DMA32 ceiling on a 4G setup. Both with and without NUMA support.
-
-- On a Synquacer box[1] with 32G of memory.
-
-- On an ACPI based Huawei TaiShan server[2] with 256G of memory.
-
-- On a QEMU virtual machine running arm64's OpenSUSE Tumbleweed.
-
-That's all.
-
-Regards,
-Nicolas
-
-[1] https://www.96boards.org/product/developerbox/
-[2] https://e.huawei.com/en/products/cloud-computing-dc/servers/taishan-server/taishan-2280-v2
-
----
-
-Changes in v2:
-- More in depth testing.
-- Create new global 'dma_zone_size'.
-- New approach to getting the dma_zone_size, instead of parsing the dts
-  we hardcode it conditionally to the machine compatible name.
-- Fix ZONE_DMA and ZONE_DMA32 split, now ZONE_DMA32 remains empty if
-  ZONE_DMA fits the whole 32 bit addressable space.
-- Take into account devices with DMA offset.
-- Rename new dma-direct variable to zone_dma_bits.
-- Try new approach by merging both ZONE_DMA and ZONE_DMA32 comments
-  in mmzone.h, add new up to date examples.
-
-Nicolas Saenz Julienne (11):
-  asm-generic: add dma_zone_size
-  arm: use generic dma_zone_size
-  of/fdt: add of_fdt_machine_is_compatible function
-  of/fdt: add early_init_dt_get_dma_zone_size()
-  arm64: mm: use arm64_dma_phys_limit instead of calling
-    max_zone_dma_phys()
-  arm64: rename variables used to calculate ZONE_DMA32's size
-  arm64: re-introduce max_zone_dma_phys()
-  arm64: use both ZONE_DMA and ZONE_DMA32
-  dma-direct: turn ARCH_ZONE_DMA_BITS into a variable
-  arm64: edit zone_dma_bits to fine tune dma-direct min mask
-  mm: refresh ZONE_DMA and ZONE_DMA32 comments in 'enum zone_type'
-
- arch/arm/include/asm/dma.h      |  8 ++--
- arch/arm/mm/init.c              | 12 ++----
- arch/arm64/Kconfig              |  4 ++
- arch/arm64/mm/init.c            | 73 +++++++++++++++++++++++++--------
- arch/powerpc/include/asm/page.h |  9 ----
- arch/powerpc/mm/mem.c           | 16 +++++---
- arch/s390/include/asm/page.h    |  2 -
- arch/s390/mm/init.c             |  1 +
- drivers/of/fdt.c                | 15 +++++++
- include/asm-generic/dma.h       |  8 +++-
- include/linux/dma-direct.h      |  2 +
- include/linux/mmzone.h          | 46 ++++++++++++---------
- kernel/dma/direct.c             | 13 +++---
- mm/page_alloc.c                 |  3 ++
- 14 files changed, 140 insertions(+), 72 deletions(-)
+ Documentation/trace/ftrace.rst       |   6 +
+ MAINTAINERS                          |   2 +
+ arch/arm/kernel/ftrace.c             |   2 +-
+ arch/arm64/kernel/ftrace.c           |   2 +-
+ arch/csky/kernel/ftrace.c            |   2 +-
+ arch/microblaze/kernel/ftrace.c      |   2 +-
+ arch/mips/kernel/ftrace.c            |   2 +-
+ arch/nds32/kernel/ftrace.c           |   5 +-
+ arch/parisc/kernel/ftrace.c          |   2 +-
+ arch/powerpc/kernel/trace/ftrace.c   |   2 +-
+ arch/riscv/kernel/ftrace.c           |   2 +-
+ arch/s390/kernel/ftrace.c            |   2 +-
+ arch/sh/kernel/ftrace.c              |   2 +-
+ arch/sparc/kernel/ftrace.c           |   2 +-
+ arch/x86/Kconfig                     |   1 +
+ arch/x86/kernel/ftrace.c             |  84 +++-
+ arch/x86/kernel/ftrace_64.S          |   4 +-
+ include/asm-generic/dwarf.h          | 199 +++++++++
+ include/asm-generic/vmlinux.lds.h    |  18 +
+ include/linux/ftrace.h               |  55 ++-
+ include/linux/module.h               |   4 +
+ kernel/module.c                      |  25 +-
+ kernel/trace/Kconfig                 |  19 +
+ kernel/trace/fgraph.c                |  26 +-
+ kernel/trace/ftrace.c                | 164 +++++++-
+ kernel/trace/trace.h                 |  20 +-
+ kernel/trace/trace_entries.h         |  10 +
+ kernel/trace/trace_functions_graph.c | 108 ++++-
+ kernel/trace/trace_irqsoff.c         |   3 +-
+ kernel/trace/trace_sched_wakeup.c    |   3 +-
+ scripts/.gitignore                   |   1 -
+ scripts/Makefile                     |   2 +-
+ scripts/Makefile.build               |  28 +-
+ scripts/ftrace/.gitignore            |   6 +
+ scripts/ftrace/Makefile              |   9 +
+ scripts/ftrace/funcprototype.c       | 576 +++++++++++++++++++++++++++
+ scripts/{ => ftrace}/recordmcount.c  |   0
+ scripts/{ => ftrace}/recordmcount.h  |   0
+ scripts/{ => ftrace}/recordmcount.pl |   0
+ 39 files changed, 1340 insertions(+), 60 deletions(-)
+ create mode 100644 include/asm-generic/dwarf.h
+ create mode 100644 scripts/ftrace/.gitignore
+ create mode 100644 scripts/ftrace/Makefile
+ create mode 100644 scripts/ftrace/funcprototype.c
+ rename scripts/{ => ftrace}/recordmcount.c (100%)
+ rename scripts/{ => ftrace}/recordmcount.h (100%)
+ rename scripts/{ => ftrace}/recordmcount.pl (100%)
+ mode change 100755 => 100644
 
 -- 
-2.22.0
+2.20.1
