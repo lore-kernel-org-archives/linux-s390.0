@@ -1,40 +1,44 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36028 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728095AbfHMOCY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Aug 2019 10:02:24 -0400
-Date: Tue, 13 Aug 2019 16:02:17 +0200 (CEST)
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH] s390/livepatch: Implement reliable stack tracing for
- the consistency model
-In-Reply-To: <20190728203053.q3pafkwnzm5j3ccs@treble>
-Message-ID: <alpine.LSU.2.21.1908131602040.10477@pobox.suse.cz>
-References: <20190710105918.22487-1-mbenes@suse.cz> <20190716184549.GA26084@redhat.com> <alpine.LSU.2.21.1907171223540.4492@pobox.suse.cz> <20190728203053.q3pafkwnzm5j3ccs@treble>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] MAINTAINERS: change list for KVM/s390
+References: <1565335156-28660-1-git-send-email-pbonzini@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 26 Aug 2019 13:15:21 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <1565335156-28660-1-git-send-email-pbonzini@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <44d2d6da-e356-6f11-f1cc-125db8b0c94c@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org, pmladek@suse.com, nstange@suse.de, live-patching@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: frankja@linux.ibm.com
 
-On Sun, 28 Jul 2019, Josh Poimboeuf wrote:
 
-> On Wed, Jul 17, 2019 at 01:01:27PM +0200, Miroslav Benes wrote:
-> > > On a related note, do you think it would be feasible to extend (in
-> > > another patchset) the reliable stack unwinding code a bit so that we
-> > > could feed it pre-baked stacks ... then we could verify that the code
-> > > was finding interesting scenarios.  That was a passing thought I had
-> > > back when Nicolai and I were debugging the ppc64le exception frame
-> > > marker bug, but didn't think it worth the time/effort at the time.
-> > 
-> > That is an interesting thought. It would help the testing a lot. I will 
-> > make a note in my todo list.
+
+On 09.08.19 09:19, Paolo Bonzini wrote:
+> KVM/s390 does not have a list of its own, and linux-s390 is in the
+> loop anyway thanks to the generic arch/s390 match.  So use the generic
+> KVM list for s390 patches.
 > 
-> Another idea I had for reliable unwinder testing: add a
-> CONFIG_RELIABLE_STACKTRACE_DEBUG option which does a periodic stack
-> trace and warns if it doesn't reach the end.  It could triggered from a
-> periodic NMI, or from schedule().
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Noted as well. 
-
-Miroslav
+I see its already in next, but consider this acked.
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 1aec93695040..6498ebaca2f6 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -8788,7 +8788,7 @@ M:	Christian Borntraeger <borntraeger@de.ibm.com>
+>  M:	Janosch Frank <frankja@linux.ibm.com>
+>  R:	David Hildenbrand <david@redhat.com>
+>  R:	Cornelia Huck <cohuck@redhat.com>
+> -L:	linux-s390@vger.kernel.org
+> +L:	kvm@vger.kernel.org
+>  W:	http://www.ibm.com/developerworks/linux/linux390/
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
+>  S:	Supported
+> 
