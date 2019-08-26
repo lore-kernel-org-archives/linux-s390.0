@@ -1,65 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:6155 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726679AbfHaGAx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 31 Aug 2019 02:00:53 -0400
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: [PATCH v2 9/9] mips: numa: check the node id consistently for mips loongson64
-Date: Sat, 31 Aug 2019 13:58:23 +0800
-Message-ID: <1567231103-13237-10-git-send-email-linyunsheng@huawei.com>
-In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
-References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22160 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729344AbfHZQfU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Aug 2019 12:35:20 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGOc7i077164
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:19 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2umgym5a6u-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:19 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 26 Aug 2019 17:35:17 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 1/5] s390x: Support PSW restart boot
+Date: Mon, 26 Aug 2019 18:34:58 +0200
+In-Reply-To: <20190826163502.1298-1-frankja@linux.ibm.com>
+References: <20190826163502.1298-1-frankja@linux.ibm.com>
+Message-Id: <20190826163502.1298-2-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
-Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
-of proximity domain is optional, as below:
+Add a boot PSW to PSW restart new, so we can also boot via a PSW
+restart.
 
-This optional object is used to describe proximity domain
-associations within a machine. _PXM evaluates to an integer
-that identifies a device as belonging to a Proximity Domain
-defined in the System Resource Affinity Table (SRAT).
-
-Since mips loongson64 uses __node_data instead of
-node_to_cpumask_map, this patch checks node id with the below
-case before returning &__node_data[node]->cpumask:
-1. if node_id >= MAX_NUMNODES, return cpu_none_mask
-2. if node_id < 0, return cpu_online_mask
-3. if hub_data(node) is NULL, return cpu_online_mask
-
-[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
-
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/mips/include/asm/mach-loongson64/topology.h | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ s390x/flat.lds | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/include/asm/mach-loongson64/topology.h b/arch/mips/include/asm/mach-loongson64/topology.h
-index 7ff819a..b19b983 100644
---- a/arch/mips/include/asm/mach-loongson64/topology.h
-+++ b/arch/mips/include/asm/mach-loongson64/topology.h
-@@ -5,7 +5,17 @@
- #ifdef CONFIG_NUMA
- 
- #define cpu_to_node(cpu)	(cpu_logical_map(cpu) >> 2)
--#define cpumask_of_node(node)	(&__node_data[(node)]->cpumask)
-+
-+static inline const struct cpumask *cpumask_of_node(int node)
-+{
-+	if (node >= MAX_NUMNODES)
-+		return cpu_none_mask;
-+
-+	if (node < 0 || !__node_data[node])
-+		return cpu_online_mask;
-+
-+	return &__node_data[node]->cpumask;
-+}
- 
- struct pci_bus;
- extern int pcibus_to_node(struct pci_bus *);
+diff --git a/s390x/flat.lds b/s390x/flat.lds
+index 403d967..86dffac 100644
+--- a/s390x/flat.lds
++++ b/s390x/flat.lds
+@@ -1,14 +1,18 @@
+ SECTIONS
+ {
+-	/*
+-	 * Initial short psw for disk boot, with 31 bit addressing for
+-	 * non z/Arch environment compatibility and the instruction
+-	 * address 0x10000 (cstart64.S .init).
+-	 */
+ 	.lowcore : {
++		/*
++		 * Initial short psw for disk boot, with 31 bit addressing for
++		 * non z/Arch environment compatibility and the instruction
++		 * address 0x10000 (cstart64.S .init).
++		 */
+ 		. = 0;
+ 		 LONG(0x00080000)
+ 		 LONG(0x80010000)
++		 /* Restart new PSW for booting via PSW restart. */
++		 . = 0x1a0;
++		 QUAD(0x0000000180000000)
++		 QUAD(0x0000000000010000)
+ 	}
+ 	. = 0x10000;
+ 	.text : {
 -- 
-2.8.1
+2.17.0
