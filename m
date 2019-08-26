@@ -1,167 +1,132 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 26/26] nds32: use generic ioremap
-Date: Sat, 17 Aug 2019 09:32:53 +0200
-Message-Id: <20190817073253.27819-27-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45838 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732865AbfHZQf1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Aug 2019 12:35:27 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGOlVI078136
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:26 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2umgu95y51-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:26 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 26 Aug 2019 17:35:24 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 5/5] s390x: Add diag308 subcode 0 testing
+Date: Mon, 26 Aug 2019 18:35:02 +0200
+In-Reply-To: <20190826163502.1298-1-frankja@linux.ibm.com>
+References: <20190826163502.1298-1-frankja@linux.ibm.com>
+Message-Id: <20190826163502.1298-6-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Use the generic ioremap_prot and iounmap helpers.
+By adding a load reset routine to cstart.S we can also test the clear
+reset done by subcode 0, as we now can restore our registers again.
 
-Note that the io.h include in pgtable.h had to be removed to not create
-an include loop.  As far as I can tell there was no need for it to
-start with.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- arch/nds32/Kconfig               |  1 +
- arch/nds32/include/asm/io.h      |  3 +-
- arch/nds32/include/asm/pgtable.h |  4 ++-
- arch/nds32/mm/Makefile           |  3 +-
- arch/nds32/mm/ioremap.c          | 62 --------------------------------
- 5 files changed, 6 insertions(+), 67 deletions(-)
- delete mode 100644 arch/nds32/mm/ioremap.c
+ s390x/cstart64.S | 27 +++++++++++++++++++++++++++
+ s390x/diag308.c  | 31 ++++++++++---------------------
+ 2 files changed, 37 insertions(+), 21 deletions(-)
 
-diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-index fbd68329737f..12c06a833b7c 100644
---- a/arch/nds32/Kconfig
-+++ b/arch/nds32/Kconfig
-@@ -20,6 +20,7 @@ config NDS32
- 	select GENERIC_CLOCKEVENTS
- 	select GENERIC_IRQ_CHIP
- 	select GENERIC_IRQ_SHOW
-+	select GENERIC_IOREMAP
- 	select GENERIC_LIB_ASHLDI3
- 	select GENERIC_LIB_ASHRDI3
- 	select GENERIC_LIB_CMPDI2
-diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-index fb0e8a24c7af..e57378d04006 100644
---- a/arch/nds32/include/asm/io.h
-+++ b/arch/nds32/include/asm/io.h
-@@ -6,8 +6,6 @@
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index dedfe80..36f7cab 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -145,6 +145,33 @@ memsetxc:
+ 	.endm
  
- #include <linux/types.h>
- 
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
--extern void iounmap(volatile void __iomem *addr);
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
- {
-@@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
- #define writeb(v,c)	({ __iowmb(); writeb_relaxed((v),(c)); })
- #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
- #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
+ .section .text
++/*
++ * load_reset calling convention:
++ * %r2 subcode (0 or 1)
++ */
++.globl diag308_load_reset
++diag308_load_reset:
++	SAVE_REGS
++	/* Save the first PSW word to the IPL PSW */
++	epsw	%r0, %r1
++	st	%r0, 0
++	/* Store the address and the bit for 31 bit addressing */
++	larl    %r0, 0f
++	oilh    %r0, 0x8000
++	st      %r0, 0x4
++	/* Do the reset */
++	diag    %r0,%r2,0x308
++	/* Failure path */
++	xgr	%r2, %r2
++	br	%r14
++	/* Success path */
++	/* We lost cr0 due to the reset */
++0:	larl	%r1, initial_cr0
++	lctlg	%c0, %c0, 0(%r1)
++	RESTORE_REGS
++	lhi	%r2, 1
++	br	%r14
 +
- #include <asm-generic/io.h>
+ pgm_int:
+ 	SAVE_REGS
+ 	brasl	%r14, handle_pgm_int
+diff --git a/s390x/diag308.c b/s390x/diag308.c
+index f085b1a..6b4ffa6 100644
+--- a/s390x/diag308.c
++++ b/s390x/diag308.c
+@@ -21,32 +21,20 @@ static void test_priv(void)
+ 	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+ }
  
- #endif /* __ASM_NDS32_IO_H */
-diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pgtable.h
-index c70cc56bec09..9c5efa4f1f96 100644
---- a/arch/nds32/include/asm/pgtable.h
-+++ b/arch/nds32/include/asm/pgtable.h
-@@ -12,7 +12,6 @@
- #include <asm/nds32.h>
- #ifndef __ASSEMBLY__
- #include <asm/fixmap.h>
--#include <asm/io.h>
- #include <nds32_intrinsic.h>
- #endif
- 
-@@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
- #define _PAGE_CACHE		_PAGE_C_MEM_WB
- #endif
- 
-+#define _PAGE_IOREMAP \
-+	(_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
 +
  /*
-  * + Level 1 descriptor (PMD)
+- * Check that diag308 with subcode 1 loads the PSW at address 0, i.e.
++ * Check that diag308 with subcode 0 and 1 loads the PSW at address 0, i.e.
+  * that we can put a pointer into address 4 which then gets executed.
   */
-diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
-index bd360e4583b5..897ecaf5cf54 100644
---- a/arch/nds32/mm/Makefile
-+++ b/arch/nds32/mm/Makefile
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
--obj-y				:= extable.o tlb.o \
--				   fault.o init.o ioremap.o mmap.o \
-+obj-y				:= extable.o tlb.o fault.o init.o mmap.o \
-                                    mm-nds32.o cacheflush.o proc.o
++extern int diag308_load_reset(u64);
++static void test_subcode0(void)
++{
++	report("load modified clear done", diag308_load_reset(0));
++}
++
+ static void test_subcode1(void)
+ {
+-	uint64_t saved_psw = *(uint64_t *)0;
+-	long subcode = 1;
+-	long ret, tmp;
+-
+-	asm volatile (
+-		"	epsw	%0,%1\n"
+-		"	st	%0,0\n"
+-		"	larl	%0,0f\n"
+-		"	oilh	%0,0x8000\n"
+-		"	st	%0,4\n"
+-		"	diag	0,%2,0x308\n"
+-		"	lghi	%0,0\n"
+-		"	j	1f\n"
+-		"0:	lghi	%0,1\n"
+-		"1:"
+-		: "=&d"(ret), "=&d"(tmp) : "d"(subcode) : "memory");
+-
+-	*(uint64_t *)0 = saved_psw;
+-
+-	report("load normal reset done", ret == 1);
++	report("load normal reset done", diag308_load_reset(1));
+ }
  
- obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
-diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
-deleted file mode 100644
-index 690140bb23a2..000000000000
---- a/arch/nds32/mm/ioremap.c
-+++ /dev/null
-@@ -1,62 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--// Copyright (C) 2005-2017 Andes Technology Corporation
--
--#include <linux/vmalloc.h>
--#include <linux/io.h>
--#include <linux/mm.h>
--#include <asm/pgtable.h>
--
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
--
--static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size,
--				      void *caller)
--{
--	struct vm_struct *area;
--	unsigned long addr, offset, last_addr;
--	pgprot_t prot;
--
--	/* Don't allow wraparound or zero size */
--	last_addr = phys_addr + size - 1;
--	if (!size || last_addr < phys_addr)
--		return NULL;
--
--	/*
--	 * Mappings have to be page-aligned
--	 */
--	offset = phys_addr & ~PAGE_MASK;
--	phys_addr &= PAGE_MASK;
--	size = PAGE_ALIGN(last_addr + 1) - phys_addr;
--
--	/*
--	 * Ok, go for it..
--	 */
--	area = get_vm_area_caller(size, VM_IOREMAP, caller);
--	if (!area)
--		return NULL;
--
--	area->phys_addr = phys_addr;
--	addr = (unsigned long)area->addr;
--	prot = __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
--			_PAGE_G | _PAGE_C_DEV);
--	if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
--		vunmap((void *)addr);
--		return NULL;
--	}
--	return (__force void __iomem *)(offset + (char *)addr);
--
--}
--
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
--{
--	return __ioremap_caller(phys_addr, size,
--				__builtin_return_address(0));
--}
--
--EXPORT_SYMBOL(ioremap);
--
--void iounmap(volatile void __iomem * addr)
--{
--	vunmap((void *)(PAGE_MASK & (unsigned long)addr));
--}
--
--EXPORT_SYMBOL(iounmap);
+ /* Expect a specification exception when using an uneven register */
+@@ -107,6 +95,7 @@ static struct {
+ 	void (*func)(void);
+ } tests[] = {
+ 	{ "privileged", test_priv },
++	{ "subcode 0", test_subcode0 },
+ 	{ "subcode 1", test_subcode1 },
+ 	{ "subcode 5", test_subcode5 },
+ 	{ "subcode 6", test_subcode6 },
 -- 
-2.20.1
+2.17.0
