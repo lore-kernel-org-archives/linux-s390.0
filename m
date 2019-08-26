@@ -1,175 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Denis Efremov <efremov@linux.com>
-Subject: [PATCH v2 02/10] s390/pci: Loop using PCI_STD_NUM_BARS
-Date: Fri, 16 Aug 2019 12:24:29 +0300
-Message-Id: <20190816092437.31846-3-efremov@linux.com>
-In-Reply-To: <20190816092437.31846-1-efremov@linux.com>
-References: <20190816092437.31846-1-efremov@linux.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43852 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728419AbfHZQfU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Aug 2019 12:35:20 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGOjc1096446
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:19 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2umjwxrcpj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:19 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 26 Aug 2019 17:35:17 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 0/5] s390x: More emulation tests
+Date: Mon, 26 Aug 2019 18:34:57 +0200
+Message-Id: <20190826163502.1298-1-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Denis Efremov <efremov@linux.com>, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Refactor loops to use 'i < PCI_STD_NUM_BARS' instead of
-'i <= PCI_STD_RESOURCE_END'.
+The first patch allows for CECSIM booting via PSW restart.
+The other ones add diag288 and STSI tests, as well as diag308 subcode 0.
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- arch/s390/include/asm/pci.h     |  5 +----
- arch/s390/include/asm/pci_clp.h |  6 +++---
- arch/s390/pci/pci.c             | 16 ++++++++--------
- arch/s390/pci/pci_clp.c         |  6 +++---
- 4 files changed, 15 insertions(+), 18 deletions(-)
+v3:
+* Addressed review
+* Added review-bys
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index a2399eff84ca..3a06c264ea53 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -2,9 +2,6 @@
- #ifndef __ASM_S390_PCI_H
- #define __ASM_S390_PCI_H
- 
--/* must be set before including pci_clp.h */
--#define PCI_BAR_COUNT	6
--
- #include <linux/pci.h>
- #include <linux/mutex.h>
- #include <linux/iommu.h>
-@@ -138,7 +135,7 @@ struct zpci_dev {
- 
- 	char res_name[16];
- 	bool mio_capable;
--	struct zpci_bar_struct bars[PCI_BAR_COUNT];
-+	struct zpci_bar_struct bars[PCI_STD_NUM_BARS];
- 
- 	u64		start_dma;	/* Start of available DMA addresses */
- 	u64		end_dma;	/* End of available DMA addresses */
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 50359172cc48..bd2cb4ea7d93 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -77,7 +77,7 @@ struct mio_info {
- 	struct {
- 		u64 wb;
- 		u64 wt;
--	} addr[PCI_BAR_COUNT];
-+	} addr[PCI_STD_NUM_BARS];
- 	u32 reserved[6];
- } __packed;
- 
-@@ -98,9 +98,9 @@ struct clp_rsp_query_pci {
- 	u16 util_str_avail	:  1;	/* utility string available? */
- 	u16 pfgid		:  8;	/* pci function group id */
- 	u32 fid;			/* pci function id */
--	u8 bar_size[PCI_BAR_COUNT];
-+	u8 bar_size[PCI_STD_NUM_BARS];
- 	u16 pchid;
--	__le32 bar[PCI_BAR_COUNT];
-+	__le32 bar[PCI_STD_NUM_BARS];
- 	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
- 	u32			: 16;
- 	u8 fmb_len;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index b0e3b9a0e488..aca372c8e34f 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -43,7 +43,7 @@ static DECLARE_BITMAP(zpci_domain, ZPCI_NR_DEVICES);
- static DEFINE_SPINLOCK(zpci_domain_lock);
- 
- #define ZPCI_IOMAP_ENTRIES						\
--	min(((unsigned long) ZPCI_NR_DEVICES * PCI_BAR_COUNT / 2),	\
-+	min(((unsigned long) ZPCI_NR_DEVICES * PCI_STD_NUM_BARS / 2),	\
- 	    ZPCI_IOMAP_MAX_ENTRIES)
- 
- static DEFINE_SPINLOCK(zpci_iomap_lock);
-@@ -294,7 +294,7 @@ static void __iomem *pci_iomap_range_mio(struct pci_dev *pdev, int bar,
- void __iomem *pci_iomap_range(struct pci_dev *pdev, int bar,
- 			      unsigned long offset, unsigned long max)
- {
--	if (!pci_resource_len(pdev, bar) || bar >= PCI_BAR_COUNT)
-+	if (bar >= PCI_STD_NUM_BARS || !pci_resource_len(pdev, bar))
- 		return NULL;
- 
- 	if (static_branch_likely(&have_mio))
-@@ -324,7 +324,7 @@ static void __iomem *pci_iomap_wc_range_mio(struct pci_dev *pdev, int bar,
- void __iomem *pci_iomap_wc_range(struct pci_dev *pdev, int bar,
- 				 unsigned long offset, unsigned long max)
- {
--	if (!pci_resource_len(pdev, bar) || bar >= PCI_BAR_COUNT)
-+	if (bar >= PCI_STD_NUM_BARS || !pci_resource_len(pdev, bar))
- 		return NULL;
- 
- 	if (static_branch_likely(&have_mio))
-@@ -416,7 +416,7 @@ static void zpci_map_resources(struct pci_dev *pdev)
- 	resource_size_t len;
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		len = pci_resource_len(pdev, i);
- 		if (!len)
- 			continue;
-@@ -451,7 +451,7 @@ static void zpci_unmap_resources(struct pci_dev *pdev)
- 	if (zpci_use_mio(zdev))
- 		return;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		len = pci_resource_len(pdev, i);
- 		if (!len)
- 			continue;
-@@ -514,7 +514,7 @@ static int zpci_setup_bus_resources(struct zpci_dev *zdev,
- 	snprintf(zdev->res_name, sizeof(zdev->res_name),
- 		 "PCI Bus %04x:%02x", zdev->domain, ZPCI_BUS_NR);
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		if (!zdev->bars[i].size)
- 			continue;
- 		entry = zpci_alloc_iomap(zdev);
-@@ -551,7 +551,7 @@ static void zpci_cleanup_bus_resources(struct zpci_dev *zdev)
- {
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		if (!zdev->bars[i].size || !zdev->bars[i].res)
- 			continue;
- 
-@@ -573,7 +573,7 @@ int pcibios_add_device(struct pci_dev *pdev)
- 	pdev->dev.dma_ops = &s390_pci_dma_ops;
- 	zpci_map_resources(pdev);
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		res = &pdev->resource[i];
- 		if (res->parent || !res->flags)
- 			continue;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 9bdff4defef1..8b729b5f2972 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -145,7 +145,7 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- {
- 	int i;
- 
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
- 		zdev->bars[i].val = le32_to_cpu(response->bar[i]);
- 		zdev->bars[i].size = response->bar_size[i];
- 	}
-@@ -164,8 +164,8 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 		       sizeof(zdev->util_str));
- 	}
- 	zdev->mio_capable = response->mio_addr_avail;
--	for (i = 0; i < PCI_BAR_COUNT; i++) {
--		if (!(response->mio.valid & (1 << (PCI_BAR_COUNT - i - 1))))
-+	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-+		if (!(response->mio.valid & (1 << (PCI_STD_NUM_BARS - i - 1))))
- 			continue;
- 
- 		zdev->bars[i].mio_wb = (void __iomem *) response->mio.addr[i].wb;
+v2:
+
+* Tested under TCG
+* Split out stsi into library
+* Addressed review
+
+Janosch Frank (5):
+  s390x: Support PSW restart boot
+  s390x: Diag288 test
+  s390x: Move stsi to library
+  s390x: STSI tests
+  s390x: Add diag308 subcode 0 testing
+
+ lib/s390x/asm/arch_def.h |  17 +++++
+ s390x/Makefile           |   2 +
+ s390x/cstart64.S         |  27 ++++++++
+ s390x/diag288.c          | 130 +++++++++++++++++++++++++++++++++++++++
+ s390x/diag308.c          |  31 +++-------
+ s390x/flat.lds           |  14 +++--
+ s390x/skey.c             |  18 ------
+ s390x/stsi.c             |  84 +++++++++++++++++++++++++
+ s390x/unittests.cfg      |   7 +++
+ 9 files changed, 286 insertions(+), 44 deletions(-)
+ create mode 100644 s390x/diag288.c
+ create mode 100644 s390x/stsi.c
+
 -- 
-2.21.0
+2.17.0
