@@ -1,50 +1,23 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:47655 "EHLO ozlabs.org"
+Received: from verein.lst.de ([213.95.11.211]:46327 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726389AbfHZLd6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Aug 2019 07:33:58 -0400
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v2 09/11] dma-direct: turn ARCH_ZONE_DMA_BITS into a variable
-In-Reply-To: <20190820145821.27214-10-nsaenzjulienne@suse.de>
+        id S1729711AbfHZHFz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Aug 2019 03:05:55 -0400
+Date: Mon, 26 Aug 2019 09:05:50 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 09/11] dma-direct: turn ARCH_ZONE_DMA_BITS into a
+ variable
+Message-ID: <20190826070550.GA11331@lst.de>
 References: <20190820145821.27214-1-nsaenzjulienne@suse.de> <20190820145821.27214-10-nsaenzjulienne@suse.de>
-Date: Mon, 26 Aug 2019 21:33:51 +1000
-Message-ID: <87ef1840v4.fsf@concordia.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190820145821.27214-10-nsaenzjulienne@suse.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-arch@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: f.fainelli@gmail.com, will@kernel.org, linux-kernel@vger.kernel.org, eric@anholt.net, mbrugger@suse.com, linux-rpi-kernel@lists.infradead.org, akpm@linux-foundation.org, frowand.list@gmail.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: catalin.marinas@arm.com, hch@lst.de, wahrenst@gmx.net, marc.zyngier@arm.com, robh+dt@kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-arch@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, Marek Szyprowski <m.szyprowski@samsung.com>, phill@raspberryi.org, f.fainelli@gmail.com, will@kernel.org, linux-kernel@vger.kernel.org, eric@anholt.net, mbrugger@suse.com, linux-rpi-kernel@lists.infradead.org, akpm@linux-foundation.org, frowand.list@gmail.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-Nicolas Saenz Julienne <nsaenzjulienne@suse.de> writes:
-> diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
-> index 0d52f57fca04..73668a21ae78 100644
-> --- a/arch/powerpc/include/asm/page.h
-> +++ b/arch/powerpc/include/asm/page.h
-> @@ -319,13 +319,4 @@ struct vm_area_struct;
->  #endif /* __ASSEMBLY__ */
->  #include <asm/slice.h>
->  
-> -/*
-> - * Allow 30-bit DMA for very limited Broadcom wifi chips on many powerbooks.
+Looks good,
 
-This comment got lost.
-
-> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-> index 9191a66b3bc5..2a69f87585df 100644
-> --- a/arch/powerpc/mm/mem.c
-> +++ b/arch/powerpc/mm/mem.c
-> @@ -237,9 +238,14 @@ void __init paging_init(void)
->  	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
->  	       (long int)((top_of_ram - total_ram) >> 20));
->  
-> +	if (IS_ENABLED(CONFIG_PPC32))
-
-Can you please propagate it here?
-
-> +		zone_dma_bits = 30;
-> +	else
-> +		zone_dma_bits = 31;
-> +
-
-cheers
+Reviewed-by: Christoph Hellwig <hch@lst.de>
