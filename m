@@ -1,175 +1,95 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 24/26] riscv: use the generic ioremap code
-Date: Sat, 17 Aug 2019 09:32:51 +0200
-Message-Id: <20190817073253.27819-25-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15636 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732671AbfHZQfY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Aug 2019 12:35:24 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGOmqr078160
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:23 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2umgu95y3n-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:23 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 26 Aug 2019 17:35:20 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 3/5] s390x: Move stsi to library
+Date: Mon, 26 Aug 2019 18:35:00 +0200
+In-Reply-To: <20190826163502.1298-1-frankja@linux.ibm.com>
+References: <20190826163502.1298-1-frankja@linux.ibm.com>
+Message-Id: <20190826163502.1298-4-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Use the generic ioremap code instead of providing a local version.
-Note that this relies on the asm-generic no-op definition of
-pgprot_noncached.
+It's needed in multiple tests now.
+Return value changes from 0/-1 to the cc.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- arch/riscv/Kconfig               |  1 +
- arch/riscv/include/asm/io.h      |  3 --
- arch/riscv/include/asm/pgtable.h |  6 +++
- arch/riscv/mm/Makefile           |  1 -
- arch/riscv/mm/ioremap.c          | 84 --------------------------------
- 5 files changed, 7 insertions(+), 88 deletions(-)
- delete mode 100644 arch/riscv/mm/ioremap.c
+ lib/s390x/asm/arch_def.h | 16 ++++++++++++++++
+ s390x/skey.c             | 18 ------------------
+ 2 files changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 59a4727ecd6c..468e7eba8916 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -30,6 +30,7 @@ config RISCV
- 	select GENERIC_STRNLEN_USER
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_ATOMIC64 if !64BIT
-+	select GENERIC_IOREMAP
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_MEMBLOCK_NODE_MAP
- 	select HAVE_DMA_CONTIGUOUS
-diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
-index c1de6875cc77..df4c8812ff64 100644
---- a/arch/riscv/include/asm/io.h
-+++ b/arch/riscv/include/asm/io.h
-@@ -14,9 +14,6 @@
- #include <linux/types.h>
- #include <asm/mmiowb.h>
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 4bbb428..5f8f45e 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -240,4 +240,20 @@ static inline void enter_pstate(void)
+ 	load_psw_mask(mask);
+ }
  
--extern void __iomem *ioremap(phys_addr_t offset, unsigned long size);
--extern void iounmap(volatile void __iomem *addr);
--
- /* Generic IO read/write.  These perform native-endian accesses. */
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index a364aba23d55..57be4723626c 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -61,6 +61,12 @@
- 
- #define PAGE_TABLE		__pgprot(_PAGE_TABLE)
- 
-+/*
-+ * The RISC-V ISA doesn't yet specify how to query or modify PMAs, so we can't
-+ * change the properties of memory regions.
-+ */
-+#define _PAGE_IOREMAP _PAGE_KERNEL
++static inline int stsi(void *addr, int fc, int sel1, int sel2)
++{
++	register int r0 asm("0") = (fc << 28) | sel1;
++	register int r1 asm("1") = sel2;
++	int cc;
 +
- extern pgd_t swapper_pg_dir[];
++	asm volatile(
++		"stsi	0(%3)\n"
++		"ipm	%[cc]\n"
++		"srl	%[cc],28\n"
++		: "+d" (r0), [cc] "=d" (cc)
++		: "d" (r1), "a" (addr)
++		: "cc", "memory");
++	return cc;
++}
++
+ #endif
+diff --git a/s390x/skey.c b/s390x/skey.c
+index b1e11af..fd4fcc7 100644
+--- a/s390x/skey.c
++++ b/s390x/skey.c
+@@ -70,24 +70,6 @@ static void test_set(void)
+ 	       skey.str.acc == ret.str.acc && skey.str.fp == ret.str.fp);
+ }
  
- /* MAP_PRIVATE permissions: xwr (copy-on-write) */
-diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
-index 74055e1d6f21..3b3a161feaa0 100644
---- a/arch/riscv/mm/Makefile
-+++ b/arch/riscv/mm/Makefile
-@@ -8,7 +8,6 @@ endif
- obj-y += init.o
- obj-y += fault.o
- obj-y += extable.o
--obj-y += ioremap.o
- obj-y += cacheflush.o
- obj-y += context.o
- obj-y += sifive_l2_cache.o
-diff --git a/arch/riscv/mm/ioremap.c b/arch/riscv/mm/ioremap.c
-deleted file mode 100644
-index ac621ddb45c0..000000000000
---- a/arch/riscv/mm/ioremap.c
-+++ /dev/null
-@@ -1,84 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * (C) Copyright 1995 1996 Linus Torvalds
-- * (C) Copyright 2012 Regents of the University of California
-- */
--
--#include <linux/export.h>
--#include <linux/mm.h>
--#include <linux/vmalloc.h>
--#include <linux/io.h>
--
--#include <asm/pgtable.h>
--
--/*
-- * Remap an arbitrary physical address space into the kernel virtual
-- * address space. Needed when the kernel wants to access high addresses
-- * directly.
-- *
-- * NOTE! We need to allow non-page-aligned mappings too: we will obviously
-- * have to convert them into an offset in a page-aligned mapping, but the
-- * caller shouldn't need to know that small detail.
-- */
--static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
--	pgprot_t prot, void *caller)
+-static inline int stsi(void *addr, int fc, int sel1, int sel2)
 -{
--	phys_addr_t last_addr;
--	unsigned long offset, vaddr;
--	struct vm_struct *area;
+-	register int r0 asm("0") = (fc << 28) | sel1;
+-	register int r1 asm("1") = sel2;
+-	int rc = 0;
 -
--	/* Disallow wrap-around or zero size */
--	last_addr = addr + size - 1;
--	if (!size || last_addr < addr)
--		return NULL;
+-	asm volatile(
+-		"	stsi	0(%3)\n"
+-		"	jz	0f\n"
+-		"	lhi	%1,-1\n"
+-		"0:\n"
+-		: "+d" (r0), "+d" (rc)
+-		: "d" (r1), "a" (addr)
+-		: "cc", "memory");
 -
--	/* Page-align mappings */
--	offset = addr & (~PAGE_MASK);
--	addr -= offset;
--	size = PAGE_ALIGN(size + offset);
--
--	area = get_vm_area_caller(size, VM_IOREMAP, caller);
--	if (!area)
--		return NULL;
--	vaddr = (unsigned long)area->addr;
--
--	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
--		free_vm_area(area);
--		return NULL;
--	}
--
--	return (void __iomem *)(vaddr + offset);
+-	return rc;
 -}
 -
--/*
-- * ioremap     -   map bus memory into CPU space
-- * @offset:    bus address of the memory
-- * @size:      size of the resource to map
-- *
-- * ioremap performs a platform specific sequence of operations to
-- * make bus memory CPU accessible via the readb/readw/readl/writeb/
-- * writew/writel functions and the other mmio helpers. The returned
-- * address is not guaranteed to be usable directly as a virtual
-- * address.
-- *
-- * Must be freed with iounmap.
-- */
--void __iomem *ioremap(phys_addr_t offset, unsigned long size)
--{
--	return __ioremap_caller(offset, size, PAGE_KERNEL,
--		__builtin_return_address(0));
--}
--EXPORT_SYMBOL(ioremap);
--
--
--/**
-- * iounmap - Free a IO remapping
-- * @addr: virtual address from ioremap_*
-- *
-- * Caller must ensure there is only one unmapping for the same pointer.
-- */
--void iounmap(volatile void __iomem *addr)
--{
--	vunmap((void *)((unsigned long)addr & PAGE_MASK));
--}
--EXPORT_SYMBOL(iounmap);
+ /* Returns true if we are running under z/VM 6.x */
+ static bool check_for_zvm6(void)
+ {
 -- 
-2.20.1
+2.17.0
