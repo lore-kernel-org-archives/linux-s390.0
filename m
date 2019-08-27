@@ -1,102 +1,211 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51736 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727064AbfH0PXH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Aug 2019 11:23:07 -0400
-Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Move pfmf to lib and make
- address void
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15454 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730021AbfH0Nt4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Aug 2019 09:49:56 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7RDlbV6092836
+        for <linux-s390@vger.kernel.org>; Tue, 27 Aug 2019 09:49:54 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2un5cxs4tx-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 27 Aug 2019 09:49:54 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Tue, 27 Aug 2019 14:49:52 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 1/3] s390x: Move pfmf to lib and make address void
+Date: Tue, 27 Aug 2019 15:49:34 +0200
+In-Reply-To: <20190827134936.1705-1-frankja@linux.ibm.com>
 References: <20190827134936.1705-1-frankja@linux.ibm.com>
- <20190827134936.1705-2-frankja@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <e722fde9-d00a-ca65-91a3-9c7801c2352a@redhat.com>
-Date: Tue, 27 Aug 2019 17:23:03 +0200
-MIME-Version: 1.0
-In-Reply-To: <20190827134936.1705-2-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Message-Id: <20190827134936.1705-2-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-On 27/08/2019 15.49, Janosch Frank wrote:
-> It's needed by other tests soon.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/asm/mem.h | 31 ++++++++++++++++++++++
->  s390x/pfmf.c        | 63 ++++++++++++++-------------------------------
->  2 files changed, 50 insertions(+), 44 deletions(-)
-[...]
-> @@ -80,15 +49,18 @@ static void test_1m_key(void)
->  {
->  	int i;
->  	bool rp = true;
-> -	union r1 r1;
-> +	union pfmf_r1 r1;
->  	union skey skey;
-> +	void *addr = pagebuf;
->  
->  	report_prefix_push("1M");
->  	r1.val = 0;
->  	r1.reg.sk = 1;
-> -	r1.reg.fsc = FSC_1M;
-> +	r1.reg.fsc = PFMF_FSC_1M;
->  	r1.reg.key = 0x30;
-> -	pfmf(r1.val, (unsigned long) pagebuf);
-> +	while (addr != pagebuf + 256 * PAGE_SIZE) {
-> +	       addr = pfmf(r1.val, addr);
-> +	}
+It's needed by other tests soon.
 
-Why this change? If PFMF gets interrupted, the PSW should still point to
-the PFMF instruction, so no need to loop here ... or do I miss something?
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/asm/mem.h | 31 ++++++++++++++++++++++
+ s390x/pfmf.c        | 63 ++++++++++++++-------------------------------
+ 2 files changed, 50 insertions(+), 44 deletions(-)
 
-(See PoP, chapter "Execution of Interruptible Instructions")
-
->  	for (i = 0; i < 256; i++) {
->  		skey.val = get_storage_key((unsigned long) pagebuf + i * PAGE_SIZE);
->  		skey.val &= SKEY_ACC | SKEY_FP;
-> @@ -103,15 +75,15 @@ static void test_1m_key(void)
->  
->  static void test_4k_clear(void)
->  {
-> -	union r1 r1;
-> +	union pfmf_r1 r1;
->  
->  	r1.val = 0;
->  	r1.reg.cf = 1;
-> -	r1.reg.fsc = FSC_4K;
-> +	r1.reg.fsc = PFMF_FSC_4K;
->  
->  	report_prefix_push("4K");
->  	memset(pagebuf, 42, PAGE_SIZE);
-> -	pfmf(r1.val, (unsigned long) pagebuf);
-> +	pfmf(r1.val, pagebuf);
->  	report("clear memory", !memcmp(pagebuf, pagebuf + PAGE_SIZE, PAGE_SIZE));
->  	report_prefix_pop();
->  }
-> @@ -119,16 +91,19 @@ static void test_4k_clear(void)
->  static void test_1m_clear(void)
->  {
->  	int i;
-> -	union r1 r1;
-> +	union pfmf_r1 r1;
->  	unsigned long sum = 0;
-> +	void *addr = pagebuf;
->  
->  	r1.val = 0;
->  	r1.reg.cf = 1;
-> -	r1.reg.fsc = FSC_1M;
-> +	r1.reg.fsc = PFMF_FSC_1M;
->  
->  	report_prefix_push("1M");
->  	memset(pagebuf, 42, PAGE_SIZE * 256);
-> -	pfmf(r1.val, (unsigned long) pagebuf);
-> +	while (addr != pagebuf + 256 * PAGE_SIZE) {
-> +	       addr = pfmf(r1.val, addr);
-> +	}
-
-dito.
-
- Thomas
+diff --git a/lib/s390x/asm/mem.h b/lib/s390x/asm/mem.h
+index 75bd778..9b8fd70 100644
+--- a/lib/s390x/asm/mem.h
++++ b/lib/s390x/asm/mem.h
+@@ -54,4 +54,35 @@ static inline unsigned char get_storage_key(unsigned long addr)
+ 	asm volatile("iske %0,%1" : "=d" (skey) : "a" (addr));
+ 	return skey;
+ }
++
++#define PFMF_FSC_4K 0
++#define PFMF_FSC_1M 1
++#define PFMF_FSC_2G 2
++
++union pfmf_r1 {
++	struct {
++		unsigned long pad0 : 32;
++		unsigned long pad1 : 12;
++		unsigned long pad_fmfi : 2;
++		unsigned long sk : 1; /* set key*/
++		unsigned long cf : 1; /* clear frame */
++		unsigned long ui : 1; /* usage indication */
++		unsigned long fsc : 3;
++		unsigned long pad2 : 1;
++		unsigned long mr : 1;
++		unsigned long mc : 1;
++		unsigned long pad3 : 1;
++		unsigned long key : 8; /* storage keys */
++	} reg;
++	unsigned long val;
++};
++
++static inline void *pfmf(unsigned long r1, void *paddr)
++{
++	register void * addr asm("1") = paddr;
++
++	asm volatile(".insn rre,0xb9af0000,%[r1],%[addr]"
++		     : [addr] "+a" (addr) : [r1] "d" (r1) : "memory");
++	return addr;
++}
+ #endif
+diff --git a/s390x/pfmf.c b/s390x/pfmf.c
+index 9bf434a..0aa5822 100644
+--- a/s390x/pfmf.c
++++ b/s390x/pfmf.c
+@@ -16,60 +16,29 @@
+ #include <asm/facility.h>
+ #include <asm/mem.h>
+ 
+-#define FSC_4K 0
+-#define FSC_1M 1
+-#define FSC_2G 2
+-
+-union r1 {
+-	struct {
+-		unsigned long pad0 : 32;
+-		unsigned long pad1 : 12;
+-		unsigned long pad_fmfi : 2;
+-		unsigned long sk : 1; /* set key*/
+-		unsigned long cf : 1; /* clear frame */
+-		unsigned long ui : 1; /* usage indication */
+-		unsigned long fsc : 3;
+-		unsigned long pad2 : 1;
+-		unsigned long mr : 1;
+-		unsigned long mc : 1;
+-		unsigned long pad3 : 1;
+-		unsigned long key : 8; /* storage keys */
+-	} reg;
+-	unsigned long val;
+-};
+-
+ static uint8_t pagebuf[PAGE_SIZE * 256] __attribute__((aligned(PAGE_SIZE * 256)));
+ 
+-static inline unsigned long pfmf(unsigned long r1, unsigned long paddr)
+-{
+-	register uint64_t addr asm("1") = paddr;
+-
+-	asm volatile(".insn rre,0xb9af0000,%[r1],%[addr]"
+-		     : [addr] "+a" (addr) : [r1] "d" (r1) : "memory");
+-	return addr;
+-}
+-
+ static void test_priv(void)
+ {
+ 	report_prefix_push("privileged");
+ 	expect_pgm_int();
+ 	enter_pstate();
+-	pfmf(0, (unsigned long) pagebuf);
++	pfmf(0, pagebuf);
+ 	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+ 	report_prefix_pop();
+ }
+ 
+ static void test_4k_key(void)
+ {
+-	union r1 r1;
++	union pfmf_r1 r1;
+ 	union skey skey;
+ 
+ 	report_prefix_push("4K");
+ 	r1.val = 0;
+ 	r1.reg.sk = 1;
+-	r1.reg.fsc = FSC_4K;
++	r1.reg.fsc = PFMF_FSC_4K;
+ 	r1.reg.key = 0x30;
+-	pfmf(r1.val, (unsigned long) pagebuf);
++	pfmf(r1.val, pagebuf);
+ 	skey.val = get_storage_key((unsigned long) pagebuf);
+ 	skey.val &= SKEY_ACC | SKEY_FP;
+ 	report("set storage keys", skey.val == 0x30);
+@@ -80,15 +49,18 @@ static void test_1m_key(void)
+ {
+ 	int i;
+ 	bool rp = true;
+-	union r1 r1;
++	union pfmf_r1 r1;
+ 	union skey skey;
++	void *addr = pagebuf;
+ 
+ 	report_prefix_push("1M");
+ 	r1.val = 0;
+ 	r1.reg.sk = 1;
+-	r1.reg.fsc = FSC_1M;
++	r1.reg.fsc = PFMF_FSC_1M;
+ 	r1.reg.key = 0x30;
+-	pfmf(r1.val, (unsigned long) pagebuf);
++	while (addr != pagebuf + 256 * PAGE_SIZE) {
++	       addr = pfmf(r1.val, addr);
++	}
+ 	for (i = 0; i < 256; i++) {
+ 		skey.val = get_storage_key((unsigned long) pagebuf + i * PAGE_SIZE);
+ 		skey.val &= SKEY_ACC | SKEY_FP;
+@@ -103,15 +75,15 @@ static void test_1m_key(void)
+ 
+ static void test_4k_clear(void)
+ {
+-	union r1 r1;
++	union pfmf_r1 r1;
+ 
+ 	r1.val = 0;
+ 	r1.reg.cf = 1;
+-	r1.reg.fsc = FSC_4K;
++	r1.reg.fsc = PFMF_FSC_4K;
+ 
+ 	report_prefix_push("4K");
+ 	memset(pagebuf, 42, PAGE_SIZE);
+-	pfmf(r1.val, (unsigned long) pagebuf);
++	pfmf(r1.val, pagebuf);
+ 	report("clear memory", !memcmp(pagebuf, pagebuf + PAGE_SIZE, PAGE_SIZE));
+ 	report_prefix_pop();
+ }
+@@ -119,16 +91,19 @@ static void test_4k_clear(void)
+ static void test_1m_clear(void)
+ {
+ 	int i;
+-	union r1 r1;
++	union pfmf_r1 r1;
+ 	unsigned long sum = 0;
++	void *addr = pagebuf;
+ 
+ 	r1.val = 0;
+ 	r1.reg.cf = 1;
+-	r1.reg.fsc = FSC_1M;
++	r1.reg.fsc = PFMF_FSC_1M;
+ 
+ 	report_prefix_push("1M");
+ 	memset(pagebuf, 42, PAGE_SIZE * 256);
+-	pfmf(r1.val, (unsigned long) pagebuf);
++	while (addr != pagebuf + 256 * PAGE_SIZE) {
++	       addr = pfmf(r1.val, addr);
++	}
+ 	for (i = 0; i < PAGE_SIZE * 256; i++)
+ 		sum |= pagebuf[i];
+ 	report("clear memory", !sum);
+-- 
+2.17.0
