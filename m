@@ -1,41 +1,32 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-Date: Mon, 12 Aug 2019 14:50:34 -0700
-Message-Id: <20190812215052.71840-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-Subject: [PATCH 01/16] s390/boot: fix section name escaping
-From: Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:41796 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726259AbfH1Ljl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Aug 2019 07:39:41 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 1/4] s390x: Move pfmf to lib and make
+ address void
+References: <20190828113615.4769-1-frankja@linux.ibm.com>
+ <20190828113615.4769-2-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <5b0d11e3-32a3-0207-ca7d-359d246b1a41@redhat.com>
+Date: Wed, 28 Aug 2019 13:39:37 +0200
+MIME-Version: 1.0
+In-Reply-To: <20190828113615.4769-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: akpm@linux-foundation.org
-Cc: sedat.dilek@gmail.com, jpoimboe@redhat.com, yhs@fb.com, miguel.ojeda.sandonis@gmail.com, clang-built-linux@googlegroups.com, Nick Desaulniers <ndesaulniers@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-GCC unescapes escaped string section names while Clang does not. Because
-__section uses the `#` stringification operator for the section name, it
-doesn't need to be escaped.
+On 28/08/2019 13.36, Janosch Frank wrote:
+> It's needed by other tests soon.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/mem.h | 31 ++++++++++++++++++++++++
+>  s390x/pfmf.c        | 57 +++++++++++----------------------------------
+>  2 files changed, 44 insertions(+), 44 deletions(-)
 
-This antipattern was found with:
-$ grep -e __section\(\" -e __section__\(\" -r
-
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Suggested-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- arch/s390/boot/startup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
-index 7b0d05414618..26493c4ff04b 100644
---- a/arch/s390/boot/startup.c
-+++ b/arch/s390/boot/startup.c
-@@ -46,7 +46,7 @@ struct diag_ops __bootdata_preserved(diag_dma_ops) = {
- 	.diag0c = _diag0c_dma,
- 	.diag308_reset = _diag308_reset_dma
- };
--static struct diag210 _diag210_tmp_dma __section(".dma.data");
-+static struct diag210 _diag210_tmp_dma __section(.dma.data);
- struct diag210 *__bootdata_preserved(__diag210_tmp_dma) = &_diag210_tmp_dma;
- void _swsusp_reset_dma(void);
- unsigned long __bootdata_preserved(__swsusp_reset_dma) = __pa(_swsusp_reset_dma);
--- 
-2.23.0.rc1.153.gdeed80330f-goog
+Reviewed-by: Thomas Huth <thuth@redhat.com>
