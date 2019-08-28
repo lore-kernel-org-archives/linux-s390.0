@@ -1,112 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:49482 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726135AbfHaGBB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 31 Aug 2019 02:01:01 -0400
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: [PATCH v2 1/9] arm64: numa: check the node id consistently for arm64
-Date: Sat, 31 Aug 2019 13:58:15 +0800
-Message-ID: <1567231103-13237-2-git-send-email-linyunsheng@huawei.com>
-In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
-References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+Received: from mx1.redhat.com ([209.132.183.28]:59312 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726232AbfH1H4O (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Aug 2019 03:56:14 -0400
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Add storage key removal
+ facility
+References: <20190827134936.1705-1-frankja@linux.ibm.com>
+ <20190827134936.1705-4-frankja@linux.ibm.com>
+ <ea6d114c-9025-2e15-89b8-52b938efc129@redhat.com>
+ <f0cddac0-a574-1aeb-69c6-b9d67f2dfd97@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <b0349845-b759-2b28-7ba3-d3fbf6515dda@redhat.com>
+Date: Wed, 28 Aug 2019 09:56:04 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <f0cddac0-a574-1aeb-69c6-b9d67f2dfd97@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="lAkWFrPUpj7JIzAfSAVxW3cfqTXNRv8ND"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
-Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
-of proximity domain is optional, as below:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--lAkWFrPUpj7JIzAfSAVxW3cfqTXNRv8ND
+Content-Type: multipart/mixed; boundary="4Ug9b7HK1I31AlMdcC4gl1BOzabphiKlO";
+ protected-headers="v1"
+From: Thomas Huth <thuth@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
+Message-ID: <b0349845-b759-2b28-7ba3-d3fbf6515dda@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Add storage key removal
+ facility
+References: <20190827134936.1705-1-frankja@linux.ibm.com>
+ <20190827134936.1705-4-frankja@linux.ibm.com>
+ <ea6d114c-9025-2e15-89b8-52b938efc129@redhat.com>
+ <f0cddac0-a574-1aeb-69c6-b9d67f2dfd97@linux.ibm.com>
+In-Reply-To: <f0cddac0-a574-1aeb-69c6-b9d67f2dfd97@linux.ibm.com>
 
-This optional object is used to describe proximity domain
-associations within a machine. _PXM evaluates to an integer
-that identifies a device as belonging to a Proximity Domain
-defined in the System Resource Affinity Table (SRAT).
+--4Ug9b7HK1I31AlMdcC4gl1BOzabphiKlO
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-When enabling KASAN and bios has not implemented the proximity
-domain of the hns3 device, there is a global-out-of-bounds error
-below:
+On 28/08/2019 08.26, Janosch Frank wrote:
+> On 8/27/19 7:58 PM, Thomas Huth wrote:
+[...]
+>> Anyway, I've now also checked this patch in the CI:
+>>
+>> diff a/s390x/Makefile b/s390x/Makefile
+>> --- a/s390x/Makefile
+>> +++ b/s390x/Makefile
+>> @@ -25,7 +25,7 @@ CFLAGS +=3D -std=3Dgnu99
+>>  CFLAGS +=3D -ffreestanding
+>>  CFLAGS +=3D -I $(SRCDIR)/lib -I $(SRCDIR)/lib/s390x -I lib
+>>  CFLAGS +=3D -O2
+>> -CFLAGS +=3D -march=3Dz900
+>> +CFLAGS +=3D -march=3Dz10
+>>  CFLAGS +=3D -fno-delete-null-pointer-checks
+>>  LDFLAGS +=3D -nostdlib -Wl,--build-id=3Dnone
+>>
+>> ... and it also seems to work fine with the TCG there:
+>>
+>> https://gitlab.com/huth/kvm-unit-tests/-/jobs/281450598
+>>
+>> So I think you can simply change it in the Makefile instead.
+>=20
+> z10 or directly something higher?
 
-[   42.970381] ==================================================================
-[   42.977595] BUG: KASAN: global-out-of-bounds in __bitmap_weight+0x48/0xb0
-[   42.984370] Read of size 8 at addr ffff20008cdf8790 by task kworker/0:1/13
-[   42.991230]
-[   42.992712] CPU: 0 PID: 13 Comm: kworker/0:1 Tainted: G           O      5.2.0-rc4-g8bde06a-dirty #3
-[   43.001830] Hardware name: Huawei TaiShan 2280 V2/BC82AMDA, BIOS TA BIOS 2280-A CS V2.B050.01 08/08/2019
-[   43.011298] Workqueue: events work_for_cpu_fn
-[   43.015643] Call trace:
-[   43.018078]  dump_backtrace+0x0/0x1e8
-[   43.021727]  show_stack+0x14/0x20
-[   43.025031]  dump_stack+0xc4/0xfc
-[   43.028335]  print_address_description+0x178/0x270
-[   43.033113]  __kasan_report+0x164/0x1b8
-[   43.036936]  kasan_report+0xc/0x18
-[   43.040325]  __asan_load8+0x84/0xa8
-[   43.043801]  __bitmap_weight+0x48/0xb0
-[   43.047552]  hclge_init_ae_dev+0x988/0x1e78 [hclge]
-[   43.052418]  hnae3_register_ae_dev+0xcc/0x278 [hnae3]
-[   43.057467]  hns3_probe+0xe0/0x120 [hns3]
-[   43.061464]  local_pci_probe+0x74/0xf0
-[   43.065200]  work_for_cpu_fn+0x2c/0x48
-[   43.068937]  process_one_work+0x3c0/0x878
-[   43.072934]  worker_thread+0x400/0x670
-[   43.076670]  kthread+0x1b0/0x1b8
-[   43.079885]  ret_from_fork+0x10/0x18
-[   43.083446]
-[   43.084925] The buggy address belongs to the variable:
-[   43.090052]  numa_distance+0x30/0x40
-[   43.093613]
-[   43.095091] Memory state around the buggy address:
-[   43.099870]  ffff20008cdf8680: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 fa fa
-[   43.107078]  ffff20008cdf8700: fa fa fa fa 04 fa fa fa fa fa fa fa 00 fa fa fa
-[   43.114286] >ffff20008cdf8780: fa fa fa fa 00 00 00 00 00 00 00 00 fa fa fa fa
-[   43.121494]                          ^
-[   43.125230]  ffff20008cdf8800: 01 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-[   43.132439]  ffff20008cdf8880: fa fa fa fa fa fa fa fa 00 00 fa fa fa fa fa fa
-[   43.139646] ==================================================================
+zEC12 seems to work, too:
 
-This patch checks node id with the below case before returning
-node_to_cpumask_map[node]:
-1. if node_id >= nr_node_ids, return cpu_none_mask
-2. if node_id < 0, return cpu_online_mask
-3. if node_to_cpumask_map[node_id] is NULL, return cpu_online_mask
+https://gitlab.com/huth/kvm-unit-tests/-/jobs/281833366
 
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
----
- arch/arm64/include/asm/numa.h | 6 ++++++
- arch/arm64/mm/numa.c          | 2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ Thomas
 
-diff --git a/arch/arm64/include/asm/numa.h b/arch/arm64/include/asm/numa.h
-index 626ad01..65a0ef6 100644
---- a/arch/arm64/include/asm/numa.h
-+++ b/arch/arm64/include/asm/numa.h
-@@ -25,6 +25,12 @@ const struct cpumask *cpumask_of_node(int node);
- /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
- static inline const struct cpumask *cpumask_of_node(int node)
- {
-+	if (node >= nr_node_ids)
-+		return cpu_none_mask;
-+
-+	if (node < 0 || !node_to_cpumask_map[node])
-+		return cpu_online_mask;
-+
- 	return node_to_cpumask_map[node];
- }
- #endif
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 4f241cc..7eca267 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -49,7 +49,7 @@ const struct cpumask *cpumask_of_node(int node)
- 	if (WARN_ON(node >= nr_node_ids))
- 		return cpu_none_mask;
- 
--	if (WARN_ON(node_to_cpumask_map[node] == NULL))
-+	if (WARN_ON(node < 0 || !node_to_cpumask_map[node]))
- 		return cpu_online_mask;
- 
- 	return node_to_cpumask_map[node];
--- 
-2.8.1
+
+--4Ug9b7HK1I31AlMdcC4gl1BOzabphiKlO--
+
+--lAkWFrPUpj7JIzAfSAVxW3cfqTXNRv8ND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJ7iIR+7gJQEY8+q5LtnXdP5wLbUFAl1mM5kACgkQLtnXdP5w
+LbVwIBAAo0UyIwnQvKYm/yFMdni7unGlRLXkdtQhESAU+JClqh4NyRl1qd8Vlh77
+1dl0lzfLfo2jcZvvzVD3qjgI72ie43R0tsgrZBsehz3kxPXFkHS+8Pj9SqXFnOy5
+JfLTq4H0hVs0G4w5yO4FgctVbpAeQryLqrG95De6UfLkN0yRu/NfiFn2M14NUecB
+PAzhiccJOl8BtnTCNik589AmSYw6E74Hi1qSUsjm+tgqd8GISLUMlQPamQOUVgTE
+5cqbaqrJWFI6JHnSK0k5jKCmh/34uRtfHXdiecxhBfycJ+4QPTZe0ORSElNbCNXT
+fystxZp9RhZLQeO+fi90pmN+ERApuC71ejIclsTlowmVbOhes6AMVaI7QS4w3mUn
+mEY/jF1WlNAGuPUi67zk1dmfDHHyA5I+I2KaTDSVzaqA+B5nJiyXyVQz7MrKUwxW
+7WHfyGiz9JxhMXxJhmSfyHD+Xqc/BE0aA1pBN8W/zHvOEkXJDqmWYZpH/OtP48WN
+pTBYzxaIioGJRk2Re8/rLsKj4Y8SVd/rTR6TvYODNjzESyIXMI6LsM6TFzlE9kGG
+cpemx4vvyMWTdR3L/gTMkIfew3ww01NX2K085hXpJJh/LatKdiCa+8khCCX7StSw
+zXCXExe85994hjkSYk531BdEIf1o5DoMJLgVZRsgKr9ZB9lmbok=
+=Io3o
+-----END PGP SIGNATURE-----
+
+--lAkWFrPUpj7JIzAfSAVxW3cfqTXNRv8ND--
