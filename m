@@ -1,96 +1,102 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V5 3/5] iommu/dma-iommu: Handle deferred devices
-Date: Thu, 15 Aug 2019 12:09:41 +0100
-Message-Id: <20190815110944.3579-4-murphyt7@tcd.ie>
-In-Reply-To: <20190815110944.3579-1-murphyt7@tcd.ie>
-References: <20190815110944.3579-1-murphyt7@tcd.ie>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-io1-f69.google.com ([209.85.166.69]:37093 "EHLO
+        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726563AbfH1GiH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Aug 2019 02:38:07 -0400
+Received: by mail-io1-f69.google.com with SMTP id m7so2457481ioc.4
+        for <linux-s390@vger.kernel.org>; Tue, 27 Aug 2019 23:38:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Date: Tue, 27 Aug 2019 23:38:06 -0700
+Message-ID: <000000000000bd9241059127a1eb@google.com>
+Subject: WARNING in smc_unhash_sk (3)
+From: syzbot <syzbot+8488cc4cf1c9e09b8b86@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: davem@davemloft.net, kgraul@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
 
-Handle devices which defer their attach to the iommu in the dma-iommu api
+Hello,
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+syzbot found the following crash on:
+
+HEAD commit:    a55aa89a Linux 5.3-rc6
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=112dd212600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=58485246ad14eafe
+dashboard link: https://syzkaller.appspot.com/bug?extid=8488cc4cf1c9e09b8b86
+compiler:       clang version 9.0.0 (/home/glider/llvm/clang  
+80fee25776c2fb61e74c1ecb1a523375c2500b69)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15426ebc600000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=116aca7a600000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+8488cc4cf1c9e09b8b86@syzkaller.appspotmail.com
+
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 9198 at ./include/net/sock.h:666 sk_del_node_init  
+include/net/sock.h:666 [inline]
+WARNING: CPU: 0 PID: 9198 at ./include/net/sock.h:666  
+smc_unhash_sk+0x21b/0x240 net/smc/af_smc.c:96
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 9198 Comm: syz-executor057 Not tainted 5.3.0-rc6 #93
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1d8/0x2f8 lib/dump_stack.c:113
+  panic+0x25c/0x799 kernel/panic.c:219
+  __warn+0x22f/0x230 kernel/panic.c:576
+  report_bug+0x190/0x290 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:179 [inline]
+  do_error_trap+0xd7/0x440 arch/x86/kernel/traps.c:272
+  do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:291
+  invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
+RIP: 0010:sk_del_node_init include/net/sock.h:666 [inline]
+RIP: 0010:smc_unhash_sk+0x21b/0x240 net/smc/af_smc.c:96
+Code: 48 89 df e8 07 b1 39 00 48 83 c4 20 5b 41 5c 41 5d 41 5e 41 5f 5d c3  
+e8 03 d7 31 fa 48 c7 c7 f2 c3 3a 88 31 c0 e8 28 1d 1b fa <0f> 0b eb 85 44  
+89 f1 80 e1 07 80 c1 03 38 c1 0f 8c 5b ff ff ff 4c
+RSP: 0018:ffff888094177b68 EFLAGS: 00010246
+RAX: 0000000000000024 RBX: 0000000000000001 RCX: b964ece25f6b7c00
+RDX: 0000000000000000 RSI: 0000000000000201 RDI: 0000000000000000
+RBP: ffff888094177bb0 R08: ffffffff815cf7d4 R09: ffffed1015d46088
+R10: ffffed1015d46088 R11: 0000000000000000 R12: ffff888098ccb240
+R13: dffffc0000000000 R14: ffff888098ccb2c0 R15: ffff888098ccb268
+  __smc_release+0x1f8/0x3a0 net/smc/af_smc.c:146
+  smc_release+0x15b/0x2c0 net/smc/af_smc.c:185
+  __sock_release net/socket.c:590 [inline]
+  sock_close+0xe1/0x260 net/socket.c:1268
+  __fput+0x2e4/0x740 fs/file_table.c:280
+  ____fput+0x15/0x20 fs/file_table.c:313
+  task_work_run+0x17e/0x1b0 kernel/task_work.c:113
+  exit_task_work include/linux/task_work.h:22 [inline]
+  do_exit+0x5e8/0x21a0 kernel/exit.c:879
+  do_group_exit+0x15c/0x2b0 kernel/exit.c:983
+  __do_sys_exit_group+0x17/0x20 kernel/exit.c:994
+  __se_sys_exit_group+0x14/0x20 kernel/exit.c:992
+  __x64_sys_exit_group+0x3b/0x40 kernel/exit.c:992
+  do_syscall_64+0xfe/0x140 arch/x86/entry/common.c:296
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x43ff28
+Code: 00 00 be 3c 00 00 00 eb 19 66 0f 1f 84 00 00 00 00 00 48 89 d7 89 f0  
+0f 05 48 3d 00 f0 ff ff 77 21 f4 48 89 d7 44 89 c0 0f 05 <48> 3d 00 f0 ff  
+ff 76 e0 f7 d8 64 41 89 01 eb d8 0f 1f 84 00 00 00
+RSP: 002b:00007ffefacce238 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 000000000043ff28
+RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+RBP: 00000000004bf750 R08: 00000000000000e7 R09: ffffffffffffffd0
+R10: 00000000200000c0 R11: 0000000000000246 R12: 0000000000000001
+R13: 00000000006d1180 R14: 0000000000000000 R15: 0000000000000000
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
+
+
 ---
- drivers/iommu/dma-iommu.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 2712fbc68b28..906b7fa14d3c 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -22,6 +22,7 @@
- #include <linux/pci.h>
- #include <linux/scatterlist.h>
- #include <linux/vmalloc.h>
-+#include <linux/crash_dump.h>
- 
- struct iommu_dma_msi_page {
- 	struct list_head	list;
-@@ -351,6 +352,21 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
- 	return iova_reserve_iommu_regions(dev, domain);
- }
- 
-+static int handle_deferred_device(struct device *dev,
-+	struct iommu_domain *domain)
-+{
-+	const struct iommu_ops *ops = domain->ops;
-+
-+	if (!is_kdump_kernel())
-+		return 0;
-+
-+	if (unlikely(ops->is_attach_deferred &&
-+		ops->is_attach_deferred(domain, dev)))
-+		return iommu_attach_device(domain, dev);
-+
-+	return 0;
-+}
-+
- /**
-  * dma_info_to_prot - Translate DMA API directions and attributes to IOMMU API
-  *                    page flags.
-@@ -463,6 +479,9 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
- 	size_t iova_off = iova_offset(iovad, phys);
- 	dma_addr_t iova;
- 
-+	if (unlikely(handle_deferred_device(dev, domain)))
-+		return DMA_MAPPING_ERROR;
-+
- 	size = iova_align(iovad, size + iova_off);
- 
- 	iova = iommu_dma_alloc_iova(domain, size, dma_get_mask(dev), dev);
-@@ -581,6 +600,9 @@ static void *iommu_dma_alloc_remap(struct device *dev, size_t size,
- 
- 	*dma_handle = DMA_MAPPING_ERROR;
- 
-+	if (unlikely(handle_deferred_device(dev, domain)))
-+		return NULL;
-+
- 	min_size = alloc_sizes & -alloc_sizes;
- 	if (min_size < PAGE_SIZE) {
- 		min_size = PAGE_SIZE;
-@@ -713,7 +735,7 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
- 	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	dma_addr_t dma_handle;
- 
--	dma_handle =__iommu_dma_map(dev, phys, size, prot);
-+	dma_handle = __iommu_dma_map(dev, phys, size, prot);
- 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    dma_handle != DMA_MAPPING_ERROR)
- 		arch_sync_dma_for_device(dev, phys, size, dir);
-@@ -823,6 +845,9 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	unsigned long mask = dma_get_seg_boundary(dev);
- 	int i;
- 
-+	if (unlikely(handle_deferred_device(dev, domain)))
-+		return 0;
-+
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
- 		iommu_dma_sync_sg_for_device(dev, sg, nents, dir);
- 
--- 
-2.20.1
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
