@@ -1,217 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39720 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732459AbfHZQfX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Aug 2019 12:35:23 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7QGON0I026241
-        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:21 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2umjea1htu-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 26 Aug 2019 12:35:21 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Mon, 26 Aug 2019 17:35:19 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 2/5] s390x: Diag288 test
-Date: Mon, 26 Aug 2019 18:34:59 +0200
-In-Reply-To: <20190826163502.1298-1-frankja@linux.ibm.com>
-References: <20190826163502.1298-1-frankja@linux.ibm.com>
-Message-Id: <20190826163502.1298-3-frankja@linux.ibm.com>
+Received: from relay11.mail.gandi.net ([217.70.178.231]:35335 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbfH1ExY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Aug 2019 00:53:24 -0400
+Subject: Re: [PATCH RESEND 0/8] Fix mmap base in bottom-up mmap
+References: <20190620050328.8942-1-alex@ghiti.fr>
+ <abc7ed75-0f51-7f21-5a74-d389f968ee55@ghiti.fr>
+ <9639ebd4-7dcb-0ea5-e0a6-adb8eaecd92a@gmx.de>
+From: Alex Ghiti <alex@ghiti.fr>
+Message-ID: <904d05d1-e42e-233f-2321-7cd3a2a742eb@ghiti.fr>
+Date: Wed, 28 Aug 2019 00:53:12 -0400
+MIME-Version: 1.0
+In-Reply-To: <9639ebd4-7dcb-0ea5-e0a6-adb8eaecd92a@gmx.de>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: sv-FI
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: Helge Deller <deller@gmx.de>, Andrew Morton <akpm@linux-foundation.org>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-mm@kvack.org
 
-A small test for the watchdog via diag288.
+On 8/26/19 6:37 PM, Helge Deller wrote:
+> On 26.08.19 09:34, Alexandre Ghiti wrote:
+>> On 6/20/19 7:03 AM, Alexandre Ghiti wrote:
+>>> This series fixes the fallback of the top-down mmap: in case of
+>>> failure, a bottom-up scheme can be tried as a last resort between
+>>> the top-down mmap base and the stack, hoping for a large unused stack
+>>> limit.
+>>>
+>>> Lots of architectures and even mm code start this fallback
+>>> at TASK_UNMAPPED_BASE, which is useless since the top-down scheme
+>>> already failed on the whole address space: instead, simply use
+>>> mmap_base.
+>>>
+>>> Along the way, it allows to get rid of of mmap_legacy_base and
+>>> mmap_compat_legacy_base from mm_struct.
+>>>
+>>> Note that arm and mips already implement this behaviour.
+>>>
+>>> Alexandre Ghiti (8):
+>>>    s390: Start fallback of top-down mmap at mm->mmap_base
+>>>    sh: Start fallback of top-down mmap at mm->mmap_base
+>>>    sparc: Start fallback of top-down mmap at mm->mmap_base
+>>>    x86, hugetlbpage: Start fallback of top-down mmap at mm->mmap_base
+>>>    mm: Start fallback top-down mmap at mm->mmap_base
+>>>    parisc: Use mmap_base, not mmap_legacy_base, as low_limit for
+>>>      bottom-up mmap
+>>>    x86: Use mmap_*base, not mmap_*legacy_base, as low_limit for 
+>>> bottom-up
+>>>      mmap
+>>>    mm: Remove mmap_legacy_base and mmap_compat_legacy_code fields from
+>>>      mm_struct
+>>>
+>>>   arch/parisc/kernel/sys_parisc.c  |  8 +++-----
+>>>   arch/s390/mm/mmap.c              |  2 +-
+>>>   arch/sh/mm/mmap.c                |  2 +-
+>>>   arch/sparc/kernel/sys_sparc_64.c |  2 +-
+>>>   arch/sparc/mm/hugetlbpage.c      |  2 +-
+>>>   arch/x86/include/asm/elf.h       |  2 +-
+>>>   arch/x86/kernel/sys_x86_64.c     |  4 ++--
+>>>   arch/x86/mm/hugetlbpage.c        |  7 ++++---
+>>>   arch/x86/mm/mmap.c               | 20 +++++++++-----------
+>>>   include/linux/mm_types.h         |  2 --
+>>>   mm/debug.c                       |  4 ++--
+>>>   mm/mmap.c                        |  2 +-
+>>>   12 files changed, 26 insertions(+), 31 deletions(-)
+>>>
+>>
+>> Any thoughts about that series ? As said before, this is just a 
+>> preparatory patchset in order to
+>> merge x86 mmap top down code with the generic version.
+>
+> I just tested your patch series successfully on the parisc
+> architeture. You may add:
+>
+> Tested-by: Helge Deller <deller@gmx.de> # parisc
 
-Minimum timer value is 15 (seconds) and the only supported action with
-QEMU is restart.
+Thanks again Helge !
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- lib/s390x/asm/arch_def.h |   1 +
- s390x/Makefile           |   1 +
- s390x/diag288.c          | 130 +++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   4 ++
- 4 files changed, 136 insertions(+)
- create mode 100644 s390x/diag288.c
+Alex
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index d2cd727..4bbb428 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -15,6 +15,7 @@ struct psw {
- 	uint64_t	addr;
- };
- 
-+#define PSW_MASK_EXT			0x0100000000000000UL
- #define PSW_MASK_DAT			0x0400000000000000UL
- #define PSW_MASK_PSTATE			0x0001000000000000UL
- 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 574a9a2..3453373 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -12,6 +12,7 @@ tests += $(TEST_DIR)/vector.elf
- tests += $(TEST_DIR)/gs.elf
- tests += $(TEST_DIR)/iep.elf
- tests += $(TEST_DIR)/cpumodel.elf
-+tests += $(TEST_DIR)/diag288.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-diff --git a/s390x/diag288.c b/s390x/diag288.c
-new file mode 100644
-index 0000000..a784338
---- /dev/null
-+++ b/s390x/diag288.c
-@@ -0,0 +1,130 @@
-+/*
-+ * Timer Event DIAG288 test
-+ *
-+ * Copyright (c) 2019 IBM Corp
-+ *
-+ * Authors:
-+ *  Janosch Frank <frankja@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU Library General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+
-+struct lowcore *lc = (struct lowcore *)0x0;
-+
-+#define CODE_INIT	0
-+#define CODE_CHANGE	1
-+#define CODE_CANCEL	2
-+
-+#define ACTION_RESTART	0
-+
-+static inline void diag288(unsigned long code, unsigned long time,
-+			   unsigned long action)
-+{
-+	register unsigned long fc asm("0") = code;
-+	register unsigned long tm asm("1") = time;
-+	register unsigned long ac asm("2") = action;
-+
-+	asm volatile("diag %0,%2,0x288"
-+		     : : "d" (fc), "d" (tm), "d" (ac));
-+}
-+
-+static void test_specs(void)
-+{
-+	report_prefix_push("specification");
-+
-+	report_prefix_push("uneven");
-+	expect_pgm_int();
-+	asm volatile("diag 1,2,0x288");
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("unsupported action");
-+	expect_pgm_int();
-+	diag288(CODE_INIT, 15, 42);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("unsupported function");
-+	expect_pgm_int();
-+	diag288(42, 15, ACTION_RESTART);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("no init");
-+	expect_pgm_int();
-+	diag288(CODE_CANCEL, 15, ACTION_RESTART);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("min timer");
-+	expect_pgm_int();
-+	diag288(CODE_INIT, 14, ACTION_RESTART);
-+	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+	report_prefix_pop();
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_priv(void)
-+{
-+	report_prefix_push("privileged");
-+	expect_pgm_int();
-+	enter_pstate();
-+	diag288(CODE_INIT, 15, ACTION_RESTART);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+}
-+
-+static inline void get_tod_clock_ext(char *clk)
-+{
-+	typedef struct { char _[16]; } addrtype;
-+
-+	asm volatile("stcke %0" : "=Q" (*(addrtype *) clk) : : "cc");
-+}
-+
-+static inline unsigned long long get_tod_clock(void)
-+{
-+	char clk[16];
-+
-+	get_tod_clock_ext(clk);
-+	return *((uint64_t *)&clk[1]);
-+}
-+
-+static void test_bite(void)
-+{
-+	unsigned long time;
-+	uint64_t mask;
-+
-+	/* If watchdog doesn't bite, the cpu timer does */
-+	time = get_tod_clock();
-+	time += (uint64_t)(16000 * 1000) << 12;
-+	asm volatile("sckc %0" : : "Q" (time));
-+	ctl_set_bit(0, 11);
-+	mask = extract_psw_mask();
-+	mask |= PSW_MASK_EXT;
-+	load_psw_mask(mask);
-+
-+	/* Arm watchdog */
-+	lc->restart_new_psw.mask = extract_psw_mask() & ~PSW_MASK_EXT;
-+	diag288(CODE_INIT, 15, ACTION_RESTART);
-+	asm volatile("		larl	%r0, 1f\n"
-+		     "		stg	%r0, 424\n"
-+		     "0:	nop\n"
-+		     "		j	0b\n"
-+		     "1:");
-+	report("restart", true);
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("diag288");
-+	test_priv();
-+	test_specs();
-+	test_bite();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index db58bad..9dd288a 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -64,3 +64,7 @@ file = iep.elf
- 
- [cpumodel]
- file = cpumodel.elf
-+
-+[diag288]
-+file = diag288.elf
-+extra_params=-device diag288,id=watchdog0 --watchdog-action inject-nmi
--- 
-2.17.0
+
+>
+> Thanks!
+> Helge
