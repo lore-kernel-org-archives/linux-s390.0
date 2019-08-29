@@ -1,22 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:34130 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728049AbfH2N62 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Aug 2019 09:58:28 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39300 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727063AbfH2Ni6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Aug 2019 09:38:58 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7TDbk5k019781
+        for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2019 09:38:57 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2upeadbwyg-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2019 09:38:56 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 29 Aug 2019 14:38:53 +0100
 Subject: Re: [PATCH] KVM: s390: improve documentation for S390_MEM_OP
 References: <20190829124746.28665-1-cohuck@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <3f67bea5-83d9-321a-62e0-c463287c04ba@redhat.com>
-Date: Thu, 29 Aug 2019 15:58:24 +0200
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 29 Aug 2019 15:38:48 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190829124746.28665-1-cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <ee1947e5-f34b-de7f-23b6-a3028c91a9e2@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Thomas Huth <thuth@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+
+Thanks applied. 
 
 On 29.08.19 14:47, Cornelia Huck wrote:
 > Explicitly specify the valid ranges for size and ar, and reword
@@ -56,11 +70,3 @@ On 29.08.19 14:47, Cornelia Huck wrote:
 >  The "reserved" field is meant for future extensions. It is not used by
 >  KVM with the currently defined set of flags.
 > 
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-
-Thanks,
-
-David / dhildenb
