@@ -1,117 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:41096 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728337AbfHYNYU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Aug 2019 09:24:20 -0400
-From: Changbin Du <changbin.du@gmail.com>
-Subject: [PATCH 04/11] ftrace/hash: add private data field
-Date: Sun, 25 Aug 2019 21:23:23 +0800
-Message-Id: <20190825132330.5015-5-changbin.du@gmail.com>
-In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
-References: <20190825132330.5015-1-changbin.du@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:53654 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727017AbfH2L4d (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Aug 2019 07:56:33 -0400
+Subject: Re: [PATCH] KVM: s390: Test for bad access register at the start of
+ S390_MEM_OP
+References: <20190829105356.27805-1-thuth@redhat.com>
+ <870234c7-47ed-6a96-0edf-66d9c2cd7ac0@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <4b0ebaab-e287-9a2a-1696-5759f17cafef@redhat.com>
+Date: Thu, 29 Aug 2019 13:56:15 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <870234c7-47ed-6a96-0edf-66d9c2cd7ac0@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Trx6kqpy5WJ0k5aw1kWN52k1y2o1CINuq"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
+To: Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-We will reuse ftrace_hash to lookup function prototype information. So
-we need an additional field to bind ftrace_func_entry to prototype
-information.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Trx6kqpy5WJ0k5aw1kWN52k1y2o1CINuq
+Content-Type: multipart/mixed; boundary="QKFIlaPPmFxfhOjxUnC9rG6sazMpabRY6";
+ protected-headers="v1"
+From: Thomas Huth <thuth@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
+ Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <4b0ebaab-e287-9a2a-1696-5759f17cafef@redhat.com>
+Subject: Re: [PATCH] KVM: s390: Test for bad access register at the start of
+ S390_MEM_OP
+References: <20190829105356.27805-1-thuth@redhat.com>
+ <870234c7-47ed-6a96-0edf-66d9c2cd7ac0@linux.ibm.com>
+In-Reply-To: <870234c7-47ed-6a96-0edf-66d9c2cd7ac0@linux.ibm.com>
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
----
- kernel/trace/ftrace.c | 17 +++++++----------
- kernel/trace/trace.h  |  6 ++++++
- 2 files changed, 13 insertions(+), 10 deletions(-)
+--QKFIlaPPmFxfhOjxUnC9rG6sazMpabRY6
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index eca34503f178..a314f0768b2c 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -1017,11 +1017,6 @@ static bool update_all_ops;
- # error Dynamic ftrace depends on MCOUNT_RECORD
- #endif
- 
--struct ftrace_func_entry {
--	struct hlist_node hlist;
--	unsigned long ip;
--};
--
- struct ftrace_func_probe {
- 	struct ftrace_probe_ops	*probe_ops;
- 	struct ftrace_ops	ops;
-@@ -1169,7 +1164,8 @@ static void __add_hash_entry(struct ftrace_hash *hash,
- 	hash->count++;
- }
- 
--static int add_hash_entry(struct ftrace_hash *hash, unsigned long ip)
-+static int add_hash_entry(struct ftrace_hash *hash, unsigned long ip,
-+			  void *priv)
- {
- 	struct ftrace_func_entry *entry;
- 
-@@ -1178,6 +1174,7 @@ static int add_hash_entry(struct ftrace_hash *hash, unsigned long ip)
- 		return -ENOMEM;
- 
- 	entry->ip = ip;
-+	entry->priv = priv;
- 	__add_hash_entry(hash, entry);
- 
- 	return 0;
-@@ -1346,7 +1343,7 @@ alloc_and_copy_ftrace_hash(int size_bits, struct ftrace_hash *hash)
- 	size = 1 << hash->size_bits;
- 	for (i = 0; i < size; i++) {
- 		hlist_for_each_entry(entry, &hash->buckets[i], hlist) {
--			ret = add_hash_entry(new_hash, entry->ip);
-+			ret = add_hash_entry(new_hash, entry->ip, NULL);
- 			if (ret < 0)
- 				goto free_hash;
- 		}
-@@ -3694,7 +3691,7 @@ enter_record(struct ftrace_hash *hash, struct dyn_ftrace *rec, int clear_filter)
- 		if (entry)
- 			return 0;
- 
--		ret = add_hash_entry(hash, rec->ip);
-+		ret = add_hash_entry(hash, rec->ip, NULL);
- 	}
- 	return ret;
- }
-@@ -4700,7 +4697,7 @@ ftrace_match_addr(struct ftrace_hash *hash, unsigned long ip, int remove)
- 		return 0;
- 	}
- 
--	return add_hash_entry(hash, ip);
-+	return add_hash_entry(hash, ip, NULL);
- }
- 
- static int
-@@ -5380,7 +5377,7 @@ ftrace_graph_set_hash(struct ftrace_hash *hash, char *buffer)
- 
- 				if (entry)
- 					continue;
--				if (add_hash_entry(hash, rec->ip) < 0)
-+				if (add_hash_entry(hash, rec->ip, NULL) < 0)
- 					goto out;
- 			} else {
- 				if (entry) {
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index 005f08629b8b..ad619c73a505 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -882,6 +882,12 @@ struct ftrace_hash {
- 	struct rcu_head		rcu;
- };
- 
-+struct ftrace_func_entry {
-+	struct hlist_node hlist;
-+	unsigned long ip;
-+	void *priv;
-+};
-+
- struct ftrace_func_entry *
- ftrace_lookup_ip(struct ftrace_hash *hash, unsigned long ip);
- 
--- 
-2.20.1
+On 29/08/2019 13.15, Janosch Frank wrote:
+[...]
+> By the way, I think we want to check mop->size for 0 before giving it t=
+o
+> vmalloc and working with it.
+
+You're right! This currently triggers a kernel warning message with a
+Call Trace! I'll add a check to my new memop selftest and send a patch...=
+
+
+ Thomas
+
+
+--QKFIlaPPmFxfhOjxUnC9rG6sazMpabRY6--
+
+--Trx6kqpy5WJ0k5aw1kWN52k1y2o1CINuq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJ7iIR+7gJQEY8+q5LtnXdP5wLbUFAl1nvV8ACgkQLtnXdP5w
+LbUOSg/9HVqCYFJXy4Qnu370GW8nAlLmLQeoYNC/MNrIVyG98zDa5IercTJLsmzC
+qoLqi7rzgjIqaAdyfd/xKKeCfOceURDZw8Xcbz4Zjw62zsMRPzO4DQYhpR7Mh1o9
+XqXMQxjBIJrVPdAKmFOg48r5HfcjNsVkHzoVh4u3nbi64l/UrseF3iQXEBECnBTN
+XjUZxW9fd0kAttNtGy7I6Bkur88UQuHls+dmDsg4ugLlxLaNgsKMAX8XheQ3Yk2I
+F6ktUuvJtCHYgGGAS/iu8Umlx2t+/huWRiEKIlp/Ft96Nnh+IqEl2Ny8El4nqNCZ
+S4qGl6kNrUN1jhQMOVjOTLQSn4TZyJR5uMaJ4kknrPDeaRdNtrpz3e0YAgc0FufW
+LlJzUx6RWQiyfXJYAWqQG+Kdj3JJ7v6nJePzZAHfFdDwY8nd369W32zXJGvmoL2J
+3ieAUvxTTVjVKZzles17W8W/4jpvHj0QiaIx5RMRuLJXAmx4seGdB42vIHpviPbv
+QJLz9DDI9Aof1zUlXF01fSOIInXXj+KTeIMhjYKrfwVyDXvByG22kpgrrlEAWRQD
+cq0j7v2wAHJZ2vGHyTxpJLHruIjE5yGthAm8Nnfutey3Re70YKQ+VcdF0aYo3nMB
+kj5BsuXk0lm9A9C+craKbmnnhog3j4lHhnsVac3fsSdupm1TQlg=
+=GNZu
+-----END PGP SIGNATURE-----
+
+--Trx6kqpy5WJ0k5aw1kWN52k1y2o1CINuq--
