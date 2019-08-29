@@ -1,131 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7822 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730234AbfHTOq6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Aug 2019 10:46:58 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7KEXmYc098192
-        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 10:46:57 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ugh7f60uf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 20 Aug 2019 10:46:56 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 20 Aug 2019 15:46:55 +0100
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/9] s390/qeth: use correct length field in SNMP cmd callback
-Date: Tue, 20 Aug 2019 16:46:37 +0200
-In-Reply-To: <20190820144643.64041-1-jwi@linux.ibm.com>
-References: <20190820144643.64041-1-jwi@linux.ibm.com>
-Message-Id: <20190820144643.64041-4-jwi@linux.ibm.com>
+Received: from mx2.mailbox.org ([80.241.60.215]:52156 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726283AbfH2NTl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Aug 2019 09:19:41 -0400
+Date: Thu, 29 Aug 2019 23:19:04 +1000
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH RESEND v11 7/8] open: openat2(2) syscall
+Message-ID: <20190829131904.bkbalbtqt6j3gwcp@yavin>
+References: <20190820033406.29796-1-cyphar@cyphar.com>
+ <20190820033406.29796-8-cyphar@cyphar.com>
+ <CAKOZuesfxRBJe314rkTKXtjXdz6ki3uAUBYVbu5Q2rd3=ADphQ@mail.gmail.com>
+ <20190829121527.u2uvdyeatme5cgkb@yavin>
+ <899401fa-ff0a-2ce9-8826-09904efab2d2@rasmusvillemoes.dk>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="itirvnprc6jjrbl3"
+Content-Disposition: inline
+In-Reply-To: <899401fa-ff0a-2ce9-8826-09904efab2d2@rasmusvillemoes.dk>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Daniel Colascione <dancol@google.com>, Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Christian Brauner <christian@brauner.io>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, Linux API <linux-api@vger.kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linux FS Devel <linux-fsdevel@vger.kernel.org>, linux-ia64@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-qeth_snmp_command_cb() is the only cmd callback that pulls the reply's
-data length from a low-level transport header field. This requires
-additional complexity (ie. reply->offset) to make the header accessible
-to what is supposed to be a pure IPA cmd callback.
 
-Adapter cmds have a length field in their sub-cmd header, get the data
-length from there instead.
+--itirvnprc6jjrbl3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c | 42 ++++++++++++-------------------
- 2 files changed, 16 insertions(+), 27 deletions(-)
+On 2019-08-29, Rasmus Villemoes <linux@rasmusvillemoes.dk> wrote:
+> On 29/08/2019 14.15, Aleksa Sarai wrote:
+> > On 2019-08-24, Daniel Colascione <dancol@google.com> wrote:
+>=20
+> >> Why pad the structure when new functionality (perhaps accommodated via
+> >> a larger structure) could be signaled by passing a new flag? Adding
+> >> reserved fields to a structure with a size embedded in the ABI makes a
+> >> lot of sense --- e.g., pthread_mutex_t can't grow. But this structure
+> >> can grow, so the reservation seems needless to me.
+> >=20
+> > Quite a few folks have said that ->reserved is either unnecessary or
+> > too big. I will be changing this, though I am not clear what the best
+> > way of extending the structure is. If anyone has a strong opinion on
+> > this (or an alternative to the ones listed below), please chime in. I
+> > don't have any really strong attachment to this aspect of the API.
+> >=20
+> > There appear to be a few ways we can do it (that all have precedence
+> > with other syscalls):
+> >=20
+> >  1. Use O_* flags to indicate extensions.
+> >  2. A separate "version" field that is incremented when we change.
+> >  3. Add a size_t argument to openat2(2).
+> >  4. Reserve space (as in this patchset).
+> >=20
+> > (My personal preference would be (3), followed closely by (2).)
+>=20
+> 3, definitely, and instead of having to invent a new scheme for every
+> new syscall, make that the default pattern by providing a helper
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 4e21aa8edb13..f6e58a51c366 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -634,7 +634,6 @@ struct qeth_reply {
- 	int (*callback)(struct qeth_card *, struct qeth_reply *,
- 		unsigned long);
- 	u32 seqno;
--	unsigned long offset;
- 	int rc;
- 	void *param;
- 	refcount_t refcnt;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index f7a8b8301eb4..49e85d2e79c2 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -807,17 +807,12 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
- 	}
- 
- 	spin_lock_irqsave(&reply->lock, flags);
--	if (reply->rc) {
-+	if (reply->rc)
- 		/* Bail out when the requestor has already left: */
- 		rc = reply->rc;
--	} else {
--		if (cmd) {
--			reply->offset = (u16)((char *)cmd - (char *)iob->data);
--			rc = reply->callback(card, reply, (unsigned long)cmd);
--		} else {
--			rc = reply->callback(card, reply, (unsigned long)iob);
--		}
--	}
-+	else
-+		rc = reply->callback(card, reply, cmd ? (unsigned long)cmd :
-+							(unsigned long)iob);
- 	spin_unlock_irqrestore(&reply->lock, flags);
- 
- no_callback:
-@@ -4335,20 +4330,16 @@ static int qeth_mdio_read(struct net_device *dev, int phy_id, int regnum)
- }
- 
- static int qeth_snmp_command_cb(struct qeth_card *card,
--		struct qeth_reply *reply, unsigned long sdata)
-+				struct qeth_reply *reply, unsigned long data)
- {
--	struct qeth_ipa_cmd *cmd;
--	struct qeth_arp_query_info *qinfo;
--	unsigned char *data;
-+	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
-+	struct qeth_arp_query_info *qinfo = reply->param;
-+	struct qeth_ipacmd_setadpparms *adp_cmd;
-+	unsigned int data_len;
- 	void *snmp_data;
--	__u16 data_len;
- 
- 	QETH_CARD_TEXT(card, 3, "snpcmdcb");
- 
--	cmd = (struct qeth_ipa_cmd *) sdata;
--	data = (unsigned char *)((char *)cmd - reply->offset);
--	qinfo = (struct qeth_arp_query_info *) reply->param;
--
- 	if (cmd->hdr.return_code) {
- 		QETH_CARD_TEXT_(card, 4, "scer1%x", cmd->hdr.return_code);
- 		return -EIO;
-@@ -4359,15 +4350,14 @@ static int qeth_snmp_command_cb(struct qeth_card *card,
- 		QETH_CARD_TEXT_(card, 4, "scer2%x", cmd->hdr.return_code);
- 		return -EIO;
- 	}
--	data_len = *((__u16 *)QETH_IPA_PDU_LEN_PDU1(data));
--	if (cmd->data.setadapterparms.hdr.seq_no == 1) {
--		snmp_data = &cmd->data.setadapterparms.data.snmp;
--		data_len -= offsetof(struct qeth_ipa_cmd,
--				     data.setadapterparms.data.snmp);
-+
-+	adp_cmd = &cmd->data.setadapterparms;
-+	data_len = adp_cmd->hdr.cmdlength - sizeof(adp_cmd->hdr);
-+	if (adp_cmd->hdr.seq_no == 1) {
-+		snmp_data = &adp_cmd->data.snmp;
- 	} else {
--		snmp_data = &cmd->data.setadapterparms.data.snmp.request;
--		data_len -= offsetof(struct qeth_ipa_cmd,
--				     data.setadapterparms.data.snmp.request);
-+		snmp_data = &adp_cmd->data.snmp.request;
-+		data_len -= offsetof(struct qeth_snmp_cmd, request);
- 	}
- 
- 	/* check if there is enough room in userspace */
--- 
-2.17.1
+Sure (though hopefully I don't need to immediately go and refactor all
+the existing size_t syscalls). I will be presenting about this patchset
+at the containers microconference at LPC (in a few weeks), so I'll hold
+of on any API-related rewrites until after that.
+
+> int __copy_abi_struct(void *kernel, size_t ksize, const void __user
+> *user, size_t usize)
+> {
+> 	size_t copy =3D min(ksize, usize);
+>=20
+> 	if (copy_from_user(kernel, user, copy))
+> 		return -EFAULT;
+>=20
+> 	if (usize > ksize) {
+> 		/* maybe a separate "return user_is_zero(user + ksize, usize -
+> ksize);" helper */
+> 		char c;
+> 		user +=3D ksize;
+> 		usize -=3D ksize;
+> 		while (usize--) {
+> 			if (get_user(c, user++))
+> 				return -EFAULT;
+> 			if (c)
+> 				return -EINVAL;
+
+This part would probably be better done with memchr_inv() and
+copy_from_user() (and probably should put an upper limit on usize), but
+I get what you mean.
+
+> 		}
+> 	} else if (ksize > usize) {
+> 		memset(kernel + usize, 0, ksize - usize);
+> 	}
+> 	return 0;
+> }
+> #define copy_abi_struct(kernel, user, usize)	\
+> 	__copy_abi_struct(kernel, sizeof(*kernel), user, usize)
+>
+> > Both (1) and (2) have the problem that the "struct version" is inside
+> > the struct so we'd need to copy_from_user() twice. This isn't the end of
+> > the world, it just feels a bit less clean than is ideal. (3) fixes that
+> > problem, at the cost of making the API slightly more cumbersome to use
+> > directly (though again glibc could wrap that away).
+>=20
+> I don't see how 3 is cumbersome to use directly. Userspace code does
+> struct openat_of_the_day args =3D {.field1 =3D x, .field3 =3D y} and pass=
+es
+> &args, sizeof(args). What does glibc need to do beyond its usual munging
+> of the userspace ABI registers to the syscall ABI registers?
+
+I'd argue that
+
+    ret =3D openat2(AT_FDCWD, "foo", &how, sizeof(how)); // (3)
+
+is slightly less pretty than
+
+    ret =3D openat2(AT_FDCWD, "foo", &how); // (1), (2), (4)
+
+But it's not really that bad. Forget I said anything.
+
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
+
+--itirvnprc6jjrbl3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXWfQxQAKCRCdlLljIbnQ
+EoMSAP9J0uy3xcD3flC3cANph5LKQ2g0JWnMb61ew5LWDORVogD/UGWciY+tdPiy
+YNHs2UcBt9SEH1MNpEIgf2GN6RoyaQI=
+=ne2z
+-----END PGP SIGNATURE-----
+
+--itirvnprc6jjrbl3--
