@@ -1,62 +1,110 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: [PATCH v2 3/9] alpha: numa: check the node id consistently for alpha
-Date: Sat, 31 Aug 2019 13:58:17 +0800
-Message-ID: <1567231103-13237-4-git-send-email-linyunsheng@huawei.com>
-In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
-References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728585AbfH2SNx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Aug 2019 14:13:53 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 21/76] s390/qeth: serialize cmd reply with concurrent timeout
+Date: Thu, 29 Aug 2019 14:12:16 -0400
+Message-Id: <20190829181311.7562-21-sashal@kernel.org>
+In-Reply-To: <20190829181311.7562-1-sashal@kernel.org>
+References: <20190829181311.7562-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
-Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
-of proximity domain is optional, as below:
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-This optional object is used to describe proximity domain
-associations within a machine. _PXM evaluates to an integer
-that identifies a device as belonging to a Proximity Domain
-defined in the System Resource Affinity Table (SRAT).
+[ Upstream commit 072f79400032f74917726cf76f4248367ea2b5b8 ]
 
-This patch checks node id with the below case before returning
-node_to_cpumask_map[node]:
-1. if node_id >= nr_node_ids, return cpu_none_mask
-2. if node_id < 0, return cpu_online_mask
-3. if node_to_cpumask_map[node_id] is NULL, return cpu_online_mask
+Callbacks for a cmd reply run outside the protection of card->lock, to
+allow for additional cmds to be issued & enqueued in parallel.
 
-[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
+When qeth_send_control_data() bails out for a cmd without having
+received a reply (eg. due to timeout), its callback may concurrently be
+processing a reply that just arrived. In this case, the callback
+potentially accesses a stale reply->reply_param area that eg. was
+on-stack and has already been released.
 
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+To avoid this race, add some locking so that qeth_send_control_data()
+can (1) wait for a concurrently running callback, and (2) zap any
+pending callback that still wants to run.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-note node_to_cpumask_map[node] is already a pointer, so the
-cpumask_clear should be called with node_to_cpumask_map[node]
-instead of &node_to_cpumask_map[node]? And cpumask_of_node()
-function need to be inlined when defined in a header file?
-If the above are problems, maybe another patch to fix or clean
-it up.
----
- arch/alpha/include/asm/topology.h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
-diff --git a/arch/alpha/include/asm/topology.h b/arch/alpha/include/asm/topology.h
-index 5a77a40..9e0b1cd1 100644
---- a/arch/alpha/include/asm/topology.h
-+++ b/arch/alpha/include/asm/topology.h
-@@ -30,8 +30,11 @@ static const struct cpumask *cpumask_of_node(int node)
- {
- 	int cpu;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 784a2e76a1b04..c5f60f95e8db9 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -640,6 +640,7 @@ struct qeth_seqno {
+ struct qeth_reply {
+ 	struct list_head list;
+ 	struct completion received;
++	spinlock_t lock;
+ 	int (*callback)(struct qeth_card *, struct qeth_reply *,
+ 		unsigned long);
+ 	u32 seqno;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index b1823d75dd35c..6b8f99e7d8a81 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -548,6 +548,7 @@ static struct qeth_reply *qeth_alloc_reply(struct qeth_card *card)
+ 	if (reply) {
+ 		refcount_set(&reply->refcnt, 1);
+ 		init_completion(&reply->received);
++		spin_lock_init(&reply->lock);
+ 	}
+ 	return reply;
+ }
+@@ -832,6 +833,13 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
  
--	if (node == NUMA_NO_NODE)
--		return cpu_all_mask;
-+	if (node >= nr_node_ids)
-+		return cpu_none_mask;
+ 	if (!reply->callback) {
+ 		rc = 0;
++		goto no_callback;
++	}
 +
-+	if (node < 0 || !node_to_cpumask_map[node])
-+		return cpu_online_mask;
++	spin_lock_irqsave(&reply->lock, flags);
++	if (reply->rc) {
++		/* Bail out when the requestor has already left: */
++		rc = reply->rc;
+ 	} else {
+ 		if (cmd) {
+ 			reply->offset = (u16)((char *)cmd - (char *)iob->data);
+@@ -840,7 +848,9 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
+ 			rc = reply->callback(card, reply, (unsigned long)iob);
+ 		}
+ 	}
++	spin_unlock_irqrestore(&reply->lock, flags);
  
- 	cpumask_clear(&node_to_cpumask_map[node]);
++no_callback:
+ 	if (rc <= 0)
+ 		qeth_notify_reply(reply, rc);
+ 	qeth_put_reply(reply);
+@@ -1880,6 +1890,16 @@ static int qeth_send_control_data(struct qeth_card *card, int len,
+ 		rc = (timeout == -ERESTARTSYS) ? -EINTR : -ETIME;
  
+ 	qeth_dequeue_reply(card, reply);
++
++	if (reply_cb) {
++		/* Wait until the callback for a late reply has completed: */
++		spin_lock_irq(&reply->lock);
++		if (rc)
++			/* Zap any callback that's still pending: */
++			reply->rc = rc;
++		spin_unlock_irq(&reply->lock);
++	}
++
+ 	if (!rc)
+ 		rc = reply->rc;
+ 	qeth_put_reply(reply);
 -- 
-2.8.1
+2.20.1
