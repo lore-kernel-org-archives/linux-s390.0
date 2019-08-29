@@ -1,233 +1,327 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37914 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728337AbfHYNYM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 25 Aug 2019 09:24:12 -0400
-From: Changbin Du <changbin.du@gmail.com>
-Subject: [PATCH 03/11] asm-generic: add generic dwarf definition
-Date: Sun, 25 Aug 2019 21:23:22 +0800
-Message-Id: <20190825132330.5015-4-changbin.du@gmail.com>
-In-Reply-To: <20190825132330.5015-1-changbin.du@gmail.com>
-References: <20190825132330.5015-1-changbin.du@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24340 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727061AbfH2MPZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Aug 2019 08:15:25 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x7TC7B2q110500
+        for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2019 08:15:24 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2upcxekr5v-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 29 Aug 2019 08:15:24 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 29 Aug 2019 13:15:22 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 2/6] s390x: Add linemode console
+Date: Thu, 29 Aug 2019 14:14:55 +0200
+In-Reply-To: <20190829121459.1708-1-frankja@linux.ibm.com>
+References: <20190829121459.1708-1-frankja@linux.ibm.com>
+Message-Id: <20190829121459.1708-3-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jessica Yu <jeyu@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kbuild@vger.kernel.org, Changbin Du <changbin.du@gmail.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Add generic DWARF constant definitions. We will use it later.
+z/VM isn't fond of vt220, so we need line mode when running under
+z/VM.
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 ---
- include/asm-generic/dwarf.h | 199 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 199 insertions(+)
- create mode 100644 include/asm-generic/dwarf.h
+ lib/s390x/sclp-console.c | 181 +++++++++++++++++++++++++++++++++++----
+ lib/s390x/sclp.h         |  55 +++++++++++-
+ 2 files changed, 218 insertions(+), 18 deletions(-)
 
-diff --git a/include/asm-generic/dwarf.h b/include/asm-generic/dwarf.h
-new file mode 100644
-index 000000000000..c705633c2a8f
---- /dev/null
-+++ b/include/asm-generic/dwarf.h
-@@ -0,0 +1,199 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * Architecture independent definitions of DWARF.
-+ *
-+ * Copyright (C) 2019 Changbin Du <changbin.du@gmail.com>
+diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+index a5ef45f..19416b5 100644
+--- a/lib/s390x/sclp-console.c
++++ b/lib/s390x/sclp-console.c
+@@ -11,21 +11,165 @@
+ #include <libcflat.h>
+ #include <string.h>
+ #include <asm/page.h>
++#include <asm/arch_def.h>
++#include <asm/io.h>
+ #include "sclp.h"
+ 
++/*
++ * ASCII (IBM PC 437) -> EBCDIC 037
 + */
-+#ifndef __ASM_GENERIC_DWARF_H
-+#define __ASM_GENERIC_DWARF_H
++static uint8_t _ascebc[256] = {
++ /*00 NUL   SOH   STX   ETX   EOT   ENQ   ACK   BEL */
++     0x00, 0x01, 0x02, 0x03, 0x37, 0x2D, 0x2E, 0x2F,
++ /*08  BS    HT    LF    VT    FF    CR    SO    SI */
++ /*              ->NL                               */
++     0x16, 0x05, 0x15, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
++ /*10 DLE   DC1   DC2   DC3   DC4   NAK   SYN   ETB */
++     0x10, 0x11, 0x12, 0x13, 0x3C, 0x3D, 0x32, 0x26,
++ /*18 CAN    EM   SUB   ESC    FS    GS    RS    US */
++ /*                               ->IGS ->IRS ->IUS */
++     0x18, 0x19, 0x3F, 0x27, 0x22, 0x1D, 0x1E, 0x1F,
++ /*20  SP     !     "     #     $     %     &     ' */
++     0x40, 0x5A, 0x7F, 0x7B, 0x5B, 0x6C, 0x50, 0x7D,
++ /*28   (     )     *     +     ,     -    .      / */
++     0x4D, 0x5D, 0x5C, 0x4E, 0x6B, 0x60, 0x4B, 0x61,
++ /*30   0     1     2     3     4     5     6     7 */
++     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
++ /*38   8     9     :     ;     <     =     >     ? */
++     0xF8, 0xF9, 0x7A, 0x5E, 0x4C, 0x7E, 0x6E, 0x6F,
++ /*40   @     A     B     C     D     E     F     G */
++     0x7C, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
++ /*48   H     I     J     K     L     M     N     O */
++     0xC8, 0xC9, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6,
++ /*50   P     Q     R     S     T     U     V     W */
++     0xD7, 0xD8, 0xD9, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6,
++ /*58   X     Y     Z     [     \     ]     ^     _ */
++     0xE7, 0xE8, 0xE9, 0xBA, 0xE0, 0xBB, 0xB0, 0x6D,
++ /*60   `     a     b     c     d     e     f     g */
++     0x79, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
++ /*68   h     i     j     k     l     m     n     o */
++     0x88, 0x89, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96,
++ /*70   p     q     r     s     t     u     v     w */
++     0x97, 0x98, 0x99, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6,
++ /*78   x     y     z     {     |     }     ~    DL */
++     0xA7, 0xA8, 0xA9, 0xC0, 0x4F, 0xD0, 0xA1, 0x07,
++ /*80*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*88*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*90*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*98*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*A0*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*A8*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*B0*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*B8*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*C0*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*C8*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*D0*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*D8*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*E0        sz	*/
++     0x3F, 0x59, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*E8*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*F0*/
++     0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F, 0x3F,
++ /*F8*/
++     0x90, 0x3F, 0x3F, 0x3F, 0x3F, 0xEA, 0x3F, 0xFF
++};
++
++static void sclp_print_ascii(const char *str)
++{
++	int len = strlen(str);
++	WriteEventData *sccb = (void *)_sccb;
++
++	sclp_mark_busy();
++	memset(sccb, 0, sizeof(*sccb));
++	sccb->h.length = offsetof(WriteEventData, msg) + len;
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->ebh.length = sizeof(EventBufferHeader) + len;
++	sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
++	memcpy(&sccb->msg, str, len);
++
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++}
++
++static void sclp_print_lm(const char *str)
++{
++	unsigned char *ptr, *end, ch;
++	unsigned int count, offset, len;
++	struct WriteEventData *sccb;
++	struct mdb *mdb;
++	struct mto *mto;
++	struct go *go;
++
++	sclp_mark_busy();
++	sccb = (struct WriteEventData *) _sccb;
++	end = (unsigned char *) sccb + 4096 - 1;
++	memset(sccb, 0, sizeof(*sccb));
++	ptr = (unsigned char *) &sccb->msg.mdb.mto;
++	len = strlen(str);
++	offset = 0;
++	do {
++		for (count = sizeof(*mto); offset < len; count++) {
++			ch = str[offset++];
++			if (ch == 0x0a || ptr + count > end)
++				break;
++			ptr[count] = _ascebc[ch];
++		}
++		mto = (struct mto *) ptr;
++		mto->length = count;
++		mto->type = 4;
++		mto->line_type_flags = LNTPFLGS_ENDTEXT;
++		ptr += count;
++	} while (offset < len && ptr + sizeof(*mto) <= end);
++	len = ptr - (unsigned char *) sccb;
++	sccb->h.length = len - offsetof(struct WriteEventData, h);
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->ebh.type = EVTYP_MSG;
++	sccb->ebh.length = len - offsetof(struct WriteEventData, ebh);
++	mdb = &sccb->msg.mdb;
++	mdb->header.type = 1;
++	mdb->header.tag = 0xD4C4C240;
++	mdb->header.revision_code = 1;
++	mdb->header.length = len - offsetof(struct WriteEventData, msg.mdb.header);
++	go = &mdb->go;
++	go->length = sizeof(*go);
++	go->type = 1;
++	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++}
 +
 +/*
-+ * DWARF expression operations
++ * SCLP needs to be initialized by setting a send and receive mask,
++ * indicating which messages the control program (we) want(s) to
++ * send/receive.
 + */
-+#define DW_OP_addr		0x03
-+#define DW_OP_deref		0x06
-+#define DW_OP_const1u		0x08
-+#define DW_OP_const1s		0x09
-+#define DW_OP_const2u		0x0a
-+#define DW_OP_const2s		0x0b
-+#define DW_OP_const4u		0x0c
-+#define DW_OP_const4s		0x0d
-+#define DW_OP_const8u		0x0e
-+#define DW_OP_const8s		0x0f
-+#define DW_OP_constu		0x10
-+#define DW_OP_consts		0x11
-+#define DW_OP_dup		0x12
-+#define DW_OP_drop		0x13
-+#define DW_OP_over		0x14
-+#define DW_OP_pick		0x15
-+#define DW_OP_swap		0x16
-+#define DW_OP_rot		0x17
-+#define DW_OP_xderef		0x18
-+#define DW_OP_abs		0x19
-+#define DW_OP_and		0x1a
-+#define DW_OP_div		0x1b
-+#define DW_OP_minus		0x1c
-+#define DW_OP_mod		0x1d
-+#define DW_OP_mul		0x1e
-+#define DW_OP_neg		0x1f
-+#define DW_OP_not		0x20
-+#define DW_OP_or		0x21
-+#define DW_OP_plus		0x22
-+#define DW_OP_plus_uconst	0x23
-+#define DW_OP_shl		0x24
-+#define DW_OP_shr		0x25
-+#define DW_OP_shra		0x26
-+#define DW_OP_xor		0x27
-+#define DW_OP_skip		0x2f
-+#define DW_OP_bra		0x28
-+#define DW_OP_eq		0x29
-+#define DW_OP_ge		0x2a
-+#define DW_OP_gt		0x2b
-+#define DW_OP_le		0x2c
-+#define DW_OP_lt		0x2d
-+#define DW_OP_ne		0x2e
-+#define DW_OP_lit0		0x30
-+#define DW_OP_lit1		0x31
-+#define DW_OP_lit2		0x32
-+#define DW_OP_lit3		0x33
-+#define DW_OP_lit4		0x34
-+#define DW_OP_lit5		0x35
-+#define DW_OP_lit6		0x36
-+#define DW_OP_lit7		0x37
-+#define DW_OP_lit8		0x38
-+#define DW_OP_lit9		0x39
-+#define DW_OP_lit10		0x3a
-+#define DW_OP_lit11		0x3b
-+#define DW_OP_lit12		0x3c
-+#define DW_OP_lit13		0x3d
-+#define DW_OP_lit14		0x3e
-+#define DW_OP_lit15		0x3f
-+#define DW_OP_lit16		0x40
-+#define DW_OP_lit17		0x41
-+#define DW_OP_lit18		0x42
-+#define DW_OP_lit19		0x43
-+#define DW_OP_lit20		0x44
-+#define DW_OP_lit21		0x45
-+#define DW_OP_lit22		0x46
-+#define DW_OP_lit23		0x47
-+#define DW_OP_lit24		0x48
-+#define DW_OP_lit25		0x49
-+#define DW_OP_lit26		0x4a
-+#define DW_OP_lit27		0x4b
-+#define DW_OP_lit28		0x4c
-+#define DW_OP_lit29		0x4d
-+#define DW_OP_lit30		0x4e
-+#define DW_OP_lit31		0x4f
-+#define DW_OP_reg0		0x50
-+#define DW_OP_reg1		0x51
-+#define DW_OP_reg2		0x52
-+#define DW_OP_reg3		0x53
-+#define DW_OP_reg4		0x54
-+#define DW_OP_reg5		0x55
-+#define DW_OP_reg6		0x56
-+#define DW_OP_reg7		0x57
-+#define DW_OP_reg8		0x58
-+#define DW_OP_reg9		0x59
-+#define DW_OP_reg10		0x5a
-+#define DW_OP_reg11		0x5b
-+#define DW_OP_reg12		0x5c
-+#define DW_OP_reg13		0x5d
-+#define DW_OP_reg14		0x5e
-+#define DW_OP_reg15		0x5f
-+#define DW_OP_reg16		0x60
-+#define DW_OP_reg17		0x61
-+#define DW_OP_reg18		0x62
-+#define DW_OP_reg19		0x63
-+#define DW_OP_reg20		0x64
-+#define DW_OP_reg21		0x65
-+#define DW_OP_reg22		0x66
-+#define DW_OP_reg23		0x67
-+#define DW_OP_reg24		0x68
-+#define DW_OP_reg25		0x69
-+#define DW_OP_reg26		0x6a
-+#define DW_OP_reg27		0x6b
-+#define DW_OP_reg28		0x6c
-+#define DW_OP_reg29		0x6d
-+#define DW_OP_reg30		0x6e
-+#define DW_OP_reg31		0x6f
-+#define DW_OP_breg0		0x70
-+#define DW_OP_breg1		0x71
-+#define DW_OP_breg2		0x72
-+#define DW_OP_breg3		0x73
-+#define DW_OP_breg4		0x74
-+#define DW_OP_breg5		0x75
-+#define DW_OP_breg6		0x76
-+#define DW_OP_breg7		0x77
-+#define DW_OP_breg8		0x78
-+#define DW_OP_breg9		0x79
-+#define DW_OP_breg10		0x7a
-+#define DW_OP_breg11		0x7b
-+#define DW_OP_breg12		0x7c
-+#define DW_OP_breg13		0x7d
-+#define DW_OP_breg14		0x7e
-+#define DW_OP_breg15		0x7f
-+#define DW_OP_breg16		0x80
-+#define DW_OP_breg17		0x81
-+#define DW_OP_breg18		0x82
-+#define DW_OP_breg19		0x83
-+#define DW_OP_breg20		0x84
-+#define DW_OP_breg21		0x85
-+#define DW_OP_breg22		0x86
-+#define DW_OP_breg23		0x87
-+#define DW_OP_breg24		0x88
-+#define DW_OP_breg25		0x89
-+#define DW_OP_breg26		0x8a
-+#define DW_OP_breg27		0x8b
-+#define DW_OP_breg28		0x8c
-+#define DW_OP_breg29		0x8d
-+#define DW_OP_breg30		0x8e
-+#define DW_OP_breg31		0x8f
-+#define DW_OP_regx		0x90
-+#define DW_OP_fbreg		0x91
-+#define DW_OP_bregx		0x92
-+#define DW_OP_piece		0x93
-+#define DW_OP_deref_size	0x94
-+#define DW_OP_xderef_size	0x95
-+#define DW_OP_nop		0x96
-+#define DW_OP_push_object_address	0x97
-+#define DW_OP_call2		0x98
-+#define DW_OP_call4		0x99
-+#define DW_OP_call_ref		0x9a
-+#define DW_OP_form_tls_address	0x9b
-+#define DW_OP_call_frame_cfa	0x9c
-+#define DW_OP_bit_piece		0x9d
-+#define DW_OP_implicit_value	0x9e
-+#define DW_OP_stack_value	0x9f
-+#define DW_OP_implicit_pointer	0xa0
-+#define DW_OP_addrx		0xa1
-+#define DW_OP_constx		0xa2
-+#define DW_OP_entry_value	0xa3
-+#define DW_OP_const_type	0xa4
-+#define DW_OP_regval_type	0xa5
-+#define DW_OP_deref_type	0xa6
-+#define DW_OP_xderef_type	0xa7
-+#define DW_OP_convert		0xa8
-+#define DW_OP_reinterpret	0xa9
+ static void sclp_set_write_mask(void)
+ {
+ 	WriteEventMask *sccb = (void *)_sccb;
+ 
+ 	sclp_mark_busy();
++	memset(_sccb, 0, sizeof(*sccb));
+ 	sccb->h.length = sizeof(WriteEventMask);
+-	sccb->mask_length = sizeof(unsigned int);
+-	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-	sccb->cp_receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-	sccb->send_mask = SCLP_EVENT_MASK_MSG_ASCII;
+-	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII;
++	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
++	sccb->mask_length = sizeof(sccb_mask_t);
 +
-+/* GNU extensions.  */
-+#define DW_OP_GNU_push_tls_address	0xe0
-+#define DW_OP_GNU_uninit	0xf0
-+#define DW_OP_GNU_encoded_addr	0xf1
-+#define DW_OP_GNU_implicit_pointer	0xf2
-+#define DW_OP_GNU_entry_value	0xf3
-+#define DW_OP_GNU_const_type	0xf4
-+#define DW_OP_GNU_regval_type	0xf5
-+#define DW_OP_GNU_deref_type	0xf6
-+#define DW_OP_GNU_convert	0xf7
-+#define DW_OP_GNU_reinterpret	0xf9
-+#define DW_OP_GNU_parameter_ref	0xfa
++	/* For now we don't process sclp input. */
++	sccb->cp_receive_mask = 0;
++	/* We send ASCII and line mode. */
++	sccb->cp_send_mask = SCLP_EVENT_MASK_MSG_ASCII | SCLP_EVENT_MASK_MSG;
+ 
+ 	sclp_service_call(SCLP_CMD_WRITE_EVENT_MASK, sccb);
++	assert(sccb->h.response_code == SCLP_RC_NORMAL_COMPLETION);
+ }
+ 
+ void sclp_console_setup(void)
+@@ -35,16 +179,19 @@ void sclp_console_setup(void)
+ 
+ void sclp_print(const char *str)
+ {
+-	int len = strlen(str);
+-	WriteEventData *sccb = (void *)_sccb;
+-
+-	sclp_mark_busy();
+-	sccb->h.length = sizeof(WriteEventData) + len;
+-	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+-	sccb->ebh.length = sizeof(EventBufferHeader) + len;
+-	sccb->ebh.type = SCLP_EVENT_ASCII_CONSOLE_DATA;
+-	sccb->ebh.flags = 0;
+-	memcpy(sccb->data, str, len);
+-
+-	sclp_service_call(SCLP_CMD_WRITE_EVENT_DATA, sccb);
++	/*
++	 * z/VM advertises a vt220 console which is not functional:
++	 * (response code 05F0, "not active because of the state of
++	 * the machine"). Hence testing the masks would only work if
++	 * we also use stsi data to distinguish z/VM.
++	 *
++	 * Let's rather print on all available consoles.
++	 */
++	if (strlen(str) > (PAGE_SIZE / 2)) {
++		sclp_print_ascii("Warning: Printing is limited to 2KB of data.");
++		sclp_print_lm("Warning: Printing is limited to 2KB of data.");
++		return;
++	}
++	sclp_print_ascii(str);
++	sclp_print_lm(str);
+ }
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 63cf609..98c482a 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -179,6 +179,7 @@ typedef struct SCCB {
+ /* SCLP event masks */
+ #define SCLP_EVENT_MASK_SIGNAL_QUIESCE          0x00000008
+ #define SCLP_EVENT_MASK_MSG_ASCII               0x00000040
++#define SCLP_EVENT_MASK_MSG          		0x40000000
+ 
+ #define SCLP_UNCONDITIONAL_READ                 0x00
+ #define SCLP_SELECTIVE_READ                     0x01
+@@ -193,6 +194,55 @@ typedef struct WriteEventMask {
+     uint32_t receive_mask;
+ } __attribute__((packed)) WriteEventMask;
+ 
++#define MDBTYP_GO               0x0001
++#define MDBTYP_MTO              0x0004
++#define EVTYP_MSG               0x02
++#define LNTPFLGS_CNTLTEXT       0x8000
++#define LNTPFLGS_LABELTEXT      0x4000
++#define LNTPFLGS_DATATEXT       0x2000
++#define LNTPFLGS_ENDTEXT        0x1000
++#define LNTPFLGS_PROMPTTEXT     0x0800
 +
-+/* GNU Debug Fission extensions.  */
-+#define DW_OP_GNU_addr_index	0xfb,
-+#define DW_OP_GNU_const_index	0xfc
-+#define DW_OP_GNU_variable_value	0xfd
++typedef uint32_t sccb_mask_t;
 +
-+#define DW_OP_lo_user		0xe0
-+#define DW_OP_hi_user		0xff
++/* SCLP line mode console related structures. */
 +
-+#endif /* __ASM_GENERIC_DWARF_H */
++struct mto {
++	u16 length;
++	u16 type;
++	u16 line_type_flags;
++	u8  alarm_control;
++	u8  _reserved[3];
++} __attribute__((packed));
++
++struct go {
++	u16 length;
++	u16 type;
++	u32 domid;
++	u8  hhmmss_time[8];
++	u8  th_time[3];
++	u8  reserved_0;
++	u8  dddyyyy_date[7];
++	u8  _reserved_1;
++	u16 general_msg_flags;
++	u8  _reserved_2[10];
++	u8  originating_system_name[8];
++	u8  job_guest_name[8];
++} __attribute__((packed));
++
++struct mdb_header {
++	u16 length;
++	u16 type;
++	u32 tag;
++	u32 revision_code;
++} __attribute__((packed));
++
++struct mdb {
++	struct mdb_header header;
++	struct go go;
++	struct mto mto;
++} __attribute__((packed));
++
+ typedef struct EventBufferHeader {
+     uint16_t length;
+     uint8_t  type;
+@@ -203,7 +253,10 @@ typedef struct EventBufferHeader {
+ typedef struct WriteEventData {
+     SCCBHeader h;
+     EventBufferHeader ebh;
+-    char data[0];
++    union {
++	char data[0];
++	struct mdb mdb;
++    } msg;
+ } __attribute__((packed)) WriteEventData;
+ 
+ typedef struct ReadEventData {
 -- 
-2.20.1
+2.17.0
