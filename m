@@ -1,53 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731618AbfHBNXG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 2 Aug 2019 09:23:06 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 02/42] vfio-ccw: Set pa_nr to 0 if memory allocation fails for pa_iova_pfn
-Date: Fri,  2 Aug 2019 09:22:22 -0400
-Message-Id: <20190802132302.13537-2-sashal@kernel.org>
-In-Reply-To: <20190802132302.13537-1-sashal@kernel.org>
-References: <20190802132302.13537-1-sashal@kernel.org>
+Received: from szxga07-in.huawei.com ([45.249.212.35]:49362 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726135AbfHaGAs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 31 Aug 2019 02:00:48 -0400
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v2 4/9] powerpc: numa: check the node id consistently for powerpc
+Date: Sat, 31 Aug 2019 13:58:18 +0800
+Message-ID: <1567231103-13237-5-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
 
-From: Farhan Ali <alifm@linux.ibm.com>
+According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
+of proximity domain is optional, as below:
 
-[ Upstream commit c1ab69268d124ebdbb3864580808188ccd3ea355 ]
+This optional object is used to describe proximity domain
+associations within a machine. _PXM evaluates to an integer
+that identifies a device as belonging to a Proximity Domain
+defined in the System Resource Affinity Table (SRAT).
 
-So we don't call try to call vfio_unpin_pages() incorrectly.
+This patch checks node id with the below case before returning
+node_to_cpumask_map[node]:
+1. if node_id >= nr_node_ids, return cpu_none_mask
+2. if node_id < 0, return cpu_online_mask
+3. if node_to_cpumask_map[node_id] is NULL, return cpu_online_mask
 
-Fixes: 0a19e61e6d4c ("vfio: ccw: introduce channel program interfaces")
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <33a89467ad6369196ae6edf820cbcb1e2d8d050c.1562854091.git.alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/topology.h | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 70a006ba4d050..4fe06ff7b2c8b 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -89,8 +89,10 @@ static int pfn_array_alloc_pin(struct pfn_array *pa, struct device *mdev,
- 				  sizeof(*pa->pa_iova_pfn) +
- 				  sizeof(*pa->pa_pfn),
- 				  GFP_KERNEL);
--	if (unlikely(!pa->pa_iova_pfn))
-+	if (unlikely(!pa->pa_iova_pfn)) {
-+		pa->pa_nr = 0;
- 		return -ENOMEM;
-+	}
- 	pa->pa_pfn = pa->pa_iova_pfn + pa->pa_nr;
+diff --git a/arch/powerpc/include/asm/topology.h b/arch/powerpc/include/asm/topology.h
+index 2f7e1ea..217dc9b 100644
+--- a/arch/powerpc/include/asm/topology.h
++++ b/arch/powerpc/include/asm/topology.h
+@@ -17,9 +17,16 @@ struct device_node;
  
- 	pa->pa_iova_pfn[0] = pa->pa_iova >> PAGE_SHIFT;
+ #include <asm/mmzone.h>
+ 
+-#define cpumask_of_node(node) ((node) == -1 ?				\
+-			       cpu_all_mask :				\
+-			       node_to_cpumask_map[node])
++static inline const struct cpumask *cpumask_of_node(int node)
++{
++	if (node >= nr_node_ids)
++		return cpu_none_mask;
++
++	if (node < 0 || !node_to_cpumask_map[node])
++		return cpu_online_mask;
++
++	return node_to_cpumask_map[node];
++}
+ 
+ struct pci_bus;
+ #ifdef CONFIG_PCI
 -- 
-2.20.1
+2.8.1
