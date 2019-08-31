@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 098/123] s390/mm: fix dump_pagetables top level page table walking
-Date: Tue, 13 Aug 2019 22:10:22 -0400
-Message-Id: <20190814021047.14828-98-sashal@kernel.org>
-In-Reply-To: <20190814021047.14828-1-sashal@kernel.org>
-References: <20190814021047.14828-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from szxga04-in.huawei.com ([45.249.212.190]:6155 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726679AbfHaGAx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 31 Aug 2019 02:00:53 -0400
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v2 9/9] mips: numa: check the node id consistently for mips loongson64
+Date: Sat, 31 Aug 2019 13:58:23 +0800
+Message-ID: <1567231103-13237-10-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
+of proximity domain is optional, as below:
 
-[ Upstream commit 8024b5a9fc2bed9a00f0bdba60b443fa3cc4bb5d ]
+This optional object is used to describe proximity domain
+associations within a machine. _PXM evaluates to an integer
+that identifies a device as belonging to a Proximity Domain
+defined in the System Resource Affinity Table (SRAT).
 
-Since commit d1874a0c2805 ("s390/mm: make the pxd_offset functions more
-robust") behaviour of p4d_offset, pud_offset and pmd_offset has been
-changed so that they cannot be used to iterate through top level page
-table, because the index for the top level page table is now calculated
-in pgd_offset. To avoid dumping the very first region/segment top level
-table entry 2048 times simply iterate entry pointer like it is already
-done in other page walking cases.
+Since mips loongson64 uses __node_data instead of
+node_to_cpumask_map, this patch checks node id with the below
+case before returning &__node_data[node]->cpumask:
+1. if node_id >= MAX_NUMNODES, return cpu_none_mask
+2. if node_id < 0, return cpu_online_mask
+3. if hub_data(node) is NULL, return cpu_online_mask
 
-Fixes: d1874a0c2805 ("s390/mm: make the pxd_offset functions more robust")
-Reported-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 ---
- arch/s390/mm/dump_pagetables.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/mips/include/asm/mach-loongson64/topology.h | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index 3b93ba0b5d8d6..5d67b81c704a4 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -161,9 +161,9 @@ static void walk_pmd_level(struct seq_file *m, struct pg_state *st,
- 	}
- #endif
+diff --git a/arch/mips/include/asm/mach-loongson64/topology.h b/arch/mips/include/asm/mach-loongson64/topology.h
+index 7ff819a..b19b983 100644
+--- a/arch/mips/include/asm/mach-loongson64/topology.h
++++ b/arch/mips/include/asm/mach-loongson64/topology.h
+@@ -5,7 +5,17 @@
+ #ifdef CONFIG_NUMA
  
--	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++) {
-+	pmd = pmd_offset(pud, addr);
-+	for (i = 0; i < PTRS_PER_PMD && addr < max_addr; i++, pmd++) {
- 		st->current_address = addr;
--		pmd = pmd_offset(pud, addr);
- 		if (!pmd_none(*pmd)) {
- 			if (pmd_large(*pmd)) {
- 				prot = pmd_val(*pmd) &
-@@ -192,9 +192,9 @@ static void walk_pud_level(struct seq_file *m, struct pg_state *st,
- 	}
- #endif
+ #define cpu_to_node(cpu)	(cpu_logical_map(cpu) >> 2)
+-#define cpumask_of_node(node)	(&__node_data[(node)]->cpumask)
++
++static inline const struct cpumask *cpumask_of_node(int node)
++{
++	if (node >= MAX_NUMNODES)
++		return cpu_none_mask;
++
++	if (node < 0 || !__node_data[node])
++		return cpu_online_mask;
++
++	return &__node_data[node]->cpumask;
++}
  
--	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++) {
-+	pud = pud_offset(p4d, addr);
-+	for (i = 0; i < PTRS_PER_PUD && addr < max_addr; i++, pud++) {
- 		st->current_address = addr;
--		pud = pud_offset(p4d, addr);
- 		if (!pud_none(*pud))
- 			if (pud_large(*pud)) {
- 				prot = pud_val(*pud) &
-@@ -222,9 +222,9 @@ static void walk_p4d_level(struct seq_file *m, struct pg_state *st,
- 	}
- #endif
- 
--	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++) {
-+	p4d = p4d_offset(pgd, addr);
-+	for (i = 0; i < PTRS_PER_P4D && addr < max_addr; i++, p4d++) {
- 		st->current_address = addr;
--		p4d = p4d_offset(pgd, addr);
- 		if (!p4d_none(*p4d))
- 			walk_pud_level(m, st, p4d, addr);
- 		else
+ struct pci_bus;
+ extern int pcibus_to_node(struct pci_bus *);
 -- 
-2.20.1
+2.8.1
