@@ -1,115 +1,64 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36130 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726477AbfHQHsv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 17 Aug 2019 03:48:51 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/26] x86: clean up ioremap
-Date: Sat, 17 Aug 2019 09:32:39 +0200
-Message-Id: <20190817073253.27819-13-hch@lst.de>
-In-Reply-To: <20190817073253.27819-1-hch@lst.de>
-References: <20190817073253.27819-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v2 8/9] mips: numa: check the node id consistently for mips ip27
+Date: Sat, 31 Aug 2019 13:58:22 +0800
+Message-ID: <1567231103-13237-9-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
 
-Use ioremap as the main implemented function, and defined
-ioremap_nocache to it as a deprecated alias.
+According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
+of proximity domain is optional, as below:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This optional object is used to describe proximity domain
+associations within a machine. _PXM evaluates to an integer
+that identifies a device as belonging to a Proximity Domain
+defined in the System Resource Affinity Table (SRAT).
+
+Since mips ip27 uses hub_data instead of node_to_cpumask_map,
+this patch checks node id with the below case before returning
+&hub_data(node)->h_cpus:
+1. if node_id >= MAX_COMPACT_NODES, return cpu_none_mask
+2. if node_id < 0, return cpu_online_mask
+3. if hub_data(node) is NULL, return cpu_online_mask
+
+[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
+
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 ---
- arch/x86/include/asm/io.h | 8 ++------
- arch/x86/mm/ioremap.c     | 8 ++++----
- arch/x86/mm/pageattr.c    | 4 ++--
- 3 files changed, 8 insertions(+), 12 deletions(-)
+ arch/mips/include/asm/mach-ip27/topology.h | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/io.h b/arch/x86/include/asm/io.h
-index 6bed97ff6db2..6b5cc41319a7 100644
---- a/arch/x86/include/asm/io.h
-+++ b/arch/x86/include/asm/io.h
-@@ -180,8 +180,6 @@ static inline unsigned int isa_virt_to_bus(volatile void *address)
-  * The default ioremap() behavior is non-cached; if you need something
-  * else, you probably want one of the following.
-  */
--extern void __iomem *ioremap_nocache(resource_size_t offset, unsigned long size);
--#define ioremap_nocache ioremap_nocache
- extern void __iomem *ioremap_uc(resource_size_t offset, unsigned long size);
- #define ioremap_uc ioremap_uc
- extern void __iomem *ioremap_cache(resource_size_t offset, unsigned long size);
-@@ -205,11 +203,9 @@ extern void __iomem *ioremap_encrypted(resource_size_t phys_addr, unsigned long
-  * If the area you are trying to map is a PCI BAR you should have a
-  * look at pci_iomap().
-  */
--static inline void __iomem *ioremap(resource_size_t offset, unsigned long size)
--{
--	return ioremap_nocache(offset, size);
--}
-+void __iomem *ioremap(resource_size_t offset, unsigned long size);
- #define ioremap ioremap
-+#define ioremap_nocache ioremap
+diff --git a/arch/mips/include/asm/mach-ip27/topology.h b/arch/mips/include/asm/mach-ip27/topology.h
+index 965f079..914a55a 100644
+--- a/arch/mips/include/asm/mach-ip27/topology.h
++++ b/arch/mips/include/asm/mach-ip27/topology.h
+@@ -15,9 +15,18 @@ struct cpuinfo_ip27 {
+ extern struct cpuinfo_ip27 sn_cpu_info[NR_CPUS];
  
- extern void iounmap(volatile void __iomem *addr);
- #define iounmap iounmap
-diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
-index 63e99f15d7cf..c9e90211bddb 100644
---- a/arch/x86/mm/ioremap.c
-+++ b/arch/x86/mm/ioremap.c
-@@ -279,11 +279,11 @@ __ioremap_caller(resource_size_t phys_addr, unsigned long size,
- }
+ #define cpu_to_node(cpu)	(sn_cpu_info[(cpu)].p_nodeid)
+-#define cpumask_of_node(node)	((node) == -1 ?				\
+-				 cpu_all_mask :				\
+-				 &hub_data(node)->h_cpus)
++
++static inline const struct cpumask *cpumask_of_node(int node)
++{
++	if (node >= MAX_COMPACT_NODES)
++		return cpu_none_mask;
++
++	if (node < 0 || !hub_data(node))
++		return cpu_online_mask;
++
++	return &hub_data(node)->h_cpus;
++}
++
+ struct pci_bus;
+ extern int pcibus_to_node(struct pci_bus *);
  
- /**
-- * ioremap_nocache     -   map bus memory into CPU space
-+ * ioremap     -   map bus memory into CPU space
-  * @phys_addr:    bus address of the memory
-  * @size:      size of the resource to map
-  *
-- * ioremap_nocache performs a platform specific sequence of operations to
-+ * ioremap performs a platform specific sequence of operations to
-  * make bus memory CPU accessible via the readb/readw/readl/writeb/
-  * writew/writel functions and the other mmio helpers. The returned
-  * address is not guaranteed to be usable directly as a virtual
-@@ -299,7 +299,7 @@ __ioremap_caller(resource_size_t phys_addr, unsigned long size,
-  *
-  * Must be freed with iounmap.
-  */
--void __iomem *ioremap_nocache(resource_size_t phys_addr, unsigned long size)
-+void __iomem *ioremap(resource_size_t phys_addr, unsigned long size)
- {
- 	/*
- 	 * Ideally, this should be:
-@@ -314,7 +314,7 @@ void __iomem *ioremap_nocache(resource_size_t phys_addr, unsigned long size)
- 	return __ioremap_caller(phys_addr, size, pcm,
- 				__builtin_return_address(0), false);
- }
--EXPORT_SYMBOL(ioremap_nocache);
-+EXPORT_SYMBOL(ioremap);
- 
- /**
-  * ioremap_uc     -   map bus memory into CPU space as strongly uncachable
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 6a9a77a403c9..5b7a9231b85b 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -1774,7 +1774,7 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
- int _set_memory_uc(unsigned long addr, int numpages)
- {
- 	/*
--	 * for now UC MINUS. see comments in ioremap_nocache()
-+	 * for now UC MINUS. see comments in ioremap()
- 	 * If you really need strong UC use ioremap_uc(), but note
- 	 * that you cannot override IO areas with set_memory_*() as
- 	 * these helpers cannot work with IO memory.
-@@ -1789,7 +1789,7 @@ int set_memory_uc(unsigned long addr, int numpages)
- 	int ret;
- 
- 	/*
--	 * for now UC MINUS. see comments in ioremap_nocache()
-+	 * for now UC MINUS. see comments in ioremap()
- 	 */
- 	ret = reserve_memtype(__pa(addr), __pa(addr) + numpages * PAGE_SIZE,
- 			      _PAGE_CACHE_MODE_UC_MINUS, NULL);
 -- 
-2.20.1
+2.8.1
