@@ -1,53 +1,116 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50806 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725990AbfH2MZ0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Aug 2019 08:25:26 -0400
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH v2] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
-Date: Thu, 29 Aug 2019 14:25:17 +0200
-Message-Id: <20190829122517.31042-1-thuth@redhat.com>
+Received: from szxga07-in.huawei.com ([45.249.212.35]:40562 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725953AbfHaGSr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 31 Aug 2019 02:18:47 -0400
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v2 0/9] check the node id consistently across different arches
+Date: Sat, 31 Aug 2019 13:58:14 +0800
+Message-ID: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, nfont@linux.vnet.ibm.com, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, linuxarm@huawei.com
 
-If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
-then there is certainly a bug in the calling userspace application.
-We check for wrong access registers, but only if the vCPU was already
-in the access register mode before (i.e. the SIE block has recorded
-it). The check is also buried somewhere deep in the calling chain (in
-the function ar_translation()), so this is somewhat hard to find.
+According to Section 6.2.14 from ACPI spec 6.3 [1], the
+setting of proximity domain is optional, as below:
 
-It's better to always report an error to the userspace in case this
-field is set wrong, and it's safer in the KVM code if we block wrong
-values here early instead of relying on a check somewhere deep down
-the calling chain, so let's add another check to kvm_s390_guest_mem_op()
-directly.
+This optional object is used to describe proximity domain
+associations within a machine. _PXM evaluates to an integer
+that identifies a device as belonging to a Proximity Domain
+defined in the System Resource Affinity Table (SRAT).
 
-We also should check that the "size" is non-zero here (thanks to Janosch
-Frank for the hint!). If we do not check the size, we could call vmalloc()
-with this 0 value, and this will cause a kernel warning.
+When enabling KASAN and bios has not implemented the proximity
+domain of the hns3 device, there is a global-out-of-bounds error
+below:
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
----
- v2: Check mop->size to be non-zero
+[   42.970381] ==================================================================
+[   42.977595] BUG: KASAN: global-out-of-bounds in __bitmap_weight+0x48/0xb0
+[   42.984370] Read of size 8 at addr ffff20008cdf8790 by task kworker/0:1/13
+[   42.991230]
+[   42.992712] CPU: 0 PID: 13 Comm: kworker/0:1 Tainted: G           O      5.2.0-rc4-g8bde06a-dirty #3
+[   43.001830] Hardware name: Huawei TaiShan 2280 V2/BC82AMDA, BIOS TA BIOS 2280-A CS V2.B050.01 08/08/2019
+[   43.011298] Workqueue: events work_for_cpu_fn
+[   43.015643] Call trace:
+[   43.018078]  dump_backtrace+0x0/0x1e8
+[   43.021727]  show_stack+0x14/0x20
+[   43.025031]  dump_stack+0xc4/0xfc
+[   43.028335]  print_address_description+0x178/0x270
+[   43.033113]  __kasan_report+0x164/0x1b8
+[   43.036936]  kasan_report+0xc/0x18
+[   43.040325]  __asan_load8+0x84/0xa8
+[   43.043801]  __bitmap_weight+0x48/0xb0
+[   43.047552]  hclge_init_ae_dev+0x988/0x1e78 [hclge]
+[   43.052418]  hnae3_register_ae_dev+0xcc/0x278 [hnae3]
+[   43.057467]  hns3_probe+0xe0/0x120 [hns3]
+[   43.061464]  local_pci_probe+0x74/0xf0
+[   43.065200]  work_for_cpu_fn+0x2c/0x48
+[   43.068937]  process_one_work+0x3c0/0x878
+[   43.072934]  worker_thread+0x400/0x670
+[   43.076670]  kthread+0x1b0/0x1b8
+[   43.079885]  ret_from_fork+0x10/0x18
+[   43.083446]
+[   43.084925] The buggy address belongs to the variable:
+[   43.090052]  numa_distance+0x30/0x40
+[   43.093613]
+[   43.095091] Memory state around the buggy address:
+[   43.099870]  ffff20008cdf8680: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 fa fa
+[   43.107078]  ffff20008cdf8700: fa fa fa fa 04 fa fa fa fa fa fa fa 00 fa fa fa
+[   43.114286] >ffff20008cdf8780: fa fa fa fa 00 00 00 00 00 00 00 00 fa fa fa fa
+[   43.121494]                          ^
+[   43.125230]  ffff20008cdf8800: 01 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
+[   43.132439]  ffff20008cdf8880: fa fa fa fa fa fa fa fa 00 00 fa fa fa fa fa fa
+[   43.139646] ==================================================================
 
- arch/s390/kvm/kvm-s390.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+As suggested [2] by Michal Hocko:
+"if the specification really allows to provide NUMA_NO_NODE (-1) then
+the code really has to be prepared for that. And ideally all arches
+should deal with that."
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f329dcb3f44c..49d7722229ae 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4255,7 +4255,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
- 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
- 
--	if (mop->flags & ~supported_flags)
-+	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
- 		return -EINVAL;
- 
- 	if (mop->size > MEM_OP_MAX_SIZE)
+This patchset checks the node id with the below case consistently
+across different arches in order to be compliant with spec and
+backward compatible as much as possible:
+1. if node_id < 0, return cpu_online_mask
+2. if node_id >= nr_node_ids, return cpu_none_mask
+3. if node_to_cpumask_map[node_id] is NULL, return cpu_online_mask
+
+Note:
+1. Only arm64 has been compile tested and tested on real board.
+2. x86 has been compile tested with defconfig.
+3. Other arch has not been compile tested or tested on real board.
+
+Changelog:
+V2: Change commit log as suggested by Michal Hocko, and make the change to
+    other arches as well.
+
+[1] https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
+[2] https://patchwork.kernel.org/patch/11122823/
+
+Yunsheng Lin (9):
+  arm64: numa: check the node id consistently for arm64
+  x86: numa: check the node id consistently for x86
+  alpha: numa: check the node id consistently for alpha
+  powerpc: numa: check the node id consistently for powerpc
+  s390: numa: check the node id consistently for s390
+  sh: numa: check the node id consistently for sh
+  sparc64: numa: check the node id consistently for sparc64
+  mips: numa: check the node id consistently for mips ip27
+  mips: numa: check the node id consistently for mips loongson64
+
+ arch/alpha/include/asm/topology.h                |  7 +++++--
+ arch/arm64/include/asm/numa.h                    |  6 ++++++
+ arch/arm64/mm/numa.c                             |  2 +-
+ arch/mips/include/asm/mach-ip27/topology.h       | 15 ++++++++++++---
+ arch/mips/include/asm/mach-loongson64/topology.h | 12 +++++++++++-
+ arch/powerpc/include/asm/topology.h              | 13 ++++++++++---
+ arch/s390/include/asm/topology.h                 |  6 ++++++
+ arch/sh/include/asm/topology.h                   | 14 +++++++++++++-
+ arch/sparc/include/asm/topology_64.h             | 16 +++++++++++++---
+ arch/x86/include/asm/topology.h                  |  6 ++++++
+ arch/x86/mm/numa.c                               |  2 +-
+ 11 files changed, 84 insertions(+), 15 deletions(-)
+
 -- 
-2.18.1
+2.8.1
