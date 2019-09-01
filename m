@@ -1,47 +1,86 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41922 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725940AbfILHDB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Sep 2019 03:03:01 -0400
-From: Thomas Huth <thuth@redhat.com>
-Subject: [PATCH] KVM: s390: Remove unused parameter from __inject_sigp_restart()
-Date: Thu, 12 Sep 2019 09:02:50 +0200
-Message-Id: <20190912070250.15131-1-thuth@redhat.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 2/9] crypto: arm64 - Rename functions to avoid conflict with crypto/sha256.h
+Date: Sun,  1 Sep 2019 22:35:25 +0200
+Message-Id: <20190901203532.2615-3-hdegoede@redhat.com>
+In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
+References: <20190901203532.2615-1-hdegoede@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-It's not required, so drop it to make it clear that this interrupt
-does not have any extra parameters.
+Rename static / file-local functions so that they do not conflict with
+the functions declared in crypto/sha256.h.
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
+This is a preparation patch for folding crypto/sha256.h into crypto/sha.h.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- arch/s390/kvm/interrupt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm64/crypto/sha256-glue.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index b5fd6e85657c..3e7efdd9228a 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1477,8 +1477,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	return 0;
+diff --git a/arch/arm64/crypto/sha256-glue.c b/arch/arm64/crypto/sha256-glue.c
+index 04b9d17b0733..e273faca924f 100644
+--- a/arch/arm64/crypto/sha256-glue.c
++++ b/arch/arm64/crypto/sha256-glue.c
+@@ -30,15 +30,15 @@ EXPORT_SYMBOL(sha256_block_data_order);
+ asmlinkage void sha256_block_neon(u32 *digest, const void *data,
+ 				  unsigned int num_blks);
+ 
+-static int sha256_update(struct shash_desc *desc, const u8 *data,
+-			 unsigned int len)
++static int crypto_sha256_arm64_update(struct shash_desc *desc, const u8 *data,
++				      unsigned int len)
+ {
+ 	return sha256_base_do_update(desc, data, len,
+ 				(sha256_block_fn *)sha256_block_data_order);
  }
  
--static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
--				 struct kvm_s390_irq *irq)
-+static int __inject_sigp_restart(struct kvm_vcpu *vcpu)
+-static int sha256_finup(struct shash_desc *desc, const u8 *data,
+-			unsigned int len, u8 *out)
++static int crypto_sha256_arm64_finup(struct shash_desc *desc, const u8 *data,
++				     unsigned int len, u8 *out)
  {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 	if (len)
+ 		sha256_base_do_update(desc, data, len,
+@@ -49,17 +49,17 @@ static int sha256_finup(struct shash_desc *desc, const u8 *data,
+ 	return sha256_base_finish(desc, out);
+ }
  
-@@ -1997,7 +1996,7 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 		rc = __inject_sigp_stop(vcpu, irq);
- 		break;
- 	case KVM_S390_RESTART:
--		rc = __inject_sigp_restart(vcpu, irq);
-+		rc = __inject_sigp_restart(vcpu);
- 		break;
- 	case KVM_S390_INT_CLOCK_COMP:
- 		rc = __inject_ckc(vcpu);
+-static int sha256_final(struct shash_desc *desc, u8 *out)
++static int crypto_sha256_arm64_final(struct shash_desc *desc, u8 *out)
+ {
+-	return sha256_finup(desc, NULL, 0, out);
++	return crypto_sha256_arm64_finup(desc, NULL, 0, out);
+ }
+ 
+ static struct shash_alg algs[] = { {
+ 	.digestsize		= SHA256_DIGEST_SIZE,
+ 	.init			= sha256_base_init,
+-	.update			= sha256_update,
+-	.final			= sha256_final,
+-	.finup			= sha256_finup,
++	.update			= crypto_sha256_arm64_update,
++	.final			= crypto_sha256_arm64_final,
++	.finup			= crypto_sha256_arm64_finup,
+ 	.descsize		= sizeof(struct sha256_state),
+ 	.base.cra_name		= "sha256",
+ 	.base.cra_driver_name	= "sha256-arm64",
+@@ -69,9 +69,9 @@ static struct shash_alg algs[] = { {
+ }, {
+ 	.digestsize		= SHA224_DIGEST_SIZE,
+ 	.init			= sha224_base_init,
+-	.update			= sha256_update,
+-	.final			= sha256_final,
+-	.finup			= sha256_finup,
++	.update			= crypto_sha256_arm64_update,
++	.final			= crypto_sha256_arm64_final,
++	.finup			= crypto_sha256_arm64_finup,
+ 	.descsize		= sizeof(struct sha256_state),
+ 	.base.cra_name		= "sha224",
+ 	.base.cra_driver_name	= "sha224-arm64",
 -- 
-2.18.1
+2.23.0
