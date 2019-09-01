@@ -1,60 +1,133 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38644 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2394324AbfIWMfL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Sep 2019 08:35:11 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8NCRO1o020983
-        for <linux-s390@vger.kernel.org>; Mon, 23 Sep 2019 08:35:09 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v6vce4amd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 23 Sep 2019 08:35:09 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Mon, 23 Sep 2019 13:35:07 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [RFC PATCH 3/3] dma-mapping: warn on harmful GFP_* flags
-Date: Mon, 23 Sep 2019 14:34:18 +0200
-In-Reply-To: <20190923123418.22695-1-pasic@linux.ibm.com>
-References: <20190923123418.22695-1-pasic@linux.ibm.com>
-Message-Id: <20190923123418.22695-4-pasic@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:50978 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725955AbfIAUfo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 1 Sep 2019 16:35:44 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/9] crypto: arm - Rename functions to avoid conflict with crypto/sha256.h
+Date: Sun,  1 Sep 2019 22:35:24 +0200
+Message-Id: <20190901203532.2615-2-hdegoede@redhat.com>
+In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
+References: <20190901203532.2615-1-hdegoede@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-The commit message of commit 57bf5a8963f8 ("dma-mapping: clear harmful
-GFP_* flags in common code") says that probably warn when we encounter
-harmful GFP_* flags which we clean -- because the client code is best
-case silly if not buggy. I concur with that.
+Rename static / file-local functions so that they do not conflict with
+the functions declared in crypto/sha256.h.
 
-Let's warn once when we encounter silly GFP_* flags. The guys caring
-about the respective client code will hopefully fix these soon.
+This is a preparation patch for folding crypto/sha256.h into crypto/sha.h.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
+ arch/arm/crypto/sha256_glue.c      |  8 ++++----
+ arch/arm/crypto/sha256_neon_glue.c | 24 ++++++++++++------------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-I'm not too happy with my warning message. Suggestions welcome!
----
- include/linux/dma-mapping.h | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 5024bc863fa7..299f36ac8668 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -823,6 +823,9 @@ extern gfp_t dma_override_gfp_flags(struct device *dev, gfp_t flags);
- static inline gfp_t dma_override_gfp_flags(struct device *dev, gfp_t flags)
- {
- 	/* let the implementation decide on the zone to allocate from: */
-+	dev_WARN_ONCE(dev,
-+		      flags & (__GFP_DMA32 | __GFP_DMA | __GFP_HIGHMEM),
-+		      "fixme: don't dma_alloc with any of: __GFP_DMA32, __GFP_DMA, __GFP_HIGHMEM\n");
- 	return flags & ~(__GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM);
+diff --git a/arch/arm/crypto/sha256_glue.c b/arch/arm/crypto/sha256_glue.c
+index 70efa9656bff..215497f011f2 100644
+--- a/arch/arm/crypto/sha256_glue.c
++++ b/arch/arm/crypto/sha256_glue.c
+@@ -39,7 +39,7 @@ int crypto_sha256_arm_update(struct shash_desc *desc, const u8 *data,
  }
- #endif
+ EXPORT_SYMBOL(crypto_sha256_arm_update);
+ 
+-static int sha256_final(struct shash_desc *desc, u8 *out)
++static int crypto_sha256_arm_final(struct shash_desc *desc, u8 *out)
+ {
+ 	sha256_base_do_finalize(desc,
+ 				(sha256_block_fn *)sha256_block_data_order);
+@@ -51,7 +51,7 @@ int crypto_sha256_arm_finup(struct shash_desc *desc, const u8 *data,
+ {
+ 	sha256_base_do_update(desc, data, len,
+ 			      (sha256_block_fn *)sha256_block_data_order);
+-	return sha256_final(desc, out);
++	return crypto_sha256_arm_final(desc, out);
+ }
+ EXPORT_SYMBOL(crypto_sha256_arm_finup);
+ 
+@@ -59,7 +59,7 @@ static struct shash_alg algs[] = { {
+ 	.digestsize	=	SHA256_DIGEST_SIZE,
+ 	.init		=	sha256_base_init,
+ 	.update		=	crypto_sha256_arm_update,
+-	.final		=	sha256_final,
++	.final		=	crypto_sha256_arm_final,
+ 	.finup		=	crypto_sha256_arm_finup,
+ 	.descsize	=	sizeof(struct sha256_state),
+ 	.base		=	{
+@@ -73,7 +73,7 @@ static struct shash_alg algs[] = { {
+ 	.digestsize	=	SHA224_DIGEST_SIZE,
+ 	.init		=	sha224_base_init,
+ 	.update		=	crypto_sha256_arm_update,
+-	.final		=	sha256_final,
++	.final		=	crypto_sha256_arm_final,
+ 	.finup		=	crypto_sha256_arm_finup,
+ 	.descsize	=	sizeof(struct sha256_state),
+ 	.base		=	{
+diff --git a/arch/arm/crypto/sha256_neon_glue.c b/arch/arm/crypto/sha256_neon_glue.c
+index a7ce38a36006..38645e415196 100644
+--- a/arch/arm/crypto/sha256_neon_glue.c
++++ b/arch/arm/crypto/sha256_neon_glue.c
+@@ -25,8 +25,8 @@
+ asmlinkage void sha256_block_data_order_neon(u32 *digest, const void *data,
+ 					     unsigned int num_blks);
+ 
+-static int sha256_update(struct shash_desc *desc, const u8 *data,
+-			 unsigned int len)
++static int crypto_sha256_neon_update(struct shash_desc *desc, const u8 *data,
++				     unsigned int len)
+ {
+ 	struct sha256_state *sctx = shash_desc_ctx(desc);
+ 
+@@ -42,8 +42,8 @@ static int sha256_update(struct shash_desc *desc, const u8 *data,
+ 	return 0;
+ }
+ 
+-static int sha256_finup(struct shash_desc *desc, const u8 *data,
+-			unsigned int len, u8 *out)
++static int crypto_sha256_neon_finup(struct shash_desc *desc, const u8 *data,
++				    unsigned int len, u8 *out)
+ {
+ 	if (!crypto_simd_usable())
+ 		return crypto_sha256_arm_finup(desc, data, len, out);
+@@ -59,17 +59,17 @@ static int sha256_finup(struct shash_desc *desc, const u8 *data,
+ 	return sha256_base_finish(desc, out);
+ }
+ 
+-static int sha256_final(struct shash_desc *desc, u8 *out)
++static int crypto_sha256_neon_final(struct shash_desc *desc, u8 *out)
+ {
+-	return sha256_finup(desc, NULL, 0, out);
++	return crypto_sha256_neon_finup(desc, NULL, 0, out);
+ }
+ 
+ struct shash_alg sha256_neon_algs[] = { {
+ 	.digestsize	=	SHA256_DIGEST_SIZE,
+ 	.init		=	sha256_base_init,
+-	.update		=	sha256_update,
+-	.final		=	sha256_final,
+-	.finup		=	sha256_finup,
++	.update		=	crypto_sha256_neon_update,
++	.final		=	crypto_sha256_neon_final,
++	.finup		=	crypto_sha256_neon_finup,
+ 	.descsize	=	sizeof(struct sha256_state),
+ 	.base		=	{
+ 		.cra_name	=	"sha256",
+@@ -81,9 +81,9 @@ struct shash_alg sha256_neon_algs[] = { {
+ }, {
+ 	.digestsize	=	SHA224_DIGEST_SIZE,
+ 	.init		=	sha224_base_init,
+-	.update		=	sha256_update,
+-	.final		=	sha256_final,
+-	.finup		=	sha256_finup,
++	.update		=	crypto_sha256_neon_update,
++	.final		=	crypto_sha256_neon_final,
++	.finup		=	crypto_sha256_neon_finup,
+ 	.descsize	=	sizeof(struct sha256_state),
+ 	.base		=	{
+ 		.cra_name	=	"sha224",
 -- 
-2.17.1
+2.23.0
