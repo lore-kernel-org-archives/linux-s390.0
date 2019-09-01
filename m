@@ -1,281 +1,166 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50006 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57666 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729571AbfIBNVe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Sep 2019 09:21:34 -0400
-Subject: Re: [kvm-unit-tests PATCH 4/6] s390x: Add initial smp code
-References: <20190829121459.1708-1-frankja@linux.ibm.com>
- <20190829121459.1708-5-frankja@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <af43e842-9aee-9407-2a97-354efe2b81e1@redhat.com>
-Date: Mon, 2 Sep 2019 15:21:28 +0200
+        id S1729213AbfIAUgV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 1 Sep 2019 16:36:21 -0400
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 9/9] crypto: sha256 - Remove sha256/224_init code duplication
+Date: Sun,  1 Sep 2019 22:35:32 +0200
+Message-Id: <20190901203532.2615-10-hdegoede@redhat.com>
+In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
+References: <20190901203532.2615-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190829121459.1708-5-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On 29/08/2019 14.14, Janosch Frank wrote:
-> Let's add a rudimentary SMP library, which will scan for cpus and has
-> helper functions that manage the cpu state.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/asm/arch_def.h |   8 ++
->  lib/s390x/asm/sigp.h     |  29 ++++-
->  lib/s390x/io.c           |   5 +-
->  lib/s390x/sclp.h         |   1 +
->  lib/s390x/smp.c          | 272 +++++++++++++++++++++++++++++++++++++++
->  lib/s390x/smp.h          |  51 ++++++++
->  s390x/Makefile           |   1 +
->  s390x/cstart64.S         |   7 +
->  8 files changed, 368 insertions(+), 6 deletions(-)
->  create mode 100644 lib/s390x/smp.c
->  create mode 100644 lib/s390x/smp.h
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 5f8f45e..d5a7f51 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -157,6 +157,14 @@ struct cpuid {
->  	uint64_t reserved : 15;
->  };
->  
-> +static inline unsigned short stap(void)
-> +{
-> +	unsigned short cpu_address;
-> +
-> +	asm volatile("stap %0" : "=Q" (cpu_address));
-> +	return cpu_address;
-> +}
-> +
->  static inline int tprot(unsigned long addr)
->  {
->  	int cc;
-> diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
-> index fbd94fc..ce85eb7 100644
-> --- a/lib/s390x/asm/sigp.h
-> +++ b/lib/s390x/asm/sigp.h
-> @@ -46,14 +46,33 @@
->  
->  #ifndef __ASSEMBLER__
->  
-> -static inline void sigp_stop(void)
-> +
-> +static inline int sigp(uint16_t addr, uint8_t order, unsigned long parm,
-> +		       uint32_t *status)
->  {
-> -	register unsigned long status asm ("1") = 0;
-> -	register unsigned long cpu asm ("2") = 0;
-> +	register unsigned long reg1 asm ("1") = parm;
-> +	int cc;
->  
->  	asm volatile(
-> -		"	sigp %0,%1,0(%2)\n"
-> -		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
-> +		"	sigp	%1,%2,0(%3)\n"
-> +		"	ipm	%0\n"
-> +		"	srl	%0,28\n"
-> +		: "=d" (cc), "+d" (reg1) : "d" (addr), "a" (order) : "cc");
-> +	if (status)
-> +		*status = reg1;
-> +	return cc;
-> +}
-> +
-> +static inline int sigp_retry(uint16_t addr, uint8_t order, unsigned long parm,
-> +			     uint32_t *status)
-> +{
-> +	int cc;
-> +
-> +retry:
-> +	cc = sigp(addr, order, parm, status);
-> +	if (cc == 2)
-> +		goto retry;
+lib/crypto/sha256.c and include/crypto/sha256_base.h define
+99% identical functions to init a sha256_state struct for sha224 or
+sha256 use.
 
-Please change to:
+This commit moves the functions from lib/crypto/sha256.c to
+include/crypto/sha.h (making them static inline) and makes the
+sha224/256_base_init static inline functions from
+include/crypto/sha256_base.h wrappers around the now also
+static inline include/crypto/sha.h functions.
 
-	do {
-		cc = sigp(addr, order, parm, status);
-	} while (cc == 2);
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ include/crypto/sha.h         | 30 ++++++++++++++++++++++++++++--
+ include/crypto/sha256_base.h | 24 ++----------------------
+ lib/crypto/sha256.c          | 32 --------------------------------
+ 3 files changed, 30 insertions(+), 56 deletions(-)
 
-> +	return cc;
->  }
->  
->  #endif /* __ASSEMBLER__ */
-[...]
-> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-> new file mode 100644
-> index 0000000..b1b636a
-> --- /dev/null
-> +++ b/lib/s390x/smp.c
-[...]
-> +int smp_cpu_restart(uint16_t addr)
-> +{
-> +	int rc = 0;
-> +	struct cpu *cpu;
-> +
-> +	spin_lock(&lock);
-> +	cpu = smp_cpu_from_addr(addr);
-> +	if (!cpu) {
-> +		rc = -ENOENT;
-> +		goto out;
-> +	}
-> +
-> +	rc = sigp(cpu->addr, SIGP_RESTART, 0, NULL);
-
-I think you could use "addr" instead of "cpu->addr" here.
-
-> +	cpu->active = true;
-> +out:
-> +	spin_unlock(&lock);
-> +	return rc;
-> +}
-> +
-> +int smp_cpu_start(uint16_t addr, struct psw psw)
-> +{
-> +	int rc = 0;
-> +	struct cpu *cpu;
-> +	struct lowcore *lc;
-> +
-> +	spin_lock(&lock);
-> +	cpu = smp_cpu_from_addr(addr);
-> +	if (!cpu) {
-> +		rc = -ENOENT;
-> +		goto out;
-> +	}
-> +
-> +	lc = cpu->lowcore;
-> +	lc->restart_new_psw.mask = psw.mask;
-> +	lc->restart_new_psw.addr = psw.addr;
-> +	rc = sigp(cpu->addr, SIGP_RESTART, 0, NULL);
-
-dito
-
-> +out:
-> +	spin_unlock(&lock);
-> +	return rc;
-> +}
-> +
-> +int smp_cpu_destroy(uint16_t addr)
-> +{
-> +	struct cpu *cpu;
-> +	int rc = 0;
-> +
-> +	spin_lock(&lock);
-> +	rc = smp_cpu_stop_nolock(addr, false);
-> +	if (rc)
-> +		goto out;
-> +
-> +	cpu = smp_cpu_from_addr(addr);
-> +	free_pages(cpu->lowcore, 2 * PAGE_SIZE);
-> +	free_pages(cpu->stack, 4 * PAGE_SIZE);
-
-Maybe do this afterwards to make sure that nobody uses a dangling pointer:
-
-	cpu->lowcore = cpu->stack = -1UL;
-
-?
-
-> +out:
-> +	spin_unlock(&lock);
-> +	return rc;
-> +}
-> +
-> +int smp_cpu_setup(uint16_t addr, struct psw psw)
-> +{
-> +	struct lowcore *lc;
-> +	struct cpu *cpu;
-> +	int rc = 0;
-> +
-> +	spin_lock(&lock);
-> +
-> +	if (!cpus) {
-> +		rc = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	cpu = smp_cpu_from_addr(addr);
-> +
-> +	if (!cpu) {
-> +		rc = -ENOENT;
-> +		goto out;
-> +	}
-> +
-> +	if (cpu->active) {
-> +		rc = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	sigp_retry(cpu->addr, SIGP_INITIAL_CPU_RESET, 0, NULL);
-> +
-> +	lc = alloc_pages(1);
-> +	cpu->lowcore = lc;
-> +	memset(lc, 0, PAGE_SIZE * 2);
-> +	sigp_retry(cpu->addr, SIGP_SET_PREFIX, (unsigned long )lc, NULL);
-> +
-> +	/* Copy all exception psws. */
-> +	memcpy(lc, cpu0->lowcore, 512);
-> +
-> +	/* Setup stack */
-> +	cpu->stack = (uint64_t *)alloc_pages(2);
-> +
-> +	/* Start without DAT and any other mask bits. */
-> +	cpu->lowcore->sw_int_grs[14] = psw.addr;
-> +	cpu->lowcore->sw_int_grs[15] = (uint64_t)cpu->stack + (PAGE_SIZE * 4) / sizeof(cpu->stack);
-
-The end-of-stack calculation looks wrong to me. I think you either meant:
-
- ... = (uint64_t)(cpu->stack + (PAGE_SIZE * 4) / sizeof(*cpu->stack));
-
-or:
-
- ... = (uint64_t)cpu->stack + (PAGE_SIZE * 4);
-
-?
-
-> +	lc->restart_new_psw.mask = 0x0000000180000000UL;
-> +	lc->restart_new_psw.addr = (unsigned long)smp_cpu_setup_state;
-
-Maybe use "(uint64_t)" instead of "(unsigned long)"?
-
-> +	lc->sw_int_cr0 = 0x0000000000040000UL;
-> +
-> +	/* Start processing */
-> +	cpu->active = true;
-> +	rc = sigp_retry(cpu->addr, SIGP_RESTART, 0, NULL);
-
-Should cpu->active only be set to true if rc == 0 ?
-
-> +out:
-> +	spin_unlock(&lock);
-> +	return rc;
-> +}
-> +
-> +/*
-> + * Disregarding state, stop all cpus that once were online except for
-> + * calling cpu.
-> + */
-> +void smp_teardown(void)
-> +{
-> +	int i = 0;
-> +	uint16_t this_cpu = stap();
-> +	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
-> +
-> +	spin_lock(&lock);
-> +	for (; i < info->nr_configured; i++) {
-> +		if (cpus[i].active &&
-> +		    cpus[i].addr != this_cpu) {
-> +			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
-
-Maybe set cpus[i].active = false afterwards ?
-
-> +		}
-> +	}
-> +	spin_unlock(&lock);
-> +}
-
- Thomas
+diff --git a/include/crypto/sha.h b/include/crypto/sha.h
+index 535955c84187..5c2132c71900 100644
+--- a/include/crypto/sha.h
++++ b/include/crypto/sha.h
+@@ -123,12 +123,38 @@ extern int crypto_sha512_finup(struct shash_desc *desc, const u8 *data,
+  * For details see lib/crypto/sha256.c
+  */
+ 
+-extern int sha256_init(struct sha256_state *sctx);
++static inline int sha256_init(struct sha256_state *sctx)
++{
++	sctx->state[0] = SHA256_H0;
++	sctx->state[1] = SHA256_H1;
++	sctx->state[2] = SHA256_H2;
++	sctx->state[3] = SHA256_H3;
++	sctx->state[4] = SHA256_H4;
++	sctx->state[5] = SHA256_H5;
++	sctx->state[6] = SHA256_H6;
++	sctx->state[7] = SHA256_H7;
++	sctx->count = 0;
++
++	return 0;
++}
+ extern int sha256_update(struct sha256_state *sctx, const u8 *input,
+ 			 unsigned int length);
+ extern int sha256_final(struct sha256_state *sctx, u8 *hash);
+ 
+-extern int sha224_init(struct sha256_state *sctx);
++static inline int sha224_init(struct sha256_state *sctx)
++{
++	sctx->state[0] = SHA224_H0;
++	sctx->state[1] = SHA224_H1;
++	sctx->state[2] = SHA224_H2;
++	sctx->state[3] = SHA224_H3;
++	sctx->state[4] = SHA224_H4;
++	sctx->state[5] = SHA224_H5;
++	sctx->state[6] = SHA224_H6;
++	sctx->state[7] = SHA224_H7;
++	sctx->count = 0;
++
++	return 0;
++}
+ extern int sha224_update(struct sha256_state *sctx, const u8 *input,
+ 			 unsigned int length);
+ extern int sha224_final(struct sha256_state *sctx, u8 *hash);
+diff --git a/include/crypto/sha256_base.h b/include/crypto/sha256_base.h
+index 59159bc944f5..b8af853690b9 100644
+--- a/include/crypto/sha256_base.h
++++ b/include/crypto/sha256_base.h
+@@ -19,34 +19,14 @@ static inline int sha224_base_init(struct shash_desc *desc)
+ {
+ 	struct sha256_state *sctx = shash_desc_ctx(desc);
+ 
+-	sctx->state[0] = SHA224_H0;
+-	sctx->state[1] = SHA224_H1;
+-	sctx->state[2] = SHA224_H2;
+-	sctx->state[3] = SHA224_H3;
+-	sctx->state[4] = SHA224_H4;
+-	sctx->state[5] = SHA224_H5;
+-	sctx->state[6] = SHA224_H6;
+-	sctx->state[7] = SHA224_H7;
+-	sctx->count = 0;
+-
+-	return 0;
++	return sha224_init(sctx);
+ }
+ 
+ static inline int sha256_base_init(struct shash_desc *desc)
+ {
+ 	struct sha256_state *sctx = shash_desc_ctx(desc);
+ 
+-	sctx->state[0] = SHA256_H0;
+-	sctx->state[1] = SHA256_H1;
+-	sctx->state[2] = SHA256_H2;
+-	sctx->state[3] = SHA256_H3;
+-	sctx->state[4] = SHA256_H4;
+-	sctx->state[5] = SHA256_H5;
+-	sctx->state[6] = SHA256_H6;
+-	sctx->state[7] = SHA256_H7;
+-	sctx->count = 0;
+-
+-	return 0;
++	return sha256_init(sctx);
+ }
+ 
+ static inline int sha256_base_do_update(struct shash_desc *desc,
+diff --git a/lib/crypto/sha256.c b/lib/crypto/sha256.c
+index 220b74c2bbd8..66cb04b0cf4e 100644
+--- a/lib/crypto/sha256.c
++++ b/lib/crypto/sha256.c
+@@ -206,38 +206,6 @@ static void sha256_transform(u32 *state, const u8 *input)
+ 	memzero_explicit(W, 64 * sizeof(u32));
+ }
+ 
+-int sha256_init(struct sha256_state *sctx)
+-{
+-	sctx->state[0] = SHA256_H0;
+-	sctx->state[1] = SHA256_H1;
+-	sctx->state[2] = SHA256_H2;
+-	sctx->state[3] = SHA256_H3;
+-	sctx->state[4] = SHA256_H4;
+-	sctx->state[5] = SHA256_H5;
+-	sctx->state[6] = SHA256_H6;
+-	sctx->state[7] = SHA256_H7;
+-	sctx->count = 0;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(sha256_init);
+-
+-int sha224_init(struct sha256_state *sctx)
+-{
+-	sctx->state[0] = SHA224_H0;
+-	sctx->state[1] = SHA224_H1;
+-	sctx->state[2] = SHA224_H2;
+-	sctx->state[3] = SHA224_H3;
+-	sctx->state[4] = SHA224_H4;
+-	sctx->state[5] = SHA224_H5;
+-	sctx->state[6] = SHA224_H6;
+-	sctx->state[7] = SHA224_H7;
+-	sctx->count = 0;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(sha224_init);
+-
+ int sha256_update(struct sha256_state *sctx, const u8 *data, unsigned int len)
+ {
+ 	unsigned int partial, done;
+-- 
+2.23.0
