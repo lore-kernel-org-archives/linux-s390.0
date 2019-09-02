@@ -1,104 +1,129 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50806 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732085AbfILNjb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Sep 2019 09:39:31 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8CDWaeU137468
-        for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2019 09:39:29 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2uyptmgq32-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2019 09:39:29 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Thu, 12 Sep 2019 14:39:27 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] KVM: s390: Do not leak kernel stack data in the KVM_S390_INTERRUPT ioctl
-Date: Thu, 12 Sep 2019 15:39:21 +0200
-In-Reply-To: <20190912133921.6886-1-borntraeger@de.ibm.com>
-References: <20190912133921.6886-1-borntraeger@de.ibm.com>
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:45594 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731204AbfIBORM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Sep 2019 10:17:12 -0400
+Received: by mail-wr1-f67.google.com with SMTP id q12so14162783wrj.12
+        for <linux-s390@vger.kernel.org>; Mon, 02 Sep 2019 07:17:08 -0700 (PDT)
+Reply-To: monstr@monstr.eu
+Subject: Re: [PATCH 03/26] m68k, microblaze: remove ioremap_fullcache
+References: <20190817073253.27819-1-hch@lst.de>
+ <20190817073253.27819-4-hch@lst.de>
+From: Michal Simek <monstr@monstr.eu>
+Message-ID: <9a11ddb0-0799-c64a-f5aa-0504c564998f@monstr.eu>
+Date: Mon, 2 Sep 2019 16:16:52 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190912133921.6886-3-borntraeger@de.ibm.com>
+In-Reply-To: <20190817073253.27819-4-hch@lst.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="sxrD5DzuLHXmSTexCf4xoEovzaJstmsXm"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--sxrD5DzuLHXmSTexCf4xoEovzaJstmsXm
+Content-Type: multipart/mixed; boundary="Gv98DqTDPDXpgdAS8uye8pnF1A8XQfxBm";
+ protected-headers="v1"
+From: Michal Simek <monstr@monstr.eu>
+Reply-To: monstr@monstr.eu
+To: Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>,
+ Guo Ren <guoren@kernel.org>, Greentime Hu <green.hu@gmail.com>,
+ Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>,
+ x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
+ linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org,
+ openrisc@lists.librecores.org, linux-parisc@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org,
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <9a11ddb0-0799-c64a-f5aa-0504c564998f@monstr.eu>
+Subject: Re: [PATCH 03/26] m68k, microblaze: remove ioremap_fullcache
+References: <20190817073253.27819-1-hch@lst.de>
+ <20190817073253.27819-4-hch@lst.de>
+In-Reply-To: <20190817073253.27819-4-hch@lst.de>
 
-When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
-an interrupt, we convert them from the legacy struct kvm_s390_interrupt
-to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
-However, this function does not take care of all types of interrupts
-that we can inject into the guest later (see do_inject_vcpu()). Since we
-do not clear out the s390irq values before calling s390int_to_s390irq(),
-there is a chance that we copy random data from the kernel stack which
-could be leaked to the userspace later.
+--Gv98DqTDPDXpgdAS8uye8pnF1A8XQfxBm
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
-interrupt: s390int_to_s390irq() does not handle it, and the function
-__inject_pfault_init() later copies irq->u.ext which contains the
-random kernel stack data. This data can then be leaked either to
-the guest memory in __deliver_pfault_init(), or the userspace might
-retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
+On 17. 08. 19 9:32, Christoph Hellwig wrote:
+> No callers of this function.
+>=20
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/m68k/include/asm/kmap.h     | 7 -------
+>  arch/microblaze/include/asm/io.h | 1 -
+>  2 files changed, 8 deletions(-)
+>=20
+> diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.=
+h
+> index aac7f045f7f0..03d904fe6087 100644
+> --- a/arch/m68k/include/asm/kmap.h
+> +++ b/arch/m68k/include/asm/kmap.h
+> @@ -43,13 +43,6 @@ static inline void __iomem *ioremap_wt(unsigned long=
+ physaddr,
+>  	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+>  }
+> =20
+> -#define ioremap_fullcache ioremap_fullcache
+> -static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+> -					      unsigned long size)
+> -{
+> -	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+> -}
+> -
+>  #define memset_io memset_io
+>  static inline void memset_io(volatile void __iomem *addr, unsigned cha=
+r val,
+>  			     int count)
+> diff --git a/arch/microblaze/include/asm/io.h b/arch/microblaze/include=
+/asm/io.h
+> index c7968139486f..86c95b2a1ce1 100644
+> --- a/arch/microblaze/include/asm/io.h
+> +++ b/arch/microblaze/include/asm/io.h
+> @@ -40,7 +40,6 @@ extern void iounmap(volatile void __iomem *addr);
+> =20
+>  extern void __iomem *ioremap(phys_addr_t address, unsigned long size);=
 
-Fix it by handling that interrupt type in s390int_to_s390irq(), too,
-and by making sure that the s390irq struct is properly pre-initialized.
-And while we're at it, make sure that s390int_to_s390irq() now
-directly returns -EINVAL for unknown interrupt types, so that we
-immediately get a proper error code in case we add more interrupt
-types to do_inject_vcpu() without updating s390int_to_s390irq()
-sometime in the future.
+>  #define ioremap_nocache(addr, size)		ioremap((addr), (size))
+> -#define ioremap_fullcache(addr, size)		ioremap((addr), (size))
+>  #define ioremap_wc(addr, size)			ioremap((addr), (size))
+>  #define ioremap_wt(addr, size)			ioremap((addr), (size))
+> =20
+>=20
 
-Cc: stable@vger.kernel.org
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Link: https://lore.kernel.org/kvm/20190912115438.25761-1-thuth@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 10 ++++++++++
- arch/s390/kvm/kvm-s390.c  |  2 +-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+Acked-by: Michal Simek <monstr@monstr.eu> (for Microblaze)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index b5fd6e85657c..d1ccc168c071 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1961,6 +1961,16 @@ int s390int_to_s390irq(struct kvm_s390_interrupt *s390int,
- 	case KVM_S390_MCHK:
- 		irq->u.mchk.mcic = s390int->parm64;
- 		break;
-+	case KVM_S390_INT_PFAULT_INIT:
-+		irq->u.ext.ext_params = s390int->parm;
-+		irq->u.ext.ext_params2 = s390int->parm64;
-+		break;
-+	case KVM_S390_RESTART:
-+	case KVM_S390_INT_CLOCK_COMP:
-+	case KVM_S390_INT_CPU_TIMER:
-+		break;
-+	default:
-+		return -EINVAL;
- 	}
- 	return 0;
- }
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index b298fcc9ec56..0d697b436f2b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4335,7 +4335,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
- 	}
- 	case KVM_S390_INTERRUPT: {
- 		struct kvm_s390_interrupt s390int;
--		struct kvm_s390_irq s390irq;
-+		struct kvm_s390_irq s390irq = {};
- 
- 		if (copy_from_user(&s390int, argp, sizeof(s390int)))
- 			return -EFAULT;
--- 
-2.21.0
+Thanks,
+Michal
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP/Versal SoCs
+
+
+
+--Gv98DqTDPDXpgdAS8uye8pnF1A8XQfxBm--
+
+--sxrD5DzuLHXmSTexCf4xoEovzaJstmsXm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQQbPNTMvXmYlBPRwx7KSWXLKUoMIQUCXW0kVQAKCRDKSWXLKUoM
+IUCIAJ0dq35U3Gq44M2ocYgcj4SW3Em/1wCfajAs22UIYAGzwTZZyZTvB5OFi1I=
+=essT
+-----END PGP SIGNATURE-----
+
+--sxrD5DzuLHXmSTexCf4xoEovzaJstmsXm--
