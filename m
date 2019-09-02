@@ -1,93 +1,134 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:42206 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729408AbfIBH3y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Sep 2019 03:29:54 -0400
-Date: Mon, 2 Sep 2019 09:25:42 +0200
-From: Peter Zijlstra <peterz@infradead.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH v2 2/9] x86: numa: check the node id consistently for x86
-Message-ID: <20190902072542.GN2369@hirez.programming.kicks-ass.net>
 References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
  <1567231103-13237-3-git-send-email-linyunsheng@huawei.com>
  <20190831085539.GG2369@hirez.programming.kicks-ass.net>
  <4d89c688-49e4-a2aa-32ee-65e36edcd913@huawei.com>
  <20190831161247.GM2369@hirez.programming.kicks-ass.net>
- <ae64285f-5134-4147-7b02-34bb5d519e8c@huawei.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Message-ID: <ae64285f-5134-4147-7b02-34bb5d519e8c@huawei.com>
+Date: Mon, 2 Sep 2019 13:46:51 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ae64285f-5134-4147-7b02-34bb5d519e8c@huawei.com>
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20190831161247.GM2369@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Yunsheng Lin <linyunsheng@huawei.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: dalias@libc.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, dave.hansen@linux.intel.com, heiko.carstens@de.ibm.com, linuxarm@huawei.com, jiaxun.yang@flygoat.com, linux-mips@vger.kernel.org, mwb@linux.vnet.ibm.com, paulus@samba.org, hpa@zytor.com, sparclinux@vger.kernel.org, chenhc@lemote.com, will@kernel.org, cai@lca.pw, linux-s390@vger.kernel.org, ysato@users.sourceforge.jp, mpe@ellerman.id.au, x86@kernel.org, rppt@linux.ibm.com, borntraeger@de.ibm.com, dledford@redhat.com, mingo@redhat.com, jeffrey.t.kirsher@intel.com, benh@kernel.crashing.org, jhogan@kernel.org, nfont@linux.vnet.ibm.com, mattst88@gmail.com, len.brown@intel.com, gor@linux.ibm.com, anshuman.khandual@arm.com, bp@alien8.de, luto@kernel.org, tglx@linutronix.de, naveen.n.rao@linux.vnet.ibm.com, linux-arm-kernel@lists.infradead.org, rth@twiddle.net, axboe@kernel.dk, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, ralf@linux-mips.org, tbogendoerfer@suse.de, paul.burton@mips.com, linux-alpha@vger.kernel.org, ink@jurassic.park.msu.ru, akpm@linux-foundation.org, robin.murphy@arm.com, davem@davemloft.net
 
-On Mon, Sep 02, 2019 at 01:46:51PM +0800, Yunsheng Lin wrote:
-> On 2019/9/1 0:12, Peter Zijlstra wrote:
-
-> > 1) because even it is not set, the device really does belong to a node.
-> > It is impossible a device will have magic uniform access to memory when
-> > CPUs cannot.
+On 2019/9/1 0:12, Peter Zijlstra wrote:
+> On Sat, Aug 31, 2019 at 06:09:39PM +0800, Yunsheng Lin wrote:
+>>
+>>
+>> On 2019/8/31 16:55, Peter Zijlstra wrote:
+>>> On Sat, Aug 31, 2019 at 01:58:16PM +0800, Yunsheng Lin wrote:
+>>>> According to Section 6.2.14 from ACPI spec 6.3 [1], the setting
+>>>> of proximity domain is optional, as below:
+>>>>
+>>>> This optional object is used to describe proximity domain
+>>>> associations within a machine. _PXM evaluates to an integer
+>>>> that identifies a device as belonging to a Proximity Domain
+>>>> defined in the System Resource Affinity Table (SRAT).
+>>>
+>>> That's just words.. what does it actually mean?
+>>
+>> It means the dev_to_node(dev) may return -1 if the bios does not
+>> implement the proximity domain feature, user may use that value
+>> to call cpumask_of_node and cpumask_of_node does not protect itself
+>> from node id being -1, which causes out of bound access.
 > 
-> So it means dev_to_node() will return either NUMA_NO_NODE or a
-> valid node id?
-
-NUMA_NO_NODE := -1, which is not a valid node number. It is also, like I
-said, not a valid device location on a NUMA system.
-
-Just because ACPI/BIOS is shit, doesn't mean the device doesn't have a
-node association. It just means we don't know and might have to guess.
-
-> > 2) is already true today, cpumask_of_node() requires a valid node_id.
+>>>> @@ -69,6 +69,12 @@ extern const struct cpumask *cpumask_of_node(int node);
+>>>>  /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
+>>>>  static inline const struct cpumask *cpumask_of_node(int node)
+>>>>  {
+>>>> +	if (node >= nr_node_ids)
+>>>> +		return cpu_none_mask;
+>>>> +
+>>>> +	if (node < 0 || !node_to_cpumask_map[node])
+>>>> +		return cpu_online_mask;
+>>>> +
+>>>>  	return node_to_cpumask_map[node];
+>>>>  }
+>>>>  #endif
+>>>
+>>> I _reallly_ hate this. Users are expected to use valid numa ids. Now
+>>> we're adding all this checking to all users. Why do we want to do that?
+>>
+>> As above, the dev_to_node(dev) may return -1.
+>>
+>>>
+>>> Using '(unsigned)node >= nr_nods_ids' is an error.
+>>
+>> 'node >= nr_node_ids' can be dropped if all user is expected to not call
+>> cpumask_of_node with node id greater or equal to nr_nods_ids.
 > 
-> Ok, most of the user does check node_id before calling
-> cpumask_of_node(), but does a little different type of checking:
+> you copied my typo :-)
+
+I did note the typo, corrected the first one, but missed the second one :)
+
 > 
-> 1) some does " < 0" check;
-> 2) some does "== NUMA_NO_NODE" check;
-> 3) some does ">= MAX_NUMNODES" check;
-> 4) some does "< 0 || >= MAX_NUMNODES || !node_online(node)" check.
-
-The one true way is:
-
-	'(unsigned)node_id >= nr_node_ids'
-
-> > 3) is just wrong and increases overhead for everyone.
+>> From what I can see, the problem can be fixed in three place:
+>> 1. Make user dev_to_node return a valid node id even when proximity
+>>    domain is not set by bios(or node id set by buggy bios is not valid),
+>>    which may need info from the numa system to make sure it will return
+>>    a valid node.
+>>
+>> 2. User that call cpumask_of_node should ensure the node id is valid
+>>    before calling cpumask_of_node, and user also need some info to
+>>    make ensure node id is valid.
+>>
+>> 3. Make sure cpumask_of_node deal with invalid node id as this patchset.
+>>
+>> Which one do you prefer to make sure node id is valid, or do you
+>> have any better idea?
+>>
+>> Any detail advice and suggestion will be very helpful, thanks.
 > 
-> Ok, cpumask_of_node() is also used in some critical path such
-> as scheduling, which may not need those checking, the overhead
-> is unnecessary.
-> 
-> But for non-critical path such as setup or configuration path,
-> it better to have consistent checking, and also simplify the
-> user code that calls cpumask_of_node().
-> 
-> Do you think it is worth the trouble to add a new function
-> such as cpumask_of_node_check(maybe some other name) to do
-> consistent checking?
-> 
-> Or caller just simply check if dev_to_node()'s return value is
-> NUMA_NO_NODE before calling cpumask_of_node()?
+> 1) because even it is not set, the device really does belong to a node.
+> It is impossible a device will have magic uniform access to memory when
+> CPUs cannot.
 
-It is not a matter of convenience. The function is called
-cpumask_of_node(), when node < 0 || node >= nr_node_ids, it is not a
-valid node, therefore the function shouldn't return anything except an
-error.
+So it means dev_to_node() will return either NUMA_NO_NODE or a
+valid node id?
 
-Also note that the CONFIG_DEBUG_PER_CPU_MAPS version of
-cpumask_of_node() already does this (although it wants the below fix).
+> 
+> 2) is already true today, cpumask_of_node() requires a valid node_id.
 
----
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index e6dad600614c..5f49c10201c7 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -861,7 +861,7 @@ void numa_remove_cpu(int cpu)
-  */
- const struct cpumask *cpumask_of_node(int node)
- {
--	if (node >= nr_node_ids) {
-+	if ((unsigned)node >= nr_node_ids) {
- 		printk(KERN_WARNING
- 			"cpumask_of_node(%d): node > nr_node_ids(%u)\n",
- 			node, nr_node_ids);
+Ok, most of the user does check node_id before calling
+cpumask_of_node(), but does a little different type of checking:
+
+1) some does " < 0" check;
+2) some does "== NUMA_NO_NODE" check;
+3) some does ">= MAX_NUMNODES" check;
+4) some does "< 0 || >= MAX_NUMNODES || !node_online(node)" check.
+
+
+> 
+> 3) is just wrong and increases overhead for everyone.
+
+Ok, cpumask_of_node() is also used in some critical path such
+as scheduling, which may not need those checking, the overhead
+is unnecessary.
+
+But for non-critical path such as setup or configuration path,
+it better to have consistent checking, and also simplify the
+user code that calls cpumask_of_node().
+
+Do you think it is worth the trouble to add a new function
+such as cpumask_of_node_check(maybe some other name) to do
+consistent checking?
+
+Or caller just simply check if dev_to_node()'s return value is
+NUMA_NO_NODE before calling cpumask_of_node()?
+
+
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
+> .
+> 
