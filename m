@@ -1,70 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40386 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731737AbfIEIkk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 04:40:40 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x858bchb051918
-        for <linux-s390@vger.kernel.org>; Thu, 5 Sep 2019 04:40:39 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2utx8r27tf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Sep 2019 04:40:39 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 5 Sep 2019 09:40:37 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [GIT PULL 5/8] KVM: s390: improve documentation for S390_MEM_OP
-Date: Thu,  5 Sep 2019 10:40:06 +0200
-In-Reply-To: <20190905084009.26106-1-frankja@linux.ibm.com>
-References: <20190905084009.26106-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:55654 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727069AbfICQcM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Sep 2019 12:32:12 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 162/167] virtio/s390: fix race on airq_areas[]
+Date: Tue,  3 Sep 2019 12:25:14 -0400
+Message-Id: <20190903162519.7136-162-sashal@kernel.org>
+In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
+References: <20190903162519.7136-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20190905084009.26106-6-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, rkrcmar@redhat.com
-Cc: kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Explicitly specify the valid ranges for size and ar, and reword
-buf requirements a bit.
+[ Upstream commit 4f419eb14272e0698e8c55bb5f3f266cc2a21c81 ]
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Link: https://lkml.kernel.org/r/20190829124746.28665-1-cohuck@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+The access to airq_areas was racy ever since the adapter interrupts got
+introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
+make airq summary indicators DMA") this became an issue in practice as
+well. Namely before that commit the airq_info that got overwritten was
+still functional. After that commit however the two infos share a
+summary_indicator, which aggravates the situation. Which means
+auto-online mechanism occasionally hangs the boot with virtio_blk.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/virt/kvm/api.txt | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
-index 2d067767b617..76c9d6fdbfdb 100644
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -3079,12 +3079,14 @@ This exception is also raised directly at the corresponding VCPU if the
- flag KVM_S390_MEMOP_F_INJECT_EXCEPTION is set in the "flags" field.
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index ec54538f7ae1c..67efdf25657f3 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -132,6 +132,7 @@ struct airq_info {
+ 	struct airq_iv *aiv;
+ };
+ static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
++static DEFINE_MUTEX(airq_areas_lock);
  
- The start address of the memory region has to be specified in the "gaddr"
--field, and the length of the region in the "size" field. "buf" is the buffer
--supplied by the userspace application where the read data should be written
--to for KVM_S390_MEMOP_LOGICAL_READ, or where the data that should be written
--is stored for a KVM_S390_MEMOP_LOGICAL_WRITE. "buf" is unused and can be NULL
--when KVM_S390_MEMOP_F_CHECK_ONLY is specified. "ar" designates the access
--register number to be used.
-+field, and the length of the region in the "size" field (which must not
-+be 0). The maximum value for "size" can be obtained by checking the
-+KVM_CAP_S390_MEM_OP capability. "buf" is the buffer supplied by the
-+userspace application where the read data should be written to for
-+KVM_S390_MEMOP_LOGICAL_READ, or where the data that should be written is
-+stored for a KVM_S390_MEMOP_LOGICAL_WRITE. When KVM_S390_MEMOP_F_CHECK_ONLY
-+is specified, "buf" is unused and can be NULL. "ar" designates the access
-+register number to be used; the valid range is 0..15.
+ #define CCW_CMD_SET_VQ 0x13
+ #define CCW_CMD_VDEV_RESET 0x33
+@@ -244,9 +245,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
+ 	unsigned long bit, flags;
  
- The "reserved" field is meant for future extensions. It is not used by
- KVM with the currently defined set of flags.
+ 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
++		mutex_lock(&airq_areas_lock);
+ 		if (!airq_areas[i])
+ 			airq_areas[i] = new_airq_info();
+ 		info = airq_areas[i];
++		mutex_unlock(&airq_areas_lock);
+ 		if (!info)
+ 			return 0;
+ 		write_lock_irqsave(&info->lock, flags);
 -- 
 2.20.1
