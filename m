@@ -1,164 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29268 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393514AbfIGAOM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Sep 2019 20:14:12 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v4 1/4] s390: pci: Exporting access to CLP PCI function and PCI group
-Date: Fri,  6 Sep 2019 20:13:48 -0400
-Message-Id: <1567815231-17940-2-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6122 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726270AbfICSyh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Sep 2019 14:54:37 -0400
+References: <20190806044919.10622-2-bauerman@linux.ibm.com> <46MFPW6NYNz9sDQ@ozlabs.org>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Subject: Re: [PATCH v4 1/6] x86, s390: Move ARCH_HAS_MEM_ENCRYPT definition to arch/Kconfig
+In-reply-to: <46MFPW6NYNz9sDQ@ozlabs.org>
+Date: Tue, 03 Sep 2019 15:53:54 -0300
+Message-ID: <87k1apky7x.fsf@morokweng.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: sebott@linux.ibm.com
-Cc: gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
+To: Michael Ellerman <patch-notifications@ellerman.id.au>
+Cc: x86@kernel.org, linux-s390@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Robin Murphy <robin.murphy@arm.com>, Mike Anderson <andmike@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>, Halil Pasic <pasic@linux.ibm.com>, iommu@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-fsdevel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>
 
-From: Pierre Morel <pmorel@linux.ibm.com>
 
-For the generic implementation of VFIO PCI we need to retrieve
-the hardware configuration for the PCI functions and the
-PCI function groups.
+Michael Ellerman <patch-notifications@ellerman.id.au> writes:
 
-We modify the internal function using CLP Query PCI function and
-CLP query PCI function group so that they can be called from
-outside the S390 architecture PCI code and prefix the two
-functions with "zdev" to make clear that they can be called
-knowing only the associated zdevice.
+> On Tue, 2019-08-06 at 04:49:14 UTC, Thiago Jung Bauermann wrote:
+>> powerpc is also going to use this feature, so put it in a generic location.
+>> 
+>> Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+>> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+>> Reviewed-by: Christoph Hellwig <hch@lst.de>
+>
+> Series applied to powerpc topic/mem-encrypt, thanks.
+>
+> https://git.kernel.org/powerpc/c/0c9c1d56397518eb823d458b00b06bcccd956794
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
----
- arch/s390/include/asm/pci.h |  3 ++
- arch/s390/pci/pci_clp.c     | 71 +++++++++++++++++++++++----------------------
- 2 files changed, 40 insertions(+), 34 deletions(-)
+Thank you!
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index a2399ef..dd03212 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -266,4 +266,7 @@ static inline int __pcibus_to_node(const struct pci_bus *bus)
- 
- #endif /* CONFIG_NUMA */
- 
-+int zdev_query_pci_fngrp(struct zpci_dev *zdev,
-+			 struct clp_req_rsp_query_pci_grp *rrb);
-+int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb);
- #endif
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 9bdff4d..df06fdf 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -113,32 +113,18 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
- 	}
- }
- 
--static int clp_query_pci_fngrp(struct zpci_dev *zdev, u8 pfgid)
-+int zdev_query_pci_fngrp(struct zpci_dev *zdev,
-+			 struct clp_req_rsp_query_pci_grp *rrb)
- {
--	struct clp_req_rsp_query_pci_grp *rrb;
--	int rc;
--
--	rrb = clp_alloc_block(GFP_KERNEL);
--	if (!rrb)
--		return -ENOMEM;
--
- 	memset(rrb, 0, sizeof(*rrb));
- 	rrb->request.hdr.len = sizeof(rrb->request);
- 	rrb->request.hdr.cmd = CLP_QUERY_PCI_FNGRP;
- 	rrb->response.hdr.len = sizeof(rrb->response);
--	rrb->request.pfgid = pfgid;
-+	rrb->request.pfgid = zdev->pfgid;
- 
--	rc = clp_req(rrb, CLP_LPS_PCI);
--	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
--		clp_store_query_pci_fngrp(zdev, &rrb->response);
--	else {
--		zpci_err("Q PCI FGRP:\n");
--		zpci_err_clp(rrb->response.hdr.rsp, rc);
--		rc = -EIO;
--	}
--	clp_free_block(rrb);
--	return rc;
-+	return clp_req(rrb, CLP_LPS_PCI);
- }
-+EXPORT_SYMBOL(zdev_query_pci_fngrp);
- 
- static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 				  struct clp_rsp_query_pci *response)
-@@ -174,32 +160,49 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 	return 0;
- }
- 
--static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
-+int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb)
-+{
-+
-+	memset(rrb, 0, sizeof(*rrb));
-+	rrb->request.hdr.len = sizeof(rrb->request);
-+	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
-+	rrb->response.hdr.len = sizeof(rrb->response);
-+	rrb->request.fh = zdev->fh;
-+
-+	return clp_req(rrb, CLP_LPS_PCI);
-+}
-+
-+static int clp_query_pci(struct zpci_dev *zdev)
- {
- 	struct clp_req_rsp_query_pci *rrb;
-+	struct clp_req_rsp_query_pci_grp *grrb;
- 	int rc;
- 
- 	rrb = clp_alloc_block(GFP_KERNEL);
- 	if (!rrb)
- 		return -ENOMEM;
- 
--	memset(rrb, 0, sizeof(*rrb));
--	rrb->request.hdr.len = sizeof(rrb->request);
--	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
--	rrb->response.hdr.len = sizeof(rrb->response);
--	rrb->request.fh = fh;
--
--	rc = clp_req(rrb, CLP_LPS_PCI);
--	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
--		rc = clp_store_query_pci_fn(zdev, &rrb->response);
--		if (rc)
--			goto out;
--		rc = clp_query_pci_fngrp(zdev, rrb->response.pfgid);
--	} else {
-+	rc = zdev_query_pci_fn(zdev, rrb);
-+	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
- 		zpci_err("Q PCI FN:\n");
- 		zpci_err_clp(rrb->response.hdr.rsp, rc);
- 		rc = -EIO;
-+		goto out;
- 	}
-+	rc = clp_store_query_pci_fn(zdev, &rrb->response);
-+	if (rc)
-+		goto out;
-+
-+	grrb = (struct clp_req_rsp_query_pci_grp *)rrb;
-+	rc = zdev_query_pci_fngrp(zdev, grrb);
-+	if (rc || grrb->response.hdr.rsp != CLP_RC_OK) {
-+		zpci_err("Q PCI FGRP:\n");
-+		zpci_err_clp(grrb->response.hdr.rsp, rc);
-+		rc = -EIO;
-+		goto out;
-+	}
-+	clp_store_query_pci_fngrp(zdev, &grrb->response);
-+
- out:
- 	clp_free_block(rrb);
- 	return rc;
-@@ -219,7 +222,7 @@ int clp_add_pci_device(u32 fid, u32 fh, int configured)
- 	zdev->fid = fid;
- 
- 	/* Query function properties and update zdev */
--	rc = clp_query_pci_fn(zdev, fh);
-+	rc = clp_query_pci(zdev);
- 	if (rc)
- 		goto error;
- 
 -- 
-1.8.3.1
+Thiago Jung Bauermann
+IBM Linux Technology Center
