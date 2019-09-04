@@ -1,31 +1,25 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48046 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbfIDJPd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 4 Sep 2019 05:15:33 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH v2 1/2] KVM: s390: Disallow invalid bits in kvm_valid_regs
  and kvm_dirty_regs
 References: <20190904085200.29021-1-thuth@redhat.com>
  <20190904085200.29021-2-thuth@redhat.com>
  <b34a237f-77a5-2939-624d-0240451f2976@redhat.com>
- <8f48d9dd-1464-75aa-2011-b15adc5a4eab@de.ibm.com>
+ <79e5e0a4-78f3-8a61-7311-b711cf4bcd9f@redhat.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <b7f51ff1-8f87-896a-0a8a-dd9a714173d0@redhat.com>
-Date: Wed, 4 Sep 2019 11:15:30 +0200
+Message-ID: <27189f65-3c8c-91ed-1f20-5e19ef4e6f38@redhat.com>
+Date: Wed, 4 Sep 2019 11:11:57 +0200
 MIME-Version: 1.0
-In-Reply-To: <8f48d9dd-1464-75aa-2011-b15adc5a4eab@de.ibm.com>
+In-Reply-To: <79e5e0a4-78f3-8a61-7311-b711cf4bcd9f@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 04.09.19 11:11, Christian Borntraeger wrote:
-> 
-> 
-> On 04.09.19 11:05, David Hildenbrand wrote:
+On 04.09.19 11:10, Thomas Huth wrote:
+> On 04/09/2019 11.05, David Hildenbrand wrote:
 >> On 04.09.19 10:51, Thomas Huth wrote:
 >>> If unknown bits are set in kvm_valid_regs or kvm_dirty_regs, this
 >>> clearly indicates that something went wrong in the KVM userspace
@@ -58,13 +52,17 @@ On 04.09.19 11:11, Christian Borntraeger wrote:
 >>
 >> We didn't care about the S390 for the actual flags, why care now?
 > 
-> I think it makes sense to have the interface as defined as possible. If for some
-> reason userspace sets a wrong bit this would be undetected. If we at a later point
-> in time use that bit this would resultin strange problems.
+> x86 does the same, and we don't want to be worse than x86, do we? ;-)
 
-Not arguing about the concept of checking for valid bits. Was just
-wondering if the "S390" part in the name makes sense at all. But you
-guys seem to have a consent here.
+Yeah, but they do have X86 in every flag - in contrast to us.
+
+> 
+> Honestly, this was just one of the differences that I noticed while
+> porting the sync_regs_test from x86 to s390x.
+> 
+>  Thomas
+> 
+
 
 -- 
 
