@@ -1,57 +1,70 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Message-Id: <20190919150314.054351477@linutronix.de>
-Date: Thu, 19 Sep 2019 17:03:14 +0200
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [RFC patch 00/15] entry: Provide generic implementation for host and
- guest entry/exit work
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/27] s390/bpf: use 32-bit index for tail calls
+Date: Wed,  4 Sep 2019 12:01:57 -0400
+Message-Id: <20190904160220.4545-4-sashal@kernel.org>
+In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
+References: <20190904160220.4545-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: x86@kernel.org, Peter Zijlstra <peterz@infradead.org>, Andy Lutomirski <luto@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Yauheni Kaliuta <yauheni.kaliuta@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
 
-When working on a way to move out the posix cpu timer expiry out of the
-timer interrupt context, I noticed that KVM is not handling pending task
-work before entering a guest. A quick hack was to add that to the x86 KVM
-handling loop. The discussion ended with a request to make this a generic
-infrastructure possible with also moving the per arch implementations of
-the enter from and return to user space handling generic.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-  https://lore.kernel.org/r/89E42BCC-47A8-458B-B06A-D6A20D20512C@amacapital.net
+[ Upstream commit 91b4db5313a2c793aabc2143efb8ed0cf0fdd097 ]
 
-You asked for it, so don't complain that you have to review it :)
+"p runtime/jit: pass > 32bit index to tail_call" fails when
+bpf_jit_enable=1, because the tail call is not executed.
 
-The series implements the syscall enter/exit and the general exit to
-userspace work handling along with the pre guest enter functionality.
+This in turn is because the generated code assumes index is 64-bit,
+while it must be 32-bit, and as a result prog array bounds check fails,
+while it should pass. Even if bounds check would have passed, the code
+that follows uses 64-bit index to compute prog array offset.
 
-The series converts x86 and ARM64. x86 is fully tested including selftests
-etc. ARM64 is only compile tested for now as my only ARM64 testbox is not
-available right now.
+Fix by using clrj instead of clgrj for comparing index with array size,
+and also by using llgfr for truncating index to 32 bits before using it
+to compute prog array offset.
 
-Thanks,
-
-	tglx
-
+Fixes: 6651ee070b31 ("s390/bpf: implement bpf_tail_call() helper")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- /Makefile                               |    3 
- arch/Kconfig                            |    3 
- arch/arm64/Kconfig                      |    1 
- arch/arm64/include/asm/kvm_host.h       |    1 
- arch/arm64/kernel/entry.S               |   18 -
- arch/arm64/kernel/ptrace.c              |   65 ------
- arch/arm64/kernel/signal.c              |   45 ----
- arch/arm64/kernel/syscall.c             |   49 ----
- arch/x86/Kconfig                        |    1 
- arch/x86/entry/common.c                 |  265 +-------------------------
- arch/x86/entry/entry_32.S               |   13 -
- arch/x86/entry/entry_64.S               |   12 -
- arch/x86/entry/entry_64_compat.S        |   21 --
- arch/x86/include/asm/signal.h           |    1 
- arch/x86/include/asm/thread_info.h      |    9 
- arch/x86/kernel/signal.c                |    2 
- arch/x86/kvm/x86.c                      |   17 -
- b/arch/arm64/include/asm/entry-common.h |   76 +++++++
- b/arch/x86/include/asm/entry-common.h   |  104 ++++++++++
- b/include/linux/entry-common.h          |  324 ++++++++++++++++++++++++++++++++
- b/kernel/entry/common.c                 |  220 +++++++++++++++++++++
- kernel/Makefile                         |    1 
- 22 files changed, 776 insertions(+), 475 deletions(-)
+ arch/s390/net/bpf_jit_comp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index e4616090732a4..9b15a1dc66287 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1062,8 +1062,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		/* llgf %w1,map.max_entries(%b2) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0016, REG_W1, REG_0, BPF_REG_2,
+ 			      offsetof(struct bpf_array, map.max_entries));
+-		/* clgrj %b3,%w1,0xa,label0: if %b3 >= %w1 goto out */
+-		EMIT6_PCREL_LABEL(0xec000000, 0x0065, BPF_REG_3,
++		/* clrj %b3,%w1,0xa,label0: if (u32)%b3 >= (u32)%w1 goto out */
++		EMIT6_PCREL_LABEL(0xec000000, 0x0077, BPF_REG_3,
+ 				  REG_W1, 0, 0xa);
+ 
+ 		/*
+@@ -1089,8 +1089,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		 *         goto out;
+ 		 */
+ 
+-		/* sllg %r1,%b3,3: %r1 = index * 8 */
+-		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, BPF_REG_3, REG_0, 3);
++		/* llgfr %r1,%b3: %r1 = (u32) index */
++		EMIT4(0xb9160000, REG_1, BPF_REG_3);
++		/* sllg %r1,%r1,3: %r1 *= 8 */
++		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, REG_1, REG_0, 3);
+ 		/* lg %r1,prog(%b2,%r1) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_1, BPF_REG_2,
+ 			      REG_1, offsetof(struct bpf_array, ptrs));
+-- 
+2.20.1
