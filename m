@@ -1,27 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:60790 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:34984 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726032AbfIEHch (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 03:32:37 -0400
-Date: Thu, 5 Sep 2019 09:32:05 +0200
-From: Peter Zijlstra <peterz@infradead.org>
+        with ESMTP id S1725965AbfIDVAS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Sep 2019 17:00:18 -0400
 Subject: Re: [PATCH v12 01/12] lib: introduce copy_struct_{to,from}_user
  helpers
-Message-ID: <20190905073205.GY2332@hirez.programming.kicks-ass.net>
 References: <20190904201933.10736-1-cyphar@cyphar.com>
  <20190904201933.10736-2-cyphar@cyphar.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <949531fe-76d0-a8c2-77d7-5bf2444e8eb6@infradead.org>
+Date: Wed, 4 Sep 2019 14:00:11 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20190904201933.10736-2-cyphar@cyphar.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Aleksa Sarai <cyphar@cyphar.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Christian Brauner <christian@brauner.io>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Aleksa Sarai <cyphar@cyphar.com>, Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 06:19:22AM +1000, Aleksa Sarai wrote:
+Hi,
+just kernel-doc fixes:
+
+On 9/4/19 1:19 PM, Aleksa Sarai wrote:
+> 
+> diff --git a/lib/struct_user.c b/lib/struct_user.c
+> new file mode 100644
+> index 000000000000..7301ab1bbe98
+> --- /dev/null
+> +++ b/lib/struct_user.c
+> @@ -0,0 +1,182 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * Copyright (C) 2019 SUSE LLC
+> + * Copyright (C) 2019 Aleksa Sarai <cyphar@cyphar.com>
+> + */
+> +
+> +#include <linux/types.h>
+> +#include <linux/export.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/kernel.h>
+> +#include <linux/string.h>
+> +
+> +#define BUFFER_SIZE 64
+> +
+
+> +
 > +/**
 > + * copy_struct_to_user: copy a struct to user space
+
+use correct format:
+
+    * copy_struct_to_user - copy a struct to user space
+
 > + * @dst:   Destination address, in user space.
 > + * @usize: Size of @dst struct.
 > + * @src:   Source address, in kernel space.
@@ -55,14 +87,7 @@ On Thu, Sep 05, 2019 at 06:19:22AM +1000, Aleksa Sarai wrote:
 > + *  * If @usize < @ksize, then kernel space is "returning" a newer struct to an
 > + *    older user space. In order to avoid user space getting incomplete
 > + *    information (new fields might be important), all trailing bytes in @src
-> + *    (@ksize - @usize) must be zerored
-
-s/zerored/zero/, right?
-
->                                          , otherwise -EFBIG is returned.
-
-'Funny' that, copy_struct_from_user() below seems to use E2BIG.
-
+> + *    (@ksize - @usize) must be zerored, otherwise -EFBIG is returned.
 > + *  * If @usize > @ksize, then the kernel is "returning" an older struct to a
 > + *    newer user space. The trailing bytes in @dst (@usize - @ksize) will be
 > + *    zero-filled.
@@ -79,10 +104,6 @@ s/zerored/zero/, right?
 > +
 > +	if (unlikely(usize > PAGE_SIZE))
 > +		return -EFAULT;
-
-Not documented above. Implementation consistent with *from*, but see
-below.
-
 > +	if (unlikely(!access_ok(dst, usize)))
 > +		return -EFAULT;
 > +
@@ -102,7 +123,13 @@ below.
 > +EXPORT_SYMBOL(copy_struct_to_user);
 > +
 > +/**
+
+same here:
+
 > + * copy_struct_from_user: copy a struct from user space
+
+    * copy_struct_from_user - copy a struct from user space
+
 > + * @dst:   Destination address, in kernel space. This buffer must be @ksize
 > + *         bytes long.
 > + * @ksize: Size of @dst struct.
@@ -152,9 +179,6 @@ below.
 > +
 > +	if (unlikely(usize > PAGE_SIZE))
 > +		return -EFAULT;
-
-Documented above as returning -E2BIG.
-
 > +	if (unlikely(!access_ok(src, usize)))
 > +		return -EFAULT;
 > +
@@ -164,9 +188,6 @@ Documented above as returning -E2BIG.
 > +	else if (usize > ksize) {
 > +		const void __user *addr = src + size;
 > +		char buffer[BUFFER_SIZE] = {};
-
-Isn't that too big for on-stack?
-
 > +
 > +		while (rest > 0) {
 > +			size_t bufsize = min(rest, sizeof(buffer));
@@ -179,10 +200,6 @@ Isn't that too big for on-stack?
 > +			addr += bufsize;
 > +			rest -= bufsize;
 > +		}
-
-The perf implementation uses get_user(); but if that is too slow, surely
-we can do something with uaccess_try() here?
-
 > +	}
 > +	/* Copy the interoperable parts of the struct. */
 > +	if (__copy_from_user(dst, src, size))
@@ -190,5 +207,8 @@ we can do something with uaccess_try() here?
 > +	return 0;
 > +}
 > +EXPORT_SYMBOL(copy_struct_from_user);
+> 
 
-And personally I'm not a big fan of EXPORT_SYMBOL().
+thanks.
+-- 
+~Randy
