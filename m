@@ -1,99 +1,70 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12564 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438777AbfIXQGh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Sep 2019 12:06:37 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8OFlcfr077564
-        for <linux-s390@vger.kernel.org>; Tue, 24 Sep 2019 12:06:35 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v7p2agyf2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 24 Sep 2019 12:06:35 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Tue, 24 Sep 2019 17:06:33 +0100
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH] zfcp: fix reaction on bit error theshold notification with adapter close
-Date: Tue, 24 Sep 2019 18:06:16 +0200
-Message-Id: <20190924160616.15301-1-maier@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/52] s390/bpf: use 32-bit index for tail calls
+Date: Wed,  4 Sep 2019 11:59:23 -0400
+Message-Id: <20190904160004.3671-11-sashal@kernel.org>
+In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
+References: <20190904160004.3671-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Yauheni Kaliuta <yauheni.kaliuta@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
 
-Kernel message explanation:
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
- * Description:
- * The FCP channel reported that its bit error threshold has been exceeded.
- * These errors might result from a problem with the physical components
- * of the local fibre link into the FCP channel.
- * The problem might be damage or malfunction of the cable or
- * cable connection between the FCP channel and
- * the adjacent fabric switch port or the point-to-point peer.
- * Find details about the errors in the HBA trace for the FCP device.
- * The zfcp device driver closed down the FCP device
- * to limit the performance impact from possible I/O command timeouts.
- * User action:
- * Check for problems on the local fibre link, ensure that fibre optics are
- * clean and functional, and all cables are properly plugged.
- * After the repair action, you can manually recover the FCP device by
- * writing "0" into its "failed" sysfs attribute.
- * If recovery through sysfs is not possible, set the CHPID of the device
- * offline and back online on the service element.
+[ Upstream commit 91b4db5313a2c793aabc2143efb8ed0cf0fdd097 ]
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: <stable@vger.kernel.org> #2.6.30+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+"p runtime/jit: pass > 32bit index to tail_call" fails when
+bpf_jit_enable=1, because the tail call is not executed.
+
+This in turn is because the generated code assumes index is 64-bit,
+while it must be 32-bit, and as a result prog array bounds check fails,
+while it should pass. Even if bounds check would have passed, the code
+that follows uses 64-bit index to compute prog array offset.
+
+Fix by using clrj instead of clgrj for comparing index with array size,
+and also by using llgfr for truncating index to 32 bits before using it
+to compute prog array offset.
+
+Fixes: 6651ee070b31 ("s390/bpf: implement bpf_tail_call() helper")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ arch/s390/net/bpf_jit_comp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Martin, James,
-
-an important zfcp fix for v5.4-rc.
-It applies to Martin's 5.4/scsi-fixes or to James' fixes branch.
-
-
- drivers/s390/scsi/zfcp_fsf.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 296bbc3c4606..cf63916814cc 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -27,6 +27,11 @@
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index a3ce1fdc3d802..2617e426c7926 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -1015,8 +1015,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		/* llgf %w1,map.max_entries(%b2) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0016, REG_W1, REG_0, BPF_REG_2,
+ 			      offsetof(struct bpf_array, map.max_entries));
+-		/* clgrj %b3,%w1,0xa,label0: if %b3 >= %w1 goto out */
+-		EMIT6_PCREL_LABEL(0xec000000, 0x0065, BPF_REG_3,
++		/* clrj %b3,%w1,0xa,label0: if (u32)%b3 >= (u32)%w1 goto out */
++		EMIT6_PCREL_LABEL(0xec000000, 0x0077, BPF_REG_3,
+ 				  REG_W1, 0, 0xa);
  
- struct kmem_cache *zfcp_fsf_qtcb_cache;
+ 		/*
+@@ -1042,8 +1042,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		 *         goto out;
+ 		 */
  
-+static bool ber_stop = true;
-+module_param(ber_stop, bool, 0600);
-+MODULE_PARM_DESC(ber_stop,
-+		 "Shuts down FCP devices for FCP channels that report a bit-error count in excess of its threshold (default on)");
-+
- static void zfcp_fsf_request_timeout_handler(struct timer_list *t)
- {
- 	struct zfcp_fsf_req *fsf_req = from_timer(fsf_req, t, timer);
-@@ -236,10 +241,15 @@ static void zfcp_fsf_status_read_handler(struct zfcp_fsf_req *req)
- 	case FSF_STATUS_READ_SENSE_DATA_AVAIL:
- 		break;
- 	case FSF_STATUS_READ_BIT_ERROR_THRESHOLD:
--		dev_warn(&adapter->ccw_device->dev,
--			 "The error threshold for checksum statistics "
--			 "has been exceeded\n");
- 		zfcp_dbf_hba_bit_err("fssrh_3", req);
-+		if (ber_stop) {
-+			dev_warn(&adapter->ccw_device->dev,
-+				 "All paths over this FCP device are disused because of excessive bit errors\n");
-+			zfcp_erp_adapter_shutdown(adapter, 0, "fssrh_b");
-+		} else {
-+			dev_warn(&adapter->ccw_device->dev,
-+				 "The error threshold for checksum statistics has been exceeded\n");
-+		}
- 		break;
- 	case FSF_STATUS_READ_LINK_DOWN:
- 		zfcp_fsf_status_read_link_down(req);
+-		/* sllg %r1,%b3,3: %r1 = index * 8 */
+-		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, BPF_REG_3, REG_0, 3);
++		/* llgfr %r1,%b3: %r1 = (u32) index */
++		EMIT4(0xb9160000, REG_1, BPF_REG_3);
++		/* sllg %r1,%r1,3: %r1 *= 8 */
++		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, REG_1, REG_0, 3);
+ 		/* lg %r1,prog(%b2,%r1) */
+ 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_1, BPF_REG_2,
+ 			      REG_1, offsetof(struct bpf_array, ptrs));
 -- 
-2.17.1
+2.20.1
