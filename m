@@ -1,67 +1,51 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55366 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731981AbfIEKkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 06:40:08 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x85AbCTo094914
-        for <linux-s390@vger.kernel.org>; Thu, 5 Sep 2019 06:40:07 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2usu18q0sc-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Sep 2019 06:40:06 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 5 Sep 2019 11:40:04 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 0/6] s390x: Add multiboot and smp
-Date: Thu,  5 Sep 2019 12:39:45 +0200
-Message-Id: <20190905103951.36522-1-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/52] s390/bpf: fix lcgr instruction encoding
+Date: Wed,  4 Sep 2019 11:59:18 -0400
+Message-Id: <20190904160004.3671-6-sashal@kernel.org>
+In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
+References: <20190904160004.3671-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
 
-Cross testing emulated instructions has in the past brought up some
-issues on all available IBM Z hypervisors. So let's upstream the last
-part of multiboot: sclp interrupts and line mode console.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-SMP tests are a great way to excercise external interruptions, cpu
-resets and sigp. The smp library is always initialized and provides
-very rudimentary CPU management for now.
+[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
 
-v2:
-* Fixed cr0 masks
-* Replaced gotos with loops
-* Addressed other review comments
+"masking, test in bounds 3" fails on s390, because
+BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
+BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
+The associated comment indicates that the code was intended to
+emit lcgr in the first place, it's just that the wrong opcode
+was used.
 
-Janosch Frank (6):
-  s390x: Use interrupts in SCLP and add locking
-  s390x: Add linemode console
-  s390x: Add linemode buffer to fix newline on every print
-  s390x: Add initial smp code
-  s390x: Prepare for external calls
-  s390x: SMP test
+Fix by using the correct opcode.
 
- lib/s390x/asm/arch_def.h  |  13 ++
- lib/s390x/asm/interrupt.h |   5 +
- lib/s390x/asm/sigp.h      |  28 +++-
- lib/s390x/interrupt.c     |  28 +++-
- lib/s390x/io.c            |   5 +-
- lib/s390x/sclp-console.c  | 243 ++++++++++++++++++++++++++++++---
- lib/s390x/sclp.c          |  55 +++++++-
- lib/s390x/sclp.h          |  59 +++++++-
- lib/s390x/smp.c           | 276 ++++++++++++++++++++++++++++++++++++++
- lib/s390x/smp.h           |  51 +++++++
- s390x/Makefile            |   2 +
- s390x/cstart64.S          |   7 +
- s390x/smp.c               | 242 +++++++++++++++++++++++++++++++++
- s390x/unittests.cfg       |   4 +
- 14 files changed, 991 insertions(+), 27 deletions(-)
- create mode 100644 lib/s390x/smp.c
- create mode 100644 lib/s390x/smp.h
- create mode 100644 s390x/smp.c
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index d7052cbe984f8..a3ce1fdc3d802 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -841,7 +841,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		break;
+ 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
+ 		/* lcgr %dst,%dst */
+-		EMIT4(0xb9130000, dst_reg, dst_reg);
++		EMIT4(0xb9030000, dst_reg, dst_reg);
+ 		break;
+ 	/*
+ 	 * BPF_FROM_BE/LE
 -- 
-2.17.0
+2.20.1
