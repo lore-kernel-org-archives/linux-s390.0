@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/9] crypto: arm64 - Rename functions to avoid conflict with crypto/sha256.h
-Date: Sun,  1 Sep 2019 22:35:25 +0200
-Message-Id: <20190901203532.2615-3-hdegoede@redhat.com>
-In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
-References: <20190901203532.2615-1-hdegoede@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:49810 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725966AbfIDJVx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 4 Sep 2019 05:21:53 -0400
+Subject: Re: [PATCH v2 1/2] KVM: s390: Disallow invalid bits in kvm_valid_regs
+ and kvm_dirty_regs
+References: <20190904085200.29021-1-thuth@redhat.com>
+ <20190904085200.29021-2-thuth@redhat.com>
+ <b34a237f-77a5-2939-624d-0240451f2976@redhat.com>
+ <8f48d9dd-1464-75aa-2011-b15adc5a4eab@de.ibm.com>
+ <b7f51ff1-8f87-896a-0a8a-dd9a714173d0@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <d2353ade-6460-7426-c191-d3c890b0d0ed@redhat.com>
+Date: Wed, 4 Sep 2019 11:21:47 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <b7f51ff1-8f87-896a-0a8a-dd9a714173d0@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Rename static / file-local functions so that they do not conflict with
-the functions declared in crypto/sha256.h.
+On 04/09/2019 11.15, David Hildenbrand wrote:
+> On 04.09.19 11:11, Christian Borntraeger wrote:
+>>
+>>
+>> On 04.09.19 11:05, David Hildenbrand wrote:
+>>> On 04.09.19 10:51, Thomas Huth wrote:
+>>>> If unknown bits are set in kvm_valid_regs or kvm_dirty_regs, this
+>>>> clearly indicates that something went wrong in the KVM userspace
+>>>> application. The x86 variant of KVM already contains a check for
+>>>> bad bits, so let's do the same on s390x now, too.
+>>>>
+>>>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>>>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>> Signed-off-by: Thomas Huth <thuth@redhat.com>
+>>>> ---
+>>>>  arch/s390/include/uapi/asm/kvm.h | 6 ++++++
+>>>>  arch/s390/kvm/kvm-s390.c         | 4 ++++
+>>>>  2 files changed, 10 insertions(+)
+>>>>
+>>>> diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+>>>> index 47104e5b47fd..436ec7636927 100644
+>>>> --- a/arch/s390/include/uapi/asm/kvm.h
+>>>> +++ b/arch/s390/include/uapi/asm/kvm.h
+>>>> @@ -231,6 +231,12 @@ struct kvm_guest_debug_arch {
+>>>>  #define KVM_SYNC_GSCB   (1UL << 9)
+>>>>  #define KVM_SYNC_BPBC   (1UL << 10)
+>>>>  #define KVM_SYNC_ETOKEN (1UL << 11)
+>>>> +
+>>>> +#define KVM_SYNC_S390_VALID_FIELDS \
+>>>> +	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
+>>>> +	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
+>>>> +	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
+>>>> +
+>>>
+>>> We didn't care about the S390 for the actual flags, why care now?
+>>
+>> I think it makes sense to have the interface as defined as possible. If for some
+>> reason userspace sets a wrong bit this would be undetected. If we at a later point
+>> in time use that bit this would resultin strange problems.
+> 
+> Not arguing about the concept of checking for valid bits. Was just
+> wondering if the "S390" part in the name makes sense at all. But you
+> guys seem to have a consent here.
 
-This is a preparation patch for folding crypto/sha256.h into crypto/sha.h.
+Oh, I guess we both got your question wrong... Well, I don't care too
+much whether we've got an "S390" in there or not ... so unless there is
+a real good reason to remove it, let's simply keep it this way.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- arch/arm64/crypto/sha256-glue.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
-
-diff --git a/arch/arm64/crypto/sha256-glue.c b/arch/arm64/crypto/sha256-glue.c
-index 04b9d17b0733..e273faca924f 100644
---- a/arch/arm64/crypto/sha256-glue.c
-+++ b/arch/arm64/crypto/sha256-glue.c
-@@ -30,15 +30,15 @@ EXPORT_SYMBOL(sha256_block_data_order);
- asmlinkage void sha256_block_neon(u32 *digest, const void *data,
- 				  unsigned int num_blks);
- 
--static int sha256_update(struct shash_desc *desc, const u8 *data,
--			 unsigned int len)
-+static int crypto_sha256_arm64_update(struct shash_desc *desc, const u8 *data,
-+				      unsigned int len)
- {
- 	return sha256_base_do_update(desc, data, len,
- 				(sha256_block_fn *)sha256_block_data_order);
- }
- 
--static int sha256_finup(struct shash_desc *desc, const u8 *data,
--			unsigned int len, u8 *out)
-+static int crypto_sha256_arm64_finup(struct shash_desc *desc, const u8 *data,
-+				     unsigned int len, u8 *out)
- {
- 	if (len)
- 		sha256_base_do_update(desc, data, len,
-@@ -49,17 +49,17 @@ static int sha256_finup(struct shash_desc *desc, const u8 *data,
- 	return sha256_base_finish(desc, out);
- }
- 
--static int sha256_final(struct shash_desc *desc, u8 *out)
-+static int crypto_sha256_arm64_final(struct shash_desc *desc, u8 *out)
- {
--	return sha256_finup(desc, NULL, 0, out);
-+	return crypto_sha256_arm64_finup(desc, NULL, 0, out);
- }
- 
- static struct shash_alg algs[] = { {
- 	.digestsize		= SHA256_DIGEST_SIZE,
- 	.init			= sha256_base_init,
--	.update			= sha256_update,
--	.final			= sha256_final,
--	.finup			= sha256_finup,
-+	.update			= crypto_sha256_arm64_update,
-+	.final			= crypto_sha256_arm64_final,
-+	.finup			= crypto_sha256_arm64_finup,
- 	.descsize		= sizeof(struct sha256_state),
- 	.base.cra_name		= "sha256",
- 	.base.cra_driver_name	= "sha256-arm64",
-@@ -69,9 +69,9 @@ static struct shash_alg algs[] = { {
- }, {
- 	.digestsize		= SHA224_DIGEST_SIZE,
- 	.init			= sha224_base_init,
--	.update			= sha256_update,
--	.final			= sha256_final,
--	.finup			= sha256_finup,
-+	.update			= crypto_sha256_arm64_update,
-+	.final			= crypto_sha256_arm64_final,
-+	.finup			= crypto_sha256_arm64_finup,
- 	.descsize		= sizeof(struct sha256_state),
- 	.base.cra_name		= "sha224",
- 	.base.cra_driver_name	= "sha224-arm64",
--- 
-2.23.0
+ Thomas
