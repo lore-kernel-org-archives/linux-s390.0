@@ -1,67 +1,187 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39540 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728260AbfIRPKJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Sep 2019 11:10:09 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8IF2VWC104836
-        for <linux-s390@vger.kernel.org>; Wed, 18 Sep 2019 11:10:07 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2v39pexv7k-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Sep 2019 11:10:06 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Wed, 18 Sep 2019 16:09:59 +0100
-Subject: Re: [PATCH 1/2] scsi: core: fix missing .cleanup_rq for SCSI hosts
- without request batching
-References: <20190807144948.28265-1-maier@linux.ibm.com>
- <20190807144948.28265-2-maier@linux.ibm.com>
- <CACVXFVM0tFj8CmcHON04_KjxR=QErCbUx0abJgG2W9OBb7akZA@mail.gmail.com>
- <yq136iccsbw.fsf@oracle.com>
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Wed, 18 Sep 2019 17:09:50 +0200
+Received: from mx2.mailbox.org ([80.241.60.215]:11172 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729803AbfIDUWx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 4 Sep 2019 16:22:53 -0400
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v12 09/12] namei: LOOKUP_IN_ROOT: chroot-like path resolution
+Date: Thu,  5 Sep 2019 06:19:30 +1000
+Message-Id: <20190904201933.10736-10-cyphar@cyphar.com>
+In-Reply-To: <20190904201933.10736-1-cyphar@cyphar.com>
+References: <20190904201933.10736-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-In-Reply-To: <yq136iccsbw.fsf@oracle.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <bec80a65-9a8c-54a9-fe70-876fcbe3d592@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Martin K. Petersen" <martin.petersen@oracle.com>, Ming Lei <tom.leiming@gmail.com>, Paolo Bonzini <pbonzini@redhat.com>, Mark Brown <broonie@kernel.org>
-Cc: "James E . J . Bottomley" <jejb@linux.ibm.com>, Ming Lei <ming.lei@redhat.com>, Linux-Next Mailing List <linux-next@vger.kernel.org>, Linux SCSI List <linux-scsi@vger.kernel.org>, linux-block <linux-block@vger.kernel.org>, "open list:DEVICE-MAPPER (LVM)" <dm-devel@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>, "Ewan D . Milne" <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>, Mike Snitzer <snitzer@redhat.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-On 8/8/19 4:18 AM, Martin K. Petersen wrote:
-> 
-> Ming,
-> 
->>> +       .cleanup_rq     = scsi_cleanup_rq,
->>>          .busy           = scsi_mq_lld_busy,
->>>          .map_queues     = scsi_map_queues,
->>>   };
->>
->> This one is a cross-tree thing, either scsi/5.4/scsi-queue needs to
->> pull for-5.4/block, or do it after both land linus tree.
-> 
-> I'll set up an amalgamated for-next branch tomorrow.
+The primary motivation for the need for this flag is container runtimes
+which have to interact with malicious root filesystems in the host
+namespaces. One of the first requirements for a container runtime to be
+secure against a malicious rootfs is that they correctly scope symlinks
+(that is, they should be scoped as though they are chroot(2)ed into the
+container's rootfs) and ".."-style paths[*]. The already-existing
+LOOKUP_NO_XDEV and LOOKUP_NO_MAGICLINKS help defend against other
+potential attacks in a malicious rootfs scenario.
 
-Martin, is it possible that you re-wrote your for-next and it now no longer 
-contains a merged 5.4/scsi-postmerge with those fixes?
-At least I cannot find the fix code in next-20190917 and it fails again for me.
+Currently most container runtimes try to do this resolution in
+userspace[1], causing many potential race conditions. In addition, the
+"obvious" alternative (actually performing a {ch,pivot_}root(2))
+requires a fork+exec (for some runtimes) which is *very* costly if
+necessary for every filesystem operation involving a container.
 
+[*] At the moment, ".." and magic-link jumping are disallowed for the
+    same reason it is disabled for LOOKUP_BENEATH -- currently it is not
+    safe to allow it. Future patches may enable it unconditionally once
+    we have resolved the possible races (for "..") and semantics (for
+    magic-link jumping).
 
+The most significant *at(2) semantic change with LOOKUP_IN_ROOT is that
+absolute pathnames no longer cause the dirfd to be ignored completely.
+
+The rationale is that LOOKUP_IN_ROOT must necessarily chroot-scope
+symlinks with absolute paths to dirfd, and so doing it for the base path
+seems to be the most consistent behaviour (and also avoids foot-gunning
+users who want to scope paths that are absolute).
+
+[1]: https://github.com/cyphar/filepath-securejoin
+
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/namei.c            | 41 +++++++++++++++++++++++++++++++----------
+ include/linux/namei.h |  1 +
+ 2 files changed, 32 insertions(+), 10 deletions(-)
+
+diff --git a/fs/namei.c b/fs/namei.c
+index 2e18ce5a313e..0352d275bd13 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -676,7 +676,7 @@ static int unlazy_walk(struct nameidata *nd)
+ 		goto out1;
+ 	if (!nd->root.mnt) {
+ 		/* Restart from path_init() if nd->root was cleared. */
+-		if (nd->flags & LOOKUP_BENEATH)
++		if (nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT))
+ 			goto out;
+ 	} else if (!(nd->flags & LOOKUP_ROOT)) {
+ 		if (unlikely(!legitimize_path(nd, &nd->root, nd->root_seq)))
+@@ -809,10 +809,18 @@ static int complete_walk(struct nameidata *nd)
+ 	return status;
+ }
+ 
+-static void set_root(struct nameidata *nd)
++static int set_root(struct nameidata *nd)
+ {
+ 	struct fs_struct *fs = current->fs;
+ 
++	/*
++	 * Jumping to the real root as part of LOOKUP_IN_ROOT is a BUG in namei,
++	 * but we still have to ensure it doesn't happen because it will cause a
++	 * breakout from the dirfd.
++	 */
++	if (WARN_ON(nd->flags & LOOKUP_IN_ROOT))
++		return -ENOTRECOVERABLE;
++
+ 	if (nd->flags & LOOKUP_RCU) {
+ 		unsigned seq;
+ 
+@@ -824,6 +832,7 @@ static void set_root(struct nameidata *nd)
+ 	} else {
+ 		get_fs_root(fs, &nd->root);
+ 	}
++	return 0;
+ }
+ 
+ static void path_put_conditional(struct path *path, struct nameidata *nd)
+@@ -854,6 +863,11 @@ static int nd_jump_root(struct nameidata *nd)
+ 		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
+ 			return -EXDEV;
+ 	}
++	if (!nd->root.mnt) {
++		int error = set_root(nd);
++		if (error)
++			return error;
++	}
+ 	if (nd->flags & LOOKUP_RCU) {
+ 		struct dentry *d;
+ 		nd->path = nd->root;
+@@ -1100,15 +1114,13 @@ const char *get_link(struct nameidata *nd)
+ 			if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
+ 				return ERR_PTR(-ELOOP);
+ 			/* Not currently safe. */
+-			if (unlikely(nd->flags & LOOKUP_BENEATH))
++			if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)))
+ 				return ERR_PTR(-EXDEV);
+ 		}
+ 		if (IS_ERR_OR_NULL(res))
+ 			return res;
+ 	}
+ 	if (*res == '/') {
+-		if (!nd->root.mnt)
+-			set_root(nd);
+ 		error = nd_jump_root(nd);
+ 		if (unlikely(error))
+ 			return ERR_PTR(error);
+@@ -1744,15 +1756,20 @@ static inline int may_lookup(struct nameidata *nd)
+ static inline int handle_dots(struct nameidata *nd, int type)
+ {
+ 	if (type == LAST_DOTDOT) {
++		int error = 0;
++
+ 		/*
+ 		 * LOOKUP_BENEATH resolving ".." is not currently safe -- races
+ 		 * can cause our parent to have moved outside of the root and
+ 		 * us to skip over it.
+ 		 */
+-		if (unlikely(nd->flags & LOOKUP_BENEATH))
++		if (unlikely(nd->flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)))
+ 			return -EXDEV;
+-		if (!nd->root.mnt)
+-			set_root(nd);
++		if (!nd->root.mnt) {
++			error = set_root(nd);
++			if (error)
++				return error;
++		}
+ 		if (nd->flags & LOOKUP_RCU) {
+ 			return follow_dotdot_rcu(nd);
+ 		} else
+@@ -2251,9 +2268,13 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 
+ 	nd->m_seq = read_seqbegin(&mount_lock);
+ 
++	/* LOOKUP_IN_ROOT treats absolute paths as being relative-to-dirfd. */
++	if (flags & LOOKUP_IN_ROOT)
++		while (*s == '/')
++			s++;
++
+ 	/* Figure out the starting path and root (if needed). */
+ 	if (*s == '/') {
+-		set_root(nd);
+ 		error = nd_jump_root(nd);
+ 		if (unlikely(error))
+ 			return ERR_PTR(error);
+@@ -2298,7 +2319,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 		fdput(f);
+ 	}
+ 	/* For scoped-lookups we need to set the root to the dirfd as well. */
+-	if (flags & LOOKUP_BENEATH) {
++	if (flags & (LOOKUP_BENEATH | LOOKUP_IN_ROOT)) {
+ 		nd->root = nd->path;
+ 		if (flags & LOOKUP_RCU)
+ 			nd->root_seq = nd->seq;
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index be407415c28a..ec2c6c588ea7 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -57,6 +57,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ #define LOOKUP_NO_MAGICLINKS	0x080000 /* No /proc/$pid/fd/ "symlink" crossing. */
+ #define LOOKUP_NO_SYMLINKS	0x100000 /* No symlink crossing *at all*.
+ 					    Implies LOOKUP_NO_MAGICLINKS. */
++#define LOOKUP_IN_ROOT		0x200000 /* Treat dirfd as %current->fs->root. */
+ 
+ extern int path_pts(struct path *path);
+ 
 -- 
-Mit freundlichen Gruessen / Kind regards
-Steffen Maier
-
-Linux on IBM Z Development
-
-https://www.ibm.com/privacy/us/en/
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Matthias Hartmann
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+2.23.0
