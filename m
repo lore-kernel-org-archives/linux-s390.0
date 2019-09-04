@@ -1,255 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51246 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390018AbfIMV1M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Sep 2019 17:27:12 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v6 07/10] s390: zcrypt: driver callback to indicate resource in use
-Date: Fri, 13 Sep 2019 17:26:55 -0400
-Message-Id: <1568410018-10833-8-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+Received: from mx2.mailbox.org ([80.241.60.215]:63936 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728197AbfIDUVW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 4 Sep 2019 16:21:22 -0400
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v12 04/12] perf_event_open: switch to copy_struct_from_user()
+Date: Thu,  5 Sep 2019 06:19:25 +1000
+Message-Id: <20190904201933.10736-5-cyphar@cyphar.com>
+In-Reply-To: <20190904201933.10736-1-cyphar@cyphar.com>
+References: <20190904201933.10736-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Introduces a new driver callback to prevent a root user from unbinding
-an AP queue from its device driver if the queue is in use. This prevents
-a root user from inadvertently taking a queue away from a guest and
-giving it to the host, or vice versa. The callback will be invoked
-whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
-result in one or more AP queues being removed from its driver. If the
-callback responds in the affirmative for any driver queried, the change
-to the apmask or aqmask will be rejected with a device in use error.
+The change is very straightforward, and takes advantage of the (very
+minor) efficiency improvements in copy_struct_from_user() -- that the
+memchr_inv() check is done on a buffer instead of one-at-at-time with
+get_user().
 
-For this patch, only non-default drivers will be queried. Currently,
-there is only one non-default driver, the vfio_ap device driver. The
-vfio_ap device driver manages AP queues passed through to one or more
-guests and we don't want to unexpectedly take AP resources away from
-guests which are most likely independently administered.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/crypto/ap_bus.c | 144 +++++++++++++++++++++++++++++++++++++++++--
- drivers/s390/crypto/ap_bus.h |   4 ++
- 2 files changed, 142 insertions(+), 6 deletions(-)
+ kernel/events/core.c | 45 ++++++++------------------------------------
+ 1 file changed, 8 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index a76b8a8bcbbb..6c79e5c36bdf 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <linux/module.h>
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 0463c1151bae..fe5f58443ba6 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10498,55 +10498,26 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 	u32 size;
+ 	int ret;
  
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -997,9 +998,11 @@ int ap_parse_mask_str(const char *str,
- 	newmap = kmalloc(size, GFP_KERNEL);
- 	if (!newmap)
- 		return -ENOMEM;
--	if (mutex_lock_interruptible(lock)) {
--		kfree(newmap);
--		return -ERESTARTSYS;
-+	if (lock) {
-+		if (mutex_lock_interruptible(lock)) {
-+			kfree(newmap);
-+			return -ERESTARTSYS;
-+		}
+-	if (!access_ok(uattr, PERF_ATTR_SIZE_VER0))
+-		return -EFAULT;
+-
+-	/*
+-	 * zero the full structure, so that a short copy will be nice.
+-	 */
++	/* Zero the full structure, so that a short copy will be nice. */
+ 	memset(attr, 0, sizeof(*attr));
+ 
+ 	ret = get_user(size, &uattr->size);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (size > PAGE_SIZE)	/* silly large */
+-		goto err_size;
+-
+-	if (!size)		/* abi compat */
++	/* ABI compatibility quirk: */
++	if (!size)
+ 		size = PERF_ATTR_SIZE_VER0;
+-
+ 	if (size < PERF_ATTR_SIZE_VER0)
+ 		goto err_size;
+ 
+-	/*
+-	 * If we're handed a bigger struct than we know of,
+-	 * ensure all the unknown bits are 0 - i.e. new
+-	 * user-space does not rely on any kernel feature
+-	 * extensions we dont know about yet.
+-	 */
+-	if (size > sizeof(*attr)) {
+-		unsigned char __user *addr;
+-		unsigned char __user *end;
+-		unsigned char val;
+-
+-		addr = (void __user *)uattr + sizeof(*attr);
+-		end  = (void __user *)uattr + size;
+-
+-		for (; addr < end; addr++) {
+-			ret = get_user(val, addr);
+-			if (ret)
+-				return ret;
+-			if (val)
+-				goto err_size;
+-		}
+-		size = sizeof(*attr);
++	ret = copy_struct_from_user(attr, sizeof(*attr), uattr, size);
++	if (ret) {
++		if (ret == -E2BIG)
++			goto err_size;
++		return ret;
  	}
  
- 	if (*str == '+' || *str == '-') {
-@@ -1011,7 +1014,10 @@ int ap_parse_mask_str(const char *str,
- 	}
- 	if (rc == 0)
- 		memcpy(bitmap, newmap, size);
--	mutex_unlock(lock);
-+
-+	if (lock)
-+		mutex_unlock(lock);
-+
- 	kfree(newmap);
- 	return rc;
- }
-@@ -1198,12 +1204,75 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
+-	ret = copy_from_user(attr, uattr, size);
+-	if (ret)
+-		return -EFAULT;
+-
+ 	attr->size = size;
  
-+int __verify_card_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newapm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify cards reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(newapm, ap_perms.aqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int apmask_commit(unsigned long *newapm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	/*
-+	 * Check if any bits in the apmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_card_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.apm, newapm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t apmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	unsigned long newapm[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	memcpy(newapm, ap_perms.apm, APMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newapm, AP_DEVICES, NULL);
-+	if (rc)
-+		goto done;
-+
-+	rc = apmask_commit(newapm);
-+	if (rc)
-+		goto done;
- 
--	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-@@ -1229,12 +1298,75 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+int __verify_queue_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newaqm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify queues reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(ap_perms.apm, newaqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int aqmask_commit(unsigned long *newaqm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
-+
-+	/*
-+	 * Check if any bits in the aqmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_queue_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	unsigned long newaqm[BITS_TO_LONGS(AP_DEVICES)];
- 
--	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	memcpy(newaqm, ap_perms.aqm, AQMASKSIZE);
-+
-+	rc = ap_parse_mask_str(buf, newaqm, AP_DOMAINS, NULL);
-+	if (rc)
-+		goto done;
-+
-+	rc = aqmask_commit(newaqm);
-+	if (rc)
-+		goto done;
-+
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 6f3cf37776ca..2836e674d00d 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -137,6 +137,7 @@ struct ap_driver {
- 	void (*remove)(struct ap_device *);
- 	void (*suspend)(struct ap_device *);
- 	void (*resume)(struct ap_device *);
-+	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
- };
- 
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-@@ -265,6 +266,9 @@ void ap_queue_reinit_state(struct ap_queue *aq);
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
- 
-+#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
-+#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
-+
- struct ap_perms {
- 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
- 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+ 	if (attr->__reserved_1)
 -- 
-2.7.4
+2.23.0
