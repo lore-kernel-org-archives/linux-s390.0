@@ -1,47 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:41740 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728130AbfIZR4a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:30 -0400
-Received: by mail-pf1-f196.google.com with SMTP id q7so2246522pfh.8
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:30 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 17/29] alpha: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Thu, 26 Sep 2019 10:55:50 -0700
-Message-Id: <20190926175602.33098-18-keescook@chromium.org>
-In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
-References: <20190926175602.33098-1-keescook@chromium.org>
+Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732666AbfIDQDF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 4 Sep 2019 12:03:05 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 01/20] s390/bpf: fix lcgr instruction encoding
+Date: Wed,  4 Sep 2019 12:02:44 -0400
+Message-Id: <20190904160303.5062-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
 
-The EXCEPTION_TABLE is read-only, so collapse it into RO_DATA.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
+
+"masking, test in bounds 3" fails on s390, because
+BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
+BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
+The associated comment indicates that the code was intended to
+emit lcgr in the first place, it's just that the wrong opcode
+was used.
+
+Fix by using the correct opcode.
+
+Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/vmlinux.lds.S | 2 +-
+ arch/s390/net/bpf_jit_comp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index edc45f45523b..72303827bcb4 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -1,6 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- 
- #define EMITS_PT_NOTE
-+#define RO_DATA_EXCEPTION_TABLE_ALIGN	16
- 
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
-@@ -35,7 +36,6 @@ SECTIONS
- 	_etext = .;	/* End of text section */
- 
- 	RO_DATA(4096)
--	EXCEPTION_TABLE(16)
- 
- 	/* Will be freed after init */
- 	__init_begin = ALIGN(PAGE_SIZE);
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index 727693e283da2..e53d410e88703 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -886,7 +886,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+ 		break;
+ 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
+ 		/* lcgr %dst,%dst */
+-		EMIT4(0xb9130000, dst_reg, dst_reg);
++		EMIT4(0xb9030000, dst_reg, dst_reg);
+ 		break;
+ 	/*
+ 	 * BPF_FROM_BE/LE
 -- 
-2.17.1
+2.20.1
