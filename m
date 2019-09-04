@@ -1,51 +1,94 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 10/94] s390/bpf: fix lcgr instruction encoding
-Date: Wed,  4 Sep 2019 11:56:15 -0400
-Message-Id: <20190904155739.2816-10-sashal@kernel.org>
-In-Reply-To: <20190904155739.2816-1-sashal@kernel.org>
-References: <20190904155739.2816-1-sashal@kernel.org>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v12 02/12] clone3: switch to copy_struct_from_user()
+Date: Thu,  5 Sep 2019 06:19:23 +1000
+Message-Id: <20190904201933.10736-3-cyphar@cyphar.com>
+In-Reply-To: <20190904201933.10736-1-cyphar@cyphar.com>
+References: <20190904201933.10736-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+The change is very straightforward, and takes advantage of the (very
+minor) efficiency improvements in copy_struct_from_user() -- that the
+memchr_inv() check is done on a buffer instead of one-at-at-time with
+get_user().
 
-[ Upstream commit bb2d267c448f4bc3a3389d97c56391cb779178ae ]
+Additionally, explicitly define CLONE_ARGS_SIZE_VER0 to match the other
+users of the struct-extension pattern.
 
-"masking, test in bounds 3" fails on s390, because
-BPF_ALU64_IMM(BPF_NEG, BPF_REG_2, 0) ignores the top 32 bits of
-BPF_REG_2. The reason is that JIT emits lcgfr instead of lcgr.
-The associated comment indicates that the code was intended to
-emit lcgr in the first place, it's just that the wrong opcode
-was used.
-
-Fix by using the correct opcode.
-
-Fixes: 054623105728 ("s390/bpf: Add s390x eBPF JIT compiler backend")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Christian Brauner <christian@brauner.io>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/s390/net/bpf_jit_comp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/uapi/linux/sched.h |  2 ++
+ kernel/fork.c              | 34 ++++++----------------------------
+ 2 files changed, 8 insertions(+), 28 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 5e7c630331590..9a711472cbdc0 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -853,7 +853,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		break;
- 	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
- 		/* lcgr %dst,%dst */
--		EMIT4(0xb9130000, dst_reg, dst_reg);
-+		EMIT4(0xb9030000, dst_reg, dst_reg);
- 		break;
- 	/*
- 	 * BPF_FROM_BE/LE
+diff --git a/include/uapi/linux/sched.h b/include/uapi/linux/sched.h
+index b3105ac1381a..0945805982b4 100644
+--- a/include/uapi/linux/sched.h
++++ b/include/uapi/linux/sched.h
+@@ -47,6 +47,8 @@ struct clone_args {
+ 	__aligned_u64 tls;
+ };
+ 
++#define CLONE_ARGS_SIZE_VER0 64 /* sizeof first published struct */
++
+ /*
+  * Scheduling policies
+  */
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 2852d0e76ea3..70c10d9b429a 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2528,39 +2528,17 @@ SYSCALL_DEFINE5(clone, unsigned long, clone_flags, unsigned long, newsp,
+ #ifdef __ARCH_WANT_SYS_CLONE3
+ noinline static int copy_clone_args_from_user(struct kernel_clone_args *kargs,
+ 					      struct clone_args __user *uargs,
+-					      size_t size)
++					      size_t usize)
+ {
++	int err;
+ 	struct clone_args args;
+ 
+-	if (unlikely(size > PAGE_SIZE))
+-		return -E2BIG;
+-
+-	if (unlikely(size < sizeof(struct clone_args)))
++	if (unlikely(usize < CLONE_ARGS_SIZE_VER0))
+ 		return -EINVAL;
+ 
+-	if (unlikely(!access_ok(uargs, size)))
+-		return -EFAULT;
+-
+-	if (size > sizeof(struct clone_args)) {
+-		unsigned char __user *addr;
+-		unsigned char __user *end;
+-		unsigned char val;
+-
+-		addr = (void __user *)uargs + sizeof(struct clone_args);
+-		end = (void __user *)uargs + size;
+-
+-		for (; addr < end; addr++) {
+-			if (get_user(val, addr))
+-				return -EFAULT;
+-			if (val)
+-				return -E2BIG;
+-		}
+-
+-		size = sizeof(struct clone_args);
+-	}
+-
+-	if (copy_from_user(&args, uargs, size))
+-		return -EFAULT;
++	err = copy_struct_from_user(&args, sizeof(args), uargs, usize);
++	if (err)
++		return err;
+ 
+ 	*kargs = (struct kernel_clone_args){
+ 		.flags		= args.flags,
 -- 
-2.20.1
+2.23.0
