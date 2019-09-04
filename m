@@ -1,39 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46386 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725955AbfIAUfk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Sep 2019 16:35:40 -0400
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 0/9] crypto: sha256 - Merge crypto/sha256.h into crypto/sha.h
-Date: Sun,  1 Sep 2019 22:35:23 +0200
-Message-Id: <20190901203532.2615-1-hdegoede@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10116 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729798AbfIDN7M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Sep 2019 09:59:12 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x84Dx6ce106146
+        for <linux-s390@vger.kernel.org>; Wed, 4 Sep 2019 09:59:11 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2utdruaj76-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 04 Sep 2019 09:59:08 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Wed, 4 Sep 2019 14:58:07 +0100
+Subject: Re: [PATCH -next] vfio-ccw: fix error return code in
+ vfio_ccw_sch_init()
+References: <20190904083315.105600-1-weiyongjun1@huawei.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 4 Sep 2019 15:58:03 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190904083315.105600-1-weiyongjun1@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <1ceef8c5-f5c1-79e5-7442-beb38b94f6f6@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Wei Yongjun <weiyongjun1@huawei.com>, Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-Hi All,
 
-As promised here is a follow-up series to my earlier sha256 series.
 
-Note I have only compiled and tested this series on x86_64 !! 
+On 04.09.19 10:33, Wei Yongjun wrote:
+> Fix to return negative error code -ENOMEM from the memory alloc failed
+> error handling case instead of 0, as done elsewhere in this function.
+> 
+> Fixes: 60e05d1cf087 ("vfio-ccw: add some logging")
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 
-All changes to architecture specific code on other archs have not even
-been tested to compile! With that said most of these changes were done
-using my editors search - replace function so things should be fine...
-(and FWIW I did do a Kconfig hack to compile test the ccree change).
+thanks applied to s390 tree. 
 
-The first patch in this series rename various file local functions /
-arrays to avoid conflicts with the new include/crypto/sha256.h, followed
-by a patch merging include/crypto/sha256.h into include/crypto/sha.h.
-
-The last patch makes use of this merging to remove a bit more code
-duplication, making sha256_generic use sha256_init and sha224_init from
-lib/crypto/sha256.c. An added advantage of this, is that this gives these
-2 functions coverage by the crypto selftests.
-
-Regards,
-
-Hans
+> ---
+>  drivers/s390/cio/vfio_ccw_drv.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+> index 45e792f6afd0..e401a3d0aa57 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -317,15 +317,19 @@ static int __init vfio_ccw_sch_init(void)
+>  					sizeof(struct ccw_io_region), 0,
+>  					SLAB_ACCOUNT, 0,
+>  					sizeof(struct ccw_io_region), NULL);
+> -	if (!vfio_ccw_io_region)
+> +	if (!vfio_ccw_io_region) {
+> +		ret = -ENOMEM;
+>  		goto out_err;
+> +	}
+>  
+>  	vfio_ccw_cmd_region = kmem_cache_create_usercopy("vfio_ccw_cmd_region",
+>  					sizeof(struct ccw_cmd_region), 0,
+>  					SLAB_ACCOUNT, 0,
+>  					sizeof(struct ccw_cmd_region), NULL);
+> -	if (!vfio_ccw_cmd_region)
+> +	if (!vfio_ccw_cmd_region) {
+> +		ret = -ENOMEM;
+>  		goto out_err;
+> +	}
+>  
+>  	isc_register(VFIO_CCW_ISC);
+>  	ret = css_driver_register(&vfio_ccw_sch_driver);
+> 
+> 
+> 
