@@ -1,15 +1,13 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732666AbfIDQDF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 4 Sep 2019 12:03:05 -0400
+Return-Path: <netdev-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 01/20] s390/bpf: fix lcgr instruction encoding
-Date: Wed,  4 Sep 2019 12:02:44 -0400
-Message-Id: <20190904160303.5062-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 02/27] s390/bpf: fix lcgr instruction encoding
+Date: Wed,  4 Sep 2019 12:01:55 -0400
+Message-Id: <20190904160220.4545-2-sashal@kernel.org>
+In-Reply-To: <20190904160220.4545-1-sashal@kernel.org>
+References: <20190904160220.4545-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
@@ -37,10 +35,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 727693e283da2..e53d410e88703 100644
+index 896344b6e0363..e4616090732a4 100644
 --- a/arch/s390/net/bpf_jit_comp.c
 +++ b/arch/s390/net/bpf_jit_comp.c
-@@ -886,7 +886,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
+@@ -881,7 +881,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
  		break;
  	case BPF_ALU64 | BPF_NEG: /* dst = -dst */
  		/* lcgr %dst,%dst */
