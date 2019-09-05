@@ -1,40 +1,59 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39716 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731541AbfIES2j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 14:28:39 -0400
-Date: Thu, 5 Sep 2019 19:28:01 +0100
-From: Al Viro <viro@zeniv.linux.org.uk>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Thu, 5 Sep 2019 20:23:03 +0200
+From: Christian Brauner <christian.brauner@ubuntu.com>
 Subject: Re: [PATCH v12 01/12] lib: introduce copy_struct_{to,from}_user
  helpers
-Message-ID: <20190905182801.GR1131@ZenIV.linux.org.uk>
+Message-ID: <20190905182303.7f6bxpa2enbgcegv@wittgenstein>
 References: <20190904201933.10736-1-cyphar@cyphar.com>
  <20190904201933.10736-2-cyphar@cyphar.com>
  <20190905180750.GQ1131@ZenIV.linux.org.uk>
- <20190905182303.7f6bxpa2enbgcegv@wittgenstein>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190905182303.7f6bxpa2enbgcegv@wittgenstein>
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20190905180750.GQ1131@ZenIV.linux.org.uk>
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Brauner <christian.brauner@ubuntu.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
 Cc: Aleksa Sarai <cyphar@cyphar.com>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 08:23:03PM +0200, Christian Brauner wrote:
+On Thu, Sep 05, 2019 at 07:07:50PM +0100, Al Viro wrote:
+> On Thu, Sep 05, 2019 at 06:19:22AM +1000, Aleksa Sarai wrote:
+> > +/*
+> > + * "memset(p, 0, size)" but for user space buffers. Caller must have already
+> > + * checked access_ok(p, size).
+> > + */
+> > +static int __memzero_user(void __user *p, size_t s)
+> > +{
+> > +	const char zeros[BUFFER_SIZE] = {};
+> > +	while (s > 0) {
+> > +		size_t n = min(s, sizeof(zeros));
+> > +
+> > +		if (__copy_to_user(p, zeros, n))
+> > +			return -EFAULT;
+> > +
+> > +		p += n;
+> > +		s -= n;
+> > +	}
+> > +	return 0;
+> > +}
+> 
+> That's called clear_user().
+> 
+> > +int copy_struct_to_user(void __user *dst, size_t usize,
+> > +			const void *src, size_t ksize)
+> > +{
+> > +	size_t size = min(ksize, usize);
+> > +	size_t rest = abs(ksize - usize);
+> > +
+> > +	if (unlikely(usize > PAGE_SIZE))
+> > +		return -EFAULT;
+> 
+> Why?
 
-> Because every caller of that function right now has that limit set
-> anyway iirc. So we can either remove it from here and place it back for
-> the individual callers or leave it in the helper.
-> Also, I'm really asking, why not? Is it unreasonable to have an upper
-> bound on the size (for a long time probably) or are you disagreeing with
-> PAGE_SIZE being used? PAGE_SIZE limit is currently used by sched, perf,
-> bpf, and clone3 and in a few other places.
-
-For a primitive that can be safely used with any size (OK, any within
-the usual 2Gb limit)?  Why push the random policy into the place where
-it doesn't belong?
-
-Seriously, what's the point?  If they want to have a large chunk of
-userland memory zeroed or checked for non-zeroes - why would that
-be a problem?
+Because every caller of that function right now has that limit set
+anyway iirc. So we can either remove it from here and place it back for
+the individual callers or leave it in the helper.
+Also, I'm really asking, why not? Is it unreasonable to have an upper
+bound on the size (for a long time probably) or are you disagreeing with
+PAGE_SIZE being used? PAGE_SIZE limit is currently used by sched, perf,
+bpf, and clone3 and in a few other places.
