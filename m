@@ -1,34 +1,111 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Paul Burton <paul.burton@mips.com>
-Subject: Re: [PATCH 04/26] mips: remove ioremap_cachable
-Date: Tue, 3 Sep 2019 08:57:00 +0000
-Message-ID: <MWHPR2201MB1277E4E8214F6E50E5EC9BFCC1B90@MWHPR2201MB1277.namprd22.prod.outlook.com>
-References: <20190817073253.27819-5-hch@lst.de>
-In-Reply-To: <20190817073253.27819-5-hch@lst.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:44988 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388876AbfIETCT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 15:02:19 -0400
+Subject: Re: [PATCH v2 00/10] Add definition for the number of standard PCI
+ BARs
+References: <20190816092437.31846-1-efremov@linux.com>
+ <20190816105128.GD14111@e119886-lin.cambridge.arm.com>
+From: Denis Efremov <efremov@linux.com>
+Message-ID: <5d8cdc6b-f8c9-c3f1-e11d-13b3a7eb5b26@linux.com>
+Date: Thu, 5 Sep 2019 22:02:13 +0300
 MIME-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20190816105128.GD14111@e119886-lin.cambridge.arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, "x86@kernel.org" <x86@kernel.org>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-hexagon@vger.kernel.org" <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "nios2-dev@lists.rocketboards.org" <nios2-dev@lists.rocketboards.org>, "openrisc@lists.librecores.org" <openrisc@lists.librecores.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>"linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
+To: Andrew Murray <andrew.murray@arm.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Alexandre Torgue <alexandre.torgue@st.com>, Matt Porter <mporter@kernel.crashing.org>, Alexandre Bounine <alex.bou9@gmail.com>, Peter Jones <pjones@redhat.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Cornelia Huck <cohuck@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, Jose Abreu <Jose.Abreu@synopsys.com>, kvm@vger.kernel.org, linux-fbdev@vger.kernel.org, netdev@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org
 
-Hello,
 
-Christoph Hellwig wrote:
-> Just define ioremap_cache directly.
 
-Applied to mips-next.
+On 16.08.2019 13:51, Andrew Murray wrote:
+> On Fri, Aug 16, 2019 at 12:24:27PM +0300, Denis Efremov wrote:
+>> Code that iterates over all standard PCI BARs typically uses
+>> PCI_STD_RESOURCE_END, but this is error-prone because it requires
+>> "i <= PCI_STD_RESOURCE_END" rather than something like
+>> "i < PCI_STD_NUM_BARS". We could add such a definition and use it the same
+>> way PCI_SRIOV_NUM_BARS is used. There is already the definition
+>> PCI_BAR_COUNT for s390 only. Thus, this patchset introduces it globally.
+>>
+>> Changes in v2:
+>>   - Reverse checks in pci_iomap_range,pci_iomap_wc_range.
+>>   - Refactor loops in vfio_pci to keep PCI_STD_RESOURCES.
+>>   - Add 2 new patches to replace the magic constant with new define.
+>>   - Split net patch in v1 to separate stmmac and dwc-xlgmac patches.
+>>
+>> Denis Efremov (10):
+>>   PCI: Add define for the number of standard PCI BARs
+>>   s390/pci: Loop using PCI_STD_NUM_BARS
+>>   x86/PCI: Loop using PCI_STD_NUM_BARS
+>>   stmmac: pci: Loop using PCI_STD_NUM_BARS
+>>   net: dwc-xlgmac: Loop using PCI_STD_NUM_BARS
+>>   rapidio/tsi721: Loop using PCI_STD_NUM_BARS
+>>   efifb: Loop using PCI_STD_NUM_BARS
+>>   vfio_pci: Loop using PCI_STD_NUM_BARS
+>>   PCI: hv: Use PCI_STD_NUM_BARS
+>>   PCI: Use PCI_STD_NUM_BARS
+>>
+>>  arch/s390/include/asm/pci.h                      |  5 +----
+>>  arch/s390/include/asm/pci_clp.h                  |  6 +++---
+>>  arch/s390/pci/pci.c                              | 16 ++++++++--------
+>>  arch/s390/pci/pci_clp.c                          |  6 +++---
+>>  arch/x86/pci/common.c                            |  2 +-
+>>  drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c |  4 ++--
+>>  drivers/net/ethernet/synopsys/dwc-xlgmac-pci.c   |  2 +-
+>>  drivers/pci/controller/pci-hyperv.c              | 10 +++++-----
+>>  drivers/pci/pci.c                                | 11 ++++++-----
+>>  drivers/pci/quirks.c                             |  4 ++--
+>>  drivers/rapidio/devices/tsi721.c                 |  2 +-
+>>  drivers/vfio/pci/vfio_pci.c                      | 11 +++++++----
+>>  drivers/vfio/pci/vfio_pci_config.c               | 10 ++++++----
+>>  drivers/vfio/pci/vfio_pci_private.h              |  4 ++--
+>>  drivers/video/fbdev/efifb.c                      |  2 +-
+>>  include/linux/pci.h                              |  2 +-
+>>  include/uapi/linux/pci_regs.h                    |  1 +
+>>  17 files changed, 51 insertions(+), 47 deletions(-)
+> 
+> I've come across a few more places where this change can be made. There
+> may be multiple instances in the same file, but only the first is shown
+> below:
+> 
+> drivers/misc/pci_endpoint_test.c:       for (bar = BAR_0; bar <= BAR_5; bar++) {
+> drivers/net/ethernet/intel/e1000/e1000_main.c:          for (i = BAR_1; i <= BAR_5; i++) {
+> drivers/net/ethernet/intel/ixgb/ixgb_main.c:    for (i = BAR_1; i <= BAR_5; i++) {
+> drivers/pci/controller/dwc/pci-dra7xx.c:        for (bar = BAR_0; bar <= BAR_5; bar++)
+> drivers/pci/controller/dwc/pci-layerscape-ep.c: for (bar = BAR_0; bar <= BAR_5; bar++)
+> drivers/pci/controller/dwc/pcie-artpec6.c:      for (bar = BAR_0; bar <= BAR_5; bar++)
+> drivers/pci/controller/dwc/pcie-designware-plat.c:      for (bar = BAR_0; bar <= BAR_5; bar++)
+> drivers/pci/endpoint/functions/pci-epf-test.c:  for (bar = BAR_0; bar <= BAR_5; bar++) {
+> include/linux/pci-epc.h:        u64     bar_fixed_size[BAR_5 + 1];
+> drivers/scsi/pm8001/pm8001_hwi.c:       for (bar = 0; bar < 6; bar++) {
+> drivers/scsi/pm8001/pm8001_init.c:      for (bar = 0; bar < 6; bar++) {
+> drivers/ata/sata_nv.c:  for (bar = 0; bar < 6; bar++)
+> drivers/video/fbdev/core/fbmem.c:       for (idx = 0, bar = 0; bar < PCI_ROM_RESOURCE; bar++) {
+> drivers/staging/gasket/gasket_core.c:   for (i = 0; i < GASKET_NUM_BARS; i++) {
+> drivers/tty/serial/8250/8250_pci.c:     for (i = 0; i < PCI_NUM_BAR_RESOURCES; i++) { <-----------
+> 
+> It looks like BARs are often iterated with PCI_NUM_BAR_RESOURCES, there
+> are a load of these too found with:
+> 
+> git grep PCI_ROM_RESOURCE | grep "< "
+> 
+> I'm happy to share patches if preferred.
+> 
 
-> commit 60af0d94cc37
-> https://git.kernel.org/mips/c/60af0d94cc37
->=20
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Paul Burton <paul.burton@mips.com>
+I'm not sure about lib/devres.c
+265:#define PCIM_IOMAP_MAX      PCI_ROM_RESOURCE
+268:    void __iomem *table[PCIM_IOMAP_MAX];
+277:    for (i = 0; i < PCIM_IOMAP_MAX; i++)
+324:    BUG_ON(bar >= PCIM_IOMAP_MAX);
+352:    for (i = 0; i < PCIM_IOMAP_MAX; i++)
+455:    for (i = 0; i < PCIM_IOMAP_MAX; i++) {
+
+Is it worth changing?
+#define PCIM_IOMAP_MAX  PCI_STD_NUM_BARS
 
 Thanks,
-    Paul
-
-[ This message was auto-generated; if you believe anything is incorrect
-  then please email paul.burton@mips.com to report it. ]
+Denis
