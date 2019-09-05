@@ -1,50 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33840 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390507AbfIXNzS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Sep 2019 09:55:18 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2 3/8] mdev: bus uevent support
-Date: Tue, 24 Sep 2019 21:53:27 +0800
-Message-Id: <20190924135332.14160-4-jasowang@redhat.com>
-In-Reply-To: <20190924135332.14160-1-jasowang@redhat.com>
-References: <20190924135332.14160-1-jasowang@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40386 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731737AbfIEIkk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 04:40:40 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x858bchb051918
+        for <linux-s390@vger.kernel.org>; Thu, 5 Sep 2019 04:40:39 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2utx8r27tf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 05 Sep 2019 04:40:39 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 5 Sep 2019 09:40:37 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [GIT PULL 5/8] KVM: s390: improve documentation for S390_MEM_OP
+Date: Thu,  5 Sep 2019 10:40:06 +0200
+In-Reply-To: <20190905084009.26106-1-frankja@linux.ibm.com>
+References: <20190905084009.26106-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20190905084009.26106-6-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+To: pbonzini@redhat.com, rkrcmar@redhat.com
+Cc: kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com
 
-This patch adds bus uevent support for mdev bus in order to allow
-cooperation with userspace.
+From: Cornelia Huck <cohuck@redhat.com>
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Explicitly specify the valid ranges for size and ar, and reword
+buf requirements a bit.
+
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lkml.kernel.org/r/20190829124746.28665-1-cohuck@redhat.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/vfio/mdev/mdev_driver.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ Documentation/virt/kvm/api.txt | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
-index b7c40ce86ee3..319d886ffaf7 100644
---- a/drivers/vfio/mdev/mdev_driver.c
-+++ b/drivers/vfio/mdev/mdev_driver.c
-@@ -82,9 +82,17 @@ static int mdev_match(struct device *dev, struct device_driver *drv)
- 	return 0;
- }
+diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
+index 2d067767b617..76c9d6fdbfdb 100644
+--- a/Documentation/virt/kvm/api.txt
++++ b/Documentation/virt/kvm/api.txt
+@@ -3079,12 +3079,14 @@ This exception is also raised directly at the corresponding VCPU if the
+ flag KVM_S390_MEMOP_F_INJECT_EXCEPTION is set in the "flags" field.
  
-+static int mdev_uevent(struct device *dev, struct kobj_uevent_env *env)
-+{
-+	struct mdev_device *mdev = to_mdev_device(dev);
-+
-+	return add_uevent_var(env, "MODALIAS=mdev:c%02X", mdev->class_id);
-+}
-+
- struct bus_type mdev_bus_type = {
- 	.name		= "mdev",
- 	.match		= mdev_match,
-+	.uevent		= mdev_uevent,
- 	.probe		= mdev_probe,
- 	.remove		= mdev_remove,
- };
+ The start address of the memory region has to be specified in the "gaddr"
+-field, and the length of the region in the "size" field. "buf" is the buffer
+-supplied by the userspace application where the read data should be written
+-to for KVM_S390_MEMOP_LOGICAL_READ, or where the data that should be written
+-is stored for a KVM_S390_MEMOP_LOGICAL_WRITE. "buf" is unused and can be NULL
+-when KVM_S390_MEMOP_F_CHECK_ONLY is specified. "ar" designates the access
+-register number to be used.
++field, and the length of the region in the "size" field (which must not
++be 0). The maximum value for "size" can be obtained by checking the
++KVM_CAP_S390_MEM_OP capability. "buf" is the buffer supplied by the
++userspace application where the read data should be written to for
++KVM_S390_MEMOP_LOGICAL_READ, or where the data that should be written is
++stored for a KVM_S390_MEMOP_LOGICAL_WRITE. When KVM_S390_MEMOP_F_CHECK_ONLY
++is specified, "buf" is unused and can be NULL. "ar" designates the access
++register number to be used; the valid range is 0..15.
+ 
+ The "reserved" field is meant for future extensions. It is not used by
+ KVM with the currently defined set of flags.
 -- 
-2.19.1
+2.20.1
