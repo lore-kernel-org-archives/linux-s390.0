@@ -1,158 +1,197 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v13 6/9] namei: permit ".." resolution with LOOKUP_{IN_ROOT,BENEATH}
-Date: Tue,  1 Oct 2019 04:33:13 +1000
-Message-Id: <20190930183316.10190-7-cyphar@cyphar.com>
-In-Reply-To: <20190930183316.10190-1-cyphar@cyphar.com>
-References: <20190930183316.10190-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14328 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731519AbfIEIkk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 04:40:40 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x858baiM051677
+        for <linux-s390@vger.kernel.org>; Thu, 5 Sep 2019 04:40:38 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2utx8r27t6-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 05 Sep 2019 04:40:38 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 5 Sep 2019 09:40:36 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [GIT PULL 3/8] KVM: selftests: Enable dirty_log_test on s390x
+Date: Thu,  5 Sep 2019 10:40:04 +0200
+In-Reply-To: <20190905084009.26106-1-frankja@linux.ibm.com>
+References: <20190905084009.26106-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Message-Id: <20190905084009.26106-4-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: pbonzini@redhat.com, rkrcmar@redhat.com
+Cc: kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com
 
-This patch allows for LOOKUP_BENEATH and LOOKUP_IN_ROOT to safely permit
-".." resolution (in the case of LOOKUP_BENEATH the resolution will still
-fail if ".." resolution would resolve a path outside of the root --
-while LOOKUP_IN_ROOT will chroot(2)-style scope it). Magic-link jumps
-are still disallowed entirely[*].
+From: Thomas Huth <thuth@redhat.com>
 
-The need for this patch (and the original no-".." restriction) is
-explained by observing there is a fairly easy-to-exploit race condition
-with chroot(2) (and thus by extension LOOKUP_IN_ROOT and LOOKUP_BENEATH
-if ".." is allowed) where a rename(2) of a path can be used to "skip
-over" nd->root and thus escape to the filesystem above nd->root.
+To run the dirty_log_test on s390x, we have to make sure that we
+access the dirty log bitmap with little endian byte ordering and
+we have to properly align the memslot of the guest.
+Also all dirty bits of a segment are set once on s390x when one
+of the pages of a segment are written to for the first time, so
+we have to make sure that we touch all pages during the first
+iteration to keep the test in sync here.
+DEFAULT_GUEST_TEST_MEM needs an adjustment, too. On some s390x
+distributions, the ELF binary is linked to address 0x80000000,
+so we have to avoid that our test region overlaps into this area.
+0xc0000000 seems to be a good alternative that should work on x86
+and aarch64, too.
 
-  thread1 [attacker]:
-    for (;;)
-      renameat2(AT_FDCWD, "/a/b/c", AT_FDCWD, "/a/d", RENAME_EXCHANGE);
-  thread2 [victim]:
-    for (;;)
-      openat2(dirb, "b/c/../../etc/shadow",
-              { .flags = O_PATH, .resolve = RESOLVE_IN_ROOT } );
-
-With fairly significant regularity, thread2 will resolve to
-"/etc/shadow" rather than "/a/b/etc/shadow". There is also a similar
-(though somewhat more privileged) attack using MS_MOVE.
-
-With this patch, such cases will be detected *during* ".." resolution
-and will return -EAGAIN for userspace to decide to either retry or abort
-the lookup. It should be noted that ".." is the weak point of chroot(2)
--- walking *into* a subdirectory tautologically cannot result in you
-walking *outside* nd->root (except through a bind-mount or magic-link).
-There is also no other way for a directory's parent to change (which is
-the primary worry with ".." resolution here) other than a rename or
-MS_MOVE.
-
-This is a first-pass implementation, where -EAGAIN will be returned if
-any rename or mount occurs anywhere on the host (in any namespace). This
-will result in spurious errors, but there isn't a satisfactory
-alternative (other than denying ".." altogether).
-
-One other possible alternative (which previous versions of this patch
-used) would be to check with path_is_under() if there was a racing
-rename or mount (after re-taking the relevant seqlocks). While this does
-work, it results in possible O(n*m) behaviour if there are many renames
-or mounts occuring *anywhere on the system*.
-
-A variant of the above attack is included in the selftests for
-openat2(2) later in this patch series. I've run this test on several
-machines for several days and no instances of a breakout were detected.
-While this is not concrete proof that this is safe, when combined with
-the above argument it should lend some trustworthiness to this
-construction.
-
-[*] It may be acceptable in the future to do a path_is_under() check (as
-    with the alternative solution for "..") for magic-links after they
-    are resolved. However this seems unlikely to be a feature that
-    people *really* need -- it can be added later if it turns out a lot
-    of people want it.
-
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/r/20190731151525.17156-4-thuth@redhat.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- fs/namei.c | 43 +++++++++++++++++++++++++++++--------------
- 1 file changed, 29 insertions(+), 14 deletions(-)
+ tools/testing/selftests/kvm/Makefile         |  1 +
+ tools/testing/selftests/kvm/dirty_log_test.c | 59 +++++++++++++++++---
+ 2 files changed, 53 insertions(+), 7 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index efed62c6136e..9c35768fcf4f 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -491,7 +491,7 @@ struct nameidata {
- 	struct path	root;
- 	struct inode	*inode; /* path.dentry.d_inode */
- 	unsigned int	flags;
--	unsigned	seq, m_seq;
-+	unsigned	seq, m_seq, r_seq;
- 	int		last_type;
- 	unsigned	depth;
- 	int		total_link_count;
-@@ -1766,22 +1766,35 @@ static inline int handle_dots(struct nameidata *nd, int type)
- 	if (type == LAST_DOTDOT) {
- 		int error = 0;
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 75ea1ecbf85a..1b48a94b4350 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -33,6 +33,7 @@ TEST_GEN_PROGS_aarch64 += dirty_log_test
+ TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
  
--		/*
--		 * Scoped-lookup flags resolving ".." is not currently safe --
--		 * races can cause our parent to have moved outside of the root
--		 * and us to skip over it.
--		 */
--		if (unlikely(nd->flags & LOOKUP_DIRFD_SCOPE_FLAGS))
--			return -EXDEV;
- 		if (!nd->root.mnt) {
- 			error = set_root(nd);
- 			if (error)
- 				return error;
+ TEST_GEN_PROGS_s390x += s390x/sync_regs_test
++TEST_GEN_PROGS_s390x += dirty_log_test
+ TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
+ 
+ TEST_GEN_PROGS += $(TEST_GEN_PROGS_$(UNAME_M))
+diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+index 5d5ae1be4984..dc3346e090f5 100644
+--- a/tools/testing/selftests/kvm/dirty_log_test.c
++++ b/tools/testing/selftests/kvm/dirty_log_test.c
+@@ -26,8 +26,8 @@
+ /* The memory slot index to track dirty pages */
+ #define TEST_MEM_SLOT_INDEX		1
+ 
+-/* Default guest test memory offset, 1G */
+-#define DEFAULT_GUEST_TEST_MEM		0x40000000
++/* Default guest test virtual memory offset */
++#define DEFAULT_GUEST_TEST_MEM		0xc0000000
+ 
+ /* How many pages to dirty for each guest loop */
+ #define TEST_PAGES_PER_LOOP		1024
+@@ -38,6 +38,27 @@
+ /* Interval for each host loop (ms) */
+ #define TEST_HOST_LOOP_INTERVAL		10UL
+ 
++/* Dirty bitmaps are always little endian, so we need to swap on big endian */
++#if defined(__s390x__)
++# define BITOP_LE_SWIZZLE	((BITS_PER_LONG-1) & ~0x7)
++# define test_bit_le(nr, addr) \
++	test_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define set_bit_le(nr, addr) \
++	set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define clear_bit_le(nr, addr) \
++	clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define test_and_set_bit_le(nr, addr) \
++	test_and_set_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++# define test_and_clear_bit_le(nr, addr) \
++	test_and_clear_bit((nr) ^ BITOP_LE_SWIZZLE, addr)
++#else
++# define test_bit_le		test_bit
++# define set_bit_le		set_bit
++# define clear_bit_le		clear_bit
++# define test_and_set_bit_le	test_and_set_bit
++# define test_and_clear_bit_le	test_and_clear_bit
++#endif
++
+ /*
+  * Guest/Host shared variables. Ensure addr_gva2hva() and/or
+  * sync_global_to/from_guest() are used when accessing from
+@@ -69,11 +90,23 @@ static uint64_t guest_test_virt_mem = DEFAULT_GUEST_TEST_MEM;
+  */
+ static void guest_code(void)
+ {
++	uint64_t addr;
+ 	int i;
+ 
++	/*
++	 * On s390x, all pages of a 1M segment are initially marked as dirty
++	 * when a page of the segment is written to for the very first time.
++	 * To compensate this specialty in this test, we need to touch all
++	 * pages during the first iteration.
++	 */
++	for (i = 0; i < guest_num_pages; i++) {
++		addr = guest_test_virt_mem + i * guest_page_size;
++		*(uint64_t *)addr = READ_ONCE(iteration);
++	}
++
+ 	while (true) {
+ 		for (i = 0; i < TEST_PAGES_PER_LOOP; i++) {
+-			uint64_t addr = guest_test_virt_mem;
++			addr = guest_test_virt_mem;
+ 			addr += (READ_ONCE(random_array[i]) % guest_num_pages)
+ 				* guest_page_size;
+ 			addr &= ~(host_page_size - 1);
+@@ -158,15 +191,15 @@ static void vm_dirty_log_verify(unsigned long *bmap)
+ 		value_ptr = host_test_mem + page * host_page_size;
+ 
+ 		/* If this is a special page that we were tracking... */
+-		if (test_and_clear_bit(page, host_bmap_track)) {
++		if (test_and_clear_bit_le(page, host_bmap_track)) {
+ 			host_track_next_count++;
+-			TEST_ASSERT(test_bit(page, bmap),
++			TEST_ASSERT(test_bit_le(page, bmap),
+ 				    "Page %"PRIu64" should have its dirty bit "
+ 				    "set in this iteration but it is missing",
+ 				    page);
  		}
--		if (nd->flags & LOOKUP_RCU) {
--			return follow_dotdot_rcu(nd);
--		} else
--			return follow_dotdot(nd);
-+		if (nd->flags & LOOKUP_RCU)
-+			error = follow_dotdot_rcu(nd);
-+		else
-+			error = follow_dotdot(nd);
-+		if (error)
-+			return error;
-+
-+		if (unlikely(nd->flags & LOOKUP_DIRFD_SCOPE_FLAGS)) {
-+			bool m_retry = read_seqretry(&mount_lock, nd->m_seq);
-+			bool r_retry = read_seqretry(&rename_lock, nd->r_seq);
-+
-+			/*
-+			 * If there was a racing rename or mount along our
-+			 * path, then we can't be sure that ".." hasn't jumped
-+			 * above nd->root (and so userspace should retry or use
-+			 * some fallback).
-+			 *
-+			 * In future we could do a path_is_under() check here
-+			 * instead, but there are O(n*m) performance
-+			 * considerations with such a setup.
-+			 */
-+			if (unlikely(m_retry || r_retry))
-+				return -EAGAIN;
-+		}
- 	}
- 	return 0;
- }
-@@ -2251,6 +2264,10 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
- 	nd->flags = flags | LOOKUP_JUMPED | LOOKUP_PARENT;
- 	nd->depth = 0;
-+
-+	nd->m_seq = read_seqbegin(&mount_lock);
-+	nd->r_seq = read_seqbegin(&rename_lock);
-+
- 	if (flags & LOOKUP_ROOT) {
- 		struct dentry *root = nd->root.dentry;
- 		struct inode *inode = root->d_inode;
-@@ -2272,8 +2289,6 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 	nd->path.mnt = NULL;
- 	nd->path.dentry = NULL;
  
--	nd->m_seq = read_seqbegin(&mount_lock);
--
- 	/* LOOKUP_IN_ROOT treats absolute paths as being relative-to-dirfd. */
- 	if (flags & LOOKUP_IN_ROOT)
- 		while (*s == '/')
+-		if (test_bit(page, bmap)) {
++		if (test_bit_le(page, bmap)) {
+ 			host_dirty_count++;
+ 			/*
+ 			 * If the bit is set, the value written onto
+@@ -209,7 +242,7 @@ static void vm_dirty_log_verify(unsigned long *bmap)
+ 				 * should report its dirtyness in the
+ 				 * next run
+ 				 */
+-				set_bit(page, host_bmap_track);
++				set_bit_le(page, host_bmap_track);
+ 			}
+ 		}
+ 	}
+@@ -293,6 +326,10 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+ 	 * case where the size is not aligned to 64 pages.
+ 	 */
+ 	guest_num_pages = (1ul << (30 - guest_page_shift)) + 16;
++#ifdef __s390x__
++	/* Round up to multiple of 1M (segment size) */
++	guest_num_pages = (guest_num_pages + 0xff) & ~0xffUL;
++#endif
+ 	host_page_size = getpagesize();
+ 	host_num_pages = (guest_num_pages * guest_page_size) / host_page_size +
+ 			 !!((guest_num_pages * guest_page_size) % host_page_size);
+@@ -304,6 +341,11 @@ static void run_test(enum vm_guest_mode mode, unsigned long iterations,
+ 		guest_test_phys_mem = phys_offset;
+ 	}
+ 
++#ifdef __s390x__
++	/* Align to 1M (segment size) */
++	guest_test_phys_mem &= ~((1 << 20) - 1);
++#endif
++
+ 	DEBUG("guest physical test memory offset: 0x%lx\n", guest_test_phys_mem);
+ 
+ 	bmap = bitmap_alloc(host_num_pages);
+@@ -454,6 +496,9 @@ int main(int argc, char *argv[])
+ 		vm_guest_mode_params_init(VM_MODE_P48V48_64K, true, true);
+ 	}
+ #endif
++#ifdef __s390x__
++	vm_guest_mode_params_init(VM_MODE_P40V48_4K, true, true);
++#endif
+ 
+ 	while ((opt = getopt(argc, argv, "hi:I:p:m:")) != -1) {
+ 		switch (opt) {
 -- 
-2.23.0
+2.20.1
