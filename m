@@ -1,88 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12804 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6366 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727114AbfISBg2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Sep 2019 21:36:28 -0400
-Subject: Re: [PATCH v4 0/4] Retrieving zPCI specific info with VFIO
-References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1733029AbfIGAOF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Sep 2019 20:14:05 -0400
 From: Matthew Rosato <mjrosato@linux.ibm.com>
-Message-ID: <b4af47c1-0dc1-938d-20e4-0eeca095a7d5@linux.ibm.com>
-Date: Wed, 18 Sep 2019 21:36:12 -0400
-MIME-Version: 1.0
-In-Reply-To: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v4 0/4] Retrieving zPCI specific info with VFIO
+Date: Fri,  6 Sep 2019 20:13:47 -0400
+Message-Id: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: sebott@linux.ibm.com
 Cc: gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
 
-ping
+Note: These patches by Pierre got lost in the ether a few months back
+as he has been unavailable to carry them forward.  I've made changes
+based upon comments received on his last version.
 
-On 9/6/19 8:13 PM, Matthew Rosato wrote:
-> Note: These patches by Pierre got lost in the ether a few months back
-> as he has been unavailable to carry them forward.  I've made changes
-> based upon comments received on his last version.
-> 
-> We define a new configuration entry for VFIO/PCI, VFIO_PCI_ZDEV
-> to configure access to a zPCI region dedicated for retrieving
-> zPCI features.
-> 
-> When the VFIO_PCI_ZDEV feature is configured we initialize
-> a new device region, VFIO_REGION_SUBTYPE_ZDEV_CLP, to hold
-> the information from the ZPCI device the userland needs to
-> give to a guest driving the zPCI function.
-> 
-> 
-> Note that in the current state we do not use the CLP instructions
-> to access the firmware but get the information directly from
-> the zdev device.
-> 
-> -This means that the patch 1, "s390: pci: Exporting access to CLP PCI
-> function and PCI group" is not used and can be let out of this series
-> without denying the good working of the other patches.
-> - But we will need this later, eventually in the next iteration
->   to retrieve values not being saved inside the zdev structure.
->   like maxstbl and the PCI supported version
-> 
-> To share the code with arch/s390/pci/pci_clp.c the original functions
-> in pci_clp.c to query PCI functions and PCI functions group are
-> modified so that they can be exported.
-> 
-> A new function clp_query_pci() replaces clp_query_pci_fn() and
-> the previous calls to clp_query_pci_fn() and clp_query_pci_fngrp()
-> are replaced with calls to zdev_query_pci_fn() and zdev_query_pci_fngrp()
-> using a zdev pointer as argument.
-> 
-> Changes since v3:
-> - New patch: define maxstbl
-> - Remove CLP_UTIL_STR_LEN references from uapi header
-> - Fix broken ifdef CONFIG_VFIO_PCI_ZDEV
-> - Change Kconfig option from tristate to bool
-> - Remove VFIO_REGION_TYPE_IBM_ZDEV, move VFIO_REGION_SUBTYPE_ZDEV_CLP to a 1014 subtype
-> - reject iswrite in .rw callback
-> - Remove rw restriction on identical buffer sizes
-> - Allow arbitrary sized read
-> 
-> Pierre Morel (4):
->   s390: pci: Exporting access to CLP PCI function and PCI group
->   s390: pci: Define the maxstbl CLP response entry
->   vfio: zpci: defining the VFIO headers
->   vfio: pci: Using a device region to retrieve zPCI information
-> 
->  arch/s390/include/asm/pci.h         |  3 ++
->  arch/s390/include/asm/pci_clp.h     |  2 +-
->  arch/s390/pci/pci_clp.c             | 71 ++++++++++++++++---------------
->  drivers/vfio/pci/Kconfig            |  7 +++
->  drivers/vfio/pci/Makefile           |  1 +
->  drivers/vfio/pci/vfio_pci.c         |  9 ++++
->  drivers/vfio/pci/vfio_pci_private.h | 10 +++++
->  drivers/vfio/pci/vfio_pci_zdev.c    | 85 +++++++++++++++++++++++++++++++++++++
->  include/uapi/linux/vfio.h           |  1 +
->  include/uapi/linux/vfio_zdev.h      | 35 +++++++++++++++
->  10 files changed, 189 insertions(+), 35 deletions(-)
->  create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
->  create mode 100644 include/uapi/linux/vfio_zdev.h
-> 
+We define a new configuration entry for VFIO/PCI, VFIO_PCI_ZDEV
+to configure access to a zPCI region dedicated for retrieving
+zPCI features.
+
+When the VFIO_PCI_ZDEV feature is configured we initialize
+a new device region, VFIO_REGION_SUBTYPE_ZDEV_CLP, to hold
+the information from the ZPCI device the userland needs to
+give to a guest driving the zPCI function.
+
+
+Note that in the current state we do not use the CLP instructions
+to access the firmware but get the information directly from
+the zdev device.
+
+-This means that the patch 1, "s390: pci: Exporting access to CLP PCI
+function and PCI group" is not used and can be let out of this series
+without denying the good working of the other patches.
+- But we will need this later, eventually in the next iteration
+  to retrieve values not being saved inside the zdev structure.
+  like maxstbl and the PCI supported version
+
+To share the code with arch/s390/pci/pci_clp.c the original functions
+in pci_clp.c to query PCI functions and PCI functions group are
+modified so that they can be exported.
+
+A new function clp_query_pci() replaces clp_query_pci_fn() and
+the previous calls to clp_query_pci_fn() and clp_query_pci_fngrp()
+are replaced with calls to zdev_query_pci_fn() and zdev_query_pci_fngrp()
+using a zdev pointer as argument.
+
+Changes since v3:
+- New patch: define maxstbl
+- Remove CLP_UTIL_STR_LEN references from uapi header
+- Fix broken ifdef CONFIG_VFIO_PCI_ZDEV
+- Change Kconfig option from tristate to bool
+- Remove VFIO_REGION_TYPE_IBM_ZDEV, move VFIO_REGION_SUBTYPE_ZDEV_CLP to a 1014 subtype
+- reject iswrite in .rw callback
+- Remove rw restriction on identical buffer sizes
+- Allow arbitrary sized read
+
+Pierre Morel (4):
+  s390: pci: Exporting access to CLP PCI function and PCI group
+  s390: pci: Define the maxstbl CLP response entry
+  vfio: zpci: defining the VFIO headers
+  vfio: pci: Using a device region to retrieve zPCI information
+
+ arch/s390/include/asm/pci.h         |  3 ++
+ arch/s390/include/asm/pci_clp.h     |  2 +-
+ arch/s390/pci/pci_clp.c             | 71 ++++++++++++++++---------------
+ drivers/vfio/pci/Kconfig            |  7 +++
+ drivers/vfio/pci/Makefile           |  1 +
+ drivers/vfio/pci/vfio_pci.c         |  9 ++++
+ drivers/vfio/pci/vfio_pci_private.h | 10 +++++
+ drivers/vfio/pci/vfio_pci_zdev.c    | 85 +++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h           |  1 +
+ include/uapi/linux/vfio_zdev.h      | 35 +++++++++++++++
+ 10 files changed, 189 insertions(+), 35 deletions(-)
+ create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
+ create mode 100644 include/uapi/linux/vfio_zdev.h
+
+-- 
+1.8.3.1
