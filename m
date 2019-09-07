@@ -1,67 +1,164 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34170 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395029AbfIVS7K (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:59:10 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 74/89] s390/crypto: xts-aes-s390 fix extra run-time crypto self tests finding
-Date: Sun, 22 Sep 2019 14:57:02 -0400
-Message-Id: <20190922185717.3412-74-sashal@kernel.org>
-In-Reply-To: <20190922185717.3412-1-sashal@kernel.org>
-References: <20190922185717.3412-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29268 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2393514AbfIGAOM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Sep 2019 20:14:12 -0400
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: [PATCH v4 1/4] s390: pci: Exporting access to CLP PCI function and PCI group
+Date: Fri,  6 Sep 2019 20:13:48 -0400
+Message-Id: <1567815231-17940-2-git-send-email-mjrosato@linux.ibm.com>
+In-Reply-To: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+To: sebott@linux.ibm.com
+Cc: gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, cohuck@redhat.com, pmorel@linux.ibm.com
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-[ Upstream commit 9e323d45ba94262620a073a3f9945ca927c07c71 ]
+For the generic implementation of VFIO PCI we need to retrieve
+the hardware configuration for the PCI functions and the
+PCI function groups.
 
-With 'extra run-time crypto self tests' enabled, the selftest
-for s390-xts fails with
+We modify the internal function using CLP Query PCI function and
+CLP query PCI function group so that they can be called from
+outside the S390 architecture PCI code and prefix the two
+functions with "zdev" to make clear that they can be called
+knowing only the associated zdevice.
 
-  alg: skcipher: xts-aes-s390 encryption unexpectedly succeeded on
-  test vector "random: len=0 klen=64"; expected_error=-22,
-  cfg="random: inplace use_digest nosimd src_divs=[2.61%@+4006,
-  84.44%@+21, 1.55%@+13, 4.50%@+344, 4.26%@+21, 2.64%@+27]"
-
-This special case with nbytes=0 is not handled correctly and this
-fix now makes sure that -EINVAL is returned when there is en/decrypt
-called with 0 bytes to en/decrypt.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 ---
- arch/s390/crypto/aes_s390.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/s390/include/asm/pci.h |  3 ++
+ arch/s390/pci/pci_clp.c     | 71 +++++++++++++++++++++++----------------------
+ 2 files changed, 40 insertions(+), 34 deletions(-)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 591cbdf615af0..1a906dd7ca7d9 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -572,6 +572,9 @@ static int xts_aes_encrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
+diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+index a2399ef..dd03212 100644
+--- a/arch/s390/include/asm/pci.h
++++ b/arch/s390/include/asm/pci.h
+@@ -266,4 +266,7 @@ static inline int __pcibus_to_node(const struct pci_bus *bus)
  
-+	if (!nbytes)
-+		return -EINVAL;
+ #endif /* CONFIG_NUMA */
+ 
++int zdev_query_pci_fngrp(struct zpci_dev *zdev,
++			 struct clp_req_rsp_query_pci_grp *rrb);
++int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb);
+ #endif
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index 9bdff4d..df06fdf 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -113,32 +113,18 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
+ 	}
+ }
+ 
+-static int clp_query_pci_fngrp(struct zpci_dev *zdev, u8 pfgid)
++int zdev_query_pci_fngrp(struct zpci_dev *zdev,
++			 struct clp_req_rsp_query_pci_grp *rrb)
+ {
+-	struct clp_req_rsp_query_pci_grp *rrb;
+-	int rc;
+-
+-	rrb = clp_alloc_block(GFP_KERNEL);
+-	if (!rrb)
+-		return -ENOMEM;
+-
+ 	memset(rrb, 0, sizeof(*rrb));
+ 	rrb->request.hdr.len = sizeof(rrb->request);
+ 	rrb->request.hdr.cmd = CLP_QUERY_PCI_FNGRP;
+ 	rrb->response.hdr.len = sizeof(rrb->response);
+-	rrb->request.pfgid = pfgid;
++	rrb->request.pfgid = zdev->pfgid;
+ 
+-	rc = clp_req(rrb, CLP_LPS_PCI);
+-	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK)
+-		clp_store_query_pci_fngrp(zdev, &rrb->response);
+-	else {
+-		zpci_err("Q PCI FGRP:\n");
+-		zpci_err_clp(rrb->response.hdr.rsp, rc);
+-		rc = -EIO;
+-	}
+-	clp_free_block(rrb);
+-	return rc;
++	return clp_req(rrb, CLP_LPS_PCI);
+ }
++EXPORT_SYMBOL(zdev_query_pci_fngrp);
+ 
+ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 				  struct clp_rsp_query_pci *response)
+@@ -174,32 +160,49 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+ 	return 0;
+ }
+ 
+-static int clp_query_pci_fn(struct zpci_dev *zdev, u32 fh)
++int zdev_query_pci_fn(struct zpci_dev *zdev, struct clp_req_rsp_query_pci *rrb)
++{
 +
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_encrypt(desc, dst, src, nbytes);
- 
-@@ -586,6 +589,9 @@ static int xts_aes_decrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
- 
-+	if (!nbytes)
-+		return -EINVAL;
++	memset(rrb, 0, sizeof(*rrb));
++	rrb->request.hdr.len = sizeof(rrb->request);
++	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
++	rrb->response.hdr.len = sizeof(rrb->response);
++	rrb->request.fh = zdev->fh;
 +
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_decrypt(desc, dst, src, nbytes);
++	return clp_req(rrb, CLP_LPS_PCI);
++}
++
++static int clp_query_pci(struct zpci_dev *zdev)
+ {
+ 	struct clp_req_rsp_query_pci *rrb;
++	struct clp_req_rsp_query_pci_grp *grrb;
+ 	int rc;
+ 
+ 	rrb = clp_alloc_block(GFP_KERNEL);
+ 	if (!rrb)
+ 		return -ENOMEM;
+ 
+-	memset(rrb, 0, sizeof(*rrb));
+-	rrb->request.hdr.len = sizeof(rrb->request);
+-	rrb->request.hdr.cmd = CLP_QUERY_PCI_FN;
+-	rrb->response.hdr.len = sizeof(rrb->response);
+-	rrb->request.fh = fh;
+-
+-	rc = clp_req(rrb, CLP_LPS_PCI);
+-	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+-		rc = clp_store_query_pci_fn(zdev, &rrb->response);
+-		if (rc)
+-			goto out;
+-		rc = clp_query_pci_fngrp(zdev, rrb->response.pfgid);
+-	} else {
++	rc = zdev_query_pci_fn(zdev, rrb);
++	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
+ 		zpci_err("Q PCI FN:\n");
+ 		zpci_err_clp(rrb->response.hdr.rsp, rc);
+ 		rc = -EIO;
++		goto out;
+ 	}
++	rc = clp_store_query_pci_fn(zdev, &rrb->response);
++	if (rc)
++		goto out;
++
++	grrb = (struct clp_req_rsp_query_pci_grp *)rrb;
++	rc = zdev_query_pci_fngrp(zdev, grrb);
++	if (rc || grrb->response.hdr.rsp != CLP_RC_OK) {
++		zpci_err("Q PCI FGRP:\n");
++		zpci_err_clp(grrb->response.hdr.rsp, rc);
++		rc = -EIO;
++		goto out;
++	}
++	clp_store_query_pci_fngrp(zdev, &grrb->response);
++
+ out:
+ 	clp_free_block(rrb);
+ 	return rc;
+@@ -219,7 +222,7 @@ int clp_add_pci_device(u32 fid, u32 fh, int configured)
+ 	zdev->fid = fid;
+ 
+ 	/* Query function properties and update zdev */
+-	rc = clp_query_pci_fn(zdev, fh);
++	rc = clp_query_pci(zdev);
+ 	if (rc)
+ 		goto error;
  
 -- 
-2.20.1
+1.8.3.1
