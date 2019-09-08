@@ -1,45 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:37900 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728220AbfIZR4g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:36 -0400
-Received: by mail-pg1-f194.google.com with SMTP id x10so1964221pgi.5
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:36 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 26/29] x86/mm: Remove redundant &s on addresses
-Date: Thu, 26 Sep 2019 10:55:59 -0700
-Message-Id: <20190926175602.33098-27-keescook@chromium.org>
-In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
-References: <20190926175602.33098-1-keescook@chromium.org>
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:40709 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730107AbfIHQ5C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Sep 2019 12:57:02 -0400
+Received: by mail-pf1-f194.google.com with SMTP id x127so7645716pfb.7
+        for <linux-s390@vger.kernel.org>; Sun, 08 Sep 2019 09:57:01 -0700 (PDT)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH V6 1/5] iommu/amd: Remove unnecessary locking from AMD iommu driver
+Date: Sun,  8 Sep 2019 09:56:37 -0700
+Message-Id: <20190908165642.22253-2-murphyt7@tcd.ie>
+In-Reply-To: <20190908165642.22253-1-murphyt7@tcd.ie>
+References: <20190908165642.22253-1-murphyt7@tcd.ie>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-The &s on addresses are redundant and are better removed to match all
-the other similar functions.
+With or without locking it doesn't make sense for two writers to be
+writing to the same IOVA range at the same time. Even with locking we
+still have a race condition, whoever gets the lock first, so we still
+can't be sure what the result will be. With locking the result will be
+more sane, it will be correct for the last writer, but still useless
+because we can't be sure which writer will get the lock last. It's a
+fundamentally broken design to have two writers writing to the same
+IOVA range at the same time.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+So we can remove the locking and work on the assumption that no two
+writers will be writing to the same IOVA range at the same time.
+
+The only exception is when we have to allocate a middle page in the page
+tables, the middle page can cover more than just the IOVA range a writer
+has been allocated. However this isn't an issue in the AMD driver
+because it can atomically allocate middle pages using "cmpxchg64()".
+
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- arch/x86/mm/init_64.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/amd_iommu.c       | 10 +---------
+ drivers/iommu/amd_iommu_types.h |  1 -
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 26299e9ce6da..e67ddca8b7a8 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1300,9 +1300,9 @@ void mark_rodata_ro(void)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 008da21a2592..1948be7ac8f8 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2858,7 +2858,6 @@ static void protection_domain_free(struct protection_domain *domain)
+ static int protection_domain_init(struct protection_domain *domain)
  {
- 	unsigned long start = PFN_ALIGN(_text);
- 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
--	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
--	unsigned long text_end = PFN_ALIGN(&_etext);
--	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
-+	unsigned long end = (unsigned long)__end_rodata_hpage_align;
-+	unsigned long text_end = PFN_ALIGN(_etext);
-+	unsigned long rodata_end = PFN_ALIGN(__end_rodata);
- 	unsigned long all_end;
+ 	spin_lock_init(&domain->lock);
+-	mutex_init(&domain->api_lock);
+ 	domain->id = domain_id_alloc();
+ 	if (!domain->id)
+ 		return -ENOMEM;
+@@ -3045,9 +3044,7 @@ static int amd_iommu_map(struct iommu_domain *dom, unsigned long iova,
+ 	if (iommu_prot & IOMMU_WRITE)
+ 		prot |= IOMMU_PROT_IW;
  
- 	printk(KERN_INFO "Write protecting the kernel read-only data: %luk\n",
+-	mutex_lock(&domain->api_lock);
+ 	ret = iommu_map_page(domain, iova, paddr, page_size, prot, GFP_KERNEL);
+-	mutex_unlock(&domain->api_lock);
+ 
+ 	domain_flush_np_cache(domain, iova, page_size);
+ 
+@@ -3058,16 +3055,11 @@ static size_t amd_iommu_unmap(struct iommu_domain *dom, unsigned long iova,
+ 			   size_t page_size)
+ {
+ 	struct protection_domain *domain = to_pdomain(dom);
+-	size_t unmap_size;
+ 
+ 	if (domain->mode == PAGE_MODE_NONE)
+ 		return 0;
+ 
+-	mutex_lock(&domain->api_lock);
+-	unmap_size = iommu_unmap_page(domain, iova, page_size);
+-	mutex_unlock(&domain->api_lock);
+-
+-	return unmap_size;
++	return iommu_unmap_page(domain, iova, page_size);
+ }
+ 
+ static phys_addr_t amd_iommu_iova_to_phys(struct iommu_domain *dom,
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index 9ac229e92b07..b764e1a73dcf 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -468,7 +468,6 @@ struct protection_domain {
+ 	struct iommu_domain domain; /* generic domain handle used by
+ 				       iommu core code */
+ 	spinlock_t lock;	/* mostly used to lock the page table*/
+-	struct mutex api_lock;	/* protect page tables in the iommu-api path */
+ 	u16 id;			/* the domain id written to the device table */
+ 	int mode;		/* paging mode (0-6 levels) */
+ 	u64 *pt_root;		/* page table root pointer */
 -- 
-2.17.1
+2.20.1
