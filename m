@@ -1,67 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga06-in.huawei.com ([45.249.212.32]:59348 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731138AbfILKSE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Sep 2019 06:18:04 -0400
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: [PATCH v3 4/8] powerpc: numa: make node_to_cpumask_map() NUMA_NO_NODE aware for powerpc
-Date: Thu, 12 Sep 2019 18:15:30 +0800
-Message-ID: <1568283334-178380-5-git-send-email-linyunsheng@huawei.com>
-In-Reply-To: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
-References: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
+Received: from mx1.redhat.com ([209.132.183.28]:49506 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729586AbfIIPrY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Sep 2019 11:47:24 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 5/6] s390x: Prepare for external calls
+References: <20190905103951.36522-1-frankja@linux.ibm.com>
+ <20190905103951.36522-6-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <093802cb-519b-144a-0c36-8faa2cbd08d8@redhat.com>
+Date: Mon, 9 Sep 2019 17:47:21 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20190905103951.36522-6-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
-Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, rafael@kernel.org, mhocko@kernel.org, gregkh@linuxfoundation.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-When passing the return value of dev_to_node() to cpumask_of_node()
-without checking the node id if the node id is NUMA_NO_NODE, there is
-global-out-of-bounds detected by KASAN.
+On 05/09/2019 12.39, Janosch Frank wrote:
+> With SMP we also get new external interrupts like external call and
+> emergency call. Let's make them known.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+[...]
+> @@ -108,15 +116,23 @@ void handle_pgm_int(void)
+>  
+>  void handle_ext_int(void)
+>  {
+> -	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+> +	if (!ext_int_expected &&
+> +	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+>  		report_abort("Unexpected external call interrupt: at %#lx",
+>  			     lc->ext_old_psw.addr);
+> -	} else {
+> -		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+> +		return;
+> +	}
+> +
+> +	if (lc->ext_int_code == EXT_IRQ_SERVICE_SIG) {
+>  		lc->sw_int_cr0 &= ~(1UL << 9);
+>  		sclp_handle_ext();
+> -		lc->ext_int_code = 0;
+>  	}
+> +	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
 
-From the discussion [1], NUMA_NO_NODE really means no node affinity,
-which also means all cpus should be usable. So the cpumask_of_node()
-should always return all cpus online when user passes the node id
-as NUMA_NO_NODE, just like similar semantic that page allocator handles
-NUMA_NO_NODE.
+I think you could simplify above line to "else {" ?
 
-But we cannot really copy the page allocator logic. Simply because the
-page allocator doesn't enforce the near node affinity. It just picks it
-up as a preferred node but then it is free to fallback to any other numa
-node. This is not the case here and node_to_cpumask_map will only restrict
-to the particular node's cpus which would have really non deterministic
-behavior depending on where the code is executed. So in fact we really
-want to return cpu_online_mask for NUMA_NO_NODE.
+With that change:
 
-Since this arch was already NUMA_NO_NODE aware, this patch only changes
-it to return cpu_online_mask and use NUMA_NO_NODE instead of "-1".
-
-[1] https://lore.kernel.org/patchwork/patch/1125789/
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Suggested-by: Michal Hocko <mhocko@kernel.org>
----
-V3: Change to only handle NUMA_NO_NODE, and return cpu_online_mask
-    for NUMA_NO_NODE case, and change the commit log to better justify
-    the change.
----
- arch/powerpc/include/asm/topology.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/topology.h b/arch/powerpc/include/asm/topology.h
-index 2f7e1ea..107f5cd 100644
---- a/arch/powerpc/include/asm/topology.h
-+++ b/arch/powerpc/include/asm/topology.h
-@@ -17,8 +17,8 @@ struct device_node;
- 
- #include <asm/mmzone.h>
- 
--#define cpumask_of_node(node) ((node) == -1 ?				\
--			       cpu_all_mask :				\
-+#define cpumask_of_node(node) ((node) == NUMA_NO_NODE ?			\
-+			       cpu_online_mask :			\
- 			       node_to_cpumask_map[node])
- 
- struct pci_bus;
--- 
-2.8.1
+Reviewed-by: Thomas Huth <thuth@redhat.com>
