@@ -1,20 +1,20 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49118 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37550 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725616AbfIKH57 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Sep 2019 03:57:59 -0400
+        id S1726847AbfIIJCj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Sep 2019 05:02:39 -0400
 Subject: Re: [kvm-unit-tests PATCH v2 3/6] s390x: Add linemode buffer to fix
  newline on every print
 References: <20190905103951.36522-1-frankja@linux.ibm.com>
  <20190905103951.36522-4-frankja@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <ea032176-101e-3961-3c54-e5ae0b7009d6@redhat.com>
-Date: Wed, 11 Sep 2019 09:57:56 +0200
+Message-ID: <d68e6371-e0a2-22d3-9443-0b54cb7337ca@redhat.com>
+Date: Mon, 9 Sep 2019 11:02:37 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190905103951.36522-4-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
@@ -49,10 +49,6 @@ On 05.09.19 12:39, Janosch Frank wrote:
 >  };
 >  
 > +static char lm_buff[120];
-
-Just wondering, how did you come up with the 120? (my first guess would
-have been something around 80)
-
 > +static unsigned char lm_buff_off;
 > +static struct spinlock lm_buff_lock;
 > +
@@ -66,10 +62,6 @@ have been something around 80)
 > -static void sclp_print_lm(const char *str)
 > +static void lm_print(const char *buff, int len)
 >  {
-
-The rename of str->buff could have been avoided, however, the impact is
-rather small.
-
 >  	unsigned char *ptr, *end, ch;
 > -	unsigned int count, offset, len;
 > +	unsigned int count, offset;
@@ -113,18 +105,11 @@ rather small.
 > +	spin_lock(&lm_buff_lock);
 > +
 > +	len = strlen(str);
-
-You could do that directly when declaring the variable, doesn't have to
-be under the lock.
-
 > +	/*
 > +	 * No use in copying into lm_buff, its time to flush the
 > +	 * buffer and print str until finished.
 > +	 */
 > +	if (len > sizeof(lm_buff)) {
-
-I find ARRAY_SIZE(lm_buf) easier to understand than sizeof(lm_buff)
-
 > +		if (lm_buff_off)
 > +			lm_print(lm_buff, lm_buff_off);
 > +		lm_print(str, len);
@@ -134,23 +119,13 @@ I find ARRAY_SIZE(lm_buf) easier to understand than sizeof(lm_buff)
 > +	}
 > +
 > +fill:
-
-Is there a way to remove this goto by using a simple while loop?
-
 > +	len = len < (sizeof(lm_buff) - lm_buff_off) ? len : (sizeof(lm_buff) - lm_buff_off);
 > +	if ((lm_buff_off < sizeof(lm_buff) - 1)) {
-
-Drop one set of ()
-
 > +		memcpy(&lm_buff[lm_buff_off], str, len);
 > +		lm_buff_off += len;
 > +	}
 > +	/* Buffer not full and no newline */
 > +	nl = strchr(lm_buff, '\n');
-
-Why do we have to search? Shouldn't a newline be the last copied
-character only?
-
 > +	if (lm_buff_off != sizeof(lm_buff) - 1 && !nl)
 > +		goto out;
 > +
@@ -163,30 +138,6 @@ character only?
 > +		len = strlen(str);
 > +		goto fill;
 > +	}
-
-This looks too complicated for my taste :) Or my caffeine level is low.
-
-I think we have the following cases:
-
-1. String contains newline
- a) String fits into remaining buffer
-	-> Copy into buffer, flush (last character is newline)
- b) String doesn't fit into remaining buffer
-	-> Simply flush old buffer and print remaining string?
-2. String doesn't contain newline.
- a) String fits into remaining buffer
-	-> Copy into buffer, flush if full
- b) String doesn't fit into remaining buffer
-	-> Simply flush old buffer and print remaining string?
-
-Optimizing for 1b) or 2b) isn't really worth it I guess - unless we want
-to wrap *any* string at 120 characters. But then, your pre-loop handling
-would also have to be modified. I think this allow to simplify your code
-a lot.
-
-(how often does it happen in our current tests that we exceed 120
-characters?)
-
 > +
 > +out:
 > +	spin_unlock(&lm_buff_lock);
@@ -197,6 +148,7 @@ characters?)
 >   * indicating which messages the control program (we) want(s) to
 > 
 
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
 
