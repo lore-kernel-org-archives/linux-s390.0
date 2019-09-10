@@ -1,46 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63994 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727007AbfIJNZO (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60158 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725942AbfIJNPv (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Sep 2019 09:25:14 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8ADO31O050892
-        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:25:13 -0400
+        Tue, 10 Sep 2019 09:15:51 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8ADDgUM101909
+        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:15:49 -0400
 Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2uxa1rxba6-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2uxc9jrvuw-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:25:12 -0400
+        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:15:48 -0400
 Received: from localhost
         by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Tue, 10 Sep 2019 14:25:10 +0100
-Date: Tue, 10 Sep 2019 15:25:02 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 10 Sep 2019 14:15:45 +0100
 Subject: Re: [PATCH] KVM: s390: kvm_s390_vm_start_migration: check
  dirty_bitmap before using it as target for memset()
-In-Reply-To: <20190910130215.23647-1-imammedo@redhat.com>
 References: <20190910130215.23647-1-imammedo@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 10 Sep 2019 15:15:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190910130215.23647-1-imammedo@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <20190910152502.4e90735d@p-imbrenda.boeblingen.de.ibm.com>
+Message-Id: <faf2d7cf-9d75-e921-e362-252fccacfa53@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Igor Mammedov <imammedo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, frankja@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
+To: Igor Mammedov <imammedo@redhat.com>, linux-kernel@vger.kernel.org
+Cc: david@redhat.com, cohuck@redhat.com, frankja@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
 
-On Tue, 10 Sep 2019 09:02:15 -0400
-Igor Mammedov <imammedo@redhat.com> wrote:
 
-> If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before
-> calling kvm_s390_vm_start_migration(), kernel will oops with:
+
+On 10.09.19 15:02, Igor Mammedov wrote:
+> If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
+> kvm_s390_vm_start_migration(), kernel will oops with:
 > 
->   Unable to handle kernel pointer dereference in virtual kernel
-> address space Failing address: 0000000000000000 TEID: 0000000000000483
+>   Unable to handle kernel pointer dereference in virtual kernel address space
+>   Failing address: 0000000000000000 TEID: 0000000000000483
 >   Fault in home space mode while using kernel ASCE.
->   AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007
-> S:00000001bff91000 P:000000000000003d Oops: 0004 ilc:2 [#1] SMP
+>   AS:0000000002a2000b R2:00000001bff8c00b R3:00000001bff88007 S:00000001bff91000 P:000000000000003d
+>   Oops: 0004 ilc:2 [#1] SMP
 >   ...
 >   Call Trace:
 >   ([<001fffff804ec552>] kvm_s390_vm_set_attr+0x347a/0x3828 [kvm])
@@ -59,10 +60,13 @@ Igor Mammedov <imammedo@redhat.com> wrote:
 > Make sure that ms->dirty_bitmap is set before using it or
 > print a warning and return -ENIVAL otherwise.
 > 
-> Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration
-> with memory slots") Signed-off-by: Igor Mammedov <imammedo@redhat.com>
+> Fixes: afdad61615cc ("KVM: s390: Fix storage attributes migration with memory slots")
+> Signed-off-by: Igor Mammedov <imammedo@redhat.com>
 > ---
 > Cc: stable@vger.kernel.org # v4.19+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+It also matches Documentation/virt/kvm/devices/vm.txt which already allows -EINVAL. 
 > 
 > v2:
 >    - drop WARN()
@@ -74,15 +78,13 @@ Igor Mammedov <imammedo@redhat.com> wrote:
 > index f329dcb3f44c..2a40cd3e40b4 100644
 > --- a/arch/s390/kvm/kvm-s390.c
 > +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1018,6 +1018,8 @@ static int kvm_s390_vm_start_migration(struct
-> kvm *kvm) /* mark all the pages in active slots as dirty */
+> @@ -1018,6 +1018,8 @@ static int kvm_s390_vm_start_migration(struct kvm *kvm)
+>  	/* mark all the pages in active slots as dirty */
 >  	for (slotnr = 0; slotnr < slots->used_slots; slotnr++) {
 >  		ms = slots->memslots + slotnr;
 > +		if (!ms->dirty_bitmap)
 > +			return -EINVAL;
 >  		/*
 >  		 * The second half of the bitmap is only used on x86,
->  		 * and would be wasted otherwise, so we put it to
-> good
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>  		 * and would be wasted otherwise, so we put it to good
+> 
