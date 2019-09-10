@@ -1,149 +1,171 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18322 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726724AbfIKIdZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Sep 2019 04:33:25 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8B8WUAB125998
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2019 04:33:24 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2uxtrf57wj-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2019 04:33:24 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 11 Sep 2019 09:33:22 +0100
+Received: from mx1.redhat.com ([209.132.183.28]:14780 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731146AbfIJMTT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Sep 2019 08:19:19 -0400
 Subject: Re: [kvm-unit-tests PATCH v2 4/6] s390x: Add initial smp code
 References: <20190905103951.36522-1-frankja@linux.ibm.com>
  <20190905103951.36522-5-frankja@linux.ibm.com>
- <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Date: Wed, 11 Sep 2019 10:33:18 +0200
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <c502505d-09ab-b91e-8596-1290f48b9c1b@redhat.com>
+Date: Tue, 10 Sep 2019 14:19:11 +0200
 MIME-Version: 1.0
-In-Reply-To: <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw"
-Message-Id: <ca96ce20-a12c-9af1-bcf2-a795a5eab860@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw
-Content-Type: multipart/mixed; boundary="sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0";
- protected-headers="v1"
-From: Janosch Frank <frankja@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com
-Message-ID: <ca96ce20-a12c-9af1-bcf2-a795a5eab860@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v2 4/6] s390x: Add initial smp code
-References: <20190905103951.36522-1-frankja@linux.ibm.com>
- <20190905103951.36522-5-frankja@linux.ibm.com>
- <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
-In-Reply-To: <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
-
---sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0
+In-Reply-To: <20190905103951.36522-5-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-On 9/9/19 5:37 PM, Thomas Huth wrote:
-> On 05/09/2019 12.39, Janosch Frank wrote:
->> Let's add a rudimentary SMP library, which will scan for cpus and has
->> helper functions that manage the cpu state.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
-> [...]
->> +/*Expected to be called from boot cpu */
->> +extern uint64_t *stackptr;
->> +void smp_setup(void)
->> +{
->> +	int i =3D 0;
->> +	unsigned short cpu0_addr =3D stap();
->> +	struct ReadCpuInfo *info =3D (void *)cpu_info_buffer;
->> +
->> +	spin_lock(&lock);
->> +	sclp_mark_busy();
->> +	info->h.length =3D PAGE_SIZE;
->> +	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
->> +
->> +	if (smp_query_num_cpus() > 1)
->> +		printf("SMP: Initializing, found %d cpus\n", info->nr_configured);
->> +
->> +	cpus =3D calloc(info->nr_configured, sizeof(cpus));
->> +	for (i =3D 0; i < info->nr_configured; i++) {
->> +		if (info->entries[i].address =3D=3D cpu0_addr) {
->> +			cpu0 =3D &cpus[i];
->> +			cpu0->stack =3D stackptr;
->> +			cpu0->lowcore =3D (void *)0;
->> +			cpu0->active =3D true;
->=20
-> So here cpus[i].active gets set to true ...
->=20
->> +		}
->> +		cpus[i].addr =3D info->entries[i].address;
->> +		cpus[i].active =3D false;
->=20
-> ... but here it is set back to false.
->=20
-> Maybe move the if-statement below this line?
->=20
->> +	}
->> +	spin_unlock(&lock);
->> +}
-> [...]
->> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
->> index 36f7cab..a45ea8f 100644
->> --- a/s390x/cstart64.S
->> +++ b/s390x/cstart64.S
->> @@ -172,6 +172,13 @@ diag308_load_reset:
->>  	lhi	%r2, 1
->>  	br	%r14
->> =20
->> +.globl smp_cpu_setup_state
->> +smp_cpu_setup_state:
->> +	xgr	%r1, %r1
->> +	lmg     %r0, %r15, 512(%r1)
->=20
-> Can you use GEN_LC_SW_INT_GRS instead of 512?
->=20
->> +	lctlg   %c0, %c0, 776(%r1)
->=20
-> ... and here GEN_LC_SW_INT_CR0 instead of 776?
->=20
-> Apart from that, the patch looks fine to me.
+On 05/09/2019 12.39, Janosch Frank wrote:
+> Let's add a rudimentary SMP library, which will scan for cpus and has
+> helper functions that manage the cpu state.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/arch_def.h |   8 ++
+>  lib/s390x/asm/sigp.h     |  28 +++-
+>  lib/s390x/io.c           |   5 +-
+>  lib/s390x/sclp.h         |   1 +
+>  lib/s390x/smp.c          | 276 +++++++++++++++++++++++++++++++++++++++
+>  lib/s390x/smp.h          |  51 ++++++++
+>  s390x/Makefile           |   1 +
+>  s390x/cstart64.S         |   7 +
+>  8 files changed, 371 insertions(+), 6 deletions(-)
+>  create mode 100644 lib/s390x/smp.c
+>  create mode 100644 lib/s390x/smp.h
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 5f8f45e..d5a7f51 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -157,6 +157,14 @@ struct cpuid {
+>  	uint64_t reserved : 15;
+>  };
+>  
+> +static inline unsigned short stap(void)
+> +{
+> +	unsigned short cpu_address;
+> +
+> +	asm volatile("stap %0" : "=Q" (cpu_address));
+> +	return cpu_address;
+> +}
+> +
+>  static inline int tprot(unsigned long addr)
+>  {
+>  	int cc;
+> diff --git a/lib/s390x/asm/sigp.h b/lib/s390x/asm/sigp.h
+> index fbd94fc..2d52313 100644
+> --- a/lib/s390x/asm/sigp.h
+> +++ b/lib/s390x/asm/sigp.h
+> @@ -46,14 +46,32 @@
+>  
+>  #ifndef __ASSEMBLER__
+>  
+> -static inline void sigp_stop(void)
+> +
+> +static inline int sigp(uint16_t addr, uint8_t order, unsigned long parm,
+> +		       uint32_t *status)
+>  {
+> -	register unsigned long status asm ("1") = 0;
+> -	register unsigned long cpu asm ("2") = 0;
+> +	register unsigned long reg1 asm ("1") = parm;
+> +	int cc;
+>  
+>  	asm volatile(
+> -		"	sigp %0,%1,0(%2)\n"
+> -		: "+d" (status)  : "d" (cpu), "d" (SIGP_STOP) : "cc");
+> +		"	sigp	%1,%2,0(%3)\n"
+> +		"	ipm	%0\n"
+> +		"	srl	%0,28\n"
+> +		: "=d" (cc), "+d" (reg1) : "d" (addr), "a" (order) : "cc");
+> +	if (status)
+> +		*status = reg1;
+> +	return cc;
+> +}
+> +
+> +static inline int sigp_retry(uint16_t addr, uint8_t order, unsigned long parm,
+> +			     uint32_t *status)
+> +{
+> +	int cc;
+> +
+> +	do {
+> +		cc = sigp(addr, order, parm, status);
+> +	} while (cc == 2);
+> +	return cc;
+>  }
+>  
+>  #endif /* __ASSEMBLER__ */
+> diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+> index becadfc..32f09b5 100644
+> --- a/lib/s390x/io.c
+> +++ b/lib/s390x/io.c
+> @@ -16,6 +16,7 @@
+>  #include <asm/facility.h>
+>  #include <asm/sigp.h>
+>  #include "sclp.h"
+> +#include "smp.h"
+>  
+>  extern char ipl_args[];
+>  uint8_t stfl_bytes[NR_STFL_BYTES] __attribute__((aligned(8)));
+> @@ -37,12 +38,14 @@ void setup(void)
+>  	setup_facilities();
+>  	sclp_console_setup();
+>  	sclp_memory_setup();
+> +	smp_setup();
+>  }
+>  
+>  void exit(int code)
+>  {
+> +	smp_teardown();
+>  	printf("\nEXIT: STATUS=%d\n", ((code) << 1) | 1);
+>  	while (1) {
+> -		sigp_stop();
+> +		sigp(0, SIGP_STOP, 0, NULL);
+>  	}
+>  }
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 98c482a..4e69845 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -19,6 +19,7 @@
+>  #define SCLP_CMD_CODE_MASK                      0xffff00ff
+>  
+>  /* SCLP command codes */
+> +#define SCLP_READ_CPU_INFO			0x00010001
+>  #define SCLP_CMDW_READ_SCP_INFO                 0x00020001
+>  #define SCLP_CMDW_READ_SCP_INFO_FORCED          0x00120001
+>  #define SCLP_READ_STORAGE_ELEMENT_INFO          0x00040001
+> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> new file mode 100644
+> index 0000000..40c43ef
+> --- /dev/null
+> +++ b/lib/s390x/smp.c
+> @@ -0,0 +1,276 @@
+> +/*
+> + * s390x smp
+> + * Based on Linux's arch/s390/kernel/smp.c and
+> + * arch/s390/include/asm/sigp.h
+> + *
+> + * Copyright (c) 2019 IBM Corp
+> + *
+> + * Authors:
+> + *  Janosch Frank <frankja@linux.ibm.com>
+> + *
+> + * This code is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2.
+> + */
+> +#include <libcflat.h>
+> +#include <errno.h>
 
-Thanks, just fixed that
+This breaks building on Travis:
 
+ https://travis-ci.com/huth/kvm-unit-tests/jobs/232679058
 
+I don't think that you can use the errno.h header from the system
+library in kvm-unit-tests in a save way. It's likely better if you
+define your own error codes instead.
 
---sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0--
-
---e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIyBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl14sU8ACgkQ41TmuOI4
-ufgNCQ/4/6tIA/YNoZbAOWqLpY1IHWAJsgSbYLg9JtYB/9qMKO3kkmVux5s3WdV1
-vYrhgu7Z4/VjIclYuVG5o6tTA2VA3qfMWbP6FQFOCK8YbnS2Cu59b77LYRksxhn/
-UZLN35beF/wjlwp2tX0xOZ74hNAaZfuIw0Rtxnvc+v5poIbZG1OYEFyUWIxm3LMS
-mPIk1OKtIsPJbAFDRxwex86ASlEVBCipQe28fap4vgEBKsTfpjO9u8O85QUiAn1v
-oQXSZINZq+hW54UtNiGUSXAAqYkU9B2wV93FG5l2gZWJDX5xsV/uW6MrHlFy8O4M
-vcTDAM3w7Ib/Qau/yiKduBxnUBQTMED0+cZGsVP5WwWour8NXIQ193V1EnUiipdo
-wjJu1sOFUrBgdVOilThrJBxJq6d5d8b1Bbjzn0JxUDJW3ujhTJ3wAcNfU3cjGu5V
-tJ+KGdFUssVJBcB8IOQoAHUKDin254cNZzPkiFTH/x+QcxsBO0KSSkcwyvLQqit8
-E/T8Xf22ZqBtVqOa7CchSXRZWEB/WVV5DnrJtahA6o3gMXvdnJutPfy/aG/3vILv
-Yl//xiNrEzy+6O7Chnl25ybSTmlET4x0qcUiWO5WVoaI3MyboHpM4n/lO2Z8xCTb
-689juM5TR60F9wDRqydSORBBuJB7sHKN5Y4v3pcIszGMaR0e3w==
-=itzb
------END PGP SIGNATURE-----
-
---e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw--
+ Thomas
