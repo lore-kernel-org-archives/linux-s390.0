@@ -1,37 +1,23 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60158 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725942AbfIJNPv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Sep 2019 09:15:51 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8ADDgUM101909
-        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:15:49 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2uxc9jrvuw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 10 Sep 2019 09:15:48 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 10 Sep 2019 14:15:45 +0100
+Received: from mx1.redhat.com ([209.132.183.28]:48154 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725916AbfIJNEk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Sep 2019 09:04:40 -0400
 Subject: Re: [PATCH] KVM: s390: kvm_s390_vm_start_migration: check
  dirty_bitmap before using it as target for memset()
 References: <20190910130215.23647-1-imammedo@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 10 Sep 2019 15:15:38 +0200
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <13e7fa0a-c18b-5ff3-a359-013b4019487f@redhat.com>
+Date: Tue, 10 Sep 2019 15:04:36 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190910130215.23647-1-imammedo@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <faf2d7cf-9d75-e921-e362-252fccacfa53@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Igor Mammedov <imammedo@redhat.com>, linux-kernel@vger.kernel.org
-Cc: david@redhat.com, cohuck@redhat.com, frankja@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
-
-
+Cc: borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org
 
 On 10.09.19 15:02, Igor Mammedov wrote:
 > If userspace doesn't set KVM_MEM_LOG_DIRTY_PAGES on memslot before calling
@@ -64,9 +50,6 @@ On 10.09.19 15:02, Igor Mammedov wrote:
 > Signed-off-by: Igor Mammedov <imammedo@redhat.com>
 > ---
 > Cc: stable@vger.kernel.org # v4.19+
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-It also matches Documentation/virt/kvm/devices/vm.txt which already allows -EINVAL. 
 > 
 > v2:
 >    - drop WARN()
@@ -88,3 +71,14 @@ It also matches Documentation/virt/kvm/devices/vm.txt which already allows -EINV
 >  		 * The second half of the bitmap is only used on x86,
 >  		 * and would be wasted otherwise, so we put it to good
 > 
+
+We properly hold the slots lock, so the bitmap cannot change while in
+the loop.
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+
+Thanks,
+
+David / dhildenb
