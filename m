@@ -1,166 +1,257 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 030/167] s390/zcrypt: reinit ap queue state machine during device probe
-Date: Tue,  3 Sep 2019 12:23:02 -0400
-Message-Id: <20190903162519.7136-30-sashal@kernel.org>
-In-Reply-To: <20190903162519.7136-1-sashal@kernel.org>
-References: <20190903162519.7136-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:42750 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727770AbfIJLab (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Sep 2019 07:30:31 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 1/6] s390x: Use interrupts in SCLP and
+ add locking
+References: <20190905103951.36522-1-frankja@linux.ibm.com>
+ <20190905103951.36522-2-frankja@linux.ibm.com>
+ <bc431c45-3cb5-8f8e-e8ec-2f0011f454b2@redhat.com>
+ <261b1c62-21cf-05bc-2cec-75a53c9211a7@redhat.com>
+ <34976021-7257-c363-208d-681f7a239d9e@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <9abd326b-df7e-69b9-2cca-7dff59a8aa8e@redhat.com>
+Date: Tue, 10 Sep 2019 13:30:29 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <34976021-7257-c363-208d-681f7a239d9e@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+On 10.09.19 13:25, Janosch Frank wrote:
+> On 9/10/19 1:24 PM, David Hildenbrand wrote:
+>> On 10.09.19 12:14, David Hildenbrand wrote:
+>>> On 05.09.19 12:39, Janosch Frank wrote:
+>>>> We need to properly implement interrupt handling for SCLP, because on
+>>>> z/VM and LPAR SCLP calls are not synchronous!
+>>>>
+>>>> Also with smp CPUs have to compete for sclp. Let's add some locking,
+>>>> so they execute sclp calls in an orderly fashion and don't compete for
+>>>> the data buffer.
+>>>>
+>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>> ---
+>>>>  lib/s390x/asm/interrupt.h |  2 ++
+>>>>  lib/s390x/interrupt.c     | 12 +++++++--
+>>>>  lib/s390x/sclp-console.c  |  2 ++
+>>>>  lib/s390x/sclp.c          | 55 +++++++++++++++++++++++++++++++++++++--
+>>>>  lib/s390x/sclp.h          |  3 +++
+>>>>  5 files changed, 70 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+>>>> index 013709f..f485e96 100644
+>>>> --- a/lib/s390x/asm/interrupt.h
+>>>> +++ b/lib/s390x/asm/interrupt.h
+>>>> @@ -11,6 +11,8 @@
+>>>>  #define _ASMS390X_IRQ_H_
+>>>>  #include <asm/arch_def.h>
+>>>>  
+>>>> +#define EXT_IRQ_SERVICE_SIG	0x2401
+>>>> +
+>>>>  void handle_pgm_int(void);
+>>>>  void handle_ext_int(void);
+>>>>  void handle_mcck_int(void);
+>>>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>>>> index cf0a794..7832711 100644
+>>>> --- a/lib/s390x/interrupt.c
+>>>> +++ b/lib/s390x/interrupt.c
+>>>> @@ -12,6 +12,7 @@
+>>>>  #include <libcflat.h>
+>>>>  #include <asm/interrupt.h>
+>>>>  #include <asm/barrier.h>
+>>>> +#include <sclp.h>
+>>>>  
+>>>>  static bool pgm_int_expected;
+>>>>  static struct lowcore *lc;
+>>>> @@ -107,8 +108,15 @@ void handle_pgm_int(void)
+>>>>  
+>>>>  void handle_ext_int(void)
+>>>>  {
+>>>> -	report_abort("Unexpected external call interrupt: at %#lx",
+>>>> -		     lc->ext_old_psw.addr);
+>>>> +	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
+>>>> +		report_abort("Unexpected external call interrupt: at %#lx",
+>>>> +			     lc->ext_old_psw.addr);
+>>>> +	} else {
+>>>> +		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
+>>>> +		lc->sw_int_cr0 &= ~(1UL << 9);
+>>>> +		sclp_handle_ext();
+>>>> +		lc->ext_int_code = 0;
+>>>> +	}
+>>>>  }
+>>>>  
+>>>>  void handle_mcck_int(void)
+>>>> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
+>>>> index bc01f41..a5ef45f 100644
+>>>> --- a/lib/s390x/sclp-console.c
+>>>> +++ b/lib/s390x/sclp-console.c
+>>>> @@ -17,6 +17,7 @@ static void sclp_set_write_mask(void)
+>>>>  {
+>>>>  	WriteEventMask *sccb = (void *)_sccb;
+>>>>  
+>>>> +	sclp_mark_busy();
+>>>>  	sccb->h.length = sizeof(WriteEventMask);
+>>>>  	sccb->mask_length = sizeof(unsigned int);
+>>>>  	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
+>>>> @@ -37,6 +38,7 @@ void sclp_print(const char *str)
+>>>>  	int len = strlen(str);
+>>>>  	WriteEventData *sccb = (void *)_sccb;
+>>>>  
+>>>> +	sclp_mark_busy();
+>>>>  	sccb->h.length = sizeof(WriteEventData) + len;
+>>>>  	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
+>>>>  	sccb->ebh.length = sizeof(EventBufferHeader) + len;
+>>>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>>>> index b60f7a4..56fca0c 100644
+>>>> --- a/lib/s390x/sclp.c
+>>>> +++ b/lib/s390x/sclp.c
+>>>> @@ -14,6 +14,8 @@
+>>>>  #include <asm/page.h>
+>>>>  #include <asm/arch_def.h>
+>>>>  #include <asm/interrupt.h>
+>>>> +#include <asm/barrier.h>
+>>>> +#include <asm/spinlock.h>
+>>>>  #include "sclp.h"
+>>>>  #include <alloc_phys.h>
+>>>>  #include <alloc_page.h>
+>>>> @@ -25,6 +27,8 @@ static uint64_t max_ram_size;
+>>>>  static uint64_t ram_size;
+>>>>  
+>>>>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>>>> +static volatile bool sclp_busy;
+>>>> +static struct spinlock sclp_lock;
+>>>>  
+>>>>  static void mem_init(phys_addr_t mem_end)
+>>>>  {
+>>>> @@ -41,17 +45,62 @@ static void mem_init(phys_addr_t mem_end)
+>>>>  	page_alloc_ops_enable();
+>>>>  }
+>>>>  
+>>>> +static void sclp_setup_int(void)
+>>>> +{
+>>>> +	uint64_t mask;
+>>>> +
+>>>> +	ctl_set_bit(0, 9);
+>>>> +
+>>>> +	mask = extract_psw_mask();
+>>>> +	mask |= PSW_MASK_EXT;
+>>>> +	load_psw_mask(mask);
+>>>> +}
+>>>> +
+>>>> +void sclp_handle_ext(void)
+>>>> +{
+>>>> +	ctl_clear_bit(0, 9);
+>>>> +	spin_lock(&sclp_lock);
+>>>> +	sclp_busy = false;
+>>>> +	spin_unlock(&sclp_lock);
+>>>> +}
+>>>> +
+>>>> +void sclp_wait_busy(void)
+>>>> +{
+>>>> +	while (sclp_busy)
+>>>> +		mb();
+>>>> +}
+>>>> +
+>>>> +void sclp_mark_busy(void)
+>>>> +{
+>>>> +	/*
+>>>> +	 * With multiple CPUs we might need to wait for another CPU's
+>>>> +	 * request before grabbing the busy indication.
+>>>> +	 */
+>>>> +	while (true) {
+>>>> +		sclp_wait_busy();
+>>>> +		spin_lock(&sclp_lock);
+>>>> +		if (!sclp_busy) {
+>>>> +			sclp_busy = true;
+>>>> +			spin_unlock(&sclp_lock);
+>>>> +			return;
+>>>> +		}
+>>>> +		spin_unlock(&sclp_lock);
+>>>> +	}
+>>>> +}
+>>>> +
+>>>>  static void sclp_read_scp_info(ReadInfo *ri, int length)
+>>>>  {
+>>>>  	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
+>>>>  				    SCLP_CMDW_READ_SCP_INFO };
+>>>> -	int i;
+>>>> +	int i, cc;
+>>>>  
+>>>>  	for (i = 0; i < ARRAY_SIZE(commands); i++) {
+>>>> +		sclp_mark_busy();
+>>>>  		memset(&ri->h, 0, sizeof(ri->h));
+>>>>  		ri->h.length = length;
+>>>>  
+>>>> -		if (sclp_service_call(commands[i], ri))
+>>>> +		cc = sclp_service_call(commands[i], ri);
+>>>> +		if (cc)
+>>>>  			break;
+>>>>  		if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
+>>>>  			return;
+>>>> @@ -66,12 +115,14 @@ int sclp_service_call(unsigned int command, void *sccb)
+>>>>  {
+>>>>  	int cc;
+>>>>  
+>>>> +	sclp_setup_int();
+>>>>  	asm volatile(
+>>>>  		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+>>>>  		"       ipm     %0\n"
+>>>>  		"       srl     %0,28"
+>>>>  		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+>>>>  		: "cc", "memory");
+>>>> +	sclp_wait_busy();
+>>>>  	if (cc == 3)
+>>>>  		return -1;
+>>>>  	if (cc == 2)
+>>>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+>>>> index 583c4e5..63cf609 100644
+>>>> --- a/lib/s390x/sclp.h
+>>>> +++ b/lib/s390x/sclp.h
+>>>> @@ -213,6 +213,9 @@ typedef struct ReadEventData {
+>>>>  } __attribute__((packed)) ReadEventData;
+>>>>  
+>>>>  extern char _sccb[];
+>>>> +void sclp_handle_ext(void);
+>>>> +void sclp_wait_busy(void);
+>>>> +void sclp_mark_busy(void);
+>>>>  void sclp_console_setup(void);
+>>>>  void sclp_print(const char *str);
+>>>>  int sclp_service_call(unsigned int command, void *sccb);
+>>>>
+>>>
+>>> I was wondering whether it would make sense to enable sclp interrupts as
+>>> default for all CPUs (once in a reasonable state after brought up), and
+>>> simply let any CPU process the request. Initially, we could only let the
+>>> boot CPU handle them.
+>>>
+>>> You already decoupled sclp_mark_busy() and sclp_setup_int() already. The
+>>> part would have to be moved to the CPU init stage and sclp_handle_ext()
+>>> would simply not clear the interrupt-enable flag.
+>>>
+>>> Opinions?
+>>>
+>>
+>> OTOH, the s390x-ccw bios enables interrupts on the single cpu after
+>> sending the request, and disables them again in the interrupt handler. I
+>> guess we should never get more than one interrupt per SCLP request?
+>>
+> 
+> Didn't old qemu versions do exactly that an we currently catch that in
+> the kernel?
+> 
 
-[ Upstream commit 104f708fd1241b22f808bdf066ab67dc5a051de5 ]
+You mean, multiple interrupts? I remember that the old bios wouldn't
+wait for the sclp interrupt at all - meaning one could have remain
+pending for the kernel. But that was solved by always waiting for the
+single interrupt.
 
-Until the vfio-ap driver came into live there was a well known
-agreement about the way how ap devices are initialized and their
-states when the driver's probe function is called.
-
-However, the vfio device driver when receiving an ap queue device does
-additional resets thereby removing the registration for interrupts for
-the ap device done by the ap bus core code. So when later the vfio
-driver releases the device and one of the default zcrypt drivers takes
-care of the device the interrupt registration needs to get
-renewed. The current code does no renew and result is that requests
-send into such a queue will never see a reply processed - the
-application hangs.
-
-This patch adds a function which resets the aq queue state machine for
-the ap queue device and triggers the walk through the initial states
-(which are reset and registration for interrupts). This function is
-now called before the driver's probe function is invoked.
-
-When the association between driver and device is released, the
-driver's remove function is called. The current implementation calls a
-ap queue function ap_queue_remove(). This invokation has been moved to
-the ap bus function to make the probe / remove pair for ap bus and
-drivers more symmetric.
-
-Fixes: 7e0bdbe5c21c ("s390/zcrypt: AP bus support for alternate driver(s)")
-Cc: stable@vger.kernel.org # 4.19+
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewd-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewd-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/crypto/ap_bus.c        |  8 ++++----
- drivers/s390/crypto/ap_bus.h        |  1 +
- drivers/s390/crypto/ap_queue.c      | 15 +++++++++++++++
- drivers/s390/crypto/zcrypt_cex2a.c  |  1 -
- drivers/s390/crypto/zcrypt_cex4.c   |  1 -
- drivers/s390/crypto/zcrypt_pcixcc.c |  1 -
- 6 files changed, 20 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index a57b969b89733..3be54651698a3 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -777,6 +777,8 @@ static int ap_device_probe(struct device *dev)
- 		drvres = ap_drv->flags & AP_DRIVER_FLAG_DEFAULT;
- 		if (!!devres != !!drvres)
- 			return -ENODEV;
-+		/* (re-)init queue's state machine */
-+		ap_queue_reinit_state(to_ap_queue(dev));
- 	}
- 
- 	/* Add queue/card to list of active queues/cards */
-@@ -809,6 +811,8 @@ static int ap_device_remove(struct device *dev)
- 	struct ap_device *ap_dev = to_ap_dev(dev);
- 	struct ap_driver *ap_drv = ap_dev->drv;
- 
-+	if (is_queue_dev(dev))
-+		ap_queue_remove(to_ap_queue(dev));
- 	if (ap_drv->remove)
- 		ap_drv->remove(ap_dev);
- 
-@@ -1446,10 +1450,6 @@ static void ap_scan_bus(struct work_struct *unused)
- 			aq->ap_dev.device.parent = &ac->ap_dev.device;
- 			dev_set_name(&aq->ap_dev.device,
- 				     "%02x.%04x", id, dom);
--			/* Start with a device reset */
--			spin_lock_bh(&aq->lock);
--			ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
--			spin_unlock_bh(&aq->lock);
- 			/* Register device */
- 			rc = device_register(&aq->ap_dev.device);
- 			if (rc) {
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 5246cd8c16a60..7e85d238767ba 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -253,6 +253,7 @@ struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type);
- void ap_queue_remove(struct ap_queue *aq);
- void ap_queue_suspend(struct ap_device *ap_dev);
- void ap_queue_resume(struct ap_device *ap_dev);
-+void ap_queue_reinit_state(struct ap_queue *aq);
- 
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
-diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
-index 66f7334bcb032..0aa4b3ccc948c 100644
---- a/drivers/s390/crypto/ap_queue.c
-+++ b/drivers/s390/crypto/ap_queue.c
-@@ -718,5 +718,20 @@ void ap_queue_remove(struct ap_queue *aq)
- {
- 	ap_flush_queue(aq);
- 	del_timer_sync(&aq->timeout);
-+
-+	/* reset with zero, also clears irq registration */
-+	spin_lock_bh(&aq->lock);
-+	ap_zapq(aq->qid);
-+	aq->state = AP_STATE_BORKED;
-+	spin_unlock_bh(&aq->lock);
- }
- EXPORT_SYMBOL(ap_queue_remove);
-+
-+void ap_queue_reinit_state(struct ap_queue *aq)
-+{
-+	spin_lock_bh(&aq->lock);
-+	aq->state = AP_STATE_RESET_START;
-+	ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
-+	spin_unlock_bh(&aq->lock);
-+}
-+EXPORT_SYMBOL(ap_queue_reinit_state);
-diff --git a/drivers/s390/crypto/zcrypt_cex2a.c b/drivers/s390/crypto/zcrypt_cex2a.c
-index f4ae5fa30ec97..ff17a00273f77 100644
---- a/drivers/s390/crypto/zcrypt_cex2a.c
-+++ b/drivers/s390/crypto/zcrypt_cex2a.c
-@@ -198,7 +198,6 @@ static void zcrypt_cex2a_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
-diff --git a/drivers/s390/crypto/zcrypt_cex4.c b/drivers/s390/crypto/zcrypt_cex4.c
-index 35d58dbbc4da3..2a42e5962317a 100644
---- a/drivers/s390/crypto/zcrypt_cex4.c
-+++ b/drivers/s390/crypto/zcrypt_cex4.c
-@@ -273,7 +273,6 @@ static void zcrypt_cex4_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
-diff --git a/drivers/s390/crypto/zcrypt_pcixcc.c b/drivers/s390/crypto/zcrypt_pcixcc.c
-index 94d9f7224aea3..baa683c3f5d30 100644
---- a/drivers/s390/crypto/zcrypt_pcixcc.c
-+++ b/drivers/s390/crypto/zcrypt_pcixcc.c
-@@ -276,7 +276,6 @@ static void zcrypt_pcixcc_queue_remove(struct ap_device *ap_dev)
- 	struct ap_queue *aq = to_ap_queue(&ap_dev->device);
- 	struct zcrypt_queue *zq = aq->private;
- 
--	ap_queue_remove(aq);
- 	if (zq)
- 		zcrypt_queue_unregister(zq);
- }
 -- 
-2.20.1
+
+Thanks,
+
+David / dhildenb
