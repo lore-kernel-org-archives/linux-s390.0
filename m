@@ -1,67 +1,149 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436695AbfIVTAm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 22 Sep 2019 15:00:42 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 49/60] s390/crypto: xts-aes-s390 fix extra run-time crypto self tests finding
-Date: Sun, 22 Sep 2019 14:59:22 -0400
-Message-Id: <20190922185934.4305-49-sashal@kernel.org>
-In-Reply-To: <20190922185934.4305-1-sashal@kernel.org>
-References: <20190922185934.4305-1-sashal@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18322 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726724AbfIKIdZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Sep 2019 04:33:25 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8B8WUAB125998
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2019 04:33:24 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2uxtrf57wj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 11 Sep 2019 04:33:24 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Wed, 11 Sep 2019 09:33:22 +0100
+Subject: Re: [kvm-unit-tests PATCH v2 4/6] s390x: Add initial smp code
+References: <20190905103951.36522-1-frankja@linux.ibm.com>
+ <20190905103951.36522-5-frankja@linux.ibm.com>
+ <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Wed, 11 Sep 2019 10:33:18 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw"
+Message-Id: <ca96ce20-a12c-9af1-bcf2-a795a5eab860@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw
+Content-Type: multipart/mixed; boundary="sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0";
+ protected-headers="v1"
+From: Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
+Message-ID: <ca96ce20-a12c-9af1-bcf2-a795a5eab860@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v2 4/6] s390x: Add initial smp code
+References: <20190905103951.36522-1-frankja@linux.ibm.com>
+ <20190905103951.36522-5-frankja@linux.ibm.com>
+ <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
+In-Reply-To: <51f23b0f-a928-1cd3-787d-31aed3ab7005@redhat.com>
 
-[ Upstream commit 9e323d45ba94262620a073a3f9945ca927c07c71 ]
+--sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-With 'extra run-time crypto self tests' enabled, the selftest
-for s390-xts fails with
+On 9/9/19 5:37 PM, Thomas Huth wrote:
+> On 05/09/2019 12.39, Janosch Frank wrote:
+>> Let's add a rudimentary SMP library, which will scan for cpus and has
+>> helper functions that manage the cpu state.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+> [...]
+>> +/*Expected to be called from boot cpu */
+>> +extern uint64_t *stackptr;
+>> +void smp_setup(void)
+>> +{
+>> +	int i =3D 0;
+>> +	unsigned short cpu0_addr =3D stap();
+>> +	struct ReadCpuInfo *info =3D (void *)cpu_info_buffer;
+>> +
+>> +	spin_lock(&lock);
+>> +	sclp_mark_busy();
+>> +	info->h.length =3D PAGE_SIZE;
+>> +	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
+>> +
+>> +	if (smp_query_num_cpus() > 1)
+>> +		printf("SMP: Initializing, found %d cpus\n", info->nr_configured);
+>> +
+>> +	cpus =3D calloc(info->nr_configured, sizeof(cpus));
+>> +	for (i =3D 0; i < info->nr_configured; i++) {
+>> +		if (info->entries[i].address =3D=3D cpu0_addr) {
+>> +			cpu0 =3D &cpus[i];
+>> +			cpu0->stack =3D stackptr;
+>> +			cpu0->lowcore =3D (void *)0;
+>> +			cpu0->active =3D true;
+>=20
+> So here cpus[i].active gets set to true ...
+>=20
+>> +		}
+>> +		cpus[i].addr =3D info->entries[i].address;
+>> +		cpus[i].active =3D false;
+>=20
+> ... but here it is set back to false.
+>=20
+> Maybe move the if-statement below this line?
+>=20
+>> +	}
+>> +	spin_unlock(&lock);
+>> +}
+> [...]
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index 36f7cab..a45ea8f 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -172,6 +172,13 @@ diag308_load_reset:
+>>  	lhi	%r2, 1
+>>  	br	%r14
+>> =20
+>> +.globl smp_cpu_setup_state
+>> +smp_cpu_setup_state:
+>> +	xgr	%r1, %r1
+>> +	lmg     %r0, %r15, 512(%r1)
+>=20
+> Can you use GEN_LC_SW_INT_GRS instead of 512?
+>=20
+>> +	lctlg   %c0, %c0, 776(%r1)
+>=20
+> ... and here GEN_LC_SW_INT_CR0 instead of 776?
+>=20
+> Apart from that, the patch looks fine to me.
 
-  alg: skcipher: xts-aes-s390 encryption unexpectedly succeeded on
-  test vector "random: len=0 klen=64"; expected_error=-22,
-  cfg="random: inplace use_digest nosimd src_divs=[2.61%@+4006,
-  84.44%@+21, 1.55%@+13, 4.50%@+344, 4.26%@+21, 2.64%@+27]"
+Thanks, just fixed that
 
-This special case with nbytes=0 is not handled correctly and this
-fix now makes sure that -EINVAL is returned when there is en/decrypt
-called with 0 bytes to en/decrypt.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/crypto/aes_s390.c | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 591cbdf615af0..1a906dd7ca7d9 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -572,6 +572,9 @@ static int xts_aes_encrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
- 
-+	if (!nbytes)
-+		return -EINVAL;
-+
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_encrypt(desc, dst, src, nbytes);
- 
-@@ -586,6 +589,9 @@ static int xts_aes_decrypt(struct blkcipher_desc *desc,
- 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
- 	struct blkcipher_walk walk;
- 
-+	if (!nbytes)
-+		return -EINVAL;
-+
- 	if (unlikely(!xts_ctx->fc))
- 		return xts_fallback_decrypt(desc, dst, src, nbytes);
- 
--- 
-2.20.1
+--sO5Vv5ZTSQzKOotYiLxXzI4A6V3kXs0l0--
+
+--e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl14sU8ACgkQ41TmuOI4
+ufgNCQ/4/6tIA/YNoZbAOWqLpY1IHWAJsgSbYLg9JtYB/9qMKO3kkmVux5s3WdV1
+vYrhgu7Z4/VjIclYuVG5o6tTA2VA3qfMWbP6FQFOCK8YbnS2Cu59b77LYRksxhn/
+UZLN35beF/wjlwp2tX0xOZ74hNAaZfuIw0Rtxnvc+v5poIbZG1OYEFyUWIxm3LMS
+mPIk1OKtIsPJbAFDRxwex86ASlEVBCipQe28fap4vgEBKsTfpjO9u8O85QUiAn1v
+oQXSZINZq+hW54UtNiGUSXAAqYkU9B2wV93FG5l2gZWJDX5xsV/uW6MrHlFy8O4M
+vcTDAM3w7Ib/Qau/yiKduBxnUBQTMED0+cZGsVP5WwWour8NXIQ193V1EnUiipdo
+wjJu1sOFUrBgdVOilThrJBxJq6d5d8b1Bbjzn0JxUDJW3ujhTJ3wAcNfU3cjGu5V
+tJ+KGdFUssVJBcB8IOQoAHUKDin254cNZzPkiFTH/x+QcxsBO0KSSkcwyvLQqit8
+E/T8Xf22ZqBtVqOa7CchSXRZWEB/WVV5DnrJtahA6o3gMXvdnJutPfy/aG/3vILv
+Yl//xiNrEzy+6O7Chnl25ybSTmlET4x0qcUiWO5WVoaI3MyboHpM4n/lO2Z8xCTb
+689juM5TR60F9wDRqydSORBBuJB7sHKN5Y4v3pcIszGMaR0e3w==
+=itzb
+-----END PGP SIGNATURE-----
+
+--e9EgWm6zIZ4mCHv0RWLuP0iRQN6XxoYSw--
