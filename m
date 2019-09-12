@@ -1,34 +1,89 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43192 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725775AbfIMHUk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Sep 2019 03:20:40 -0400
-Date: Fri, 13 Sep 2019 09:20:30 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] KVM: s390: Do not leak kernel stack data in the
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v2] KVM: s390: Do not leak kernel stack data in the
  KVM_S390_INTERRUPT ioctl
-Message-ID: <20190913092030.373a9254.cohuck@redhat.com>
-In-Reply-To: <239c8d0f-40fb-264a-bc10-445931a3cd9a@redhat.com>
-References: <20190912090050.20295-1-thuth@redhat.com>
-        <6905df78-95f0-3d6d-aaae-910cd2d7a232@redhat.com>
-        <253e67f6-0a41-13e8-4ca2-c651d5fcdb69@redhat.com>
-        <f9d07b66-a048-6626-e209-9fe455a2bed3@de.ibm.com>
-        <239c8d0f-40fb-264a-bc10-445931a3cd9a@redhat.com>
+References: <20190912115438.25761-1-thuth@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 12 Sep 2019 14:14:29 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20190912115438.25761-1-thuth@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Message-Id: <aee51ff7-010c-42ed-b528-e479bba44b94@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 
-On Thu, 12 Sep 2019 13:23:38 +0200
-Thomas Huth <thuth@redhat.com> wrote:
+thanks, applied and queued for 5.3 (need to do some regression testing before
+sending out)
 
-> Hmm, we already talked about deprecating support for pre-3.15 kernel
-> stuff in the past (see
-> https://wiki.qemu.org/ChangeLog/2.12#Future_incompatible_changes for
-> example),
-
-Btw: did we ever do that? I don't quite recall what code we were
-talking about...
+On 12.09.19 13:54, Thomas Huth wrote:
+> When the userspace program runs the KVM_S390_INTERRUPT ioctl to inject
+> an interrupt, we convert them from the legacy struct kvm_s390_interrupt
+> to the new struct kvm_s390_irq via the s390int_to_s390irq() function.
+> However, this function does not take care of all types of interrupts
+> that we can inject into the guest later (see do_inject_vcpu()). Since we
+> do not clear out the s390irq values before calling s390int_to_s390irq(),
+> there is a chance that we copy random data from the kernel stack which
+> could be leaked to the userspace later.
+> 
+> Specifically, the problem exists with the KVM_S390_INT_PFAULT_INIT
+> interrupt: s390int_to_s390irq() does not handle it, and the function
+> __inject_pfault_init() later copies irq->u.ext which contains the
+> random kernel stack data. This data can then be leaked either to
+> the guest memory in __deliver_pfault_init(), or the userspace might
+> retrieve it directly with the KVM_S390_GET_IRQ_STATE ioctl.
+> 
+> Fix it by handling that interrupt type in s390int_to_s390irq(), too,
+> and by making sure that the s390irq struct is properly pre-initialized.
+> And while we're at it, make sure that s390int_to_s390irq() now
+> directly returns -EINVAL for unknown interrupt types, so that we
+> immediately get a proper error code in case we add more interrupt
+> types to do_inject_vcpu() without updating s390int_to_s390irq()
+> sometime in the future.
+> 
+> Cc: stable@vger.kernel.org
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 10 ++++++++++
+>  arch/s390/kvm/kvm-s390.c  |  2 +-
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 3e7efdd9228a..165dea4c7f19 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1960,6 +1960,16 @@ int s390int_to_s390irq(struct kvm_s390_interrupt *s390int,
+>  	case KVM_S390_MCHK:
+>  		irq->u.mchk.mcic = s390int->parm64;
+>  		break;
+> +	case KVM_S390_INT_PFAULT_INIT:
+> +		irq->u.ext.ext_params = s390int->parm;
+> +		irq->u.ext.ext_params2 = s390int->parm64;
+> +		break;
+> +	case KVM_S390_RESTART:
+> +	case KVM_S390_INT_CLOCK_COMP:
+> +	case KVM_S390_INT_CPU_TIMER:
+> +		break;
+> +	default:
+> +		return -EINVAL;
+>  	}
+>  	return 0;
+>  }
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index f329dcb3f44c..082eac2abc88 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4323,7 +4323,7 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+>  	}
+>  	case KVM_S390_INTERRUPT: {
+>  		struct kvm_s390_interrupt s390int;
+> -		struct kvm_s390_irq s390irq;
+> +		struct kvm_s390_irq s390irq = {};
+>  
+>  		if (copy_from_user(&s390int, argp, sizeof(s390int)))
+>  			return -EFAULT;
+> 
