@@ -1,50 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47736 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730383AbfIBN66 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Sep 2019 09:58:58 -0400
-Subject: Re: [kvm-unit-tests PATCH 5/6] s390x: Prepare for external calls
-References: <20190829121459.1708-1-frankja@linux.ibm.com>
- <20190829121459.1708-6-frankja@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <e32aef57-e9a0-032d-3dec-5c3227225918@redhat.com>
-Date: Mon, 2 Sep 2019 15:58:53 +0200
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2756 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731000AbfILKUx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Sep 2019 06:20:53 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8CAHV1T145461
+        for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2019 06:20:52 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2uyhn6p11v-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Sep 2019 06:20:51 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 12 Sep 2019 11:20:49 +0100
+Subject: Re: [PATCH] KVM: s390: Remove unused parameter from
+ __inject_sigp_restart()
+References: <20190912070250.15131-1-thuth@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 12 Sep 2019 12:20:45 +0200
 MIME-Version: 1.0
-In-Reply-To: <20190829121459.1708-6-frankja@linux.ibm.com>
+In-Reply-To: <20190912070250.15131-1-thuth@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <31218beb-f7e8-af61-2228-ee6f0727a4da@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 29/08/2019 14.14, Janosch Frank wrote:
-> With SMP we also get new external interrupts like external call and
-> emergency call. Let's make them known.
+On 12.09.19 09:02, Thomas Huth wrote:
+> It's not required, so drop it to make it clear that this interrupt
+> does not have any extra parameters.
 > 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+
+makes sense. Thanks applied. 
 > ---
->  lib/s390x/asm/arch_def.h  |  5 +++++
->  lib/s390x/asm/interrupt.h |  3 +++
->  lib/s390x/interrupt.c     | 24 ++++++++++++++++++++----
->  3 files changed, 28 insertions(+), 4 deletions(-)
+>  arch/s390/kvm/interrupt.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 > 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index d5a7f51..5ece2ce 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -19,6 +19,11 @@ struct psw {
->  #define PSW_MASK_DAT			0x0400000000000000UL
->  #define PSW_MASK_PSTATE			0x0001000000000000UL
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index b5fd6e85657c..3e7efdd9228a 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -1477,8 +1477,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+>  	return 0;
+>  }
 >  
-> +#define CR0_EXTM_SCLP			0X0000000000000200UL
-> +#define CR0_EXTM_EXTC			0X0000000000004000UL
-> +#define CR0_EXTM_EMGC			0X0000000000008000UL
-> +#define CR0_EXTM_MASK			0X000000000001DD40UL
-
-I think I need more coffee... but if I still count right, the EXTC, EMGC
-and some of the mask bits seem to be off-by-one ? Could that be? Please
-double-check.
-
- Thomas
+> -static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
+> -				 struct kvm_s390_irq *irq)
+> +static int __inject_sigp_restart(struct kvm_vcpu *vcpu)
+>  {
+>  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+>  
+> @@ -1997,7 +1996,7 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+>  		rc = __inject_sigp_stop(vcpu, irq);
+>  		break;
+>  	case KVM_S390_RESTART:
+> -		rc = __inject_sigp_restart(vcpu, irq);
+> +		rc = __inject_sigp_restart(vcpu);
+>  		break;
+>  	case KVM_S390_INT_CLOCK_COMP:
+>  		rc = __inject_ckc(vcpu);
+> 
