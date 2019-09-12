@@ -1,70 +1,67 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 05/36] s390/bpf: use 32-bit index for tail calls
-Date: Wed,  4 Sep 2019 12:00:51 -0400
-Message-Id: <20190904160122.4179-5-sashal@kernel.org>
-In-Reply-To: <20190904160122.4179-1-sashal@kernel.org>
-References: <20190904160122.4179-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from szxga06-in.huawei.com ([45.249.212.32]:59348 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731138AbfILKSE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Sep 2019 06:18:04 -0400
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v3 4/8] powerpc: numa: make node_to_cpumask_map() NUMA_NO_NODE aware for powerpc
+Date: Thu, 12 Sep 2019 18:15:30 +0800
+Message-ID: <1568283334-178380-5-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
+References: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Content-Type: text/plain
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Yauheni Kaliuta <yauheni.kaliuta@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, rafael@kernel.org, mhocko@kernel.org, gregkh@linuxfoundation.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+When passing the return value of dev_to_node() to cpumask_of_node()
+without checking the node id if the node id is NUMA_NO_NODE, there is
+global-out-of-bounds detected by KASAN.
 
-[ Upstream commit 91b4db5313a2c793aabc2143efb8ed0cf0fdd097 ]
+From the discussion [1], NUMA_NO_NODE really means no node affinity,
+which also means all cpus should be usable. So the cpumask_of_node()
+should always return all cpus online when user passes the node id
+as NUMA_NO_NODE, just like similar semantic that page allocator handles
+NUMA_NO_NODE.
 
-"p runtime/jit: pass > 32bit index to tail_call" fails when
-bpf_jit_enable=1, because the tail call is not executed.
+But we cannot really copy the page allocator logic. Simply because the
+page allocator doesn't enforce the near node affinity. It just picks it
+up as a preferred node but then it is free to fallback to any other numa
+node. This is not the case here and node_to_cpumask_map will only restrict
+to the particular node's cpus which would have really non deterministic
+behavior depending on where the code is executed. So in fact we really
+want to return cpu_online_mask for NUMA_NO_NODE.
 
-This in turn is because the generated code assumes index is 64-bit,
-while it must be 32-bit, and as a result prog array bounds check fails,
-while it should pass. Even if bounds check would have passed, the code
-that follows uses 64-bit index to compute prog array offset.
+Since this arch was already NUMA_NO_NODE aware, this patch only changes
+it to return cpu_online_mask and use NUMA_NO_NODE instead of "-1".
 
-Fix by using clrj instead of clgrj for comparing index with array size,
-and also by using llgfr for truncating index to 32 bits before using it
-to compute prog array offset.
-
-Fixes: 6651ee070b31 ("s390/bpf: implement bpf_tail_call() helper")
-Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://lore.kernel.org/patchwork/patch/1125789/
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Suggested-by: Michal Hocko <mhocko@kernel.org>
 ---
- arch/s390/net/bpf_jit_comp.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+V3: Change to only handle NUMA_NO_NODE, and return cpu_online_mask
+    for NUMA_NO_NODE case, and change the commit log to better justify
+    the change.
+---
+ arch/powerpc/include/asm/topology.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index fcb9e840727cd..b8bd841048434 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -1063,8 +1063,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		/* llgf %w1,map.max_entries(%b2) */
- 		EMIT6_DISP_LH(0xe3000000, 0x0016, REG_W1, REG_0, BPF_REG_2,
- 			      offsetof(struct bpf_array, map.max_entries));
--		/* clgrj %b3,%w1,0xa,label0: if %b3 >= %w1 goto out */
--		EMIT6_PCREL_LABEL(0xec000000, 0x0065, BPF_REG_3,
-+		/* clrj %b3,%w1,0xa,label0: if (u32)%b3 >= (u32)%w1 goto out */
-+		EMIT6_PCREL_LABEL(0xec000000, 0x0077, BPF_REG_3,
- 				  REG_W1, 0, 0xa);
+diff --git a/arch/powerpc/include/asm/topology.h b/arch/powerpc/include/asm/topology.h
+index 2f7e1ea..107f5cd 100644
+--- a/arch/powerpc/include/asm/topology.h
++++ b/arch/powerpc/include/asm/topology.h
+@@ -17,8 +17,8 @@ struct device_node;
  
- 		/*
-@@ -1090,8 +1090,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		 *         goto out;
- 		 */
+ #include <asm/mmzone.h>
  
--		/* sllg %r1,%b3,3: %r1 = index * 8 */
--		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, BPF_REG_3, REG_0, 3);
-+		/* llgfr %r1,%b3: %r1 = (u32) index */
-+		EMIT4(0xb9160000, REG_1, BPF_REG_3);
-+		/* sllg %r1,%r1,3: %r1 *= 8 */
-+		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, REG_1, REG_0, 3);
- 		/* lg %r1,prog(%b2,%r1) */
- 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_1, BPF_REG_2,
- 			      REG_1, offsetof(struct bpf_array, ptrs));
+-#define cpumask_of_node(node) ((node) == -1 ?				\
+-			       cpu_all_mask :				\
++#define cpumask_of_node(node) ((node) == NUMA_NO_NODE ?			\
++			       cpu_online_mask :			\
+ 			       node_to_cpumask_map[node])
+ 
+ struct pci_bus;
 -- 
-2.20.1
+2.8.1
