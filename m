@@ -1,67 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7354 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727077AbfICHiQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Sep 2019 03:38:16 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x837c9tI068005
-        for <linux-s390@vger.kernel.org>; Tue, 3 Sep 2019 03:38:16 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2usj5abgwr-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 03 Sep 2019 03:38:13 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 3 Sep 2019 08:37:53 +0100
-Subject: Re: [PATCH v2] s390: vfio-ap: remove unnecessary calls to disable
- queue interrupts
-References: <1566236929-18995-1-git-send-email-akrowiak@linux.ibm.com>
- <20190830180250.79804f76.pasic@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 3 Sep 2019 09:37:45 +0200
+Received: from szxga06-in.huawei.com ([45.249.212.32]:59526 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731175AbfILKSH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Sep 2019 06:18:07 -0400
+From: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: [PATCH v3 5/8] s390: numa: make node_to_cpumask_map() NUMA_NO_NODE aware for s390
+Date: Thu, 12 Sep 2019 18:15:31 +0800
+Message-ID: <1568283334-178380-6-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
+References: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20190830180250.79804f76.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <ee41fd9f-6ba3-3f7d-7715-e5fe3a6d52f1@de.ibm.com>
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, freude@de.ibm.com, cohuck@redhat.com, pasic@linux.vnet.ibm.com, frankja@linux.ibm.com, jjherne@linux.ibm.com
+To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
+Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, rafael@kernel.org, mhocko@kernel.org, gregkh@linuxfoundation.org
 
+When passing the return value of dev_to_node() to cpumask_of_node()
+without checking the node id if the node id is NUMA_NO_NODE, there is
+global-out-of-bounds detected by KASAN.
 
+From the discussion [1], NUMA_NO_NODE really means no node affinity,
+which also means all cpus should be usable. So the cpumask_of_node()
+should always return all cpus online when user passes the node id
+as NUMA_NO_NODE, just like similar semantic that page allocator handles
+NUMA_NO_NODE.
 
-On 30.08.19 18:02, Halil Pasic wrote:
+But we cannot really copy the page allocator logic. Simply because the
+page allocator doesn't enforce the near node affinity. It just picks it
+up as a preferred node but then it is free to fallback to any other numa
+node. This is not the case here and node_to_cpumask_map will only restrict
+to the particular node's cpus which would have really non deterministic
+behavior depending on where the code is executed. So in fact we really
+want to return cpu_online_mask for NUMA_NO_NODE.
 
-> From: Halil Pasic <pasic@linux.ibm.com>
-> Date: Fri, 30 Aug 2019 16:03:42 +0200
-> Subject: [PATCH 1/2] s390: vfio-ap: fix warning reset not completed
-> 
-> The intention seems to be to warn once when we don't wait enough for the
-> reset to complete. Let's use the right retry counter to accomplish that
-> semantic.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e3bcb43..dd07ebf 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1144,7 +1144,7 @@ int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
->  				msleep(20);
->  				status = ap_tapq(apqn, NULL);
->  			}
-> -			WARN_ON_ONCE(retry <= 0);
-> +			WARN_ON_ONCE(retry2 <= 0);
->  			return 0;
->  		case AP_RESPONSE_RESET_IN_PROGRESS:
->  		case AP_RESPONSE_BUSY:
+[1] https://lore.kernel.org/patchwork/patch/1125789/
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Suggested-by: Michal Hocko <mhocko@kernel.org>
+---
+V3: Change to only handle NUMA_NO_NODE, and return cpu_online_mask
+    for NUMA_NO_NODE case, and change the commit log to better justify
+    the change.
+---
+ arch/s390/include/asm/topology.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I think this patch alone makes certainly sense. Can you send that separately?
-Or even better remove the retry parameter of that function. All users seem
-to always pass in 1 as retry.
+diff --git a/arch/s390/include/asm/topology.h b/arch/s390/include/asm/topology.h
+index cca406f..1bd2e73 100644
+--- a/arch/s390/include/asm/topology.h
++++ b/arch/s390/include/asm/topology.h
+@@ -78,6 +78,9 @@ static inline int cpu_to_node(int cpu)
+ #define cpumask_of_node cpumask_of_node
+ static inline const struct cpumask *cpumask_of_node(int node)
+ {
++	if (node == NUMA_NO_NODE)
++		return cpu_online_mask;
++
+ 	return &node_to_cpumask_map[node];
+ }
+ 
+-- 
+2.8.1
