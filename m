@@ -1,497 +1,255 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48586 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730222AbfIWNFf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Sep 2019 09:05:35 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 4/6] virtio: introduce a mdev based transport
-Date: Mon, 23 Sep 2019 21:03:29 +0800
-Message-Id: <20190923130331.29324-5-jasowang@redhat.com>
-In-Reply-To: <20190923130331.29324-1-jasowang@redhat.com>
-References: <20190923130331.29324-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51246 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2390018AbfIMV1M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 13 Sep 2019 17:27:12 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v6 07/10] s390: zcrypt: driver callback to indicate resource in use
+Date: Fri, 13 Sep 2019 17:26:55 -0400
+Message-Id: <1568410018-10833-8-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, Jason Wang <jasowang@redhat.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-This patch introduces a new mdev transport for virtio. This is used to
-use kernel virtio driver to drive the mediated device that is capable
-of populating virtqueue directly.
+Introduces a new driver callback to prevent a root user from unbinding
+an AP queue from its device driver if the queue is in use. This prevents
+a root user from inadvertently taking a queue away from a guest and
+giving it to the host, or vice versa. The callback will be invoked
+whenever a change to the AP bus's apmask or aqmask sysfs interfaces may
+result in one or more AP queues being removed from its driver. If the
+callback responds in the affirmative for any driver queried, the change
+to the apmask or aqmask will be rejected with a device in use error.
 
-A new virtio-mdev driver will be registered to the mdev bus, when a
-new virtio-mdev device is probed, it will register the device with
-mdev based config ops. This means it is a software transport between
-mdev driver and mdev device. The transport was implemented through
-device specific opswhich is a part of mdev_parent_ops now.
+For this patch, only non-default drivers will be queried. Currently,
+there is only one non-default driver, the vfio_ap device driver. The
+vfio_ap device driver manages AP queues passed through to one or more
+guests and we don't want to unexpectedly take AP resources away from
+guests which are most likely independently administered.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- MAINTAINERS                     |   1 +
- drivers/vfio/mdev/Kconfig       |   7 +
- drivers/vfio/mdev/Makefile      |   1 +
- drivers/vfio/mdev/virtio_mdev.c | 416 ++++++++++++++++++++++++++++++++
- 4 files changed, 425 insertions(+)
- create mode 100644 drivers/vfio/mdev/virtio_mdev.c
+ drivers/s390/crypto/ap_bus.c | 144 +++++++++++++++++++++++++++++++++++++++++--
+ drivers/s390/crypto/ap_bus.h |   4 ++
+ 2 files changed, 142 insertions(+), 6 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 89832b316500..820ec250cc52 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17202,6 +17202,7 @@ F:	include/linux/virtio*.h
- F:	include/uapi/linux/virtio_*.h
- F:	drivers/crypto/virtio/
- F:	mm/balloon_compaction.c
-+F:	drivers/vfio/mdev/virtio_mdev.c
- 
- VIRTIO BLOCK AND SCSI DRIVERS
- M:	"Michael S. Tsirkin" <mst@redhat.com>
-diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
-index 5da27f2100f9..c488c31fc137 100644
---- a/drivers/vfio/mdev/Kconfig
-+++ b/drivers/vfio/mdev/Kconfig
-@@ -16,3 +16,10 @@ config VFIO_MDEV_DEVICE
- 	default n
- 	help
- 	  VFIO based driver for Mediated devices.
-+
-+config VIRTIO_MDEV_DEVICE
-+	tristate "VIRTIO driver for Mediated devices"
-+	depends on VFIO_MDEV && VIRTIO
-+	default n
-+	help
-+	  VIRTIO based driver for Mediated devices.
-diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
-index 101516fdf375..99d31e29c23e 100644
---- a/drivers/vfio/mdev/Makefile
-+++ b/drivers/vfio/mdev/Makefile
-@@ -4,3 +4,4 @@ mdev-y := mdev_core.o mdev_sysfs.o mdev_driver.o
- 
- obj-$(CONFIG_VFIO_MDEV) += mdev.o
- obj-$(CONFIG_VFIO_MDEV_DEVICE) += vfio_mdev.o
-+obj-$(CONFIG_VIRTIO_MDEV_DEVICE) += virtio_mdev.o
-diff --git a/drivers/vfio/mdev/virtio_mdev.c b/drivers/vfio/mdev/virtio_mdev.c
-new file mode 100644
-index 000000000000..919a082adc9c
---- /dev/null
-+++ b/drivers/vfio/mdev/virtio_mdev.c
-@@ -0,0 +1,416 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VIRTIO based driver for Mediated device
-+ *
-+ * Copyright (c) 2019, Red Hat. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ */
-+
-+#include <linux/init.h>
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index a76b8a8bcbbb..6c79e5c36bdf 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -35,6 +35,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/debugfs.h>
+ #include <linux/ctype.h>
 +#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/uuid.h>
-+#include <linux/mdev.h>
-+#include <linux/virtio_mdev.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_ring.h>
-+#include "mdev_private.h"
-+
-+#define DRIVER_VERSION  "0.1"
-+#define DRIVER_AUTHOR   "Red Hat Corporation"
-+#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
-+
-+#define to_virtio_mdev_device(dev) \
-+	container_of(dev, struct virtio_mdev_device, vdev)
-+
-+struct virtio_mdev_device {
-+	struct virtio_device vdev;
-+	struct mdev_device *mdev;
-+	unsigned long version;
-+
-+	struct virtqueue **vqs;
-+	spinlock_t lock;
-+};
-+
-+struct virtio_mdev_vq_info {
-+	/* the actual virtqueue */
-+	struct virtqueue *vq;
-+
-+	/* the list node for the virtqueues list */
-+	struct list_head node;
-+};
-+
-+static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_dev->mdev;
-+
-+	return mdev;
-+}
-+
-+static const struct virtio_mdev_parent_ops
-+*mdev_get_parent_ops(struct mdev_device *mdev)
-+{
-+	struct mdev_parent *parent = mdev->parent;
-+
-+	return parent->ops->device_ops;
-+}
-+
-+static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
-+			    void *buf, unsigned len)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	ops->get_config(mdev, offset, buf, len);
-+}
-+
-+static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
-+			    const void *buf, unsigned len)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	ops->set_config(mdev, offset, buf, len);
-+}
-+
-+static u32 virtio_mdev_generation(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	return ops->get_generation(mdev);
-+}
-+
-+static u8 virtio_mdev_get_status(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	return ops->get_status(mdev);
-+}
-+
-+static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	return ops->set_status(mdev, status);
-+}
-+
-+static void virtio_mdev_reset(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	return ops->set_status(mdev, 0);
-+}
-+
-+static bool virtio_mdev_notify(struct virtqueue *vq)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+
-+	ops->kick_vq(mdev, vq->index);
-+
-+	return true;
-+}
-+
-+static irqreturn_t virtio_mdev_config_cb(void *private)
-+{
-+	struct virtio_mdev_device *vm_dev = private;
-+
-+	virtio_config_changed(&vm_dev->vdev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
-+{
-+	struct virtio_mdev_vq_info *info = private;
-+
-+	return vring_interrupt(0, info->vq);
-+}
-+
-+static struct virtqueue *
-+virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned index,
-+		     void (*callback)(struct virtqueue *vq),
-+		     const char *name, bool ctx)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+	struct virtio_mdev_vq_info *info;
-+	struct virtio_mdev_callback cb;
-+	struct virtqueue *vq;
-+	u32 align, num;
-+	u64 desc_addr, driver_addr, device_addr;
-+	int err;
-+
-+	if (!name)
-+		return NULL;
-+
-+	/* Queue shouldn't already be set up. */
-+	if (ops->get_vq_ready(mdev, index)) {
-+		err = -ENOENT;
-+		goto error_available;
-+	}
-+
-+	/* Allocate and fill out our active queue description */
-+	info = kmalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info) {
-+		err = -ENOMEM;
-+		goto error_kmalloc;
-+	}
-+
-+	num = ops->get_queue_max(mdev);
-+	if (num == 0) {
-+		err = -ENOENT;
-+		goto error_new_virtqueue;
-+	}
-+
-+	/* Create the vring */
-+	align = ops->get_vq_align(mdev);
-+	vq = vring_create_virtqueue(index, num, align, vdev,
-+				    true, true, ctx,
-+				    virtio_mdev_notify, callback, name);
-+	if (!vq) {
-+		err = -ENOMEM;
-+		goto error_new_virtqueue;
-+	}
-+
-+	/* Setup virtqueue callback */
-+	cb.callback = virtio_mdev_virtqueue_cb;
-+	cb.private = info;
-+	ops->set_vq_cb(mdev, index, &cb);
-+	ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
-+
-+	desc_addr = virtqueue_get_desc_addr(vq);
-+	driver_addr = virtqueue_get_avail_addr(vq);
-+	device_addr = virtqueue_get_used_addr(vq);
-+
-+	if (ops->set_vq_address(mdev, index,
-+				desc_addr, driver_addr,
-+				device_addr)) {
-+		err = -EINVAL;
-+		goto err_vq;
-+	}
-+
-+	ops->set_vq_ready(mdev, index, 1);
-+
-+	vq->priv = info;
-+	info->vq = vq;
-+
-+	return vq;
-+
-+err_vq:
-+	vring_del_virtqueue(vq);
-+error_new_virtqueue:
-+	ops->set_vq_ready(mdev, index, 0);
-+	WARN_ON(ops->get_vq_ready(mdev, index));
-+	kfree(info);
-+error_kmalloc:
-+error_available:
-+	return ERR_PTR(err);
-+
-+}
-+
-+static void virtio_mdev_del_vq(struct virtqueue *vq)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+	struct virtio_mdev_vq_info *info = vq->priv;
-+	unsigned int index = vq->index;
-+
-+	/* Select and deactivate the queue */
-+	ops->set_vq_ready(mdev, index, 0);
-+	WARN_ON(ops->get_vq_ready(mdev, index));
-+
-+	vring_del_virtqueue(vq);
-+
-+	kfree(info);
-+}
-+
-+static void virtio_mdev_del_vqs(struct virtio_device *vdev)
-+{
-+	struct virtqueue *vq, *n;
-+
-+	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
-+		virtio_mdev_del_vq(vq);
-+}
-+
-+static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-+				struct virtqueue *vqs[],
-+				vq_callback_t *callbacks[],
-+				const char * const names[],
-+				const bool *ctx,
-+				struct irq_affinity *desc)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+	struct virtio_mdev_callback cb;
-+	int i, err, queue_idx = 0;
-+
-+	vm_dev->vqs = kmalloc_array(queue_idx, sizeof(*vm_dev->vqs),
-+				    GFP_KERNEL);
-+	if (!vm_dev->vqs)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < nvqs; ++i) {
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
+ 
+ #include "ap_bus.h"
+ #include "ap_debug.h"
+@@ -997,9 +998,11 @@ int ap_parse_mask_str(const char *str,
+ 	newmap = kmalloc(size, GFP_KERNEL);
+ 	if (!newmap)
+ 		return -ENOMEM;
+-	if (mutex_lock_interruptible(lock)) {
+-		kfree(newmap);
+-		return -ERESTARTSYS;
++	if (lock) {
++		if (mutex_lock_interruptible(lock)) {
++			kfree(newmap);
++			return -ERESTARTSYS;
 +		}
+ 	}
+ 
+ 	if (*str == '+' || *str == '-') {
+@@ -1011,7 +1014,10 @@ int ap_parse_mask_str(const char *str,
+ 	}
+ 	if (rc == 0)
+ 		memcpy(bitmap, newmap, size);
+-	mutex_unlock(lock);
 +
-+		vqs[i] = virtio_mdev_setup_vq(vdev, queue_idx++,
-+					      callbacks[i], names[i], ctx ?
-+					      ctx[i] : false);
-+		if (IS_ERR(vqs[i])) {
-+			err = PTR_ERR(vqs[i]);
-+			goto err_setup_vq;
-+		}
-+	}
++	if (lock)
++		mutex_unlock(lock);
 +
-+	cb.callback = virtio_mdev_config_cb;
-+	cb.private = vm_dev;
-+	ops->set_config_cb(mdev, &cb);
-+
-+	return 0;
-+
-+err_setup_vq:
-+	kfree(vm_dev->vqs);
-+	virtio_mdev_del_vqs(vdev);
-+	return err;
-+}
-+
-+static u64 virtio_mdev_get_features(struct virtio_device *vdev)
+ 	kfree(newmap);
+ 	return rc;
+ }
+@@ -1198,12 +1204,75 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
+ 
++int __verify_card_reservations(struct device_driver *drv, void *data)
 +{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newapm = (unsigned long *)data;
 +
-+	return ops->get_features(mdev);
-+}
++	/*
++	 * If the reserved bits do not identify cards reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
 +
-+static int virtio_mdev_finalize_features(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
 +
-+	/* Give virtio_ring a chance to accept features. */
-+	vring_transport_features(vdev);
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(newapm, ap_perms.aqm))
++			rc = -EADDRINUSE;
 +
-+	return ops->set_features(mdev, vdev->features);
-+}
-+
-+static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_dev->mdev;
-+
-+	return dev_name(&mdev->dev);
-+}
-+
-+static const struct virtio_config_ops virtio_mdev_config_ops = {
-+	.get		= virtio_mdev_get,
-+	.set		= virtio_mdev_set,
-+	.generation	= virtio_mdev_generation,
-+	.get_status	= virtio_mdev_get_status,
-+	.set_status	= virtio_mdev_set_status,
-+	.reset		= virtio_mdev_reset,
-+	.find_vqs	= virtio_mdev_find_vqs,
-+	.del_vqs	= virtio_mdev_del_vqs,
-+	.get_features	= virtio_mdev_get_features,
-+	.finalize_features = virtio_mdev_finalize_features,
-+	.bus_name	= virtio_mdev_bus_name,
-+};
-+
-+static void virtio_mdev_release_dev(struct device *_d)
-+{
-+	struct virtio_device *vdev =
-+	       container_of(_d, struct virtio_device, dev);
-+	struct virtio_mdev_device *vm_dev =
-+	       container_of(vdev, struct virtio_mdev_device, vdev);
-+
-+	devm_kfree(_d, vm_dev);
-+}
-+
-+static int virtio_mdev_probe(struct device *dev)
-+{
-+	struct mdev_device *mdev = to_mdev_device(dev);
-+	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
-+	struct virtio_mdev_device *vm_dev;
-+	int rc;
-+
-+	vm_dev = devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
-+	if (!vm_dev)
-+		return -ENOMEM;
-+
-+	vm_dev->vdev.dev.parent = dev;
-+	vm_dev->vdev.dev.release = virtio_mdev_release_dev;
-+	vm_dev->vdev.config = &virtio_mdev_config_ops;
-+	vm_dev->mdev = mdev;
-+	vm_dev->vqs = NULL;
-+	spin_lock_init(&vm_dev->lock);
-+
-+	vm_dev->version = ops->get_version(mdev);
-+	if (vm_dev->version != 1) {
-+		dev_err(dev, "Version %ld not supported!\n",
-+			vm_dev->version);
-+		return -ENXIO;
-+	}
-+
-+	vm_dev->vdev.id.device = ops->get_device_id(mdev);
-+	if (vm_dev->vdev.id.device == 0)
-+		return -ENODEV;
-+
-+	vm_dev->vdev.id.vendor = ops->get_vendor_id(mdev);
-+	rc = register_virtio_device(&vm_dev->vdev);
-+	if (rc)
-+		put_device(dev);
-+
-+	dev_set_drvdata(dev, vm_dev);
++	module_put(drv->owner);
 +
 +	return rc;
-+
 +}
 +
-+static void virtio_mdev_remove(struct device *dev)
++static int apmask_commit(unsigned long *newapm)
 +{
-+	struct virtio_mdev_device *vm_dev = dev_get_drvdata(dev);
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
 +
-+	unregister_virtio_device(&vm_dev->vdev);
++	/*
++	 * Check if any bits in the apmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_card_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.apm, newapm, APMASKSIZE);
++
++	return 0;
 +}
 +
-+static struct mdev_class_id id_table[] = {
-+	{ MDEV_ID_VIRTIO },
-+	{ 0 },
-+};
+ static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	unsigned long newapm[BITS_TO_LONGS(AP_DEVICES)];
 +
-+static struct mdev_driver virtio_mdev_driver = {
-+	.name	= "virtio_mdev",
-+	.probe	= virtio_mdev_probe,
-+	.remove	= virtio_mdev_remove,
-+	.id_table = id_table,
-+};
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
 +
-+static int __init virtio_mdev_init(void)
++	memcpy(newapm, ap_perms.apm, APMASKSIZE);
++
++	rc = ap_parse_mask_str(buf, newapm, AP_DEVICES, NULL);
++	if (rc)
++		goto done;
++
++	rc = apmask_commit(newapm);
++	if (rc)
++		goto done;
+ 
+-	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1229,12 +1298,75 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
+ 
++int __verify_queue_reservations(struct device_driver *drv, void *data)
 +{
-+	return mdev_register_driver(&virtio_mdev_driver, THIS_MODULE);
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newaqm = (unsigned long *)data;
++
++	/*
++	 * If the reserved bits do not identify queues reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(ap_perms.apm, newaqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
 +}
 +
-+static void __exit virtio_mdev_exit(void)
++static int aqmask_commit(unsigned long *newaqm)
 +{
-+	mdev_unregister_driver(&virtio_mdev_driver);
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
++
++	/*
++	 * Check if any bits in the aqmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_queue_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
++
++	return 0;
 +}
 +
-+module_init(virtio_mdev_init)
-+module_exit(virtio_mdev_exit)
+ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	unsigned long newaqm[BITS_TO_LONGS(AP_DEVICES)];
+ 
+-	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
 +
-+MODULE_VERSION(DRIVER_VERSION);
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
++	memcpy(newaqm, ap_perms.aqm, AQMASKSIZE);
++
++	rc = ap_parse_mask_str(buf, newaqm, AP_DOMAINS, NULL);
++	if (rc)
++		goto done;
++
++	rc = aqmask_commit(newaqm);
++	if (rc)
++		goto done;
++
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 6f3cf37776ca..2836e674d00d 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -137,6 +137,7 @@ struct ap_driver {
+ 	void (*remove)(struct ap_device *);
+ 	void (*suspend)(struct ap_device *);
+ 	void (*resume)(struct ap_device *);
++	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+ };
+ 
+ #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+@@ -265,6 +266,9 @@ void ap_queue_reinit_state(struct ap_queue *aq);
+ struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+ 			       int comp_device_type, unsigned int functions);
+ 
++#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
++#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
++
+ struct ap_perms {
+ 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+ 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
 -- 
-2.19.1
+2.7.4
