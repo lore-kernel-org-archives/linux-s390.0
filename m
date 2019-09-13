@@ -1,62 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19716 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20678 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404834AbfITHue (ORCPT
+        by vger.kernel.org with ESMTP id S2390166AbfIMV1O (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Sep 2019 03:50:34 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8K7ch4d057199
-        for <linux-s390@vger.kernel.org>; Fri, 20 Sep 2019 03:50:32 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2v4r31w17e-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 20 Sep 2019 03:50:31 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 20 Sep 2019 08:50:30 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: Fix stsi unaligned test and add selector tests
-Date: Fri, 20 Sep 2019 09:50:20 +0200
-Message-Id: <20190920075020.1698-1-frankja@linux.ibm.com>
+        Fri, 13 Sep 2019 17:27:14 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v6 09/10] s390: vfio-ap: added versioning to vfio_ap module
+Date: Fri, 13 Sep 2019 17:26:57 -0400
+Message-Id: <1568410018-10833-10-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Alignment and selectors test order is not specified and so, if you
-have an unaligned address and invalid selectors it's up to the
-hypervisor to decide which error is presented.
+Added versioning to vfio_ap module. The introduction of hot plug/unplug
+and over-provisioning of AP resources require a different set of
+regression tests to be run. Version checking provides a means for the
+regression test software to determine the appropriate set of tests to run.
 
-Let's add valid selectors to the unalignmnet test and add selector
-tests.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- s390x/stsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/crypto/vfio_ap_drv.c     | 2 ++
+ drivers/s390/crypto/vfio_ap_private.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/s390x/stsi.c b/s390x/stsi.c
-index 7232cb0..c5bd0a2 100644
---- a/s390x/stsi.c
-+++ b/s390x/stsi.c
-@@ -35,7 +35,7 @@ static void test_specs(void)
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 477218e39289..d9051cf7fd5c 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -21,6 +21,8 @@
+ MODULE_AUTHOR("IBM Corporation");
+ MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2018");
+ MODULE_LICENSE("GPL v2");
++MODULE_VERSION(VFIO_AP_MODULE_VERSION);
++
  
- 	report_prefix_push("unaligned");
- 	expect_pgm_int();
--	stsi(pagebuf + 42, 1, 0, 0);
-+	stsi(pagebuf + 42, 1, 1, 1);
- 	check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
- 	report_prefix_pop();
+ static struct ap_driver vfio_ap_drv;
  
-@@ -71,6 +71,8 @@ static inline unsigned long stsi_get_fc(void *addr)
- static void test_fc(void)
- {
- 	report("invalid fc",  stsi(pagebuf, 7, 0, 0) == 3);
-+	report("invalid selector 1", stsi(pagebuf, 1, 0, 1) == 3);
-+	report("invalid selector 2", stsi(pagebuf, 1, 1, 0) == 3);
- 	report("query fc >= 2",  stsi_get_fc(pagebuf) >= 2);
- }
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index 21546bb90240..8d2099d222fa 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -22,6 +22,7 @@
+ #include "ap_bus.h"
  
+ #define VFIO_AP_MODULE_NAME "vfio_ap"
++#define VFIO_AP_MODULE_VERSION "1.2.0"
+ #define VFIO_AP_DRV_NAME "vfio_ap"
+ 
+ /**
 -- 
-2.17.2
+2.7.4
