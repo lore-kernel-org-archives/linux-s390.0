@@ -1,228 +1,219 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.mailbox.org ([80.241.60.215]:60506 "EHLO mx2.mailbox.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726834AbfIDUUQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 4 Sep 2019 16:20:16 -0400
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v12 00/12] namei: openat2(2) path resolution restrictions
-Date: Thu,  5 Sep 2019 06:19:21 +1000
-Message-Id: <20190904201933.10736-1-cyphar@cyphar.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1796 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389898AbfIMV1J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 13 Sep 2019 17:27:09 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v6 01/10] s390: vfio-ap: Refactor vfio_ap driver probe and remove callbacks
+Date: Fri, 13 Sep 2019 17:26:49 -0400
+Message-Id: <1568410018-10833-2-git-send-email-akrowiak@linux.ibm.com>
+In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>, David Drysdale <drysdale@google.com>, Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-This patchset is being developed here:
-    <https://github.com/cyphar/linux/tree/resolveat/master>
+In order to limit the number of private mdev functions called from the
+vfio_ap device driver as well as to provide a landing spot for dynamic
+configuration code related to binding/unbinding AP queue devices to/from
+the vfio_ap driver, the following changes are being introduced:
 
-Patch changelog:
- v12:
-  * Remove @how->reserved field from openat2(2), and instead use the
-    (struct, size) design for syscall extensions.
-  * Implement copy_struct_{to,from}_user() to unify (struct, size)
-    syscall extension designs (as well as make them slightly more
-    efficient by using memchr_inv() as well as using buffers and
-    avoiding repeated access_ok() checks for trailing byte operations).
-    * Port sched_setattr(), perf_event_attr(), and clone3() to use the
-      new helpers.
- v11: <https://lore.kernel.org/lkml/20190820033406.29796-1-cyphar@cyphar.com/>
-      <https://lore.kernel.org/lkml/20190728010207.9781-1-cyphar@cyphar.com/>
- v10: <https://lore.kernel.org/lkml/20190719164225.27083-1-cyphar@cyphar.com/>
- v09: <https://lore.kernel.org/lkml/20190706145737.5299-1-cyphar@cyphar.com/>
- v08: <https://lore.kernel.org/lkml/20190520133305.11925-1-cyphar@cyphar.com/>
- v07: <https://lore.kernel.org/lkml/20190507164317.13562-1-cyphar@cyphar.com/>
- v06: <https://lore.kernel.org/lkml/20190506165439.9155-1-cyphar@cyphar.com/>
- v05: <https://lore.kernel.org/lkml/20190320143717.2523-1-cyphar@cyphar.com/>
- v04: <https://lore.kernel.org/lkml/20181112142654.341-1-cyphar@cyphar.com/>
- v03: <https://lore.kernel.org/lkml/20181009070230.12884-1-cyphar@cyphar.com/>
- v02: <https://lore.kernel.org/lkml/20181009065300.11053-1-cyphar@cyphar.com/>
- v01: <https://lore.kernel.org/lkml/20180929103453.12025-1-cyphar@cyphar.com/>
+* Move code from the vfio_ap driver's probe callback into a function
+  defined in the mdev private operations file.
 
-The need for some sort of control over VFS's path resolution (to avoid
-malicious paths resulting in inadvertent breakouts) has been a very
-long-standing desire of many userspace applications. This patchset is a
-revival of Al Viro's old AT_NO_JUMPS[1,2] patchset (which was a variant
-of David Drysdale's O_BENEATH patchset[3] which was a spin-off of the
-Capsicum project[4]) with a few additions and changes made based on the
-previous discussion within [5] as well as others I felt were useful.
+* Move code from the vfio_ap driver's remove callback into a function
+  defined in the mdev private operations file.
 
-In line with the conclusions of the original discussion of AT_NO_JUMPS,
-the flag has been split up into separate flags. However, instead of
-being an openat(2) flag it is provided through a new syscall openat2(2)
-which provides several other improvements to the openat(2) interface (see the
-patch description for more details). The following new LOOKUP_* flags are
-added:
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_drv.c     | 23 +++--------
+ drivers/s390/crypto/vfio_ap_ops.c     | 74 ++++++++++++++++++++++++++++++-----
+ drivers/s390/crypto/vfio_ap_private.h |  6 +--
+ 3 files changed, 72 insertions(+), 31 deletions(-)
 
-  * LOOKUP_NO_XDEV blocks all mountpoint crossings (upwards, downwards,
-    or through absolute links). Absolute pathnames alone in openat(2) do
-    not trigger this.
-
-  * LOOKUP_NO_MAGICLINKS blocks resolution through /proc/$pid/fd-style
-    links. This is done by blocking the usage of nd_jump_link() during
-    resolution in a filesystem. The term "magic-links" is used to match
-    with the only reference to these links in Documentation/, but I'm
-    happy to change the name.
-
-    It should be noted that this is different to the scope of
-    ~LOOKUP_FOLLOW in that it applies to all path components. However,
-    you can do openat2(NO_FOLLOW|NO_MAGICLINKS) on a magic-link and it
-    will *not* fail (assuming that no parent component was a
-    magic-link), and you will have an fd for the magic-link.
-
-  * LOOKUP_BENEATH disallows escapes to outside the starting dirfd's
-    tree, using techniques such as ".." or absolute links. Absolute
-    paths in openat(2) are also disallowed. Conceptually this flag is to
-    ensure you "stay below" a certain point in the filesystem tree --
-    but this requires some additional to protect against various races
-    that would allow escape using "..".
-
-    Currently LOOKUP_BENEATH implies LOOKUP_NO_MAGICLINKS, because it
-    can trivially beam you around the filesystem (breaking the
-    protection). In future, there might be similar safety checks done as
-    in LOOKUP_IN_ROOT, but that requires more discussion.
-
-In addition, two new flags are added that expand on the above ideas:
-
-  * LOOKUP_NO_SYMLINKS does what it says on the tin. No symlink
-    resolution is allowed at all, including magic-links. Just as with
-    LOOKUP_NO_MAGICLINKS this can still be used with NOFOLLOW to open an
-    fd for the symlink as long as no parent path had a symlink
-    component.
-
-  * LOOKUP_IN_ROOT is an extension of LOOKUP_BENEATH that, rather than
-    blocking attempts to move past the root, forces all such movements
-    to be scoped to the starting point. This provides chroot(2)-like
-    protection but without the cost of a chroot(2) for each filesystem
-    operation, as well as being safe against race attacks that chroot(2)
-    is not.
-
-    If a race is detected (as with LOOKUP_BENEATH) then an error is
-    generated, and similar to LOOKUP_BENEATH it is not permitted to cross
-    magic-links with LOOKUP_IN_ROOT.
-
-    The primary need for this is from container runtimes, which
-    currently need to do symlink scoping in userspace[6] when opening
-    paths in a potentially malicious container. There is a long list of
-    CVEs that could have bene mitigated by having RESOLVE_THIS_ROOT
-    (such as CVE-2017-1002101, CVE-2017-1002102, CVE-2018-15664, and
-    CVE-2019-5736, just to name a few).
-
-And further, several semantics of file descriptor "re-opening" are now
-changed to prevent attacks like CVE-2019-5736 by restricting how
-magic-links can be resolved (based on their mode). This required some
-other changes to the semantics of the modes of O_PATH file descriptor's
-associated /proc/self/fd magic-links. openat2(2) has the ability to
-further restrict re-opening of its own O_PATH fds, so that users can
-make even better use of this feature.
-
-Finally, O_EMPTYPATH was added so that users can do /proc/self/fd-style
-re-opening without depending on procfs. The new restricted semantics for
-magic-links are applied here too.
-
-In order to make all of the above more usable, I'm working on
-libpathrs[7] which is a C-friendly library for safe path resolution. It
-features a userspace-emulated backend if the kernel doesn't support
-openat2(2). Hopefully we can get userspace to switch to using it, and
-thus get openat2(2) support for free once it's ready.
-
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: David Drysdale <drysdale@google.com>
-Cc: Tycho Andersen <tycho@tycho.ws>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-
-[1]: https://lwn.net/Articles/721443/
-[2]: https://lore.kernel.org/patchwork/patch/784221/
-[3]: https://lwn.net/Articles/619151/
-[4]: https://lwn.net/Articles/603929/
-[5]: https://lwn.net/Articles/723057/
-[6]: https://github.com/cyphar/filepath-securejoin
-[7]: https://github.com/openSUSE/libpathrs
-
-Aleksa Sarai (12):
-  lib: introduce copy_struct_{to,from}_user helpers
-  clone3: switch to copy_struct_from_user()
-  sched_setattr: switch to copy_struct_{to,from}_user()
-  perf_event_open: switch to copy_struct_from_user()
-  namei: obey trailing magic-link DAC permissions
-  procfs: switch magic-link modes to be more sane
-  open: O_EMPTYPATH: procfs-less file descriptor re-opening
-  namei: O_BENEATH-style path resolution flags
-  namei: LOOKUP_IN_ROOT: chroot-like path resolution
-  namei: aggressively check for nd->root escape on ".." resolution
-  open: openat2(2) syscall
-  selftests: add openat2(2) selftests
-
- Documentation/filesystems/path-lookup.rst     |  12 +-
- arch/alpha/include/uapi/asm/fcntl.h           |   1 +
- arch/alpha/kernel/syscalls/syscall.tbl        |   1 +
- arch/arm/tools/syscall.tbl                    |   1 +
- arch/arm64/include/asm/unistd.h               |   2 +-
- arch/arm64/include/asm/unistd32.h             |   2 +
- arch/ia64/kernel/syscalls/syscall.tbl         |   1 +
- arch/m68k/kernel/syscalls/syscall.tbl         |   1 +
- arch/microblaze/kernel/syscalls/syscall.tbl   |   1 +
- arch/mips/kernel/syscalls/syscall_n32.tbl     |   1 +
- arch/mips/kernel/syscalls/syscall_n64.tbl     |   1 +
- arch/mips/kernel/syscalls/syscall_o32.tbl     |   1 +
- arch/parisc/include/uapi/asm/fcntl.h          |  39 +-
- arch/parisc/kernel/syscalls/syscall.tbl       |   1 +
- arch/powerpc/kernel/syscalls/syscall.tbl      |   1 +
- arch/s390/kernel/syscalls/syscall.tbl         |   1 +
- arch/sh/kernel/syscalls/syscall.tbl           |   1 +
- arch/sparc/include/uapi/asm/fcntl.h           |   1 +
- arch/sparc/kernel/syscalls/syscall.tbl        |   1 +
- arch/x86/entry/syscalls/syscall_32.tbl        |   1 +
- arch/x86/entry/syscalls/syscall_64.tbl        |   1 +
- arch/xtensa/kernel/syscalls/syscall.tbl       |   1 +
- fs/fcntl.c                                    |   2 +-
- fs/internal.h                                 |   1 +
- fs/namei.c                                    | 270 ++++++++++--
- fs/open.c                                     | 100 ++++-
- fs/proc/base.c                                |  20 +-
- fs/proc/fd.c                                  |  23 +-
- fs/proc/namespaces.c                          |   2 +-
- include/linux/fcntl.h                         |  21 +-
- include/linux/fs.h                            |   8 +-
- include/linux/namei.h                         |   9 +
- include/linux/syscalls.h                      |  14 +-
- include/linux/uaccess.h                       |   5 +
- include/uapi/asm-generic/fcntl.h              |   4 +
- include/uapi/asm-generic/unistd.h             |   5 +-
- include/uapi/linux/fcntl.h                    |  42 ++
- include/uapi/linux/sched.h                    |   2 +
- kernel/events/core.c                          |  45 +-
- kernel/fork.c                                 |  34 +-
- kernel/sched/core.c                           |  85 +---
- lib/Makefile                                  |   2 +-
- lib/struct_user.c                             | 182 ++++++++
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/memfd/memfd_test.c    |   7 +-
- tools/testing/selftests/openat2/.gitignore    |   1 +
- tools/testing/selftests/openat2/Makefile      |   8 +
- tools/testing/selftests/openat2/helpers.c     | 167 ++++++++
- tools/testing/selftests/openat2/helpers.h     | 118 +++++
- .../testing/selftests/openat2/linkmode_test.c | 333 +++++++++++++++
- .../testing/selftests/openat2/openat2_test.c  | 106 +++++
- .../selftests/openat2/rename_attack_test.c    | 127 ++++++
- .../testing/selftests/openat2/resolve_test.c  | 402 ++++++++++++++++++
- 53 files changed, 1971 insertions(+), 248 deletions(-)
- create mode 100644 lib/struct_user.c
- create mode 100644 tools/testing/selftests/openat2/.gitignore
- create mode 100644 tools/testing/selftests/openat2/Makefile
- create mode 100644 tools/testing/selftests/openat2/helpers.c
- create mode 100644 tools/testing/selftests/openat2/helpers.h
- create mode 100644 tools/testing/selftests/openat2/linkmode_test.c
- create mode 100644 tools/testing/selftests/openat2/openat2_test.c
- create mode 100644 tools/testing/selftests/openat2/rename_attack_test.c
- create mode 100644 tools/testing/selftests/openat2/resolve_test.c
-
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 003662aa8060..9e61d4c6e6b5 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -49,15 +49,9 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
+  */
+ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+ {
+-	struct vfio_ap_queue *q;
+-
+-	q = kzalloc(sizeof(*q), GFP_KERNEL);
+-	if (!q)
+-		return -ENOMEM;
+-	dev_set_drvdata(&apdev->device, q);
+-	q->apqn = to_ap_queue(&apdev->device)->qid;
+-	q->saved_isc = VFIO_AP_ISC_INVALID;
+-	return 0;
++	struct ap_queue *queue = to_ap_queue(&apdev->device);
++
++	return vfio_ap_mdev_probe_queue(queue);
+ }
+ 
+ /**
+@@ -68,17 +62,10 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
+  */
+ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+ {
+-	struct vfio_ap_queue *q;
+-	int apid, apqi;
++	struct ap_queue *queue = to_ap_queue(&apdev->device);
+ 
+ 	mutex_lock(&matrix_dev->lock);
+-	q = dev_get_drvdata(&apdev->device);
+-	dev_set_drvdata(&apdev->device, NULL);
+-	apid = AP_QID_CARD(q->apqn);
+-	apqi = AP_QID_QUEUE(q->apqn);
+-	vfio_ap_mdev_reset_queue(apid, apqi, 1);
+-	vfio_ap_irq_disable(q);
+-	kfree(q);
++	vfio_ap_mdev_remove_queue(queue);
+ 	mutex_unlock(&matrix_dev->lock);
+ }
+ 
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 0604b49a4d32..75a413fada4f 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -144,7 +144,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+  * Returns if ap_aqic function failed with invalid, deconfigured or
+  * checkstopped AP.
+  */
+-struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
++static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
+ {
+ 	struct ap_qirq_ctrl aqic_gisa = {};
+ 	struct ap_queue_status status;
+@@ -1128,23 +1128,49 @@ static void vfio_ap_irq_disable_apqn(int apqn)
+ 	}
+ }
+ 
+-int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+-			     unsigned int retry)
++static void vfio_ap_mdev_wait_for_qempty(ap_qid_t qid)
++{
++	struct ap_queue_status status;
++	int retry = 5;
++
++	do {
++		status = ap_tapq(qid, NULL);
++		switch (status.response_code) {
++		case AP_RESPONSE_NORMAL:
++			if (status.queue_empty)
++				return;
++			break;
++		case AP_RESPONSE_RESET_IN_PROGRESS:
++		case AP_RESPONSE_BUSY:
++			msleep(20);
++			break;
++		default:
++			pr_warn("%s: tapq response %02x waiting for queue %02x.%04x empty\n",
++				  __func__, status.response_code,
++				  AP_QID_CARD(qid), AP_QID_QUEUE(qid));
++			return;
++		}
++	} while (--retry);
++
++	WARN_ON_ONCE(retry <= 0);
++}
++
++static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi)
+ {
+ 	struct ap_queue_status status;
+-	int retry2 = 2;
+ 	int apqn = AP_MKQID(apid, apqi);
++	int retry = 5;
+ 
+ 	do {
+ 		status = ap_zapq(apqn);
+ 		switch (status.response_code) {
+ 		case AP_RESPONSE_NORMAL:
+-			while (!status.queue_empty && retry2--) {
+-				msleep(20);
+-				status = ap_tapq(apqn, NULL);
+-			}
+-			WARN_ON_ONCE(retry <= 0);
++			if (!status.queue_empty)
++				vfio_ap_mdev_wait_for_qempty(AP_MKQID(apid,
++								      apqi));
+ 			return 0;
++		case AP_RESPONSE_DECONFIGURED:
++			return -ENODEV;
+ 		case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		case AP_RESPONSE_BUSY:
+ 			msleep(20);
+@@ -1169,12 +1195,12 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+ 			     matrix_mdev->matrix.apm_max + 1) {
+ 		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+ 				     matrix_mdev->matrix.aqm_max + 1) {
+-			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
+ 			/*
+ 			 * Regardless whether a queue turns out to be busy, or
+ 			 * is not operational, we need to continue resetting
+ 			 * the remaining queues.
+ 			 */
++			ret = vfio_ap_mdev_reset_queue(apid, apqi);
+ 			if (ret)
+ 				rc = ret;
+ 			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
+@@ -1302,3 +1328,31 @@ void vfio_ap_mdev_unregister(void)
+ {
+ 	mdev_unregister_device(&matrix_dev->device);
+ }
++
++int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
++{
++	struct vfio_ap_queue *q;
++
++	q = kzalloc(sizeof(*q), GFP_KERNEL);
++	if (!q)
++		return -ENOMEM;
++	dev_set_drvdata(&queue->ap_dev.device, q);
++	q->apqn = queue->qid;
++	q->saved_isc = VFIO_AP_ISC_INVALID;
++
++	return 0;
++}
++
++void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
++{
++	struct vfio_ap_queue *q;
++	int apid, apqi;
++
++	q = dev_get_drvdata(&queue->ap_dev.device);
++	dev_set_drvdata(&queue->ap_dev.device, NULL);
++	apid = AP_QID_CARD(q->apqn);
++	apqi = AP_QID_QUEUE(q->apqn);
++	vfio_ap_mdev_reset_queue(apid, apqi);
++	vfio_ap_irq_disable(q);
++	kfree(q);
++}
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index f46dde56b464..5cc3c2ebf151 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -90,8 +90,6 @@ struct ap_matrix_mdev {
+ 
+ extern int vfio_ap_mdev_register(void);
+ extern void vfio_ap_mdev_unregister(void);
+-int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+-			     unsigned int retry);
+ 
+ struct vfio_ap_queue {
+ 	struct ap_matrix_mdev *matrix_mdev;
+@@ -100,5 +98,7 @@ struct vfio_ap_queue {
+ #define VFIO_AP_ISC_INVALID 0xff
+ 	unsigned char saved_isc;
+ };
+-struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
++int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
++void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
++
+ #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
-2.23.0
+2.7.4
