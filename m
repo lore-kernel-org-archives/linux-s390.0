@@ -1,115 +1,203 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 23 Sep 2019 17:25:58 +0200
-From: Petr Vorel <pvorel@suse.cz>
-Subject: s390 EAGAIN on send{msg,to}()/recvmsg() on small MTU and big packet
- size
-Message-ID: <20190923152558.GA31182@dell5510>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42064 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387554AbfIMV1I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 13 Sep 2019 17:27:08 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v6 00/10] s390: vfio-ap: dynamic configuration support
+Date: Fri, 13 Sep 2019 17:26:48 -0400
+Message-Id: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Michal Kubecek <mkubecek@suse.cz>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Hi,
+The current design for AP pass-through does not support making dynamic
+changes to the AP matrix of a running guest resulting in three deficiencies
+this patch series is intended to mitigate:
 
-I've found a bug on s390 on small MTU combined with big packet size, using ping
-(of course both within valid ranges, e.g. MTU 552 and packet size 61245).
+1. Adapters, domains and control domains can not be added to or removed
+   from a running guest. In order to modify a guest's AP configuration,
+   the guest must be terminated; only then can AP resources be assigned
+   to or unassigned from the guest's matrix mdev. The new AP configuration
+   becomes available to the guest when it is subsequently restarted.
 
-Below is full reproducer on netns.
+2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+   be modified by a root user without any restrictions. A change to either
+   mask can result in AP queue devices being unbound from the vfio_ap
+   device driver and bound to a zcrypt device driver even if a guest is
+   using the queues, thus giving the host access to the guest's private
+   crypto data and vice versa.
 
-I tested it on vanilla: v5.3-rc8 and v4.16.
-I reproduced it on current iputils master which uses sendto()/recvmsg() and on
-older version which uses sendmsg()/recvmsg().
+3. The APQNs derived from the Cartesian product of the APIDs of the
+   adapters and APQIs of the domains assigned to a matrix mdev must
+   reference an AP queue device bound to the vfio_ap device driver. 
 
-As I'm not aware of any s390 specific socket code in kernel I suspect big endian or something else.
+This patch series introduces the following changes to the current design
+to alleviate the shortcomings described above as well as to implement more
+of the AP architecture:
 
-This bug was find with LTP/if-mtu-change.sh.
+1. A root user will be prevented from making changes to the AP bus's
+   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the ownership of an APQN
+   changes from the vfio_ap device driver to a zcrypt driver when the APQN
+   is assigned to a matrix mdev.
 
-REPRODUCER:
-LTP_NS="ip netns exec ltp_ns"
-ip net add ltp_ns
-ip li add name ltp_ns_veth1 type veth peer name ltp_ns_veth2
-ip li set dev ltp_ns_veth1 netns ltp_ns
-$LTP_NS ip li set lo up
+2. The sysfs bind/unbind interfaces will be disabled for the vfio_ap
+   device driver.
 
-ip xfrm policy flush
-ip xfrm state flush
-ip link set ltp_ns_veth2 down
-ip route flush dev ltp_ns_veth2
-ip addr flush dev ltp_ns_veth2
-ip link set ltp_ns_veth2 up
-ip addr add 10.0.0.2/24 dev ltp_ns_veth2
+3. Allow AP resources to be assigned to or removed from a matrix mdev
+   while a guest is using it and hot plug the resource into or hot unplug
+   the resource from the running guest.
 
-$LTP_NS ip xfrm policy flush
-$LTP_NS ip xfrm state flush
-$LTP_NS ip link set ltp_ns_veth1 down
-$LTP_NS ip route flush dev ltp_ns_veth1
-$LTP_NS ip addr flush dev ltp_ns_veth1
-$LTP_NS ip link set ltp_ns_veth1 up
-$LTP_NS ip addr add 10.0.0.1/24 dev ltp_ns_veth1
+4. Allow assignment of an AP adapter or domain to a matrix mdev even if it
+   results in assignment of an APQN that does not reference an AP queue
+   device bound to the vfio_ap device driver, as long as the APQN is owned
+   by the vfio_ap driver. Allowing over-provisioning of AP resources
+   better models the architecture which does not preclude assigning AP
+   resources that are not yet available in the system. If/when the queue
+   becomes available to the host, it will immediately also become available
+   to the guest.
 
-i=552; ip link set dev ltp_ns_veth2 mtu $i; $LTP_NS ip link set dev ltp_ns_veth1 mtu $i # it's enough to set just one of them
+1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+----------------------------------------------------------
+Due to the extremely sensitive nature of cryptographic data, it is
+imperative that great care be taken to ensure that such data is secured.
+Allowing a root user, either inadvertently or maliciously, to configure
+these masks such that a queue is shared between the host and a guest is
+not only avoidable, it is advisable. It was suggested that this scenario
+is better handled in user space with management software, but that does
+not preclude a malicious administrator from using the sysfs interfaces
+to gain access to a guest's crypto data. It was also suggested that this
+scenario could be avoided by taking access to the adapter away from the
+guest and zeroing out the queues prior to the vfio_ap driver releasing the
+device; however, stealing an adapter in use from a guest as a by-product
+of an operation is bad and will likely cause problems for the guest
+unnecessarily. It was decided that the most effective solution with the
+least number of negative side effects is to prevent the situation at the
+source.
 
-ping -I 10.0.0.2 -c 1 10.0.0.1 -s 61245 # fail
-ping -I 10.0.0.2 -c 1 10.0.0.1 -s 61244 # ok
+2. Rationale for disabling bind/unbind interfaces for vfio_ap driver:
+-----------------------------------------------------------------
+By disabling the bind/unbind interfaces for the vfio_ap device driver, 
+the user is forced to use the AP bus's apmask/aqmask interfaces to control
+the probing and removing of AP queues. There are two primary reasons for
+disabling the bind/unbind interfaces for the vfio_ap device driver:
 
-FAIL (iputils-s20121221 from package, using sendmsg())
-ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
-sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"\10\0\253_\241\373\0\1\0\0\0\0]wf\330\0\0\0\0\0\6\375\201\20\21\22\23\24\25\26\27"..., 61253}], msg_controllen=0, msg_flags=0}, 0) = 61253
-setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3fff887b588, 0)            = -1 EINTR (Interrupted system call)
---- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
-sigreturn({mask=[]})                    = -1 EINTR (Interrupted system call)
+* The device architecture does not provide a means to prevent unbinding
+  a device from a device driver, so an AP queue device can be unbound
+  from the vfio_ap driver even when the queue is in use by a guest. By
+  disabling the unbind interface, the user is forced to use the AP bus's
+  apmask/aqmask interfaces which will prevent this.
 
-OK (iputils-s20121221 from package, using sendmsg())
-ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
-sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"\10\0\3u\242\266\0\1\0\0\0\0]wgd\0\0\0\0\0\6\340%\20\21\22\23\24\25\26\27"..., 61252}], msg_controllen=0, msg_flags=0}, 0) = 61252
-setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
-recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"E\0\357X2\277\0\0@\1D\343\n\0\0\1\n\0\0\2\0\0\vu\242\266\0\1\0\0\0\0"..., 61380}], msg_controllen=32, [{cmsg_len=32, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /*
-SCM_??? */, ...}], msg_flags=0}, 0) = 61272
-write(1, "61252 bytes from 10.0.0.1: icmp_"..., 5961252 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.442 ms
-) = 59
+* Binding of AP queues is controlled by the AP bus /sys/bus/ap/apmask and
+  /sys/bus/ap/aqmask interfaces. If the masks indicate that an APQN is
+  owned by zcrypt, trying to bind it to the vfio_ap device driver will
+  fail; therefore, the bind interface is somewhat redundant and certainly
+  unnecessary.        
+  
+3. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
+----------------------------------------------------------------
+Allowing a user to hot plug/unplug AP resources using the matrix mdev
+sysfs interfaces circumvents the need to terminate the guest in order to
+modify its AP configuration. Allowing dynamic configuration makes 
+reconfiguring a guest's AP matrix much less disruptive.
 
-FAIL (current iputils master, using sendto())
-ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
-sendto(3, "\10\0\2=\313\315\0\1\0\0\0\0]vH;\0\0\0\0\0\7\233o\20\21\22\23\24\25\26\27"..., 61253, 0, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, 16) = 61253
-setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
-recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EINTR (Interrupted system call)
---- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
-sigreturn({mask=[]})                    = -1 EINTR (Interrupted system call)
+4. Rationale for allowing over-provisioning of AP resources:
+----------------------------------------------------------- 
+Allowing assignment of AP resources to a matrix mdev and ultimately to a
+guest better models the AP architecture. The architecture does not
+preclude assignment of unavailable AP resources. If a queue subsequently
+becomes available while a guest using the matrix mdev to which its APQN
+is assigned, the guest will automatically acquire access to it. If an APQN
+is dynamically unassigned from the underlying host system, it will 
+automatically become unavailable to the guest.
 
-OK (current iputils master, using sendto())
-ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
-sendto(3, "\10\0y\4\313\365\0\1\0\0\0\0]vHw\0\0\0\0\0\4`G\20\21\22\23\24\25\26\27"..., 61252, 0, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, 16) = 61252
-setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
-recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"E\0\357Xc$\0\0@\1\24~\n\0\0\1\n\0\0\2\0\0\201\4\313\365\0\1\0\0\0\0"..., 61380}], msg_controllen=32, [{cmsg_len=32, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /*
-SCM_??? */, ...}], msg_flags=0}, 0) = 61272
-write(1, "61252 bytes from 10.0.0.1: icmp_"..., 59) = 59
+Change log v5-v6:
+----------------
+* Fixed a bug in ap_bus.c introduced with patch 2/7 of the v5 
+  series. Harald Freudenberer pointed out that the mutex lock
+  for ap_perms_mutex in the apmask_store and aqmask_store functions
+  was not being freed. 
 
-Kind regards,
-Petr
+* Removed patch 6/7 which added logging to the vfio_ap driver
+  to expedite acceptance of this series. The logging will be introduced
+  with a separate patch series to allow more time to explore options
+  such as DBF logging vs. tracepoints.
+
+* Added 3 patches related to ensuring that APQNs that do not reference
+  AP queue devices bound to the vfio_ap device driver are not assigned
+  to the guest CRYCB:
+
+  Patch 4: Filter CRYCB bits for unavailable queue devices
+  Patch 5: sysfs attribute to display the guest CRYCB
+  Patch 6: update guest CRYCB in vfio_ap probe and remove callbacks
+
+* Added a patch (Patch 9) to version the vfio_ap module.
+
+* Reshuffled patches to allow the in_use callback implementation to
+  invoke the vfio_ap_mdev_verify_no_sharing() function introduced in
+  patch 2.  
+
+Change log v4-v5:
+----------------
+* Added a patch to provide kernel s390dbf debug logs for VFIO AP
+
+Change log v3->v4:
+-----------------
+* Restored patches preventing root user from changing ownership of
+  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
+  assigned to an mdev.
+
+* No longer enforcing requirement restricting guest access to
+  queues represented by a queue device bound to the vfio_ap
+  device driver.
+
+* Removed shadow CRYCB and now directly updating the guest CRYCB
+  from the matrix mdev's matrix.
+
+* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
+  Control' patches.
+
+* Disabled bind/unbind sysfs interfaces for vfio_ap driver
+
+Change log v2->v3:
+-----------------
+* Allow guest access to an AP queue only if the queue is bound to
+  the vfio_ap device driver.
+
+* Removed the patch to test CRYCB masks before taking the vCPUs
+  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
+
+Change log v1->v2:
+-----------------
+* Removed patches preventing root user from unbinding AP queues from 
+  the vfio_ap device driver
+* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
+  changes to the AP guest configuration due to root user interventions
+  or hardware anomalies.
+
+Tony Krowiak (10):
+  s390: vfio-ap: Refactor vfio_ap driver probe and remove callbacks
+  s390: vfio-ap: allow assignment of unavailable AP resources to mdev
+    device
+  s390: vfio-ap: allow hot plug/unplug of AP resources using mdev device
+  s390: vfio-ap: filter CRYCB bits for unavailable queue devices
+  s390: vfio-ap: sysfs attribute to display the guest CRYCB
+  s390: vfio-ap: update guest CRYCB in vfio_ap probe and remove
+    callbacks
+  s390: zcrypt: driver callback to indicate resource in use
+  s390: vfio-ap: implement in-use callback for vfio_ap driver
+  s390: vfio-ap: added versioning to vfio_ap module
+  s390: vfio-ap: update documentation
+
+ Documentation/s390/vfio-ap.rst        | 899 +++++++++++++++++++++++++---------
+ drivers/s390/crypto/ap_bus.c          | 144 +++++-
+ drivers/s390/crypto/ap_bus.h          |   4 +
+ drivers/s390/crypto/vfio_ap_drv.c     |  27 +-
+ drivers/s390/crypto/vfio_ap_ops.c     | 610 ++++++++++++++---------
+ drivers/s390/crypto/vfio_ap_private.h |  12 +-
+ 6 files changed, 1200 insertions(+), 496 deletions(-)
+
+-- 
+2.7.4
