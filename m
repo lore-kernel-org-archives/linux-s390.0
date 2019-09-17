@@ -1,329 +1,201 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44204 "EHLO mx1.redhat.com"
+Received: from mga02.intel.com ([134.134.136.20]:41457 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727519AbfIQKPH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Sep 2019 06:15:07 -0400
-Subject: Re: [RFC PATCH 1/2] mdev: device id support
+        id S1727321AbfIQH4F (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Sep 2019 03:56:05 -0400
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [RFC PATCH 1/2] mdev: device id support
+Date: Tue, 17 Sep 2019 07:55:57 +0000
+Message-ID: <AADFC41AFE54684AB9EE6CBC0274A5D19D579F2F@SHSMSX104.ccr.corp.intel.com>
 References: <20190912094012.29653-1-jasowang@redhat.com>
  <20190912094012.29653-2-jasowang@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D579F2F@SHSMSX104.ccr.corp.intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <89567b95-be92-24b5-b205-9fe2d2dc4c93@redhat.com>
-Date: Tue, 17 Sep 2019 18:14:38 +0800
-MIME-Version: 1.0
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D579F2F@SHSMSX104.ccr.corp.intel.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190912094012.29653-2-jasowang@redhat.com>
 Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Tian, Kevin" <kevin.tian@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
 Cc: "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "mst@redhat.com" <mst@redhat.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Wang, Zhi A" <zhi.a.wang@intel.com>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "idos@mellanox.com" <idos@mellanox.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "Liang, Cunming" <cunming.liang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "Vivi, Rodrigo" <rodrigo.vivi@intel.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "Bie, Tiwei" <tiwei.bie@intel.com>, "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>, "cohuck@redhat.com" <cohuck@redhat.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "Wang, Zhihong" <zhihong.wang@intel.com>
 
-
-On 2019/9/17 下午3:55, Tian, Kevin wrote:
->> From: Jason Wang
->> Sent: Thursday, September 12, 2019 5:40 PM
->>
->> Mdev bus only support vfio driver right now, so it doesn't implement
->> match method. But in the future, we may add drivers other than vfio,
->> one example is virtio-mdev[1] driver. This means we need to add device
->> id support in bus match method to pair the mdev device and mdev driver
->> correctly.
-> "device id" sound a bit confusing to me - it usually means something
-> unique to each device, while here it is used to indicate expected driver
-> types (vfio, virtio, etc.). but using "bus id" is also not good - we have
-> only one mdev bus here. Then what about "class id"?
-
-
-I'm fine with this.
-
-Thanks
-
-
->
->> So this patch add id_table to mdev_driver and id for mdev parent, and
->> implement the match method for mdev bus.
->>
->> [1] https://lkml.org/lkml/2019/9/10/135
->>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->> ---
->>   drivers/gpu/drm/i915/gvt/kvmgt.c  |  2 +-
->>   drivers/s390/cio/vfio_ccw_ops.c   |  2 +-
->>   drivers/s390/crypto/vfio_ap_ops.c |  3 ++-
->>   drivers/vfio/mdev/mdev_core.c     | 14 ++++++++++++--
->>   drivers/vfio/mdev/mdev_driver.c   | 14 ++++++++++++++
->>   drivers/vfio/mdev/mdev_private.h  |  1 +
->>   drivers/vfio/mdev/vfio_mdev.c     |  6 ++++++
->>   include/linux/mdev.h              |  6 +++++-
->>   include/linux/mod_devicetable.h   |  6 ++++++
->>   samples/vfio-mdev/mbochs.c        |  2 +-
->>   samples/vfio-mdev/mdpy.c          |  2 +-
->>   samples/vfio-mdev/mtty.c          |  2 +-
->>   12 files changed, 51 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c
->> b/drivers/gpu/drm/i915/gvt/kvmgt.c
->> index 23aa3e50cbf8..19d51a35f019 100644
->> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
->> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
->> @@ -1625,7 +1625,7 @@ static int kvmgt_host_init(struct device *dev, void
->> *gvt, const void *ops)
->>   		return -EFAULT;
->>   	intel_vgpu_ops.supported_type_groups = kvm_vgpu_type_groups;
->>
->> -	return mdev_register_device(dev, &intel_vgpu_ops);
->> +	return mdev_register_vfio_device(dev, &intel_vgpu_ops);
->>   }
->>
->>   static void kvmgt_host_exit(struct device *dev)
->> diff --git a/drivers/s390/cio/vfio_ccw_ops.c
->> b/drivers/s390/cio/vfio_ccw_ops.c
->> index 5eb61116ca6f..f87d9409e290 100644
->> --- a/drivers/s390/cio/vfio_ccw_ops.c
->> +++ b/drivers/s390/cio/vfio_ccw_ops.c
->> @@ -578,7 +578,7 @@ static const struct mdev_parent_ops
->> vfio_ccw_mdev_ops = {
->>
->>   int vfio_ccw_mdev_reg(struct subchannel *sch)
->>   {
->> -	return mdev_register_device(&sch->dev, &vfio_ccw_mdev_ops);
->> +	return mdev_register_vfio_device(&sch->dev,
->> &vfio_ccw_mdev_ops);
->>   }
->>
->>   void vfio_ccw_mdev_unreg(struct subchannel *sch)
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
->> b/drivers/s390/crypto/vfio_ap_ops.c
->> index 0604b49a4d32..eacbde3c7a97 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -1295,7 +1295,8 @@ int vfio_ap_mdev_register(void)
->>   {
->>   	atomic_set(&matrix_dev->available_instances,
->> MAX_ZDEV_ENTRIES_EXT);
->>
->> -	return mdev_register_device(&matrix_dev->device,
->> &vfio_ap_matrix_ops);
->> +	return mdev_register_vfio_device(&matrix_dev->device,
->> +					 &vfio_ap_matrix_ops);
->>   }
->>
->>   void vfio_ap_mdev_unregister(void)
->> diff --git a/drivers/vfio/mdev/mdev_core.c
->> b/drivers/vfio/mdev/mdev_core.c
->> index b558d4cfd082..fc07ff3ebe96 100644
->> --- a/drivers/vfio/mdev/mdev_core.c
->> +++ b/drivers/vfio/mdev/mdev_core.c
->> @@ -135,11 +135,14 @@ static int mdev_device_remove_cb(struct device
->> *dev, void *data)
->>    * mdev_register_device : Register a device
->>    * @dev: device structure representing parent device.
->>    * @ops: Parent device operation structure to be registered.
->> + * @id: device id.
->>    *
->>    * Add device to list of registered parent devices.
->>    * Returns a negative value on error, otherwise 0.
->>    */
->> -int mdev_register_device(struct device *dev, const struct
->> mdev_parent_ops *ops)
->> +int mdev_register_device(struct device *dev,
->> +			 const struct mdev_parent_ops *ops,
->> +			 u8 id)
->>   {
->>   	int ret;
->>   	struct mdev_parent *parent;
->> @@ -175,6 +178,7 @@ int mdev_register_device(struct device *dev, const
->> struct mdev_parent_ops *ops)
->>
->>   	parent->dev = dev;
->>   	parent->ops = ops;
->> +	parent->device_id = id;
->>
->>   	if (!mdev_bus_compat_class) {
->>   		mdev_bus_compat_class =
->> class_compat_register("mdev_bus");
->> @@ -208,7 +212,13 @@ int mdev_register_device(struct device *dev, const
->> struct mdev_parent_ops *ops)
->>   		put_device(dev);
->>   	return ret;
->>   }
->> -EXPORT_SYMBOL(mdev_register_device);
->> +
->> +int mdev_register_vfio_device(struct device *dev,
->> +			      const struct mdev_parent_ops *ops)
->> +{
->> +	return mdev_register_device(dev, ops, MDEV_ID_VFIO);
->> +}
->> +EXPORT_SYMBOL(mdev_register_vfio_device);
->>
->>   /*
->>    * mdev_unregister_device : Unregister a parent device
->> diff --git a/drivers/vfio/mdev/mdev_driver.c
->> b/drivers/vfio/mdev/mdev_driver.c
->> index 0d3223aee20b..fd5e9541d18e 100644
->> --- a/drivers/vfio/mdev/mdev_driver.c
->> +++ b/drivers/vfio/mdev/mdev_driver.c
->> @@ -69,8 +69,22 @@ static int mdev_remove(struct device *dev)
->>   	return 0;
->>   }
->>
->> +static int mdev_match(struct device *dev, struct device_driver *drv)
->> +{
->> +	unsigned int i;
->> +	struct mdev_device *mdev = to_mdev_device(dev);
->> +	struct mdev_driver *mdrv = to_mdev_driver(drv);
->> +	const struct mdev_device_id *ids = mdrv->id_table;
->> +
->> +	for (i = 0; ids[i].id; i++)
->> +		if (ids[i].id == mdev->parent->device_id)
->> +			return 1;
->> +	return 0;
->> +}
->> +
->>   struct bus_type mdev_bus_type = {
->>   	.name		= "mdev",
->> +	.match		= mdev_match,
->>   	.probe		= mdev_probe,
->>   	.remove		= mdev_remove,
->>   };
->> diff --git a/drivers/vfio/mdev/mdev_private.h
->> b/drivers/vfio/mdev/mdev_private.h
->> index 7d922950caaf..7fc8153671e0 100644
->> --- a/drivers/vfio/mdev/mdev_private.h
->> +++ b/drivers/vfio/mdev/mdev_private.h
->> @@ -22,6 +22,7 @@ struct mdev_parent {
->>   	struct list_head type_list;
->>   	/* Synchronize device creation/removal with parent unregistration
->> */
->>   	struct rw_semaphore unreg_sem;
->> +	u8 device_id;
->>   };
->>
->>   struct mdev_device {
->> diff --git a/drivers/vfio/mdev/vfio_mdev.c
->> b/drivers/vfio/mdev/vfio_mdev.c
->> index 30964a4e0a28..887c57f10880 100644
->> --- a/drivers/vfio/mdev/vfio_mdev.c
->> +++ b/drivers/vfio/mdev/vfio_mdev.c
->> @@ -120,10 +120,16 @@ static void vfio_mdev_remove(struct device *dev)
->>   	vfio_del_group_dev(dev);
->>   }
->>
->> +static struct mdev_device_id id_table[] = {
->> +	{ MDEV_ID_VFIO },
->> +	{ 0 },
->> +};
->> +
->>   static struct mdev_driver vfio_mdev_driver = {
->>   	.name	= "vfio_mdev",
->>   	.probe	= vfio_mdev_probe,
->>   	.remove	= vfio_mdev_remove,
->> +	.id_table = id_table,
->>   };
->>
->>   static int __init vfio_mdev_init(void)
->> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
->> index 0ce30ca78db0..f85045392120 100644
->> --- a/include/linux/mdev.h
->> +++ b/include/linux/mdev.h
->> @@ -118,6 +118,7 @@ struct mdev_type_attribute
->> mdev_type_attr_##_name =		\
->>    * @probe: called when new device created
->>    * @remove: called when device removed
->>    * @driver: device driver structure
->> + * @id_table: the ids serviced by this driver.
->>    *
->>    **/
->>   struct mdev_driver {
->> @@ -125,6 +126,7 @@ struct mdev_driver {
->>   	int  (*probe)(struct device *dev);
->>   	void (*remove)(struct device *dev);
->>   	struct device_driver driver;
->> +	const struct mdev_device_id *id_table;
->>   };
->>
->>   #define to_mdev_driver(drv)	container_of(drv, struct mdev_driver, driver)
->> @@ -135,7 +137,7 @@ const guid_t *mdev_uuid(struct mdev_device
->> *mdev);
->>
->>   extern struct bus_type mdev_bus_type;
->>
->> -int mdev_register_device(struct device *dev, const struct
->> mdev_parent_ops *ops);
->> +int mdev_register_vfio_device(struct device *dev, const struct
->> mdev_parent_ops *ops);
->>   void mdev_unregister_device(struct device *dev);
->>
->>   int mdev_register_driver(struct mdev_driver *drv, struct module *owner);
->> @@ -145,4 +147,6 @@ struct device *mdev_parent_dev(struct
->> mdev_device *mdev);
->>   struct device *mdev_dev(struct mdev_device *mdev);
->>   struct mdev_device *mdev_from_dev(struct device *dev);
->>
->> +#define MDEV_ID_VFIO 1 /* VFIO device */
->> +
->>   #endif /* MDEV_H */
->> diff --git a/include/linux/mod_devicetable.h
->> b/include/linux/mod_devicetable.h
->> index 5714fd35a83c..f1fc143df042 100644
->> --- a/include/linux/mod_devicetable.h
->> +++ b/include/linux/mod_devicetable.h
->> @@ -821,4 +821,10 @@ struct wmi_device_id {
->>   	const void *context;
->>   };
->>
->> +/* MDEV */
->> +
->> +struct mdev_device_id {
->> +	__u8 id;
->> +};
->> +
->>   #endif /* LINUX_MOD_DEVICETABLE_H */
->> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
->> index ac5c8c17b1ff..71a4469be85d 100644
->> --- a/samples/vfio-mdev/mbochs.c
->> +++ b/samples/vfio-mdev/mbochs.c
->> @@ -1468,7 +1468,7 @@ static int __init mbochs_dev_init(void)
->>   	if (ret)
->>   		goto failed2;
->>
->> -	ret = mdev_register_device(&mbochs_dev, &mdev_fops);
->> +	ret = mdev_register_vfio_device(&mbochs_dev, &mdev_fops);
->>   	if (ret)
->>   		goto failed3;
->>
->> diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
->> index cc86bf6566e4..d3029dd27d91 100644
->> --- a/samples/vfio-mdev/mdpy.c
->> +++ b/samples/vfio-mdev/mdpy.c
->> @@ -775,7 +775,7 @@ static int __init mdpy_dev_init(void)
->>   	if (ret)
->>   		goto failed2;
->>
->> -	ret = mdev_register_device(&mdpy_dev, &mdev_fops);
->> +	ret = mdev_register_vfio_device(&mdpy_dev, &mdev_fops);
->>   	if (ret)
->>   		goto failed3;
->>
->> diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
->> index 92e770a06ea2..744c88a6b22c 100644
->> --- a/samples/vfio-mdev/mtty.c
->> +++ b/samples/vfio-mdev/mtty.c
->> @@ -1468,7 +1468,7 @@ static int __init mtty_dev_init(void)
->>   	if (ret)
->>   		goto failed2;
->>
->> -	ret = mdev_register_device(&mtty_dev.dev, &mdev_fops);
->> +	ret = mdev_register_vfio_device(&mtty_dev.dev, &mdev_fops);
->>   	if (ret)
->>   		goto failed3;
->>
->> --
->> 2.19.1
->>
->> _______________________________________________
->> intel-gvt-dev mailing list
->> intel-gvt-dev@lists.freedesktop.org
->> https://lists.freedesktop.org/mailman/listinfo/intel-gvt-dev
+PiBGcm9tOiBKYXNvbiBXYW5nDQo+IFNlbnQ6IFRodXJzZGF5LCBTZXB0ZW1iZXIgMTIsIDIwMTkg
+NTo0MCBQTQ0KPiANCj4gTWRldiBidXMgb25seSBzdXBwb3J0IHZmaW8gZHJpdmVyIHJpZ2h0IG5v
+dywgc28gaXQgZG9lc24ndCBpbXBsZW1lbnQNCj4gbWF0Y2ggbWV0aG9kLiBCdXQgaW4gdGhlIGZ1
+dHVyZSwgd2UgbWF5IGFkZCBkcml2ZXJzIG90aGVyIHRoYW4gdmZpbywNCj4gb25lIGV4YW1wbGUg
+aXMgdmlydGlvLW1kZXZbMV0gZHJpdmVyLiBUaGlzIG1lYW5zIHdlIG5lZWQgdG8gYWRkIGRldmlj
+ZQ0KPiBpZCBzdXBwb3J0IGluIGJ1cyBtYXRjaCBtZXRob2QgdG8gcGFpciB0aGUgbWRldiBkZXZp
+Y2UgYW5kIG1kZXYgZHJpdmVyDQo+IGNvcnJlY3RseS4NCg0KImRldmljZSBpZCIgc291bmQgYSBi
+aXQgY29uZnVzaW5nIHRvIG1lIC0gaXQgdXN1YWxseSBtZWFucyBzb21ldGhpbmcNCnVuaXF1ZSB0
+byBlYWNoIGRldmljZSwgd2hpbGUgaGVyZSBpdCBpcyB1c2VkIHRvIGluZGljYXRlIGV4cGVjdGVk
+IGRyaXZlcg0KdHlwZXMgKHZmaW8sIHZpcnRpbywgZXRjLikuIGJ1dCB1c2luZyAiYnVzIGlkIiBp
+cyBhbHNvIG5vdCBnb29kIC0gd2UgaGF2ZQ0Kb25seSBvbmUgbWRldiBidXMgaGVyZS4gVGhlbiB3
+aGF0IGFib3V0ICJjbGFzcyBpZCI/DQoNCj4gDQo+IFNvIHRoaXMgcGF0Y2ggYWRkIGlkX3RhYmxl
+IHRvIG1kZXZfZHJpdmVyIGFuZCBpZCBmb3IgbWRldiBwYXJlbnQsIGFuZA0KPiBpbXBsZW1lbnQg
+dGhlIG1hdGNoIG1ldGhvZCBmb3IgbWRldiBidXMuDQo+IA0KPiBbMV0gaHR0cHM6Ly9sa21sLm9y
+Zy9sa21sLzIwMTkvOS8xMC8xMzUNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGph
+c293YW5nQHJlZGhhdC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvZ3Z0L2t2
+bWd0LmMgIHwgIDIgKy0NCj4gIGRyaXZlcnMvczM5MC9jaW8vdmZpb19jY3dfb3BzLmMgICB8ICAy
+ICstDQo+ICBkcml2ZXJzL3MzOTAvY3J5cHRvL3ZmaW9fYXBfb3BzLmMgfCAgMyArKy0NCj4gIGRy
+aXZlcnMvdmZpby9tZGV2L21kZXZfY29yZS5jICAgICB8IDE0ICsrKysrKysrKysrKy0tDQo+ICBk
+cml2ZXJzL3ZmaW8vbWRldi9tZGV2X2RyaXZlci5jICAgfCAxNCArKysrKysrKysrKysrKw0KPiAg
+ZHJpdmVycy92ZmlvL21kZXYvbWRldl9wcml2YXRlLmggIHwgIDEgKw0KPiAgZHJpdmVycy92Zmlv
+L21kZXYvdmZpb19tZGV2LmMgICAgIHwgIDYgKysrKysrDQo+ICBpbmNsdWRlL2xpbnV4L21kZXYu
+aCAgICAgICAgICAgICAgfCAgNiArKysrKy0NCj4gIGluY2x1ZGUvbGludXgvbW9kX2RldmljZXRh
+YmxlLmggICB8ICA2ICsrKysrKw0KPiAgc2FtcGxlcy92ZmlvLW1kZXYvbWJvY2hzLmMgICAgICAg
+IHwgIDIgKy0NCj4gIHNhbXBsZXMvdmZpby1tZGV2L21kcHkuYyAgICAgICAgICB8ICAyICstDQo+
+ICBzYW1wbGVzL3ZmaW8tbWRldi9tdHR5LmMgICAgICAgICAgfCAgMiArLQ0KPiAgMTIgZmlsZXMg
+Y2hhbmdlZCwgNTEgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9ndnQva3ZtZ3QuYw0KPiBiL2RyaXZlcnMvZ3B1L2Ry
+bS9pOTE1L2d2dC9rdm1ndC5jDQo+IGluZGV4IDIzYWEzZTUwY2JmOC4uMTlkNTFhMzVmMDE5IDEw
+MDY0NA0KPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9ndnQva3ZtZ3QuYw0KPiArKysgYi9k
+cml2ZXJzL2dwdS9kcm0vaTkxNS9ndnQva3ZtZ3QuYw0KPiBAQCAtMTYyNSw3ICsxNjI1LDcgQEAg
+c3RhdGljIGludCBrdm1ndF9ob3N0X2luaXQoc3RydWN0IGRldmljZSAqZGV2LCB2b2lkDQo+ICpn
+dnQsIGNvbnN0IHZvaWQgKm9wcykNCj4gIAkJcmV0dXJuIC1FRkFVTFQ7DQo+ICAJaW50ZWxfdmdw
+dV9vcHMuc3VwcG9ydGVkX3R5cGVfZ3JvdXBzID0ga3ZtX3ZncHVfdHlwZV9ncm91cHM7DQo+IA0K
+PiAtCXJldHVybiBtZGV2X3JlZ2lzdGVyX2RldmljZShkZXYsICZpbnRlbF92Z3B1X29wcyk7DQo+
+ICsJcmV0dXJuIG1kZXZfcmVnaXN0ZXJfdmZpb19kZXZpY2UoZGV2LCAmaW50ZWxfdmdwdV9vcHMp
+Ow0KPiAgfQ0KPiANCj4gIHN0YXRpYyB2b2lkIGt2bWd0X2hvc3RfZXhpdChzdHJ1Y3QgZGV2aWNl
+ICpkZXYpDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvY2lvL3ZmaW9fY2N3X29wcy5jDQo+
+IGIvZHJpdmVycy9zMzkwL2Npby92ZmlvX2Njd19vcHMuYw0KPiBpbmRleCA1ZWI2MTExNmNhNmYu
+LmY4N2Q5NDA5ZTI5MCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9zMzkwL2Npby92ZmlvX2Njd19v
+cHMuYw0KPiArKysgYi9kcml2ZXJzL3MzOTAvY2lvL3ZmaW9fY2N3X29wcy5jDQo+IEBAIC01Nzgs
+NyArNTc4LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBtZGV2X3BhcmVudF9vcHMNCj4gdmZpb19j
+Y3dfbWRldl9vcHMgPSB7DQo+IA0KPiAgaW50IHZmaW9fY2N3X21kZXZfcmVnKHN0cnVjdCBzdWJj
+aGFubmVsICpzY2gpDQo+ICB7DQo+IC0JcmV0dXJuIG1kZXZfcmVnaXN0ZXJfZGV2aWNlKCZzY2gt
+PmRldiwgJnZmaW9fY2N3X21kZXZfb3BzKTsNCj4gKwlyZXR1cm4gbWRldl9yZWdpc3Rlcl92Zmlv
+X2RldmljZSgmc2NoLT5kZXYsDQo+ICZ2ZmlvX2Njd19tZGV2X29wcyk7DQo+ICB9DQo+IA0KPiAg
+dm9pZCB2ZmlvX2Njd19tZGV2X3VucmVnKHN0cnVjdCBzdWJjaGFubmVsICpzY2gpDQo+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3MzOTAvY3J5cHRvL3ZmaW9fYXBfb3BzLmMNCj4gYi9kcml2ZXJzL3Mz
+OTAvY3J5cHRvL3ZmaW9fYXBfb3BzLmMNCj4gaW5kZXggMDYwNGI0OWE0ZDMyLi5lYWNiZGUzYzdh
+OTcgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvczM5MC9jcnlwdG8vdmZpb19hcF9vcHMuYw0KPiAr
+KysgYi9kcml2ZXJzL3MzOTAvY3J5cHRvL3ZmaW9fYXBfb3BzLmMNCj4gQEAgLTEyOTUsNyArMTI5
+NSw4IEBAIGludCB2ZmlvX2FwX21kZXZfcmVnaXN0ZXIodm9pZCkNCj4gIHsNCj4gIAlhdG9taWNf
+c2V0KCZtYXRyaXhfZGV2LT5hdmFpbGFibGVfaW5zdGFuY2VzLA0KPiBNQVhfWkRFVl9FTlRSSUVT
+X0VYVCk7DQo+IA0KPiAtCXJldHVybiBtZGV2X3JlZ2lzdGVyX2RldmljZSgmbWF0cml4X2Rldi0+
+ZGV2aWNlLA0KPiAmdmZpb19hcF9tYXRyaXhfb3BzKTsNCj4gKwlyZXR1cm4gbWRldl9yZWdpc3Rl
+cl92ZmlvX2RldmljZSgmbWF0cml4X2Rldi0+ZGV2aWNlLA0KPiArCQkJCQkgJnZmaW9fYXBfbWF0
+cml4X29wcyk7DQo+ICB9DQo+IA0KPiAgdm9pZCB2ZmlvX2FwX21kZXZfdW5yZWdpc3Rlcih2b2lk
+KQ0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMNCj4gYi9kcml2
+ZXJzL3ZmaW8vbWRldi9tZGV2X2NvcmUuYw0KPiBpbmRleCBiNTU4ZDRjZmQwODIuLmZjMDdmZjNl
+YmU5NiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMNCj4gKysr
+IGIvZHJpdmVycy92ZmlvL21kZXYvbWRldl9jb3JlLmMNCj4gQEAgLTEzNSwxMSArMTM1LDE0IEBA
+IHN0YXRpYyBpbnQgbWRldl9kZXZpY2VfcmVtb3ZlX2NiKHN0cnVjdCBkZXZpY2UNCj4gKmRldiwg
+dm9pZCAqZGF0YSkNCj4gICAqIG1kZXZfcmVnaXN0ZXJfZGV2aWNlIDogUmVnaXN0ZXIgYSBkZXZp
+Y2UNCj4gICAqIEBkZXY6IGRldmljZSBzdHJ1Y3R1cmUgcmVwcmVzZW50aW5nIHBhcmVudCBkZXZp
+Y2UuDQo+ICAgKiBAb3BzOiBQYXJlbnQgZGV2aWNlIG9wZXJhdGlvbiBzdHJ1Y3R1cmUgdG8gYmUg
+cmVnaXN0ZXJlZC4NCj4gKyAqIEBpZDogZGV2aWNlIGlkLg0KPiAgICoNCj4gICAqIEFkZCBkZXZp
+Y2UgdG8gbGlzdCBvZiByZWdpc3RlcmVkIHBhcmVudCBkZXZpY2VzLg0KPiAgICogUmV0dXJucyBh
+IG5lZ2F0aXZlIHZhbHVlIG9uIGVycm9yLCBvdGhlcndpc2UgMC4NCj4gICAqLw0KPiAtaW50IG1k
+ZXZfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldiwgY29uc3Qgc3RydWN0DQo+IG1k
+ZXZfcGFyZW50X29wcyAqb3BzKQ0KPiAraW50IG1kZXZfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCBk
+ZXZpY2UgKmRldiwNCj4gKwkJCSBjb25zdCBzdHJ1Y3QgbWRldl9wYXJlbnRfb3BzICpvcHMsDQo+
+ICsJCQkgdTggaWQpDQo+ICB7DQo+ICAJaW50IHJldDsNCj4gIAlzdHJ1Y3QgbWRldl9wYXJlbnQg
+KnBhcmVudDsNCj4gQEAgLTE3NSw2ICsxNzgsNyBAQCBpbnQgbWRldl9yZWdpc3Rlcl9kZXZpY2Uo
+c3RydWN0IGRldmljZSAqZGV2LCBjb25zdA0KPiBzdHJ1Y3QgbWRldl9wYXJlbnRfb3BzICpvcHMp
+DQo+IA0KPiAgCXBhcmVudC0+ZGV2ID0gZGV2Ow0KPiAgCXBhcmVudC0+b3BzID0gb3BzOw0KPiAr
+CXBhcmVudC0+ZGV2aWNlX2lkID0gaWQ7DQo+IA0KPiAgCWlmICghbWRldl9idXNfY29tcGF0X2Ns
+YXNzKSB7DQo+ICAJCW1kZXZfYnVzX2NvbXBhdF9jbGFzcyA9DQo+IGNsYXNzX2NvbXBhdF9yZWdp
+c3RlcigibWRldl9idXMiKTsNCj4gQEAgLTIwOCw3ICsyMTIsMTMgQEAgaW50IG1kZXZfcmVnaXN0
+ZXJfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldiwgY29uc3QNCj4gc3RydWN0IG1kZXZfcGFyZW50
+X29wcyAqb3BzKQ0KPiAgCQlwdXRfZGV2aWNlKGRldik7DQo+ICAJcmV0dXJuIHJldDsNCj4gIH0N
+Cj4gLUVYUE9SVF9TWU1CT0wobWRldl9yZWdpc3Rlcl9kZXZpY2UpOw0KPiArDQo+ICtpbnQgbWRl
+dl9yZWdpc3Rlcl92ZmlvX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYsDQo+ICsJCQkgICAgICBj
+b25zdCBzdHJ1Y3QgbWRldl9wYXJlbnRfb3BzICpvcHMpDQo+ICt7DQo+ICsJcmV0dXJuIG1kZXZf
+cmVnaXN0ZXJfZGV2aWNlKGRldiwgb3BzLCBNREVWX0lEX1ZGSU8pOw0KPiArfQ0KPiArRVhQT1JU
+X1NZTUJPTChtZGV2X3JlZ2lzdGVyX3ZmaW9fZGV2aWNlKTsNCj4gDQo+ICAvKg0KPiAgICogbWRl
+dl91bnJlZ2lzdGVyX2RldmljZSA6IFVucmVnaXN0ZXIgYSBwYXJlbnQgZGV2aWNlDQo+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X2RyaXZlci5jDQo+IGIvZHJpdmVycy92Zmlv
+L21kZXYvbWRldl9kcml2ZXIuYw0KPiBpbmRleCAwZDMyMjNhZWUyMGIuLmZkNWU5NTQxZDE4ZSAx
+MDA2NDQNCj4gLS0tIGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9kcml2ZXIuYw0KPiArKysgYi9k
+cml2ZXJzL3ZmaW8vbWRldi9tZGV2X2RyaXZlci5jDQo+IEBAIC02OSw4ICs2OSwyMiBAQCBzdGF0
+aWMgaW50IG1kZXZfcmVtb3ZlKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIAlyZXR1cm4gMDsNCj4g
+IH0NCj4gDQo+ICtzdGF0aWMgaW50IG1kZXZfbWF0Y2goc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1
+Y3QgZGV2aWNlX2RyaXZlciAqZHJ2KQ0KPiArew0KPiArCXVuc2lnbmVkIGludCBpOw0KPiArCXN0
+cnVjdCBtZGV2X2RldmljZSAqbWRldiA9IHRvX21kZXZfZGV2aWNlKGRldik7DQo+ICsJc3RydWN0
+IG1kZXZfZHJpdmVyICptZHJ2ID0gdG9fbWRldl9kcml2ZXIoZHJ2KTsNCj4gKwljb25zdCBzdHJ1
+Y3QgbWRldl9kZXZpY2VfaWQgKmlkcyA9IG1kcnYtPmlkX3RhYmxlOw0KPiArDQo+ICsJZm9yIChp
+ID0gMDsgaWRzW2ldLmlkOyBpKyspDQo+ICsJCWlmIChpZHNbaV0uaWQgPT0gbWRldi0+cGFyZW50
+LT5kZXZpY2VfaWQpDQo+ICsJCQlyZXR1cm4gMTsNCj4gKwlyZXR1cm4gMDsNCj4gK30NCj4gKw0K
+PiAgc3RydWN0IGJ1c190eXBlIG1kZXZfYnVzX3R5cGUgPSB7DQo+ICAJLm5hbWUJCT0gIm1kZXYi
+LA0KPiArCS5tYXRjaAkJPSBtZGV2X21hdGNoLA0KPiAgCS5wcm9iZQkJPSBtZGV2X3Byb2JlLA0K
+PiAgCS5yZW1vdmUJCT0gbWRldl9yZW1vdmUsDQo+ICB9Ow0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92ZmlvL21kZXYvbWRldl9wcml2YXRlLmgNCj4gYi9kcml2ZXJzL3ZmaW8vbWRldi9tZGV2X3By
+aXZhdGUuaA0KPiBpbmRleCA3ZDkyMjk1MGNhYWYuLjdmYzgxNTM2NzFlMCAxMDA2NDQNCj4gLS0t
+IGEvZHJpdmVycy92ZmlvL21kZXYvbWRldl9wcml2YXRlLmgNCj4gKysrIGIvZHJpdmVycy92Zmlv
+L21kZXYvbWRldl9wcml2YXRlLmgNCj4gQEAgLTIyLDYgKzIyLDcgQEAgc3RydWN0IG1kZXZfcGFy
+ZW50IHsNCj4gIAlzdHJ1Y3QgbGlzdF9oZWFkIHR5cGVfbGlzdDsNCj4gIAkvKiBTeW5jaHJvbml6
+ZSBkZXZpY2UgY3JlYXRpb24vcmVtb3ZhbCB3aXRoIHBhcmVudCB1bnJlZ2lzdHJhdGlvbg0KPiAq
+Lw0KPiAgCXN0cnVjdCByd19zZW1hcGhvcmUgdW5yZWdfc2VtOw0KPiArCXU4IGRldmljZV9pZDsN
+Cj4gIH07DQo+IA0KPiAgc3RydWN0IG1kZXZfZGV2aWNlIHsNCj4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvdmZpby9tZGV2L3ZmaW9fbWRldi5jDQo+IGIvZHJpdmVycy92ZmlvL21kZXYvdmZpb19tZGV2
+LmMNCj4gaW5kZXggMzA5NjRhNGUwYTI4Li44ODdjNTdmMTA4ODAgMTAwNjQ0DQo+IC0tLSBhL2Ry
+aXZlcnMvdmZpby9tZGV2L3ZmaW9fbWRldi5jDQo+ICsrKyBiL2RyaXZlcnMvdmZpby9tZGV2L3Zm
+aW9fbWRldi5jDQo+IEBAIC0xMjAsMTAgKzEyMCwxNiBAQCBzdGF0aWMgdm9pZCB2ZmlvX21kZXZf
+cmVtb3ZlKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIAl2ZmlvX2RlbF9ncm91cF9kZXYoZGV2KTsN
+Cj4gIH0NCj4gDQo+ICtzdGF0aWMgc3RydWN0IG1kZXZfZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7
+DQo+ICsJeyBNREVWX0lEX1ZGSU8gfSwNCj4gKwl7IDAgfSwNCj4gK307DQo+ICsNCj4gIHN0YXRp
+YyBzdHJ1Y3QgbWRldl9kcml2ZXIgdmZpb19tZGV2X2RyaXZlciA9IHsNCj4gIAkubmFtZQk9ICJ2
+ZmlvX21kZXYiLA0KPiAgCS5wcm9iZQk9IHZmaW9fbWRldl9wcm9iZSwNCj4gIAkucmVtb3ZlCT0g
+dmZpb19tZGV2X3JlbW92ZSwNCj4gKwkuaWRfdGFibGUgPSBpZF90YWJsZSwNCj4gIH07DQo+IA0K
+PiAgc3RhdGljIGludCBfX2luaXQgdmZpb19tZGV2X2luaXQodm9pZCkNCj4gZGlmZiAtLWdpdCBh
+L2luY2x1ZGUvbGludXgvbWRldi5oIGIvaW5jbHVkZS9saW51eC9tZGV2LmgNCj4gaW5kZXggMGNl
+MzBjYTc4ZGIwLi5mODUwNDUzOTIxMjAgMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUvbGludXgvbWRl
+di5oDQo+ICsrKyBiL2luY2x1ZGUvbGludXgvbWRldi5oDQo+IEBAIC0xMTgsNiArMTE4LDcgQEAg
+c3RydWN0IG1kZXZfdHlwZV9hdHRyaWJ1dGUNCj4gbWRldl90eXBlX2F0dHJfIyNfbmFtZSA9CQlc
+DQo+ICAgKiBAcHJvYmU6IGNhbGxlZCB3aGVuIG5ldyBkZXZpY2UgY3JlYXRlZA0KPiAgICogQHJl
+bW92ZTogY2FsbGVkIHdoZW4gZGV2aWNlIHJlbW92ZWQNCj4gICAqIEBkcml2ZXI6IGRldmljZSBk
+cml2ZXIgc3RydWN0dXJlDQo+ICsgKiBAaWRfdGFibGU6IHRoZSBpZHMgc2VydmljZWQgYnkgdGhp
+cyBkcml2ZXIuDQo+ICAgKg0KPiAgICoqLw0KPiAgc3RydWN0IG1kZXZfZHJpdmVyIHsNCj4gQEAg
+LTEyNSw2ICsxMjYsNyBAQCBzdHJ1Y3QgbWRldl9kcml2ZXIgew0KPiAgCWludCAgKCpwcm9iZSko
+c3RydWN0IGRldmljZSAqZGV2KTsNCj4gIAl2b2lkICgqcmVtb3ZlKShzdHJ1Y3QgZGV2aWNlICpk
+ZXYpOw0KPiAgCXN0cnVjdCBkZXZpY2VfZHJpdmVyIGRyaXZlcjsNCj4gKwljb25zdCBzdHJ1Y3Qg
+bWRldl9kZXZpY2VfaWQgKmlkX3RhYmxlOw0KPiAgfTsNCj4gDQo+ICAjZGVmaW5lIHRvX21kZXZf
+ZHJpdmVyKGRydikJY29udGFpbmVyX29mKGRydiwgc3RydWN0IG1kZXZfZHJpdmVyLCBkcml2ZXIp
+DQo+IEBAIC0xMzUsNyArMTM3LDcgQEAgY29uc3QgZ3VpZF90ICptZGV2X3V1aWQoc3RydWN0IG1k
+ZXZfZGV2aWNlDQo+ICptZGV2KTsNCj4gDQo+ICBleHRlcm4gc3RydWN0IGJ1c190eXBlIG1kZXZf
+YnVzX3R5cGU7DQo+IA0KPiAtaW50IG1kZXZfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCBkZXZpY2Ug
+KmRldiwgY29uc3Qgc3RydWN0DQo+IG1kZXZfcGFyZW50X29wcyAqb3BzKTsNCj4gK2ludCBtZGV2
+X3JlZ2lzdGVyX3ZmaW9fZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldiwgY29uc3Qgc3RydWN0DQo+
+IG1kZXZfcGFyZW50X29wcyAqb3BzKTsNCj4gIHZvaWQgbWRldl91bnJlZ2lzdGVyX2RldmljZShz
+dHJ1Y3QgZGV2aWNlICpkZXYpOw0KPiANCj4gIGludCBtZGV2X3JlZ2lzdGVyX2RyaXZlcihzdHJ1
+Y3QgbWRldl9kcml2ZXIgKmRydiwgc3RydWN0IG1vZHVsZSAqb3duZXIpOw0KPiBAQCAtMTQ1LDQg
+KzE0Nyw2IEBAIHN0cnVjdCBkZXZpY2UgKm1kZXZfcGFyZW50X2RldihzdHJ1Y3QNCj4gbWRldl9k
+ZXZpY2UgKm1kZXYpOw0KPiAgc3RydWN0IGRldmljZSAqbWRldl9kZXYoc3RydWN0IG1kZXZfZGV2
+aWNlICptZGV2KTsNCj4gIHN0cnVjdCBtZGV2X2RldmljZSAqbWRldl9mcm9tX2RldihzdHJ1Y3Qg
+ZGV2aWNlICpkZXYpOw0KPiANCj4gKyNkZWZpbmUgTURFVl9JRF9WRklPIDEgLyogVkZJTyBkZXZp
+Y2UgKi8NCj4gKw0KPiAgI2VuZGlmIC8qIE1ERVZfSCAqLw0KPiBkaWZmIC0tZ2l0IGEvaW5jbHVk
+ZS9saW51eC9tb2RfZGV2aWNldGFibGUuaA0KPiBiL2luY2x1ZGUvbGludXgvbW9kX2RldmljZXRh
+YmxlLmgNCj4gaW5kZXggNTcxNGZkMzVhODNjLi5mMWZjMTQzZGYwNDIgMTAwNjQ0DQo+IC0tLSBh
+L2luY2x1ZGUvbGludXgvbW9kX2RldmljZXRhYmxlLmgNCj4gKysrIGIvaW5jbHVkZS9saW51eC9t
+b2RfZGV2aWNldGFibGUuaA0KPiBAQCAtODIxLDQgKzgyMSwxMCBAQCBzdHJ1Y3Qgd21pX2Rldmlj
+ZV9pZCB7DQo+ICAJY29uc3Qgdm9pZCAqY29udGV4dDsNCj4gIH07DQo+IA0KPiArLyogTURFViAq
+Lw0KPiArDQo+ICtzdHJ1Y3QgbWRldl9kZXZpY2VfaWQgew0KPiArCV9fdTggaWQ7DQo+ICt9Ow0K
+PiArDQo+ICAjZW5kaWYgLyogTElOVVhfTU9EX0RFVklDRVRBQkxFX0ggKi8NCj4gZGlmZiAtLWdp
+dCBhL3NhbXBsZXMvdmZpby1tZGV2L21ib2Nocy5jIGIvc2FtcGxlcy92ZmlvLW1kZXYvbWJvY2hz
+LmMNCj4gaW5kZXggYWM1YzhjMTdiMWZmLi43MWE0NDY5YmU4NWQgMTAwNjQ0DQo+IC0tLSBhL3Nh
+bXBsZXMvdmZpby1tZGV2L21ib2Nocy5jDQo+ICsrKyBiL3NhbXBsZXMvdmZpby1tZGV2L21ib2No
+cy5jDQo+IEBAIC0xNDY4LDcgKzE0NjgsNyBAQCBzdGF0aWMgaW50IF9faW5pdCBtYm9jaHNfZGV2
+X2luaXQodm9pZCkNCj4gIAlpZiAocmV0KQ0KPiAgCQlnb3RvIGZhaWxlZDI7DQo+IA0KPiAtCXJl
+dCA9IG1kZXZfcmVnaXN0ZXJfZGV2aWNlKCZtYm9jaHNfZGV2LCAmbWRldl9mb3BzKTsNCj4gKwly
+ZXQgPSBtZGV2X3JlZ2lzdGVyX3ZmaW9fZGV2aWNlKCZtYm9jaHNfZGV2LCAmbWRldl9mb3BzKTsN
+Cj4gIAlpZiAocmV0KQ0KPiAgCQlnb3RvIGZhaWxlZDM7DQo+IA0KPiBkaWZmIC0tZ2l0IGEvc2Ft
+cGxlcy92ZmlvLW1kZXYvbWRweS5jIGIvc2FtcGxlcy92ZmlvLW1kZXYvbWRweS5jDQo+IGluZGV4
+IGNjODZiZjY1NjZlNC4uZDMwMjlkZDI3ZDkxIDEwMDY0NA0KPiAtLS0gYS9zYW1wbGVzL3ZmaW8t
+bWRldi9tZHB5LmMNCj4gKysrIGIvc2FtcGxlcy92ZmlvLW1kZXYvbWRweS5jDQo+IEBAIC03NzUs
+NyArNzc1LDcgQEAgc3RhdGljIGludCBfX2luaXQgbWRweV9kZXZfaW5pdCh2b2lkKQ0KPiAgCWlm
+IChyZXQpDQo+ICAJCWdvdG8gZmFpbGVkMjsNCj4gDQo+IC0JcmV0ID0gbWRldl9yZWdpc3Rlcl9k
+ZXZpY2UoJm1kcHlfZGV2LCAmbWRldl9mb3BzKTsNCj4gKwlyZXQgPSBtZGV2X3JlZ2lzdGVyX3Zm
+aW9fZGV2aWNlKCZtZHB5X2RldiwgJm1kZXZfZm9wcyk7DQo+ICAJaWYgKHJldCkNCj4gIAkJZ290
+byBmYWlsZWQzOw0KPiANCj4gZGlmZiAtLWdpdCBhL3NhbXBsZXMvdmZpby1tZGV2L210dHkuYyBi
+L3NhbXBsZXMvdmZpby1tZGV2L210dHkuYw0KPiBpbmRleCA5MmU3NzBhMDZlYTIuLjc0NGM4OGE2
+YjIyYyAxMDA2NDQNCj4gLS0tIGEvc2FtcGxlcy92ZmlvLW1kZXYvbXR0eS5jDQo+ICsrKyBiL3Nh
+bXBsZXMvdmZpby1tZGV2L210dHkuYw0KPiBAQCAtMTQ2OCw3ICsxNDY4LDcgQEAgc3RhdGljIGlu
+dCBfX2luaXQgbXR0eV9kZXZfaW5pdCh2b2lkKQ0KPiAgCWlmIChyZXQpDQo+ICAJCWdvdG8gZmFp
+bGVkMjsNCj4gDQo+IC0JcmV0ID0gbWRldl9yZWdpc3Rlcl9kZXZpY2UoJm10dHlfZGV2LmRldiwg
+Jm1kZXZfZm9wcyk7DQo+ICsJcmV0ID0gbWRldl9yZWdpc3Rlcl92ZmlvX2RldmljZSgmbXR0eV9k
+ZXYuZGV2LCAmbWRldl9mb3BzKTsNCj4gIAlpZiAocmV0KQ0KPiAgCQlnb3RvIGZhaWxlZDM7DQo+
+IA0KPiAtLQ0KPiAyLjE5LjENCj4gDQo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fDQo+IGludGVsLWd2dC1kZXYgbWFpbGluZyBsaXN0DQo+IGludGVsLWd2
+dC1kZXZAbGlzdHMuZnJlZWRlc2t0b3Aub3JnDQo+IGh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ3Z0LWRldg0K
