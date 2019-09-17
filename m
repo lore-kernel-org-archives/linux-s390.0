@@ -1,92 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59378 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:56592 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725904AbfIRFwn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Sep 2019 01:52:43 -0400
+        id S1726918AbfIQMHg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Sep 2019 08:07:36 -0400
+Date: Tue, 17 Sep 2019 14:07:20 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC PATCH 1/2] mdev: device id support
+Message-ID: <20190917140720.3686e0cc.cohuck@redhat.com>
+In-Reply-To: <20190912094012.29653-2-jasowang@redhat.com>
 References: <20190912094012.29653-1-jasowang@redhat.com>
- <20190912094012.29653-2-jasowang@redhat.com>
- <20190917140720.3686e0cc.cohuck@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <e53b38be-bc2a-785f-12d2-951805f3395f@redhat.com>
-Date: Wed, 18 Sep 2019 13:52:17 +0800
+        <20190912094012.29653-2-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190917140720.3686e0cc.cohuck@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, freude@linux.ibm.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, idos@mellanox.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com
 
+On Thu, 12 Sep 2019 17:40:11 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-On 2019/9/17 下午8:07, Cornelia Huck wrote:
-> On Thu, 12 Sep 2019 17:40:11 +0800
-> Jason Wang <jasowang@redhat.com> wrote:
->
->> Mdev bus only support vfio driver right now, so it doesn't implement
->> match method. But in the future, we may add drivers other than vfio,
->> one example is virtio-mdev[1] driver. This means we need to add device
->> id support in bus match method to pair the mdev device and mdev driver
->> correctly.
-> Sounds reasonable.
->
->> So this patch add id_table to mdev_driver and id for mdev parent, and
->> implement the match method for mdev bus.
->>
->> [1] https://lkml.org/lkml/2019/9/10/135
->>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->> ---
->>   drivers/gpu/drm/i915/gvt/kvmgt.c  |  2 +-
->>   drivers/s390/cio/vfio_ccw_ops.c   |  2 +-
->>   drivers/s390/crypto/vfio_ap_ops.c |  3 ++-
->>   drivers/vfio/mdev/mdev_core.c     | 14 ++++++++++++--
->>   drivers/vfio/mdev/mdev_driver.c   | 14 ++++++++++++++
->>   drivers/vfio/mdev/mdev_private.h  |  1 +
->>   drivers/vfio/mdev/vfio_mdev.c     |  6 ++++++
->>   include/linux/mdev.h              |  6 +++++-
->>   include/linux/mod_devicetable.h   |  6 ++++++
->>   samples/vfio-mdev/mbochs.c        |  2 +-
->>   samples/vfio-mdev/mdpy.c          |  2 +-
->>   samples/vfio-mdev/mtty.c          |  2 +-
->>   12 files changed, 51 insertions(+), 9 deletions(-)
-> (...)
->
-> The transformations of the vendor drivers and the new interface look
-> sane.
->
-> (...)
->
->> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
->> index 5714fd35a83c..f1fc143df042 100644
->> --- a/include/linux/mod_devicetable.h
->> +++ b/include/linux/mod_devicetable.h
->> @@ -821,4 +821,10 @@ struct wmi_device_id {
->>   	const void *context;
->>   };
->>   
->> +/* MDEV */
->> +
-> Maybe add some kerneldoc and give vfio as an example of what we're
-> matching here?
+> Mdev bus only support vfio driver right now, so it doesn't implement
+> match method. But in the future, we may add drivers other than vfio,
+> one example is virtio-mdev[1] driver. This means we need to add device
+> id support in bus match method to pair the mdev device and mdev driver
+> correctly.
 
+Sounds reasonable.
 
-Will add when posting a non RFC patch.
+> 
+> So this patch add id_table to mdev_driver and id for mdev parent, and
+> implement the match method for mdev bus.
+> 
+> [1] https://lkml.org/lkml/2019/9/10/135
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/gpu/drm/i915/gvt/kvmgt.c  |  2 +-
+>  drivers/s390/cio/vfio_ccw_ops.c   |  2 +-
+>  drivers/s390/crypto/vfio_ap_ops.c |  3 ++-
+>  drivers/vfio/mdev/mdev_core.c     | 14 ++++++++++++--
+>  drivers/vfio/mdev/mdev_driver.c   | 14 ++++++++++++++
+>  drivers/vfio/mdev/mdev_private.h  |  1 +
+>  drivers/vfio/mdev/vfio_mdev.c     |  6 ++++++
+>  include/linux/mdev.h              |  6 +++++-
+>  include/linux/mod_devicetable.h   |  6 ++++++
+>  samples/vfio-mdev/mbochs.c        |  2 +-
+>  samples/vfio-mdev/mdpy.c          |  2 +-
+>  samples/vfio-mdev/mtty.c          |  2 +-
+>  12 files changed, 51 insertions(+), 9 deletions(-)
 
+(...)
 
->
->> +struct mdev_device_id {
->> +	__u8 id;
-> I agree with the suggestion to rename this to 'class_id'.
->
+The transformations of the vendor drivers and the new interface look
+sane.
 
-Let me change it.
+(...)
 
-Thanks
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 5714fd35a83c..f1fc143df042 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -821,4 +821,10 @@ struct wmi_device_id {
+>  	const void *context;
+>  };
+>  
+> +/* MDEV */
+> +
 
+Maybe add some kerneldoc and give vfio as an example of what we're
+matching here?
 
->> +};
->> +
->>   #endif /* LINUX_MOD_DEVICETABLE_H */
+> +struct mdev_device_id {
+> +	__u8 id;
+
+I agree with the suggestion to rename this to 'class_id'.
+
+> +};
+> +
+>  #endif /* LINUX_MOD_DEVICETABLE_H */
