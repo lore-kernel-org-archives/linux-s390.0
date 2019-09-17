@@ -1,31 +1,28 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] s390: remove pointless drivers-y in drivers/s390/Makefile
-Date: Thu, 12 Sep 2019 14:23:54 +0900
-Message-Id: <20190912052354.24829-1-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:43662 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728046AbfIQXkX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Sep 2019 19:40:23 -0400
+Subject: Re: [GIT PULL] s390 patches for the 5.4 merge window
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01568730434-ext-0126@work.hours>
+References: <your-ad-here.call-01568730434-ext-0126@work.hours>
+Message-Id: <156876362346.26432.3024890958497889434.pr-tracker-bot@kernel.org>
+Date: Tue, 17 Sep 2019 23:40:23 +0000
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-This is unused.
+The pull request you sent on Tue, 17 Sep 2019 16:27:14 +0200:
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.4-1
 
- drivers/s390/Makefile | 3 ---
- 1 file changed, 3 deletions(-)
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/d590284419b1d7cc2dc646e9bdde4da19061cf0f
 
-diff --git a/drivers/s390/Makefile b/drivers/s390/Makefile
-index a863b0462b43..cde73b6a9afb 100644
---- a/drivers/s390/Makefile
-+++ b/drivers/s390/Makefile
-@@ -4,6 +4,3 @@
- #
- 
- obj-y += cio/ block/ char/ crypto/ net/ scsi/ virtio/
--
--drivers-y += drivers/s390/built-in.a
--
+Thank you!
+
 -- 
-2.17.1
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
