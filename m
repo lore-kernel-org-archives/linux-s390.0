@@ -1,71 +1,159 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40382 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49696 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726081AbfIRGQS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Sep 2019 02:16:18 -0400
+        id S1725834AbfIRFzN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Sep 2019 01:55:13 -0400
 Subject: Re: [RFC PATCH 2/2] mdev: introduce device specific ops
 References: <20190912094012.29653-1-jasowang@redhat.com>
  <20190912094012.29653-3-jasowang@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D579F71@SHSMSX104.ccr.corp.intel.com>
- <6bb2c43c-25bb-16f9-1fa0-08cb08e42b94@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D57B49A@SHSMSX104.ccr.corp.intel.com>
+ <20190917144240.6a59b65f.cohuck@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Message-ID: <e3950e19-b815-1549-72b0-12b628fa2bc1@redhat.com>
-Date: Wed, 18 Sep 2019 14:15:54 +0800
+Message-ID: <48eccb97-5dee-f1cd-5650-59a0bafd3044@redhat.com>
+Date: Wed, 18 Sep 2019 13:54:46 +0800
 MIME-Version: 1.0
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D57B49A@SHSMSX104.ccr.corp.intel.com>
+In-Reply-To: <20190917144240.6a59b65f.cohuck@redhat.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Tian, Kevin" <kevin.tian@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
-Cc: "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "mst@redhat.com" <mst@redhat.com>, "airlied@linux.ie" <airlied@linux.ie>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Wang, Zhi A" <zhi.a.wang@intel.com>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "idos@mellanox.com" <idos@mellanox.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "Vivi, Rodrigo" <rodrigo.vivi@intel.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>, "cohuck@redhat.com" <cohuck@redhat.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "Wang, Zhihong" <zhihong.wang@intel.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, freude@linux.ibm.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, idos@mellanox.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com
 
 
-On 2019/9/18 上午10:57, Tian, Kevin wrote:
->> From: Jason Wang [mailto:jasowang@redhat.com]
->> Sent: Tuesday, September 17, 2019 6:17 PM
+On 2019/9/17 下午8:42, Cornelia Huck wrote:
+> On Thu, 12 Sep 2019 17:40:12 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+>
+>> Currently, except for the crate and remove. The rest fields of
+>> mdev_parent_ops is just designed for vfio-mdev driver and may not help
+>> for kernel mdev driver. So follow the device id support by previous
+>> patch, this patch introduces device specific ops which points to
+>> device specific ops (e.g vfio ops). This allows the future drivers
+>> like virtio-mdev to implement its own device specific ops.
 >>
->> On 2019/9/17 下午4:09, Tian, Kevin wrote:
->>>> From: Jason Wang
->>>> Sent: Thursday, September 12, 2019 5:40 PM
->>>>
->>>> Currently, except for the crate and remove. The rest fields of
->>>> mdev_parent_ops is just designed for vfio-mdev driver and may not
->> help
->>>> for kernel mdev driver. So follow the device id support by previous
->>>> patch, this patch introduces device specific ops which points to
->>>> device specific ops (e.g vfio ops). This allows the future drivers
->>>> like virtio-mdev to implement its own device specific ops.
->>> Can you give an example about what ops might be required to support
->>> kernel mdev driver? I know you posted a link earlier, but putting a small
->>> example here can save time and avoid inconsistent understanding. Then
->>> it will help whether the proposed split makes sense or there is a
->>> possibility of redefining the callbacks to meet the both requirements.
->>> imo those callbacks fulfill some basic requirements when mediating
->>> a device...
->> I put it in the cover letter.
->>
->> The link ishttps://lkml.org/lkml/2019/9/10/135  which abuses the current
->> VFIO based mdev parent ops.
->>
->> Thanks
-> So the main problem is the handling of userspace pointers vs.
-> kernel space pointers. You still implement read/write/ioctl
-> callbacks which is a subset of current parent_ops definition.
-> In that regard is it better to introduce some helper to handle
-> the pointer difference in mdev core, while still keeping the
-> same set of parent ops (in whatever form suitable for both)?
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>   drivers/gpu/drm/i915/gvt/kvmgt.c  | 14 +++---
+>>   drivers/s390/cio/vfio_ccw_ops.c   | 14 +++---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 10 +++--
+>>   drivers/vfio/mdev/vfio_mdev.c     | 30 +++++++------
+>>   include/linux/mdev.h              | 72 ++++++++++++++++++-------------
+>>   samples/vfio-mdev/mbochs.c        | 16 ++++---
+>>   samples/vfio-mdev/mdpy.c          | 16 ++++---
+>>   samples/vfio-mdev/mtty.c          | 14 +++---
+>>   8 files changed, 113 insertions(+), 73 deletions(-)
+>> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+>> index f85045392120..3b8a76bc69cf 100644
+>> --- a/include/linux/mdev.h
+>> +++ b/include/linux/mdev.h
+>> @@ -27,27 +27,9 @@ int mdev_set_iommu_device(struct device *dev, struct device *iommu_device);
+>>   struct device *mdev_get_iommu_device(struct device *dev);
+>>   
+>>   /**
+>> - * struct mdev_parent_ops - Structure to be registered for each parent device to
+>> - * register the device to mdev module.
+>> + * struct vfio_mdev_parent_ops - Structure to be registered for each
+>> + * parent device to register the device to vfio-mdev module.
+>>    *
+>> - * @owner:		The module owner.
+>> - * @dev_attr_groups:	Attributes of the parent device.
+>> - * @mdev_attr_groups:	Attributes of the mediated device.
+>> - * @supported_type_groups: Attributes to define supported types. It is mandatory
+>> - *			to provide supported types.
+>> - * @create:		Called to allocate basic resources in parent device's
+>> - *			driver for a particular mediated device. It is
+>> - *			mandatory to provide create ops.
+>> - *			@kobj: kobject of type for which 'create' is called.
+>> - *			@mdev: mdev_device structure on of mediated device
+>> - *			      that is being created
+>> - *			Returns integer: success (0) or error (< 0)
+>> - * @remove:		Called to free resources in parent device's driver for a
+>> - *			a mediated device. It is mandatory to provide 'remove'
+>> - *			ops.
+>> - *			@mdev: mdev_device device structure which is being
+>> - *			       destroyed
+>> - *			Returns integer: success (0) or error (< 0)
+>>    * @open:		Open mediated device.
+>>    *			@mdev: mediated device.
+>>    *			Returns integer: success (0) or error (< 0)
+>> @@ -72,6 +54,43 @@ struct device *mdev_get_iommu_device(struct device *dev);
+>>    * @mmap:		mmap callback
+>>    *			@mdev: mediated device structure
+>>    *			@vma: vma structure
+>> + */
+>> +struct vfio_mdev_parent_ops {
+>> +	int     (*open)(struct mdev_device *mdev);
+>> +	void    (*release)(struct mdev_device *mdev);
+>> +	ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
+>> +			size_t count, loff_t *ppos);
+>> +	ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
+>> +			 size_t count, loff_t *ppos);
+>> +	long	(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
+>> +			 unsigned long arg);
+>> +	int	(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
+>> +};
+>> +
+>> +/**
+>> + * struct mdev_parent_ops - Structure to be registered for each parent device to
+>> + * register the device to mdev module.
+>> + *
+>> + * @owner:		The module owner.
+>> + * @dev_attr_groups:	Attributes of the parent device.
+>> + * @mdev_attr_groups:	Attributes of the mediated device.
+>> + * @supported_type_groups: Attributes to define supported types. It is mandatory
+>> + *			to provide supported types.
+>> + * @create:		Called to allocate basic resources in parent device's
+>> + *			driver for a particular mediated device. It is
+>> + *			mandatory to provide create ops.
+>> + *			@kobj: kobject of type for which 'create' is called.
+>> + *			@mdev: mdev_device structure on of mediated device
+>> + *			      that is being created
+>> + *			Returns integer: success (0) or error (< 0)
+>> + * @remove:		Called to free resources in parent device's driver for a
+>> + *			a mediated device. It is mandatory to provide 'remove'
+>> + *			ops.
+>> + *			@mdev: mdev_device device structure which is being
+>> + *			       destroyed
+>> + *			Returns integer: success (0) or error (< 0)
+>> + * @device_ops:         Device specific emulation callback.
+>> + *
+>>    * Parent device that support mediated device should be registered with mdev
+>>    * module with mdev_parent_ops structure.
+>>    **/
+>> @@ -83,15 +102,7 @@ struct mdev_parent_ops {
+>>   
+>>   	int     (*create)(struct kobject *kobj, struct mdev_device *mdev);
+>>   	int     (*remove)(struct mdev_device *mdev);
+>> -	int     (*open)(struct mdev_device *mdev);
+>> -	void    (*release)(struct mdev_device *mdev);
+>> -	ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
+>> -			size_t count, loff_t *ppos);
+>> -	ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
+>> -			 size_t count, loff_t *ppos);
+>> -	long	(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
+>> -			 unsigned long arg);
+>> -	int	(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
+>> +	const void *device_ops;
+>>   };
+>>   
+>>   /* interface for exporting mdev supported type attributes */
+> This basically looks like a split between stuff that is always
+> triggered from userspace (create and the like) and stuff that is
+> triggered from userspace for vfio mdevs, but not necessarily for other
+> mdevs.
 
 
-Pointers is one of the issues. And read/write/ioctl is designed for 
-userspace API not kernel. Technically, we can use them for kernel but it 
-would not be as simple and straightforward a set of device specific 
-callbacks functions. The link above is just an example, e.g we can 
-simply pass the vring address through a dedicated API instead of 
-mandatory an offset of a file.
+Yes.
+
+
+>   Seems reasonable at a glance.
+>
+> If we decide to go forward with this, we should also update the
+> documentation (split out stuff from driver-api/vfio-mediated-device.rst
+> etc.)
+
+
+Yes, I plan to do that.
 
 Thanks
-
->
