@@ -1,220 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50980 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726107AbfIWNFH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Sep 2019 09:05:07 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 3/6] mdev: introduce virtio device and its device ops
-Date: Mon, 23 Sep 2019 21:03:28 +0800
-Message-Id: <20190923130331.29324-4-jasowang@redhat.com>
-In-Reply-To: <20190923130331.29324-1-jasowang@redhat.com>
-References: <20190923130331.29324-1-jasowang@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11356 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387614AbfITPOp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Sep 2019 11:14:45 -0400
+Subject: Re: [PATCH v4 3/4] vfio: zpci: defining the VFIO headers
+References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+ <1567815231-17940-4-git-send-email-mjrosato@linux.ibm.com>
+ <20190919172009.71b1c246.cohuck@redhat.com>
+ <0a62aba7-578a-6875-da4d-13e8b145cf9b@linux.ibm.com>
+ <20190920160258.70631905.cohuck@redhat.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <86647083-7f94-44aa-8856-103836906f36@linux.ibm.com>
+Date: Fri, 20 Sep 2019 11:14:28 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190920160258.70631905.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, Jason Wang <jasowang@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: sebott@linux.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
 
-This patch implements basic support for mdev driver that supports
-virtio transport for kernel virtio driver.
+On 9/20/19 10:02 AM, Cornelia Huck wrote:
+> On Thu, 19 Sep 2019 16:55:57 -0400
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> 
+>> On 9/19/19 11:20 AM, Cornelia Huck wrote:
+>>> On Fri,  6 Sep 2019 20:13:50 -0400
+>>> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+>>>   
+>>>> From: Pierre Morel <pmorel@linux.ibm.com>
+>>>>
+>>>> We define a new device region in vfio.h to be able to
+>>>> get the ZPCI CLP information by reading this region from
+>>>> userland.
+>>>>
+>>>> We create a new file, vfio_zdev.h to define the structure
+>>>> of the new region we defined in vfio.h
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>>> ---
+>>>>  include/uapi/linux/vfio.h      |  1 +
+>>>>  include/uapi/linux/vfio_zdev.h | 35 +++++++++++++++++++++++++++++++++++
+>>>>  2 files changed, 36 insertions(+)
+>>>>  create mode 100644 include/uapi/linux/vfio_zdev.h
+> 
+>>>> diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
+>>>> new file mode 100644
+>>>> index 0000000..55e0d6d
+>>>> --- /dev/null
+>>>> +++ b/include/uapi/linux/vfio_zdev.h
+>>>> @@ -0,0 +1,35 @@
+>>>> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+>>>> +/*
+>>>> + * Region definition for ZPCI devices
+>>>> + *
+>>>> + * Copyright IBM Corp. 2019
+>>>> + *
+>>>> + * Author(s): Pierre Morel <pmorel@linux.ibm.com>
+>>>> + */
+>>>> +
+>>>> +#ifndef _VFIO_ZDEV_H_
+>>>> +#define _VFIO_ZDEV_H_
+>>>> +
+>>>> +#include <linux/types.h>
+>>>> +
+>>>> +/**
+>>>> + * struct vfio_region_zpci_info - ZPCI information.  
+>>>
+>>> Hm... probably should also get some more explanation. E.g. is that
+>>> derived from a hardware structure?
+>>>   
+>>
+>> The structure itself is not mapped 1:1 to a hardware structure, but it
+>> does serve as a collection of information that was derived from other
+>> hardware structures.
+>>
+>> "Used for passing hardware feature information about a zpci device
+>> between the host and guest" ?
+> 
+> "zPCI specific hardware feature information for a device"?
+> 
+> Are we reasonably sure that this is complete for now? I'm not sure if
+> expanding this structure would work; adding another should always be
+> possible, though (if a bit annoying).
+> 
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vfio/mdev/mdev_core.c |   7 ++
- include/linux/mdev.h          |   4 +
- include/linux/virtio_mdev.h   | 144 ++++++++++++++++++++++++++++++++++
- 3 files changed, 155 insertions(+)
- create mode 100644 include/linux/virtio_mdev.h
+I think trying to make the structure expandable would be best...  If we
+allow arbitrary-sized reads of the info, and only add new fields onto
+the end it should be OK, no? (older qemu doesn't get the info it doesn't
+ask for / understand)....  But I guess that's not compatible with having
+util_str[] size being defined dynamically.  Another caveat would be if
+CLP_UTIL_STR_LEN were to grow in size in the future, and assuming
+util_str[] was no longer at the end of the structure, I guess the
+additional data would have to end up in a
+util_str2[CLP_UTIL_STR_LEN_NEW-CLP_UTIL_STR_LEN_OLD]...  To explain what
+I mean, something like:
 
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index a02c256a3514..6d39caf96222 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -220,6 +220,13 @@ int mdev_register_vfio_device(struct device *dev,
- }
- EXPORT_SYMBOL(mdev_register_vfio_device);
- 
-+int mdev_register_virtio_device(struct device *dev,
-+				const struct mdev_parent_ops *ops)
-+{
-+	return mdev_register_device(dev, ops, MDEV_ID_VIRTIO);
-+}
-+EXPORT_SYMBOL(mdev_register_virtio_device);
-+
- /*
-  * mdev_unregister_device : Unregister a parent device
-  * @dev: device structure representing parent device.
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index fa167bcb81e1..1d061739021e 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -109,6 +109,8 @@ extern struct bus_type mdev_bus_type;
- 
- int mdev_register_vfio_device(struct device *dev,
- 			      const struct mdev_parent_ops *ops);
-+int mdev_register_virtio_device(struct device *dev,
-+				const struct mdev_parent_ops *ops);
- void mdev_unregister_device(struct device *dev);
- 
- int mdev_register_driver(struct mdev_driver *drv, struct module *owner);
-@@ -119,5 +121,7 @@ struct device *mdev_dev(struct mdev_device *mdev);
- struct mdev_device *mdev_from_dev(struct device *dev);
- 
- #define MDEV_ID_VFIO 1 /* VFIO device */
-+#define MDEV_ID_VIRTIO 2 /* Virtio Device */
-+#define MDEV_ID_VHOST 3 /* Vhost Device */
- 
- #endif /* MDEV_H */
-diff --git a/include/linux/virtio_mdev.h b/include/linux/virtio_mdev.h
-new file mode 100644
-index 000000000000..f8db03c93d36
---- /dev/null
-+++ b/include/linux/virtio_mdev.h
-@@ -0,0 +1,144 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Virtio mediated device driver
-+ *
-+ * Copyright 2019, Red Hat Corp.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ */
-+#ifndef _LINUX_VIRTIO_MDEV_H
-+#define _LINUX_VIRTIO_MDEV_H
-+
-+#include <linux/interrupt.h>
-+#include <uapi/linux/vhost.h>
-+
-+#define VIRTIO_MDEV_DEVICE_API_STRING		"virtio-mdev"
-+#define VIRTIO_MDEV_VERSION 0x1
-+
-+struct virtio_mdev_callback {
-+	irqreturn_t (*callback)(void *data);
-+	void *private;
-+};
-+
-+/**
-+ * struct vfio_mdev_parent_ops - Structure to be registered for each
-+ * parent device to register the device to virtio-mdev module.
-+ *
-+ * @set_vq_address:		Set the address of virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@desc_area: address of desc area
-+ *				@driver_area: address of driver area
-+ *				@device_area: address of device area
-+ *				Returns integer: success (0) or error (< 0)
-+ * @set_vq_num:		Set the size of virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@num: the size of virtqueue
-+ * @kick_vq:			Kick the virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ * @set_vq_cb:			Set the interrut calback function for
-+ *				a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@cb: virtio-mdev interrupt callback structure
-+ * @set_vq_ready:		Set ready status for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@ready: ready (true) not ready(false)
-+ * @get_vq_ready:		Get ready status for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				Returns boolean: ready (true) or not (false)
-+ * @set_vq_state:		Set the state for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@state: virtqueue state (last_avail_idx)
-+ *				Returns integer: success (0) or error (< 0)
-+ * @get_vq_state:		Get the state for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				Returns virtqueue state (last_avail_idx)
-+ * @get_vq_align:		Get the virtqueue align requirement
-+ *				for the device
-+ *				@mdev: mediated device
-+ *				Returns virtqueue algin requirement
-+ * @get_features:		Get virtio features supported by the device
-+ *				@mdev: mediated device
-+ *				Returns the features support by the
-+ *				device
-+ * @get_features:		Set virtio features supported by the driver
-+ *				@mdev: mediated device
-+ *				@features: feature support by the driver
-+ *				Returns integer: success (0) or error (< 0)
-+ * @set_config_cb:		Set the config interrupt callback
-+ *				@mdev: mediated device
-+ *				@cb: virtio-mdev interrupt callback structure
-+ * @get_device_id:		Get virtio device id
-+ *				@mdev: mediated device
-+ *				Returns u32: virtio device id
-+ * @get_vendor_id:		Get virtio vendor id
-+ *				@mdev: mediated device
-+ *				Returns u32: virtio vendor id
-+ * @get_status:		Get the device status
-+ *				@mdev: mediated device
-+ *				Returns u8: virtio device status
-+ * @set_status:		Set the device status
-+ *				@mdev: mediated device
-+ *				@status: virtio device status
-+ * @get_config:		Read from device specific confiugration space
-+ *				@mdev: mediated device
-+ *				@offset: offset from the beginning of
-+ *				configuration space
-+ *				@buf: buffer used to read to
-+ *				@len: the length to read from
-+ *				configration space
-+ * @set_config:		Write to device specific confiugration space
-+ *				@mdev: mediated device
-+ *				@offset: offset from the beginning of
-+ *				configuration space
-+ *				@buf: buffer used to write from
-+ *				@len: the length to write to
-+ *				configration space
-+ * @get_version:		Get the version of virtio mdev device
-+ *				@mdev: mediated device
-+ *				Returns integer: version of the device
-+ * @get_generation:		Get device generaton
-+ *				@mdev: mediated device
-+ *				Returns u32: device generation
-+ */
-+struct virtio_mdev_parent_ops {
-+	/* Virtqueue ops */
-+	int (*set_vq_address)(struct mdev_device *mdev,
-+			      u16 idx, u64 desc_area, u64 driver_area,
-+			      u64 device_area);
-+	void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-+	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-+	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-+			  struct virtio_mdev_callback *cb);
-+	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-+	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-+	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-+	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-+
-+	/* Device ops */
-+	u16 (*get_vq_align)(struct mdev_device *mdev);
-+	u64 (*get_features)(struct mdev_device *mdev);
-+	int (*set_features)(struct mdev_device *mdev, u64 features);
-+	void (*set_config_cb)(struct mdev_device *mdev,
-+			      struct virtio_mdev_callback *cb);
-+	u16 (*get_queue_max)(struct mdev_device *mdev);
-+	u32 (*get_device_id)(struct mdev_device *mdev);
-+	u32 (*get_vendor_id)(struct mdev_device *mdev);
-+	u8 (*get_status)(struct mdev_device *mdev);
-+	void (*set_status)(struct mdev_device *mdev, u8 status);
-+	void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-+			   void *buf, unsigned int len);
-+	void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-+			   const void *buf, unsigned int len);
-+	int (*get_version)(struct mdev_device *mdev);
-+	u32 (*get_generation)(struct mdev_device *mdev);
-+};
-+
-+#endif
-+
--- 
-2.19.1
+struct vfio_region_zpci_info {
+	<..>
+	__u8 util_str[CLP_UTIL_STR_LEN_OLD];
+	/* END OF V1 */
+	__u8 foo;
+	/* END OF V2 */
+	__u8 util_str2[CLP_UTIL_STR_LEN_NEW-CLP_UTIL_STR_LEN_OLD];
+	/* END OF V3 */
+} __packed;
+
+
+>>
+>>>> + *
+>>>> + */
+>>>> +struct vfio_region_zpci_info {
+>>>> +	__u64 dasm;
+>>>> +	__u64 start_dma;
+>>>> +	__u64 end_dma;
+>>>> +	__u64 msi_addr;
+>>>> +	__u64 flags;
+>>>> +	__u16 pchid;
+>>>> +	__u16 mui;
+>>>> +	__u16 noi;
+>>>> +	__u16 maxstbl;
+>>>> +	__u8 version;
+>>>> +	__u8 gid;
+>>>> +#define VFIO_PCI_ZDEV_FLAGS_REFRESH 1
+>>>> +	__u8 util_str[];
+>>>> +} __packed;
+>>>> +
+>>>> +#endif  
+>>>
+>>>   
+>>
+> 
