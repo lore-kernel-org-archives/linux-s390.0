@@ -1,216 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42440 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390765AbfITIYd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Sep 2019 04:24:33 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V2 3/6] mdev: introduce virtio device and its device ops
-Date: Fri, 20 Sep 2019 16:20:47 +0800
-Message-Id: <20190920082050.19352-4-jasowang@redhat.com>
-In-Reply-To: <20190920082050.19352-1-jasowang@redhat.com>
-References: <20190920082050.19352-1-jasowang@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42046 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404191AbfITPx5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Sep 2019 11:53:57 -0400
+Subject: Re: [PATCH v4 4/4] vfio: pci: Using a device region to retrieve zPCI
+ information
+References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+ <1567815231-17940-5-git-send-email-mjrosato@linux.ibm.com>
+ <20190919172505.2eb075f8.cohuck@redhat.com>
+ <c5c5c46e-371b-5be0-064a-b89195cdc3f6@linux.ibm.com>
+ <20190920162607.16198c92.cohuck@redhat.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <f25bfba5-96b0-3072-f082-9592a56edbe2@linux.ibm.com>
+Date: Fri, 20 Sep 2019 11:53:41 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190920162607.16198c92.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, Jason Wang <jasowang@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: sebott@linux.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
 
-This patch implements basic support for mdev driver that support
-virtio transport for kernel driver.
+On 9/20/19 10:26 AM, Cornelia Huck wrote:
+> On Thu, 19 Sep 2019 16:57:10 -0400
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> 
+>> On 9/19/19 11:25 AM, Cornelia Huck wrote:
+>>> On Fri,  6 Sep 2019 20:13:51 -0400
+>>> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+>>>   
+>>>> From: Pierre Morel <pmorel@linux.ibm.com>
+>>>>
+>>>> We define a new configuration entry for VFIO/PCI, VFIO_PCI_ZDEV
+>>>>
+>>>> When the VFIO_PCI_ZDEV feature is configured we initialize
+>>>> a new device region, VFIO_REGION_SUBTYPE_ZDEV_CLP, to hold
+>>>> the information from the ZPCI device the use
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>>>> ---
+>>>>  drivers/vfio/pci/Kconfig            |  7 +++
+>>>>  drivers/vfio/pci/Makefile           |  1 +
+>>>>  drivers/vfio/pci/vfio_pci.c         |  9 ++++
+>>>>  drivers/vfio/pci/vfio_pci_private.h | 10 +++++
+>>>>  drivers/vfio/pci/vfio_pci_zdev.c    | 85 +++++++++++++++++++++++++++++++++++++
+>>>>  5 files changed, 112 insertions(+)
+>>>>  create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
+>>>>
+>>>> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+>>>> index ac3c1dd..d4562a8 100644
+>>>> --- a/drivers/vfio/pci/Kconfig
+>>>> +++ b/drivers/vfio/pci/Kconfig
+>>>> @@ -45,3 +45,10 @@ config VFIO_PCI_NVLINK2
+>>>>  	depends on VFIO_PCI && PPC_POWERNV
+>>>>  	help
+>>>>  	  VFIO PCI support for P9 Witherspoon machine with NVIDIA V100 GPUs
+>>>> +
+>>>> +config VFIO_PCI_ZDEV
+>>>> +	bool "VFIO PCI Generic for ZPCI devices"
+>>>> +	depends on VFIO_PCI && S390
+>>>> +	default y
+>>>> +	help
+>>>> +	  VFIO PCI support for S390 Z-PCI devices  
+>>>   
+>>> >From that description, I'd have no idea whether I'd want that or not.  
+>>> Is there any downside to enabling it?
+>>>   
+>>
+>> :) Not really, you're just getting information from the hardware vs
+>> using hard-coded defaults.  The only reason I could think of to turn it
+>> off would be if you wanted/needed to restore this hard-coded behavior.
+> 
+> I'm not really sure whether that's worth adding a Kconfig switch for.
+> Won't older versions simply ignore the new region anyway?
+> 
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vfio/mdev/mdev_core.c |   7 ++
- include/linux/mdev.h          |   3 +
- include/linux/virtio_mdev.h   | 141 ++++++++++++++++++++++++++++++++++
- 3 files changed, 151 insertions(+)
- create mode 100644 include/linux/virtio_mdev.h
+Yes, you have a point here...  This switch showed up in v3 of this
+series when Pierre changed to using a region to pass this info and I
+haven't yet found a 'why' he decided to add the Kconfig switch.  If I
+can't convince myself of a reason to keep it, I'll just remove it from
+the next version.
 
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index a02c256a3514..6d39caf96222 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -220,6 +220,13 @@ int mdev_register_vfio_device(struct device *dev,
- }
- EXPORT_SYMBOL(mdev_register_vfio_device);
- 
-+int mdev_register_virtio_device(struct device *dev,
-+				const struct mdev_parent_ops *ops)
-+{
-+	return mdev_register_device(dev, ops, MDEV_ID_VIRTIO);
-+}
-+EXPORT_SYMBOL(mdev_register_virtio_device);
-+
- /*
-  * mdev_unregister_device : Unregister a parent device
-  * @dev: device structure representing parent device.
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 99fdfd74433d..780150c61493 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -109,6 +109,8 @@ extern struct bus_type mdev_bus_type;
- 
- int mdev_register_vfio_device(struct device *dev,
-                               const struct mdev_parent_ops *ops);
-+int mdev_register_virtio_device(struct device *dev,
-+				const struct mdev_parent_ops *ops);
- void mdev_unregister_device(struct device *dev);
- 
- int mdev_register_driver(struct mdev_driver *drv, struct module *owner);
-@@ -119,5 +121,6 @@ struct device *mdev_dev(struct mdev_device *mdev);
- struct mdev_device *mdev_from_dev(struct device *dev);
- 
- #define MDEV_ID_VFIO 1 /* VFIO device */
-+#define MDEV_ID_VIRTIO 2 /* Virtio Device */
- 
- #endif /* MDEV_H */
-diff --git a/include/linux/virtio_mdev.h b/include/linux/virtio_mdev.h
-new file mode 100644
-index 000000000000..003314a76f5b
---- /dev/null
-+++ b/include/linux/virtio_mdev.h
-@@ -0,0 +1,141 @@
-+/*
-+ * Virtio mediated device driver
-+ *
-+ * Copyright 2019, Red Hat Corp.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ */
-+#ifndef _LINUX_VIRTIO_MDEV_H
-+#define _LINUX_VIRTIO_MDEV_H
-+
-+#include <linux/interrupt.h>
-+#include <uapi/linux/vhost.h>
-+
-+#define VIRTIO_MDEV_DEVICE_API_STRING		"virtio-mdev"
-+
-+struct virtio_mdev_callback {
-+	irqreturn_t (*callback)(void *);
-+	void *private;
-+};
-+
-+/**
-+ * struct vfio_mdev_parent_ops - Structure to be registered for each
-+ * parent device to register the device to virtio-mdev module.
-+ *
-+ * @set_vq_address:		Set the address of virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@desc_area: address of desc area
-+ *				@driver_area: address of driver area
-+ *				@device_area: address of device area
-+ *				Returns integer: success (0) or error (< 0)
-+ * @set_vq_num:		Set the size of virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@num: the size of virtqueue
-+ * @kick_vq:			Kick the virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ * @set_vq_cb:			Set the interrut calback function for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@cb: virtio-mdev interrupt callback structure
-+ * @set_vq_ready:		Set ready status for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@ready: ready (true) not ready(false)
-+ * @get_vq_ready:		Get ready status for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				Returns boolean: ready (true) or not (false)
-+ * @set_vq_state:		Set the state for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				@state: virtqueue state (last_avail_idx)
-+ *				Returns integer: success (0) or error (< 0)
-+ * @get_vq_state:		Get the state for a virtqueue
-+ *				@mdev: mediated device
-+ *				@idx: virtqueue index
-+ *				Returns virtqueue state (last_avail_idx)
-+ * @get_vq_align:		Get the virtqueue align requirement
-+ *				for the device
-+ *				@mdev: mediated device
-+ *				Returns virtqueue algin requirement
-+ * @get_features:		Get virtio features supported by the device
-+ *				@mdev: mediated device
-+ *				Returns the features support by the
-+ *				device
-+ * @get_features:		Set virtio features supported by the driver
-+ *				@mdev: mediated device
-+ *				@features: feature support by the driver
-+ *				Returns integer: success (0) or error (< 0)
-+ * @set_config_cb:		Set the config interrupt callback
-+ *				@mdev: mediated device
-+ *				@cb: virtio-mdev interrupt callback structure
-+ * @get_device_id:		Get virtio device id
-+ *				@mdev: mediated device
-+ *				Returns u32: virtio device id
-+ * @get_vendor_id:		Get virtio vendor id
-+ *				@mdev: mediated device
-+ *				Returns u32: virtio vendor id
-+ * @get_status:		Get the device status
-+ *				@mdev: mediated device
-+ *				Returns u8: virtio device status
-+ * @set_status:		Set the device status
-+ *				@mdev: mediated device
-+ *				@status: virtio device status
-+ * @get_config:		Read from device specific confiugration space
-+ *				@mdev: mediated device
-+ *				@offset: offset from the beginning of
-+ *				configuration space
-+ *				@buf: buffer used to read to
-+ *				@len: the length to read from
-+ *				configration space
-+ * @set_config:		Write to device specific confiugration space
-+ *				@mdev: mediated device
-+ *				@offset: offset from the beginning of
-+ *				configuration space
-+ *				@buf: buffer used to write from
-+ *				@len: the length to write to
-+ *				configration space
-+ * @get_version:		Get the version of virtio mdev device
-+ *				@mdev: mediated device
-+ *				Returns integer: version of the device
-+ * @get_generation:		Get the device generaton
-+ *				@mdev: mediated device
-+ *				Returns u32: device generation
-+ */
-+struct virtio_mdev_parent_ops {
-+	/* Virtqueue ops */
-+	int (*set_vq_address)(struct mdev_device *mdev,
-+			      u16 idx, u64 desc_area, u64 driver_area,
-+			      u64 device_area);
-+	void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-+	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-+	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-+			  struct virtio_mdev_callback *cb);
-+	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-+	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-+	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-+	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-+
-+        /* Device ops */
-+	u16 (*get_vq_align)(struct mdev_device *mdev);
-+	u64 (*get_features)(struct mdev_device *mdev);
-+	int (*set_features)(struct mdev_device *mdev, u64 features);
-+	void (*set_config_cb)(struct mdev_device *mdev,
-+			      struct virtio_mdev_callback *cb);
-+	u16 (*get_queue_max)(struct mdev_device *mdev);
-+	u32 (*get_device_id)(struct mdev_device *mdev);
-+	u32 (*get_vendor_id)(struct mdev_device *mdev);
-+	u8 (*get_status)(struct mdev_device *mdev);
-+	void (*set_status)(struct mdev_device *mdev, u8 status);
-+	void (*get_config)(struct mdev_device *mdev, unsigned offset,
-+			   void *buf, unsigned len);
-+	void (*set_config)(struct mdev_device *mdev, unsigned offset,
-+			   const void *buf, unsigned len);
-+	int (*get_version)(struct mdev_device *mdev);
-+	u32 (*get_generation)(struct mdev_device *mdev);
-+};
-+
-+#endif
-+
--- 
-2.19.1
+> Also, I don't think we have any migration compatibility issues, as
+> vfio-pci devices are not (yet) migrateable anyway.
+> 
+>>
+>> bool "VFIO PCI support for generic ZPCI devices" ?
+> 
+> "Support zPCI-specific configuration for VFIO PCI" ?
+> 
+>>
+>> "Support for sharing ZPCI hardware device information between the host
+>> and guests." ?
+> 
+> "Enabling this options exposes a region containing hardware
+> configuration for zPCI devices. This enables userspace (e.g. QEMU) to
+> supply proper configuration values instead of hard-coded defaults for
+> zPCI devices passed through via VFIO on s390.
+> 
+> Say Y here."
+> 
+> ?
+>
+
+Your descriptions are much better - thanks for the feedback!
