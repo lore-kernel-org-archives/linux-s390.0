@@ -1,104 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38798 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728794AbfIKQlH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Sep 2019 12:41:07 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] s390/cio: fix intparm documentation
-Date: Wed, 11 Sep 2019 18:41:03 +0200
-Message-Id: <20190911164103.16156-1-cohuck@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29004 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2392297AbfITPoM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Sep 2019 11:44:12 -0400
+Subject: Re: [PATCH v6 04/10] s390: vfio-ap: filter CRYCB bits for unavailable
+ queue devices
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+ <1568410018-10833-5-git-send-email-akrowiak@linux.ibm.com>
+ <20190919123434.28a29c00.pasic@linux.ibm.com>
+ <3c81ae10-79fc-d845-571f-66cb84e1227a@linux.ibm.com>
+Message-ID: <a587f900-352b-ae82-0c86-6c0fb173315e@linux.ibm.com>
+Date: Fri, 20 Sep 2019 11:44:05 -0400
 MIME-Version: 1.0
+In-Reply-To: <3c81ae10-79fc-d845-571f-66cb84e1227a@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com
 
-The common I/O layer is maintaining an "intparm" inspired by
-the hardware intparm for driver usage. This "intparm" is not
-only applicaple for ssch, but also for hsch/csch. The kerneldoc
-states that it is only updated for hsch/csch if no prior request
-is pending; however, this is not what the code does (whether
-that would actually desireable is a different issue.)
+On 9/20/19 10:24 AM, Tony Krowiak wrote:
+> On 9/19/19 6:34 AM, Halil Pasic wrote:
+>> On Fri, 13 Sep 2019 17:26:52 -0400
+>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>
+>>> +static void vfio_ap_mdev_get_crycb_matrix(struct ap_matrix_mdev 
+>>> *matrix_mdev)
+>>> +{
+>>> +    unsigned long apid, apqi;
+>>> +    unsigned long masksz = BITS_TO_LONGS(AP_DEVICES) *
+>>> +                   sizeof(unsigned long);
+>>> +
+>>> +    memset(matrix_mdev->crycb.apm, 0, masksz);
+>>> +    memset(matrix_mdev->crycb.apm, 0, masksz);
+>>> +    memcpy(matrix_mdev->crycb.adm, matrix_mdev->matrix.adm, masksz);
+>>> +
+>>> +    for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
+>>> +                 matrix_mdev->matrix.apm_max + 1) {
+>>> +        for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+>>> +                     matrix_mdev->matrix.aqm_max + 1) {
+>>> +            if (vfio_ap_find_queue(AP_MKQID(apid, apqi))) {
+>>> +                if (!test_bit_inv(apid, matrix_mdev->crycb.apm))
+>>> +                    set_bit_inv(apid,
+>>> +                            matrix_mdev->crycb.apm);
+>>> +                if (!test_bit_inv(apqi, matrix_mdev->crycb.aqm))
+>>> +                    set_bit_inv(apqi,
+>>> +                            matrix_mdev->crycb.aqm);
+>>> +            }
+>>> +        }
+>>> +    }
+>>> +}
+>>
+>> Even with the discussed typo fixed (zero crycb.aqm) this procedure does
+>> not make sense to me. :(
+>>
+>> If in doubt please consider the following example:
+>> matrix_mdev->matrix.apm and matrix_mdev->matrix.aqm have both just bits
+>> 0 and 1 set (i.e. first byte 0xC0 the rest of the bytes 0x0). Queues
+>> bound to the vfio_ap driver (0,0), (0,1), (1,0); not bound to vfio_ap is
+>> however (1,1). If I read this correctly this filtering logic would grant
+>> access to (1,1) which seems to contradict with the stated intention.
+> 
+> Yep, I see your point. I'll have to rework this code.
 
-Let's at least fix the kerneldoc for now.
+As I see it, we have two choices here:
 
-Fixes: b2ffd8e9a76e ("[S390] cio: Add docbook comments.")
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/device_ops.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+1. Do not set bit 1 in the APM of the guest's CRYCB because queue
+    01.0001 is not bound to the vfio_ap device driver. This would
+    preclude guest access to any domain in adapter 1 - i.e., the
+    guest would have access to queues 00.0000 and 00.0001.
 
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index d722458c5928..65841af15748 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -124,9 +124,7 @@ EXPORT_SYMBOL(ccw_device_is_multipath);
- /**
-  * ccw_device_clear() - terminate I/O request processing
-  * @cdev: target ccw device
-- * @intparm: interruption parameter; value is only used if no I/O is
-- *	     outstanding, otherwise the intparm associated with the I/O request
-- *	     is returned
-+ * @intparm: interruption parameter to be returned upon conclusion of csch
-  *
-  * ccw_device_clear() calls csch on @cdev's subchannel.
-  * Returns:
-@@ -179,6 +177,9 @@ int ccw_device_clear(struct ccw_device *cdev, unsigned long intparm)
-  * completed during the time specified by @expires. If a timeout occurs, the
-  * channel program is terminated via xsch, hsch or csch, and the device's
-  * interrupt handler will be called with an irb containing ERR_PTR(-%ETIMEDOUT).
-+ * The interruption handler will echo back the @intparm specified here, unless
-+ * another interruption parameter is specified by a subsequent invocation of
-+ * ccw_device_halt() or ccw_device_clear().
-  * Returns:
-  *  %0, if the operation was successful;
-  *  -%EBUSY, if the device is busy, or status pending;
-@@ -256,6 +257,9 @@ int ccw_device_start_timeout_key(struct ccw_device *cdev, struct ccw1 *cpa,
-  * Start a S/390 channel program. When the interrupt arrives, the
-  * IRQ handler is called, either immediately, delayed (dev-end missing,
-  * or sense required) or never (no IRQ handler registered).
-+ * The interruption handler will echo back the @intparm specified here, unless
-+ * another interruption parameter is specified by a subsequent invocation of
-+ * ccw_device_halt() or ccw_device_clear().
-  * Returns:
-  *  %0, if the operation was successful;
-  *  -%EBUSY, if the device is busy, or status pending;
-@@ -287,6 +291,9 @@ int ccw_device_start_key(struct ccw_device *cdev, struct ccw1 *cpa,
-  * Start a S/390 channel program. When the interrupt arrives, the
-  * IRQ handler is called, either immediately, delayed (dev-end missing,
-  * or sense required) or never (no IRQ handler registered).
-+ * The interruption handler will echo back the @intparm specified here, unless
-+ * another interruption parameter is specified by a subsequent invocation of
-+ * ccw_device_halt() or ccw_device_clear().
-  * Returns:
-  *  %0, if the operation was successful;
-  *  -%EBUSY, if the device is busy, or status pending;
-@@ -322,6 +329,9 @@ int ccw_device_start(struct ccw_device *cdev, struct ccw1 *cpa,
-  * completed during the time specified by @expires. If a timeout occurs, the
-  * channel program is terminated via xsch, hsch or csch, and the device's
-  * interrupt handler will be called with an irb containing ERR_PTR(-%ETIMEDOUT).
-+ * The interruption handler will echo back the @intparm specified here, unless
-+ * another interruption parameter is specified by a subsequent invocation of
-+ * ccw_device_halt() or ccw_device_clear().
-  * Returns:
-  *  %0, if the operation was successful;
-  *  -%EBUSY, if the device is busy, or status pending;
-@@ -343,11 +353,12 @@ int ccw_device_start_timeout(struct ccw_device *cdev, struct ccw1 *cpa,
- /**
-  * ccw_device_halt() - halt I/O request processing
-  * @cdev: target ccw device
-- * @intparm: interruption parameter; value is only used if no I/O is
-- *	     outstanding, otherwise the intparm associated with the I/O request
-- *	     is returned
-+ * @intparm: interruption parameter to be returned upon conclusion of hsch
-  *
-  * ccw_device_halt() calls hsch on @cdev's subchannel.
-+ * The interruption handler will echo back the @intparm specified here, unless
-+ * another interruption parameter is specified by a subsequent invocation of
-+ * ccw_device_clear().
-  * Returns:
-  *  %0 on success,
-  *  -%ENODEV on device not operational,
--- 
-2.20.1
+2. Do not set bit 1 in the AQM of the guest's CRYCB because queue
+    01.0001 is not bound to the vfio_ap device driver. This would
+    preclude guest access to domain 1 in both adapters - i.e., the
+    guest would have access to queues 00.0000 and 01.0000.
+
+There are ramifications for either choice. For example, if only one
+adapter is assigned to the mdev, then option 1 will result in the
+guest not having access to any AP queues. Likewise, the guest will
+not get access to any AP queues if only one domain is assigned to
+the mdev. Neither choice is optimal, but option 1 seems to make sense
+because it somewhat models the behavior of the host system. For example,
+only AP adapters can be configured online/offline and in order to
+add/remove domains, an adapter must first be configured offline.
+
+> 
+>>
+>> Regards,
+>> Halil
+>>
+>>
+>>
+> 
