@@ -1,81 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35190 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725955AbfIAUf6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Sep 2019 16:35:58 -0400
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4/9] crypto: x86 - Rename functions to avoid conflict with crypto/sha256.h
-Date: Sun,  1 Sep 2019 22:35:27 +0200
-Message-Id: <20190901203532.2615-5-hdegoede@redhat.com>
-In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
-References: <20190901203532.2615-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26398 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2437718AbfITIER (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Sep 2019 04:04:17 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8K7bxiF156691
+        for <linux-s390@vger.kernel.org>; Fri, 20 Sep 2019 04:04:16 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2v4sh52buf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 20 Sep 2019 04:04:16 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Fri, 20 Sep 2019 09:04:13 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 0/6] s390x: Add multiboot and smp
+Date: Fri, 20 Sep 2019 10:03:50 +0200
+Message-Id: <20190920080356.1948-1-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Rename static / file-local functions so that they do not conflict with
-the functions declared in crypto/sha256.h.
+Cross testing emulated instructions has in the past brought up some
+issues on all available IBM Z hypervisors. So let's upstream the last
+part of multiboot: sclp interrupts and line mode console.
 
-This is a preparation patch for folding crypto/sha256.h into crypto/sha.h.
+SMP tests are a great way to excercise external interruptions, cpu
+resets and sigp. The smp library is always initialized and provides
+very rudimentary CPU management for now.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- arch/x86/crypto/sha256_ssse3_glue.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+v3:
+ * Simplified linemode buffering
+ * Removed error constant use
+ * Smaller fixes
 
-diff --git a/arch/x86/crypto/sha256_ssse3_glue.c b/arch/x86/crypto/sha256_ssse3_glue.c
-index 73867da3cbee..f9aff31fe59e 100644
---- a/arch/x86/crypto/sha256_ssse3_glue.c
-+++ b/arch/x86/crypto/sha256_ssse3_glue.c
-@@ -45,8 +45,8 @@ asmlinkage void sha256_transform_ssse3(u32 *digest, const char *data,
- 				       u64 rounds);
- typedef void (sha256_transform_fn)(u32 *digest, const char *data, u64 rounds);
- 
--static int sha256_update(struct shash_desc *desc, const u8 *data,
--			 unsigned int len, sha256_transform_fn *sha256_xform)
-+static int _sha256_update(struct shash_desc *desc, const u8 *data,
-+			  unsigned int len, sha256_transform_fn *sha256_xform)
- {
- 	struct sha256_state *sctx = shash_desc_ctx(desc);
- 
-@@ -84,7 +84,7 @@ static int sha256_finup(struct shash_desc *desc, const u8 *data,
- static int sha256_ssse3_update(struct shash_desc *desc, const u8 *data,
- 			 unsigned int len)
- {
--	return sha256_update(desc, data, len, sha256_transform_ssse3);
-+	return _sha256_update(desc, data, len, sha256_transform_ssse3);
- }
- 
- static int sha256_ssse3_finup(struct shash_desc *desc, const u8 *data,
-@@ -151,7 +151,7 @@ asmlinkage void sha256_transform_avx(u32 *digest, const char *data,
- static int sha256_avx_update(struct shash_desc *desc, const u8 *data,
- 			 unsigned int len)
- {
--	return sha256_update(desc, data, len, sha256_transform_avx);
-+	return _sha256_update(desc, data, len, sha256_transform_avx);
- }
- 
- static int sha256_avx_finup(struct shash_desc *desc, const u8 *data,
-@@ -233,7 +233,7 @@ asmlinkage void sha256_transform_rorx(u32 *digest, const char *data,
- static int sha256_avx2_update(struct shash_desc *desc, const u8 *data,
- 			 unsigned int len)
- {
--	return sha256_update(desc, data, len, sha256_transform_rorx);
-+	return _sha256_update(desc, data, len, sha256_transform_rorx);
- }
- 
- static int sha256_avx2_finup(struct shash_desc *desc, const u8 *data,
-@@ -313,7 +313,7 @@ asmlinkage void sha256_ni_transform(u32 *digest, const char *data,
- static int sha256_ni_update(struct shash_desc *desc, const u8 *data,
- 			 unsigned int len)
- {
--	return sha256_update(desc, data, len, sha256_ni_transform);
-+	return _sha256_update(desc, data, len, sha256_ni_transform);
- }
- 
- static int sha256_ni_finup(struct shash_desc *desc, const u8 *data,
+Janosch Frank (6):
+  s390x: Use interrupts in SCLP and add locking
+  s390x: Add linemode console
+  s390x: Add linemode buffer to fix newline on every print
+  s390x: Add initial smp code
+  s390x: Prepare for external calls
+  s390x: SMP test
+
+ lib/s390x/asm/arch_def.h  |  13 ++
+ lib/s390x/asm/interrupt.h |   5 +
+ lib/s390x/asm/sigp.h      |  28 +++-
+ lib/s390x/interrupt.c     |  27 +++-
+ lib/s390x/io.c            |   5 +-
+ lib/s390x/sclp-console.c  | 218 ++++++++++++++++++++++++++++---
+ lib/s390x/sclp.c          |  55 +++++++-
+ lib/s390x/sclp.h          |  59 ++++++++-
+ lib/s390x/smp.c           | 263 ++++++++++++++++++++++++++++++++++++++
+ lib/s390x/smp.h           |  51 ++++++++
+ s390x/Makefile            |   2 +
+ s390x/cstart64.S          |   7 +
+ s390x/smp.c               | 242 +++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg       |   4 +
+ 14 files changed, 952 insertions(+), 27 deletions(-)
+ create mode 100644 lib/s390x/smp.c
+ create mode 100644 lib/s390x/smp.h
+ create mode 100644 s390x/smp.c
+
 -- 
-2.23.0
+2.17.2
