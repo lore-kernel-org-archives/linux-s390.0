@@ -1,107 +1,487 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44572 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387637AbfIMV1M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Sep 2019 17:27:12 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v6 08/10] s390: vfio-ap: implement in-use callback for vfio_ap driver
-Date: Fri, 13 Sep 2019 17:26:56 -0400
-Message-Id: <1568410018-10833-9-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:42748 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393485AbfITI0D (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Sep 2019 04:26:03 -0400
+From: Jason Wang <jasowang@redhat.com>
+Subject: [RFC PATCH V2 4/6] virtio: introudce a mdev based transport
+Date: Fri, 20 Sep 2019 16:20:48 +0800
+Message-Id: <20190920082050.19352-5-jasowang@redhat.com>
+In-Reply-To: <20190920082050.19352-1-jasowang@redhat.com>
+References: <20190920082050.19352-1-jasowang@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, Jason Wang <jasowang@redhat.com>
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask may
-result in one or APQNs being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if any of the removed APQNs are assigned to any of the matrix
-mdev devices.
+This path introduces a new mdev transport for virtio. This is used to
+use kernel virtio driver to drive the mediated device that is capable
+of populating virtqueue directly.
 
-To ensure that the AP bus apmask/aqmask interfaces are used to control
-which AP queues get manually bound to or unbound from the
-vfio_ap device driver, the bind/unbind sysfs interfaces will
-be disabled for the vfio_ap device driver. The reasons for this are:
+A new virtio-mdev driver will be registered to the mdev bus, when a
+new virtio-mdev device is probed, it will register the device with
+mdev based config ops. This means, unlike the exist hardware
+transport, this is a software transport between mdev driver and mdev
+device. The transport was implemented through device specific ops
+which is a part of mdev_parent_ops now.
 
-* To prevent unbinding an AP queue device from the vfio_ap device
-  driver representing a queue that is assigned to an mdev device.
-
-* To enforce the policy that the the AP resources must first be
-  unassigned from the mdev device - which will hot unplug them from a
-  guest using the mdev device - before changing ownership of APQNs
-  from the vfio_ap driver to a zcrypt driver. This ensures that private
-  crypto data intended for the guest will never be accessible from the
-  host.
-
-* It takes advantage of the AP architecture to prevent dynamic changes
-  to the LPAR configuration using the SE or SCLP commands from
-  compromising the guest crypto devices. For example:
-
-  * Even if an adapter is configured off, if and when it is configured
-    back on, the queue devices associated with the adapter will be bound
-    back to the vfio_ap driver and the queues will automatically be
-    available to a guest using the mdev to which the APQN of the queue
-    device is assigned.
-
-  * If adapters or domains are dynamically unassigned from the LPAR
-    in which the linux guest is running, effective masking will
-    prevent access to the AP resources by a guest using them.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  2 ++
- drivers/s390/crypto/vfio_ap_ops.c     | 11 +++++++++++
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 3 files changed, 15 insertions(+)
+ drivers/vfio/mdev/Kconfig       |   7 +
+ drivers/vfio/mdev/Makefile      |   1 +
+ drivers/vfio/mdev/virtio_mdev.c | 418 ++++++++++++++++++++++++++++++++
+ 3 files changed, 426 insertions(+)
+ create mode 100644 drivers/vfio/mdev/virtio_mdev.c
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 9e61d4c6e6b5..477218e39289 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -173,7 +173,9 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
-+	vfio_ap_drv.driver.suppress_bind_attrs = true;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
- 	if (ret) {
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index f3332424670f..d06fd9f0db23 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1431,3 +1431,14 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	vfio_ap_irq_disable(q);
- 	kfree(q);
- }
+diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
+index 5da27f2100f9..c488c31fc137 100644
+--- a/drivers/vfio/mdev/Kconfig
++++ b/drivers/vfio/mdev/Kconfig
+@@ -16,3 +16,10 @@ config VFIO_MDEV_DEVICE
+ 	default n
+ 	help
+ 	  VFIO based driver for Mediated devices.
 +
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
++config VIRTIO_MDEV_DEVICE
++	tristate "VIRTIO driver for Mediated devices"
++	depends on VFIO_MDEV && VIRTIO
++	default n
++	help
++	  VIRTIO based driver for Mediated devices.
+diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
+index 101516fdf375..99d31e29c23e 100644
+--- a/drivers/vfio/mdev/Makefile
++++ b/drivers/vfio/mdev/Makefile
+@@ -4,3 +4,4 @@ mdev-y := mdev_core.o mdev_sysfs.o mdev_driver.o
+ 
+ obj-$(CONFIG_VFIO_MDEV) += mdev.o
+ obj-$(CONFIG_VFIO_MDEV_DEVICE) += vfio_mdev.o
++obj-$(CONFIG_VIRTIO_MDEV_DEVICE) += virtio_mdev.o
+diff --git a/drivers/vfio/mdev/virtio_mdev.c b/drivers/vfio/mdev/virtio_mdev.c
+new file mode 100644
+index 000000000000..cee73fe392bb
+--- /dev/null
++++ b/drivers/vfio/mdev/virtio_mdev.c
+@@ -0,0 +1,418 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * VIRTIO based driver for Mediated device
++ *
++ * Copyright (c) 2019, Red Hat. All rights reserved.
++ *     Author: Jason Wang <jasowang@redhat.com>
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/uuid.h>
++#include <linux/mdev.h>
++#include <linux/virtio_mdev.h>
++#include <linux/virtio.h>
++#include <linux/virtio_config.h>
++#include <linux/virtio_ring.h>
++#include "mdev_private.h"
++
++#define DRIVER_VERSION  "0.1"
++#define DRIVER_AUTHOR   "Red Hat Corporation"
++#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
++
++#define to_virtio_mdev_device(dev) \
++	container_of(dev, struct virtio_mdev_device, vdev)
++
++struct virtio_mdev_device {
++	struct virtio_device vdev;
++	struct mdev_device *mdev;
++	unsigned long version;
++
++	struct virtqueue **vqs;
++	spinlock_t lock;
++};
++
++struct virtio_mdev_vq_info {
++	/* the actual virtqueue */
++	struct virtqueue *vq;
++
++	/* the list node for the virtqueues list */
++	struct list_head node;
++};
++
++static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
 +{
-+	bool in_use;
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_dev->mdev;
 +
-+	mutex_lock(&matrix_dev->lock);
-+	in_use = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm) ? true : false;
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
++	return mdev;
 +}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 4a4e2c11fdf2..21546bb90240 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -104,4 +104,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
- 
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
 +
- #endif /* _VFIO_AP_PRIVATE_H_ */
++static const struct virtio_mdev_parent_ops
++*mdev_get_parent_ops(struct mdev_device *mdev)
++{
++	struct mdev_parent *parent = mdev->parent;
++
++	return parent->ops->device_ops;
++}
++
++static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
++			    void *buf, unsigned len)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	ops->get_config(mdev, offset, buf, len);
++}
++
++static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
++			    const void *buf, unsigned len)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	ops->set_config(mdev, offset, buf, len);
++}
++
++static u32 virtio_mdev_generation(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	return ops->get_generation(mdev);
++}
++
++static u8 virtio_mdev_get_status(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	return ops->get_status(mdev);
++}
++
++static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	return ops->set_status(mdev, status);
++}
++
++static void virtio_mdev_reset(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	return ops->set_status(mdev, 0);
++}
++
++static bool virtio_mdev_notify(struct virtqueue *vq)
++{
++	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	ops->kick_vq(mdev, vq->index);
++
++	return true;
++}
++
++static irqreturn_t virtio_mdev_config_cb(void *private)
++{
++	struct virtio_mdev_device *vm_dev = private;
++
++	virtio_config_changed(&vm_dev->vdev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
++{
++	struct virtio_mdev_vq_info *info = private;
++
++	return vring_interrupt(0, info->vq);
++}
++
++/* FIXME: return */
++static struct virtqueue *
++virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned index,
++		     void (*callback)(struct virtqueue *vq),
++		     const char *name, bool ctx)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	struct virtio_mdev_vq_info *info;
++	struct virtio_mdev_callback cb;
++	struct virtqueue *vq;
++	u32 align, num;
++	u64 desc_addr, driver_addr, device_addr;
++	int err;
++
++	if (!name)
++		return NULL;
++
++	/* Queue shouldn't already be set up. */
++	if (ops->get_vq_ready(mdev, index)) {
++		err = -ENOENT;
++		goto error_available;
++	}
++
++	/* Allocate and fill out our active queue description */
++	info = kmalloc(sizeof(*info), GFP_KERNEL);
++	if (!info) {
++		err = -ENOMEM;
++		goto error_kmalloc;
++	}
++
++	num = ops->get_queue_max(mdev);
++	if (num == 0) {
++		err = -ENOENT;
++		goto error_new_virtqueue;
++	}
++
++	/* Create the vring */
++	align = ops->get_vq_align(mdev);
++	vq = vring_create_virtqueue(index, num, align, vdev,
++				    true, true, ctx,
++				    virtio_mdev_notify, callback, name);
++	if (!vq) {
++		err = -ENOMEM;
++		goto error_new_virtqueue;
++	}
++
++	/* Setup virtqueue callback */
++	cb.callback = virtio_mdev_virtqueue_cb;
++	cb.private = info;
++	ops->set_vq_cb(mdev, index, &cb);
++	ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
++
++	desc_addr = virtqueue_get_desc_addr(vq);
++	driver_addr = virtqueue_get_avail_addr(vq);
++	device_addr = virtqueue_get_used_addr(vq);
++
++	if (ops->set_vq_address(mdev, index,
++				desc_addr, driver_addr,
++				device_addr)) {
++		err = -EINVAL;
++		goto err_vq;
++	}
++
++	ops->set_vq_ready(mdev, index, 1);
++
++	vq->priv = info;
++	info->vq = vq;
++
++	return vq;
++
++err_vq:
++	vring_del_virtqueue(vq);
++error_new_virtqueue:
++	ops->set_vq_ready(mdev, index, 0);
++	WARN_ON(ops->get_vq_ready(mdev, index));
++	kfree(info);
++error_kmalloc:
++error_available:
++	return ERR_PTR(err);
++
++}
++
++static void virtio_mdev_del_vq(struct virtqueue *vq)
++{
++	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	struct virtio_mdev_vq_info *info = vq->priv;
++	unsigned int index = vq->index;
++
++	/* Select and deactivate the queue */
++	ops->set_vq_ready(mdev, index, 0);
++	WARN_ON(ops->get_vq_ready(mdev, index));
++
++	vring_del_virtqueue(vq);
++
++	kfree(info);
++}
++
++static void virtio_mdev_del_vqs(struct virtio_device *vdev)
++{
++	struct virtqueue *vq, *n;
++
++	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
++		virtio_mdev_del_vq(vq);
++
++	return;
++}
++
++static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
++				struct virtqueue *vqs[],
++				vq_callback_t *callbacks[],
++				const char * const names[],
++				const bool *ctx,
++				struct irq_affinity *desc)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	struct virtio_mdev_callback cb;
++	int i, err, queue_idx = 0;
++	vm_dev->vqs = kmalloc_array(queue_idx, sizeof(*vm_dev->vqs),
++				    GFP_KERNEL);
++	if (!vm_dev->vqs)
++		return -ENOMEM;
++
++	for (i = 0; i < nvqs; ++i) {
++		if (!names[i]) {
++			vqs[i] = NULL;
++			continue;
++		}
++
++		vqs[i] = virtio_mdev_setup_vq(vdev, queue_idx++,
++					      callbacks[i], names[i], ctx ?
++					      ctx[i] : false);
++		if (IS_ERR(vqs[i])) {
++			err = PTR_ERR(vqs[i]);
++			goto err_setup_vq;
++		}
++	}
++
++	cb.callback = virtio_mdev_config_cb;
++	cb.private = vm_dev;
++	ops->set_config_cb(mdev, &cb);
++
++	return 0;
++
++err_setup_vq:
++	kfree(vm_dev->vqs);
++	virtio_mdev_del_vqs(vdev);
++	return err;
++}
++
++static u64 virtio_mdev_get_features(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	return ops->get_features(mdev);
++}
++
++static int virtio_mdev_finalize_features(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++
++	/* Give virtio_ring a chance to accept features. */
++	vring_transport_features(vdev);
++
++	return ops->set_features(mdev, vdev->features);
++}
++
++static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_dev->mdev;
++
++	return dev_name(&mdev->dev);
++}
++
++static const struct virtio_config_ops virtio_mdev_config_ops = {
++	.get		= virtio_mdev_get,
++	.set		= virtio_mdev_set,
++	.generation	= virtio_mdev_generation,
++	.get_status	= virtio_mdev_get_status,
++	.set_status	= virtio_mdev_set_status,
++	.reset		= virtio_mdev_reset,
++	.find_vqs	= virtio_mdev_find_vqs,
++	.del_vqs	= virtio_mdev_del_vqs,
++	.get_features	= virtio_mdev_get_features,
++	.finalize_features = virtio_mdev_finalize_features,
++	.bus_name	= virtio_mdev_bus_name,
++};
++
++static void virtio_mdev_release_dev(struct device *_d)
++{
++	struct virtio_device *vdev =
++	       container_of(_d, struct virtio_device, dev);
++	struct virtio_mdev_device *vm_dev =
++	       container_of(vdev, struct virtio_mdev_device, vdev);
++
++	devm_kfree(_d, vm_dev);
++}
++
++static int virtio_mdev_probe(struct device *dev)
++{
++	struct mdev_device *mdev = to_mdev_device(dev);
++	const struct virtio_mdev_parent_ops *ops = mdev_get_parent_ops(mdev);
++	struct virtio_mdev_device *vm_dev;
++	int rc;
++
++	vm_dev = devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
++	if (!vm_dev)
++		return -ENOMEM;
++
++	vm_dev->vdev.dev.parent = dev;
++	vm_dev->vdev.dev.release = virtio_mdev_release_dev;
++	vm_dev->vdev.config = &virtio_mdev_config_ops;
++	vm_dev->mdev = mdev;
++	vm_dev->vqs = NULL;
++	spin_lock_init(&vm_dev->lock);
++
++	vm_dev->version = ops->get_version(mdev);
++	if (vm_dev->version != 1) {
++		dev_err(dev, "Version %ld not supported!\n",
++			vm_dev->version);
++		return -ENXIO;
++	}
++
++	vm_dev->vdev.id.device = ops->get_device_id(mdev);
++	if (vm_dev->vdev.id.device == 0)
++		return -ENODEV;
++
++	vm_dev->vdev.id.vendor = ops->get_vendor_id(mdev);
++	rc = register_virtio_device(&vm_dev->vdev);
++	if (rc)
++		put_device(dev);
++
++	dev_set_drvdata(dev, vm_dev);
++
++	return rc;
++
++}
++
++static void virtio_mdev_remove(struct device *dev)
++{
++	struct virtio_mdev_device *vm_dev = dev_get_drvdata(dev);
++
++	unregister_virtio_device(&vm_dev->vdev);
++}
++
++static struct mdev_class_id id_table[] = {
++	{ MDEV_ID_VIRTIO },
++	{ 0 },
++};
++
++static struct mdev_driver virtio_mdev_driver = {
++	.name	= "virtio_mdev",
++	.probe	= virtio_mdev_probe,
++	.remove	= virtio_mdev_remove,
++	.id_table = id_table,
++};
++
++static int __init virtio_mdev_init(void)
++{
++	return mdev_register_driver(&virtio_mdev_driver, THIS_MODULE);
++}
++
++static void __exit virtio_mdev_exit(void)
++{
++	mdev_unregister_driver(&virtio_mdev_driver);
++}
++
++module_init(virtio_mdev_init)
++module_exit(virtio_mdev_exit)
++
++MODULE_VERSION(DRIVER_VERSION);
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
 -- 
-2.7.4
+2.19.1
