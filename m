@@ -1,53 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51142 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388411AbfITI1X (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Sep 2019 04:27:23 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH V2 5/6] vringh: fix copy direction of vringh_iov_push_kern()
-Date: Fri, 20 Sep 2019 16:20:49 +0800
-Message-Id: <20190920082050.19352-6-jasowang@redhat.com>
-In-Reply-To: <20190920082050.19352-1-jasowang@redhat.com>
-References: <20190920082050.19352-1-jasowang@redhat.com>
+        id S2407718AbfIVSwO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 22 Sep 2019 14:52:14 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 096/185] s390/kasan: provide uninstrumented __strlen
+Date: Sun, 22 Sep 2019 14:47:54 -0400
+Message-Id: <20190922184924.32534-96-sashal@kernel.org>
+In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
+References: <20190922184924.32534-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, pmorel@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, Jason Wang <jasowang@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-We want to copy from iov to buf, so the direction was wrong.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+[ Upstream commit f45f7b5bdaa4828ce871cf03f7c01599a0de57a5 ]
+
+s390 kasan code uses sclp_early_printk to report initialization
+failures. The code doing that should not be instrumented, because kasan
+shadow memory has not been set up yet. Even though sclp_early_core.c is
+compiled with instrumentation disabled it uses strlen function, which
+is instrumented and would produce shadow memory access if used. To
+avoid that, introduce uninstrumented __strlen function to be used
+instead.
+
+Before commit 7e0d92f00246 ("s390/kasan: improve string/memory functions
+checks") few string functions (including strlen) were escaping kasan
+instrumentation due to usage of platform specific versions which are
+implemented in inline assembly.
+
+Fixes: 7e0d92f00246 ("s390/kasan: improve string/memory functions checks")
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/string.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 08ad0d1f0476..a0a2d74967ef 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -852,6 +852,12 @@ static inline int xfer_kern(void *src, void *dst, size_t len)
- 	return 0;
- }
- 
-+static inline int kern_xfer(void *dst, void *src, size_t len)
-+{
-+	memcpy(dst, src, len);
-+	return 0;
-+}
+diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
+index 70d87db54e627..4c0690fc5167e 100644
+--- a/arch/s390/include/asm/string.h
++++ b/arch/s390/include/asm/string.h
+@@ -71,11 +71,16 @@ extern void *__memmove(void *dest, const void *src, size_t n);
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+ #define memset(s, c, n) __memset(s, c, n)
++#define strlen(s) __strlen(s)
 +
- /**
-  * vringh_init_kern - initialize a vringh for a kernelspace vring.
-  * @vrh: the vringh to initialize.
-@@ -958,7 +964,7 @@ EXPORT_SYMBOL(vringh_iov_pull_kern);
- ssize_t vringh_iov_push_kern(struct vringh_kiov *wiov,
- 			     const void *src, size_t len)
- {
--	return vringh_iov_xfer(wiov, (void *)src, len, xfer_kern);
-+	return vringh_iov_xfer(wiov, (void *)src, len, kern_xfer);
- }
- EXPORT_SYMBOL(vringh_iov_push_kern);
++#define __no_sanitize_prefix_strfunc(x) __##x
  
+ #ifndef __NO_FORTIFY
+ #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
+ #endif
+ 
++#else
++#define __no_sanitize_prefix_strfunc(x) x
+ #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
+ 
+ void *__memset16(uint16_t *s, uint16_t v, size_t count);
+@@ -163,8 +168,8 @@ static inline char *strcpy(char *dst, const char *src)
+ }
+ #endif
+ 
+-#ifdef __HAVE_ARCH_STRLEN
+-static inline size_t strlen(const char *s)
++#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
++static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
+ {
+ 	register unsigned long r0 asm("0") = 0;
+ 	const char *tmp = s;
 -- 
-2.19.1
+2.20.1
