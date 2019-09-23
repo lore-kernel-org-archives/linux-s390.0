@@ -1,70 +1,84 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 11/52] s390/bpf: use 32-bit index for tail calls
-Date: Wed,  4 Sep 2019 11:59:23 -0400
-Message-Id: <20190904160004.3671-11-sashal@kernel.org>
-In-Reply-To: <20190904160004.3671-1-sashal@kernel.org>
-References: <20190904160004.3671-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:37482 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387519AbfIWG1X (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 23 Sep 2019 02:27:23 -0400
+Subject: Re: [PATCH V3 2/2] mm/pgtable/debug: Add test validating architecture
+ page table helpers
+References: <20190921160049.GB13569@xsang-OptiPlex-9020>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <ab7c36ae-0942-d2e3-2a46-924c13a3d999@arm.com>
+Date: Mon, 23 Sep 2019 11:57:29 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20190921160049.GB13569@xsang-OptiPlex-9020>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Yauheni Kaliuta <yauheni.kaliuta@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
+To: kbuild test robot <lkp@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, James Hogan <jhogan@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>, sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, Russell King - ARM Linux <linux@armlinux.org.uk>, Matthew Wilcox <willy@infradead.org>, Steven Price <Steven.Price@arm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, Kees Cook <keescook@chromium.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Mark Brown <broonie@kernel.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Dan Williams <dan.j.williams@intel.com>, Vlastimil Babka <vbabka@suse.cz>, Christophe Leroy <christophe.leroy@c-s.fr>, Sri Krishna chowdary <schowdary@nvidia.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dave Hansen <dave.hansen@intel.com>, linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Paul Burton <paul.burton@mips.com>, kbuild-all@01.org, Vineet Gupta <vgupta@synopsys.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 91b4db5313a2c793aabc2143efb8ed0cf0fdd097 ]
 
-"p runtime/jit: pass > 32bit index to tail_call" fails when
-bpf_jit_enable=1, because the tail call is not executed.
+On 09/21/2019 09:30 PM, kbuild test robot wrote:
+> Hi Anshuman,
+> 
+> Thank you for the patch! Yet something to improve:
+> 
+> [auto build test ERROR on linus/master]
+> [cannot apply to v5.3 next-20190919]
+> [if your patch is applied to the wrong git tree, please drop us a note to help
+> improve the system. BTW, we also suggest to use '--base' option to specify the
+> base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Anshuman-Khandual/mm-debug-Add-tests-for-architecture-exported-page-table-helpers/20190920-143746
+> config: ia64-allmodconfig (attached as .config)
+> compiler: ia64-linux-gcc (GCC) 7.4.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=7.4.0 make.cross ARCH=ia64 
+> :::::: branch date: 3 hours ago
+> :::::: commit date: 3 hours ago
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+> 
+> All error/warnings (new ones prefixed by >>):
+> 
+>    In file included from include/asm-generic/pgtable-nopud.h:8:0,
+>                     from arch/ia64/include/asm/pgtable.h:591,
+>                     from include/linux/mm.h:99,
+>                     from include/linux/highmem.h:8,
+>                     from mm/arch_pgtable_test.c:14:
+>    mm/arch_pgtable_test.c: In function 'pud_clear_tests':
+>>> include/asm-generic/pgtable-nop4d-hack.h:47:32: error: implicit declaration of function '__pgd'; did you mean '__p4d'? [-Werror=implicit-function-declaration]
+>     #define __pud(x)    ((pud_t) { __pgd(x) })
+>                                    ^
+>>> mm/arch_pgtable_test.c:162:8: note: in expansion of macro '__pud'
+>      pud = __pud(pud_val(pud) | RANDOM_ORVALUE);
+>            ^~~~~
+>>> include/asm-generic/pgtable-nop4d-hack.h:47:22: warning: missing braces around initializer [-Wmissing-braces]
+>     #define __pud(x)    ((pud_t) { __pgd(x) })
+>                          ^
+>>> mm/arch_pgtable_test.c:162:8: note: in expansion of macro '__pud'
+>      pud = __pud(pud_val(pud) | RANDOM_ORVALUE);
+>            ^~~~~
+>    cc1: some warnings being treated as errors
+> 
+> # https://github.com/0day-ci/linux/commit/49047f93b076974eefa5b019311bd3b734d61f8c
+> git remote add linux-review https://github.com/0day-ci/linux
+> git remote update linux-review
+> git checkout 49047f93b076974eefa5b019311bd3b734d61f8c
+> vim +47 include/asm-generic/pgtable-nop4d-hack.h
+> 
+> 30ec842660bd0d Kirill A. Shutemov 2017-03-09  45  
+> 30ec842660bd0d Kirill A. Shutemov 2017-03-09  46  #define pud_val(x)				(pgd_val((x).pgd))
+> 30ec842660bd0d Kirill A. Shutemov 2017-03-09 @47  #define __pud(x)				((pud_t) { __pgd(x) })
 
-This in turn is because the generated code assumes index is 64-bit,
-while it must be 32-bit, and as a result prog array bounds check fails,
-while it should pass. Even if bounds check would have passed, the code
-that follows uses 64-bit index to compute prog array offset.
+I had mentioned about this build failure in the cover letter. The same
+problem also exists on arm32 platform.
 
-Fix by using clrj instead of clgrj for comparing index with array size,
-and also by using llgfr for truncating index to 32 bits before using it
-to compute prog array offset.
-
-Fixes: 6651ee070b31 ("s390/bpf: implement bpf_tail_call() helper")
-Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/net/bpf_jit_comp.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index a3ce1fdc3d802..2617e426c7926 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -1015,8 +1015,8 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		/* llgf %w1,map.max_entries(%b2) */
- 		EMIT6_DISP_LH(0xe3000000, 0x0016, REG_W1, REG_0, BPF_REG_2,
- 			      offsetof(struct bpf_array, map.max_entries));
--		/* clgrj %b3,%w1,0xa,label0: if %b3 >= %w1 goto out */
--		EMIT6_PCREL_LABEL(0xec000000, 0x0065, BPF_REG_3,
-+		/* clrj %b3,%w1,0xa,label0: if (u32)%b3 >= (u32)%w1 goto out */
-+		EMIT6_PCREL_LABEL(0xec000000, 0x0077, BPF_REG_3,
- 				  REG_W1, 0, 0xa);
- 
- 		/*
-@@ -1042,8 +1042,10 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp, int i
- 		 *         goto out;
- 		 */
- 
--		/* sllg %r1,%b3,3: %r1 = index * 8 */
--		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, BPF_REG_3, REG_0, 3);
-+		/* llgfr %r1,%b3: %r1 = (u32) index */
-+		EMIT4(0xb9160000, REG_1, BPF_REG_3);
-+		/* sllg %r1,%r1,3: %r1 *= 8 */
-+		EMIT6_DISP_LH(0xeb000000, 0x000d, REG_1, REG_1, REG_0, 3);
- 		/* lg %r1,prog(%b2,%r1) */
- 		EMIT6_DISP_LH(0xe3000000, 0x0004, REG_1, BPF_REG_2,
- 			      REG_1, offsetof(struct bpf_array, ptrs));
--- 
-2.20.1
+- Anshuman
