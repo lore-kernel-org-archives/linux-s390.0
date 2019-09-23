@@ -1,82 +1,230 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59336 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10822 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730914AbfIEIkl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Sep 2019 04:40:41 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x858bZIR032767
-        for <linux-s390@vger.kernel.org>; Thu, 5 Sep 2019 04:40:40 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2usu18k54q-1
+        by vger.kernel.org with ESMTP id S2394414AbfIWMfM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 23 Sep 2019 08:35:12 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8NCV1Tm140149
+        for <linux-s390@vger.kernel.org>; Mon, 23 Sep 2019 08:35:11 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2v6x4g02wd-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Sep 2019 04:40:39 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 23 Sep 2019 08:35:10 -0400
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 5 Sep 2019 09:40:37 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [GIT PULL 7/8] KVM: s390: Disallow invalid bits in kvm_valid_regs and kvm_dirty_regs
-Date: Thu,  5 Sep 2019 10:40:08 +0200
-In-Reply-To: <20190905084009.26106-1-frankja@linux.ibm.com>
-References: <20190905084009.26106-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20190905084009.26106-8-frankja@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Mon, 23 Sep 2019 13:35:08 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: [RFC PATCH 2/3] s390/virtio: fix virtio-ccw DMA without PV
+Date: Mon, 23 Sep 2019 14:34:17 +0200
+In-Reply-To: <20190923123418.22695-1-pasic@linux.ibm.com>
+References: <20190923123418.22695-1-pasic@linux.ibm.com>
+Message-Id: <20190923123418.22695-3-pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, rkrcmar@redhat.com
-Cc: kvm@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com
+To: Christoph Hellwig <hch@lst.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
 
-From: Thomas Huth <thuth@redhat.com>
+Commit 37db8985b211 ("s390/cio: add basic protected virtualization
+support") breaks virtio-ccw devices with VIRTIO_F_IOMMU_PLATFORM for non
+Protected Virtualization (PV) guests. The problem is that the dma_mask
+of the ccw device, which is used by virtio core, gets changed from 64 to
+31 bit, because some of the DMA allocations do require 31 bit
+addressable memory. For PV the only drawback is that some of the virtio
+structures must end up in ZONE_DMA because we have the bounce the
+buffers mapped via DMA API anyway.
 
-If unknown bits are set in kvm_valid_regs or kvm_dirty_regs, this
-clearly indicates that something went wrong in the KVM userspace
-application. The x86 variant of KVM already contains a check for
-bad bits, so let's do the same on s390x now, too.
+But for non PV guests we have a problem: because of the 31 bit mask
+guests bigger than 2G are likely to try bouncing buffers. The swiotlb
+however is only initialized for PV guests, because we don't want to
+bounce anything for non PV guests. The first such map kills the guest.
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Link: https://lore.kernel.org/lkml/20190904085200.29021-2-thuth@redhat.com/
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Let us go back to differentiating between allocations that need to be
+from ZONE_DMA and the ones that don't using the GFP_DMA flag. For that
+we need to make sure dma_override_gfp_flags() won't clear away GFP_DMA
+like it does by default. Then we can fix the dma_mask. CCW devices are
+very well capable of  DMA-ing data to/from any address, it is just that
+certain things need do be 31 addressable because of the 31 bit heritage.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
 ---
- arch/s390/include/uapi/asm/kvm.h | 6 ++++++
- arch/s390/kvm/kvm-s390.c         | 4 ++++
- 2 files changed, 10 insertions(+)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 47104e5b47fd..436ec7636927 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -231,6 +231,12 @@ struct kvm_guest_debug_arch {
- #define KVM_SYNC_GSCB   (1UL << 9)
- #define KVM_SYNC_BPBC   (1UL << 10)
- #define KVM_SYNC_ETOKEN (1UL << 11)
-+
-+#define KVM_SYNC_S390_VALID_FIELDS \
-+	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
-+	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
-+	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
-+
- /* length and alignment of the sdnx as a power of two */
- #define SDNXC 8
- #define SDNXL (1UL << SDNXC)
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d41c091546b7..a3d4527ac23b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4008,6 +4008,10 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	if (kvm_run->immediate_exit)
- 		return -EINTR;
+I was conservative about preserving old behavior for PCI. Could we just
+not clear any flags in dma_override_gfp_flags()?
+---
+ arch/s390/Kconfig             |  1 +
+ arch/s390/include/asm/cio.h   |  5 +++--
+ arch/s390/mm/init.c           | 20 ++++++++++++++++++++
+ drivers/s390/cio/css.c        | 16 +++++++++-------
+ drivers/s390/cio/device.c     |  5 +++--
+ drivers/s390/cio/device_ops.c |  3 ++-
+ 6 files changed, 38 insertions(+), 12 deletions(-)
+
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index f933a473b128..e61351b61ce7 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -60,6 +60,7 @@ config S390
+ 	def_bool y
+ 	select ARCH_BINFMT_ELF_STATE
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
++	select ARCH_HAS_DMA_OVERRIDE_GFP_FLAGS
+ 	select ARCH_HAS_ELF_RANDOMIZE
+ 	select ARCH_HAS_FORTIFY_SOURCE
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index b5bfb3123cb1..32041ec48170 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -364,10 +364,11 @@ extern void cio_dma_free(void *cpu_addr, size_t size);
+ extern struct device *cio_get_dma_css_dev(void);
  
-+	if (kvm_run->kvm_valid_regs & ~KVM_SYNC_S390_VALID_FIELDS ||
-+	    kvm_run->kvm_dirty_regs & ~KVM_SYNC_S390_VALID_FIELDS)
-+		return -EINVAL;
-+
- 	vcpu_load(vcpu);
+ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+-			size_t size);
++			size_t size, gfp_t flags);
+ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size);
+ void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev);
+-struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages,
++				   gfp_t flags);
  
- 	if (guestdbg_exit_pending(vcpu)) {
+ /* Function from drivers/s390/cio/chsc.c */
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index a124f19f7b3c..757e2cc60a1a 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -161,6 +161,26 @@ bool force_dma_unencrypted(struct device *dev)
+ 	return is_prot_virt_guest();
+ }
+ 
++
++gfp_t dma_override_gfp_flags(struct device *dev, gfp_t flags)
++{
++	gfp_t  taboo_mask;
++	const char *taboo_msg;
++
++	if (dma_is_direct(dev->dma_ops)) {
++		/* cio: we have to mix in some allocations from ZONE_DMA */
++		taboo_mask = __GFP_DMA32 | __GFP_HIGHMEM;
++		taboo_msg = "__GFP_DMA32, __GFP_HIGHMEM";
++	} else {
++		/* pci */
++		taboo_mask = __GFP_DMA | __GFP_DMA32 | __GFP_HIGHMEM;
++		taboo_msg = " __GFP_DMA, __GFP_DMA32, __GFP_HIGHMEM,";
++	}
++	dev_WARN_ONCE(dev, flags & taboo_mask,
++		      "fixme: don't dma_alloc with any of: %s\n", taboo_msg);
++	return flags & ~taboo_mask;
++}
++
+ /* protected virtualization */
+ static void pv_init(void)
+ {
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 22c55816100b..3115602384d7 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -231,7 +231,7 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	 * The physical addresses of some the dma structures that can
+ 	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
+ 	 */
+-	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
++	sch->dev.coherent_dma_mask = DMA_BIT_MASK(64);
+ 	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
+ 	return sch;
+ 
+@@ -1091,7 +1091,8 @@ struct device *cio_get_dma_css_dev(void)
+ 	return &channel_subsystems[0]->device;
+ }
+ 
+-struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
++struct gen_pool *cio_gp_dma_create(struct device *dma_dev,
++				   int nr_pages, gfp_t flags)
+ {
+ 	struct gen_pool *gp_dma;
+ 	void *cpu_addr;
+@@ -1103,7 +1104,7 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages)
+ 		return NULL;
+ 	for (i = 0; i < nr_pages; ++i) {
+ 		cpu_addr = dma_alloc_coherent(dma_dev, PAGE_SIZE, &dma_addr,
+-					      CIO_DMA_GFP);
++					      flags);
+ 		if (!cpu_addr)
+ 			return gp_dma;
+ 		gen_pool_add_virt(gp_dma, (unsigned long) cpu_addr,
+@@ -1134,14 +1135,14 @@ void cio_gp_dma_destroy(struct gen_pool *gp_dma, struct device *dma_dev)
+ static int cio_dma_pool_init(void)
+ {
+ 	/* No need to free up the resources: compiled in */
+-	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1);
++	cio_dma_pool = cio_gp_dma_create(cio_get_dma_css_dev(), 1, CIO_DMA_GFP);
+ 	if (!cio_dma_pool)
+ 		return -ENOMEM;
+ 	return 0;
+ }
+ 
+ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+-			size_t size)
++			size_t size, gfp_t flags)
+ {
+ 	dma_addr_t dma_addr;
+ 	unsigned long addr;
+@@ -1153,7 +1154,7 @@ void *cio_gp_dma_zalloc(struct gen_pool *gp_dma, struct device *dma_dev,
+ 	while (!addr) {
+ 		chunk_size = round_up(size, PAGE_SIZE);
+ 		addr = (unsigned long) dma_alloc_coherent(dma_dev,
+-					 chunk_size, &dma_addr, CIO_DMA_GFP);
++					 chunk_size, &dma_addr, flags);
+ 		if (!addr)
+ 			return NULL;
+ 		gen_pool_add_virt(gp_dma, addr, dma_addr, chunk_size, -1);
+@@ -1179,7 +1180,8 @@ void cio_gp_dma_free(struct gen_pool *gp_dma, void *cpu_addr, size_t size)
+  */
+ void *cio_dma_zalloc(size_t size)
+ {
+-	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(), size);
++	return cio_gp_dma_zalloc(cio_dma_pool, cio_get_dma_css_dev(),
++				 size, CIO_DMA_GFP);
+ }
+ 
+ void cio_dma_free(void *cpu_addr, size_t size)
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 131430bd48d9..7726e9c4d719 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -711,12 +711,13 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
+ 		goto err_priv;
+ 	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
+ 	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
+-	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
++	dma_pool = cio_gp_dma_create(&cdev->dev, 1, GFP_KERNEL | GFP_DMA);
+ 	if (!dma_pool)
+ 		goto err_dma_pool;
+ 	cdev->private->dma_pool = dma_pool;
+ 	cdev->private->dma_area = cio_gp_dma_zalloc(dma_pool, &cdev->dev,
+-					sizeof(*cdev->private->dma_area));
++					sizeof(*cdev->private->dma_area),
++					GFP_KERNEL | GFP_DMA);
+ 	if (!cdev->private->dma_area)
+ 		goto err_dma_area;
+ 	return cdev;
+diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+index d722458c5928..57dcb6175b71 100644
+--- a/drivers/s390/cio/device_ops.c
++++ b/drivers/s390/cio/device_ops.c
+@@ -706,7 +706,8 @@ EXPORT_SYMBOL_GPL(ccw_device_get_schid);
+  */
+ void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
+ {
+-	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
++	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size,
++				 GFP_KERNEL | GFP_DMA);
+ }
+ EXPORT_SYMBOL(ccw_device_dma_zalloc);
+ 
 -- 
-2.20.1
+2.17.1
