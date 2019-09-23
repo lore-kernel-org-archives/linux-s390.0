@@ -1,82 +1,115 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:42657 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730201AbfIHQ5J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Sep 2019 12:57:09 -0400
-Received: by mail-pl1-f195.google.com with SMTP id y1so5425123plp.9
-        for <linux-s390@vger.kernel.org>; Sun, 08 Sep 2019 09:57:08 -0700 (PDT)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V6 4/5] iommu/dma-iommu: Use the dev->coherent_dma_mask
-Date: Sun,  8 Sep 2019 09:56:40 -0700
-Message-Id: <20190908165642.22253-5-murphyt7@tcd.ie>
-In-Reply-To: <20190908165642.22253-1-murphyt7@tcd.ie>
-References: <20190908165642.22253-1-murphyt7@tcd.ie>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 23 Sep 2019 17:25:58 +0200
+From: Petr Vorel <pvorel@suse.cz>
+Subject: s390 EAGAIN on send{msg,to}()/recvmsg() on small MTU and big packet
+ size
+Message-ID: <20190923152558.GA31182@dell5510>
+Reply-To: Petr Vorel <pvorel@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-s390@vger.kernel.org
+Cc: Michal Kubecek <mkubecek@suse.cz>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use the dev->coherent_dma_mask when allocating in the dma-iommu ops api.
+Hi,
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
----
- drivers/iommu/dma-iommu.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+I've found a bug on s390 on small MTU combined with big packet size, using ping
+(of course both within valid ranges, e.g. MTU 552 and packet size 61245).
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index bd09b6b31c4e..0cf52fae1471 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -471,7 +471,7 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
- }
- 
- static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
--		size_t size, int prot)
-+		size_t size, int prot, dma_addr_t dma_mask)
- {
- 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
- 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
-@@ -484,7 +484,7 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
- 
- 	size = iova_align(iovad, size + iova_off);
- 
--	iova = iommu_dma_alloc_iova(domain, size, dma_get_mask(dev), dev);
-+	iova = iommu_dma_alloc_iova(domain, size, dma_mask, dev);
- 	if (!iova)
- 		return DMA_MAPPING_ERROR;
- 
-@@ -735,7 +735,7 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
- 	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	dma_addr_t dma_handle;
- 
--	dma_handle = __iommu_dma_map(dev, phys, size, prot);
-+	dma_handle = __iommu_dma_map(dev, phys, size, prot, dma_get_mask(dev));
- 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    dma_handle != DMA_MAPPING_ERROR)
- 		arch_sync_dma_for_device(dev, phys, size, dir);
-@@ -938,7 +938,8 @@ static dma_addr_t iommu_dma_map_resource(struct device *dev, phys_addr_t phys,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
- 	return __iommu_dma_map(dev, phys, size,
--			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO);
-+			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO,
-+			dma_get_mask(dev));
- }
- 
- static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
-@@ -1041,7 +1042,8 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 	if (!cpu_addr)
- 		return NULL;
- 
--	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot);
-+	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
-+			dev->coherent_dma_mask);
- 	if (*handle == DMA_MAPPING_ERROR) {
- 		__iommu_dma_free(dev, size, cpu_addr);
- 		return NULL;
--- 
-2.20.1
+Below is full reproducer on netns.
+
+I tested it on vanilla: v5.3-rc8 and v4.16.
+I reproduced it on current iputils master which uses sendto()/recvmsg() and on
+older version which uses sendmsg()/recvmsg().
+
+As I'm not aware of any s390 specific socket code in kernel I suspect big endian or something else.
+
+This bug was find with LTP/if-mtu-change.sh.
+
+REPRODUCER:
+LTP_NS="ip netns exec ltp_ns"
+ip net add ltp_ns
+ip li add name ltp_ns_veth1 type veth peer name ltp_ns_veth2
+ip li set dev ltp_ns_veth1 netns ltp_ns
+$LTP_NS ip li set lo up
+
+ip xfrm policy flush
+ip xfrm state flush
+ip link set ltp_ns_veth2 down
+ip route flush dev ltp_ns_veth2
+ip addr flush dev ltp_ns_veth2
+ip link set ltp_ns_veth2 up
+ip addr add 10.0.0.2/24 dev ltp_ns_veth2
+
+$LTP_NS ip xfrm policy flush
+$LTP_NS ip xfrm state flush
+$LTP_NS ip link set ltp_ns_veth1 down
+$LTP_NS ip route flush dev ltp_ns_veth1
+$LTP_NS ip addr flush dev ltp_ns_veth1
+$LTP_NS ip link set ltp_ns_veth1 up
+$LTP_NS ip addr add 10.0.0.1/24 dev ltp_ns_veth1
+
+i=552; ip link set dev ltp_ns_veth2 mtu $i; $LTP_NS ip link set dev ltp_ns_veth1 mtu $i # it's enough to set just one of them
+
+ping -I 10.0.0.2 -c 1 10.0.0.1 -s 61245 # fail
+ping -I 10.0.0.2 -c 1 10.0.0.1 -s 61244 # ok
+
+FAIL (iputils-s20121221 from package, using sendmsg())
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
+sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"\10\0\253_\241\373\0\1\0\0\0\0]wf\330\0\0\0\0\0\6\375\201\20\21\22\23\24\25\26\27"..., 61253}], msg_controllen=0, msg_flags=0}, 0) = 61253
+setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3fff887b588, 0)            = -1 EINTR (Interrupted system call)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
+sigreturn({mask=[]})                    = -1 EINTR (Interrupted system call)
+
+OK (iputils-s20121221 from package, using sendmsg())
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
+sendmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"\10\0\3u\242\266\0\1\0\0\0\0]wgd\0\0\0\0\0\6\340%\20\21\22\23\24\25\26\27"..., 61252}], msg_controllen=0, msg_flags=0}, 0) = 61252
+setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
+recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"E\0\357X2\277\0\0@\1D\343\n\0\0\1\n\0\0\2\0\0\vu\242\266\0\1\0\0\0\0"..., 61380}], msg_controllen=32, [{cmsg_len=32, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /*
+SCM_??? */, ...}], msg_flags=0}, 0) = 61272
+write(1, "61252 bytes from 10.0.0.1: icmp_"..., 5961252 bytes from 10.0.0.1: icmp_seq=1 ttl=64 time=0.442 ms
+) = 59
+
+FAIL (current iputils master, using sendto())
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
+sendto(3, "\10\0\2=\313\315\0\1\0\0\0\0]vH;\0\0\0\0\0\7\233o\20\21\22\23\24\25\26\27"..., 61253, 0, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, 16) = 61253
+setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EAGAIN (Resource temporarily unavailable)
+recvmsg(3, 0x3ffe7e7b388, 0)            = -1 EINTR (Interrupted system call)
+--- SIGALRM {si_signo=SIGALRM, si_code=SI_KERNEL} ---
+sigreturn({mask=[]})                    = -1 EINTR (Interrupted system call)
+
+OK (current iputils master, using sendto())
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(1, TIOCGWINSZ, {ws_row=74, ws_col=273, ws_xpixel=1911, ws_ypixel=1050}) = 0
+sendto(3, "\10\0y\4\313\365\0\1\0\0\0\0]vHw\0\0\0\0\0\4`G\20\21\22\23\24\25\26\27"..., 61252, 0, {sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, 16) = 61252
+setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={10, 0}}, NULL) = 0
+recvmsg(3, {msg_name(16)={sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("10.0.0.1")}, msg_iov(1)=[{"E\0\357Xc$\0\0@\1\24~\n\0\0\1\n\0\0\2\0\0\201\4\313\365\0\1\0\0\0\0"..., 61380}], msg_controllen=32, [{cmsg_len=32, cmsg_level=SOL_SOCKET, cmsg_type=0x1d /*
+SCM_??? */, ...}], msg_flags=0}, 0) = 61272
+write(1, "61252 bytes from 10.0.0.1: icmp_"..., 59) = 59
+
+Kind regards,
+Petr
