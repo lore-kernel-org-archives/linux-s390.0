@@ -1,77 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407718AbfIVSwO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:52:14 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 096/185] s390/kasan: provide uninstrumented __strlen
-Date: Sun, 22 Sep 2019 14:47:54 -0400
-Message-Id: <20190922184924.32534-96-sashal@kernel.org>
-In-Reply-To: <20190922184924.32534-1-sashal@kernel.org>
-References: <20190922184924.32534-1-sashal@kernel.org>
+        id S2394300AbfIXRMJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Sep 2019 13:12:09 -0400
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60EE921BE5
+        for <linux-s390@vger.kernel.org>; Tue, 24 Sep 2019 17:12:08 +0000 (UTC)
+Received: by mail-wm1-f45.google.com with SMTP id x2so1032771wmj.2
+        for <linux-s390@vger.kernel.org>; Tue, 24 Sep 2019 10:12:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190920131907.6886-1-christian.brauner@ubuntu.com> <20190924064420.6353-1-christian.brauner@ubuntu.com>
+In-Reply-To: <20190924064420.6353-1-christian.brauner@ubuntu.com>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Tue, 24 Sep 2019 10:11:55 -0700
+Message-ID: <CALCETrUdjCZ2tyGHuYi0TOQDtxEDAYdv-17=-5MKpfzFdiPNMw@mail.gmail.com>
+Subject: Re: [PATCH v1] seccomp: simplify secure_computing()
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Kees Cook <keescook@chromium.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-um@lists.infradead.org, Andrew Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Will Drewry <wad@chromium.org>, X86 ML <x86@kernel.org>, Borislav Petkov <bp@alien8.de>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On Mon, Sep 23, 2019 at 11:44 PM Christian Brauner
+<christian.brauner@ubuntu.com> wrote:
+>
+> Afaict, the struct seccomp_data argument to secure_computing() is unused
+> by all current callers. So let's remove it.
+> The argument was added in [1]. It was added because having the arch
+> supply the syscall arguments used to be faster than having it done by
+> secure_computing() (cf. Andy's comment in [2]). This is not true anymore
+> though.
+>
+> /* References */
+> [1]: 2f275de5d1ed ("seccomp: Add a seccomp_data parameter secure_computing()")
+> [2]: https://lore.kernel.org/r/CALCETrU_fs_At-hTpr231kpaAd0z7xJN4ku-DvzhRU6cvcJA_w@mail.gmail.com
+>
+> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Will Drewry <wad@chromium.org>
+> Cc: Oleg Nesterov <oleg@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-um@lists.infradead.org
+> Cc: x86@kernel.org
 
-[ Upstream commit f45f7b5bdaa4828ce871cf03f7c01599a0de57a5 ]
-
-s390 kasan code uses sclp_early_printk to report initialization
-failures. The code doing that should not be instrumented, because kasan
-shadow memory has not been set up yet. Even though sclp_early_core.c is
-compiled with instrumentation disabled it uses strlen function, which
-is instrumented and would produce shadow memory access if used. To
-avoid that, introduce uninstrumented __strlen function to be used
-instead.
-
-Before commit 7e0d92f00246 ("s390/kasan: improve string/memory functions
-checks") few string functions (including strlen) were escaping kasan
-instrumentation due to usage of platform specific versions which are
-implemented in inline assembly.
-
-Fixes: 7e0d92f00246 ("s390/kasan: improve string/memory functions checks")
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/include/asm/string.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 70d87db54e627..4c0690fc5167e 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -71,11 +71,16 @@ extern void *__memmove(void *dest, const void *src, size_t n);
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-+#define strlen(s) __strlen(s)
-+
-+#define __no_sanitize_prefix_strfunc(x) __##x
- 
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
- 
-+#else
-+#define __no_sanitize_prefix_strfunc(x) x
- #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
- 
- void *__memset16(uint16_t *s, uint16_t v, size_t count);
-@@ -163,8 +168,8 @@ static inline char *strcpy(char *dst, const char *src)
- }
- #endif
- 
--#ifdef __HAVE_ARCH_STRLEN
--static inline size_t strlen(const char *s)
-+#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
-+static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
- {
- 	register unsigned long r0 asm("0") = 0;
- 	const char *tmp = s;
--- 
-2.20.1
+Acked-by: Andy Lutomirski <luto@kernel.org>
