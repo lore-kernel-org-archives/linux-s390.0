@@ -1,77 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:43338 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:33788 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390495AbfIVSrB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 22 Sep 2019 14:47:01 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 106/203] s390/kasan: provide uninstrumented __strlen
-Date: Sun, 22 Sep 2019 14:42:12 -0400
-Message-Id: <20190922184350.30563-106-sashal@kernel.org>
-In-Reply-To: <20190922184350.30563-1-sashal@kernel.org>
-References: <20190922184350.30563-1-sashal@kernel.org>
+        id S2504665AbfIXLXm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Sep 2019 07:23:42 -0400
+Subject: Re: [PATCH 1/6] mdev: class id support
+References: <20190923130331.29324-1-jasowang@redhat.com>
+ <20190923130331.29324-2-jasowang@redhat.com>
+ <AM0PR05MB486657BB8E48F744D219CF9BD1850@AM0PR05MB4866.eurprd05.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <5b9340a9-35b0-aa97-bb5e-c99d7320b386@redhat.com>
+Date: Tue, 24 Sep 2019 19:23:16 +0800
 MIME-Version: 1.0
+In-Reply-To: <AM0PR05MB486657BB8E48F744D219CF9BD1850@AM0PR05MB4866.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Parav Pandit <parav@mellanox.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "cohuck@redhat.com" <cohuck@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "zhi.a.wang@intel.com" <zhi.a.wang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, Ido Shamay <idos@mellanox.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit f45f7b5bdaa4828ce871cf03f7c01599a0de57a5 ]
+On 2019/9/24 上午5:02, Parav Pandit wrote:
+> Hi Jason,
+>
+>
+>> -----Original Message-----
+>> From: Jason Wang <jasowang@redhat.com>
+>> Sent: Monday, September 23, 2019 8:03 AM
+>> To: kvm@vger.kernel.org; linux-s390@vger.kernel.org; linux-
+>> kernel@vger.kernel.org; dri-devel@lists.freedesktop.org; intel-
+>> gfx@lists.freedesktop.org; intel-gvt-dev@lists.freedesktop.org;
+>> kwankhede@nvidia.com; alex.williamson@redhat.com; mst@redhat.com;
+>> tiwei.bie@intel.com
+>> Cc: virtualization@lists.linux-foundation.org; netdev@vger.kernel.org;
+>> cohuck@redhat.com; maxime.coquelin@redhat.com;
+>> cunming.liang@intel.com; zhihong.wang@intel.com;
+>> rob.miller@broadcom.com; xiao.w.wang@intel.com;
+>> haotian.wang@sifive.com; zhenyuw@linux.intel.com; zhi.a.wang@intel.com;
+>> jani.nikula@linux.intel.com; joonas.lahtinen@linux.intel.com;
+>> rodrigo.vivi@intel.com; airlied@linux.ie; daniel@ffwll.ch;
+>> farman@linux.ibm.com; pasic@linux.ibm.com; sebott@linux.ibm.com;
+>> oberpar@linux.ibm.com; heiko.carstens@de.ibm.com; gor@linux.ibm.com;
+>> borntraeger@de.ibm.com; akrowiak@linux.ibm.com; freude@linux.ibm.com;
+>> lingshan.zhu@intel.com; Ido Shamay <idos@mellanox.com>;
+>> eperezma@redhat.com; lulu@redhat.com; Parav Pandit
+>> <parav@mellanox.com>; Jason Wang <jasowang@redhat.com>
+>> Subject: [PATCH 1/6] mdev: class id support
+>>
+>> Mdev bus only supports vfio driver right now, so it doesn't implement match
+>> method. But in the future, we may add drivers other than vfio, one example is
+>> virtio-mdev[1] driver. This means we need to add device class id support in bus
+>> match method to pair the mdev device and mdev driver correctly.
+>>
+>> So this patch adds id_table to mdev_driver and class_id for mdev parent with
+>> the match method for mdev bus.
+>>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>  Documentation/driver-api/vfio-mediated-device.rst |  7 +++++--
+>>  drivers/gpu/drm/i915/gvt/kvmgt.c                  |  2 +-
+>>  drivers/s390/cio/vfio_ccw_ops.c                   |  2 +-
+>>  drivers/s390/crypto/vfio_ap_ops.c                 |  3 ++-
+>>  drivers/vfio/mdev/mdev_core.c                     | 14 ++++++++++++--
+>>  drivers/vfio/mdev/mdev_driver.c                   | 14 ++++++++++++++
+>>  drivers/vfio/mdev/mdev_private.h                  |  1 +
+>>  drivers/vfio/mdev/vfio_mdev.c                     |  6 ++++++
+>>  include/linux/mdev.h                              |  7 ++++++-
+>>  include/linux/mod_devicetable.h                   |  8 ++++++++
+>>  samples/vfio-mdev/mbochs.c                        |  2 +-
+>>  samples/vfio-mdev/mdpy.c                          |  2 +-
+>>  samples/vfio-mdev/mtty.c                          |  2 +-
+>>  13 files changed, 59 insertions(+), 11 deletions(-)
+>>
+> You additionally need modpost support for id table integration to modifo, modprobe and other tools.
+> A small patch similar to this one [1] is needed.
+> Please include in the series.
+>
+> [1] https://lore.kernel.org/patchwork/patch/1046991/
 
-s390 kasan code uses sclp_early_printk to report initialization
-failures. The code doing that should not be instrumented, because kasan
-shadow memory has not been set up yet. Even though sclp_early_core.c is
-compiled with instrumentation disabled it uses strlen function, which
-is instrumented and would produce shadow memory access if used. To
-avoid that, introduce uninstrumented __strlen function to be used
-instead.
 
-Before commit 7e0d92f00246 ("s390/kasan: improve string/memory functions
-checks") few string functions (including strlen) were escaping kasan
-instrumentation due to usage of platform specific versions which are
-implemented in inline assembly.
+My understanding is this could be done on top and may require uevent
+support for the bus. I can try to implement this in V2.
 
-Fixes: 7e0d92f00246 ("s390/kasan: improve string/memory functions checks")
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/include/asm/string.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Thanks
 
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 70d87db54e627..4c0690fc5167e 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -71,11 +71,16 @@ extern void *__memmove(void *dest, const void *src, size_t n);
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-+#define strlen(s) __strlen(s)
-+
-+#define __no_sanitize_prefix_strfunc(x) __##x
- 
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
- 
-+#else
-+#define __no_sanitize_prefix_strfunc(x) x
- #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
- 
- void *__memset16(uint16_t *s, uint16_t v, size_t count);
-@@ -163,8 +168,8 @@ static inline char *strcpy(char *dst, const char *src)
- }
- #endif
- 
--#ifdef __HAVE_ARCH_STRLEN
--static inline size_t strlen(const char *s)
-+#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
-+static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
- {
- 	register unsigned long r0 asm("0") = 0;
- 	const char *tmp = s;
--- 
-2.20.1
+>
+>
