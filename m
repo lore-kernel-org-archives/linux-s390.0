@@ -1,117 +1,484 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:40645 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727995AbfIZR4W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:22 -0400
-Received: by mail-pf1-f194.google.com with SMTP id x127so2252312pfb.7
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:21 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 00/29] vmlinux.lds.h: Refactor EXCEPTION_TABLE and NOTES
-Date: Thu, 26 Sep 2019 10:55:33 -0700
-Message-Id: <20190926175602.33098-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V2 7/8] virtio: introduce a mdev based transport
+Date: Tue, 24 Sep 2019 21:53:31 +0800
+Message-Id: <20190924135332.14160-8-jasowang@redhat.com>
+In-Reply-To: <20190924135332.14160-1-jasowang@redhat.com>
+References: <20190924135332.14160-1-jasowang@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
 
-This series works to move the linker sections for NOTES and
-EXCEPTION_TABLE into the RO_DATA area, where they belong on most
-(all?) architectures. The problem being addressed was the discovery
-by Rick Edgecombe that the exception table was accidentally marked
-executable while he was developing his execute-only-memory series. When
-permissions were flipped from readable-and-executable to only-executable,
-the exception table became unreadable, causing things to explode rather
-badly. :)
+This patch introduces a new mdev transport for virtio. This is used to
+use kernel virtio driver to drive the mediated device that is capable
+of populating virtqueue directly.
 
-Roughly speaking, the steps are:
+A new virtio-mdev driver will be registered to the mdev bus, when a
+new virtio-mdev device is probed, it will register the device with
+mdev based config ops. This means it is a software transport between
+mdev driver and mdev device. The transport was implemented through
+device specific opswhich is a part of mdev_parent_ops now.
 
-- regularize the linker names for PT_NOTE and PT_LOAD program headers
-  (to "note" and "text" respectively)
-- regularize restoration of linker section to program header assignment
-  (when PT_NOTE exists)
-- move NOTES into RO_DATA
-- finish macro naming conversions for RO_DATA and RW_DATA
-- move EXCEPTION_TABLE into RO_DATA on architectures where this is clear
-- clean up some x86-specific reporting of kernel memory resources
-- switch x86 linker fill byte from x90 (NOP) to 0xcc (INT3), just because
-  I finally realized what that trailing ": 0x9090" meant -- and we should
-  trap, not slide, if execution lands in section padding
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/Kconfig       |   7 +
+ drivers/virtio/Makefile      |   1 +
+ drivers/virtio/virtio_mdev.c | 417 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 425 insertions(+)
+ create mode 100644 drivers/virtio/virtio_mdev.c
 
-Since these changes are treewide, I'd love to get architecture-maintainer
-Acks and either have this live in x86 -tip or in my own tree, however
-people think it should go.
-
-Thanks!
-
--Kees
-
-Kees Cook (29):
-  powerpc: Rename "notes" PT_NOTE to "note"
-  powerpc: Remove PT_NOTE workaround
-  powerpc: Rename PT_LOAD identifier "kernel" to "text"
-  alpha: Rename PT_LOAD identifier "kernel" to "text"
-  ia64: Rename PT_LOAD identifier "code" to "text"
-  s390: Move RO_DATA into "text" PT_LOAD Program Header
-  x86: Restore "text" Program Header with dummy section
-  vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes
-  vmlinux.lds.h: Move Program Header restoration into NOTES macro
-  vmlinux.lds.h: Move NOTES into RO_DATA
-  vmlinux.lds.h: Replace RODATA with RO_DATA
-  vmlinux.lds.h: Replace RO_DATA_SECTION with RO_DATA
-  vmlinux.lds.h: Replace RW_DATA_SECTION with RW_DATA
-  vmlinux.lds.h: Allow EXCEPTION_TABLE to live in RO_DATA
-  x86: Actually use _etext for end of text segment
-  x86: Move EXCEPTION_TABLE to RO_DATA segment
-  alpha: Move EXCEPTION_TABLE to RO_DATA segment
-  arm64: Move EXCEPTION_TABLE to RO_DATA segment
-  c6x: Move EXCEPTION_TABLE to RO_DATA segment
-  h8300: Move EXCEPTION_TABLE to RO_DATA segment
-  ia64: Move EXCEPTION_TABLE to RO_DATA segment
-  microblaze: Move EXCEPTION_TABLE to RO_DATA segment
-  parisc: Move EXCEPTION_TABLE to RO_DATA segment
-  powerpc: Move EXCEPTION_TABLE to RO_DATA segment
-  xtensa: Move EXCEPTION_TABLE to RO_DATA segment
-  x86/mm: Remove redundant &s on addresses
-  x86/mm: Report which part of kernel image is freed
-  x86/mm: Report actual image regions in /proc/iomem
-  x86: Use INT3 instead of NOP for linker fill bytes
-
- arch/alpha/kernel/vmlinux.lds.S      | 18 +++++-----
- arch/arc/kernel/vmlinux.lds.S        |  6 ++--
- arch/arm/kernel/vmlinux-xip.lds.S    |  4 +--
- arch/arm/kernel/vmlinux.lds.S        |  4 +--
- arch/arm64/kernel/vmlinux.lds.S      |  9 ++---
- arch/c6x/kernel/vmlinux.lds.S        |  8 ++---
- arch/csky/kernel/vmlinux.lds.S       |  5 ++-
- arch/h8300/kernel/vmlinux.lds.S      |  9 ++---
- arch/hexagon/kernel/vmlinux.lds.S    |  5 ++-
- arch/ia64/kernel/vmlinux.lds.S       | 20 +++++------
- arch/m68k/kernel/vmlinux-nommu.lds   |  4 +--
- arch/m68k/kernel/vmlinux-std.lds     |  2 +-
- arch/m68k/kernel/vmlinux-sun3.lds    |  2 +-
- arch/microblaze/kernel/vmlinux.lds.S |  8 ++---
- arch/mips/kernel/vmlinux.lds.S       | 15 ++++----
- arch/nds32/kernel/vmlinux.lds.S      |  5 ++-
- arch/nios2/kernel/vmlinux.lds.S      |  5 ++-
- arch/openrisc/kernel/vmlinux.lds.S   |  7 ++--
- arch/parisc/kernel/vmlinux.lds.S     | 11 +++---
- arch/powerpc/kernel/vmlinux.lds.S    | 37 ++++---------------
- arch/riscv/kernel/vmlinux.lds.S      |  5 ++-
- arch/s390/kernel/vmlinux.lds.S       | 12 +++----
- arch/sh/kernel/vmlinux.lds.S         |  3 +-
- arch/sparc/kernel/vmlinux.lds.S      |  3 +-
- arch/um/include/asm/common.lds.S     |  3 +-
- arch/unicore32/kernel/vmlinux.lds.S  |  5 ++-
- arch/x86/include/asm/processor.h     |  2 +-
- arch/x86/include/asm/sections.h      |  1 -
- arch/x86/kernel/setup.c              | 12 ++++++-
- arch/x86/kernel/vmlinux.lds.S        | 16 ++++-----
- arch/x86/mm/init.c                   |  8 ++---
- arch/x86/mm/init_64.c                | 16 +++++----
- arch/x86/mm/pti.c                    |  2 +-
- arch/xtensa/kernel/vmlinux.lds.S     |  8 ++---
- include/asm-generic/vmlinux.lds.h    | 53 ++++++++++++++++++++--------
- 35 files changed, 159 insertions(+), 174 deletions(-)
-
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 078615cf2afc..8d18722ab572 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -43,6 +43,13 @@ config VIRTIO_PCI_LEGACY
+ 
+ 	  If unsure, say Y.
+ 
++config VIRTIO_MDEV_DEVICE
++	tristate "VIRTIO driver for Mediated devices"
++	depends on VFIO_MDEV && VIRTIO
++	default n
++	help
++	  VIRTIO based driver for Mediated devices.
++
+ config VIRTIO_PMEM
+ 	tristate "Support for virtio pmem driver"
+ 	depends on VIRTIO
+diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+index 3a2b5c5dcf46..ebc7fa15ae82 100644
+--- a/drivers/virtio/Makefile
++++ b/drivers/virtio/Makefile
+@@ -6,3 +6,4 @@ virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+ virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
+ obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+ obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
++obj-$(CONFIG_VIRTIO_MDEV_DEVICE) += virtio_mdev.o
+diff --git a/drivers/virtio/virtio_mdev.c b/drivers/virtio/virtio_mdev.c
+new file mode 100644
+index 000000000000..c2f3cb2738bd
+--- /dev/null
++++ b/drivers/virtio/virtio_mdev.c
+@@ -0,0 +1,417 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * VIRTIO based driver for Mediated device
++ *
++ * Copyright (c) 2019, Red Hat. All rights reserved.
++ *     Author: Jason Wang <jasowang@redhat.com>
++ *
++ */
++
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/uuid.h>
++#include <linux/mdev.h>
++#include <linux/virtio_mdev.h>
++#include <linux/virtio.h>
++#include <linux/virtio_config.h>
++#include <linux/virtio_ring.h>
++
++#define DRIVER_VERSION  "0.1"
++#define DRIVER_AUTHOR   "Red Hat Corporation"
++#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
++
++#define to_virtio_mdev_device(dev) \
++	container_of(dev, struct virtio_mdev_device, vdev)
++
++struct virtio_mdev_device {
++	struct virtio_device vdev;
++	struct mdev_device *mdev;
++	unsigned long version;
++
++	struct virtqueue **vqs;
++	/* The lock to protect virtqueue list */
++	spinlock_t lock;
++	struct list_head virtqueues;
++};
++
++struct virtio_mdev_vq_info {
++	/* the actual virtqueue */
++	struct virtqueue *vq;
++
++	/* the list node for the virtqueues list */
++	struct list_head node;
++};
++
++static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_dev->mdev;
++
++	return mdev;
++}
++
++static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
++			    void *buf, unsigned len)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	ops->get_config(mdev, offset, buf, len);
++}
++
++static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
++			    const void *buf, unsigned len)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	ops->set_config(mdev, offset, buf, len);
++}
++
++static u32 virtio_mdev_generation(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	return ops->get_generation(mdev);
++}
++
++static u8 virtio_mdev_get_status(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	return ops->get_status(mdev);
++}
++
++static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	return ops->set_status(mdev, status);
++}
++
++static void virtio_mdev_reset(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	return ops->set_status(mdev, 0);
++}
++
++static bool virtio_mdev_notify(struct virtqueue *vq)
++{
++	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	ops->kick_vq(mdev, vq->index);
++
++	return true;
++}
++
++static irqreturn_t virtio_mdev_config_cb(void *private)
++{
++	struct virtio_mdev_device *vm_dev = private;
++
++	virtio_config_changed(&vm_dev->vdev);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
++{
++	struct virtio_mdev_vq_info *info = private;
++
++	return vring_interrupt(0, info->vq);
++}
++
++static struct virtqueue *
++virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned index,
++		     void (*callback)(struct virtqueue *vq),
++		     const char *name, bool ctx)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++	struct virtio_mdev_vq_info *info;
++	struct virtio_mdev_callback cb;
++	struct virtqueue *vq;
++	u64 desc_addr, driver_addr, device_addr;
++	unsigned long flags;
++	u32 align, num;
++	int err;
++
++	if (!name)
++		return NULL;
++
++	/* Queue shouldn't already be set up. */
++	if (ops->get_vq_ready(mdev, index))
++		return ERR_PTR(-ENOENT);
++
++	/* Allocate and fill out our active queue description */
++	info = kmalloc(sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return ERR_PTR(-ENOMEM);
++
++	num = ops->get_queue_max(mdev);
++	if (num == 0) {
++		err = -ENOENT;
++		goto error_new_virtqueue;
++	}
++
++	/* Create the vring */
++	align = ops->get_vq_align(mdev);
++	vq = vring_create_virtqueue(index, num, align, vdev,
++				    true, true, ctx,
++				    virtio_mdev_notify, callback, name);
++	if (!vq) {
++		err = -ENOMEM;
++		goto error_new_virtqueue;
++	}
++
++	/* Setup virtqueue callback */
++	cb.callback = virtio_mdev_virtqueue_cb;
++	cb.private = info;
++	ops->set_vq_cb(mdev, index, &cb);
++	ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
++
++	desc_addr = virtqueue_get_desc_addr(vq);
++	driver_addr = virtqueue_get_avail_addr(vq);
++	device_addr = virtqueue_get_used_addr(vq);
++
++	if (ops->set_vq_address(mdev, index,
++				desc_addr, driver_addr,
++				device_addr)) {
++		err = -EINVAL;
++		goto err_vq;
++	}
++
++	ops->set_vq_ready(mdev, index, 1);
++
++	vq->priv = info;
++	info->vq = vq;
++
++	spin_lock_irqsave(&vm_dev->lock, flags);
++	list_add(&info->node, &vm_dev->virtqueues);
++	spin_unlock_irqrestore(&vm_dev->lock, flags);
++
++	return vq;
++
++err_vq:
++	vring_del_virtqueue(vq);
++error_new_virtqueue:
++	ops->set_vq_ready(mdev, index, 0);
++	WARN_ON(ops->get_vq_ready(mdev, index));
++	kfree(info);
++	return ERR_PTR(err);
++
++}
++
++static void virtio_mdev_del_vq(struct virtqueue *vq)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vq->vdev);
++	struct mdev_device *mdev = vm_dev->mdev;
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++	struct virtio_mdev_vq_info *info = vq->priv;
++	unsigned int index = vq->index;
++	unsigned long flags;
++
++	spin_lock_irqsave(&vm_dev->lock, flags);
++	list_del(&info->node);
++	spin_unlock_irqrestore(&vm_dev->lock, flags);
++
++	/* Select and deactivate the queue */
++	ops->set_vq_ready(mdev, index, 0);
++	WARN_ON(ops->get_vq_ready(mdev, index));
++
++	vring_del_virtqueue(vq);
++
++	kfree(info);
++}
++
++static void virtio_mdev_del_vqs(struct virtio_device *vdev)
++{
++	struct virtqueue *vq, *n;
++
++	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
++		virtio_mdev_del_vq(vq);
++}
++
++static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
++				struct virtqueue *vqs[],
++				vq_callback_t *callbacks[],
++				const char * const names[],
++				const bool *ctx,
++				struct irq_affinity *desc)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++	struct virtio_mdev_callback cb;
++	int i, err, queue_idx = 0;
++
++	vm_dev->vqs = kmalloc_array(queue_idx, sizeof(*vm_dev->vqs),
++				    GFP_KERNEL);
++	if (!vm_dev->vqs)
++		return -ENOMEM;
++
++	for (i = 0; i < nvqs; ++i) {
++		if (!names[i]) {
++			vqs[i] = NULL;
++			continue;
++		}
++
++		vqs[i] = virtio_mdev_setup_vq(vdev, queue_idx++,
++					      callbacks[i], names[i], ctx ?
++					      ctx[i] : false);
++		if (IS_ERR(vqs[i])) {
++			err = PTR_ERR(vqs[i]);
++			goto err_setup_vq;
++		}
++	}
++
++	cb.callback = virtio_mdev_config_cb;
++	cb.private = vm_dev;
++	ops->set_config_cb(mdev, &cb);
++
++	return 0;
++
++err_setup_vq:
++	kfree(vm_dev->vqs);
++	virtio_mdev_del_vqs(vdev);
++	return err;
++}
++
++static u64 virtio_mdev_get_features(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	return ops->get_features(mdev);
++}
++
++static int virtio_mdev_finalize_features(struct virtio_device *vdev)
++{
++	struct mdev_device *mdev = vm_get_mdev(vdev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++
++	/* Give virtio_ring a chance to accept features. */
++	vring_transport_features(vdev);
++
++	return ops->set_features(mdev, vdev->features);
++}
++
++static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
++{
++	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
++	struct mdev_device *mdev = vm_dev->mdev;
++
++	return dev_name(mdev_dev(mdev));
++}
++
++static const struct virtio_config_ops virtio_mdev_config_ops = {
++	.get		= virtio_mdev_get,
++	.set		= virtio_mdev_set,
++	.generation	= virtio_mdev_generation,
++	.get_status	= virtio_mdev_get_status,
++	.set_status	= virtio_mdev_set_status,
++	.reset		= virtio_mdev_reset,
++	.find_vqs	= virtio_mdev_find_vqs,
++	.del_vqs	= virtio_mdev_del_vqs,
++	.get_features	= virtio_mdev_get_features,
++	.finalize_features = virtio_mdev_finalize_features,
++	.bus_name	= virtio_mdev_bus_name,
++};
++
++static void virtio_mdev_release_dev(struct device *_d)
++{
++	struct virtio_device *vdev =
++	       container_of(_d, struct virtio_device, dev);
++	struct virtio_mdev_device *vm_dev =
++	       container_of(vdev, struct virtio_mdev_device, vdev);
++
++	devm_kfree(_d, vm_dev);
++}
++
++static int virtio_mdev_probe(struct device *dev)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
++	struct virtio_mdev_device *vm_dev;
++	int rc;
++
++	vm_dev = devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
++	if (!vm_dev)
++		return -ENOMEM;
++
++	vm_dev->vdev.dev.parent = dev;
++	vm_dev->vdev.dev.release = virtio_mdev_release_dev;
++	vm_dev->vdev.config = &virtio_mdev_config_ops;
++	vm_dev->mdev = mdev;
++	vm_dev->vqs = NULL;
++	INIT_LIST_HEAD(&vm_dev->virtqueues);
++	spin_lock_init(&vm_dev->lock);
++
++	vm_dev->version = ops->get_version(mdev);
++	if (vm_dev->version != 1) {
++		dev_err(dev, "Version %ld not supported!\n",
++			vm_dev->version);
++		return -ENXIO;
++	}
++
++	vm_dev->vdev.id.device = ops->get_device_id(mdev);
++	if (vm_dev->vdev.id.device == 0)
++		return -ENODEV;
++
++	vm_dev->vdev.id.vendor = ops->get_vendor_id(mdev);
++	rc = register_virtio_device(&vm_dev->vdev);
++	if (rc)
++		put_device(dev);
++	else
++		dev_set_drvdata(dev, vm_dev);
++
++	return rc;
++}
++
++static void virtio_mdev_remove(struct device *dev)
++{
++	struct virtio_mdev_device *vm_dev = dev_get_drvdata(dev);
++
++	unregister_virtio_device(&vm_dev->vdev);
++}
++
++static struct mdev_class_id id_table[] = {
++	{ MDEV_ID_VIRTIO },
++	{ 0 },
++};
++
++MODULE_DEVICE_TABLE(mdev, id_table);
++
++static struct mdev_driver virtio_mdev_driver = {
++	.name	= "virtio_mdev",
++	.probe	= virtio_mdev_probe,
++	.remove = virtio_mdev_remove,
++	.id_table = id_table,
++};
++
++static int __init virtio_mdev_init(void)
++{
++	return mdev_register_driver(&virtio_mdev_driver, THIS_MODULE);
++}
++
++static void __exit virtio_mdev_exit(void)
++{
++	mdev_unregister_driver(&virtio_mdev_driver);
++}
++
++module_init(virtio_mdev_init)
++module_exit(virtio_mdev_exit)
++
++MODULE_VERSION(DRIVER_VERSION);
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
 -- 
-2.17.1
+2.19.1
