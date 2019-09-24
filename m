@@ -1,89 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:33204 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730811AbfILKSB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Sep 2019 06:18:01 -0400
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: [PATCH v3 2/8] x86: numa: make node_to_cpumask_map() NUMA_NO_NODE aware for x86
-Date: Thu, 12 Sep 2019 18:15:28 +0800
-Message-ID: <1568283334-178380-3-git-send-email-linyunsheng@huawei.com>
-In-Reply-To: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
-References: <1568283334-178380-1-git-send-email-linyunsheng@huawei.com>
+Received: from mx1.redhat.com ([209.132.183.28]:51156 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2438777AbfIXQGn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Sep 2019 12:06:43 -0400
+Subject: Re: [kvm-unit-tests PATCH] s390x: Add initial smp code
+References: <b60eee55-f013-411a-0e52-3f40a990b1c4@redhat.com>
+ <20190923141558.3032-1-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <2a7f6d5b-99b7-d02f-9900-56f6e70099ed@redhat.com>
+Date: Tue, 24 Sep 2019 18:06:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20190923141558.3032-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com
-Cc: akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, rafael@kernel.org, mhocko@kernel.org, gregkh@linuxfoundation.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-When passing the return value of dev_to_node() to cpumask_of_node()
-without checking the node id if the node id is NUMA_NO_NODE, there is
-global-out-of-bounds detected by KASAN.
+On 23/09/2019 16.15, Janosch Frank wrote:
+> Let's add a rudimentary SMP library, which will scan for cpus and has
+> helper functions that manage the cpu state.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+> 
+> I left the setup code untouched, as I didn't want to indent too many
+> lines.
+> 
+> ---
+>  lib/s390x/asm/arch_def.h |   8 ++
+>  lib/s390x/asm/sigp.h     |  28 ++++-
+>  lib/s390x/io.c           |   5 +-
+>  lib/s390x/sclp.h         |   1 +
+>  lib/s390x/smp.c          | 252 +++++++++++++++++++++++++++++++++++++++
+>  lib/s390x/smp.h          |  51 ++++++++
+>  s390x/Makefile           |   1 +
+>  s390x/cstart64.S         |   7 ++
+>  8 files changed, 347 insertions(+), 6 deletions(-)
+>  create mode 100644 lib/s390x/smp.c
+>  create mode 100644 lib/s390x/smp.h
 
-From the discussion [1], NUMA_NO_NODE really means no node affinity,
-which also means all cpus should be usable. So the cpumask_of_node()
-should always return all cpus online when user passes the node id
-as NUMA_NO_NODE, just like similar semantic that page allocator handles
-NUMA_NO_NODE.
-
-But we cannot really copy the page allocator logic. Simply because the
-page allocator doesn't enforce the near node affinity. It just picks it
-up as a preferred node but then it is free to fallback to any other numa
-node. This is not the case here and node_to_cpumask_map will only restrict
-to the particular node's cpus which would have really non deterministic
-behavior depending on where the code is executed. So in fact we really
-want to return cpu_online_mask for NUMA_NO_NODE.
-
-Also there is a debuging version of node_to_cpumask_map(), which only
-is used when CONFIG_DEBUG_PER_CPU_MAPS is defined, this patch changes
-it to handle NUMA_NO_NODE as the normal node_to_cpumask_map(). And "fix"
-a sign "bug" since it is for debugging and should catch all the error
-cases.
-
-[1] https://lore.kernel.org/patchwork/patch/1125789/
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Suggested-by: Michal Hocko <mhocko@kernel.org>
----
-V3: Change to only handle NUMA_NO_NODE, and return cpu_online_mask
-    for NUMA_NO_NODE case, and change the commit log to better justify
-    the change.
----
- arch/x86/include/asm/topology.h | 3 +++
- arch/x86/mm/numa.c              | 7 +++++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/include/asm/topology.h b/arch/x86/include/asm/topology.h
-index 4b14d23..7fa82e1 100644
---- a/arch/x86/include/asm/topology.h
-+++ b/arch/x86/include/asm/topology.h
-@@ -69,6 +69,9 @@ extern const struct cpumask *cpumask_of_node(int node);
- /* Returns a pointer to the cpumask of CPUs on Node 'node'. */
- static inline const struct cpumask *cpumask_of_node(int node)
- {
-+	if (node == NUMA_NO_NODE)
-+		return cpu_online_mask;
-+
- 	return node_to_cpumask_map[node];
- }
- #endif
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index e6dad60..c676ffb 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -861,9 +861,12 @@ void numa_remove_cpu(int cpu)
-  */
- const struct cpumask *cpumask_of_node(int node)
- {
--	if (node >= nr_node_ids) {
-+	if (node == NUMA_NO_NODE)
-+		return cpu_online_mask;
-+
-+	if ((unsigned int)node >= nr_node_ids) {
- 		printk(KERN_WARNING
--			"cpumask_of_node(%d): node > nr_node_ids(%u)\n",
-+			"cpumask_of_node(%d): node >= nr_node_ids(%u)\n",
- 			node, nr_node_ids);
- 		dump_stack();
- 		return cpu_none_mask;
--- 
-2.8.1
+Reviewed-by: Thomas Huth <thuth@redhat.com>
