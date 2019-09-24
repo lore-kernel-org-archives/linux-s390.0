@@ -1,390 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:39209 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728028AbfIZR4Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:24 -0400
-Received: by mail-pg1-f194.google.com with SMTP id o10so1957537pgs.6
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:24 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 10/29] vmlinux.lds.h: Move NOTES into RO_DATA
-Date: Thu, 26 Sep 2019 10:55:43 -0700
-Message-Id: <20190926175602.33098-11-keescook@chromium.org>
-In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
-References: <20190926175602.33098-1-keescook@chromium.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60834 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2441151AbfIXNyc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Sep 2019 09:54:32 -0400
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V2 1/8] vringh: fix copy direction of vringh_iov_push_kern()
+Date: Tue, 24 Sep 2019 21:53:25 +0800
+Message-Id: <20190924135332.14160-2-jasowang@redhat.com>
+In-Reply-To: <20190924135332.14160-1-jasowang@redhat.com>
+References: <20190924135332.14160-1-jasowang@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
 
-The .notes section should be non-executable read-only data. As such, it
-can live in the RO_DATA macro instead of being per-architecture defined.
+We want to copy from iov to buf, so the direction was wrong.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- arch/alpha/kernel/vmlinux.lds.S      | 2 --
- arch/arc/kernel/vmlinux.lds.S        | 2 --
- arch/arm/kernel/vmlinux-xip.lds.S    | 2 --
- arch/arm/kernel/vmlinux.lds.S        | 2 --
- arch/arm64/kernel/vmlinux.lds.S      | 1 -
- arch/c6x/kernel/vmlinux.lds.S        | 1 -
- arch/csky/kernel/vmlinux.lds.S       | 1 -
- arch/h8300/kernel/vmlinux.lds.S      | 1 -
- arch/hexagon/kernel/vmlinux.lds.S    | 1 -
- arch/ia64/kernel/vmlinux.lds.S       | 2 --
- arch/microblaze/kernel/vmlinux.lds.S | 1 -
- arch/mips/kernel/vmlinux.lds.S       | 2 --
- arch/nds32/kernel/vmlinux.lds.S      | 1 -
- arch/nios2/kernel/vmlinux.lds.S      | 1 -
- arch/openrisc/kernel/vmlinux.lds.S   | 1 -
- arch/parisc/kernel/vmlinux.lds.S     | 1 -
- arch/powerpc/kernel/vmlinux.lds.S    | 2 --
- arch/riscv/kernel/vmlinux.lds.S      | 1 -
- arch/s390/kernel/vmlinux.lds.S       | 2 --
- arch/sh/kernel/vmlinux.lds.S         | 1 -
- arch/sparc/kernel/vmlinux.lds.S      | 1 -
- arch/um/include/asm/common.lds.S     | 1 -
- arch/unicore32/kernel/vmlinux.lds.S  | 1 -
- arch/x86/kernel/vmlinux.lds.S        | 2 --
- arch/xtensa/kernel/vmlinux.lds.S     | 1 -
- include/asm-generic/vmlinux.lds.h    | 9 +++++----
- 26 files changed, 5 insertions(+), 38 deletions(-)
+ drivers/vhost/vringh.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index cdfdc91ce64c..bf28043485f6 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -34,8 +34,6 @@ SECTIONS
- 	swapper_pg_dir = SWAPPER_PGD;
- 	_etext = .;	/* End of text section */
- 
--	NOTES
--
- 	RODATA
- 	EXCEPTION_TABLE(16)
- 
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index 6c693a9d29b6..1d6eef4b6976 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -118,8 +118,6 @@ SECTIONS
- 	/DISCARD/ : {	*(.eh_frame) }
- #endif
- 
--	NOTES
--
- 	. = ALIGN(PAGE_SIZE);
- 	_end = . ;
- 
-diff --git a/arch/arm/kernel/vmlinux-xip.lds.S b/arch/arm/kernel/vmlinux-xip.lds.S
-index 8c74037ade22..d2a9651c24ad 100644
---- a/arch/arm/kernel/vmlinux-xip.lds.S
-+++ b/arch/arm/kernel/vmlinux-xip.lds.S
-@@ -70,8 +70,6 @@ SECTIONS
- 	ARM_UNWIND_SECTIONS
- #endif
- 
--	NOTES
--
- 	_etext = .;			/* End of text and rodata section */
- 
- 	ARM_VECTORS
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 23150c0f0f4d..068db6860867 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -81,8 +81,6 @@ SECTIONS
- 	ARM_UNWIND_SECTIONS
- #endif
- 
--	NOTES
--
- #ifdef CONFIG_STRICT_KERNEL_RWX
- 	. = ALIGN(1<<SECTION_SHIFT);
- #else
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index 7fa008374907..5cf9424485d5 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -137,7 +137,6 @@ SECTIONS
- 
- 	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
- 	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
--	NOTES
- 
- 	. = ALIGN(PAGE_SIZE);
- 	idmap_pg_dir = .;
-diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
-index 584bab2bace6..d6e3802536b3 100644
---- a/arch/c6x/kernel/vmlinux.lds.S
-+++ b/arch/c6x/kernel/vmlinux.lds.S
-@@ -81,7 +81,6 @@ SECTIONS
- 	}
- 
- 	EXCEPTION_TABLE(16)
--	NOTES
- 
- 	RO_DATA_SECTION(PAGE_SIZE)
- 	.const :
-diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
-index ae7961b973f2..75dd31412242 100644
---- a/arch/csky/kernel/vmlinux.lds.S
-+++ b/arch/csky/kernel/vmlinux.lds.S
-@@ -53,7 +53,6 @@ SECTIONS
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
--	NOTES
- 	EXCEPTION_TABLE(L1_CACHE_BYTES)
- 	BSS_SECTION(L1_CACHE_BYTES, PAGE_SIZE, L1_CACHE_BYTES)
- 	VBR_BASE
-diff --git a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
-index 49f716c0a1df..88776e785245 100644
---- a/arch/h8300/kernel/vmlinux.lds.S
-+++ b/arch/h8300/kernel/vmlinux.lds.S
-@@ -38,7 +38,6 @@ SECTIONS
- 	_etext = . ;
- 	}
- 	EXCEPTION_TABLE(16)
--	NOTES
- 	RO_DATA_SECTION(4)
- 	ROMEND = .;
- #if defined(CONFIG_ROMKERNEL)
-diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-index 78f2418e97c8..6a6e8fc422ee 100644
---- a/arch/hexagon/kernel/vmlinux.lds.S
-+++ b/arch/hexagon/kernel/vmlinux.lds.S
-@@ -54,7 +54,6 @@ SECTIONS
- 	_edata = .;
- 
- 	EXCEPTION_TABLE(16)
--	NOTES
- 
- 	BSS_SECTION(_PAGE_SIZE, _PAGE_SIZE, _PAGE_SIZE)
- 
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index fdcc992ab360..ad3578924589 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -70,8 +70,6 @@ SECTIONS {
- 	/*
- 	 * Read-only data
- 	 */
--	NOTES
--
- 	EXCEPTION_TABLE(16)
- 
- 	/* MCA table */
-diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
-index e1f3e8741292..d008e50bb212 100644
---- a/arch/microblaze/kernel/vmlinux.lds.S
-+++ b/arch/microblaze/kernel/vmlinux.lds.S
-@@ -53,7 +53,6 @@ SECTIONS {
- 	. = ALIGN(16);
- 	RODATA
- 	EXCEPTION_TABLE(16)
--	NOTES
- 
- 	/*
- 	 * sdata2 section can go anywhere, but must be word aligned
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 6a22f531d815..91e566defc16 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -81,8 +81,6 @@ SECTIONS
- 		__stop___dbe_table = .;
- 	}
- 
--	NOTES
--
- 	_sdata = .;			/* Start of data section */
- 	RODATA
- 
-diff --git a/arch/nds32/kernel/vmlinux.lds.S b/arch/nds32/kernel/vmlinux.lds.S
-index 9e90f30a181d..c4f1c5a604c3 100644
---- a/arch/nds32/kernel/vmlinux.lds.S
-+++ b/arch/nds32/kernel/vmlinux.lds.S
-@@ -58,7 +58,6 @@ SECTIONS
- 	_edata  =  .;
- 
- 	EXCEPTION_TABLE(16)
--	NOTES
- 	BSS_SECTION(4, 4, 4)
- 	_end = .;
- 
-diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
-index 6ad64f14617d..20e4078b3477 100644
---- a/arch/nios2/kernel/vmlinux.lds.S
-+++ b/arch/nios2/kernel/vmlinux.lds.S
-@@ -58,7 +58,6 @@ SECTIONS
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
--	NOTES
- 
- 	DISCARDS
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 08ad0d1f0476..a0a2d74967ef 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -852,6 +852,12 @@ static inline int xfer_kern(void *src, void *dst, size_t len)
+ 	return 0;
  }
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index 2e2c72c157f3..142c51c994f5 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -79,7 +79,6 @@ SECTIONS
-         _edata  =  .;
  
- 	EXCEPTION_TABLE(4)
--	NOTES
++static inline int kern_xfer(void *dst, void *src, size_t len)
++{
++	memcpy(dst, src, len);
++	return 0;
++}
++
+ /**
+  * vringh_init_kern - initialize a vringh for a kernelspace vring.
+  * @vrh: the vringh to initialize.
+@@ -958,7 +964,7 @@ EXPORT_SYMBOL(vringh_iov_pull_kern);
+ ssize_t vringh_iov_push_kern(struct vringh_kiov *wiov,
+ 			     const void *src, size_t len)
+ {
+-	return vringh_iov_xfer(wiov, (void *)src, len, xfer_kern);
++	return vringh_iov_xfer(wiov, (void *)src, len, kern_xfer);
+ }
+ EXPORT_SYMBOL(vringh_iov_push_kern);
  
- 	/* Init code and data */
- 	. = ALIGN(PAGE_SIZE);
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index 99cd24f2ea01..168d12b2ebb8 100644
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -131,7 +131,6 @@ SECTIONS
- 
- 	/* RO because of BUILDTIME_EXTABLE_SORT */
- 	EXCEPTION_TABLE(8)
--	NOTES
- 
- 	/* unwind info */
- 	.PARISC.unwind : {
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 4f19d814d592..4e7cec088c8b 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -164,8 +164,6 @@ SECTIONS
- #endif
- 	EXCEPTION_TABLE(0)
- 
--	NOTES
--
- /*
-  * Init sections discarded at runtime
-  */
-diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index 23cd1a9e52a1..df5229c4034d 100644
---- a/arch/riscv/kernel/vmlinux.lds.S
-+++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -69,7 +69,6 @@ SECTIONS
- 	BSS_SECTION(PAGE_SIZE, PAGE_SIZE, 0)
- 
- 	EXCEPTION_TABLE(0x10)
--	NOTES
- 
- 	.rel.dyn : {
- 		*(.rel.dyn*)
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index f88eedeb915a..beb4df053e20 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -52,8 +52,6 @@ SECTIONS
- 		_etext = .;		/* End of text section */
- 	} :text = 0x0700
- 
--	NOTES
--
- 	RO_DATA_SECTION(PAGE_SIZE)
- 
- 	. = ALIGN(PAGE_SIZE);
-diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
-index 77a59d8c6b4d..fef39054cc70 100644
---- a/arch/sh/kernel/vmlinux.lds.S
-+++ b/arch/sh/kernel/vmlinux.lds.S
-@@ -48,7 +48,6 @@ SECTIONS
- 	} = 0x0009
- 
- 	EXCEPTION_TABLE(16)
--	NOTES
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
-diff --git a/arch/sparc/kernel/vmlinux.lds.S b/arch/sparc/kernel/vmlinux.lds.S
-index 61afd787bd0c..8929fbc35a80 100644
---- a/arch/sparc/kernel/vmlinux.lds.S
-+++ b/arch/sparc/kernel/vmlinux.lds.S
-@@ -78,7 +78,6 @@ SECTIONS
- 		__stop___fixup = .;
- 	}
- 	EXCEPTION_TABLE(16)
--	NOTES
- 
- 	. = ALIGN(PAGE_SIZE);
- 	__init_begin = ALIGN(PAGE_SIZE);
-diff --git a/arch/um/include/asm/common.lds.S b/arch/um/include/asm/common.lds.S
-index 4049f2c46387..a24b284f5135 100644
---- a/arch/um/include/asm/common.lds.S
-+++ b/arch/um/include/asm/common.lds.S
-@@ -16,7 +16,6 @@
-   PROVIDE (_unprotected_end = .);
- 
-   . = ALIGN(4096);
--  NOTES
-   EXCEPTION_TABLE(0)
- 
-   BUG_TABLE
-diff --git a/arch/unicore32/kernel/vmlinux.lds.S b/arch/unicore32/kernel/vmlinux.lds.S
-index 7abf90537cd5..78c4c56057b0 100644
---- a/arch/unicore32/kernel/vmlinux.lds.S
-+++ b/arch/unicore32/kernel/vmlinux.lds.S
-@@ -48,7 +48,6 @@ SECTIONS
- 	_edata = .;
- 
- 	EXCEPTION_TABLE(L1_CACHE_BYTES)
--	NOTES
- 
- 	BSS_SECTION(0, 0, 0)
- 	_end = .;
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 8be25b09c2b7..41362e90142d 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -148,8 +148,6 @@ SECTIONS
- 		_etext = .;
- 	} :text = 0x9090
- 
--	NOTES
--
- 	EXCEPTION_TABLE(16)
- 
- 	/* .text should occupy whole number of pages */
-diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
-index 943f10639a93..a0a843745695 100644
---- a/arch/xtensa/kernel/vmlinux.lds.S
-+++ b/arch/xtensa/kernel/vmlinux.lds.S
-@@ -131,7 +131,6 @@ SECTIONS
-   .fixup   : { *(.fixup) }
- 
-   EXCEPTION_TABLE(16)
--  NOTES
-   /* Data section */
- 
-   _sdata = .;
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 6a0a657dfdb4..3a4c1cb971da 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -28,7 +28,6 @@
-  *	_edata = .;
-  *
-  *	EXCEPTION_TABLE(...)
-- *	NOTES
-  *
-  *	BSS_SECTION(0, 0, 0)
-  *	_end = .;
-@@ -507,10 +506,12 @@
- 		__start___modver = .;					\
- 		KEEP(*(__modver))					\
- 		__stop___modver = .;					\
--		. = ALIGN((align));					\
--		__end_rodata = .;					\
- 	}								\
--	. = ALIGN((align));
-+									\
-+	NOTES								\
-+									\
-+	. = ALIGN((align));						\
-+	__end_rodata = .;
- 
- /* RODATA & RO_DATA provided for backward compatibility.
-  * All archs are supposed to use RO_DATA() */
 -- 
-2.17.1
+2.19.1
