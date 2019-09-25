@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 18/23] virtio/s390: fix race on airq_areas[]
-Date: Tue,  3 Sep 2019 12:24:19 -0400
-Message-Id: <20190903162424.6877-18-sashal@kernel.org>
-In-Reply-To: <20190903162424.6877-1-sashal@kernel.org>
-References: <20190903162424.6877-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:55054 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727569AbfIYL5d (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Sep 2019 07:57:33 -0400
+Subject: Re: [PATCH 5/6] vringh: fix copy direction of vringh_iov_push_kern()
+References: <20190923130331.29324-1-jasowang@redhat.com>
+ <20190923130331.29324-6-jasowang@redhat.com>
+ <20190923094559.765da494@x1.home>
+ <20190923115930-mutt-send-email-mst@kernel.org>
+ <20190924080413.0cc875c5@x1.home>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <2f145744-cbfb-5bc3-0e2c-e8c23c20b42d@redhat.com>
+Date: Wed, 25 Sep 2019 19:56:33 +0800
 MIME-Version: 1.0
+In-Reply-To: <20190924080413.0cc875c5@x1.home>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Language: en-US
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Alex Williamson <alex.williamson@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com
 
-From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 4f419eb14272e0698e8c55bb5f3f266cc2a21c81 ]
+On 2019/9/24 下午10:04, Alex Williamson wrote:
+> On Mon, 23 Sep 2019 12:00:41 -0400
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>
+>> On Mon, Sep 23, 2019 at 09:45:59AM -0600, Alex Williamson wrote:
+>>> On Mon, 23 Sep 2019 21:03:30 +0800
+>>> Jason Wang <jasowang@redhat.com> wrote:
+>>>   
+>>>> We want to copy from iov to buf, so the direction was wrong.
+>>>>
+>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>>> ---
+>>>>  drivers/vhost/vringh.c | 8 +++++++-
+>>>>  1 file changed, 7 insertions(+), 1 deletion(-)  
+>>> Why is this included in the series?  Seems like an unrelated fix being
+>>> held up within a proposal for a new feature.  Thanks,
+>>>
+>>> Alex  
+>> It's better to have it as patch 1/6, but it's a dependency of the
+>> example driver in the series. I can reorder when I apply.
+> It's a fix, please submit it separately through virtio/vhost channels,
+> then it will already be in the base kernel we use for the rest of the
+> series.  The remainder of the series certainly suggests a workflow
+> through the vfio tree rather than virtio/vhost.  Thanks,
+>
+> Alex
 
-The access to airq_areas was racy ever since the adapter interrupts got
-introduced to virtio-ccw, but since commit 39c7dcb15892 ("virtio/s390:
-make airq summary indicators DMA") this became an issue in practice as
-well. Namely before that commit the airq_info that got overwritten was
-still functional. After that commit however the two infos share a
-summary_indicator, which aggravates the situation. Which means
-auto-online mechanism occasionally hangs the boot with virtio_blk.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 96b14536d935 ("virtio-ccw: virtio-ccw adapter interrupt support.")
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/virtio/virtio_ccw.c | 3 +++
- 1 file changed, 3 insertions(+)
+Ok.
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 6a30768813219..8d47ad61bac3d 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -132,6 +132,7 @@ struct airq_info {
- 	struct airq_iv *aiv;
- };
- static struct airq_info *airq_areas[MAX_AIRQ_AREAS];
-+static DEFINE_MUTEX(airq_areas_lock);
- 
- #define CCW_CMD_SET_VQ 0x13
- #define CCW_CMD_VDEV_RESET 0x33
-@@ -244,9 +245,11 @@ static unsigned long get_airq_indicator(struct virtqueue *vqs[], int nvqs,
- 	unsigned long bit, flags;
- 
- 	for (i = 0; i < MAX_AIRQ_AREAS && !indicator_addr; i++) {
-+		mutex_lock(&airq_areas_lock);
- 		if (!airq_areas[i])
- 			airq_areas[i] = new_airq_info();
- 		info = airq_areas[i];
-+		mutex_unlock(&airq_areas_lock);
- 		if (!info)
- 			return 0;
- 		write_lock_irqsave(&info->lock, flags);
--- 
-2.20.1
+Thanks
