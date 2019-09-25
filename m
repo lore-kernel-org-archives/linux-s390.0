@@ -1,51 +1,68 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
 References: <20190924135332.14160-1-jasowang@redhat.com>
  <20190924135332.14160-7-jasowang@redhat.com>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D58F7DA@SHSMSX104.ccr.corp.intel.com>
+ <20190924170640.1da03bae@x1.home>
 From: Jason Wang <jasowang@redhat.com>
-Message-ID: <2210d23d-38e4-e654-e53d-7867348de86a@redhat.com>
-Date: Wed, 25 Sep 2019 20:45:21 +0800
+Message-ID: <3bb42d7c-b8d7-87d0-a2e0-52998f502efb@redhat.com>
+Date: Wed, 25 Sep 2019 20:06:21 +0800
 MIME-Version: 1.0
-In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D58F7DA@SHSMSX104.ccr.corp.intel.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+In-Reply-To: <20190924170640.1da03bae@x1.home>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Tian, Kevin" <kevin.tian@intel.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "Bie, Tiwei" <tiwei.bie@intel.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "cohuck@redhat.com" <cohuck@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "Liang, Cunming" <cunming.liang@intel.com>, "Wang, Zhihong" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "Wang, Xiao W" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "Wang, Zhi A" <zhi.a.wang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "Vivi, Rodrigo" <rodrigo.vivi@intel.com>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "Zhu, Lingshan" <lingshan.zhu@intel.com>, "idos@mellanox.com" <idos@mellanox.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "parav@mellanox.com" <parav@mellanox.com>, "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com
 
 
-On 2019/9/25 下午5:09, Tian, Kevin wrote:
->> From: Jason Wang [mailto:jasowang@redhat.com]
->> Sent: Tuesday, September 24, 2019 9:54 PM
->>
+On 2019/9/25 上午7:06, Alex Williamson wrote:
+> On Tue, 24 Sep 2019 21:53:30 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+>
 >> This patch implements basic support for mdev driver that supports
 >> virtio transport for kernel virtio driver.
 >>
 >> Signed-off-by: Jason Wang <jasowang@redhat.com>
 >> ---
->>   include/linux/mdev.h        |   2 +
->>   include/linux/virtio_mdev.h | 145
->> ++++++++++++++++++++++++++++++++++++
->>   2 files changed, 147 insertions(+)
->>   create mode 100644 include/linux/virtio_mdev.h
+>>  include/linux/mdev.h        |   2 +
+>>  include/linux/virtio_mdev.h | 145 ++++++++++++++++++++++++++++++++++++
+>>  2 files changed, 147 insertions(+)
+>>  create mode 100644 include/linux/virtio_mdev.h
 >>
 >> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
 >> index 3414307311f1..73ac27b3b868 100644
 >> --- a/include/linux/mdev.h
 >> +++ b/include/linux/mdev.h
->> @@ -126,6 +126,8 @@ struct mdev_device *mdev_from_dev(struct device
->> *dev);
->>
->>   enum {
->>   	MDEV_ID_VFIO = 1,
+>> @@ -126,6 +126,8 @@ struct mdev_device *mdev_from_dev(struct device *dev);
+>>  
+>>  enum {
+>>  	MDEV_ID_VFIO = 1,
 >> +	MDEV_ID_VIRTIO = 2,
 >> +	MDEV_ID_VHOST = 3,
->>   	/* New entries must be added here */
->>   };
->>
+> MDEV_ID_VHOST isn't used yet here. 
+
+
+Yes, just want to reserve one but it look too early to do that.
+
+
+>  Also, given the strong
+> interdependence between the class_id and the ops structure, we might
+> wand to define them in the same place.  Thanks,
+>
+> Alex
+
+
+Yes, as you suggest in patch 5/8.
+
+Thanks
+
+
+>
+>>  	/* New entries must be added here */
+>>  };
+>>  
 >> diff --git a/include/linux/virtio_mdev.h b/include/linux/virtio_mdev.h
 >> new file mode 100644
 >> index 000000000000..d1a40a739266
@@ -68,15 +85,6 @@ On 2019/9/25 下午5:09, Tian, Kevin wrote:
 >> +
 >> +#define VIRTIO_MDEV_DEVICE_API_STRING		"virtio-mdev"
 >> +#define VIRTIO_MDEV_VERSION 0x1
-> Just be curious. is this version identical to virtio spec version that below
-> callbacks are created for, or just irrelevant?
-
-
-It could be a hint but basically it's a way for userspace driver 
-compatibility. For kernel we don't need this.
-
-
->
 >> +
 >> +struct virtio_mdev_callback {
 >> +	irqreturn_t (*callback)(void *data);
@@ -105,8 +113,7 @@ compatibility. For kernel we don't need this.
 >> + *				a virtqueue
 >> + *				@mdev: mediated device
 >> + *				@idx: virtqueue index
->> + *				@cb: virtio-mdev interrupt callback
->> structure
+>> + *				@cb: virtio-mdev interrupt callback structure
 >> + * @set_vq_ready:		Set ready status for a virtqueue
 >> + *				@mdev: mediated device
 >> + *				@idx: virtqueue index
@@ -138,8 +145,7 @@ compatibility. For kernel we don't need this.
 >> + *				Returns integer: success (0) or error (< 0)
 >> + * @set_config_cb:		Set the config interrupt callback
 >> + *				@mdev: mediated device
->> + *				@cb: virtio-mdev interrupt callback
->> structure
+>> + *				@cb: virtio-mdev interrupt callback structure
 >> + * @get_device_id:		Get virtio device id
 >> + *				@mdev: mediated device
 >> + *				Returns u32: virtio device id
@@ -152,15 +158,7 @@ compatibility. For kernel we don't need this.
 >> + * @set_status:		Set the device status
 >> + *				@mdev: mediated device
 >> + *				@status: virtio device status
->> + * @get_config:		Read from device specific confiugration
->> space
-> configuration (and similar typos downward)
-
-
-Let me fix.
-
-
->
+>> + * @get_config:		Read from device specific confiugration space
 >> + *				@mdev: mediated device
 >> + *				@offset: offset from the beginning of
 >> + *				configuration space
@@ -190,8 +188,7 @@ Let me fix.
 >> +	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
 >> +	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
 >> +			  struct virtio_mdev_callback *cb);
->> +	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool
->> ready);
+>> +	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
 >> +	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
 >> +	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
 >> +	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
@@ -214,29 +211,6 @@ Let me fix.
 >> +	int (*get_version)(struct mdev_device *mdev);
 >> +	u32 (*get_generation)(struct mdev_device *mdev);
 >> +};
-> I'm not sure how stable above ops are.
-
-
-It's the kernel internal API, so there's no strict requirement for this. 
-We will export a version value for userspace for compatibility.
-
-
-> Does it make sense if defining
-> just two callbacks here, e.g. vq_ctrl and device_ctrl, and then let the
-> vendor driver to handle specific ops in each category (similar to how
-> ioctl works)?
-
-
-My understanding is that it introduce another indirection, you still 
-need to differ from different command, and it's less flexible than 
-direct callback.
-
-What's the value of doing this?
-
-Thanks
-
-
->
-> Thanks
-> Kevin
->
+>> +
+>> +#endif
+>> +
