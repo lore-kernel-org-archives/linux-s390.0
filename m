@@ -1,304 +1,124 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v6 04/10] s390: vfio-ap: filter CRYCB bits for unavailable queue devices
-Date: Fri, 13 Sep 2019 17:26:52 -0400
-Message-Id: <1568410018-10833-5-git-send-email-akrowiak@linux.ibm.com>
-In-Reply-To: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
-References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:35900 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2406687AbfIYNjQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Sep 2019 09:39:16 -0400
+Subject: Re: [kvm-unit-tests PATCH v3 6/6] s390x: SMP test
+From: David Hildenbrand <david@redhat.com>
+References: <20190920080356.1948-1-frankja@linux.ibm.com>
+ <20190920080356.1948-7-frankja@linux.ibm.com>
+ <b8b574a0-aa5d-7a10-ccd3-d901bf2e0655@redhat.com>
+ <df219ca6-b772-cfcb-2c9b-e53fe5b2c8b8@redhat.com>
+ <4afbfdca-e028-4bb8-0ed0-41f907e9acf3@redhat.com>
+ <292dc9d3-c45c-8eb5-4f79-05572b84060d@redhat.com>
+Message-ID: <25379a1e-5533-6d8c-9760-af239209db0a@redhat.com>
+Date: Wed, 25 Sep 2019 15:39:14 +0200
+MIME-Version: 1.0
+In-Reply-To: <292dc9d3-c45c-8eb5-4f79-05572b84060d@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
 
-Even though APQNs for queues that are not in the AP configuration can be
-assigned to a matrix mdev, we do not want to set bits in the guest's CRYCB
-for APQNs that do not reference AP queue devices bound to the vfio_ap
-device driver. The reason is because we have no idea whether a queue with
-a given APQN will have a valid type (i.e., type 10 or newer) for the
-vfio_ap device driver if/when it is subsequently added to the AP
-configuration. If not, then it will not get bound to the vfio_ap device
-driver. This patch filters out such APQNs before setting the bits in the
-guest's CRYCB.
+On 25.09.19 15:35, David Hildenbrand wrote:
+> On 25.09.19 15:32, David Hildenbrand wrote:
+>> On 25.09.19 15:30, Thomas Huth wrote:
+>>> On 25/09/2019 15.27, David Hildenbrand wrote:
+>>>> On 20.09.19 10:03, Janosch Frank wrote:
+>>>>> Testing SIGP emulation for the following order codes:
+>>>>> * start
+>>>>> * stop
+>>>>> * restart
+>>>>> * set prefix
+>>>>> * store status
+>>>>> * stop and store status
+>>>>> * reset
+>>>>> * initial reset
+>>>>> * external call
+>>>>> * emegergency call
+>>>>>
+>>>>> restart and set prefix are part of the library and needed to start
+>>>>> other cpus.
+>>>>>
+>>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>>> ---
+>>>>>  s390x/Makefile      |   1 +
+>>>>>  s390x/smp.c         | 242 ++++++++++++++++++++++++++++++++++++++++++++
+>>>>>  s390x/unittests.cfg |   4 +
+>>>>>  3 files changed, 247 insertions(+)
+>>>>>  create mode 100644 s390x/smp.c
+>>>>>
+>>>>> diff --git a/s390x/Makefile b/s390x/Makefile
+>>>>> index d83dd0b..3744372 100644
+>>>>> --- a/s390x/Makefile
+>>>>> +++ b/s390x/Makefile
+>>>>> @@ -15,6 +15,7 @@ tests += $(TEST_DIR)/cpumodel.elf
+>>>>>  tests += $(TEST_DIR)/diag288.elf
+>>>>>  tests += $(TEST_DIR)/stsi.elf
+>>>>>  tests += $(TEST_DIR)/skrf.elf
+>>>>> +tests += $(TEST_DIR)/smp.elf
+>>>>>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>>>>>  
+>>>>>  all: directories test_cases test_cases_binary
+>>>>> diff --git a/s390x/smp.c b/s390x/smp.c
+>>>>> new file mode 100644
+>>>>> index 0000000..7032494
+>>>>> --- /dev/null
+>>>>> +++ b/s390x/smp.c
+>>>>> @@ -0,0 +1,242 @@
+>>>>> +/*
+>>>>> + * Tests sigp emulation
+>>>>> + *
+>>>>> + * Copyright 2019 IBM Corp.
+>>>>> + *
+>>>>> + * Authors:
+>>>>> + *    Janosch Frank <frankja@linux.ibm.com>
+>>>>> + *
+>>>>> + * This code is free software; you can redistribute it and/or modify it
+>>>>> + * under the terms of the GNU General Public License version 2.
+>>>>> + */
+>>>>> +#include <libcflat.h>
+>>>>> +#include <asm/asm-offsets.h>
+>>>>> +#include <asm/interrupt.h>
+>>>>> +#include <asm/page.h>
+>>>>> +#include <asm/facility.h>
+>>>>> +#include <asm-generic/barrier.h>
+>>>>> +#include <asm/sigp.h>
+>>>>> +
+>>>>> +#include <smp.h>
+>>>>> +#include <alloc_page.h>
+>>>>> +
+>>>>> +static int testflag = 0;
+>>>>> +
+>>>>> +static void cpu_loop(void)
+>>>>> +{
+>>>>> +	for (;;) {}
+>>>>
+>>>> Won't that be optimized out completely?
+>>>
+>>> Why? AFAIK this is the standard way to write and endless loop ... how
+>>> can a compiler optimize that away?
+>>
+>> Was messing it up with "just" an empty loop body, I think you're right.
+>>
+> 
+> However
+> 
+> https://stackoverflow.com/questions/2178115/are-compilers-allowed-to-eliminate-infinite-loops
+> 
+> "This is intended to allow compiler transformations such as removal of
+> empty loops even when termination cannot be proven."
+> 
+> I think this might get optimized out.
+> 
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c     | 131 ++++++++++++++++++++++++++++------
- drivers/s390/crypto/vfio_ap_private.h |   3 +
- 2 files changed, 113 insertions(+), 21 deletions(-)
+... but then, everybody does it, so it is most probably fine with GCC.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 18270f286dec..fec07f912916 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -33,6 +33,22 @@ static int match_apqn(struct device *dev, const void *data)
- 	return (q->apqn == *(int *)(data)) ? 1 : 0;
- }
- 
-+static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
-+{
-+	struct device *dev;
-+	struct vfio_ap_queue *q;
-+
-+	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
-+				 &apqn, match_apqn);
-+	if (!dev)
-+		return NULL;
-+
-+	q = dev_get_drvdata(dev);
-+	put_device(dev);
-+
-+	return q;
-+}
-+
- /**
-  * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
-  * @matrix_mdev: the associated mediated matrix
-@@ -49,20 +65,15 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
- 					int apqn)
- {
- 	struct vfio_ap_queue *q;
--	struct device *dev;
- 
- 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
- 		return NULL;
- 	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
- 		return NULL;
- 
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
--		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
-+	q = vfio_ap_find_queue(apqn);
-+	if (q)
-+		q->matrix_mdev = matrix_mdev;
- 
- 	return q;
- }
-@@ -336,6 +347,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->crycb);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
- 	matrix_mdev->pqap_hook.owner = THIS_MODULE;
-@@ -469,6 +481,44 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
- 	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
- }
- 
-+static void vfio_ap_mdev_get_crycb_matrix(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	unsigned long apid, apqi;
-+	unsigned long masksz = BITS_TO_LONGS(AP_DEVICES) *
-+			       sizeof(unsigned long);
-+
-+	memset(matrix_mdev->crycb.apm, 0, masksz);
-+	memset(matrix_mdev->crycb.apm, 0, masksz);
-+	memcpy(matrix_mdev->crycb.adm, matrix_mdev->matrix.adm, masksz);
-+
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
-+			     matrix_mdev->matrix.apm_max + 1) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1) {
-+			if (vfio_ap_find_queue(AP_MKQID(apid, apqi))) {
-+				if (!test_bit_inv(apid, matrix_mdev->crycb.apm))
-+					set_bit_inv(apid,
-+						    matrix_mdev->crycb.apm);
-+				if (!test_bit_inv(apqi, matrix_mdev->crycb.aqm))
-+					set_bit_inv(apqi,
-+						    matrix_mdev->crycb.aqm);
-+			}
-+		}
-+	}
-+}
-+
-+static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	return matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd;
-+}
-+
-+static void vfio_ap_mdev_update_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->crycb.apm,
-+				  matrix_mdev->crycb.aqm,
-+				  matrix_mdev->crycb.adm);
-+}
-+
- /**
-  * assign_adapter_store
-  *
-@@ -479,7 +529,11 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the APID from @buf and sets the corresponding bit in the mediated
-- * matrix device's APM.
-+ * matrix device's APM. If a guest is using the matrix mdev, for each new APQN
-+ * resulting from the assignment that identifies an AP queue device bound to the
-+ * vfio_ap device driver, the bits corresponding to the APID and APQI will be
-+ * set in the APM and AQM of the guest's CRYCB respectively, effectively
-+ * plugging the queues into the guest.
-  *
-  * Returns the number of bytes processed if the APID is valid; otherwise,
-  * returns one of the following errors:
-@@ -529,6 +583,12 @@ static ssize_t assign_adapter_store(struct device *dev,
- 		return ret;
- 	}
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+
-+	vfio_ap_mdev_get_crycb_matrix(matrix_mdev);
-+
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -544,7 +604,9 @@ static DEVICE_ATTR_WO(assign_adapter);
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the APID from @buf and clears the corresponding bit in the mediated
-- * matrix device's APM.
-+ * matrix device's APM. If a guest is using the matrix mdev, the APID will also
-+ * be cleared from the APM in the guest's CRYCB effectively unplugging the
-+ * adapter from the guest.
-  *
-  * Returns the number of bytes processed if the APID is valid; otherwise,
-  * returns one of the following errors:
-@@ -570,6 +632,11 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
-+	clear_bit_inv((unsigned long)apid, matrix_mdev->crycb.apm);
-+
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -586,7 +653,11 @@ static DEVICE_ATTR_WO(unassign_adapter);
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the APQI from @buf and sets the corresponding bit in the mediated
-- * matrix device's AQM.
-+ * matrix device's AQM. If a guest is using the matrix mdev, for each new APQN
-+ * resulting from the assignment that identifies an AP queue device bound to the
-+ * vfio_ap device driver, the bits corresponding to its APID and APQI will be
-+ * set in the APM and AQM of the guest's CRYCB respectively, effectively
-+ * plugging the queues into the guest.
-  *
-  * Returns the number of bytes processed if the APQI is valid; otherwise returns
-  * one of the following errors:
-@@ -636,6 +707,11 @@ static ssize_t assign_domain_store(struct device *dev,
- 		return ret;
- 	}
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-+	vfio_ap_mdev_get_crycb_matrix(matrix_mdev);
-+
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -653,7 +729,9 @@ static DEVICE_ATTR_WO(assign_domain);
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the APQI from @buf and clears the corresponding bit in the
-- * mediated matrix device's AQM.
-+ * mediated matrix device's AQM. If a guest is using the matrix mdev, the APQI
-+ * will also be cleared from the AQM in the guest's CRYCB effectively unplugging
-+ * all queues with the specified APQI from the guest.
-  *
-  * Returns the number of bytes processed if the APQI is valid; otherwise,
-  * returns one of the following errors:
-@@ -678,6 +756,11 @@ static ssize_t unassign_domain_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
-+	clear_bit_inv((unsigned long)apqi, matrix_mdev->crycb.aqm);
-+
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -693,7 +776,9 @@ static DEVICE_ATTR_WO(unassign_domain);
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the domain ID from @buf and sets the corresponding bit in the mediated
-- * matrix device's ADM.
-+ * matrix device's ADM. If a guest is using the matrix mdev, the domain ID
-+ * will also be set in the ADM of the guest's CRYCB giving the guest control
-+ * over the domain.
-  *
-  * Returns the number of bytes processed if the domain ID is valid; otherwise,
-  * returns one of the following errors:
-@@ -718,6 +803,11 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
-+	set_bit_inv(id, matrix_mdev->crycb.adm);
-+
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -733,7 +823,9 @@ static DEVICE_ATTR_WO(assign_control_domain);
-  * @count:	the number of bytes in @buf
-  *
-  * Parses the domain ID from @buf and clears the corresponding bit in the
-- * mediated matrix device's ADM.
-+ * mediated matrix device's ADM. If a guest is using the matrix mdev, the domain
-+ * ID will also be cleared from the ADM of the guest's CRYCB taking control
-+ * over the domain away from the guest.
-  *
-  * Returns the number of bytes processed if the domain ID is valid; otherwise,
-  * returns one of the following errors:
-@@ -942,13 +1034,10 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	if (ret)
- 		return NOTIFY_DONE;
- 
--	/* If there is no CRYCB pointer, then we can't copy the masks */
--	if (!matrix_mdev->kvm->arch.crypto.crycbd)
--		return NOTIFY_DONE;
--
--	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
--				  matrix_mdev->matrix.aqm,
--				  matrix_mdev->matrix.adm);
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
-+		vfio_ap_mdev_get_crycb_matrix(matrix_mdev);
-+		vfio_ap_mdev_update_crycb(matrix_mdev);
-+	}
- 
- 	return NOTIFY_OK;
- }
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 5cc3c2ebf151..4a4e2c11fdf2 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -74,6 +74,8 @@ struct ap_matrix {
-  * @list:	allows the ap_matrix_mdev struct to be added to a list
-  * @matrix:	the adapters, usage domains and control domains assigned to the
-  *		mediated matrix device.
-+ * @crycb:	the adapters, usage domains and control domains configured for
-+ *		a guest
-  * @group_notifier: notifier block used for specifying callback function for
-  *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
-  * @kvm:	the struct holding guest's state
-@@ -81,6 +83,7 @@ struct ap_matrix {
- struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
-+	struct ap_matrix crycb;
- 	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
 -- 
-2.7.4
+
+Thanks,
+
+David / dhildenb
