@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33450 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53170 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727916AbfIYJDg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Sep 2019 05:03:36 -0400
+        id S1726030AbfIYItd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Sep 2019 04:49:33 -0400
 Subject: Re: [kvm-unit-tests PATCH v3 6/6] s390x: SMP test
 References: <20190920080356.1948-1-frankja@linux.ibm.com>
  <20190920080356.1948-7-frankja@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <47f9b150-c0fd-e497-7ee5-5c138f9b48fe@redhat.com>
-Date: Wed, 25 Sep 2019 11:03:31 +0200
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <ddb43c9c-e6d9-fbc0-b7a5-ec440756b0ec@redhat.com>
+Date: Wed, 25 Sep 2019 10:49:26 +0200
 MIME-Version: 1.0
 In-Reply-To: <20190920080356.1948-7-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
@@ -17,9 +17,9 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-On 20.09.19 10:03, Janosch Frank wrote:
+On 20/09/2019 10.03, Janosch Frank wrote:
 > Testing SIGP emulation for the following order codes:
 > * start
 > * stop
@@ -39,264 +39,37 @@ On 20.09.19 10:03, Janosch Frank wrote:
 > ---
 >  s390x/Makefile      |   1 +
 >  s390x/smp.c         | 242 ++++++++++++++++++++++++++++++++++++++++++++
->  s390x/unittests.cfg |   4 +
->  3 files changed, 247 insertions(+)
->  create mode 100644 s390x/smp.c
-> 
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index d83dd0b..3744372 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -15,6 +15,7 @@ tests += $(TEST_DIR)/cpumodel.elf
->  tests += $(TEST_DIR)/diag288.elf
->  tests += $(TEST_DIR)/stsi.elf
->  tests += $(TEST_DIR)/skrf.elf
-> +tests += $(TEST_DIR)/smp.elf
->  tests_binary = $(patsubst %.elf,%.bin,$(tests))
->  
->  all: directories test_cases test_cases_binary
-> diff --git a/s390x/smp.c b/s390x/smp.c
-> new file mode 100644
-> index 0000000..7032494
-> --- /dev/null
-> +++ b/s390x/smp.c
-> @@ -0,0 +1,242 @@
-> +/*
-> + * Tests sigp emulation
-> + *
-> + * Copyright 2019 IBM Corp.
-> + *
-> + * Authors:
-> + *    Janosch Frank <frankja@linux.ibm.com>
-> + *
-> + * This code is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2.
-> + */
-> +#include <libcflat.h>
-> +#include <asm/asm-offsets.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/page.h>
-> +#include <asm/facility.h>
-> +#include <asm-generic/barrier.h>
-> +#include <asm/sigp.h>
-> +
-> +#include <smp.h>
-> +#include <alloc_page.h>
-> +
-> +static int testflag = 0;
-> +
-> +static void cpu_loop(void)
-> +{
-> +	for (;;) {}
-> +}
-> +
-> +static void test_func(void)
-> +{
-> +	testflag = 1;
-> +	mb();
-> +	cpu_loop();
-> +}
-> +
-> +static void test_start(void)
-> +{
-> +	struct psw psw;
-> +	psw.mask =  extract_psw_mask();
-> +	psw.addr = (unsigned long)test_func;
-> +
-> +	smp_cpu_setup(1, psw);
-> +	while (!testflag) {
-> +		mb();
-> +	}
-> +	report("start", 1);
-> +}
-> +
-> +static void test_stop(void)
-> +{
-> +	smp_cpu_stop(1);
-> +	/*
-> +	 * The smp library waits for the CPU to shut down, but let's
-> +	 * also do it here, so we don't rely on the library
-> +	 * implementation
-> +	 */
-> +	while (!smp_cpu_stopped(1)) {}
-> +	report("stop", 1);
-> +}
-> +
-> +static void test_stop_store_status(void)
-> +{
-> +	struct cpu *cpu = smp_cpu_from_addr(1);
-> +	struct lowcore *lc = (void *)0x0;
-> +
-> +	report_prefix_push("stop store status");
-> +	lc->prefix_sa = 0;
-> +	lc->grs_sa[15] = 0;
-> +	smp_cpu_stop_store_status(1);
-> +	mb();
-> +	report("prefix", lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore);
-> +	report("stack", lc->grs_sa[15]);
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_store_status(void)
-> +{
-> +	struct cpu_status *status = alloc_pages(1);
-> +	uint32_t r;
-> +
-> +	report_prefix_push("store status at address");
-> +	memset(status, 0, PAGE_SIZE * 2);
-> +
-> +	report_prefix_push("running");
-> +	smp_cpu_restart(1);
-> +	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, &r);
-> +	report("incorrect state", r == SIGP_STATUS_INCORRECT_STATE);
-> +	report("status not written", !memcmp(status, (void*)status + PAGE_SIZE, PAGE_SIZE));
-> +	report_prefix_pop();
-> +
-> +	memset(status, 0, PAGE_SIZE);
-> +	report_prefix_push("stopped");
-> +	smp_cpu_stop(1);
-> +	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-> +	while (!status->prefix) { mb(); }
-> +	report("status written", 1);
-> +	free_pages(status, PAGE_SIZE * 2);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_pop();
-> +}
-> +
-> +static void ecall(void)
-> +{
-> +	unsigned long mask;
-> +	struct lowcore *lc = (void *)0x0;
-> +
-> +	expect_ext_int();
-> +	ctl_set_bit(0, 13);
-> +	mask = extract_psw_mask();
-> +	mask |= PSW_MASK_EXT;
-> +	load_psw_mask(mask);
-> +	testflag = 1;
-> +	while (lc->ext_int_code != 0x1202) { mb(); }
-> +	report("ecall", 1);
-> +	testflag= 1;
-> +}
-> +
-> +static void test_ecall(void)
-> +{
-> +	struct psw psw;
-> +	psw.mask =  extract_psw_mask();
-> +	psw.addr = (unsigned long)ecall;
-> +
-> +	report_prefix_push("ecall");
-> +	testflag= 0;
-> +	smp_cpu_destroy(1);
-> +
-> +	smp_cpu_setup(1, psw);
-> +	while (!testflag) { mb(); }
-> +	testflag= 0;
-> +	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
-> +	while(!testflag) {mb();}
-> +	smp_cpu_stop(1);
-> +	report_prefix_pop();
-> +}
-> +
-> +static void emcall(void)
-> +{
-> +	unsigned long mask;
-> +	struct lowcore *lc = (void *)0x0;
-> +
-> +	expect_ext_int();
-> +	ctl_set_bit(0, 14);
-> +	mask = extract_psw_mask();
-> +	mask |= PSW_MASK_EXT;
-> +	load_psw_mask(mask);
-> +	testflag= 1;
-> +	while (lc->ext_int_code != 0x1201) { mb(); }
-> +	report("ecall", 1);
-> +	testflag = 1;
-> +}
-> +
-> +static void test_emcall(void)
-> +{
-> +	struct psw psw;
-> +	psw.mask =  extract_psw_mask();
-> +	psw.addr = (unsigned long)emcall;
-> +
-> +	report_prefix_push("emcall");
-> +	testflag= 0;
-> +	smp_cpu_destroy(1);
-> +
-> +	smp_cpu_setup(1, psw);
-> +	while (!testflag) { mb(); }
-> +	testflag= 0;
-> +	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
-> +	while(!testflag) { mb(); }
-> +	smp_cpu_stop(1);
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_reset_initial(void)
-> +{
-> +	struct cpu_status *status = alloc_pages(0);
-> +	struct psw psw;
-> +
-> +	psw.mask =  extract_psw_mask();
-> +	psw.addr = (unsigned long)test_func;
-> +
-> +	report_prefix_push("reset initial");
-> +	smp_cpu_setup(1, psw);
-> +
-> +	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
-> +	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-> +
-> +	report_prefix_push("clear");
-> +	report("psw", !status->psw.mask && !status->psw.addr);
-> +	report("prefix", !status->prefix);
-> +	report("fpc", !status->fpc);
-> +	report("cpu timer", !status->cputm);
-> +	report("todpr", !status->todpr);
-> +	report_prefix_pop();
-> +
-> +	report_prefix_push("initialized");
-> +	report("cr0 == 0xE0", status->crs[0] == 0xE0UL);
-> +	report("cr14 == 0xC2000000", status->crs[14] == 0xC2000000UL);
-> +	report_prefix_pop();
-> +
-> +	report("cpu stopped", smp_cpu_stopped(1));
-> +	free_pages(status, PAGE_SIZE);
-> +	report_prefix_pop();
-> +}
-> +
-> +static void test_reset(void)
-> +{
-> +	struct psw psw;
-> +
-> +	psw.mask =  extract_psw_mask();
-> +	psw.addr = (unsigned long)test_func;
-> +
-> +	report_prefix_push("cpu reset");
-> +	smp_cpu_setup(1, psw);
-> +
-> +	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
-> +	report("cpu stopped", smp_cpu_stopped(1));
-> +	report_prefix_pop();
-> +}
-> +
+[...]
 > +int main(void)
 > +{
 > +	report_prefix_push("smp");
 > +
 > +	if (smp_query_num_cpus() == 1) {
 > +		report_abort("need at least 2 cpus for this test");
+
+nit: report_abort() aborts immediately, so the "goto done" below is dead
+code. Did you mean report_skip() instead?
+
 > +		goto done;
 > +	}
+> +
+> +	test_start();
+> +	test_stop();
+> +	test_stop_store_status();
+> +	test_store_status();
+> +	test_ecall();
+> +	test_emcall();
+> +	test_reset();
+> +	test_reset_initial();
+> +
+> +done:
+> +	report_prefix_pop();
+> +	return report_summary();
+> +}
 
-You should rather sense if CPU with the addr 1 is available. AFAIR, the
-number of CPUs and the CPU addresses are two types of shoes.
+Apart from the nit, the patch looks fine to me. Since this is IIRC the
+only nit that is left in this series, I can also fix it up when picking
+up the patch, if you like - just tell me whether you prefer report_skip
+or deletion of the goto.
 
-
-
--- 
-
-Thanks,
-
-David / dhildenb
+ Thomas
