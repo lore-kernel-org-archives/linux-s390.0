@@ -1,54 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:39112 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726590AbfJADtd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Sep 2019 23:49:33 -0400
-Subject: Re: [PATCH] zfcp: fix reaction on bit error theshold notification with adapter close
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51128 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725554AbfIZLBB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Sep 2019 07:01:01 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x8QAwpmO088887
+        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 07:01:00 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2v8sxx6rfc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 07:01:00 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 26 Sep 2019 12:00:58 +0100
+Subject: Re: [PATCH] zfcp: fix reaction on bit error theshold notification
+ with adapter close
 References: <20190924160616.15301-1-maier@linux.ibm.com>
-Date: Mon, 30 Sep 2019 23:49:26 -0400
-In-Reply-To: <20190924160616.15301-1-maier@linux.ibm.com> (Steffen Maier's
-        message of "Tue, 24 Sep 2019 18:06:16 +0200")
-Message-ID: <yq1d0fhw2ex.fsf@oracle.com>
+ <20190925224305.00183208C3@mail.kernel.org>
+From: Steffen Maier <maier@linux.ibm.com>
+Date: Thu, 26 Sep 2019 13:00:53 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20190925224305.00183208C3@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <77d90d91-68a3-187e-7d5a-114f02a05dea@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Steffen Maier <maier@linux.ibm.com>
-Cc: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, stable@vger.kernel.org
+To: Sasha Levin <sashal@kernel.org>, "James E . J . Bottomley" <jejb@linux.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>
+
+On 9/26/19 12:43 AM, Sasha Levin wrote:
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 1da177e4c3f4 Linux-2.6.12-rc2.
+> 
+> The bot has tested the following trees: v5.3.1, v5.2.17, v4.19.75, v4.14.146, v4.9.194, v4.4.194.
+> 
+> v5.3.1: Build OK!
+> v5.2.17: Build OK!
+> v4.19.75: Build OK!
+> v4.14.146: Failed to apply! Possible dependencies:
+>      75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+> 
+> v4.9.194: Failed to apply! Possible dependencies:
+>      75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+>      bc46427e807e ("scsi: zfcp: use setup_timer instead of init_timer")
+> 
+> v4.4.194: Failed to apply! Possible dependencies:
+>      75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+>      bc46427e807e ("scsi: zfcp: use setup_timer instead of init_timer")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+
+It's sufficient to have the fix in those more recent stable trees where it 
+applies (and builds). My fixes tag formally indicates since when it was at 
+least broken but I don't expect all stable or longterm kernels to get the fix. 
+If I happen to find out we need the fix in a kernel where it does not apply, 
+I'll send a backport to stable when the time is right.
 
 
-Steffen,
+Showing the possible dependencies is awesome!
 
-> Kernel message explanation:
->
->  * Description:
->  * The FCP channel reported that its bit error threshold has been exceeded.
->  * These errors might result from a problem with the physical components
->  * of the local fibre link into the FCP channel.
->  * The problem might be damage or malfunction of the cable or
->  * cable connection between the FCP channel and
->  * the adjacent fabric switch port or the point-to-point peer.
->  * Find details about the errors in the HBA trace for the FCP device.
->  * The zfcp device driver closed down the FCP device
->  * to limit the performance impact from possible I/O command timeouts.
->  * User action:
->  * Check for problems on the local fibre link, ensure that fibre optics are
->  * clean and functional, and all cables are properly plugged.
->  * After the repair action, you can manually recover the FCP device by
->  * writing "0" into its "failed" sysfs attribute.
->  * If recovery through sysfs is not possible, set the CHPID of the device
->  * offline and back online on the service element.
-
-This commentary does not read like a patch description. It makes no
-mention of the actual kernel changes and the introduced module
-parameter.
-
-> +static bool ber_stop = true;
-> +module_param(ber_stop, bool, 0600);
-> +MODULE_PARM_DESC(ber_stop,
-> +		 "Shuts down FCP devices for FCP channels that report a bit-error count in excess of its threshold (default on)");
-> +
 
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
+
+Linux on IBM Z Development
+
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
