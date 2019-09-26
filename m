@@ -1,123 +1,140 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35932 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441133AbfIXNyN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Sep 2019 09:54:13 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2 0/8] mdev based hardware virtio offloading support
-Date: Tue, 24 Sep 2019 21:53:24 +0800
-Message-Id: <20190924135332.14160-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH 08/29] vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes
+Date: Thu, 26 Sep 2019 10:55:41 -0700
+Message-Id: <20190926175602.33098-9-keescook@chromium.org>
+In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
+References: <20190926175602.33098-1-keescook@chromium.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Hi all:
+In preparation for moving NOTES into RO_DATA, this provides a mechanism
+for architectures that want to emit a PT_NOTE Program Header to do so.
 
-There are hardware that can do virtio datapath offloading while having
-its own control path. This path tries to implement a mdev based
-unified API to support using kernel virtio driver to drive those
-devices. This is done by introducing a new mdev transport for virtio
-(virtio_mdev) and register itself as a new kind of mdev driver. Then
-it provides a unified way for kernel virtio driver to talk with mdev
-device implementation.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ arch/alpha/kernel/vmlinux.lds.S   |  3 +++
+ arch/ia64/kernel/vmlinux.lds.S    |  2 ++
+ arch/mips/kernel/vmlinux.lds.S    | 12 ++++++------
+ arch/powerpc/kernel/vmlinux.lds.S |  1 +
+ arch/s390/kernel/vmlinux.lds.S    |  2 ++
+ arch/x86/kernel/vmlinux.lds.S     |  2 ++
+ include/asm-generic/vmlinux.lds.h |  8 ++++++++
+ 7 files changed, 24 insertions(+), 6 deletions(-)
 
-Though the series only contains kernel driver support, the goal is to
-make the transport generic enough to support userspace drivers. This
-means vhost-mdev[1] could be built on top as well by resuing the
-transport.
-
-A sample driver is also implemented which simulate a virito-net
-loopback ethernet device on top of vringh + workqueue. This could be
-used as a reference implementation for real hardware driver.
-
-Consider mdev framework only support VFIO device and driver right now,
-this series also extend it to support other types. This is done
-through introducing class id to the device and pairing it with
-id_talbe claimed by the driver. On top, this seris also decouple
-device specific parents ops out of the common ones.
-
-Pktgen test was done with virito-net + mvnet loop back device.
-
-Please review.
-
-[1] https://lkml.org/lkml/2019/9/16/869
-
-Changes from V1:
-
-- move virtio_mdev.c to drivers/virtio
-- store class_id in mdev_device instead of mdev_parent
-- store device_ops in mdev_device instead of mdev_parent
-- reorder the patch, vringh fix comes first
-- really silent compiling warnings
-- really switch to use u16 for class_id
-- uevent and modpost support for mdev class_id
-- vraious tweaks per comments from Parav
-
-Changes from RFC-V2:
-
-- silent compile warnings on some specific configuration
-- use u16 instead u8 for class id
-- reseve MDEV_ID_VHOST for future vhost-mdev work
-- introduce "virtio" type for mvnet and make "vhost" type for future
-  work
-- add entries in MAINTAINER
-- tweak and typos fixes in commit log
-
-Changes from RFC-V1:
-
-- rename device id to class id
-- add docs for class id and device specific ops (device_ops)
-- split device_ops into seperate headers
-- drop the mdev_set_dma_ops()
-- use device_ops to implement the transport API, then it's not a part
-  of UAPI any more
-- use GFP_ATOMIC in mvnet sample device and other tweaks
-- set_vring_base/get_vring_base support for mvnet device
-
-Jason Wang (8):
-  vringh: fix copy direction of vringh_iov_push_kern()
-  mdev: class id support
-  mdev: bus uevent support
-  modpost: add support for mdev class id
-  mdev: introduce device specific ops
-  mdev: introduce virtio device and its device ops
-  virtio: introduce a mdev based transport
-  docs: sample driver to demonstrate how to implement virtio-mdev
-    framework
-
- .../driver-api/vfio-mediated-device.rst       |   7 +-
- MAINTAINERS                                   |   2 +
- drivers/gpu/drm/i915/gvt/kvmgt.c              |  18 +-
- drivers/s390/cio/vfio_ccw_ops.c               |  18 +-
- drivers/s390/crypto/vfio_ap_ops.c             |  14 +-
- drivers/vfio/mdev/mdev_core.c                 |  19 +
- drivers/vfio/mdev/mdev_driver.c               |  22 +
- drivers/vfio/mdev/mdev_private.h              |   2 +
- drivers/vfio/mdev/vfio_mdev.c                 |  45 +-
- drivers/vhost/vringh.c                        |   8 +-
- drivers/virtio/Kconfig                        |   7 +
- drivers/virtio/Makefile                       |   1 +
- drivers/virtio/virtio_mdev.c                  | 417 +++++++++++
- include/linux/mdev.h                          |  52 +-
- include/linux/mod_devicetable.h               |   8 +
- include/linux/vfio_mdev.h                     |  52 ++
- include/linux/virtio_mdev.h                   | 145 ++++
- samples/Kconfig                               |   7 +
- samples/vfio-mdev/Makefile                    |   1 +
- samples/vfio-mdev/mbochs.c                    |  20 +-
- samples/vfio-mdev/mdpy.c                      |  20 +-
- samples/vfio-mdev/mtty.c                      |  18 +-
- samples/vfio-mdev/mvnet.c                     | 692 ++++++++++++++++++
- scripts/mod/devicetable-offsets.c             |   3 +
- scripts/mod/file2alias.c                      |  10 +
- 25 files changed, 1524 insertions(+), 84 deletions(-)
- create mode 100644 drivers/virtio/virtio_mdev.c
- create mode 100644 include/linux/vfio_mdev.h
- create mode 100644 include/linux/virtio_mdev.h
- create mode 100644 samples/vfio-mdev/mvnet.c
-
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 781090cacc96..363a60ba7c31 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -1,4 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
++
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/cache.h>
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index c1067992fcd1..e034a6a4a444 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -5,6 +5,8 @@
+ #include <asm/pgtable.h>
+ #include <asm/thread_info.h>
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ OUTPUT_FORMAT("elf64-ia64-little")
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 33ee0d18fb0a..1c95612eb800 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -10,6 +10,11 @@
+  */
+ #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
+ 
++/* Cavium Octeon should not have a separate PT_NOTE Program Header. */
++#ifndef CONFIG_CAVIUM_OCTEON_SOC
++#define EMITS_PT_NOTE
++#endif
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ #undef mips
+@@ -76,12 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
+ 	}
+ 
+-#ifdef CONFIG_CAVIUM_OCTEON_SOC
+-#define NOTES_HEADER
+-#else /* CONFIG_CAVIUM_OCTEON_SOC */
+-#define NOTES_HEADER :note
+-#endif /* CONFIG_CAVIUM_OCTEON_SOC */
+-	NOTES :text NOTES_HEADER
++	NOTES NOTES_HEADERS
+ 	.dummy : { *(.dummy) } :text
+ 
+ 	_sdata = .;			/* Start of data section */
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index e184a63aa5b0..7e26e20c8324 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -6,6 +6,7 @@
+ #endif
+ 
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
++#define EMITS_PT_NOTE
+ 
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 13294fef473e..646d939346df 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -15,6 +15,8 @@
+ /* Handle ro_after_init data on our own. */
+ #define RO_AFTER_INIT_DATA
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/vmlinux.lds.h>
+ 
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 788e78978030..2e18bf5c1aed 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -21,6 +21,8 @@
+ #define LOAD_OFFSET __START_KERNEL_map
+ #endif
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index cd28f63bfbc7..2cc3ff9ac8c7 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -54,6 +54,14 @@
+ #define LOAD_OFFSET 0
+ #endif
+ 
++/*
++ * Only some architectures want to have the .notes segment visible in
++ * a separate PT_NOTE ELF Program Header.
++ */
++#ifdef EMITS_PT_NOTE
++#define NOTES_HEADERS		:text :note
++#endif
++
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+ #define ALIGN_FUNCTION()  . = ALIGN(8)
+ 
 -- 
-2.19.1
+2.17.1
