@@ -1,97 +1,151 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40888 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbfIAUgL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Sep 2019 16:36:11 -0400
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 7/9] crypto: n2 - Rename arrays to avoid conflict with crypto/sha256.h
-Date: Sun,  1 Sep 2019 22:35:30 +0200
-Message-Id: <20190901203532.2615-8-hdegoede@redhat.com>
-In-Reply-To: <20190901203532.2615-1-hdegoede@redhat.com>
-References: <20190901203532.2615-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH 09/29] vmlinux.lds.h: Move Program Header restoration into NOTES macro
+Date: Thu, 26 Sep 2019 10:55:42 -0700
+Message-Id: <20190926175602.33098-10-keescook@chromium.org>
+In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
+References: <20190926175602.33098-1-keescook@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Atul Gupta <atul.gupta@chelsio.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>, Eric Biggers <ebiggers@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-crypto@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Rename the sha*_init arrays to n2_sha*_init so that they do not conflict
-with the functions declared in crypto/sha256.h.
+In preparation for moving NOTES into RO_DATA, the Program Header
+assignment restoration needs to be part of the NOTES macro itself.
 
-Also rename md5_init to n2_md5_init for consistency.
-
-This is a preparation patch for folding crypto/sha256.h into crypto/sha.h.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/crypto/n2_core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S   |  5 +----
+ arch/ia64/kernel/vmlinux.lds.S    |  4 +---
+ arch/mips/kernel/vmlinux.lds.S    |  3 +--
+ arch/powerpc/kernel/vmlinux.lds.S |  4 +---
+ arch/s390/kernel/vmlinux.lds.S    |  4 +---
+ arch/x86/kernel/vmlinux.lds.S     |  3 +--
+ include/asm-generic/vmlinux.lds.h | 13 +++++++++++--
+ 7 files changed, 17 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/crypto/n2_core.c b/drivers/crypto/n2_core.c
-index 760e72a5893b..c4bf85fc9601 100644
---- a/drivers/crypto/n2_core.c
-+++ b/drivers/crypto/n2_core.c
-@@ -1295,20 +1295,20 @@ struct n2_hash_tmpl {
- 	u8		hmac_type;
- };
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 363a60ba7c31..cdfdc91ce64c 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -34,10 +34,7 @@ SECTIONS
+ 	swapper_pg_dir = SWAPPER_PGD;
+ 	_etext = .;	/* End of text section */
  
--static const u32 md5_init[MD5_HASH_WORDS] = {
-+static const u32 n2_md5_init[MD5_HASH_WORDS] = {
- 	cpu_to_le32(MD5_H0),
- 	cpu_to_le32(MD5_H1),
- 	cpu_to_le32(MD5_H2),
- 	cpu_to_le32(MD5_H3),
- };
--static const u32 sha1_init[SHA1_DIGEST_SIZE / 4] = {
-+static const u32 n2_sha1_init[SHA1_DIGEST_SIZE / 4] = {
- 	SHA1_H0, SHA1_H1, SHA1_H2, SHA1_H3, SHA1_H4,
- };
--static const u32 sha256_init[SHA256_DIGEST_SIZE / 4] = {
-+static const u32 n2_sha256_init[SHA256_DIGEST_SIZE / 4] = {
- 	SHA256_H0, SHA256_H1, SHA256_H2, SHA256_H3,
- 	SHA256_H4, SHA256_H5, SHA256_H6, SHA256_H7,
- };
--static const u32 sha224_init[SHA256_DIGEST_SIZE / 4] = {
-+static const u32 n2_sha224_init[SHA256_DIGEST_SIZE / 4] = {
- 	SHA224_H0, SHA224_H1, SHA224_H2, SHA224_H3,
- 	SHA224_H4, SHA224_H5, SHA224_H6, SHA224_H7,
- };
-@@ -1316,7 +1316,7 @@ static const u32 sha224_init[SHA256_DIGEST_SIZE / 4] = {
- static const struct n2_hash_tmpl hash_tmpls[] = {
- 	{ .name		= "md5",
- 	  .hash_zero	= md5_zero_message_hash,
--	  .hash_init	= md5_init,
-+	  .hash_init	= n2_md5_init,
- 	  .auth_type	= AUTH_TYPE_MD5,
- 	  .hmac_type	= AUTH_TYPE_HMAC_MD5,
- 	  .hw_op_hashsz	= MD5_DIGEST_SIZE,
-@@ -1324,7 +1324,7 @@ static const struct n2_hash_tmpl hash_tmpls[] = {
- 	  .block_size	= MD5_HMAC_BLOCK_SIZE },
- 	{ .name		= "sha1",
- 	  .hash_zero	= sha1_zero_message_hash,
--	  .hash_init	= sha1_init,
-+	  .hash_init	= n2_sha1_init,
- 	  .auth_type	= AUTH_TYPE_SHA1,
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA1,
- 	  .hw_op_hashsz	= SHA1_DIGEST_SIZE,
-@@ -1332,7 +1332,7 @@ static const struct n2_hash_tmpl hash_tmpls[] = {
- 	  .block_size	= SHA1_BLOCK_SIZE },
- 	{ .name		= "sha256",
- 	  .hash_zero	= sha256_zero_message_hash,
--	  .hash_init	= sha256_init,
-+	  .hash_init	= n2_sha256_init,
- 	  .auth_type	= AUTH_TYPE_SHA256,
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA256,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
-@@ -1340,7 +1340,7 @@ static const struct n2_hash_tmpl hash_tmpls[] = {
- 	  .block_size	= SHA256_BLOCK_SIZE },
- 	{ .name		= "sha224",
- 	  .hash_zero	= sha224_zero_message_hash,
--	  .hash_init	= sha224_init,
-+	  .hash_init	= n2_sha224_init,
- 	  .auth_type	= AUTH_TYPE_SHA256,
- 	  .hmac_type	= AUTH_TYPE_RESERVED,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
+-	NOTES :text :note
+-	.dummy : {
+-		*(.dummy)
+-	} :text
++	NOTES
+ 
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index e034a6a4a444..fdcc992ab360 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -70,9 +70,7 @@ SECTIONS {
+ 	/*
+ 	 * Read-only data
+ 	 */
+-	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
+-	code_continues : {
+-	} :text                /* switch back to regular program...  */
++	NOTES
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 1c95612eb800..6a22f531d815 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -81,8 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
+ 	}
+ 
+-	NOTES NOTES_HEADERS
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	_sdata = .;			/* Start of data section */
+ 	RODATA
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 7e26e20c8324..4f19d814d592 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -164,9 +164,7 @@ SECTIONS
+ #endif
+ 	EXCEPTION_TABLE(0)
+ 
+-	NOTES :text :note
+-	/* Restore program header away from PT_NOTE. */
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ /*
+  * Init sections discarded at runtime
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 646d939346df..f88eedeb915a 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -52,9 +52,7 @@ SECTIONS
+ 		_etext = .;		/* End of text section */
+ 	} :text = 0x0700
+ 
+-	NOTES :text :note
+-
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	RO_DATA_SECTION(PAGE_SIZE)
+ 
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 2e18bf5c1aed..8be25b09c2b7 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -148,8 +148,7 @@ SECTIONS
+ 		_etext = .;
+ 	} :text = 0x9090
+ 
+-	NOTES :text :note
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 2cc3ff9ac8c7..6a0a657dfdb4 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -56,10 +56,18 @@
+ 
+ /*
+  * Only some architectures want to have the .notes segment visible in
+- * a separate PT_NOTE ELF Program Header.
++ * a separate PT_NOTE ELF Program Header. When this happens, it needs
++ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
++ * Program Headers. In this case, though, the PT_LOAD needs to be made
++ * the default again so that all the following sections don't also end
++ * up in the PT_NOTE Program Header.
+  */
+ #ifdef EMITS_PT_NOTE
+ #define NOTES_HEADERS		:text :note
++#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
++#else
++#define NOTES_HEADERS
++#define NOTES_HEADERS_RESTORE
+ #endif
+ 
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+@@ -792,7 +800,8 @@
+ 		__start_notes = .;					\
+ 		KEEP(*(.note.*))					\
+ 		__stop_notes = .;					\
+-	}
++	} NOTES_HEADERS							\
++	NOTES_HEADERS_RESTORE
+ 
+ #define INIT_SETUP(initsetup_align)					\
+ 		. = ALIGN(initsetup_align);				\
 -- 
-2.23.0
+2.17.1
