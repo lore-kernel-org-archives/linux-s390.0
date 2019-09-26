@@ -1,118 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:35217 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725990AbfI0Xkv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Sep 2019 19:40:51 -0400
-From: Denis Efremov <efremov@linux.com>
-Subject: [PATCH RESEND v3 00/26] Add definition for the number of standard PCI BARs
-Date: Sat, 28 Sep 2019 02:40:26 +0300
-Message-Id: <20190927234026.23342-1-efremov@linux.com>
-In-Reply-To: <20190916204158.6889-3-efremov@linux.com>
-References: <20190916204158.6889-3-efremov@linux.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:33874 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728183AbfIZR4e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:34 -0400
+Received: by mail-pg1-f193.google.com with SMTP id y35so1985720pgl.1
+        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:33 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH 24/29] powerpc: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Thu, 26 Sep 2019 10:55:57 -0700
+Message-Id: <20190926175602.33098-25-keescook@chromium.org>
+In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
+References: <20190926175602.33098-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Denis Efremov <efremov@linux.com>, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-hyperv@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org, linux-fbdev@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org, linux-usb@vger.kernel.org, devel@driverdev.osuosl.org, linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Code that iterates over all standard PCI BARs typically uses
-PCI_STD_RESOURCE_END, but this is error-prone because it requires
-"i <= PCI_STD_RESOURCE_END" rather than something like
-"i < PCI_STD_NUM_BARS". We could add such a definition and use it the same
-way PCI_SRIOV_NUM_BARS is used. The patchset also replaces constant (6)
-with new define PCI_STD_NUM_BARS where appropriate and removes local
-declarations for the number of PCI BARs.
+The EXCEPTION_TABLE is read-only, so collapse it into RO_DATA.
 
-Changes in v3:
-  - Updated commits description.
-  - Refactored "< PCI_ROM_RESOURCE" with "< PCI_STD_NUM_BARS" in loops.
-  - Refactored "<= BAR_5" with "< PCI_STD_NUM_BARS" in loops.
-  - Removed local define GASKET_NUM_BARS.
-  - Removed local define PCI_NUM_BAR_RESOURCES.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ arch/powerpc/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in v2:
-  - Reversed checks in pci_iomap_range,pci_iomap_wc_range.
-  - Refactored loops in vfio_pci to keep PCI_STD_RESOURCES.
-  - Added 2 new patches to replace the magic constant with new define.
-  - Splitted net patch in v1 to separate stmmac and dwc-xlgmac patches.
-
-Denis Efremov (26):
-  PCI: Add define for the number of standard PCI BARs
-  PCI: hv: Use PCI_STD_NUM_BARS
-  PCI: dwc: Use PCI_STD_NUM_BARS
-  PCI: endpoint: Use PCI_STD_NUM_BARS
-  misc: pci_endpoint_test: Use PCI_STD_NUM_BARS
-  s390/pci: Use PCI_STD_NUM_BARS
-  x86/PCI: Loop using PCI_STD_NUM_BARS
-  alpha/PCI: Use PCI_STD_NUM_BARS
-  ia64: Use PCI_STD_NUM_BARS
-  stmmac: pci: Loop using PCI_STD_NUM_BARS
-  net: dwc-xlgmac: Loop using PCI_STD_NUM_BARS
-  ixgb: use PCI_STD_NUM_BARS
-  e1000: Use PCI_STD_NUM_BARS
-  rapidio/tsi721: Loop using PCI_STD_NUM_BARS
-  efifb: Loop using PCI_STD_NUM_BARS
-  fbmem: use PCI_STD_NUM_BARS
-  vfio_pci: Loop using PCI_STD_NUM_BARS
-  scsi: pm80xx: Use PCI_STD_NUM_BARS
-  ata: sata_nv: Use PCI_STD_NUM_BARS
-  staging: gasket: Use PCI_STD_NUM_BARS
-  serial: 8250_pci: Use PCI_STD_NUM_BARS
-  pata_atp867x: Use PCI_STD_NUM_BARS
-  memstick: use PCI_STD_NUM_BARS
-  USB: core: Use PCI_STD_NUM_BARS
-  usb: pci-quirks: Use PCI_STD_NUM_BARS
-  devres: use PCI_STD_NUM_BARS
-
- arch/alpha/kernel/pci-sysfs.c                 |  8 ++---
- arch/ia64/sn/pci/pcibr/pcibr_dma.c            |  4 +--
- arch/s390/include/asm/pci.h                   |  5 +--
- arch/s390/include/asm/pci_clp.h               |  6 ++--
- arch/s390/pci/pci.c                           | 16 +++++-----
- arch/s390/pci/pci_clp.c                       |  6 ++--
- arch/x86/pci/common.c                         |  2 +-
- arch/x86/pci/intel_mid_pci.c                  |  2 +-
- drivers/ata/pata_atp867x.c                    |  2 +-
- drivers/ata/sata_nv.c                         |  2 +-
- drivers/memstick/host/jmb38x_ms.c             |  2 +-
- drivers/misc/pci_endpoint_test.c              |  8 ++---
- drivers/net/ethernet/intel/e1000/e1000.h      |  1 -
- drivers/net/ethernet/intel/e1000/e1000_main.c |  2 +-
- drivers/net/ethernet/intel/ixgb/ixgb.h        |  1 -
- drivers/net/ethernet/intel/ixgb/ixgb_main.c   |  2 +-
- .../net/ethernet/stmicro/stmmac/stmmac_pci.c  |  4 +--
- .../net/ethernet/synopsys/dwc-xlgmac-pci.c    |  2 +-
- drivers/pci/controller/dwc/pci-dra7xx.c       |  2 +-
- .../pci/controller/dwc/pci-layerscape-ep.c    |  2 +-
- drivers/pci/controller/dwc/pcie-artpec6.c     |  2 +-
- .../pci/controller/dwc/pcie-designware-plat.c |  2 +-
- drivers/pci/controller/dwc/pcie-designware.h  |  2 +-
- drivers/pci/controller/pci-hyperv.c           | 10 +++---
- drivers/pci/endpoint/functions/pci-epf-test.c | 10 +++---
- drivers/pci/pci-sysfs.c                       |  4 +--
- drivers/pci/pci.c                             | 13 ++++----
- drivers/pci/proc.c                            |  4 +--
- drivers/pci/quirks.c                          |  4 +--
- drivers/rapidio/devices/tsi721.c              |  2 +-
- drivers/scsi/pm8001/pm8001_hwi.c              |  2 +-
- drivers/scsi/pm8001/pm8001_init.c             |  2 +-
- drivers/staging/gasket/gasket_constants.h     |  3 --
- drivers/staging/gasket/gasket_core.c          | 12 +++----
- drivers/staging/gasket/gasket_core.h          |  4 +--
- drivers/tty/serial/8250/8250_pci.c            |  8 ++---
- drivers/usb/core/hcd-pci.c                    |  2 +-
- drivers/usb/host/pci-quirks.c                 |  2 +-
- drivers/vfio/pci/vfio_pci.c                   | 11 ++++---
- drivers/vfio/pci/vfio_pci_config.c            | 32 ++++++++++---------
- drivers/vfio/pci/vfio_pci_private.h           |  4 +--
- drivers/video/fbdev/core/fbmem.c              |  4 +--
- drivers/video/fbdev/efifb.c                   |  2 +-
- include/linux/pci-epc.h                       |  2 +-
- include/linux/pci.h                           |  2 +-
- include/uapi/linux/pci_regs.h                 |  1 +
- lib/devres.c                                  |  2 +-
- 47 files changed, 112 insertions(+), 115 deletions(-)
-
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 4e7cec088c8b..2ed44e5824d5 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -7,6 +7,7 @@
+ 
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
+ #define EMITS_PT_NOTE
++#define RO_DATA_EXCEPTION_TABLE_ALIGN	0
+ 
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+@@ -162,7 +163,6 @@ SECTIONS
+ 		__stop__btb_flush_fixup = .;
+ 	}
+ #endif
+-	EXCEPTION_TABLE(0)
+ 
+ /*
+  * Init sections discarded at runtime
 -- 
-2.21.0
+2.17.1
