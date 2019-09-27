@@ -1,26 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:46951 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725306AbfI0V2J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Sep 2019 17:28:09 -0400
-Received: by mail-qt1-f196.google.com with SMTP id u22so9036226qtq.13
-        for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2019 14:28:08 -0700 (PDT)
-Message-ID: <1569619686.5576.242.camel@lca.pw>
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:34627 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725789AbfI0VPO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Sep 2019 17:15:14 -0400
+Received: by mail-qk1-f195.google.com with SMTP id q203so3177301qke.1
+        for <linux-s390@vger.kernel.org>; Fri, 27 Sep 2019 14:15:11 -0700 (PDT)
+Message-ID: <1569618908.5576.240.camel@lca.pw>
 Subject: Re: [PATCH] mm/page_alloc: fix a crash in free_pages_prepare()
 From: Qian Cai <cai@lca.pw>
-Date: Fri, 27 Sep 2019 17:28:06 -0400
-In-Reply-To: <20190927140222.6f7d0a41b9e734053ee911b9@linux-foundation.org>
+Date: Fri, 27 Sep 2019 17:15:08 -0400
+In-Reply-To: <20190927134859.95a2f4908bdcea30df0184ed@linux-foundation.org>
 References: <1569613623-16820-1-git-send-email-cai@lca.pw>
-         <20190927140222.6f7d0a41b9e734053ee911b9@linux-foundation.org>
-Content-Type: text/plain; charset="utf-8"
+         <20190927134859.95a2f4908bdcea30df0184ed@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 
-On Fri, 2019-09-27 at 14:02 -0700, Andrew Morton wrote:
+On Fri, 2019-09-27 at 13:48 -0700, Andrew Morton wrote:
 > On Fri, 27 Sep 2019 15:47:03 -0400 Qian Cai <cai@lca.pw> wrote:
 > 
 > > On architectures like s390, arch_free_page() could mark the page unused
@@ -77,20 +77,18 @@ On Fri, 2019-09-27 at 14:02 -0700, Andrew Morton wrote:
 > >  	if (debug_pagealloc_enabled())
 > >  		kernel_map_pages(page, 1 << order, 0);
 > 
-> AFAICT the meticulously undocumented s390 set_page_unused() will cause
-> there to be a fault if anyone tries to access the page contents, yes?
+> This is all fairly mature code, isn't it?  What happened to make this
+> problem pop up now?
 
-Yes.
+In the past, there is only kernel_poison_pages() would trigger it but it needs
+"page_poison=on" kernel cmdline, and I suspect nobody tested that on s390 in the
+past.
+
+Recently, kernel_init_free_pages() (the commit 6471384af2a6) was added to the
+kernel and could trigger it as well.
 
 > 
-> So I think you've moved the arch_free_page() to be after the final
-> thing which can access page contents, yes?  If so, we should have a
-> comment in free_pages_prepare() to attmept to prevent this problem from
-> reoccurring as the code evolves?
+> IOW, is a -stable backport needed?
 
-Right, something like this above arch_free_page() there?
-
-/*
- * It needs to be just above kernel_map_pages(), as s390 could mark those
- * pages unused and then trigger a fault when accessing.
- */
+Since kernel_init_free_pages() was added in v5.3, I think it does not hurt to
+backport to -stable there.
