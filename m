@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 25/33] hypfs: Fix error number left in struct pointer member
-Date: Sun, 29 Sep 2019 13:34:13 -0400
-Message-Id: <20190929173424.9361-25-sashal@kernel.org>
-In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
-References: <20190929173424.9361-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33376 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725946AbfI0Ihg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Sep 2019 04:37:36 -0400
+Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
+References: <20190924135332.14160-1-jasowang@redhat.com>
+ <20190924135332.14160-7-jasowang@redhat.com>
+ <20190924170640.1da03bae@x1.home>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <baa742f5-8d4e-f1f1-1194-f362cdf51fea@redhat.com>
+Date: Fri, 27 Sep 2019 16:37:06 +0800
 MIME-Version: 1.0
+In-Reply-To: <20190924170640.1da03bae@x1.home>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Language: en-US
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com
 
-From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+On 2019/9/25 上午7:06, Alex Williamson wrote:
+> On Tue, 24 Sep 2019 21:53:30 +0800
+> Jason Wang<jasowang@redhat.com>  wrote:
+>
+>> This patch implements basic support for mdev driver that supports
+>> virtio transport for kernel virtio driver.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>> ---
+>>   include/linux/mdev.h        |   2 +
+>>   include/linux/virtio_mdev.h | 145 ++++++++++++++++++++++++++++++++++++
+>>   2 files changed, 147 insertions(+)
+>>   create mode 100644 include/linux/virtio_mdev.h
+>>
+>> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+>> index 3414307311f1..73ac27b3b868 100644
+>> --- a/include/linux/mdev.h
+>> +++ b/include/linux/mdev.h
+>> @@ -126,6 +126,8 @@ struct mdev_device *mdev_from_dev(struct device *dev);
+>>   
+>>   enum {
+>>   	MDEV_ID_VFIO = 1,
+>> +	MDEV_ID_VIRTIO = 2,
+>> +	MDEV_ID_VHOST = 3,
+> MDEV_ID_VHOST isn't used yet here.  Also, given the strong
+> interdependence between the class_id and the ops structure, we might
+> wand to define them in the same place.  Thanks,
+>
+> Alex
+>
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+Rethink about this,  I believe it's better to define the device ops in 
+their own headers, and one set of device ops could be used for two 
+classes (e.g both virtio and vhost). And to avoid a duplicated ID 
+definition. I tend to keep this in the common mdev.h header.
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
-
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index c681329fdeec6..e4d17d9ea93d8 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
- 
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
--- 
-2.20.1
+Thanks
