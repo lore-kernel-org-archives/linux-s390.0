@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725306AbfI0VCY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Sep 2019 17:02:24 -0400
-Date: Fri, 27 Sep 2019 14:02:22 -0700
+        id S1725789AbfI0UtC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Sep 2019 16:49:02 -0400
+Date: Fri, 27 Sep 2019 13:48:59 -0700
 From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH] mm/page_alloc: fix a crash in free_pages_prepare()
-Message-Id: <20190927140222.6f7d0a41b9e734053ee911b9@linux-foundation.org>
+Message-Id: <20190927134859.95a2f4908bdcea30df0184ed@linux-foundation.org>
 In-Reply-To: <1569613623-16820-1-git-send-email-cai@lca.pw>
 References: <1569613623-16820-1-git-send-email-cai@lca.pw>
 Mime-Version: 1.0
@@ -73,10 +73,7 @@ On Fri, 27 Sep 2019 15:47:03 -0400 Qian Cai <cai@lca.pw> wrote:
 >  	if (debug_pagealloc_enabled())
 >  		kernel_map_pages(page, 1 << order, 0);
 
-AFAICT the meticulously undocumented s390 set_page_unused() will cause
-there to be a fault if anyone tries to access the page contents, yes?
+This is all fairly mature code, isn't it?  What happened to make this
+problem pop up now?
 
-So I think you've moved the arch_free_page() to be after the final
-thing which can access page contents, yes?  If so, we should have a
-comment in free_pages_prepare() to attmept to prevent this problem from
-reoccurring as the code evolves?
+IOW, is a -stable backport needed?
