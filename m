@@ -1,82 +1,65 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43410 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728212AbfIZR4f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Sep 2019 13:56:35 -0400
-Received: by mail-pg1-f196.google.com with SMTP id v27so1941392pgk.10
-        for <linux-s390@vger.kernel.org>; Thu, 26 Sep 2019 10:56:35 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH 28/29] x86/mm: Report actual image regions in /proc/iomem
-Date: Thu, 26 Sep 2019 10:56:01 -0700
-Message-Id: <20190926175602.33098-29-keescook@chromium.org>
-In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
-References: <20190926175602.33098-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/33] hypfs: Fix error number left in struct pointer member
+Date: Sun, 29 Sep 2019 13:34:13 -0400
+Message-Id: <20190929173424.9361-25-sashal@kernel.org>
+In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
+References: <20190929173424.9361-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
 
-The resource reservations in made for the kernel image did not reflect
-the gaps between text, rodata, and data. This adds the rodata resource
-and updates the start/end calculations to match the respective calls to
-free_kernel_image_pages().
+From: David Howells <dhowells@redhat.com>
 
-Before (booted with "nokaslr" for easier comparison):
+[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
 
-00100000-bffd9fff : System RAM
-  01000000-01e011d0 : Kernel code
-  01e011d1-025619bf : Kernel data
-  02a95000-035fffff : Kernel bss
+In hypfs_fill_super(), if hypfs_create_update_file() fails,
+sbi->update_file is left holding an error number.  This is passed to
+hypfs_kill_super() which doesn't check for this.
 
-After:
+Fix this by not setting sbi->update_value until after we've checked for
+error.
 
-00100000-bffd9fff : System RAM
-  01000000-01e011d0 : Kernel code
-  02000000-023d4fff : Kernel rodata
-  02400000-025619ff : Kernel data
-  02a95000-035fffff : Kernel bss
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/setup.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/s390/hypfs/inode.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index bbe35bf879f5..0bc71ee3a9c3 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -143,6 +143,13 @@ struct boot_params boot_params;
- /*
-  * Machine setup..
-  */
-+static struct resource rodata_resource = {
-+	.name	= "Kernel rodata",
-+	.start	= 0,
-+	.end	= 0,
-+	.flags	= IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM
-+};
-+
- static struct resource data_resource = {
- 	.name	= "Kernel data",
- 	.start	= 0,
-@@ -951,7 +958,9 @@ void __init setup_arch(char **cmdline_p)
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index c681329fdeec6..e4d17d9ea93d8 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
+ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *root_inode;
+-	struct dentry *root_dentry;
++	struct dentry *root_dentry, *update_file;
+ 	int rc = 0;
+ 	struct hypfs_sb_info *sbi;
  
- 	code_resource.start = __pa_symbol(_text);
- 	code_resource.end = __pa_symbol(_etext)-1;
--	data_resource.start = __pa_symbol(_etext);
-+	rodata_resource.start = __pa_symbol(__start_rodata);
-+	rodata_resource.end = __pa_symbol(__end_rodata)-1;
-+	data_resource.start = __pa_symbol(_sdata);
- 	data_resource.end = __pa_symbol(_edata)-1;
- 	bss_resource.start = __pa_symbol(__bss_start);
- 	bss_resource.end = __pa_symbol(__bss_stop)-1;
-@@ -1040,6 +1049,7 @@ void __init setup_arch(char **cmdline_p)
- 
- 	/* after parse_early_param, so could debug it */
- 	insert_resource(&iomem_resource, &code_resource);
-+	insert_resource(&iomem_resource, &rodata_resource);
- 	insert_resource(&iomem_resource, &data_resource);
- 	insert_resource(&iomem_resource, &bss_resource);
- 
+@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		rc = hypfs_diag_create_files(root_dentry);
+ 	if (rc)
+ 		return rc;
+-	sbi->update_file = hypfs_create_update_file(root_dentry);
+-	if (IS_ERR(sbi->update_file))
+-		return PTR_ERR(sbi->update_file);
++	update_file = hypfs_create_update_file(root_dentry);
++	if (IS_ERR(update_file))
++		return PTR_ERR(update_file);
++	sbi->update_file = update_file;
+ 	hypfs_update_update(sb);
+ 	pr_info("Hypervisor filesystem mounted\n");
+ 	return 0;
 -- 
-2.17.1
+2.20.1
