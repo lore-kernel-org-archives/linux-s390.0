@@ -1,67 +1,156 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:34456 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726946AbfICHy5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Sep 2019 03:54:57 -0400
-Date: Tue, 3 Sep 2019 09:53:52 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH] x86/mm: Fix cpumask_of_node() error condition
-Message-ID: <20190903075352.GY2369@hirez.programming.kicks-ass.net>
-References: <1567231103-13237-1-git-send-email-linyunsheng@huawei.com>
- <1567231103-13237-3-git-send-email-linyunsheng@huawei.com>
- <20190831085539.GG2369@hirez.programming.kicks-ass.net>
- <4d89c688-49e4-a2aa-32ee-65e36edcd913@huawei.com>
- <20190831161247.GM2369@hirez.programming.kicks-ass.net>
- <ae64285f-5134-4147-7b02-34bb5d519e8c@huawei.com>
- <20190902072542.GN2369@hirez.programming.kicks-ass.net>
- <20190902181731.GB35858@gmail.com>
+Received: from mx2.mailbox.org ([80.241.60.215]:19634 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732853AbfI3XJw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Sep 2019 19:09:52 -0400
+Date: Tue, 1 Oct 2019 09:09:14 +1000
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH v13 3/9] open: O_EMPTYPATH: procfs-less file descriptor
+ re-opening
+Message-ID: <20190930230914.qu3lg2rhlesf5myt@yavin.dot.cyphar.com>
+References: <20190930183316.10190-4-cyphar@cyphar.com>
+ <201910010638.xzk5h4Bt%lkp@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="snekp2kducyfirik"
 Content-Disposition: inline
-In-Reply-To: <20190902181731.GB35858@gmail.com>
+In-Reply-To: <201910010638.xzk5h4Bt%lkp@intel.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: Yunsheng Lin <linyunsheng@huawei.com>, dalias@libc.org, linux-sh@vger.kernel.org, catalin.marinas@arm.com, dave.hansen@linux.intel.com, heiko.carstens@de.ibm.com, linuxarm@huawei.com, jiaxun.yang@flygoat.com, linux-mips@vger.kernel.org, mwb@linux.vnet.ibm.com, paulus@samba.org, hpa@zytor.com, sparclinux@vger.kernel.org, chenhc@lemote.com, will@kernel.org, cai@lca.pw, linux-s390@vger.kernel.org, ysato@users.sourceforge.jp, mpe@ellerman.id.au, x86@kernel.org, rppt@linux.ibm.com, borntraeger@de.ibm.com, dledford@redhat.com, mingo@redhat.com, jeffrey.t.kirsher@intel.com, benh@kernel.crashing.org, jhogan@kernel.org, nfont@linux.vnet.ibm.com, mattst88@gmail.com, len.brown@intel.com, gor@linux.ibm.com, anshuman.khandual@arm.com, bp@alien8.de, luto@kernel.org, tglx@linutronix.de, naveen.n.rao@linux.vnet.ibm.com, linux-arm-kernel@lists.infradead.org, rth@twiddle.net, axboe@kernel.dk, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, ralf@linux-mips.org, tbogendoerfer@suse.de, paul.burton@mips.com, linux-alpha@vger.kernel.org, ink@jurassic.park.msu.ru, akpm@linux-foundation.org, robin.murphy@arm.com, davem@davemloft.net
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@01.org, Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>, Aleksa Sarai <asarai@suse.de>, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, linuxppc-dev@lists.ozlabs.org, Andy Lutomirski <luto@kernel.org>, Namhyung Kim <namhyung@kernel.org>, David Drysdale <drysdale@google.com>, Christian Brauner <christian@brauner.io>, libc-alpha@sourceware.org, linux-parisc@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-api@vger.kernel.org, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Eric Biederman <ebiederm@xmission.com>, linux-alpha@vger.kernel.org, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org
 
-On Mon, Sep 02, 2019 at 08:17:31PM +0200, Ingo Molnar wrote:
 
-> Nitpicking: please also fix the kernel message to say ">=".
+--snekp2kducyfirik
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Full patch below.
+On 2019-10-01, kbuild test robot <lkp@intel.com> wrote:
+> Hi Aleksa,
+>=20
+> Thank you for the patch! Yet something to improve:
+>=20
+> [auto build test ERROR on linus/master]
+> [cannot apply to v5.4-rc1 next-20190930]
+> [if your patch is applied to the wrong git tree, please drop us a note to=
+ help
+> improve the system. BTW, we also suggest to use '--base' option to specif=
+y the
+> base tree in git format-patch, please see https://stackoverflow.com/a/374=
+06982]
+>=20
+> url:    https://github.com/0day-ci/linux/commits/Aleksa-Sarai/namei-opena=
+t2-2-path-resolution-restrictions/20191001-025628
+> config: sparc-allyesconfig (attached as .config)
+> compiler: sparc64-linux-gcc (GCC) 7.4.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbi=
+n/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=3D7.4.0 make.cross ARCH=3Dsparc=20
+>=20
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+>=20
+> All error/warnings (new ones prefixed by >>):
+>=20
+>    In file included from include/linux/kernel.h:11:0,
+>                     from include/linux/list.h:9,
+>                     from include/linux/wait.h:7,
+>                     from include/linux/wait_bit.h:8,
+>                     from include/linux/fs.h:6,
+>                     from include/uapi/linux/aio_abi.h:31,
+>                     from include/linux/syscalls.h:74,
+>                     from fs/fcntl.c:8:
+>    fs/fcntl.c: In function 'fcntl_init':
+> >> include/linux/compiler.h:350:38: error: call to '__compiletime_assert_=
+1037' declared with attribute error: BUILD_BUG_ON failed: 22 - 1 !=3D HWEIG=
+HT32( (VALID_OPEN_FLAGS & ~(O_NONBLOCK | O_NDELAY)) | __FMODE_EXEC | __FMOD=
+E_NONOTIFY)
+>      _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+>                                          ^
+>    include/linux/compiler.h:331:4: note: in definition of macro '__compil=
+etime_assert'
+>        prefix ## suffix();    \
+>        ^~~~~~
+>    include/linux/compiler.h:350:2: note: in expansion of macro '_compilet=
+ime_assert'
+>      _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+>      ^~~~~~~~~~~~~~~~~~~
+>    include/linux/build_bug.h:39:37: note: in expansion of macro 'compilet=
+ime_assert'
+>     #define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+>                                         ^~~~~~~~~~~~~~~~~~
+>    include/linux/build_bug.h:50:2: note: in expansion of macro 'BUILD_BUG=
+_ON_MSG'
+>      BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+>      ^~~~~~~~~~~~~~~~
+> >> fs/fcntl.c:1034:2: note: in expansion of macro 'BUILD_BUG_ON'
+>      BUILD_BUG_ON(22 - 1 /* for O_RDONLY being 0 */ !=3D
+>      ^~~~~~~~~~~~
 
----
-Subject: x86/mm: Fix cpumask_of_node() error condition
+This is because 0x4000000 is used by FMODE_NONOTIFY. The fix is simple,
+and I'll include it in the next version.
 
-When CONFIG_DEBUG_PER_CPU_MAPS we validate that the @node argument of
-cpumask_of_node() is a valid node_id. It however forgets to check for
-negative numbers. Fix this by explicitly casting to unsigned.
+> vim +/__compiletime_assert_1037 +350 include/linux/compiler.h
+>=20
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  336 =20
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  337  #define _compiletime_assert=
+(condition, msg, prefix, suffix) \
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  338  	__compiletime_assert(condi=
+tion, msg, prefix, suffix)
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  339 =20
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  340  /**
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  341   * compiletime_assert - bre=
+ak build and emit msg if condition is false
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  342   * @condition: a compile-ti=
+me constant condition to check
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  343   * @msg:       a message to=
+ emit if condition is false
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  344   *
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  345   * In tradition of POSIX as=
+sert, this macro will break the build if the
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  346   * supplied condition is *f=
+alse*, emitting the supplied error message if the
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  347   * compiler has support to =
+do so.
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  348   */
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  349  #define compiletime_assert(=
+condition, msg) \
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21 @350  	_compiletime_assert(condit=
+ion, msg, __compiletime_assert_, __LINE__)
+> 9a8ab1c39970a4 Daniel Santos 2013-02-21  351 =20
+>=20
+> :::::: The code at line 350 was first introduced by commit
+> :::::: 9a8ab1c39970a4938a72d94e6fd13be88a797590 bug.h, compiler.h: introd=
+uce compiletime_assert & BUILD_BUG_ON_MSG
+>=20
+> :::::: TO: Daniel Santos <daniel.santos@pobox.com>
+> :::::: CC: Linus Torvalds <torvalds@linux-foundation.org>
+>=20
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Ce=
+nter
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corpora=
+tion
 
-  (unsigned)node >= nr_node_ids
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
 
-verifies: 0 <= node < nr_node_ids
+--snekp2kducyfirik
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Also ammend the error message to match the condition.
+-----BEGIN PGP SIGNATURE-----
 
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/x86/mm/numa.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXZKLFwAKCRCdlLljIbnQ
+EiFeAP47RjOd95gOdKvsH6iKIsB52GsvABLqpjPMoDsJYICxvQEAqOPS7WukWlsO
+68N9mURzwjixbUVZ+5gtkgEiuWzwXA0=
+=RuGe
+-----END PGP SIGNATURE-----
 
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index e6dad600614c..4123100e0eaf 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -861,9 +861,9 @@ void numa_remove_cpu(int cpu)
-  */
- const struct cpumask *cpumask_of_node(int node)
- {
--	if (node >= nr_node_ids) {
-+	if ((unsigned)node >= nr_node_ids) {
- 		printk(KERN_WARNING
--			"cpumask_of_node(%d): node > nr_node_ids(%u)\n",
-+			"cpumask_of_node(%d): (unsigned)node >= nr_node_ids(%u)\n",
- 			node, nr_node_ids);
- 		dump_stack();
- 		return cpu_none_mask;
+--snekp2kducyfirik--
