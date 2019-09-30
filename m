@@ -1,233 +1,147 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.mailbox.org ([80.241.60.215]:16464 "EHLO mx2.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731582AbfI3VDS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Sep 2019 17:03:18 -0400
 From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v12 07/12] open: O_EMPTYPATH: procfs-less file descriptor re-opening
-Date: Thu,  5 Sep 2019 06:19:28 +1000
-Message-Id: <20190904201933.10736-8-cyphar@cyphar.com>
-In-Reply-To: <20190904201933.10736-1-cyphar@cyphar.com>
-References: <20190904201933.10736-1-cyphar@cyphar.com>
+Subject: [PATCH v13 9/9] Documentation: update path-lookup to mention trailing magic-links
+Date: Tue,  1 Oct 2019 04:33:16 +1000
+Message-Id: <20190930183316.10190-10-cyphar@cyphar.com>
+In-Reply-To: <20190930183316.10190-1-cyphar@cyphar.com>
+References: <20190930183316.10190-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian@brauner.io>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Userspace has made use of /proc/self/fd very liberally to allow for
-descriptors to be re-opened. There are a wide variety of uses for this
-feature, but it has always required constructing a pathname and could
-not be done without procfs mounted. The obvious solution for this is to
-extend openat(2) to have an AT_EMPTY_PATH-equivalent -- O_EMPTYPATH.
-
-Now that descriptor re-opening has been made safe through the new
-magic-link resolution restrictions, we can replicate these restrictions
-for O_EMPTYPATH. In particular, we only allow "upgrading" the file
-descriptor if the corresponding FMODE_PATH_* bit is set (or the
-FMODE_{READ,WRITE} cases for non-O_PATH file descriptors).
-
-When doing openat(O_EMPTYPATH|O_PATH), O_PATH takes precedence and
-O_EMPTYPATH is ignored. Very few users ever have a need to O_PATH
-re-open an existing file descriptor, and so accommodating them at the
-expense of further complicating O_PATH makes little sense. Ultimately,
-if users ask for this we can always add RESOLVE_EMPTY_PATH to
-resolveat(2) in the future.
+We've introduced new (somewhat subtle) behaviour regarding trailing
+magic-links, so it's best to make sure everyone can follow along with
+the reasoning behind trailing_magiclink().
 
 Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/alpha/include/uapi/asm/fcntl.h  |  1 +
- arch/parisc/include/uapi/asm/fcntl.h | 39 ++++++++++++++--------------
- arch/sparc/include/uapi/asm/fcntl.h  |  1 +
- fs/fcntl.c                           |  2 +-
- fs/namei.c                           | 20 ++++++++++++++
- fs/open.c                            |  7 ++++-
- include/linux/fcntl.h                |  2 +-
- include/uapi/asm-generic/fcntl.h     |  4 +++
- 8 files changed, 54 insertions(+), 22 deletions(-)
+ Documentation/filesystems/path-lookup.rst | 80 ++++++++++++++++++-----
+ 1 file changed, 63 insertions(+), 17 deletions(-)
 
-diff --git a/arch/alpha/include/uapi/asm/fcntl.h b/arch/alpha/include/uapi/asm/fcntl.h
-index 50bdc8e8a271..1f879bade68b 100644
---- a/arch/alpha/include/uapi/asm/fcntl.h
-+++ b/arch/alpha/include/uapi/asm/fcntl.h
-@@ -34,6 +34,7 @@
+diff --git a/Documentation/filesystems/path-lookup.rst b/Documentation/filesystems/path-lookup.rst
+index 434a07b0002b..c30145b3d9ba 100644
+--- a/Documentation/filesystems/path-lookup.rst
++++ b/Documentation/filesystems/path-lookup.rst
+@@ -405,6 +405,10 @@ is requested.  Keeping a reference in the ``nameidata`` ensures that
+ only one root is in effect for the entire path walk, even if it races
+ with a ``chroot()`` system call.
  
- #define O_PATH		040000000
- #define __O_TMPFILE	0100000000
-+#define O_EMPTYPATH	0200000000
- 
- #define F_GETLK		7
- #define F_SETLK		8
-diff --git a/arch/parisc/include/uapi/asm/fcntl.h b/arch/parisc/include/uapi/asm/fcntl.h
-index 03ce20e5ad7d..5d709058a76f 100644
---- a/arch/parisc/include/uapi/asm/fcntl.h
-+++ b/arch/parisc/include/uapi/asm/fcntl.h
-@@ -2,26 +2,27 @@
- #ifndef _PARISC_FCNTL_H
- #define _PARISC_FCNTL_H
- 
--#define O_APPEND	000000010
--#define O_BLKSEEK	000000100 /* HPUX only */
--#define O_CREAT		000000400 /* not fcntl */
--#define O_EXCL		000002000 /* not fcntl */
--#define O_LARGEFILE	000004000
--#define __O_SYNC	000100000
-+#define O_APPEND	0000000010
-+#define O_BLKSEEK	0000000100 /* HPUX only */
-+#define O_CREAT		0000000400 /* not fcntl */
-+#define O_EXCL		0000002000 /* not fcntl */
-+#define O_LARGEFILE	0000004000
-+#define __O_SYNC	0000100000
- #define O_SYNC		(__O_SYNC|O_DSYNC)
--#define O_NONBLOCK	000200004 /* HPUX has separate NDELAY & NONBLOCK */
--#define O_NOCTTY	000400000 /* not fcntl */
--#define O_DSYNC		001000000 /* HPUX only */
--#define O_RSYNC		002000000 /* HPUX only */
--#define O_NOATIME	004000000
--#define O_CLOEXEC	010000000 /* set close_on_exec */
--
--#define O_DIRECTORY	000010000 /* must be a directory */
--#define O_NOFOLLOW	000000200 /* don't follow links */
--#define O_INVISIBLE	004000000 /* invisible I/O, for DMAPI/XDSM */
--
--#define O_PATH		020000000
--#define __O_TMPFILE	040000000
-+#define O_NONBLOCK	0000200004 /* HPUX has separate NDELAY & NONBLOCK */
-+#define O_NOCTTY	0000400000 /* not fcntl */
-+#define O_DSYNC		0001000000 /* HPUX only */
-+#define O_RSYNC		0002000000 /* HPUX only */
-+#define O_NOATIME	0004000000
-+#define O_CLOEXEC	0010000000 /* set close_on_exec */
++It should be noted that in the case of ``LOOKUP_IN_ROOT`` or
++``LOOKUP_BENEATH``, the effective root becomes the directory file descriptor
++passed to ``openat2()`` (which exposes these ``LOOKUP_`` flags).
 +
-+#define O_DIRECTORY	0000010000 /* must be a directory */
-+#define O_NOFOLLOW	0000000200 /* don't follow links */
-+#define O_INVISIBLE	0004000000 /* invisible I/O, for DMAPI/XDSM */
+ The root is needed when either of two conditions holds: (1) either the
+ pathname or a symbolic link starts with a "'/'", or (2) a "``..``"
+ component is being handled, since "``..``" from the root must always stay
+@@ -1149,22 +1153,61 @@ so ``NULL`` is returned to indicate that the symlink can be released and
+ the stack frame discarded.
+ 
+ The other case involves things in ``/proc`` that look like symlinks but
+-aren't really::
++aren't really (and are therefore commonly referred to as "magic-links")::
+ 
+      $ ls -l /proc/self/fd/1
+      lrwx------ 1 neilb neilb 64 Jun 13 10:19 /proc/self/fd/1 -> /dev/pts/4
+ 
+ Every open file descriptor in any process is represented in ``/proc`` by
+-something that looks like a symlink.  It is really a reference to the
+-target file, not just the name of it.  When you ``readlink`` these
+-objects you get a name that might refer to the same file - unless it
+-has been unlinked or mounted over.  When ``walk_component()`` follows
+-one of these, the ``->follow_link()`` method in "procfs" doesn't return
+-a string name, but instead calls ``nd_jump_link()`` which updates the
+-``nameidata`` in place to point to that target.  ``->follow_link()`` then
+-returns ``NULL``.  Again there is no final component and ``get_link()``
+-reports this by leaving the ``last_type`` field of ``nameidata`` as
+-``LAST_BIND``.
++a magic-link.  It is really a reference to the target file, not just the
++name of it (hence making them "magical" compared to ordinary symlinks).
++When you ``readlink`` these objects you get a name that might refer to
++the same file - unless it has been unlinked or mounted over.  When
++``walk_component()`` follows one of these, the ``->follow_link()`` method
++in "procfs" doesn't return a string name, but instead calls
++``nd_jump_link()`` which updates the ``nameidata`` in place to point to
++that target.  ``->follow_link()`` then returns ``NULL``. Again there is
++no final component and ``get_link()`` reports this by leaving the
++``last_type`` field of ``nameidata`` as ``LAST_BIND``.
 +
-+#define O_PATH		0020000000
-+#define __O_TMPFILE	0040000000
-+#define O_EMPTYPATH	0100000000
- 
- #define F_GETLK64	8
- #define F_SETLK64	9
-diff --git a/arch/sparc/include/uapi/asm/fcntl.h b/arch/sparc/include/uapi/asm/fcntl.h
-index 67dae75e5274..dc86c9eaf950 100644
---- a/arch/sparc/include/uapi/asm/fcntl.h
-+++ b/arch/sparc/include/uapi/asm/fcntl.h
-@@ -37,6 +37,7 @@
- 
- #define O_PATH		0x1000000
- #define __O_TMPFILE	0x2000000
-+#define O_EMPTYPATH	0x4000000
- 
- #define F_GETOWN	5	/*  for sockets. */
- #define F_SETOWN	6	/*  for sockets. */
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 3d40771e8e7c..4cf05a2fd162 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -1031,7 +1031,7 @@ static int __init fcntl_init(void)
- 	 * Exceptions: O_NONBLOCK is a two bit define on parisc; O_NDELAY
- 	 * is defined as O_NONBLOCK on some platforms and not on others.
- 	 */
--	BUILD_BUG_ON(21 - 1 /* for O_RDONLY being 0 */ !=
-+	BUILD_BUG_ON(22 - 1 /* for O_RDONLY being 0 */ !=
- 		HWEIGHT32(
- 			(VALID_OPEN_FLAGS & ~(O_NONBLOCK | O_NDELAY)) |
- 			__FMODE_EXEC | __FMODE_NONOTIFY));
-diff --git a/fs/namei.c b/fs/namei.c
-index 54d57dad0f91..e39b573fcc4d 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3571,6 +3571,24 @@ static int trailing_magiclink(struct nameidata *nd, int acc_mode,
- 	return may_open_magiclink(upgrade_mask, acc_mode);
- }
- 
-+static int do_emptypath(struct nameidata *nd, const struct open_flags *op,
-+			struct file *file)
-+{
-+	int error;
-+	/* We don't support AT_FDCWD (since O_PATH is disallowed here). */
-+	struct fd f = fdget_raw(nd->dfd);
++In order to avoid potential re-opening attacks (especially in the context
++of containers), it is necessary to restrict the ability for a trailing
++magic-link to be opened. The restrictions are as follows (and are
++implemented in ``trailing_magiclink()``):
 +
-+	if (!f.file)
-+		return -EBADF;
++* If the ``open()`` is an "ordinary open" (without ``O_PATH``), the
++  access-mode of the ``open()`` call must be permitted by one of the
++  octets in the magic-link's file mode (elsewhere in Linux, ordinary
++  symlinks have a file mode of ``0777`` but this doesn't apply to
++  magic-links). Each "ordinary" file in ``/proc/self/fd/$n`` has the user
++  octet of its file mode set to correspond to the access-mode it was
++  opened with.
 +
-+	/* Apply trailing_magiclink()-like restrictions. */
-+	error = may_open_magiclink(f.file->f_mode, op->acc_mode);
-+	if (!error)
-+		error = vfs_open(&f.file->f_path, file);
-+	fdput(f);
-+	return error;
-+}
++  This restriction means that you cannot re-open an ``O_RDONLY`` file
++  descriptor through ``/proc/self/fd/$n`` with ``O_RDWR``.
 +
- static struct file *path_openat(struct nameidata *nd,
- 			const struct open_flags *op, unsigned flags)
- {
-@@ -3583,6 +3601,8 @@ static struct file *path_openat(struct nameidata *nd,
- 
- 	if (unlikely(file->f_flags & __O_TMPFILE)) {
- 		error = do_tmpfile(nd, flags, op, file);
-+	} else if (unlikely(file->f_flags & O_EMPTYPATH)) {
-+		error = do_emptypath(nd, op, file);
- 	} else if (unlikely(file->f_flags & O_PATH)) {
- 		/* Inlined path_lookupat() with a trailing_magiclink() check. */
- 		fmode_t opath_mask = op->opath_mask;
-diff --git a/fs/open.c b/fs/open.c
-index 806a75d685e1..310b896eecf0 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -1015,6 +1015,8 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
- 		lookup_flags |= LOOKUP_DIRECTORY;
- 	if (!(flags & O_NOFOLLOW))
- 		lookup_flags |= LOOKUP_FOLLOW;
-+	if (flags & O_EMPTYPATH)
-+		lookup_flags |= LOOKUP_EMPTY;
- 	op->lookup_flags = lookup_flags;
- 	return 0;
- }
-@@ -1076,14 +1078,17 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
- {
- 	struct open_flags op;
- 	int fd = build_open_flags(flags, mode, &op);
-+	int empty = 0;
- 	struct filename *tmp;
- 
- 	if (fd)
- 		return fd;
- 
--	tmp = getname(filename);
-+	tmp = getname_flags(filename, op.lookup_flags, &empty);
- 	if (IS_ERR(tmp))
- 		return PTR_ERR(tmp);
-+	if (!empty)
-+		op.open_flag &= ~O_EMPTYPATH;
- 
- 	fd = get_unused_fd_flags(flags);
- 	if (fd >= 0) {
-diff --git a/include/linux/fcntl.h b/include/linux/fcntl.h
-index d019df946cb2..2868ae6c8fc1 100644
---- a/include/linux/fcntl.h
-+++ b/include/linux/fcntl.h
-@@ -9,7 +9,7 @@
- 	(O_RDONLY | O_WRONLY | O_RDWR | O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC | \
- 	 O_APPEND | O_NDELAY | O_NONBLOCK | O_NDELAY | __O_SYNC | O_DSYNC | \
- 	 FASYNC	| O_DIRECT | O_LARGEFILE | O_DIRECTORY | O_NOFOLLOW | \
--	 O_NOATIME | O_CLOEXEC | O_PATH | __O_TMPFILE)
-+	 O_NOATIME | O_CLOEXEC | O_PATH | __O_TMPFILE | O_EMPTYPATH)
- 
- #ifndef force_o_largefile
- #define force_o_largefile() (!IS_ENABLED(CONFIG_ARCH_32BIT_OFF_T))
-diff --git a/include/uapi/asm-generic/fcntl.h b/include/uapi/asm-generic/fcntl.h
-index 9dc0bf0c5a6e..ae6862f69cc2 100644
---- a/include/uapi/asm-generic/fcntl.h
-+++ b/include/uapi/asm-generic/fcntl.h
-@@ -89,6 +89,10 @@
- #define __O_TMPFILE	020000000
- #endif
- 
-+#ifndef O_EMPTYPATH
-+#define O_EMPTYPATH 040000000
-+#endif
++With a "half-open" (with ``O_PATH``), there is no ``-EACCES``-enforced
++restrictions on ``open()``, but there are rules about the mode shown in
++``/proc/self/fd/$n``:
 +
- /* a horrid kludge trying to make sure that this will fail on old kernels */
- #define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
- #define O_TMPFILE_MASK (__O_TMPFILE | O_DIRECTORY | O_CREAT)      
++* If the target of the ``open()`` is not a magic-link, then the group
++  octet of the file mode is set to permit all access modes.
++
++* Otherwise, the mode of the new ``O_PATH`` descriptor is set to
++  effectively the same mode as the magic-link (though the permissions are
++  set in the group octet of the mode). This means that an ``O_PATH`` of a
++  magic-link gives you no more re-open permissions than the magic-link
++  itself.
++
++With these ``O_PATH`` restrictions, it is still possible to re-open an
++``O_PATH`` file descriptor but you cannot use ``O_PATH`` to work around
++the above restrictions on "ordinary opens" of magic-links.
++
++In order to avoid certain race conditions (where a file descriptor
++associated with a magic-link is swapped, causing the ``link_inode`` of
++``nameidata`` to become stale during magic-link traversal),
++``nd_jump_link()`` stores the mode of the magic-link during traversal in
++``last_magiclink``.
+ 
+ Following the symlink in the final component
+ --------------------------------------------
+@@ -1187,7 +1230,8 @@ handles the final component.  If the final component is a symlink
+ that needs to be followed, then ``trailing_symlink()`` is called to set
+ things up properly and the loop repeats, calling ``link_path_walk()``
+ again.  This could loop as many as 40 times if the last component of
+-each symlink is another symlink.
++each symlink is another symlink. ``trailing_magiclink()`` is then called to
++deal with permission checks relevant to ``/proc/$pid/fd``-style "symlinks".
+ 
+ The various functions that examine the final component and possibly
+ report that it is a symlink are ``lookup_last()``, ``mountpoint_last()``
+@@ -1310,12 +1354,14 @@ longer needed.
+ ``LOOKUP_JUMPED`` means that the current dentry was chosen not because
+ it had the right name but for some other reason.  This happens when
+ following "``..``", following a symlink to ``/``, crossing a mount point
+-or accessing a "``/proc/$PID/fd/$FD``" symlink.  In this case the
+-filesystem has not been asked to revalidate the name (with
+-``d_revalidate()``).  In such cases the inode may still need to be
+-revalidated, so ``d_op->d_weak_revalidate()`` is called if
++or accessing a "``/proc/$PID/fd/$FD``" symlink (also known as a "magic
++link"). In this case the filesystem has not been asked to revalidate the
++name (with ``d_revalidate()``).  In such cases the inode may still need
++to be revalidated, so ``d_op->d_weak_revalidate()`` is called if
+ ``LOOKUP_JUMPED`` is set when the look completes - which may be at the
+-final component or, when creating, unlinking, or renaming, at the penultimate component.
++final component or, when creating, unlinking, or renaming, at the
++penultimate component. ``LOOKUP_MAGICLINK_JUMPED`` is set alongside
++``LOOKUP_JUMPED`` if a magic-link was traversed.
+ 
+ Final-component flags
+ ~~~~~~~~~~~~~~~~~~~~~
 -- 
 2.23.0
