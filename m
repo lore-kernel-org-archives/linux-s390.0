@@ -1,248 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43246 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730106AbfIBLmu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Sep 2019 07:42:50 -0400
-Subject: Re: [kvm-unit-tests PATCH 1/6] s390x: Use interrupts in SCLP and add
- locking
-References: <20190829121459.1708-1-frankja@linux.ibm.com>
- <20190829121459.1708-2-frankja@linux.ibm.com>
- <74d31bb9-4941-01f3-571b-8a89a05402c8@redhat.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <ef136fcb-67e5-2530-33fe-84b91f5860b2@redhat.com>
-Date: Mon, 2 Sep 2019 13:42:44 +0200
+        id S1731050AbfI3VPy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Sep 2019 17:15:54 -0400
+Date: Mon, 30 Sep 2019 14:58:55 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Re: [PATCH RESEND v3 00/26] Add definition for the number of
+ standard PCI BARs
+Message-ID: <20190930195855.GA191519@google.com>
 MIME-Version: 1.0
-In-Reply-To: <74d31bb9-4941-01f3-571b-8a89a05402c8@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190927234026.23342-1-efremov@linux.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
+To: Denis Efremov <efremov@linux.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, linux-hyperv@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org, linux-fbdev@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org, linux-usb@vger.kernel.org, devel@driverdev.osuosl.org, linux-serial@vger.kernel.org, linux-mmc@vger.kernel.org
 
-On 30/08/2019 14.21, David Hildenbrand wrote:
-> On 29.08.19 14:14, Janosch Frank wrote:
->> We need to properly implement interrupt handling for SCLP, because on
->> z/VM and LPAR SCLP calls are not synchronous!
->>
->> Also with smp CPUs have to compete for sclp. Let's add some locking,
->> so they execute sclp calls in an orderly fashion and don't compete for
->> the data buffer.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  lib/s390x/asm/interrupt.h |  2 ++
->>  lib/s390x/interrupt.c     | 12 +++++++--
->>  lib/s390x/sclp-console.c  |  2 ++
->>  lib/s390x/sclp.c          | 54 +++++++++++++++++++++++++++++++++++++--
->>  lib/s390x/sclp.h          |  3 +++
->>  5 files changed, 69 insertions(+), 4 deletions(-)
->>
->> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
->> index 013709f..f485e96 100644
->> --- a/lib/s390x/asm/interrupt.h
->> +++ b/lib/s390x/asm/interrupt.h
->> @@ -11,6 +11,8 @@
->>  #define _ASMS390X_IRQ_H_
->>  #include <asm/arch_def.h>
->>  
->> +#define EXT_IRQ_SERVICE_SIG	0x2401
->> +
->>  void handle_pgm_int(void);
->>  void handle_ext_int(void);
->>  void handle_mcck_int(void);
->> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
->> index cf0a794..7832711 100644
->> --- a/lib/s390x/interrupt.c
->> +++ b/lib/s390x/interrupt.c
->> @@ -12,6 +12,7 @@
->>  #include <libcflat.h>
->>  #include <asm/interrupt.h>
->>  #include <asm/barrier.h>
->> +#include <sclp.h>
->>  
->>  static bool pgm_int_expected;
->>  static struct lowcore *lc;
->> @@ -107,8 +108,15 @@ void handle_pgm_int(void)
->>  
->>  void handle_ext_int(void)
->>  {
->> -	report_abort("Unexpected external call interrupt: at %#lx",
->> -		     lc->ext_old_psw.addr);
->> +	if (lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
->> +		report_abort("Unexpected external call interrupt: at %#lx",
->> +			     lc->ext_old_psw.addr);
->> +	} else {
->> +		lc->ext_old_psw.mask &= ~PSW_MASK_EXT;
->> +		lc->sw_int_cr0 &= ~(1UL << 9);
->> +		sclp_handle_ext();
->> +		lc->ext_int_code = 0;
->> +	}
->>  }
->>  
->>  void handle_mcck_int(void)
->> diff --git a/lib/s390x/sclp-console.c b/lib/s390x/sclp-console.c
->> index bc01f41..a5ef45f 100644
->> --- a/lib/s390x/sclp-console.c
->> +++ b/lib/s390x/sclp-console.c
->> @@ -17,6 +17,7 @@ static void sclp_set_write_mask(void)
->>  {
->>  	WriteEventMask *sccb = (void *)_sccb;
->>  
->> +	sclp_mark_busy();
->>  	sccb->h.length = sizeof(WriteEventMask);
->>  	sccb->mask_length = sizeof(unsigned int);
->>  	sccb->receive_mask = SCLP_EVENT_MASK_MSG_ASCII;
->> @@ -37,6 +38,7 @@ void sclp_print(const char *str)
->>  	int len = strlen(str);
->>  	WriteEventData *sccb = (void *)_sccb;
->>  
->> +	sclp_mark_busy();
->>  	sccb->h.length = sizeof(WriteEventData) + len;
->>  	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
->>  	sccb->ebh.length = sizeof(EventBufferHeader) + len;
->> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
->> index b60f7a4..257eb02 100644
->> --- a/lib/s390x/sclp.c
->> +++ b/lib/s390x/sclp.c
->> @@ -14,6 +14,8 @@
->>  #include <asm/page.h>
->>  #include <asm/arch_def.h>
->>  #include <asm/interrupt.h>
->> +#include <asm/barrier.h>
->> +#include <asm/spinlock.h>
->>  #include "sclp.h"
->>  #include <alloc_phys.h>
->>  #include <alloc_page.h>
->> @@ -25,6 +27,8 @@ static uint64_t max_ram_size;
->>  static uint64_t ram_size;
->>  
->>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
->> +static volatile bool sclp_busy;
->> +static struct spinlock sclp_lock;
->>  
->>  static void mem_init(phys_addr_t mem_end)
->>  {
->> @@ -41,17 +45,61 @@ static void mem_init(phys_addr_t mem_end)
->>  	page_alloc_ops_enable();
->>  }
->>  
->> +static void sclp_setup_int(void)
->> +{
->> +	uint64_t mask;
->> +
->> +	ctl_set_bit(0, 9);
->> +
->> +	mask = extract_psw_mask();
->> +	mask |= PSW_MASK_EXT;
->> +	load_psw_mask(mask);
->> +}
->> +
->> +void sclp_handle_ext(void)
->> +{
->> +	ctl_clear_bit(0, 9);
->> +	spin_lock(&sclp_lock);
->> +	sclp_busy = false;
->> +	spin_unlock(&sclp_lock);
->> +}
->> +
->> +void sclp_wait_busy(void)
->> +{
->> +	while (sclp_busy)
->> +		mb();
->> +}
->> +
->> +void sclp_mark_busy(void)
->> +{
->> +	/*
->> +	 * With multiple CPUs we might need to wait for another CPU's
->> +	 * request before grabbing the busy indication.
->> +	 */
->> +retry_wait:
->> +	sclp_wait_busy();
->> +	spin_lock(&sclp_lock);
->> +	if (sclp_busy) {
->> +		spin_unlock(&sclp_lock);
->> +		goto retry_wait;
->> +	}
->> +	sclp_busy = true;
->> +	spin_unlock(&sclp_lock);
+On Sat, Sep 28, 2019 at 02:40:26AM +0300, Denis Efremov wrote:
+> Code that iterates over all standard PCI BARs typically uses
+> PCI_STD_RESOURCE_END, but this is error-prone because it requires
+> "i <= PCI_STD_RESOURCE_END" rather than something like
+> "i < PCI_STD_NUM_BARS". We could add such a definition and use it the same
+> way PCI_SRIOV_NUM_BARS is used. The patchset also replaces constant (6)
+> with new define PCI_STD_NUM_BARS where appropriate and removes local
+> declarations for the number of PCI BARs.
 > 
-> while (true) {
-> 	sclp_wait_busy();
-> 	spin_lock(&sclp_lock);
-> 	if (!sclp_busy) {
-> 		sclp_busy = true
-> 		spin_unlock(&sclp_lock);
-> 		break;
-> 	}
-> 	spin_unlock(&sclp_lock);
-> }
+> Changes in v3:
+>   - Updated commits description.
+>   - Refactored "< PCI_ROM_RESOURCE" with "< PCI_STD_NUM_BARS" in loops.
+>   - Refactored "<= BAR_5" with "< PCI_STD_NUM_BARS" in loops.
+>   - Removed local define GASKET_NUM_BARS.
+>   - Removed local define PCI_NUM_BAR_RESOURCES.
+> 
+> Changes in v2:
+>   - Reversed checks in pci_iomap_range,pci_iomap_wc_range.
+>   - Refactored loops in vfio_pci to keep PCI_STD_RESOURCES.
+>   - Added 2 new patches to replace the magic constant with new define.
+>   - Splitted net patch in v1 to separate stmmac and dwc-xlgmac patches.
+> 
+> Denis Efremov (26):
+>   PCI: Add define for the number of standard PCI BARs
+>   PCI: hv: Use PCI_STD_NUM_BARS
+>   PCI: dwc: Use PCI_STD_NUM_BARS
+>   PCI: endpoint: Use PCI_STD_NUM_BARS
+>   misc: pci_endpoint_test: Use PCI_STD_NUM_BARS
+>   s390/pci: Use PCI_STD_NUM_BARS
+>   x86/PCI: Loop using PCI_STD_NUM_BARS
+>   alpha/PCI: Use PCI_STD_NUM_BARS
+>   ia64: Use PCI_STD_NUM_BARS
+>   stmmac: pci: Loop using PCI_STD_NUM_BARS
+>   net: dwc-xlgmac: Loop using PCI_STD_NUM_BARS
+>   ixgb: use PCI_STD_NUM_BARS
+>   e1000: Use PCI_STD_NUM_BARS
+>   rapidio/tsi721: Loop using PCI_STD_NUM_BARS
+>   efifb: Loop using PCI_STD_NUM_BARS
+>   fbmem: use PCI_STD_NUM_BARS
+>   vfio_pci: Loop using PCI_STD_NUM_BARS
+>   scsi: pm80xx: Use PCI_STD_NUM_BARS
+>   ata: sata_nv: Use PCI_STD_NUM_BARS
+>   staging: gasket: Use PCI_STD_NUM_BARS
+>   serial: 8250_pci: Use PCI_STD_NUM_BARS
+>   pata_atp867x: Use PCI_STD_NUM_BARS
+>   memstick: use PCI_STD_NUM_BARS
+>   USB: core: Use PCI_STD_NUM_BARS
+>   usb: pci-quirks: Use PCI_STD_NUM_BARS
+>   devres: use PCI_STD_NUM_BARS
+> 
+>  arch/alpha/kernel/pci-sysfs.c                 |  8 ++---
+>  arch/ia64/sn/pci/pcibr/pcibr_dma.c            |  4 +--
+>  arch/s390/include/asm/pci.h                   |  5 +--
+>  arch/s390/include/asm/pci_clp.h               |  6 ++--
+>  arch/s390/pci/pci.c                           | 16 +++++-----
+>  arch/s390/pci/pci_clp.c                       |  6 ++--
+>  arch/x86/pci/common.c                         |  2 +-
+>  arch/x86/pci/intel_mid_pci.c                  |  2 +-
+>  drivers/ata/pata_atp867x.c                    |  2 +-
+>  drivers/ata/sata_nv.c                         |  2 +-
+>  drivers/memstick/host/jmb38x_ms.c             |  2 +-
+>  drivers/misc/pci_endpoint_test.c              |  8 ++---
+>  drivers/net/ethernet/intel/e1000/e1000.h      |  1 -
+>  drivers/net/ethernet/intel/e1000/e1000_main.c |  2 +-
+>  drivers/net/ethernet/intel/ixgb/ixgb.h        |  1 -
+>  drivers/net/ethernet/intel/ixgb/ixgb_main.c   |  2 +-
+>  .../net/ethernet/stmicro/stmmac/stmmac_pci.c  |  4 +--
+>  .../net/ethernet/synopsys/dwc-xlgmac-pci.c    |  2 +-
+>  drivers/pci/controller/dwc/pci-dra7xx.c       |  2 +-
+>  .../pci/controller/dwc/pci-layerscape-ep.c    |  2 +-
+>  drivers/pci/controller/dwc/pcie-artpec6.c     |  2 +-
+>  .../pci/controller/dwc/pcie-designware-plat.c |  2 +-
+>  drivers/pci/controller/dwc/pcie-designware.h  |  2 +-
+>  drivers/pci/controller/pci-hyperv.c           | 10 +++---
+>  drivers/pci/endpoint/functions/pci-epf-test.c | 10 +++---
+>  drivers/pci/pci-sysfs.c                       |  4 +--
+>  drivers/pci/pci.c                             | 13 ++++----
+>  drivers/pci/proc.c                            |  4 +--
+>  drivers/pci/quirks.c                          |  4 +--
+>  drivers/rapidio/devices/tsi721.c              |  2 +-
+>  drivers/scsi/pm8001/pm8001_hwi.c              |  2 +-
+>  drivers/scsi/pm8001/pm8001_init.c             |  2 +-
+>  drivers/staging/gasket/gasket_constants.h     |  3 --
+>  drivers/staging/gasket/gasket_core.c          | 12 +++----
+>  drivers/staging/gasket/gasket_core.h          |  4 +--
+>  drivers/tty/serial/8250/8250_pci.c            |  8 ++---
+>  drivers/usb/core/hcd-pci.c                    |  2 +-
+>  drivers/usb/host/pci-quirks.c                 |  2 +-
+>  drivers/vfio/pci/vfio_pci.c                   | 11 ++++---
+>  drivers/vfio/pci/vfio_pci_config.c            | 32 ++++++++++---------
+>  drivers/vfio/pci/vfio_pci_private.h           |  4 +--
+>  drivers/video/fbdev/core/fbmem.c              |  4 +--
+>  drivers/video/fbdev/efifb.c                   |  2 +-
+>  include/linux/pci-epc.h                       |  2 +-
+>  include/linux/pci.h                           |  2 +-
+>  include/uapi/linux/pci_regs.h                 |  1 +
+>  lib/devres.c                                  |  2 +-
+>  47 files changed, 112 insertions(+), 115 deletions(-)
 
-I'd also prefer this without "goto".
+Applied to pci/resource for v5.5, thanks!
 
-> Or can we simply switch to an atomic_t for sclp_busy and implement
-> cmpxchg using __sync_bool_compare_and_swap/ __sync_val_compare_and_swap ?
-> 
-> I guess then we can drop the lock. But maybe I am missing something :)
-> 
->> +}
->> +
->>  static void sclp_read_scp_info(ReadInfo *ri, int length)
->>  {
->>  	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
->>  				    SCLP_CMDW_READ_SCP_INFO };
->> -	int i;
->> +	int i, cc;
->>  
->>  	for (i = 0; i < ARRAY_SIZE(commands); i++) {
->> +		sclp_mark_busy();
->>  		memset(&ri->h, 0, sizeof(ri->h));
->>  		ri->h.length = length;
->>  
->> -		if (sclp_service_call(commands[i], ri))
->> +		cc = sclp_service_call(commands[i], ri);
->> +		if (cc)
->>  			break;
->>  		if (ri->h.response_code == SCLP_RC_NORMAL_READ_COMPLETION)
->>  			return;
->> @@ -66,12 +114,14 @@ int sclp_service_call(unsigned int command, void *sccb)
->>  {
->>  	int cc;
->>  
->> +	sclp_setup_int();
->>  	asm volatile(
->>  		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
->>  		"       ipm     %0\n"
->>  		"       srl     %0,28"
->>  		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
->>  		: "cc", "memory");
->> +	sclp_wait_busy();
->>  	if (cc == 3)
->>  		return -1;
->>  	if (cc == 2)
->> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
->> index 583c4e5..63cf609 100644
->> --- a/lib/s390x/sclp.h
->> +++ b/lib/s390x/sclp.h
->> @@ -213,6 +213,9 @@ typedef struct ReadEventData {
->>  } __attribute__((packed)) ReadEventData;
->>  
->>  extern char _sccb[];
->> +void sclp_handle_ext(void);
->> +void sclp_wait_busy(void);
->> +void sclp_mark_busy(void);
-> 
-> I wonder if we can find better names ...
-> 
-> sclp_prepare()
-> sclp_finalize()
-> 
-> or sth like that.
-
-IMHO "mark_busy" / "wait_busy" is more logical than "prepare" /
-"finalize". With "busy" in the name, I can figure out the meaning, while
-with "prepare" and "finalize", I'd rather wonder what it is about, I think.
-
- Thomas
+I ended up squashing these all together because they're all related
+and tiny.
