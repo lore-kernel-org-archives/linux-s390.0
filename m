@@ -1,98 +1,84 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 1/1] s390/cio: fix virtio-ccw DMA without PV
-Date: Mon, 30 Sep 2019 15:53:10 +0200
-Message-Id: <20190930135310.26148-1-pasic@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v13 5/9] namei: LOOKUP_IN_ROOT: chroot-like path resolution
+Date: Tue,  1 Oct 2019 04:33:12 +1000
+Message-Id: <20190930183316.10190-6-cyphar@cyphar.com>
+In-Reply-To: <20190930183316.10190-1-cyphar@cyphar.com>
+References: <20190930183316.10190-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@lst.de>, Robin Murphy <robin.murphy@arm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Commit 37db8985b211 ("s390/cio: add basic protected virtualization
-support") breaks virtio-ccw devices with VIRTIO_F_IOMMU_PLATFORM for non
-Protected Virtualization (PV) guests. The problem is that the dma_mask
-of the ccw device, which is used by virtio core, gets changed from 64 to
-31 bit, because some of the DMA allocations do require 31 bit
-addressable memory. For PV the only drawback is that some of the virtio
-structures must end up in ZONE_DMA because we have the bounce the
-buffers mapped via DMA API anyway.
+The primary motivation for the need for this flag is container runtimes
+which have to interact with malicious root filesystems in the host
+namespaces. One of the first requirements for a container runtime to be
+secure against a malicious rootfs is that they correctly scope symlinks
+(that is, they should be scoped as though they are chroot(2)ed into the
+container's rootfs) and ".."-style paths[*]. The already-existing
+LOOKUP_NO_XDEV and LOOKUP_NO_MAGICLINKS help defend against other
+potential attacks in a malicious rootfs scenario.
 
-But for non PV guests we have a problem: because of the 31 bit mask
-guests bigger than 2G are likely to try bouncing buffers. The swiotlb
-however is only initialized for PV guests, because we don't want to
-bounce anything for non PV guests. The first such map kills the guest.
+Currently most container runtimes try to do this resolution in
+userspace[1], causing many potential race conditions. In addition, the
+"obvious" alternative (actually performing a {ch,pivot_}root(2))
+requires a fork+exec (for some runtimes) which is *very* costly if
+necessary for every filesystem operation involving a container.
 
-Since the DMA API won't allow us to specify for each allocation whether
-we need memory from ZONE_DMA (31 bit addressable) or any DMA capable
-memory will do, let us use coherent_dma_mask (which is used for
-allocations) to force allocating form ZONE_DMA while changing dma_mask
-to DMA_BIT_MASK(64) so that at least the streaming API will regard
-the whole memory DMA capable.
+[*] At the moment, ".." and magic-link jumping are disallowed for the
+    same reason it is disabled for LOOKUP_BENEATH -- currently it is not
+    safe to allow it. Future patches may enable it unconditionally once
+    we have resolved the possible races (for "..") and semantics (for
+    magic-link jumping).
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
+The most significant *at(2) semantic change with LOOKUP_IN_ROOT is that
+absolute pathnames no longer cause the dirfd to be ignored completely.
+
+The rationale is that LOOKUP_IN_ROOT must necessarily chroot-scope
+symlinks with absolute paths to dirfd, and so doing it for the base path
+seems to be the most consistent behaviour (and also avoids foot-gunning
+users who want to scope paths that are absolute).
+
+[1]: https://github.com/cyphar/filepath-securejoin
+
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
+ fs/namei.c            | 5 +++++
+ include/linux/namei.h | 3 ++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-The idea of enabling the client code to specify on s390 whether a chunk
-of allocated DMA memory is to be allocated form ZONE_DMA for each
-allocation was not well received [1]. 
-
-Making the streaming API threat all addresses as DMA capable, while
-restricting the DMA API allocations to  ZONE_DMA (regardless of needed
-or not) is the next best thing we can do (from s390 perspective).
-
-[1] https://lkml.org/lkml/2019/9/23/531 
----
- drivers/s390/cio/cio.h    | 1 +
- drivers/s390/cio/css.c    | 8 +++++++-
- drivers/s390/cio/device.c | 2 +-
- 3 files changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index ba7d2480613b..dcdaba689b20 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -113,6 +113,7 @@ struct subchannel {
- 	enum sch_todo todo;
- 	struct work_struct todo_work;
- 	struct schib_config config;
-+	u64 dma_mask;
- 	char *driver_override; /* Driver name to force a match */
- } __attribute__ ((aligned(8)));
+diff --git a/fs/namei.c b/fs/namei.c
+index b80efc0ae0f3..efed62c6136e 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2274,6 +2274,11 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
  
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 1fbfb0a93f5f..012e26e7bbbb 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -232,7 +232,13 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
- 	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
- 	 */
- 	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
--	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
-+	/*
-+	 * But we don't have such restrictions imposed on the stuff that
-+	 * is handled by the streaming API. Using coherent_dma_mask != dma_mask
-+	 * is just a workaround.
-+	 */
-+	sch->dma_mask = DMA_BIT_MASK(64);
-+	sch->dev.dma_mask = &sch->dma_mask;
- 	return sch;
+ 	nd->m_seq = read_seqbegin(&mount_lock);
  
- err:
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 131430bd48d9..0c6245fc7706 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -710,7 +710,7 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
- 	if (!cdev->private)
- 		goto err_priv;
- 	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
--	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
-+	cdev->dev.dma_mask = sch->dev.dma_mask;
- 	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
- 	if (!dma_pool)
- 		goto err_dma_pool;
++	/* LOOKUP_IN_ROOT treats absolute paths as being relative-to-dirfd. */
++	if (flags & LOOKUP_IN_ROOT)
++		while (*s == '/')
++			s++;
++
+ 	/* Figure out the starting path and root (if needed). */
+ 	if (*s == '/') {
+ 		error = nd_jump_root(nd);
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 88b610ca4d83..1ace31052237 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -48,8 +48,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ #define LOOKUP_NO_MAGICLINKS	0x080000 /* No /proc/$pid/fd/ "symlink" crossing. */
+ #define LOOKUP_NO_SYMLINKS	0x100000 /* No symlink crossing *at all*.
+ 					    Implies LOOKUP_NO_MAGICLINKS. */
++#define LOOKUP_IN_ROOT		0x200000 /* Treat dirfd as %current->fs->root. */
+ /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
+-#define LOOKUP_DIRFD_SCOPE_FLAGS LOOKUP_BENEATH
++#define LOOKUP_DIRFD_SCOPE_FLAGS (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
+ 
+ extern int path_pts(struct path *path);
+ 
 -- 
-2.17.1
+2.23.0
