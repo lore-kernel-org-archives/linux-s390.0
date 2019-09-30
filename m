@@ -1,33 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:34791 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730833AbfI3LW0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Sep 2019 07:22:26 -0400
-Received: by mail-qk1-f193.google.com with SMTP id q203so7398942qke.1
-        for <linux-s390@vger.kernel.org>; Mon, 30 Sep 2019 04:22:25 -0700 (PDT)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-From: Qian Cai <cai@lca.pw>
-Mime-Version: 1.0 (1.0)
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:43796 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730759AbfI3LEh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Sep 2019 07:04:37 -0400
+Received: by mail-ed1-f65.google.com with SMTP id r9so8206088edl.10
+        for <linux-s390@vger.kernel.org>; Mon, 30 Sep 2019 04:04:36 -0700 (PDT)
+Date: Mon, 30 Sep 2019 14:04:34 +0300
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
 Subject: Re: [PATCH] mm/page_alloc: fix a crash in free_pages_prepare()
-Date: Mon, 30 Sep 2019 07:22:23 -0400
-Message-Id: <A5AEF8D5-C44F-406C-BCAA-79F32AA41219@lca.pw>
-References: <20190930110434.5k47w7xfvkjcohkp@box>
-In-Reply-To: <20190930110434.5k47w7xfvkjcohkp@box>
+Message-ID: <20190930110434.5k47w7xfvkjcohkp@box>
+References: <1569613623-16820-1-git-send-email-cai@lca.pw>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1569613623-16820-1-git-send-email-cai@lca.pw>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Kirill A. Shutemov" <kirill@shutemov.name>
+To: Qian Cai <cai@lca.pw>
 Cc: akpm@linux-foundation.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
 
+On Fri, Sep 27, 2019 at 03:47:03PM -0400, Qian Cai wrote:
+> On architectures like s390, arch_free_page() could mark the page unused
+> (set_page_unused()) and any access later would trigger a kernel panic.
+> Fix it by moving arch_free_page() after all possible accessing calls.
 
+Looks like Power also uses the hook. Have you check that this patch will
+not affect Power?
 
-> On Sep 30, 2019, at 7:04 AM, Kirill A. Shutemov <kirill@shutemov.name> wro=
-te:
->=20
-> Looks like Power also uses the hook. Have you check that this patch will
-> not affect Power?
-
-Yes, I did. Although I did only test radix memory which seems just return im=
-mediately in arch_free_page(), I code-review the non-radix memory path and d=
-id not find anything suspicious. However, if really needed, I could test has=
-h memory config or adding powerpc developers to double-check.=
+-- 
+ Kirill A. Shutemov
