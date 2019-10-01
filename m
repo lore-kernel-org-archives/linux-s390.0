@@ -1,65 +1,158 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Tue, 1 Oct 2019 10:05:50 +0100
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 14/29] vmlinux.lds.h: Allow EXCEPTION_TABLE to live in
- RO_DATA
-Message-ID: <20191001090549.xxbqarn36unvowrm@willie-the-truck>
-References: <20190926175602.33098-1-keescook@chromium.org>
- <20190926175602.33098-15-keescook@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190926175602.33098-15-keescook@chromium.org>
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1598 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389331AbfJAPeq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Oct 2019 11:34:46 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x91FS4Vc103359
+        for <linux-s390@vger.kernel.org>; Tue, 1 Oct 2019 11:34:45 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vc9bg8gjr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 01 Oct 2019 11:34:44 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <sth@linux.ibm.com>;
+        Tue, 1 Oct 2019 16:34:42 +0100
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 2/2] Revert "s390/dasd: Add discard support for ESE volumes"
+Date: Tue,  1 Oct 2019 17:34:39 +0200
+In-Reply-To: <20191001153439.62672-1-sth@linux.ibm.com>
+References: <20191001153439.62672-1-sth@linux.ibm.com>
+Message-Id: <20191001153439.62672-3-sth@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-On Thu, Sep 26, 2019 at 10:55:47AM -0700, Kees Cook wrote:
-> Many architectures have an EXCEPTION_TABLE that needs only to be
-> read-only. As such, it should live in RO_DATA. This creates a macro to
-> identify this case for the architectures that can move EXCEPTION_TABLE
-> into RO_DATA.
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  include/asm-generic/vmlinux.lds.h | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
-> 
-> diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-> index d57a28786bb8..35a6cba39d9f 100644
-> --- a/include/asm-generic/vmlinux.lds.h
-> +++ b/include/asm-generic/vmlinux.lds.h
-> @@ -69,6 +69,17 @@
->  #define NOTES_HEADERS_RESTORE
->  #endif
->  
-> +/*
-> + * Some architectures have non-executable read-only exception tables.
-> + * They can be added to the RO_DATA segment by specifying their desired
-> + * alignment.
-> + */
-> +#ifdef RO_DATA_EXCEPTION_TABLE_ALIGN
-> +#define RO_DATA_EXCEPTION_TABLE	EXCEPTION_TABLE(RO_DATA_EXCEPTION_TABLE_ALIGN)
-> +#else
-> +#define RO_DATA_EXCEPTION_TABLE
-> +#endif
-> +
->  /* Align . to a 8 byte boundary equals to maximum function alignment. */
->  #define ALIGN_FUNCTION()  . = ALIGN(8)
->  
-> @@ -508,6 +519,7 @@
->  		__stop___modver = .;					\
->  	}								\
->  									\
-> +	RO_DATA_EXCEPTION_TABLE						\
->  	NOTES								\
->  									\
->  	. = ALIGN((align));						\
+This reverts commit 7e64db1597fe114b83fe17d0ba96c6aa5fca419a.
 
-I had to read this one to understand the later arm64 change. It looks
-fine to me, so:
+The thin provisioning feature introduces an IOCTL and the discard support
+to allow userspace tools and filesystems to release unused and previously
+allocated space respectively.
 
-Acked-by: Will Deacon <will@kernel.org>
+During some internal performance improvements and further tests, the
+release of allocated space revealed some issues that may lead to data
+corruption in some configurations when filesystems are mounted with
+discard support enabled.
 
-Will
+While we're working on a fix and trying to clarify the situation,
+this commit reverts the discard support for ESE volumes to prevent
+potential data corruption.
+
+Cc: <stable@vger.kernel.org> # 5.3
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+---
+ drivers/s390/block/dasd_eckd.c | 57 ++--------------------------------
+ 1 file changed, 3 insertions(+), 54 deletions(-)
+
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index b213c40d1a51..c94184d080f8 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -2055,9 +2055,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	if (readonly)
+ 		set_bit(DASD_FLAG_DEVICE_RO, &device->flags);
+ 
+-	if (dasd_eckd_is_ese(device))
+-		dasd_set_feature(device->cdev, DASD_FEATURE_DISCARD, 1);
+-
+ 	dev_info(&device->cdev->dev, "New DASD %04X/%02X (CU %04X/%02X) "
+ 		 "with %d cylinders, %d heads, %d sectors%s\n",
+ 		 private->rdc_data.dev_type,
+@@ -3691,14 +3688,6 @@ static int dasd_eckd_release_space(struct dasd_device *device,
+ 		return -EINVAL;
+ }
+ 
+-static struct dasd_ccw_req *
+-dasd_eckd_build_cp_discard(struct dasd_device *device, struct dasd_block *block,
+-			   struct request *req, sector_t first_trk,
+-			   sector_t last_trk)
+-{
+-	return dasd_eckd_dso_ras(device, block, req, first_trk, last_trk, 1);
+-}
+-
+ static struct dasd_ccw_req *dasd_eckd_build_cp_cmd_single(
+ 					       struct dasd_device *startdev,
+ 					       struct dasd_block *block,
+@@ -4443,10 +4432,6 @@ static struct dasd_ccw_req *dasd_eckd_build_cp(struct dasd_device *startdev,
+ 	cmdwtd = private->features.feature[12] & 0x40;
+ 	use_prefix = private->features.feature[8] & 0x01;
+ 
+-	if (req_op(req) == REQ_OP_DISCARD)
+-		return dasd_eckd_build_cp_discard(startdev, block, req,
+-						  first_trk, last_trk);
+-
+ 	cqr = NULL;
+ 	if (cdlspecial || dasd_page_cache) {
+ 		/* do nothing, just fall through to the cmd mode single case */
+@@ -4725,14 +4710,12 @@ static struct dasd_ccw_req *dasd_eckd_build_alias_cp(struct dasd_device *base,
+ 						     struct dasd_block *block,
+ 						     struct request *req)
+ {
+-	struct dasd_device *startdev = NULL;
+ 	struct dasd_eckd_private *private;
+-	struct dasd_ccw_req *cqr;
++	struct dasd_device *startdev;
+ 	unsigned long flags;
++	struct dasd_ccw_req *cqr;
+ 
+-	/* Discard requests can only be processed on base devices */
+-	if (req_op(req) != REQ_OP_DISCARD)
+-		startdev = dasd_alias_get_start_dev(base);
++	startdev = dasd_alias_get_start_dev(base);
+ 	if (!startdev)
+ 		startdev = base;
+ 	private = startdev->private;
+@@ -6513,20 +6496,8 @@ static void dasd_eckd_setup_blk_queue(struct dasd_block *block)
+ 	unsigned int logical_block_size = block->bp_block;
+ 	struct request_queue *q = block->request_queue;
+ 	struct dasd_device *device = block->base;
+-	struct dasd_eckd_private *private;
+-	unsigned int max_discard_sectors;
+-	unsigned int max_bytes;
+-	unsigned int ext_bytes; /* Extent Size in Bytes */
+-	int recs_per_trk;
+-	int trks_per_cyl;
+-	int ext_limit;
+-	int ext_size; /* Extent Size in Cylinders */
+ 	int max;
+ 
+-	private = device->private;
+-	trks_per_cyl = private->rdc_data.trk_per_cyl;
+-	recs_per_trk = recs_per_track(&private->rdc_data, 0, logical_block_size);
+-
+ 	if (device->features & DASD_FEATURE_USERAW) {
+ 		/*
+ 		 * the max_blocks value for raw_track access is 256
+@@ -6547,28 +6518,6 @@ static void dasd_eckd_setup_blk_queue(struct dasd_block *block)
+ 	/* With page sized segments each segment can be translated into one idaw/tidaw */
+ 	blk_queue_max_segment_size(q, PAGE_SIZE);
+ 	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
+-
+-	if (dasd_eckd_is_ese(device)) {
+-		/*
+-		 * Depending on the extent size, up to UINT_MAX bytes can be
+-		 * accepted. However, neither DASD_ECKD_RAS_EXTS_MAX nor the
+-		 * device limits should be exceeded.
+-		 */
+-		ext_size = dasd_eckd_ext_size(device);
+-		ext_limit = min(private->real_cyl / ext_size, DASD_ECKD_RAS_EXTS_MAX);
+-		ext_bytes = ext_size * trks_per_cyl * recs_per_trk *
+-			logical_block_size;
+-		max_bytes = UINT_MAX - (UINT_MAX % ext_bytes);
+-		if (max_bytes / ext_bytes > ext_limit)
+-			max_bytes = ext_bytes * ext_limit;
+-
+-		max_discard_sectors = max_bytes / 512;
+-
+-		blk_queue_max_discard_sectors(q, max_discard_sectors);
+-		blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
+-		q->limits.discard_granularity = ext_bytes;
+-		q->limits.discard_alignment = ext_bytes;
+-	}
+ }
+ 
+ static struct ccw_driver dasd_eckd_driver = {
+-- 
+2.17.1
