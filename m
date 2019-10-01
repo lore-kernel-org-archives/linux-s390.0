@@ -1,64 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:47604 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729413AbfJLUUO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 12 Oct 2019 16:20:14 -0400
-From: Eric Biggers <ebiggers@kernel.org>
-Subject: [RFT PATCH 0/3] crypto: s390 - convert to skcipher API
-Date: Sat, 12 Oct 2019 13:18:06 -0700
-Message-Id: <20191012201809.160500-1-ebiggers@kernel.org>
+        id S2389116AbfJAOll (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:41:41 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v5 10/10] mm/memory_hotplug: Cleanup __remove_pages()
+Date: Tue,  1 Oct 2019 16:40:11 +0200
+Message-Id: <20191001144011.3801-11-david@redhat.com>
+In-Reply-To: <20191001144011.3801-1-david@redhat.com>
+References: <20191001144011.3801-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-crypto@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-This series converts the glue code for the S390 CPACF implementations of
-AES, DES, and 3DES modes from the deprecated "blkcipher" API to the
-"skcipher" API.  This is needed in order for the blkcipher API to be
-removed.
+Let's drop the basically unused section stuff and simplify.
 
-I've compiled this patchset, and the conversion is very similar to that
-which has been done for many other crypto drivers.  But I don't have the
-hardware to test it, nor is S390 CPACF supported by QEMU.  So I really
-need someone with the hardware to test it.  You can do so by setting:
+Also, let's use a shorter variant to calculate the number of pages to
+the next section boundary.
 
-CONFIG_CRYPTO_HW=y
-CONFIG_ZCRYPT=y
-CONFIG_PKEY=y
-CONFIG_CRYPTO_AES_S390=y
-CONFIG_CRYPTO_PAES_S390=y
-CONFIG_CRYPTO_DES_S390=y
-# CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_CBC=y
-CONFIG_CRYPTO_CTR=y
-CONFIG_CRYPTO_ECB=y
-CONFIG_CRYPTO_XTS=y
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/memory_hotplug.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-Then boot and check for crypto self-test failures by running
-'dmesg | grep alg'.
-
-If there are test failures, please also check whether they were already
-failing prior to this patchset.
-
-This won't cover the "paes" ("protected key AES") algorithms, however,
-since those don't have self-tests.  If anyone has any way to test those,
-please do so.
-
-Eric Biggers (3):
-  crypto: s390/aes - convert to skcipher API
-  crypto: s390/paes - convert to skcipher API
-  crypto: s390/des - convert to skcipher API
-
- arch/s390/crypto/aes_s390.c  | 609 ++++++++++++++---------------------
- arch/s390/crypto/des_s390.c  | 419 ++++++++++--------------
- arch/s390/crypto/paes_s390.c | 414 ++++++++++--------------
- 3 files changed, 580 insertions(+), 862 deletions(-)
-
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index ffb514e3b090..0fa99e5a657e 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -488,25 +488,20 @@ static void __remove_section(unsigned long pfn, unsigned long nr_pages,
+ void __remove_pages(unsigned long pfn, unsigned long nr_pages,
+ 		    struct vmem_altmap *altmap)
+ {
++	const unsigned long end_pfn = pfn + nr_pages;
++	unsigned long cur_nr_pages;
+ 	unsigned long map_offset = 0;
+-	unsigned long nr, start_sec, end_sec;
+ 
+ 	map_offset = vmem_altmap_offset(altmap);
+ 
+ 	if (check_pfn_span(pfn, nr_pages, "remove"))
+ 		return;
+ 
+-	start_sec = pfn_to_section_nr(pfn);
+-	end_sec = pfn_to_section_nr(pfn + nr_pages - 1);
+-	for (nr = start_sec; nr <= end_sec; nr++) {
+-		unsigned long pfns;
+-
++	for (; pfn < end_pfn; pfn += cur_nr_pages) {
+ 		cond_resched();
+-		pfns = min(nr_pages, PAGES_PER_SECTION
+-				- (pfn & ~PAGE_SECTION_MASK));
+-		__remove_section(pfn, pfns, map_offset, altmap);
+-		pfn += pfns;
+-		nr_pages -= pfns;
++		/* Select all remaining pages up to the next section boundary */
++		cur_nr_pages = min(end_pfn - pfn, -(pfn | PAGE_SECTION_MASK));
++		__remove_section(pfn, cur_nr_pages, map_offset, altmap);
+ 		map_offset = 0;
+ 	}
+ }
 -- 
-2.23.0
+2.21.0
