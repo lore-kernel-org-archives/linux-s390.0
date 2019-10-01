@@ -1,83 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55360 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:25499 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726310AbfJKISh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Oct 2019 04:18:37 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 3/7] modpost: add support for mdev class id
-Date: Fri, 11 Oct 2019 16:15:53 +0800
-Message-Id: <20191011081557.28302-4-jasowang@redhat.com>
-In-Reply-To: <20191011081557.28302-1-jasowang@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
+        id S2388938AbfJAOlM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:41:12 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v5 02/10] mm/memmap_init: Update variable name in memmap_init_zone
+Date: Tue,  1 Oct 2019 16:40:03 +0200
+Message-Id: <20191001144011.3801-3-david@redhat.com>
+In-Reply-To: <20191001144011.3801-1-david@redhat.com>
+References: <20191001144011.3801-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Potapenko <glider@google.com>, Pankaj Gupta <pagupta@redhat.com>, David Hildenbrand <david@redhat.com>
 
-Add support to parse mdev class id table.
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+The third argument is actually number of pages. Changes the variable name
+from size to nr_pages to indicate this better.
+
+No functional change in this patch.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Alexander Potapenko <glider@google.com>
+Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/vfio/mdev/vfio_mdev.c     |  2 ++
- scripts/mod/devicetable-offsets.c |  3 +++
- scripts/mod/file2alias.c          | 10 ++++++++++
- 3 files changed, 15 insertions(+)
+ mm/page_alloc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index fd2a4d9a3f26..891cf83a2d9a 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -125,6 +125,8 @@ static struct mdev_class_id id_table[] = {
- 	{ 0 },
- };
- 
-+MODULE_DEVICE_TABLE(mdev, id_table);
-+
- static struct mdev_driver vfio_mdev_driver = {
- 	.name	= "vfio_mdev",
- 	.probe	= vfio_mdev_probe,
-diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
-index 054405b90ba4..6cbb1062488a 100644
---- a/scripts/mod/devicetable-offsets.c
-+++ b/scripts/mod/devicetable-offsets.c
-@@ -231,5 +231,8 @@ int main(void)
- 	DEVID(wmi_device_id);
- 	DEVID_FIELD(wmi_device_id, guid_string);
- 
-+	DEVID(mdev_class_id);
-+	DEVID_FIELD(mdev_class_id, id);
-+
- 	return 0;
- }
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index c91eba751804..d365dfe7c718 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -1335,6 +1335,15 @@ static int do_wmi_entry(const char *filename, void *symval, char *alias)
- 	return 1;
- }
- 
-+/* looks like: "mdev:cN" */
-+static int do_mdev_entry(const char *filename, void *symval, char *alias)
-+{
-+	DEF_FIELD(symval, mdev_class_id, id);
-+
-+	sprintf(alias, "mdev:c%02X", id);
-+	return 1;
-+}
-+
- /* Does namelen bytes of name exactly match the symbol? */
- static bool sym_is(const char *name, unsigned namelen, const char *symbol)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 15c2050c629b..b0b2d5464000 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5936,10 +5936,10 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ #ifdef CONFIG_ZONE_DEVICE
+ void __ref memmap_init_zone_device(struct zone *zone,
+ 				   unsigned long start_pfn,
+-				   unsigned long size,
++				   unsigned long nr_pages,
+ 				   struct dev_pagemap *pgmap)
  {
-@@ -1407,6 +1416,7 @@ static const struct devtable devtable[] = {
- 	{"typec", SIZE_typec_device_id, do_typec_entry},
- 	{"tee", SIZE_tee_client_device_id, do_tee_entry},
- 	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
-+	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
- };
+-	unsigned long pfn, end_pfn = start_pfn + size;
++	unsigned long pfn, end_pfn = start_pfn + nr_pages;
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	struct vmem_altmap *altmap = pgmap_altmap(pgmap);
+ 	unsigned long zone_idx = zone_idx(zone);
+@@ -5956,7 +5956,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 	 */
+ 	if (altmap) {
+ 		start_pfn = altmap->base_pfn + vmem_altmap_offset(altmap);
+-		size = end_pfn - start_pfn;
++		nr_pages = end_pfn - start_pfn;
+ 	}
  
- /* Create MODULE_ALIAS() statements.
+ 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+@@ -6003,7 +6003,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 	}
+ 
+ 	pr_info("%s initialised %lu pages in %ums\n", __func__,
+-		size, jiffies_to_msecs(jiffies - start));
++		nr_pages, jiffies_to_msecs(jiffies - start));
+ }
+ 
+ #endif
 -- 
-2.19.1
+2.21.0
