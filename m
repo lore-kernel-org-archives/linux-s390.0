@@ -1,57 +1,141 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47836 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439175AbfJXLmv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:51 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbBx5020960
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:50 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vuabhj6b0-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:50 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:48 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 35/37] KVM: s390: Fix cpu reset local IRQ clearing
-Date: Thu, 24 Oct 2019 07:40:57 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:47832 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388938AbfJAOlP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:41:15 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v5 03/10] mm/memory_hotplug: Don't access uninitialized memmaps in shrink_pgdat_span()
+Date: Tue,  1 Oct 2019 16:40:04 +0200
+Message-Id: <20191001144011.3801-4-david@redhat.com>
+In-Reply-To: <20191001144011.3801-1-david@redhat.com>
+References: <20191001144011.3801-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-36-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>, "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
 
-The architecture states that we need to reset local IRQs for all CPU
-resets. Because the old reset interface did not support the normal CPU
-reset we never did that.
+We might use the nid of memmaps that were never initialized. For
+example, if the memmap was poisoned, we will crash the kernel in
+pfn_to_nid() right now. Let's use the calculated boundaries of the separate
+zones instead. This now also avoids having to iterate over a whole bunch of
+subsections again, after shrinking one zone.
 
-Now that we have a new interface, let's properly clear out local IRQs
-and let this commit be a reminder.
+Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory
+hotplug"), the memmap was initialized to 0 and the node was set to the
+right value. After that commit, the node might be garbage.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+We'll have to fix shrink_zone_span() next.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
+ mm/memory_hotplug.c | 72 ++++++++++-----------------------------------
+ 1 file changed, 15 insertions(+), 57 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ba6144fdb5d1..cc5feb67f145 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3485,6 +3485,8 @@ static int kvm_arch_vcpu_ioctl_reset(struct kvm_vcpu *vcpu,
- 		 * non-protected case.
- 		 */
- 		rc = 0;
-+		kvm_clear_async_pf_completion_queue(vcpu);
-+		kvm_s390_clear_local_irqs(vcpu);
- 		if (kvm_s390_pv_handle_cpu(vcpu)) {
- 			rc = uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
- 					   UVC_CMD_CPU_RESET, &ret);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 680b4b3e57d9..86b4dc18e831 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -436,67 +436,25 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 	zone_span_writeunlock(zone);
+ }
+ 
+-static void shrink_pgdat_span(struct pglist_data *pgdat,
+-			      unsigned long start_pfn, unsigned long end_pfn)
++static void update_pgdat_span(struct pglist_data *pgdat)
+ {
+-	unsigned long pgdat_start_pfn = pgdat->node_start_pfn;
+-	unsigned long p = pgdat_end_pfn(pgdat); /* pgdat_end_pfn namespace clash */
+-	unsigned long pgdat_end_pfn = p;
+-	unsigned long pfn;
+-	int nid = pgdat->node_id;
+-
+-	if (pgdat_start_pfn == start_pfn) {
+-		/*
+-		 * If the section is smallest section in the pgdat, it need
+-		 * shrink pgdat->node_start_pfn and pgdat->node_spanned_pages.
+-		 * In this case, we find second smallest valid mem_section
+-		 * for shrinking zone.
+-		 */
+-		pfn = find_smallest_section_pfn(nid, NULL, end_pfn,
+-						pgdat_end_pfn);
+-		if (pfn) {
+-			pgdat->node_start_pfn = pfn;
+-			pgdat->node_spanned_pages = pgdat_end_pfn - pfn;
+-		}
+-	} else if (pgdat_end_pfn == end_pfn) {
+-		/*
+-		 * If the section is biggest section in the pgdat, it need
+-		 * shrink pgdat->node_spanned_pages.
+-		 * In this case, we find second biggest valid mem_section for
+-		 * shrinking zone.
+-		 */
+-		pfn = find_biggest_section_pfn(nid, NULL, pgdat_start_pfn,
+-					       start_pfn);
+-		if (pfn)
+-			pgdat->node_spanned_pages = pfn - pgdat_start_pfn + 1;
+-	}
+-
+-	/*
+-	 * If the section is not biggest or smallest mem_section in the pgdat,
+-	 * it only creates a hole in the pgdat. So in this case, we need not
+-	 * change the pgdat.
+-	 * But perhaps, the pgdat has only hole data. Thus it check the pgdat
+-	 * has only hole or not.
+-	 */
+-	pfn = pgdat_start_pfn;
+-	for (; pfn < pgdat_end_pfn; pfn += PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_valid(pfn)))
+-			continue;
+-
+-		if (pfn_to_nid(pfn) != nid)
+-			continue;
++	unsigned long node_start_pfn = 0, node_end_pfn = 0;
++	struct zone *zone;
+ 
+-		/* Skip range to be removed */
+-		if (pfn >= start_pfn && pfn < end_pfn)
+-			continue;
++	for (zone = pgdat->node_zones;
++	     zone < pgdat->node_zones + MAX_NR_ZONES; zone++) {
++		unsigned long zone_end_pfn = zone->zone_start_pfn +
++					     zone->spanned_pages;
+ 
+-		/* If we find valid section, we have nothing to do */
+-		return;
++		/* No need to lock the zones, they can't change. */
++		if (zone_end_pfn > node_end_pfn)
++			node_end_pfn = zone_end_pfn;
++		if (zone->zone_start_pfn < node_start_pfn)
++			node_start_pfn = zone->zone_start_pfn;
+ 	}
+ 
+-	/* The pgdat has no valid section */
+-	pgdat->node_start_pfn = 0;
+-	pgdat->node_spanned_pages = 0;
++	pgdat->node_start_pfn = node_start_pfn;
++	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
+ }
+ 
+ static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+@@ -507,7 +465,7 @@ static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+ 
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+ 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+-	shrink_pgdat_span(pgdat, start_pfn, start_pfn + nr_pages);
++	update_pgdat_span(pgdat);
+ 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
+ }
+ 
 -- 
-2.20.1
+2.21.0
