@@ -1,71 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10810 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730590AbfJVKxN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Oct 2019 06:53:13 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9MAldVh126203
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 06:53:13 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vswwxwns1-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 06:53:12 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Tue, 22 Oct 2019 11:53:10 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v1 3/5] s390x: sclp: expose ram_size and max_ram_size
-Date: Tue, 22 Oct 2019 12:53:02 +0200
-In-Reply-To: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
-References: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
-Message-Id: <1571741584-17621-4-git-send-email-imbrenda@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:44462 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389116AbfJAOlg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:41:36 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v5 08/10] mm/memory_hotplug: Don't check for "all holes" in shrink_zone_span()
+Date: Tue,  1 Oct 2019 16:40:09 +0200
+Message-Id: <20191001144011.3801-9-david@redhat.com>
+In-Reply-To: <20191001144011.3801-1-david@redhat.com>
+References: <20191001144011.3801-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Expose ram_size and max_ram_size through accessor functions.
+If we have holes, the holes will automatically get detected and removed
+once we remove the next bigger/smaller section. The extra checks can
+go.
 
-We only use get_ram_size in an upcoming patch, but having an accessor
-for the other one does not hurt.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- lib/s390x/sclp.h | 2 ++
- lib/s390x/sclp.c | 9 +++++++++
- 2 files changed, 11 insertions(+)
+ mm/memory_hotplug.c | 34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index f00c3df..6d40fb7 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -272,5 +272,7 @@ void sclp_console_setup(void);
- void sclp_print(const char *str);
- int sclp_service_call(unsigned int command, void *sccb);
- void sclp_memory_setup(void);
-+uint64_t get_ram_size(void);
-+uint64_t get_max_ram_size(void);
- 
- #endif /* SCLP_H */
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 56fca0c..a57096c 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -167,3 +167,12 @@ void sclp_memory_setup(void)
- 
- 	mem_init(ram_size);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 273833612774..22b3623768c8 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -393,6 +393,9 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 		if (pfn) {
+ 			zone->zone_start_pfn = pfn;
+ 			zone->spanned_pages = zone_end_pfn - pfn;
++		} else {
++			zone->zone_start_pfn = 0;
++			zone->spanned_pages = 0;
+ 		}
+ 	} else if (zone_end_pfn == end_pfn) {
+ 		/*
+@@ -405,34 +408,11 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 					       start_pfn);
+ 		if (pfn)
+ 			zone->spanned_pages = pfn - zone_start_pfn + 1;
++		else {
++			zone->zone_start_pfn = 0;
++			zone->spanned_pages = 0;
++		}
+ 	}
+-
+-	/*
+-	 * The section is not biggest or smallest mem_section in the zone, it
+-	 * only creates a hole in the zone. So in this case, we need not
+-	 * change the zone. But perhaps, the zone has only hole data. Thus
+-	 * it check the zone has only hole or not.
+-	 */
+-	pfn = zone_start_pfn;
+-	for (; pfn < zone_end_pfn; pfn += PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_to_online_page(pfn)))
+-			continue;
+-
+-		if (page_zone(pfn_to_page(pfn)) != zone)
+-			continue;
+-
+-		/* Skip range to be removed */
+-		if (pfn >= start_pfn && pfn < end_pfn)
+-			continue;
+-
+-		/* If we find valid section, we have nothing to do */
+-		zone_span_writeunlock(zone);
+-		return;
+-	}
+-
+-	/* The zone has no valid section */
+-	zone->zone_start_pfn = 0;
+-	zone->spanned_pages = 0;
+ 	zone_span_writeunlock(zone);
  }
-+
-+uint64_t get_ram_size(void)
-+{
-+	return ram_size;
-+}
-+uint64_t get_max_ram_size(void)
-+{
-+	return max_ram_size;
-+}
+ 
 -- 
-2.7.4
+2.21.0
