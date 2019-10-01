@@ -1,130 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21716 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2439170AbfJXLms (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:48 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb9HF088867
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:47 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vuapnhg3a-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:47 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:45 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 33/37] KVM: s390: Introduce VCPU reset IOCTL
-Date: Thu, 24 Oct 2019 07:40:55 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:54958 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727018AbfJAOld (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Oct 2019 10:41:33 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v5 07/10] mm/memory_hotplug: We always have a zone in find_(smallest|biggest)_section_pfn
+Date: Tue,  1 Oct 2019 16:40:08 +0200
+Message-Id: <20191001144011.3801-8-david@redhat.com>
+In-Reply-To: <20191001144011.3801-1-david@redhat.com>
+References: <20191001144011.3801-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-34-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-With PV we need to do things for all reset types, not only initial...
+With shrink_pgdat_span() out of the way, we now always have a valid
+zone.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kvm/kvm-s390.c | 53 ++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/kvm.h |  6 +++++
- 2 files changed, 59 insertions(+)
+ mm/memory_hotplug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d3fd3ad1d09b..d8ee3a98e961 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3472,6 +3472,53 @@ static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 	return 0;
- }
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 640309236a58..273833612774 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -337,7 +337,7 @@ static unsigned long find_smallest_section_pfn(int nid, struct zone *zone,
+ 		if (unlikely(pfn_to_nid(start_pfn) != nid))
+ 			continue;
  
-+static int kvm_arch_vcpu_ioctl_reset(struct kvm_vcpu *vcpu,
-+				     unsigned long type)
-+{
-+	int rc;
-+	u32 ret;
-+
-+	switch (type) {
-+	case KVM_S390_VCPU_RESET_NORMAL:
-+		/*
-+		 * Only very little is reset, userspace handles the
-+		 * non-protected case.
-+		 */
-+		rc = 0;
-+		if (kvm_s390_pv_handle_cpu(vcpu)) {
-+			rc = uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
-+					   UVC_CMD_CPU_RESET, &ret);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: cpu %d rc %x rrc %x",
-+				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		}
-+		break;
-+	case KVM_S390_VCPU_RESET_INITIAL:
-+		rc = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		if (kvm_s390_pv_handle_cpu(vcpu)) {
-+			uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
-+				      UVC_CMD_CPU_RESET_INITIAL,
-+				      &ret);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET INITIAL VCPU: cpu %d rc %x rrc %x",
-+				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		}
-+		break;
-+	case KVM_S390_VCPU_RESET_CLEAR:
-+		rc = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		if (kvm_s390_pv_handle_cpu(vcpu)) {
-+			rc = uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
-+					   UVC_CMD_CPU_RESET_CLEAR, &ret);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET CLEAR VCPU: cpu %d rc %x rrc %x",
-+				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		}
-+		break;
-+	default:
-+		rc = -EINVAL;
-+		break;
-+	}
-+	return rc;
-+}
-+
-+
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- {
- 	vcpu_load(vcpu);
-@@ -4633,8 +4680,14 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		break;
- 	}
- 	case KVM_S390_INITIAL_RESET:
-+		r = -EINVAL;
-+		if (kvm_s390_pv_is_protected(vcpu->kvm))
-+			break;
- 		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
- 		break;
-+	case KVM_S390_VCPU_RESET:
-+		r = kvm_arch_vcpu_ioctl_reset(vcpu, arg);
-+		break;
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
- 		struct kvm_one_reg reg;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f75a051a7705..2846ed5e5dd9 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1496,6 +1496,12 @@ struct kvm_pv_cmd {
- #define KVM_S390_PV_COMMAND		_IOW(KVMIO, 0xc3, struct kvm_pv_cmd)
- #define KVM_S390_PV_COMMAND_VCPU	_IOW(KVMIO, 0xc4, struct kvm_pv_cmd)
+-		if (zone && zone != page_zone(pfn_to_page(start_pfn)))
++		if (zone != page_zone(pfn_to_page(start_pfn)))
+ 			continue;
  
-+#define KVM_S390_VCPU_RESET_NORMAL	0
-+#define KVM_S390_VCPU_RESET_INITIAL	1
-+#define KVM_S390_VCPU_RESET_CLEAR	2
-+
-+#define KVM_S390_VCPU_RESET    _IO(KVMIO,   0xd0)
-+
- /* Secure Encrypted Virtualization command */
- enum sev_cmd_id {
- 	/* Guest initialization commands */
+ 		return start_pfn;
+@@ -362,7 +362,7 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
+ 		if (unlikely(pfn_to_nid(pfn) != nid))
+ 			continue;
+ 
+-		if (zone && zone != page_zone(pfn_to_page(pfn)))
++		if (zone != page_zone(pfn_to_page(pfn)))
+ 			continue;
+ 
+ 		return pfn;
 -- 
-2.20.1
+2.21.0
