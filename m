@@ -1,154 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15588 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388525AbfJVMVV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Oct 2019 08:21:21 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9MCHNov082676
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 08:21:20 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsy97wg9x-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 08:21:20 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Tue, 22 Oct 2019 13:21:17 +0100
-Subject: Re: [PATCH 12/24] scsi: introduce scsi_build_sense()
-References: <20191021095322.137969-1-hare@suse.de>
- <20191021095322.137969-13-hare@suse.de>
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Tue, 22 Oct 2019 14:21:12 +0200
+Received: from mx1.redhat.com ([209.132.183.28]:51292 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726510AbfJBHFx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 2 Oct 2019 03:05:53 -0400
+Subject: Re: [PATCH v5 04/10] mm/memory_hotplug: Don't access uninitialized
+ memmaps in shrink_zone_span()
+References: <20191001144011.3801-5-david@redhat.com>
+ <201910020852.w9neG45x%lkp@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <1b6a5056-7f2a-1e83-fae0-5289435f4270@redhat.com>
+Date: Wed, 2 Oct 2019 09:05:47 +0200
 MIME-Version: 1.0
-In-Reply-To: <20191021095322.137969-13-hare@suse.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <201910020852.w9neG45x%lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <4097c14b-4b28-f7ee-595c-cb338b878d27@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Hannes Reinecke <hare@suse.de>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>, James Bottomley <james.bottomley@hansenpartnership.com>, Johannes Thumshirn <jthumshirn@suse.de>, linux-scsi@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
 
-On 10/21/19 11:53 AM, Hannes Reinecke wrote:
-> Introduce scsi_build_sense() as a wrapper around
-> scsi_build_sense_buffer() to format the buffer and set
-> the correct SCSI status.
+On 02.10.19 02:06, kbuild test robot wrote:
+> Hi David,
 > 
-> Signed-off-by: Hannes Reinecke <hare@suse.de>
+> I love your patch! Perhaps something to improve:
+> 
+> [auto build test WARNING on mmotm/master]
+> 
+> url:    https://github.com/0day-ci/linux/commits/David-Hildenbrand/mm-memory_hotplug-Shrink-zones-before-removing-memory/20191002-054310
+> base:   git://git.cmpxchg.org/linux-mmotm.git master
+> config: x86_64-randconfig-b002-201939 (attached as .config)
+> compiler: gcc-7 (Debian 7.4.0-13) 7.4.0
+> reproduce:
+>         # save the attached .config to linux build tree
+>         make ARCH=x86_64 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>    In file included from include/asm-generic/bug.h:5:0,
+>                     from arch/x86/include/asm/bug.h:83,
+>                     from include/linux/bug.h:5,
+>                     from include/linux/mmdebug.h:5,
+>                     from include/linux/mm.h:9,
+>                     from mm/memory_hotplug.c:9:
+>    mm/memory_hotplug.c: In function '__remove_zone':
+>    mm/memory_hotplug.c:471:24: error: 'ZONE_DEVICE' undeclared (first use in this function); did you mean 'ZONE_MOVABLE'?
+>      if (zone_idx(zone) == ZONE_DEVICE)
+>                            ^
+>    include/linux/compiler.h:58:52: note: in definition of macro '__trace_if_var'
+>     #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
+>                                                        ^~~~
+>>> mm/memory_hotplug.c:471:2: note: in expansion of macro 'if'
+>      if (zone_idx(zone) == ZONE_DEVICE)
+>      ^~
+>    mm/memory_hotplug.c:471:24: note: each undeclared identifier is reported only once for each function it appears in
+>      if (zone_idx(zone) == ZONE_DEVICE)
+>                            ^
+>    include/linux/compiler.h:58:52: note: in definition of macro '__trace_if_var'
+>     #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
+>                                                        ^~~~
+>>> mm/memory_hotplug.c:471:2: note: in expansion of macro 'if'
+>      if (zone_idx(zone) == ZONE_DEVICE)
+>      ^~
+> 
+> vim +/if +471 mm/memory_hotplug.c
+> 
+>    459	
+>    460	static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+>    461			unsigned long nr_pages)
+>    462	{
+>    463		struct pglist_data *pgdat = zone->zone_pgdat;
+>    464		unsigned long flags;
+>    465	
+>    466		/*
+>    467		 * Zone shrinking code cannot properly deal with ZONE_DEVICE. So
+>    468		 * we will not try to shrink the zones - which is okay as
+>    469		 * set_zone_contiguous() cannot deal with ZONE_DEVICE either way.
+>    470		 */
+>  > 471		if (zone_idx(zone) == ZONE_DEVICE)
+>    472			return;
+>    473	
+>    474		pgdat_resize_lock(zone->zone_pgdat, &flags);
+>    475		shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+>    476		update_pgdat_span(pgdat);
+>    477		pgdat_resize_unlock(zone->zone_pgdat, &flags);
+>    478	}
+>    479	
+> 
 > ---
-
->   drivers/s390/scsi/zfcp_scsi.c         |  5 +--
-
->   16 files changed, 60 insertions(+), 128 deletions(-)
-
-> diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-> index e9ded2befa0d..da52d7649f4d 100644
-> --- a/drivers/s390/scsi/zfcp_scsi.c
-> +++ b/drivers/s390/scsi/zfcp_scsi.c
-> @@ -834,10 +834,7 @@ void zfcp_scsi_set_prot(struct zfcp_adapter *adapter)
->    */
->   void zfcp_scsi_dif_sense_error(struct scsi_cmnd *scmd, int ascq)
->   {
-> -	scsi_build_sense_buffer(1, scmd->sense_buffer,
-> -				ILLEGAL_REQUEST, 0x10, ascq);
-> -	set_driver_byte(scmd, DRIVER_SENSE);
-> -	scmd->result |= SAM_STAT_CHECK_CONDITION;
-> +	scsi_build_sense(scmd, 1, ILLEGAL_REQUEST, 0x10, ascq);
->   	set_host_byte(scmd, DID_SOFT_ERROR);
->   }
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 > 
 
-looks like a non-functional change for zfcp, so for this part:
-
-Acked-by: Steffen Maier <maier@linux.ibm.com> # for zfcp
-
-> diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-> index a0db8d8766a8..2babf6df8066 100644
-> --- a/drivers/scsi/scsi_lib.c
-> +++ b/drivers/scsi/scsi_lib.c
-> @@ -3117,3 +3117,21 @@ int scsi_vpd_tpg_id(struct scsi_device *sdev, int *rel_id)
->   	return group_id;
->   }
->   EXPORT_SYMBOL(scsi_vpd_tpg_id);
-> +
-> +/**
-> + * scsi_build_sense - build sense data for a command
-
-minor: I suppose kdoc&sphnix parse and render it correctly? Because 
-Documentation/doc-guide/kernel-doc.rst says the format for function kdoc has 
-"()" as function name suffix:
-+ * scsi_build_sense() - build sense data for a command
-
-> + * @scmd:	scsi command for which the sense should be formatted
-> + * @desc:	Sense format (non-zero == descriptor format,
-> + *              0 == fixed format)
-
-Looks like this has already been like that. Not sure if this patch set touches 
-every user of scsi_build_sense{_buffer}(). It would be nice to have meaningful 
-identifiers for values passed to @desc, e.g. something like the following 
-instead of "magic" zero and non-zero:
-
-enum scsi_sense_format {
-	SCSI_SENSE_FIXED = 0,
-	SCSI_SENSE_DESCRIPTOR
-};
-
-> + * @key:	Sense key
-> + * @asc:	Additional sense code
-> + * @ascq:	Additional sense code qualifier
-> + *
-> + **/
-
-minor:
-
-+ */
-
-[no double star at kdoc end?]
-
-> +void scsi_build_sense(struct scsi_cmnd *scmd, int desc, u8 key, u8 asc, u8 ascq)
-> +{
-> +	scsi_build_sense_buffer(desc, scmd->sense_buffer, key, asc, ascq);
-> +	scmd->result = (DRIVER_SENSE << 24) | (DID_OK << 16) |
-> +		SAM_STAT_CHECK_CONDITION;
-
-While this is scsi_lib and thus "internal" helper code, I wonder if this should 
-nonetheless use the helper functions to access and build scmd->result in order 
-to have the error-prone bit shifts in only one central place?:
-
-	scmd->result = SAM_STAT_CHECK_CONDITION;
-	set_driver_byte(scmd, DRIVER_SENSE);
-	set_host_byte(scmd, DID_OK);
-	
-
-> +}
-> +EXPORT_SYMBOL_GPL(scsi_build_sense);
-
-> diff --git a/include/scsi/scsi_cmnd.h b/include/scsi/scsi_cmnd.h
-> index 6932d91472d5..9b9ca629097d 100644
-> --- a/include/scsi/scsi_cmnd.h
-> +++ b/include/scsi/scsi_cmnd.h
-> @@ -338,4 +338,7 @@ static inline unsigned scsi_transfer_length(struct scsi_cmnd *scmd)
->   	return xfer_len;
->   }
-> 
-> +extern void scsi_build_sense(struct scsi_cmnd *scmd, int desc,
-> +			     u8 key, u8 asc, u8 ascq);
-> +
->   #endif /* _SCSI_SCSI_CMND_H */
-> 
-
+That should be easy to fix with some ifdef-ery :)
 
 -- 
-Mit freundlichen Gruessen / Kind regards
-Steffen Maier
 
-Linux on IBM Z Development
+Thanks,
 
-https://www.ibm.com/privacy/us/en/
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Matthias Hartmann
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+David / dhildenb
