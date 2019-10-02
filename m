@@ -1,56 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:46346 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727707AbfJKANC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:13:02 -0400
-Received: by mail-pf1-f195.google.com with SMTP id q5so4926863pfg.13
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:13:00 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 18/29] arm64: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Thu, 10 Oct 2019 17:05:58 -0700
-Message-Id: <20191011000609.29728-19-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5758 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726100AbfJBIWH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Oct 2019 04:22:07 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x928HFrQ118040
+        for <linux-s390@vger.kernel.org>; Wed, 2 Oct 2019 04:22:06 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vcnhs4nb6-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 02 Oct 2019 04:22:05 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Wed, 2 Oct 2019 09:22:04 +0100
+Date: Wed, 2 Oct 2019 10:21:57 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 5.4-rc1 BUILD FIX] s390: mark __cpacf_query() as
+ __always_inline
+References: <nycvar.YFH.7.76.1910012203010.13160@cbobk.fhfr.pm>
+ <20191002064605.GA7405@osiris>
+ <20191002070333.GE24815@unicorn.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191002070333.GE24815@unicorn.suse.cz>
+Message-Id: <20191002082157.GA9535@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Michal Kubecek <mkubecek@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Masahiro Yamada <yamada.masahiro@socionext.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-s390@vger.kernel.org
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA. Also
-removes the redundant ALIGN, which is already present at the end of the
-RO_DATA macro.
+On Wed, Oct 02, 2019 at 09:03:33AM +0200, Michal Kubecek wrote:
+> On Wed, Oct 02, 2019 at 08:46:05AM +0200, Heiko Carstens wrote:
+> > On Tue, Oct 01, 2019 at 10:08:01PM +0200, Jiri Kosina wrote:
+> > > 
+> > >    In file included from arch/s390/kvm/kvm-s390.c:44:
+> > >    ./arch/s390/include/asm/cpacf.h: In function '__cpacf_query':
+> > >    ./arch/s390/include/asm/cpacf.h:179:2: warning: asm operand 3 probably doesn't match constraints
+> > >      179 |  asm volatile(
+> > >          |  ^~~
+> > >    ./arch/s390/include/asm/cpacf.h:179:2: error: impossible constraint in 'asm'
+> > > 
+> > > ...
+> > > 
+> > > I am wondering how is it possible that none of the build-testing 
+> > > infrastructure we have running against linux-next caught this? Not enough 
+> > > non-x86 coverage?
+> > 
+> > Well, there is plenty of s390 coverage with respect to daily builds
+> > (also here). It doesn't fail for me with gcc 9.1; so you may either
+> > have a different gcc version or different config options(?) so the
+> > compiler decided to not inline the function.
+> 
+> I think I found the reason: we only hit the build failure with one
+> special config used for zfcpdump which has
+> 
+>   CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+> 
+> When I switched to CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y (which we have
+> in other s390x configs and which most people probably prefer), the build
+> does not fail even without the patch.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Will Deacon <will@kernel.org>
----
- arch/arm64/kernel/vmlinux.lds.S | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Yes, with CONFIG_CC_OPTIMIZE_FOR_SIZE=y I can see plenty of _additional_
+compile failures on s390 with "defconfig". Will fix them all...
 
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index a4b3e6c0680c..9128a26eb45b 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -5,6 +5,8 @@
-  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-  */
- 
-+#define RO_EXCEPTION_TABLE_ALIGN	8
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/cache.h>
- #include <asm/kernel-pgtable.h>
-@@ -135,10 +137,9 @@ SECTIONS
- 	. = ALIGN(SEGMENT_ALIGN);
- 	_etext = .;			/* End of text section */
- 
--	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
--	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
-+	/* everything from this point to __init_begin will be marked RO NX */
-+	RO_DATA(PAGE_SIZE)
- 
--	. = ALIGN(PAGE_SIZE);
- 	idmap_pg_dir = .;
- 	. += IDMAP_DIR_SIZE;
- 
--- 
-2.17.1
+Thanks for reporting!
