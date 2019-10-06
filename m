@@ -1,117 +1,310 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Oct 2019 12:25:39 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.4-rc3
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:46002 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726207AbfJFINt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Oct 2019 04:13:49 -0400
+Subject: Re: [PATCH v5 01/10] mm/memunmap: Use the correct start and end pfn
+ when removing pages from zone
+References: <20191001144011.3801-1-david@redhat.com>
+ <20191001144011.3801-2-david@redhat.com>
+ <933f9cd8-9a32-8566-bd97-7e475a009275@redhat.com>
+ <09b61ab1-6099-d825-8e04-fbfb43abe4d2@redhat.com>
+ <cb6807a4-93c8-3964-bd65-e7087a0c7bf1@linux.ibm.com>
+ <6e71cd24-7696-e7ca-15a1-8f126b0860ee@redhat.com>
+ <25a72fa3-9859-3fdb-ffd3-deb7bf154fe0@redhat.com>
+ <cbb82f0a-a578-5fb0-6b62-00bcd0a09b2e@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <96d3cab9-965d-f363-f3ea-e31e89e2fc01@redhat.com>
+Date: Sun, 6 Oct 2019 10:13:45 +0200
 MIME-Version: 1.0
+In-Reply-To: <cbb82f0a-a578-5fb0-6b62-00bcd0a09b2e@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <your-ad-here.call-01570875939-ext-1686@work.hours>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-kernel@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Jason Gunthorpe <jgg@ziepe.ca>, Logan Gunthorpe <logang@deltatee.com>, Ira Weiny <ira.weiny@intel.com>, Pankaj Gupta <pagupta@redhat.com>
 
-Hello Linus,
+On 05.10.19 08:13, Aneesh Kumar K.V wrote:
+> On 10/4/19 2:33 PM, David Hildenbrand wrote:
+>> On 04.10.19 11:00, David Hildenbrand wrote:
+>>> On 03.10.19 18:48, Aneesh Kumar K.V wrote:
+>>>> On 10/1/19 8:33 PM, David Hildenbrand wrote:
+>>>>> On 01.10.19 16:57, David Hildenbrand wrote:
+>>>>>> On 01.10.19 16:40, David Hildenbrand wrote:
+>>>>>>> From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+>>>>>>>
+>>>>>>> With altmap, all the resource pfns are not initialized. While initializing
+>>>>>>> pfn, altmap reserve space is skipped. Hence when removing pfn from zone
+>>>>>>> skip pfns that were never initialized.
+>>>>>>>
+>>>>>>> Update memunmap_pages to calculate start and end pfn based on altmap
+>>>>>>> values. This fixes a kernel crash that is observed when destroying
+>>>>>>> a namespace.
+>>>>>>>
+>>>>>>> [   81.356173] kernel BUG at include/linux/mm.h:1107!
+>>>>>>> cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
+>>>>>>>       pc: c0000000004b9728: memunmap_pages+0x238/0x340
+>>>>>>>       lr: c0000000004b9724: memunmap_pages+0x234/0x340
+>>>>>>> ...
+>>>>>>>       pid   = 3669, comm = ndctl
+>>>>>>> kernel BUG at include/linux/mm.h:1107!
+>>>>>>> [c000000274087ba0] c0000000009e3500 devm_action_release+0x30/0x50
+>>>>>>> [c000000274087bc0] c0000000009e4758 release_nodes+0x268/0x2d0
+>>>>>>> [c000000274087c30] c0000000009dd144 device_release_driver_internal+0x174/0x240
+>>>>>>> [c000000274087c70] c0000000009d9dfc unbind_store+0x13c/0x190
+>>>>>>> [c000000274087cb0] c0000000009d8a24 drv_attr_store+0x44/0x60
+>>>>>>> [c000000274087cd0] c0000000005a7470 sysfs_kf_write+0x70/0xa0
+>>>>>>> [c000000274087d10] c0000000005a5cac kernfs_fop_write+0x1ac/0x290
+>>>>>>> [c000000274087d60] c0000000004be45c __vfs_write+0x3c/0x70
+>>>>>>> [c000000274087d80] c0000000004c26e4 vfs_write+0xe4/0x200
+>>>>>>> [c000000274087dd0] c0000000004c2a6c ksys_write+0x7c/0x140
+>>>>>>> [c000000274087e20] c00000000000bbd0 system_call+0x5c/0x68
+>>>>>>>
+>>>>>>> Cc: Dan Williams <dan.j.williams@intel.com>
+>>>>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>>>>>> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+>>>>>>> Cc: Logan Gunthorpe <logang@deltatee.com>
+>>>>>>> Cc: Ira Weiny <ira.weiny@intel.com>
+>>>>>>> Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
+>>>>>>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+>>>>>>> [ move all pfn-realted declarations into a single line ]
+>>>>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>>>>> ---
+>>>>>>>    mm/memremap.c | 13 ++++++++-----
+>>>>>>>    1 file changed, 8 insertions(+), 5 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/mm/memremap.c b/mm/memremap.c
+>>>>>>> index 557e53c6fb46..026788b2ac69 100644
+>>>>>>> --- a/mm/memremap.c
+>>>>>>> +++ b/mm/memremap.c
+>>>>>>> @@ -123,7 +123,7 @@ static void dev_pagemap_cleanup(struct dev_pagemap *pgmap)
+>>>>>>>    void memunmap_pages(struct dev_pagemap *pgmap)
+>>>>>>>    {
+>>>>>>>    	struct resource *res = &pgmap->res;
+>>>>>>> -	unsigned long pfn;
+>>>>>>> +	unsigned long pfn, nr_pages, start_pfn, end_pfn;
+>>>>>>>    	int nid;
+>>>>>>>    
+>>>>>>>    	dev_pagemap_kill(pgmap);
+>>>>>>> @@ -131,14 +131,17 @@ void memunmap_pages(struct dev_pagemap *pgmap)
+>>>>>>>    		put_page(pfn_to_page(pfn));
+>>>>>>>    	dev_pagemap_cleanup(pgmap);
+>>>>>>>    
+>>>>>>> +	start_pfn = pfn_first(pgmap);
+>>>>>>> +	end_pfn = pfn_end(pgmap);
+>>>>>>> +	nr_pages = end_pfn - start_pfn;
+>>>>>>> +
+>>>>>>>    	/* pages are dead and unused, undo the arch mapping */
+>>>>>>> -	nid = page_to_nid(pfn_to_page(PHYS_PFN(res->start)));
+>>>>>>> +	nid = page_to_nid(pfn_to_page(start_pfn));
+>>>>>>>    
+>>>>>>>    	mem_hotplug_begin();
+>>>>>>>    	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
+>>>>>>> -		pfn = PHYS_PFN(res->start);
+>>>>>>> -		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
+>>>>>>> -				 PHYS_PFN(resource_size(res)), NULL);
+>>>>>>> +		__remove_pages(page_zone(pfn_to_page(start_pfn)), start_pfn,
+>>>>>>> +			       nr_pages, NULL);
+>>>>>>>    	} else {
+>>>>>>>    		arch_remove_memory(nid, res->start, resource_size(res),
+>>>>>>>    				pgmap_altmap(pgmap));
+>>>>>>>
+>>>>>>
+>>>>>> Aneesh, I was wondering why the use of "res->start" is correct (and we
+>>>>>> shouldn't also witch to start_pfn/nr_pages here. It would be good if Dan
+>>>>>> could review.
+>>>>>>
+>>>>>
+>>>>> To be more precise, I wonder if it should actually be
+>>>>>
+>>>>> __remove_pages(page_zone(pfn_to_page(start_pfn)), res->start,
+>>>>>                  resource_size(res))
+>>>>>
+>>>>
+>>>> yes, that would be make it much clear.
+>>>>
+>>>> But for MEMORY_DEVICE_PRIVATE start_pfn and pfn should be same?
+>>>
+>>> Okay, let's recap. We should call add_pages()/__remove_pages()
+>>> and arch_add_memory()/arch_remove_memory() with the exact same ranges.
+>>>
+>>> So with PHYS_PFN(res->start) and PHYS_PFN(resource_size(res)
+>>>
+>>> Now, only a subset of the pages gets actually initialized,
+>>> meaning the NID and the ZONE we read could be stale.
+>>> That, we have to fix.
+>>>
+>>> What about something like this (am I missing something?):
+>>>
+>>>  From d77b5c50f86570819a437517a897cc40ed29eefb Mon Sep 17 00:00:00 2001
+>>> From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+>>> Date: Fri, 27 Sep 2019 16:02:24 +0530
+>>> Subject: [PATCH] mm/memunmap: Don't access uninitialized memmap in
+>>>   memunmap_pages()
+>>>
+>>> With an altmap, the memmap falling into the reserved altmap space are
+>>> not initialized and, therefore, contain a garbage NID and a garbage
+>>> zone. Make sure to read the NID/zone from a memmap that was initialzed.
+>>>
+>>> This fixes a kernel crash that is observed when destroying a namespace:
+>>>
+>>> [   81.356173] kernel BUG at include/linux/mm.h:1107!
+>>> cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
+>>>      pc: c0000000004b9728: memunmap_pages+0x238/0x340
+>>>      lr: c0000000004b9724: memunmap_pages+0x234/0x340
+>>> ...
+>>>      pid   = 3669, comm = ndctl
+>>> kernel BUG at include/linux/mm.h:1107!
+>>> [c000000274087ba0] c0000000009e3500 devm_action_release+0x30/0x50
+>>> [c000000274087bc0] c0000000009e4758 release_nodes+0x268/0x2d0
+>>> [c000000274087c30] c0000000009dd144 device_release_driver_internal+0x174/0x240
+>>> [c000000274087c70] c0000000009d9dfc unbind_store+0x13c/0x190
+>>> [c000000274087cb0] c0000000009d8a24 drv_attr_store+0x44/0x60
+>>> [c000000274087cd0] c0000000005a7470 sysfs_kf_write+0x70/0xa0
+>>> [c000000274087d10] c0000000005a5cac kernfs_fop_write+0x1ac/0x290
+>>> [c000000274087d60] c0000000004be45c __vfs_write+0x3c/0x70
+>>> [c000000274087d80] c0000000004c26e4 vfs_write+0xe4/0x200
+>>> [c000000274087dd0] c0000000004c2a6c ksys_write+0x7c/0x140
+>>> [c000000274087e20] c00000000000bbd0 system_call+0x5c/0x68
+>>>
+>>> Cc: Dan Williams <dan.j.williams@intel.com>
+>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+>>> Cc: Logan Gunthorpe <logang@deltatee.com>
+>>> Cc: Ira Weiny <ira.weiny@intel.com>
+>>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+>>> [ minimze code changes, rephrase description ]
+>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>> ---
+>>>   mm/memremap.c | 11 +++++++----
+>>>   1 file changed, 7 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/mm/memremap.c b/mm/memremap.c
+>>> index 557e53c6fb46..8b11c0da345c 100644
+>>> --- a/mm/memremap.c
+>>> +++ b/mm/memremap.c
+>>> @@ -123,6 +123,7 @@ static void dev_pagemap_cleanup(struct dev_pagemap *pgmap)
+>>>   void memunmap_pages(struct dev_pagemap *pgmap)
+>>>   {
+>>>   	struct resource *res = &pgmap->res;
+>>> +	struct page *first_page;
+>>>   	unsigned long pfn;
+>>>   	int nid;
+>>>   
+>>> @@ -131,14 +132,16 @@ void memunmap_pages(struct dev_pagemap *pgmap)
+>>>   		put_page(pfn_to_page(pfn));
+>>>   	dev_pagemap_cleanup(pgmap);
+>>>   
+>>> +	/* make sure to access a memmap that was actually initialized */
+>>> +	first_page = pfn_to_page(pfn_first(pgmap));
+>>> +
+>>>   	/* pages are dead and unused, undo the arch mapping */
+>>> -	nid = page_to_nid(pfn_to_page(PHYS_PFN(res->start)));
+>>> +	nid = page_to_nid(first_page);
+>>>   
+>>>   	mem_hotplug_begin();
+>>>   	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
+>>> -		pfn = PHYS_PFN(res->start);
+>>> -		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
+>>> -				 PHYS_PFN(resource_size(res)), NULL);
+>>> +		__remove_pages(page_zone(first_page), res->start,
+>>> +			       resource_size(res), NULL);
+>>
+>> Keeping the PHYS_PFN() calls of course ...
+>>
+> 
+> 
+> That is not different from what I posted right?  For MEMORY_DEVICE_PRIVATE
 
-please pull s390 changes for 5.4-rc3.
+I'll go with this modified patch for now, which does not change the ranges
+passed to  __remove_pages(), because that looked like a unrelated change to me.
+__remove_ages() has to be called with the same range as add_pages().
 
-Thank you,
-Vasily
 
-The following changes since commit da0c9ea146cbe92b832f1b0f694840ea8eb33cce:
+commit f66c2fa09293ae0f99afc4363146941579152409 (HEAD)
+Author: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Date:   Fri Sep 27 16:02:24 2019 +0530
 
-  Linux 5.4-rc2 (2019-10-06 14:27:30 -0700)
+    mm/memunmap: Don't access uninitialized memmap in memunmap_pages()
+    
+    With an altmap, the memmap falling into the reserved altmap space are
+    not initialized and, therefore, contain a garbage NID and a garbage
+    zone. Make sure to read the NID/zone from a memmap that was initialzed.
+    
+    This fixes a kernel crash that is observed when destroying a namespace:
+    
+    [   81.356173] kernel BUG at include/linux/mm.h:1107!
+    cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
+        pc: c0000000004b9728: memunmap_pages+0x238/0x340
+        lr: c0000000004b9724: memunmap_pages+0x234/0x340
+    ...
+        pid   = 3669, comm = ndctl
+    kernel BUG at include/linux/mm.h:1107!
+    [c000000274087ba0] c0000000009e3500 devm_action_release+0x30/0x50
+    [c000000274087bc0] c0000000009e4758 release_nodes+0x268/0x2d0
+    [c000000274087c30] c0000000009dd144 device_release_driver_internal+0x174/0x240
+    [c000000274087c70] c0000000009d9dfc unbind_store+0x13c/0x190
+    [c000000274087cb0] c0000000009d8a24 drv_attr_store+0x44/0x60
+    [c000000274087cd0] c0000000005a7470 sysfs_kf_write+0x70/0xa0
+    [c000000274087d10] c0000000005a5cac kernfs_fop_write+0x1ac/0x290
+    [c000000274087d60] c0000000004be45c __vfs_write+0x3c/0x70
+    [c000000274087d80] c0000000004c26e4 vfs_write+0xe4/0x200
+    [c000000274087dd0] c0000000004c2a6c ksys_write+0x7c/0x140
+    [c000000274087e20] c00000000000bbd0 system_call+0x5c/0x68
+    
+    Cc: Dan Williams <dan.j.williams@intel.com>
+    Cc: Andrew Morton <akpm@linux-foundation.org>
+    Cc: Jason Gunthorpe <jgg@ziepe.ca>
+    Cc: Logan Gunthorpe <logang@deltatee.com>
+    Cc: Ira Weiny <ira.weiny@intel.com>
+    Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+    [ minimze code changes, rephrase description ]
+    Signed-off-by: David Hildenbrand <david@redhat.com>
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.4-4
-
-for you to fetch changes up to 062795fcdcb2d22822fb42644b1d76a8ad8439b3:
-
-  s390/uaccess: avoid (false positive) compiler warnings (2019-10-11 12:27:25 +0200)
-
-----------------------------------------------------------------
-s390 updates for 5.4-rc3
-
-- Fix virtio-ccw DMA regression.
-
-- Fix compiler warnings in uaccess.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      s390/uaccess: avoid (false positive) compiler warnings
-
-Halil Pasic (1):
-      s390/cio: fix virtio-ccw DMA without PV
-
- arch/s390/include/asm/uaccess.h | 4 ++--
- drivers/s390/cio/cio.h          | 1 +
- drivers/s390/cio/css.c          | 7 ++++++-
- drivers/s390/cio/device.c       | 2 +-
- 4 files changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index bd2fd9a7821d..a470f1fa9f2a 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -83,7 +83,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
- 	__rc;							\
- })
- 
--static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
-+static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 557e53c6fb46..8c2fb44c3b4d 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -123,6 +123,7 @@ static void dev_pagemap_cleanup(struct dev_pagemap *pgmap)
+ void memunmap_pages(struct dev_pagemap *pgmap)
  {
- 	unsigned long spec = 0x010000UL;
- 	int rc;
-@@ -113,7 +113,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
- 	return rc;
- }
+        struct resource *res = &pgmap->res;
++       struct page *first_page;
+        unsigned long pfn;
+        int nid;
  
--static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
-+static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
- {
- 	unsigned long spec = 0x01UL;
- 	int rc;
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index ba7d2480613b..dcdaba689b20 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -113,6 +113,7 @@ struct subchannel {
- 	enum sch_todo todo;
- 	struct work_struct todo_work;
- 	struct schib_config config;
-+	u64 dma_mask;
- 	char *driver_override; /* Driver name to force a match */
- } __attribute__ ((aligned(8)));
+@@ -131,14 +132,16 @@ void memunmap_pages(struct dev_pagemap *pgmap)
+                put_page(pfn_to_page(pfn));
+        dev_pagemap_cleanup(pgmap);
  
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 1fbfb0a93f5f..831850435c23 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -232,7 +232,12 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
- 	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
- 	 */
- 	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
--	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
-+	/*
-+	 * But we don't have such restrictions imposed on the stuff that
-+	 * is handled by the streaming API.
-+	 */
-+	sch->dma_mask = DMA_BIT_MASK(64);
-+	sch->dev.dma_mask = &sch->dma_mask;
- 	return sch;
++       /* make sure to access a memmap that was actually initialized */
++       first_page = pfn_to_page(pfn_first(pgmap));
++
+        /* pages are dead and unused, undo the arch mapping */
+-       nid = page_to_nid(pfn_to_page(PHYS_PFN(res->start)));
++       nid = page_to_nid(first_page);
  
- err:
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 131430bd48d9..0c6245fc7706 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -710,7 +710,7 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
- 	if (!cdev->private)
- 		goto err_priv;
- 	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
--	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
-+	cdev->dev.dma_mask = sch->dev.dma_mask;
- 	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
- 	if (!dma_pool)
- 		goto err_dma_pool;
+        mem_hotplug_begin();
+        if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
+-               pfn = PHYS_PFN(res->start);
+-               __remove_pages(page_zone(pfn_to_page(pfn)), pfn,
+-                                PHYS_PFN(resource_size(res)), NULL);
++               __remove_pages(page_zone(first_page), PHYS_PFN(res->start),
++                              PHYS_PFN(resource_size(res)), NULL);
+        } else {
+                arch_remove_memory(nid, res->start, resource_size(res),
+                                pgmap_altmap(pgmap));
+
+
+
+As Andrew wants to give this some testing, I'll send out a new version
+shortly, then we can discuss there.
+
+
+-- 
+
+Thanks,
+
+David / dhildenb
