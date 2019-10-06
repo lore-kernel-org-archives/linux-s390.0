@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37458 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49174 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbfJFI5m (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 04:57:42 -0400
+        id S1726185AbfJFI5g (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Oct 2019 04:57:36 -0400
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 09/10] mm/memory_hotplug: Drop local variables in shrink_zone_span()
-Date: Sun,  6 Oct 2019 10:56:45 +0200
-Message-Id: <20191006085646.5768-10-david@redhat.com>
+Subject: [PATCH v6 07/10] mm/memory_hotplug: We always have a zone in find_(smallest|biggest)_section_pfn
+Date: Sun,  6 Oct 2019 10:56:43 +0200
+Message-Id: <20191006085646.5768-8-david@redhat.com>
 In-Reply-To: <20191006085646.5768-1-david@redhat.com>
 References: <20191006085646.5768-1-david@redhat.com>
 MIME-Version: 1.0
@@ -16,7 +16,8 @@ List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Get rid of the unnecessary local variables.
+With shrink_pgdat_span() out of the way, we now always have a valid
+zone.
 
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Oscar Salvador <osalvador@suse.de>
@@ -27,59 +28,30 @@ Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Wei Yang <richardw.yang@linux.intel.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory_hotplug.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ mm/memory_hotplug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 8dafa1ba8d9f..843481bd507d 100644
+index bf5173e7913d..f294918f7211 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -374,14 +374,11 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
- static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
- 			     unsigned long end_pfn)
- {
--	unsigned long zone_start_pfn = zone->zone_start_pfn;
--	unsigned long z = zone_end_pfn(zone); /* zone_end_pfn namespace clash */
--	unsigned long zone_end_pfn = z;
- 	unsigned long pfn;
- 	int nid = zone_to_nid(zone);
+@@ -337,7 +337,7 @@ static unsigned long find_smallest_section_pfn(int nid, struct zone *zone,
+ 		if (unlikely(pfn_to_nid(start_pfn) != nid))
+ 			continue;
  
- 	zone_span_writelock(zone);
--	if (zone_start_pfn == start_pfn) {
-+	if (zone->zone_start_pfn == start_pfn) {
- 		/*
- 		 * If the section is smallest section in the zone, it need
- 		 * shrink zone->zone_start_pfn and zone->zone_spanned_pages.
-@@ -389,25 +386,25 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
- 		 * for shrinking zone.
- 		 */
- 		pfn = find_smallest_section_pfn(nid, zone, end_pfn,
--						zone_end_pfn);
-+						zone_end_pfn(zone));
- 		if (pfn) {
-+			zone->spanned_pages = zone_end_pfn(zone) - pfn;
- 			zone->zone_start_pfn = pfn;
--			zone->spanned_pages = zone_end_pfn - pfn;
- 		} else {
- 			zone->zone_start_pfn = 0;
- 			zone->spanned_pages = 0;
- 		}
--	} else if (zone_end_pfn == end_pfn) {
-+	} else if (zone_end_pfn(zone) == end_pfn) {
- 		/*
- 		 * If the section is biggest section in the zone, it need
- 		 * shrink zone->spanned_pages.
- 		 * In this case, we find second biggest valid mem_section for
- 		 * shrinking zone.
- 		 */
--		pfn = find_biggest_section_pfn(nid, zone, zone_start_pfn,
-+		pfn = find_biggest_section_pfn(nid, zone, zone->zone_start_pfn,
- 					       start_pfn);
- 		if (pfn)
--			zone->spanned_pages = pfn - zone_start_pfn + 1;
-+			zone->spanned_pages = pfn - zone->zone_start_pfn + 1;
- 		else {
- 			zone->zone_start_pfn = 0;
- 			zone->spanned_pages = 0;
+-		if (zone && zone != page_zone(pfn_to_page(start_pfn)))
++		if (zone != page_zone(pfn_to_page(start_pfn)))
+ 			continue;
+ 
+ 		return start_pfn;
+@@ -362,7 +362,7 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
+ 		if (unlikely(pfn_to_nid(pfn) != nid))
+ 			continue;
+ 
+-		if (zone && zone != page_zone(pfn_to_page(pfn)))
++		if (zone != page_zone(pfn_to_page(pfn)))
+ 			continue;
+ 
+ 		return pfn;
 -- 
 2.21.0
