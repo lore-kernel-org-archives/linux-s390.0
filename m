@@ -1,100 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:52496 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394636AbfJQRqE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:04 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/21] arm: remove ioremap_cached
-Date: Thu, 17 Oct 2019 19:45:34 +0200
-Message-Id: <20191017174554.29840-2-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:44304 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731624AbfJFRoK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:44:10 -0400
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.3 117/166] hypfs: Fix error number left in struct pointer member
+Date: Sun,  6 Oct 2019 19:21:23 +0200
+Message-Id: <20191006171223.153871377@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
 
-No users of ioremap_cached are left, remove it.
+From: David Howells <dhowells@redhat.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+
+In hypfs_fill_super(), if hypfs_create_update_file() fails,
+sbi->update_file is left holding an error number.  This is passed to
+hypfs_kill_super() which doesn't check for this.
+
+Fix this by not setting sbi->update_value until after we've checked for
+error.
+
+Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/io.h | 6 ------
- arch/arm/mm/ioremap.c     | 4 ----
- arch/arm/mm/mmu.c         | 2 +-
- arch/arm/mm/nommu.c       | 4 ----
- 4 files changed, 1 insertion(+), 15 deletions(-)
+ arch/s390/hypfs/inode.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
-index 7a0596fcb2e7..924f9dd502ed 100644
---- a/arch/arm/include/asm/io.h
-+++ b/arch/arm/include/asm/io.h
-@@ -400,12 +400,6 @@ void __iomem *ioremap(resource_size_t res_cookie, size_t size);
- void __iomem *ioremap_cache(resource_size_t res_cookie, size_t size);
- #define ioremap_cache ioremap_cache
- 
--/*
-- * Do not use ioremap_cached in new code. Provided for the benefit of
-- * the pxa2xx-flash MTD driver only.
-- */
--void __iomem *ioremap_cached(resource_size_t res_cookie, size_t size);
--
- void __iomem *ioremap_wc(resource_size_t res_cookie, size_t size);
- #define ioremap_wc ioremap_wc
- #define ioremap_wt ioremap_wc
-diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
-index d42b93316183..72286f9a4d30 100644
---- a/arch/arm/mm/ioremap.c
-+++ b/arch/arm/mm/ioremap.c
-@@ -382,15 +382,11 @@ void __iomem *ioremap(resource_size_t res_cookie, size_t size)
- EXPORT_SYMBOL(ioremap);
- 
- void __iomem *ioremap_cache(resource_size_t res_cookie, size_t size)
--	__alias(ioremap_cached);
--
--void __iomem *ioremap_cached(resource_size_t res_cookie, size_t size)
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index ccad1398abd40..b5cfcad953c2e 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
+ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
  {
- 	return arch_ioremap_caller(res_cookie, size, MT_DEVICE_CACHED,
- 				   __builtin_return_address(0));
- }
- EXPORT_SYMBOL(ioremap_cache);
--EXPORT_SYMBOL(ioremap_cached);
+ 	struct inode *root_inode;
+-	struct dentry *root_dentry;
++	struct dentry *root_dentry, *update_file;
+ 	int rc = 0;
+ 	struct hypfs_sb_info *sbi;
  
- void __iomem *ioremap_wc(resource_size_t res_cookie, size_t size)
- {
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 48c2888297dd..5d0d0f86e790 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -259,7 +259,7 @@ static struct mem_type mem_types[] __ro_after_init = {
- 		.prot_sect	= PROT_SECT_DEVICE,
- 		.domain		= DOMAIN_IO,
- 	},
--	[MT_DEVICE_CACHED] = {	  /* ioremap_cached */
-+	[MT_DEVICE_CACHED] = {	  /* ioremap_cache */
- 		.prot_pte	= PROT_PTE_DEVICE | L_PTE_MT_DEV_CACHED,
- 		.prot_l1	= PMD_TYPE_TABLE,
- 		.prot_sect	= PROT_SECT_DEVICE | PMD_SECT_WB,
-diff --git a/arch/arm/mm/nommu.c b/arch/arm/mm/nommu.c
-index 24ecf8d30a1e..8b3d7191e2b8 100644
---- a/arch/arm/mm/nommu.c
-+++ b/arch/arm/mm/nommu.c
-@@ -206,15 +206,11 @@ void __iomem *ioremap(resource_size_t res_cookie, size_t size)
- EXPORT_SYMBOL(ioremap);
- 
- void __iomem *ioremap_cache(resource_size_t res_cookie, size_t size)
--	__alias(ioremap_cached);
--
--void __iomem *ioremap_cached(resource_size_t res_cookie, size_t size)
- {
- 	return __arm_ioremap_caller(res_cookie, size, MT_DEVICE_CACHED,
- 				    __builtin_return_address(0));
- }
- EXPORT_SYMBOL(ioremap_cache);
--EXPORT_SYMBOL(ioremap_cached);
- 
- void __iomem *ioremap_wc(resource_size_t res_cookie, size_t size)
- {
+@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		rc = hypfs_diag_create_files(root_dentry);
+ 	if (rc)
+ 		return rc;
+-	sbi->update_file = hypfs_create_update_file(root_dentry);
+-	if (IS_ERR(sbi->update_file))
+-		return PTR_ERR(sbi->update_file);
++	update_file = hypfs_create_update_file(root_dentry);
++	if (IS_ERR(update_file))
++		return PTR_ERR(update_file);
++	sbi->update_file = update_file;
+ 	hypfs_update_update(sb);
+ 	pr_info("Hypervisor filesystem mounted\n");
+ 	return 0;
 -- 
 2.20.1
