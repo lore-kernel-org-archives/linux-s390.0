@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v6] numa: make node_to_cpumask_map() NUMA_NO_NODE aware
-References: <20190924091714.GJ2369@hirez.programming.kicks-ass.net>
- <20190924105622.GH23050@dhcp22.suse.cz>
- <20190924112349.GJ2332@hirez.programming.kicks-ass.net>
- <20190924115401.GM23050@dhcp22.suse.cz>
- <20190924120943.GP2349@hirez.programming.kicks-ass.net>
- <20190924122500.GP23050@dhcp22.suse.cz>
- <20190924124325.GQ2349@hirez.programming.kicks-ass.net>
- <20190924125936.GR2349@hirez.programming.kicks-ass.net>
- <20190924131939.GS23050@dhcp22.suse.cz>
- <1adcbe68-6753-3497-48a0-cc84ac503372@huawei.com>
- <20190925104108.GE4553@hirez.programming.kicks-ass.net>
-From: Yunsheng Lin <linyunsheng@huawei.com>
-Message-ID: <47fa4cee-8528-7c23-c7de-7be1b65aa2ae@huawei.com>
-Date: Tue, 8 Oct 2019 16:38:28 +0800
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40112 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726185AbfJFI5M (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Oct 2019 04:57:12 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v6 02/10] mm/memmap_init: Update variable name in memmap_init_zone
+Date: Sun,  6 Oct 2019 10:56:38 +0200
+Message-Id: <20191006085646.5768-3-david@redhat.com>
+In-Reply-To: <20191006085646.5768-1-david@redhat.com>
+References: <20191006085646.5768-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190925104108.GE4553@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Michal Hocko <mhocko@kernel.org>, catalin.marinas@arm.com, will@kernel.org, mingo@redhat.com, bp@alien8.de, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, jiaxun.yang@flygoat.com, chenhc@lemote.com, akpm@linux-foundation.org, rppt@linux.ibm.com, anshuman.khandual@arm.com, tglx@linutronix.de, cai@lca.pw, robin.murphy@arm.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, hpa@zytor.com, x86@kernel.org, dave.hansen@linux.intel.com, luto@kernel.org, len.brown@intel.com, axboe@kernel.dk, dledford@redhat.com, jeffrey.t.kirsher@intel.com, linux-alpha@vger.kernel.org, naveen.n.rao@linux.vnet.ibm.com, mwb@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, tbogendoerfer@suse.de, linux-mips@vger.kernel.org, rafael@kernel.org, gregkh@linuxfoundation.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Potapenko <glider@google.com>, Pankaj Gupta <pagupta@redhat.com>, David Hildenbrand <david@redhat.com>
 
-On 2019/9/25 18:41, Peter Zijlstra wrote:
-> On Wed, Sep 25, 2019 at 05:14:20PM +0800, Yunsheng Lin wrote:
->> From the discussion above, It seems making the node_to_cpumask_map()
->> NUMA_NO_NODE aware is the most feasible way to move forwad.
-> 
-> That's still wrong.
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-Hi, Peter
+The third argument is actually number of pages. Changes the variable name
+from size to nr_pages to indicate this better.
 
-It seems this has trapped in the dead circle.
+No functional change in this patch.
 
-From my understanding, NUMA_NO_NODE which means not node numa preference
-is the state to describe the node of virtual device or the physical device
-that has equal distance to all cpu.
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Alexander Potapenko <glider@google.com>
+Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/page_alloc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-We can be stricter if the device does have a nearer node, but we can not
-deny that a device does not have a node numa preference or node affinity,
-which also means the control or data buffer can be allocated at the node where
-the process is running.
-
-As you has proposed, making it -2 and have dev_to_node() warn if the device does
-have a nearer node and not set by the fw is a way to be stricter.
-
-But I think maybe being stricter is not really relevant to NUMA_NO_NODE, because
-we does need a state to describe the device that have equal distance to all node,
-even if it is not physically scalable.
-
-Any better suggestion to move this forward?
-
-> 
-> .
-> 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 15c2050c629b..b0b2d5464000 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5936,10 +5936,10 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ #ifdef CONFIG_ZONE_DEVICE
+ void __ref memmap_init_zone_device(struct zone *zone,
+ 				   unsigned long start_pfn,
+-				   unsigned long size,
++				   unsigned long nr_pages,
+ 				   struct dev_pagemap *pgmap)
+ {
+-	unsigned long pfn, end_pfn = start_pfn + size;
++	unsigned long pfn, end_pfn = start_pfn + nr_pages;
+ 	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	struct vmem_altmap *altmap = pgmap_altmap(pgmap);
+ 	unsigned long zone_idx = zone_idx(zone);
+@@ -5956,7 +5956,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 	 */
+ 	if (altmap) {
+ 		start_pfn = altmap->base_pfn + vmem_altmap_offset(altmap);
+-		size = end_pfn - start_pfn;
++		nr_pages = end_pfn - start_pfn;
+ 	}
+ 
+ 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+@@ -6003,7 +6003,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 	}
+ 
+ 	pr_info("%s initialised %lu pages in %ums\n", __func__,
+-		size, jiffies_to_msecs(jiffies - start));
++		nr_pages, jiffies_to_msecs(jiffies - start));
+ }
+ 
+ #endif
+-- 
+2.21.0
