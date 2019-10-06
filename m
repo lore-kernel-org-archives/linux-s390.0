@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52152 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52294 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbfJFI5p (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 04:57:45 -0400
+        id S1726185AbfJFI5j (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Oct 2019 04:57:39 -0400
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 10/10] mm/memory_hotplug: Cleanup __remove_pages()
-Date: Sun,  6 Oct 2019 10:56:46 +0200
-Message-Id: <20191006085646.5768-11-david@redhat.com>
+Subject: [PATCH v6 08/10] mm/memory_hotplug: Don't check for "all holes" in shrink_zone_span()
+Date: Sun,  6 Oct 2019 10:56:44 +0200
+Message-Id: <20191006085646.5768-9-david@redhat.com>
 In-Reply-To: <20191006085646.5768-1-david@redhat.com>
 References: <20191006085646.5768-1-david@redhat.com>
 MIME-Version: 1.0
@@ -16,57 +16,74 @@ List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Let's drop the basically unused section stuff and simplify.
-
-Also, let's use a shorter variant to calculate the number of pages to
-the next section boundary.
+If we have holes, the holes will automatically get detected and removed
+once we remove the next bigger/smaller section. The extra checks can
+go.
 
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Oscar Salvador <osalvador@suse.de>
 Cc: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
 Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Wei Yang <richardw.yang@linux.intel.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memory_hotplug.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ mm/memory_hotplug.c | 34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
 
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 843481bd507d..2275240cfa10 100644
+index f294918f7211..8dafa1ba8d9f 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -490,25 +490,20 @@ static void __remove_section(unsigned long pfn, unsigned long nr_pages,
- void __remove_pages(unsigned long pfn, unsigned long nr_pages,
- 		    struct vmem_altmap *altmap)
- {
-+	const unsigned long end_pfn = pfn + nr_pages;
-+	unsigned long cur_nr_pages;
- 	unsigned long map_offset = 0;
--	unsigned long nr, start_sec, end_sec;
- 
- 	map_offset = vmem_altmap_offset(altmap);
- 
- 	if (check_pfn_span(pfn, nr_pages, "remove"))
- 		return;
- 
--	start_sec = pfn_to_section_nr(pfn);
--	end_sec = pfn_to_section_nr(pfn + nr_pages - 1);
--	for (nr = start_sec; nr <= end_sec; nr++) {
--		unsigned long pfns;
--
-+	for (; pfn < end_pfn; pfn += cur_nr_pages) {
- 		cond_resched();
--		pfns = min(nr_pages, PAGES_PER_SECTION
--				- (pfn & ~PAGE_SECTION_MASK));
--		__remove_section(pfn, pfns, map_offset, altmap);
--		pfn += pfns;
--		nr_pages -= pfns;
-+		/* Select all remaining pages up to the next section boundary */
-+		cur_nr_pages = min(end_pfn - pfn, -(pfn | PAGE_SECTION_MASK));
-+		__remove_section(pfn, cur_nr_pages, map_offset, altmap);
- 		map_offset = 0;
+@@ -393,6 +393,9 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 		if (pfn) {
+ 			zone->zone_start_pfn = pfn;
+ 			zone->spanned_pages = zone_end_pfn - pfn;
++		} else {
++			zone->zone_start_pfn = 0;
++			zone->spanned_pages = 0;
+ 		}
+ 	} else if (zone_end_pfn == end_pfn) {
+ 		/*
+@@ -405,34 +408,11 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 					       start_pfn);
+ 		if (pfn)
+ 			zone->spanned_pages = pfn - zone_start_pfn + 1;
++		else {
++			zone->zone_start_pfn = 0;
++			zone->spanned_pages = 0;
++		}
  	}
+-
+-	/*
+-	 * The section is not biggest or smallest mem_section in the zone, it
+-	 * only creates a hole in the zone. So in this case, we need not
+-	 * change the zone. But perhaps, the zone has only hole data. Thus
+-	 * it check the zone has only hole or not.
+-	 */
+-	pfn = zone_start_pfn;
+-	for (; pfn < zone_end_pfn; pfn += PAGES_PER_SUBSECTION) {
+-		if (unlikely(!pfn_to_online_page(pfn)))
+-			continue;
+-
+-		if (page_zone(pfn_to_page(pfn)) != zone)
+-			continue;
+-
+-		/* Skip range to be removed */
+-		if (pfn >= start_pfn && pfn < end_pfn)
+-			continue;
+-
+-		/* If we find valid section, we have nothing to do */
+-		zone_span_writeunlock(zone);
+-		return;
+-	}
+-
+-	/* The zone has no valid section */
+-	zone->zone_start_pfn = 0;
+-	zone->spanned_pages = 0;
+ 	zone_span_writeunlock(zone);
  }
+ 
 -- 
 2.21.0
