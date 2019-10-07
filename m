@@ -1,125 +1,54 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20134 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730577AbfJNSJH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Oct 2019 14:09:07 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9EHvhfm083871
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2019 14:09:06 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vmwes19b6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2019 14:09:05 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Mon, 14 Oct 2019 19:09:03 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH 1/4] vfio-ccw: Refactor how the traces are built
-Date: Mon, 14 Oct 2019 20:08:52 +0200
-In-Reply-To: <20191014180855.19400-1-farman@linux.ibm.com>
-References: <20191014180855.19400-1-farman@linux.ibm.com>
-Message-Id: <20191014180855.19400-2-farman@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Steven Price <steven.price@arm.com>
+Subject: [PATCH v11 08/22] s390: mm: Add p?d_leaf() definitions
+Date: Mon,  7 Oct 2019 16:38:08 +0100
+Message-Id: <20191007153822.16518-9-steven.price@arm.com>
+In-Reply-To: <20191007153822.16518-1-steven.price@arm.com>
+References: <20191007153822.16518-1-steven.price@arm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: linux-mm@kvack.org
+Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-Commit 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error
-paths") added a quick trace point to determine where a channel program
-failed while being processed.  It's a great addition, but adding more
-traces to vfio-ccw is more cumbersome than it needs to be.
+walk_page_range() is going to be allowed to walk page tables other than
+those of user space. For this it needs to know when it has reached a
+'leaf' entry in the page tables. This information is provided by the
+p?d_leaf() functions/macros.
 
-Let's refactor how this is done, so that additional traces are easier
-to add and can exist outside of the FSM if we ever desire.
+For s390, pud_large() and pmd_large() are already implemented as static
+inline functions. Add a macro to provide the p?d_leaf names for the
+generic code to use.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+CC: Vasily Gorbik <gor@linux.ibm.com>
+CC: Christian Borntraeger <borntraeger@de.ibm.com>
+CC: linux-s390@vger.kernel.org
+Signed-off-by: Steven Price <steven.price@arm.com>
 ---
- drivers/s390/cio/Makefile         |  4 ++--
- drivers/s390/cio/vfio_ccw_cp.h    |  1 +
- drivers/s390/cio/vfio_ccw_fsm.c   |  3 ---
- drivers/s390/cio/vfio_ccw_trace.c | 12 ++++++++++++
- drivers/s390/cio/vfio_ccw_trace.h |  2 ++
- 5 files changed, 17 insertions(+), 5 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
+ arch/s390/include/asm/pgtable.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
-index f6a8db04177c..23eae4188876 100644
---- a/drivers/s390/cio/Makefile
-+++ b/drivers/s390/cio/Makefile
-@@ -5,7 +5,7 @@
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 36c578c0ff96..acab5a455490 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -675,6 +675,7 @@ static inline int pud_none(pud_t pud)
+ 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
+ }
  
- # The following is required for define_trace.h to find ./trace.h
- CFLAGS_trace.o := -I$(src)
--CFLAGS_vfio_ccw_fsm.o := -I$(src)
-+CFLAGS_vfio_ccw_trace.o := -I$(src)
- 
- obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o \
- 	fcx.o itcw.o crw.o ccwreq.o trace.o ioasm.o
-@@ -21,5 +21,5 @@ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
- obj-$(CONFIG_QDIO) += qdio.o
- 
- vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fsm.o \
--	vfio_ccw_async.o
-+	vfio_ccw_async.o vfio_ccw_trace.o
- obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
-index 7cdc38049033..ba31240ce965 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -15,6 +15,7 @@
- #include <asm/scsw.h>
- 
- #include "orb.h"
-+#include "vfio_ccw_trace.h"
- 
- /*
-  * Max length for ccw chain.
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 4a1e727c62d9..d4119e4c4a8c 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -15,9 +15,6 @@
- #include "ioasm.h"
- #include "vfio_ccw_private.h"
- 
--#define CREATE_TRACE_POINTS
--#include "vfio_ccw_trace.h"
--
- static int fsm_io_helper(struct vfio_ccw_private *private)
++#define pud_leaf	pud_large
+ static inline int pud_large(pud_t pud)
  {
- 	struct subchannel *sch;
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_trace.c
-new file mode 100644
-index 000000000000..d5cc943c6864
---- /dev/null
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -0,0 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Tracepoint definitions for vfio_ccw
-+ *
-+ * Copyright IBM Corp. 2019
-+ * Author(s): Eric Farman <farman@linux.ibm.com>
-+ */
-+
-+#define CREATE_TRACE_POINTS
-+#include "vfio_ccw_trace.h"
-+
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
-index b1da53ddec1f..2a2937a40124 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -7,6 +7,8 @@
-  *            Halil Pasic <pasic@linux.vnet.ibm.com>
-  */
+ 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
+@@ -692,6 +693,7 @@ static inline unsigned long pud_pfn(pud_t pud)
+ 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
+ }
  
-+#include "cio.h"
-+
- #undef TRACE_SYSTEM
- #define TRACE_SYSTEM vfio_ccw
- 
++#define pmd_leaf	pmd_large
+ static inline int pmd_large(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
 -- 
-2.17.1
+2.20.1
