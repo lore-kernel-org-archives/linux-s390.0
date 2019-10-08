@@ -1,29 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25556 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34608 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726776AbfJOU1V (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Oct 2019 16:27:21 -0400
+        by vger.kernel.org with ESMTP id S1730371AbfJHM5Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Oct 2019 08:57:25 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x98CvOVG045049
+        for <linux-s390@vger.kernel.org>; Tue, 8 Oct 2019 08:57:24 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vgqh4r2rt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 08 Oct 2019 08:57:23 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Tue, 8 Oct 2019 13:57:11 +0100
 Subject: Re: [PATCH v6 00/10] s390: vfio-ap: dynamic configuration support
 References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
  <20191008124807.49022238.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <7ef87fe0-8d6c-f626-4fa0-da56e1077a0b@linux.ibm.com>
-Date: Tue, 15 Oct 2019 16:27:13 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Tue, 8 Oct 2019 14:57:07 +0200
 MIME-Version: 1.0
 In-Reply-To: <20191008124807.49022238.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Message-Id: <ddd4e91a-312d-99e4-1f54-7bf3b03fb63e@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com
+To: Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com
 
-On 10/8/19 6:48 AM, Halil Pasic wrote:
+
+On 10/8/19 12:48 PM, Halil Pasic wrote:
 > On Fri, 13 Sep 2019 17:26:48 -0400
 > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> 
+>
 >> The current design for AP pass-through does not support making dynamic
 >> changes to the AP matrix of a running guest resulting in three deficiencies
 >> this patch series is intended to mitigate:
@@ -57,24 +68,15 @@ On 10/8/19 6:48 AM, Halil Pasic wrote:
 >> 2. The sysfs bind/unbind interfaces will be disabled for the vfio_ap
 >>     device driver.
 >>
-> 
 > Doesn't this have the potential of breaking some userspace stuff that
 > might be out there?
-
-I have decided to leave these interfaces enabled.
-
-> 
+>
 >> 3. Allow AP resources to be assigned to or removed from a matrix mdev
 >>     while a guest is using it and hot plug the resource into or hot unplug
 >>     the resource from the running guest.
-> 
 > This looks like a natural extension of the interface -- i.e. should not
 > break any userspace.
-
-We agree
-
-> 
->>
+>
 >> 4. Allow assignment of an AP adapter or domain to a matrix mdev even if it
 >>     results in assignment of an APQN that does not reference an AP queue
 >>     device bound to the vfio_ap device driver, as long as the APQN is owned
@@ -83,20 +85,20 @@ We agree
 >>     resources that are not yet available in the system. If/when the queue
 >>     becomes available to the host, it will immediately also become available
 >>     to the guest.
-> 
 > Same here -- I don't think this change breaks any userspace.
-
-We agree here also
-
-> 
->>
+>
 >> 1. Rationale for changes to AP bus's apmask/aqmask interfaces:
 >> ----------------------------------------------------------
 >> Due to the extremely sensitive nature of cryptographic data, it is
 >> imperative that great care be taken to ensure that such data is secured.
 >> Allowing a root user, either inadvertently or maliciously, to configure
 >> these masks such that a queue is shared between the host and a guest is
->> not only avoidable, it is advisable. It was suggested that this scenario
+>> not only avoidable, it is advisable.
+
+Just curious: how is it possible to do such a configuration?
+
+
+>>   It was suggested that this scenario
 >> is better handled in user space with management software, but that does
 >> not preclude a malicious administrator from using the sysfs interfaces
 >> to gain access to a guest's crypto data. It was also suggested that this
@@ -107,6 +109,13 @@ We agree here also
 >> unnecessarily. It was decided that the most effective solution with the
 >> least number of negative side effects is to prevent the situation at the
 >> source.
+
+
+Stealing an adapter in use by a guest, insn't it what is done if we 
+allow to unassign an AP/Domain using the unassign sysfs interface when 
+the mediated device is in use by the guest?
+
+
 >>
 >> 2. Rationale for disabling bind/unbind interfaces for vfio_ap driver:
 >> -----------------------------------------------------------------
@@ -121,28 +130,18 @@ We agree here also
 >>    disabling the unbind interface, the user is forced to use the AP bus's
 >>    apmask/aqmask interfaces which will prevent this.
 >>
-> 
 > Isn't this fixed by your filtering (if implemented correctly)? BTW I believe
 > it solves the problem regardless whether the unbind was triggered by the
-> drivers unbind attribute or by a[pq]mask.
-
-IMHO, it would be better if we didn't rely on the filtering because when
-an unbind is done, the filtering will remove access to the entire
-adapter. My goal was to limit the need for filtering to unbinds
-triggered by AP deconfiguration via the SE or SCLP command over which we
-have no control. We can control all other scenarios except for when an
-adapter goes away for some other reason such as a failure.
-
-> 
+> drivers unbind attribute or by a[pq]mask
+>
 >> * Binding of AP queues is controlled by the AP bus /sys/bus/ap/apmask and
 >>    /sys/bus/ap/aqmask interfaces. If the masks indicate that an APQN is
 >>    owned by zcrypt, trying to bind it to the vfio_ap device driver will
 >>    fail; therefore, the bind interface is somewhat redundant and certainly
 >>    unnecessary.
 >>    
-> 
-> [..]
-> 
+>>
+>>
 >> Tony Krowiak (10):
 >>    s390: vfio-ap: Refactor vfio_ap driver probe and remove callbacks
 >>    s390: vfio-ap: allow assignment of unavailable AP resources to mdev
@@ -156,17 +155,12 @@ adapter goes away for some other reason such as a failure.
 >>    s390: vfio-ap: implement in-use callback for vfio_ap driver
 >>    s390: vfio-ap: added versioning to vfio_ap module
 >>    s390: vfio-ap: update documentation
-> 
 > I believe it would be worthwhile to reorder the patches (fixes and
 > re-factoring first, the features).
-
-Suggestions?
-
-> 
+>
 > Regards,
 > Halil
-> 
->>
+>
 >>   Documentation/s390/vfio-ap.rst        | 899 +++++++++++++++++++++++++---------
 >>   drivers/s390/crypto/ap_bus.c          | 144 +++++-
 >>   drivers/s390/crypto/ap_bus.h          |   4 +
@@ -175,4 +169,6 @@ Suggestions?
 >>   drivers/s390/crypto/vfio_ap_private.h |  12 +-
 >>   6 files changed, 1200 insertions(+), 496 deletions(-)
 >>
-> 
+-- 
+Pierre Morel
+IBM Lab Boeblingen
