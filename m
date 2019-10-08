@@ -1,165 +1,148 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 3/3] arch: sembuf.h: make uapi asm/sembuf.h self-contained
-Date: Wed, 30 Oct 2019 15:38:55 +0900
-Message-Id: <20191030063855.9989-3-yamada.masahiro@socionext.com>
-In-Reply-To: <20191030063855.9989-1-yamada.masahiro@socionext.com>
-References: <20191030063855.9989-1-yamada.masahiro@socionext.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:46274 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730970AbfJHNbr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 8 Oct 2019 09:31:47 -0400
+Date: Tue, 8 Oct 2019 15:30:04 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 3/4] vfio: zpci: defining the VFIO headers
+Message-ID: <20191008153004.6be0e095.cohuck@redhat.com>
+In-Reply-To: <86647083-7f94-44aa-8856-103836906f36@linux.ibm.com>
+References: <1567815231-17940-1-git-send-email-mjrosato@linux.ibm.com>
+        <1567815231-17940-4-git-send-email-mjrosato@linux.ibm.com>
+        <20190919172009.71b1c246.cohuck@redhat.com>
+        <0a62aba7-578a-6875-da4d-13e8b145cf9b@linux.ibm.com>
+        <20190920160258.70631905.cohuck@redhat.com>
+        <86647083-7f94-44aa-8856-103836906f36@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Masahiro Yamada <yamada.masahiro@socionext.com>
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: sebott@linux.ibm.com, gerald.schaefer@de.ibm.com, pasic@linux.ibm.com, borntraeger@de.ibm.com, walling@linux.ibm.com, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, joro@8bytes.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, kvm@vger.kernel.org, heiko.carstens@de.ibm.com, robin.murphy@arm.com, gor@linux.ibm.com, pmorel@linux.ibm.com
 
-The user-space cannot compile <asm/sembuf.h> due to some missing type
-definitions. For example, building it for x86 fails as follows:
+On Fri, 20 Sep 2019 11:14:28 -0400
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-  CC      usr/include/asm/sembuf.h.s
-In file included from <command-line>:32:0:
-./usr/include/asm/sembuf.h:17:20: error: field ‘sem_perm’ has incomplete type
-  struct ipc64_perm sem_perm; /* permissions .. see ipc.h */
-                    ^~~~~~~~
-./usr/include/asm/sembuf.h:24:2: error: unknown type name ‘__kernel_time_t’
-  __kernel_time_t sem_otime; /* last semop time */
-  ^~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:25:2: error: unknown type name ‘__kernel_ulong_t’
-  __kernel_ulong_t __unused1;
-  ^~~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:26:2: error: unknown type name ‘__kernel_time_t’
-  __kernel_time_t sem_ctime; /* last change time */
-  ^~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:27:2: error: unknown type name ‘__kernel_ulong_t’
-  __kernel_ulong_t __unused2;
-  ^~~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:29:2: error: unknown type name ‘__kernel_ulong_t’
-  __kernel_ulong_t sem_nsems; /* no. of semaphores in array */
-  ^~~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:30:2: error: unknown type name ‘__kernel_ulong_t’
-  __kernel_ulong_t __unused3;
-  ^~~~~~~~~~~~~~~~
-./usr/include/asm/sembuf.h:31:2: error: unknown type name ‘__kernel_ulong_t’
-  __kernel_ulong_t __unused4;
-  ^~~~~~~~~~~~~~~~
+> On 9/20/19 10:02 AM, Cornelia Huck wrote:
+> > On Thu, 19 Sep 2019 16:55:57 -0400
+> > Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> >   
+> >> On 9/19/19 11:20 AM, Cornelia Huck wrote:  
+> >>> On Fri,  6 Sep 2019 20:13:50 -0400
+> >>> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> >>>     
+> >>>> From: Pierre Morel <pmorel@linux.ibm.com>
+> >>>>
+> >>>> We define a new device region in vfio.h to be able to
+> >>>> get the ZPCI CLP information by reading this region from
+> >>>> userland.
+> >>>>
+> >>>> We create a new file, vfio_zdev.h to define the structure
+> >>>> of the new region we defined in vfio.h
+> >>>>
+> >>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> >>>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> >>>> ---
+> >>>>  include/uapi/linux/vfio.h      |  1 +
+> >>>>  include/uapi/linux/vfio_zdev.h | 35 +++++++++++++++++++++++++++++++++++
+> >>>>  2 files changed, 36 insertions(+)
+> >>>>  create mode 100644 include/uapi/linux/vfio_zdev.h  
+> >   
+> >>>> diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
+> >>>> new file mode 100644
+> >>>> index 0000000..55e0d6d
+> >>>> --- /dev/null
+> >>>> +++ b/include/uapi/linux/vfio_zdev.h
+> >>>> @@ -0,0 +1,35 @@
+> >>>> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+> >>>> +/*
+> >>>> + * Region definition for ZPCI devices
+> >>>> + *
+> >>>> + * Copyright IBM Corp. 2019
+> >>>> + *
+> >>>> + * Author(s): Pierre Morel <pmorel@linux.ibm.com>
+> >>>> + */
+> >>>> +
+> >>>> +#ifndef _VFIO_ZDEV_H_
+> >>>> +#define _VFIO_ZDEV_H_
+> >>>> +
+> >>>> +#include <linux/types.h>
+> >>>> +
+> >>>> +/**
+> >>>> + * struct vfio_region_zpci_info - ZPCI information.    
+> >>>
+> >>> Hm... probably should also get some more explanation. E.g. is that
+> >>> derived from a hardware structure?
+> >>>     
+> >>
+> >> The structure itself is not mapped 1:1 to a hardware structure, but it
+> >> does serve as a collection of information that was derived from other
+> >> hardware structures.
+> >>
+> >> "Used for passing hardware feature information about a zpci device
+> >> between the host and guest" ?  
+> > 
+> > "zPCI specific hardware feature information for a device"?
+> > 
+> > Are we reasonably sure that this is complete for now? I'm not sure if
+> > expanding this structure would work; adding another should always be
+> > possible, though (if a bit annoying).
+> >   
+> 
+> I think trying to make the structure expandable would be best...  If we
+> allow arbitrary-sized reads of the info, and only add new fields onto
+> the end it should be OK, no? (older qemu doesn't get the info it doesn't
+> ask for / understand)....  But I guess that's not compatible with having
+> util_str[] size being defined dynamically.  Another caveat would be if
+> CLP_UTIL_STR_LEN were to grow in size in the future, and assuming
+> util_str[] was no longer at the end of the structure, I guess the
+> additional data would have to end up in a
+> util_str2[CLP_UTIL_STR_LEN_NEW-CLP_UTIL_STR_LEN_OLD]...  To explain what
+> I mean, something like:
+> 
+> struct vfio_region_zpci_info {
+> 	<..>
+> 	__u8 util_str[CLP_UTIL_STR_LEN_OLD];
+> 	/* END OF V1 */
+> 	__u8 foo;
+> 	/* END OF V2 */
+> 	__u8 util_str2[CLP_UTIL_STR_LEN_NEW-CLP_UTIL_STR_LEN_OLD];
+> 	/* END OF V3 */
+> } __packed;
 
-It is just a matter of missing include directive.
+[Sorry about the late response -- was on PTO]
 
-Include <asm/ipcbuf.h> to make it self-contained, and add it to
-the compile-test coverage.
+That sounds a bit too complicated to me, and I'd prefer the "add
+another region if we missed something" approach. If we put anything
+looking potentially useful in here now, that "add another region" event
+is hopefully far in the future.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
-
- arch/mips/include/uapi/asm/sembuf.h    | 2 ++
- arch/parisc/include/uapi/asm/sembuf.h  | 1 +
- arch/powerpc/include/uapi/asm/sembuf.h | 2 ++
- arch/sparc/include/uapi/asm/sembuf.h   | 2 ++
- arch/x86/include/uapi/asm/sembuf.h     | 2 ++
- arch/xtensa/include/uapi/asm/sembuf.h  | 1 +
- include/uapi/asm-generic/sembuf.h      | 1 +
- usr/include/Makefile                   | 1 -
- 8 files changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/arch/mips/include/uapi/asm/sembuf.h b/arch/mips/include/uapi/asm/sembuf.h
-index 60c89e6cb25b..7d135b93bebd 100644
---- a/arch/mips/include/uapi/asm/sembuf.h
-+++ b/arch/mips/include/uapi/asm/sembuf.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_SEMBUF_H
- #define _ASM_SEMBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The semid64_ds structure for the MIPS architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/parisc/include/uapi/asm/sembuf.h b/arch/parisc/include/uapi/asm/sembuf.h
-index 3c31163b1241..b17a2460b184 100644
---- a/arch/parisc/include/uapi/asm/sembuf.h
-+++ b/arch/parisc/include/uapi/asm/sembuf.h
-@@ -3,6 +3,7 @@
- #define _PARISC_SEMBUF_H
- 
- #include <asm/bitsperlong.h>
-+#include <asm/ipcbuf.h>
- 
- /* 
-  * The semid64_ds structure for parisc architecture.
-diff --git a/arch/powerpc/include/uapi/asm/sembuf.h b/arch/powerpc/include/uapi/asm/sembuf.h
-index 3f60946f77e3..f42c9c3502c7 100644
---- a/arch/powerpc/include/uapi/asm/sembuf.h
-+++ b/arch/powerpc/include/uapi/asm/sembuf.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_POWERPC_SEMBUF_H
- #define _ASM_POWERPC_SEMBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-diff --git a/arch/sparc/include/uapi/asm/sembuf.h b/arch/sparc/include/uapi/asm/sembuf.h
-index f3d309c2e1cd..5d7764cdf80f 100644
---- a/arch/sparc/include/uapi/asm/sembuf.h
-+++ b/arch/sparc/include/uapi/asm/sembuf.h
-@@ -2,6 +2,8 @@
- #ifndef _SPARC_SEMBUF_H
- #define _SPARC_SEMBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The semid64_ds structure for sparc architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/x86/include/uapi/asm/sembuf.h b/arch/x86/include/uapi/asm/sembuf.h
-index 89de6cd9f0a7..da0464af7aa6 100644
---- a/arch/x86/include/uapi/asm/sembuf.h
-+++ b/arch/x86/include/uapi/asm/sembuf.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_X86_SEMBUF_H
- #define _ASM_X86_SEMBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The semid64_ds structure for x86 architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/xtensa/include/uapi/asm/sembuf.h b/arch/xtensa/include/uapi/asm/sembuf.h
-index 09f348d643f1..3b9cdd406dfe 100644
---- a/arch/xtensa/include/uapi/asm/sembuf.h
-+++ b/arch/xtensa/include/uapi/asm/sembuf.h
-@@ -22,6 +22,7 @@
- #define _XTENSA_SEMBUF_H
- 
- #include <asm/byteorder.h>
-+#include <asm/ipcbuf.h>
- 
- struct semid64_ds {
- 	struct ipc64_perm sem_perm;		/* permissions .. see ipc.h */
-diff --git a/include/uapi/asm-generic/sembuf.h b/include/uapi/asm-generic/sembuf.h
-index 0bae010f1b64..5807fcd643ba 100644
---- a/include/uapi/asm-generic/sembuf.h
-+++ b/include/uapi/asm-generic/sembuf.h
-@@ -3,6 +3,7 @@
- #define __ASM_GENERIC_SEMBUF_H
- 
- #include <asm/bitsperlong.h>
-+#include <asm/ipcbuf.h>
- 
- /*
-  * The semid64_ds structure for x86 architecture.
-diff --git a/usr/include/Makefile b/usr/include/Makefile
-index 099d7401aa23..107d04bd5ee3 100644
---- a/usr/include/Makefile
-+++ b/usr/include/Makefile
-@@ -16,7 +16,6 @@ override c_flags = $(UAPI_CFLAGS) -Wp,-MD,$(depfile) -I$(objtree)/usr/include
- # Please consider to fix the header first.
- #
- # Sorted alphabetically.
--header-test- += asm/sembuf.h
- header-test- += asm/shmbuf.h
- header-test- += asm/signal.h
- header-test- += asm/ucontext.h
--- 
-2.17.1
+> 
+> 
+> >>  
+> >>>> + *
+> >>>> + */
+> >>>> +struct vfio_region_zpci_info {
+> >>>> +	__u64 dasm;
+> >>>> +	__u64 start_dma;
+> >>>> +	__u64 end_dma;
+> >>>> +	__u64 msi_addr;
+> >>>> +	__u64 flags;
+> >>>> +	__u16 pchid;
+> >>>> +	__u16 mui;
+> >>>> +	__u16 noi;
+> >>>> +	__u16 maxstbl;
+> >>>> +	__u8 version;
+> >>>> +	__u8 gid;
+> >>>> +#define VFIO_PCI_ZDEV_FLAGS_REFRESH 1
+> >>>> +	__u8 util_str[];
+> >>>> +} __packed;
+> >>>> +
+> >>>> +#endif    
+> >>>
+> >>>     
+> >>  
+> >   
+> 
