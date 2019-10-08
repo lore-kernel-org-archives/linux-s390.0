@@ -1,9 +1,5 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:47870 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730832AbfJHLdt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Oct 2019 07:33:49 -0400
-Date: Tue, 08 Oct 2019 11:33:29 -0000
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 08 Oct 2019 11:33:22 -0000
 From: "tip-bot2 for Arvind Sankar" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 Subject: [tip: x86/urgent] lib/string: Make memzero_explicit() inline instead
@@ -11,10 +7,10 @@ Subject: [tip: x86/urgent] lib/string: Make memzero_explicit() inline instead
 In-Reply-To: <20191007220000.GA408752@rani.riverdale.lan>
 References: <20191007220000.GA408752@rani.riverdale.lan>
 MIME-Version: 1.0
-Message-ID: <157053440989.9978.4332514722028447332.tip-bot2@tip-bot2>
+Message-ID: <157053440280.9978.14856787712173585355.tip-bot2@tip-bot2>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-tip-commits@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Arvind Sankar <nivedita@alum.mit.edu>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Stephan Mueller <smueller@chronox.de>, Thomas Gleixner <tglx@linutronix.de>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org
