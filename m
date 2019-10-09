@@ -1,70 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:57018 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727403AbfJFRa6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:58 -0400
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 069/106] hypfs: Fix error number left in struct pointer member
-Date: Sun,  6 Oct 2019 19:21:15 +0200
-Message-Id: <20191006171152.503987621@linuxfoundation.org>
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:33784 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730708AbfJIQBr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 12:01:47 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20190918153445.1241-1-maier@linux.ibm.com>
+In-Reply-To: <20190918153445.1241-1-maier@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Wed, 9 Oct 2019 18:01:29 +0200
+Message-ID: <CAK8P3a1HBog84Wvdgm1ccz1gRJRxHm8ucsxwUTTqh02gOt9WbQ@mail.gmail.com>
+Subject: Re: [PATCH] compat_ioctl: fix reimplemented SG_IO handling causing
+ -EINVAL from sg_io()
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+To: Steffen Maier <maier@linux.ibm.com>
+Cc: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Doug Gilbert <dgilbert@interlog.com>, linux-scsi <linux-scsi@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Al Viro <viro@zeniv.linux.org.uk>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>, Thomas Gleixner <tglx@linutronix.de>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Omar Sandoval <osandov@fb.com>, linux-block <linux-block@vger.kernel.org>, Linux-Next Mailing List <linux-next@vger.kernel.org>, Mark Brown <broonie@kernel.org>, dm-devel@redhat.com
 
-From: David Howells <dhowells@redhat.com>
+On Wed, Sep 18, 2019 at 5:35 PM Steffen Maier <maier@linux.ibm.com> wrote:
+>
+> scsi_cmd_ioctl() had hdr as on stack auto variable and called
+> copy_{from,to}_user with the address operator &hdr and sizeof(hdr).
+>
+> After the refactoring, {get,put}_sg_io_hdr() takes a pointer &hdr.
+> So the copy_{from,to}_user within the new helper functions should
+> just take the given pointer argument hdr and sizeof(*hdr).
+>
+> I saw -EINVAL from sg_io() done by /usr/lib/udev/scsi_id which could
+> in turn no longer whitelist SCSI disks for devicemapper multipath.
+>
+> Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+> Fixes: 4f45155c29fd ("compat_ioctl: reimplement SG_IO handling")
+> ---
+>
+> Arnd, I'm not sure about the sizeof(hdr32) change in the compat part in
+> put_sg_io_hdr().
+>
+> This is for next, probably via Arnd's y2038/y2038,
+> and it fixes next-20190917 for me regarding SCSI generic.
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+Hi Steffen,
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+Sorry for the long delay. I ended up not sending my pull request for
+v5.4, so the bug is not there. I have now rebased my branch
+on top of v5.4-rc2 and plan to send it for the v5.5 merge window.
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
+I have folded your bugfix into my original patch, hope that's ok with
+you. Tomorrow's linux-next should be fixed.
 
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index c681329fdeec6..e4d17d9ea93d8 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
- 
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
--- 
-2.20.1
+    Arnd
