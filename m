@@ -1,93 +1,66 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v14 2/6] namei: LOOKUP_IN_ROOT: chroot-like path resolution
-Date: Thu, 10 Oct 2019 16:41:36 +1100
-Message-Id: <20191010054140.8483-3-cyphar@cyphar.com>
-In-Reply-To: <20191010054140.8483-1-cyphar@cyphar.com>
-References: <20191010054140.8483-1-cyphar@cyphar.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32792 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725440AbfJIIFB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 04:05:01 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9982x8L097617
+        for <linux-s390@vger.kernel.org>; Wed, 9 Oct 2019 04:04:59 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vha4ck3xf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 09 Oct 2019 04:04:59 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Wed, 9 Oct 2019 09:04:57 +0100
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 2/3] net/smc: receive returns without data
+Date: Wed,  9 Oct 2019 10:04:40 +0200
+In-Reply-To: <20191009080441.76077-1-kgraul@linux.ibm.com>
+References: <20191009080441.76077-1-kgraul@linux.ibm.com>
+Message-Id: <20191009080441.76077-3-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-/* Background. */
-Container runtimes or other administrative management processes will
-often interact with root filesystems while in the host mount namespace,
-because the cost of doing a chroot(2) on every operation is too
-prohibitive (especially in Go, which cannot safely use vfork). However,
-a malicious program can trick the management process into doing
-operations on files outside of the root filesystem through careful
-crafting of symlinks.
+smc_cdc_rxed_any_close_or_senddone() is used as an end condition for the
+receive loop. This conflicts with smc_cdc_msg_recv_action() which could
+run in parallel and set the bits checked by
+smc_cdc_rxed_any_close_or_senddone() before the receive is processed.
+In that case we could return from receive with no data, although data is
+available. The same applies to smc_rx_wait().
+Fix this by checking for RCV_SHUTDOWN only, which is set in
+smc_cdc_msg_recv_action() after the receive was actually processed.
 
-Most programs that need this feature have attempted to make this process
-safe, by doing all of the path resolution in userspace (with symlinks
-being scoped to the root of the malicious root filesystem).
-Unfortunately, this method is prone to foot-guns and usually such
-implementations have subtle security bugs.
-
-Thus, what userspace needs is a way to resolve a path as though it were
-in a chroot(2) -- with all absolute symlinks being resolved relative to
-the dirfd root (and ".." components being stuck under the dirfd root[1])
-It is much simpler and more straight-forward to provide this
-functionality in-kernel (because it can be done far more cheaply and
-correctly).
-
-More classical applications that also have this problem (which have
-their own potentially buggy userspace path sanitisation code) include
-web servers, archive extraction tools, network file servers, and so on.
-
-[1]: At the moment, ".." and magic-link jumping are disallowed for the
-     same reason it is disabled for LOOKUP_BENEATH -- currently it is
-     not safe to allow it. Future patches may enable it unconditionally
-     once we have resolved the possible races (for "..") and semantics
-     (for magic-link jumping).
-
-/* Userspace API. */
-LOOKUP_IN_ROOT will be exposed to userspace through openat2(2).
-
-There is a slight change in behaviour regarding pathnames -- if the
-pathname is absolute then the dirfd is still used as the root of
-resolution of LOOKUP_IN_ROOT is specified (this is to avoid obvious
-foot-guns, at the cost of a minor API inconsistency).
-
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- fs/namei.c            | 5 +++++
- include/linux/namei.h | 3 ++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/smc/smc_rx.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 54fdbdfbeb94..9d00b138f54c 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2277,6 +2277,11 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index 413a6abf227e..000002642288 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -211,8 +211,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
+ 	rc = sk_wait_event(sk, timeo,
+ 			   sk->sk_err ||
+ 			   sk->sk_shutdown & RCV_SHUTDOWN ||
+-			   fcrit(conn) ||
+-			   smc_cdc_rxed_any_close_or_senddone(conn),
++			   fcrit(conn),
+ 			   &wait);
+ 	remove_wait_queue(sk_sleep(sk), &wait);
+ 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+@@ -310,7 +309,6 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+ 			smc_rx_update_cons(smc, 0);
  
- 	nd->m_seq = read_seqbegin(&mount_lock);
- 
-+	/* LOOKUP_IN_ROOT treats absolute paths as being relative-to-dirfd. */
-+	if (flags & LOOKUP_IN_ROOT)
-+		while (*s == '/')
-+			s++;
-+
- 	/* Figure out the starting path and root (if needed). */
- 	if (*s == '/') {
- 		error = nd_jump_root(nd);
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 35a1bf074ff1..c7a010570d05 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -47,8 +47,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_NO_MAGICLINKS	0x080000 /* No /proc/$pid/fd/ "symlink" crossing. */
- #define LOOKUP_NO_SYMLINKS	0x100000 /* No symlink crossing *at all*.
- 					    Implies LOOKUP_NO_MAGICLINKS. */
-+#define LOOKUP_IN_ROOT		0x200000 /* Treat dirfd as %current->fs->root. */
- /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
--#define LOOKUP_IS_SCOPED LOOKUP_BENEATH
-+#define LOOKUP_IS_SCOPED (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
- 
- extern int path_pts(struct path *path);
+ 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
+-		    smc_cdc_rxed_any_close_or_senddone(conn) ||
+ 		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
+ 			break;
  
 -- 
-2.23.0
+2.17.1
