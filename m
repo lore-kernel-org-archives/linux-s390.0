@@ -1,63 +1,49 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:34025 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726032AbfJ3KDI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Oct 2019 06:03:08 -0400
-Date: Wed, 30 Oct 2019 11:01:46 +0100
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 1/4] drm/msm: fix memleak on release
-Message-ID: <20191030100146.GC4691@localhost>
+Subject: [PATCH 1/4] drm/msm: fix memleak on release
+Date: Thu, 10 Oct 2019 15:13:30 +0200
+Message-Id: <20191010131333.23635-2-johan@kernel.org>
+In-Reply-To: <20191010131333.23635-1-johan@kernel.org>
 References: <20191010131333.23635-1-johan@kernel.org>
- <20191010131333.23635-2-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191010131333.23635-2-johan@kernel.org>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Daniel Vetter <daniel@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Jordan Crouse <jcrouse@codeaurora.org>, Harald Freudenberger <freude@linux.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Fabien Dessenne <fabien.dessenne@st.com>
+To: Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Fabien Dessenne <fabien.dessenne@st.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Harald Freudenberger <freude@linux.ibm.com>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Jordan Crouse <jcrouse@codeaurora.org>
 
-On Thu, Oct 10, 2019 at 03:13:30PM +0200, Johan Hovold wrote:
-> If a process is interrupted while accessing the "gpu" debugfs file and
-> the drm device struct_mutex is contended, release() could return early
-> and fail to free related resources.
-> 
-> Note that the return value from release() is ignored.
-> 
-> Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
-> Cc: stable <stable@vger.kernel.org>     # 4.18
-> Cc: Jordan Crouse <jcrouse@codeaurora.org>
-> Cc: Rob Clark <robdclark@gmail.com>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
+If a process is interrupted while accessing the "gpu" debugfs file and
+the drm device struct_mutex is contended, release() could return early
+and fail to free related resources.
 
-Rob, Sean,
+Note that the return value from release() is ignored.
 
-Sending a reminder about this one, which is not yet in linux-next.
+Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
+Cc: stable <stable@vger.kernel.org>     # 4.18
+Cc: Jordan Crouse <jcrouse@codeaurora.org>
+Cc: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-Perhaps Daniel can pick it up otherwise?
-
-Thanks,
-Johan
-
->  drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
-> index 6be879578140..1c74381a4fc9 100644
-> --- a/drivers/gpu/drm/msm/msm_debugfs.c
-> +++ b/drivers/gpu/drm/msm/msm_debugfs.c
-> @@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
->  	struct msm_gpu_show_priv *show_priv = m->private;
->  	struct msm_drm_private *priv = show_priv->dev->dev_private;
->  	struct msm_gpu *gpu = priv->gpu;
-> -	int ret;
-> -
-> -	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
-> -	if (ret)
-> -		return ret;
->  
-> +	mutex_lock(&show_priv->dev->struct_mutex);
->  	gpu->funcs->gpu_state_put(show_priv->state);
->  	mutex_unlock(&show_priv->dev->struct_mutex);
+diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
+index 6be879578140..1c74381a4fc9 100644
+--- a/drivers/gpu/drm/msm/msm_debugfs.c
++++ b/drivers/gpu/drm/msm/msm_debugfs.c
+@@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
+ 	struct msm_gpu_show_priv *show_priv = m->private;
+ 	struct msm_drm_private *priv = show_priv->dev->dev_private;
+ 	struct msm_gpu *gpu = priv->gpu;
+-	int ret;
+-
+-	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
+-	if (ret)
+-		return ret;
+ 
++	mutex_lock(&show_priv->dev->struct_mutex);
+ 	gpu->funcs->gpu_state_put(show_priv->state);
+ 	mutex_unlock(&show_priv->dev->struct_mutex);
+ 
+-- 
+2.23.0
