@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:1921 "EHLO mga11.intel.com"
+Received: from mga01.intel.com ([192.55.52.88]:37689 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725923AbfJJOEN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Oct 2019 10:04:13 -0400
-Date: Thu, 10 Oct 2019 22:03:49 +0800
+        id S1728030AbfJJMOX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Oct 2019 08:14:23 -0400
+Date: Thu, 10 Oct 2019 20:14:03 +0800
 From: Wei Yang <richardw.yang@linux.intel.com>
 Subject: Re: "reuse mergeable anon_vma as parent when fork" causes a crash on
  s390
-Message-ID: <20191010140349.GA28204@richard>
+Message-ID: <20191010121403.GA13088@richard>
 Reply-To: Wei Yang <richardw.yang@linux.intel.com>
 References: <1570656570.5937.24.camel@lca.pw>
  <CALvZod4psOEyYwPOF1UcJoK96LbYBccYhsG0DrKD+CCf8Sc-Yg@mail.gmail.com>
@@ -44,24 +44,19 @@ On Thu, Oct 10, 2019 at 11:29:44AM +0300, Konstantin Khlebnikov wrote:
 >You have to check src->anon_vma
 >otherwise in  __split_vma or copy_vma dst could pick completely random anon_vma.
 >
-
-Per my understanding, the root cause is commit 7a3ef208e662 did a little
-further for the reuse case.
-
-We intend to reuse anon_vma on fork, but we also did this when we just want a
-copy of src, like __split_vma(), copy_vma() and __vma_split(). This will lead
-to a random anon_vma and not what we expect.
-
-A fix patch is sent for this.
-
 >Also checking prev will not hurt, just to be sure.
 >
 >So, something like this should work:
 >
- >if (!dst->anon_vma && src->anon_vma &&
+>if (!dst->anon_vma && src->anon_vma &&
 >    prev && pprev && pprev->anon_vma == src->anon_vma)
 >      dst->anon_vma = prev->anon_vma;
 >
+
+This may not be the root cause, I found another problem of it.
+
+Let me prepare a patch to fix it.
+
 >> 
 >> diff --git a/mm/rmap.c b/mm/rmap.c
 >> index 12f6c3d7fd9d..2844f442208d 100644
