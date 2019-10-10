@@ -1,51 +1,110 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:42514 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387660AbfJJNOj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 09:14:39 -0400
-From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 2/4] media: bdisp: fix memleak on release
-Date: Thu, 10 Oct 2019 15:13:31 +0200
-Message-Id: <20191010131333.23635-3-johan@kernel.org>
-In-Reply-To: <20191010131333.23635-1-johan@kernel.org>
-References: <20191010131333.23635-1-johan@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 10 Oct 2019 14:56:00 +0800
+From: Dave Young <dyoung@redhat.com>
+Subject: Re: [PATCH] lib/string: make memzero_explicit inline instead of
+ external
+Message-ID: <20191010065600.GA9838@dhcp-128-65.nay.redhat.com>
+References: <1d17349e-98ab-b582-6981-b484b0e970b6@redhat.com>
+ <20191007220000.GA408752@rani.riverdale.lan>
+ <20191010025229.GA3376@dhcp-128-65.nay.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191010025229.GA3376@dhcp-128-65.nay.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Fabien Dessenne <fabien.dessenne@st.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Harald Freudenberger <freude@linux.ibm.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+To: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, Hans de Goede <hdegoede@redhat.com>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Herbert Xu <herbert@gondor.apana.org.au>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Stephan Mueller <smueller@chronox.de>, kexec@lists.infradead.org
 
-If a process is interrupted while accessing the video device and the
-device lock is contended, release() could return early and fail to free
-related resources.
+On 10/10/19 at 10:52am, Dave Young wrote:
+> On 10/07/19 at 06:00pm, Arvind Sankar wrote:
+> > With the use of the barrier implied by barrier_data(), there is no need
+> > for memzero_explicit to be extern. Making it inline saves the overhead
+> > of a function call, and allows the code to be reused in arch/*/purgatory
+> > without having to duplicate the implementation.
+> > 
+> > Fixes: 906a4bb97f5d ("crypto: sha256 - Use get/put_unaligned_be32 to get input, memzero_explicit")
+> > Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> > Tested-by: Hans de Goede <hdegoede@redhat.com>
+> > Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+> > ---
+> >  include/linux/string.h | 21 ++++++++++++++++++++-
+> >  lib/string.c           | 21 ---------------------
+> >  2 files changed, 20 insertions(+), 22 deletions(-)
+> > 
+> > diff --git a/include/linux/string.h b/include/linux/string.h
+> > index b2f9df7f0761..b6ccdc2c7f02 100644
+> > --- a/include/linux/string.h
+> > +++ b/include/linux/string.h
+> > @@ -227,7 +227,26 @@ static inline bool strstarts(const char *str, const char *prefix)
+> >  }
+> >  
+> >  size_t memweight(const void *ptr, size_t bytes);
+> > -void memzero_explicit(void *s, size_t count);
+> > +
+> > +/**
+> > + * memzero_explicit - Fill a region of memory (e.g. sensitive
+> > + *		      keying data) with 0s.
+> > + * @s: Pointer to the start of the area.
+> > + * @count: The size of the area.
+> > + *
+> > + * Note: usually using memset() is just fine (!), but in cases
+> > + * where clearing out _local_ data at the end of a scope is
+> > + * necessary, memzero_explicit() should be used instead in
+> > + * order to prevent the compiler from optimising away zeroing.
+> > + *
+> > + * memzero_explicit() doesn't need an arch-specific version as
+> > + * it just invokes the one of memset() implicitly.
+> > + */
+> > +static inline void memzero_explicit(void *s, size_t count)
+> > +{
+> > +	memset(s, 0, count);
+> > +	barrier_data(s);
+> > +}
+> >  
+> >  /**
+> >   * kbasename - return the last part of a pathname.
+> > diff --git a/lib/string.c b/lib/string.c
+> > index cd7a10c19210..08ec58cc673b 100644
+> > --- a/lib/string.c
+> > +++ b/lib/string.c
+> > @@ -748,27 +748,6 @@ void *memset(void *s, int c, size_t count)
+> >  EXPORT_SYMBOL(memset);
+> >  #endif
+> >  
+> > -/**
+> > - * memzero_explicit - Fill a region of memory (e.g. sensitive
+> > - *		      keying data) with 0s.
+> > - * @s: Pointer to the start of the area.
+> > - * @count: The size of the area.
+> > - *
+> > - * Note: usually using memset() is just fine (!), but in cases
+> > - * where clearing out _local_ data at the end of a scope is
+> > - * necessary, memzero_explicit() should be used instead in
+> > - * order to prevent the compiler from optimising away zeroing.
+> > - *
+> > - * memzero_explicit() doesn't need an arch-specific version as
+> > - * it just invokes the one of memset() implicitly.
+> > - */
+> > -void memzero_explicit(void *s, size_t count)
+> > -{
+> > -	memset(s, 0, count);
+> > -	barrier_data(s);
+> > -}
+> > -EXPORT_SYMBOL(memzero_explicit);
+> > -
+> >  #ifndef __HAVE_ARCH_MEMSET16
+> >  /**
+> >   * memset16() - Fill a memory area with a uint16_t
+> > -- 
+> 
+> Thanks for the fix!  Ccing kexec list since the problem is kexec/kdump
+> related.  People can try it when they see same issue.
+> 
 
-Note that the return value of the v4l2 release file operation is
-ignored.
+Also:
 
-Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
-Cc: stable <stable@vger.kernel.org>     # 4.2
-Cc: Fabien Dessenne <fabien.dessenne@st.com>
-Cc: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/media/platform/sti/bdisp/bdisp-v4l2.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Tested-by: Dave Young <dyoung@redhat.com>
 
-diff --git a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
-index e90f1ba30574..675b5f2b4c2e 100644
---- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
-+++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
-@@ -651,8 +651,7 @@ static int bdisp_release(struct file *file)
- 
- 	dev_dbg(bdisp->dev, "%s\n", __func__);
- 
--	if (mutex_lock_interruptible(&bdisp->lock))
--		return -ERESTARTSYS;
-+	mutex_lock(&bdisp->lock);
- 
- 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
- 
--- 
-2.23.0
+Thanks
+Dave
