@@ -1,51 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:33784 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730708AbfJIQBr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 12:01:47 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40406 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726201AbfJJLPZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Oct 2019 07:15:25 -0400
+Date: Thu, 10 Oct 2019 13:15:19 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 1/2] KVM: s390: count invalid yields
+Message-ID: <20191010131519.7c8bd1b1.cohuck@redhat.com>
+In-Reply-To: <20191010110518.129256-2-borntraeger@de.ibm.com>
+References: <20191010110518.129256-1-borntraeger@de.ibm.com>
+        <20191010110518.129256-2-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-References: <20190918153445.1241-1-maier@linux.ibm.com>
-In-Reply-To: <20190918153445.1241-1-maier@linux.ibm.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 9 Oct 2019 18:01:29 +0200
-Message-ID: <CAK8P3a1HBog84Wvdgm1ccz1gRJRxHm8ucsxwUTTqh02gOt9WbQ@mail.gmail.com>
-Subject: Re: [PATCH] compat_ioctl: fix reimplemented SG_IO handling causing
- -EINVAL from sg_io()
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Steffen Maier <maier@linux.ibm.com>
-Cc: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Doug Gilbert <dgilbert@interlog.com>, linux-scsi <linux-scsi@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Al Viro <viro@zeniv.linux.org.uk>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>, Thomas Gleixner <tglx@linutronix.de>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Omar Sandoval <osandov@fb.com>, linux-block <linux-block@vger.kernel.org>, Linux-Next Mailing List <linux-next@vger.kernel.org>, Mark Brown <broonie@kernel.org>, dm-devel@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>
 
-On Wed, Sep 18, 2019 at 5:35 PM Steffen Maier <maier@linux.ibm.com> wrote:
->
-> scsi_cmd_ioctl() had hdr as on stack auto variable and called
-> copy_{from,to}_user with the address operator &hdr and sizeof(hdr).
->
-> After the refactoring, {get,put}_sg_io_hdr() takes a pointer &hdr.
-> So the copy_{from,to}_user within the new helper functions should
-> just take the given pointer argument hdr and sizeof(*hdr).
->
-> I saw -EINVAL from sg_io() done by /usr/lib/udev/scsi_id which could
-> in turn no longer whitelist SCSI disks for devicemapper multipath.
->
-> Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-> Fixes: 4f45155c29fd ("compat_ioctl: reimplement SG_IO handling")
+On Thu, 10 Oct 2019 13:05:17 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
+> To analyze some performance issues with lock contention and scheduling
+> it is nice to know when diag9c did not result in any action or when
+> no action was tried.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
 > ---
->
-> Arnd, I'm not sure about the sizeof(hdr32) change in the compat part in
-> put_sg_io_hdr().
->
-> This is for next, probably via Arnd's y2038/y2038,
-> and it fixes next-20190917 for me regarding SCSI generic.
+>  arch/s390/include/asm/kvm_host.h |  1 +
+>  arch/s390/kvm/diag.c             | 18 ++++++++++++++----
+>  arch/s390/kvm/kvm-s390.c         |  1 +
+>  3 files changed, 16 insertions(+), 4 deletions(-)
 
-Hi Steffen,
-
-Sorry for the long delay. I ended up not sending my pull request for
-v5.4, so the bug is not there. I have now rebased my branch
-on top of v5.4-rc2 and plan to send it for the v5.5 merge window.
-
-I have folded your bugfix into my original patch, hope that's ok with
-you. Tomorrow's linux-next should be fixed.
-
-    Arnd
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
