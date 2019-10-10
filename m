@@ -1,70 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726992AbfJFRT6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:19:58 -0400
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 20/36] hypfs: Fix error number left in struct pointer member
-Date: Sun,  6 Oct 2019 19:19:02 +0200
-Message-Id: <20191006171053.385844992@linuxfoundation.org>
-In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
-References: <20191006171038.266461022@linuxfoundation.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Thu, 10 Oct 2019 09:46:36 -0700
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 07/29] x86: Restore "text" Program Header with dummy
+ section
+Message-ID: <201910100944.92CFB97157@keescook>
+References: <20190926175602.33098-1-keescook@chromium.org>
+ <20190926175602.33098-8-keescook@chromium.org>
+ <20191010103305.GD7658@zn.tnic>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191010103305.GD7658@zn.tnic>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Thu, Oct 10, 2019 at 12:33:05PM +0200, Borislav Petkov wrote:
+> On Thu, Sep 26, 2019 at 10:55:40AM -0700, Kees Cook wrote:
+> > Instead of depending on markings in the section following NOTES to
+> > restore the associated Program Header, use a dummy section, as done
+> > in other architectures.
+> 
+> This is very laconic and after some staring at ld.info, I think you mean
+> this:
+> 
+> "   If you place a section in one or more segments using ':PHDR', then
+> the linker will place all subsequent allocatable sections which do not
+> specify ':PHDR' in the same segments."
+> 
+> but I could be way off. Yes, no?
+> 
+> IOW, please write in the commit messages first what the problem is
+> you're addressing.
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+Yeah, that's much improved. I really struggled to describe this, given
+how weird the linker script logic is here.
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+> > --- a/arch/x86/kernel/vmlinux.lds.S
+> > +++ b/arch/x86/kernel/vmlinux.lds.S
+> > @@ -147,8 +147,9 @@ SECTIONS
+> >  	} :text = 0x9090
+> >  
+> >  	NOTES :text :note
+> > +	.dummy : { *(.dummy) } :text
+> >  
+> > -	EXCEPTION_TABLE(16) :text = 0x9090
+> > +	EXCEPTION_TABLE(16)
+> 
+> This is killing the filler byte but I have a suspicion that'll change
+> eventually to INT3... :)
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
+Yes, though since the exception table isn't executable, filling with
+0x90 has no meaning, and I think when I looked at the alignment there
+were actually no fill bytes from here on. But it doesn't matter; it all
+goes away in the end.
 
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index c670279b33f0c..1de3fdfc35378 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -267,7 +267,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
- 
-@@ -298,9 +298,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
 -- 
-2.20.1
+Kees Cook
