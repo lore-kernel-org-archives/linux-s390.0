@@ -1,225 +1,694 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23692 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2409202AbfJXLmH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:07 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb8Qg137784
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:06 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub4qgek8-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:06 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:03 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 09/37] KVM: s390: protvirt: Implement on-demand pinning
-Date: Thu, 24 Oct 2019 07:40:31 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v14 4/6] open: introduce openat2(2) syscall
+Date: Thu, 10 Oct 2019 16:41:38 +1100
+Message-Id: <20191010054140.8483-5-cyphar@cyphar.com>
+In-Reply-To: <20191010054140.8483-1-cyphar@cyphar.com>
+References: <20191010054140.8483-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-10-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian@brauner.io>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+/* Background. */
+For a very long time, extending openat(2) with new features has been
+incredibly frustrating. This stems from the fact that openat(2) is
+possibly the most famous counter-example to the mantra "don't silently
+accept garbage from userspace" -- it doesn't check whether unknown flags
+are present[1].
 
-Pin the guest pages when they are first accessed, instead of all at
-the same time when starting the guest.
+This means that (generally) the addition of new flags to openat(2) has
+been fraught with backwards-compatibility issues (O_TMPFILE has to be
+defined as __O_TMPFILE|O_DIRECTORY|[O_RDWR or O_WRONLY] to ensure old
+kernels gave errors, since it's insecure to silently ignore the
+flag[2]). All new security-related flags therefore have a tough road to
+being added to openat(2).
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+In addition, the newly-added path resolution restriction LOOKUP flags
+(which we would like to expose to user-space) don't feel related to the
+pre-existing O_* flag set -- they affect all components of path lookup.
+Thus it's necessary to (at the very least) add an additional flag.
+
+Adding a new syscall allows us to finally fix the flag-ignoring problem,
+and we can make it extensible enough so that we will hopefully never
+need an openat3(2).
+
+/* Syscall Prototype. */
+  /*
+   * open_how is an extensible structure (similar in interface to
+   * clone3(2) or sched_setattr(2)). The size parameter must be set to
+   * sizeof(struct open_how), to allow for future extensions. All future
+   * extensions will be appended to open_how, with their zero value
+   * acting as a no-op default.
+   */
+  struct open_how { /* ... */ };
+
+  int openat2(int dfd, const char *pathname,
+              struct open_how *how, size_t size);
+
+/* Description. */
+The initial version of 'struct open_how' contains the following fields:
+
+  flags
+    Used to specify openat(2)-style flags. However, any unknown flag
+    bits or otherwise incorrect flag combinations (like O_PATH|O_RDWR)
+    will result in -EINVAL. In addition, this field is 64-bits wide to
+    allow for more O_ flags than currently permitted with openat(2).
+
+  mode
+    The file mode for O_CREAT or O_TMPFILE.
+
+    Must be set to zero if flags does not contain O_CREAT or O_TMPFILE.
+
+  __padding
+    Must be set to all zeroes.
+
+  resolve
+    Restrict path resolution (in contrast to O_* flags they affect all
+    path components). The current set of flags are as follows (at the
+    moment, all of the RESOLVE_ flags are implemented as just passing
+    the corresponding LOOKUP_ flag).
+
+    RESOLVE_NO_XDEV       => LOOKUP_NO_XDEV
+    RESOLVE_NO_SYMLINKS   => LOOKUP_NO_SYMLINKS
+    RESOLVE_NO_MAGICLINKS => LOOKUP_NO_MAGICLINKS
+    RESOLVE_BENEATH       => LOOKUP_BENEATH
+    RESOLVE_IN_ROOT       => LOOKUP_IN_ROOT
+
+open_how does not contain an embedded size field, because it is of
+little benefit (userspace can figure out the kernel open_how size at
+runtime fairly easily without it).
+
+Note that as a result of the new how->flags handling, O_PATH|O_TMPFILE
+is no longer permitted for openat(2). As far as I can tell, this has
+always been a bug and appears to not be used by userspace (and I've not
+seen any problems on my machines by disallowing it). If it turns out
+this breaks something, we can special-case it and only permit it for
+openat(2) but not openat2(2).
+
+/* Testing. */
+In a follow-up patch there are over 200 selftests which ensure that this
+syscall has the correct semantics and will correctly handle several
+attack scenarios.
+
+In addition, I've written a userspace library[4] which provides
+convenient wrappers around openat2(RESOLVE_IN_ROOT) (this is necessary
+because no other syscalls support RESOLVE_IN_ROOT, and thus lots of care
+must be taken when using RESOLVE_IN_ROOT'd file descriptors with other
+syscalls). During the development of this patch, I've run numerous
+verification tests using libpathrs (showing that the API is reasonably
+usable by userspace).
+
+/* Future Work. */
+Additional RESOLVE_ flags have been suggested during the review period.
+These can be easily implemented separately (such as blocking automount
+during resolution).
+
+Furthermore, there are some other proposed changes to the openat(2)
+interface (the most obvious example is magic-link hardening[4]) which
+would be a good opportunity to add a way for userspace to restrict how
+O_PATH file descriptors can be re-opened.
+
+[1]: https://lwn.net/Articles/588444/
+[2]: https://lore.kernel.org/lkml/CA+55aFyyxJL1LyXZeBsf2ypriraj5ut1XkNDsunRBqgVjZU_6Q@mail.gmail.com
+[3]: https://sourceware.org/bugzilla/show_bug.cgi?id=17523
+[4]: https://lore.kernel.org/lkml/20190930183316.10190-2-cyphar@cyphar.com/
+
+Suggested-by: Christian Brauner <christian@brauner.io>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/include/asm/uv.h   |  6 +++++
- arch/s390/kernel/uv.c        | 20 ++++++++++++++
- arch/s390/kvm/kvm-s390.c     |  2 ++
- arch/s390/kvm/pv.c           | 51 ++++++++++++++++++++++++++++++------
- 5 files changed, 72 insertions(+), 8 deletions(-)
+ CREDITS                                     |   4 +-
+ arch/alpha/kernel/syscalls/syscall.tbl      |   1 +
+ arch/arm/tools/syscall.tbl                  |   1 +
+ arch/arm64/include/asm/unistd.h             |   2 +-
+ arch/arm64/include/asm/unistd32.h           |   2 +
+ arch/ia64/kernel/syscalls/syscall.tbl       |   1 +
+ arch/m68k/kernel/syscalls/syscall.tbl       |   1 +
+ arch/microblaze/kernel/syscalls/syscall.tbl |   1 +
+ arch/mips/kernel/syscalls/syscall_n32.tbl   |   1 +
+ arch/mips/kernel/syscalls/syscall_n64.tbl   |   1 +
+ arch/mips/kernel/syscalls/syscall_o32.tbl   |   1 +
+ arch/parisc/kernel/syscalls/syscall.tbl     |   1 +
+ arch/powerpc/kernel/syscalls/syscall.tbl    |   1 +
+ arch/s390/kernel/syscalls/syscall.tbl       |   1 +
+ arch/sh/kernel/syscalls/syscall.tbl         |   1 +
+ arch/sparc/kernel/syscalls/syscall.tbl      |   1 +
+ arch/x86/entry/syscalls/syscall_32.tbl      |   1 +
+ arch/x86/entry/syscalls/syscall_64.tbl      |   1 +
+ arch/xtensa/kernel/syscalls/syscall.tbl     |   1 +
+ fs/open.c                                   | 154 +++++++++++++++-----
+ include/linux/fcntl.h                       |  12 +-
+ include/linux/syscalls.h                    |   3 +
+ include/uapi/asm-generic/unistd.h           |   5 +-
+ include/uapi/linux/fcntl.h                  |  41 ++++++
+ 24 files changed, 201 insertions(+), 38 deletions(-)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 99b3eedda26e..483f64427c0e 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -63,6 +63,7 @@ struct gmap {
- 	struct gmap *parent;
- 	unsigned long orig_asce;
- 	unsigned long se_handle;
-+	struct page **pinned_pages;
- 	int edat_level;
- 	bool removed;
- 	bool initialized;
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 99cdd2034503..9ce9363aee1c 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -298,6 +298,7 @@ static inline int uv_convert_from_secure(unsigned long paddr)
- 	return -EINVAL;
- }
+diff --git a/CREDITS b/CREDITS
+index 8b67a85844b5..8d7990b1217e 100644
+--- a/CREDITS
++++ b/CREDITS
+@@ -3297,7 +3297,9 @@ S: France
+ N: Aleksa Sarai
+ E: cyphar@cyphar.com
+ W: https://www.cyphar.com/
+-D: `pids` cgroup subsystem
++D: /sys/fs/cgroup/pids
++D: openat2(2)
++S: Sydney, Australia
  
-+int kvm_s390_pv_pin_page(struct gmap *gmap, unsigned long gpa);
- /*
-  * Requests the Ultravisor to make a page accessible to a guest
-  * (import). If it's brought in the first time, it will be cleared. If
-@@ -317,6 +318,11 @@ static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long gaddr)
- 		.gaddr = gaddr
- 	};
+ N: Dipankar Sarma
+ E: dipankar@in.ibm.com
+diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
+index 728fe028c02c..9f374f7d9514 100644
+--- a/arch/alpha/kernel/syscalls/syscall.tbl
++++ b/arch/alpha/kernel/syscalls/syscall.tbl
+@@ -475,3 +475,4 @@
+ 543	common	fspick				sys_fspick
+ 544	common	pidfd_open			sys_pidfd_open
+ # 545 reserved for clone3
++547	common	openat2				sys_openat2
+diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+index 6da7dc4d79cc..4ba54bc7e19a 100644
+--- a/arch/arm/tools/syscall.tbl
++++ b/arch/arm/tools/syscall.tbl
+@@ -449,3 +449,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 2629a68b8724..8aa00ccb0b96 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -38,7 +38,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
  
-+	down_read(&gmap->mm->mmap_sem);
-+	cc = kvm_s390_pv_pin_page(gmap, gaddr);
-+	up_read(&gmap->mm->mmap_sem);
-+	if (cc)
-+		return cc;
- 	cc = uv_call(0, (u64)&uvcb);
- 
- 	if (!cc)
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index f7778493e829..36554402b5c6 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -98,4 +98,24 @@ void adjust_to_uv_max(unsigned long *vmax)
- 	if (prot_virt_host && *vmax > uv_info.max_sec_stor_addr)
- 		*vmax = uv_info.max_sec_stor_addr;
- }
-+
-+int kvm_s390_pv_pin_page(struct gmap *gmap, unsigned long gpa)
-+{
-+	unsigned long hva, gfn = gpa / PAGE_SIZE;
-+	int rc;
-+
-+	if (!gmap->pinned_pages)
-+		return -EINVAL;
-+	hva = __gmap_translate(gmap, gpa);
-+	if (IS_ERR_VALUE(hva))
-+		return -EFAULT;
-+	if (gmap->pinned_pages[gfn])
-+		return -EEXIST;
-+	rc = get_user_pages_fast(hva, 1, FOLL_WRITE, gmap->pinned_pages + gfn);
-+	if (rc < 0)
-+		return rc;
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(kvm_s390_pv_pin_page);
-+
+-#define __NR_compat_syscalls		436
++#define __NR_compat_syscalls		438
  #endif
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d1ba12f857e7..490fde080107 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2196,6 +2196,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		/* All VCPUs have to be destroyed before this call. */
- 		mutex_lock(&kvm->lock);
- 		kvm_s390_vcpu_block_all(kvm);
-+		kvm_s390_pv_unpin(kvm);
- 		r = kvm_s390_pv_destroy_vm(kvm);
- 		if (!r)
- 			kvm_s390_pv_dealloc_vm(kvm);
-@@ -2680,6 +2681,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
- 	kvm_s390_gisa_destroy(kvm);
- 	if (IS_ENABLED(CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST) &&
- 	    kvm_s390_pv_is_protected(kvm)) {
-+		kvm_s390_pv_unpin(kvm);
- 		kvm_s390_pv_destroy_vm(kvm);
- 		kvm_s390_pv_dealloc_vm(kvm);
- 	}
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 80aecd5bea9e..383e660e2221 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -15,8 +15,35 @@
- #include <asm/mman.h>
- #include "kvm-s390.h"
  
-+static void unpin_destroy(struct page **pages, int nr)
-+{
-+	int i;
-+	struct page *page;
-+	u8 *val;
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index 94ab29cf4f00..57f6f592d460 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -879,6 +879,8 @@ __SYSCALL(__NR_fspick, sys_fspick)
+ __SYSCALL(__NR_pidfd_open, sys_pidfd_open)
+ #define __NR_clone3 435
+ __SYSCALL(__NR_clone3, sys_clone3)
++#define __NR_openat2 437
++__SYSCALL(__NR_openat2, sys_openat2)
+ 
+ /*
+  * Please add new compat syscalls above this comment and update
+diff --git a/arch/ia64/kernel/syscalls/syscall.tbl b/arch/ia64/kernel/syscalls/syscall.tbl
+index 36d5faf4c86c..8d36f2e2dc89 100644
+--- a/arch/ia64/kernel/syscalls/syscall.tbl
++++ b/arch/ia64/kernel/syscalls/syscall.tbl
+@@ -356,3 +356,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/m68k/kernel/syscalls/syscall.tbl b/arch/m68k/kernel/syscalls/syscall.tbl
+index a88a285a0e5f..2559925f1924 100644
+--- a/arch/m68k/kernel/syscalls/syscall.tbl
++++ b/arch/m68k/kernel/syscalls/syscall.tbl
+@@ -435,3 +435,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/microblaze/kernel/syscalls/syscall.tbl b/arch/microblaze/kernel/syscalls/syscall.tbl
+index 09b0cd7dab0a..c04385e60833 100644
+--- a/arch/microblaze/kernel/syscalls/syscall.tbl
++++ b/arch/microblaze/kernel/syscalls/syscall.tbl
+@@ -441,3 +441,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
+index e7c5ab38e403..68c9ec06851f 100644
+--- a/arch/mips/kernel/syscalls/syscall_n32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
+@@ -374,3 +374,4 @@
+ 433	n32	fspick				sys_fspick
+ 434	n32	pidfd_open			sys_pidfd_open
+ 435	n32	clone3				__sys_clone3
++437	n32	openat2				sys_openat2
+diff --git a/arch/mips/kernel/syscalls/syscall_n64.tbl b/arch/mips/kernel/syscalls/syscall_n64.tbl
+index 13cd66581f3b..42a72d010050 100644
+--- a/arch/mips/kernel/syscalls/syscall_n64.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n64.tbl
+@@ -350,3 +350,4 @@
+ 433	n64	fspick				sys_fspick
+ 434	n64	pidfd_open			sys_pidfd_open
+ 435	n64	clone3				__sys_clone3
++437	n64	openat2				sys_openat2
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 353539ea4140..f114c4aed0ed 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -423,3 +423,4 @@
+ 433	o32	fspick				sys_fspick
+ 434	o32	pidfd_open			sys_pidfd_open
+ 435	o32	clone3				__sys_clone3
++437	o32	openat2				sys_openat2
+diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
+index 285ff516150c..b550ae9a7fea 100644
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -433,3 +433,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3_wrapper
++437	common	openat2				sys_openat2
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index 43f736ed47f2..a8b5ecb5b602 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -517,3 +517,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	nospu	clone3				ppc_clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 3054e9c035a3..16b571c06161 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -438,3 +438,4 @@
+ 433  common	fspick			sys_fspick			sys_fspick
+ 434  common	pidfd_open		sys_pidfd_open			sys_pidfd_open
+ 435  common	clone3			sys_clone3			sys_clone3
++437  common	openat2			sys_openat2			sys_openat2
+diff --git a/arch/sh/kernel/syscalls/syscall.tbl b/arch/sh/kernel/syscalls/syscall.tbl
+index b5ed26c4c005..a7185cc18626 100644
+--- a/arch/sh/kernel/syscalls/syscall.tbl
++++ b/arch/sh/kernel/syscalls/syscall.tbl
+@@ -438,3 +438,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++437	common	openat2				sys_openat2
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index 8c8cc7537fb2..b11c19552022 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -481,3 +481,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ # 435 reserved for clone3
++437	common	openat2			sys_openat2
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 3fe02546aed3..e5c022e9a5c4 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -440,3 +440,4 @@
+ 433	i386	fspick			sys_fspick			__ia32_sys_fspick
+ 434	i386	pidfd_open		sys_pidfd_open			__ia32_sys_pidfd_open
+ 435	i386	clone3			sys_clone3			__ia32_sys_clone3
++437	i386	openat2			sys_openat2			__ia32_sys_openat2
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index c29976eca4a8..9035647ef236 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -357,6 +357,7 @@
+ 433	common	fspick			__x64_sys_fspick
+ 434	common	pidfd_open		__x64_sys_pidfd_open
+ 435	common	clone3			__x64_sys_clone3/ptregs
++437	common	openat2			__x64_sys_openat2
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/arch/xtensa/kernel/syscalls/syscall.tbl b/arch/xtensa/kernel/syscalls/syscall.tbl
+index 25f4de729a6d..f0a68013c038 100644
+--- a/arch/xtensa/kernel/syscalls/syscall.tbl
++++ b/arch/xtensa/kernel/syscalls/syscall.tbl
+@@ -406,3 +406,4 @@
+ 433	common	fspick				sys_fspick
+ 434	common	pidfd_open			sys_pidfd_open
+ 435	common	clone3				sys_clone3
++437	common	openat2				sys_openat2
+diff --git a/fs/open.c b/fs/open.c
+index b62f5c0923a8..7cc6570201ca 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -955,25 +955,82 @@ struct file *open_with_fake_path(const struct path *path, int flags,
+ }
+ EXPORT_SYMBOL(open_with_fake_path);
+ 
+-static inline int build_open_flags(int flags, umode_t mode, struct open_flags *op)
++#define WILL_CREATE(flags)	(flags & (O_CREAT | __O_TMPFILE))
++#define O_PATH_FLAGS		(O_DIRECTORY | O_NOFOLLOW | O_PATH | O_CLOEXEC)
 +
-+	for (i = 0; i < nr; i++) {
-+		page = pages[i];
-+		if (!page)	/* page was never used */
-+			continue;
-+		val = (void *)page_to_phys(page);
-+		READ_ONCE(*val);
-+		put_page(page);
-+	}
++static inline struct open_how build_open_how(int flags, umode_t mode)
++{
++	struct open_how how = {
++		.flags = flags & VALID_OPEN_FLAGS,
++		.mode = mode & S_IALLUGO,
++	};
++
++	/* O_TMPFILE beats O_PATH. */
++	if (how.flags & __O_TMPFILE)
++		how.flags &= ~O_PATH;
++	/* O_PATH beats everything else. */
++	if (how.flags & O_PATH)
++		how.flags &= O_PATH_FLAGS;
++	/* Modes should only be set for create-like flags. */
++	if (!WILL_CREATE(how.flags))
++		how.mode = 0;
++	return how;
 +}
 +
-+void kvm_s390_pv_unpin(struct kvm *kvm)
-+{
-+	unsigned long npages = kvm->arch.pv.guest_len / PAGE_SIZE;
-+
-+	mutex_lock(&kvm->slots_lock);
-+	unpin_destroy(kvm->arch.gmap->pinned_pages, npages);
-+	mutex_unlock(&kvm->slots_lock);
-+}
-+
- void kvm_s390_pv_dealloc_vm(struct kvm *kvm)
++static inline int build_open_flags(const struct open_how *how,
++				   struct open_flags *op)
  {
-+	vfree(kvm->arch.gmap->pinned_pages);
-+	kvm->arch.gmap->pinned_pages = NULL;
- 	vfree(kvm->arch.pv.stor_var);
- 	free_pages(kvm->arch.pv.stor_base,
- 		   get_order(uv_info.guest_base_stor_len));
-@@ -28,7 +55,6 @@ int kvm_s390_pv_alloc_vm(struct kvm *kvm)
- 	unsigned long base = uv_info.guest_base_stor_len;
- 	unsigned long virt = uv_info.guest_virt_var_stor_len;
- 	unsigned long npages = 0, vlen = 0;
--	struct kvm_memslots *slots;
- 	struct kvm_memory_slot *memslot;
++	int flags = how->flags;
+ 	int lookup_flags = 0;
+ 	int acc_mode = ACC_MODE(flags);
  
- 	kvm->arch.pv.stor_var = NULL;
-@@ -43,22 +69,26 @@ int kvm_s390_pv_alloc_vm(struct kvm *kvm)
- 	 * Slots are sorted by GFN
++	/* Must never be set by userspace */
++	flags &= ~(FMODE_NONOTIFY | O_CLOEXEC);
++
+ 	/*
+-	 * Clear out all open flags we don't know about so that we don't report
+-	 * them in fcntl(F_GETFD) or similar interfaces.
++	 * Older syscalls implicitly clear all of the invalid flags or argument
++	 * values before calling build_open_flags(), but openat2(2) checks all
++	 * of its arguments.
  	 */
- 	mutex_lock(&kvm->slots_lock);
--	slots = kvm_memslots(kvm);
--	memslot = slots->memslots;
-+	memslot = kvm_memslots(kvm)->memslots;
- 	npages = memslot->base_gfn + memslot->npages;
--
- 	mutex_unlock(&kvm->slots_lock);
+-	flags &= VALID_OPEN_FLAGS;
++	if (flags & ~VALID_OPEN_FLAGS)
++		return -EINVAL;
++	if (how->resolve & ~VALID_RESOLVE_FLAGS)
++		return -EINVAL;
++	if (memchr_inv(how->__padding, 0, sizeof(how->__padding)))
++		return -EINVAL;
 +
-+	kvm->arch.gmap->pinned_pages = vzalloc(npages * sizeof(struct page *));
-+	if (!kvm->arch.gmap->pinned_pages)
-+		goto out_err;
- 	kvm->arch.pv.guest_len = npages * PAGE_SIZE;
++	/* Deal with the mode. */
++	if (WILL_CREATE(how->flags)) {
++		if (how->mode & ~S_IALLUGO)
++			return -EINVAL;
++	} else if (how->mode != 0) {
++		return -EINVAL;
++	}
  
- 	/* Allocate variable storage */
- 	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
- 	vlen += uv_info.guest_virt_base_stor_len;
- 	kvm->arch.pv.stor_var = vzalloc(vlen);
--	if (!kvm->arch.pv.stor_var) {
--		kvm_s390_pv_dealloc_vm(kvm);
--		return -ENOMEM;
--	}
-+	if (!kvm->arch.pv.stor_var)
-+		goto out_err;
- 	return 0;
+-	if (flags & (O_CREAT | __O_TMPFILE))
+-		op->mode = (mode & S_IALLUGO) | S_IFREG;
++	/*
++	 * In order to ensure programs get explicit errors when trying to use
++	 * O_TMPFILE on old kernels, O_TMPFILE is implemented such that it
++	 * looks like (O_DIRECTORY|O_RDWR & ~O_CREAT) to old kernels. But we
++	 * have to require userspace to explicitly set it.
++	 */
++	if (flags & __O_TMPFILE) {
++		if ((flags & O_TMPFILE_MASK) != O_TMPFILE)
++			return -EINVAL;
++		if (!(acc_mode & MAY_WRITE))
++			return -EINVAL;
++	}
++	if (flags & O_PATH) {
++		/* O_PATH only permits certain other flags to be set. */
++		if (flags & ~O_PATH_FLAGS)
++			return -EINVAL;
++		acc_mode = 0;
++	}
 +
-+out_err:
-+	kvm_s390_pv_dealloc_vm(kvm);
-+	return -ENOMEM;
++	if (WILL_CREATE(flags))
++		op->mode = how->mode | S_IFREG;
+ 	else
+ 		op->mode = 0;
+ 
+-	/* Must never be set by userspace */
+-	flags &= ~FMODE_NONOTIFY & ~O_CLOEXEC;
+-
+ 	/*
+ 	 * O_SYNC is implemented as __O_SYNC|O_DSYNC.  As many places only
+ 	 * check for O_DSYNC if the need any syncing at all we enforce it's
+@@ -983,20 +1040,6 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
+ 	if (flags & __O_SYNC)
+ 		flags |= O_DSYNC;
+ 
+-	if (flags & __O_TMPFILE) {
+-		if ((flags & O_TMPFILE_MASK) != O_TMPFILE)
+-			return -EINVAL;
+-		if (!(acc_mode & MAY_WRITE))
+-			return -EINVAL;
+-	} else if (flags & O_PATH) {
+-		/*
+-		 * If we have O_PATH in the open flag. Then we
+-		 * cannot have anything other than the below set of flags
+-		 */
+-		flags &= O_DIRECTORY | O_NOFOLLOW | O_PATH;
+-		acc_mode = 0;
+-	}
+-
+ 	op->open_flag = flags;
+ 
+ 	/* O_TRUNC implies we need access checks for write permissions */
+@@ -1022,6 +1065,18 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
+ 		lookup_flags |= LOOKUP_DIRECTORY;
+ 	if (!(flags & O_NOFOLLOW))
+ 		lookup_flags |= LOOKUP_FOLLOW;
++
++	if (how->resolve & RESOLVE_NO_XDEV)
++		lookup_flags |= LOOKUP_NO_XDEV;
++	if (how->resolve & RESOLVE_NO_MAGICLINKS)
++		lookup_flags |= LOOKUP_NO_MAGICLINKS;
++	if (how->resolve & RESOLVE_NO_SYMLINKS)
++		lookup_flags |= LOOKUP_NO_SYMLINKS;
++	if (how->resolve & RESOLVE_BENEATH)
++		lookup_flags |= LOOKUP_BENEATH;
++	if (how->resolve & RESOLVE_IN_ROOT)
++		lookup_flags |= LOOKUP_IN_ROOT;
++
+ 	op->lookup_flags = lookup_flags;
+ 	return 0;
+ }
+@@ -1040,8 +1095,11 @@ static inline int build_open_flags(int flags, umode_t mode, struct open_flags *o
+ struct file *file_open_name(struct filename *name, int flags, umode_t mode)
+ {
+ 	struct open_flags op;
+-	int err = build_open_flags(flags, mode, &op);
+-	return err ? ERR_PTR(err) : do_filp_open(AT_FDCWD, name, &op);
++	struct open_how how = build_open_how(flags, mode);
++	int err = build_open_flags(&how, &op);
++	if (err)
++		return ERR_PTR(err);
++	return do_filp_open(AT_FDCWD, name, &op);
  }
  
- int kvm_s390_pv_destroy_vm(struct kvm *kvm)
-@@ -216,6 +246,11 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
- 	for (i = 0; i < size / PAGE_SIZE; i++) {
- 		uvcb.gaddr = addr + i * PAGE_SIZE;
- 		uvcb.tweak[1] = i * PAGE_SIZE;
-+		down_read(&kvm->mm->mmap_sem);
-+		rc = kvm_s390_pv_pin_page(kvm->arch.gmap, uvcb.gaddr);
-+		up_read(&kvm->mm->mmap_sem);
-+		if (rc && (rc != -EEXIST))
-+			break;
- retry:
- 		rc = uv_call(0, (u64)&uvcb);
- 		if (!rc)
+ /**
+@@ -1072,17 +1130,19 @@ struct file *file_open_root(struct dentry *dentry, struct vfsmount *mnt,
+ 			    const char *filename, int flags, umode_t mode)
+ {
+ 	struct open_flags op;
+-	int err = build_open_flags(flags, mode, &op);
++	struct open_how how = build_open_how(flags, mode);
++	int err = build_open_flags(&how, &op);
+ 	if (err)
+ 		return ERR_PTR(err);
+ 	return do_file_open_root(dentry, mnt, filename, &op);
+ }
+ EXPORT_SYMBOL(file_open_root);
+ 
+-long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
++static long do_sys_openat2(int dfd, const char __user *filename,
++			   struct open_how *how)
+ {
+ 	struct open_flags op;
+-	int fd = build_open_flags(flags, mode, &op);
++	int fd = build_open_flags(how, &op);
+ 	struct filename *tmp;
+ 
+ 	if (fd)
+@@ -1092,7 +1152,7 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
+ 	if (IS_ERR(tmp))
+ 		return PTR_ERR(tmp);
+ 
+-	fd = get_unused_fd_flags(flags);
++	fd = get_unused_fd_flags(how->flags);
+ 	if (fd >= 0) {
+ 		struct file *f = do_filp_open(dfd, tmp, &op);
+ 		if (IS_ERR(f)) {
+@@ -1107,12 +1167,16 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
+ 	return fd;
+ }
+ 
+-SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
++long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
+ {
+-	if (force_o_largefile())
+-		flags |= O_LARGEFILE;
++	struct open_how how = build_open_how(flags, mode);
++	return do_sys_openat2(dfd, filename, &how);
++}
+ 
+-	return do_sys_open(AT_FDCWD, filename, flags, mode);
++
++SYSCALL_DEFINE3(open, const char __user *, filename, int, flags, umode_t, mode)
++{
++	return ksys_open(filename, flags, mode);
+ }
+ 
+ SYSCALL_DEFINE4(openat, int, dfd, const char __user *, filename, int, flags,
+@@ -1120,10 +1184,32 @@ SYSCALL_DEFINE4(openat, int, dfd, const char __user *, filename, int, flags,
+ {
+ 	if (force_o_largefile())
+ 		flags |= O_LARGEFILE;
+-
+ 	return do_sys_open(dfd, filename, flags, mode);
+ }
+ 
++SYSCALL_DEFINE4(openat2, int, dfd, const char __user *, filename,
++		struct open_how __user *, how, size_t, usize)
++{
++	int err;
++	struct open_how tmp;
++
++	BUILD_BUG_ON(sizeof(struct open_how) < OPEN_HOW_SIZE_VER0);
++	BUILD_BUG_ON(sizeof(struct open_how) != OPEN_HOW_SIZE_LATEST);
++
++	if (unlikely(usize < OPEN_HOW_SIZE_VER0))
++		return -EINVAL;
++
++	err = copy_struct_from_user(&tmp, sizeof(tmp), how, usize);
++	if (err)
++		return err;
++
++	/* O_LARGEFILE is only allowed for non-O_PATH. */
++	if (!(tmp.flags & O_PATH) && force_o_largefile())
++		tmp.flags |= O_LARGEFILE;
++
++	return do_sys_openat2(dfd, filename, &tmp);
++}
++
+ #ifdef CONFIG_COMPAT
+ /*
+  * Exactly like sys_open(), except that it doesn't set the
+diff --git a/include/linux/fcntl.h b/include/linux/fcntl.h
+index d019df946cb2..f2eb05bd3af3 100644
+--- a/include/linux/fcntl.h
++++ b/include/linux/fcntl.h
+@@ -2,15 +2,25 @@
+ #ifndef _LINUX_FCNTL_H
+ #define _LINUX_FCNTL_H
+ 
++#include <linux/stat.h>
+ #include <uapi/linux/fcntl.h>
+ 
+-/* list of all valid flags for the open/openat flags argument: */
++/* List of all valid flags for the open/openat flags argument: */
+ #define VALID_OPEN_FLAGS \
+ 	(O_RDONLY | O_WRONLY | O_RDWR | O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC | \
+ 	 O_APPEND | O_NDELAY | O_NONBLOCK | O_NDELAY | __O_SYNC | O_DSYNC | \
+ 	 FASYNC	| O_DIRECT | O_LARGEFILE | O_DIRECTORY | O_NOFOLLOW | \
+ 	 O_NOATIME | O_CLOEXEC | O_PATH | __O_TMPFILE)
+ 
++/* List of all valid flags for the how->upgrade_mask argument: */
++#define VALID_UPGRADE_FLAGS \
++	(UPGRADE_NOWRITE | UPGRADE_NOREAD)
++
++/* List of all valid flags for the how->resolve argument: */
++#define VALID_RESOLVE_FLAGS \
++	(RESOLVE_NO_XDEV | RESOLVE_NO_MAGICLINKS | RESOLVE_NO_SYMLINKS | \
++	 RESOLVE_BENEATH | RESOLVE_IN_ROOT)
++
+ #ifndef force_o_largefile
+ #define force_o_largefile() (!IS_ENABLED(CONFIG_ARCH_32BIT_OFF_T))
+ #endif
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index f7c561c4dcdd..808f103b7a62 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -69,6 +69,7 @@ struct rseq;
+ union bpf_attr;
+ struct io_uring_params;
+ struct clone_args;
++struct open_how;
+ 
+ #include <linux/types.h>
+ #include <linux/aio_abi.h>
+@@ -439,6 +440,8 @@ asmlinkage long sys_fchownat(int dfd, const char __user *filename, uid_t user,
+ asmlinkage long sys_fchown(unsigned int fd, uid_t user, gid_t group);
+ asmlinkage long sys_openat(int dfd, const char __user *filename, int flags,
+ 			   umode_t mode);
++asmlinkage long sys_openat2(int dfd, const char __user *filename,
++			    struct open_how *how, size_t size);
+ asmlinkage long sys_close(unsigned int fd);
+ asmlinkage long sys_vhangup(void);
+ 
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 1fc8faa6e973..d4122c091472 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -851,8 +851,11 @@ __SYSCALL(__NR_pidfd_open, sys_pidfd_open)
+ __SYSCALL(__NR_clone3, sys_clone3)
+ #endif
+ 
++#define __NR_openat2 437
++__SYSCALL(__NR_openat2, sys_openat2)
++
+ #undef __NR_syscalls
+-#define __NR_syscalls 436
++#define __NR_syscalls 438
+ 
+ /*
+  * 32 bit systems traditionally used different
+diff --git a/include/uapi/linux/fcntl.h b/include/uapi/linux/fcntl.h
+index 1d338357df8a..5de8b0006a95 100644
+--- a/include/uapi/linux/fcntl.h
++++ b/include/uapi/linux/fcntl.h
+@@ -93,5 +93,46 @@
+ 
+ #define AT_RECURSIVE		0x8000	/* Apply to the entire subtree */
+ 
++/*
++ * Arguments for how openat2(2) should open the target path. If @resolve is
++ * zero, then openat2(2) operates very similarly to openat(2).
++ *
++ * However, unlike openat(2), unknown bits in @flags result in -EINVAL rather
++ * than being silently ignored. @mode must be zero unless one of {O_CREAT,
++ * O_TMPFILE} are set, and @upgrade_mask must be zero unless O_PATH is set.
++ *
++ * @flags: O_* flags.
++ * @mode: O_CREAT/O_TMPFILE file mode.
++ * @upgrade_mask: UPGRADE_* flags (to restrict O_PATH re-opening).
++ * @resolve: RESOLVE_* flags.
++ */
++struct open_how {
++	__aligned_u64 flags;
++	__u16 mode;
++	__u16 __padding[3]; /* must be zeroed */
++	__aligned_u64 resolve;
++};
++
++#define OPEN_HOW_SIZE_VER0	24 /* sizeof first published struct */
++#define OPEN_HOW_SIZE_LATEST	OPEN_HOW_SIZE_VER0
++
++/* how->resolve flags for openat2(2). */
++#define RESOLVE_NO_XDEV		0x01 /* Block mount-point crossings
++					(includes bind-mounts). */
++#define RESOLVE_NO_MAGICLINKS	0x02 /* Block traversal through procfs-style
++					"magic-links". */
++#define RESOLVE_NO_SYMLINKS	0x04 /* Block traversal through all symlinks
++					(implies OEXT_NO_MAGICLINKS) */
++#define RESOLVE_BENEATH		0x08 /* Block "lexical" trickery like
++					"..", symlinks, and absolute
++					paths which escape the dirfd. */
++#define RESOLVE_IN_ROOT		0x10 /* Make all jumps to "/" and ".."
++					be scoped inside the dirfd
++					(similar to chroot(2)). */
++
++/* how->upgrade flags for openat2(2). */
++/* First bit is reserved for a future UPGRADE_NOEXEC flag. */
++#define UPGRADE_NOREAD		0x02 /* Block re-opening with MAY_READ. */
++#define UPGRADE_NOWRITE		0x04 /* Block re-opening with MAY_WRITE. */
+ 
+ #endif /* _UAPI_LINUX_FCNTL_H */
 -- 
-2.20.1
+2.23.0
