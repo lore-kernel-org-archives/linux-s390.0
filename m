@@ -1,55 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43320 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730577AbfJNSJF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Oct 2019 14:09:05 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9EHvlgn136764
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2019 14:09:04 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vmu30xw4q-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 14 Oct 2019 14:09:03 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Mon, 14 Oct 2019 19:09:02 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH 0/4] vfio-ccw: A couple trace changes
-Date: Mon, 14 Oct 2019 20:08:51 +0200
-Message-Id: <20191014180855.19400-1-farman@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:41720 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733144AbfJJJSc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Oct 2019 05:18:32 -0400
+Subject: Re: [PATCH V2 6/8] mdev: introduce virtio device and its device ops
+References: <20190924135332.14160-1-jasowang@redhat.com>
+ <20190924135332.14160-7-jasowang@redhat.com>
+ <20190924170640.1da03bae@x1.home>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <42b17911-7e40-3762-8f70-709c5ce7e0d0@redhat.com>
+Date: Thu, 10 Oct 2019 17:18:03 +0800
+MIME-Version: 1.0
+In-Reply-To: <20190924170640.1da03bae@x1.home>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com
 
-Hi Conny,
 
-I mentioned these to you a while ago; just been caught up in other
-things. These aren't really pre-reqs for anything in our pipe, but
-they've been beneficial to me on their own, and simplify debugging
-of future work (such as the FSM needs brought up by Halil).
+On 2019/9/25 上午7:06, Alex Williamson wrote:
+> On Tue, 24 Sep 2019 21:53:30 +0800
+> Jason Wang<jasowang@redhat.com>  wrote:
+>
+>> This patch implements basic support for mdev driver that supports
+>> virtio transport for kernel virtio driver.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>> ---
+>>   include/linux/mdev.h        |   2 +
+>>   include/linux/virtio_mdev.h | 145 ++++++++++++++++++++++++++++++++++++
+>>   2 files changed, 147 insertions(+)
+>>   create mode 100644 include/linux/virtio_mdev.h
+>>
+>> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+>> index 3414307311f1..73ac27b3b868 100644
+>> --- a/include/linux/mdev.h
+>> +++ b/include/linux/mdev.h
+>> @@ -126,6 +126,8 @@ struct mdev_device *mdev_from_dev(struct device *dev);
+>>   
+>>   enum {
+>>   	MDEV_ID_VFIO = 1,
+>> +	MDEV_ID_VIRTIO = 2,
+>> +	MDEV_ID_VHOST = 3,
+> MDEV_ID_VHOST isn't used yet here.  Also, given the strong
+> interdependence between the class_id and the ops structure, we might
+> wand to define them in the same place.  Thanks,
+>
+> Alex
+>
 
-While the first patch refactors the trace so new ones can be added
-outside the FSM, none of the other patches in this series really do.
-I imagine that would be beneficial in the future, so I think it
-would be good to do that rework before we get too far along.
+Rethink about this, consider we may have more types of devices supported 
+in the future, moving all device_ops to mdev.h seems unnecessary. I 
+prefer to keep the device_ops into their own headers.
 
-Eric Farman (4):
-  vfio-ccw: Refactor how the traces are built
-  vfio-ccw: Trace the FSM jumptable
-  vfio-ccw: Add a trace for asynchronous requests
-  vfio-ccw: Rename the io_fctl trace
-
- drivers/s390/cio/Makefile           |  4 +--
- drivers/s390/cio/vfio_ccw_cp.h      |  1 +
- drivers/s390/cio/vfio_ccw_fsm.c     | 11 +++---
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- drivers/s390/cio/vfio_ccw_trace.c   | 14 ++++++++
- drivers/s390/cio/vfio_ccw_trace.h   | 56 ++++++++++++++++++++++++++++-
- 6 files changed, 79 insertions(+), 8 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
-
--- 
-2.17.1
+Thanks
