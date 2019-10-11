@@ -1,109 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28136 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728866AbfJHJLP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Oct 2019 05:11:15 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9897Pb3031461
-        for <linux-s390@vger.kernel.org>; Tue, 8 Oct 2019 05:11:10 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vgp7nb8cc-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 08 Oct 2019 05:11:10 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Tue, 8 Oct 2019 10:11:08 +0100
-Subject: Re: [dm-devel] [RESEND TRIVIAL 1/3] treewide: drivers: Fix Kconfig
- indentation
-References: <20191004145544.5066-1-krzk@kernel.org>
-From: Steffen Maier <maier@linux.ibm.com>
-Date: Tue, 8 Oct 2019 11:11:03 +0200
+Received: from youngberry.canonical.com ([91.189.89.112]:34704 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726863AbfJKJpc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Oct 2019 05:45:32 -0400
+Date: Fri, 11 Oct 2019 11:45:28 +0200
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Subject: Re: [PATCH v1] seccomp: simplify secure_computing()
+Message-ID: <20191011094527.ftevtkeitjqafhdd@wittgenstein>
+References: <20190920131907.6886-1-christian.brauner@ubuntu.com>
+ <20190924064420.6353-1-christian.brauner@ubuntu.com>
+ <201910101450.0B13B7F@keescook>
 MIME-Version: 1.0
-In-Reply-To: <20191004145544.5066-1-krzk@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <0ba5549e-6f6f-571c-47b9-018d5200c88a@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <201910101450.0B13B7F@keescook>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Benjamin Block <bblock@linux.ibm.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-um@lists.infradead.org, luto@kernel.org, oleg@redhat.com, tglx@linutronix.de, wad@chromium.org, x86@kernel.org, Borislav Petkov <bp@alien8.de>
 
-adding s390 list and zfcp maintainers
-
-On 10/4/19 4:55 PM, Krzysztof Kozlowski wrote:
-> Adjust indentation from spaces to tab (+optional two spaces) as in
-> coding style with command like:
->      $ sed -e 's/^        /\t/' -i */Kconfig
+On Thu, Oct 10, 2019 at 02:53:24PM -0700, Kees Cook wrote:
+> On Tue, Sep 24, 2019 at 08:44:20AM +0200, Christian Brauner wrote:
+> > Afaict, the struct seccomp_data argument to secure_computing() is unused
+> > by all current callers. So let's remove it.
+> > The argument was added in [1]. It was added because having the arch
+> > supply the syscall arguments used to be faster than having it done by
+> > secure_computing() (cf. Andy's comment in [2]). This is not true anymore
+> > though.
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> ---
-
->   drivers/scsi/Kconfig                          | 22 ++---
-
->   92 files changed, 631 insertions(+), 631 deletions(-)
+> Yes; thanks for cleaning this up!
 > 
-
-> diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-> index 1b92f3c19ff3..23678311b51c 100644
-> --- a/drivers/scsi/Kconfig
-> +++ b/drivers/scsi/Kconfig
-> @@ -1166,8 +1166,8 @@ config SCSI_LPFC
->   	depends on NVME_FC || NVME_FC=n
->   	select CRC_T10DIF
->   	---help---
-> -          This lpfc driver supports the Emulex LightPulse
-> -          Family of Fibre Channel PCI host adapters.
-> +	  This lpfc driver supports the Emulex LightPulse
-> +	  Family of Fibre Channel PCI host adapters.
+> > diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+> > index ad71132374f0..ed80bdfbf5fe 100644
+> > --- a/arch/s390/kernel/ptrace.c
+> > +++ b/arch/s390/kernel/ptrace.c
+> > @@ -439,7 +439,7 @@ static int poke_user(struct task_struct *child, addr_t addr, addr_t data)
+> >  long arch_ptrace(struct task_struct *child, long request,
+> >  		 unsigned long addr, unsigned long data)
+> >  {
+> > -	ptrace_area parea; 
+> > +	ptrace_area parea;
+> >  	int copied, ret;
+> >  
+> >  	switch (request) {
 > 
->   config SCSI_LPFC_DEBUG_FS
->   	bool "Emulex LightPulse Fibre Channel debugfs Support"
-> @@ -1480,14 +1480,14 @@ config ZFCP
->   	depends on S390 && QDIO && SCSI
->   	depends on SCSI_FC_ATTRS
->   	help
-> -          If you want to access SCSI devices attached to your IBM eServer
-> -          zSeries by means of Fibre Channel interfaces say Y.
-> -          For details please refer to the documentation provided by IBM at
-> -          <http://oss.software.ibm.com/developerworks/opensource/linux390>
-> +	  If you want to access SCSI devices attached to your IBM eServer
-> +	  zSeries by means of Fibre Channel interfaces say Y.
-> +	  For details please refer to the documentation provided by IBM at
-> +	  <http://oss.software.ibm.com/developerworks/opensource/linux390>
+> If this were whitespace cleanup in kernel/seccomp.c, I'd take it without
+> flinching. As this is only tangentially related and in an arch
+> directory, I've dropped this hunk out of a cowardly fear of causing
+> (a likely very unlikely) merge conflict.
 > 
-> -          This driver is also available as a module. This module will be
-> -          called zfcp. If you want to compile it as a module, say M here
-> -          and read <file:Documentation/kbuild/modules.rst>.
-> +	  This driver is also available as a module. This module will be
-> +	  called zfcp. If you want to compile it as a module, say M here
-> +	  and read <file:Documentation/kbuild/modules.rst>.
-> 
->   config SCSI_PMCRAID
->   	tristate "PMC SIERRA Linux MaxRAID adapter support"
-> @@ -1518,8 +1518,8 @@ config SCSI_VIRTIO
->   	tristate "virtio-scsi support"
->   	depends on VIRTIO
->   	help
-> -          This is the virtual HBA driver for virtio.  If the kernel will
-> -          be used in a virtual machine, say Y or M.
-> +	  This is the virtual HBA driver for virtio.  If the kernel will
-> +	  be used in a virtual machine, say Y or M.
-> 
->   source "drivers/scsi/csiostor/Kconfig"
-> 
+> I'd rather we globally clean up trailing whitespace at the end of -rc1
+> and ask Linus to run some crazy script. :)
 
+Oh that was on accident probably. It usally happens because I have vim
+do whitespace fixups automatically and then they end up slipping in...
+Sorry. Thanks for removing it! :)
 
-
--- 
-Mit freundlichen Gruessen / Kind regards
-Steffen Maier
-
-Linux on IBM Z Development
-
-https://www.ibm.com/privacy/us/en/
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Matthias Hartmann
-Geschaeftsfuehrung: Dirk Wittkopp
-Sitz der Gesellschaft: Boeblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+Christian
