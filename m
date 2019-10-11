@@ -1,443 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2a.mailbox.org ([80.241.60.219]:22577 "EHLO mx2a.mailbox.org"
+Received: from mx1.redhat.com ([209.132.183.28]:55360 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728912AbfJJFmU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Oct 2019 01:42:20 -0400
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v14 0/6] open: introduce openat2(2) syscall
-Date: Thu, 10 Oct 2019 16:41:34 +1100
-Message-Id: <20191010054140.8483-1-cyphar@cyphar.com>
+        id S1726310AbfJKISh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Oct 2019 04:18:37 -0400
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V3 3/7] modpost: add support for mdev class id
+Date: Fri, 11 Oct 2019 16:15:53 +0800
+Message-Id: <20191011081557.28302-4-jasowang@redhat.com>
+In-Reply-To: <20191011081557.28302-1-jasowang@redhat.com>
+References: <20191011081557.28302-1-jasowang@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
-
-This patchset is being developed here:
-  <https://github.com/cyphar/linux/tree/openat2/master>
-
-Patch changelog:
- v14:
-  * The magic-link changes (and O_EMPTYPATH) have been dropped from this series
-    -- they will be developed and sent separately. The main reason is that we
-    need to restrict things other than open(2) (examples include truncate(2) as
-    well as mount(MS_BIND)). This will require a fair amount of extra work, and
-    there's no point stalling openat2(2) for that work to be completed.
-  * Minor rework of 'struct open_how':
-    * To avoid future headaches, make it a non-const argument.
-    * Expand ->flags and ->resolve to 64-bit fields to allow for more flag
-      extensions without needing to add separate fields too early. This
-      requires adding a bit of explicit padding (32 bits) to avoid userspace
-      putting garbage in the alignment padding -- this can be repurposed for
-      future extensions.
-    * upgrade_mask is dropped (and will be a separate field when we add it
-      again in the future) to avoid userspace foot-guns.
-    * Expand -EINVAL checks in build_open_flags(). Rather than silently
-      ignoring silly flag combinations (such as O_TMPFILE|O_PATH or
-      O_PATH|<most flags>), give an -EINVAL. All of the silent ignore semantics
-      were added to open(2) because we couldn't return -EINVAL -- but we can
-      now!
-      * open(2) and openat(2) clean up their flags before passing them to
-        build_open_flags(), so all mixed flags will continue to work. There is
-        one exception which is (O_PATH|O_TMPFILE) -- this is no longer
-        permitted (as far as I can tell this appears to be a bug, and there are
-        no userspace users that I've hit after running this code for a few
-        days). If it turns out that userspace does depend on (O_PATH|O_TMPFILE)
-        working, we can only disallow it for openat2(2).
-  * Don't zero out nd->root in complete_walk() for RCU-walk if we're doing a
-    scoped-lookup (this prevents a needless REF-walk retry).
-  * Attempt all tests on kernels that don't have openat2(2), rather than just
-    skipping everything.
- v13: <https://lore.kernel.org/lkml/20190930183316.10190-1-cyphar@cyphar.com/>
- v12: <https://lore.kernel.org/lkml/20190904201933.10736-1-cyphar@cyphar.com/>
- v11: <https://lore.kernel.org/lkml/20190820033406.29796-1-cyphar@cyphar.com/>
-      <https://lore.kernel.org/lkml/20190728010207.9781-1-cyphar@cyphar.com/>
- v10: <https://lore.kernel.org/lkml/20190719164225.27083-1-cyphar@cyphar.com/>
- v09: <https://lore.kernel.org/lkml/20190706145737.5299-1-cyphar@cyphar.com/>
- v08: <https://lore.kernel.org/lkml/20190520133305.11925-1-cyphar@cyphar.com/>
- v07: <https://lore.kernel.org/lkml/20190507164317.13562-1-cyphar@cyphar.com/>
- v06: <https://lore.kernel.org/lkml/20190506165439.9155-1-cyphar@cyphar.com/>
- v05: <https://lore.kernel.org/lkml/20190320143717.2523-1-cyphar@cyphar.com/>
- v04: <https://lore.kernel.org/lkml/20181112142654.341-1-cyphar@cyphar.com/>
- v03: <https://lore.kernel.org/lkml/20181009070230.12884-1-cyphar@cyphar.com/>
- v02: <https://lore.kernel.org/lkml/20181009065300.11053-1-cyphar@cyphar.com/>
- v01: <https://lore.kernel.org/lkml/20180929103453.12025-1-cyphar@cyphar.com/>
-
-For a very long time, extending openat(2) with new features has been
-incredibly frustrating. This stems from the fact that openat(2) is
-possibly the most famous counter-example to the mantra "don't silently
-accept garbage from userspace" -- it doesn't check whether unknown flags
-are present[1].
-
-This means that (generally) the addition of new flags to openat(2) has
-been fraught with backwards-compatibility issues (O_TMPFILE has to be
-defined as __O_TMPFILE|O_DIRECTORY|[O_RDWR or O_WRONLY] to ensure old
-kernels gave errors, since it's insecure to silently ignore the
-flag[2]). All new security-related flags therefore have a tough road to
-being added to openat(2).
-
-Furthermore, the need for some sort of control over VFS's path resolution (to
-avoid malicious paths resulting in inadvertent breakouts) has been a very
-long-standing desire of many userspace applications. This patchset is a revival
-of Al Viro's old AT_NO_JUMPS[3] patchset (which was a variant of David
-Drysdale's O_BENEATH patchset[4] which was a spin-off of the Capsicum
-project[5]) with a few additions and changes made based on the previous
-discussion within [6] as well as others I felt were useful.
-
-In line with the conclusions of the original discussion of AT_NO_JUMPS, the
-flag has been split up into separate flags. However, instead of being an
-openat(2) flag it is provided through a new syscall openat2(2) which provides
-several other improvements to the openat(2) interface (see the patch
-description for more details). The following new LOOKUP_* flags are added:
-
-  * LOOKUP_NO_XDEV blocks all mountpoint crossings (upwards, downwards,
-    or through absolute links). Absolute pathnames alone in openat(2) do not
-    trigger this. Magic-link traversal which implies a vfsmount jump is also
-    blocked (though magic-link jumps on the same vfsmount are permitted).
-
-  * LOOKUP_NO_MAGICLINKS blocks resolution through /proc/$pid/fd-style
-    links. This is done by blocking the usage of nd_jump_link() during
-    resolution in a filesystem. The term "magic-links" is used to match
-    with the only reference to these links in Documentation/, but I'm
-    happy to change the name.
-
-    It should be noted that this is different to the scope of
-    ~LOOKUP_FOLLOW in that it applies to all path components. However,
-    you can do openat2(NO_FOLLOW|NO_MAGICLINKS) on a magic-link and it
-    will *not* fail (assuming that no parent component was a
-    magic-link), and you will have an fd for the magic-link.
-
-    In order to correctly detect magic-links, the introduction of a new
-    LOOKUP_MAGICLINK_JUMPED state flag was required.
-
-  * LOOKUP_BENEATH disallows escapes to outside the starting dirfd's
-    tree, using techniques such as ".." or absolute links. Absolute
-    paths in openat(2) are also disallowed. Conceptually this flag is to
-    ensure you "stay below" a certain point in the filesystem tree --
-    but this requires some additional to protect against various races
-    that would allow escape using "..".
-
-    Currently LOOKUP_BENEATH implies LOOKUP_NO_MAGICLINKS, because it
-    can trivially beam you around the filesystem (breaking the
-    protection). In future, there might be similar safety checks done as
-    in LOOKUP_IN_ROOT, but that requires more discussion.
-
-In addition, two new flags are added that expand on the above ideas:
-
-  * LOOKUP_NO_SYMLINKS does what it says on the tin. No symlink
-    resolution is allowed at all, including magic-links. Just as with
-    LOOKUP_NO_MAGICLINKS this can still be used with NOFOLLOW to open an
-    fd for the symlink as long as no parent path had a symlink
-    component.
-
-  * LOOKUP_IN_ROOT is an extension of LOOKUP_BENEATH that, rather than
-    blocking attempts to move past the root, forces all such movements
-    to be scoped to the starting point. This provides chroot(2)-like
-    protection but without the cost of a chroot(2) for each filesystem
-    operation, as well as being safe against race attacks that chroot(2)
-    is not.
-
-    If a race is detected (as with LOOKUP_BENEATH) then an error is
-    generated, and similar to LOOKUP_BENEATH it is not permitted to cross
-    magic-links with LOOKUP_IN_ROOT.
-
-    The primary need for this is from container runtimes, which
-    currently need to do symlink scoping in userspace[7] when opening
-    paths in a potentially malicious container. There is a long list of
-    CVEs that could have bene mitigated by having RESOLVE_THIS_ROOT
-    (such as CVE-2017-1002101, CVE-2017-1002102, CVE-2018-15664, and
-    CVE-2019-5736, just to name a few).
-
-In order to make all of the above more usable, I'm working on
-libpathrs[8] which is a C-friendly library for safe path resolution. It
-features a userspace-emulated backend if the kernel doesn't support
-openat2(2). Hopefully we can get userspace to switch to using it, and
-thus get openat2(2) support for free once it's ready.
-
-[1]: https://lwn.net/Articles/588444/
-[2]: https://lore.kernel.org/lkml/CA+55aFyyxJL1LyXZeBsf2ypriraj5ut1XkNDsunRBqgVjZU_6Q@mail.gmail.com
-[3]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk
-[4]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com
-[5]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com
-[6]: https://lwn.net/Articles/723057/
-[7]: https://github.com/cyphar/filepath-securejoin
-[8]: https://github.com/openSUSE/libpathrs
-
-The current draft of the openat2(2) man-page is included below.
-
---8<---------------------------------------------------------------------------
-OPENAT2(2)                          Linux Programmer's Manual                          OPENAT2(2)
-
-NAME
-       openat2 - open and possibly create a file (extended)
-
-SYNOPSIS
-       #include <sys/types.h>
-       #include <sys/stat.h>
-       #include <fcntl.h>
-
-       int openat2(int dirfd, const char *pathname, struct open_how *how, size_t size);
-
-       Note: There is no glibc wrapper for this system call; see NOTES.
-
-DESCRIPTION
-       The  openat2()  system  call  opens the file specified by pathname.  If the specified file
-       does not exist, it may optionally (if O_CREAT is specified in  how.flags)  be  created  by
-       openat2().
-
-       As  with  openat(2),  if  pathname  is  relative,  then  it is interpreted relative to the
-       directory referred to by the file descriptor dirfd (or the current  working  directory  of
-       the  calling  process,  if dirfd is the special value AT_FDCWD.)  If pathname is absolute,
-       then dirfd is ignored (unless how.resolve contains RESOLVE_IN_ROOT, in which case pathname
-       is resolved relative to dirfd.)
-
-       The  openat2()  system  call  is  an extension of openat(2) and provides a superset of its
-       functionality.  Rather than taking a single flag argument, an extensible  structure  (how)
-       is  passed  instead  to  allow  for  future extensions.  size must be set to sizeof(struct
-       open_how), to facilitate future extensions (see the "Extensibility" section of  the  NOTES
-       for more detail on how extensions are handled.)
-
-   The open_how structure
-       The following structure indicates how pathname should be opened, and acts as a superset of
-       the flag and mode arguments to openat(2).
-
-           struct open_how {
-               __aligned_u64 flags;         /* O_* flags. */
-               __u16         mode;          /* Mode for O_{CREAT,TMPFILE}. */
-               __u16         __padding[3];  /* Must be zeroed. */
-               __aligned_u64 resolve;       /* RESOLVE_* flags. */
-           };
-
-       Any future extensions to openat2() will be implemented as new fields appended to the above
-       structure (or through reuse of pre-existing padding space), with the zero value of the new
-       fields acting as though the extension were not present.
-
-       The meaning of each field is as follows:
-
-              flags
-                     The file creation and status flags to use for this operation.   All  of  the
-                     O_* flags defined for openat(2) are valid openat2() flag values.
-
-                     Unlike openat(2), it is an error to provide openat2() unknown or conflicting
-                     flags in flags.
-
-              mode
-                     File mode for the new file, with identical semantics to the mode argument to
-                     openat(2).   However,  unlike openat(2), it is an error to provide openat2()
-                     with a mode which contains bits other than 0777.
-
-                     It is an error to provide openat2()  a  non-zero  mode  if  flags  does  not
-                     contain O_CREAT or O_TMPFILE.
-
-              resolve
-                     Change   how   the   components   of   pathname   will   be   resolved  (see
-                     path_resolution(7) for background information.)  The primary  use  case  for
-                     these flags is to allow trusted programs to restrict how untrusted paths (or
-                     paths inside untrusted directories) are resolved.  The full list of  resolve
-                     flags is given below.
-
-                     RESOLVE_NO_XDEV
-                            Disallow  traversal of mount points during path resolution (including
-                            all bind mounts).
-
-                            Users of this flag  are  encouraged  to  make  its  use  configurable
-                            (unless  it  is used for a specific security purpose), as bind mounts
-                            are very widely used by end-users.  Setting this flag indiscrimnately
-                            for   all  uses  of  openat2()  may  result  in  spurious  errors  on
-                            previously-functional systems.
-
-                     RESOLVE_NO_SYMLINKS
-                            Disallow resolution of symbolic links during path  resolution.   This
-                            option implies RESOLVE_NO_MAGICLINKS.
-
-                            If the trailing component is a symbolic link, and flags contains both
-                            O_PATH and O_NOFOLLOW, then an O_PATH file descriptor referencing the
-                            symbolic link will be returned.
-
-                            Users  of  this  flag  are  encouraged  to  make its use configurable
-                            (unless it is used for a  specific  security  purpose),  as  symbolic
-                            links   are  very  widely  used  by  end-users.   Setting  this  flag
-                            indiscrimnately for all uses of  openat2()  may  result  in  spurious
-                            errors on previously-functional systems.
-
-                     RESOLVE_NO_MAGICLINKS
-                            Disallow all magic link resolution during path resolution.
-
-                            If  the  trailing  component is a magic link, and flags contains both
-                            O_PATH and O_NOFOLLOW, then an O_PATH file descriptor referencing the
-                            magic link will be returned.
-
-                            Magic-links  are  symbolic  link-like  objects  that are most notably
-                            found   in   proc(5)   (examples    include    /proc/[pid]/exe    and
-                            /proc/[pid]/fd/*.)   Due  to  the  potential  danger  of  unknowingly
-                            opening these magic links, it may be preferable for users to  disable
-                            their resolution entirely (see symboliclink(7) for more details.)
-
-                     RESOLVE_BENEATH
-                            Do  not permit the path resolution to succeed if any component of the
-                            resolution is not a descendant of the directory indicated  by  dirfd.
-                            This  results  in  absolute  symbolic  links  (and absolute values of
-                            pathname) to be rejected.
-
-                            Currently, this flag also disables magic link  resolution.   However,
-                            this  may change in the future.  The caller should explicitly specify
-                            RESOLVE_NO_MAGICLINKS to ensure that magic links are not resolved.
-
-                     RESOLVE_IN_ROOT
-                            Treat dirfd as the root directory while resolving pathname (as though
-                            the  user  called  chroot(2)  with  dirfd as the argument.)  Absolute
-                            symbolic links and ".." path components will be scoped to dirfd.   If
-                            pathname is an absolute path, it is also treated relative to dirfd.
-
-                            However,   unlike   chroot(2)  (which  changes  the  filesystem  root
-                            permanently for a  process),  RESOLVE_IN_ROOT  allows  a  program  to
-                            efficiently restrict path resolution for only certain operations.  It
-                            also has several hardening features (such detecting  escape  attempts
-                            during ..  resolution) which chroot(2) does not.
-
-                            Currently,  this  flag also disables magic link resolution.  However,
-                            this may change in the future.  The caller should explicitly  specify
-                            RESOLVE_NO_MAGICLINKS to ensure that magic links are not resolved.
-
-                     It is an error to provide openat2() unknown flags in resolve.
-
-RETURN VALUE
-       On success, a new file descriptor is returned.  On error, -1 is returned, and errno is set
-       appropriately.
-
-ERRORS
-       The set of errors returned by openat2() includes all of the errors returned by  openat(2),
-       as well as the following additional errors:
-
-       EINVAL An unknown flag or invalid value was specified in how.
-
-       EINVAL mode is non-zero, but flags does not contain O_CREAT or O_TMPFILE.
-
-       EINVAL size was smaller than any known version of struct open_how.
-
-       E2BIG  An  extension  was specified in how, which the current kernel does not support (see
-              the "Extensibility" section of the NOTES for more  detail  on  how  extensions  are
-              handled.)
-
-       EAGAIN resolve  contains  either  RESOLVE_IN_ROOT or RESOLVE_BENEATH, and the kernel could
-              not ensure that a ".."  component  didn't  escape  (due  to  a  race  condition  or
-              potential attack.)  Callers may choose to retry the openat2() call.
-
-       EXDEV  resolve  contains either RESOLVE_IN_ROOT or RESOLVE_BENEATH, and an escape from the
-              root during path resolution was detected.
-
-       EXDEV  resolve contains RESOLVE_NO_XDEV, and a path component attempted to cross  a  mount
-              point.
-
-       ELOOP  resolve contains RESOLVE_NO_SYMLINKS, and one of the path components was a symbolic
-              link (or magic link).
-
-       ELOOP  resolve contains RESOLVE_NO_MAGICLINKS, and one of the path components was a  magic
-              link.
-
-VERSIONS
-       openat2() was added to Linux in kernel 5.FOO.
-
-CONFORMING TO
-       This system call is Linux-specific.
-
-       The semantics of RESOLVE_BENEATH were modelled after FreeBSD's O_BENEATH.
-
-NOTES
-       Glibc does not provide a wrapper for this system call; call it using systemcall(2).
-
-   Extensibility
-       In order to allow for struct open_how to be extended in future kernel revisions, openat2()
-       requires userspace to specify the size of struct open_how structure they are passing.   By
-       providing  this  information,  it  is possible for openat2() to provide both forwards- and
-       backwards-compatibility — with size acting as an  implicit  version  number  (because  new
-       extension  fields  will  always  be  appended,  the  size  will  always  increase.)   This
-       extensibility design is very similar  to  other  system  calls  such  as  perf_setattr(2),
-       perf_event_open(2), and clone(3).
-
-       If  we let usize be the size of the structure according to userspace and ksize be the size
-       of the structure which the kernel supports, then there are only three cases to consider:
-
-              *  If ksize equals usize, then there is no version mismatch and  how  can  be  used
-                 verbatim.
-
-              *  If  ksize  is  larger  than  usize,  then  there  are some extensions the kernel
-                 supports which the userspace program is unaware of.  Because all extensions must
-                 have their zero values be a no-op, the kernel treats all of the extension fields
-                 not  set  by  userspace  to  have  zero  values.    This   provides   backwards-
-                 compatibility.
-
-              *  If  ksize  is  smaller  than  usize,  then  there  are some extensions which the
-                 userspace program is aware of but the kernel  does  not  support.   Because  all
-                 extensions  must have their zero values be a no-op, the kernel can safely ignore
-                 the unsupported extension fields if  they  are  all-zero.   If  any  unsupported
-                 extension  fields  are  non-zero, then -1 is returned and errno is set to E2BIG.
-                 This provides forwards-compatibility.
-
-       Therefore, most userspace  programs  will  not  need  to  have  any  special  handling  of
-       extensions.   However,  if  a  userspace  program  wishes to determine what extensions the
-       running kernel supports, they may conduct a binary search on size  (to  find  the  largest
-       value which doesn't produce an error of E2BIG.)
-
-SEE ALSO
-       openat(2), path_resolution(7), symboliclink(7)
-
-Linux                                       2019-10-10                                 OPENAT2(2)
---8<---------------------------------------------------------------------------
-
-Aleksa Sarai (6):
-  namei: O_BENEATH-style resolution restriction flags
-  namei: LOOKUP_IN_ROOT: chroot-like path resolution
-  namei: permit ".." resolution with LOOKUP_{IN_ROOT,BENEATH}
-  open: introduce openat2(2) syscall
-  selftests: add openat2(2) selftests
-  Documentation: path-lookup: mention LOOKUP_MAGICLINK_JUMPED
-
- CREDITS                                       |   4 +-
- Documentation/filesystems/path-lookup.rst     |  18 +-
- arch/alpha/kernel/syscalls/syscall.tbl        |   1 +
- arch/arm/tools/syscall.tbl                    |   1 +
- arch/arm64/include/asm/unistd.h               |   2 +-
- arch/arm64/include/asm/unistd32.h             |   2 +
- arch/ia64/kernel/syscalls/syscall.tbl         |   1 +
- arch/m68k/kernel/syscalls/syscall.tbl         |   1 +
- arch/microblaze/kernel/syscalls/syscall.tbl   |   1 +
- arch/mips/kernel/syscalls/syscall_n32.tbl     |   1 +
- arch/mips/kernel/syscalls/syscall_n64.tbl     |   1 +
- arch/mips/kernel/syscalls/syscall_o32.tbl     |   1 +
- arch/parisc/kernel/syscalls/syscall.tbl       |   1 +
- arch/powerpc/kernel/syscalls/syscall.tbl      |   1 +
- arch/s390/kernel/syscalls/syscall.tbl         |   1 +
- arch/sh/kernel/syscalls/syscall.tbl           |   1 +
- arch/sparc/kernel/syscalls/syscall.tbl        |   1 +
- arch/x86/entry/syscalls/syscall_32.tbl        |   1 +
- arch/x86/entry/syscalls/syscall_64.tbl        |   1 +
- arch/xtensa/kernel/syscalls/syscall.tbl       |   1 +
- fs/namei.c                                    | 167 +++++-
- fs/open.c                                     | 154 ++++--
- include/linux/fcntl.h                         |  12 +-
- include/linux/namei.h                         |  12 +
- include/linux/syscalls.h                      |   3 +
- include/uapi/asm-generic/unistd.h             |   5 +-
- include/uapi/linux/fcntl.h                    |  41 ++
- tools/testing/selftests/Makefile              |   1 +
- tools/testing/selftests/openat2/.gitignore    |   1 +
- tools/testing/selftests/openat2/Makefile      |   8 +
- tools/testing/selftests/openat2/helpers.c     | 109 ++++
- tools/testing/selftests/openat2/helpers.h     | 107 ++++
- .../testing/selftests/openat2/openat2_test.c  | 297 ++++++++++
- .../selftests/openat2/rename_attack_test.c    | 160 ++++++
- .../testing/selftests/openat2/resolve_test.c  | 523 ++++++++++++++++++
- 35 files changed, 1571 insertions(+), 71 deletions(-)
- create mode 100644 tools/testing/selftests/openat2/.gitignore
- create mode 100644 tools/testing/selftests/openat2/Makefile
- create mode 100644 tools/testing/selftests/openat2/helpers.c
- create mode 100644 tools/testing/selftests/openat2/helpers.h
- create mode 100644 tools/testing/selftests/openat2/openat2_test.c
- create mode 100644 tools/testing/selftests/openat2/rename_attack_test.c
- create mode 100644 tools/testing/selftests/openat2/resolve_test.c
-
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+
+Add support to parse mdev class id table.
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vfio/mdev/vfio_mdev.c     |  2 ++
+ scripts/mod/devicetable-offsets.c |  3 +++
+ scripts/mod/file2alias.c          | 10 ++++++++++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index fd2a4d9a3f26..891cf83a2d9a 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -125,6 +125,8 @@ static struct mdev_class_id id_table[] = {
+ 	{ 0 },
+ };
+ 
++MODULE_DEVICE_TABLE(mdev, id_table);
++
+ static struct mdev_driver vfio_mdev_driver = {
+ 	.name	= "vfio_mdev",
+ 	.probe	= vfio_mdev_probe,
+diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
+index 054405b90ba4..6cbb1062488a 100644
+--- a/scripts/mod/devicetable-offsets.c
++++ b/scripts/mod/devicetable-offsets.c
+@@ -231,5 +231,8 @@ int main(void)
+ 	DEVID(wmi_device_id);
+ 	DEVID_FIELD(wmi_device_id, guid_string);
+ 
++	DEVID(mdev_class_id);
++	DEVID_FIELD(mdev_class_id, id);
++
+ 	return 0;
+ }
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index c91eba751804..d365dfe7c718 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -1335,6 +1335,15 @@ static int do_wmi_entry(const char *filename, void *symval, char *alias)
+ 	return 1;
+ }
+ 
++/* looks like: "mdev:cN" */
++static int do_mdev_entry(const char *filename, void *symval, char *alias)
++{
++	DEF_FIELD(symval, mdev_class_id, id);
++
++	sprintf(alias, "mdev:c%02X", id);
++	return 1;
++}
++
+ /* Does namelen bytes of name exactly match the symbol? */
+ static bool sym_is(const char *name, unsigned namelen, const char *symbol)
+ {
+@@ -1407,6 +1416,7 @@ static const struct devtable devtable[] = {
+ 	{"typec", SIZE_typec_device_id, do_typec_entry},
+ 	{"tee", SIZE_tee_client_device_id, do_tee_entry},
+ 	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
++	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
+ };
+ 
+ /* Create MODULE_ALIAS() statements.
 -- 
-2.23.0
+2.19.1
