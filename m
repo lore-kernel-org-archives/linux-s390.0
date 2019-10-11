@@ -1,121 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:55188 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440904AbfJQRqq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:46 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/21] asm-generic: don't provide ioremap for CONFIG_MMU
-Date: Thu, 17 Oct 2019 19:45:44 +0200
-Message-Id: <20191017174554.29840-12-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41961 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727645AbfJKAGg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:06:36 -0400
+Received: by mail-pg1-f195.google.com with SMTP id t3so4686112pga.8
+        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:06:36 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2 15/29] x86: Actually use _etext for end of text segment
+Date: Thu, 10 Oct 2019 17:05:55 -0700
+Message-Id: <20191011000609.29728-16-keescook@chromium.org>
+In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
+References: <20191011000609.29728-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-All MMU-enabled ports have a non-trivial ioremap and should thus provide
-the prototype for their implementation instead of providing a generic
-one unless a different symbol is not defined.  Note that this only
-affects sparc32 nds32 as all others do provide their own version.
+Various calculations are using the end of the exception table (which
+does not need to be executable) as the end of the text segment. Instead,
+in preparation for moving the exception table into RO_DATA, move _etext
+after the exception table and update the calculations.
 
-Also update the kerneldoc comments in asm-generic/io.h to explain the
-situation around the default ioremap* implementations correctly.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/nds32/include/asm/io.h    |  2 ++
- arch/sparc/include/asm/io_32.h |  1 +
- include/asm-generic/io.h       | 29 ++++++++---------------------
- 3 files changed, 11 insertions(+), 21 deletions(-)
+ arch/x86/include/asm/sections.h | 1 -
+ arch/x86/kernel/vmlinux.lds.S   | 7 +++----
+ arch/x86/mm/init_64.c           | 6 +++---
+ arch/x86/mm/pti.c               | 2 +-
+ 4 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-index 16f262322b8f..fb0e8a24c7af 100644
---- a/arch/nds32/include/asm/io.h
-+++ b/arch/nds32/include/asm/io.h
-@@ -6,6 +6,7 @@
+diff --git a/arch/x86/include/asm/sections.h b/arch/x86/include/asm/sections.h
+index 71b32f2570ab..036c360910c5 100644
+--- a/arch/x86/include/asm/sections.h
++++ b/arch/x86/include/asm/sections.h
+@@ -6,7 +6,6 @@
+ #include <asm/extable.h>
  
- #include <linux/types.h>
+ extern char __brk_base[], __brk_limit[];
+-extern struct exception_table_entry __stop___ex_table[];
+ extern char __end_rodata_aligned[];
  
-+void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
- extern void iounmap(volatile void __iomem *addr);
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-@@ -80,4 +81,5 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
- #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
- #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
- #include <asm-generic/io.h>
-+
- #endif /* __ASM_NDS32_IO_H */
-diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
-index df2dc1784673..9a52d9506f80 100644
---- a/arch/sparc/include/asm/io_32.h
-+++ b/arch/sparc/include/asm/io_32.h
-@@ -127,6 +127,7 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
-  * Bus number may be embedded in the higher bits of the physical address.
-  * This is why we have no bus number argument to ioremap().
-  */
-+void __iomem *ioremap(phys_addr_t offset, size_t size);
- void iounmap(volatile void __iomem *addr);
- /* Create a virtual mapping cookie for an IO port range */
- void __iomem *ioport_map(unsigned long port, unsigned int nr);
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index a98ed6325727..6a5edc23afe2 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -922,28 +922,16 @@ static inline void *phys_to_virt(unsigned long address)
- /**
-  * DOC: ioremap() and ioremap_*() variants
-  *
-- * If you have an IOMMU your architecture is expected to have both ioremap()
-- * and iounmap() implemented otherwise the asm-generic helpers will provide a
-- * direct mapping.
-+ * Architectures with an MMU are expected to provide ioremap() and iounmap()
-+ * themselves.  For NOMMU architectures we provide a default nop-op
-+ * implementation that expect that the physical address used for MMIO are
-+ * already marked as uncached, and can be used as kernel virtual addresses.
-  *
-- * There are ioremap_*() call variants, if you have no IOMMU we naturally will
-- * default to direct mapping for all of them, you can override these defaults.
-- * If you have an IOMMU you are highly encouraged to provide your own
-- * ioremap variant implementation as there currently is no safe architecture
-- * agnostic default. To avoid possible improper behaviour default asm-generic
-- * ioremap_*() variants all return NULL when an IOMMU is available. If you've
-- * defined your own ioremap_*() variant you must then declare your own
-- * ioremap_*() variant as defined to itself to avoid the default NULL return.
-+ * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
-+ * for specific drivers if the architecture choses to implement them.  If they
-+ * are not implemented we fall back to plain ioremap.
-  */
- #ifndef CONFIG_MMU
--
--/*
-- * Change "struct page" to physical address.
-- *
-- * This implementation is for the no-MMU case only... if you have an MMU
-- * you'll need to provide your own definitions.
-- */
--
- #ifndef ioremap
- #define ioremap ioremap
- static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
-@@ -954,14 +942,13 @@ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
- 
- #ifndef iounmap
- #define iounmap iounmap
--
- static inline void iounmap(void __iomem *addr)
- {
- }
+ #if defined(CONFIG_X86_64)
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 41362e90142d..a1a758e25b2b 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -143,15 +143,14 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
  #endif
- #endif /* CONFIG_MMU */
+-
+-		/* End of text section */
+-		_etext = .;
+ 	} :text = 0x9090
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+-	/* .text should occupy whole number of pages */
++	/* End of text section, which should occupy whole number of pages */
++	_etext = .;
+ 	. = ALIGN(PAGE_SIZE);
 +
- #ifndef ioremap_nocache
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
- #define ioremap_nocache ioremap_nocache
- static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
+ 	X86_ALIGN_RODATA_BEGIN
+ 	RO_DATA(PAGE_SIZE)
+ 	X86_ALIGN_RODATA_END
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index a6b5c653727b..26299e9ce6da 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1263,7 +1263,7 @@ int kernel_set_to_readonly;
+ void set_kernel_text_rw(void)
  {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
+ 
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1282,7 +1282,7 @@ void set_kernel_text_rw(void)
+ void set_kernel_text_ro(void)
+ {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
+ 
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1301,7 +1301,7 @@ void mark_rodata_ro(void)
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
+ 	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
+-	unsigned long text_end = PFN_ALIGN(&__stop___ex_table);
++	unsigned long text_end = PFN_ALIGN(&_etext);
+ 	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
+ 	unsigned long all_end;
+ 
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index 7f2140414440..44a9f068eee0 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -574,7 +574,7 @@ static void pti_clone_kernel_text(void)
+ 	 */
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long end_clone  = (unsigned long)__end_rodata_aligned;
+-	unsigned long end_global = PFN_ALIGN((unsigned long)__stop___ex_table);
++	unsigned long end_global = PFN_ALIGN((unsigned long)_etext);
+ 
+ 	if (!pti_kernel_image_global_ok())
+ 		return;
 -- 
-2.20.1
+2.17.1
