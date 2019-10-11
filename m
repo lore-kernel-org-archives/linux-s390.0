@@ -1,63 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2812 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730290AbfJVKxM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Oct 2019 06:53:12 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9MAlaKL085491
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 06:53:11 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsyg0a0f2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 22 Oct 2019 06:53:11 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Tue, 22 Oct 2019 11:53:09 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v1 0/5] s390x: SCLP Unit test
-Date: Tue, 22 Oct 2019 12:52:59 +0200
-Message-Id: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
+Received: from ozlabs.org ([203.11.71.1]:56467 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726116AbfJKGHZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Oct 2019 02:07:25 -0400
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v2 03/29] powerpc: Rename PT_LOAD identifier "kernel" to "text"
+In-Reply-To: <20191011000609.29728-4-keescook@chromium.org>
+References: <20191011000609.29728-1-keescook@chromium.org> <20191011000609.29728-4-keescook@chromium.org>
+Date: Fri, 11 Oct 2019 17:07:21 +1100
+Message-ID: <875zkvx1ba.fsf@mpe.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@alien8.de>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-This patchset contains some minor cleanup, some preparatory work and
-then the SCLP unit test itself.
+Kees Cook <keescook@chromium.org> writes:
+> In preparation for moving NOTES into RO_DATA, rename the linker script
+> internal identifier for the PT_LOAD Program Header from "kernel" to
+> "text" to match other architectures.
+>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  arch/powerpc/kernel/vmlinux.lds.S | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-The unit test checks the following:
-    
-    * Correctly ignoring instruction bits that should be ignored
-    * Privileged instruction check
-    * Check for addressing exceptions
-    * Specification exceptions:
-      - SCCB size less than 8
-      - SCCB unaligned
-      - SCCB overlaps prefix or lowcore
-      - SCCB address higher than 2GB
-    * Return codes for
-      - Invalid command
-      - SCCB too short (but at least 8)
-      - SCCB page boundary violation
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 
-Claudio Imbrenda (5):
-  s390x: remove redundant defines
-  s390x: improve error reporting for interrupts
-  s390x: sclp: expose ram_size and max_ram_size
-  s390x: sclp: add service call instruction wrapper
-  s390x: SCLP unit test
+cheers
 
- s390x/Makefile           |   1 +
- lib/s390x/asm/arch_def.h |  13 ++
- lib/s390x/sclp.h         |   4 +-
- lib/s390x/interrupt.c    |   4 +-
- lib/s390x/sclp.c         |  16 +-
- s390x/sclp.c             | 373 +++++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   3 +
- 7 files changed, 404 insertions(+), 10 deletions(-)
- create mode 100644 s390x/sclp.c
-
--- 
-2.7.4
+> diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+> index a3c8492b2b19..e184a63aa5b0 100644
+> --- a/arch/powerpc/kernel/vmlinux.lds.S
+> +++ b/arch/powerpc/kernel/vmlinux.lds.S
+> @@ -18,7 +18,7 @@
+>  ENTRY(_stext)
+>  
+>  PHDRS {
+> -	kernel PT_LOAD FLAGS(7); /* RWX */
+> +	text PT_LOAD FLAGS(7); /* RWX */
+>  	note PT_NOTE FLAGS(0);
+>  }
+>  
+> @@ -63,7 +63,7 @@ SECTIONS
+>  #else /* !CONFIG_PPC64 */
+>  		HEAD_TEXT
+>  #endif
+> -	} :kernel
+> +	} :text
+>  
+>  	__head_end = .;
+>  
+> @@ -112,7 +112,7 @@ SECTIONS
+>  		__got2_end = .;
+>  #endif /* CONFIG_PPC32 */
+>  
+> -	} :kernel
+> +	} :text
+>  
+>  	. = ALIGN(ETEXT_ALIGN_SIZE);
+>  	_etext = .;
+> @@ -163,9 +163,9 @@ SECTIONS
+>  #endif
+>  	EXCEPTION_TABLE(0)
+>  
+> -	NOTES :kernel :note
+> +	NOTES :text :note
+>  	/* Restore program header away from PT_NOTE. */
+> -	.dummy : { *(.dummy) } :kernel
+> +	.dummy : { *(.dummy) } :text
+>  
+>  /*
+>   * Init sections discarded at runtime
+> @@ -180,7 +180,7 @@ SECTIONS
+>  #ifdef CONFIG_PPC64
+>  		*(.tramp.ftrace.init);
+>  #endif
+> -	} :kernel
+> +	} :text
+>  
+>  	/* .exit.text is discarded at runtime, not link time,
+>  	 * to deal with references from __bug_table
+> -- 
+> 2.17.1
