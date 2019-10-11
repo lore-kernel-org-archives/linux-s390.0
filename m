@@ -1,65 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53132 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727018AbfJAOla (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 1 Oct 2019 10:41:30 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v5 06/10] mm/memory_hotplug: Poison memmap in remove_pfn_range_from_zone()
-Date: Tue,  1 Oct 2019 16:40:07 +0200
-Message-Id: <20191001144011.3801-7-david@redhat.com>
-In-Reply-To: <20191001144011.3801-1-david@redhat.com>
-References: <20191001144011.3801-1-david@redhat.com>
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:37328 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726461AbfJKHtY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Oct 2019 03:49:24 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191011000609.29728-1-keescook@chromium.org> <20191011000609.29728-14-keescook@chromium.org>
+In-Reply-To: <20191011000609.29728-14-keescook@chromium.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 11 Oct 2019 09:49:12 +0200
+Message-ID: <CAMuHMdXiSboG2xum0ZgjpwBxEaP-owywvPpmUubr1nuqzDPJ4Q@mail.gmail.com>
+Subject: Re: [PATCH v2 13/29] vmlinux.lds.h: Replace RW_DATA_SECTION with RW_DATA
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>
+To: Kees Cook <keescook@chromium.org>
+Cc: Borislav Petkov <bp@alien8.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, alpha <linux-alpha@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, Parisc List <linux-parisc@vger.kernel.org>, linux-xtensa@linux-xtensa.org, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Let's poison the pages similar to when adding new memory in
-sparse_add_section(). Also call remove_pfn_range_from_zone() from
-memunmap_pages(), so we can poison the memmap from there as well.
+On Fri, Oct 11, 2019 at 2:07 AM Kees Cook <keescook@chromium.org> wrote:
+> Rename RW_DATA_SECTION to RW_DATA. (Calling this a "section" is a lie,
+> since it's multiple sections and section flags cannot be applied to
+> the macro.)
+>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-While at it, calculate the pfn in memunmap_pages() only once.
+>  arch/m68k/kernel/vmlinux-nommu.lds   | 2 +-
+>  arch/m68k/kernel/vmlinux-std.lds     | 2 +-
+>  arch/m68k/kernel/vmlinux-sun3.lds    | 2 +-
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/memory_hotplug.c | 3 +++
- mm/memremap.c       | 2 ++
- 2 files changed, 5 insertions(+)
+For m68k:
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index cef909ebd807..640309236a58 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -464,6 +464,9 @@ void __ref remove_pfn_range_from_zone(struct zone *zone,
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 	unsigned long flags;
- 
-+	/* Poison struct pages because they are now uninitialized again. */
-+	page_init_poison(pfn_to_page(start_pfn), sizeof(struct page) * nr_pages);
-+
- 	/*
- 	 * Zone shrinking code cannot properly deal with ZONE_DEVICE. So
- 	 * we will not try to shrink the zones - which is okay as
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 734afeaad811..371939f92b69 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -139,6 +139,8 @@ void memunmap_pages(struct dev_pagemap *pgmap)
- 	nid = page_to_nid(pfn_to_page(start_pfn));
- 
- 	mem_hotplug_begin();
-+	remove_pfn_range_from_zone(page_zone(pfn_to_page(start_pfn)),
-+				   start_pfn, nr_pages);
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
- 		__remove_pages(start_pfn, nr_pages, NULL);
- 	} else {
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.21.0
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
