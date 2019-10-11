@@ -1,102 +1,151 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45774 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbfJFI5S (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 04:57:18 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 04/10] mm/memory_hotplug: Don't access uninitialized memmaps in shrink_zone_span()
-Date: Sun,  6 Oct 2019 10:56:40 +0200
-Message-Id: <20191006085646.5768-5-david@redhat.com>
-In-Reply-To: <20191006085646.5768-1-david@redhat.com>
-References: <20191006085646.5768-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2 09/29] vmlinux.lds.h: Move Program Header restoration into NOTES macro
+Date: Thu, 10 Oct 2019 17:05:49 -0700
+Message-Id: <20191011000609.29728-10-keescook@chromium.org>
+In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
+References: <20191011000609.29728-1-keescook@chromium.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Let's limit shrinking to !ZONE_DEVICE so we can fix the current code. We
-should never try to touch the memmap of offline sections where we could
-have uninitialized memmaps and could trigger BUGs when calling
-page_to_nid() on poisoned pages.
+In preparation for moving NOTES into RO_DATA, make the Program Header
+assignment restoration be part of the NOTES macro itself.
 
-There is no reliable way to distinguish an uninitialized memmap from an
-initialized memmap that belongs to ZONE_DEVICE, as we don't have
-anything like SECTION_IS_ONLINE we can use similar to
-pfn_to_online_section() for !ZONE_DEVICE memory. E.g.,
-set_zone_contiguous() similarly relies on pfn_to_online_section() and
-will therefore never set a ZONE_DEVICE zone consecutive. Stopping to
-shrink the ZONE_DEVICE therefore results in no observable changes,
-besides /proc/zoneinfo indicating different boundaries - something we
-can totally live with.
-
-Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory
-hotplug"), the memmap was initialized with 0 and the node with the
-right value. So the zone might be wrong but not garbage. After that
-commit, both the zone and the node will be garbage when touching
-uninitialized memmaps.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- mm/memory_hotplug.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S   |  5 +----
+ arch/ia64/kernel/vmlinux.lds.S    |  4 +---
+ arch/mips/kernel/vmlinux.lds.S    |  3 +--
+ arch/powerpc/kernel/vmlinux.lds.S |  4 +---
+ arch/s390/kernel/vmlinux.lds.S    |  4 +---
+ arch/x86/kernel/vmlinux.lds.S     |  3 +--
+ include/asm-generic/vmlinux.lds.h | 13 +++++++++++--
+ 7 files changed, 17 insertions(+), 19 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 86b4dc18e831..f96608d24f6a 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -331,7 +331,7 @@ static unsigned long find_smallest_section_pfn(int nid, struct zone *zone,
- 				     unsigned long end_pfn)
- {
- 	for (; start_pfn < end_pfn; start_pfn += PAGES_PER_SUBSECTION) {
--		if (unlikely(!pfn_valid(start_pfn)))
-+		if (unlikely(!pfn_to_online_page(start_pfn)))
- 			continue;
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 363a60ba7c31..cdfdc91ce64c 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -34,10 +34,7 @@ SECTIONS
+ 	swapper_pg_dir = SWAPPER_PGD;
+ 	_etext = .;	/* End of text section */
  
- 		if (unlikely(pfn_to_nid(start_pfn) != nid))
-@@ -356,7 +356,7 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
- 	/* pfn is the end pfn of a memory section. */
- 	pfn = end_pfn - 1;
- 	for (; pfn >= start_pfn; pfn -= PAGES_PER_SUBSECTION) {
--		if (unlikely(!pfn_valid(pfn)))
-+		if (unlikely(!pfn_to_online_page(pfn)))
- 			continue;
+-	NOTES :text :note
+-	.dummy : {
+-		*(.dummy)
+-	} :text
++	NOTES
  
- 		if (unlikely(pfn_to_nid(pfn) != nid))
-@@ -415,7 +415,7 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 7cf4958b732d..bfc937ec168c 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -70,9 +70,7 @@ SECTIONS {
+ 	/*
+ 	 * Read-only data
  	 */
- 	pfn = zone_start_pfn;
- 	for (; pfn < zone_end_pfn; pfn += PAGES_PER_SUBSECTION) {
--		if (unlikely(!pfn_valid(pfn)))
-+		if (unlikely(!pfn_to_online_page(pfn)))
- 			continue;
+-	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
+-	code_continues : {
+-	} :text                /* switch back to regular program...  */
++	NOTES
  
- 		if (page_zone(pfn_to_page(pfn)) != zone)
-@@ -463,6 +463,16 @@ static void __remove_zone(struct zone *zone, unsigned long start_pfn,
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 	unsigned long flags;
+ 	EXCEPTION_TABLE(16)
  
-+#ifdef CONFIG_ZONE_DEVICE
-+	/*
-+	 * Zone shrinking code cannot properly deal with ZONE_DEVICE. So
-+	 * we will not try to shrink the zones - which is okay as
-+	 * set_zone_contiguous() cannot deal with ZONE_DEVICE either way.
-+	 */
-+	if (zone_idx(zone) == ZONE_DEVICE)
-+		return;
-+#endif
-+
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
- 	update_pgdat_span(pgdat);
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 1c95612eb800..6a22f531d815 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -81,8 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
+ 	}
+ 
+-	NOTES NOTES_HEADERS
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	_sdata = .;			/* Start of data section */
+ 	RODATA
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 7e26e20c8324..4f19d814d592 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -164,9 +164,7 @@ SECTIONS
+ #endif
+ 	EXCEPTION_TABLE(0)
+ 
+-	NOTES :text :note
+-	/* Restore program header away from PT_NOTE. */
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ /*
+  * Init sections discarded at runtime
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 646d939346df..f88eedeb915a 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -52,9 +52,7 @@ SECTIONS
+ 		_etext = .;		/* End of text section */
+ 	} :text = 0x0700
+ 
+-	NOTES :text :note
+-
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	RO_DATA_SECTION(PAGE_SIZE)
+ 
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 2e18bf5c1aed..8be25b09c2b7 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -148,8 +148,7 @@ SECTIONS
+ 		_etext = .;
+ 	} :text = 0x9090
+ 
+-	NOTES :text :note
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index f5dd45ce73f1..97d4299f14dc 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -56,10 +56,18 @@
+ 
+ /*
+  * Only some architectures want to have the .notes segment visible in
+- * a separate PT_NOTE ELF Program Header.
++ * a separate PT_NOTE ELF Program Header. When this happens, it needs
++ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
++ * Program Headers. In this case, though, the PT_LOAD needs to be made
++ * the default again so that all the following sections don't also end
++ * up in the PT_NOTE Program Header.
+  */
+ #ifdef EMITS_PT_NOTE
+ #define NOTES_HEADERS		:text :note
++#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
++#else
++#define NOTES_HEADERS
++#define NOTES_HEADERS_RESTORE
+ #endif
+ 
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+@@ -798,7 +806,8 @@
+ 		__start_notes = .;					\
+ 		KEEP(*(.note.*))					\
+ 		__stop_notes = .;					\
+-	}
++	} NOTES_HEADERS							\
++	NOTES_HEADERS_RESTORE
+ 
+ #define INIT_SETUP(initsetup_align)					\
+ 		. = ALIGN(initsetup_align);				\
 -- 
-2.21.0
+2.17.1
