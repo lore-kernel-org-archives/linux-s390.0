@@ -1,775 +1,693 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45266 "EHLO mx1.redhat.com"
+Received: from foss.arm.com ([217.140.110.172]:50878 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726174AbfJKIX0 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Oct 2019 04:23:26 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 7/7] docs: sample driver to demonstrate how to implement virtio-mdev framework
-Date: Fri, 11 Oct 2019 16:15:57 +0800
-Message-Id: <20191011081557.28302-8-jasowang@redhat.com>
-In-Reply-To: <20191011081557.28302-1-jasowang@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727498AbfJKG0D (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Oct 2019 02:26:03 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V5 2/2] mm/debug: Add tests validating architecture page table helpers
+Date: Fri, 11 Oct 2019 11:55:42 +0530
+Message-Id: <1570775142-31425-3-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1570775142-31425-1-git-send-email-anshuman.khandual@arm.com>
+References: <1570775142-31425-1-git-send-email-anshuman.khandual@arm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+To: linux-mm@kvack.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-This sample driver creates mdev device that simulate virtio net device
-over virtio mdev transport. The device is implemented through vringh
-and workqueue. A device specific dma ops is to make sure HVA is used
-directly as the IOVA. This should be sufficient for kernel virtio
-driver to work.
+This adds tests which will validate architecture page table helpers and
+other accessors in their compliance with expected generic MM semantics.
+This will help various architectures in validating changes to existing
+page table helpers or addition of new ones.
 
-Only 'virtio' type is supported right now. I plan to add 'vhost' type
-on top which requires some virtual IOMMU implemented in this sample
-driver.
+Test page table and memory pages creating it's entries at various level are
+all allocated from system memory with required size and alignments. But if
+memory pages with required size and alignment could not be allocated, then
+all depending individual tests are just skipped afterwards. This test gets
+called right after init_mm_internals() required for alloc_contig_range() to
+work correctly.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+This gets build and run when CONFIG_DEBUG_VM_PGTABLE is selected along with
+CONFIG_VM_DEBUG. Architectures willing to subscribe this test also need to
+select CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE which for now is limited to x86 and
+arm64. Going forward, other architectures too can enable this after fixing
+build or runtime problems (if any) with their page table helpers.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Steven Price <Steven.Price@arm.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Sri Krishna chowdary <schowdary@nvidia.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: x86@kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Tested-by: Christophe Leroy <christophe.leroy@c-s.fr>		#PPC32
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- MAINTAINERS                |   1 +
- samples/Kconfig            |   7 +
- samples/vfio-mdev/Makefile |   1 +
- samples/vfio-mdev/mvnet.c  | 691 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 700 insertions(+)
- create mode 100644 samples/vfio-mdev/mvnet.c
+ .../debug/debug-vm-pgtable/arch-support.txt        |  34 ++
+ arch/arm64/Kconfig                                 |   1 +
+ arch/x86/Kconfig                                   |   1 +
+ arch/x86/include/asm/pgtable_64.h                  |   6 +
+ include/asm-generic/pgtable.h                      |   6 +
+ init/main.c                                        |   1 +
+ lib/Kconfig.debug                                  |  21 +
+ mm/Makefile                                        |   1 +
+ mm/debug_vm_pgtable.c                              | 438 +++++++++++++++++++++
+ 9 files changed, 509 insertions(+)
+ create mode 100644 Documentation/features/debug/debug-vm-pgtable/arch-support.txt
+ create mode 100644 mm/debug_vm_pgtable.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3d196a023b5e..cb51351cd5c9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17254,6 +17254,7 @@ F:	include/linux/virtio*.h
- F:	include/uapi/linux/virtio_*.h
- F:	drivers/crypto/virtio/
- F:	mm/balloon_compaction.c
-+F:	samples/vfio-mdev/mvnet.c
- 
- VIRTIO BLOCK AND SCSI DRIVERS
- M:	"Michael S. Tsirkin" <mst@redhat.com>
-diff --git a/samples/Kconfig b/samples/Kconfig
-index c8dacb4dda80..a1a1ca2c00b7 100644
---- a/samples/Kconfig
-+++ b/samples/Kconfig
-@@ -131,6 +131,13 @@ config SAMPLE_VFIO_MDEV_MDPY
- 	  mediated device.  It is a simple framebuffer and supports
- 	  the region display interface (VFIO_GFX_PLANE_TYPE_REGION).
- 
-+config SAMPLE_VIRTIO_MDEV_NET
-+        tristate "Build virtio mdev net example mediated device sample code -- loadable modules only"
-+	depends on VIRTIO_MDEV_DEVICE && VHOST_RING && m
-+	help
-+	  Build a networking sample device for use as a virtio
-+	  mediated device.
-+
- config SAMPLE_VFIO_MDEV_MDPY_FB
- 	tristate "Build VFIO mdpy example guest fbdev driver -- loadable module only"
- 	depends on FB && m
-diff --git a/samples/vfio-mdev/Makefile b/samples/vfio-mdev/Makefile
-index 10d179c4fdeb..f34af90ed0a0 100644
---- a/samples/vfio-mdev/Makefile
-+++ b/samples/vfio-mdev/Makefile
-@@ -3,3 +3,4 @@ obj-$(CONFIG_SAMPLE_VFIO_MDEV_MTTY) += mtty.o
- obj-$(CONFIG_SAMPLE_VFIO_MDEV_MDPY) += mdpy.o
- obj-$(CONFIG_SAMPLE_VFIO_MDEV_MDPY_FB) += mdpy-fb.o
- obj-$(CONFIG_SAMPLE_VFIO_MDEV_MBOCHS) += mbochs.o
-+obj-$(CONFIG_SAMPLE_VIRTIO_MDEV_NET) += mvnet.o
-diff --git a/samples/vfio-mdev/mvnet.c b/samples/vfio-mdev/mvnet.c
+diff --git a/Documentation/features/debug/debug-vm-pgtable/arch-support.txt b/Documentation/features/debug/debug-vm-pgtable/arch-support.txt
 new file mode 100644
-index 000000000000..b218e7075611
+index 0000000..d6b8185
 --- /dev/null
-+++ b/samples/vfio-mdev/mvnet.c
-@@ -0,0 +1,691 @@
++++ b/Documentation/features/debug/debug-vm-pgtable/arch-support.txt
+@@ -0,0 +1,34 @@
++#
++# Feature name:          debug-vm-pgtable
++#         Kconfig:       ARCH_HAS_DEBUG_VM_PGTABLE
++#         description:   arch supports pgtable tests for semantics compliance
++#
++    -----------------------
++    |         arch |status|
++    -----------------------
++    |       alpha: | TODO |
++    |         arc: | TODO |
++    |         arm: | TODO |
++    |       arm64: |  ok  |
++    |         c6x: | TODO |
++    |        csky: | TODO |
++    |       h8300: | TODO |
++    |     hexagon: | TODO |
++    |        ia64: | TODO |
++    |        m68k: | TODO |
++    |  microblaze: | TODO |
++    |        mips: | TODO |
++    |       nds32: | TODO |
++    |       nios2: | TODO |
++    |    openrisc: | TODO |
++    |      parisc: | TODO |
++    |     powerpc: | TODO |
++    |       riscv: | TODO |
++    |        s390: | TODO |
++    |          sh: | TODO |
++    |       sparc: | TODO |
++    |          um: | TODO |
++    |   unicore32: | TODO |
++    |         x86: |  ok  |
++    |      xtensa: | TODO |
++    -----------------------
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 950a56b..8a3b3ea 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -11,6 +11,7 @@ config ARM64
+ 	select ACPI_PPTT if ACPI
+ 	select ARCH_CLOCKSOURCE_DATA
+ 	select ARCH_HAS_DEBUG_VIRTUAL
++	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
+ 	select ARCH_HAS_DMA_COHERENT_TO_PFN
+ 	select ARCH_HAS_DMA_PREP_COHERENT
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index abe822d..13c9bd9 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -61,6 +61,7 @@ config X86
+ 	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_HAS_ACPI_TABLE_UPGRADE	if ACPI
+ 	select ARCH_HAS_DEBUG_VIRTUAL
++	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEVMEM_IS_ALLOWED
+ 	select ARCH_HAS_ELF_RANDOMIZE
+ 	select ARCH_HAS_FAST_MULTIPLIER
+diff --git a/arch/x86/include/asm/pgtable_64.h b/arch/x86/include/asm/pgtable_64.h
+index 0b6c4042..fb0e76d 100644
+--- a/arch/x86/include/asm/pgtable_64.h
++++ b/arch/x86/include/asm/pgtable_64.h
+@@ -53,6 +53,12 @@ static inline void sync_initial_page_table(void) { }
+ 
+ struct mm_struct;
+ 
++#define mm_p4d_folded mm_p4d_folded
++static inline bool mm_p4d_folded(struct mm_struct *mm)
++{
++	return !pgtable_l5_enabled();
++}
++
+ void set_pte_vaddr_p4d(p4d_t *p4d_page, unsigned long vaddr, pte_t new_pte);
+ void set_pte_vaddr_pud(pud_t *pud_page, unsigned long vaddr, pte_t new_pte);
+ 
+diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
+index 8186918..9e5c248 100644
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -1187,4 +1187,10 @@ static inline bool arch_has_pfn_modify_check(void)
+ #define mm_pmd_folded(mm)	__is_defined(__PAGETABLE_PMD_FOLDED)
+ #endif
+ 
++#ifdef CONFIG_DEBUG_VM_PGTABLE
++extern void debug_vm_pgtable(void);
++#else
++static inline void debug_vm_pgtable(void) { }
++#endif
++
+ #endif /* _ASM_GENERIC_PGTABLE_H */
+diff --git a/init/main.c b/init/main.c
+index 91f6ebb..676d8020 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1177,6 +1177,7 @@ static noinline void __init kernel_init_freeable(void)
+ 	workqueue_init();
+ 
+ 	init_mm_internals();
++	debug_vm_pgtable();
+ 
+ 	do_pre_smp_initcalls();
+ 	lockup_detector_init();
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index cb1fc48..b9b8fe1 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -698,6 +698,27 @@ config DEBUG_VM_PGFLAGS
+ 
+ 	  If unsure, say N.
+ 
++config ARCH_HAS_DEBUG_VM_PGTABLE
++	bool
++	help
++	  An architecture should select this when it can successfully
++	  build and run DEBUG_VM_PGTABLE.
++
++config DEBUG_VM_PGTABLE
++	bool "Debug arch page table for semantics compliance"
++	depends on MMU
++	depends on DEBUG_VM
++	depends on ARCH_HAS_DEBUG_VM_PGTABLE
++	help
++	  This option provides a debug method which can be used to test
++	  architecture page table helper functions on various platforms in
++	  verifying if they comply with expected generic MM semantics. This
++	  will help architecture code in making sure that any changes or
++	  new additions of these helpers still conform to expected
++	  semantics of the generic MM.
++
++	  If unsure, say N.
++
+ config ARCH_HAS_DEBUG_VIRTUAL
+ 	bool
+ 
+diff --git a/mm/Makefile b/mm/Makefile
+index d996846..2f085b9 100644
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -86,6 +86,7 @@ obj-$(CONFIG_HWPOISON_INJECT) += hwpoison-inject.o
+ obj-$(CONFIG_DEBUG_KMEMLEAK) += kmemleak.o
+ obj-$(CONFIG_DEBUG_KMEMLEAK_TEST) += kmemleak-test.o
+ obj-$(CONFIG_DEBUG_RODATA_TEST) += rodata_test.o
++obj-$(CONFIG_DEBUG_VM_PGTABLE) += debug_vm_pgtable.o
+ obj-$(CONFIG_PAGE_OWNER) += page_owner.o
+ obj-$(CONFIG_CLEANCACHE) += cleancache.o
+ obj-$(CONFIG_MEMORY_ISOLATION) += page_isolation.o
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+new file mode 100644
+index 0000000..885d1e5
+--- /dev/null
++++ b/mm/debug_vm_pgtable.c
+@@ -0,0 +1,438 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * Mediated virtual virtio-net device driver.
++ * This kernel module validates architecture page table helpers &
++ * accessors and helps in verifying their continued compliance with
++ * generic MM semantics.
 + *
-+ * Copyright (c) 2019, Red Hat Inc. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
++ * Copyright (C) 2019 ARM Ltd.
 + *
-+ * Sample driver that creates mdev device that simulates ethernet loopback
-+ * device.
-+ *
-+ * Usage:
-+ *
-+ * # modprobe virtio_mdev
-+ * # modprobe mvnet
-+ * # cd /sys/devices/virtual/mvnet/mvnet/mdev_supported_types/mvnet-virtio
-+ * # echo "83b8f4f2-509f-382f-3c1e-e6bfe0fa1001" > ./create
-+ * # cd devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1001
-+ * # ls -d virtio0
-+ * virtio0
++ * Author: Anshuman Khandual <anshuman.khandual@arm.com>
 + */
++#define pr_fmt(fmt) "arch_pgtable_test: %s " fmt, __func__
 +
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
++#include <linux/gfp.h>
++#include <linux/highmem.h>
++#include <linux/hugetlb.h>
 +#include <linux/kernel.h>
-+#include <linux/fs.h>
-+#include <linux/poll.h>
-+#include <linux/slab.h>
-+#include <linux/sched.h>
-+#include <linux/wait.h>
-+#include <linux/uuid.h>
-+#include <linux/iommu.h>
-+#include <linux/sysfs.h>
-+#include <linux/file.h>
-+#include <linux/etherdevice.h>
-+#include <linux/mdev.h>
-+#include <linux/vringh.h>
-+#include <linux/virtio_mdev.h>
-+#include <uapi/linux/virtio_config.h>
-+#include <uapi/linux/virtio_net.h>
-+
-+#define VERSION_STRING  "0.1"
-+#define DRIVER_AUTHOR   "Red Hat Corporation"
-+
-+#define MVNET_CLASS_NAME "mvnet"
-+#define MVNET_NAME       "mvnet"
++#include <linux/kconfig.h>
++#include <linux/mm.h>
++#include <linux/mman.h>
++#include <linux/mm_types.h>
++#include <linux/module.h>
++#include <linux/pfn_t.h>
++#include <linux/printk.h>
++#include <linux/random.h>
++#include <linux/spinlock.h>
++#include <linux/swap.h>
++#include <linux/swapops.h>
++#include <linux/sched/mm.h>
++#include <asm/pgalloc.h>
++#include <asm/pgtable.h>
 +
 +/*
-+ * Global Structures
++ * Basic operations
++ *
++ * mkold(entry)			= An old and not a young entry
++ * mkyoung(entry)		= A young and not an old entry
++ * mkdirty(entry)		= A dirty and not a clean entry
++ * mkclean(entry)		= A clean and not a dirty entry
++ * mkwrite(entry)		= A write and not a write protected entry
++ * wrprotect(entry)		= A write protected and not a write entry
++ * pxx_bad(entry)		= A mapped and non-table entry
++ * pxx_same(entry1, entry2)	= Both entries hold the exact same value
 + */
++#define VMFLAGS	(VM_READ|VM_WRITE|VM_EXEC)
 +
-+static struct mvnet_dev {
-+	struct class	*vd_class;
-+	struct idr	vd_idr;
-+	struct device	dev;
-+} mvnet_dev;
++/*
++ * On s390 platform, the lower 12 bits are used to identify given page table
++ * entry type and for other arch specific requirements. But these bits might
++ * affect the ability to clear entries with pxx_clear(). So while loading up
++ * the entries skip all lower 12 bits in order to accommodate s390 platform.
++ * It does not have affect any other platform.
++ */
++#define RANDOM_ORVALUE	(0xfffffffffffff000UL)
++#define RANDOM_NZVALUE	(0xff)
 +
-+struct mvnet_virtqueue {
-+	struct vringh vring;
-+	struct vringh_kiov iov;
-+	unsigned short head;
-+	bool ready;
-+	u64 desc_addr;
-+	u64 device_addr;
-+	u64 driver_addr;
-+	u32 num;
-+	void *private;
-+	irqreturn_t (*cb)(void *data);
-+};
++static bool pud_aligned __initdata;
++static bool pmd_aligned __initdata;
 +
-+#define MVNET_QUEUE_ALIGN PAGE_SIZE
-+#define MVNET_QUEUE_MAX 256
-+#define MVNET_DEVICE_ID 0x1
-+#define MVNET_VENDOR_ID 0
-+
-+u64 mvnet_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
-+		     (1ULL << VIRTIO_F_VERSION_1) |
-+		     (1ULL << VIRTIO_F_IOMMU_PLATFORM);
-+
-+/* State of each mdev device */
-+struct mvnet_state {
-+	struct mvnet_virtqueue vqs[2];
-+	struct work_struct work;
-+	spinlock_t lock;
-+	struct mdev_device *mdev;
-+	struct virtio_net_config config;
-+	void *buffer;
-+	u32 status;
-+	u32 generation;
-+	u64 features;
-+	struct list_head next;
-+};
-+
-+static struct mutex mdev_list_lock;
-+static struct list_head mdev_devices_list;
-+
-+static void mvnet_queue_ready(struct mvnet_state *mvnet, unsigned int idx)
++static void __init pte_basic_tests(struct page *page, pgprot_t prot)
 +{
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+	int ret;
++	pte_t pte = mk_pte(page, prot);
 +
-+	ret = vringh_init_kern(&vq->vring, mvnet_features, MVNET_QUEUE_MAX,
-+			       false, (struct vring_desc *)vq->desc_addr,
-+			       (struct vring_avail *)vq->driver_addr,
-+			       (struct vring_used *)vq->device_addr);
++	WARN_ON(!pte_same(pte, pte));
++	WARN_ON(!pte_young(pte_mkyoung(pte)));
++	WARN_ON(!pte_dirty(pte_mkdirty(pte)));
++	WARN_ON(!pte_write(pte_mkwrite(pte)));
++	WARN_ON(pte_young(pte_mkold(pte)));
++	WARN_ON(pte_dirty(pte_mkclean(pte)));
++	WARN_ON(pte_write(pte_wrprotect(pte)));
 +}
 +
-+static void mvnet_vq_reset(struct mvnet_virtqueue *vq)
++#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE
++static void __init pmd_basic_tests(struct page *page, pgprot_t prot)
 +{
-+	vq->ready = 0;
-+	vq->desc_addr = 0;
-+	vq->driver_addr = 0;
-+	vq->device_addr = 0;
-+	vq->cb = NULL;
-+	vq->private = NULL;
-+	vringh_init_kern(&vq->vring, mvnet_features, MVNET_QUEUE_MAX,
-+			false, 0, 0, 0);
-+}
++	pmd_t pmd;
 +
-+static void mvnet_reset(struct mvnet_state *mvnet)
-+{
-+	int i;
-+
-+	for (i = 0; i < 2; i++)
-+		mvnet_vq_reset(&mvnet->vqs[i]);
-+
-+	mvnet->features = 0;
-+	mvnet->status = 0;
-+	++mvnet->generation;
-+}
-+
-+static void mvnet_work(struct work_struct *work)
-+{
-+	struct mvnet_state *mvnet = container_of(work, struct
-+						 mvnet_state, work);
-+	struct mvnet_virtqueue *txq = &mvnet->vqs[1];
-+	struct mvnet_virtqueue *rxq = &mvnet->vqs[0];
-+	size_t read, write, total_write;
-+	int err;
-+	int pkts = 0;
-+
-+	spin_lock(&mvnet->lock);
-+
-+	if (!txq->ready || !rxq->ready)
-+		goto out;
-+
-+	while (true) {
-+		total_write = 0;
-+		err = vringh_getdesc_kern(&txq->vring, &txq->iov, NULL,
-+					  &txq->head, GFP_ATOMIC);
-+		if (err <= 0)
-+			break;
-+
-+		err = vringh_getdesc_kern(&rxq->vring, NULL, &rxq->iov,
-+					  &rxq->head, GFP_ATOMIC);
-+		if (err <= 0) {
-+			vringh_complete_kern(&txq->vring, txq->head, 0);
-+			break;
-+		}
-+
-+		while (true) {
-+			read = vringh_iov_pull_kern(&txq->iov, mvnet->buffer,
-+						    PAGE_SIZE);
-+			if (read <= 0)
-+				break;
-+
-+			write = vringh_iov_push_kern(&rxq->iov, mvnet->buffer,
-+						     read);
-+			if (write <= 0)
-+				break;
-+
-+			total_write += write;
-+		}
-+
-+		/* Make sure data is wrote before advancing index */
-+		smp_wmb();
-+
-+		vringh_complete_kern(&txq->vring, txq->head, 0);
-+		vringh_complete_kern(&rxq->vring, rxq->head, total_write);
-+
-+		/* Make sure used is visible before rasing the interrupt. */
-+		smp_wmb();
-+
-+		local_bh_disable();
-+		if (txq->cb)
-+			txq->cb(txq->private);
-+		if (rxq->cb)
-+			rxq->cb(rxq->private);
-+		local_bh_enable();
-+
-+		if (++pkts > 4) {
-+			schedule_work(&mvnet->work);
-+			goto out;
-+		}
++	/*
++	 * Memory block here must be PMD_SIZE aligned. Abort this
++	 * test in case we could not allocate such a memory block.
++	 */
++	if (!pmd_aligned) {
++		pr_warn("Could not proceed with PMD tests\n");
++		return;
 +	}
 +
-+out:
-+	spin_unlock(&mvnet->lock);
++	pmd = mk_pmd(page, prot);
++	WARN_ON(!pmd_same(pmd, pmd));
++	WARN_ON(!pmd_young(pmd_mkyoung(pmd)));
++	WARN_ON(!pmd_dirty(pmd_mkdirty(pmd)));
++	WARN_ON(!pmd_write(pmd_mkwrite(pmd)));
++	WARN_ON(pmd_young(pmd_mkold(pmd)));
++	WARN_ON(pmd_dirty(pmd_mkclean(pmd)));
++	WARN_ON(pmd_write(pmd_wrprotect(pmd)));
++	/*
++	 * A huge page does not point to next level page table
++	 * entry. Hence this must qualify as pmd_bad().
++	 */
++	WARN_ON(!pmd_bad(pmd_mkhuge(pmd)));
 +}
++#else
++static void __init pmd_basic_tests(struct page *page, pgprot_t prot) { }
++#endif
 +
-+static dma_addr_t mvnet_map_page(struct device *dev, struct page *page,
-+				 unsigned long offset, size_t size,
-+				 enum dma_data_direction dir,
-+				 unsigned long attrs)
++#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
++static void __init pud_basic_tests(struct page *page, pgprot_t prot)
 +{
-+	/* Vringh can only use HVA */
-+	return (dma_addr_t)(page_address(page) + offset);
-+}
++	pud_t pud;
 +
-+static void mvnet_unmap_page(struct device *dev, dma_addr_t dma_addr,
-+			     size_t size, enum dma_data_direction dir,
-+			     unsigned long attrs)
-+{
-+}
-+
-+static void *mvnet_alloc_coherent(struct device *dev, size_t size,
-+				  dma_addr_t *dma_addr, gfp_t flag,
-+				  unsigned long attrs)
-+{
-+	void *addr = kmalloc(size, flag);
-+
-+	if (addr == NULL)
-+		*dma_addr = DMA_MAPPING_ERROR;
-+	else
-+		*dma_addr = (dma_addr_t) addr;
-+
-+	return addr;
-+}
-+
-+static void mvnet_free_coherent(struct device *dev, size_t size,
-+				void *vaddr, dma_addr_t dma_addr,
-+				unsigned long attrs)
-+{
-+	kfree((void *)dma_addr);
-+}
-+
-+static const struct dma_map_ops mvnet_dma_ops = {
-+	.map_page = mvnet_map_page,
-+	.unmap_page = mvnet_unmap_page,
-+	.alloc = mvnet_alloc_coherent,
-+	.free = mvnet_free_coherent,
-+};
-+
-+static const struct virtio_mdev_device_ops virtio_mdev_ops;
-+
-+static int mvnet_create(struct kobject *kobj, struct mdev_device *mdev)
-+{
-+	struct mvnet_state *mvnet;
-+	struct virtio_net_config *config;
-+	struct device *dev = mdev_dev(mdev);
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	mvnet = kzalloc(sizeof(struct mvnet_state), GFP_KERNEL);
-+	if (mvnet == NULL)
-+		return -ENOMEM;
-+
-+	mvnet->buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!mvnet->buffer) {
-+		kfree(mvnet);
-+		return -ENOMEM;
++	/*
++	 * Memory block here must be PUD_SIZE aligned. Abort this
++	 * test in case we could not allocate such a memory block.
++	 */
++	if (!pud_aligned) {
++		pr_warn("Could not proceed with PUD tests\n");
++		return;
 +	}
 +
-+	config = &mvnet->config;
-+	config->mtu = 1500;
-+	config->status = VIRTIO_NET_S_LINK_UP;
-+	eth_random_addr(config->mac);
++	pud = pfn_pud(page_to_pfn(page), prot);
++	WARN_ON(!pud_same(pud, pud));
++	WARN_ON(!pud_young(pud_mkyoung(pud)));
++	WARN_ON(!pud_write(pud_mkwrite(pud)));
++	WARN_ON(pud_write(pud_wrprotect(pud)));
++	WARN_ON(pud_young(pud_mkold(pud)));
 +
-+	INIT_WORK(&mvnet->work, mvnet_work);
++	if (mm_pmd_folded(mm) || __is_defined(ARCH_HAS_4LEVEL_HACK))
++		return;
 +
-+	spin_lock_init(&mvnet->lock);
-+	mvnet->mdev = mdev;
-+	mdev_set_drvdata(mdev, mvnet);
++	/*
++	 * A huge page does not point to next level page table
++	 * entry. Hence this must qualify as pud_bad().
++	 */
++	WARN_ON(!pud_bad(pud_mkhuge(pud)));
++}
++#else
++static void __init pud_basic_tests(struct page *page, pgprot_t prot) { }
++#endif
 +
-+	mutex_lock(&mdev_list_lock);
-+	list_add(&mvnet->next, &mdev_devices_list);
-+	mutex_unlock(&mdev_list_lock);
++static void __init p4d_basic_tests(struct page *page, pgprot_t prot)
++{
++	p4d_t p4d;
 +
-+	dev->coherent_dma_mask = DMA_BIT_MASK(64);
-+	set_dma_ops(dev, &mvnet_dma_ops);
-+
-+	mdev_set_class(mdev, MDEV_ID_VIRTIO, &virtio_mdev_ops);
-+
-+	return 0;
++	memset(&p4d, RANDOM_NZVALUE, sizeof(p4d_t));
++	WARN_ON(!p4d_same(p4d, p4d));
 +}
 +
-+static int mvnet_remove(struct mdev_device *mdev)
++static void __init pgd_basic_tests(struct page *page, pgprot_t prot)
 +{
-+	struct mvnet_state *mds, *tmp_mds;
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	int ret = -EINVAL;
++	pgd_t pgd;
 +
-+	mutex_lock(&mdev_list_lock);
-+	list_for_each_entry_safe(mds, tmp_mds, &mdev_devices_list, next) {
-+		if (mvnet == mds) {
-+			list_del(&mvnet->next);
-+			mdev_set_drvdata(mdev, NULL);
-+			kfree(mvnet->buffer);
-+			kfree(mvnet);
-+			ret = 0;
-+			break;
-+		}
-+	}
-+	mutex_unlock(&mdev_list_lock);
-+
-+	return ret;
++	memset(&pgd, RANDOM_NZVALUE, sizeof(pgd_t));
++	WARN_ON(!pgd_same(pgd, pgd));
 +}
 +
-+static ssize_t
-+sample_mvnet_dev_show(struct device *dev, struct device_attribute *attr,
-+		     char *buf)
++#ifndef __ARCH_HAS_4LEVEL_HACK
++static void __init pud_clear_tests(struct mm_struct *mm, pud_t *pudp)
 +{
-+	if (mdev_from_dev(dev))
-+		return sprintf(buf, "This is MDEV %s\n", dev_name(dev));
++	pud_t pud = READ_ONCE(*pudp);
 +
-+	return sprintf(buf, "\n");
++	if (mm_pmd_folded(mm))
++		return;
++
++	pud = __pud(pud_val(pud) | RANDOM_ORVALUE);
++	WRITE_ONCE(*pudp, pud);
++	pud_clear(pudp);
++	pud = READ_ONCE(*pudp);
++	WARN_ON(!pud_none(pud));
 +}
 +
-+static DEVICE_ATTR_RO(sample_mvnet_dev);
-+
-+static struct attribute *mvnet_dev_attrs[] = {
-+	&dev_attr_sample_mvnet_dev.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group mvnet_dev_group = {
-+	.name  = "mvnet_dev",
-+	.attrs = mvnet_dev_attrs,
-+};
-+
-+static const struct attribute_group *mvnet_dev_groups[] = {
-+	&mvnet_dev_group,
-+	NULL,
-+};
-+
-+static ssize_t
-+sample_mdev_dev_show(struct device *dev, struct device_attribute *attr,
-+		     char *buf)
++static void __init pud_populate_tests(struct mm_struct *mm, pud_t *pudp,
++				      pmd_t *pmdp)
 +{
-+	if (mdev_from_dev(dev))
-+		return sprintf(buf, "This is MDEV %s\n", dev_name(dev));
++	pud_t pud;
 +
-+	return sprintf(buf, "\n");
++	if (mm_pmd_folded(mm))
++		return;
++	/*
++	 * This entry points to next level page table page.
++	 * Hence this must not qualify as pud_bad().
++	 */
++	pmd_clear(pmdp);
++	pud_clear(pudp);
++	pud_populate(mm, pudp, pmdp);
++	pud = READ_ONCE(*pudp);
++	WARN_ON(pud_bad(pud));
++}
++#else
++static void __init pud_clear_tests(struct mm_struct *mm, pud_t *pudp) { }
++static void __init pud_populate_tests(struct mm_struct *mm, pud_t *pudp,
++				      pmd_t *pmdp)
++{
++}
++#endif
++
++#ifndef __ARCH_HAS_5LEVEL_HACK
++static void __init p4d_clear_tests(struct mm_struct *mm, p4d_t *p4dp)
++{
++	p4d_t p4d = READ_ONCE(*p4dp);
++
++	if (mm_pud_folded(mm))
++		return;
++
++	p4d = __p4d(p4d_val(p4d) | RANDOM_ORVALUE);
++	WRITE_ONCE(*p4dp, p4d);
++	p4d_clear(p4dp);
++	p4d = READ_ONCE(*p4dp);
++	WARN_ON(!p4d_none(p4d));
 +}
 +
-+static DEVICE_ATTR_RO(sample_mdev_dev);
-+
-+static struct attribute *mdev_dev_attrs[] = {
-+	&dev_attr_sample_mdev_dev.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group mdev_dev_group = {
-+	.name  = "vendor",
-+	.attrs = mdev_dev_attrs,
-+};
-+
-+static const struct attribute_group *mdev_dev_groups[] = {
-+	&mdev_dev_group,
-+	NULL,
-+};
-+
-+#define MVNET_STRING_LEN 16
-+
-+static ssize_t
-+name_show(struct kobject *kobj, struct device *dev, char *buf)
++static void __init p4d_populate_tests(struct mm_struct *mm, p4d_t *p4dp,
++				      pud_t *pudp)
 +{
-+	char name[MVNET_STRING_LEN];
-+	const char *name_str = "virtio-net";
++	p4d_t p4d;
 +
-+	snprintf(name, MVNET_STRING_LEN, "%s", dev_driver_string(dev));
-+	if (!strcmp(kobj->name, name))
-+		return sprintf(buf, "%s\n", name_str);
++	if (mm_pud_folded(mm))
++		return;
 +
-+	return -EINVAL;
++	/*
++	 * This entry points to next level page table page.
++	 * Hence this must not qualify as p4d_bad().
++	 */
++	pud_clear(pudp);
++	p4d_clear(p4dp);
++	p4d_populate(mm, p4dp, pudp);
++	p4d = READ_ONCE(*p4dp);
++	WARN_ON(p4d_bad(p4d));
 +}
 +
-+static MDEV_TYPE_ATTR_RO(name);
-+
-+static ssize_t
-+available_instances_show(struct kobject *kobj, struct device *dev, char *buf)
++static void __init pgd_clear_tests(struct mm_struct *mm, pgd_t *pgdp)
 +{
-+	return sprintf(buf, "%d\n", INT_MAX);
++	pgd_t pgd = READ_ONCE(*pgdp);
++
++	if (mm_p4d_folded(mm))
++		return;
++
++	pgd = __pgd(pgd_val(pgd) | RANDOM_ORVALUE);
++	WRITE_ONCE(*pgdp, pgd);
++	pgd_clear(pgdp);
++	pgd = READ_ONCE(*pgdp);
++	WARN_ON(!pgd_none(pgd));
 +}
 +
-+static MDEV_TYPE_ATTR_RO(available_instances);
-+
-+static ssize_t device_api_show(struct kobject *kobj, struct device *dev,
-+			       char *buf)
++static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
++				      p4d_t *p4dp)
 +{
-+	return sprintf(buf, "%s\n", VIRTIO_MDEV_DEVICE_API_STRING);
++	pgd_t pgd;
++
++	if (mm_p4d_folded(mm))
++		return;
++
++	/*
++	 * This entry points to next level page table page.
++	 * Hence this must not qualify as pgd_bad().
++	 */
++	p4d_clear(p4dp);
++	pgd_clear(pgdp);
++	pgd_populate(mm, pgdp, p4dp);
++	pgd = READ_ONCE(*pgdp);
++	WARN_ON(pgd_bad(pgd));
++}
++#else
++static void __init p4d_clear_tests(struct mm_struct *mm, p4d_t *p4dp) { }
++static void __init pgd_clear_tests(struct mm_struct *mm, pgd_t *pgdp) { }
++static void __init p4d_populate_tests(struct mm_struct *mm, p4d_t *p4dp,
++				      pud_t *pudp)
++{
++}
++static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
++				      p4d_t *p4dp)
++{
++}
++#endif
++
++static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep)
++{
++	pte_t pte = READ_ONCE(*ptep);
++
++	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
++	WRITE_ONCE(*ptep, pte);
++	pte_clear(mm, 0, ptep);
++	pte = READ_ONCE(*ptep);
++	WARN_ON(!pte_none(pte));
 +}
 +
-+static MDEV_TYPE_ATTR_RO(device_api);
-+
-+static struct attribute *mdev_types_attrs[] = {
-+	&mdev_type_attr_name.attr,
-+	&mdev_type_attr_device_api.attr,
-+	&mdev_type_attr_available_instances.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group mdev_type_group = {
-+	.name  = "virtio",
-+	.attrs = mdev_types_attrs,
-+};
-+
-+/* TBD: "vhost" type */
-+
-+static struct attribute_group *mdev_type_groups[] = {
-+	&mdev_type_group,
-+	NULL,
-+};
-+
-+static int mvnet_set_vq_address(struct mdev_device *mdev, u16 idx,
-+				u64 desc_area, u64 driver_area, u64 device_area)
++static void __init pmd_clear_tests(struct mm_struct *mm, pmd_t *pmdp)
 +{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
++	pmd_t pmd = READ_ONCE(*pmdp);
 +
-+	vq->desc_addr = desc_area;
-+	vq->driver_addr = driver_area;
-+	vq->device_addr = device_area;
-+
-+	return 0;
++	pmd = __pmd(pmd_val(pmd) | RANDOM_ORVALUE);
++	WRITE_ONCE(*pmdp, pmd);
++	pmd_clear(pmdp);
++	pmd = READ_ONCE(*pmdp);
++	WARN_ON(!pmd_none(pmd));
 +}
 +
-+static void mvnet_set_vq_num(struct mdev_device *mdev, u16 idx, u32 num)
++static void __init pmd_populate_tests(struct mm_struct *mm, pmd_t *pmdp,
++				      pgtable_t pgtable)
 +{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
++	pmd_t pmd;
 +
-+	vq->num = num;
++	/*
++	 * This entry points to next level page table page.
++	 * Hence this must not qualify as pmd_bad().
++	 */
++	pmd_clear(pmdp);
++	pmd_populate(mm, pmdp, pgtable);
++	pmd = READ_ONCE(*pmdp);
++	WARN_ON(pmd_bad(pmd));
 +}
 +
-+static void mvnet_kick_vq(struct mdev_device *mdev, u16 idx)
++static struct page * __init alloc_mapped_page(void)
 +{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
++	struct page *page;
++	gfp_t gfp_mask = GFP_KERNEL | __GFP_ZERO;
 +
-+	if (vq->ready)
-+		schedule_work(&mvnet->work);
-+}
-+
-+static void mvnet_set_vq_cb(struct mdev_device *mdev, u16 idx,
-+			    struct virtio_mdev_callback *cb)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+
-+	vq->cb = cb->callback;
-+	vq->private = cb->private;
-+}
-+
-+static void mvnet_set_vq_ready(struct mdev_device *mdev, u16 idx, bool ready)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+
-+	spin_lock(&mvnet->lock);
-+	vq->ready = ready;
-+	if (vq->ready)
-+		mvnet_queue_ready(mvnet, idx);
-+	spin_unlock(&mvnet->lock);
-+}
-+
-+static bool mvnet_get_vq_ready(struct mdev_device *mdev, u16 idx)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+
-+	return vq->ready;
-+}
-+
-+static int mvnet_set_vq_state(struct mdev_device *mdev, u16 idx, u64 state)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+	struct vringh *vrh = &vq->vring;
-+
-+	spin_lock(&mvnet->lock);
-+	vrh->last_avail_idx = state;
-+	spin_unlock(&mvnet->lock);
-+
-+	return 0;
-+}
-+
-+static u64 mvnet_get_vq_state(struct mdev_device *mdev, u16 idx)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+	struct mvnet_virtqueue *vq = &mvnet->vqs[idx];
-+	struct vringh *vrh = &vq->vring;
-+
-+	return vrh->last_avail_idx;
-+}
-+
-+static u16 mvnet_get_vq_align(struct mdev_device *mdev)
-+{
-+	return MVNET_QUEUE_ALIGN;
-+}
-+
-+static u64 mvnet_get_features(struct mdev_device *mdev)
-+{
-+	return mvnet_features;
-+}
-+
-+static int mvnet_set_features(struct mdev_device *mdev, u64 features)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+
-+	/* DMA mapping must be done by driver */
-+	if (!(features & (1ULL << VIRTIO_F_IOMMU_PLATFORM)))
-+		return -EINVAL;
-+
-+	mvnet->features = features & mvnet_features;
-+
-+	return 0;
-+}
-+
-+static void mvnet_set_config_cb(struct mdev_device *mdev,
-+				struct virtio_mdev_callback *cb)
-+{
-+	/* We don't support config interrupt */
-+}
-+
-+static u16 mvnet_get_vq_num_max(struct mdev_device *mdev)
-+{
-+	return MVNET_QUEUE_MAX;
-+}
-+
-+static u32 mvnet_get_device_id(struct mdev_device *mdev)
-+{
-+	return MVNET_DEVICE_ID;
-+}
-+
-+static u32 mvnet_get_vendor_id(struct mdev_device *mdev)
-+{
-+	return MVNET_VENDOR_ID;
-+}
-+
-+static u8 mvnet_get_status(struct mdev_device *mdev)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+
-+	return mvnet->status;
-+}
-+
-+static void mvnet_set_status(struct mdev_device *mdev, u8 status)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+
-+	mvnet->status = status;
-+
-+	if (status == 0) {
-+		spin_lock(&mvnet->lock);
-+		mvnet_reset(mvnet);
-+		spin_unlock(&mvnet->lock);
-+	}
-+}
-+
-+static void mvnet_get_config(struct mdev_device *mdev, unsigned int offset,
-+			     void *buf, unsigned int len)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+
-+	if (offset + len < sizeof(struct virtio_net_config))
-+		memcpy(buf, &mvnet->config + offset, len);
-+}
-+
-+static void mvnet_set_config(struct mdev_device *mdev, unsigned int offset,
-+			     const void *buf, unsigned int len)
-+{
-+	/* No writable config supportted by mvnet */
-+}
-+
-+static u64 mvnet_get_mdev_features(struct mdev_device *mdev)
-+{
-+	return VIRTIO_MDEV_F_VERSION_1;
-+}
-+
-+static u32 mvnet_get_generation(struct mdev_device *mdev)
-+{
-+	struct mvnet_state *mvnet = mdev_get_drvdata(mdev);
-+
-+	return mvnet->generation;
-+}
-+
-+static const struct virtio_mdev_device_ops virtio_mdev_ops = {
-+	.set_vq_address         = mvnet_set_vq_address,
-+	.set_vq_num             = mvnet_set_vq_num,
-+	.kick_vq                = mvnet_kick_vq,
-+	.set_vq_cb              = mvnet_set_vq_cb,
-+	.set_vq_ready           = mvnet_set_vq_ready,
-+	.get_vq_ready           = mvnet_get_vq_ready,
-+	.set_vq_state           = mvnet_set_vq_state,
-+	.get_vq_state           = mvnet_get_vq_state,
-+	.get_vq_align           = mvnet_get_vq_align,
-+	.get_features           = mvnet_get_features,
-+	.set_features           = mvnet_set_features,
-+	.set_config_cb          = mvnet_set_config_cb,
-+	.get_vq_num_max         = mvnet_get_vq_num_max,
-+	.get_device_id          = mvnet_get_device_id,
-+	.get_vendor_id          = mvnet_get_vendor_id,
-+	.get_status             = mvnet_get_status,
-+	.set_status             = mvnet_set_status,
-+	.get_config             = mvnet_get_config,
-+	.set_config             = mvnet_set_config,
-+	.get_mdev_features      = mvnet_get_mdev_features,
-+	.get_generation         = mvnet_get_generation,
-+};
-+
-+static const struct mdev_parent_ops mdev_fops = {
-+	.owner                  = THIS_MODULE,
-+	.dev_attr_groups        = mvnet_dev_groups,
-+	.mdev_attr_groups       = mdev_dev_groups,
-+	.supported_type_groups  = mdev_type_groups,
-+	.create                 = mvnet_create,
-+	.remove			= mvnet_remove,
-+};
-+
-+static void mvnet_device_release(struct device *dev)
-+{
-+	dev_dbg(dev, "mvnet: released\n");
-+}
-+
-+static int __init mvnet_dev_init(void)
-+{
-+	int ret = 0;
-+
-+	pr_info("mvnet_dev: %s\n", __func__);
-+
-+	memset(&mvnet_dev, 0, sizeof(mvnet_dev));
-+
-+	idr_init(&mvnet_dev.vd_idr);
-+
-+	mvnet_dev.vd_class = class_create(THIS_MODULE, MVNET_CLASS_NAME);
-+
-+	if (IS_ERR(mvnet_dev.vd_class)) {
-+		pr_err("Error: failed to register mvnet_dev class\n");
-+		ret = PTR_ERR(mvnet_dev.vd_class);
-+		goto failed1;
++	page = alloc_gigantic_page_order(get_order(PUD_SIZE), gfp_mask,
++				first_memory_node, &node_states[N_MEMORY]);
++	if (page) {
++		pud_aligned = true;
++		pmd_aligned = true;
++		return page;
 +	}
 +
-+	mvnet_dev.dev.class = mvnet_dev.vd_class;
-+	mvnet_dev.dev.release = mvnet_device_release;
-+	dev_set_name(&mvnet_dev.dev, "%s", MVNET_NAME);
-+
-+	ret = device_register(&mvnet_dev.dev);
-+	if (ret)
-+		goto failed2;
-+
-+	ret = mdev_register_device(&mvnet_dev.dev, &mdev_fops);
-+	if (ret)
-+		goto failed3;
-+
-+	mutex_init(&mdev_list_lock);
-+	INIT_LIST_HEAD(&mdev_devices_list);
-+
-+	goto all_done;
-+
-+failed3:
-+
-+	device_unregister(&mvnet_dev.dev);
-+failed2:
-+	class_destroy(mvnet_dev.vd_class);
-+
-+failed1:
-+all_done:
-+	return ret;
++	page = alloc_pages(gfp_mask, get_order(PMD_SIZE));
++	if (page) {
++		pmd_aligned = true;
++		return page;
++	}
++	return alloc_page(gfp_mask);
 +}
 +
-+static void __exit mvnet_dev_exit(void)
++static void __init free_mapped_page(struct page *page)
 +{
-+	mvnet_dev.dev.bus = NULL;
-+	mdev_unregister_device(&mvnet_dev.dev);
++	if (pud_aligned) {
++		unsigned long pfn = page_to_pfn(page);
 +
-+	device_unregister(&mvnet_dev.dev);
-+	idr_destroy(&mvnet_dev.vd_idr);
-+	class_destroy(mvnet_dev.vd_class);
-+	mvnet_dev.vd_class = NULL;
-+	pr_info("mvnet_dev: Unloaded!\n");
++		free_contig_range(pfn, 1ULL << get_order(PUD_SIZE));
++		return;
++	}
++
++	if (pmd_aligned) {
++		int order = get_order(PMD_SIZE);
++
++		free_pages((unsigned long)page_address(page), order);
++		return;
++	}
++	free_page((unsigned long)page_address(page));
 +}
 +
-+module_init(mvnet_dev_init)
-+module_exit(mvnet_dev_exit)
++static unsigned long __init get_random_vaddr(void)
++{
++	unsigned long random_vaddr, random_pages, total_user_pages;
 +
-+MODULE_LICENSE("GPL v2");
-+MODULE_INFO(supported, "Simulate loopback ethernet device over mdev");
-+MODULE_VERSION(VERSION_STRING);
-+MODULE_AUTHOR(DRIVER_AUTHOR);
++	total_user_pages = (TASK_SIZE - FIRST_USER_ADDRESS) / PAGE_SIZE;
++
++	random_pages = get_random_long() % total_user_pages;
++	random_vaddr = FIRST_USER_ADDRESS + random_pages * PAGE_SIZE;
++
++	WARN_ON(random_vaddr > TASK_SIZE);
++	WARN_ON(random_vaddr < FIRST_USER_ADDRESS);
++	return random_vaddr;
++}
++
++void __init debug_vm_pgtable(void)
++{
++	struct mm_struct *mm;
++	struct page *page;
++	pgd_t *pgdp;
++	p4d_t *p4dp, *saved_p4dp;
++	pud_t *pudp, *saved_pudp;
++	pmd_t *pmdp, *saved_pmdp, pmd;
++	pte_t *ptep;
++	pgtable_t saved_ptep;
++	pgprot_t prot;
++	unsigned long vaddr;
++
++	prot = vm_get_page_prot(VMFLAGS);
++	vaddr = get_random_vaddr();
++	mm = mm_alloc();
++	if (!mm) {
++		pr_err("mm_struct allocation failed\n");
++		return;
++	}
++
++	page = alloc_mapped_page();
++	if (!page) {
++		pr_err("memory allocation failed\n");
++		return;
++	}
++
++	pgdp = pgd_offset(mm, vaddr);
++	p4dp = p4d_alloc(mm, pgdp, vaddr);
++	pudp = pud_alloc(mm, p4dp, vaddr);
++	pmdp = pmd_alloc(mm, pudp, vaddr);
++	ptep = pte_alloc_map(mm, pmdp, vaddr);
++
++	/*
++	 * Save all the page table page addresses as the page table
++	 * entries will be used for testing with random or garbage
++	 * values. These saved addresses will be used for freeing
++	 * page table pages.
++	 */
++	pmd = READ_ONCE(*pmdp);
++	saved_p4dp = p4d_offset(pgdp, 0UL);
++	saved_pudp = pud_offset(p4dp, 0UL);
++	saved_pmdp = pmd_offset(pudp, 0UL);
++	saved_ptep = pmd_pgtable(pmd);
++
++	pte_basic_tests(page, prot);
++	pmd_basic_tests(page, prot);
++	pud_basic_tests(page, prot);
++	p4d_basic_tests(page, prot);
++	pgd_basic_tests(page, prot);
++
++	pte_clear_tests(mm, ptep);
++	pmd_clear_tests(mm, pmdp);
++	pud_clear_tests(mm, pudp);
++	p4d_clear_tests(mm, p4dp);
++	pgd_clear_tests(mm, pgdp);
++
++	pte_unmap(ptep);
++
++	pmd_populate_tests(mm, pmdp, saved_ptep);
++	pud_populate_tests(mm, pudp, saved_pmdp);
++	p4d_populate_tests(mm, p4dp, saved_pudp);
++	pgd_populate_tests(mm, pgdp, saved_p4dp);
++
++	p4d_free(mm, saved_p4dp);
++	pud_free(mm, saved_pudp);
++	pmd_free(mm, saved_pmdp);
++	pte_free(mm, saved_ptep);
++
++	mm_dec_nr_puds(mm);
++	mm_dec_nr_pmds(mm);
++	mm_dec_nr_ptes(mm);
++	__mmdrop(mm);
++
++	free_mapped_page(page);
++}
 -- 
-2.19.1
+2.7.4
