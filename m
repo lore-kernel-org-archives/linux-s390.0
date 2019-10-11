@@ -1,44 +1,41 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:37140 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727407AbfJ2GtR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:17 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 05/21] alpha: remove the unused __ioremap wrapper
-Date: Tue, 29 Oct 2019 07:48:18 +0100
-Message-Id: <20191029064834.23438-6-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2 17/29] alpha: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Thu, 10 Oct 2019 17:05:57 -0700
+Message-Id: <20191011000609.29728-18-keescook@chromium.org>
+In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
+References: <20191011000609.29728-1-keescook@chromium.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-No need for the additional namespace pollution.
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/alpha/include/asm/io.h | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/alpha/include/asm/io.h b/arch/alpha/include/asm/io.h
-index af2c0063dc75..1989b946a28d 100644
---- a/arch/alpha/include/asm/io.h
-+++ b/arch/alpha/include/asm/io.h
-@@ -283,12 +283,6 @@ static inline void __iomem *ioremap(unsigned long port, unsigned long size)
- 	return IO_CONCAT(__IO_PREFIX,ioremap) (port, size);
- }
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index edc45f45523b..bc6f727278fd 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
  
--static inline void __iomem *__ioremap(unsigned long port, unsigned long size,
--				      unsigned long flags)
--{
--	return ioremap(port, size);
--}
--
- static inline void __iomem * ioremap_nocache(unsigned long offset,
- 					     unsigned long size)
- {
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	16
+ 
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+@@ -35,7 +36,6 @@ SECTIONS
+ 	_etext = .;	/* End of text section */
+ 
+ 	RO_DATA(4096)
+-	EXCEPTION_TABLE(16)
+ 
+ 	/* Will be freed after init */
+ 	__init_begin = ALIGN(PAGE_SIZE);
 -- 
-2.20.1
+2.17.1
