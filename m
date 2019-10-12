@@ -1,50 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:33237 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729299AbfJ2VOT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:19 -0400
-Received: by mail-pf1-f194.google.com with SMTP id c184so7548pfb.0
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:18 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 19/29] c6x: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Tue, 29 Oct 2019 14:13:41 -0700
-Message-Id: <20191029211351.13243-20-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
+Received: from mail.kernel.org ([198.145.29.99]:39674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729296AbfJLVkF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 12 Oct 2019 17:40:05 -0400
+Subject: Re: [GIT PULL] s390 updates for 5.4-rc3
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01570875939-ext-1686@work.hours>
+References: <your-ad-here.call-01570875939-ext-1686@work.hours>
+Message-Id: <157091640502.3377.2210428493105655595.pr-tracker-bot@kernel.org>
+Date: Sat, 12 Oct 2019 21:40:05 +0000
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+The pull request you sent on Sat, 12 Oct 2019 12:25:39 +0200:
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/c6x/kernel/vmlinux.lds.S | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.4-4
 
-diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
-index a3547f9d415b..ac99ba0864bf 100644
---- a/arch/c6x/kernel/vmlinux.lds.S
-+++ b/arch/c6x/kernel/vmlinux.lds.S
-@@ -5,6 +5,9 @@
-  *  Copyright (C) 2010, 2011 Texas Instruments Incorporated
-  *  Mark Salter <msalter@redhat.com>
-  */
-+
-+#define RO_EXCEPTION_TABLE_ALIGN	16
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
- #include <asm/page.h>
-@@ -80,8 +83,6 @@ SECTIONS
- 		*(.gnu.warning)
- 	}
- 
--	EXCEPTION_TABLE(16)
--
- 	RO_DATA(PAGE_SIZE)
- 	.const :
- 	{
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/f154988a905e5cad9d1a20d4c4aeb176968fe3be
+
+Thank you!
+
 -- 
-2.17.1
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
