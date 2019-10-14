@@ -1,38 +1,53 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:52526 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731815AbfJNU7J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Oct 2019 16:59:09 -0400
-Date: Mon, 14 Oct 2019 21:59:00 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH RFC 0/5] ARM: Raspberry Pi 4 DMA support
-Message-ID: <20191014205859.GA7634@iMac-3.local>
-References: <20191014183108.24804-1-nsaenzjulienne@suse.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH RFC 0/5] ARM: Raspberry Pi 4 DMA support
+Date: Mon, 14 Oct 2019 20:31:02 +0200
+Message-Id: <20191014183108.24804-1-nsaenzjulienne@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191014183108.24804-1-nsaenzjulienne@suse.de>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-rpi-kernel@lists.infradead.org, iommu@lists.linux-foundation.org, linux-s390@vger.kernel.org, f.fainelli@gmail.com, linux-kernel@vger.kernel.org, hch@infradead.org, mbrugger@suse.com, wahrenst@gmx.net, linuxppc-dev@lists.ozlabs.org
+To: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-rpi-kernel@lists.infradead.org, iommu@lists.linux-foundation.org
+Cc: hch@infradead.org, mbrugger@suse.com, f.fainelli@gmail.com, wahrenst@gmx.net, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-On Mon, Oct 14, 2019 at 08:31:02PM +0200, Nicolas Saenz Julienne wrote:
-> the Raspberry Pi 4 offers up to 4GB of memory, of which only the first
-> is DMA capable device wide. This forces us to use of bounce buffers,
-> which are currently not very well supported by ARM's custom DMA ops.
-> Among other things the current mechanism (see dmabounce.c) isn't
-> suitable for high memory. Instead of fixing it, this series introduces a
-> way of selecting dma-direct as the default DMA ops provider which allows
-> for the Raspberry Pi to make use of swiotlb.
+Hi all,
+the Raspberry Pi 4 offers up to 4GB of memory, of which only the first
+is DMA capable device wide. This forces us to use of bounce buffers,
+which are currently not very well supported by ARM's custom DMA ops.
+Among other things the current mechanism (see dmabounce.c) isn't
+suitable for high memory. Instead of fixing it, this series introduces a
+way of selecting dma-direct as the default DMA ops provider which allows
+for the Raspberry Pi to make use of swiotlb.
 
-I presume these patches go on top of this series:
+Regards,
+Nicolas
 
-http://lkml.kernel.org/r/20190911182546.17094-1-nsaenzjulienne@suse.de
+---
 
-which I queued here:
+Nicolas Saenz Julienne (5):
+  dma/direct: turn ARCH_ZONE_DMA_BITS into a variable
+  ARM: introduce arm_dma_direct
+  ARM: let machines select dma-direct over arch's DMA implementation
+  dma/direct: check for overflows in ARM's dma_capable()
+  ARM: bcm2711: use dma-direct
 
-https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/log/?h=for-next/zone-dma
+ arch/arm/include/asm/dma-direct.h  |  6 ++++++
+ arch/arm/include/asm/dma-mapping.h |  3 ++-
+ arch/arm/include/asm/dma.h         |  2 ++
+ arch/arm/include/asm/mach/arch.h   |  1 +
+ arch/arm/mach-bcm/Kconfig          |  1 +
+ arch/arm/mach-bcm/bcm2711.c        |  1 +
+ arch/arm/mm/dma-mapping.c          | 10 ++--------
+ arch/arm/mm/init.c                 | 21 ++++++++++++++++++++-
+ arch/arm64/include/asm/page.h      |  2 --
+ arch/arm64/mm/init.c               |  9 +++++++--
+ arch/powerpc/include/asm/page.h    |  9 ---------
+ arch/powerpc/mm/mem.c              | 20 +++++++++++++++-----
+ arch/s390/include/asm/page.h       |  2 --
+ arch/s390/mm/init.c                |  1 +
+ include/linux/dma-direct.h         |  2 ++
+ kernel/dma/direct.c                | 13 ++++++-------
+ 16 files changed, 66 insertions(+), 37 deletions(-)
 
 -- 
-Catalin
+2.23.0
