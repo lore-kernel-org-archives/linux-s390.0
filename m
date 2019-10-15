@@ -1,268 +1,194 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54630 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389435AbfJ2OjL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 29 Oct 2019 10:39:11 -0400
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: [PATCH v2 3/3] s390/livepatch: Implement reliable stack tracing for the consistency model
-Date: Tue, 29 Oct 2019 15:39:04 +0100
-Message-Id: <20191029143904.24051-4-mbenes@suse.cz>
-In-Reply-To: <20191029143904.24051-1-mbenes@suse.cz>
-References: <20191029143904.24051-1-mbenes@suse.cz>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41602 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2387777AbfJOUdt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 15 Oct 2019 16:33:49 -0400
+Subject: Re: [PATCH v6 00/10] s390: vfio-ap: dynamic configuration support
+References: <1568410018-10833-1-git-send-email-akrowiak@linux.ibm.com>
+ <20191008124807.49022238.pasic@linux.ibm.com>
+ <ddd4e91a-312d-99e4-1f54-7bf3b03fb63e@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <99390e19-58f6-0f7e-0632-451d138671bc@linux.ibm.com>
+Date: Tue, 15 Oct 2019 16:33:39 -0400
 MIME-Version: 1.0
+In-Reply-To: <ddd4e91a-312d-99e4-1f54-7bf3b03fb63e@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, jpoimboe@redhat.com, joe.lawrence@redhat.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org, pmladek@suse.com, nstange@suse.de, live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
+To: Pierre Morel <pmorel@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com
 
-The livepatch consistency model requires reliable stack tracing
-architecture support in order to work properly. In order to achieve
-this, two main issues have to be solved. First, reliable and consistent
-call chain backtracing has to be ensured. Second, the unwinder needs to
-be able to detect stack corruptions and return errors.
+On 10/8/19 8:57 AM, Pierre Morel wrote:
+> 
+> On 10/8/19 12:48 PM, Halil Pasic wrote:
+>> On Fri, 13 Sep 2019 17:26:48 -0400
+>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>
+>>> The current design for AP pass-through does not support making dynamic
+>>> changes to the AP matrix of a running guest resulting in three 
+>>> deficiencies
+>>> this patch series is intended to mitigate:
+>>>
+>>> 1. Adapters, domains and control domains can not be added to or removed
+>>>     from a running guest. In order to modify a guest's AP configuration,
+>>>     the guest must be terminated; only then can AP resources be assigned
+>>>     to or unassigned from the guest's matrix mdev. The new AP 
+>>> configuration
+>>>     becomes available to the guest when it is subsequently restarted.
+>>>
+>>> 2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+>>>     be modified by a root user without any restrictions. A change to 
+>>> either
+>>>     mask can result in AP queue devices being unbound from the vfio_ap
+>>>     device driver and bound to a zcrypt device driver even if a guest is
+>>>     using the queues, thus giving the host access to the guest's private
+>>>     crypto data and vice versa.
+>>>
+>>> 3. The APQNs derived from the Cartesian product of the APIDs of the
+>>>     adapters and APQIs of the domains assigned to a matrix mdev must
+>>>     reference an AP queue device bound to the vfio_ap device driver.
+>>>
+>>> This patch series introduces the following changes to the current design
+>>> to alleviate the shortcomings described above as well as to implement 
+>>> more
+>>> of the AP architecture:
+>>>
+>>> 1. A root user will be prevented from making changes to the AP bus's
+>>>     /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the ownership of an APQN
+>>>     changes from the vfio_ap device driver to a zcrypt driver when 
+>>> the APQN
+>>>     is assigned to a matrix mdev.
+>>>
+>>> 2. The sysfs bind/unbind interfaces will be disabled for the vfio_ap
+>>>     device driver.
+>>>
+>> Doesn't this have the potential of breaking some userspace stuff that
+>> might be out there?
+>>
+>>> 3. Allow AP resources to be assigned to or removed from a matrix mdev
+>>>     while a guest is using it and hot plug the resource into or hot 
+>>> unplug
+>>>     the resource from the running guest.
+>> This looks like a natural extension of the interface -- i.e. should not
+>> break any userspace.
+>>
+>>> 4. Allow assignment of an AP adapter or domain to a matrix mdev even 
+>>> if it
+>>>     results in assignment of an APQN that does not reference an AP queue
+>>>     device bound to the vfio_ap device driver, as long as the APQN is 
+>>> owned
+>>>     by the vfio_ap driver. Allowing over-provisioning of AP resources
+>>>     better models the architecture which does not preclude assigning AP
+>>>     resources that are not yet available in the system. If/when the 
+>>> queue
+>>>     becomes available to the host, it will immediately also become 
+>>> available
+>>>     to the guest.
+>> Same here -- I don't think this change breaks any userspace.
+>>
+>>> 1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+>>> ----------------------------------------------------------
+>>> Due to the extremely sensitive nature of cryptographic data, it is
+>>> imperative that great care be taken to ensure that such data is secured.
+>>> Allowing a root user, either inadvertently or maliciously, to configure
+>>> these masks such that a queue is shared between the host and a guest is
+>>> not only avoidable, it is advisable.
+> 
+> Just curious: how is it possible to do such a configuration?
 
-The "zSeries ELF Application Binary Interface Supplement" says:
+In the current implementation of dedicated crypto, there is nothing
+stopping a sysadmin from changing the apmask/aqmask in manner that
+transfers ownership of one more APQNs from the vfio_ap device driver to
+zcrypt which results in unbinding the queue devices from vfio_ap and
+binding them to the zcrypt drive. If a guest happens to be using the
+queue at the time, both the host and guest will have access. That is
+fixed by this series.
 
-  "The stack pointer points to the first word of the lowest allocated
-  stack frame. If the "back chain" is implemented this word will point to
-  the previously allocated stack frame (towards higher addresses), except
-  for the first stack frame, which shall have a back chain of zero (NULL).
-  The stack shall grow downwards, in other words towards lower addresses."
+> 
+> 
+>>>   It was suggested that this scenario
+>>> is better handled in user space with management software, but that does
+>>> not preclude a malicious administrator from using the sysfs interfaces
+>>> to gain access to a guest's crypto data. It was also suggested that this
+>>> scenario could be avoided by taking access to the adapter away from the
+>>> guest and zeroing out the queues prior to the vfio_ap driver 
+>>> releasing the
+>>> device; however, stealing an adapter in use from a guest as a by-product
+>>> of an operation is bad and will likely cause problems for the guest
+>>> unnecessarily. It was decided that the most effective solution with the
+>>> least number of negative side effects is to prevent the situation at the
+>>> source.
+> 
+> 
+> Stealing an adapter in use by a guest, insn't it what is done if we 
+> allow to unassign an AP/Domain using the unassign sysfs interface when 
+> the mediated device is in use by the guest?
 
-"back chain" is optional. GCC option -mbackchain enables it. Quoting
-Martin Schwidefsky [1]:
+Yes, but that is a deliberate action as opposed to a side effect of
+bind/unbind. It is the very definition of dynamic configuration (a.k.a.,
+hot plug/unplug).
 
-  "The compiler is called with the -mbackchain option, all normal C
-  function will store the backchain in the function prologue. All
-  functions written in assembler code should do the same, if you find one
-  that does not we should fix that. The end result is that a task that
-  *voluntarily* called schedule() should have a proper backchain at all
-  times.
-
-  Dependent on the use case this may or may not be enough. Asynchronous
-  interrupts may stop the CPU at the beginning of a function, if kernel
-  preemption is enabled we can end up with a broken backchain.  The
-  production kernels for IBM Z are all compiled *without* kernel
-  preemption. So yes, we might get away without the objtool support.
-
-  On a side-note, we do have a line item to implement the ORC unwinder for
-  the kernel, that includes the objtool support. Once we have that we can
-  drop the -mbackchain option for the kernel build. That gives us a nice
-  little performance benefit. I hope that the change from backchain to the
-  ORC unwinder will not be too hard to implement in the livepatch tools."
-
-Since -mbackchain is enabled by default when the kernel is compiled, the
-call chain backtracing should be currently ensured and objtool should
-not be necessary for livepatch purposes.
-
-Regarding the second issue, stack corruptions and non-reliable states
-have to be recognized by the unwinder. Mainly it means to detect
-preemption or page faults, the end of the task stack must be reached,
-return addresses must be valid text addresses and hacks like function
-graph tracing and kretprobes must be properly detected.
-
-Unwinding a running task's stack is not a problem, because there is a
-livepatch requirement that every checked task is blocked, except for the
-current task. Due to that, the implementation can be much simpler
-compared to the existing non-reliable infrastructure. We can consider a
-task's kernel/thread stack only and skip the other stacks.
-
-Idle tasks are a bit special. Their final back chains point to no_dat
-stacks. See for reference CALL_ON_STACK() in smp_start_secondary()
-callback used in __cpu_up(). The unwinding is stopped there and it is
-not considered to be a stack corruption.
-
-[1] 20180912121106.31ffa97c@mschwideX1 [not archived on lore.kernel.org]
-
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
----
- arch/s390/Kconfig              |  1 +
- arch/s390/include/asm/unwind.h |  1 +
- arch/s390/kernel/dumpstack.c   | 11 +++++++
- arch/s390/kernel/stacktrace.c  | 46 ++++++++++++++++++++++++++++
- arch/s390/kernel/unwind_bc.c   | 56 ++++++++++++++++++++++++++++++++++
- 5 files changed, 115 insertions(+)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 43a81d0ad507..9cfec1000abd 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -170,6 +170,7 @@ config S390
- 	select HAVE_PERF_EVENTS
- 	select HAVE_RCU_TABLE_FREE
- 	select HAVE_REGS_AND_STACK_ACCESS_API
-+	select HAVE_RELIABLE_STACKTRACE
- 	select HAVE_RSEQ
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HAVE_VIRT_CPU_ACCOUNTING
-diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
-index 1f4de78c3ef9..87d1850d195a 100644
---- a/arch/s390/include/asm/unwind.h
-+++ b/arch/s390/include/asm/unwind.h
-@@ -44,6 +44,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		    struct pt_regs *regs, unsigned long first_frame,
- 		    bool unwind_reliable);
- bool unwind_next_frame(struct unwind_state *state);
-+bool unwind_next_frame_reliable(struct unwind_state *state);
- unsigned long unwind_get_return_address(struct unwind_state *state);
- 
- static inline bool unwind_done(struct unwind_state *state)
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index 1ee19e6336cd..0081e75b957c 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -94,12 +94,23 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
- 	if (!sp)
- 		goto unknown;
- 
-+	/* Sanity check: ABI requires SP to be aligned 8 bytes. */
-+	if (sp & 0x7)
-+		goto unknown;
-+
- 	task = task ? : current;
- 
- 	/* Check per-task stack */
- 	if (in_task_stack(sp, task, info))
- 		goto recursion_check;
- 
-+	/*
-+	 * The reliable unwinding should not start on nodat_stack, async_stack
-+	 * or restart_stack. The task is either current or must be inactive.
-+	 */
-+	if (unwind_reliable)
-+		goto unknown;
-+
- 	if (task != current)
- 		goto unknown;
- 
-diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
-index 751c136172f7..cff9ba0715e6 100644
---- a/arch/s390/kernel/stacktrace.c
-+++ b/arch/s390/kernel/stacktrace.c
-@@ -9,6 +9,7 @@
- #include <linux/stacktrace.h>
- #include <asm/stacktrace.h>
- #include <asm/unwind.h>
-+#include <asm/kprobes.h>
- 
- void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
- 		     struct task_struct *task, struct pt_regs *regs)
-@@ -22,3 +23,48 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
- 			break;
- 	}
- }
-+
-+/*
-+ * This function returns an error if it detects any unreliable features of the
-+ * stack.  Otherwise it guarantees that the stack trace is reliable.
-+ *
-+ * If the task is not 'current', the caller *must* ensure the task is inactive.
-+ */
-+int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
-+			     void *cookie, struct task_struct *task)
-+{
-+	struct unwind_state state;
-+	unsigned long addr;
-+
-+	for (unwind_start(&state, task, NULL, 0, true);
-+	     !unwind_done(&state) && !unwind_error(&state);
-+	     unwind_next_frame_reliable(&state)) {
-+
-+		addr = unwind_get_return_address(&state);
-+		if (!addr)
-+			return -EINVAL;
-+
-+#ifdef CONFIG_KPROBES
-+		/*
-+		 * Mark stacktraces with kretprobed functions on them
-+		 * as unreliable.
-+		 */
-+		if (state.ip == (unsigned long)kretprobe_trampoline)
-+			return -EINVAL;
-+#endif
-+
-+		if (!consume_entry(cookie, addr, false))
-+			return -EINVAL;
-+	}
-+
-+	/* Check for stack corruption */
-+	if (unwind_error(&state))
-+		return -EINVAL;
-+
-+	/* Store kernel_thread_starter, null for swapper/0 */
-+	if ((task->flags & (PF_KTHREAD | PF_IDLE)) &&
-+	    !consume_entry(cookie, state.regs->psw.addr, false))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
-index 564eef63668b..8d3a1d137ad0 100644
---- a/arch/s390/kernel/unwind_bc.c
-+++ b/arch/s390/kernel/unwind_bc.c
-@@ -98,6 +98,62 @@ bool unwind_next_frame(struct unwind_state *state)
- }
- EXPORT_SYMBOL_GPL(unwind_next_frame);
- 
-+bool unwind_next_frame_reliable(struct unwind_state *state)
-+{
-+	struct stack_info *info = &state->stack_info;
-+	struct stack_frame *sf;
-+	struct pt_regs *regs;
-+	unsigned long sp, ip;
-+
-+	sf = (struct stack_frame *) state->sp;
-+	sp = READ_ONCE_NOCHECK(sf->back_chain);
-+	/*
-+	 * Idle tasks are special. The final back-chain points to nodat_stack.
-+	 * See CALL_ON_STACK() in smp_start_secondary() callback used in
-+	 * __cpu_up(). We just accept it, go to else branch and look for
-+	 * pt_regs.
-+	 */
-+	if (likely(sp && !(is_idle_task(state->task) &&
-+			   outside_of_stack(state, sp)))) {
-+		/* Non-zero back-chain points to the previous frame */
-+		if (unlikely(outside_of_stack(state, sp)))
-+			goto out_err;
-+
-+		sf = (struct stack_frame *) sp;
-+		ip = READ_ONCE_NOCHECK(sf->gprs[8]);
-+	} else {
-+		/* No back-chain, look for a pt_regs structure */
-+		sp = state->sp + STACK_FRAME_OVERHEAD;
-+		regs = (struct pt_regs *) sp;
-+		if ((unsigned long)regs != info->end - sizeof(struct pt_regs))
-+			goto out_err;
-+		if (!(state->task->flags & (PF_KTHREAD | PF_IDLE)) &&
-+		      !user_mode(regs))
-+			goto out_err;
-+
-+		state->regs = regs;
-+		goto out_stop;
-+	}
-+
-+	/* Sanity check: ABI requires SP to be aligned 8 bytes. */
-+	if (sp & 0x7)
-+		goto out_err;
-+
-+	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
-+				   ip, (void *) sp);
-+
-+	/* Update unwind state */
-+	state->sp = sp;
-+	state->ip = ip;
-+	return true;
-+
-+out_err:
-+	state->error = true;
-+out_stop:
-+	state->stack_info.type = STACK_TYPE_UNKNOWN;
-+	return false;
-+}
-+
- void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		    struct pt_regs *regs, unsigned long sp,
- 		    bool unwind_reliable)
--- 
-2.23.0
+> 
+> 
+>>>
+>>> 2. Rationale for disabling bind/unbind interfaces for vfio_ap driver:
+>>> -----------------------------------------------------------------
+>>> By disabling the bind/unbind interfaces for the vfio_ap device driver,
+>>> the user is forced to use the AP bus's apmask/aqmask interfaces to 
+>>> control
+>>> the probing and removing of AP queues. There are two primary reasons for
+>>> disabling the bind/unbind interfaces for the vfio_ap device driver:
+>>>
+>>> * The device architecture does not provide a means to prevent unbinding
+>>>    a device from a device driver, so an AP queue device can be unbound
+>>>    from the vfio_ap driver even when the queue is in use by a guest. By
+>>>    disabling the unbind interface, the user is forced to use the AP 
+>>> bus's
+>>>    apmask/aqmask interfaces which will prevent this.
+>>>
+>> Isn't this fixed by your filtering (if implemented correctly)? BTW I 
+>> believe
+>> it solves the problem regardless whether the unbind was triggered by the
+>> drivers unbind attribute or by a[pq]mask
+>>
+>>> * Binding of AP queues is controlled by the AP bus /sys/bus/ap/apmask 
+>>> and
+>>>    /sys/bus/ap/aqmask interfaces. If the masks indicate that an APQN is
+>>>    owned by zcrypt, trying to bind it to the vfio_ap device driver will
+>>>    fail; therefore, the bind interface is somewhat redundant and 
+>>> certainly
+>>>    unnecessary.
+>>>
+>>>
+>>> Tony Krowiak (10):
+>>>    s390: vfio-ap: Refactor vfio_ap driver probe and remove callbacks
+>>>    s390: vfio-ap: allow assignment of unavailable AP resources to mdev
+>>>      device
+>>>    s390: vfio-ap: allow hot plug/unplug of AP resources using mdev 
+>>> device
+>>>    s390: vfio-ap: filter CRYCB bits for unavailable queue devices
+>>>    s390: vfio-ap: sysfs attribute to display the guest CRYCB
+>>>    s390: vfio-ap: update guest CRYCB in vfio_ap probe and remove
+>>>      callbacks
+>>>    s390: zcrypt: driver callback to indicate resource in use
+>>>    s390: vfio-ap: implement in-use callback for vfio_ap driver
+>>>    s390: vfio-ap: added versioning to vfio_ap module
+>>>    s390: vfio-ap: update documentation
+>> I believe it would be worthwhile to reorder the patches (fixes and
+>> re-factoring first, the features).
+>>
+>> Regards,
+>> Halil
+>>
+>>>   Documentation/s390/vfio-ap.rst        | 899 
+>>> +++++++++++++++++++++++++---------
+>>>   drivers/s390/crypto/ap_bus.c          | 144 +++++-
+>>>   drivers/s390/crypto/ap_bus.h          |   4 +
+>>>   drivers/s390/crypto/vfio_ap_drv.c     |  27 +-
+>>>   drivers/s390/crypto/vfio_ap_ops.c     | 610 ++++++++++++++---------
+>>>   drivers/s390/crypto/vfio_ap_private.h |  12 +-
+>>>   6 files changed, 1200 insertions(+), 496 deletions(-)
+>>>
