@@ -1,26 +1,37 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:46464 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729799AbfJHJIP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 8 Oct 2019 05:08:15 -0400
-Date: Tue, 8 Oct 2019 11:08:13 +0200
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v6 0/5] iommu/amd: Convert the AMD iommu driver to the
- dma-iommu api
-Message-ID: <20191008090813.GB2514@8bytes.org>
-References: <20190908165642.22253-1-murphyt7@tcd.ie>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Wed, 16 Oct 2019 10:28:30 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v2 00/29] vmlinux.lds.h: Refactor EXCEPTION_TABLE and
+ NOTES
+References: <20191011000609.29728-1-keescook@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190908165642.22253-1-murphyt7@tcd.ie>
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
+Message-Id: <20191016082830.GC4267@osiris>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tom Murphy <murphyt7@tcd.ie>
-Cc: iommu@lists.linux-foundation.org, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Borislav Petkov <bp@alien8.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Sep 08, 2019 at 09:56:36AM -0700, Tom Murphy wrote:
-> Convert the AMD iommu driver to the dma-iommu api. Remove the iova
-> handling and reserve region code from the AMD iommu driver.
+On Thu, Oct 10, 2019 at 05:05:40PM -0700, Kees Cook wrote:
+> Arch maintainers: please send Acks (if you haven't already) for your
+> respective linker script changes; the intention is for this series to
+> land via -tip.
+> 
+> v1: https://lore.kernel.org/lkml/20190926175602.33098-1-keescook@chromium.org
+> v2: clean up commit messages, rename RO_EXCEPTION_TABLE (bp)
+> 
+> 
+> This series works to move the linker sections for NOTES and
+> EXCEPTION_TABLE into the RO_DATA area, where they belong on most
+> (all?) architectures. The problem being addressed was the discovery
+> by Rick Edgecombe that the exception table was accidentally marked
+> executable while he was developing his execute-only-memory series. When
+> permissions were flipped from readable-and-executable to only-executable,
+> the exception table became unreadable, causing things to explode rather
+> badly. :)
 
-Applied, thanks. Note that it will not show up in linux-next before
--rc3.
+Feel free to add
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+to every patch in this series which touches s390.
