@@ -1,50 +1,126 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:45949 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727632AbfJKAM7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:12:59 -0400
-Received: by mail-pf1-f193.google.com with SMTP id y72so4932100pfb.12
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:12:59 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 19/29] c6x: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Thu, 10 Oct 2019 17:05:59 -0700
-Message-Id: <20191011000609.29728-20-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57344 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2393986AbfJPOUv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Oct 2019 10:20:51 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9GE8WIC117149
+        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2019 10:20:50 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vp4q78g3f-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2019 10:20:50 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Wed, 16 Oct 2019 15:20:47 +0100
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 1/4] vfio-ccw: Refactor how the traces are built
+Date: Wed, 16 Oct 2019 16:20:37 +0200
+In-Reply-To: <20191016142040.14132-1-farman@linux.ibm.com>
+References: <20191016142040.14132-1-farman@linux.ibm.com>
+Message-Id: <20191016142040.14132-2-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+Commit 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error
+paths") added a quick trace point to determine where a channel program
+failed while being processed.  It's a great addition, but adding more
+traces to vfio-ccw is more cumbersome than it needs to be.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Let's refactor how this is done, so that additional traces are easier
+to add and can exist outside of the FSM if we ever desire.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/c6x/kernel/vmlinux.lds.S | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/cio/Makefile         |  4 ++--
+ drivers/s390/cio/vfio_ccw_cp.h    |  1 +
+ drivers/s390/cio/vfio_ccw_fsm.c   |  3 ---
+ drivers/s390/cio/vfio_ccw_trace.c | 12 ++++++++++++
+ drivers/s390/cio/vfio_ccw_trace.h |  2 ++
+ 5 files changed, 17 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
 
-diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
-index a3547f9d415b..ac99ba0864bf 100644
---- a/arch/c6x/kernel/vmlinux.lds.S
-+++ b/arch/c6x/kernel/vmlinux.lds.S
-@@ -5,6 +5,9 @@
-  *  Copyright (C) 2010, 2011 Texas Instruments Incorporated
-  *  Mark Salter <msalter@redhat.com>
-  */
-+
-+#define RO_EXCEPTION_TABLE_ALIGN	16
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
- #include <asm/page.h>
-@@ -80,8 +83,6 @@ SECTIONS
- 		*(.gnu.warning)
- 	}
+diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
+index f6a8db04177c..23eae4188876 100644
+--- a/drivers/s390/cio/Makefile
++++ b/drivers/s390/cio/Makefile
+@@ -5,7 +5,7 @@
  
--	EXCEPTION_TABLE(16)
+ # The following is required for define_trace.h to find ./trace.h
+ CFLAGS_trace.o := -I$(src)
+-CFLAGS_vfio_ccw_fsm.o := -I$(src)
++CFLAGS_vfio_ccw_trace.o := -I$(src)
+ 
+ obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o \
+ 	fcx.o itcw.o crw.o ccwreq.o trace.o ioasm.o
+@@ -21,5 +21,5 @@ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
+ obj-$(CONFIG_QDIO) += qdio.o
+ 
+ vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fsm.o \
+-	vfio_ccw_async.o
++	vfio_ccw_async.o vfio_ccw_trace.o
+ obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
+index 7cdc38049033..ba31240ce965 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -15,6 +15,7 @@
+ #include <asm/scsw.h>
+ 
+ #include "orb.h"
++#include "vfio_ccw_trace.h"
+ 
+ /*
+  * Max length for ccw chain.
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 4a1e727c62d9..d4119e4c4a8c 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -15,9 +15,6 @@
+ #include "ioasm.h"
+ #include "vfio_ccw_private.h"
+ 
+-#define CREATE_TRACE_POINTS
+-#include "vfio_ccw_trace.h"
 -
- 	RO_DATA(PAGE_SIZE)
- 	.const :
- 	{
+ static int fsm_io_helper(struct vfio_ccw_private *private)
+ {
+ 	struct subchannel *sch;
+diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_trace.c
+new file mode 100644
+index 000000000000..d5cc943c6864
+--- /dev/null
++++ b/drivers/s390/cio/vfio_ccw_trace.c
+@@ -0,0 +1,12 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Tracepoint definitions for vfio_ccw
++ *
++ * Copyright IBM Corp. 2019
++ * Author(s): Eric Farman <farman@linux.ibm.com>
++ */
++
++#define CREATE_TRACE_POINTS
++#include "vfio_ccw_trace.h"
++
++EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
+diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
+index b1da53ddec1f..2a2937a40124 100644
+--- a/drivers/s390/cio/vfio_ccw_trace.h
++++ b/drivers/s390/cio/vfio_ccw_trace.h
+@@ -7,6 +7,8 @@
+  *            Halil Pasic <pasic@linux.vnet.ibm.com>
+  */
+ 
++#include "cio.h"
++
+ #undef TRACE_SYSTEM
+ #define TRACE_SYSTEM vfio_ccw
+ 
 -- 
 2.17.1
