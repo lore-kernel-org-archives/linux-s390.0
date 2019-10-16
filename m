@@ -1,146 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:41121 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727540AbfJKAGa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:06:30 -0400
-Received: by mail-pf1-f194.google.com with SMTP id q7so4935081pfh.8
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:06:28 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 08/29] vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes
-Date: Thu, 10 Oct 2019 17:05:48 -0700
-Message-Id: <20191011000609.29728-9-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41158 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728986AbfJPNfp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Oct 2019 09:35:45 -0400
+Subject: Re: [PATCH v2 3/4] vfio-ccw: Add a trace for asynchronous requests
+References: <20191016015822.72425-1-farman@linux.ibm.com>
+ <20191016015822.72425-4-farman@linux.ibm.com>
+ <20191016121543.2b3f0a88.cohuck@redhat.com>
+ <6c559ea3-4abd-d83b-4a20-d022a188545e@linux.ibm.com>
+ <20191016133919.6f8592e7.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <1e32a1ba-e187-c0db-05cc-ccea1dc3f7b0@linux.ibm.com>
+Date: Wed, 16 Oct 2019 09:35:37 -0400
+MIME-Version: 1.0
+In-Reply-To: <20191016133919.6f8592e7.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-In preparation for moving NOTES into RO_DATA, provide a mechanism for
-architectures that want to emit a PT_NOTE Program Header to do so.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/alpha/kernel/vmlinux.lds.S   |  3 +++
- arch/ia64/kernel/vmlinux.lds.S    |  2 ++
- arch/mips/kernel/vmlinux.lds.S    | 12 ++++++------
- arch/powerpc/kernel/vmlinux.lds.S |  1 +
- arch/s390/kernel/vmlinux.lds.S    |  2 ++
- arch/x86/kernel/vmlinux.lds.S     |  2 ++
- include/asm-generic/vmlinux.lds.h |  8 ++++++++
- 7 files changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index 781090cacc96..363a60ba7c31 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -1,4 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 */
-+
-+#define EMITS_PT_NOTE
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
- #include <asm/cache.h>
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 2c4f23c390ad..7cf4958b732d 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -5,6 +5,8 @@
- #include <asm/pgtable.h>
- #include <asm/thread_info.h>
- 
-+#define EMITS_PT_NOTE
-+
- #include <asm-generic/vmlinux.lds.h>
- 
- OUTPUT_FORMAT("elf64-ia64-little")
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 33ee0d18fb0a..1c95612eb800 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -10,6 +10,11 @@
-  */
- #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
- 
-+/* Cavium Octeon should not have a separate PT_NOTE Program Header. */
-+#ifndef CONFIG_CAVIUM_OCTEON_SOC
-+#define EMITS_PT_NOTE
-+#endif
-+
- #include <asm-generic/vmlinux.lds.h>
- 
- #undef mips
-@@ -76,12 +81,7 @@ SECTIONS
- 		__stop___dbe_table = .;
- 	}
- 
--#ifdef CONFIG_CAVIUM_OCTEON_SOC
--#define NOTES_HEADER
--#else /* CONFIG_CAVIUM_OCTEON_SOC */
--#define NOTES_HEADER :note
--#endif /* CONFIG_CAVIUM_OCTEON_SOC */
--	NOTES :text NOTES_HEADER
-+	NOTES NOTES_HEADERS
- 	.dummy : { *(.dummy) } :text
- 
- 	_sdata = .;			/* Start of data section */
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index e184a63aa5b0..7e26e20c8324 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -6,6 +6,7 @@
- #endif
- 
- #define BSS_FIRST_SECTIONS *(.bss.prominit)
-+#define EMITS_PT_NOTE
- 
- #include <asm/page.h>
- #include <asm-generic/vmlinux.lds.h>
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 13294fef473e..646d939346df 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -15,6 +15,8 @@
- /* Handle ro_after_init data on our own. */
- #define RO_AFTER_INIT_DATA
- 
-+#define EMITS_PT_NOTE
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/vmlinux.lds.h>
- 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 788e78978030..2e18bf5c1aed 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -21,6 +21,8 @@
- #define LOAD_OFFSET __START_KERNEL_map
- #endif
- 
-+#define EMITS_PT_NOTE
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index dae64600ccbf..f5dd45ce73f1 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -54,6 +54,14 @@
- #define LOAD_OFFSET 0
- #endif
- 
-+/*
-+ * Only some architectures want to have the .notes segment visible in
-+ * a separate PT_NOTE ELF Program Header.
-+ */
-+#ifdef EMITS_PT_NOTE
-+#define NOTES_HEADERS		:text :note
-+#endif
-+
- /* Align . to a 8 byte boundary equals to maximum function alignment. */
- #define ALIGN_FUNCTION()  . = ALIGN(8)
- 
--- 
-2.17.1
+On 10/16/19 7:39 AM, Cornelia Huck wrote:
+> On Wed, 16 Oct 2019 07:36:09 -0400
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> On 10/16/19 6:15 AM, Cornelia Huck wrote:
+>>> On Wed, 16 Oct 2019 03:58:21 +0200
+>>> Eric Farman <farman@linux.ibm.com> wrote:
+>>>   
+>>>> Since the asynchronous requests are typically associated with
+>>>> error recovery, let's add a simple trace when one of those is
+>>>> issued to a device.
+>>>>
+>>>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>>>> ---
+>>>>  drivers/s390/cio/vfio_ccw_fsm.c   |  4 ++++
+>>>>  drivers/s390/cio/vfio_ccw_trace.c |  1 +
+>>>>  drivers/s390/cio/vfio_ccw_trace.h | 30 ++++++++++++++++++++++++++++++
+>>>>  3 files changed, 35 insertions(+)  
+>>>
+>>> (...)
+>>>   
+>>>> diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
+>>>> index 5005d57901b4..23b288eb53dc 100644
+>>>> --- a/drivers/s390/cio/vfio_ccw_trace.h
+>>>> +++ b/drivers/s390/cio/vfio_ccw_trace.h
+>>>> @@ -17,6 +17,36 @@
+>>>>  
+>>>>  #include <linux/tracepoint.h>
+>>>>  
+>>>> +TRACE_EVENT(vfio_ccw_fsm_async_request,
+>>>> +	TP_PROTO(struct subchannel_id schid,
+>>>> +		 int command,
+>>>> +		 int errno),
+>>>> +	TP_ARGS(schid, command, errno),
+>>>> +
+>>>> +	TP_STRUCT__entry(
+>>>> +		__field(u8, cssid)
+>>>> +		__field(u8, ssid)
+>>>> +		__field(u16, sch_no)
+>>>> +		__field(int, command)
+>>>> +		__field(int, errno)
+>>>> +	),
+>>>> +
+>>>> +	TP_fast_assign(
+>>>> +		__entry->cssid = schid.cssid;
+>>>> +		__entry->ssid = schid.ssid;
+>>>> +		__entry->sch_no = schid.sch_no;
+>>>> +		__entry->command = command;
+>>>> +		__entry->errno = errno;
+>>>> +	),
+>>>> +
+>>>> +	TP_printk("schid=%x.%x.%04x command=%d errno=%d",  
+>>>
+>>> I'd probably rather print the command as a hex value.  
+>>
+>> I'm fine with that too.  Want me to send an update?
+> 
+> I think that would be the easiest way.
+
+Will do.  Thanks for the reviews on the other ones!
+
+ - Eric
+
+> 
+>>
+>>>   
+>>>> +		  __entry->cssid,
+>>>> +		  __entry->ssid,
+>>>> +		  __entry->sch_no,
+>>>> +		  __entry->command,
+>>>> +		  __entry->errno)
+>>>> +);
+>>>> +
+>>>>  TRACE_EVENT(vfio_ccw_fsm_event,
+>>>>  	TP_PROTO(struct subchannel_id schid, int state, int event),
+>>>>  	TP_ARGS(schid, state, event),  
+>>>   
+> 
