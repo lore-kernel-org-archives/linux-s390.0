@@ -1,86 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:55530 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440959AbfJQRqw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:52 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 13/21] m68k: rename __iounmap and mark it static
-Date: Thu, 17 Oct 2019 19:45:46 +0200
-Message-Id: <20191017174554.29840-14-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
+Received: from mx1.redhat.com ([209.132.183.28]:37768 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727235AbfJPKKP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Oct 2019 06:10:15 -0400
+Date: Wed, 16 Oct 2019 12:10:11 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 2/4] vfio-ccw: Trace the FSM jumptable
+Message-ID: <20191016121011.35bf651c.cohuck@redhat.com>
+In-Reply-To: <20191016015822.72425-3-farman@linux.ibm.com>
+References: <20191016015822.72425-1-farman@linux.ibm.com>
+        <20191016015822.72425-3-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-m68k uses __iounmap as the name for an internal helper that is only
-used for some CPU types.  Mark it static and give it a better name.
+On Wed, 16 Oct 2019 03:58:20 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/m68k/include/asm/kmap.h | 1 -
- arch/m68k/mm/kmap.c          | 9 ++++++---
- 2 files changed, 6 insertions(+), 4 deletions(-)
+> It would be nice if we could track the sequence of events within
+> vfio-ccw, based on the state of the device/FSM and our calling
+> sequence within it.  So let's add a simple trace here so we can
+> watch the states change as things go, and allow it to be folded
+> into the rest of the other cio traces.
+> 
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_private.h |  1 +
+>  drivers/s390/cio/vfio_ccw_trace.c   |  1 +
+>  drivers/s390/cio/vfio_ccw_trace.h   | 26 ++++++++++++++++++++++++++
+>  3 files changed, 28 insertions(+)
 
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index 421b6c9c769d..559cb91bede1 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -20,7 +20,6 @@ extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
- 			       int cacheflag);
- #define iounmap iounmap
- extern void iounmap(void __iomem *addr);
--extern void __iounmap(void *addr, unsigned long size);
- 
- #define ioremap ioremap
- static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
-diff --git a/arch/m68k/mm/kmap.c b/arch/m68k/mm/kmap.c
-index 40a3b327da07..4c279cf0bcc8 100644
---- a/arch/m68k/mm/kmap.c
-+++ b/arch/m68k/mm/kmap.c
-@@ -52,6 +52,7 @@ static inline void free_io_area(void *addr)
- 
- #define IO_SIZE		(256*1024)
- 
-+static void __free_io_area(void *addr, unsigned long size);
- static struct vm_struct *iolist;
- 
- static struct vm_struct *get_io_area(unsigned long size)
-@@ -90,7 +91,7 @@ static inline void free_io_area(void *addr)
- 		if (tmp->addr == addr) {
- 			*p = tmp->next;
- 			/* remove gap added in get_io_area() */
--			__iounmap(tmp->addr, tmp->size - IO_SIZE);
-+			__free_io_area(tmp->addr, tmp->size - IO_SIZE);
- 			kfree(tmp);
- 			return;
- 		}
-@@ -249,12 +250,13 @@ void iounmap(void __iomem *addr)
- }
- EXPORT_SYMBOL(iounmap);
- 
-+#ifndef CPU_M68040_OR_M68060_ONLY
- /*
-- * __iounmap unmaps nearly everything, so be careful
-+ * __free_io_area unmaps nearly everything, so be careful
-  * Currently it doesn't free pointer/page tables anymore but this
-  * wasn't used anyway and might be added later.
-  */
--void __iounmap(void *addr, unsigned long size)
-+static void __free_io_area(void *addr, unsigned long size)
- {
- 	unsigned long virtaddr = (unsigned long)addr;
- 	pgd_t *pgd_dir;
-@@ -297,6 +299,7 @@ void __iounmap(void *addr, unsigned long size)
- 
- 	flush_tlb_all();
- }
-+#endif /* CPU_M68040_OR_M68060_ONLY */
- 
- /*
-  * Set new cache mode for some kernel address space.
--- 
-2.20.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
