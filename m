@@ -1,89 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727476AbfJZNRn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:43 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 55/99] net/smc: receive pending data after RCV_SHUTDOWN
-Date: Sat, 26 Oct 2019 09:15:16 -0400
-Message-Id: <20191026131600.2507-55-sashal@kernel.org>
-In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
-References: <20191026131600.2507-1-sashal@kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:56944 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2441071AbfJQRrM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:47:12 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 21/21] csky: use generic ioremap
+Date: Thu, 17 Oct 2019 19:45:54 +0200
+Message-Id: <20191017174554.29840-22-hch@lst.de>
+In-Reply-To: <20191017174554.29840-1-hch@lst.de>
+References: <20191017174554.29840-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+Use the generic ioremap_prot and iounmap helpers.
 
-[ Upstream commit 107529e31a87acd475ff6a0f82745821b8f70fec ]
-
-smc_rx_recvmsg() first checks if data is available, and then if
-RCV_SHUTDOWN is set. There is a race when smc_cdc_msg_recv_action() runs
-in between these 2 checks, receives data and sets RCV_SHUTDOWN.
-In that case smc_rx_recvmsg() would return from receive without to
-process the available data.
-Fix that with a final check for data available if RCV_SHUTDOWN is set.
-Move the check for data into a function and call it twice.
-And use the existing helper smc_rx_data_available().
-
-Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/smc_rx.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ arch/csky/Kconfig               |  1 +
+ arch/csky/include/asm/io.h      |  8 +++---
+ arch/csky/include/asm/pgtable.h |  4 +++
+ arch/csky/mm/ioremap.c          | 45 ---------------------------------
+ 4 files changed, 8 insertions(+), 50 deletions(-)
 
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index 0000026422885..97e8369002d71 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -261,6 +261,18 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
- 	return -EAGAIN;
- }
+diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
+index 3973847b5f42..da09c884cc30 100644
+--- a/arch/csky/Kconfig
++++ b/arch/csky/Kconfig
+@@ -17,6 +17,7 @@ config CSKY
+ 	select IRQ_DOMAIN
+ 	select HANDLE_DOMAIN_IRQ
+ 	select DW_APB_TIMER_OF
++	select GENERIC_IOREMAP
+ 	select GENERIC_LIB_ASHLDI3
+ 	select GENERIC_LIB_ASHRDI3
+ 	select GENERIC_LIB_LSHRDI3
+diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
+index f572605d5ad5..332f51bc68fb 100644
+--- a/arch/csky/include/asm/io.h
++++ b/arch/csky/include/asm/io.h
+@@ -36,11 +36,9 @@
+ /*
+  * I/O memory mapping functions.
+  */
+-extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
+-extern void iounmap(void *addr);
+-
+-#define ioremap(addr, size)		__ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
+-#define ioremap_wc(addr, size)		__ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
++#define ioremap_wc(addr, size) \
++	ioremap_prot((addr), (size), \
++		(_PAGE_IOREMAP & ~_CACHE_MASK) | _CACHE_UNCACHED)
  
-+static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
-+{
-+	struct smc_connection *conn = &smc->conn;
+ #include <asm-generic/io.h>
+ 
+diff --git a/arch/csky/include/asm/pgtable.h b/arch/csky/include/asm/pgtable.h
+index 7c21985c60dc..4b2a41e15f2e 100644
+--- a/arch/csky/include/asm/pgtable.h
++++ b/arch/csky/include/asm/pgtable.h
+@@ -86,6 +86,10 @@
+ #define PAGE_USERIO	__pgprot(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
+ 				_CACHE_CACHED)
+ 
++#define _PAGE_IOREMAP \
++	(_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
++	 _CACHE_UNCACHED | _PAGE_SO)
 +
-+	if (smc_rx_data_available(conn))
-+		return true;
-+	else if (conn->urg_state == SMC_URG_VALID)
-+		/* we received a single urgent Byte - skip */
-+		smc_rx_update_cons(smc, 0);
-+	return false;
-+}
-+
- /* smc_rx_recvmsg - receive data from RMBE
-  * @msg:	copy data to receive buffer
-  * @pipe:	copy data to pipe if set - indicates splice() call
-@@ -302,15 +314,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 		if (read_done >= target || (pipe && read_done))
- 			break;
+ #define __P000	PAGE_NONE
+ #define __P001	PAGE_READONLY
+ #define __P010	PAGE_COPY
+diff --git a/arch/csky/mm/ioremap.c b/arch/csky/mm/ioremap.c
+index ae78256a56fd..70c8268d3b2b 100644
+--- a/arch/csky/mm/ioremap.c
++++ b/arch/csky/mm/ioremap.c
+@@ -3,53 +3,8 @@
  
--		if (atomic_read(&conn->bytes_to_rcv))
-+		if (smc_rx_recvmsg_data_available(smc))
- 			goto copy;
--		else if (conn->urg_state == SMC_URG_VALID)
--			/* we received a single urgent Byte - skip */
--			smc_rx_update_cons(smc, 0);
+ #include <linux/export.h>
+ #include <linux/mm.h>
+-#include <linux/vmalloc.h>
+ #include <linux/io.h>
  
- 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
--		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
-+		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
-+			/* smc_cdc_msg_recv_action() could have run after
-+			 * above smc_rx_recvmsg_data_available()
-+			 */
-+			if (smc_rx_recvmsg_data_available(smc))
-+				goto copy;
- 			break;
-+		}
- 
- 		if (read_done) {
- 			if (sk->sk_err ||
+-#include <asm/pgtable.h>
+-
+-static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
+-				      pgprot_t prot, void *caller)
+-{
+-	phys_addr_t last_addr;
+-	unsigned long offset, vaddr;
+-	struct vm_struct *area;
+-
+-	last_addr = addr + size - 1;
+-	if (!size || last_addr < addr)
+-		return NULL;
+-
+-	offset = addr & (~PAGE_MASK);
+-	addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(size + offset);
+-
+-	area = get_vm_area_caller(size, VM_IOREMAP, caller);
+-	if (!area)
+-		return NULL;
+-
+-	vaddr = (unsigned long)area->addr;
+-
+-	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
+-		free_vm_area(area);
+-		return NULL;
+-	}
+-
+-	return (void __iomem *)(vaddr + offset);
+-}
+-
+-void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
+-{
+-	return __ioremap_caller(phys_addr, size, prot,
+-				__builtin_return_address(0));
+-}
+-EXPORT_SYMBOL(__ioremap);
+-
+-void iounmap(void __iomem *addr)
+-{
+-	vunmap((void *)((unsigned long)addr & PAGE_MASK));
+-}
+-EXPORT_SYMBOL(iounmap);
+-
+ pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ 			      unsigned long size, pgprot_t vma_prot)
+ {
 -- 
 2.20.1
