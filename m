@@ -1,116 +1,121 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62564 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726750AbfJPB6a (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Oct 2019 21:58:30 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9G1q4k9029568
-        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2019 21:58:29 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vnmh0guc9-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 15 Oct 2019 21:58:28 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Wed, 16 Oct 2019 02:58:27 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 4/4] vfio-ccw: Rework the io_fctl trace
-Date: Wed, 16 Oct 2019 03:58:22 +0200
-In-Reply-To: <20191016015822.72425-1-farman@linux.ibm.com>
-References: <20191016015822.72425-1-farman@linux.ibm.com>
-Message-Id: <20191016015822.72425-5-farman@linux.ibm.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:55188 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2440904AbfJQRqq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:46 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 11/21] asm-generic: don't provide ioremap for CONFIG_MMU
+Date: Thu, 17 Oct 2019 19:45:44 +0200
+Message-Id: <20191017174554.29840-12-hch@lst.de>
+In-Reply-To: <20191017174554.29840-1-hch@lst.de>
+References: <20191017174554.29840-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Steffen Maier <maier@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Using __field_struct for the schib is convenient, but it doesn't
-appear to let us filter based on any of the schib elements.
-Specifying, the full schid or any element within it results
-in various errors by the parser.  So, expand that out to its
-component elements, so we can limit the trace to a single device.
+All MMU-enabled ports have a non-trivial ioremap and should thus provide
+the prototype for their implementation instead of providing a generic
+one unless a different symbol is not defined.  Note that this only
+affects sparc32 nds32 as all others do provide their own version.
 
-While we are at it, rename this trace to the function name, so we
-remember what is being traced instead of an abstract reference to the
-function control bit of the SCSW.
+Also update the kerneldoc comments in asm-generic/io.h to explain the
+situation around the default ioremap* implementations correctly.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/vfio_ccw_fsm.c   |  4 ++--
- drivers/s390/cio/vfio_ccw_trace.c |  2 +-
- drivers/s390/cio/vfio_ccw_trace.h | 18 +++++++++++-------
- 3 files changed, 14 insertions(+), 10 deletions(-)
+ arch/nds32/include/asm/io.h    |  2 ++
+ arch/sparc/include/asm/io_32.h |  1 +
+ include/asm-generic/io.h       | 29 ++++++++---------------------
+ 3 files changed, 11 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 23648a9aa721..23e61aa638e4 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -318,8 +318,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 	}
+diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
+index 16f262322b8f..fb0e8a24c7af 100644
+--- a/arch/nds32/include/asm/io.h
++++ b/arch/nds32/include/asm/io.h
+@@ -6,6 +6,7 @@
  
- err_out:
--	trace_vfio_ccw_io_fctl(scsw->cmd.fctl, schid,
--			       io_region->ret_code, errstr);
-+	trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
-+				      io_region->ret_code, errstr);
+ #include <linux/types.h>
+ 
++void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+ extern void iounmap(volatile void __iomem *addr);
+ #define __raw_writeb __raw_writeb
+ static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+@@ -80,4 +81,5 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
+ #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
+ #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
+ #include <asm-generic/io.h>
++
+ #endif /* __ASM_NDS32_IO_H */
+diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
+index df2dc1784673..9a52d9506f80 100644
+--- a/arch/sparc/include/asm/io_32.h
++++ b/arch/sparc/include/asm/io_32.h
+@@ -127,6 +127,7 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
+  * Bus number may be embedded in the higher bits of the physical address.
+  * This is why we have no bus number argument to ioremap().
+  */
++void __iomem *ioremap(phys_addr_t offset, size_t size);
+ void iounmap(volatile void __iomem *addr);
+ /* Create a virtual mapping cookie for an IO port range */
+ void __iomem *ioport_map(unsigned long port, unsigned int nr);
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index a98ed6325727..6a5edc23afe2 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -922,28 +922,16 @@ static inline void *phys_to_virt(unsigned long address)
+ /**
+  * DOC: ioremap() and ioremap_*() variants
+  *
+- * If you have an IOMMU your architecture is expected to have both ioremap()
+- * and iounmap() implemented otherwise the asm-generic helpers will provide a
+- * direct mapping.
++ * Architectures with an MMU are expected to provide ioremap() and iounmap()
++ * themselves.  For NOMMU architectures we provide a default nop-op
++ * implementation that expect that the physical address used for MMIO are
++ * already marked as uncached, and can be used as kernel virtual addresses.
+  *
+- * There are ioremap_*() call variants, if you have no IOMMU we naturally will
+- * default to direct mapping for all of them, you can override these defaults.
+- * If you have an IOMMU you are highly encouraged to provide your own
+- * ioremap variant implementation as there currently is no safe architecture
+- * agnostic default. To avoid possible improper behaviour default asm-generic
+- * ioremap_*() variants all return NULL when an IOMMU is available. If you've
+- * defined your own ioremap_*() variant you must then declare your own
+- * ioremap_*() variant as defined to itself to avoid the default NULL return.
++ * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
++ * for specific drivers if the architecture choses to implement them.  If they
++ * are not implemented we fall back to plain ioremap.
+  */
+ #ifndef CONFIG_MMU
+-
+-/*
+- * Change "struct page" to physical address.
+- *
+- * This implementation is for the no-MMU case only... if you have an MMU
+- * you'll need to provide your own definitions.
+- */
+-
+ #ifndef ioremap
+ #define ioremap ioremap
+ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
+@@ -954,14 +942,13 @@ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
+ 
+ #ifndef iounmap
+ #define iounmap iounmap
+-
+ static inline void iounmap(void __iomem *addr)
+ {
  }
- 
- /*
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_trace.c
-index 37ecbf8be805..8c671d2519f6 100644
---- a/drivers/s390/cio/vfio_ccw_trace.c
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -11,4 +11,4 @@
- 
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_async_request);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_event);
--EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_io_request);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
-index 23b288eb53dc..f2de5d23c312 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -73,28 +73,32 @@ TRACE_EVENT(vfio_ccw_fsm_event,
- 		__entry->event)
- );
- 
--TRACE_EVENT(vfio_ccw_io_fctl,
-+TRACE_EVENT(vfio_ccw_fsm_io_request,
- 	TP_PROTO(int fctl, struct subchannel_id schid, int errno, char *errstr),
- 	TP_ARGS(fctl, schid, errno, errstr),
- 
- 	TP_STRUCT__entry(
-+		__field(u8, cssid)
-+		__field(u8, ssid)
-+		__field(u16, sch_no)
- 		__field(int, fctl)
--		__field_struct(struct subchannel_id, schid)
- 		__field(int, errno)
- 		__field(char*, errstr)
- 	),
- 
- 	TP_fast_assign(
-+		__entry->cssid = schid.cssid;
-+		__entry->ssid = schid.ssid;
-+		__entry->sch_no = schid.sch_no;
- 		__entry->fctl = fctl;
--		__entry->schid = schid;
- 		__entry->errno = errno;
- 		__entry->errstr = errstr;
- 	),
- 
--	TP_printk("schid=%x.%x.%04x fctl=%x errno=%d info=%s",
--		  __entry->schid.cssid,
--		  __entry->schid.ssid,
--		  __entry->schid.sch_no,
-+	TP_printk("schid=%x.%x.%04x fctl=0x%x errno=%d info=%s",
-+		  __entry->cssid,
-+		  __entry->ssid,
-+		  __entry->sch_no,
- 		  __entry->fctl,
- 		  __entry->errno,
- 		  __entry->errstr)
+ #endif
+ #endif /* CONFIG_MMU */
++
+ #ifndef ioremap_nocache
+-void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+ #define ioremap_nocache ioremap_nocache
+ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
+ {
 -- 
-2.17.1
+2.20.1
