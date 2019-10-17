@@ -1,63 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41848 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727646AbfJQTL7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 17 Oct 2019 15:11:59 -0400
-Subject: Re: [PATCH 3/3] pci: Default to PCI_MSI_IRQ_DOMAIN
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34690 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2503311AbfJQSWf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 14:22:35 -0400
+Received: by mail-pg1-f194.google.com with SMTP id k20so1835797pgi.1
+        for <linux-s390@vger.kernel.org>; Thu, 17 Oct 2019 11:22:34 -0700 (PDT)
+Subject: [PATCH 3/3] pci: Default to PCI_MSI_IRQ_DOMAIN
+Date: Thu, 17 Oct 2019 11:19:37 -0700
+Message-Id: <20191017181937.7004-4-palmer@sifive.com>
+In-Reply-To: <20191017181937.7004-1-palmer@sifive.com>
 References: <20191017181937.7004-1-palmer@sifive.com>
- <20191017181937.7004-4-palmer@sifive.com>
-From: Waiman Long <longman@redhat.com>
-Message-ID: <38389bfa-3fb2-c941-9f9d-0fa573112c58@redhat.com>
-Date: Thu, 17 Oct 2019 15:11:55 -0400
 MIME-Version: 1.0
-In-Reply-To: <20191017181937.7004-4-palmer@sifive.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+From: Palmer Dabbelt <palmer@sifive.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Palmer Dabbelt <palmer@sifive.com>, Christoph Hellwig <hch@infradead.org>, michal.simek@xilinx.com, helgaas@kernel.org
-Cc: tony.luck@intel.com, fenghua.yu@intel.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, bhelgaas@google.com, will@kernel.org, Greg KH <gregkh@linuxfoundation.org>, kstewart@linuxfoundation.org, pbonzini@redhat.com, firoz.khan@linaro.org, yamada.masahiro@socionext.com, mingo@kernel.org, peterz@infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
+To: Christoph Hellwig <hch@infradead.org>, michal.simek@xilinx.com, helgaas@kernel.org
+Cc: tony.luck@intel.com, fenghua.yu@intel.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, bhelgaas@google.com, will@kernel.org, Greg KH <gregkh@linuxfoundation.org>, Palmer Dabbelt <palmer@sifive.com>, kstewart@linuxfoundation.org, pbonzini@redhat.com, firoz.khan@linaro.org, yamada.masahiro@socionext.com, longman@redhat.com, mingo@kernel.org, peterz@infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linux-pci@vger.kernel.org
 
-On 10/17/19 2:19 PM, Palmer Dabbelt wrote:
-> As far as I can tell, the only reason there was an architecture
-> whitelist for PCI_MSI_IRQ_DOMAIN is because it requires msi.h.  I've
-> built this for all the architectures that play nice with make.cross, but
-> I haven't boot tested it anywhere.
->
-> Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
-> ---
->  drivers/pci/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-> index a304f5ea11b9..77c1428cd945 100644
-> --- a/drivers/pci/Kconfig
-> +++ b/drivers/pci/Kconfig
-> @@ -52,7 +52,7 @@ config PCI_MSI
->  	   If you don't know what to do here, say Y.
->  
->  config PCI_MSI_IRQ_DOMAIN
-> -	def_bool ARC || ARM || ARM64 || X86 || RISCV
-> +	def_bool y
->  	depends on PCI_MSI
->  	select GENERIC_MSI_IRQ_DOMAIN
->  
+As far as I can tell, the only reason there was an architecture
+whitelist for PCI_MSI_IRQ_DOMAIN is because it requires msi.h.  I've
+built this for all the architectures that play nice with make.cross, but
+I haven't boot tested it anywhere.
 
-The linking of asm-generic/msi.h is currently enabled for
+Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
+---
+ drivers/pci/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-./arch/powerpc/include/asm/Kbuild:generic-y += msi.h
-./arch/arm/include/asm/Kbuild:generic-y += msi.h
-./arch/mips/include/asm/Kbuild:generic-y += msi.h
-./arch/riscv/include/asm/Kbuild:generic-y += msi.h
-./arch/arc/include/asm/Kbuild:generic-y += msi.h
-./arch/arm64/include/asm/Kbuild:generic-y += msi.h
-./arch/sparc/include/asm/Kbuild:generic-y += msi.h
-
-Your patchset adds 2 more and x86 has its own asm/msi.h. That leads to a
-total of 10 archs, but there are 37 sub-directories under arch. It is
-possible that the other architectures don't have PCI_MSI set. Still it
-may be a bit risky to set it to "def_bool y".
-
-Cheers,
-Longman
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index a304f5ea11b9..77c1428cd945 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -52,7 +52,7 @@ config PCI_MSI
+ 	   If you don't know what to do here, say Y.
+ 
+ config PCI_MSI_IRQ_DOMAIN
+-	def_bool ARC || ARM || ARM64 || X86 || RISCV
++	def_bool y
+ 	depends on PCI_MSI
+ 	select GENERIC_MSI_IRQ_DOMAIN
+ 
+-- 
+2.21.0
