@@ -1,104 +1,171 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8196 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725862AbfJEPi6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 5 Oct 2019 11:38:58 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x95FahYJ088278
-        for <linux-s390@vger.kernel.org>; Sat, 5 Oct 2019 11:38:56 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vep00h7rm-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Sat, 05 Oct 2019 11:38:56 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Sat, 5 Oct 2019 16:38:54 +0100
-Date: Sat, 5 Oct 2019 17:38:47 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.4-rc2
+Received: from bombadil.infradead.org ([198.137.202.133]:56676 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2441057AbfJQRrK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:47:10 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 19/21] nds32: use generic ioremap
+Date: Thu, 17 Oct 2019 19:45:52 +0200
+Message-Id: <20191017174554.29840-20-hch@lst.de>
+In-Reply-To: <20191017174554.29840-1-hch@lst.de>
+References: <20191017174554.29840-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <your-ad-here.call-01570289927-ext-8803@work.hours>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Linus,
+Use the generic ioremap_prot and iounmap helpers.
 
-please pull s390 changes for 5.4-rc2.
+Note that the io.h include in pgtable.h had to be removed to not create
+an include loop.  As far as I can tell there was no need for it to
+start with.
 
-Thank you,
-Vasily
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/nds32/Kconfig               |  1 +
+ arch/nds32/include/asm/io.h      |  3 +-
+ arch/nds32/include/asm/pgtable.h |  4 ++-
+ arch/nds32/mm/Makefile           |  3 +-
+ arch/nds32/mm/ioremap.c          | 62 --------------------------------
+ 5 files changed, 6 insertions(+), 67 deletions(-)
+ delete mode 100644 arch/nds32/mm/ioremap.c
 
-The following changes since commit 54ecb8f7028c5eb3d740bb82b0f1d90f2df63c5c:
-
-  Linux 5.4-rc1 (2019-09-30 10:35:40 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.4-3
-
-for you to fetch changes up to d0dea733f60efe94257d08ae6eba81d0b511d0a9:
-
-  KVM: s390: mark __insn32_query() as __always_inline (2019-10-05 13:51:22 +0200)
-
-----------------------------------------------------------------
-s390 updates for 5.4-rc2
-
-- Default configs updates.
-
-- Fix build errors with CC_OPTIMIZE_FOR_SIZE due to usage of "i" constraint
-  for function arguments. Two kvm changes acked-by Christian Borntraeger.
-
-- Fix -Wunused-but-set-variable warnings in mm code.
-
-- Avoid a constant misuse in qdio.
-
-- Handle a case when cpumf is temporarily unavailable.
-
-----------------------------------------------------------------
-Heiko Carstens (8):
-      s390/atomic,bitops: mark function(s) __always_inline
-      s390/cpu_mf: mark function(s) __always_inline
-      s390/jump_label: mark function(s) __always_inline
-      s390/mm: mark function(s) __always_inline
-      s390/pci: mark function(s) __always_inline
-      s390: update defconfigs
-      KVM: s390: fix __insn32_query() inline assembly
-      KVM: s390: mark __insn32_query() as __always_inline
-
-Jiri Kosina (1):
-      s390: mark __cpacf_query() as __always_inline
-
-Julian Wiedmann (1):
-      s390/qdio: clarify size of the QIB parm area
-
-Qian Cai (1):
-      s390/mm: fix -Wunused-but-set-variable warnings
-
-Thomas Richter (3):
-      s390/cpumf: Use consistant debug print format
-      s390/cpumsf: Check for CPU Measurement sampling
-      s390/cpumf: Fix indentation in sampling device driver
-
- arch/s390/configs/debug_defconfig    | 24 ++++++++++++++++--------
- arch/s390/configs/defconfig          | 25 ++++++++++++++++---------
- arch/s390/configs/zfcpdump_defconfig |  2 +-
- arch/s390/include/asm/atomic_ops.h   |  2 +-
- arch/s390/include/asm/bitops.h       |  8 ++++----
- arch/s390/include/asm/cpacf.h        |  2 +-
- arch/s390/include/asm/cpu_mf.h       |  8 ++++++--
- arch/s390/include/asm/hugetlb.h      |  9 +++++++--
- arch/s390/include/asm/jump_label.h   |  4 ++--
- arch/s390/include/asm/pgtable.h      | 25 +++++++++++++------------
- arch/s390/include/asm/qdio.h         |  2 +-
- arch/s390/kernel/perf_cpum_cf_diag.c |  4 ++--
- arch/s390/kernel/perf_cpum_sf.c      |  8 +++++++-
- arch/s390/kvm/kvm-s390.c             |  6 +++---
- arch/s390/pci/pci_clp.c              |  2 +-
- drivers/s390/cio/qdio_setup.c        |  2 +-
- drivers/s390/net/qeth_core_main.c    |  3 +--
- 17 files changed, 83 insertions(+), 53 deletions(-)
+diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
+index fbd68329737f..12c06a833b7c 100644
+--- a/arch/nds32/Kconfig
++++ b/arch/nds32/Kconfig
+@@ -20,6 +20,7 @@ config NDS32
+ 	select GENERIC_CLOCKEVENTS
+ 	select GENERIC_IRQ_CHIP
+ 	select GENERIC_IRQ_SHOW
++	select GENERIC_IOREMAP
+ 	select GENERIC_LIB_ASHLDI3
+ 	select GENERIC_LIB_ASHRDI3
+ 	select GENERIC_LIB_CMPDI2
+diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
+index fb0e8a24c7af..e57378d04006 100644
+--- a/arch/nds32/include/asm/io.h
++++ b/arch/nds32/include/asm/io.h
+@@ -6,8 +6,6 @@
+ 
+ #include <linux/types.h>
+ 
+-void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+-extern void iounmap(volatile void __iomem *addr);
+ #define __raw_writeb __raw_writeb
+ static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+ {
+@@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
+ #define writeb(v,c)	({ __iowmb(); writeb_relaxed((v),(c)); })
+ #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
+ #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
++
+ #include <asm-generic/io.h>
+ 
+ #endif /* __ASM_NDS32_IO_H */
+diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pgtable.h
+index 0588ec99725c..6fbf251cfc26 100644
+--- a/arch/nds32/include/asm/pgtable.h
++++ b/arch/nds32/include/asm/pgtable.h
+@@ -12,7 +12,6 @@
+ #include <asm/nds32.h>
+ #ifndef __ASSEMBLY__
+ #include <asm/fixmap.h>
+-#include <asm/io.h>
+ #include <nds32_intrinsic.h>
+ #endif
+ 
+@@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
+ #define _PAGE_CACHE		_PAGE_C_MEM_WB
+ #endif
+ 
++#define _PAGE_IOREMAP \
++	(_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
++
+ /*
+  * + Level 1 descriptor (PMD)
+  */
+diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
+index bd360e4583b5..897ecaf5cf54 100644
+--- a/arch/nds32/mm/Makefile
++++ b/arch/nds32/mm/Makefile
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-obj-y				:= extable.o tlb.o \
+-				   fault.o init.o ioremap.o mmap.o \
++obj-y				:= extable.o tlb.o fault.o init.o mmap.o \
+                                    mm-nds32.o cacheflush.o proc.o
+ 
+ obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
+diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
+deleted file mode 100644
+index 690140bb23a2..000000000000
+--- a/arch/nds32/mm/ioremap.c
++++ /dev/null
+@@ -1,62 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-// Copyright (C) 2005-2017 Andes Technology Corporation
+-
+-#include <linux/vmalloc.h>
+-#include <linux/io.h>
+-#include <linux/mm.h>
+-#include <asm/pgtable.h>
+-
+-void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+-
+-static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size,
+-				      void *caller)
+-{
+-	struct vm_struct *area;
+-	unsigned long addr, offset, last_addr;
+-	pgprot_t prot;
+-
+-	/* Don't allow wraparound or zero size */
+-	last_addr = phys_addr + size - 1;
+-	if (!size || last_addr < phys_addr)
+-		return NULL;
+-
+-	/*
+-	 * Mappings have to be page-aligned
+-	 */
+-	offset = phys_addr & ~PAGE_MASK;
+-	phys_addr &= PAGE_MASK;
+-	size = PAGE_ALIGN(last_addr + 1) - phys_addr;
+-
+-	/*
+-	 * Ok, go for it..
+-	 */
+-	area = get_vm_area_caller(size, VM_IOREMAP, caller);
+-	if (!area)
+-		return NULL;
+-
+-	area->phys_addr = phys_addr;
+-	addr = (unsigned long)area->addr;
+-	prot = __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
+-			_PAGE_G | _PAGE_C_DEV);
+-	if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
+-		vunmap((void *)addr);
+-		return NULL;
+-	}
+-	return (__force void __iomem *)(offset + (char *)addr);
+-
+-}
+-
+-void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
+-{
+-	return __ioremap_caller(phys_addr, size,
+-				__builtin_return_address(0));
+-}
+-
+-EXPORT_SYMBOL(ioremap);
+-
+-void iounmap(volatile void __iomem * addr)
+-{
+-	vunmap((void *)(PAGE_MASK & (unsigned long)addr));
+-}
+-
+-EXPORT_SYMBOL(iounmap);
+-- 
+2.20.1
