@@ -1,66 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39896 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387497AbfJ2Gt5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:57 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/21] csky: remove ioremap_cache
-Date: Tue, 29 Oct 2019 07:48:33 +0100
-Message-Id: <20191029064834.23438-21-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+Received: from thoth.sbs.de ([192.35.17.2]:58081 "EHLO thoth.sbs.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726208AbfJQHPH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Oct 2019 03:15:07 -0400
+Subject: Re: [PATCH] scripts/gdb: fix debugging modules on s390
+References: <20191015105313.12663-1-iii@linux.ibm.com>
+ <356384d7-d14f-2c9d-1c13-3d96e75e1727@siemens.com>
+ <EC1E8F36-C374-4130-9841-CC35F557B7CE@linux.ibm.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Message-ID: <5d50b9ad-3e70-27d4-e73a-f67a33b39e7f@siemens.com>
+Date: Thu, 17 Oct 2019 09:05:28 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <EC1E8F36-C374-4130-9841-CC35F557B7CE@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Kieran Bingham <kbingham@kernel.org>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-No driver that can be used on csky uses ioremap_cache, and this
-interface has been deprecated in favor of memremap.
+On 15.10.19 17:43, Ilya Leoshkevich wrote:
+>> Am 15.10.2019 um 17:21 schrieb Jan Kiszka <jan.kiszka@siemens.com>:
+>>
+>>> @@ -113,6 +113,12 @@ lx-symbols command."""
+>>>         if module_file:
+>>>             gdb.write("loading @{addr}: {filename}\n".format(
+>>>                 addr=module_addr, filename=module_file))
+>>> +            if utils.is_target_arch('s390'):
+>>> +                # Module text is preceded by PLT stubs on s390.
+>>> +                module_arch = module['arch']
+>>> +                plt_offset = int(module_arch['plt_offset'])
+>>> +                plt_size = int(module_arch['plt_size'])
+>>> +                module_addr = hex(int(module_addr, 0) + plt_offset + plt_size)
+>>
+>> Shouldn't we report the actual address above, ie. reorder this tuning
+>> with the gdb.write?
+> 
+> That's a tough question. I thought about this, and the argument for
+> showing the fixed up address is that if someone does the math with
+> symbol offsets from e.g. objdump, the result will be consistent with
+> what gdb shows.
+> 
+> On the other hand side, why would anyone do this? that's exactly what
+> this gdb script is for. So showing the actual address at which the
+> memory was allocated gives the user some additional information, and is
+> also consistent with what cat /proc/modules would show.
+> 
+> At the end of the day, I don't have a strong opinion on this, so if you
+> think it's better to show the fixed up address, I'll send a v2.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Guo Ren <guoren@kernel.org>
----
- arch/csky/include/asm/io.h | 2 --
- arch/csky/mm/ioremap.c     | 7 -------
- 2 files changed, 9 deletions(-)
+One of the original ideas of the printout was to provide the information
+needed to reproduce potential issues manually. From that perspective,
+the fixed-up address would the the thing to print.
 
-diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
-index a4b9fb616faa..f572605d5ad5 100644
---- a/arch/csky/include/asm/io.h
-+++ b/arch/csky/include/asm/io.h
-@@ -36,13 +36,11 @@
- /*
-  * I/O memory mapping functions.
-  */
--extern void __iomem *ioremap_cache(phys_addr_t addr, size_t size);
- extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
- extern void iounmap(void *addr);
- 
- #define ioremap(addr, size)		__ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
- #define ioremap_wc(addr, size)		__ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
--#define ioremap_cache			ioremap_cache
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/csky/mm/ioremap.c b/arch/csky/mm/ioremap.c
-index e13cd3497628..ae78256a56fd 100644
---- a/arch/csky/mm/ioremap.c
-+++ b/arch/csky/mm/ioremap.c
-@@ -44,13 +44,6 @@ void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
- }
- EXPORT_SYMBOL(__ioremap);
- 
--void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
--{
--	return __ioremap_caller(phys_addr, size, PAGE_KERNEL,
--				__builtin_return_address(0));
--}
--EXPORT_SYMBOL(ioremap_cache);
--
- void iounmap(void __iomem *addr)
- {
- 	vunmap((void *)((unsigned long)addr & PAGE_MASK));
+If you think the vanilla address has some value as well, we could make
+an s390-specifi printout of both values.
+
+Jan
+
 -- 
-2.20.1
+Siemens AG, Corporate Technology, CT RDA IOT SES-DE
+Corporate Competence Center Embedded Linux
