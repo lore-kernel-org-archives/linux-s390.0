@@ -1,247 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62190 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728967AbfJUON3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Oct 2019 10:13:29 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDK4p059848
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:28 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsbkn7eq2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:28 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Mon, 21 Oct 2019 15:13:25 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/8] net/smc: cancel send and receive for terminated socket
-Date: Mon, 21 Oct 2019 16:13:08 +0200
-In-Reply-To: <20191021141315.58969-1-kgraul@linux.ibm.com>
-References: <20191021141315.58969-1-kgraul@linux.ibm.com>
-Message-Id: <20191021141315.58969-2-kgraul@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:57518 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389585AbfJQI2M (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Oct 2019 04:28:12 -0400
+Subject: Re: [PATCH V3 1/7] mdev: class id support
+References: <20191011081557.28302-1-jasowang@redhat.com>
+ <20191011081557.28302-2-jasowang@redhat.com>
+ <AM0PR05MB4866481AEE614FDF766C6A25D1920@AM0PR05MB4866.eurprd05.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <67b645a6-1b70-094d-6a12-fc6591e07a13@redhat.com>
+Date: Thu, 17 Oct 2019 16:27:41 +0800
+MIME-Version: 1.0
+In-Reply-To: <AM0PR05MB4866481AEE614FDF766C6A25D1920@AM0PR05MB4866.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Parav Pandit <parav@mellanox.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "cohuck@redhat.com" <cohuck@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "zhi.a.wang@intel.com" <zhi.a.wang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, Ido Shamay <idos@mellanox.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kevin.tian@intel.com" <kevin.tian@intel.com>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
 
-The resources for a terminated socket are being cleaned up.
-This patch makes sure
-* no more data is received for an actively terminated socket
-* no more data is sent for an actively or passively terminated socket
+On 2019/10/16 下午12:57, Parav Pandit wrote:
+>> +static struct mdev_class_id id_table[] = {
+> static const
+>
+>> +	{ MDEV_ID_VFIO },
+> I guess you don't need extra braces for each entry.
+> Since this enum represents MDEV class id, it better to name it as MDEV_CLASS_ID_VFIO.
+> (Similar to  PCI_VENDOR_ID, PCI_DEVICE_ID)..
+>
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc.h       |  1 +
- net/smc/smc_cdc.c   |  4 ++--
- net/smc/smc_close.c |  7 +++++--
- net/smc/smc_core.c  |  1 +
- net/smc/smc_rx.c    | 10 ++++++++--
- net/smc/smc_tx.c    | 26 +++++++++++++++-----------
- 6 files changed, 32 insertions(+), 17 deletions(-)
+Gcc start to complain like:
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 878313f8d6c1..be11ba41190f 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -188,6 +188,7 @@ struct smc_connection {
- 						 * 0 for SMC-R, 32 for SMC-D
- 						 */
- 	u64			peer_token;	/* SMC-D token of peer */
-+	u8			killed : 1;	/* abnormal termination */
- };
- 
- struct smc_sock {				/* smc sock container */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index d0b0f4c865b4..7dc07ec2379b 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -63,7 +63,7 @@ int smc_cdc_get_free_slot(struct smc_connection *conn,
- 	rc = smc_wr_tx_get_free_slot(link, smc_cdc_tx_handler, wr_buf,
- 				     wr_rdma_buf,
- 				     (struct smc_wr_tx_pend_priv **)pend);
--	if (!conn->alert_token_local)
-+	if (conn->killed)
- 		/* abnormal termination */
- 		rc = -EPIPE;
- 	return rc;
-@@ -328,7 +328,7 @@ static void smcd_cdc_rx_tsklet(unsigned long data)
- 	struct smcd_cdc_msg cdc;
- 	struct smc_sock *smc;
- 
--	if (!conn)
-+	if (!conn || conn->killed)
- 		return;
- 
- 	data_cdc = (struct smcd_cdc_msg *)conn->rmb_desc->cpu_addr;
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 1a858e59fc31..1d706c581592 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -66,7 +66,8 @@ static void smc_close_stream_wait(struct smc_sock *smc, long timeout)
- 		rc = sk_wait_event(sk, &timeout,
- 				   !smc_tx_prepared_sends(&smc->conn) ||
- 				   sk->sk_err == ECONNABORTED ||
--				   sk->sk_err == ECONNRESET,
-+				   sk->sk_err == ECONNRESET ||
-+				   smc->conn.killed,
- 				   &wait);
- 		if (rc)
- 			break;
-@@ -95,6 +96,8 @@ static int smc_close_final(struct smc_connection *conn)
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
- 	else
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_closed = 1;
-+	if (conn->killed)
-+		return -EPIPE;
- 
- 	return smc_cdc_get_slot_and_msg_send(conn);
- }
-@@ -326,7 +329,7 @@ static void smc_close_passive_work(struct work_struct *work)
- 	lock_sock(sk);
- 	old_state = sk->sk_state;
- 
--	if (!conn->alert_token_local) {
-+	if (conn->killed) {
- 		/* abnormal termination */
- 		smc_close_active_abort(smc);
- 		goto wakeup;
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index de9bf035f545..4ee0e33b8c5a 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -500,6 +500,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 		conn = rb_entry(node, struct smc_connection, alert_node);
- 		smc = container_of(conn, struct smc_sock, conn);
- 		sock_hold(&smc->sk); /* sock_put in close work */
-+		conn->killed = 1;
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
- 		__smc_lgr_unregister_conn(conn);
- 		conn->lgr = NULL;
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index 97e8369002d7..39d7b34d06d2 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -201,6 +201,8 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
- {
- 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
- 	struct smc_connection *conn = &smc->conn;
-+	struct smc_cdc_conn_state_flags *cflags =
-+					&conn->local_tx_ctrl.conn_state_flags;
- 	struct sock *sk = &smc->sk;
- 	int rc;
- 
-@@ -210,7 +212,9 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
- 	add_wait_queue(sk_sleep(sk), &wait);
- 	rc = sk_wait_event(sk, timeo,
- 			   sk->sk_err ||
-+			   cflags->peer_conn_abort ||
- 			   sk->sk_shutdown & RCV_SHUTDOWN ||
-+			   conn->killed ||
- 			   fcrit(conn),
- 			   &wait);
- 	remove_wait_queue(sk_sleep(sk), &wait);
-@@ -314,11 +318,13 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 		if (read_done >= target || (pipe && read_done))
- 			break;
- 
-+		if (conn->killed)
-+			break;
-+
- 		if (smc_rx_recvmsg_data_available(smc))
- 			goto copy;
- 
--		if (sk->sk_shutdown & RCV_SHUTDOWN ||
--		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
-+		if (sk->sk_shutdown & RCV_SHUTDOWN) {
- 			/* smc_cdc_msg_recv_action() could have run after
- 			 * above smc_rx_recvmsg_data_available()
- 			 */
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 6c8f09c1ce51..824f096ee7de 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -86,6 +86,7 @@ static int smc_tx_wait(struct smc_sock *smc, int flags)
- 		sk_set_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 		if (sk->sk_err ||
- 		    (sk->sk_shutdown & SEND_SHUTDOWN) ||
-+		    conn->killed ||
- 		    conn->local_tx_ctrl.conn_state_flags.peer_done_writing) {
- 			rc = -EPIPE;
- 			break;
-@@ -155,7 +156,7 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
- 			return -ENOTCONN;
- 		if (smc->sk.sk_shutdown & SEND_SHUTDOWN ||
- 		    (smc->sk.sk_err == ECONNABORTED) ||
--		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
-+		    conn->killed)
- 			return -EPIPE;
- 		if (smc_cdc_rxed_any_close(conn))
- 			return send_done ?: -ECONNRESET;
-@@ -282,10 +283,8 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 		peer_rmbe_offset;
- 	rdma_wr->rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
- 	rc = ib_post_send(link->roce_qp, &rdma_wr->wr, NULL);
--	if (rc) {
--		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+	if (rc)
- 		smc_lgr_terminate(lgr);
--	}
- 	return rc;
- }
- 
-@@ -495,10 +494,11 @@ static int smcr_tx_sndbuf_nonempty(struct smc_connection *conn)
- 
- 			if (smc->sk.sk_err == ECONNABORTED)
- 				return sock_error(&smc->sk);
-+			if (conn->killed)
-+				return -EPIPE;
- 			rc = 0;
--			if (conn->alert_token_local) /* connection healthy */
--				mod_delayed_work(system_wq, &conn->tx_work,
--						 SMC_TX_WORK_DELAY);
-+			mod_delayed_work(system_wq, &conn->tx_work,
-+					 SMC_TX_WORK_DELAY);
- 		}
- 		return rc;
- 	}
-@@ -547,6 +547,9 @@ int smc_tx_sndbuf_nonempty(struct smc_connection *conn)
- {
- 	int rc;
- 
-+	if (conn->killed ||
-+	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
-+		return -EPIPE;	/* connection being aborted */
- 	if (conn->lgr->is_smcd)
- 		rc = smcd_tx_sndbuf_nonempty(conn);
- 	else
-@@ -573,9 +576,7 @@ void smc_tx_work(struct work_struct *work)
- 	int rc;
- 
- 	lock_sock(&smc->sk);
--	if (smc->sk.sk_err ||
--	    !conn->alert_token_local ||
--	    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
-+	if (smc->sk.sk_err)
- 		goto out;
- 
- 	rc = smc_tx_sndbuf_nonempty(conn);
-@@ -608,8 +609,11 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
- 	    ((to_confirm > conn->rmbe_update_limit) &&
- 	     ((sender_free <= (conn->rmb_desc->len / 2)) ||
- 	      conn->local_rx_ctrl.prod_flags.write_blocked))) {
-+		if (conn->killed ||
-+		    conn->local_rx_ctrl.conn_state_flags.peer_conn_abort)
-+			return;
- 		if ((smc_cdc_get_slot_and_msg_send(conn) < 0) &&
--		    conn->alert_token_local) { /* connection healthy */
-+		    !conn->killed) {
- 			schedule_delayed_work(&conn->tx_work,
- 					      SMC_TX_WORK_DELAY);
- 			return;
--- 
-2.17.1
+warning: missing braces around initializer [-Wmissing-braces]
+  static const struct mdev_class_id id_table[] = {
+                                                 ^
+   MDEV_ID_VFIO, 0,
+   {           } {
+  };
+  }
+
+So I will keep this part untouched.
+
+Thanks
+
+
+>> +	{ 0 },
+>> +};
