@@ -1,112 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41961 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727645AbfJKAGg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:06:36 -0400
-Received: by mail-pg1-f195.google.com with SMTP id t3so4686112pga.8
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:06:36 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 15/29] x86: Actually use _etext for end of text segment
-Date: Thu, 10 Oct 2019 17:05:55 -0700
-Message-Id: <20191011000609.29728-16-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:36036 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726750AbfJQJnq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 05:43:46 -0400
+Date: Thu, 17 Oct 2019 10:43:41 +0100
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH V3 0/7] mdev based hardware virtio offloading support
+Message-ID: <20191017094341.GF23557@stefanha-x1.localdomain>
+References: <20191011081557.28302-1-jasowang@redhat.com>
+ <20191014174946.GC5359@stefanha-x1.localdomain>
+ <6d12ad8f-8137-e07d-d735-da59a326e8ed@redhat.com>
+ <20191015143720.GA13108@stefanha-x1.localdomain>
+ <ba81e603-cb7d-b152-8fae-97f070a7e460@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
+Content-Disposition: inline
+In-Reply-To: <ba81e603-cb7d-b152-8fae-97f070a7e460@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com
 
-Various calculations are using the end of the exception table (which
-does not need to be executable) as the end of the text segment. Instead,
-in preparation for moving the exception table into RO_DATA, move _etext
-after the exception table and update the calculations.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/x86/include/asm/sections.h | 1 -
- arch/x86/kernel/vmlinux.lds.S   | 7 +++----
- arch/x86/mm/init_64.c           | 6 +++---
- arch/x86/mm/pti.c               | 2 +-
- 4 files changed, 7 insertions(+), 9 deletions(-)
+--Pql/uPZNXIm1JCle
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/x86/include/asm/sections.h b/arch/x86/include/asm/sections.h
-index 71b32f2570ab..036c360910c5 100644
---- a/arch/x86/include/asm/sections.h
-+++ b/arch/x86/include/asm/sections.h
-@@ -6,7 +6,6 @@
- #include <asm/extable.h>
- 
- extern char __brk_base[], __brk_limit[];
--extern struct exception_table_entry __stop___ex_table[];
- extern char __end_rodata_aligned[];
- 
- #if defined(CONFIG_X86_64)
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 41362e90142d..a1a758e25b2b 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -143,15 +143,14 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--
--		/* End of text section */
--		_etext = .;
- 	} :text = 0x9090
- 
- 	EXCEPTION_TABLE(16)
- 
--	/* .text should occupy whole number of pages */
-+	/* End of text section, which should occupy whole number of pages */
-+	_etext = .;
- 	. = ALIGN(PAGE_SIZE);
-+
- 	X86_ALIGN_RODATA_BEGIN
- 	RO_DATA(PAGE_SIZE)
- 	X86_ALIGN_RODATA_END
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index a6b5c653727b..26299e9ce6da 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1263,7 +1263,7 @@ int kernel_set_to_readonly;
- void set_kernel_text_rw(void)
- {
- 	unsigned long start = PFN_ALIGN(_text);
--	unsigned long end = PFN_ALIGN(__stop___ex_table);
-+	unsigned long end = PFN_ALIGN(_etext);
- 
- 	if (!kernel_set_to_readonly)
- 		return;
-@@ -1282,7 +1282,7 @@ void set_kernel_text_rw(void)
- void set_kernel_text_ro(void)
- {
- 	unsigned long start = PFN_ALIGN(_text);
--	unsigned long end = PFN_ALIGN(__stop___ex_table);
-+	unsigned long end = PFN_ALIGN(_etext);
- 
- 	if (!kernel_set_to_readonly)
- 		return;
-@@ -1301,7 +1301,7 @@ void mark_rodata_ro(void)
- 	unsigned long start = PFN_ALIGN(_text);
- 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
- 	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
--	unsigned long text_end = PFN_ALIGN(&__stop___ex_table);
-+	unsigned long text_end = PFN_ALIGN(&_etext);
- 	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
- 	unsigned long all_end;
- 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index 7f2140414440..44a9f068eee0 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -574,7 +574,7 @@ static void pti_clone_kernel_text(void)
- 	 */
- 	unsigned long start = PFN_ALIGN(_text);
- 	unsigned long end_clone  = (unsigned long)__end_rodata_aligned;
--	unsigned long end_global = PFN_ALIGN((unsigned long)__stop___ex_table);
-+	unsigned long end_global = PFN_ALIGN((unsigned long)_etext);
- 
- 	if (!pti_kernel_image_global_ok())
- 		return;
--- 
-2.17.1
+On Thu, Oct 17, 2019 at 09:42:53AM +0800, Jason Wang wrote:
+>=20
+> On 2019/10/15 =E4=B8=8B=E5=8D=8810:37, Stefan Hajnoczi wrote:
+> > On Tue, Oct 15, 2019 at 11:37:17AM +0800, Jason Wang wrote:
+> > > On 2019/10/15 =E4=B8=8A=E5=8D=881:49, Stefan Hajnoczi wrote:
+> > > > On Fri, Oct 11, 2019 at 04:15:50PM +0800, Jason Wang wrote:
+> > > > > There are hardware that can do virtio datapath offloading while h=
+aving
+> > > > > its own control path. This path tries to implement a mdev based
+> > > > > unified API to support using kernel virtio driver to drive those
+> > > > > devices. This is done by introducing a new mdev transport for vir=
+tio
+> > > > > (virtio_mdev) and register itself as a new kind of mdev driver. T=
+hen
+> > > > > it provides a unified way for kernel virtio driver to talk with m=
+dev
+> > > > > device implementation.
+> > > > >=20
+> > > > > Though the series only contains kernel driver support, the goal i=
+s to
+> > > > > make the transport generic enough to support userspace drivers. T=
+his
+> > > > > means vhost-mdev[1] could be built on top as well by resuing the
+> > > > > transport.
+> > > > >=20
+> > > > > A sample driver is also implemented which simulate a virito-net
+> > > > > loopback ethernet device on top of vringh + workqueue. This could=
+ be
+> > > > > used as a reference implementation for real hardware driver.
+> > > > >=20
+> > > > > Consider mdev framework only support VFIO device and driver right=
+ now,
+> > > > > this series also extend it to support other types. This is done
+> > > > > through introducing class id to the device and pairing it with
+> > > > > id_talbe claimed by the driver. On top, this seris also decouple
+> > > > > device specific parents ops out of the common ones.
+> > > > I was curious so I took a quick look and posted comments.
+> > > >=20
+> > > > I guess this driver runs inside the guest since it registers virtio
+> > > > devices?
+> > >=20
+> > > It could run in either guest or host. But the main focus is to run in=
+ the
+> > > host then we can use virtio drivers in containers.
+> > >=20
+> > >=20
+> > > > If this is used with physical PCI devices that support datapath
+> > > > offloading then how are physical devices presented to the guest wit=
+hout
+> > > > SR-IOV?
+> > >=20
+> > > We will do control path meditation through vhost-mdev[1] and vhost-vf=
+io[2].
+> > > Then we will present a full virtio compatible ethernet device for gue=
+st.
+> > >=20
+> > > SR-IOV is not a must, any mdev device that implements the API defined=
+ in
+> > > patch 5 can be used by this framework.
+> > What I'm trying to understand is: if you want to present a virtio-pci
+> > device to the guest (e.g. using vhost-mdev or vhost-vfio), then how is
+> > that related to this patch series?
+>=20
+>=20
+> This series introduce some infrastructure that would be used by vhost-mde=
+v:
+>=20
+> 1) allow new type of mdev devices/drivers other than vfio (through class_=
+id
+> and device ops)
+>=20
+> 2) a set of virtio specific callbacks that will be used by both vhost-mdev
+> and virtio-mdev defined in patch 5
+>=20
+> Then vhost-mdev can be implemented on top: a new mdev class id but reuse =
+the
+> callback defined in 2. Through this way the parent can provides a single =
+set
+> of callbacks (device ops) for both kernel virtio driver (through
+> virtio-mdev) or userspace virtio driver (through vhost-mdev).
+
+Okay, thanks for explaining!
+
+Stefan
+
+--Pql/uPZNXIm1JCle
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl2oN8wACgkQnKSrs4Gr
+c8gqswf/fQBq+qX21L3QGLUXUsf7OZ9kLP3ksR+9RYfGDJaFva/fV/aULknTmAiO
+OA0s+Eiw7K5Hy2ooKGPQXPYgAJhgnHqmhKgOEdsOGDWyCilYAiJzk/YXkpPvaCTp
+ovWC5Fz/shXyY3m2YGPXuwnWjbCam7cqMCRVPrmzJWoS6kdvsYsPxBVnhGFOm0Ms
+gbll/8mZQDQWsOZ8ZFeXLXCcHifXaiLa+yiGcZfxtV37oHsSapT+MOXEstGy4jEe
+uvos/V8tSLLMOJ+zgMYGOI0oOJIejMOrLU2zxPlktTbBVcM1RQtpJL69F30gi89K
+qCue5w57Z1UNfPVbXLiobIkPcZBGVw==
+=EXDt
+-----END PGP SIGNATURE-----
+
+--Pql/uPZNXIm1JCle--
