@@ -1,65 +1,61 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 3/8] net/smc: improve abnormal termination locking
-Date: Mon, 21 Oct 2019 16:13:10 +0200
-In-Reply-To: <20191021141315.58969-1-kgraul@linux.ibm.com>
-References: <20191021141315.58969-1-kgraul@linux.ibm.com>
-Message-Id: <20191021141315.58969-4-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:54922 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727794AbfJQRqn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:43 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/21] xtensa: clean up ioremap
+Date: Thu, 17 Oct 2019 19:45:42 +0200
+Message-Id: <20191017174554.29840-10-hch@lst.de>
+In-Reply-To: <20191017174554.29840-1-hch@lst.de>
+References: <20191017174554.29840-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+Use ioremap as the main implemented function, and defined
+ioremap_nocache to it as a deprecated alias.
 
-Locking hierarchy requires that the link group conns_lock can be
-taken if the socket lock is held, but not vice versa. Nevertheless
-socket termination during abnormal link group termination should
-be protected by the socket lock.
-This patch reduces the time segments the link group conns_lock is
-held to enable usage of lock_sock in smc_lgr_terminate().
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/smc_core.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/xtensa/include/asm/io.h | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index b53ba8f0a833..1f58cd82928c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -491,23 +491,26 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 	if (!lgr->is_smcd)
- 		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
+diff --git a/arch/xtensa/include/asm/io.h b/arch/xtensa/include/asm/io.h
+index 988e08530a5c..441fb56926a7 100644
+--- a/arch/xtensa/include/asm/io.h
++++ b/arch/xtensa/include/asm/io.h
+@@ -32,8 +32,7 @@ void xtensa_iounmap(volatile void __iomem *addr);
+ /*
+  * Return the virtual address for the specified bus memory.
+  */
+-static inline void __iomem *ioremap_nocache(unsigned long offset,
+-		unsigned long size)
++static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+ {
+ 	if (offset >= XCHAL_KIO_PADDR
+ 	    && offset - XCHAL_KIO_PADDR < XCHAL_KIO_SIZE)
+@@ -52,15 +51,10 @@ static inline void __iomem *ioremap_cache(unsigned long offset,
+ 		return xtensa_ioremap_cache(offset, size);
+ }
+ #define ioremap_cache ioremap_cache
+-#define ioremap_nocache ioremap_nocache
+-
+-#define ioremap_wc ioremap_nocache
+-#define ioremap_wt ioremap_nocache
  
--	write_lock_bh(&lgr->conns_lock);
-+	/* kill remaining link group connections */
-+	read_lock_bh(&lgr->conns_lock);
- 	node = rb_first(&lgr->conns_all);
- 	while (node) {
-+		read_unlock_bh(&lgr->conns_lock);
- 		conn = rb_entry(node, struct smc_connection, alert_node);
- 		smc = container_of(conn, struct smc_sock, conn);
-+		lock_sock(&smc->sk);
- 		sock_hold(&smc->sk); /* sock_put in close work */
- 		conn->killed = 1;
- 		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
--		__smc_lgr_unregister_conn(conn);
-+		smc_lgr_unregister_conn(conn);
- 		conn->lgr = NULL;
--		write_unlock_bh(&lgr->conns_lock);
- 		if (!schedule_work(&conn->close_work))
- 			sock_put(&smc->sk);
--		write_lock_bh(&lgr->conns_lock);
-+		release_sock(&smc->sk);
-+		read_lock_bh(&lgr->conns_lock);
- 		node = rb_first(&lgr->conns_all);
- 	}
--	write_unlock_bh(&lgr->conns_lock);
-+	read_unlock_bh(&lgr->conns_lock);
- 	if (!lgr->is_smcd)
- 		wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
- 	smc_lgr_schedule_free_work(lgr);
+-static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+-{
+-	return ioremap_nocache(offset, size);
+-}
++#define ioremap_nocache ioremap
++#define ioremap_wc ioremap
++#define ioremap_wt ioremap
+ 
+ static inline void iounmap(volatile void __iomem *addr)
+ {
 -- 
-2.17.1
+2.20.1
