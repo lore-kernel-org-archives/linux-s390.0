@@ -1,114 +1,155 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59534 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2504429AbfJYQNB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Oct 2019 12:13:01 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8vds024438
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:00 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv3snhb0g-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:00 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
-        Fri, 25 Oct 2019 17:12:58 +0100
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH v2 04/11] zfcp: support retrieval of SFP Data via Exchange Port Data
-Date: Fri, 25 Oct 2019 18:12:46 +0200
-In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
-References: <cover.1571934247.git.bblock@linux.ibm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:6584 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404935AbfJQKtF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Oct 2019 06:49:05 -0400
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V4 0/6] mdev based hardware virtio offloading support
+Date: Thu, 17 Oct 2019 18:48:30 +0800
+Message-Id: <20191017104836.32464-1-jasowang@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <ee1eba4de71eb06b4d82207ad4f428429346156f.1572018132.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
 
-A new FCP channel feature allows us to read the diagnostics from our
-local SFP transceivers. To make use of that add a flag
-(FSF_FEATURE_REQUEST_SFP_DATA) to the feature-set we request from the
-FCP channel. Whether the channel actually implements this can be
-determined via an other new flag (FSF_FEATURE_REPORT_SFP_DATA), that is
-set in the adapter_features field of the adapter structure after
-Exchange Config Data finished.
+Hi all:
 
-Also add the corresponding definitions in the QTCB Bottom for Exchange
-Port Data. These new definitions are only valid, if
-FSF_FEATURE_REPORT_SFP_DATA is set.
+There are hardwares that can do virtio datapath offloading while
+having its own control path. This path tries to implement a mdev based
+unified API to support using kernel virtio driver to drive those
+devices. This is done by introducing a new mdev transport for virtio
+(virtio_mdev) and register itself as a new kind of mdev driver. Then
+it provides a unified way for kernel virtio driver to talk with mdev
+device implementation.
 
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_fsf.c |  6 ++++--
- drivers/s390/scsi/zfcp_fsf.h | 21 ++++++++++++++++++++-
- 2 files changed, 24 insertions(+), 3 deletions(-)
+Though the series only contains kernel driver support, the goal is to
+make the transport generic enough to support userspace drivers. This
+means vhost-mdev[1] could be built on top as well by resuing the
+transport.
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 0fff060de5ac..223a805f0b0b 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1286,7 +1286,8 @@ int zfcp_fsf_exchange_config_data(struct zfcp_erp_action *erp_action)
- 
- 	req->qtcb->bottom.config.feature_selection =
- 			FSF_FEATURE_NOTIFICATION_LOST |
--			FSF_FEATURE_UPDATE_ALERT;
-+			FSF_FEATURE_UPDATE_ALERT |
-+			FSF_FEATURE_REQUEST_SFP_DATA;
- 	req->erp_action = erp_action;
- 	req->handler = zfcp_fsf_exchange_config_data_handler;
- 	erp_action->fsf_req_id = req->req_id;
-@@ -1339,7 +1340,8 @@ int zfcp_fsf_exchange_config_data_sync(struct zfcp_qdio *qdio,
- 
- 	req->qtcb->bottom.config.feature_selection =
- 			FSF_FEATURE_NOTIFICATION_LOST |
--			FSF_FEATURE_UPDATE_ALERT;
-+			FSF_FEATURE_UPDATE_ALERT |
-+			FSF_FEATURE_REQUEST_SFP_DATA;
- 
- 	if (data)
- 		req->data = data;
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index 2c658b66318c..2b1e4da1944f 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -163,6 +163,8 @@
- #define FSF_FEATURE_ELS_CT_CHAINED_SBALS	0x00000020
- #define FSF_FEATURE_UPDATE_ALERT		0x00000100
- #define FSF_FEATURE_MEASUREMENT_DATA		0x00000200
-+#define FSF_FEATURE_REQUEST_SFP_DATA		0x00000200
-+#define FSF_FEATURE_REPORT_SFP_DATA		0x00000800
- #define FSF_FEATURE_DIF_PROT_TYPE1		0x00010000
- #define FSF_FEATURE_DIX_PROT_TCPIP		0x00020000
- 
-@@ -407,7 +409,24 @@ struct fsf_qtcb_bottom_port {
- 	u8 cp_util;
- 	u8 cb_util;
- 	u8 a_util;
--	u8 res2[253];
-+	u8 res2;
-+	u16 temperature;
-+	u16 vcc;
-+	u16 tx_bias;
-+	u16 tx_power;
-+	u16 rx_power;
-+	union {
-+		u16 raw;
-+		struct {
-+			u16 fec_active		:1;
-+			u16:7;
-+			u16 connector_type	:2;
-+			u16 sfp_invalid		:1;
-+			u16 optical_port	:1;
-+			u16 port_tx_type	:4;
-+		};
-+	} sfp_flags;
-+	u8 res3[240];
- } __attribute__ ((packed));
- 
- union fsf_qtcb_bottom {
+A sample driver is also implemented which simulate a virito-net
+loopback ethernet device on top of vringh + workqueue. This could be
+used as a reference implementation for real hardware driver.
+
+Also a real ICF VF driver was also posted here[2] which is a good
+reference for vendors who is interested in their own virtio datapath
+offloading product.
+
+Consider mdev framework only support VFIO device and driver right now,
+this series also extend it to support other types. This is done
+through introducing class id to the device and pairing it with
+id_talbe claimed by the driver. On top, this seris also decouple
+device specific parents ops out of the common ones.
+
+Pktgen test was done with virito-net + mvnet loop back device.
+
+Please review.
+
+[1] https://lkml.org/lkml/2019/9/26/15
+[2] https://lkml.org/lkml/2019/10/15/1226
+
+Changes from V3:
+
+- document that class id (device ops) must be specified in create()
+- add WARN() when trying to set class_id when it has already set
+- add WARN() when class_id is not specified in create() and correctly
+  return an error in this case
+- correct the prototype of mdev_set_class() in the doc
+- add documention of mdev_set_class()
+- remove the unnecessary "class_id_fail" label when class id is not
+  specified in create()
+- convert id_table in vfio_mdev to const
+- move mdev_set_class and its friends after mdev_uuid()
+- suqash the patch of bus uevent into patch of introducing class id
+- tweak the words in the docs per Cornelia suggestion
+- tie class_id and device ops through class specific initialization
+  routine like mdev_set_vfio_ops()
+- typos fixes in the docs of virtio-mdev callbacks
+- document the usage of virtqueues in struct virtio_mdev_device
+- remove the useless vqs array in struct virtio_mdev_device
+- rename MDEV_ID_XXX to MDEV_CLASS_ID_XXX
+
+Changes from V2:
+
+- fail when class_id is not specified
+- drop the vringh patch
+- match the doc to the code
+- tweak the commit log
+- move device_ops from parent to mdev device
+- remove the unused MDEV_ID_VHOST
+
+Changes from V1:
+
+- move virtio_mdev.c to drivers/virtio
+- store class_id in mdev_device instead of mdev_parent
+- store device_ops in mdev_device instead of mdev_parent
+- reorder the patch, vringh fix comes first
+- really silent compiling warnings
+- really switch to use u16 for class_id
+- uevent and modpost support for mdev class_id
+- vraious tweaks per comments from Parav
+
+Changes from RFC-V2:
+
+- silent compile warnings on some specific configuration
+- use u16 instead u8 for class id
+- reseve MDEV_ID_VHOST for future vhost-mdev work
+- introduce "virtio" type for mvnet and make "vhost" type for future
+  work
+- add entries in MAINTAINER
+- tweak and typos fixes in commit log
+
+Changes from RFC-V1:
+
+- rename device id to class id
+- add docs for class id and device specific ops (device_ops)
+- split device_ops into seperate headers
+- drop the mdev_set_dma_ops()
+- use device_ops to implement the transport API, then it's not a part
+  of UAPI any more
+- use GFP_ATOMIC in mvnet sample device and other tweaks
+- set_vring_base/get_vring_base support for mvnet device
+
+Jason Wang (6):
+  mdev: class id support
+  modpost: add support for mdev class id
+  mdev: introduce device specific ops
+  mdev: introduce virtio device and its device ops
+  virtio: introduce a mdev based transport
+  docs: sample driver to demonstrate how to implement virtio-mdev
+    framework
+
+ .../driver-api/vfio-mediated-device.rst       |  22 +-
+ MAINTAINERS                                   |   2 +
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |  17 +-
+ drivers/s390/cio/vfio_ccw_ops.c               |  17 +-
+ drivers/s390/crypto/vfio_ap_ops.c             |  13 +-
+ drivers/vfio/mdev/mdev_core.c                 |  38 +
+ drivers/vfio/mdev/mdev_driver.c               |  22 +
+ drivers/vfio/mdev/mdev_private.h              |   2 +
+ drivers/vfio/mdev/vfio_mdev.c                 |  45 +-
+ drivers/virtio/Kconfig                        |   7 +
+ drivers/virtio/Makefile                       |   1 +
+ drivers/virtio/virtio_mdev.c                  | 409 +++++++++++
+ include/linux/mdev.h                          |  55 +-
+ include/linux/mod_devicetable.h               |   8 +
+ include/linux/vfio_mdev.h                     |  52 ++
+ include/linux/virtio_mdev.h                   | 151 ++++
+ samples/Kconfig                               |   7 +
+ samples/vfio-mdev/Makefile                    |   1 +
+ samples/vfio-mdev/mbochs.c                    |  19 +-
+ samples/vfio-mdev/mdpy.c                      |  19 +-
+ samples/vfio-mdev/mtty.c                      |  17 +-
+ samples/vfio-mdev/mvnet.c                     | 691 ++++++++++++++++++
+ scripts/mod/devicetable-offsets.c             |   3 +
+ scripts/mod/file2alias.c                      |  10 +
+ 24 files changed, 1541 insertions(+), 87 deletions(-)
+ create mode 100644 drivers/virtio/virtio_mdev.c
+ create mode 100644 include/linux/vfio_mdev.h
+ create mode 100644 include/linux/virtio_mdev.h
+ create mode 100644 samples/vfio-mdev/mvnet.c
+
 -- 
-2.21.0
+2.19.1
