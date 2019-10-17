@@ -1,80 +1,110 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:44823 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732887AbfJCVgy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Oct 2019 17:36:54 -0400
-Received: by mail-qt1-f195.google.com with SMTP id u40so5726515qth.11
-        for <linux-s390@vger.kernel.org>; Thu, 03 Oct 2019 14:36:54 -0700 (PDT)
-From: Qian Cai <cai@lca.pw>
-Subject: [PATCH] s390/mm: fix -Wunused-but-set-variable warnings
-Date: Thu,  3 Oct 2019 17:36:36 -0400
-Message-Id: <1570138596-11913-1-git-send-email-cai@lca.pw>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 06/21] nios2: remove __ioremap
+Date: Thu, 17 Oct 2019 19:45:39 +0200
+Message-Id: <20191017174554.29840-7-hch@lst.de>
+In-Reply-To: <20191017174554.29840-1-hch@lst.de>
+References: <20191017174554.29840-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Convert two functions to static inline to get ride of W=1 GCC warnings
-like,
+The cacheflag argument to __ioremap is always 0, so just implement
+ioremap directly.
 
-mm/gup.c: In function 'gup_pte_range':
-mm/gup.c:1816:16: warning: variable 'ptem' set but not used
-[-Wunused-but-set-variable]
-  pte_t *ptep, *ptem;
-                ^~~~
-
-mm/mmap.c: In function 'acct_stack_growth':
-mm/mmap.c:2322:16: warning: variable 'new_start' set but not used
-[-Wunused-but-set-variable]
-  unsigned long new_start;
-                ^~~~~~~~~
-
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/hugetlb.h | 9 +++++++--
- arch/s390/include/asm/pgtable.h | 3 ++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ arch/nios2/include/asm/io.h | 20 ++++----------------
+ arch/nios2/mm/ioremap.c     | 17 +++--------------
+ 2 files changed, 7 insertions(+), 30 deletions(-)
 
-diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
-index bb59dd964590..de8f0bf5f238 100644
---- a/arch/s390/include/asm/hugetlb.h
-+++ b/arch/s390/include/asm/hugetlb.h
-@@ -12,8 +12,6 @@
- #include <asm/page.h>
- #include <asm/pgtable.h>
+diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
+index 9010243077ab..74ab34aa6731 100644
+--- a/arch/nios2/include/asm/io.h
++++ b/arch/nios2/include/asm/io.h
+@@ -25,29 +25,17 @@
+ #define writew_relaxed(x, addr)	writew(x, addr)
+ #define writel_relaxed(x, addr)	writel(x, addr)
  
+-extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
+-			unsigned long cacheflag);
++void __iomem *ioremap(unsigned long physaddr, unsigned long size);
+ extern void __iounmap(void __iomem *addr);
+ 
+-static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
+-{
+-	return __ioremap(physaddr, size, 0);
+-}
 -
--#define is_hugepage_only_range(mm, addr, len)	0
- #define hugetlb_free_pgd_range			free_pgd_range
- #define hugepages_supported()			(MACHINE_HAS_EDAT1)
- 
-@@ -23,6 +21,13 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
- 			      unsigned long addr, pte_t *ptep);
- 
-+static inline bool is_hugepage_only_range(struct mm_struct *mm,
-+					  unsigned long addr,
-+					  unsigned long len)
-+{
-+	return false;
-+}
-+
- /*
-  * If the arch doesn't supply something else, assume that hugepage
-  * size aligned regions are ok without further preparation.
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 36c578c0ff96..19c2cf001df3 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1269,7 +1269,8 @@ static inline pte_t *pte_offset(pmd_t *pmd, unsigned long address)
- 
- #define pte_offset_kernel(pmd, address) pte_offset(pmd, address)
- #define pte_offset_map(pmd, address) pte_offset_kernel(pmd, address)
--#define pte_unmap(pte) do { } while (0)
-+
-+static inline void pte_unmap(pte_t *pte) { }
- 
- static inline bool gup_fast_permitted(unsigned long start, unsigned long end)
+-static inline void __iomem *ioremap_nocache(unsigned long physaddr,
+-						unsigned long size)
+-{
+-	return __ioremap(physaddr, size, 0);
+-}
+-
+ static inline void iounmap(void __iomem *addr)
  {
+ 	__iounmap(addr);
+ }
+ 
+-#define ioremap_nocache ioremap_nocache
+-#define ioremap_wc ioremap_nocache
+-#define ioremap_wt ioremap_nocache
++#define ioremap_nocache ioremap
++#define ioremap_wc ioremap
++#define ioremap_wt ioremap
+ 
+ /* Pages to physical address... */
+ #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
+diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
+index 3a28177a01eb..7a1a27f3daa3 100644
+--- a/arch/nios2/mm/ioremap.c
++++ b/arch/nios2/mm/ioremap.c
+@@ -112,8 +112,7 @@ static int remap_area_pages(unsigned long address, unsigned long phys_addr,
+ /*
+  * Map some physical address range into the kernel address space.
+  */
+-void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
+-			unsigned long cacheflag)
++void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
+ {
+ 	struct vm_struct *area;
+ 	unsigned long offset;
+@@ -139,15 +138,6 @@ void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
+ 				return NULL;
+ 	}
+ 
+-	/*
+-	 * Map uncached objects in the low part of address space to
+-	 * CONFIG_NIOS2_IO_REGION_BASE
+-	 */
+-	if (IS_MAPPABLE_UNCACHEABLE(phys_addr) &&
+-	    IS_MAPPABLE_UNCACHEABLE(last_addr) &&
+-	    !(cacheflag & _PAGE_CACHED))
+-		return (void __iomem *)(CONFIG_NIOS2_IO_REGION_BASE + phys_addr);
+-
+ 	/* Mappings have to be page-aligned */
+ 	offset = phys_addr & ~PAGE_MASK;
+ 	phys_addr &= PAGE_MASK;
+@@ -158,14 +148,13 @@ void __iomem *__ioremap(unsigned long phys_addr, unsigned long size,
+ 	if (!area)
+ 		return NULL;
+ 	addr = area->addr;
+-	if (remap_area_pages((unsigned long) addr, phys_addr, size,
+-		cacheflag)) {
++	if (remap_area_pages((unsigned long) addr, phys_addr, size, 0)) {
+ 		vunmap(addr);
+ 		return NULL;
+ 	}
+ 	return (void __iomem *) (offset + (char *)addr);
+ }
+-EXPORT_SYMBOL(__ioremap);
++EXPORT_SYMBOL(ioremap);
+ 
+ /*
+  * __iounmap unmaps nearly everything, so be careful
 -- 
-1.8.3.1
+2.20.1
