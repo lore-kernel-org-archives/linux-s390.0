@@ -1,41 +1,53 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 17/29] alpha: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Thu, 10 Oct 2019 17:05:57 -0700
-Message-Id: <20191011000609.29728-18-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40926 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731515AbfJQKT2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Oct 2019 06:19:28 -0400
+Date: Thu, 17 Oct 2019 12:19:24 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 0/4] vfio-ccw: A couple trace changes
+Message-ID: <20191017121924.3597aa7f.cohuck@redhat.com>
+In-Reply-To: <20191016142040.14132-1-farman@linux.ibm.com>
+References: <20191016142040.14132-1-farman@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+On Wed, 16 Oct 2019 16:20:36 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/alpha/kernel/vmlinux.lds.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Here a couple updates to the vfio-ccw traces in the kernel,
+> based on things I've been using locally.  Perhaps they'll
+> be useful for future debugging.
+> 
+> v2 -> v3:
+>  - Added Conny's r-b to patches 1, 2, 4
+>  - s/command=%d/command=0x%x/ in patch 3 [Cornelia Huck]
+> 
+> v1/RFC -> v2:
+>  - Convert state/event=%x to %d [Steffen Maier]
+>  - Use individual fields for cssid/ssid/sch_no, to enable
+>    filtering by device [Steffen Maier]
+>  - Add 0x prefix to remaining %x substitution in existing trace
+> 
+> Eric Farman (4):
+>   vfio-ccw: Refactor how the traces are built
+>   vfio-ccw: Trace the FSM jumptable
+>   vfio-ccw: Add a trace for asynchronous requests
+>   vfio-ccw: Rework the io_fctl trace
+> 
+>  drivers/s390/cio/Makefile           |  4 +-
+>  drivers/s390/cio/vfio_ccw_cp.h      |  1 +
+>  drivers/s390/cio/vfio_ccw_fsm.c     | 11 +++--
+>  drivers/s390/cio/vfio_ccw_private.h |  1 +
+>  drivers/s390/cio/vfio_ccw_trace.c   | 14 ++++++
+>  drivers/s390/cio/vfio_ccw_trace.h   | 76 ++++++++++++++++++++++++++---
+>  6 files changed, 93 insertions(+), 14 deletions(-)
+>  create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
+> 
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index edc45f45523b..bc6f727278fd 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -1,6 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- 
- #define EMITS_PT_NOTE
-+#define RO_EXCEPTION_TABLE_ALIGN	16
- 
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
-@@ -35,7 +36,6 @@ SECTIONS
- 	_etext = .;	/* End of text section */
- 
- 	RO_DATA(4096)
--	EXCEPTION_TABLE(16)
- 
- 	/* Will be freed after init */
- 	__init_begin = ALIGN(PAGE_SIZE);
--- 
-2.17.1
+Thanks, applied.
