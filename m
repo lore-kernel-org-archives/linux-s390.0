@@ -1,36 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from michel.telenet-ops.be ([195.130.137.88]:35454 "EHLO
-        michel.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729666AbfJXPYi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Oct 2019 11:24:38 -0400
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH trivial] s390/dasd: spelling s/configruation/configuration/
-Date: Thu, 24 Oct 2019 17:24:33 +0200
-Message-Id: <20191024152433.30165-1-geert+renesas@glider.be>
+Received: from mail.kernel.org ([198.145.29.99]:37166 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729539AbfJRWFV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:05:21 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 88/89] s390/uaccess: avoid (false positive) compiler warnings
+Date: Fri, 18 Oct 2019 18:03:23 -0400
+Message-Id: <20191018220324.8165-88-sashal@kernel.org>
+In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
+References: <20191018220324.8165-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jiri Kosina <trivial@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Fix misspelling of "configuration".
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+[ Upstream commit 062795fcdcb2d22822fb42644b1d76a8ad8439b3 ]
+
+Depending on inlining decisions by the compiler, __get/put_user_fn
+might become out of line. Then the compiler is no longer able to tell
+that size can only be 1,2,4 or 8 due to the check in __get/put_user
+resulting in false positives like
+
+./arch/s390/include/asm/uaccess.h: In function ‘__put_user_fn’:
+./arch/s390/include/asm/uaccess.h:113:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  113 |  return rc;
+      |         ^~
+./arch/s390/include/asm/uaccess.h: In function ‘__get_user_fn’:
+./arch/s390/include/asm/uaccess.h:143:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  143 |  return rc;
+      |         ^~
+
+These functions are supposed to be always inlined. Mark it as such.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_3990_erp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/uaccess.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_3990_erp.c b/drivers/s390/block/dasd_3990_erp.c
-index ee73b0607e47c7c6..4691a3c35d725ec1 100644
---- a/drivers/s390/block/dasd_3990_erp.c
-+++ b/drivers/s390/block/dasd_3990_erp.c
-@@ -1987,7 +1987,7 @@ dasd_3990_erp_compound_code(struct dasd_ccw_req * erp, char *sense)
-  * DASD_3990_ERP_COMPOUND_CONFIG
-  *
-  * DESCRIPTION
-- *   Handles the compound ERP action for configruation
-+ *   Handles the compound ERP action for configuration
-  *   dependent error.
-  *   Note: duplex handling is not implemented (yet).
-  *
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index bd2fd9a7821da..a470f1fa9f2af 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -83,7 +83,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ 	__rc;							\
+ })
+ 
+-static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
++static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x010000UL;
+ 	int rc;
+@@ -113,7 +113,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ 	return rc;
+ }
+ 
+-static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
++static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x01UL;
+ 	int rc;
 -- 
-2.17.1
+2.20.1
