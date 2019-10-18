@@ -1,92 +1,61 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-Date: Fri, 18 Oct 2019 17:46:56 +0800
-From: Tiwei Bie <tiwei.bie@intel.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:60296 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727388AbfJRHgA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Oct 2019 03:36:00 -0400
 Subject: Re: [PATCH V4 4/6] mdev: introduce virtio device and its device ops
-Message-ID: <20191018094655.GA4200@___>
 References: <20191017104836.32464-1-jasowang@redhat.com>
  <20191017104836.32464-5-jasowang@redhat.com>
+ <20191017115329.47d4a165@x1.home>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <24a96fca-926d-38ee-4dab-5f3715ef1433@redhat.com>
+Date: Fri, 18 Oct 2019 15:35:34 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20191017104836.32464-5-jasowang@redhat.com>
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20191017115329.47d4a165@x1.home>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
-
-On Thu, Oct 17, 2019 at 06:48:34PM +0800, Jason Wang wrote:
-> + * @get_vq_state:		Get the state for a virtqueue
-> + *				@mdev: mediated device
-> + *				@idx: virtqueue index
-> + *				Returns virtqueue state (last_avail_idx)
-> + * @get_vq_align:		Get the virtqueue align requirement
-> + *				for the device
-> + *				@mdev: mediated device
-> + *				Returns virtqueue algin requirement
-> + * @get_features:		Get virtio features supported by the device
-> + *				@mdev: mediated device
-> + *				Returns the virtio features support by the
-> + *				device
-> + * @get_features:		Set virtio features supported by the driver
-
-s/get_features/set_features/
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
 
-> + *				configration space
-> + * @get_mdev_features:		Get the feature of virtio mdev device
-> + *				@mdev: mediated device
-> + *				Returns the mdev features (API) support by
-> + *				the device.
-> + * @get_generation:		Get device generaton
-> + *				@mdev: mediated device
-> + *				Returns u32: device generation
-> + */
-> +struct virtio_mdev_device_ops {
-> +	/* Virtqueue ops */
-> +	int (*set_vq_address)(struct mdev_device *mdev,
-> +			      u16 idx, u64 desc_area, u64 driver_area,
-> +			      u64 device_area);
-> +	void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-> +	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-> +	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-> +			  struct virtio_mdev_callback *cb);
-> +	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-> +	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-> +	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-> +	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-> +
-> +	/* Device ops */
-> +	u16 (*get_vq_align)(struct mdev_device *mdev);
-> +	u64 (*get_features)(struct mdev_device *mdev);
-> +	int (*set_features)(struct mdev_device *mdev, u64 features);
-> +	void (*set_config_cb)(struct mdev_device *mdev,
-> +			      struct virtio_mdev_callback *cb);
-> +	u16 (*get_vq_num_max)(struct mdev_device *mdev);
-> +	u32 (*get_device_id)(struct mdev_device *mdev);
-> +	u32 (*get_vendor_id)(struct mdev_device *mdev);
-> +	u8 (*get_status)(struct mdev_device *mdev);
-> +	void (*set_status)(struct mdev_device *mdev, u8 status);
-> +	void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-> +			   void *buf, unsigned int len);
-> +	void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-> +			   const void *buf, unsigned int len);
-> +	u64 (*get_mdev_features)(struct mdev_device *mdev);
-
-Do we need a .set_mdev_features method as well?
-
-It's not very clear what does mdev_features mean.
-Does it mean the vhost backend features?
-
-https://github.com/torvalds/linux/blob/0e2adab6cf285c41e825b6c74a3aa61324d1132c/include/uapi/linux/vhost.h#L93-L94
+On 2019/10/18 上午1:53, Alex Williamson wrote:
+> On Thu, 17 Oct 2019 18:48:34 +0800
+> Jason Wang<jasowang@redhat.com>  wrote:
+>
+>> This patch implements basic support for mdev driver that supports
+>> virtio transport for kernel virtio driver.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>> ---
+>>   drivers/vfio/mdev/mdev_core.c |  12 +++
+>>   include/linux/mdev.h          |   4 +
+>>   include/linux/virtio_mdev.h   | 151 ++++++++++++++++++++++++++++++++++
+>>   3 files changed, 167 insertions(+)
+>>   create mode 100644 include/linux/virtio_mdev.h
+>>
+>> diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+>> index d0f3113c8071..5834f6b7c7a5 100644
+>> --- a/drivers/vfio/mdev/mdev_core.c
+>> +++ b/drivers/vfio/mdev/mdev_core.c
+>> @@ -57,6 +57,18 @@ void mdev_set_vfio_ops(struct mdev_device *mdev,
+>>   }
+>>   EXPORT_SYMBOL(mdev_set_vfio_ops);
+>>   
+>> +/* Specify the virtio device ops for the mdev device, this
+>> + * must be called during create() callback for virtio mdev device.
+>> + */
+>> +void mdev_set_virtio_ops(struct mdev_device *mdev,
+>> +			 const struct virtio_mdev_device_ops *virtio_ops)
+>> +{
+>> +	BUG_ON(mdev->class_id);
+> Nit, this one is a BUG_ON, but the vfio one is a WARN_ON.  Thanks,
+>
+> Alex
 
 
-> +	u32 (*get_generation)(struct mdev_device *mdev);
-> +};
-> +
-> +void mdev_set_virtio_ops(struct mdev_device *mdev,
-> +			 const struct virtio_mdev_device_ops *virtio_ops);
-> +
-> +#endif
-> -- 
-> 2.19.1
-> 
+Let me fix in next version.
+
+Thanks
