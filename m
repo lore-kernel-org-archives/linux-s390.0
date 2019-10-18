@@ -1,91 +1,82 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59578 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726387AbfJ1PwW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Oct 2019 11:52:22 -0400
-Date: Mon, 28 Oct 2019 15:52:16 +0000
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 1/2] locking/Kconfig: Add INLINE_SPINLOCKS &
- INLINE_RWLOCKS
-Message-ID: <20191028155215.GE5576@willie-the-truck>
-References: <20191016172028.16802-1-longman@redhat.com>
- <20191016172028.16802-2-longman@redhat.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191016172028.16802-2-longman@redhat.com>
-Sender: linux-s390-owner@vger.kernel.org
+References: <20191017174554.29840-1-hch@lst.de> <20191017174554.29840-14-hch@lst.de>
+In-Reply-To: <20191017174554.29840-14-hch@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 18 Oct 2019 09:30:54 +0200
+Message-ID: <CAMuHMdWaQ15j7fQ9-8XKgrSwgf96nT=yY+FCPWPxoPC9LGqvbQ@mail.gmail.com>
+Subject: Re: [PATCH 13/21] m68k: rename __iounmap and mark it static
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Waiman Long <longman@redhat.com>
-Cc: x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Sebastian Andrzej Siewior <sebastian@breakpoint.cc>, Russell King <linux@armlinux.org.uk>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, the arch/x86 maintainers <x86@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Openrisc <openrisc@lists.librecores.org>, MTD Maling List <linux-mtd@lists.infradead.org>, alpha <linux-alpha@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, arcml <linux-snps-arc@lists.infradead.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
-[I thought I replied to this already but I can't find any evidence of that.
- Apologies if you receive this twice!]
+Hi Christoph,
 
-On Wed, Oct 16, 2019 at 01:20:27PM -0400, Waiman Long wrote:
-> Both the arm64 and s390 architectures decide to inline all the spinlock
-> and rwlock functions except the read_trylock() and write_trylock()
-> functions for arm64. As other architectures are contemplating about
-> inlining those locking functions as well, it makes sense to make it
-> easier and less error-prone to do this.
-> 
-> Two new Kconfig options INLINE_SPINLOCKS and INLINE_RWLOCKS and their
-> ARCH_* counterparts are now added to streamline this process. The s390
-> and arm64's Kconfig files are modified to use the new Kconfig options.
-> 
-> There is no functional change for s390. For arm64, both read_trylock()
-> and write_trylock() are now inlined as well.
-> 
-> Suggested-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Waiman Long <longman@redhat.com>
-> ---
->  arch/arm64/Kconfig   | 28 ++-------------------------
->  arch/s390/Kconfig    | 30 ++---------------------------
->  kernel/Kconfig.locks | 45 +++++++++++++++++++++++++++++++++++++++++++-
->  3 files changed, 48 insertions(+), 55 deletions(-)
-> 
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index 950a56b71ff0..e440d85dd8f1 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -35,32 +35,8 @@ config ARM64
->  	select ARCH_HAS_TEARDOWN_DMA_OPS if IOMMU_SUPPORT
->  	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
->  	select ARCH_HAVE_NMI_SAFE_CMPXCHG
-> -	select ARCH_INLINE_READ_LOCK if !PREEMPT
-> -	select ARCH_INLINE_READ_LOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_READ_LOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_READ_LOCK_IRQSAVE if !PREEMPT
-> -	select ARCH_INLINE_READ_UNLOCK if !PREEMPT
-> -	select ARCH_INLINE_READ_UNLOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_READ_UNLOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_READ_UNLOCK_IRQRESTORE if !PREEMPT
-> -	select ARCH_INLINE_WRITE_LOCK if !PREEMPT
-> -	select ARCH_INLINE_WRITE_LOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_WRITE_LOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_WRITE_LOCK_IRQSAVE if !PREEMPT
-> -	select ARCH_INLINE_WRITE_UNLOCK if !PREEMPT
-> -	select ARCH_INLINE_WRITE_UNLOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_WRITE_UNLOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE if !PREEMPT
-> -	select ARCH_INLINE_SPIN_TRYLOCK if !PREEMPT
-> -	select ARCH_INLINE_SPIN_TRYLOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_SPIN_LOCK if !PREEMPT
-> -	select ARCH_INLINE_SPIN_LOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_SPIN_LOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_SPIN_LOCK_IRQSAVE if !PREEMPT
-> -	select ARCH_INLINE_SPIN_UNLOCK if !PREEMPT
-> -	select ARCH_INLINE_SPIN_UNLOCK_BH if !PREEMPT
-> -	select ARCH_INLINE_SPIN_UNLOCK_IRQ if !PREEMPT
-> -	select ARCH_INLINE_SPIN_UNLOCK_IRQRESTORE if !PREEMPT
-> +	select ARCH_INLINE_RWLOCKS if !PREEMPT
+On Thu, Oct 17, 2019 at 7:53 PM Christoph Hellwig <hch@lst.de> wrote:
+> m68k uses __iounmap as the name for an internal helper that is only
+> used for some CPU types.  Mark it static and give it a better name.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-This is a change in behaviour, since you're now selecting both
-ARCH_INLINE_READ_TRYLOCK and ARCH_INLINE_WRITE_TRYLOCK for arm64.
+Thanks for your patch!
 
-However, I /think/ that's probably just because I missed that when
-enabling the others, so cautiously:
+> --- a/arch/m68k/mm/kmap.c
+> +++ b/arch/m68k/mm/kmap.c
+> @@ -52,6 +52,7 @@ static inline void free_io_area(void *addr)
+>
+>  #define IO_SIZE                (256*1024)
+>
+> +static void __free_io_area(void *addr, unsigned long size);
+>  static struct vm_struct *iolist;
+>
+>  static struct vm_struct *get_io_area(unsigned long size)
+> @@ -90,7 +91,7 @@ static inline void free_io_area(void *addr)
+>                 if (tmp->addr == addr) {
+>                         *p = tmp->next;
+>                         /* remove gap added in get_io_area() */
+> -                       __iounmap(tmp->addr, tmp->size - IO_SIZE);
+> +                       __free_io_area(tmp->addr, tmp->size - IO_SIZE);
+>                         kfree(tmp);
+>                         return;
+>                 }
+> @@ -249,12 +250,13 @@ void iounmap(void __iomem *addr)
+>  }
+>  EXPORT_SYMBOL(iounmap);
+>
+> +#ifndef CPU_M68040_OR_M68060_ONLY
 
-Acked-by: Will Deacon <will@kernel.org> # arm64
+Can you please move this block up, instead of adding more #ifdef cluttery?
+That would also remove the need for a forward declaration.
 
-Will
+>  /*
+> - * __iounmap unmaps nearly everything, so be careful
+> + * __free_io_area unmaps nearly everything, so be careful
+>   * Currently it doesn't free pointer/page tables anymore but this
+>   * wasn't used anyway and might be added later.
+>   */
+> -void __iounmap(void *addr, unsigned long size)
+> +static void __free_io_area(void *addr, unsigned long size)
+>  {
+>         unsigned long virtaddr = (unsigned long)addr;
+>         pgd_t *pgd_dir;
+> @@ -297,6 +299,7 @@ void __iounmap(void *addr, unsigned long size)
+>
+>         flush_tlb_all();
+>  }
+> +#endif /* CPU_M68040_OR_M68060_ONLY */
+>
+>  /*
+>   * Set new cache mode for some kernel address space.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
