@@ -1,56 +1,39 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:39469 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729665AbfJ2VOV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:21 -0400
-Received: by mail-pg1-f193.google.com with SMTP id p12so10507548pgn.6
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:20 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 18/29] arm64: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Tue, 29 Oct 2019 14:13:40 -0700
-Message-Id: <20191029211351.13243-19-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 17 Oct 2019 20:42:14 -0700 (PDT)
+From: Paul Walmsley <paul.walmsley@sifive.com>
+Subject: Re: [PATCH 18/21] riscv: use the generic ioremap code
+In-Reply-To: <20191017174554.29840-19-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.9999.1910172038040.3156@viisi.sifive.com>
+References: <20191017174554.29840-1-hch@lst.de> <20191017174554.29840-19-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA. Also
-removes the redundant ALIGN, which is already present at the end of the
-RO_DATA macro.
+On Thu, 17 Oct 2019, Christoph Hellwig wrote:
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Will Deacon <will@kernel.org>
----
- arch/arm64/kernel/vmlinux.lds.S | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+> Use the generic ioremap code instead of providing a local version.
+> Note that this relies on the asm-generic no-op definition of
+> pgprot_noncached.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index a4b3e6c0680c..9128a26eb45b 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -5,6 +5,8 @@
-  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-  */
- 
-+#define RO_EXCEPTION_TABLE_ALIGN	8
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/cache.h>
- #include <asm/kernel-pgtable.h>
-@@ -135,10 +137,9 @@ SECTIONS
- 	. = ALIGN(SEGMENT_ALIGN);
- 	_etext = .;			/* End of text section */
- 
--	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
--	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
-+	/* everything from this point to __init_begin will be marked RO NX */
-+	RO_DATA(PAGE_SIZE)
- 
--	. = ALIGN(PAGE_SIZE);
- 	idmap_pg_dir = .;
- 	. += IDMAP_DIR_SIZE;
- 
--- 
-2.17.1
+According to the series introduction E-mail:
+
+https://lore.kernel.org/linux-riscv/20191017174554.29840-1-hch@lst.de/T/#m9ac4010fd725c8c84179fa99aa391a6f701a32de
+
+nothing substantive related to RISC-V or the common code has changed since 
+the first version of this series, and this RISC-V-specific patch appears 
+to be quite close (if not identical) to the first version of the patch:
+
+https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
+
+Thus the Tested-by, Reviewed-by, and Acked-by for RISC-V should all still 
+apply:
+
+https://lore.kernel.org/linux-riscv/alpine.DEB.2.21.9999.1908171421560.4130@viisi.sifive.com/
+
+
+- Paul
