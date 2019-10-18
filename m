@@ -1,97 +1,113 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45750 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729783AbfJRNbN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Oct 2019 09:31:13 -0400
-Date: Fri, 18 Oct 2019 15:30:42 +0200
-From: Cornelia Huck <cohuck@redhat.com>
+Return-Path: <netdev-owner@vger.kernel.org>
 Subject: Re: [PATCH V4 4/6] mdev: introduce virtio device and its device ops
-Message-ID: <20191018153042.3516cde1.cohuck@redhat.com>
-In-Reply-To: <733c0cfe-064f-c8ba-6bf8-165db88d7e07@redhat.com>
 References: <20191017104836.32464-1-jasowang@redhat.com>
-        <20191017104836.32464-5-jasowang@redhat.com>
-        <20191018114614.6f1e79dc.cohuck@redhat.com>
-        <733c0cfe-064f-c8ba-6bf8-165db88d7e07@redhat.com>
+ <20191017104836.32464-5-jasowang@redhat.com> <20191018094655.GA4200@___>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <a2a8e447-c778-59db-071a-ffa348a69bb8@redhat.com>
+Date: Fri, 18 Oct 2019 18:57:22 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20191018094655.GA4200@___>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
+To: Tiwei Bie <tiwei.bie@intel.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-On Fri, 18 Oct 2019 18:55:02 +0800
-Jason Wang <jasowang@redhat.com> wrote:
 
-> On 2019/10/18 下午5:46, Cornelia Huck wrote:
-> > On Thu, 17 Oct 2019 18:48:34 +0800
-> > Jason Wang <jasowang@redhat.com> wrote:
+On 2019/10/18 下午5:46, Tiwei Bie wrote:
+> On Thu, Oct 17, 2019 at 06:48:34PM +0800, Jason Wang wrote:
+>> + * @get_vq_state:		Get the state for a virtqueue
+>> + *				@mdev: mediated device
+>> + *				@idx: virtqueue index
+>> + *				Returns virtqueue state (last_avail_idx)
+>> + * @get_vq_align:		Get the virtqueue align requirement
+>> + *				for the device
+>> + *				@mdev: mediated device
+>> + *				Returns virtqueue algin requirement
+>> + * @get_features:		Get virtio features supported by the device
+>> + *				@mdev: mediated device
+>> + *				Returns the virtio features support by the
+>> + *				device
+>> + * @get_features:		Set virtio features supported by the driver
+> s/get_features/set_features/
 
-> >> + * @get_vendor_id:		Get virtio vendor id
-> >> + *				@mdev: mediated device
-> >> + *				Returns u32: virtio vendor id  
-> > How is the vendor id defined? As for normal virtio-pci devices?  
-> 
-> 
-> The vendor that provides this device. So something like this
-> 
-> I notice that MMIO also had this so it looks to me it's not pci specific.
 
-Ok. Would be good to specify this more explicitly.
+Will fix.
 
-> 
-> 
-> >  
-> >> + * @get_status: 		Get the device status
-> >> + *				@mdev: mediated device
-> >> + *				Returns u8: virtio device status
-> >> + * @set_status: 		Set the device status
-> >> + *				@mdev: mediated device
-> >> + *				@status: virtio device status
-> >> + * @get_config: 		Read from device specific configuration space
-> >> + *				@mdev: mediated device
-> >> + *				@offset: offset from the beginning of
-> >> + *				configuration space
-> >> + *				@buf: buffer used to read to
-> >> + *				@len: the length to read from
-> >> + *				configration space
-> >> + * @set_config: 		Write to device specific configuration space
-> >> + *				@mdev: mediated device
-> >> + *				@offset: offset from the beginning of
-> >> + *				configuration space
-> >> + *				@buf: buffer used to write from
-> >> + *				@len: the length to write to
-> >> + *				configration space
-> >> + * @get_mdev_features:		Get the feature of virtio mdev device
-> >> + *				@mdev: mediated device
-> >> + *				Returns the mdev features (API) support by
-> >> + *				the device.  
-> > What kind of 'features' are supposed to go in there? Are these bits,
-> > like you defined for VIRTIO_MDEV_F_VERSION_1 above?  
-> 
-> 
-> It's the API or mdev features other than virtio features. It could be 
-> used by driver to determine the capability of the mdev device. Besides 
-> _F_VERSION_1, we may add dirty page tracking etc which means we need new 
-> device ops.
 
-Ok, so that's supposed to be distinct bits that can be or'ed together?
-Makes sense, but probably needs some more documentation somewhere.
+>
+>> + *				configration space
+>> + * @get_mdev_features:		Get the feature of virtio mdev device
+>> + *				@mdev: mediated device
+>> + *				Returns the mdev features (API) support by
+>> + *				the device.
+>> + * @get_generation:		Get device generaton
+>> + *				@mdev: mediated device
+>> + *				Returns u32: device generation
+>> + */
+>> +struct virtio_mdev_device_ops {
+>> +	/* Virtqueue ops */
+>> +	int (*set_vq_address)(struct mdev_device *mdev,
+>> +			      u16 idx, u64 desc_area, u64 driver_area,
+>> +			      u64 device_area);
+>> +	void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
+>> +	void (*kick_vq)(struct mdev_device *mdev, u16 idx);
+>> +	void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
+>> +			  struct virtio_mdev_callback *cb);
+>> +	void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
+>> +	bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
+>> +	int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
+>> +	u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
+>> +
+>> +	/* Device ops */
+>> +	u16 (*get_vq_align)(struct mdev_device *mdev);
+>> +	u64 (*get_features)(struct mdev_device *mdev);
+>> +	int (*set_features)(struct mdev_device *mdev, u64 features);
+>> +	void (*set_config_cb)(struct mdev_device *mdev,
+>> +			      struct virtio_mdev_callback *cb);
+>> +	u16 (*get_vq_num_max)(struct mdev_device *mdev);
+>> +	u32 (*get_device_id)(struct mdev_device *mdev);
+>> +	u32 (*get_vendor_id)(struct mdev_device *mdev);
+>> +	u8 (*get_status)(struct mdev_device *mdev);
+>> +	void (*set_status)(struct mdev_device *mdev, u8 status);
+>> +	void (*get_config)(struct mdev_device *mdev, unsigned int offset,
+>> +			   void *buf, unsigned int len);
+>> +	void (*set_config)(struct mdev_device *mdev, unsigned int offset,
+>> +			   const void *buf, unsigned int len);
+>> +	u64 (*get_mdev_features)(struct mdev_device *mdev);
+> Do we need a .set_mdev_features method as well?
 
-> 
-> 
-> >  
-> >> + * @get_generation:		Get device generaton
-> >> + *				@mdev: mediated device
-> >> + *				Returns u32: device generation  
-> > Is that callback mandatory?  
-> 
-> 
-> I think so, it's hard to emulate that completely in virtio-mdev transport.
 
-IIRC, the generation stuff is not mandatory in the current version of
-virtio, as not all transports have that concept.
+Good question. To me I think we may document that the API provides 
+backward compatibility, so there's no need for set_mdev_features. Or is 
+there any other chance that we need that?
 
-Generally, are any of the callbacks optional, or are all of them
-mandatory? From what I understand, you plan to add new things that
-depend on features... would that mean non-mandatory callbacks?
+
+>
+> It's not very clear what does mdev_features mean.
+> Does it mean the vhost backend features?
+>
+> https://github.com/torvalds/linux/blob/0e2adab6cf285c41e825b6c74a3aa61324d1132c/include/uapi/linux/vhost.h#L93-L94
+
+
+Something like this, it's kind of the version of the API, except for the 
+_F_VERSION_1, the first user should be _F_LOG_ALL. I will add more docs 
+for this API.
+
+Thanks
+
+
+>
+>
+>> +	u32 (*get_generation)(struct mdev_device *mdev);
+>> +};
+>> +
+>> +void mdev_set_virtio_ops(struct mdev_device *mdev,
+>> +			 const struct virtio_mdev_device_ops *virtio_ops);
+>> +
+>> +#endif
+>> -- 
+>> 2.19.1
+>>
