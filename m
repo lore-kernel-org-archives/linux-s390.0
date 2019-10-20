@@ -1,85 +1,117 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 37/59] net/smc: receive pending data after RCV_SHUTDOWN
-Date: Sat, 26 Oct 2019 09:18:48 -0400
-Message-Id: <20191026131910.3435-37-sashal@kernel.org>
-In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
-References: <20191026131910.3435-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-eopbgr60044.outbound.protection.outlook.com ([40.107.6.44]:10723
+        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726571AbfJTXZZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 20 Oct 2019 19:25:25 -0400
+From: Parav Pandit <parav@mellanox.com>
+Subject: RE: [PATCH V4 2/6] modpost: add support for mdev class id
+Date: Sun, 20 Oct 2019 23:25:17 +0000
+Message-ID: <AM0PR05MB4866D3AA8112529F0DD40FC8D16E0@AM0PR05MB4866.eurprd05.prod.outlook.com>
+References: <20191017104836.32464-1-jasowang@redhat.com>
+ <20191017104836.32464-3-jasowang@redhat.com>
+In-Reply-To: <20191017104836.32464-3-jasowang@redhat.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "cohuck@redhat.com" <cohuck@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "zhi.a.wang@intel.com" <zhi.a.wang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, Ido Shamay <idos@mellanox.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kevin.tian@intel.com" <kevin.tian@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit 107529e31a87acd475ff6a0f82745821b8f70fec ]
 
-smc_rx_recvmsg() first checks if data is available, and then if
-RCV_SHUTDOWN is set. There is a race when smc_cdc_msg_recv_action() runs
-in between these 2 checks, receives data and sets RCV_SHUTDOWN.
-In that case smc_rx_recvmsg() would return from receive without to
-process the available data.
-Fix that with a final check for data available if RCV_SHUTDOWN is set.
-Move the check for data into a function and call it twice.
-And use the existing helper smc_rx_data_available().
-
-Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/smc/smc_rx.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
-
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index 1ee5fdbf8284e..36340912df48a 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -262,6 +262,18 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
- 	return -EAGAIN;
- }
- 
-+static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
-+{
-+	struct smc_connection *conn = &smc->conn;
-+
-+	if (smc_rx_data_available(conn))
-+		return true;
-+	else if (conn->urg_state == SMC_URG_VALID)
-+		/* we received a single urgent Byte - skip */
-+		smc_rx_update_cons(smc, 0);
-+	return false;
-+}
-+
- /* smc_rx_recvmsg - receive data from RMBE
-  * @msg:	copy data to receive buffer
-  * @pipe:	copy data to pipe if set - indicates splice() call
-@@ -303,15 +315,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 		if (read_done >= target || (pipe && read_done))
- 			break;
- 
--		if (atomic_read(&conn->bytes_to_rcv))
-+		if (smc_rx_recvmsg_data_available(smc))
- 			goto copy;
--		else if (conn->urg_state == SMC_URG_VALID)
--			/* we received a single urgent Byte - skip */
--			smc_rx_update_cons(smc, 0);
- 
- 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
--		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
-+		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
-+			/* smc_cdc_msg_recv_action() could have run after
-+			 * above smc_rx_recvmsg_data_available()
-+			 */
-+			if (smc_rx_recvmsg_data_available(smc))
-+				goto copy;
- 			break;
-+		}
- 
- 		if (read_done) {
- 			if (sk->sk_err ||
--- 
-2.20.1
+> -----Original Message-----
+> From: Jason Wang <jasowang@redhat.com>
+> Sent: Thursday, October 17, 2019 5:49 AM
+> To: kvm@vger.kernel.org; linux-s390@vger.kernel.org; linux-
+> kernel@vger.kernel.org; dri-devel@lists.freedesktop.org; intel-
+> gfx@lists.freedesktop.org; intel-gvt-dev@lists.freedesktop.org;
+> kwankhede@nvidia.com; alex.williamson@redhat.com; mst@redhat.com;
+> tiwei.bie@intel.com
+> Cc: virtualization@lists.linux-foundation.org; netdev@vger.kernel.org;
+> cohuck@redhat.com; maxime.coquelin@redhat.com;
+> cunming.liang@intel.com; zhihong.wang@intel.com;
+> rob.miller@broadcom.com; xiao.w.wang@intel.com;
+> haotian.wang@sifive.com; zhenyuw@linux.intel.com; zhi.a.wang@intel.com;
+> jani.nikula@linux.intel.com; joonas.lahtinen@linux.intel.com;
+> rodrigo.vivi@intel.com; airlied@linux.ie; daniel@ffwll.ch;
+> farman@linux.ibm.com; pasic@linux.ibm.com; sebott@linux.ibm.com;
+> oberpar@linux.ibm.com; heiko.carstens@de.ibm.com; gor@linux.ibm.com;
+> borntraeger@de.ibm.com; akrowiak@linux.ibm.com; freude@linux.ibm.com;
+> lingshan.zhu@intel.com; Ido Shamay <idos@mellanox.com>;
+> eperezma@redhat.com; lulu@redhat.com; Parav Pandit
+> <parav@mellanox.com>; christophe.de.dinechin@gmail.com;
+> kevin.tian@intel.com; stefanha@redhat.com; Jason Wang
+> <jasowang@redhat.com>
+> Subject: [PATCH V4 2/6] modpost: add support for mdev class id
+>=20
+> Add support to parse mdev class id table.
+>=20
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vfio/mdev/vfio_mdev.c     |  2 ++
+>  scripts/mod/devicetable-offsets.c |  3 +++
+>  scripts/mod/file2alias.c          | 10 ++++++++++
+>  3 files changed, 15 insertions(+)
+>=20
+> diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.=
+c
+> index 7b24ee9cb8dd..cb701cd646f0 100644
+> --- a/drivers/vfio/mdev/vfio_mdev.c
+> +++ b/drivers/vfio/mdev/vfio_mdev.c
+> @@ -125,6 +125,8 @@ static const struct mdev_class_id id_table[] =3D {
+>  	{ 0 },
+>  };
+>=20
+> +MODULE_DEVICE_TABLE(mdev, id_table);
+> +
+>  static struct mdev_driver vfio_mdev_driver =3D {
+>  	.name	=3D "vfio_mdev",
+>  	.probe	=3D vfio_mdev_probe,
+> diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-
+> offsets.c
+> index 054405b90ba4..6cbb1062488a 100644
+> --- a/scripts/mod/devicetable-offsets.c
+> +++ b/scripts/mod/devicetable-offsets.c
+> @@ -231,5 +231,8 @@ int main(void)
+>  	DEVID(wmi_device_id);
+>  	DEVID_FIELD(wmi_device_id, guid_string);
+>=20
+> +	DEVID(mdev_class_id);
+> +	DEVID_FIELD(mdev_class_id, id);
+> +
+>  	return 0;
+>  }
+> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c index
+> c91eba751804..d365dfe7c718 100644
+> --- a/scripts/mod/file2alias.c
+> +++ b/scripts/mod/file2alias.c
+> @@ -1335,6 +1335,15 @@ static int do_wmi_entry(const char *filename,
+> void *symval, char *alias)
+>  	return 1;
+>  }
+>=20
+> +/* looks like: "mdev:cN" */
+> +static int do_mdev_entry(const char *filename, void *symval, char
+> +*alias) {
+> +	DEF_FIELD(symval, mdev_class_id, id);
+> +
+> +	sprintf(alias, "mdev:c%02X", id);
+> +	return 1;
+> +}
+> +
+>  /* Does namelen bytes of name exactly match the symbol? */  static bool
+> sym_is(const char *name, unsigned namelen, const char *symbol)  { @@ -
+> 1407,6 +1416,7 @@ static const struct devtable devtable[] =3D {
+>  	{"typec", SIZE_typec_device_id, do_typec_entry},
+>  	{"tee", SIZE_tee_client_device_id, do_tee_entry},
+>  	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
+> +	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
+>  };
+>=20
+>  /* Create MODULE_ALIAS() statements.
+> --
+> 2.19.1
+Reviewed-by: Parav Pandit <parav@mellanox.com>
