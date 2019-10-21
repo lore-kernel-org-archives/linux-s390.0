@@ -1,26 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36580 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728826AbfJUON3 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56830 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727344AbfJUONb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Oct 2019 10:13:29 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDK0d059844
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:28 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsbkn7eqg-1
+        Mon, 21 Oct 2019 10:13:31 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDHhK144767
+        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:29 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsdyugt2j-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
         for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:28 -0400
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Mon, 21 Oct 2019 15:13:25 +0100
+        Mon, 21 Oct 2019 15:13:26 +0100
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 4/8] net/smc: improve link group freeing
-Date: Mon, 21 Oct 2019 16:13:11 +0200
+Subject: [PATCH net-next 8/8] net/smc: remove close abort worker
+Date: Mon, 21 Oct 2019 16:13:15 +0200
 In-Reply-To: <20191021141315.58969-1-kgraul@linux.ibm.com>
 References: <20191021141315.58969-1-kgraul@linux.ibm.com>
-Message-Id: <20191021141315.58969-5-kgraul@linux.ibm.com>
+Message-Id: <20191021141315.58969-9-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
@@ -28,137 +28,149 @@ Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko
 
 From: Ursula Braun <ubraun@linux.ibm.com>
 
-Usually link groups are freed delayed to enable quick connection
-creation for a follow-on SMC socket. Terminated link groups are
-freed faster. This patch makes sure, fast schedule of link group
-freeing is not rescheduled by a delayed schedule. And it makes sure
-link group freeing is not rescheduled, if the real freeing is already
-running.
+With the introduction of the link group termination worker there is
+no longer a need to postpone smc_close_active_abort() to a worker.
+To protect socket destruction due to normal and abnormal socket
+closing, the socket refcount is increased.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_core.c | 47 +++++++++++++++++++++++++++++-----------------
- net/smc/smc_core.h |  2 ++
- 2 files changed, 32 insertions(+), 17 deletions(-)
+ net/smc/af_smc.c    |  4 ++++
+ net/smc/smc_close.c | 18 +++++++++++-------
+ net/smc/smc_close.h |  1 +
+ net/smc/smc_core.c  |  6 +++---
+ 4 files changed, 19 insertions(+), 10 deletions(-)
 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5b932583e407..91ea098fabd9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -167,6 +167,7 @@ static int smc_release(struct socket *sock)
+ 	if (!sk)
+ 		goto out;
+ 
++	sock_hold(sk); /* sock_put below */
+ 	smc = smc_sk(sk);
+ 
+ 	/* cleanup for a dangling non-blocking connect */
+@@ -189,6 +190,7 @@ static int smc_release(struct socket *sock)
+ 	sock->sk = NULL;
+ 	release_sock(sk);
+ 
++	sock_put(sk); /* sock_hold above */
+ 	sock_put(sk); /* final sock_put */
+ out:
+ 	return rc;
+@@ -970,12 +972,14 @@ void smc_close_non_accepted(struct sock *sk)
+ {
+ 	struct smc_sock *smc = smc_sk(sk);
+ 
++	sock_hold(sk); /* sock_put below */
+ 	lock_sock(sk);
+ 	if (!sk->sk_lingertime)
+ 		/* wait for peer closing */
+ 		sk->sk_lingertime = SMC_MAX_STREAM_WAIT_TIMEOUT;
+ 	__smc_release(smc);
+ 	release_sock(sk);
++	sock_put(sk); /* sock_hold above */
+ 	sock_put(sk); /* final sock_put */
+ }
+ 
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 2bbcd45a421e..d34e5adce2eb 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -113,9 +113,10 @@ int smc_close_abort(struct smc_connection *conn)
+ /* terminate smc socket abnormally - active abort
+  * link group is terminated, i.e. RDMA communication no longer possible
+  */
+-static void smc_close_active_abort(struct smc_sock *smc)
++void smc_close_active_abort(struct smc_sock *smc)
+ {
+ 	struct sock *sk = &smc->sk;
++	bool release_clcsock = false;
+ 
+ 	if (sk->sk_state != SMC_INIT && smc->clcsock && smc->clcsock->sk) {
+ 		sk->sk_err = ECONNABORTED;
+@@ -137,11 +138,14 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 		cancel_delayed_work_sync(&smc->conn.tx_work);
+ 		lock_sock(sk);
+ 		sk->sk_state = SMC_CLOSED;
++		sock_put(sk); /* postponed passive closing */
+ 		break;
+ 	case SMC_PEERCLOSEWAIT1:
+ 	case SMC_PEERCLOSEWAIT2:
+ 	case SMC_PEERFINCLOSEWAIT:
+ 		sk->sk_state = SMC_CLOSED;
++		smc_conn_free(&smc->conn);
++		release_clcsock = true;
+ 		sock_put(sk); /* passive closing */
+ 		break;
+ 	case SMC_PROCESSABORT:
+@@ -156,6 +160,12 @@ static void smc_close_active_abort(struct smc_sock *smc)
+ 
+ 	sock_set_flag(sk, SOCK_DEAD);
+ 	sk->sk_state_change(sk);
++
++	if (release_clcsock) {
++		release_sock(sk);
++		smc_clcsock_release(smc);
++		lock_sock(sk);
++	}
+ }
+ 
+ static inline bool smc_close_sent_any_close(struct smc_connection *conn)
+@@ -328,12 +338,6 @@ static void smc_close_passive_work(struct work_struct *work)
+ 	lock_sock(sk);
+ 	old_state = sk->sk_state;
+ 
+-	if (conn->killed) {
+-		/* abnormal termination */
+-		smc_close_active_abort(smc);
+-		goto wakeup;
+-	}
+-
+ 	rxflags = &conn->local_rx_ctrl.conn_state_flags;
+ 	if (rxflags->peer_conn_abort) {
+ 		/* peer has not received all data */
+diff --git a/net/smc/smc_close.h b/net/smc/smc_close.h
+index 084c4f37aa96..634fea2b7c95 100644
+--- a/net/smc/smc_close.h
++++ b/net/smc/smc_close.h
+@@ -25,5 +25,6 @@ int smc_close_shutdown_write(struct smc_sock *smc);
+ void smc_close_init(struct smc_sock *smc);
+ void smc_clcsock_release(struct smc_sock *smc);
+ int smc_close_abort(struct smc_connection *conn);
++void smc_close_active_abort(struct smc_sock *smc);
+ 
+ #endif /* SMC_CLOSE_H */
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 1f58cd82928c..e7e9dbcd7d8b 100644
+index 46d4b944c4c4..ed02eac636da 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -61,14 +61,21 @@ static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- 	 * creation. For client use a somewhat higher removal delay time,
- 	 * otherwise there is a risk of out-of-sync link groups.
- 	 */
--	mod_delayed_work(system_wq, &lgr->free_work,
--			 (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
--			 SMC_LGR_FREE_DELAY_CLNT : SMC_LGR_FREE_DELAY_SERV);
-+	if (!lgr->freeing && !lgr->freefast) {
-+		mod_delayed_work(system_wq, &lgr->free_work,
-+				 (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
-+						SMC_LGR_FREE_DELAY_CLNT :
-+						SMC_LGR_FREE_DELAY_SERV);
-+	}
+@@ -519,9 +519,7 @@ static void smc_conn_kill(struct smc_connection *conn)
+ 	smc_sk_wake_ups(smc);
+ 	smc_lgr_unregister_conn(conn);
+ 	smc->sk.sk_err = ECONNABORTED;
+-	sock_hold(&smc->sk); /* sock_put in close work */
+-	if (!schedule_work(&conn->close_work))
+-		sock_put(&smc->sk);
++	smc_close_active_abort(smc);
  }
  
- void smc_lgr_schedule_free_work_fast(struct smc_link_group *lgr)
- {
--	mod_delayed_work(system_wq, &lgr->free_work, SMC_LGR_FREE_DELAY_FAST);
-+	if (!lgr->freeing && !lgr->freefast) {
-+		lgr->freefast = 1;
-+		mod_delayed_work(system_wq, &lgr->free_work,
-+				 SMC_LGR_FREE_DELAY_FAST);
-+	}
- }
- 
- /* Register connection's alert token in our lookup structure.
-@@ -171,10 +178,15 @@ static void smc_lgr_free_work(struct work_struct *work)
- 						  struct smc_link_group,
- 						  free_work);
- 	spinlock_t *lgr_lock;
-+	struct smc_link *lnk;
- 	bool conns;
- 
- 	smc_lgr_list_head(lgr, &lgr_lock);
- 	spin_lock_bh(lgr_lock);
-+	if (lgr->freeing) {
-+		spin_unlock_bh(lgr_lock);
-+		return;
-+	}
- 	read_lock_bh(&lgr->conns_lock);
- 	conns = RB_EMPTY_ROOT(&lgr->conns_all);
- 	read_unlock_bh(&lgr->conns_lock);
-@@ -183,29 +195,27 @@ static void smc_lgr_free_work(struct work_struct *work)
- 		return;
+ /* terminate link group */
+@@ -544,9 +542,11 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
+ 		read_unlock_bh(&lgr->conns_lock);
+ 		conn = rb_entry(node, struct smc_connection, alert_node);
+ 		smc = container_of(conn, struct smc_sock, conn);
++		sock_hold(&smc->sk); /* sock_put below */
+ 		lock_sock(&smc->sk);
+ 		smc_conn_kill(conn);
+ 		release_sock(&smc->sk);
++		sock_put(&smc->sk); /* sock_hold above */
+ 		read_lock_bh(&lgr->conns_lock);
+ 		node = rb_first(&lgr->conns_all);
  	}
- 	list_del_init(&lgr->list); /* remove from smc_lgr_list */
--	spin_unlock_bh(lgr_lock);
- 
-+	lnk = &lgr->lnk[SMC_SINGLE_LINK];
- 	if (!lgr->is_smcd && !lgr->terminating)	{
--		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
--
- 		/* try to send del link msg, on error free lgr immediately */
- 		if (lnk->state == SMC_LNK_ACTIVE &&
- 		    !smc_link_send_delete(lnk)) {
- 			/* reschedule in case we never receive a response */
- 			smc_lgr_schedule_free_work(lgr);
-+			spin_unlock_bh(lgr_lock);
- 			return;
- 		}
- 	}
-+	lgr->freeing = 1; /* this instance does the freeing, no new schedule */
-+	spin_unlock_bh(lgr_lock);
-+	cancel_delayed_work(&lgr->free_work);
- 
--	if (!delayed_work_pending(&lgr->free_work)) {
--		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
--
--		if (!lgr->is_smcd && lnk->state != SMC_LNK_INACTIVE)
--			smc_llc_link_inactive(lnk);
--		if (lgr->is_smcd)
--			smc_ism_signal_shutdown(lgr);
--		smc_lgr_free(lgr);
--	}
-+	if (!lgr->is_smcd && lnk->state != SMC_LNK_INACTIVE)
-+		smc_llc_link_inactive(lnk);
-+	if (lgr->is_smcd)
-+		smc_ism_signal_shutdown(lgr);
-+	smc_lgr_free(lgr);
- }
- 
- /* create a new SMC link group */
-@@ -233,6 +243,9 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	}
- 	lgr->is_smcd = ini->is_smcd;
- 	lgr->sync_err = 0;
-+	lgr->terminating = 0;
-+	lgr->freefast = 0;
-+	lgr->freeing = 0;
- 	lgr->vlan_id = ini->vlan_id;
- 	rwlock_init(&lgr->sndbufs_lock);
- 	rwlock_init(&lgr->rmbs_lock);
-@@ -513,7 +526,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 	read_unlock_bh(&lgr->conns_lock);
- 	if (!lgr->is_smcd)
- 		wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
--	smc_lgr_schedule_free_work(lgr);
-+	smc_lgr_schedule_free_work_fast(lgr);
- }
- 
- /* unlink and terminate link group */
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index c00ac61dc129..12c2818b293f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -204,6 +204,8 @@ struct smc_link_group {
- 	struct delayed_work	free_work;	/* delayed freeing of an lgr */
- 	u8			sync_err : 1;	/* lgr no longer fits to peer */
- 	u8			terminating : 1;/* lgr is terminating */
-+	u8			freefast : 1;	/* free worker scheduled fast */
-+	u8			freeing : 1;	/* lgr is being freed */
- 
- 	bool			is_smcd;	/* SMC-R or SMC-D */
- 	union {
 -- 
 2.17.1
