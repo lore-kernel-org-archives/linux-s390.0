@@ -1,58 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13260 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2407237AbfJXLmF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:05 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbB4d138055
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:04 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub4qgeja-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:04 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:02 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 08/37] KVM: s390: add missing include in gmap.h
-Date: Thu, 24 Oct 2019 07:40:30 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:38847 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727130AbfJUIri (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Oct 2019 04:47:38 -0400
+Received: by mail-lf1-f65.google.com with SMTP id q28so6123969lfa.5
+        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 01:47:37 -0700 (PDT)
+Subject: Re: [PATCH 03/21] ia64: rename ioremap_nocache to ioremap_uc
+References: <20191017174554.29840-1-hch@lst.de>
+ <20191017174554.29840-4-hch@lst.de>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <915c9aaa-ea20-7c29-7ee8-5c5f68f7d123@cogentembedded.com>
+Date: Mon, 21 Oct 2019 11:47:17 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-9-frankja@linux.ibm.com>
+In-Reply-To: <20191017174554.29840-4-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Hello!
 
-gmap.h references radix trees, but does not include linux/radix-tree.h
-itself. Sources that include gmap.h but not also radix-tree.h will
-therefore fail to compile.
+On 17.10.2019 20:45, Christoph Hellwig wrote:
 
-This simple patch adds the include for linux/radix-tree.h in gmap.h so
-that users of gmap.h will be able to compile.
+> On ia64 ioremap_nocache fails if attributs don't match.  Not other
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/include/asm/gmap.h | 1 +
- 1 file changed, 1 insertion(+)
+   Attributes?
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index eab6a2ec3599..99b3eedda26e 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -10,6 +10,7 @@
- #define _ASM_S390_GMAP_H
- 
- #include <linux/refcount.h>
-+#include <linux/radix-tree.h>
- 
- /* Generic bits for GMAP notification on DAT table entry changes. */
- #define GMAP_NOTIFY_SHADOW	0x2
--- 
-2.20.1
+> architectures does this, and we plan to get rid of ioremap_nocache.
+> So get rid of the special semantics and define ioremap_nocache in
+> terms of ioremap as no portable driver could rely on the behavior
+> anyway.
+> 
+> However x86 implements ioremap_uc with a in a similar way as the ia64
+
+    With a what?
+
+> version of ioremap_nocache, so implement that instead.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   arch/ia64/include/asm/io.h | 6 +++---
+>   arch/ia64/mm/ioremap.c     | 4 ++--
+>   2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/ia64/include/asm/io.h b/arch/ia64/include/asm/io.h
+> index 54e70c21352a..fec9df9609ed 100644
+> --- a/arch/ia64/include/asm/io.h
+> +++ b/arch/ia64/include/asm/io.h
+[...]
+
+MBR, Sergei
