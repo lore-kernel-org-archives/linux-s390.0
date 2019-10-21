@@ -1,131 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39174 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728761AbfJ2Gts (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:48 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 17/21] lib: provide a simple generic ioremap implementation
-Date: Tue, 29 Oct 2019 07:48:30 +0100
-Message-Id: <20191029064834.23438-18-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:21225 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725769AbfJUFhb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Oct 2019 01:37:31 -0400
+Subject: Re: [PATCH V4 4/6] mdev: introduce virtio device and its device ops
+References: <20191017104836.32464-1-jasowang@redhat.com>
+ <20191017104836.32464-5-jasowang@redhat.com>
+ <20191018114614.6f1e79dc.cohuck@redhat.com>
+ <733c0cfe-064f-c8ba-6bf8-165db88d7e07@redhat.com>
+ <20191018153042.3516cde1.cohuck@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <4a34d071-2e78-c37c-1046-7f9f6bb9e67f@redhat.com>
+Date: Mon, 21 Oct 2019 13:36:22 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191018153042.3516cde1.cohuck@redhat.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-A lot of architectures reuse the same simple ioremap implementation, so
-start lifting the most simple variant to lib/ioremap.c.  It provides
-ioremap_prot and iounmap, plus a default ioremap that uses prot_noncached,
-although that can be overridden by asm/io.h.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/asm-generic/io.h | 20 ++++++++++++++++----
- lib/Kconfig              |  3 +++
- lib/ioremap.c            | 39 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 58 insertions(+), 4 deletions(-)
+On 2019/10/18 =E4=B8=8B=E5=8D=889:30, Cornelia Huck wrote:
+> On Fri, 18 Oct 2019 18:55:02 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+>
+>> On 2019/10/18 =E4=B8=8B=E5=8D=885:46, Cornelia Huck wrote:
+>>> On Thu, 17 Oct 2019 18:48:34 +0800
+>>> Jason Wang <jasowang@redhat.com> wrote:
+>>>> + * @get_vendor_id:=09=09Get virtio vendor id
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09Returns u32: virtio vendor id
+>>> How is the vendor id defined? As for normal virtio-pci devices?
+>>
+>> The vendor that provides this device. So something like this
+>>
+>> I notice that MMIO also had this so it looks to me it's not pci specific=
+.
+> Ok. Would be good to specify this more explicitly.
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index 4e45e1cb6560..4a661fdd1937 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -923,9 +923,10 @@ static inline void *phys_to_virt(unsigned long address)
-  * DOC: ioremap() and ioremap_*() variants
-  *
-  * Architectures with an MMU are expected to provide ioremap() and iounmap()
-- * themselves.  For NOMMU architectures we provide a default nop-op
-- * implementation that expect that the physical address used for MMIO are
-- * already marked as uncached, and can be used as kernel virtual addresses.
-+ * themselves or rely on GENERIC_IOREMAP.  For NOMMU architectures we provide
-+ * a default nop-op implementation that expect that the physical address used
-+ * for MMIO are already marked as uncached, and can be used as kernel virtual
-+ * addresses.
-  *
-  * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
-  * for specific drivers if the architecture choses to implement them.  If they
-@@ -946,7 +947,18 @@ static inline void iounmap(void __iomem *addr)
- {
- }
- #endif
--#endif /* CONFIG_MMU */
-+#elif defined(CONFIG_GENERIC_IOREMAP)
-+#include <asm/pgtable.h>
-+
-+void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
-+void iounmap(volatile void __iomem *addr);
-+
-+static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
-+{
-+	/* _PAGE_IOREMAP needs to be supplied by the architecture */
-+	return ioremap_prot(addr, size, _PAGE_IOREMAP);
-+}
-+#endif /* !CONFIG_MMU || CONFIG_GENERIC_IOREMAP */
- 
- #ifndef ioremap_nocache
- #define ioremap_nocache ioremap
-diff --git a/lib/Kconfig b/lib/Kconfig
-index 183f92a297ca..afc78aaf2b25 100644
---- a/lib/Kconfig
-+++ b/lib/Kconfig
-@@ -638,6 +638,9 @@ config STRING_SELFTEST
- 
- endmenu
- 
-+config GENERIC_IOREMAP
-+	bool
-+
- config GENERIC_LIB_ASHLDI3
- 	bool
- 
-diff --git a/lib/ioremap.c b/lib/ioremap.c
-index 0a2ffadc6d71..3f0e18543de8 100644
---- a/lib/ioremap.c
-+++ b/lib/ioremap.c
-@@ -231,3 +231,42 @@ int ioremap_page_range(unsigned long addr,
- 
- 	return err;
- }
-+
-+#ifdef CONFIG_GENERIC_IOREMAP
-+void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
-+{
-+	unsigned long offset, vaddr;
-+	phys_addr_t last_addr;
-+	struct vm_struct *area;
-+
-+	/* Disallow wrap-around or zero size */
-+	last_addr = addr + size - 1;
-+	if (!size || last_addr < addr)
-+		return NULL;
-+
-+	/* Page-align mappings */
-+	offset = addr & (~PAGE_MASK);
-+	addr -= offset;
-+	size = PAGE_ALIGN(size + offset);
-+
-+	area = get_vm_area_caller(size, VM_IOREMAP,
-+			__builtin_return_address(0));
-+	if (!area)
-+		return NULL;
-+	vaddr = (unsigned long)area->addr;
-+
-+	if (ioremap_page_range(vaddr, vaddr + size, addr, __pgprot(prot))) {
-+		free_vm_area(area);
-+		return NULL;
-+	}
-+
-+	return (void __iomem *)(vaddr + offset);
-+}
-+EXPORT_SYMBOL(ioremap_prot);
-+
-+void iounmap(volatile void __iomem *addr)
-+{
-+	vunmap((void *)((unsigned long)addr & PAGE_MASK));
-+}
-+EXPORT_SYMBOL(iounmap);
-+#endif /* CONFIG_GENERIC_IOREMAP */
--- 
-2.20.1
+
+Ok.
+
+
+>
+>>
+>>>  =20
+>>>> + * @get_status: =09=09Get the device status
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09Returns u8: virtio device status
+>>>> + * @set_status: =09=09Set the device status
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09@status: virtio device status
+>>>> + * @get_config: =09=09Read from device specific configuration space
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09@offset: offset from the beginning of
+>>>> + *=09=09=09=09configuration space
+>>>> + *=09=09=09=09@buf: buffer used to read to
+>>>> + *=09=09=09=09@len: the length to read from
+>>>> + *=09=09=09=09configration space
+>>>> + * @set_config: =09=09Write to device specific configuration space
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09@offset: offset from the beginning of
+>>>> + *=09=09=09=09configuration space
+>>>> + *=09=09=09=09@buf: buffer used to write from
+>>>> + *=09=09=09=09@len: the length to write to
+>>>> + *=09=09=09=09configration space
+>>>> + * @get_mdev_features:=09=09Get the feature of virtio mdev device
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09Returns the mdev features (API) support by
+>>>> + *=09=09=09=09the device.
+>>> What kind of 'features' are supposed to go in there? Are these bits,
+>>> like you defined for VIRTIO_MDEV_F_VERSION_1 above?
+>>
+>> It's the API or mdev features other than virtio features. It could be
+>> used by driver to determine the capability of the mdev device. Besides
+>> _F_VERSION_1, we may add dirty page tracking etc which means we need new
+>> device ops.
+> Ok, so that's supposed to be distinct bits that can be or'ed together?
+
+
+Yes.
+
+
+> Makes sense, but probably needs some more documentation somewhere.
+
+
+Let me add some doc above this helper.
+
+
+>
+>>
+>>>  =20
+>>>> + * @get_generation:=09=09Get device generaton
+>>>> + *=09=09=09=09@mdev: mediated device
+>>>> + *=09=09=09=09Returns u32: device generation
+>>> Is that callback mandatory?
+>>
+>> I think so, it's hard to emulate that completely in virtio-mdev transpor=
+t.
+> IIRC, the generation stuff is not mandatory in the current version of
+> virtio, as not all transports have that concept.
+
+
+It looks to me we can have workaround as what has been done by virtio.c.=20
+Return 0 if this helper is not provided.
+
+
+>
+> Generally, are any of the callbacks optional, or are all of them
+> mandatory? From what I understand, you plan to add new things that
+> depend on features... would that mean non-mandatory callbacks?
+
+
+Yes, not all of them were mandatory, I will explicit explain which are=20
+mandatory and which are not.
+
+Thanks
