@@ -1,65 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:56770 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2503052AbfJQRrK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:47:10 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/21] csky: remove ioremap_cache
-Date: Thu, 17 Oct 2019 19:45:53 +0200
-Message-Id: <20191017174554.29840-21-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51940 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728842AbfJUONa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Oct 2019 10:13:30 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDKpZ059839
+        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:30 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsbkn7erf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:29 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Mon, 21 Oct 2019 15:13:27 +0100
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 6/8] net/smc: improve abnormal termination of link groups
+Date: Mon, 21 Oct 2019 16:13:13 +0200
+In-Reply-To: <20191021141315.58969-1-kgraul@linux.ibm.com>
+References: <20191021141315.58969-1-kgraul@linux.ibm.com>
+Message-Id: <20191021141315.58969-7-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-No driver that can be used on csky uses ioremap_cache, and this
-interface has been deprecated in favor of memremap.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+If a link group and its connections must be terminated,
+* wake up socket waiters
+* do not enable buffer reuse
+
+A linkgroup might be terminated while normal connection closing
+is running. Avoid buffer reuse and its related LLC DELETE RKEY
+call, if linkgroup termination has started. And use the earliest
+indication of linkgroup termination possible, namely the removal
+from the linkgroup list.
+
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/csky/include/asm/io.h | 2 --
- arch/csky/mm/ioremap.c     | 7 -------
- 2 files changed, 9 deletions(-)
+ net/smc/smc_core.c | 40 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
-diff --git a/arch/csky/include/asm/io.h b/arch/csky/include/asm/io.h
-index a4b9fb616faa..f572605d5ad5 100644
---- a/arch/csky/include/asm/io.h
-+++ b/arch/csky/include/asm/io.h
-@@ -36,13 +36,11 @@
- /*
-  * I/O memory mapping functions.
-  */
--extern void __iomem *ioremap_cache(phys_addr_t addr, size_t size);
- extern void __iomem *__ioremap(phys_addr_t addr, size_t size, pgprot_t prot);
- extern void iounmap(void *addr);
- 
- #define ioremap(addr, size)		__ioremap((addr), (size), pgprot_noncached(PAGE_KERNEL))
- #define ioremap_wc(addr, size)		__ioremap((addr), (size), pgprot_writecombine(PAGE_KERNEL))
--#define ioremap_cache			ioremap_cache
- 
- #include <asm-generic/io.h>
- 
-diff --git a/arch/csky/mm/ioremap.c b/arch/csky/mm/ioremap.c
-index e13cd3497628..ae78256a56fd 100644
---- a/arch/csky/mm/ioremap.c
-+++ b/arch/csky/mm/ioremap.c
-@@ -44,13 +44,6 @@ void __iomem *__ioremap(phys_addr_t phys_addr, size_t size, pgprot_t prot)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 494288f32df6..6faaa38412b1 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -154,6 +154,7 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+ 		__smc_lgr_unregister_conn(conn);
+ 	}
+ 	write_unlock_bh(&lgr->conns_lock);
++	conn->lgr = NULL;
  }
- EXPORT_SYMBOL(__ioremap);
  
--void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size)
--{
--	return __ioremap_caller(phys_addr, size, PAGE_KERNEL,
--				__builtin_return_address(0));
--}
--EXPORT_SYMBOL(ioremap_cache);
--
- void iounmap(void __iomem *addr)
+ /* Send delete link, either as client to request the initiation
+@@ -344,7 +345,7 @@ static void smc_buf_unuse(struct smc_connection *conn,
+ 		conn->sndbuf_desc->used = 0;
+ 	if (conn->rmb_desc) {
+ 		if (!conn->rmb_desc->regerr) {
+-			if (!lgr->is_smcd) {
++			if (!lgr->is_smcd && !list_empty(&lgr->list)) {
+ 				/* unregister rmb with peer */
+ 				smc_llc_do_delete_rkey(
+ 						&lgr->lnk[SMC_SINGLE_LINK],
+@@ -375,9 +376,10 @@ void smc_conn_free(struct smc_connection *conn)
+ 	} else {
+ 		smc_cdc_tx_dismiss_slots(conn);
+ 	}
+-	smc_lgr_unregister_conn(conn);
+-	smc_buf_unuse(conn, lgr);		/* allow buffer reuse */
+-	conn->lgr = NULL;
++	if (!list_empty(&lgr->list)) {
++		smc_lgr_unregister_conn(conn);
++		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
++	}
+ 
+ 	if (!lgr->conns_num)
+ 		smc_lgr_schedule_free_work(lgr);
+@@ -491,6 +493,28 @@ void smc_lgr_forget(struct smc_link_group *lgr)
+ 	spin_unlock_bh(lgr_lock);
+ }
+ 
++static void smc_sk_wake_ups(struct smc_sock *smc)
++{
++	smc->sk.sk_write_space(&smc->sk);
++	smc->sk.sk_data_ready(&smc->sk);
++	smc->sk.sk_state_change(&smc->sk);
++}
++
++/* kill a connection */
++static void smc_conn_kill(struct smc_connection *conn)
++{
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
++
++	smc_close_abort(conn);
++	conn->killed = 1;
++	smc_sk_wake_ups(smc);
++	smc_lgr_unregister_conn(conn);
++	smc->sk.sk_err = ECONNABORTED;
++	sock_hold(&smc->sk); /* sock_put in close work */
++	if (!schedule_work(&conn->close_work))
++		sock_put(&smc->sk);
++}
++
+ /* terminate link group */
+ static void __smc_lgr_terminate(struct smc_link_group *lgr)
  {
- 	vunmap((void *)((unsigned long)addr & PAGE_MASK));
+@@ -512,13 +536,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
+ 		conn = rb_entry(node, struct smc_connection, alert_node);
+ 		smc = container_of(conn, struct smc_sock, conn);
+ 		lock_sock(&smc->sk);
+-		sock_hold(&smc->sk); /* sock_put in close work */
+-		smc_close_abort(conn);
+-		conn->killed = 1;
+-		smc_lgr_unregister_conn(conn);
+-		conn->lgr = NULL;
+-		if (!schedule_work(&conn->close_work))
+-			sock_put(&smc->sk);
++		smc_conn_kill(conn);
+ 		release_sock(&smc->sk);
+ 		read_lock_bh(&lgr->conns_lock);
+ 		node = rb_first(&lgr->conns_all);
 -- 
-2.20.1
+2.17.1
