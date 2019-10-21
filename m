@@ -1,159 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4222 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439186AbfJXLmz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:55 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb8p0002574
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:54 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub6ggayx-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:54 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:52 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 37/37] KVM: s390: protvirt: Add UV debug trace
-Date: Thu, 24 Oct 2019 07:40:59 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:46009 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727986AbfJUJyw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Oct 2019 05:54:52 -0400
+Date: Mon, 21 Oct 2019 11:55:00 +0200
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 0/4] treewide: fix interrupted release
+Message-ID: <20191021095500.GE24768@localhost>
+References: <20191010131333.23635-1-johan@kernel.org>
+ <20191010135043.GA16989@phenom.ffwll.local>
+ <20191011093633.GD27819@localhost>
+ <20191014084847.GD11828@phenom.ffwll.local>
+ <20191014161326.GO13531@localhost>
+ <20191015140726.GN11828@phenom.ffwll.local>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-38-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191015140726.GN11828@phenom.ffwll.local>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Johan Hovold <johan@kernel.org>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Fabien Dessenne <fabien.dessenne@st.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Harald Freudenberger <freude@linux.ibm.com>, David Airlie <airlied@linux.ie>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Al Viro <viro@zeniv.linux.org.uk>
 
-Let's have some debug traces which stay around for longer than the
-guest.
+On Tue, Oct 15, 2019 at 04:07:26PM +0200, Daniel Vetter wrote:
+> On Mon, Oct 14, 2019 at 06:13:26PM +0200, Johan Hovold wrote:
+> > On Mon, Oct 14, 2019 at 10:48:47AM +0200, Daniel Vetter wrote:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 10 +++++++++-
- arch/s390/kvm/kvm-s390.h |  9 +++++++++
- arch/s390/kvm/pv.c       | 16 ++++++++++++++++
- 3 files changed, 34 insertions(+), 1 deletion(-)
+> > > Do you have a legit usecase for interruptible sleeps in fops->release?
+> > 
+> > The tty layer depends on this for example when waiting for buffered
+> > writes to complete (something which may never happen when using flow
+> > control).
+> > 
+> > > I'm not even sure killable is legit in there, since it's an fd, not a
+> > > process context ...
+> > 
+> > It will be run in process context in many cases, and for ttys we're good
+> > AFAICT.
+> 
+> Huh, read it a bit, all the ->shutdown callbacks have void return type.
+> But there's indeed interruptible sleeps in there. Doesn't this break
+> userspace that expects that a close() actually flushes the tty?
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5cc9108c94e4..56627968f2ed 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -221,6 +221,7 @@ static struct kvm_s390_vm_cpu_subfunc kvm_s390_available_subfunc;
- static struct gmap_notifier gmap_notifier;
- static struct gmap_notifier vsie_gmap_notifier;
- debug_info_t *kvm_s390_dbf;
-+debug_info_t *kvm_s390_dbf_uv;
- 
- /* Section: not file related */
- int kvm_arch_hardware_enable(void)
-@@ -462,7 +463,13 @@ int kvm_arch_init(void *opaque)
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
- 
--	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view))
-+	kvm_s390_dbf_uv = debug_register("kvm-uv", 32, 1, 7 * sizeof(long));
-+	if (!kvm_s390_dbf_uv)
-+		return -ENOMEM;
-+
-+
-+	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view) ||
-+	    debug_register_view(kvm_s390_dbf_uv, &debug_sprintf_view))
- 		goto out;
- 
- 	kvm_s390_cpu_feat_init();
-@@ -489,6 +496,7 @@ void kvm_arch_exit(void)
- {
- 	kvm_s390_gib_destroy();
- 	debug_unregister(kvm_s390_dbf);
-+	debug_unregister(kvm_s390_dbf_uv);
- }
- 
- /* Section: device related */
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 8cd2e978363d..d13ddf2113c0 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -25,6 +25,15 @@
- #define IS_ITDB_VALID(vcpu)	((*(char *)vcpu->arch.sie_block->itdba == TDB_FORMAT1))
- 
- extern debug_info_t *kvm_s390_dbf;
-+extern debug_info_t *kvm_s390_dbf_uv;
-+
-+#define KVM_UV_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
-+do { \
-+	debug_sprintf_event(kvm_s390_dbf_uv, d_loglevel, \
-+			    "%s: " d_string "\n", d_kvm->arch.dbf->name, \
-+			    d_args); \
-+} while (0)
-+
- #define KVM_EVENT(d_loglevel, d_string, d_args...)\
- do { \
- 	debug_sprintf_event(kvm_s390_dbf, d_loglevel, d_string "\n", \
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index cf79a6503e1c..78e4510a7776 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -100,6 +100,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
- 			   UVC_CMD_DESTROY_SEC_CONF, &ret);
- 	VM_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
- 		 ret >> 16, ret & 0x0000ffff);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
-+		 ret >> 16, ret & 0x0000ffff);
- 	return rc;
- }
- 
-@@ -115,6 +117,8 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
- 
- 		VCPU_EVENT(vcpu, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
- 			   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
-+			     vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
- 	}
- 
- 	free_pages(vcpu->arch.pv.stor_base,
-@@ -163,6 +167,10 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
- 		   vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
- 		   uvcb.header.rrc);
-+	KVM_UV_EVENT(vcpu->kvm, 3,
-+		     "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
-+		     vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
-+		     uvcb.header.rrc);
- 
- 	/* Output */
- 	vcpu->arch.pv.handle = uvcb.cpu_handle;
-@@ -200,6 +208,10 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
- 		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
- 		 uvcb.header.rrc);
- 
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
-+		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
-+		 uvcb.header.rrc);
-+
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
- 
-@@ -230,6 +242,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
- 	rc = uv_call(0, (u64)&uvcb);
- 	VM_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		 uvcb.header.rc, uvcb.header.rrc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
-+		     uvcb.header.rc, uvcb.header.rrc);
- 	if (rc)
- 		return -EINVAL;
- 	return 0;
-@@ -278,6 +292,8 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
- 	}
- 	VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x rrc %x",
- 		 uvcb.header.rc, uvcb.header.rrc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x rrc %x",
-+		     uvcb.header.rc, uvcb.header.rrc);
- 	return rc;
- }
- 
--- 
-2.20.1
+This behaviour has been there since "forever" so the problem is rather
+the other way round; changing it now might break user space.
+
+> Imo if you're ->release callbacks feels like it should do a wait to
+> guaranteed something userspace expects, then doing a
+> wait_interruptible/killable feels like a bug. Or alternatively, the wait
+> isn't really needed in the first place.
+
+Posix says that the final tty close should cause any output to be sent.
+And as mentioned before, due to flow control this may never finish. So
+for usability reasons, you want to be able to interrupt that final
+close, while removing the flush completely would break applications
+currently expecting output to be flushed.
+
+Also note that we have an interface for controlling how long to wait for
+data to be sent (typically 30 s by default, but can be set to wait
+forever).
+
+> > > > The return value from release() is ignored by vfs, and adding a splat in
+> > > > __fput() to catch these buggy drivers might be overkill.
+> > > 
+> > > Ime once you have a handful of instances of a broken pattern, creating a
+> > > check for it (under a debug option only ofc) is very much justified.
+> > > Otherwise they just come back to life like the undead, all the time. And
+> > > there's a _lot_ of fops->release callbacks in the kernel.
+> > 
+> > Yeah, you have a point.
+> > 
+> > But take tty again as an example, the close tty operation called from
+> > release() is declared void so there's no propagated return value for vfs
+> > to check.
+> > 
+> > It may even be better to fix up the 100 or so callbacks potentially
+> > returning non-zero and make fops->release void so that the compiler
+> > would help us catch any future bugs and also serve as a hint for
+> > developers that returning errnos from fops->release is probably not
+> > what you want to do.
+> > 
+> > But that's a lot of churn of course.
+> 
+> Hm indeed ->release has int as return type. I guess that's needed for
+> file I/O errno and similar stuff ...
+> 
+> Still void return value doesn't catch funny stuff like doing interruptible
+> waits and occasionally failing if you have a process that likes to use
+> signals and also uses some library somewhere to do something. In graphics
+> we have that, with Xorg loving signals for various things.
+
+Right, but since there arguable are legitimate uses for interruptible
+sleep at release(), I don't see how we can catch that at runtime.
+
+Johan
