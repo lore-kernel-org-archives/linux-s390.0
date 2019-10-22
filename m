@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V3 2/7] mdev: bus uevent support
-Date: Fri, 11 Oct 2019 16:15:52 +0800
-Message-Id: <20191011081557.28302-3-jasowang@redhat.com>
-In-Reply-To: <20191011081557.28302-1-jasowang@redhat.com>
-References: <20191011081557.28302-1-jasowang@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:54767 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731525AbfJVPoR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Oct 2019 11:44:17 -0400
+Subject: Re: [kvm-unit-tests PATCH v1 1/5] s390x: remove redundant defines
+References: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
+ <1571741584-17621-2-git-send-email-imbrenda@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <bc05cdfa-60f5-007c-8df3-ab32f024cda3@redhat.com>
+Date: Tue, 22 Oct 2019 17:44:06 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <1571741584-17621-2-git-send-email-imbrenda@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, Jason Wang <jasowang@redhat.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-This patch adds bus uevent support for mdev bus in order to allow
-cooperation with userspace.
+On 22.10.19 12:53, Claudio Imbrenda wrote:
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   lib/s390x/sclp.h | 2 --
+>   1 file changed, 2 deletions(-)
+>=20
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 4e69845..f00c3df 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -27,8 +27,6 @@
+>   #define SCLP_ASSIGN_STORAGE                     0x000D0001
+>   #define SCLP_CMD_READ_EVENT_DATA                0x00770005
+>   #define SCLP_CMD_WRITE_EVENT_DATA               0x00760005
+> -#define SCLP_CMD_READ_EVENT_DATA                0x00770005
+> -#define SCLP_CMD_WRITE_EVENT_DATA               0x00760005
+>   #define SCLP_CMD_WRITE_EVENT_MASK               0x00780005
+>  =20
+>   /* SCLP Memory hotplug codes */
+>=20
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vfio/mdev/mdev_driver.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_driver.c
-index b7c40ce86ee3..319d886ffaf7 100644
---- a/drivers/vfio/mdev/mdev_driver.c
-+++ b/drivers/vfio/mdev/mdev_driver.c
-@@ -82,9 +82,17 @@ static int mdev_match(struct device *dev, struct device_driver *drv)
- 	return 0;
- }
- 
-+static int mdev_uevent(struct device *dev, struct kobj_uevent_env *env)
-+{
-+	struct mdev_device *mdev = to_mdev_device(dev);
-+
-+	return add_uevent_var(env, "MODALIAS=mdev:c%02X", mdev->class_id);
-+}
-+
- struct bus_type mdev_bus_type = {
- 	.name		= "mdev",
- 	.match		= mdev_match,
-+	.uevent		= mdev_uevent,
- 	.probe		= mdev_probe,
- 	.remove		= mdev_remove,
- };
--- 
-2.19.1
+--=20
+
+Thanks,
+
+David / dhildenb
