@@ -1,72 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41102 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727711AbfJGQHj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 7 Oct 2019 12:07:39 -0400
-Date: Mon, 7 Oct 2019 18:07:32 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/1] s390/cio: fix virtio-ccw DMA without PV
-Message-ID: <20191007180732.7a38ff0b.cohuck@redhat.com>
-In-Reply-To: <20190930153803.7958-1-pasic@linux.ibm.com>
-References: <20190930153803.7958-1-pasic@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53985 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730141AbfJVPo4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 22 Oct 2019 11:44:56 -0400
+Subject: Re: [kvm-unit-tests PATCH v1 3/5] s390x: sclp: expose ram_size and
+ max_ram_size
+References: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
+ <1571741584-17621-4-git-send-email-imbrenda@linux.ibm.com>
+ <4123dae6-bc6c-6177-3465-828f2cca086d@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <685ba0c1-8e23-81c5-5cf9-2fb50769a4f9@redhat.com>
+Date: Tue, 22 Oct 2019 17:44:49 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <4123dae6-bc6c-6177-3465-828f2cca086d@redhat.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>, Robin Murphy <robin.murphy@arm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-On Mon, 30 Sep 2019 17:38:02 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On 22.10.19 14:16, Thomas Huth wrote:
+> On 22/10/2019 12.53, Claudio Imbrenda wrote:
+>> Expose ram_size and max_ram_size through accessor functions.
+>>
+>> We only use get_ram_size in an upcoming patch, but having an accessor
+>> for the other one does not hurt.
+>>
+>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   lib/s390x/sclp.h | 2 ++
+>>   lib/s390x/sclp.c | 9 +++++++++
+>>   2 files changed, 11 insertions(+)
+>>
+>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+>> index f00c3df..6d40fb7 100644
+>> --- a/lib/s390x/sclp.h
+>> +++ b/lib/s390x/sclp.h
+>> @@ -272,5 +272,7 @@ void sclp_console_setup(void);
+>>   void sclp_print(const char *str);
+>>   int sclp_service_call(unsigned int command, void *sccb);
+>>   void sclp_memory_setup(void);
+>> +uint64_t get_ram_size(void);
+>> +uint64_t get_max_ram_size(void);
+>>  =20
+>>   #endif /* SCLP_H */
+>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>> index 56fca0c..a57096c 100644
+>> --- a/lib/s390x/sclp.c
+>> +++ b/lib/s390x/sclp.c
+>> @@ -167,3 +167,12 @@ void sclp_memory_setup(void)
+>>  =20
+>>   =09mem_init(ram_size);
+>>   }
+>> +
+>> +uint64_t get_ram_size(void)
+>> +{
+>> +=09return ram_size;
+>> +}
+>> +uint64_t get_max_ram_size(void)
+>> +{
+>> +=09return max_ram_size;
+>> +}
+>=20
+> In case you respin, please add an empty line between the two functions.
+>
 
-> Commit 37db8985b211 ("s390/cio: add basic protected virtualization
-> support") breaks virtio-ccw devices with VIRTIO_F_IOMMU_PLATFORM for non
-> Protected Virtualization (PV) guests. The problem is that the dma_mask
+Indeed
 
-Hm, I should probably add that to my test configs.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-> of the ccw device, which is used by virtio core, gets changed from 64 to
-> 31 bit, because some of the DMA allocations do require 31 bit
-> addressable memory. For PV the only drawback is that some of the virtio
-> structures must end up in ZONE_DMA because we have the bounce the
-> buffers mapped via DMA API anyway.
-> 
-> But for non PV guests we have a problem: because of the 31 bit mask
-> guests bigger than 2G are likely to try bouncing buffers. The swiotlb
-> however is only initialized for PV guests, because we don't want to
-> bounce anything for non PV guests. The first such map kills the guest.
-> 
-> Since the DMA API won't allow us to specify for each allocation whether
-> we need memory from ZONE_DMA (31 bit addressable) or any DMA capable
-> memory will do, let us use coherent_dma_mask (which is used for
-> allocations) to force allocating form ZONE_DMA while changing dma_mask
-> to DMA_BIT_MASK(64) so that at least the streaming API will regard
-> the whole memory DMA capable.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-> Suggested-by: Robin Murphy <robin.murphy@arm.com>
-> Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
-> ---
-> 
-> v1 --> v2:
-> * Fixed comment: dropped the sentence with workaround.
-> 
-> The idea of enabling the client code to specify on s390 whether a chunk
-> of allocated DMA memory is to be allocated form ZONE_DMA for each
-> allocation was not well received [1]. 
-> 
-> Making the streaming API threat all addresses as DMA capable, while
-> restricting the DMA API allocations to  ZONE_DMA (regardless of needed
-> or not) is the next best thing we can do (from s390 perspective).
-> 
-> [1] https://lkml.org/lkml/2019/9/23/531 
-> ---
-> ---
->  drivers/s390/cio/cio.h    | 1 +
->  drivers/s390/cio/css.c    | 7 ++++++-
->  drivers/s390/cio/device.c | 2 +-
->  3 files changed, 8 insertions(+), 2 deletions(-)
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>=20
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+--=20
+
+Thanks,
+
+David / dhildenb
