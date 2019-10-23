@@ -1,145 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63444 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727051AbfJaMmc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 31 Oct 2019 08:42:32 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VCeCl3000686
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:31 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vyy9fhcp3-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:30 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 31 Oct 2019 12:42:28 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 1/8] s390/qdio: implement IQD Multi-Write
-Date: Thu, 31 Oct 2019 13:42:14 +0100
-In-Reply-To: <20191031124221.34028-1-jwi@linux.ibm.com>
-References: <20191031124221.34028-1-jwi@linux.ibm.com>
-Message-Id: <20191031124221.34028-2-jwi@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:27719 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2390314AbfJWIrY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Oct 2019 04:47:24 -0400
+Subject: Re: [kvm-unit-tests PATCH] s390x: Fix selftest malloc check
+References: <20191023084017.13142-1-frankja@linux.ibm.com>
+ <b5363884-7360-ffc4-b572-f1942cbfae20@redhat.com>
+ <cce26d3f-83d5-09e8-7a22-de37a2d117dc@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c0710aad-7e40-5f4a-8608-5b5132379baa@redhat.com>
+Date: Wed, 23 Oct 2019 10:47:17 +0200
+MIME-Version: 1.0
+In-Reply-To: <cce26d3f-83d5-09e8-7a22-de37a2d117dc@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com
 
-This allows IQD drivers to send out multiple SBALs with a single SIGA
-instruction.
+On 23.10.19 10:45, Janosch Frank wrote:
+> On 10/23/19 10:41 AM, David Hildenbrand wrote:
+>> On 23.10.19 10:40, Janosch Frank wrote:
+>>> Commit c09c54c ("lib: use an argument which doesn't require default
+>>> argument promotion") broke the selftest. Let's fix it by converting
+>>> the binary operations to bool.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>    s390x/selftest.c | 4 ++--
+>>>    1 file changed, 2 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/s390x/selftest.c b/s390x/selftest.c
+>>> index f4acdc4..9cd6943 100644
+>>> --- a/s390x/selftest.c
+>>> +++ b/s390x/selftest.c
+>>> @@ -49,9 +49,9 @@ static void test_malloc(void)
+>>>    =09*tmp2 =3D 123456789;
+>>>    =09mb();
+>>>   =20
+>>> -=09report("malloc: got vaddr", (uintptr_t)tmp & 0xf000000000000000ul);
+>>> +=09report("malloc: got vaddr", !!((uintptr_t)tmp & 0xf000000000000000u=
+l));
+>>>    =09report("malloc: access works", *tmp =3D=3D 123456789);
+>>> -=09report("malloc: got 2nd vaddr", (uintptr_t)tmp2 & 0xf00000000000000=
+0ul);
+>>> +=09report("malloc: got 2nd vaddr", !!((uintptr_t)tmp2 & 0xf00000000000=
+0000ul));
+>>>    =09report("malloc: access works", (*tmp2 =3D=3D 123456789));
+>>>    =09report("malloc: addresses differ", tmp !=3D tmp2);
+>>>   =20
+>>>
+>>
+>> See
+>>
+>> https://lore.kernel.org/kvm/CAGG=3D3QUdVBg5JArMaBcRbBLrHqLLCpAcrtvgT4q1h=
+0V7SHbbEQ@mail.gmail.com/T/
+>>
+>=20
+> I completely missed that patch and only looked for fixpatches on the
+> list -_-
+>=20
+> If possible CC me if something like this turns up, so I don't have the
+> CI flashing red lights at me unexpectedly :)
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
- drivers/s390/cio/qdio.h      |  1 +
- drivers/s390/cio/qdio_main.c | 31 +++++++++++++++----------------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+Will do in case I don't forget :)
 
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index a58b45df95d7..2a34a2ab9bf7 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -82,6 +82,7 @@ enum qdio_irq_states {
- #define QDIO_SIGA_WRITE		0x00
- #define QDIO_SIGA_READ		0x01
- #define QDIO_SIGA_SYNC		0x02
-+#define QDIO_SIGA_WRITEM	0x03
- #define QDIO_SIGA_WRITEQ	0x04
- #define QDIO_SIGA_QEBSM_FLAG	0x80
- 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 5b63c505a2f7..7368407030b0 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -310,18 +310,19 @@ static inline int qdio_siga_sync_q(struct qdio_q *q)
- 		return qdio_siga_sync(q, q->mask, 0);
- }
- 
--static int qdio_siga_output(struct qdio_q *q, unsigned int *busy_bit,
--	unsigned long aob)
-+static int qdio_siga_output(struct qdio_q *q, unsigned int count,
-+			    unsigned int *busy_bit, unsigned long aob)
- {
- 	unsigned long schid = *((u32 *) &q->irq_ptr->schid);
- 	unsigned int fc = QDIO_SIGA_WRITE;
- 	u64 start_time = 0;
- 	int retries = 0, cc;
--	unsigned long laob = 0;
- 
--	if (aob) {
--		fc = QDIO_SIGA_WRITEQ;
--		laob = aob;
-+	if (queue_type(q) == QDIO_IQDIO_QFMT && !multicast_outbound(q)) {
-+		if (count > 1)
-+			fc = QDIO_SIGA_WRITEM;
-+		else if (aob)
-+			fc = QDIO_SIGA_WRITEQ;
- 	}
- 
- 	if (is_qebsm(q)) {
-@@ -329,7 +330,7 @@ static int qdio_siga_output(struct qdio_q *q, unsigned int *busy_bit,
- 		fc |= QDIO_SIGA_QEBSM_FLAG;
- 	}
- again:
--	cc = do_siga_output(schid, q->mask, busy_bit, fc, laob);
-+	cc = do_siga_output(schid, q->mask, busy_bit, fc, aob);
- 
- 	/* hipersocket busy condition */
- 	if (unlikely(*busy_bit)) {
-@@ -781,7 +782,8 @@ static inline int qdio_outbound_q_moved(struct qdio_q *q, unsigned int start)
- 	return count;
- }
- 
--static int qdio_kick_outbound_q(struct qdio_q *q, unsigned long aob)
-+static int qdio_kick_outbound_q(struct qdio_q *q, unsigned int count,
-+				unsigned long aob)
- {
- 	int retries = 0, cc;
- 	unsigned int busy_bit;
-@@ -793,7 +795,7 @@ static int qdio_kick_outbound_q(struct qdio_q *q, unsigned long aob)
- retry:
- 	qperf_inc(q, siga_write);
- 
--	cc = qdio_siga_output(q, &busy_bit, aob);
-+	cc = qdio_siga_output(q, count, &busy_bit, aob);
- 	switch (cc) {
- 	case 0:
- 		break;
-@@ -1526,7 +1528,7 @@ static int handle_inbound(struct qdio_q *q, unsigned int callflags,
-  * @count: how many buffers are filled
-  */
- static int handle_outbound(struct qdio_q *q, unsigned int callflags,
--			   int bufnr, int count)
-+			   unsigned int bufnr, unsigned int count)
- {
- 	const unsigned int scan_threshold = q->irq_ptr->scan_threshold;
- 	unsigned char state = 0;
-@@ -1549,13 +1551,10 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 	if (queue_type(q) == QDIO_IQDIO_QFMT) {
- 		unsigned long phys_aob = 0;
- 
--		/* One SIGA-W per buffer required for unicast HSI */
--		WARN_ON_ONCE(count > 1 && !multicast_outbound(q));
--
--		if (q->u.out.use_cq)
-+		if (q->u.out.use_cq && count == 1)
- 			phys_aob = qdio_aob_for_buffer(&q->u.out, bufnr);
- 
--		rc = qdio_kick_outbound_q(q, phys_aob);
-+		rc = qdio_kick_outbound_q(q, count, phys_aob);
- 	} else if (need_siga_sync(q)) {
- 		rc = qdio_siga_sync_q(q);
- 	} else if (count < QDIO_MAX_BUFFERS_PER_Q &&
-@@ -1564,7 +1563,7 @@ static int handle_outbound(struct qdio_q *q, unsigned int callflags,
- 		/* The previous buffer is not processed yet, tack on. */
- 		qperf_inc(q, fast_requeue);
- 	} else {
--		rc = qdio_kick_outbound_q(q, 0);
-+		rc = qdio_kick_outbound_q(q, count, 0);
- 	}
- 
- 	/* Let drivers implement their own completion scanning: */
--- 
-2.17.1
+--=20
+
+Thanks,
+
+David / dhildenb
