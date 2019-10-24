@@ -1,137 +1,195 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 03/10] mm/memory_hotplug: Don't access uninitialized memmaps in shrink_pgdat_span()
-Date: Sun,  6 Oct 2019 10:56:39 +0200
-Message-Id: <20191006085646.5768-4-david@redhat.com>
-In-Reply-To: <20191006085646.5768-1-david@redhat.com>
-References: <20191006085646.5768-1-david@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48960 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2439170AbfJXLmq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:46 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbV0S011472
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:45 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vu9avvrja-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:44 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:43 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 32/37] KVM: s390: protvirt: UV calls diag308 0, 1
+Date: Thu, 24 Oct 2019 07:40:54 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Message-Id: <20191024114059.102802-33-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>, "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-We might use the nid of memmaps that were never initialized. For
-example, if the memmap was poisoned, we will crash the kernel in
-pfn_to_nid() right now. Let's use the calculated boundaries of the separate
-zones instead. This now also avoids having to iterate over a whole bunch of
-subsections again, after shrinking one zone.
-
-Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory
-hotplug"), the memmap was initialized to 0 and the node was set to the
-right value. After that commit, the node might be garbage.
-
-We'll have to fix shrink_zone_span() next.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- mm/memory_hotplug.c | 72 ++++++++++-----------------------------------
- 1 file changed, 15 insertions(+), 57 deletions(-)
+ arch/s390/include/asm/uv.h | 25 +++++++++++++++++++++++++
+ arch/s390/kvm/diag.c       |  1 +
+ arch/s390/kvm/kvm-s390.c   | 20 ++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h   |  2 ++
+ arch/s390/kvm/pv.c         | 19 +++++++++++++++++++
+ include/uapi/linux/kvm.h   |  2 ++
+ 6 files changed, 69 insertions(+)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 680b4b3e57d9..86b4dc18e831 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -436,67 +436,25 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
- 	zone_span_writeunlock(zone);
- }
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 9ce9363aee1c..33b52ba306af 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -35,6 +35,12 @@
+ #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
+ #define UVC_CMD_UNPACK_IMG		0x0301
+ #define UVC_CMD_VERIFY_IMG		0x0302
++#define UVC_CMD_CPU_RESET		0x0310
++#define UVC_CMD_CPU_RESET_INITIAL	0x0311
++#define UVC_CMD_PERF_CONF_CLEAR_RESET	0x0320
++#define UVC_CMD_CPU_RESET_CLEAR		0x0321
++#define UVC_CMD_CPU_SET_STATE		0x0330
++#define UVC_CMD_SET_UNSHARED_ALL	0x0340
+ #define UVC_CMD_SET_SHARED_ACCESS	0x1000
+ #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
  
--static void shrink_pgdat_span(struct pglist_data *pgdat,
--			      unsigned long start_pfn, unsigned long end_pfn)
-+static void update_pgdat_span(struct pglist_data *pgdat)
- {
--	unsigned long pgdat_start_pfn = pgdat->node_start_pfn;
--	unsigned long p = pgdat_end_pfn(pgdat); /* pgdat_end_pfn namespace clash */
--	unsigned long pgdat_end_pfn = p;
--	unsigned long pfn;
--	int nid = pgdat->node_id;
--
--	if (pgdat_start_pfn == start_pfn) {
--		/*
--		 * If the section is smallest section in the pgdat, it need
--		 * shrink pgdat->node_start_pfn and pgdat->node_spanned_pages.
--		 * In this case, we find second smallest valid mem_section
--		 * for shrinking zone.
--		 */
--		pfn = find_smallest_section_pfn(nid, NULL, end_pfn,
--						pgdat_end_pfn);
--		if (pfn) {
--			pgdat->node_start_pfn = pfn;
--			pgdat->node_spanned_pages = pgdat_end_pfn - pfn;
--		}
--	} else if (pgdat_end_pfn == end_pfn) {
--		/*
--		 * If the section is biggest section in the pgdat, it need
--		 * shrink pgdat->node_spanned_pages.
--		 * In this case, we find second biggest valid mem_section for
--		 * shrinking zone.
--		 */
--		pfn = find_biggest_section_pfn(nid, NULL, pgdat_start_pfn,
--					       start_pfn);
--		if (pfn)
--			pgdat->node_spanned_pages = pfn - pgdat_start_pfn + 1;
--	}
--
--	/*
--	 * If the section is not biggest or smallest mem_section in the pgdat,
--	 * it only creates a hole in the pgdat. So in this case, we need not
--	 * change the pgdat.
--	 * But perhaps, the pgdat has only hole data. Thus it check the pgdat
--	 * has only hole or not.
--	 */
--	pfn = pgdat_start_pfn;
--	for (; pfn < pgdat_end_pfn; pfn += PAGES_PER_SUBSECTION) {
--		if (unlikely(!pfn_valid(pfn)))
--			continue;
--
--		if (pfn_to_nid(pfn) != nid)
--			continue;
-+	unsigned long node_start_pfn = 0, node_end_pfn = 0;
-+	struct zone *zone;
+@@ -53,6 +59,12 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_SET_SEC_PARMS = 11,
+ 	BIT_UVC_CMD_UNPACK_IMG = 13,
+ 	BIT_UVC_CMD_VERIFY_IMG = 14,
++	BIT_UVC_CMD_CPU_RESET = 15,
++	BIT_UVC_CMD_CPU_RESET_INITIAL = 16,
++	BIT_UVC_CMD_CPU_SET_STATE = 17,
++	BIT_UVC_CMD_PREPARE_CLEAR_RESET = 18,
++	BIT_UVC_CMD_CPU_PERFORM_CLEAR_RESET = 19,
++	BIT_UVC_CMD_REMOVE_SHARED_ACCES = 20,
+ };
  
--		/* Skip range to be removed */
--		if (pfn >= start_pfn && pfn < end_pfn)
--			continue;
-+	for (zone = pgdat->node_zones;
-+	     zone < pgdat->node_zones + MAX_NR_ZONES; zone++) {
-+		unsigned long zone_end_pfn = zone->zone_start_pfn +
-+					     zone->spanned_pages;
+ struct uv_cb_header {
+@@ -148,6 +160,19 @@ struct uv_cb_unp {
+ 	u64 reserved28[3];
+ } __packed __aligned(8);
  
--		/* If we find valid section, we have nothing to do */
--		return;
-+		/* No need to lock the zones, they can't change. */
-+		if (zone_end_pfn > node_end_pfn)
-+			node_end_pfn = zone_end_pfn;
-+		if (zone->zone_start_pfn < node_start_pfn)
-+			node_start_pfn = zone->zone_start_pfn;
++#define PV_CPU_STATE_OPR	1
++#define PV_CPU_STATE_STP	2
++#define PV_CPU_STATE_CHKSTP	3
++
++struct uv_cb_cpu_set_state {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u64 cpu_handle;
++	u8  reserved20[7];
++	u8  state;
++	u64 reserved28[5];
++};
++
+ /*
+  * A common UV call struct for the following calls:
+  * Destroy cpu/config
+diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+index b951dbdcb6a0..1c53eb7ba152 100644
+--- a/arch/s390/kvm/diag.c
++++ b/arch/s390/kvm/diag.c
+@@ -13,6 +13,7 @@
+ #include <asm/pgalloc.h>
+ #include <asm/gmap.h>
+ #include <asm/virtio-ccw.h>
++#include <asm/uv.h>
+ #include "kvm-s390.h"
+ #include "trace.h"
+ #include "trace-s390.h"
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 8947f1812b12..d3fd3ad1d09b 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2256,6 +2256,26 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ 			 ret >> 16, ret & 0x0000ffff);
+ 		break;
  	}
++	case KVM_PV_VM_PERF_CLEAR_RESET: {
++		u32 ret;
++
++		r = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
++				  UVC_CMD_PERF_CONF_CLEAR_RESET,
++				  &ret);
++		VM_EVENT(kvm, 3, "PROTVIRT PERF CLEAR: rc %x rrc %x",
++			 ret >> 16, ret & 0x0000ffff);
++		break;
++	}
++	case KVM_PV_VM_UNSHARE: {
++		u32 ret;
++
++		r = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
++				  UVC_CMD_SET_UNSHARED_ALL,
++				  &ret);
++		VM_EVENT(kvm, 3, "PROTVIRT UNSHARE: %d rc %x rrc %x",
++			 r, ret >> 16, ret & 0x0000ffff);
++		break;
++	}
+ 	default:
+ 		return -ENOTTY;
+ 	}
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 0d61dcc51f0e..8cd2e978363d 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -209,6 +209,7 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length);
+ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
+ 		       unsigned long tweak);
+ int kvm_s390_pv_verify(struct kvm *kvm);
++int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state);
  
--	/* The pgdat has no valid section */
--	pgdat->node_start_pfn = 0;
--	pgdat->node_spanned_pages = 0;
-+	pgdat->node_start_pfn = node_start_pfn;
-+	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
+ static inline bool kvm_s390_pv_is_protected(struct kvm *kvm)
+ {
+@@ -238,6 +239,7 @@ static inline int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr,
+ 				     unsigned long size,  unsigned long tweak)
+ { return 0; }
+ static inline int kvm_s390_pv_verify(struct kvm *kvm) { return 0; }
++static inline int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state) { return 0; }
+ static inline bool kvm_s390_pv_is_protected(struct kvm *kvm) { return 0; }
+ static inline u64 kvm_s390_pv_handle(struct kvm *kvm) { return 0; }
+ static inline u64 kvm_s390_pv_handle_cpu(struct kvm_vcpu *vcpu) { return 0; }
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index be7d558ab897..cf79a6503e1c 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -280,3 +280,22 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
+ 		 uvcb.header.rc, uvcb.header.rrc);
+ 	return rc;
  }
- 
- static void __remove_zone(struct zone *zone, unsigned long start_pfn,
-@@ -507,7 +465,7 @@ static void __remove_zone(struct zone *zone, unsigned long start_pfn,
- 
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
--	shrink_pgdat_span(pgdat, start_pfn, start_pfn + nr_pages);
-+	update_pgdat_span(pgdat);
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
- }
- 
++
++int kvm_s390_pv_set_cpu_state(struct kvm_vcpu *vcpu, u8 state)
++{
++	int rc;
++	struct uv_cb_cpu_set_state uvcb = {
++		.header.cmd	= UVC_CMD_CPU_SET_STATE,
++		.header.len	= sizeof(uvcb),
++		.cpu_handle	= kvm_s390_pv_handle_cpu(vcpu),
++		.state		= state,
++	};
++
++	if (!kvm_s390_pv_handle_cpu(vcpu))
++		return -EINVAL;
++
++	rc = uv_call(0, (u64)&uvcb);
++	if (rc)
++		return -EINVAL;
++	return 0;
++}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index bb37d5710c89..f75a051a7705 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1479,6 +1479,8 @@ enum pv_cmd_id {
+ 	KVM_PV_VM_SET_SEC_PARMS,
+ 	KVM_PV_VM_UNPACK,
+ 	KVM_PV_VM_VERIFY,
++	KVM_PV_VM_PERF_CLEAR_RESET,
++	KVM_PV_VM_UNSHARE,
+ 	KVM_PV_VCPU_CREATE,
+ 	KVM_PV_VCPU_DESTROY,
+ };
 -- 
-2.21.0
+2.20.1
