@@ -1,59 +1,258 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.skyhub.de ([5.9.137.197]:55890 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726323AbfJJSDf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Oct 2019 14:03:35 -0400
-Date: Thu, 10 Oct 2019 20:03:31 +0200
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 00/29] vmlinux.lds.h: Refactor EXCEPTION_TABLE and NOTES
-Message-ID: <20191010180331.GI7658@zn.tnic>
-References: <20190926175602.33098-1-keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16032 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2439144AbfJXLmi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:38 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb8hK137759
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:37 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub4qgf6p-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:36 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:34 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 26/37] KVM: s390: protvirt: Only sync fmt4 registers
+Date: Thu, 24 Oct 2019 07:40:48 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20190926175602.33098-1-keescook@chromium.org>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-27-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-On Thu, Sep 26, 2019 at 10:55:33AM -0700, Kees Cook wrote:
-> This series works to move the linker sections for NOTES and
-> EXCEPTION_TABLE into the RO_DATA area, where they belong on most
-> (all?) architectures. The problem being addressed was the discovery
-> by Rick Edgecombe that the exception table was accidentally marked
-> executable while he was developing his execute-only-memory series. When
-> permissions were flipped from readable-and-executable to only-executable,
-> the exception table became unreadable, causing things to explode rather
-> badly. :)
-> 
-> Roughly speaking, the steps are:
-> 
-> - regularize the linker names for PT_NOTE and PT_LOAD program headers
->   (to "note" and "text" respectively)
-> - regularize restoration of linker section to program header assignment
->   (when PT_NOTE exists)
-> - move NOTES into RO_DATA
-> - finish macro naming conversions for RO_DATA and RW_DATA
-> - move EXCEPTION_TABLE into RO_DATA on architectures where this is clear
-> - clean up some x86-specific reporting of kernel memory resources
-> - switch x86 linker fill byte from x90 (NOP) to 0xcc (INT3), just because
->   I finally realized what that trailing ": 0x9090" meant -- and we should
->   trap, not slide, if execution lands in section padding
+A lot of the registers are controlled by the Ultravisor and never
+visible to KVM. Also some registers are overlayed, like gbea is with
+sidad, which might leak data to userspace.
 
-Yap, nice patchset overall.
+Hence we sync a minimal set of registers for both SIE formats and then
+check and sync format 2 registers if necessary.
 
-> Since these changes are treewide, I'd love to get architecture-maintainer
-> Acks and either have this live in x86 -tip or in my own tree, however
-> people think it should go.
+Also we disable set/get one reg for the same reason. It's an old
+interface anyway.
 
-Sure, I don't mind taking v2 through tip once I get ACKs from the
-respective arch maintainers.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 138 +++++++++++++++++++++++----------------
+ 1 file changed, 82 insertions(+), 56 deletions(-)
 
-Thx.
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 17a78774c617..f623c64aeade 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2997,7 +2997,8 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
+ 	/* make sure the new fpc will be lazily loaded */
+ 	save_fpu_regs();
+ 	current->thread.fpu.fpc = 0;
+-	vcpu->arch.sie_block->gbea = 1;
++	if (!kvm_s390_pv_is_protected(vcpu->kvm))
++		vcpu->arch.sie_block->gbea = 1;
+ 	vcpu->arch.sie_block->pp = 0;
+ 	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+ 	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
+@@ -3367,6 +3368,10 @@ static int kvm_arch_vcpu_ioctl_get_one_reg(struct kvm_vcpu *vcpu,
+ 			     (u64 __user *)reg->addr);
+ 		break;
+ 	case KVM_REG_S390_GBEA:
++		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++			r = 0;
++			break;
++		}
+ 		r = put_user(vcpu->arch.sie_block->gbea,
+ 			     (u64 __user *)reg->addr);
+ 		break;
+@@ -3420,6 +3425,10 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu,
+ 			     (u64 __user *)reg->addr);
+ 		break;
+ 	case KVM_REG_S390_GBEA:
++		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++			r = 0;
++			break;
++		}
+ 		r = get_user(vcpu->arch.sie_block->gbea,
+ 			     (u64 __user *)reg->addr);
+ 		break;
+@@ -4023,28 +4032,19 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 	return rc;
+ }
+ 
+-static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ {
+ 	struct runtime_instr_cb *riccb;
+ 	struct gs_cb *gscb;
+ 
+ 	riccb = (struct runtime_instr_cb *) &kvm_run->s.regs.riccb;
+ 	gscb = (struct gs_cb *) &kvm_run->s.regs.gscb;
+-	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
+-	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
+-	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
+-		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
+-	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
+-		memcpy(&vcpu->arch.sie_block->gcr, &kvm_run->s.regs.crs, 128);
+-		/* some control register changes require a tlb flush */
+-		kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
+-	}
+-	if (kvm_run->kvm_dirty_regs & KVM_SYNC_ARCH0) {
+-		kvm_s390_set_cpu_timer(vcpu, kvm_run->s.regs.cputm);
+-		vcpu->arch.sie_block->ckc = kvm_run->s.regs.ckc;
+-		vcpu->arch.sie_block->todpr = kvm_run->s.regs.todpr;
+-		vcpu->arch.sie_block->pp = kvm_run->s.regs.pp;
+-		vcpu->arch.sie_block->gbea = kvm_run->s.regs.gbea;
++	if (kvm_run->kvm_dirty_regs & KVM_SYNC_ARCH0)
++		  vcpu->arch.sie_block->gbea = kvm_run->s.regs.gbea;
++	if ((kvm_run->kvm_dirty_regs & KVM_SYNC_BPBC) &&
++	    test_kvm_facility(vcpu->kvm, 82)) {
++		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
++		vcpu->arch.sie_block->fpf |= kvm_run->s.regs.bpbc ? FPF_BPBC : 0;
+ 	}
+ 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PFAULT) {
+ 		vcpu->arch.pfault_token = kvm_run->s.regs.pft;
+@@ -4077,25 +4077,6 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		vcpu->arch.sie_block->ecd |= ECD_HOSTREGMGMT;
+ 		vcpu->arch.gs_enabled = 1;
+ 	}
+-	if ((kvm_run->kvm_dirty_regs & KVM_SYNC_BPBC) &&
+-	    test_kvm_facility(vcpu->kvm, 82)) {
+-		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+-		vcpu->arch.sie_block->fpf |= kvm_run->s.regs.bpbc ? FPF_BPBC : 0;
+-	}
+-	save_access_regs(vcpu->arch.host_acrs);
+-	restore_access_regs(vcpu->run->s.regs.acrs);
+-	/* save host (userspace) fprs/vrs */
+-	save_fpu_regs();
+-	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
+-	vcpu->arch.host_fpregs.regs = current->thread.fpu.regs;
+-	if (MACHINE_HAS_VX)
+-		current->thread.fpu.regs = vcpu->run->s.regs.vrs;
+-	else
+-		current->thread.fpu.regs = vcpu->run->s.regs.fprs;
+-	current->thread.fpu.fpc = vcpu->run->s.regs.fpc;
+-	if (test_fp_ctl(current->thread.fpu.fpc))
+-		/* User space provided an invalid FPC, let's clear it */
+-		current->thread.fpu.fpc = 0;
+ 	if (MACHINE_HAS_GS) {
+ 		preempt_disable();
+ 		__ctl_set_bit(2, 4);
+@@ -4111,33 +4092,50 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		preempt_enable();
+ 	}
+ 	/* SIE will load etoken directly from SDNX and therefore kvm_run */
++}
+ 
++static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++{
++	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
++	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
++	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
++		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
++	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
++		memcpy(&vcpu->arch.sie_block->gcr, &kvm_run->s.regs.crs, 128);
++		/* some control register changes require a tlb flush */
++		kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
++	}
++	if (kvm_run->kvm_dirty_regs & KVM_SYNC_ARCH0) {
++		kvm_s390_set_cpu_timer(vcpu, kvm_run->s.regs.cputm);
++		vcpu->arch.sie_block->ckc = kvm_run->s.regs.ckc;
++		vcpu->arch.sie_block->todpr = kvm_run->s.regs.todpr;
++		vcpu->arch.sie_block->pp = kvm_run->s.regs.pp;
++	}
++	save_access_regs(vcpu->arch.host_acrs);
++	restore_access_regs(vcpu->run->s.regs.acrs);
++	/* save host (userspace) fprs/vrs */
++	save_fpu_regs();
++	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
++	vcpu->arch.host_fpregs.regs = current->thread.fpu.regs;
++	if (MACHINE_HAS_VX)
++		current->thread.fpu.regs = vcpu->run->s.regs.vrs;
++	else
++		current->thread.fpu.regs = vcpu->run->s.regs.fprs;
++	current->thread.fpu.fpc = vcpu->run->s.regs.fpc;
++	if (test_fp_ctl(current->thread.fpu.fpc))
++		/* User space provided an invalid FPC, let's clear it */
++		current->thread.fpu.fpc = 0;
++
++	/* Sync fmt2 only data */
++	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
++		sync_regs_fmt2(vcpu, kvm_run);
+ 	kvm_run->kvm_dirty_regs = 0;
+ }
+ 
+-static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ {
+-	kvm_run->psw_mask = vcpu->arch.sie_block->gpsw.mask;
+-	kvm_run->psw_addr = vcpu->arch.sie_block->gpsw.addr;
+-	kvm_run->s.regs.prefix = kvm_s390_get_prefix(vcpu);
+-	memcpy(&kvm_run->s.regs.crs, &vcpu->arch.sie_block->gcr, 128);
+-	kvm_run->s.regs.cputm = kvm_s390_get_cpu_timer(vcpu);
+-	kvm_run->s.regs.ckc = vcpu->arch.sie_block->ckc;
+-	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
+-	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
+ 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
+-	kvm_run->s.regs.pft = vcpu->arch.pfault_token;
+-	kvm_run->s.regs.pfs = vcpu->arch.pfault_select;
+-	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
+ 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
+-	save_access_regs(vcpu->run->s.regs.acrs);
+-	restore_access_regs(vcpu->arch.host_acrs);
+-	/* Save guest register state */
+-	save_fpu_regs();
+-	vcpu->run->s.regs.fpc = current->thread.fpu.fpc;
+-	/* Restore will be done lazily at return */
+-	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
+-	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
+ 	if (MACHINE_HAS_GS) {
+ 		__ctl_set_bit(2, 4);
+ 		if (vcpu->arch.gs_enabled)
+@@ -4153,6 +4151,31 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
+ }
+ 
++static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++{
++	kvm_run->psw_mask = vcpu->arch.sie_block->gpsw.mask;
++	kvm_run->psw_addr = vcpu->arch.sie_block->gpsw.addr;
++	kvm_run->s.regs.prefix = kvm_s390_get_prefix(vcpu);
++	memcpy(&kvm_run->s.regs.crs, &vcpu->arch.sie_block->gcr, 128);
++	kvm_run->s.regs.cputm = kvm_s390_get_cpu_timer(vcpu);
++	kvm_run->s.regs.ckc = vcpu->arch.sie_block->ckc;
++	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
++	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
++	kvm_run->s.regs.pft = vcpu->arch.pfault_token;
++	kvm_run->s.regs.pfs = vcpu->arch.pfault_select;
++	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
++	save_access_regs(vcpu->run->s.regs.acrs);
++	restore_access_regs(vcpu->arch.host_acrs);
++	/* Save guest register state */
++	save_fpu_regs();
++	vcpu->run->s.regs.fpc = current->thread.fpu.fpc;
++	/* Restore will be done lazily at return */
++	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
++	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
++	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
++		store_regs_fmt2(vcpu, kvm_run);
++}
++
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ {
+ 	int rc;
+@@ -4585,6 +4608,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 	case KVM_SET_ONE_REG:
+ 	case KVM_GET_ONE_REG: {
+ 		struct kvm_one_reg reg;
++		r = -EINVAL;
++		if (kvm_s390_pv_is_protected(vcpu->kvm))
++			break;
+ 		r = -EFAULT;
+ 		if (copy_from_user(&reg, argp, sizeof(reg)))
+ 			break;
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+2.20.1
