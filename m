@@ -1,88 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:31114 "EHLO
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:36074 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727227AbfJ1OzM (ORCPT
+        by vger.kernel.org with ESMTP id S2409930AbfJXQyd (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Oct 2019 10:55:12 -0400
-Date: Mon, 28 Oct 2019 15:54:53 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        Thu, 24 Oct 2019 12:54:33 -0400
 Subject: Re: [RFC 02/37] s390/protvirt: introduce host side setup
-Message-ID: <20191028155453.4b142994.cohuck@redhat.com>
-In-Reply-To: <20191024114059.102802-3-frankja@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
-        <20191024114059.102802-3-frankja@linux.ibm.com>
+ <20191024114059.102802-3-frankja@linux.ibm.com>
+ <e1a12cc7-de97-127d-6076-f86b7be6bac1@redhat.com>
+ <b78483e0-e438-feb8-8dfa-1d8f0df18c73@redhat.com>
+ <d78f708a-7536-d556-f027-adb7cc7b94f5@de.ibm.com>
+ <bd716a5e-eb1b-10e5-5750-269846967522@redhat.com>
+ <20191024183009.1cb1ec50@p-imbrenda.boeblingen.de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c525b6ea-69aa-5ab2-8532-bfe6a0dc9af5@redhat.com>
+Date: Thu, 24 Oct 2019 18:54:25 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
+In-Reply-To: <20191024183009.1cb1ec50@p-imbrenda.boeblingen.de.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-On Thu, 24 Oct 2019 07:40:24 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> From: Vasily Gorbik <gor@linux.ibm.com>
+On 24.10.19 18:30, Claudio Imbrenda wrote:
+> On Thu, 24 Oct 2019 17:52:31 +0200
+> David Hildenbrand <david@redhat.com> wrote:
 >=20
-> Introduce KVM_S390_PROTECTED_VIRTUALIZATION_HOST kbuild option for
-> protected virtual machines hosting support code.
+>> On 24.10.19 15:40, Christian Borntraeger wrote:
+>>>
+>>>
+>>> On 24.10.19 15:27, David Hildenbrand wrote:
+>>>> On 24.10.19 15:25, David Hildenbrand wrote:
+>>>>> On 24.10.19 13:40, Janosch Frank wrote:
+>>>>>> From: Vasily Gorbik <gor@linux.ibm.com>
+>>>>>>
+>>>>>> Introduce KVM_S390_PROTECTED_VIRTUALIZATION_HOST kbuild option
+>>>>>> for protected virtual machines hosting support code.
+>>>>>>
+>>>>>> Add "prot_virt" command line option which controls if the kernel
+>>>>>> protected VMs support is enabled at runtime.
+>>>>>>
+>>>>>> Extend ultravisor info definitions and expose it via uv_info
+>>>>>> struct filled in during startup.
+>>>>>>
+>>>>>> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+>>>>>> ---
+>>>>>>   =C2=A0=C2=A0 .../admin-guide/kernel-parameters.txt=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 5 ++
+>>>>>>   =C2=A0=C2=A0 arch/s390/boot/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
+>>>>>>   =C2=A0=C2=A0 arch/s390/boot/uv.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 20 +++++++-
+>>>>>>   =C2=A0=C2=A0 arch/s390/include/asm/uv.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0 | 46
+>>>>>> ++++++++++++++++-- arch/s390/kernel/Makefile
+>>>>>> |=C2=A0 1 + arch/s390/kernel/setup.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 --
+>>>>>>   =C2=A0=C2=A0 arch/s390/kernel/uv.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 48
+>>>>>> +++++++++++++++++++
+>>>>>> arch/s390/kvm/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 9 ++++ 8 files
+>>>>>> changed, 126 insertions(+), 9 deletions(-) create mode 100644
+>>>>>> arch/s390/kernel/uv.c
+>>>>>>
+>>>>>> diff --git a/Documentation/admin-guide/kernel-parameters.txt
+>>>>>> b/Documentation/admin-guide/kernel-parameters.txt index
+>>>>>> c7ac2f3ac99f..aa22e36b3105 100644 ---
+>>>>>> a/Documentation/admin-guide/kernel-parameters.txt +++
+>>>>>> b/Documentation/admin-guide/kernel-parameters.txt @@ -3693,6
+>>>>>> +3693,11 @@ before loading.
+>>>>>>   =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0 See
+>>>>>> Documentation/admin-guide/blockdev/ramdisk.rst.
+>>>>>>   =C2=A0=C2=A0 +=C2=A0=C2=A0=C2=A0 prot_virt=3D=C2=A0=C2=A0=C2=A0 [S=
+390] enable hosting protected virtual
+>>>>>> machines
+>>>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+isolated from the hypervisor (if hardware supports
+>>>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+that).
+>>>>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+Format: <bool>
+>>>>>
+>>>>> Isn't that a virt driver detail that should come in via KVM module
+>>>>> parameters? I don't see quite yet why this has to be a kernel
+>>>>> parameter (that can be changed at runtime).
+>>>>>  =20
+>>>>
+>>>> I was confused by "runtime" in "which controls if the kernel
+>>>> protected VMs support is enabled at runtime"
+>>>>
+>>>> So this can't be changed at runtime. Can you clarify why kvm can't
+>>>> initialize that when loaded and why we need a kernel parameter?
+>>>
+>>> We have to do the opt-in very early for several reasons:
+>>> - we have to donate a potentially largish contiguous (in real)
+>>> range of memory to the ultravisor
+>>
+>> If you'd be using CMA (or alloc_contig_pages() with less guarantees)
+>> you could be making good use of the memory until you actually start
+>> an encrypted guest.
 >=20
-> Add "prot_virt" command line option which controls if the kernel
-> protected VMs support is enabled at runtime.
+> no, the memory needs to be allocated before any other interaction with
+> the ultravisor is attempted, and the size depends on the size of the
+
+I fail to see why you need interaction with the UV before you actually=20
+start/create an encrypted guest (IOW why you can't defer uv_init()) -=20
+but I am not past "[RFC 07/37] KVM: s390: protvirt: Secure memory is not=20
+mergeable" yet and ...
+
+> _host_ memory. it can be a very substantial amount of memory, and thus
+> it's very likely to fail unless it's done very early at boot time.
+
+... I guess you could still do that via CMA ... but it doesn't really=20
+matter right now :) I understood the rational.
+
 >=20
-> Extend ultravisor info definitions and expose it via uv_info struct
-> filled in during startup.
+>>
+>>> - The opt-in will also disable some features in the host that could
+>>> affect guest integrity (e.g. time sync via STP to avoid the host
+>>> messing with the guest time stepping). Linux is not happy when you
+>>> remove features at a later point in time
+>>
+>> At least disabling STP shouldn't be a real issue if I'm not wrong
+>> (maybe I am). But there seem to be more features.
+>>
+>> (when I saw "prot_virt" it felt like somebody is using a big hammer
+>> for small nails (e.g., compared to "stp=3Doff").)
+>>
+>> Can you guys add these details to the patch description?
 >=20
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-> ---
->  .../admin-guide/kernel-parameters.txt         |  5 ++
->  arch/s390/boot/Makefile                       |  2 +-
->  arch/s390/boot/uv.c                           | 20 +++++++-
->  arch/s390/include/asm/uv.h                    | 46 ++++++++++++++++--
->  arch/s390/kernel/Makefile                     |  1 +
->  arch/s390/kernel/setup.c                      |  4 --
->  arch/s390/kernel/uv.c                         | 48 +++++++++++++++++++
->  arch/s390/kvm/Kconfig                         |  9 ++++
->  8 files changed, 126 insertions(+), 9 deletions(-)
->  create mode 100644 arch/s390/kernel/uv.c
+> yeah, probably a good idea
+>=20
 
-(...)
+If a patch explains why it does something and not only what it does=20
+usually makes me ask less stupid questions :)
 
-> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
-> index d3db3d7ed077..652b36f0efca 100644
-> --- a/arch/s390/kvm/Kconfig
-> +++ b/arch/s390/kvm/Kconfig
-> @@ -55,6 +55,15 @@ config KVM_S390_UCONTROL
-> =20
->  =09  If unsure, say N.
-> =20
-> +config KVM_S390_PROTECTED_VIRTUALIZATION_HOST
-> +=09bool "Protected guests execution support"
-> +=09depends on KVM
-> +=09---help---
-> +=09  Support hosting protected virtual machines isolated from the
-> +=09  hypervisor.
+--=20
 
-I'm currently in the process of glancing across this patch set (won't
-be able to get around to properly looking at it until next week the
-earliest), so just a very high level comment:
+Thanks,
 
-I think there's not enough information in here to allow someone
-configuring the kernel to decide what this is and if it would be useful
-to them. This should probably be at least point to some document giving
-some more details. Also, can you add a sentence where this feature is
-actually expected to be available?
-
-> +
-> +=09  If unsure, say Y.
-
-Is 'Y' really the safe choice here? AFAICS, this is introducing new
-code and not only trying to call new interfaces, if available. Is there
-any drawback to enabling this on a kernel that won't run on a platform
-supporting this feature? Is this supposed to be a common setup?
-
-> +
->  # OK, it's a little counter-intuitive to do this, but it puts it neatly =
-under
->  # the virtualization menu.
->  source "drivers/vhost/Kconfig"
+David / dhildenb
