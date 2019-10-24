@@ -1,256 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:46226 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726313AbfJ2VUe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:34 -0400
-Received: by mail-pf1-f194.google.com with SMTP id b25so10529610pfi.13
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:34 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 12/29] vmlinux.lds.h: Replace RO_DATA_SECTION with RO_DATA
-Date: Tue, 29 Oct 2019 14:13:34 -0700
-Message-Id: <20191029211351.13243-13-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11410 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2439171AbfJXLml (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:41 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbxs0108065
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:40 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vu9nxm1fd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:40 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:38 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 29/37] KVM: s390: protvirt: Sync pv state
+Date: Thu, 24 Oct 2019 07:40:51 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-30-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-Finish renaming RO_DATA_SECTION to RO_DATA. (Calling this a "section"
-is a lie, since it's multiple sections and section flags cannot be
-applied to the macro.)
+Indicate via register sync if the VM is in secure mode.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/arc/kernel/vmlinux.lds.S       | 2 +-
- arch/c6x/kernel/vmlinux.lds.S       | 2 +-
- arch/csky/kernel/vmlinux.lds.S      | 2 +-
- arch/h8300/kernel/vmlinux.lds.S     | 2 +-
- arch/hexagon/kernel/vmlinux.lds.S   | 2 +-
- arch/m68k/kernel/vmlinux-nommu.lds  | 2 +-
- arch/nds32/kernel/vmlinux.lds.S     | 2 +-
- arch/nios2/kernel/vmlinux.lds.S     | 2 +-
- arch/openrisc/kernel/vmlinux.lds.S  | 4 ++--
- arch/parisc/kernel/vmlinux.lds.S    | 4 ++--
- arch/riscv/kernel/vmlinux.lds.S     | 2 +-
- arch/s390/kernel/vmlinux.lds.S      | 2 +-
- arch/unicore32/kernel/vmlinux.lds.S | 2 +-
- include/asm-generic/vmlinux.lds.h   | 7 ++-----
- 14 files changed, 17 insertions(+), 20 deletions(-)
+ arch/s390/include/uapi/asm/kvm.h | 5 ++++-
+ arch/s390/kvm/kvm-s390.c         | 7 ++++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index 1d6eef4b6976..7d1d27066deb 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -95,7 +95,7 @@ SECTIONS
- 	_etext = .;
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 436ec7636927..b44c02426c2e 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -231,11 +231,13 @@ struct kvm_guest_debug_arch {
+ #define KVM_SYNC_GSCB   (1UL << 9)
+ #define KVM_SYNC_BPBC   (1UL << 10)
+ #define KVM_SYNC_ETOKEN (1UL << 11)
++#define KVM_SYNC_PV	(1UL << 12)
  
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
+ #define KVM_SYNC_S390_VALID_FIELDS \
+ 	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
+ 	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
+-	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
++	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN | \
++	 KVM_SYNC_PV)
  
- 	/*
- 	 * 1. this is .data essentially
-diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
-index d6e3802536b3..a3547f9d415b 100644
---- a/arch/c6x/kernel/vmlinux.lds.S
-+++ b/arch/c6x/kernel/vmlinux.lds.S
-@@ -82,7 +82,7 @@ SECTIONS
+ /* length and alignment of the sdnx as a power of two */
+ #define SDNXC 8
+@@ -261,6 +263,7 @@ struct kvm_sync_regs {
+ 	__u8  reserved[512];	/* for future vector expansion */
+ 	__u32 fpc;		/* valid on KVM_SYNC_VRS or KVM_SYNC_FPRS */
+ 	__u8 bpbc : 1;		/* bp mode */
++	__u8 pv : 1;		/* pv mode */
+ 	__u8 reserved2 : 7;
+ 	__u8 padding1[51];	/* riccb needs to be 64byte aligned */
+ 	__u8 riccb[64];		/* runtime instrumentation controls block */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f623c64aeade..500972a1f742 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2856,6 +2856,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_GSCB;
+ 	if (test_kvm_facility(vcpu->kvm, 156))
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_ETOKEN;
++	if (test_kvm_facility(vcpu->kvm, 161))
++		vcpu->run->kvm_valid_regs |= KVM_SYNC_PV;
+ 	/* fprs can be synchronized via vrs, even if the guest has no vx. With
+ 	 * MACHINE_HAS_VX, (load|store)_fpu_regs() will work with vrs format.
+ 	 */
+@@ -4136,6 +4138,7 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ {
+ 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
+ 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
++	kvm_run->s.regs.pv = 0;
+ 	if (MACHINE_HAS_GS) {
+ 		__ctl_set_bit(2, 4);
+ 		if (vcpu->arch.gs_enabled)
+@@ -4172,8 +4175,10 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	/* Restore will be done lazily at return */
+ 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
+ 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
+-	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
++	if (likely(!kvm_s390_pv_handle_cpu(vcpu)))
+ 		store_regs_fmt2(vcpu, kvm_run);
++	else
++		kvm_run->s.regs.pv = 1;
+ }
  
- 	EXCEPTION_TABLE(16)
- 
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	.const :
- 	{
- 		*(.const .const.* .gnu.linkonce.r.*)
-diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
-index 75dd31412242..8598bd7a7bcd 100644
---- a/arch/csky/kernel/vmlinux.lds.S
-+++ b/arch/csky/kernel/vmlinux.lds.S
-@@ -49,7 +49,7 @@ SECTIONS
- 
- 
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
-diff --git a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
-index 88776e785245..d3247d33b115 100644
---- a/arch/h8300/kernel/vmlinux.lds.S
-+++ b/arch/h8300/kernel/vmlinux.lds.S
-@@ -38,7 +38,7 @@ SECTIONS
- 	_etext = . ;
- 	}
- 	EXCEPTION_TABLE(16)
--	RO_DATA_SECTION(4)
-+	RO_DATA(4)
- 	ROMEND = .;
- #if defined(CONFIG_ROMKERNEL)
- 	. = RAMTOP;
-diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-index 6a6e8fc422ee..0145251fa317 100644
---- a/arch/hexagon/kernel/vmlinux.lds.S
-+++ b/arch/hexagon/kernel/vmlinux.lds.S
-@@ -50,7 +50,7 @@ SECTIONS
- 
- 	_sdata = .;
- 		RW_DATA_SECTION(32,PAGE_SIZE,_THREAD_SIZE)
--		RO_DATA_SECTION(PAGE_SIZE)
-+		RO_DATA(PAGE_SIZE)
- 	_edata = .;
- 
- 	EXCEPTION_TABLE(16)
-diff --git a/arch/m68k/kernel/vmlinux-nommu.lds b/arch/m68k/kernel/vmlinux-nommu.lds
-index cf6edda38971..de80f8b8ae78 100644
---- a/arch/m68k/kernel/vmlinux-nommu.lds
-+++ b/arch/m68k/kernel/vmlinux-nommu.lds
-@@ -60,7 +60,7 @@ SECTIONS {
- #endif
- 
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
-diff --git a/arch/nds32/kernel/vmlinux.lds.S b/arch/nds32/kernel/vmlinux.lds.S
-index c4f1c5a604c3..10ff570ba95b 100644
---- a/arch/nds32/kernel/vmlinux.lds.S
-+++ b/arch/nds32/kernel/vmlinux.lds.S
-@@ -53,7 +53,7 @@ SECTIONS
- 	_etext = .;			/* End of text and rodata section */
- 
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata  =  .;
- 
-diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
-index 20e4078b3477..318804a2c7a1 100644
---- a/arch/nios2/kernel/vmlinux.lds.S
-+++ b/arch/nios2/kernel/vmlinux.lds.S
-@@ -49,7 +49,7 @@ SECTIONS
- 	__init_end = .;
- 
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index 142c51c994f5..f73e0d3ea09f 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -67,8 +67,8 @@ SECTIONS
- 
- 	_sdata = .;
- 
--	/* Page alignment required for RO_DATA_SECTION */
--	RO_DATA_SECTION(PAGE_SIZE)
-+	/* Page alignment required for RO_DATA */
-+	RO_DATA(PAGE_SIZE)
- 	_e_kernel_ro = .;
- 
- 	/* Whatever comes after _e_kernel_ro had better be page-aligend, too */
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index 168d12b2ebb8..e1c563c7dca1 100644
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -109,7 +109,7 @@ SECTIONS
- 	_sdata = .;
- 
- 	/* Architecturally we need to keep __gp below 0x1000000 and thus
--	 * in front of RO_DATA_SECTION() which stores lots of tracepoint
-+	 * in front of RO_DATA() which stores lots of tracepoint
- 	 * and ftrace symbols. */
- #ifdef CONFIG_64BIT
- 	. = ALIGN(16);
-@@ -127,7 +127,7 @@ SECTIONS
- 	}
- #endif
- 
--	RO_DATA_SECTION(8)
-+	RO_DATA(8)
- 
- 	/* RO because of BUILDTIME_EXTABLE_SORT */
- 	EXCEPTION_TABLE(8)
-diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index df5229c4034d..66dc17d24dd9 100644
---- a/arch/riscv/kernel/vmlinux.lds.S
-+++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -52,7 +52,7 @@ SECTIONS
- 
- 	/* Start of data section */
- 	_sdata = .;
--	RO_DATA_SECTION(L1_CACHE_BYTES)
-+	RO_DATA(L1_CACHE_BYTES)
- 	.srodata : {
- 		*(.srodata*)
- 	}
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index beb4df053e20..b33c4823f8b5 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -52,7 +52,7 @@ SECTIONS
- 		_etext = .;		/* End of text section */
- 	} :text = 0x0700
- 
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 
- 	. = ALIGN(PAGE_SIZE);
- 	_sdata = .;		/* Start of data section */
-diff --git a/arch/unicore32/kernel/vmlinux.lds.S b/arch/unicore32/kernel/vmlinux.lds.S
-index 78c4c56057b0..367c80313bec 100644
---- a/arch/unicore32/kernel/vmlinux.lds.S
-+++ b/arch/unicore32/kernel/vmlinux.lds.S
-@@ -43,7 +43,7 @@ SECTIONS
- 	_etext = .;
- 
- 	_sdata = .;
--	RO_DATA_SECTION(PAGE_SIZE)
-+	RO_DATA(PAGE_SIZE)
- 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index a0a989fbe411..061e57c609f6 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -23,7 +23,7 @@
-  *	_etext = .;
-  *
-  *      _sdata = .;
-- *	RO_DATA_SECTION(PAGE_SIZE)
-+ *	RO_DATA(PAGE_SIZE)
-  *	RW_DATA_SECTION(...)
-  *	_edata = .;
-  *
-@@ -363,7 +363,7 @@
- /*
-  * Read only Data
-  */
--#define RO_DATA_SECTION(align)						\
-+#define RO_DATA(align)							\
- 	. = ALIGN((align));						\
- 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
- 		__start_rodata = .;					\
-@@ -518,9 +518,6 @@
- 	. = ALIGN((align));						\
- 	__end_rodata = .;
- 
--/* All archs are supposed to use RO_DATA() */
--#define RO_DATA(align)  RO_DATA_SECTION(align)
--
- /*
-  * .text section. Map to function alignment to avoid address changes
-  * during second ld run in second ld pass when generating System.map
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
 -- 
-2.17.1
+2.20.1
