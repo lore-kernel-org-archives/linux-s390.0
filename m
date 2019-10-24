@@ -1,94 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:37748 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726752AbfJ2Gt1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:27 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/21] asm-generic: ioremap_uc should behave the same with and without MMU
-Date: Tue, 29 Oct 2019 07:48:23 +0100
-Message-Id: <20191029064834.23438-11-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9350 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2409273AbfJXLmg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:36 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb9RV088853
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:34 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vuapnhfuy-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:34 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:32 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 25/37] KVM: s390: protvirt: STSI handling
+Date: Thu, 24 Oct 2019 07:40:47 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-26-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-Whatever reason there is for the existence of ioremap_uc, and the fact
-that it returns NULL by default on architectures with an MMU applies
-equally to nommu architectures, so don't provide different defaults.
+Save response to sidad and disable address checking for protected
+guests.
 
-In practice the difference is meaningless as the only portable driver
-that uses ioremap_uc is atyfb which probably doesn't show up on nommu
-devices.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- include/asm-generic/io.h | 36 ++++++++++++++++--------------------
- 1 file changed, 16 insertions(+), 20 deletions(-)
+ arch/s390/kvm/priv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-index d02806513670..a98ed6325727 100644
---- a/include/asm-generic/io.h
-+++ b/include/asm-generic/io.h
-@@ -935,18 +935,7 @@ static inline void *phys_to_virt(unsigned long address)
-  * defined your own ioremap_*() variant you must then declare your own
-  * ioremap_*() variant as defined to itself to avoid the default NULL return.
-  */
--
--#ifdef CONFIG_MMU
--
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return NULL;
--}
--#endif
--
--#else /* !CONFIG_MMU */
-+#ifndef CONFIG_MMU
+diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+index ed52ffa8d5d4..06c7e7a10825 100644
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -872,7 +872,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
  
- /*
-  * Change "struct page" to physical address.
-@@ -980,14 +969,6 @@ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
- }
- #endif
+ 	operand2 = kvm_s390_get_base_disp_s(vcpu, &ar);
  
--#ifndef ioremap_uc
--#define ioremap_uc ioremap_uc
--static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
--{
--	return ioremap_nocache(offset, size);
--}
--#endif
--
- #ifndef ioremap_wc
- #define ioremap_wc ioremap_wc
- static inline void __iomem *ioremap_wc(phys_addr_t offset, size_t size)
-@@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
- }
- #endif
+-	if (operand2 & 0xfff)
++	if (!kvm_s390_pv_is_protected(vcpu->kvm) && (operand2 & 0xfff))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
  
-+/*
-+ * ioremap_uc is special in that we do require an explicit architecture
-+ * implementation.  In general you do now want to use this function in a
-+ * driver and use plain ioremap, which is uncached by default.  Similarly
-+ * architectures should not implement it unless they have a very good
-+ * reason.
-+ */
-+#ifndef ioremap_uc
-+#define ioremap_uc ioremap_uc
-+static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-+{
-+	return NULL;
-+}
-+#endif
-+
- #ifdef CONFIG_HAS_IOPORT_MAP
- #ifndef CONFIG_GENERIC_IOMAP
- #ifndef ioport_map
+ 	switch (fc) {
+@@ -893,8 +893,13 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 		handle_stsi_3_2_2(vcpu, (void *) mem);
+ 		break;
+ 	}
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		memcpy((void *)vcpu->arch.sie_block->sidad, (void *)mem,
++		       PAGE_SIZE);
++		rc = 0;
++	} else
++		rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
+ 
+-	rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
+ 	if (rc) {
+ 		rc = kvm_s390_inject_prog_cond(vcpu, rc);
+ 		goto out;
 -- 
 2.20.1
