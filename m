@@ -1,104 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729336AbfJRWFO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:05:14 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 82/89] s390/cio: fix virtio-ccw DMA without PV
-Date: Fri, 18 Oct 2019 18:03:17 -0400
-Message-Id: <20191018220324.8165-82-sashal@kernel.org>
-In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
-References: <20191018220324.8165-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38278 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2439159AbfJXLmk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:40 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbUEa011379
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:39 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vu9avvrfd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:39 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:37 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 28/37] KVM: s390: protvirt: Add program exception injection
+Date: Thu, 24 Oct 2019 07:40:50 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-29-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, Marc Hartmayer <mhartmay@linux.ibm.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-From: Halil Pasic <pasic@linux.ibm.com>
+Only two program exceptions can be injected for a protected guest:
+specification and operand
 
-[ Upstream commit 05668e1d74b84c53fbe0f28565e4c9502a6b8a67 ]
+Both have a code in offset 248 of the state description, as the lowcore
+is not accessible by KVM for such guests.
 
-Commit 37db8985b211 ("s390/cio: add basic protected virtualization
-support") breaks virtio-ccw devices with VIRTIO_F_IOMMU_PLATFORM for non
-Protected Virtualization (PV) guests. The problem is that the dma_mask
-of the ccw device, which is used by virtio core, gets changed from 64 to
-31 bit, because some of the DMA allocations do require 31 bit
-addressable memory. For PV the only drawback is that some of the virtio
-structures must end up in ZONE_DMA because we have the bounce the
-buffers mapped via DMA API anyway.
-
-But for non PV guests we have a problem: because of the 31 bit mask
-guests bigger than 2G are likely to try bouncing buffers. The swiotlb
-however is only initialized for PV guests, because we don't want to
-bounce anything for non PV guests. The first such map kills the guest.
-
-Since the DMA API won't allow us to specify for each allocation whether
-we need memory from ZONE_DMA (31 bit addressable) or any DMA capable
-memory will do, let us use coherent_dma_mask (which is used for
-allocations) to force allocating form ZONE_DMA while changing dma_mask
-to DMA_BIT_MASK(64) so that at least the streaming API will regard
-the whole memory DMA capable.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
-Link: https://lore.kernel.org/lkml/20190930153803.7958-1-pasic@linux.ibm.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- drivers/s390/cio/cio.h    | 1 +
- drivers/s390/cio/css.c    | 7 ++++++-
- drivers/s390/cio/device.c | 2 +-
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index ba7d2480613b9..dcdaba689b20c 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -113,6 +113,7 @@ struct subchannel {
- 	enum sch_todo todo;
- 	struct work_struct todo_work;
- 	struct schib_config config;
-+	u64 dma_mask;
- 	char *driver_override; /* Driver name to force a match */
- } __attribute__ ((aligned(8)));
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 1f87c7d3fa3e..2a711bae69a7 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -826,6 +826,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+ 	return rc ? -EFAULT : 0;
+ }
  
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 1fbfb0a93f5f1..831850435c23b 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -232,7 +232,12 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
- 	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
- 	 */
- 	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
--	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
-+	/*
-+	 * But we don't have such restrictions imposed on the stuff that
-+	 * is handled by the streaming API.
-+	 */
-+	sch->dma_mask = DMA_BIT_MASK(64);
-+	sch->dev.dma_mask = &sch->dma_mask;
- 	return sch;
++static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
++{
++	switch (code) {
++	case PGM_SPECIFICATION:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
++		break;
++	case PGM_OPERAND:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
++		break;
++	default:
++		return -EINVAL;
++	}
++	return 0;
++}
++
+ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -846,6 +861,9 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+ 					 pgm_info.code, 0);
  
- err:
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index c421899be20f2..027ef1dde5a7a 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -710,7 +710,7 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
- 	if (!cdev->private)
- 		goto err_priv;
- 	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
--	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
-+	cdev->dev.dma_mask = sch->dev.dma_mask;
- 	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
- 	if (!dma_pool)
- 		goto err_dma_pool;
++	if (kvm_s390_pv_is_protected(vcpu->kvm))
++		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
++
+ 	switch (pgm_info.code & ~PGM_PER) {
+ 	case PGM_AFX_TRANSLATION:
+ 	case PGM_ASX_TRANSLATION:
 -- 
 2.20.1
