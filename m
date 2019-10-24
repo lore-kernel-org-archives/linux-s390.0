@@ -1,85 +1,441 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3430 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439192AbfJXLmp (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18006 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2439126AbfJXLmS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:45 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb7MP002453
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:44 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub6ggaqh-1
+        Thu, 24 Oct 2019 07:42:18 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb8DC146657
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:15 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vub6pg7ga-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:44 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:14 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:41 +0100
+        Thu, 24 Oct 2019 12:42:13 +0100
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 31/37] KVM: s390: protvirt: Add diag 308 subcode 8 - 10 handling
-Date: Thu, 24 Oct 2019 07:40:53 -0400
+Subject: [RFC 14/37] KVM: s390: protvirt: Implement interruption injection
+Date: Thu, 24 Oct 2019 07:40:36 -0400
 In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-32-frankja@linux.ibm.com>
+Message-Id: <20191024114059.102802-15-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-If the host initialized the Ultravisor, we can set stfle bit 161
-(protected virtual IPL enhancements facility), which indicates, that
-the IPL subcodes 8, 9 and are valid. These subcodes are used by a
-normal guest to set/retrieve a IPIB of type 5 and transition into
-protected mode.
+From: Michael Mueller <mimu@linux.ibm.com>
 
-Once in protected mode, the VM will loose the facility bit, as each
-boot into protected mode has to go through non-protected. There is no
-secure re-ipl with subcode 10 without a previous subcode 3.
+The patch implements interruption injection for the following
+list of interruption types:
 
-In protected mode, there is no subcode 4 available, as the VM has no
-more access to its memory from non-protected mode. I.e. each IPL
-clears.
+  - I/O
+    __deliver_io (III)
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+  - External
+    __deliver_cpu_timer (IEI)
+    __deliver_ckc (IEI)
+    __deliver_emergency_signal (IEI)
+    __deliver_external_call (IEI)
+    __deliver_service (IEI)
+
+  - cpu restart
+    __deliver_restart (IRI)
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com> [interrupt masking]
 ---
- arch/s390/kvm/diag.c     | 6 ++++++
- arch/s390/kvm/kvm-s390.c | 5 +++++
- 2 files changed, 11 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  10 ++
+ arch/s390/kvm/interrupt.c        | 182 +++++++++++++++++++++++--------
+ 2 files changed, 149 insertions(+), 43 deletions(-)
 
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 3fb54ec2cf3e..b951dbdcb6a0 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -197,6 +197,12 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcpu)
- 	case 4:
- 		vcpu->run->s390_reset_flags = 0;
- 		break;
-+	case 8:
-+	case 9:
-+	case 10:
-+		if (!test_kvm_facility(vcpu->kvm, 161))
-+			return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+		/* fall through */
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 500972a1f742..8947f1812b12 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2590,6 +2590,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (css_general_characteristics.aiv && test_facility(65))
- 		set_kvm_facility(kvm->arch.model.fac_mask, 65);
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 82443236d4cc..63fc32d38aa9 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -496,6 +496,7 @@ enum irq_types {
+ 	IRQ_PEND_PFAULT_INIT,
+ 	IRQ_PEND_EXT_HOST,
+ 	IRQ_PEND_EXT_SERVICE,
++	IRQ_PEND_EXT_SERVICE_EV,
+ 	IRQ_PEND_EXT_TIMING,
+ 	IRQ_PEND_EXT_CPU_TIMER,
+ 	IRQ_PEND_EXT_CLOCK_COMP,
+@@ -540,6 +541,7 @@ enum irq_types {
+ 			   (1UL << IRQ_PEND_EXT_TIMING)     | \
+ 			   (1UL << IRQ_PEND_EXT_HOST)       | \
+ 			   (1UL << IRQ_PEND_EXT_SERVICE)    | \
++			   (1UL << IRQ_PEND_EXT_SERVICE_EV) | \
+ 			   (1UL << IRQ_PEND_VIRTIO)         | \
+ 			   (1UL << IRQ_PEND_PFAULT_INIT)    | \
+ 			   (1UL << IRQ_PEND_PFAULT_DONE))
+@@ -556,6 +558,13 @@ enum irq_types {
+ #define IRQ_PEND_MCHK_MASK ((1UL << IRQ_PEND_MCHK_REP) | \
+ 			    (1UL << IRQ_PEND_MCHK_EX))
  
-+	if (is_prot_virt_host()) {
-+		set_kvm_facility(kvm->arch.model.fac_mask, 161);
-+		set_kvm_facility(kvm->arch.model.fac_list, 161);
++#define IRQ_PEND_EXT_II_MASK ((1UL << IRQ_PEND_EXT_CPU_TIMER)  | \
++			      (1UL << IRQ_PEND_EXT_CLOCK_COMP) | \
++			      (1UL << IRQ_PEND_EXT_EMERGENCY)  | \
++			      (1UL << IRQ_PEND_EXT_EXTERNAL)   | \
++			      (1UL << IRQ_PEND_EXT_SERVICE)    | \
++			      (1UL << IRQ_PEND_EXT_SERVICE_EV))
++
+ struct kvm_s390_interrupt_info {
+ 	struct list_head list;
+ 	u64	type;
+@@ -614,6 +623,7 @@ struct kvm_s390_local_interrupt {
+ 
+ struct kvm_s390_float_interrupt {
+ 	unsigned long pending_irqs;
++	unsigned long masked_irqs;
+ 	spinlock_t lock;
+ 	struct list_head lists[FIRQ_LIST_COUNT];
+ 	int counters[FIRQ_MAX_COUNT];
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 165dea4c7f19..c919dfe4dfd3 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -324,8 +324,10 @@ static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+ 
+ static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
+ {
+-	return vcpu->kvm->arch.float_int.pending_irqs |
+-		vcpu->arch.local_int.pending_irqs;
++	unsigned long pending = vcpu->kvm->arch.float_int.pending_irqs | vcpu->arch.local_int.pending_irqs;
++
++	pending &= ~vcpu->kvm->arch.float_int.masked_irqs;
++	return pending;
+ }
+ 
+ static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
+@@ -383,10 +385,16 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
+ 		__clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &active_mask);
+ 	if (!(vcpu->arch.sie_block->gcr[0] & CR0_CPU_TIMER_SUBMASK))
+ 		__clear_bit(IRQ_PEND_EXT_CPU_TIMER, &active_mask);
+-	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK))
++	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK)) {
+ 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
++		__clear_bit(IRQ_PEND_EXT_SERVICE_EV, &active_mask);
++	}
+ 	if (psw_mchk_disabled(vcpu))
+ 		active_mask &= ~IRQ_PEND_MCHK_MASK;
++	/* PV guest cpus can have a single interruption injected at a time. */
++	if (kvm_s390_pv_is_protected(vcpu->kvm) &&
++	    vcpu->arch.sie_block->iictl != IICTL_CODE_NONE)
++		active_mask &= ~(IRQ_PEND_EXT_II_MASK | IRQ_PEND_IO_MASK);
+ 	/*
+ 	 * Check both floating and local interrupt's cr14 because
+ 	 * bit IRQ_PEND_MCHK_REP could be set in both cases.
+@@ -479,19 +487,23 @@ static void set_intercept_indicators(struct kvm_vcpu *vcpu)
+ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+-	int rc;
++	int rc = 0;
+ 
+ 	vcpu->stat.deliver_cputm++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
+ 					 0, 0);
+-
+-	rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
+-			   (u16 *)__LC_EXT_INT_CODE);
+-	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+-	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+-			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+-			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
++		vcpu->arch.sie_block->eic = EXT_IRQ_CPU_TIMER;
++	} else {
++		rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
++				   (u16 *)__LC_EXT_INT_CODE);
++		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
++		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
++				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	}
+ 	clear_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
+ 	return rc ? -EFAULT : 0;
+ }
+@@ -499,19 +511,23 @@ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
+ static int __must_check __deliver_ckc(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+-	int rc;
++	int rc = 0;
+ 
+ 	vcpu->stat.deliver_ckc++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
+ 					 0, 0);
+-
+-	rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
+-			   (u16 __user *)__LC_EXT_INT_CODE);
+-	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+-	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+-			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+-			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
++		vcpu->arch.sie_block->eic = EXT_IRQ_CLK_COMP;
++	} else {
++		rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
++				   (u16 __user *)__LC_EXT_INT_CODE);
++		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
++		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
++				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	}
+ 	clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
+ 	return rc ? -EFAULT : 0;
+ }
+@@ -533,7 +549,6 @@ static int __must_check __deliver_pfault_init(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 					 KVM_S390_INT_PFAULT_INIT,
+ 					 0, ext.ext_params2);
+-
+ 	rc  = put_guest_lc(vcpu, EXT_IRQ_CP_SERVICE, (u16 *) __LC_EXT_INT_CODE);
+ 	rc |= put_guest_lc(vcpu, PFAULT_INIT, (u16 *) __LC_EXT_CPU_ADDR);
+ 	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+@@ -696,17 +711,21 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
+ static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+-	int rc;
++	int rc = 0;
+ 
+ 	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
+ 	vcpu->stat.deliver_restart_signal++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
+ 
+-	rc  = write_guest_lc(vcpu,
+-			     offsetof(struct lowcore, restart_old_psw),
+-			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
+-			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_RESTART;
++	} else {
++		rc  = write_guest_lc(vcpu,
++				     offsetof(struct lowcore, restart_old_psw),
++				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++		rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
++				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	}
+ 	clear_bit(IRQ_PEND_RESTART, &li->pending_irqs);
+ 	return rc ? -EFAULT : 0;
+ }
+@@ -748,6 +767,12 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
+ 	vcpu->stat.deliver_emergency_signal++;
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
+ 					 cpu_addr, 0);
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
++		vcpu->arch.sie_block->eic = EXT_IRQ_EMERGENCY_SIG;
++		vcpu->arch.sie_block->extcpuaddr = cpu_addr;
++		return 0;
++	}
+ 
+ 	rc  = put_guest_lc(vcpu, EXT_IRQ_EMERGENCY_SIG,
+ 			   (u16 *)__LC_EXT_INT_CODE);
+@@ -776,6 +801,12 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
+ 					 KVM_S390_INT_EXTERNAL_CALL,
+ 					 extcall.code, 0);
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
++		vcpu->arch.sie_block->eic = EXT_IRQ_EXTERNAL_CALL;
++		vcpu->arch.sie_block->extcpuaddr = extcall.code;
++		return 0;
++	}
+ 
+ 	rc  = put_guest_lc(vcpu, EXT_IRQ_EXTERNAL_CALL,
+ 			   (u16 *)__LC_EXT_INT_CODE);
+@@ -902,6 +933,31 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	return rc ? -EFAULT : 0;
+ }
+ 
++#define SCCB_MASK 0xFFFFFFF8
++#define SCCB_EVENT_PENDING 0x3
++
++static int write_sclp(struct kvm_vcpu *vcpu, u32 parm)
++{
++	int rc;
++
++	if (kvm_s390_pv_handle_cpu(vcpu)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
++		vcpu->arch.sie_block->eic = EXT_IRQ_SERVICE_SIG;
++		vcpu->arch.sie_block->eiparams = parm;
++		return 0;
 +	}
 +
- 	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
- 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
++	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
++	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
++	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
++			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
++			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
++	rc |= put_guest_lc(vcpu, parm,
++			   (u32 *)__LC_EXT_PARAMS);
++	return rc;
++}
++
+ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
+@@ -909,13 +965,17 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
+ 	int rc = 0;
  
+ 	spin_lock(&fi->lock);
+-	if (!(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
++	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs) ||
++	    !(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
+ 		spin_unlock(&fi->lock);
+ 		return 0;
+ 	}
+ 	ext = fi->srv_signal;
+ 	memset(&fi->srv_signal, 0, sizeof(ext));
+ 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
++	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
++	if (kvm_s390_pv_is_protected(vcpu->kvm))
++		set_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
+ 	spin_unlock(&fi->lock);
+ 
+ 	VCPU_EVENT(vcpu, 4, "deliver: sclp parameter 0x%x",
+@@ -924,15 +984,33 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
+ 					 ext.ext_params, 0);
+ 
+-	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
+-	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+-	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+-			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+-			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+-	rc |= put_guest_lc(vcpu, ext.ext_params,
+-			   (u32 *)__LC_EXT_PARAMS);
++	rc = write_sclp(vcpu, ext.ext_params);
++	return rc ? -EFAULT : 0;
++}
+ 
++static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
++{
++	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
++	struct kvm_s390_ext_info ext;
++	int rc = 0;
++
++	spin_lock(&fi->lock);
++	if (!(test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs))) {
++		spin_unlock(&fi->lock);
++		return 0;
++	}
++	ext = fi->srv_signal;
++	/* only clear the event bit */
++	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
++	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
++	spin_unlock(&fi->lock);
++
++	VCPU_EVENT(vcpu, 4, "%s", "deliver: sclp parameter event");
++	vcpu->stat.deliver_service_signal++;
++	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
++					 ext.ext_params, 0);
++
++	rc = write_sclp(vcpu, SCCB_EVENT_PENDING);
+ 	return rc ? -EFAULT : 0;
+ }
+ 
+@@ -1028,6 +1106,15 @@ static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
+ {
+ 	int rc;
+ 
++	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++		vcpu->arch.sie_block->iictl = IICTL_CODE_IO;
++		vcpu->arch.sie_block->subchannel_id = io->subchannel_id;
++		vcpu->arch.sie_block->subchannel_nr = io->subchannel_nr;
++		vcpu->arch.sie_block->io_int_parm = io->io_int_parm;
++		vcpu->arch.sie_block->io_int_word = io->io_int_word;
++		return 0;
++	}
++
+ 	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
+ 	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
+ 	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
+@@ -1329,6 +1416,9 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
+ 		case IRQ_PEND_EXT_SERVICE:
+ 			rc = __deliver_service(vcpu);
+ 			break;
++		case IRQ_PEND_EXT_SERVICE_EV:
++			rc = __deliver_service_ev(vcpu);
++			break;
+ 		case IRQ_PEND_PFAULT_DONE:
+ 			rc = __deliver_pfault_done(vcpu);
+ 			break;
+@@ -1421,7 +1511,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
+ 		return -EINVAL;
+ 
+-	if (sclp.has_sigpif)
++	if (sclp.has_sigpif && !kvm_s390_pv_handle_cpu(vcpu))
+ 		return sca_inject_ext_call(vcpu, src_id);
+ 
+ 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
+@@ -1681,9 +1771,6 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+ 	return inti;
+ }
+ 
+-#define SCCB_MASK 0xFFFFFFF8
+-#define SCCB_EVENT_PENDING 0x3
+-
+ static int __inject_service(struct kvm *kvm,
+ 			     struct kvm_s390_interrupt_info *inti)
+ {
+@@ -1692,6 +1779,11 @@ static int __inject_service(struct kvm *kvm,
+ 	kvm->stat.inject_service_signal++;
+ 	spin_lock(&fi->lock);
+ 	fi->srv_signal.ext_params |= inti->ext.ext_params & SCCB_EVENT_PENDING;
++
++	/* We always allow events, track them separately from the sccb ints */
++	if (fi->srv_signal.ext_params & SCCB_EVENT_PENDING)
++		set_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
++
+ 	/*
+ 	 * Early versions of the QEMU s390 bios will inject several
+ 	 * service interrupts after another without handling a
+@@ -1834,7 +1926,8 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
+ 		break;
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+ 		if (!(type & KVM_S390_INT_IO_AI_MASK &&
+-		      kvm->arch.gisa_int.origin))
++		      kvm->arch.gisa_int.origin) ||
++		      kvm_s390_pv_handle_cpu(dst_vcpu))
+ 			kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_IO_INT);
+ 		break;
+ 	default:
+@@ -2082,6 +2175,8 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
+ 
+ 	spin_lock(&fi->lock);
+ 	fi->pending_irqs = 0;
++	if (!kvm_s390_pv_is_protected(kvm))
++		fi->masked_irqs = 0;
+ 	memset(&fi->srv_signal, 0, sizeof(fi->srv_signal));
+ 	memset(&fi->mchk, 0, sizeof(fi->mchk));
+ 	for (i = 0; i < FIRQ_LIST_COUNT; i++)
+@@ -2146,7 +2241,8 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
+ 			n++;
+ 		}
+ 	}
+-	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs)) {
++	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs) ||
++	    test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs)) {
+ 		if (n == max_irqs) {
+ 			/* signal userspace to try again */
+ 			ret = -ENOMEM;
 -- 
 2.20.1
