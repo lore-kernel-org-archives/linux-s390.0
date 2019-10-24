@@ -1,89 +1,159 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55570 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4222 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439148AbfJXLmR (ORCPT
+        by vger.kernel.org with ESMTP id S2439186AbfJXLmz (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:17 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb7sU127932
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:17 -0400
+        Thu, 24 Oct 2019 07:42:55 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb8p0002574
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:54 -0400
 Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vua4vausq-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vub6ggayx-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:16 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:54 -0400
 Received: from localhost
         by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:14 +0100
+        Thu, 24 Oct 2019 12:42:52 +0100
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 15/37] KVM: s390: protvirt: Add machine-check interruption injection controls
-Date: Thu, 24 Oct 2019 07:40:37 -0400
+Subject: [RFC 37/37] KVM: s390: protvirt: Add UV debug trace
+Date: Thu, 24 Oct 2019 07:40:59 -0400
 In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-16-frankja@linux.ibm.com>
+Message-Id: <20191024114059.102802-38-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-From: Michael Mueller <mimu@linux.ibm.com>
+Let's have some debug traces which stay around for longer than the
+guest.
 
-The following fields are added to the sie control block type 4:
-     - Machine Check Interruption Code (mcic)
-     - External Damage Code (edc)
-     - Failing Storage Address (faddr)
-
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 33 +++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 10 +++++++++-
+ arch/s390/kvm/kvm-s390.h |  9 +++++++++
+ arch/s390/kvm/pv.c       | 16 ++++++++++++++++
+ 3 files changed, 34 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 63fc32d38aa9..0ab309b7bf4c 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -261,16 +261,31 @@ struct kvm_s390_sie_block {
- #define HPID_VSIE	0x5
- 	__u8	hpid;			/* 0x00b8 */
- 	__u8	reservedb9[7];		/* 0x00b9 */
--	__u32	eiparams;		/* 0x00c0 */
--	__u16	extcpuaddr;		/* 0x00c4 */
--	__u16	eic;			/* 0x00c6 */
-+	union {
-+		struct {
-+			__u32	eiparams;	/* 0x00c0 */
-+			__u16	extcpuaddr;	/* 0x00c4 */
-+			__u16	eic;		/* 0x00c6 */
-+		};
-+		__u64	mcic;			/* 0x00c0 */
-+	} __packed;
- 	__u32	reservedc8;		/* 0x00c8 */
--	__u16	pgmilc;			/* 0x00cc */
--	__u16	iprcc;			/* 0x00ce */
--	__u32	dxc;			/* 0x00d0 */
--	__u16	mcn;			/* 0x00d4 */
--	__u8	perc;			/* 0x00d6 */
--	__u8	peratmid;		/* 0x00d7 */
-+	union {
-+		struct {
-+			__u16	pgmilc;		/* 0x00cc */
-+			__u16	iprcc;		/* 0x00ce */
-+		};
-+		__u32	edc;			/* 0x00cc */
-+	} __packed;
-+	union {
-+		struct {
-+			__u32	dxc;		/* 0x00d0 */
-+			__u16	mcn;		/* 0x00d4 */
-+			__u8	perc;		/* 0x00d6 */
-+			__u8	peratmid;	/* 0x00d7 */
-+		};
-+		__u64	faddr;			/* 0x00d0 */
-+	} __packed;
- 	__u64	peraddr;		/* 0x00d8 */
- 	__u8	eai;			/* 0x00e0 */
- 	__u8	peraid;			/* 0x00e1 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 5cc9108c94e4..56627968f2ed 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -221,6 +221,7 @@ static struct kvm_s390_vm_cpu_subfunc kvm_s390_available_subfunc;
+ static struct gmap_notifier gmap_notifier;
+ static struct gmap_notifier vsie_gmap_notifier;
+ debug_info_t *kvm_s390_dbf;
++debug_info_t *kvm_s390_dbf_uv;
+ 
+ /* Section: not file related */
+ int kvm_arch_hardware_enable(void)
+@@ -462,7 +463,13 @@ int kvm_arch_init(void *opaque)
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+-	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view))
++	kvm_s390_dbf_uv = debug_register("kvm-uv", 32, 1, 7 * sizeof(long));
++	if (!kvm_s390_dbf_uv)
++		return -ENOMEM;
++
++
++	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view) ||
++	    debug_register_view(kvm_s390_dbf_uv, &debug_sprintf_view))
+ 		goto out;
+ 
+ 	kvm_s390_cpu_feat_init();
+@@ -489,6 +496,7 @@ void kvm_arch_exit(void)
+ {
+ 	kvm_s390_gib_destroy();
+ 	debug_unregister(kvm_s390_dbf);
++	debug_unregister(kvm_s390_dbf_uv);
+ }
+ 
+ /* Section: device related */
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 8cd2e978363d..d13ddf2113c0 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -25,6 +25,15 @@
+ #define IS_ITDB_VALID(vcpu)	((*(char *)vcpu->arch.sie_block->itdba == TDB_FORMAT1))
+ 
+ extern debug_info_t *kvm_s390_dbf;
++extern debug_info_t *kvm_s390_dbf_uv;
++
++#define KVM_UV_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
++do { \
++	debug_sprintf_event(kvm_s390_dbf_uv, d_loglevel, \
++			    "%s: " d_string "\n", d_kvm->arch.dbf->name, \
++			    d_args); \
++} while (0)
++
+ #define KVM_EVENT(d_loglevel, d_string, d_args...)\
+ do { \
+ 	debug_sprintf_event(kvm_s390_dbf, d_loglevel, d_string "\n", \
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index cf79a6503e1c..78e4510a7776 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -100,6 +100,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
+ 			   UVC_CMD_DESTROY_SEC_CONF, &ret);
+ 	VM_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
+ 		 ret >> 16, ret & 0x0000ffff);
++	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
++		 ret >> 16, ret & 0x0000ffff);
+ 	return rc;
+ }
+ 
+@@ -115,6 +117,8 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
+ 
+ 		VCPU_EVENT(vcpu, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
+ 			   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
++		KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
++			     vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
+ 	}
+ 
+ 	free_pages(vcpu->arch.pv.stor_base,
+@@ -163,6 +167,10 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
+ 	VCPU_EVENT(vcpu, 3, "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
+ 		   vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
+ 		   uvcb.header.rrc);
++	KVM_UV_EVENT(vcpu->kvm, 3,
++		     "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
++		     vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
++		     uvcb.header.rrc);
+ 
+ 	/* Output */
+ 	vcpu->arch.pv.handle = uvcb.cpu_handle;
+@@ -200,6 +208,10 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
+ 		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
+ 		 uvcb.header.rrc);
+ 
++	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
++		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
++		 uvcb.header.rrc);
++
+ 	/* Outputs */
+ 	kvm->arch.pv.handle = uvcb.guest_handle;
+ 
+@@ -230,6 +242,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
+ 	rc = uv_call(0, (u64)&uvcb);
+ 	VM_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
+ 		 uvcb.header.rc, uvcb.header.rrc);
++	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
++		     uvcb.header.rc, uvcb.header.rrc);
+ 	if (rc)
+ 		return -EINVAL;
+ 	return 0;
+@@ -278,6 +292,8 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
+ 	}
+ 	VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x rrc %x",
+ 		 uvcb.header.rc, uvcb.header.rrc);
++	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x rrc %x",
++		     uvcb.header.rc, uvcb.header.rrc);
+ 	return rc;
+ }
+ 
 -- 
 2.20.1
