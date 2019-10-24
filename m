@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 10 Oct 2019 14:53:24 -0700
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v1] seccomp: simplify secure_computing()
-Message-ID: <201910101450.0B13B7F@keescook>
-References: <20190920131907.6886-1-christian.brauner@ubuntu.com>
- <20190924064420.6353-1-christian.brauner@ubuntu.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22024 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2409248AbfJXLmb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:31 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbIHd098704
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:30 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vu95r529m-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:30 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:28 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 23/37] KVM: s390: protvirt: Make sure prefix is always protected
+Date: Thu, 24 Oct 2019 07:40:45 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190924064420.6353-1-christian.brauner@ubuntu.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-24-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, linux-um@lists.infradead.org, luto@kernel.org, oleg@redhat.com, tglx@linutronix.de, wad@chromium.org, x86@kernel.org, Borislav Petkov <bp@alien8.de>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-On Tue, Sep 24, 2019 at 08:44:20AM +0200, Christian Brauner wrote:
-> Afaict, the struct seccomp_data argument to secure_computing() is unused
-> by all current callers. So let's remove it.
-> The argument was added in [1]. It was added because having the arch
-> supply the syscall arguments used to be faster than having it done by
-> secure_computing() (cf. Andy's comment in [2]). This is not true anymore
-> though.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Yes; thanks for cleaning this up!
-
-> diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-> index ad71132374f0..ed80bdfbf5fe 100644
-> --- a/arch/s390/kernel/ptrace.c
-> +++ b/arch/s390/kernel/ptrace.c
-> @@ -439,7 +439,7 @@ static int poke_user(struct task_struct *child, addr_t addr, addr_t data)
->  long arch_ptrace(struct task_struct *child, long request,
->  		 unsigned long addr, unsigned long data)
->  {
-> -	ptrace_area parea; 
-> +	ptrace_area parea;
->  	int copied, ret;
->  
->  	switch (request) {
-
-If this were whitespace cleanup in kernel/seccomp.c, I'd take it without
-flinching. As this is only tangentially related and in an arch
-directory, I've dropped this hunk out of a cowardly fear of causing
-(a likely very unlikely) merge conflict.
-
-I'd rather we globally clean up trailing whitespace at the end of -rc1
-and ask Linus to run some crazy script. :)
-
-So, with that hunk removed, I've applied this to for-next/seccomp. :)
-
-Thanks!
-
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index eddc9508c1b1..17a78774c617 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3646,6 +3646,15 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ 		rc = gmap_mprotect_notify(vcpu->arch.gmap,
+ 					  kvm_s390_get_prefix(vcpu),
+ 					  PAGE_SIZE * 2, PROT_WRITE);
++		if (!rc && kvm_s390_pv_is_protected(vcpu->kvm)) {
++			rc = uv_convert_to_secure(vcpu->arch.gmap,
++						  kvm_s390_get_prefix(vcpu));
++			WARN_ON_ONCE(rc && rc != -EEXIST);
++			rc = uv_convert_to_secure(vcpu->arch.gmap,
++						  kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
++			WARN_ON_ONCE(rc && rc != -EEXIST);
++			rc = 0;
++		}
+ 		if (rc) {
+ 			kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
+ 			return rc;
 -- 
-Kees Cook
+2.20.1
