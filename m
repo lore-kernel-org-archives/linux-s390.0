@@ -1,84 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:46528 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729391AbfJ2VOI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:08 -0400
-Received: by mail-pf1-f195.google.com with SMTP id b25so10516178pfi.13
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:08 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 05/29] ia64: Rename PT_LOAD identifier "code" to "text"
-Date: Tue, 29 Oct 2019 14:13:27 -0700
-Message-Id: <20191029211351.13243-6-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21716 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2439170AbfJXLms (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:48 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb9HF088867
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:47 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vuapnhg3a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:47 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:45 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 33/37] KVM: s390: Introduce VCPU reset IOCTL
+Date: Thu, 24 Oct 2019 07:40:55 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-34-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-In preparation for moving NOTES into RO_DATA, rename the linker script
-internal identifier for the PT_LOAD Program Header from "code" to "text"
-to match other architectures.
+With PV we need to do things for all reset types, not only initial...
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/ia64/kernel/vmlinux.lds.S | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 53 ++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm.h |  6 +++++
+ 2 files changed, 59 insertions(+)
 
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index d9d4e21107cd..2c4f23c390ad 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -13,7 +13,7 @@ ENTRY(phys_start)
- jiffies = jiffies_64;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d3fd3ad1d09b..d8ee3a98e961 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3472,6 +3472,53 @@ static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
  
- PHDRS {
--	code   PT_LOAD;
-+	text   PT_LOAD;
- 	percpu PT_LOAD;
- 	data   PT_LOAD;
- 	note   PT_NOTE;
-@@ -36,7 +36,7 @@ SECTIONS {
- 	phys_start = _start - LOAD_OFFSET;
++static int kvm_arch_vcpu_ioctl_reset(struct kvm_vcpu *vcpu,
++				     unsigned long type)
++{
++	int rc;
++	u32 ret;
++
++	switch (type) {
++	case KVM_S390_VCPU_RESET_NORMAL:
++		/*
++		 * Only very little is reset, userspace handles the
++		 * non-protected case.
++		 */
++		rc = 0;
++		if (kvm_s390_pv_handle_cpu(vcpu)) {
++			rc = uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
++					   UVC_CMD_CPU_RESET, &ret);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: cpu %d rc %x rrc %x",
++				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
++		}
++		break;
++	case KVM_S390_VCPU_RESET_INITIAL:
++		rc = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
++		if (kvm_s390_pv_handle_cpu(vcpu)) {
++			uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
++				      UVC_CMD_CPU_RESET_INITIAL,
++				      &ret);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET INITIAL VCPU: cpu %d rc %x rrc %x",
++				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
++		}
++		break;
++	case KVM_S390_VCPU_RESET_CLEAR:
++		rc = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
++		if (kvm_s390_pv_handle_cpu(vcpu)) {
++			rc = uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
++					   UVC_CMD_CPU_RESET_CLEAR, &ret);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET CLEAR VCPU: cpu %d rc %x rrc %x",
++				   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
++		}
++		break;
++	default:
++		rc = -EINVAL;
++		break;
++	}
++	return rc;
++}
++
++
+ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+ {
+ 	vcpu_load(vcpu);
+@@ -4633,8 +4680,14 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 		break;
+ 	}
+ 	case KVM_S390_INITIAL_RESET:
++		r = -EINVAL;
++		if (kvm_s390_pv_is_protected(vcpu->kvm))
++			break;
+ 		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
+ 		break;
++	case KVM_S390_VCPU_RESET:
++		r = kvm_arch_vcpu_ioctl_reset(vcpu, arg);
++		break;
+ 	case KVM_SET_ONE_REG:
+ 	case KVM_GET_ONE_REG: {
+ 		struct kvm_one_reg reg;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index f75a051a7705..2846ed5e5dd9 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1496,6 +1496,12 @@ struct kvm_pv_cmd {
+ #define KVM_S390_PV_COMMAND		_IOW(KVMIO, 0xc3, struct kvm_pv_cmd)
+ #define KVM_S390_PV_COMMAND_VCPU	_IOW(KVMIO, 0xc4, struct kvm_pv_cmd)
  
- 	code : {
--	} :code
-+	} :text
- 	. = KERNEL_START;
- 
- 	_text = .;
-@@ -68,9 +68,9 @@ SECTIONS {
- 	/*
- 	 * Read-only data
- 	 */
--	NOTES :code :note       /* put .notes in text and mark in PT_NOTE  */
-+	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
- 	code_continues : {
--	} : code               /* switch back to regular program...  */
-+	} :text                /* switch back to regular program...  */
- 
- 	EXCEPTION_TABLE(16)
- 
-@@ -102,9 +102,9 @@ SECTIONS {
- 		__start_unwind = .;
- 		*(.IA_64.unwind*)
- 		__end_unwind = .;
--	} :code :unwind
-+	} :text :unwind
- 	code_continues2 : {
--	} : code
-+	} :text
- 
- 	RODATA
- 
-@@ -214,7 +214,7 @@ SECTIONS {
- 	_end = .;
- 
- 	code : {
--	} :code
-+	} :text
- 
- 	STABS_DEBUG
- 	DWARF_DEBUG
++#define KVM_S390_VCPU_RESET_NORMAL	0
++#define KVM_S390_VCPU_RESET_INITIAL	1
++#define KVM_S390_VCPU_RESET_CLEAR	2
++
++#define KVM_S390_VCPU_RESET    _IO(KVMIO,   0xd0)
++
+ /* Secure Encrypted Virtualization command */
+ enum sev_cmd_id {
+ 	/* Guest initialization commands */
 -- 
-2.17.1
+2.20.1
