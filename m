@@ -1,158 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:33223 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729519AbfJ2VON (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:13 -0400
-Received: by mail-pf1-f196.google.com with SMTP id c184so7265pfb.0
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:11 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 09/29] vmlinux.lds.h: Move Program Header restoration into NOTES macro
-Date: Tue, 29 Oct 2019 14:13:31 -0700
-Message-Id: <20191029211351.13243-10-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4618 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2439196AbfJXLmu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Oct 2019 07:42:50 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbDUQ174593
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:49 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vt294ffng-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:49 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 24 Oct 2019 12:42:46 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [RFC 34/37] KVM: s390: protvirt: Report CPU state to Ultravisor
+Date: Thu, 24 Oct 2019 07:40:56 -0400
+In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191024114059.102802-35-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
 
-In preparation for moving NOTES into RO_DATA, make the Program Header
-assignment restoration be part of the NOTES macro itself.
+VCPU states have to be reported to the ultravisor for SIGP
+interpretation.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/alpha/kernel/vmlinux.lds.S   |  5 +----
- arch/ia64/kernel/vmlinux.lds.S    |  4 +---
- arch/mips/kernel/vmlinux.lds.S    |  3 +--
- arch/powerpc/kernel/vmlinux.lds.S |  4 +---
- arch/s390/kernel/vmlinux.lds.S    |  4 +---
- arch/x86/kernel/vmlinux.lds.S     |  3 +--
- include/asm-generic/vmlinux.lds.h | 13 +++++++++++--
- 7 files changed, 17 insertions(+), 19 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index 363a60ba7c31..cdfdc91ce64c 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -34,10 +34,7 @@ SECTIONS
- 	swapper_pg_dir = SWAPPER_PGD;
- 	_etext = .;	/* End of text section */
- 
--	NOTES :text :note
--	.dummy : {
--		*(.dummy)
--	} :text
-+	NOTES
- 
- 	RODATA
- 	EXCEPTION_TABLE(16)
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 7cf4958b732d..bfc937ec168c 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -70,9 +70,7 @@ SECTIONS {
- 	/*
- 	 * Read-only data
- 	 */
--	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
--	code_continues : {
--	} :text                /* switch back to regular program...  */
-+	NOTES
- 
- 	EXCEPTION_TABLE(16)
- 
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 1c95612eb800..6a22f531d815 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -81,8 +81,7 @@ SECTIONS
- 		__stop___dbe_table = .;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d8ee3a98e961..ba6144fdb5d1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4439,7 +4439,8 @@ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
+ 		 */
+ 		__disable_ibs_on_all_vcpus(vcpu->kvm);
  	}
- 
--	NOTES NOTES_HEADERS
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- 	_sdata = .;			/* Start of data section */
- 	RODATA
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 7e26e20c8324..4f19d814d592 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -164,9 +164,7 @@ SECTIONS
- #endif
- 	EXCEPTION_TABLE(0)
- 
--	NOTES :text :note
--	/* Restore program header away from PT_NOTE. */
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- /*
-  * Init sections discarded at runtime
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 646d939346df..f88eedeb915a 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -52,9 +52,7 @@ SECTIONS
- 		_etext = .;		/* End of text section */
- 	} :text = 0x0700
- 
--	NOTES :text :note
 -
--	.dummy : { *(.dummy) } :text
-+	NOTES
++	/* Let's tell the UV that we want to start again */
++	kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR);
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_STOPPED);
+ 	/*
+ 	 * Another VCPU might have used IBS while we were offline.
+@@ -4467,6 +4468,8 @@ void kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
+ 	kvm_s390_clear_stop_irq(vcpu);
  
- 	RO_DATA_SECTION(PAGE_SIZE)
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
++	/* Let's tell the UV that we successfully stopped the vcpu */
++	kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_STP);
+ 	__disable_ibs_on_vcpu(vcpu);
  
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 2e18bf5c1aed..8be25b09c2b7 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -148,8 +148,7 @@ SECTIONS
- 		_etext = .;
- 	} :text = 0x9090
- 
--	NOTES :text :note
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- 	EXCEPTION_TABLE(16)
- 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index f5dd45ce73f1..97d4299f14dc 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -56,10 +56,18 @@
- 
- /*
-  * Only some architectures want to have the .notes segment visible in
-- * a separate PT_NOTE ELF Program Header.
-+ * a separate PT_NOTE ELF Program Header. When this happens, it needs
-+ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
-+ * Program Headers. In this case, though, the PT_LOAD needs to be made
-+ * the default again so that all the following sections don't also end
-+ * up in the PT_NOTE Program Header.
-  */
- #ifdef EMITS_PT_NOTE
- #define NOTES_HEADERS		:text :note
-+#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
-+#else
-+#define NOTES_HEADERS
-+#define NOTES_HEADERS_RESTORE
- #endif
- 
- /* Align . to a 8 byte boundary equals to maximum function alignment. */
-@@ -798,7 +806,8 @@
- 		__start_notes = .;					\
- 		KEEP(*(.note.*))					\
- 		__stop_notes = .;					\
--	}
-+	} NOTES_HEADERS							\
-+	NOTES_HEADERS_RESTORE
- 
- #define INIT_SETUP(initsetup_align)					\
- 		. = ALIGN(initsetup_align);				\
+ 	for (i = 0; i < online_vcpus; i++) {
 -- 
-2.17.1
+2.20.1
