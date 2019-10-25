@@ -1,82 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:40850 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729284AbfJ2VOG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:06 -0400
-Received: by mail-pl1-f193.google.com with SMTP id p5so3128312plr.7
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:04 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 03/29] powerpc: Rename PT_LOAD identifier "kernel" to "text"
-Date: Tue, 29 Oct 2019 14:13:25 -0700
-Message-Id: <20191029211351.13243-4-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21274 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2409654AbfJYRGl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 13:06:41 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PH3fNh081382
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:40 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv4ax9qgw-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:40 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 25 Oct 2019 18:06:39 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 3/5] s390x: sclp: expose ram_size and max_ram_size
+Date: Fri, 25 Oct 2019 19:06:32 +0200
+In-Reply-To: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
+References: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
+Message-Id: <1572023194-14370-4-git-send-email-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-In preparation for moving NOTES into RO_DATA, rename the linker script
-internal identifier for the PT_LOAD Program Header from "kernel" to
-"text" to match other architectures.
+Expose ram_size and max_ram_size through accessor functions.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+We only use get_ram_size in an upcoming patch, but having an accessor
+for the other one does not hurt.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/powerpc/kernel/vmlinux.lds.S | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ lib/s390x/sclp.h |  2 ++
+ lib/s390x/sclp.c | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index a3c8492b2b19..e184a63aa5b0 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -18,7 +18,7 @@
- ENTRY(_stext)
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index f00c3df..6d40fb7 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -272,5 +272,7 @@ void sclp_console_setup(void);
+ void sclp_print(const char *str);
+ int sclp_service_call(unsigned int command, void *sccb);
+ void sclp_memory_setup(void);
++uint64_t get_ram_size(void);
++uint64_t get_max_ram_size(void);
  
- PHDRS {
--	kernel PT_LOAD FLAGS(7); /* RWX */
-+	text PT_LOAD FLAGS(7); /* RWX */
- 	note PT_NOTE FLAGS(0);
+ #endif /* SCLP_H */
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 56fca0c..7798f04 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -167,3 +167,13 @@ void sclp_memory_setup(void)
+ 
+ 	mem_init(ram_size);
  }
- 
-@@ -63,7 +63,7 @@ SECTIONS
- #else /* !CONFIG_PPC64 */
- 		HEAD_TEXT
- #endif
--	} :kernel
-+	} :text
- 
- 	__head_end = .;
- 
-@@ -112,7 +112,7 @@ SECTIONS
- 		__got2_end = .;
- #endif /* CONFIG_PPC32 */
- 
--	} :kernel
-+	} :text
- 
- 	. = ALIGN(ETEXT_ALIGN_SIZE);
- 	_etext = .;
-@@ -163,9 +163,9 @@ SECTIONS
- #endif
- 	EXCEPTION_TABLE(0)
- 
--	NOTES :kernel :note
-+	NOTES :text :note
- 	/* Restore program header away from PT_NOTE. */
--	.dummy : { *(.dummy) } :kernel
-+	.dummy : { *(.dummy) } :text
- 
- /*
-  * Init sections discarded at runtime
-@@ -180,7 +180,7 @@ SECTIONS
- #ifdef CONFIG_PPC64
- 		*(.tramp.ftrace.init);
- #endif
--	} :kernel
-+	} :text
- 
- 	/* .exit.text is discarded at runtime, not link time,
- 	 * to deal with references from __bug_table
++
++uint64_t get_ram_size(void)
++{
++	return ram_size;
++}
++
++uint64_t get_max_ram_size(void)
++{
++	return max_ram_size;
++}
 -- 
-2.17.1
+2.7.4
