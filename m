@@ -1,70 +1,233 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731624AbfJFRoK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:44:10 -0400
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.3 117/166] hypfs: Fix error number left in struct pointer member
-Date: Sun,  6 Oct 2019 19:21:23 +0200
-Message-Id: <20191006171223.153871377@linuxfoundation.org>
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-References: <20191006171212.850660298@linuxfoundation.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36690 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2502324AbfJYQNB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 12:13:01 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8xTf043091
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:00 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vv1xnx3yu-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:12:59 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Fri, 25 Oct 2019 17:12:58 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH v2 06/11] zfcp: implicitly refresh port-data diagnostics when reading SysFS
+Date: Fri, 25 Oct 2019 18:12:48 +0200
+In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
+References: <cover.1571934247.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Message-Id: <c145b5cfc99a63b6a018b1184fbd27bb09c955f5.1572018132.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+This patch adds implicit updates to the SysFS entries that read the
+diagnostic data stored in the "caching buffer" for Exchange Port Data.
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+An update is triggered once the buffer is older than ZFCP_DIAG_MAX_AGE
+milliseconds (5s). This entails sending an Exchange Port Data command to
+the FCP-Channel, and during its ingress path updating the cached data
+and the timestamp. To prevent multiple concurrent userspace-applications
+from triggering this update in parallel we synchronize all of them using
+a wait-queue (waiting threads are interruptible; the updating thread is
+not).
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
-
-Fix this by not setting sbi->update_value until after we've checked for
-error.
-
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/s390/scsi/zfcp_diag.c  | 129 +++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_diag.h  |  11 +++
+ drivers/s390/scsi/zfcp_sysfs.c |   5 ++
+ 3 files changed, 145 insertions(+)
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index ccad1398abd40..b5cfcad953c2e 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+index 8df3ace6135d..9c5a0f3431ca 100644
+--- a/drivers/s390/scsi/zfcp_diag.c
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -22,6 +22,8 @@
+ /* Max age of data in a diagnostics buffer before it needs a refresh (in ms). */
+ #define ZFCP_DIAG_MAX_AGE (5 * 1000)
  
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
++static DECLARE_WAIT_QUEUE_HEAD(__zfcp_diag_publish_wait);
++
+ /**
+  * zfcp_diag_adapter_setup() - Setup storage for adapter diagnostics.
+  * @adapter: the adapter to setup diagnostics for.
+@@ -143,3 +145,130 @@ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
+ out:
+ 	spin_unlock_irqrestore(&hdr->access_lock, flags);
+ }
++
++/**
++ * zfcp_diag_update_port_data_buffer() - Implementation of
++ *					 &typedef zfcp_diag_update_buffer_func
++ *					 to collect and update Port Data.
++ * @adapter: Adapter to collect Port Data from.
++ *
++ * This call is SYNCHRONOUS ! It blocks till the respective command has
++ * finished completely, or has failed in some way.
++ *
++ * Return:
++ * * 0		- Successfully retrieved new Diagnostics and Updated the buffer;
++ *		  this also includes cases where data was retrieved, but
++ *		  incomplete; you'll have to check the flag ``incomplete``
++ *		  of &struct zfcp_diag_header.
++ * * see zfcp_fsf_exchange_port_data_sync() for possible error-codes (
++ *   excluding -EAGAIN)
++ */
++int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter)
++{
++	int rc;
++
++	rc = zfcp_fsf_exchange_port_data_sync(adapter->qdio, NULL);
++	if (rc == -EAGAIN)
++		rc = 0; /* signaling incomplete via struct zfcp_diag_header */
++
++	/* buffer-data was updated in zfcp_fsf_exchange_port_data_handler() */
++
++	return rc;
++}
++
++static int __zfcp_diag_update_buffer(struct zfcp_adapter *const adapter,
++				     struct zfcp_diag_header *const hdr,
++				     zfcp_diag_update_buffer_func buffer_update,
++				     unsigned long *const flags)
++	__must_hold(hdr->access_lock)
++{
++	int rc;
++
++	if (hdr->updating == 1) {
++		rc = wait_event_interruptible_lock_irq(__zfcp_diag_publish_wait,
++						       hdr->updating == 0,
++						       hdr->access_lock);
++		rc = (rc == 0 ? -EAGAIN : -EINTR);
++	} else {
++		hdr->updating = 1;
++		spin_unlock_irqrestore(&hdr->access_lock, *flags);
++
++		/* unlocked, because update function sleeps */
++		rc = buffer_update(adapter);
++
++		spin_lock_irqsave(&hdr->access_lock, *flags);
++		hdr->updating = 0;
++
++		/*
++		 * every thread waiting here went via an interruptible wait,
++		 * so its fine to only wake those
++		 */
++		wake_up_interruptible_all(&__zfcp_diag_publish_wait);
++	}
++
++	return rc;
++}
++
++static bool
++__zfcp_diag_test_buffer_age_isfresh(const struct zfcp_diag_header *const hdr)
++	__must_hold(hdr->access_lock)
++{
++	const unsigned long now = jiffies;
++
++	/*
++	 * Should not happen (data is from the future).. if it does, still
++	 * signal that it needs refresh
++	 */
++	if (!time_after_eq(now, hdr->timestamp))
++		return false;
++
++	if (jiffies_to_msecs(now - hdr->timestamp) >= ZFCP_DIAG_MAX_AGE)
++		return false;
++
++	return true;
++}
++
++/**
++ * zfcp_diag_update_buffer_limited() - Collect diagnostics and update a
++ *				       diagnostics buffer rate limited.
++ * @adapter: Adapter to collect the diagnostics from.
++ * @hdr: buffer-header for which to update with the collected diagnostics.
++ * @buffer_update: Specific implementation for collecting and updating.
++ *
++ * This function will cause an update of the given @hdr by calling the also
++ * given @buffer_update function. If called by multiple sources at the same
++ * time, it will synchornize the update by only allowing one source to call
++ * @buffer_update and the others to wait for that source to complete instead
++ * (the wait is interruptible).
++ *
++ * Additionally this version is rate-limited and will only exit if either the
++ * buffer is fresh enough (within the limit) - it will do nothing if the buffer
++ * is fresh enough to begin with -, or if the source/thread that started this
++ * update is the one that made the update (to prevent endless loops).
++ *
++ * Return:
++ * * 0		- If the update was successfully published and/or the buffer is
++ *		  fresh enough
++ * * -EINTR	- If the thread went into the wait-state and was interrupted
++ * * whatever @buffer_update returns
++ */
++int zfcp_diag_update_buffer_limited(struct zfcp_adapter *const adapter,
++				    struct zfcp_diag_header *const hdr,
++				    zfcp_diag_update_buffer_func buffer_update)
++{
++	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&hdr->access_lock, flags);
++
++	for (rc = 0; !__zfcp_diag_test_buffer_age_isfresh(hdr); rc = 0) {
++		rc = __zfcp_diag_update_buffer(adapter, hdr, buffer_update,
++					       &flags);
++		if (rc != -EAGAIN)
++			break;
++	}
++
++	spin_unlock_irqrestore(&hdr->access_lock, flags);
++
++	return rc;
++}
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+index 2deebccda17d..7ff8fb0bb735 100644
+--- a/drivers/s390/scsi/zfcp_diag.h
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -71,6 +71,17 @@ void zfcp_diag_sysfs_destroy(struct zfcp_adapter *const adapter);
+ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
+ 			    const void *const data, const bool incomplete);
+ 
++/*
++ * Function-Type used in zfcp_diag_update_buffer_limited() for the function
++ * that does the buffer-implementation dependent work.
++ */
++typedef int (*zfcp_diag_update_buffer_func)(struct zfcp_adapter *const adapter);
++
++int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter);
++int zfcp_diag_update_buffer_limited(struct zfcp_adapter *const adapter,
++				    struct zfcp_diag_header *const hdr,
++				    zfcp_diag_update_buffer_func buffer_update);
++
+ /**
+  * zfcp_diag_support_sfp() - Return %true if the @adapter supports reporting
+  *			     SFP Data.
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 6c0cea71ae5d..a2fa3db5695d 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -693,6 +693,11 @@ struct device_attribute *zfcp_sysfs_shost_attrs[] = {
+ 									       \
+ 		diag_hdr = &adapter->diagnostics->port_data.header;	       \
+ 									       \
++		rc = zfcp_diag_update_buffer_limited(			       \
++			adapter, diag_hdr, zfcp_diag_update_port_data_buffer); \
++		if (rc != 0)						       \
++			goto out;					       \
++									       \
+ 		spin_lock_irqsave(&diag_hdr->access_lock, flags);	       \
+ 		rc = scnprintf(						       \
+ 			buf, (_prtsize) + 2, _prtfmt "\n",		       \
 -- 
-2.20.1
+2.21.0
