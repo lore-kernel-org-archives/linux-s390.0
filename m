@@ -1,126 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48708 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54936 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439125AbfJXLmB (ORCPT
+        by vger.kernel.org with ESMTP id S2505775AbfJYRGo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:01 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb85K128064
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:00 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vua4vaufa-1
+        Fri, 25 Oct 2019 13:06:44 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PH4AOY013964
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:43 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv3snjyha-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:00 -0400
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:42 -0400
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:41:57 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 06/37] s390: UV: Add import and export to UV library
-Date: Thu, 24 Oct 2019 07:40:28 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-7-frankja@linux.ibm.com>
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 25 Oct 2019 18:06:40 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 4/5] s390x: sclp: add service call instruction wrapper
+Date: Fri, 25 Oct 2019 19:06:33 +0200
+In-Reply-To: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
+References: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
+Message-Id: <1572023194-14370-5-git-send-email-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-The convert to/from secure (or also "import/export") ultravisor calls
-are need for page management, i.e. paging, of secure execution VM.
+Add a wrapper for the service call instruction, and use it for SCLP
+interactions instead of using inline assembly everywhere.
 
-Export encrypts a secure guest's page and makes it accessible to the
-guest for paging.
-
-Import makes a page accessible to a secure guest.
-On the first import of that page, the page will be cleared by the
-Ultravisor before it is given to the guest.
-
-All following imports will decrypt a exported page and verify
-integrity before giving the page to the guest.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- arch/s390/include/asm/uv.h | 51 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ lib/s390x/sclp.c         |  7 +------
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 0bfbafcca136..99cdd2034503 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -15,6 +15,7 @@
- #include <linux/errno.h>
- #include <linux/bug.h>
- #include <asm/page.h>
-+#include <asm/gmap.h>
- 
- #define UVC_RC_EXECUTED		0x0001
- #define UVC_RC_INV_CMD		0x0002
-@@ -279,6 +280,54 @@ static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret)
- 	return rc ? -EINVAL : 0;
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 96cca2e..b3caff6 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -269,4 +269,17 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
+ 	return cc;
  }
  
-+/*
-+ * Requests the Ultravisor to encrypt a guest page and make it
-+ * accessible to the host for paging (export).
-+ *
-+ * @paddr: Absolute host address of page to be exported
-+ */
-+static inline int uv_convert_from_secure(unsigned long paddr)
-+{
-+	struct uv_cb_cfs uvcb = {
-+		.header.cmd = UVC_CMD_CONV_FROM_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.paddr = paddr
-+	};
-+	if (!uv_call(0, (u64)&uvcb))
-+		return 0;
-+	return -EINVAL;
-+}
-+
-+/*
-+ * Requests the Ultravisor to make a page accessible to a guest
-+ * (import). If it's brought in the first time, it will be cleared. If
-+ * it has been exported before, it will be decrypted and integrity
-+ * checked.
-+ *
-+ * @handle: Ultravisor guest handle
-+ * @gaddr: Guest 2 absolute address to be imported
-+ */
-+static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long gaddr)
++static inline int servc(uint32_t command, unsigned long sccb)
 +{
 +	int cc;
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd = UVC_CMD_CONV_TO_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.guest_handle = gmap->se_handle,
-+		.gaddr = gaddr
-+	};
 +
-+	cc = uv_call(0, (u64)&uvcb);
-+
-+	if (!cc)
-+		return 0;
-+	if (uvcb.header.rc == 0x104)
-+		return -EEXIST;
-+	if (uvcb.header.rc == 0x10a)
-+		return -EFAULT;
-+	return -EINVAL;
++	asm volatile(
++		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
++		"       ipm     %0\n"
++		"       srl     %0,28"
++		: "=&d" (cc) : "d" (command), "a" (sccb)
++		: "cc", "memory");
++	return cc;
 +}
 +
- void setup_uv(void);
- void adjust_to_uv_max(unsigned long *vmax);
- #else
-@@ -286,6 +335,8 @@ void adjust_to_uv_max(unsigned long *vmax);
- static inline void setup_uv(void) {}
- static inline void adjust_to_uv_max(unsigned long *vmax) {}
- static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret) { return 0; }
-+static inline int uv_convert_from_secure(unsigned long paddr) { return 0; }
-+static inline int uv_convert_to_secure(unsigned long handle, unsigned long gaddr) { return 0; }
  #endif
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 7798f04..e35c282 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -116,12 +116,7 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 	int cc;
  
- #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
+ 	sclp_setup_int();
+-	asm volatile(
+-		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+-		"       ipm     %0\n"
+-		"       srl     %0,28"
+-		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+-		: "cc", "memory");
++	cc = servc(command, __pa(sccb));
+ 	sclp_wait_busy();
+ 	if (cc == 3)
+ 		return -1;
 -- 
-2.20.1
+2.7.4
