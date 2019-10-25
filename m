@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 44/68] hypfs: Fix error number left in struct pointer member
-Date: Sun,  6 Oct 2019 19:21:20 +0200
-Message-Id: <20191006171129.378600792@linuxfoundation.org>
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:52090 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2406192AbfJYIYn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 04:24:43 -0400
+Subject: Re: [RFC 08/37] KVM: s390: add missing include in gmap.h
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-9-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <2055e82a-5fea-1903-1c76-b3a8c8fb544f@redhat.com>
+Date: Fri, 25 Oct 2019 10:24:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191024114059.102802-9-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, David Howells <dhowells@redhat.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-From: David Howells <dhowells@redhat.com>
+On 24.10.19 13:40, Janosch Frank wrote:
+> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>=20
+> gmap.h references radix trees, but does not include linux/radix-tree.h
+> itself. Sources that include gmap.h but not also radix-tree.h will
+> therefore fail to compile.
+>=20
+> This simple patch adds the include for linux/radix-tree.h in gmap.h so
+> that users of gmap.h will be able to compile.
+>=20
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/gmap.h | 1 +
+>   1 file changed, 1 insertion(+)
+>=20
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index eab6a2ec3599..99b3eedda26e 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -10,6 +10,7 @@
+>   #define _ASM_S390_GMAP_H
+>  =20
+>   #include <linux/refcount.h>
+> +#include <linux/radix-tree.h>
+>  =20
+>   /* Generic bits for GMAP notification on DAT table entry changes. */
+>   #define GMAP_NOTIFY_SHADOW=090x2
+>=20
 
-[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
+Not sure if that's worth a separate patch, just squash it into the patch=20
+that needs it?
 
-In hypfs_fill_super(), if hypfs_create_update_file() fails,
-sbi->update_file is left holding an error number.  This is passed to
-hypfs_kill_super() which doesn't check for this.
+We usually don't care about includes as long as it compiles ...
 
-Fix this by not setting sbi->update_value until after we've checked for
-error.
+--=20
 
-Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: linux-s390@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/hypfs/inode.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Thanks,
 
-diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
-index 45eb5999110be..32f5b3fb069f3 100644
---- a/arch/s390/hypfs/inode.c
-+++ b/arch/s390/hypfs/inode.c
-@@ -269,7 +269,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
- static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	struct inode *root_inode;
--	struct dentry *root_dentry;
-+	struct dentry *root_dentry, *update_file;
- 	int rc = 0;
- 	struct hypfs_sb_info *sbi;
- 
-@@ -300,9 +300,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
- 		rc = hypfs_diag_create_files(root_dentry);
- 	if (rc)
- 		return rc;
--	sbi->update_file = hypfs_create_update_file(root_dentry);
--	if (IS_ERR(sbi->update_file))
--		return PTR_ERR(sbi->update_file);
-+	update_file = hypfs_create_update_file(root_dentry);
-+	if (IS_ERR(update_file))
-+		return PTR_ERR(update_file);
-+	sbi->update_file = update_file;
- 	hypfs_update_update(sb);
- 	pr_info("Hypervisor filesystem mounted\n");
- 	return 0;
--- 
-2.20.1
+David / dhildenb
