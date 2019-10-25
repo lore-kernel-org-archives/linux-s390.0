@@ -1,156 +1,306 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V5 1/2] mm/hugetlb: Make alloc_gigantic_page() available for general use
-Date: Fri, 11 Oct 2019 11:55:41 +0530
-Message-Id: <1570775142-31425-2-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1570775142-31425-1-git-send-email-anshuman.khandual@arm.com>
-References: <1570775142-31425-1-git-send-email-anshuman.khandual@arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25058 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2505159AbfJYQNC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 12:13:02 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8uXi054062
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:01 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv42u0t3q-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:01 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Fri, 25 Oct 2019 17:12:59 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH v2 05/11] zfcp: introduce SysFS interface for diagnostics of local SFP transceiver
+Date: Fri, 25 Oct 2019 18:12:47 +0200
+In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
+References: <cover.1571934247.git.bblock@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <1f9cce7c829c881e7d71a3f10c5b57f3dd84ab32.1572018132.git.bblock@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Mike Kravetz <mike.kravetz@oracle.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-alloc_gigantic_page() implements an allocation method where it scans over
-various zones looking for a large contiguous memory block which could not
-have been allocated through the buddy allocator. A subsequent patch which
-tests arch page table helpers needs such a method to allocate PUD_SIZE
-sized memory block. In the future such methods might have other use cases
-as well. So alloc_gigantic_page() has been split carving out actual memory
-allocation method and made available via new alloc_gigantic_page_order().
+This adds an interface to read the diagnostics of the local SFP
+transceiver of an FCP-Channel from userspace. This comes in the form of
+new SysFS entries that are attached to the CCW device representing the
+FCP device. Each type of data gets its own SysFS entry; the whole
+collection of entries is pooled into a new child-directory of the CCW
+device node: "diagnostics".
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Steven Price <Steven.Price@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Sri Krishna chowdary <schowdary@nvidia.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: x86@kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Adds SysFS entries for:
+ * sfp_invalid:    boolean value evaluating to whether the following 5
+                   fields are invalid; {0, 1}; 1 - invalid
+ * temperature:    transceiver temp.; unit 1/256°C;
+                   range [-128°C, +128°C]
+ * vcc:            supply voltage; unit 100μV; range [0, 6.55V]
+ * tx_bias:        transmitter laser bias current; unit 2μA;
+                   range [0, 131mA]
+ * tx_power:       coupled TX output power; unit 0.1μW; range [0, 6.5mW]
+ * rx_power:       received optical power; unit 0.1μW; range [0, 6.5mW]
+
+ * optical_port:   boolean value evaluating to whether the FCP-Channel has
+                   an optical port; {0, 1}; 1 - optical
+ * fec_active:     boolean value evaluating to whether 16G FEC is active;
+                   {0, 1}; 1 - active
+ * port_tx_type:   nibble describing the port type; {0, 1, 2, 3};
+                   0 - unknown,             1 - short wave,
+                   2 - long wave LC 1310nm, 3 - long wave LL 1550nm
+ * connector_type: two bits describing the connector type; {0, 1};
+                   0 - unknown,             1 - SFP+
+
+This is only supported if the FCP-Channel in turn supports reporting the
+SFP Diagnostic Data, otherwise read() on these new entries will return
+EOPNOTSUPP (this affects only adapters older than FICON Express8S, on
+Mainframe generations older than z14). Other possible errors for read()
+include ENOLINK, ENODEV and ENOMEM.
+
+With this patch the userspace-interface will only read data stored in
+the corresponding "diagnostic buffer" (that was stored during completion
+of an previous Exchange Port Data command). Implicit updating will
+follow later in this series.
+
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- include/linux/hugetlb.h |  9 +++++++++
- mm/hugetlb.c            | 24 ++++++++++++++++++++++--
- 2 files changed, 31 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_aux.c   |  4 ++
+ drivers/s390/scsi/zfcp_diag.c  | 42 ++++++++++++++++++++
+ drivers/s390/scsi/zfcp_diag.h  | 18 +++++++++
+ drivers/s390/scsi/zfcp_ext.h   |  1 +
+ drivers/s390/scsi/zfcp_sysfs.c | 71 ++++++++++++++++++++++++++++++++++
+ 5 files changed, 136 insertions(+)
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 4c5a16b..7ff1e36 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -298,6 +298,9 @@ static inline bool is_file_hugepages(struct file *file)
- }
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index a19189d7b3f3..09ec846fe01d 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -407,6 +407,9 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
+ 			       &zfcp_sysfs_adapter_attrs))
+ 		goto failed;
  
- 
-+struct page *
-+alloc_gigantic_page_order(unsigned int order, gfp_t gfp_mask,
-+			  int nid, nodemask_t *nodemask);
- #else /* !CONFIG_HUGETLBFS */
- 
- #define is_file_hugepages(file)			false
-@@ -309,6 +312,12 @@ hugetlb_file_setup(const char *name, size_t size, vm_flags_t acctflag,
- 	return ERR_PTR(-ENOSYS);
- }
- 
-+static inline struct page *
-+alloc_gigantic_page_order(unsigned int order, gfp_t gfp_mask,
-+			  int nid, nodemask_t *nodemask)
-+{
-+	return NULL;
-+}
- #endif /* !CONFIG_HUGETLBFS */
- 
- #ifdef HAVE_ARCH_HUGETLB_UNMAPPED_AREA
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 977f9a3..2996e44 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1066,10 +1066,9 @@ static bool zone_spans_last_pfn(const struct zone *zone,
- 	return zone_spans_pfn(zone, last_pfn);
- }
- 
--static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
-+struct page *alloc_gigantic_page_order(unsigned int order, gfp_t gfp_mask,
- 		int nid, nodemask_t *nodemask)
- {
--	unsigned int order = huge_page_order(h);
- 	unsigned long nr_pages = 1 << order;
- 	unsigned long ret, pfn, flags;
- 	struct zonelist *zonelist;
-@@ -1105,6 +1104,14 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
- 	return NULL;
- }
- 
-+static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
-+					int nid, nodemask_t *nodemask)
-+{
-+	unsigned int order = huge_page_order(h);
++	if (zfcp_diag_sysfs_setup(adapter))
++		goto failed;
 +
-+	return alloc_gigantic_page_order(order, gfp_mask, nid, nodemask);
-+}
-+
- static void prep_new_huge_page(struct hstate *h, struct page *page, int nid);
- static void prep_compound_gigantic_page(struct page *page, unsigned int order);
- #else /* !CONFIG_CONTIG_ALLOC */
-@@ -1113,6 +1120,12 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
- {
- 	return NULL;
- }
-+
-+struct page *alloc_gigantic_page_order(unsigned int order, gfp_t gfp_mask,
-+				       int nid, nodemask_t *nodemask)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_CONTIG_ALLOC */
+ 	/* report size limit per scatter-gather segment */
+ 	adapter->ccw_device->dev.dma_parms = &adapter->dma_parms;
  
- #else /* !CONFIG_ARCH_HAS_GIGANTIC_PAGE */
-@@ -1121,6 +1134,13 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
- {
- 	return NULL;
+@@ -431,6 +434,7 @@ void zfcp_adapter_unregister(struct zfcp_adapter *adapter)
+ 
+ 	zfcp_fc_wka_ports_force_offline(adapter->gs);
+ 	zfcp_scsi_adapter_unregister(adapter);
++	zfcp_diag_sysfs_destroy(adapter);
+ 	sysfs_remove_group(&cdev->dev.kobj, &zfcp_sysfs_adapter_attrs);
+ 
+ 	zfcp_erp_thread_kill(adapter);
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+index d7d2db85b32e..8df3ace6135d 100644
+--- a/drivers/s390/scsi/zfcp_diag.c
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -10,6 +10,8 @@
+ #include <linux/spinlock.h>
+ #include <linux/jiffies.h>
+ #include <linux/string.h>
++#include <linux/kernfs.h>
++#include <linux/sysfs.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ 
+@@ -77,6 +79,46 @@ void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter)
+ 	adapter->diagnostics = NULL;
  }
-+
-+struct page *alloc_gigantic_page_order(unsigned int order, gfp_t gfp_mask,
-+				       int nid, nodemask_t *nodemask)
+ 
++/**
++ * zfcp_diag_sysfs_setup() - Setup the sysfs-group for adapter-diagnostics.
++ * @adapter: target adapter to which the group should be added.
++ *
++ * Return: 0 on success; Something else otherwise (see sysfs_create_group()).
++ */
++int zfcp_diag_sysfs_setup(struct zfcp_adapter *const adapter)
 +{
-+	return NULL;
++	int rc = sysfs_create_group(&adapter->ccw_device->dev.kobj,
++				    &zfcp_sysfs_diag_attr_group);
++	if (rc == 0)
++		adapter->diagnostics->sysfs_established = 1;
++
++	return rc;
 +}
 +
- static inline void free_gigantic_page(struct page *page, unsigned int order) { }
- static inline void destroy_compound_gigantic_page(struct page *page,
- 						unsigned int order) { }
++/**
++ * zfcp_diag_sysfs_destroy() - Remove the sysfs-group for adapter-diagnostics.
++ * @adapter: target adapter from which the group should be removed.
++ */
++void zfcp_diag_sysfs_destroy(struct zfcp_adapter *const adapter)
++{
++	if (adapter->diagnostics == NULL ||
++	    !adapter->diagnostics->sysfs_established)
++		return;
++
++	/*
++	 * We need this state-handling so we can prevent warnings being printed
++	 * on the kernel-console in case we have to abort a halfway done
++	 * zfcp_adapter_enqueue(), in which the sysfs-group was not yet
++	 * established. sysfs_remove_group() does this checking as well, but
++	 * still prints a warning in case we try to remove a group that has not
++	 * been established before
++	 */
++	adapter->diagnostics->sysfs_established = 0;
++	sysfs_remove_group(&adapter->ccw_device->dev.kobj,
++			   &zfcp_sysfs_diag_attr_group);
++}
++
++
+ /**
+  * zfcp_diag_update_xdata() - Update a diagnostics buffer.
+  * @hdr: the meta data to update.
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+index a3eb21cc201d..2deebccda17d 100644
+--- a/drivers/s390/scsi/zfcp_diag.h
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -40,6 +40,8 @@ struct zfcp_diag_header {
+ /**
+  * struct zfcp_diag_adapter - central storage for all diagnostics concerning an
+  *			      adapter.
++ * @sysfs_established: flag showing that the associated sysfs-group was created
++ *		       during run of zfcp_adapter_enqueue().
+  * @port_data: data retrieved using exchange port data.
+  * @port_data.header: header with metadata for the cache in @port_data.data.
+  * @port_data.data: cached QTCB Bottom of command exchange port data.
+@@ -48,6 +50,8 @@ struct zfcp_diag_header {
+  * @config_data.data: cached QTCB Bottom of command exchange config data.
+  */
+ struct zfcp_diag_adapter {
++	u64	sysfs_established	:1;
++
+ 	struct {
+ 		struct zfcp_diag_header		header;
+ 		struct fsf_qtcb_bottom_port	data;
+@@ -61,7 +65,21 @@ struct zfcp_diag_adapter {
+ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter);
+ void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter);
+ 
++int zfcp_diag_sysfs_setup(struct zfcp_adapter *const adapter);
++void zfcp_diag_sysfs_destroy(struct zfcp_adapter *const adapter);
++
+ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
+ 			    const void *const data, const bool incomplete);
+ 
++/**
++ * zfcp_diag_support_sfp() - Return %true if the @adapter supports reporting
++ *			     SFP Data.
++ * @adapter: adapter to test the availability of SFP Data reporting for.
++ */
++static inline bool
++zfcp_diag_support_sfp(const struct zfcp_adapter *const adapter)
++{
++	return !!(adapter->adapter_features & FSF_FEATURE_REPORT_SFP_DATA);
++}
++
+ #endif /* ZFCP_DIAG_H */
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index 31e8a7240fd7..c8556787cfdc 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -167,6 +167,7 @@ extern const struct attribute_group *zfcp_port_attr_groups[];
+ extern struct mutex zfcp_sysfs_port_units_mutex;
+ extern struct device_attribute *zfcp_sysfs_sdev_attrs[];
+ extern struct device_attribute *zfcp_sysfs_shost_attrs[];
++extern const struct attribute_group zfcp_sysfs_diag_attr_group;
+ bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port);
+ 
+ /* zfcp_unit.c */
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 90d851d49410..6c0cea71ae5d 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/slab.h>
++#include "zfcp_diag.h"
+ #include "zfcp_ext.h"
+ 
+ #define ZFCP_DEV_ATTR(_feat, _name, _mode, _show, _store) \
+@@ -664,3 +665,73 @@ struct device_attribute *zfcp_sysfs_shost_attrs[] = {
+ 	&dev_attr_queue_full,
+ 	NULL
+ };
++
++#define ZFCP_DEFINE_DIAG_SFP_ATTR(_name, _qtcb_member, _prtsize, _prtfmt)      \
++	static ssize_t zfcp_sysfs_adapter_diag_sfp_##_name##_show(	       \
++		struct device *dev, struct device_attribute *attr, char *buf)  \
++	{								       \
++		struct zfcp_adapter *const adapter =			       \
++			zfcp_ccw_adapter_by_cdev(to_ccwdev(dev));	       \
++		struct zfcp_diag_header *diag_hdr;			       \
++		ssize_t rc = -ENOLINK;					       \
++		unsigned long flags;					       \
++		unsigned int status;					       \
++									       \
++		if (!adapter)						       \
++			return -ENODEV;					       \
++									       \
++		status = atomic_read(&adapter->status);			       \
++		if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||		       \
++		    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||	       \
++		    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED))	       \
++			goto out;					       \
++									       \
++		if (!zfcp_diag_support_sfp(adapter)) {			       \
++			rc = -EOPNOTSUPP;				       \
++			goto out;					       \
++		}							       \
++									       \
++		diag_hdr = &adapter->diagnostics->port_data.header;	       \
++									       \
++		spin_lock_irqsave(&diag_hdr->access_lock, flags);	       \
++		rc = scnprintf(						       \
++			buf, (_prtsize) + 2, _prtfmt "\n",		       \
++			adapter->diagnostics->port_data.data._qtcb_member);    \
++		spin_unlock_irqrestore(&diag_hdr->access_lock, flags);	       \
++									       \
++	out:								       \
++		zfcp_ccw_adapter_put(adapter);				       \
++		return rc;						       \
++	}								       \
++	static ZFCP_DEV_ATTR(adapter_diag_sfp, _name, 0400,		       \
++			     zfcp_sysfs_adapter_diag_sfp_##_name##_show, NULL)
++
++ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(vcc, vcc, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(tx_bias, tx_bias, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(tx_power, tx_power, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(rx_power, rx_power, 5, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(port_tx_type, sfp_flags.port_tx_type, 2, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(optical_port, sfp_flags.optical_port, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(sfp_invalid, sfp_flags.sfp_invalid, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(connector_type, sfp_flags.connector_type, 1, "%hu");
++ZFCP_DEFINE_DIAG_SFP_ATTR(fec_active, sfp_flags.fec_active, 1, "%hu");
++
++static struct attribute *zfcp_sysfs_diag_attrs[] = {
++	&dev_attr_adapter_diag_sfp_temperature.attr,
++	&dev_attr_adapter_diag_sfp_vcc.attr,
++	&dev_attr_adapter_diag_sfp_tx_bias.attr,
++	&dev_attr_adapter_diag_sfp_tx_power.attr,
++	&dev_attr_adapter_diag_sfp_rx_power.attr,
++	&dev_attr_adapter_diag_sfp_port_tx_type.attr,
++	&dev_attr_adapter_diag_sfp_optical_port.attr,
++	&dev_attr_adapter_diag_sfp_sfp_invalid.attr,
++	&dev_attr_adapter_diag_sfp_connector_type.attr,
++	&dev_attr_adapter_diag_sfp_fec_active.attr,
++	NULL,
++};
++
++const struct attribute_group zfcp_sysfs_diag_attr_group = {
++	.name = "diagnostics",
++	.attrs = zfcp_sysfs_diag_attrs,
++};
 -- 
-2.7.4
+2.21.0
