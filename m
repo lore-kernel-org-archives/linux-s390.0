@@ -1,116 +1,359 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729994AbfJYQNC (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58960 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2502277AbfJYQNC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
         Fri, 25 Oct 2019 12:13:02 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8xY7073489
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8xFM043074
         for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:01 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv20ap5n8-1
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vv1xnx40k-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
         for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:01 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
         Fri, 25 Oct 2019 17:12:59 +0100
 From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH v2 08/11] zfcp: implicitly refresh config-data diagnostics when reading SysFS
-Date: Fri, 25 Oct 2019 18:12:50 +0200
+Subject: [PATCH v2 02/11] zfcp: diagnostics buffer caching and use for exchange port data
+Date: Fri, 25 Oct 2019 18:12:44 +0200
 In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
 References: <cover.1571934247.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <60a94f55f2630b74b468fed5f39880208abb2679.1572018132.git.bblock@linux.ibm.com>
+Message-Id: <054ca020ce0a53dc0d9176428bea373898944e6a.1572018130.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
 Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-Adds implicit updates of cached diagnostics via Exchange Config Data
-when reading SysFS attributes interfacing them. Right now this only
-affects the new B2B-Credit diagnostic attribute.
+The FCP channel exposes two central interfaces to receive information
+about the local FCP-Adapter/-Port: Exchange Port and Exchange Config
+Data. Using these commands can negatively impact the adapter if we allow
+them to be sent at a very high rate.
 
-This uses the same mechanism previously also used for cached diagnostics
-of Exchange Port Data.
+The later parts of this patchset will introduce new user-interfaces to
+receive more diagnostics from the adapter. To prevent any negative
+impact from using those, this patch adds a simple caching-mechanism that
+will prevent a malicious/faulty userspace-application from generating an
+abnormal high amount of Exchange Port/Config Data traffic.
+
+Relevant diagnostic data that is received via Exchange Config/Port Data
+is cached in buffers associated with the corresponding adapter-struct.
+Each buffer is associated with a timestamp that signals how old the data
+is, and, added via a following patch in this series, lets
+userspace-interfaces determine when the data is too old and needs to be
+updated.
+
+Buffer-updates are made during the normal response path of the
+corresponding command. With this patch only the output of the Exchange
+Port Data command is captured.
 
 Reviewed-by: Steffen Maier <maier@linux.ibm.com>
 Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_diag.c  | 30 ++++++++++++++++++++++++++++++
- drivers/s390/scsi/zfcp_diag.h  |  1 +
- drivers/s390/scsi/zfcp_sysfs.c |  5 +++++
- 3 files changed, 36 insertions(+)
+ drivers/s390/scsi/Makefile    |  2 +-
+ drivers/s390/scsi/zfcp_aux.c  |  8 ++-
+ drivers/s390/scsi/zfcp_def.h  |  3 +-
+ drivers/s390/scsi/zfcp_diag.c | 93 +++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_diag.h | 60 ++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_fsf.c  | 12 +++++
+ 6 files changed, 175 insertions(+), 3 deletions(-)
+ create mode 100644 drivers/s390/scsi/zfcp_diag.c
+ create mode 100644 drivers/s390/scsi/zfcp_diag.h
 
-diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
-index 9c5a0f3431ca..5ef7b3288c6f 100644
---- a/drivers/s390/scsi/zfcp_diag.c
-+++ b/drivers/s390/scsi/zfcp_diag.c
-@@ -176,6 +176,36 @@ int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter)
- 	return rc;
- }
+diff --git a/drivers/s390/scsi/Makefile b/drivers/s390/scsi/Makefile
+index 9dda431ec8f3..352056eb0dd1 100644
+--- a/drivers/s390/scsi/Makefile
++++ b/drivers/s390/scsi/Makefile
+@@ -5,6 +5,6 @@
  
-+/**
-+ * zfcp_diag_update_config_data_buffer() - Implementation of
-+ *					   &typedef zfcp_diag_update_buffer_func
-+ *					   to collect and update Config Data.
-+ * @adapter: Adapter to collect Config Data from.
+ zfcp-objs := zfcp_aux.o zfcp_ccw.o zfcp_dbf.o zfcp_erp.o \
+ 	     zfcp_fc.o zfcp_fsf.o zfcp_qdio.o zfcp_scsi.o zfcp_sysfs.o \
+-	     zfcp_unit.o
++	     zfcp_unit.o zfcp_diag.o
+ 
+ obj-$(CONFIG_ZFCP) += zfcp.o
+diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+index e390f8c6d5f3..a19189d7b3f3 100644
+--- a/drivers/s390/scsi/zfcp_aux.c
++++ b/drivers/s390/scsi/zfcp_aux.c
+@@ -4,7 +4,7 @@
+  *
+  * Module interface and handling of zfcp data structures.
+  *
+- * Copyright IBM Corp. 2002, 2017
++ * Copyright IBM Corp. 2002, 2018
+  */
+ 
+ /*
+@@ -25,6 +25,7 @@
+  *            Martin Petermann
+  *            Sven Schuetz
+  *            Steffen Maier
++ *	      Benjamin Block
+  */
+ 
+ #define KMSG_COMPONENT "zfcp"
+@@ -36,6 +37,7 @@
+ #include "zfcp_ext.h"
+ #include "zfcp_fc.h"
+ #include "zfcp_reqlist.h"
++#include "zfcp_diag.h"
+ 
+ #define ZFCP_BUS_ID_SIZE	20
+ 
+@@ -356,6 +358,9 @@ struct zfcp_adapter *zfcp_adapter_enqueue(struct ccw_device *ccw_device)
+ 
+ 	adapter->erp_action.adapter = adapter;
+ 
++	if (zfcp_diag_adapter_setup(adapter))
++		goto failed;
++
+ 	if (zfcp_qdio_setup(adapter))
+ 		goto failed;
+ 
+@@ -449,6 +454,7 @@ void zfcp_adapter_release(struct kref *ref)
+ 	dev_set_drvdata(&adapter->ccw_device->dev, NULL);
+ 	zfcp_fc_gs_destroy(adapter);
+ 	zfcp_free_low_mem_buffers(adapter);
++	zfcp_diag_adapter_free(adapter);
+ 	kfree(adapter->req_list);
+ 	kfree(adapter->fc_stats);
+ 	kfree(adapter->stats_reset_data);
+diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+index f5acdb67442e..8cc0eefe4ccc 100644
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -4,7 +4,7 @@
+  *
+  * Global definitions for the zfcp device driver.
+  *
+- * Copyright IBM Corp. 2002, 2017
++ * Copyright IBM Corp. 2002, 2018
+  */
+ 
+ #ifndef ZFCP_DEF_H
+@@ -198,6 +198,7 @@ struct zfcp_adapter {
+ 	struct device_dma_parameters dma_parms;
+ 	struct zfcp_fc_events events;
+ 	unsigned long		next_port_scan;
++	struct zfcp_diag_adapter	*diagnostics;
+ };
+ 
+ struct zfcp_port {
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+new file mode 100644
+index 000000000000..fa1b25f3ec3c
+--- /dev/null
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -0,0 +1,93 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * zfcp device driver
 + *
-+ * This call is SYNCHRONOUS ! It blocks till the respective command has
-+ * finished completely, or has failed in some way.
++ * Functions to handle diagnostics.
++ *
++ * Copyright IBM Corp. 2018
++ */
++
++#include <linux/spinlock.h>
++#include <linux/jiffies.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++#include <linux/slab.h>
++
++#include "zfcp_diag.h"
++#include "zfcp_ext.h"
++#include "zfcp_def.h"
++
++/* Max age of data in a diagnostics buffer before it needs a refresh (in ms). */
++#define ZFCP_DIAG_MAX_AGE (5 * 1000)
++
++/**
++ * zfcp_diag_adapter_setup() - Setup storage for adapter diagnostics.
++ * @adapter: the adapter to setup diagnostics for.
++ *
++ * Creates the data-structures to store the diagnostics for an adapter. This
++ * overwrites whatever was stored before at &zfcp_adapter->diagnostics!
 + *
 + * Return:
-+ * * 0		- Successfully retrieved new Diagnostics and Updated the buffer;
-+ *		  this also includes cases where data was retrieved, but
-+ *		  incomplete; you'll have to check the flag ``incomplete``
-+ *		  of &struct zfcp_diag_header.
-+ * * see zfcp_fsf_exchange_config_data_sync() for possible error-codes (
-+ *   excluding -EAGAIN)
++ * * 0	     - Everyting is OK
++ * * -ENOMEM - Could not allocate all/parts of the data-structures;
++ *	       &zfcp_adapter->diagnostics remains unchanged
 + */
-+int zfcp_diag_update_config_data_buffer(struct zfcp_adapter *const adapter)
++int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter)
 +{
-+	int rc;
++	struct zfcp_diag_adapter *diag;
++	struct zfcp_diag_header *hdr;
 +
-+	rc = zfcp_fsf_exchange_config_data_sync(adapter->qdio, NULL);
-+	if (rc == -EAGAIN)
-+		rc = 0; /* signaling incomplete via struct zfcp_diag_header */
++	diag = kzalloc(sizeof(*diag), GFP_KERNEL);
++	if (diag == NULL)
++		return -ENOMEM;
 +
-+	/* buffer-data was updated in zfcp_fsf_exchange_config_data_handler() */
++	/* setup header for port_data */
++	hdr = &diag->port_data.header;
 +
-+	return rc;
++	spin_lock_init(&hdr->access_lock);
++	hdr->buffer = &diag->port_data.data;
++	hdr->buffer_size = sizeof(diag->port_data.data);
++	/* set the timestamp so that the first test on age will always fail */
++	hdr->timestamp = jiffies - msecs_to_jiffies(ZFCP_DIAG_MAX_AGE);
++
++	adapter->diagnostics = diag;
++	return 0;
 +}
 +
- static int __zfcp_diag_update_buffer(struct zfcp_adapter *const adapter,
- 				     struct zfcp_diag_header *const hdr,
- 				     zfcp_diag_update_buffer_func buffer_update,
-diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
-index 7ff8fb0bb735..cf2947cd8c8f 100644
---- a/drivers/s390/scsi/zfcp_diag.h
-+++ b/drivers/s390/scsi/zfcp_diag.h
-@@ -77,6 +77,7 @@ void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
-  */
- typedef int (*zfcp_diag_update_buffer_func)(struct zfcp_adapter *const adapter);
- 
-+int zfcp_diag_update_config_data_buffer(struct zfcp_adapter *const adapter);
- int zfcp_diag_update_port_data_buffer(struct zfcp_adapter *const adapter);
- int zfcp_diag_update_buffer_limited(struct zfcp_adapter *const adapter,
- 				    struct zfcp_diag_header *const hdr,
-diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
-index 376d76b9f337..ae8e9137f448 100644
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -687,6 +687,11 @@ static ssize_t zfcp_sysfs_adapter_diag_b2b_credit_show(
- 
- 	diag_hdr = &adapter->diagnostics->config_data.header;
- 
-+	rc = zfcp_diag_update_buffer_limited(
-+		adapter, diag_hdr, zfcp_diag_update_config_data_buffer);
-+	if (rc != 0)
++/**
++ * zfcp_diag_adapter_free() - Frees all adapter diagnostics allocations.
++ * @adapter: the adapter whose diagnostic structures should be freed.
++ *
++ * Frees all data-structures in the given adapter that store diagnostics
++ * information. Can savely be called with partially setup diagnostics.
++ */
++void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter)
++{
++	kfree(adapter->diagnostics);
++	adapter->diagnostics = NULL;
++}
++
++/**
++ * zfcp_diag_update_xdata() - Update a diagnostics buffer.
++ * @hdr: the meta data to update.
++ * @data: data to use for the update.
++ * @incomplete: flag stating whether the data in @data is incomplete.
++ */
++void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
++			    const void *const data, const bool incomplete)
++{
++	const unsigned long capture_timestamp = jiffies;
++	unsigned long flags;
++
++	spin_lock_irqsave(&hdr->access_lock, flags);
++
++	/* make sure we never go into the past with an update */
++	if (!time_after_eq(capture_timestamp, hdr->timestamp))
 +		goto out;
 +
- 	spin_lock_irqsave(&diag_hdr->access_lock, flags);
- 	/* nport_serv_param doesn't contain the ELS_Command code */
- 	nsp = (struct fc_els_flogi *)((unsigned long)
++	hdr->timestamp = capture_timestamp;
++	hdr->incomplete = incomplete;
++	memcpy(hdr->buffer, data, hdr->buffer_size);
++out:
++	spin_unlock_irqrestore(&hdr->access_lock, flags);
++}
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+new file mode 100644
+index 000000000000..2a933326b6e4
+--- /dev/null
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -0,0 +1,60 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * zfcp device driver
++ *
++ * Definitions for handling diagnostics in the the zfcp device driver.
++ *
++ * Copyright IBM Corp. 2018
++ */
++
++#ifndef ZFCP_DIAG_H
++#define ZFCP_DIAG_H
++
++#include <linux/spinlock.h>
++
++#include "zfcp_fsf.h"
++#include "zfcp_def.h"
++
++/**
++ * struct zfcp_diag_header - general part of a diagnostic buffer.
++ * @access_lock: lock protecting all the data in this buffer.
++ * @updating: flag showing that an update for this buffer is currently running.
++ * @incomplete: flag showing that the data in @buffer is incomplete.
++ * @timestamp: time in jiffies when the data of this buffer was last captured.
++ * @buffer: implementation-depending data of this buffer
++ * @buffer_size: size of @buffer
++ */
++struct zfcp_diag_header {
++	spinlock_t	access_lock;
++
++	/* Flags */
++	u64		updating	:1;
++	u64		incomplete	:1;
++
++	unsigned long	timestamp;
++
++	void		*buffer;
++	size_t		buffer_size;
++};
++
++/**
++ * struct zfcp_diag_adapter - central storage for all diagnostics concerning an
++ *			      adapter.
++ * @port_data: data retrieved using exchange port data.
++ * @port_data.header: header with metadata for the cache in @port_data.data.
++ * @port_data.data: cached QTCB Bottom of command exchange port data.
++ */
++struct zfcp_diag_adapter {
++	struct {
++		struct zfcp_diag_header		header;
++		struct fsf_qtcb_bottom_port	data;
++	} port_data;
++};
++
++int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter);
++void zfcp_diag_adapter_free(struct zfcp_adapter *const adapter);
++
++void zfcp_diag_update_xdata(struct zfcp_diag_header *const hdr,
++			    const void *const data, const bool incomplete);
++
++#endif /* ZFCP_DIAG_H */
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index d8f0e446fe13..883bbfd67a62 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+ 
+ #include <linux/blktrace_api.h>
++#include <linux/jiffies.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <scsi/fc/fc_els.h>
+@@ -19,6 +20,7 @@
+ #include "zfcp_dbf.h"
+ #include "zfcp_qdio.h"
+ #include "zfcp_reqlist.h"
++#include "zfcp_diag.h"
+ 
+ /* timeout for FSF requests sent during scsi_eh: abort or FCP TMF */
+ #define ZFCP_FSF_SCSI_ER_TIMEOUT (10*HZ)
+@@ -655,16 +657,26 @@ static void zfcp_fsf_exchange_port_evaluate(struct zfcp_fsf_req *req)
+ 
+ static void zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *req)
+ {
++	struct zfcp_diag_header *const diag_hdr =
++		&req->adapter->diagnostics->port_data.header;
+ 	struct fsf_qtcb *qtcb = req->qtcb;
++	struct fsf_qtcb_bottom_port *bottom = &qtcb->bottom.port;
+ 
+ 	if (req->status & ZFCP_STATUS_FSFREQ_ERROR)
+ 		return;
+ 
+ 	switch (qtcb->header.fsf_status) {
+ 	case FSF_GOOD:
++		/*
++		 * usually we wait with an update till the cache is too old,
++		 * but because we have the data available, update it anyway
++		 */
++		zfcp_diag_update_xdata(diag_hdr, bottom, false);
++
+ 		zfcp_fsf_exchange_port_evaluate(req);
+ 		break;
+ 	case FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE:
++		zfcp_diag_update_xdata(diag_hdr, bottom, true);
+ 		req->status |= ZFCP_STATUS_FSFREQ_XDATAINCOMPLETE;
+ 
+ 		zfcp_fsf_exchange_port_evaluate(req);
 -- 
 2.21.0
