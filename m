@@ -1,134 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43740 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728826AbfJUONa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Oct 2019 10:13:30 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDI8P003898
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:29 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vsd0ekv0c-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:28 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Mon, 21 Oct 2019 15:13:26 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 2/8] net/smc: terminate link group without holding lgr lock
-Date: Mon, 21 Oct 2019 16:13:09 +0200
-In-Reply-To: <20191021141315.58969-1-kgraul@linux.ibm.com>
-References: <20191021141315.58969-1-kgraul@linux.ibm.com>
-Message-Id: <20191021141315.58969-3-kgraul@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:38382 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2409013AbfJYKKS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 06:10:18 -0400
+Subject: Re: [PATCH V7] mm/debug: Add tests validating architecture page table
+ helpers
+References: <ccdd4f7a-c7dc-ca10-d30c-0bc05c7136c7@arm.com>
+ <69256008-2235-4AF1-A3BA-0146C82CCB93@lca.pw>
+ <3cfec421-4006-4159-ca32-313ff5196ff9@c-s.fr>
+ <763d58b4-f532-0bba-bf2b-71433ac514fb@arm.com>
+ <d811622e-0d35-3bc6-9568-36abc1bee355@c-s.fr>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <78d13292-0cfe-31b6-7a9c-daf7fb7f3d23@arm.com>
+Date: Fri, 25 Oct 2019 15:40:36 +0530
+MIME-Version: 1.0
+In-Reply-To: <d811622e-0d35-3bc6-9568-36abc1bee355@c-s.fr>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Christophe Leroy <christophe.leroy@c-s.fr>, Qian Cai <cai@lca.pw>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Mike Kravetz <mike.kravetz@oracle.com>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
 
-When a link group is to be terminated, it is sufficient to hold
-the lgr lock when unlinking the link group from its list.
-Move the lock-protected link group unlinking into smc_lgr_terminate().
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+On 10/25/2019 02:22 PM, Christophe Leroy wrote:
+> 
+> 
+> Le 25/10/2019 à 10:24, Anshuman Khandual a écrit :
+>>
+>>
+>> On 10/25/2019 12:41 PM, Christophe Leroy wrote:
+>>>
+>>>
+>>> Le 25/10/2019 à 07:52, Qian Cai a écrit :
+>>>>
+>>>>
+>>>>> On Oct 24, 2019, at 11:45 PM, Anshuman Khandual <Anshuman.Khandual@arm.com> wrote:
+>>>>>
+>>>>> Nothing specific. But just tested this with x86 defconfig with relevant configs
+>>>>> which are required for this test. Not sure if it involved W=1.
+>>>>
+>>>> No, it will not. It needs to run like,
+>>>>
+>>>> make W=1 -j 64 2>/tmp/warns
+>>>>
+>>>
+>>> Are we talking about this peace of code ?
+>>>
+>>> +static unsigned long __init get_random_vaddr(void)
+>>> +{
+>>> +    unsigned long random_vaddr, random_pages, total_user_pages;
+>>> +
+>>> +    total_user_pages = (TASK_SIZE - FIRST_USER_ADDRESS) / PAGE_SIZE;
+>>> +
+>>> +    random_pages = get_random_long() % total_user_pages;
+>>> +    random_vaddr = FIRST_USER_ADDRESS + random_pages * PAGE_SIZE;
+>>> +
+>>> +    WARN_ON((random_vaddr > TASK_SIZE) ||
+>>> +        (random_vaddr < FIRST_USER_ADDRESS));
+>>> +    return random_vaddr;
+>>> +}
+>>> +
+>>>
+>>> ramdom_vaddr is unsigned,
+>>> random_pages is unsigned and lower than total_user_pages
+>>>
+>>> So the max value random_vaddr can get is FIRST_USER_ADDRESS + ((TASK_SIZE - FIRST_USER_ADDRESS - 1) / PAGE_SIZE) * PAGE_SIZE = TASK_SIZE - 1
+>>> And the min value random_vaddr can get is FIRST_USER_ADDRESS (that's when random_pages = 0)
+>>
+>> That's right.
+>>
+>>>
+>>> So the WARN_ON() is just unneeded, isn't it ?
+>>
+>> It is just a sanity check on possible vaddr values before it's corresponding
+>> page table mappings could be created. If it's worth to drop this in favor of
+>> avoiding these unwanted warning messages on x86, will go ahead with it as it
+>> is not super important.
+>>
+> 
+> But you are checking what ? That the compiler does calculation correctly or what ?
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 4ee0e33b8c5a..b53ba8f0a833 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -182,8 +182,7 @@ static void smc_lgr_free_work(struct work_struct *work)
- 		spin_unlock_bh(lgr_lock);
- 		return;
- 	}
--	if (!list_empty(&lgr->list))
--		list_del_init(&lgr->list); /* remove from smc_lgr_list */
-+	list_del_init(&lgr->list); /* remove from smc_lgr_list */
- 	spin_unlock_bh(lgr_lock);
- 
- 	if (!lgr->is_smcd && !lgr->terminating)	{
-@@ -479,7 +478,7 @@ void smc_lgr_forget(struct smc_link_group *lgr)
- 	spin_unlock_bh(lgr_lock);
- }
- 
--/* terminate linkgroup abnormally */
-+/* terminate link group */
- static void __smc_lgr_terminate(struct smc_link_group *lgr)
- {
- 	struct smc_connection *conn;
-@@ -489,8 +488,6 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 	if (lgr->terminating)
- 		return;	/* lgr already terminating */
- 	lgr->terminating = 1;
--	if (!list_empty(&lgr->list)) /* forget lgr */
--		list_del_init(&lgr->list);
- 	if (!lgr->is_smcd)
- 		smc_llc_link_inactive(&lgr->lnk[SMC_SINGLE_LINK]);
- 
-@@ -516,29 +513,41 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 	smc_lgr_schedule_free_work(lgr);
- }
- 
-+/* unlink and terminate link group */
- void smc_lgr_terminate(struct smc_link_group *lgr)
- {
- 	spinlock_t *lgr_lock;
- 
- 	smc_lgr_list_head(lgr, &lgr_lock);
- 	spin_lock_bh(lgr_lock);
--	__smc_lgr_terminate(lgr);
-+	if (lgr->terminating) {
-+		spin_unlock_bh(lgr_lock);
-+		return;	/* lgr already terminating */
-+	}
-+	list_del_init(&lgr->list);
- 	spin_unlock_bh(lgr_lock);
-+	__smc_lgr_terminate(lgr);
- }
- 
- /* Called when IB port is terminated */
- void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
- {
- 	struct smc_link_group *lgr, *l;
-+	LIST_HEAD(lgr_free_list);
- 
- 	spin_lock_bh(&smc_lgr_list.lock);
- 	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
- 		if (!lgr->is_smcd &&
- 		    lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
- 		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
--			__smc_lgr_terminate(lgr);
-+			list_move(&lgr->list, &lgr_free_list);
- 	}
- 	spin_unlock_bh(&smc_lgr_list.lock);
-+
-+	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
-+		list_del_init(&lgr->list);
-+		__smc_lgr_terminate(lgr);
-+	}
- }
- 
- /* Called when SMC-D device is terminated or peer is lost */
-@@ -552,7 +561,6 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid, unsigned short vlan)
- 	list_for_each_entry_safe(lgr, l, &dev->lgr_list, list) {
- 		if ((!peer_gid || lgr->peer_gid == peer_gid) &&
- 		    (vlan == VLAN_VID_MASK || lgr->vlan_id == vlan)) {
--			__smc_lgr_terminate(lgr);
- 			list_move(&lgr->list, &lgr_free_list);
- 		}
- 	}
-@@ -561,6 +569,7 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid, unsigned short vlan)
- 	/* cancel the regular free workers and actually free lgrs */
- 	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
- 		list_del_init(&lgr->list);
-+		__smc_lgr_terminate(lgr);
- 		cancel_delayed_work_sync(&lgr->free_work);
- 		if (!peer_gid && vlan == VLAN_VID_MASK) /* dev terminated? */
- 			smc_ism_signal_shutdown(lgr);
--- 
-2.17.1
+IIRC, probably this was for later if and when the vaddr calculation becomes
+dependent on other factors rather than this simple arithmetic involving start
+and end of process address space on a platform.
+
+> As mentionned just above, based on the calculation done, what you are testing cannot happen, so I'm having a hard time understanding what kind of sanity check it can be.
+
+You are right.
+
+> 
+> Can you give an exemple of a situation which could trigger the warning ?
+
+I was mistaken. We dont need those checks for now, hence will drop them next time.
+
+> 
+> Christophe
+> 
