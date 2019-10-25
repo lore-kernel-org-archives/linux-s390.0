@@ -1,18 +1,16 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30518 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:37654 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2405057AbfJYIlH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Oct 2019 04:41:07 -0400
+        with ESMTP id S2407208AbfJYIcE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Oct 2019 04:32:04 -0400
 Subject: Re: [RFC 06/37] s390: UV: Add import and export to UV library
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
  <20191024114059.102802-7-frankja@linux.ibm.com>
- <32166470-43c1-f454-440f-3f660b995ca2@redhat.com>
- <ed8860e6-176a-64dd-e697-5ed80dd3c872@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <257d9326-9af9-5986-aeb0-4323fb66c81d@redhat.com>
-Date: Fri, 25 Oct 2019 10:40:58 +0200
+Message-ID: <32166470-43c1-f454-440f-3f660b995ca2@redhat.com>
+Date: Fri, 25 Oct 2019 10:31:54 +0200
 MIME-Version: 1.0
-In-Reply-To: <ed8860e6-176a-64dd-e697-5ed80dd3c872@linux.ibm.com>
+In-Reply-To: <20191024114059.102802-7-frankja@linux.ibm.com>
 Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
@@ -21,24 +19,125 @@ List-ID: <linux-s390.vger.kernel.org>
 To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-On 25.10.19 10:39, Janosch Frank wrote:
-> On 10/25/19 10:31 AM, David Hildenbrand wrote:
->> On 24.10.19 13:40, Janosch Frank wrote:
->>> The convert to/from secure (or also "import/export") ultravisor calls
->>> are need for page management, i.e. paging, of secure execution VM.
->>>
->>> Export encrypts a secure guest's page and makes it accessible to the
->>> guest for paging.
->>
->> How does paging play along with pinning the pages (from
->> uv_convert_to_secure() -> kvm_s390_pv_pin_page()) in a follow up patch?
->> Can you paint me the bigger picture?
+On 24.10.19 13:40, Janosch Frank wrote:
+> The convert to/from secure (or also "import/export") ultravisor calls
+> are need for page management, i.e. paging, of secure execution VM.
 >=20
-> That's a stale comment I should have removed before sending...
-> The current patches do not support paging.
+> Export encrypts a secure guest's page and makes it accessible to the
+> guest for paging.
 
-Note that once you pin you really have to disable the balloon in the=20
-QEMU (inhibit it).
+How does paging play along with pinning the pages (from=20
+uv_convert_to_secure() -> kvm_s390_pv_pin_page()) in a follow up patch?=20
+Can you paint me the bigger picture?
+
+Just so I understand:
+
+When a page is "secure", it is actually unencrypted but only the guest=20
+can access it. If the host accesses it, there is an exception.
+
+When a page is "not secure", it is encrypted but only the host can read=20
+it. If the guest accesses it, there is an exception.
+
+Based on these exceptions, you are able to request to convert back and=20
+forth.
+
+
+>=20
+> Import makes a page accessible to a secure guest.
+> On the first import of that page, the page will be cleared by the
+> Ultravisor before it is given to the guest.
+>=20
+> All following imports will decrypt a exported page and verify
+> integrity before giving the page to the guest.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/uv.h | 51 ++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 51 insertions(+)
+>=20
+> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> index 0bfbafcca136..99cdd2034503 100644
+> --- a/arch/s390/include/asm/uv.h
+> +++ b/arch/s390/include/asm/uv.h
+> @@ -15,6 +15,7 @@
+>   #include <linux/errno.h>
+>   #include <linux/bug.h>
+>   #include <asm/page.h>
+> +#include <asm/gmap.h>
+>  =20
+>   #define UVC_RC_EXECUTED=09=090x0001
+>   #define UVC_RC_INV_CMD=09=090x0002
+> @@ -279,6 +280,54 @@ static inline int uv_cmd_nodata(u64 handle, u16 cmd,=
+ u32 *ret)
+>   =09return rc ? -EINVAL : 0;
+>   }
+>  =20
+> +/*
+> + * Requests the Ultravisor to encrypt a guest page and make it
+> + * accessible to the host for paging (export).
+> + *
+> + * @paddr: Absolute host address of page to be exported
+> + */
+> +static inline int uv_convert_from_secure(unsigned long paddr)
+> +{
+> +=09struct uv_cb_cfs uvcb =3D {
+> +=09=09.header.cmd =3D UVC_CMD_CONV_FROM_SEC_STOR,
+> +=09=09.header.len =3D sizeof(uvcb),
+> +=09=09.paddr =3D paddr
+> +=09};
+> +=09if (!uv_call(0, (u64)&uvcb))
+> +=09=09return 0;
+> +=09return -EINVAL;
+> +}
+> +
+> +/*
+> + * Requests the Ultravisor to make a page accessible to a guest
+> + * (import). If it's brought in the first time, it will be cleared. If
+> + * it has been exported before, it will be decrypted and integrity
+> + * checked.
+> + *
+> + * @handle: Ultravisor guest handle
+> + * @gaddr: Guest 2 absolute address to be imported
+> + */
+> +static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long =
+gaddr)
+> +{
+> +=09int cc;
+> +=09struct uv_cb_cts uvcb =3D {
+> +=09=09.header.cmd =3D UVC_CMD_CONV_TO_SEC_STOR,
+> +=09=09.header.len =3D sizeof(uvcb),
+> +=09=09.guest_handle =3D gmap->se_handle,
+> +=09=09.gaddr =3D gaddr
+> +=09};
+> +
+> +=09cc =3D uv_call(0, (u64)&uvcb);
+> +
+> +=09if (!cc)
+> +=09=09return 0;
+> +=09if (uvcb.header.rc =3D=3D 0x104)
+> +=09=09return -EEXIST;
+> +=09if (uvcb.header.rc =3D=3D 0x10a)
+> +=09=09return -EFAULT;
+> +=09return -EINVAL;
+> +}
+> +
+>   void setup_uv(void);
+>   void adjust_to_uv_max(unsigned long *vmax);
+>   #else
+> @@ -286,6 +335,8 @@ void adjust_to_uv_max(unsigned long *vmax);
+>   static inline void setup_uv(void) {}
+>   static inline void adjust_to_uv_max(unsigned long *vmax) {}
+>   static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret) { return=
+ 0; }
+> +static inline int uv_convert_from_secure(unsigned long paddr) { return 0=
+; }
+> +static inline int uv_convert_to_secure(unsigned long handle, unsigned lo=
+ng gaddr) { return 0; }
+>   #endif
+>  =20
+>   #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                  =
+        \
+>=20
 
 
 --=20
