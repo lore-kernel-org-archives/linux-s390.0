@@ -1,486 +1,439 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:20472 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2405862AbfJWNZl (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18124 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2504810AbfJYNi5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Oct 2019 09:25:41 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V5 5/6] virtio: introduce a mdev based transport
-Date: Wed, 23 Oct 2019 21:07:51 +0800
-Message-Id: <20191023130752.18980-6-jasowang@redhat.com>
-In-Reply-To: <20191023130752.18980-1-jasowang@redhat.com>
-References: <20191023130752.18980-1-jasowang@redhat.com>
+        Fri, 25 Oct 2019 09:38:57 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PDcl1S105361
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 09:38:56 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv1tygrev-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 09:38:52 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 25 Oct 2019 14:38:40 +0100
+Date: Fri, 25 Oct 2019 15:37:36 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v1 5/5] s390x: SCLP unit test
+In-Reply-To: <e8398bc4-f7d4-d83c-e106-3f92fb13304e@redhat.com>
+References: <1571741584-17621-1-git-send-email-imbrenda@linux.ibm.com>
+ <1571741584-17621-6-git-send-email-imbrenda@linux.ibm.com>
+ <e8398bc4-f7d4-d83c-e106-3f92fb13304e@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20191025153736.7d1a9be9@p-imbrenda.boeblingen.de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-This patch introduces a new mdev transport for virtio. This is used to
-use kernel virtio driver to drive the mediated device that is capable
-of populating virtqueue directly.
+On Wed, 23 Oct 2019 14:14:56 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-A new virtio-mdev driver will be registered to the mdev bus, when a
-new virtio-mdev device is probed, it will register the device with
-mdev based config ops. This means it is a software transport between
-mdev driver and mdev device. The transport was implemented through
-device specific ops which is a part of mdev_parent_ops now.
+> On 22.10.19 12:53, Claudio Imbrenda wrote:
+> > SCLP unit test. Testing the following:
+> > 
+> > * Correctly ignoring instruction bits that should be ignored
+> > * Privileged instruction check
+> > * Check for addressing exceptions
+> > * Specification exceptions:
+> >    - SCCB size less than 8
+> >    - SCCB unaligned
+> >    - SCCB overlaps prefix or lowcore
+> >    - SCCB address higher than 2GB
+> > * Return codes for
+> >    - Invalid command
+> >    - SCCB too short (but at least 8)
+> >    - SCCB page boundary violation
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >   s390x/Makefile      |   1 +
+> >   s390x/sclp.c        | 373
+> > ++++++++++++++++++++++++++++++++++++++++++++++++++++
+> > s390x/unittests.cfg |   3 + 3 files changed, 377 insertions(+)
+> >   create mode 100644 s390x/sclp.c
+> > 
+> > diff --git a/s390x/Makefile b/s390x/Makefile
+> > index 3744372..ddb4b48 100644
+> > --- a/s390x/Makefile
+> > +++ b/s390x/Makefile
+> > @@ -16,6 +16,7 @@ tests += $(TEST_DIR)/diag288.elf
+> >   tests += $(TEST_DIR)/stsi.elf
+> >   tests += $(TEST_DIR)/skrf.elf
+> >   tests += $(TEST_DIR)/smp.elf
+> > +tests += $(TEST_DIR)/sclp.elf
+> >   tests_binary = $(patsubst %.elf,%.bin,$(tests))
+> >   
+> >   all: directories test_cases test_cases_binary
+> > diff --git a/s390x/sclp.c b/s390x/sclp.c
+> > new file mode 100644
+> > index 0000000..d7a9212
+> > --- /dev/null
+> > +++ b/s390x/sclp.c
+> > @@ -0,0 +1,373 @@
+> > +/*
+> > + * Store System Information tests
+> > + *
+> > + * Copyright (c) 2019 IBM Corp
+> > + *
+> > + * Authors:
+> > + *  Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > + *
+> > + * This code is free software; you can redistribute it and/or
+> > modify it
+> > + * under the terms of the GNU General Public License version 2.
+> > + */
+> > +
+> > +#include <libcflat.h>
+> > +#include <asm/page.h>
+> > +#include <asm/asm-offsets.h>
+> > +#include <asm/interrupt.h>
+> > +#include <sclp.h>
+> > +
+> > +static uint8_t pagebuf[PAGE_SIZE * 2]
+> > __attribute__((aligned(PAGE_SIZE * 2))); +static uint8_t
+> > prefix_buf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+> > +static uint32_t valid_sclp_code; +static struct lowcore *lc;
+> > +
+> > +static void sclp_setup_int_test(void)
+> > +{
+> > +	uint64_t mask;
+> > +
+> > +	ctl_set_bit(0, 9);
+> > +
+> > +	mask = extract_psw_mask();
+> > +	mask |= PSW_MASK_EXT;
+> > +	load_psw_mask(mask);
+> > +}
+> > +
+> > +static int sclp_service_call_test(unsigned int command, void
+> > *sccb)  
+> 
+> Wouldn't it be easier to pass an uint8_t*, so you can simply forward 
+> pagebuf through all functions?
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/virtio/Kconfig       |   7 +
- drivers/virtio/Makefile      |   1 +
- drivers/virtio/virtio_mdev.c | 413 +++++++++++++++++++++++++++++++++++
- 3 files changed, 421 insertions(+)
- create mode 100644 drivers/virtio/virtio_mdev.c
+I'm not sure I understand what you mean here. Sometimes I'm passing
+random numbers for the addresses. so either I have to cast addresses to
+integers, or integers to addresses.
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 078615cf2afc..8d18722ab572 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -43,6 +43,13 @@ config VIRTIO_PCI_LEGACY
-=20
- =09  If unsure, say Y.
-=20
-+config VIRTIO_MDEV_DEVICE
-+=09tristate "VIRTIO driver for Mediated devices"
-+=09depends on VFIO_MDEV && VIRTIO
-+=09default n
-+=09help
-+=09  VIRTIO based driver for Mediated devices.
-+
- config VIRTIO_PMEM
- =09tristate "Support for virtio pmem driver"
- =09depends on VIRTIO
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 3a2b5c5dcf46..ebc7fa15ae82 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -6,3 +6,4 @@ virtio_pci-y :=3D virtio_pci_modern.o virtio_pci_common.o
- virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) +=3D virtio_pci_legacy.o
- obj-$(CONFIG_VIRTIO_BALLOON) +=3D virtio_balloon.o
- obj-$(CONFIG_VIRTIO_INPUT) +=3D virtio_input.o
-+obj-$(CONFIG_VIRTIO_MDEV_DEVICE) +=3D virtio_mdev.o
-diff --git a/drivers/virtio/virtio_mdev.c b/drivers/virtio/virtio_mdev.c
-new file mode 100644
-index 000000000000..eb2621f9182c
---- /dev/null
-+++ b/drivers/virtio/virtio_mdev.c
-@@ -0,0 +1,413 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VIRTIO based driver for Mediated device
-+ *
-+ * Copyright (c) 2019, Red Hat. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/uuid.h>
-+#include <linux/mdev.h>
-+#include <linux/virtio_mdev_ops.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_ring.h>
-+
-+#define DRIVER_VERSION  "0.1"
-+#define DRIVER_AUTHOR   "Red Hat Corporation"
-+#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
-+
-+#define to_virtio_mdev_device(dev) \
-+=09container_of(dev, struct virtio_mdev_device, vdev)
-+
-+struct virtio_mdev_device {
-+=09struct virtio_device vdev;
-+=09struct mdev_device *mdev;
-+=09u64 features;
-+
-+=09/* The lock to protect virtqueue list */
-+=09spinlock_t lock;
-+=09/* List of virtio_mdev_vq_info */
-+=09struct list_head virtqueues;
-+};
-+
-+struct virtio_mdev_vq_info {
-+=09/* the actual virtqueue */
-+=09struct virtqueue *vq;
-+
-+=09/* the list node for the virtqueues list */
-+=09struct list_head node;
-+};
-+
-+static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09return mdev;
-+}
-+
-+static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
-+=09=09=09    void *buf, unsigned len)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09ops->get_config(mdev, offset, buf, len);
-+}
-+
-+static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
-+=09=09=09    const void *buf, unsigned len)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09ops->set_config(mdev, offset, buf, len);
-+}
-+
-+static u32 virtio_mdev_generation(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09if (ops->get_generation)
-+=09=09return ops->get_generation(mdev);
-+
-+=09return 0;
-+}
-+
-+static u8 virtio_mdev_get_status(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09return ops->get_status(mdev);
-+}
-+
-+static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09return ops->set_status(mdev, status);
-+}
-+
-+static void virtio_mdev_reset(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09return ops->set_status(mdev, 0);
-+}
-+
-+static bool virtio_mdev_notify(struct virtqueue *vq)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vq->vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09ops->kick_vq(mdev, vq->index);
-+
-+=09return true;
-+}
-+
-+static irqreturn_t virtio_mdev_config_cb(void *private)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D private;
-+
-+=09virtio_config_changed(&vm_dev->vdev);
-+
-+=09return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
-+{
-+=09struct virtio_mdev_vq_info *info =3D private;
-+
-+=09return vring_interrupt(0, info->vq);
-+}
-+
-+static struct virtqueue *
-+virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned index,
-+=09=09     void (*callback)(struct virtqueue *vq),
-+=09=09     const char *name, bool ctx)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+=09struct virtio_mdev_vq_info *info;
-+=09struct virtio_mdev_callback cb;
-+=09struct virtqueue *vq;
-+=09u64 desc_addr, driver_addr, device_addr;
-+=09unsigned long flags;
-+=09u32 align, num;
-+=09int err;
-+
-+=09if (!name)
-+=09=09return NULL;
-+
-+=09/* Queue shouldn't already be set up. */
-+=09if (ops->get_vq_ready(mdev, index))
-+=09=09return ERR_PTR(-ENOENT);
-+
-+=09/* Allocate and fill out our active queue description */
-+=09info =3D kmalloc(sizeof(*info), GFP_KERNEL);
-+=09if (!info)
-+=09=09return ERR_PTR(-ENOMEM);
-+
-+=09num =3D ops->get_vq_num_max(mdev);
-+=09if (num =3D=3D 0) {
-+=09=09err =3D -ENOENT;
-+=09=09goto error_new_virtqueue;
-+=09}
-+
-+=09/* Create the vring */
-+=09align =3D ops->get_vq_align(mdev);
-+=09vq =3D vring_create_virtqueue(index, num, align, vdev,
-+=09=09=09=09    true, true, ctx,
-+=09=09=09=09    virtio_mdev_notify, callback, name);
-+=09if (!vq) {
-+=09=09err =3D -ENOMEM;
-+=09=09goto error_new_virtqueue;
-+=09}
-+
-+=09/* Setup virtqueue callback */
-+=09cb.callback =3D virtio_mdev_virtqueue_cb;
-+=09cb.private =3D info;
-+=09ops->set_vq_cb(mdev, index, &cb);
-+=09ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
-+
-+=09desc_addr =3D virtqueue_get_desc_addr(vq);
-+=09driver_addr =3D virtqueue_get_avail_addr(vq);
-+=09device_addr =3D virtqueue_get_used_addr(vq);
-+
-+=09if (ops->set_vq_address(mdev, index,
-+=09=09=09=09desc_addr, driver_addr,
-+=09=09=09=09device_addr)) {
-+=09=09err =3D -EINVAL;
-+=09=09goto err_vq;
-+=09}
-+
-+=09ops->set_vq_ready(mdev, index, 1);
-+
-+=09vq->priv =3D info;
-+=09info->vq =3D vq;
-+
-+=09spin_lock_irqsave(&vm_dev->lock, flags);
-+=09list_add(&info->node, &vm_dev->virtqueues);
-+=09spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+=09return vq;
-+
-+err_vq:
-+=09vring_del_virtqueue(vq);
-+error_new_virtqueue:
-+=09ops->set_vq_ready(mdev, index, 0);
-+=09WARN_ON(ops->get_vq_ready(mdev, index));
-+=09kfree(info);
-+=09return ERR_PTR(err);
-+
-+}
-+
-+static void virtio_mdev_del_vq(struct virtqueue *vq)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vq->vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+=09struct virtio_mdev_vq_info *info =3D vq->priv;
-+=09unsigned int index =3D vq->index;
-+=09unsigned long flags;
-+
-+=09spin_lock_irqsave(&vm_dev->lock, flags);
-+=09list_del(&info->node);
-+=09spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+=09/* Select and deactivate the queue */
-+=09ops->set_vq_ready(mdev, index, 0);
-+=09WARN_ON(ops->get_vq_ready(mdev, index));
-+
-+=09vring_del_virtqueue(vq);
-+
-+=09kfree(info);
-+}
-+
-+static void virtio_mdev_del_vqs(struct virtio_device *vdev)
-+{
-+=09struct virtqueue *vq, *n;
-+
-+=09list_for_each_entry_safe(vq, n, &vdev->vqs, list)
-+=09=09virtio_mdev_del_vq(vq);
-+}
-+
-+static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-+=09=09=09=09struct virtqueue *vqs[],
-+=09=09=09=09vq_callback_t *callbacks[],
-+=09=09=09=09const char * const names[],
-+=09=09=09=09const bool *ctx,
-+=09=09=09=09struct irq_affinity *desc)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+=09struct virtio_mdev_callback cb;
-+=09int i, err, queue_idx =3D 0;
-+
-+=09for (i =3D 0; i < nvqs; ++i) {
-+=09=09if (!names[i]) {
-+=09=09=09vqs[i] =3D NULL;
-+=09=09=09continue;
-+=09=09}
-+
-+=09=09vqs[i] =3D virtio_mdev_setup_vq(vdev, queue_idx++,
-+=09=09=09=09=09      callbacks[i], names[i], ctx ?
-+=09=09=09=09=09      ctx[i] : false);
-+=09=09if (IS_ERR(vqs[i])) {
-+=09=09=09err =3D PTR_ERR(vqs[i]);
-+=09=09=09goto err_setup_vq;
-+=09=09}
-+=09}
-+
-+=09cb.callback =3D virtio_mdev_config_cb;
-+=09cb.private =3D vm_dev;
-+=09ops->set_config_cb(mdev, &cb);
-+
-+=09return 0;
-+
-+err_setup_vq:
-+=09virtio_mdev_del_vqs(vdev);
-+=09return err;
-+}
-+
-+static u64 virtio_mdev_get_features(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09return ops->get_features(mdev);
-+}
-+
-+static int virtio_mdev_finalize_features(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+
-+=09/* Give virtio_ring a chance to accept features. */
-+=09vring_transport_features(vdev);
-+
-+=09return ops->set_features(mdev, vdev->features);
-+}
-+
-+static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09return dev_name(mdev_dev(mdev));
-+}
-+
-+static const struct virtio_config_ops virtio_mdev_config_ops =3D {
-+=09.get=09=09=3D virtio_mdev_get,
-+=09.set=09=09=3D virtio_mdev_set,
-+=09.generation=09=3D virtio_mdev_generation,
-+=09.get_status=09=3D virtio_mdev_get_status,
-+=09.set_status=09=3D virtio_mdev_set_status,
-+=09.reset=09=09=3D virtio_mdev_reset,
-+=09.find_vqs=09=3D virtio_mdev_find_vqs,
-+=09.del_vqs=09=3D virtio_mdev_del_vqs,
-+=09.get_features=09=3D virtio_mdev_get_features,
-+=09.finalize_features =3D virtio_mdev_finalize_features,
-+=09.bus_name=09=3D virtio_mdev_bus_name,
-+};
-+
-+static void virtio_mdev_release_dev(struct device *_d)
-+{
-+=09struct virtio_device *vdev =3D
-+=09       container_of(_d, struct virtio_device, dev);
-+=09struct virtio_mdev_device *vm_dev =3D
-+=09       container_of(vdev, struct virtio_mdev_device, vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09devm_kfree(mdev_dev(mdev), vm_dev);
-+}
-+
-+static int virtio_mdev_probe(struct device *dev)
-+{
-+=09struct mdev_device *mdev =3D mdev_from_dev(dev);
-+=09const struct virtio_mdev_device_ops *ops =3D mdev_get_virtio_ops(mdev);
-+=09struct virtio_mdev_device *vm_dev;
-+=09int rc;
-+
-+=09vm_dev =3D devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
-+=09if (!vm_dev)
-+=09=09return -ENOMEM;
-+
-+=09vm_dev->vdev.dev.parent =3D dev;
-+=09vm_dev->vdev.dev.release =3D virtio_mdev_release_dev;
-+=09vm_dev->vdev.config =3D &virtio_mdev_config_ops;
-+=09vm_dev->mdev =3D mdev;
-+=09INIT_LIST_HEAD(&vm_dev->virtqueues);
-+=09spin_lock_init(&vm_dev->lock);
-+
-+=09vm_dev->features =3D ops->get_mdev_features(mdev);
-+=09if (vm_dev->features !=3D VIRTIO_MDEV_F_VERSION_1) {
-+=09=09dev_err(dev, "VIRTIO_MDEV_F_VERSION_1 is mandatory\n");
-+=09=09return -ENXIO;
-+=09}
-+
-+=09vm_dev->vdev.id.device =3D ops->get_device_id(mdev);
-+=09if (vm_dev->vdev.id.device =3D=3D 0)
-+=09=09return -ENODEV;
-+
-+=09vm_dev->vdev.id.vendor =3D ops->get_vendor_id(mdev);
-+=09rc =3D register_virtio_device(&vm_dev->vdev);
-+=09if (rc)
-+=09=09put_device(dev);
-+=09else
-+=09=09dev_set_drvdata(dev, vm_dev);
-+
-+=09return rc;
-+}
-+
-+static void virtio_mdev_remove(struct device *dev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D dev_get_drvdata(dev);
-+
-+=09unregister_virtio_device(&vm_dev->vdev);
-+}
-+
-+static const struct mdev_class_id id_table[] =3D {
-+=09{ MDEV_CLASS_ID_VIRTIO },
-+=09{ 0 },
-+};
-+
-+MODULE_DEVICE_TABLE(mdev, id_table);
-+
-+static struct mdev_driver virtio_mdev_driver =3D {
-+=09.name=09=3D "virtio_mdev",
-+=09.probe=09=3D virtio_mdev_probe,
-+=09.remove =3D virtio_mdev_remove,
-+=09.id_table =3D id_table,
-+};
-+
-+static int __init virtio_mdev_init(void)
-+{
-+=09return mdev_register_driver(&virtio_mdev_driver, THIS_MODULE);
-+}
-+
-+static void __exit virtio_mdev_exit(void)
-+{
-+=09mdev_unregister_driver(&virtio_mdev_driver);
-+}
-+
-+module_init(virtio_mdev_init)
-+module_exit(virtio_mdev_exit)
-+
-+MODULE_VERSION(DRIVER_VERSION);
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
---=20
-2.19.1
+I'll change it to accept pointers, we can see if it looks cleaner
+
+> 
+> > +{
+> > +	int cc;
+> > +
+> > +	sclp_mark_busy();
+> > +	sclp_setup_int_test();
+> > +	lc->pgm_int_code = 0;
+> > +	cc = servc(command, __pa(sccb));
+> > +	if (lc->pgm_int_code) {
+> > +		sclp_handle_ext();  
+> 
+> You receive a PGM interrupt and handle an external interrupt? That
+> looks strange. Please elaborate what's going on here.
+
+sclp_handle_ext clears the external interrupt bit, which we have set
+earlier, and then sets busy=false. we need to do both things, even
+though we have not received an external interrupt. I simply did not
+want to reinvent the wheel
+
+> 
+> > +		return 0;
+> > +	}
+> > +	if (!cc)
+> > +		sclp_wait_busy();
+> > +	return cc;
+> > +}
+> > +
+> > +static int test_one_sccb(uint32_t cmd, uint64_t addr, uint16_t len,
+> > +			void *data, uint64_t exp_pgm, uint16_t
+> > exp_rc) +{
+> > +	SCCBHeader *h = (SCCBHeader *)addr;
+> > +	int res, pgm;
+> > +
+> > +	if (data && len)
+> > +		memcpy((void *)addr, data, len);
+> > +	if (!exp_pgm)
+> > +		exp_pgm = 1;
+> > +	expect_pgm_int();
+> > +	res = sclp_service_call_test(cmd, h);
+> > +	if (res) {
+> > +		report_info("SCLP not ready (command %#x, address
+> > %#lx, cc %d)",
+> > +			cmd, addr, res);
+> > +		return 0;
+> > +	}
+> > +	pgm = lc->pgm_int_code;
+> > +	if (!((1ULL << pgm) & exp_pgm)) {
+> > +		report_info("First failure at addr %#lx, size %d,
+> > cmd %#x, pgm code %d",
+> > +				addr, len, cmd, pgm);
+> > +		return 0;
+> > +	}
+> > +	if (exp_rc && (exp_rc != h->response_code)) {
+> > +		report_info("First failure at addr %#lx, size %d,
+> > cmd %#x, resp code %#x",
+> > +				addr, len, cmd, h->response_code);
+> > +		return 0;
+> > +	}
+> > +	return 1;
+> > +}
+> > +
+> > +static int test_one_run(uint32_t cmd, uint64_t addr, uint16_t len,
+> > +			uint16_t clear, uint64_t exp_pgm, uint16_t
+> > exp_rc)  
+> 
+> I somewhat dislike passing in "exp_pgm" and "exp_rc". Why can't you 
+> handle both things in the caller where the tests actually become
+> readable?
+
+how would it be more readable? this means that after each call I should
+have a lot of checks for all the possible errors, and all those checks
+would be all the same. Lots of possibilities for copy-paste errors, and
+it would inflate the code a lot.
+
+> 
+> > +{
+> > +	char sccb[4096];  
+> 
+> I prefer uint8_t sccb[PAGE_SIZE]
+
+will fix
+
+> 
+> > +	void *p = sccb;
+> > +
+> > +	if (!len && !clear)
+> > +		p = NULL;
+> > +	else
+> > +		memset(sccb, 0, sizeof(sccb));
+> > +	((SCCBHeader *)sccb)->length = len;
+> > +	if (clear && (clear < 8))
+> > +		clear = 8;  
+> 
+> Can you elaborate what "clear" means. It is passed as "length".
+> /me confused
+
+clear indicates how much of the actual memory will be overwritten (or
+cleared). if you have an 8-byte SCCB and 4096 for clear, the SCCB will
+have length 8, but all 4096 bytes will be written to memory (the
+remaining 4088 will be 0, hence "clear")
+
+I will rename len to sccb_len and clear to buf_len, maybe it helps 
+
+> 
+> > +	return test_one_sccb(cmd, addr, clear, p, exp_pgm, exp_rc);
+> > +}
+> > +
+> > +#define PGM_BIT_SPEC	(1ULL << PGM_INT_CODE_SPECIFICATION)
+> > +#define PGM_BIT_ADDR	(1ULL << PGM_INT_CODE_ADDRESSING)
+> > +#define PGM_BIT_PRIV	(1ULL <<
+> > PGM_INT_CODE_PRIVILEGED_OPERATION) +
+> > +#define PGBUF	((uintptr_t)pagebuf)
+> > +#define VALID	(valid_sclp_code)  
+> 
+> I dislike both defines, can you get rid of these?
+
+I was almost expecting this. the code will get more verbose, but ok
+
+> 
+> > +
+> > +static void test_sccb_too_short(void)
+> > +{
+> > +	int cx;  
+> 
+> cx is passed as "len". What does cx stand for? Can we give this a
+> better name?
+
+it's just a counter, like "i" or so.
+
+> 
+> [...] (not reviewing the other stuff in detail because I am still
+> confused)
+> 
+> > +static void test_resp(void)
+> > +{
+> > +	test_inval();
+> > +	test_short();
+> > +	test_boundary();
+> > +	test_toolong();
+> > +}  
+> 
+> Can you just get rid of this function and call all tests from main?
+> (just separate them in logical blocks eventually with comments)
+
+ok
+
+> 
+> > +
+> > +static void test_priv(void)
+> > +{
+> > +	pagebuf[0] = 0;
+> > +	pagebuf[1] = 8;
+> > +	expect_pgm_int();
+> > +	enter_pstate();
+> > +	servc(valid_sclp_code, __pa(pagebuf));
+> > +	report_prefix_push("Priv check");
+> > +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> > +	report_prefix_pop();  
+> 
+> Can we push at the beginning of the function and pop at the end?
+> 
+> report_prefix_push("Privileged Operation");
+> 
+> expect_pgm_int();
+> enter_pstate();
+> servc(valid_sclp_code, __pa(pagebuf));
+> check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> 
+> report_prefix_pop();
+
+ok
+
+> 
+> Also shouldn't you better mark sclp busy and wait for interrupts to
+> make sore you handle it correctly in case the check *fails* and servc 
+> completes (cc==0)?
+
+In case we actually get the privileged operation exception, we will not
+clear the sclp_busy flag. and check_pgm_int_code will try to write to
+the console, waiting for sclp_busy to become 0, which will not happen.
+
+The solution is to copy-paste most of sclp_service_call_test. This will
+also bring no benefits, since once we have failed such a basic test, we
+don't really have any guarantees that the SCLP implementation will be
+sound. We simply report an error and move on.
+
+
+> 
+> > +}
+> > +
+> > +static void test_addressing(void)
+> > +{
+> > +	unsigned long cx, maxram = get_ram_size();
+> > +
+> > +	if (maxram >= 0x80000000) {
+> > +		report_skip("Invalid SCCB address");
+> > +		return;
+> > +	}  
+> 
+> Do we really need maxram here, can't we simply use very high
+> addresses like in all other tests?
+
+no. the address must be both above available memory and below 2GB.
+I need to know where the memory ends, so I can try to test addresses
+right after the end of memory.
+
+If the VM is started with more than 2GB of RAM, this test doesn't
+make any sense, and is therefore skipped.
+
+> 
+> E.g. just user address "-PAGE_SIZE"
+
+this might result in a specification exception, instead of an
+addressing exception, since the address is above 2GB. For invalid
+addresses over 2GB both are acceptable. Here I want to test explicitly
+the addressing exceptions.
+
+> 
+> > +	for (cx = maxram; cx < MIN(maxram + 65536, 0x80000000); cx
+> > += 8)
+> > +		if (!test_one_run(VALID, cx, 0, 0, PGM_BIT_ADDR,
+> > 0))
+> > +			goto out;
+> > +	for (; cx < MIN((maxram + 0x7fffff) & ~0xfffff,
+> > 0x80000000); cx += 4096)
+> > +		if (!test_one_run(VALID, cx, 0, 0, PGM_BIT_ADDR,
+> > 0))
+> > +			goto out;
+> > +	for (; cx < 0x80000000; cx += 1048576)
+> > +		if (!test_one_run(VALID, cx, 0, 0, PGM_BIT_ADDR,
+> > 0))
+> > +			goto out;
+> > +out:
+> > +	report("Invalid SCCB address", cx == 0x80000000);
+> > +}
+> > +
+> > +static void test_instbits(void)
+> > +{
+> > +	SCCBHeader *h = (SCCBHeader *)pagebuf;
+> > +	unsigned long mask;
+> > +	int cc;
+> > +
+> > +	sclp_mark_busy();
+> > +	h->length = 8;
+> > +
+> > +	ctl_set_bit(0, 9);
+> > +	mask = extract_psw_mask();
+> > +	mask |= PSW_MASK_EXT;
+> > +	load_psw_mask(mask);
+> > +
+> > +	asm volatile(
+> > +		"       .insn   rre,0xb2204200,%1,%2\n"  /* servc
+> > %1,%2 */
+> > +		"       ipm     %0\n"
+> > +		"       srl     %0,28"
+> > +		: "=&d" (cc) : "d" (valid_sclp_code),
+> > "a" (__pa(pagebuf))
+> > +		: "cc", "memory");
+> > +	sclp_wait_busy();
+> > +	report("Instruction format ignored bits", cc == 0);
+> > +}
+> > +
+> > +static void find_valid_sclp_code(void)
+> > +{
+> > +	unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
+> > +				    SCLP_CMDW_READ_SCP_INFO };
+> > +	SCCBHeader *h = (SCCBHeader *)pagebuf;
+> > +	int i, cc;
+> > +
+> > +	for (i = 0; i < ARRAY_SIZE(commands); i++) {
+> > +		sclp_mark_busy();
+> > +		memset(h, 0, sizeof(pagebuf));
+> > +		h->length = 4096;
+> > +
+> > +		valid_sclp_code = commands[i];
+> > +		cc = sclp_service_call(commands[i], h);
+> > +		if (cc)
+> > +			break;
+> > +		if (h->response_code ==
+> > SCLP_RC_NORMAL_READ_COMPLETION)
+> > +			return;
+> > +		if (h->response_code !=
+> > SCLP_RC_INVALID_SCLP_COMMAND)
+> > +			break;
+> > +	}
+> > +	valid_sclp_code = 0;
+> > +	report_abort("READ_SCP_INFO failed");
+> > +}
+> > +
+> > +int main(void)
+> > +{
+> > +	report_prefix_push("sclp");
+> > +	find_valid_sclp_code();
+> > +	test_instbits();
+> > +	test_priv();
+> > +	test_addressing();
+> > +	test_spec();
+> > +	test_resp();
+> > +	return report_summary();
+> > +}
+> > diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> > index f1b07cd..75e3d37 100644
+> > --- a/s390x/unittests.cfg
+> > +++ b/s390x/unittests.cfg
+> > @@ -75,3 +75,6 @@ file = stsi.elf
+> >   [smp]
+> >   file = smp.elf
+> >   extra_params =-smp 2
+> > +
+> > +[sclp]
+> > +file = sclp.elf
+> >   
+> 
+> 
