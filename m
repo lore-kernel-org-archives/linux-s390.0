@@ -1,480 +1,133 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39866 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409109AbfJQKvt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 17 Oct 2019 06:51:49 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V4 5/6] virtio: introduce a mdev based transport
-Date: Thu, 17 Oct 2019 18:48:35 +0800
-Message-Id: <20191017104836.32464-6-jasowang@redhat.com>
-In-Reply-To: <20191017104836.32464-1-jasowang@redhat.com>
-References: <20191017104836.32464-1-jasowang@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55630 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2502416AbfJYQNB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 12:13:01 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8uVg070107
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:00 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv46t0fea-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:00 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Fri, 25 Oct 2019 17:12:58 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH v2 03/11] zfcp: add diagnostics buffer for exchange config data
+Date: Fri, 25 Oct 2019 18:12:45 +0200
+In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
+References: <cover.1571934247.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <7d8ac0a6cad403fa8f8b888693476a84e80a277b.1572018131.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-This patch introduces a new mdev transport for virtio. This is used to
-use kernel virtio driver to drive the mediated device that is capable
-of populating virtqueue directly.
+In the same vein as the previous patch, add diagnostic data capture for
+the Exchange Config Data command.
 
-A new virtio-mdev driver will be registered to the mdev bus, when a
-new virtio-mdev device is probed, it will register the device with
-mdev based config ops. This means it is a software transport between
-mdev driver and mdev device. The transport was implemented through
-device specific ops which is a part of mdev_parent_ops now.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/virtio/Kconfig       |   7 +
- drivers/virtio/Makefile      |   1 +
- drivers/virtio/virtio_mdev.c | 409 +++++++++++++++++++++++++++++++++++
- 3 files changed, 417 insertions(+)
- create mode 100644 drivers/virtio/virtio_mdev.c
+ drivers/s390/scsi/zfcp_diag.c | 14 ++++++++++++--
+ drivers/s390/scsi/zfcp_diag.h |  7 +++++++
+ drivers/s390/scsi/zfcp_fsf.c  |  9 +++++++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 078615cf2afc..8d18722ab572 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -43,6 +43,13 @@ config VIRTIO_PCI_LEGACY
+diff --git a/drivers/s390/scsi/zfcp_diag.c b/drivers/s390/scsi/zfcp_diag.c
+index fa1b25f3ec3c..d7d2db85b32e 100644
+--- a/drivers/s390/scsi/zfcp_diag.c
++++ b/drivers/s390/scsi/zfcp_diag.c
+@@ -34,6 +34,9 @@
+  */
+ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter)
+ {
++	/* set the timestamp so that the first test on age will always fail */
++	const unsigned long initial_timestamp =
++		jiffies - msecs_to_jiffies(ZFCP_DIAG_MAX_AGE);
+ 	struct zfcp_diag_adapter *diag;
+ 	struct zfcp_diag_header *hdr;
  
- 	  If unsure, say Y.
+@@ -47,8 +50,15 @@ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter)
+ 	spin_lock_init(&hdr->access_lock);
+ 	hdr->buffer = &diag->port_data.data;
+ 	hdr->buffer_size = sizeof(diag->port_data.data);
+-	/* set the timestamp so that the first test on age will always fail */
+-	hdr->timestamp = jiffies - msecs_to_jiffies(ZFCP_DIAG_MAX_AGE);
++	hdr->timestamp = initial_timestamp;
++
++	/* setup header for config_data */
++	hdr = &diag->config_data.header;
++
++	spin_lock_init(&hdr->access_lock);
++	hdr->buffer = &diag->config_data.data;
++	hdr->buffer_size = sizeof(diag->config_data.data);
++	hdr->timestamp = initial_timestamp;
  
-+config VIRTIO_MDEV_DEVICE
-+	tristate "VIRTIO driver for Mediated devices"
-+	depends on VFIO_MDEV && VIRTIO
-+	default n
-+	help
-+	  VIRTIO based driver for Mediated devices.
-+
- config VIRTIO_PMEM
- 	tristate "Support for virtio pmem driver"
- 	depends on VIRTIO
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 3a2b5c5dcf46..ebc7fa15ae82 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -6,3 +6,4 @@ virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
- virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
- obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
- obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
-+obj-$(CONFIG_VIRTIO_MDEV_DEVICE) += virtio_mdev.o
-diff --git a/drivers/virtio/virtio_mdev.c b/drivers/virtio/virtio_mdev.c
-new file mode 100644
-index 000000000000..24c0df5ffe77
---- /dev/null
-+++ b/drivers/virtio/virtio_mdev.c
-@@ -0,0 +1,409 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VIRTIO based driver for Mediated device
-+ *
-+ * Copyright (c) 2019, Red Hat. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/uuid.h>
-+#include <linux/mdev.h>
-+#include <linux/virtio_mdev.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_ring.h>
-+
-+#define DRIVER_VERSION  "0.1"
-+#define DRIVER_AUTHOR   "Red Hat Corporation"
-+#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
-+
-+#define to_virtio_mdev_device(dev) \
-+	container_of(dev, struct virtio_mdev_device, vdev)
-+
-+struct virtio_mdev_device {
-+	struct virtio_device vdev;
-+	struct mdev_device *mdev;
-+	unsigned long version;
-+
-+	/* The lock to protect virtqueue list */
-+	spinlock_t lock;
-+	/* List of virtio_mdev_vq_info */
-+	struct list_head virtqueues;
-+};
-+
-+struct virtio_mdev_vq_info {
-+	/* the actual virtqueue */
-+	struct virtqueue *vq;
-+
-+	/* the list node for the virtqueues list */
-+	struct list_head node;
-+};
-+
-+static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_dev->mdev;
-+
-+	return mdev;
-+}
-+
-+static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
-+			    void *buf, unsigned len)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	ops->get_config(mdev, offset, buf, len);
-+}
-+
-+static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
-+			    const void *buf, unsigned len)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	ops->set_config(mdev, offset, buf, len);
-+}
-+
-+static u32 virtio_mdev_generation(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->get_generation(mdev);
-+}
-+
-+static u8 virtio_mdev_get_status(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->get_status(mdev);
-+}
-+
-+static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->set_status(mdev, status);
-+}
-+
-+static void virtio_mdev_reset(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->set_status(mdev, 0);
-+}
-+
-+static bool virtio_mdev_notify(struct virtqueue *vq)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vq->vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	ops->kick_vq(mdev, vq->index);
-+
-+	return true;
-+}
-+
-+static irqreturn_t virtio_mdev_config_cb(void *private)
-+{
-+	struct virtio_mdev_device *vm_dev = private;
-+
-+	virtio_config_changed(&vm_dev->vdev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
-+{
-+	struct virtio_mdev_vq_info *info = private;
-+
-+	return vring_interrupt(0, info->vq);
-+}
-+
-+static struct virtqueue *
-+virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned index,
-+		     void (*callback)(struct virtqueue *vq),
-+		     const char *name, bool ctx)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct virtio_mdev_vq_info *info;
-+	struct virtio_mdev_callback cb;
-+	struct virtqueue *vq;
-+	u64 desc_addr, driver_addr, device_addr;
-+	unsigned long flags;
-+	u32 align, num;
-+	int err;
-+
-+	if (!name)
-+		return NULL;
-+
-+	/* Queue shouldn't already be set up. */
-+	if (ops->get_vq_ready(mdev, index))
-+		return ERR_PTR(-ENOENT);
-+
-+	/* Allocate and fill out our active queue description */
-+	info = kmalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return ERR_PTR(-ENOMEM);
-+
-+	num = ops->get_vq_num_max(mdev);
-+	if (num == 0) {
-+		err = -ENOENT;
-+		goto error_new_virtqueue;
-+	}
-+
-+	/* Create the vring */
-+	align = ops->get_vq_align(mdev);
-+	vq = vring_create_virtqueue(index, num, align, vdev,
-+				    true, true, ctx,
-+				    virtio_mdev_notify, callback, name);
-+	if (!vq) {
-+		err = -ENOMEM;
-+		goto error_new_virtqueue;
-+	}
-+
-+	/* Setup virtqueue callback */
-+	cb.callback = virtio_mdev_virtqueue_cb;
-+	cb.private = info;
-+	ops->set_vq_cb(mdev, index, &cb);
-+	ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
-+
-+	desc_addr = virtqueue_get_desc_addr(vq);
-+	driver_addr = virtqueue_get_avail_addr(vq);
-+	device_addr = virtqueue_get_used_addr(vq);
-+
-+	if (ops->set_vq_address(mdev, index,
-+				desc_addr, driver_addr,
-+				device_addr)) {
-+		err = -EINVAL;
-+		goto err_vq;
-+	}
-+
-+	ops->set_vq_ready(mdev, index, 1);
-+
-+	vq->priv = info;
-+	info->vq = vq;
-+
-+	spin_lock_irqsave(&vm_dev->lock, flags);
-+	list_add(&info->node, &vm_dev->virtqueues);
-+	spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+	return vq;
-+
-+err_vq:
-+	vring_del_virtqueue(vq);
-+error_new_virtqueue:
-+	ops->set_vq_ready(mdev, index, 0);
-+	WARN_ON(ops->get_vq_ready(mdev, index));
-+	kfree(info);
-+	return ERR_PTR(err);
-+
-+}
-+
-+static void virtio_mdev_del_vq(struct virtqueue *vq)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vq->vdev);
-+	struct mdev_device *mdev = vm_dev->mdev;
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct virtio_mdev_vq_info *info = vq->priv;
-+	unsigned int index = vq->index;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vm_dev->lock, flags);
-+	list_del(&info->node);
-+	spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+	/* Select and deactivate the queue */
-+	ops->set_vq_ready(mdev, index, 0);
-+	WARN_ON(ops->get_vq_ready(mdev, index));
-+
-+	vring_del_virtqueue(vq);
-+
-+	kfree(info);
-+}
-+
-+static void virtio_mdev_del_vqs(struct virtio_device *vdev)
-+{
-+	struct virtqueue *vq, *n;
-+
-+	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
-+		virtio_mdev_del_vq(vq);
-+}
-+
-+static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-+				struct virtqueue *vqs[],
-+				vq_callback_t *callbacks[],
-+				const char * const names[],
-+				const bool *ctx,
-+				struct irq_affinity *desc)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct virtio_mdev_callback cb;
-+	int i, err, queue_idx = 0;
-+
-+	for (i = 0; i < nvqs; ++i) {
-+		if (!names[i]) {
-+			vqs[i] = NULL;
-+			continue;
-+		}
-+
-+		vqs[i] = virtio_mdev_setup_vq(vdev, queue_idx++,
-+					      callbacks[i], names[i], ctx ?
-+					      ctx[i] : false);
-+		if (IS_ERR(vqs[i])) {
-+			err = PTR_ERR(vqs[i]);
-+			goto err_setup_vq;
-+		}
-+	}
-+
-+	cb.callback = virtio_mdev_config_cb;
-+	cb.private = vm_dev;
-+	ops->set_config_cb(mdev, &cb);
-+
-+	return 0;
-+
-+err_setup_vq:
-+	virtio_mdev_del_vqs(vdev);
-+	return err;
-+}
-+
-+static u64 virtio_mdev_get_features(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	return ops->get_features(mdev);
-+}
-+
-+static int virtio_mdev_finalize_features(struct virtio_device *vdev)
-+{
-+	struct mdev_device *mdev = vm_get_mdev(vdev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+
-+	/* Give virtio_ring a chance to accept features. */
-+	vring_transport_features(vdev);
-+
-+	return ops->set_features(mdev, vdev->features);
-+}
-+
-+static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
-+{
-+	struct virtio_mdev_device *vm_dev = to_virtio_mdev_device(vdev);
-+	struct mdev_device *mdev = vm_dev->mdev;
-+
-+	return dev_name(mdev_dev(mdev));
-+}
-+
-+static const struct virtio_config_ops virtio_mdev_config_ops = {
-+	.get		= virtio_mdev_get,
-+	.set		= virtio_mdev_set,
-+	.generation	= virtio_mdev_generation,
-+	.get_status	= virtio_mdev_get_status,
-+	.set_status	= virtio_mdev_set_status,
-+	.reset		= virtio_mdev_reset,
-+	.find_vqs	= virtio_mdev_find_vqs,
-+	.del_vqs	= virtio_mdev_del_vqs,
-+	.get_features	= virtio_mdev_get_features,
-+	.finalize_features = virtio_mdev_finalize_features,
-+	.bus_name	= virtio_mdev_bus_name,
-+};
-+
-+static void virtio_mdev_release_dev(struct device *_d)
-+{
-+	struct virtio_device *vdev =
-+	       container_of(_d, struct virtio_device, dev);
-+	struct virtio_mdev_device *vm_dev =
-+	       container_of(vdev, struct virtio_mdev_device, vdev);
-+
-+	devm_kfree(_d, vm_dev);
-+}
-+
-+static int virtio_mdev_probe(struct device *dev)
-+{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	const struct virtio_mdev_device_ops *ops = mdev_get_dev_ops(mdev);
-+	struct virtio_mdev_device *vm_dev;
-+	int rc;
-+
-+	vm_dev = devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
-+	if (!vm_dev)
-+		return -ENOMEM;
-+
-+	vm_dev->vdev.dev.parent = dev;
-+	vm_dev->vdev.dev.release = virtio_mdev_release_dev;
-+	vm_dev->vdev.config = &virtio_mdev_config_ops;
-+	vm_dev->mdev = mdev;
-+	INIT_LIST_HEAD(&vm_dev->virtqueues);
-+	spin_lock_init(&vm_dev->lock);
-+
-+	vm_dev->version = ops->get_mdev_features(mdev);
-+	if (vm_dev->version != VIRTIO_MDEV_F_VERSION_1) {
-+		dev_err(dev, "VIRTIO_MDEV_F_VERSION_1 is mandatory\n");
-+		return -ENXIO;
-+	}
-+
-+	vm_dev->vdev.id.device = ops->get_device_id(mdev);
-+	if (vm_dev->vdev.id.device == 0)
-+		return -ENODEV;
-+
-+	vm_dev->vdev.id.vendor = ops->get_vendor_id(mdev);
-+	rc = register_virtio_device(&vm_dev->vdev);
-+	if (rc)
-+		put_device(dev);
-+	else
-+		dev_set_drvdata(dev, vm_dev);
-+
-+	return rc;
-+}
-+
-+static void virtio_mdev_remove(struct device *dev)
-+{
-+	struct virtio_mdev_device *vm_dev = dev_get_drvdata(dev);
-+
-+	unregister_virtio_device(&vm_dev->vdev);
-+}
-+
-+static const struct mdev_class_id id_table[] = {
-+	{ MDEV_CLASS_ID_VIRTIO },
-+	{ 0 },
-+};
-+
-+MODULE_DEVICE_TABLE(mdev, id_table);
-+
-+static struct mdev_driver virtio_mdev_driver = {
-+	.name	= "virtio_mdev",
-+	.probe	= virtio_mdev_probe,
-+	.remove = virtio_mdev_remove,
-+	.id_table = id_table,
-+};
-+
-+static int __init virtio_mdev_init(void)
-+{
-+	return mdev_register_driver(&virtio_mdev_driver, THIS_MODULE);
-+}
-+
-+static void __exit virtio_mdev_exit(void)
-+{
-+	mdev_unregister_driver(&virtio_mdev_driver);
-+}
-+
-+module_init(virtio_mdev_init)
-+module_exit(virtio_mdev_exit)
-+
-+MODULE_VERSION(DRIVER_VERSION);
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
+ 	adapter->diagnostics = diag;
+ 	return 0;
+diff --git a/drivers/s390/scsi/zfcp_diag.h b/drivers/s390/scsi/zfcp_diag.h
+index 2a933326b6e4..a3eb21cc201d 100644
+--- a/drivers/s390/scsi/zfcp_diag.h
++++ b/drivers/s390/scsi/zfcp_diag.h
+@@ -43,12 +43,19 @@ struct zfcp_diag_header {
+  * @port_data: data retrieved using exchange port data.
+  * @port_data.header: header with metadata for the cache in @port_data.data.
+  * @port_data.data: cached QTCB Bottom of command exchange port data.
++ * @config_data: data retrieved using exchange config data.
++ * @config_data.header: header with metadata for the cache in @config_data.data.
++ * @config_data.data: cached QTCB Bottom of command exchange config data.
+  */
+ struct zfcp_diag_adapter {
+ 	struct {
+ 		struct zfcp_diag_header		header;
+ 		struct fsf_qtcb_bottom_port	data;
+ 	} port_data;
++	struct {
++		struct zfcp_diag_header		header;
++		struct fsf_qtcb_bottom_config	data;
++	} config_data;
+ };
+ 
+ int zfcp_diag_adapter_setup(struct zfcp_adapter *const adapter);
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 883bbfd67a62..0fff060de5ac 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -556,6 +556,8 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
+ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
+ {
+ 	struct zfcp_adapter *adapter = req->adapter;
++	struct zfcp_diag_header *const diag_hdr =
++		&adapter->diagnostics->config_data.header;
+ 	struct fsf_qtcb *qtcb = req->qtcb;
+ 	struct fsf_qtcb_bottom_config *bottom = &qtcb->bottom.config;
+ 	struct Scsi_Host *shost = adapter->scsi_host;
+@@ -572,6 +574,12 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
+ 
+ 	switch (qtcb->header.fsf_status) {
+ 	case FSF_GOOD:
++		/*
++		 * usually we wait with an update till the cache is too old,
++		 * but because we have the data available, update it anyway
++		 */
++		zfcp_diag_update_xdata(diag_hdr, bottom, false);
++
+ 		if (zfcp_fsf_exchange_config_evaluate(req))
+ 			return;
+ 
+@@ -587,6 +595,7 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
+ 				&adapter->status);
+ 		break;
+ 	case FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE:
++		zfcp_diag_update_xdata(diag_hdr, bottom, true);
+ 		req->status |= ZFCP_STATUS_FSFREQ_XDATAINCOMPLETE;
+ 
+ 		fc_host_node_name(shost) = 0;
 -- 
-2.19.1
+2.21.0
