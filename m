@@ -1,63 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39036 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727281AbfJZNR1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:27 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 45/99] s390/qeth: Fix initialization of vnicc cmd masks during set online
-Date: Sat, 26 Oct 2019 09:15:06 -0400
-Message-Id: <20191026131600.2507-45-sashal@kernel.org>
-In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
-References: <20191026131600.2507-1-sashal@kernel.org>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:21232 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2436984AbfJYJE6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Oct 2019 05:04:58 -0400
+Subject: Re: [RFC 05/37] s390: KVM: Export PV handle to gmap
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-6-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <ff7418ed-ce4b-2343-8f08-01eeac6f816e@redhat.com>
+Date: Fri, 25 Oct 2019 11:04:49 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191024114059.102802-6-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+On 24.10.19 13:40, Janosch Frank wrote:
+> We need it in the next patch, when doing memory management for the
+> guest in the kernel's fault handler, where otherwise we wouldn't have
+> access to the handle.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/gmap.h | 1 +
+>   arch/s390/kvm/pv.c           | 1 +
+>   2 files changed, 2 insertions(+)
+>=20
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index 37f96b6f0e61..6efc0b501227 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -61,6 +61,7 @@ struct gmap {
+>   =09spinlock_t shadow_lock;
+>   =09struct gmap *parent;
+>   =09unsigned long orig_asce;
+> +=09unsigned long se_handle;
+>   =09int edat_level;
+>   =09bool removed;
+>   =09bool initialized;
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 94cf16f40f25..80aecd5bea9e 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -169,6 +169,7 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
+>   =09=09kvm_s390_pv_dealloc_vm(kvm);
+>   =09=09return -EINVAL;
+>   =09}
+> +=09kvm->arch.gmap->se_handle =3D uvcb.guest_handle;
+>   =09return rc;
+>   }
+>  =20
+>=20
 
-[ Upstream commit be40a86c319706f90caca144343c64743c32b953 ]
+I'd suggest squashing that into the patch that needs it.
 
-Without this patch, a command bit in the supported commands mask is only
-ever set to unsupported during set online. If a command is ever marked as
-unsupported (e.g. because of error during qeth_l2_vnicc_query_cmds),
-subsequent successful initialization (offline/online) would not bring it
-back.
+--=20
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+Thanks,
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index f011e2c43f00d..d5d0b2408a6b2 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2063,11 +2063,15 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 			sup_cmds = 0;
- 			error = true;
- 		}
--		if (!(sup_cmds & IPA_VNICC_SET_TIMEOUT) ||
--		    !(sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+		if ((sup_cmds & IPA_VNICC_SET_TIMEOUT) &&
-+		    (sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+			card->options.vnicc.getset_timeout_sup |= vnicc;
-+		else
- 			card->options.vnicc.getset_timeout_sup &= ~vnicc;
--		if (!(sup_cmds & IPA_VNICC_ENABLE) ||
--		    !(sup_cmds & IPA_VNICC_DISABLE))
-+		if ((sup_cmds & IPA_VNICC_ENABLE) &&
-+		    (sup_cmds & IPA_VNICC_DISABLE))
-+			card->options.vnicc.set_char_sup |= vnicc;
-+		else
- 			card->options.vnicc.set_char_sup &= ~vnicc;
- 	}
- 	/* enforce assumed default values and recover settings, if changed  */
--- 
-2.20.1
+David / dhildenb
