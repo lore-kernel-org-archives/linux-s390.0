@@ -1,81 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:56110 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440984AbfJQRrC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:47:02 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/21] sh: remove __iounmap
-Date: Thu, 17 Oct 2019 19:45:49 +0200
-Message-Id: <20191017174554.29840-17-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727476AbfJZNRn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:43 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 55/99] net/smc: receive pending data after RCV_SHUTDOWN
+Date: Sat, 26 Oct 2019 09:15:16 -0400
+Message-Id: <20191026131600.2507-55-sashal@kernel.org>
+In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
+References: <20191026131600.2507-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-No need to indirect iounmap for sh.
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 107529e31a87acd475ff6a0f82745821b8f70fec ]
+
+smc_rx_recvmsg() first checks if data is available, and then if
+RCV_SHUTDOWN is set. There is a race when smc_cdc_msg_recv_action() runs
+in between these 2 checks, receives data and sets RCV_SHUTDOWN.
+In that case smc_rx_recvmsg() would return from receive without to
+process the available data.
+Fix that with a final check for data available if RCV_SHUTDOWN is set.
+Move the check for data into a function and call it twice.
+And use the existing helper smc_rx_data_available().
+
+Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/include/asm/io.h | 9 ++-------
- arch/sh/mm/ioremap.c     | 4 ++--
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ net/smc/smc_rx.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
-index ac0561960c52..1495489225ac 100644
---- a/arch/sh/include/asm/io.h
-+++ b/arch/sh/include/asm/io.h
-@@ -267,7 +267,7 @@ unsigned long long poke_real_address_q(unsigned long long addr,
- #ifdef CONFIG_MMU
- void __iomem *__ioremap_caller(phys_addr_t offset, unsigned long size,
- 			       pgprot_t prot, void *caller);
--void __iounmap(void __iomem *addr);
-+void iounmap(void __iomem *addr);
- 
- static inline void __iomem *
- __ioremap(phys_addr_t offset, unsigned long size, pgprot_t prot)
-@@ -328,7 +328,7 @@ __ioremap_mode(phys_addr_t offset, unsigned long size, pgprot_t prot)
- #else
- #define __ioremap(offset, size, prot)		((void __iomem *)(offset))
- #define __ioremap_mode(offset, size, prot)	((void __iomem *)(offset))
--#define __iounmap(addr)				do { } while (0)
-+#define iounmap(addr)				do { } while (0)
- #endif /* CONFIG_MMU */
- 
- static inline void __iomem *ioremap(phys_addr_t offset, unsigned long size)
-@@ -370,11 +370,6 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
- #define ioremap_nocache	ioremap
- #define ioremap_uc	ioremap
- 
--static inline void iounmap(void __iomem *addr)
--{
--	__iounmap(addr);
--}
--
- /*
-  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
-  * access
-diff --git a/arch/sh/mm/ioremap.c b/arch/sh/mm/ioremap.c
-index d09ddfe58fd8..f6d02246d665 100644
---- a/arch/sh/mm/ioremap.c
-+++ b/arch/sh/mm/ioremap.c
-@@ -103,7 +103,7 @@ static inline int iomapping_nontranslatable(unsigned long offset)
- 	return 0;
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index 0000026422885..97e8369002d71 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -261,6 +261,18 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
+ 	return -EAGAIN;
  }
  
--void __iounmap(void __iomem *addr)
-+void iounmap(void __iomem *addr)
- {
- 	unsigned long vaddr = (unsigned long __force)addr;
- 	struct vm_struct *p;
-@@ -134,4 +134,4 @@ void __iounmap(void __iomem *addr)
++static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (smc_rx_data_available(conn))
++		return true;
++	else if (conn->urg_state == SMC_URG_VALID)
++		/* we received a single urgent Byte - skip */
++		smc_rx_update_cons(smc, 0);
++	return false;
++}
++
+ /* smc_rx_recvmsg - receive data from RMBE
+  * @msg:	copy data to receive buffer
+  * @pipe:	copy data to pipe if set - indicates splice() call
+@@ -302,15 +314,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+ 		if (read_done >= target || (pipe && read_done))
+ 			break;
  
- 	kfree(p);
- }
--EXPORT_SYMBOL(__iounmap);
-+EXPORT_SYMBOL(iounmap);
+-		if (atomic_read(&conn->bytes_to_rcv))
++		if (smc_rx_recvmsg_data_available(smc))
+ 			goto copy;
+-		else if (conn->urg_state == SMC_URG_VALID)
+-			/* we received a single urgent Byte - skip */
+-			smc_rx_update_cons(smc, 0);
+ 
+ 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
+-		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
++		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
++			/* smc_cdc_msg_recv_action() could have run after
++			 * above smc_rx_recvmsg_data_available()
++			 */
++			if (smc_rx_recvmsg_data_available(smc))
++				goto copy;
+ 			break;
++		}
+ 
+ 		if (read_done) {
+ 			if (sk->sk_err ||
 -- 
 2.20.1
