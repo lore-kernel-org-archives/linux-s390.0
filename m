@@ -1,70 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:55734 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440986AbfJQRqz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:55 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/21] nios2: remove __iounmap
-Date: Thu, 17 Oct 2019 19:45:48 +0200
-Message-Id: <20191017174554.29840-16-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:39256 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727450AbfJZNRl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:41 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 53/99] net/smc: fix SMCD link group creation with VLAN id
+Date: Sat, 26 Oct 2019 09:15:14 -0400
+Message-Id: <20191026131600.2507-53-sashal@kernel.org>
+In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
+References: <20191026131600.2507-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-No need to indirect iounmap for nios2.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 29ee2701529e1905c0e948688f9688c68c8d4ea4 ]
+
+If creation of an SMCD link group with VLAN id fails, the initial
+smc_ism_get_vlan() step has to be reverted as well.
+
+Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/include/asm/io.h | 7 +------
- arch/nios2/mm/ioremap.c     | 6 +++---
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ net/smc/smc_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
-index d108937c321e..746853ac7d8d 100644
---- a/arch/nios2/include/asm/io.h
-+++ b/arch/nios2/include/asm/io.h
-@@ -26,12 +26,7 @@
- #define writel_relaxed(x, addr)	writel(x, addr)
- 
- void __iomem *ioremap(unsigned long physaddr, unsigned long size);
--extern void __iounmap(void __iomem *addr);
--
--static inline void iounmap(void __iomem *addr)
--{
--	__iounmap(addr);
--}
-+void iounmap(void __iomem *addr);
- 
- /* Pages to physical address... */
- #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
-diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
-index 7a1a27f3daa3..b56af759dcdf 100644
---- a/arch/nios2/mm/ioremap.c
-+++ b/arch/nios2/mm/ioremap.c
-@@ -157,11 +157,11 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
- EXPORT_SYMBOL(ioremap);
- 
- /*
-- * __iounmap unmaps nearly everything, so be careful
-+ * iounmap unmaps nearly everything, so be careful
-  * it doesn't free currently pointer/page tables anymore but it
-  * wasn't used anyway and might be added later.
-  */
--void __iounmap(void __iomem *addr)
-+void iounmap(void __iomem *addr)
- {
- 	struct vm_struct *p;
- 
-@@ -173,4 +173,4 @@ void __iounmap(void __iomem *addr)
- 		pr_err("iounmap: bad address %p\n", addr);
- 	kfree(p);
- }
--EXPORT_SYMBOL(__iounmap);
-+EXPORT_SYMBOL(iounmap);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 4ca50ddf8d161..88556f0251ab9 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -213,7 +213,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	lgr = kzalloc(sizeof(*lgr), GFP_KERNEL);
+ 	if (!lgr) {
+ 		rc = SMC_CLC_DECL_MEM;
+-		goto out;
++		goto ism_put_vlan;
+ 	}
+ 	lgr->is_smcd = ini->is_smcd;
+ 	lgr->sync_err = 0;
+@@ -289,6 +289,9 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	smc_llc_link_clear(lnk);
+ free_lgr:
+ 	kfree(lgr);
++ism_put_vlan:
++	if (ini->is_smcd && ini->vlan_id)
++		smc_ism_put_vlan(ini->ism_dev, ini->vlan_id);
+ out:
+ 	if (rc < 0) {
+ 		if (rc == -ENOMEM)
 -- 
 2.20.1
