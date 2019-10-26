@@ -1,151 +1,85 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 09/29] vmlinux.lds.h: Move Program Header restoration into NOTES macro
-Date: Thu, 10 Oct 2019 17:05:49 -0700
-Message-Id: <20191011000609.29728-10-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 37/59] net/smc: receive pending data after RCV_SHUTDOWN
+Date: Sat, 26 Oct 2019 09:18:48 -0400
+Message-Id: <20191026131910.3435-37-sashal@kernel.org>
+In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
+References: <20191026131910.3435-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-In preparation for moving NOTES into RO_DATA, make the Program Header
-assignment restoration be part of the NOTES macro itself.
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
+[ Upstream commit 107529e31a87acd475ff6a0f82745821b8f70fec ]
+
+smc_rx_recvmsg() first checks if data is available, and then if
+RCV_SHUTDOWN is set. There is a race when smc_cdc_msg_recv_action() runs
+in between these 2 checks, receives data and sets RCV_SHUTDOWN.
+In that case smc_rx_recvmsg() would return from receive without to
+process the available data.
+Fix that with a final check for data available if RCV_SHUTDOWN is set.
+Move the check for data into a function and call it twice.
+And use the existing helper smc_rx_data_available().
+
+Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/vmlinux.lds.S   |  5 +----
- arch/ia64/kernel/vmlinux.lds.S    |  4 +---
- arch/mips/kernel/vmlinux.lds.S    |  3 +--
- arch/powerpc/kernel/vmlinux.lds.S |  4 +---
- arch/s390/kernel/vmlinux.lds.S    |  4 +---
- arch/x86/kernel/vmlinux.lds.S     |  3 +--
- include/asm-generic/vmlinux.lds.h | 13 +++++++++++--
- 7 files changed, 17 insertions(+), 19 deletions(-)
+ net/smc/smc_rx.c | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index 363a60ba7c31..cdfdc91ce64c 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -34,10 +34,7 @@ SECTIONS
- 	swapper_pg_dir = SWAPPER_PGD;
- 	_etext = .;	/* End of text section */
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index 1ee5fdbf8284e..36340912df48a 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -262,6 +262,18 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
+ 	return -EAGAIN;
+ }
  
--	NOTES :text :note
--	.dummy : {
--		*(.dummy)
--	} :text
-+	NOTES
++static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
++{
++	struct smc_connection *conn = &smc->conn;
++
++	if (smc_rx_data_available(conn))
++		return true;
++	else if (conn->urg_state == SMC_URG_VALID)
++		/* we received a single urgent Byte - skip */
++		smc_rx_update_cons(smc, 0);
++	return false;
++}
++
+ /* smc_rx_recvmsg - receive data from RMBE
+  * @msg:	copy data to receive buffer
+  * @pipe:	copy data to pipe if set - indicates splice() call
+@@ -303,15 +315,18 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+ 		if (read_done >= target || (pipe && read_done))
+ 			break;
  
- 	RODATA
- 	EXCEPTION_TABLE(16)
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index 7cf4958b732d..bfc937ec168c 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -70,9 +70,7 @@ SECTIONS {
- 	/*
- 	 * Read-only data
- 	 */
--	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
--	code_continues : {
--	} :text                /* switch back to regular program...  */
-+	NOTES
+-		if (atomic_read(&conn->bytes_to_rcv))
++		if (smc_rx_recvmsg_data_available(smc))
+ 			goto copy;
+-		else if (conn->urg_state == SMC_URG_VALID)
+-			/* we received a single urgent Byte - skip */
+-			smc_rx_update_cons(smc, 0);
  
- 	EXCEPTION_TABLE(16)
+ 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
+-		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
++		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort) {
++			/* smc_cdc_msg_recv_action() could have run after
++			 * above smc_rx_recvmsg_data_available()
++			 */
++			if (smc_rx_recvmsg_data_available(smc))
++				goto copy;
+ 			break;
++		}
  
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 1c95612eb800..6a22f531d815 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -81,8 +81,7 @@ SECTIONS
- 		__stop___dbe_table = .;
- 	}
- 
--	NOTES NOTES_HEADERS
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- 	_sdata = .;			/* Start of data section */
- 	RODATA
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 7e26e20c8324..4f19d814d592 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -164,9 +164,7 @@ SECTIONS
- #endif
- 	EXCEPTION_TABLE(0)
- 
--	NOTES :text :note
--	/* Restore program header away from PT_NOTE. */
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- /*
-  * Init sections discarded at runtime
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index 646d939346df..f88eedeb915a 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -52,9 +52,7 @@ SECTIONS
- 		_etext = .;		/* End of text section */
- 	} :text = 0x0700
- 
--	NOTES :text :note
--
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- 	RO_DATA_SECTION(PAGE_SIZE)
- 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 2e18bf5c1aed..8be25b09c2b7 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -148,8 +148,7 @@ SECTIONS
- 		_etext = .;
- 	} :text = 0x9090
- 
--	NOTES :text :note
--	.dummy : { *(.dummy) } :text
-+	NOTES
- 
- 	EXCEPTION_TABLE(16)
- 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index f5dd45ce73f1..97d4299f14dc 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -56,10 +56,18 @@
- 
- /*
-  * Only some architectures want to have the .notes segment visible in
-- * a separate PT_NOTE ELF Program Header.
-+ * a separate PT_NOTE ELF Program Header. When this happens, it needs
-+ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
-+ * Program Headers. In this case, though, the PT_LOAD needs to be made
-+ * the default again so that all the following sections don't also end
-+ * up in the PT_NOTE Program Header.
-  */
- #ifdef EMITS_PT_NOTE
- #define NOTES_HEADERS		:text :note
-+#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
-+#else
-+#define NOTES_HEADERS
-+#define NOTES_HEADERS_RESTORE
- #endif
- 
- /* Align . to a 8 byte boundary equals to maximum function alignment. */
-@@ -798,7 +806,8 @@
- 		__start_notes = .;					\
- 		KEEP(*(.note.*))					\
- 		__stop_notes = .;					\
--	}
-+	} NOTES_HEADERS							\
-+	NOTES_HEADERS_RESTORE
- 
- #define INIT_SETUP(initsetup_align)					\
- 		. = ALIGN(initsetup_align);				\
+ 		if (read_done) {
+ 			if (sk->sk_err ||
 -- 
-2.17.1
+2.20.1
