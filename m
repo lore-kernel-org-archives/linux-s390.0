@@ -1,79 +1,71 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:36834 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727407AbfJ2GtK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:10 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/21] hexagon: clean up ioremap
-Date: Tue, 29 Oct 2019 07:48:17 +0100
-Message-Id: <20191029064834.23438-5-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 44/99] s390/qeth: Fix error handling during VNICC initialization
+Date: Sat, 26 Oct 2019 09:15:05 -0400
+Message-Id: <20191026131600.2507-44-sashal@kernel.org>
+In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
+References: <20191026131600.2507-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Use ioremap as the main implemented function, and defined
-ioremap_nocache to it as a deprecated alias.
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit b528965bcc827dad32a8d21745feaacfc76c9703 ]
+
+Smatch discovered the use of uninitialized variable sup_cmds
+in error paths.
+
+Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/hexagon/include/asm/io.h       | 11 ++---------
- arch/hexagon/kernel/hexagon_ksyms.c |  2 +-
- arch/hexagon/mm/ioremap.c           |  2 +-
- 3 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/hexagon/include/asm/io.h b/arch/hexagon/include/asm/io.h
-index ba1a444d55b3..89537dc1cf97 100644
---- a/arch/hexagon/include/asm/io.h
-+++ b/arch/hexagon/include/asm/io.h
-@@ -171,16 +171,9 @@ static inline void writel(u32 data, volatile void __iomem *addr)
- #define writew_relaxed __raw_writew
- #define writel_relaxed __raw_writel
- 
--/*
-- * Need an mtype somewhere in here, for cache type deals?
-- * This is probably too long for an inline.
-- */
--void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size);
-+void __iomem *ioremap(unsigned long phys_addr, unsigned long size);
-+#define ioremap_nocache ioremap
- 
--static inline void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
--{
--	return ioremap_nocache(phys_addr, size);
--}
- 
- static inline void iounmap(volatile void __iomem *addr)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index cbead3d1b2fd2..f011e2c43f00d 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2035,10 +2035,10 @@ static bool qeth_l2_vnicc_recover_char(struct qeth_card *card, u32 vnicc,
+ static void qeth_l2_vnicc_init(struct qeth_card *card)
  {
-diff --git a/arch/hexagon/kernel/hexagon_ksyms.c b/arch/hexagon/kernel/hexagon_ksyms.c
-index cf8974beb500..b3dbb472572e 100644
---- a/arch/hexagon/kernel/hexagon_ksyms.c
-+++ b/arch/hexagon/kernel/hexagon_ksyms.c
-@@ -20,7 +20,7 @@ EXPORT_SYMBOL(__vmgetie);
- EXPORT_SYMBOL(__vmsetie);
- EXPORT_SYMBOL(__vmyield);
- EXPORT_SYMBOL(empty_zero_page);
--EXPORT_SYMBOL(ioremap_nocache);
-+EXPORT_SYMBOL(ioremap);
- EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memset);
+ 	u32 *timeout = &card->options.vnicc.learning_timeout;
++	bool enable, error = false;
+ 	unsigned int chars_len, i;
+ 	unsigned long chars_tmp;
+ 	u32 sup_cmds, vnicc;
+-	bool enable, error;
  
-diff --git a/arch/hexagon/mm/ioremap.c b/arch/hexagon/mm/ioremap.c
-index 77d8e1e69e9b..b103d83b5fbb 100644
---- a/arch/hexagon/mm/ioremap.c
-+++ b/arch/hexagon/mm/ioremap.c
-@@ -9,7 +9,7 @@
- #include <linux/vmalloc.h>
- #include <linux/mm.h>
- 
--void __iomem *ioremap_nocache(unsigned long phys_addr, unsigned long size)
-+void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
- {
- 	unsigned long last_addr, addr;
- 	unsigned long offset = phys_addr & ~PAGE_MASK;
+ 	QETH_CARD_TEXT(card, 2, "vniccini");
+ 	/* reset rx_bcast */
+@@ -2059,7 +2059,10 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
+ 	chars_len = sizeof(card->options.vnicc.sup_chars) * BITS_PER_BYTE;
+ 	for_each_set_bit(i, &chars_tmp, chars_len) {
+ 		vnicc = BIT(i);
+-		qeth_l2_vnicc_query_cmds(card, vnicc, &sup_cmds);
++		if (qeth_l2_vnicc_query_cmds(card, vnicc, &sup_cmds)) {
++			sup_cmds = 0;
++			error = true;
++		}
+ 		if (!(sup_cmds & IPA_VNICC_SET_TIMEOUT) ||
+ 		    !(sup_cmds & IPA_VNICC_GET_TIMEOUT))
+ 			card->options.vnicc.getset_timeout_sup &= ~vnicc;
+@@ -2068,8 +2071,8 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
+ 			card->options.vnicc.set_char_sup &= ~vnicc;
+ 	}
+ 	/* enforce assumed default values and recover settings, if changed  */
+-	error = qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
+-					      timeout);
++	error |= qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
++					       timeout);
+ 	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
+ 	chars_tmp |= QETH_VNICC_BRIDGE_INVISIBLE;
+ 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
 -- 
 2.20.1
