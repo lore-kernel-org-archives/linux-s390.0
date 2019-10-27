@@ -1,66 +1,83 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725440AbfJIIFB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 04:05:01 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9982x8L097617
-        for <linux-s390@vger.kernel.org>; Wed, 9 Oct 2019 04:04:59 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vha4ck3xf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 09 Oct 2019 04:04:59 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Wed, 9 Oct 2019 09:04:57 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 2/3] net/smc: receive returns without data
-Date: Wed,  9 Oct 2019 10:04:40 +0200
-In-Reply-To: <20191009080441.76077-1-kgraul@linux.ibm.com>
-References: <20191009080441.76077-1-kgraul@linux.ibm.com>
-Message-Id: <20191009080441.76077-3-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Mon, 28 Oct 2019 02:41:15 +1100
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH RESEND v14 2/6] namei: LOOKUP_IN_ROOT: chroot-like path
+ resolution
+Message-ID: <20191027154115.ex55njkysey4m6pu@yavin.dot.cyphar.com>
+References: <20191026185700.10708-1-cyphar@cyphar.com>
+ <20191026185700.10708-3-cyphar@cyphar.com>
+ <CAHk-=wjPPWvm5_eR4uaHJaU1isTUk-4iXQV3Z2Px9A+w6j2nHg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="x254sstnuxqz6cbi"
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wjPPWvm5_eR4uaHJaU1isTUk-4iXQV3Z2Px9A+w6j2nHg@mail.gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linux Containers <containers@lists.linux-foundation.org>, alpha <linux-alpha@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, GNU C Library <libc-alpha@sourceware.org>, linux-arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-fsdevel <linux-fsdevel@vger.kernel.org>, linux-ia64@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-smc_cdc_rxed_any_close_or_senddone() is used as an end condition for the
-receive loop. This conflicts with smc_cdc_msg_recv_action() which could
-run in parallel and set the bits checked by
-smc_cdc_rxed_any_close_or_senddone() before the receive is processed.
-In that case we could return from receive with no data, although data is
-available. The same applies to smc_rx_wait().
-Fix this by checking for RCV_SHUTDOWN only, which is set in
-smc_cdc_msg_recv_action() after the receive was actually processed.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_rx.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+--x254sstnuxqz6cbi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-index 413a6abf227e..000002642288 100644
---- a/net/smc/smc_rx.c
-+++ b/net/smc/smc_rx.c
-@@ -211,8 +211,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
- 	rc = sk_wait_event(sk, timeo,
- 			   sk->sk_err ||
- 			   sk->sk_shutdown & RCV_SHUTDOWN ||
--			   fcrit(conn) ||
--			   smc_cdc_rxed_any_close_or_senddone(conn),
-+			   fcrit(conn),
- 			   &wait);
- 	remove_wait_queue(sk_sleep(sk), &wait);
- 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
-@@ -310,7 +309,6 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
- 			smc_rx_update_cons(smc, 0);
- 
- 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
--		    smc_cdc_rxed_any_close_or_senddone(conn) ||
- 		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
- 			break;
- 
--- 
-2.17.1
+On 2019-10-27, Linus Torvalds <torvalds@linux-foundation.org> wrote:
+> On Sat, Oct 26, 2019 at 2:58 PM Aleksa Sarai <cyphar@cyphar.com> wrote:
+> >
+> > +       /* LOOKUP_IN_ROOT treats absolute paths as being relative-to-di=
+rfd. */
+> > +       if (flags & LOOKUP_IN_ROOT)
+> > +               while (*s =3D=3D '/')
+> > +                       s++;
+> > +
+> >         /* Figure out the starting path and root (if needed). */
+> >         if (*s =3D=3D '/') {
+> >                 error =3D nd_jump_root(nd);
+>=20
+> So I'm still hung up on this.
+>=20
+> I guess I can't help it, but I look at the above, and it makes me go
+> "whoever wrote those tests wasn't thinking".
+>=20
+> It just annoys me how it tests for '/' completely unnecessarily.
+>=20
+> If LOOKUP_IN_ROOT is true, we know the subsequent test for '/' is not
+> going to match, because we just removed it. So I look at that code and
+> go "that code is doing stupid things".
+
+Okay, fair enough.
+
+> That's why I suggested moving the LOOKUP_IN_ROOT check inside the '/' tes=
+t.
+>=20
+> Alternatively, just make the logic be
+>=20
+>         if (flags & LOOKUP_IN_ROOT) {
+>                .. remove '/'s ...
+>         } else if (*s =3D=3D '/') {
+>                 .. handl;e root ..
+>=20
+> and remove the next "else" clause
+
+I've gone with the latter since I think it reads better.
+
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
+
+--x254sstnuxqz6cbi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXbW6lwAKCRCdlLljIbnQ
+EoPNAP0TH7raCw5NCLFnqJEAJ2bl+pDz8oGtxQKGtoXC7HohOQEAqFv71cuFJjle
+mvHPyKwhvNv8coIv55o8qUxny+XxIAg=
+=0iVb
+-----END PGP SIGNATURE-----
+
+--x254sstnuxqz6cbi--
