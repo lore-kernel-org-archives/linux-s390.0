@@ -1,80 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40112 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbfJFI5M (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Oct 2019 04:57:12 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:27866 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2390178AbfJ1Pyo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 28 Oct 2019 11:54:44 -0400
+Subject: Re: [RFC 03/37] s390/protvirt: add ultravisor initialization
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-4-frankja@linux.ibm.com>
+ <d0bc545a-fdbb-2aa9-4f0a-2e0ea1abce5b@redhat.com>
+ <your-ad-here.call-01572277730-ext-9266@work.hours>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v6 02/10] mm/memmap_init: Update variable name in memmap_init_zone
-Date: Sun,  6 Oct 2019 10:56:38 +0200
-Message-Id: <20191006085646.5768-3-david@redhat.com>
-In-Reply-To: <20191006085646.5768-1-david@redhat.com>
-References: <20191006085646.5768-1-david@redhat.com>
+Message-ID: <6a5b7e54-ca44-4341-9772-e782aa67cd53@redhat.com>
+Date: Mon, 28 Oct 2019 16:54:36 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <your-ad-here.call-01572277730-ext-9266@work.hours>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Potapenko <glider@google.com>, Pankaj Gupta <pagupta@redhat.com>, David Hildenbrand <david@redhat.com>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+On 28.10.19 16:48, Vasily Gorbik wrote:
+> On Fri, Oct 25, 2019 at 11:21:05AM +0200, David Hildenbrand wrote:
+>> On 24.10.19 13:40, Janosch Frank wrote:
+>>> From: Vasily Gorbik <gor@linux.ibm.com>
+>>>
+>>> Before being able to host protected virtual machines, donate some of
+>>> the memory to the ultravisor. Besides that the ultravisor might impose
+>>> addressing limitations for memory used to back protected VM storage. Tr=
+eat
+>>> that limit as protected virtualization host's virtual memory limit.
+>>>
+>>> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+>>> ---
+>>>    arch/s390/include/asm/uv.h | 16 ++++++++++++
+>>>    arch/s390/kernel/setup.c   |  3 +++
+>>>    arch/s390/kernel/uv.c      | 53 ++++++++++++++++++++++++++++++++++++=
+++
+>>>    3 files changed, 72 insertions(+)
+>>>
+>>> --- a/arch/s390/kernel/setup.c
+>>> +++ b/arch/s390/kernel/setup.c
+>>> @@ -567,6 +567,8 @@ static void __init setup_memory_end(void)
+>>>    =09=09=09vmax =3D _REGION1_SIZE; /* 4-level kernel page table */
+>>>    =09}
+>>> +=09adjust_to_uv_max(&vmax);
+>>
+>> I do wonder what would happen if vmax < max_physmem_end. Not sure if tha=
+t is
+>> relevant at all.
+>=20
+> Then identity mapping would be shorter then actual physical memory availa=
+ble
+> and everything above would be lost. But in reality "max_sec_stor_addr"
+> is big enough to not worry about it in the foreseeable future at all.
+>=20
+>>> +void __init setup_uv(void)
+>>> +{
+>>> +=09unsigned long uv_stor_base;
+>>> +
+>>> +=09if (!prot_virt_host)
+>>> +=09=09return;
+>>> +
+>>> +=09uv_stor_base =3D (unsigned long)memblock_alloc_try_nid(
+>>> +=09=09uv_info.uv_base_stor_len, SZ_1M, SZ_2G,
+>>> +=09=09MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_NO_NODE);
+>>> +=09if (!uv_stor_base) {
+>>> +=09=09pr_info("Failed to reserve %lu bytes for ultravisor base storage=
+\n",
+>>> +=09=09=09uv_info.uv_base_stor_len);
+>>> +=09=09goto fail;
+>>> +=09}
+>>
+>> If I'm not wrong, we could setup/reserve a CMA area here and defer the
+>> actual allocation. Then, any MOVABLE data can end up on this CMA area un=
+til
+>> needed.
+>>
+>> But I am neither an expert on CMA nor on UV, so most probably what I say=
+ is
+>> wrong ;)
+>=20
+>  From pure memory management this sounds like a good idea. And I tried
+> it and cma_declare_contiguous fulfills our needs, just had to export
+> cma_alloc/cma_release symbols. Nevertheless, delaying ultravisor init mea=
+ns we
+> would be potentially left with vmax =3D=3D max_sec_stor_addr even if we w=
+ouldn't
+> be able to run protected VMs after all (currently setup_uv() is called
+> before kernel address space layout setup). Another much more fundamental
+> reason is that ultravisor init has to be called with a single cpu running=
+,
+> which means it's easy to do before bringing other cpus up and we currentl=
+y
+> don't have api to stop cpus at a later point (stop_machine won't cut it).
 
-The third argument is actually number of pages. Changes the variable name
-from size to nr_pages to indicate this better.
+Interesting point, I guess. One could hack around that. Emphasis on=20
+*hack* :) In stop_machine() you caught all CPUs. You could just=20
+temporarily SIGP STOP all running ones, issue the UV init call, and SIGP=20
+START them again. Not sure how that works with SMP, though ...
 
-No functional change in this patch.
+But yeah, this is stuff for the future, just an idea from my side :)
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Alexander Potapenko <glider@google.com>
-Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/page_alloc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+--=20
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 15c2050c629b..b0b2d5464000 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5936,10 +5936,10 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
- #ifdef CONFIG_ZONE_DEVICE
- void __ref memmap_init_zone_device(struct zone *zone,
- 				   unsigned long start_pfn,
--				   unsigned long size,
-+				   unsigned long nr_pages,
- 				   struct dev_pagemap *pgmap)
- {
--	unsigned long pfn, end_pfn = start_pfn + size;
-+	unsigned long pfn, end_pfn = start_pfn + nr_pages;
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 	struct vmem_altmap *altmap = pgmap_altmap(pgmap);
- 	unsigned long zone_idx = zone_idx(zone);
-@@ -5956,7 +5956,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
- 	 */
- 	if (altmap) {
- 		start_pfn = altmap->base_pfn + vmem_altmap_offset(altmap);
--		size = end_pfn - start_pfn;
-+		nr_pages = end_pfn - start_pfn;
- 	}
- 
- 	for (pfn = start_pfn; pfn < end_pfn; pfn++) {
-@@ -6003,7 +6003,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
- 	}
- 
- 	pr_info("%s initialised %lu pages in %ums\n", __func__,
--		size, jiffies_to_msecs(jiffies - start));
-+		nr_pages, jiffies_to_msecs(jiffies - start));
- }
- 
- #endif
--- 
-2.21.0
+Thanks,
+
+David / dhildenb
