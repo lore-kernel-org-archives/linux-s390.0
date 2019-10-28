@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH RFC 0/5] ARM: Raspberry Pi 4 DMA support
-Date: Mon, 14 Oct 2019 20:31:02 +0200
-Message-Id: <20191014183108.24804-1-nsaenzjulienne@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:42378 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389622AbfJ1VGJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Oct 2019 17:06:09 -0400
+Received: by mail-wr1-f65.google.com with SMTP id r1so11376073wrs.9
+        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 14:06:07 -0700 (PDT)
+From: Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH 4/6] powerpc: Use bool in archrandom.h
+Date: Mon, 28 Oct 2019 22:05:57 +0100
+Message-Id: <20191028210559.8289-5-rth@twiddle.net>
+In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
+References: <20191028210559.8289-1-rth@twiddle.net>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-rpi-kernel@lists.infradead.org, iommu@lists.linux-foundation.org
-Cc: hch@infradead.org, mbrugger@suse.com, f.fainelli@gmail.com, wahrenst@gmx.net, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
 
-Hi all,
-the Raspberry Pi 4 offers up to 4GB of memory, of which only the first
-is DMA capable device wide. This forces us to use of bounce buffers,
-which are currently not very well supported by ARM's custom DMA ops.
-Among other things the current mechanism (see dmabounce.c) isn't
-suitable for high memory. Instead of fixing it, this series introduces a
-way of selecting dma-direct as the default DMA ops provider which allows
-for the Raspberry Pi to make use of swiotlb.
+The generic interface uses bool not int; match that.
 
-Regards,
-Nicolas
-
+Signed-off-by: Richard Henderson <rth@twiddle.net>
 ---
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+---
+ arch/powerpc/include/asm/archrandom.h | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-Nicolas Saenz Julienne (5):
-  dma/direct: turn ARCH_ZONE_DMA_BITS into a variable
-  ARM: introduce arm_dma_direct
-  ARM: let machines select dma-direct over arch's DMA implementation
-  dma/direct: check for overflows in ARM's dma_capable()
-  ARM: bcm2711: use dma-direct
-
- arch/arm/include/asm/dma-direct.h  |  6 ++++++
- arch/arm/include/asm/dma-mapping.h |  3 ++-
- arch/arm/include/asm/dma.h         |  2 ++
- arch/arm/include/asm/mach/arch.h   |  1 +
- arch/arm/mach-bcm/Kconfig          |  1 +
- arch/arm/mach-bcm/bcm2711.c        |  1 +
- arch/arm/mm/dma-mapping.c          | 10 ++--------
- arch/arm/mm/init.c                 | 21 ++++++++++++++++++++-
- arch/arm64/include/asm/page.h      |  2 --
- arch/arm64/mm/init.c               |  9 +++++++--
- arch/powerpc/include/asm/page.h    |  9 ---------
- arch/powerpc/mm/mem.c              | 20 +++++++++++++++-----
- arch/s390/include/asm/page.h       |  2 --
- arch/s390/mm/init.c                |  1 +
- include/linux/dma-direct.h         |  2 ++
- kernel/dma/direct.c                | 13 ++++++-------
- 16 files changed, 66 insertions(+), 37 deletions(-)
-
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 9c63b596e6ce..f8a887c8b7f8 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -6,27 +6,28 @@
+ 
+ #include <asm/machdep.h>
+ 
+-static inline int arch_get_random_long(unsigned long *v)
++static inline bool arch_get_random_long(unsigned long *v)
+ {
+-	return 0;
++	return false;
+ }
+ 
+-static inline int arch_get_random_int(unsigned int *v)
++static inline bool arch_get_random_int(unsigned int *v)
+ {
+-	return 0;
++	return false;
+ }
+ 
+-static inline int arch_get_random_seed_long(unsigned long *v)
++static inline bool arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (ppc_md.get_random_seed)
+ 		return ppc_md.get_random_seed(v);
+ 
+-	return 0;
++	return false;
+ }
+-static inline int arch_get_random_seed_int(unsigned int *v)
++
++static inline bool arch_get_random_seed_int(unsigned int *v)
+ {
+ 	unsigned long val;
+-	int rc;
++	bool rc;
+ 
+ 	rc = arch_get_random_long(&val);
+ 	if (rc)
+@@ -35,15 +36,16 @@ static inline int arch_get_random_seed_int(unsigned int *v)
+ 	return rc;
+ }
+ 
+-static inline int arch_has_random(void)
++static inline bool arch_has_random(void)
+ {
+-	return 0;
++	return false;
+ }
+ 
+-static inline int arch_has_random_seed(void)
++static inline bool arch_has_random_seed(void)
+ {
+ 	return !!ppc_md.get_random_seed;
+ }
++
+ #endif /* CONFIG_ARCH_RANDOM */
+ 
+ #ifdef CONFIG_PPC_POWERNV
 -- 
-2.23.0
+2.17.1
