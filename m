@@ -1,70 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64256 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2505167AbfJYQND (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Oct 2019 12:13:03 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG8xn3043133
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:02 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vv1xnx410-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 12:13:01 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
-        Fri, 25 Oct 2019 17:13:00 +0100
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH v2 11/11] zfcp: trace channel log even for FCP command responses
-Date: Fri, 25 Oct 2019 18:12:53 +0200
-In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
-References: <cover.1571934247.git.bblock@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:52158 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389619AbfJ1VGI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Oct 2019 17:06:08 -0400
+Received: by mail-wm1-f65.google.com with SMTP id q70so428306wme.1
+        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 14:06:06 -0700 (PDT)
+From: Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH 3/6] x86: Mark archrandom.h functions __must_check
+Date: Mon, 28 Oct 2019 22:05:56 +0100
+Message-Id: <20191028210559.8289-4-rth@twiddle.net>
+In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
+References: <20191028210559.8289-1-rth@twiddle.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>
 
-From: Steffen Maier <maier@linux.ibm.com>
+We cannot use the pointer output without validating the
+success of the random read.
 
-While v2.6.26 commit b75db73159cc
-("[SCSI] zfcp: Add qtcb dump to hba debug trace")
-is right that we don't want to flood the (payload) trace ring buffer,
-we don't trace successful FCP command responses by default.
-So we can include the channel log for problem determination
-with failed responses of any FSF request type.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
-Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
-Cc: <stable@vger.kernel.org> #2.6.38+
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
 ---
- drivers/s390/scsi/zfcp_dbf.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+---
+ arch/x86/include/asm/archrandom.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index dccdb41bed8c..1234294700c4 100644
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -95,11 +95,9 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
- 	memcpy(rec->u.res.fsf_status_qual, &q_head->fsf_status_qual,
- 	       FSF_STATUS_QUALIFIER_SIZE);
+diff --git a/arch/x86/include/asm/archrandom.h b/arch/x86/include/asm/archrandom.h
+index 5904d7d9e703..9e4ea9e53dd0 100644
+--- a/arch/x86/include/asm/archrandom.h
++++ b/arch/x86/include/asm/archrandom.h
+@@ -27,7 +27,7 @@
  
--	if (q_head->fsf_command != FSF_QTCB_FCP_CMND) {
--		rec->pl_len = q_head->log_length;
--		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
--				  rec->pl_len, "fsf_res", req->req_id);
--	}
-+	rec->pl_len = q_head->log_length;
-+	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
-+			  rec->pl_len, "fsf_res", req->req_id);
+ /* Unconditional execution of RDRAND and RDSEED */
  
- 	debug_event(dbf->hba, level, rec, sizeof(*rec));
- 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+-static inline bool rdrand_long(unsigned long *v)
++static inline bool __must_check rdrand_long(unsigned long *v)
+ {
+ 	bool ok;
+ 	unsigned int retry = RDRAND_RETRY_LOOPS;
+@@ -41,7 +41,7 @@ static inline bool rdrand_long(unsigned long *v)
+ 	return false;
+ }
+ 
+-static inline bool rdrand_int(unsigned int *v)
++static inline bool __must_check rdrand_int(unsigned int *v)
+ {
+ 	bool ok;
+ 	unsigned int retry = RDRAND_RETRY_LOOPS;
+@@ -55,7 +55,7 @@ static inline bool rdrand_int(unsigned int *v)
+ 	return false;
+ }
+ 
+-static inline bool rdseed_long(unsigned long *v)
++static inline bool __must_check rdseed_long(unsigned long *v)
+ {
+ 	bool ok;
+ 	asm volatile(RDSEED_LONG
+@@ -64,7 +64,7 @@ static inline bool rdseed_long(unsigned long *v)
+ 	return ok;
+ }
+ 
+-static inline bool rdseed_int(unsigned int *v)
++static inline bool __must_check rdseed_int(unsigned int *v)
+ {
+ 	bool ok;
+ 	asm volatile(RDSEED_INT
+@@ -84,22 +84,22 @@ static inline bool rdseed_int(unsigned int *v)
+ #define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
+ #define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
+ 
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
+ {
+ 	return arch_has_random() ? rdrand_long(v) : false;
+ }
+ 
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return arch_has_random() ? rdrand_int(v) : false;
+ }
+ 
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	return arch_has_random_seed() ? rdseed_long(v) : false;
+ }
+ 
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	return arch_has_random_seed() ? rdseed_int(v) : false;
+ }
 -- 
-2.21.0
+2.17.1
