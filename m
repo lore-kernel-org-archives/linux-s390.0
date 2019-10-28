@@ -1,61 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:54922 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727794AbfJQRqn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Oct 2019 13:46:43 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/21] xtensa: clean up ioremap
-Date: Thu, 17 Oct 2019 19:45:42 +0200
-Message-Id: <20191017174554.29840-10-hch@lst.de>
-In-Reply-To: <20191017174554.29840-1-hch@lst.de>
-References: <20191017174554.29840-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33492 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726483AbfJ1UUM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 28 Oct 2019 16:20:12 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9SKHJ6e129795
+        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 16:20:10 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vx5w12huh-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 16:20:10 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 28 Oct 2019 20:20:08 -0000
+Subject: Re: [RFC 02/37] s390/protvirt: introduce host side setup
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-3-frankja@linux.ibm.com>
+ <20191028155453.4b142994.cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 28 Oct 2019 21:20:03 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191028155453.4b142994.cohuck@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <7e14305d-bec4-27d6-c723-ee231817b855@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
 
-Use ioremap as the main implemented function, and defined
-ioremap_nocache to it as a deprecated alias.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/xtensa/include/asm/io.h | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/arch/xtensa/include/asm/io.h b/arch/xtensa/include/asm/io.h
-index 988e08530a5c..441fb56926a7 100644
---- a/arch/xtensa/include/asm/io.h
-+++ b/arch/xtensa/include/asm/io.h
-@@ -32,8 +32,7 @@ void xtensa_iounmap(volatile void __iomem *addr);
- /*
-  * Return the virtual address for the specified bus memory.
-  */
--static inline void __iomem *ioremap_nocache(unsigned long offset,
--		unsigned long size)
-+static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
- {
- 	if (offset >= XCHAL_KIO_PADDR
- 	    && offset - XCHAL_KIO_PADDR < XCHAL_KIO_SIZE)
-@@ -52,15 +51,10 @@ static inline void __iomem *ioremap_cache(unsigned long offset,
- 		return xtensa_ioremap_cache(offset, size);
- }
- #define ioremap_cache ioremap_cache
--#define ioremap_nocache ioremap_nocache
--
--#define ioremap_wc ioremap_nocache
--#define ioremap_wt ioremap_nocache
- 
--static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
--{
--	return ioremap_nocache(offset, size);
--}
-+#define ioremap_nocache ioremap
-+#define ioremap_wc ioremap
-+#define ioremap_wt ioremap
- 
- static inline void iounmap(volatile void __iomem *addr)
- {
--- 
-2.20.1
+On 28.10.19 15:54, Cornelia Huck wrote:
+
+> I think there's not enough information in here to allow someone
+> configuring the kernel to decide what this is and if it would be useful
+> to them. This should probably be at least point to some document giving
+> some more details. Also, can you add a sentence where this feature is
+> actually expected to be available?
+> 
+>> +
+>> +	  If unsure, say Y.
+> 
+> Is 'Y' really the safe choice here? AFAICS, this is introducing new
+> code and not only trying to call new interfaces, if available. Is there
+> any drawback to enabling this on a kernel that won't run on a platform
+> supporting this feature? Is this supposed to be a common setup?
+
+I would expect that this is enabled on distributions in the future. So
+I think we should actually get rid of this Kconfig and always enable that code.
+We just must pay attention to fence of all the new code if the user does 
+not opt in. (e.g. prot_virt=0). We need to do that anyway and not hanving a
+Kconfig forces us to be extra careful.
