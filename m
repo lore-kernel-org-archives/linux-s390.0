@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 1/4] drm/msm: fix memleak on release
-Date: Thu, 10 Oct 2019 15:13:30 +0200
-Message-Id: <20191010131333.23635-2-johan@kernel.org>
-In-Reply-To: <20191010131333.23635-1-johan@kernel.org>
-References: <20191010131333.23635-1-johan@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:45908 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729975AbfJ2VUm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:42 -0400
+Received: by mail-pg1-f195.google.com with SMTP id r1so10497762pgj.12
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:42 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 22/29] microblaze: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Tue, 29 Oct 2019 14:13:44 -0700
+Message-Id: <20191029211351.13243-23-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Fabien Dessenne <fabien.dessenne@st.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Harald Freudenberger <freude@linux.ibm.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Jordan Crouse <jcrouse@codeaurora.org>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-If a process is interrupted while accessing the "gpu" debugfs file and
-the drm device struct_mutex is contended, release() could return early
-and fail to free related resources.
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
-Note that the return value from release() is ignored.
-
-Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
-Cc: stable <stable@vger.kernel.org>     # 4.18
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/microblaze/kernel/vmlinux.lds.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
-index 6be879578140..1c74381a4fc9 100644
---- a/drivers/gpu/drm/msm/msm_debugfs.c
-+++ b/drivers/gpu/drm/msm/msm_debugfs.c
-@@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
- 	struct msm_gpu_show_priv *show_priv = m->private;
- 	struct msm_drm_private *priv = show_priv->dev->dev_private;
- 	struct msm_gpu *gpu = priv->gpu;
--	int ret;
--
--	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
--	if (ret)
--		return ret;
+diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
+index b8efb08204a1..760cac41cbfe 100644
+--- a/arch/microblaze/kernel/vmlinux.lds.S
++++ b/arch/microblaze/kernel/vmlinux.lds.S
+@@ -11,6 +11,8 @@
+ OUTPUT_ARCH(microblaze)
+ ENTRY(microblaze_start)
  
-+	mutex_lock(&show_priv->dev->struct_mutex);
- 	gpu->funcs->gpu_state_put(show_priv->state);
- 	mutex_unlock(&show_priv->dev->struct_mutex);
++#define RO_EXCEPTION_TABLE_ALIGN	16
++
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+@@ -52,7 +54,6 @@ SECTIONS {
  
+ 	. = ALIGN(16);
+ 	RO_DATA(4096)
+-	EXCEPTION_TABLE(16)
+ 
+ 	/*
+ 	 * sdata2 section can go anywhere, but must be word aligned
 -- 
-2.23.0
+2.17.1
