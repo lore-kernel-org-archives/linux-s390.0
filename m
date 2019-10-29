@@ -1,74 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21274 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2409654AbfJYRGl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Oct 2019 13:06:41 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PH3fNh081382
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:40 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv4ax9qgw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:40 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 25 Oct 2019 18:06:39 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 3/5] s390x: sclp: expose ram_size and max_ram_size
-Date: Fri, 25 Oct 2019 19:06:32 +0200
-In-Reply-To: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
-References: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
-Message-Id: <1572023194-14370-4-git-send-email-imbrenda@linux.ibm.com>
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:35393 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729657AbfJ2VOW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:22 -0400
+Received: by mail-pl1-f196.google.com with SMTP id x6so4259133pln.2
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:22 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 17/29] alpha: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Tue, 29 Oct 2019 14:13:39 -0700
+Message-Id: <20191029211351.13243-18-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-Expose ram_size and max_ram_size through accessor functions.
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
-We only use get_ram_size in an upcoming patch, but having an accessor
-for the other one does not hurt.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- lib/s390x/sclp.h |  2 ++
- lib/s390x/sclp.c | 10 ++++++++++
- 2 files changed, 12 insertions(+)
+ arch/alpha/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index f00c3df..6d40fb7 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -272,5 +272,7 @@ void sclp_console_setup(void);
- void sclp_print(const char *str);
- int sclp_service_call(unsigned int command, void *sccb);
- void sclp_memory_setup(void);
-+uint64_t get_ram_size(void);
-+uint64_t get_max_ram_size(void);
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index edc45f45523b..bc6f727278fd 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
  
- #endif /* SCLP_H */
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 56fca0c..7798f04 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -167,3 +167,13 @@ void sclp_memory_setup(void)
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	16
  
- 	mem_init(ram_size);
- }
-+
-+uint64_t get_ram_size(void)
-+{
-+	return ram_size;
-+}
-+
-+uint64_t get_max_ram_size(void)
-+{
-+	return max_ram_size;
-+}
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+@@ -35,7 +36,6 @@ SECTIONS
+ 	_etext = .;	/* End of text section */
+ 
+ 	RO_DATA(4096)
+-	EXCEPTION_TABLE(16)
+ 
+ 	/* Will be freed after init */
+ 	__init_begin = ALIGN(PAGE_SIZE);
 -- 
-2.7.4
+2.17.1
