@@ -1,171 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:39562 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729129AbfJ2Gtw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:52 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 19/21] nds32: use generic ioremap
-Date: Tue, 29 Oct 2019 07:48:32 +0100
-Message-Id: <20191029064834.23438-20-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:36711 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729471AbfJ2VOQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:16 -0400
+Received: by mail-pf1-f195.google.com with SMTP id v19so10544494pfm.3
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:16 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 16/29] x86: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Tue, 29 Oct 2019 14:13:38 -0700
+Message-Id: <20191029211351.13243-17-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-Use the generic ioremap_prot and iounmap helpers.
+The exception table was needlessly marked executable. In preparation
+for execute-only memory, move the table into the RO_DATA segment via
+the new macro that can be used by any architectures that want to make
+a similar consolidation.
 
-Note that the io.h include in pgtable.h had to be removed to not create
-an include loop.  As far as I can tell there was no need for it to
-start with.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/nds32/Kconfig               |  1 +
- arch/nds32/include/asm/io.h      |  3 +-
- arch/nds32/include/asm/pgtable.h |  4 ++-
- arch/nds32/mm/Makefile           |  3 +-
- arch/nds32/mm/ioremap.c          | 62 --------------------------------
- 5 files changed, 6 insertions(+), 67 deletions(-)
- delete mode 100644 arch/nds32/mm/ioremap.c
+ arch/x86/kernel/vmlinux.lds.S | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-index fbd68329737f..12c06a833b7c 100644
---- a/arch/nds32/Kconfig
-+++ b/arch/nds32/Kconfig
-@@ -20,6 +20,7 @@ config NDS32
- 	select GENERIC_CLOCKEVENTS
- 	select GENERIC_IRQ_CHIP
- 	select GENERIC_IRQ_SHOW
-+	select GENERIC_IOREMAP
- 	select GENERIC_LIB_ASHLDI3
- 	select GENERIC_LIB_ASHRDI3
- 	select GENERIC_LIB_CMPDI2
-diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-index fb0e8a24c7af..e57378d04006 100644
---- a/arch/nds32/include/asm/io.h
-+++ b/arch/nds32/include/asm/io.h
-@@ -6,8 +6,6 @@
- 
- #include <linux/types.h>
- 
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
--extern void iounmap(volatile void __iomem *addr);
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
- {
-@@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
- #define writeb(v,c)	({ __iowmb(); writeb_relaxed((v),(c)); })
- #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
- #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
-+
- #include <asm-generic/io.h>
- 
- #endif /* __ASM_NDS32_IO_H */
-diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pgtable.h
-index 0588ec99725c..6fbf251cfc26 100644
---- a/arch/nds32/include/asm/pgtable.h
-+++ b/arch/nds32/include/asm/pgtable.h
-@@ -12,7 +12,6 @@
- #include <asm/nds32.h>
- #ifndef __ASSEMBLY__
- #include <asm/fixmap.h>
--#include <asm/io.h>
- #include <nds32_intrinsic.h>
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index a1a758e25b2b..b06d6e1188de 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -22,6 +22,7 @@
  #endif
  
-@@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, unsigned long val);
- #define _PAGE_CACHE		_PAGE_C_MEM_WB
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	16
+ 
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/asm-offsets.h>
+@@ -145,8 +146,6 @@ SECTIONS
  #endif
+ 	} :text = 0x9090
  
-+#define _PAGE_IOREMAP \
-+	(_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
-+
- /*
-  * + Level 1 descriptor (PMD)
-  */
-diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
-index bd360e4583b5..897ecaf5cf54 100644
---- a/arch/nds32/mm/Makefile
-+++ b/arch/nds32/mm/Makefile
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
--obj-y				:= extable.o tlb.o \
--				   fault.o init.o ioremap.o mmap.o \
-+obj-y				:= extable.o tlb.o fault.o init.o mmap.o \
-                                    mm-nds32.o cacheflush.o proc.o
- 
- obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
-diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
-deleted file mode 100644
-index 690140bb23a2..000000000000
---- a/arch/nds32/mm/ioremap.c
-+++ /dev/null
-@@ -1,62 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--// Copyright (C) 2005-2017 Andes Technology Corporation
+-	EXCEPTION_TABLE(16)
 -
--#include <linux/vmalloc.h>
--#include <linux/io.h>
--#include <linux/mm.h>
--#include <asm/pgtable.h>
--
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
--
--static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size,
--				      void *caller)
--{
--	struct vm_struct *area;
--	unsigned long addr, offset, last_addr;
--	pgprot_t prot;
--
--	/* Don't allow wraparound or zero size */
--	last_addr = phys_addr + size - 1;
--	if (!size || last_addr < phys_addr)
--		return NULL;
--
--	/*
--	 * Mappings have to be page-aligned
--	 */
--	offset = phys_addr & ~PAGE_MASK;
--	phys_addr &= PAGE_MASK;
--	size = PAGE_ALIGN(last_addr + 1) - phys_addr;
--
--	/*
--	 * Ok, go for it..
--	 */
--	area = get_vm_area_caller(size, VM_IOREMAP, caller);
--	if (!area)
--		return NULL;
--
--	area->phys_addr = phys_addr;
--	addr = (unsigned long)area->addr;
--	prot = __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
--			_PAGE_G | _PAGE_C_DEV);
--	if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
--		vunmap((void *)addr);
--		return NULL;
--	}
--	return (__force void __iomem *)(offset + (char *)addr);
--
--}
--
--void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
--{
--	return __ioremap_caller(phys_addr, size,
--				__builtin_return_address(0));
--}
--
--EXPORT_SYMBOL(ioremap);
--
--void iounmap(volatile void __iomem * addr)
--{
--	vunmap((void *)(PAGE_MASK & (unsigned long)addr));
--}
--
--EXPORT_SYMBOL(iounmap);
+ 	/* End of text section, which should occupy whole number of pages */
+ 	_etext = .;
+ 	. = ALIGN(PAGE_SIZE);
 -- 
-2.20.1
+2.17.1
