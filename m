@@ -1,100 +1,106 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11410 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439171AbfJXLml (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:41 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBbxs0108065
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:40 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vu9nxm1fd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:40 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:38 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 29/37] KVM: s390: protvirt: Sync pv state
-Date: Thu, 24 Oct 2019 07:40:51 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-30-frankja@linux.ibm.com>
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:42908 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729968AbfJ2VUm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:42 -0400
+Received: by mail-pf1-f195.google.com with SMTP id 21so10532074pfj.9
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:40 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 27/29] x86/mm: Report which part of kernel image is freed
+Date: Tue, 29 Oct 2019 14:13:49 -0700
+Message-Id: <20191029211351.13243-28-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-Indicate via register sync if the VM is in secure mode.
+The memory freeing report wasn't very useful for figuring out which
+parts of the kernel image were being freed. Add the details for clearer
+reporting in dmesg.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Before:
+
+[    2.150450] Freeing unused kernel image memory: 1348K
+[    2.154574] Write protecting the kernel read-only data: 20480k
+[    2.157641] Freeing unused kernel image memory: 2040K
+[    2.158827] Freeing unused kernel image memory: 172K
+
+After:
+
+[    2.329678] Freeing unused kernel image (initmem) memory: 1348K
+[    2.331953] Write protecting the kernel read-only data: 20480k
+[    2.335361] Freeing unused kernel image (text/rodata gap) memory: 2040K
+[    2.336927] Freeing unused kernel image (rodata/data gap) memory: 172K
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/s390/include/uapi/asm/kvm.h | 5 ++++-
- arch/s390/kvm/kvm-s390.c         | 7 ++++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/processor.h | 2 +-
+ arch/x86/mm/init.c               | 8 ++++----
+ arch/x86/mm/init_64.c            | 6 ++++--
+ 3 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 436ec7636927..b44c02426c2e 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -231,11 +231,13 @@ struct kvm_guest_debug_arch {
- #define KVM_SYNC_GSCB   (1UL << 9)
- #define KVM_SYNC_BPBC   (1UL << 10)
- #define KVM_SYNC_ETOKEN (1UL << 11)
-+#define KVM_SYNC_PV	(1UL << 12)
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index 6e0a3b43d027..790f250d39a8 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -958,7 +958,7 @@ static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
  
- #define KVM_SYNC_S390_VALID_FIELDS \
- 	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
- 	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
--	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
-+	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN | \
-+	 KVM_SYNC_PV)
+ extern unsigned long arch_align_stack(unsigned long sp);
+ void free_init_pages(const char *what, unsigned long begin, unsigned long end);
+-extern void free_kernel_image_pages(void *begin, void *end);
++extern void free_kernel_image_pages(const char *what, void *begin, void *end);
  
- /* length and alignment of the sdnx as a power of two */
- #define SDNXC 8
-@@ -261,6 +263,7 @@ struct kvm_sync_regs {
- 	__u8  reserved[512];	/* for future vector expansion */
- 	__u32 fpc;		/* valid on KVM_SYNC_VRS or KVM_SYNC_FPRS */
- 	__u8 bpbc : 1;		/* bp mode */
-+	__u8 pv : 1;		/* pv mode */
- 	__u8 reserved2 : 7;
- 	__u8 padding1[51];	/* riccb needs to be 64byte aligned */
- 	__u8 riccb[64];		/* runtime instrumentation controls block */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f623c64aeade..500972a1f742 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2856,6 +2856,8 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_GSCB;
- 	if (test_kvm_facility(vcpu->kvm, 156))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_ETOKEN;
-+	if (test_kvm_facility(vcpu->kvm, 161))
-+		vcpu->run->kvm_valid_regs |= KVM_SYNC_PV;
- 	/* fprs can be synchronized via vrs, even if the guest has no vx. With
- 	 * MACHINE_HAS_VX, (load|store)_fpu_regs() will work with vrs format.
- 	 */
-@@ -4136,6 +4138,7 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ void default_idle(void);
+ #ifdef	CONFIG_XEN
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index fd10d91a6115..e7bb483557c9 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -829,14 +829,13 @@ void free_init_pages(const char *what, unsigned long begin, unsigned long end)
+  * used for the kernel image only.  free_init_pages() will do the
+  * right thing for either kind of address.
+  */
+-void free_kernel_image_pages(void *begin, void *end)
++void free_kernel_image_pages(const char *what, void *begin, void *end)
  {
- 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
- 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
-+	kvm_run->s.regs.pv = 0;
- 	if (MACHINE_HAS_GS) {
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
-@@ -4172,8 +4175,10 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* Restore will be done lazily at return */
- 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
- 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
--	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
-+	if (likely(!kvm_s390_pv_handle_cpu(vcpu)))
- 		store_regs_fmt2(vcpu, kvm_run);
-+	else
-+		kvm_run->s.regs.pv = 1;
+ 	unsigned long begin_ul = (unsigned long)begin;
+ 	unsigned long end_ul = (unsigned long)end;
+ 	unsigned long len_pages = (end_ul - begin_ul) >> PAGE_SHIFT;
+ 
+-
+-	free_init_pages("unused kernel image", begin_ul, end_ul);
++	free_init_pages(what, begin_ul, end_ul);
+ 
+ 	/*
+ 	 * PTI maps some of the kernel into userspace.  For performance,
+@@ -865,7 +864,8 @@ void __ref free_initmem(void)
+ 
+ 	mem_encrypt_free_decrypted_mem();
+ 
+-	free_kernel_image_pages(&__init_begin, &__init_end);
++	free_kernel_image_pages("unused kernel image (initmem)",
++				&__init_begin, &__init_end);
  }
  
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ #ifdef CONFIG_BLK_DEV_INITRD
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index e67ddca8b7a8..dcb9bc961b39 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1334,8 +1334,10 @@ void mark_rodata_ro(void)
+ 	set_memory_ro(start, (end-start) >> PAGE_SHIFT);
+ #endif
+ 
+-	free_kernel_image_pages((void *)text_end, (void *)rodata_start);
+-	free_kernel_image_pages((void *)rodata_end, (void *)_sdata);
++	free_kernel_image_pages("unused kernel image (text/rodata gap)",
++				(void *)text_end, (void *)rodata_start);
++	free_kernel_image_pages("unused kernel image (rodata/data gap)",
++				(void *)rodata_end, (void *)_sdata);
+ 
+ 	debug_checkwx();
+ }
 -- 
-2.20.1
+2.17.1
