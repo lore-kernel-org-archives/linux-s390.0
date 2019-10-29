@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:45908 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729975AbfJ2VUm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:42 -0400
-Received: by mail-pg1-f195.google.com with SMTP id r1so10497762pgj.12
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:42 -0700 (PDT)
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:38232 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729885AbfJ2VUk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:40 -0400
+Received: by mail-pl1-f193.google.com with SMTP id w8so8319607plq.5
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:39 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 22/29] microblaze: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Tue, 29 Oct 2019 14:13:44 -0700
-Message-Id: <20191029211351.13243-23-keescook@chromium.org>
+Subject: [PATCH v3 24/29] powerpc: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Tue, 29 Oct 2019 14:13:46 -0700
+Message-Id: <20191029211351.13243-25-keescook@chromium.org>
 In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
 References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
@@ -20,29 +20,28 @@ Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/microblaze/kernel/vmlinux.lds.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
-index b8efb08204a1..760cac41cbfe 100644
---- a/arch/microblaze/kernel/vmlinux.lds.S
-+++ b/arch/microblaze/kernel/vmlinux.lds.S
-@@ -11,6 +11,8 @@
- OUTPUT_ARCH(microblaze)
- ENTRY(microblaze_start)
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 4e7cec088c8b..8834220036a5 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -7,6 +7,7 @@
  
-+#define RO_EXCEPTION_TABLE_ALIGN	16
-+
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	0
+ 
  #include <asm/page.h>
  #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
-@@ -52,7 +54,6 @@ SECTIONS {
+@@ -162,7 +163,6 @@ SECTIONS
+ 		__stop__btb_flush_fixup = .;
+ 	}
+ #endif
+-	EXCEPTION_TABLE(0)
  
- 	. = ALIGN(16);
- 	RO_DATA(4096)
--	EXCEPTION_TABLE(16)
- 
- 	/*
- 	 * sdata2 section can go anywhere, but must be word aligned
+ /*
+  * Init sections discarded at runtime
 -- 
 2.17.1
