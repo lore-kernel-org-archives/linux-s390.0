@@ -1,45 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:35873 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727745AbfJKAND (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:13:03 -0400
-Received: by mail-pg1-f193.google.com with SMTP id 23so4712572pgk.3
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:13:02 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 26/29] x86/mm: Remove redundant &s on addresses
-Date: Thu, 10 Oct 2019 17:06:06 -0700
-Message-Id: <20191011000609.29728-27-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50496 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389432AbfJ2Ohi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 29 Oct 2019 10:37:38 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9TEYHxA056041
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 10:37:37 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vxptv1m27-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 10:37:36 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Tue, 29 Oct 2019 14:37:34 -0000
+Date: Tue, 29 Oct 2019 15:37:26 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: Re: [PATCH v2 00/11] zfcp: retrieve local RDP data, fix and cleanup
+References: <cover.1571934247.git.bblock@linux.ibm.com>
+ <yq18sp48feb.fsf@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <yq18sp48feb.fsf@oracle.com>
+Message-Id: <20191029143726.GA25907@t480-pf1aa2c2>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: "James E . J . Bottomley" <jejb@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-The &s on addresses are redundant. Remove them to match all the other
-similar functions.
+On Mon, Oct 28, 2019 at 10:16:44PM -0400, Martin K. Petersen wrote:
+>=20
+> Benjamin,
+>=20
+> > this is the second version of my RDP patchset for zfcp, after I
+> > noticed a memory-leak in the first version earlier this year. Here is
+> > the original description, which remains valid:
+>=20
+> Applied to 5.5/scsi-queue, thanks!
+>=20
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/x86/mm/init_64.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Thanks, Martin.
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 26299e9ce6da..e67ddca8b7a8 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1300,9 +1300,9 @@ void mark_rodata_ro(void)
- {
- 	unsigned long start = PFN_ALIGN(_text);
- 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
--	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
--	unsigned long text_end = PFN_ALIGN(&_etext);
--	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
-+	unsigned long end = (unsigned long)__end_rodata_hpage_align;
-+	unsigned long text_end = PFN_ALIGN(_etext);
-+	unsigned long rodata_end = PFN_ALIGN(__end_rodata);
- 	unsigned long all_end;
- 
- 	printk(KERN_INFO "Write protecting the kernel read-only data: %luk\n",
--- 
-2.17.1
+--=20
+With Best Regards, Benjamin Block      /      Linux on IBM Z Kernel Develop=
+ment
+IBM Systems & Technology Group   /  IBM Deutschland Research & Development =
+GmbH
+Vorsitz. AufsR.: Matthias Hartmann       /      Gesch=EF=BF=BDftsf=EF=BF=BD=
+hrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=EF=BF=BDblingen / Registergericht: AmtsG Stuttgart=
+, HRB 243294
