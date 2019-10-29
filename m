@@ -1,70 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38696 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728759AbfJ2Gtl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:41 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 15/21] nios2: remove __iounmap
-Date: Tue, 29 Oct 2019 07:48:28 +0100
-Message-Id: <20191029064834.23438-16-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45243 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728779AbfJ2IWa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 04:22:30 -0400
+Received: by mail-wr1-f66.google.com with SMTP id q13so12539619wrs.12
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 01:22:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191028210559.8289-1-rth@twiddle.net>
+In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date: Tue, 29 Oct 2019 09:22:16 +0100
+Message-ID: <CAKv+Gu-mnyKK_0s7fF_8C0aq1ur+RoHscVwTfd31quEVqZhefw@mail.gmail.com>
+Subject: Re: [PATCH 0/6] Improvements for random.h/archrandom.h
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Richard Henderson <richard.henderson@linaro.org>
+Cc: linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 
-No need to indirect iounmap for nios2.
+On Mon, 28 Oct 2019 at 22:06, Richard Henderson
+<richard.henderson@linaro.org> wrote:
+>
+> During patch review for an addition of archrandom.h for arm64,
+> it was suggeted that the arch_random_get_* functions should be
+> marked __must_check.  Which does sound like a good idea, since
+> the by-reference integer output may be uninitialized when the
+> boolean result is false.
+>
+> In addition, I noticed a few other minor inconsistencies between
+> the different architectures: x86 defines some functional macros
+> outside CONFIG_ARCH_RANDOM, and powerpc isn't using bool.
+>
+>
+> r~
+>
+>
+> Richard Henderson (6):
+>   random: Mark CONFIG_ARCH_RANDOM functions __must_check
+>   x86: Move arch_has_random* inside CONFIG_ARCH_RANDOM
+>   x86: Mark archrandom.h functions __must_check
+>   powerpc: Use bool in archrandom.h
+>   powerpc: Mark archrandom.h functions __must_check
+>   s390x: Mark archrandom.h functions __must_check
+>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/nios2/include/asm/io.h | 7 +------
- arch/nios2/mm/ioremap.c     | 6 +++---
- 2 files changed, 4 insertions(+), 9 deletions(-)
+Modulo the nit in reply to 1/6:
 
-diff --git a/arch/nios2/include/asm/io.h b/arch/nios2/include/asm/io.h
-index d108937c321e..746853ac7d8d 100644
---- a/arch/nios2/include/asm/io.h
-+++ b/arch/nios2/include/asm/io.h
-@@ -26,12 +26,7 @@
- #define writel_relaxed(x, addr)	writel(x, addr)
- 
- void __iomem *ioremap(unsigned long physaddr, unsigned long size);
--extern void __iounmap(void __iomem *addr);
--
--static inline void iounmap(void __iomem *addr)
--{
--	__iounmap(addr);
--}
-+void iounmap(void __iomem *addr);
- 
- /* Pages to physical address... */
- #define page_to_phys(page)	virt_to_phys(page_to_virt(page))
-diff --git a/arch/nios2/mm/ioremap.c b/arch/nios2/mm/ioremap.c
-index 7a1a27f3daa3..b56af759dcdf 100644
---- a/arch/nios2/mm/ioremap.c
-+++ b/arch/nios2/mm/ioremap.c
-@@ -157,11 +157,11 @@ void __iomem *ioremap(unsigned long phys_addr, unsigned long size)
- EXPORT_SYMBOL(ioremap);
- 
- /*
-- * __iounmap unmaps nearly everything, so be careful
-+ * iounmap unmaps nearly everything, so be careful
-  * it doesn't free currently pointer/page tables anymore but it
-  * wasn't used anyway and might be added later.
-  */
--void __iounmap(void __iomem *addr)
-+void iounmap(void __iomem *addr)
- {
- 	struct vm_struct *p;
- 
-@@ -173,4 +173,4 @@ void __iounmap(void __iomem *addr)
- 		pr_err("iounmap: bad address %p\n", addr);
- 	kfree(p);
- }
--EXPORT_SYMBOL(__iounmap);
-+EXPORT_SYMBOL(iounmap);
--- 
-2.20.1
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+
+
+>  arch/powerpc/include/asm/archrandom.h | 24 +++++++++++++-----------
+>  arch/s390/include/asm/archrandom.h    |  8 ++++----
+>  arch/x86/include/asm/archrandom.h     | 24 ++++++++++++------------
+>  include/linux/random.h                |  8 ++++----
+>  4 files changed, 33 insertions(+), 31 deletions(-)
+>
+> --
+> 2.17.1
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
