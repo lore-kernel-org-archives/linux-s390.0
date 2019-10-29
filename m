@@ -1,50 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8326 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389599AbfJAPeq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Oct 2019 11:34:46 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x91FSIcc074700
-        for <linux-s390@vger.kernel.org>; Tue, 1 Oct 2019 11:34:46 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vc8e6u79s-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 01 Oct 2019 11:34:45 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <sth@linux.ibm.com>;
-        Tue, 1 Oct 2019 16:34:42 +0100
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/2] s390/dasd: fixes for thin provisioning support
-Date: Tue,  1 Oct 2019 17:34:37 +0200
+Received: from bombadil.infradead.org ([198.137.202.133]:38848 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733142AbfJ2Gto (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:44 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 16/21] sh: remove __iounmap
+Date: Tue, 29 Oct 2019 07:48:29 +0100
+Message-Id: <20191029064834.23438-17-hch@lst.de>
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191001153439.62672-1-sth@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jens,
+No need to indirect iounmap for sh.
 
-please see the following two patches that
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ arch/sh/include/asm/io.h | 9 ++-------
+ arch/sh/mm/ioremap.c     | 4 ++--
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-- fix a bug in the thin provisioning base support
-- revert a commit because of possible data corruption
-
-Regards,
-Stefan
-
-
-Jan Höppner (1):
-  s390/dasd: Fix error handling during online processing
-
-Stefan Haberland (1):
-  Revert "s390/dasd: Add discard support for ESE volumes"
-
- drivers/s390/block/dasd_eckd.c | 81 +++++-----------------------------
- 1 file changed, 11 insertions(+), 70 deletions(-)
-
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index ac0561960c52..1495489225ac 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -267,7 +267,7 @@ unsigned long long poke_real_address_q(unsigned long long addr,
+ #ifdef CONFIG_MMU
+ void __iomem *__ioremap_caller(phys_addr_t offset, unsigned long size,
+ 			       pgprot_t prot, void *caller);
+-void __iounmap(void __iomem *addr);
++void iounmap(void __iomem *addr);
+ 
+ static inline void __iomem *
+ __ioremap(phys_addr_t offset, unsigned long size, pgprot_t prot)
+@@ -328,7 +328,7 @@ __ioremap_mode(phys_addr_t offset, unsigned long size, pgprot_t prot)
+ #else
+ #define __ioremap(offset, size, prot)		((void __iomem *)(offset))
+ #define __ioremap_mode(offset, size, prot)	((void __iomem *)(offset))
+-#define __iounmap(addr)				do { } while (0)
++#define iounmap(addr)				do { } while (0)
+ #endif /* CONFIG_MMU */
+ 
+ static inline void __iomem *ioremap(phys_addr_t offset, unsigned long size)
+@@ -370,11 +370,6 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
+ #define ioremap_nocache	ioremap
+ #define ioremap_uc	ioremap
+ 
+-static inline void iounmap(void __iomem *addr)
+-{
+-	__iounmap(addr);
+-}
+-
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
+  * access
+diff --git a/arch/sh/mm/ioremap.c b/arch/sh/mm/ioremap.c
+index d09ddfe58fd8..f6d02246d665 100644
+--- a/arch/sh/mm/ioremap.c
++++ b/arch/sh/mm/ioremap.c
+@@ -103,7 +103,7 @@ static inline int iomapping_nontranslatable(unsigned long offset)
+ 	return 0;
+ }
+ 
+-void __iounmap(void __iomem *addr)
++void iounmap(void __iomem *addr)
+ {
+ 	unsigned long vaddr = (unsigned long __force)addr;
+ 	struct vm_struct *p;
+@@ -134,4 +134,4 @@ void __iounmap(void __iomem *addr)
+ 
+ 	kfree(p);
+ }
+-EXPORT_SYMBOL(__iounmap);
++EXPORT_SYMBOL(iounmap);
 -- 
-2.17.1
+2.20.1
