@@ -1,126 +1,158 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57344 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2393986AbfJPOUv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 16 Oct 2019 10:20:51 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9GE8WIC117149
-        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2019 10:20:50 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vp4q78g3f-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 16 Oct 2019 10:20:50 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Wed, 16 Oct 2019 15:20:47 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 1/4] vfio-ccw: Refactor how the traces are built
-Date: Wed, 16 Oct 2019 16:20:37 +0200
-In-Reply-To: <20191016142040.14132-1-farman@linux.ibm.com>
-References: <20191016142040.14132-1-farman@linux.ibm.com>
-Message-Id: <20191016142040.14132-2-farman@linux.ibm.com>
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:33223 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729519AbfJ2VON (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:13 -0400
+Received: by mail-pf1-f196.google.com with SMTP id c184so7265pfb.0
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:11 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 09/29] vmlinux.lds.h: Move Program Header restoration into NOTES macro
+Date: Tue, 29 Oct 2019 14:13:31 -0700
+Message-Id: <20191029211351.13243-10-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: Steffen Maier <maier@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-Commit 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error
-paths") added a quick trace point to determine where a channel program
-failed while being processed.  It's a great addition, but adding more
-traces to vfio-ccw is more cumbersome than it needs to be.
+In preparation for moving NOTES into RO_DATA, make the Program Header
+assignment restoration be part of the NOTES macro itself.
 
-Let's refactor how this is done, so that additional traces are easier
-to add and can exist outside of the FSM if we ever desire.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
 ---
- drivers/s390/cio/Makefile         |  4 ++--
- drivers/s390/cio/vfio_ccw_cp.h    |  1 +
- drivers/s390/cio/vfio_ccw_fsm.c   |  3 ---
- drivers/s390/cio/vfio_ccw_trace.c | 12 ++++++++++++
- drivers/s390/cio/vfio_ccw_trace.h |  2 ++
- 5 files changed, 17 insertions(+), 5 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
+ arch/alpha/kernel/vmlinux.lds.S   |  5 +----
+ arch/ia64/kernel/vmlinux.lds.S    |  4 +---
+ arch/mips/kernel/vmlinux.lds.S    |  3 +--
+ arch/powerpc/kernel/vmlinux.lds.S |  4 +---
+ arch/s390/kernel/vmlinux.lds.S    |  4 +---
+ arch/x86/kernel/vmlinux.lds.S     |  3 +--
+ include/asm-generic/vmlinux.lds.h | 13 +++++++++++--
+ 7 files changed, 17 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
-index f6a8db04177c..23eae4188876 100644
---- a/drivers/s390/cio/Makefile
-+++ b/drivers/s390/cio/Makefile
-@@ -5,7 +5,7 @@
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 363a60ba7c31..cdfdc91ce64c 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -34,10 +34,7 @@ SECTIONS
+ 	swapper_pg_dir = SWAPPER_PGD;
+ 	_etext = .;	/* End of text section */
  
- # The following is required for define_trace.h to find ./trace.h
- CFLAGS_trace.o := -I$(src)
--CFLAGS_vfio_ccw_fsm.o := -I$(src)
-+CFLAGS_vfio_ccw_trace.o := -I$(src)
+-	NOTES :text :note
+-	.dummy : {
+-		*(.dummy)
+-	} :text
++	NOTES
  
- obj-y += airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o \
- 	fcx.o itcw.o crw.o ccwreq.o trace.o ioasm.o
-@@ -21,5 +21,5 @@ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
- obj-$(CONFIG_QDIO) += qdio.o
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 7cf4958b732d..bfc937ec168c 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -70,9 +70,7 @@ SECTIONS {
+ 	/*
+ 	 * Read-only data
+ 	 */
+-	NOTES :text :note       /* put .notes in text and mark in PT_NOTE  */
+-	code_continues : {
+-	} :text                /* switch back to regular program...  */
++	NOTES
  
- vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fsm.o \
--	vfio_ccw_async.o
-+	vfio_ccw_async.o vfio_ccw_trace.o
- obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.h
-index 7cdc38049033..ba31240ce965 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -15,6 +15,7 @@
- #include <asm/scsw.h>
+ 	EXCEPTION_TABLE(16)
  
- #include "orb.h"
-+#include "vfio_ccw_trace.h"
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 1c95612eb800..6a22f531d815 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -81,8 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
+ 	}
+ 
+-	NOTES NOTES_HEADERS
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	_sdata = .;			/* Start of data section */
+ 	RODATA
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 7e26e20c8324..4f19d814d592 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -164,9 +164,7 @@ SECTIONS
+ #endif
+ 	EXCEPTION_TABLE(0)
+ 
+-	NOTES :text :note
+-	/* Restore program header away from PT_NOTE. */
+-	.dummy : { *(.dummy) } :text
++	NOTES
  
  /*
-  * Max length for ccw chain.
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 4a1e727c62d9..d4119e4c4a8c 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -15,9 +15,6 @@
- #include "ioasm.h"
- #include "vfio_ccw_private.h"
+  * Init sections discarded at runtime
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 646d939346df..f88eedeb915a 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -52,9 +52,7 @@ SECTIONS
+ 		_etext = .;		/* End of text section */
+ 	} :text = 0x0700
  
--#define CREATE_TRACE_POINTS
--#include "vfio_ccw_trace.h"
+-	NOTES :text :note
 -
- static int fsm_io_helper(struct vfio_ccw_private *private)
- {
- 	struct subchannel *sch;
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_trace.c
-new file mode 100644
-index 000000000000..d5cc943c6864
---- /dev/null
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -0,0 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Tracepoint definitions for vfio_ccw
-+ *
-+ * Copyright IBM Corp. 2019
-+ * Author(s): Eric Farman <farman@linux.ibm.com>
-+ */
-+
-+#define CREATE_TRACE_POINTS
-+#include "vfio_ccw_trace.h"
-+
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
-index b1da53ddec1f..2a2937a40124 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -7,6 +7,8 @@
-  *            Halil Pasic <pasic@linux.vnet.ibm.com>
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	RO_DATA_SECTION(PAGE_SIZE)
+ 
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 2e18bf5c1aed..8be25b09c2b7 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -148,8 +148,7 @@ SECTIONS
+ 		_etext = .;
+ 	} :text = 0x9090
+ 
+-	NOTES :text :note
+-	.dummy : { *(.dummy) } :text
++	NOTES
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index f5dd45ce73f1..97d4299f14dc 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -56,10 +56,18 @@
+ 
+ /*
+  * Only some architectures want to have the .notes segment visible in
+- * a separate PT_NOTE ELF Program Header.
++ * a separate PT_NOTE ELF Program Header. When this happens, it needs
++ * to be visible in both the kernel text's PT_LOAD and the PT_NOTE
++ * Program Headers. In this case, though, the PT_LOAD needs to be made
++ * the default again so that all the following sections don't also end
++ * up in the PT_NOTE Program Header.
   */
+ #ifdef EMITS_PT_NOTE
+ #define NOTES_HEADERS		:text :note
++#define NOTES_HEADERS_RESTORE	__restore_ph : { *(.__restore_ph) } :text
++#else
++#define NOTES_HEADERS
++#define NOTES_HEADERS_RESTORE
+ #endif
  
-+#include "cio.h"
-+
- #undef TRACE_SYSTEM
- #define TRACE_SYSTEM vfio_ccw
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+@@ -798,7 +806,8 @@
+ 		__start_notes = .;					\
+ 		KEEP(*(.note.*))					\
+ 		__stop_notes = .;					\
+-	}
++	} NOTES_HEADERS							\
++	NOTES_HEADERS_RESTORE
  
+ #define INIT_SETUP(initsetup_align)					\
+ 		. = ALIGN(initsetup_align);				\
 -- 
 2.17.1
