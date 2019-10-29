@@ -1,63 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42066 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726525AbfJZNUR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:20:17 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 31/59] s390/qeth: Fix initialization of vnicc cmd masks during set online
-Date: Sat, 26 Oct 2019 09:18:42 -0400
-Message-Id: <20191026131910.3435-31-sashal@kernel.org>
-In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
-References: <20191026131910.3435-1-sashal@kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:37822 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732982AbfJ2Gt2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:28 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/21] xtensa: clean up ioremap
+Date: Tue, 29 Oct 2019 07:48:22 +0100
+Message-Id: <20191029064834.23438-10-hch@lst.de>
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+Use ioremap as the main implemented function, and defined
+ioremap_nocache to it as a deprecated alias.
 
-[ Upstream commit be40a86c319706f90caca144343c64743c32b953 ]
-
-Without this patch, a command bit in the supported commands mask is only
-ever set to unsupported during set online. If a command is ever marked as
-unsupported (e.g. because of error during qeth_l2_vnicc_query_cmds),
-subsequent successful initialization (offline/online) would not bring it
-back.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/net/qeth_l2_main.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/xtensa/include/asm/io.h | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index e571129c364e4..3d18f2287e760 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2356,11 +2356,15 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 			sup_cmds = 0;
- 			error = true;
- 		}
--		if (!(sup_cmds & IPA_VNICC_SET_TIMEOUT) ||
--		    !(sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+		if ((sup_cmds & IPA_VNICC_SET_TIMEOUT) &&
-+		    (sup_cmds & IPA_VNICC_GET_TIMEOUT))
-+			card->options.vnicc.getset_timeout_sup |= vnicc;
-+		else
- 			card->options.vnicc.getset_timeout_sup &= ~vnicc;
--		if (!(sup_cmds & IPA_VNICC_ENABLE) ||
--		    !(sup_cmds & IPA_VNICC_DISABLE))
-+		if ((sup_cmds & IPA_VNICC_ENABLE) &&
-+		    (sup_cmds & IPA_VNICC_DISABLE))
-+			card->options.vnicc.set_char_sup |= vnicc;
-+		else
- 			card->options.vnicc.set_char_sup &= ~vnicc;
- 	}
- 	/* enforce assumed default values and recover settings, if changed  */
+diff --git a/arch/xtensa/include/asm/io.h b/arch/xtensa/include/asm/io.h
+index 988e08530a5c..441fb56926a7 100644
+--- a/arch/xtensa/include/asm/io.h
++++ b/arch/xtensa/include/asm/io.h
+@@ -32,8 +32,7 @@ void xtensa_iounmap(volatile void __iomem *addr);
+ /*
+  * Return the virtual address for the specified bus memory.
+  */
+-static inline void __iomem *ioremap_nocache(unsigned long offset,
+-		unsigned long size)
++static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+ {
+ 	if (offset >= XCHAL_KIO_PADDR
+ 	    && offset - XCHAL_KIO_PADDR < XCHAL_KIO_SIZE)
+@@ -52,15 +51,10 @@ static inline void __iomem *ioremap_cache(unsigned long offset,
+ 		return xtensa_ioremap_cache(offset, size);
+ }
+ #define ioremap_cache ioremap_cache
+-#define ioremap_nocache ioremap_nocache
+-
+-#define ioremap_wc ioremap_nocache
+-#define ioremap_wt ioremap_nocache
+ 
+-static inline void __iomem *ioremap(unsigned long offset, unsigned long size)
+-{
+-	return ioremap_nocache(offset, size);
+-}
++#define ioremap_nocache ioremap
++#define ioremap_wc ioremap
++#define ioremap_wt ioremap
+ 
+ static inline void iounmap(volatile void __iomem *addr)
+ {
 -- 
 2.20.1
