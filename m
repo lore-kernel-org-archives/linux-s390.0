@@ -1,106 +1,106 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:42908 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729968AbfJ2VUm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:42 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 21so10532074pfj.9
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:40 -0700 (PDT)
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 27/29] x86/mm: Report which part of kernel image is freed
-Date: Tue, 29 Oct 2019 14:13:49 -0700
-Message-Id: <20191029211351.13243-28-keescook@chromium.org>
+Subject: [PATCH v3 15/29] x86: Actually use _etext for end of text segment
+Date: Tue, 29 Oct 2019 14:13:37 -0700
+Message-Id: <20191029211351.13243-16-keescook@chromium.org>
 In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
 References: <20191029211351.13243-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Borislav Petkov <bp@alien8.de>
 Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-The memory freeing report wasn't very useful for figuring out which
-parts of the kernel image were being freed. Add the details for clearer
-reporting in dmesg.
-
-Before:
-
-[    2.150450] Freeing unused kernel image memory: 1348K
-[    2.154574] Write protecting the kernel read-only data: 20480k
-[    2.157641] Freeing unused kernel image memory: 2040K
-[    2.158827] Freeing unused kernel image memory: 172K
-
-After:
-
-[    2.329678] Freeing unused kernel image (initmem) memory: 1348K
-[    2.331953] Write protecting the kernel read-only data: 20480k
-[    2.335361] Freeing unused kernel image (text/rodata gap) memory: 2040K
-[    2.336927] Freeing unused kernel image (rodata/data gap) memory: 172K
+Various calculations are using the end of the exception table (which
+does not need to be executable) as the end of the text segment. Instead,
+in preparation for moving the exception table into RO_DATA, move _etext
+after the exception table and update the calculations.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/processor.h | 2 +-
- arch/x86/mm/init.c               | 8 ++++----
- arch/x86/mm/init_64.c            | 6 ++++--
- 3 files changed, 9 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/sections.h | 1 -
+ arch/x86/kernel/vmlinux.lds.S   | 7 +++----
+ arch/x86/mm/init_64.c           | 6 +++---
+ arch/x86/mm/pti.c               | 2 +-
+ 4 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 6e0a3b43d027..790f250d39a8 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -958,7 +958,7 @@ static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
+diff --git a/arch/x86/include/asm/sections.h b/arch/x86/include/asm/sections.h
+index 71b32f2570ab..036c360910c5 100644
+--- a/arch/x86/include/asm/sections.h
++++ b/arch/x86/include/asm/sections.h
+@@ -6,7 +6,6 @@
+ #include <asm/extable.h>
  
- extern unsigned long arch_align_stack(unsigned long sp);
- void free_init_pages(const char *what, unsigned long begin, unsigned long end);
--extern void free_kernel_image_pages(void *begin, void *end);
-+extern void free_kernel_image_pages(const char *what, void *begin, void *end);
+ extern char __brk_base[], __brk_limit[];
+-extern struct exception_table_entry __stop___ex_table[];
+ extern char __end_rodata_aligned[];
  
- void default_idle(void);
- #ifdef	CONFIG_XEN
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index fd10d91a6115..e7bb483557c9 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -829,14 +829,13 @@ void free_init_pages(const char *what, unsigned long begin, unsigned long end)
-  * used for the kernel image only.  free_init_pages() will do the
-  * right thing for either kind of address.
-  */
--void free_kernel_image_pages(void *begin, void *end)
-+void free_kernel_image_pages(const char *what, void *begin, void *end)
- {
- 	unsigned long begin_ul = (unsigned long)begin;
- 	unsigned long end_ul = (unsigned long)end;
- 	unsigned long len_pages = (end_ul - begin_ul) >> PAGE_SHIFT;
- 
+ #if defined(CONFIG_X86_64)
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 41362e90142d..a1a758e25b2b 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -143,15 +143,14 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
+ #endif
 -
--	free_init_pages("unused kernel image", begin_ul, end_ul);
-+	free_init_pages(what, begin_ul, end_ul);
+-		/* End of text section */
+-		_etext = .;
+ 	} :text = 0x9090
  
- 	/*
- 	 * PTI maps some of the kernel into userspace.  For performance,
-@@ -865,7 +864,8 @@ void __ref free_initmem(void)
+ 	EXCEPTION_TABLE(16)
  
- 	mem_encrypt_free_decrypted_mem();
- 
--	free_kernel_image_pages(&__init_begin, &__init_end);
-+	free_kernel_image_pages("unused kernel image (initmem)",
-+				&__init_begin, &__init_end);
- }
- 
- #ifdef CONFIG_BLK_DEV_INITRD
+-	/* .text should occupy whole number of pages */
++	/* End of text section, which should occupy whole number of pages */
++	_etext = .;
+ 	. = ALIGN(PAGE_SIZE);
++
+ 	X86_ALIGN_RODATA_BEGIN
+ 	RO_DATA(PAGE_SIZE)
+ 	X86_ALIGN_RODATA_END
 diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index e67ddca8b7a8..dcb9bc961b39 100644
+index a6b5c653727b..26299e9ce6da 100644
 --- a/arch/x86/mm/init_64.c
 +++ b/arch/x86/mm/init_64.c
-@@ -1334,8 +1334,10 @@ void mark_rodata_ro(void)
- 	set_memory_ro(start, (end-start) >> PAGE_SHIFT);
- #endif
+@@ -1263,7 +1263,7 @@ int kernel_set_to_readonly;
+ void set_kernel_text_rw(void)
+ {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
  
--	free_kernel_image_pages((void *)text_end, (void *)rodata_start);
--	free_kernel_image_pages((void *)rodata_end, (void *)_sdata);
-+	free_kernel_image_pages("unused kernel image (text/rodata gap)",
-+				(void *)text_end, (void *)rodata_start);
-+	free_kernel_image_pages("unused kernel image (rodata/data gap)",
-+				(void *)rodata_end, (void *)_sdata);
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1282,7 +1282,7 @@ void set_kernel_text_rw(void)
+ void set_kernel_text_ro(void)
+ {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
  
- 	debug_checkwx();
- }
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1301,7 +1301,7 @@ void mark_rodata_ro(void)
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
+ 	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
+-	unsigned long text_end = PFN_ALIGN(&__stop___ex_table);
++	unsigned long text_end = PFN_ALIGN(&_etext);
+ 	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
+ 	unsigned long all_end;
+ 
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index 7f2140414440..44a9f068eee0 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -574,7 +574,7 @@ static void pti_clone_kernel_text(void)
+ 	 */
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long end_clone  = (unsigned long)__end_rodata_aligned;
+-	unsigned long end_global = PFN_ALIGN((unsigned long)__stop___ex_table);
++	unsigned long end_global = PFN_ALIGN((unsigned long)_etext);
+ 
+ 	if (!pti_kernel_image_global_ok())
+ 		return;
 -- 
 2.17.1
