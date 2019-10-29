@@ -1,178 +1,361 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 18/21] riscv: use the generic ioremap code
-Date: Tue, 29 Oct 2019 07:48:31 +0100
-Message-Id: <20191029064834.23438-19-hch@lst.de>
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:44976 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729835AbfJ2VUg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:36 -0400
+Received: by mail-pg1-f195.google.com with SMTP id e10so10494718pgd.11
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:36 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 13/29] vmlinux.lds.h: Replace RW_DATA_SECTION with RW_DATA
+Date: Tue, 29 Oct 2019 14:13:35 -0700
+Message-Id: <20191029211351.13243-14-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
-Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Walmsley <paul.walmsley@sifive.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-Use the generic ioremap code instead of providing a local version.
-Note that this relies on the asm-generic no-op definition of
-pgprot_noncached.
+Rename RW_DATA_SECTION to RW_DATA. (Calling this a "section" is a lie,
+since it's multiple sections and section flags cannot be applied to
+the macro.)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
-Tested-by: Paul Walmsley <paul.walmsley@sifive.com> # rv32, rv64 boot
-Acked-by: Paul Walmsley <paul.walmsley@sifive.com> # arch/riscv
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
 ---
- arch/riscv/Kconfig               |  1 +
- arch/riscv/include/asm/io.h      |  3 --
- arch/riscv/include/asm/pgtable.h |  6 +++
- arch/riscv/mm/Makefile           |  1 -
- arch/riscv/mm/ioremap.c          | 84 --------------------------------
- 5 files changed, 7 insertions(+), 88 deletions(-)
- delete mode 100644 arch/riscv/mm/ioremap.c
+ arch/alpha/kernel/vmlinux.lds.S      | 2 +-
+ arch/arc/kernel/vmlinux.lds.S        | 2 +-
+ arch/arm/kernel/vmlinux-xip.lds.S    | 2 +-
+ arch/arm/kernel/vmlinux.lds.S        | 2 +-
+ arch/arm64/kernel/vmlinux.lds.S      | 2 +-
+ arch/csky/kernel/vmlinux.lds.S       | 2 +-
+ arch/h8300/kernel/vmlinux.lds.S      | 2 +-
+ arch/hexagon/kernel/vmlinux.lds.S    | 2 +-
+ arch/m68k/kernel/vmlinux-nommu.lds   | 2 +-
+ arch/m68k/kernel/vmlinux-std.lds     | 2 +-
+ arch/m68k/kernel/vmlinux-sun3.lds    | 2 +-
+ arch/microblaze/kernel/vmlinux.lds.S | 2 +-
+ arch/nds32/kernel/vmlinux.lds.S      | 2 +-
+ arch/nios2/kernel/vmlinux.lds.S      | 2 +-
+ arch/openrisc/kernel/vmlinux.lds.S   | 2 +-
+ arch/parisc/kernel/vmlinux.lds.S     | 2 +-
+ arch/riscv/kernel/vmlinux.lds.S      | 2 +-
+ arch/s390/kernel/vmlinux.lds.S       | 2 +-
+ arch/sh/kernel/vmlinux.lds.S         | 2 +-
+ arch/sparc/kernel/vmlinux.lds.S      | 2 +-
+ arch/unicore32/kernel/vmlinux.lds.S  | 2 +-
+ arch/xtensa/kernel/vmlinux.lds.S     | 2 +-
+ include/asm-generic/vmlinux.lds.h    | 4 ++--
+ 23 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 8eebbc8860bb..a02e91ed747a 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -30,6 +30,7 @@ config RISCV
- 	select GENERIC_STRNLEN_USER
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_ATOMIC64 if !64BIT
-+	select GENERIC_IOREMAP
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ASM_MODVERSIONS
- 	select HAVE_MEMBLOCK_NODE_MAP
-diff --git a/arch/riscv/include/asm/io.h b/arch/riscv/include/asm/io.h
-index c1de6875cc77..df4c8812ff64 100644
---- a/arch/riscv/include/asm/io.h
-+++ b/arch/riscv/include/asm/io.h
-@@ -14,9 +14,6 @@
- #include <linux/types.h>
- #include <asm/mmiowb.h>
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index af411817dd7d..edc45f45523b 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -50,7 +50,7 @@ SECTIONS
  
--extern void __iomem *ioremap(phys_addr_t offset, unsigned long size);
--extern void iounmap(volatile void __iomem *addr);
--
- /* Generic IO read/write.  These perform native-endian accesses. */
- #define __raw_writeb __raw_writeb
- static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 0352f20c29f4..9fd8a6b27670 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -61,6 +61,12 @@
+ 	_sdata = .;	/* Start of rw data section */
+ 	_data = .;
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
  
- #define PAGE_TABLE		__pgprot(_PAGE_TABLE)
+ 	.got : {
+ 		*(.got)
+diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
+index 7d1d27066deb..54139a6f469b 100644
+--- a/arch/arc/kernel/vmlinux.lds.S
++++ b/arch/arc/kernel/vmlinux.lds.S
+@@ -101,7 +101,7 @@ SECTIONS
+ 	 * 1. this is .data essentially
+ 	 * 2. THREAD_SIZE for init.task, must be kernel-stk sz aligned
+ 	 */
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
  
-+/*
-+ * The RISC-V ISA doesn't yet specify how to query or modify PMAs, so we can't
-+ * change the properties of memory regions.
-+ */
-+#define _PAGE_IOREMAP _PAGE_KERNEL
-+
- extern pgd_t swapper_pg_dir[];
+ 	_edata = .;
  
- /* MAP_PRIVATE permissions: xwr (copy-on-write) */
-diff --git a/arch/riscv/mm/Makefile b/arch/riscv/mm/Makefile
-index 9d9a17335686..b3a356c80c1f 100644
---- a/arch/riscv/mm/Makefile
-+++ b/arch/riscv/mm/Makefile
-@@ -8,7 +8,6 @@ endif
- obj-y += init.o
- obj-y += fault.o
- obj-y += extable.o
--obj-y += ioremap.o
- obj-y += cacheflush.o
- obj-y += context.o
- obj-y += sifive_l2_cache.o
-diff --git a/arch/riscv/mm/ioremap.c b/arch/riscv/mm/ioremap.c
-deleted file mode 100644
-index ac621ddb45c0..000000000000
---- a/arch/riscv/mm/ioremap.c
-+++ /dev/null
-@@ -1,84 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * (C) Copyright 1995 1996 Linus Torvalds
-- * (C) Copyright 2012 Regents of the University of California
-- */
--
--#include <linux/export.h>
--#include <linux/mm.h>
--#include <linux/vmalloc.h>
--#include <linux/io.h>
--
--#include <asm/pgtable.h>
--
--/*
-- * Remap an arbitrary physical address space into the kernel virtual
-- * address space. Needed when the kernel wants to access high addresses
-- * directly.
-- *
-- * NOTE! We need to allow non-page-aligned mappings too: we will obviously
-- * have to convert them into an offset in a page-aligned mapping, but the
-- * caller shouldn't need to know that small detail.
-- */
--static void __iomem *__ioremap_caller(phys_addr_t addr, size_t size,
--	pgprot_t prot, void *caller)
--{
--	phys_addr_t last_addr;
--	unsigned long offset, vaddr;
--	struct vm_struct *area;
--
--	/* Disallow wrap-around or zero size */
--	last_addr = addr + size - 1;
--	if (!size || last_addr < addr)
--		return NULL;
--
--	/* Page-align mappings */
--	offset = addr & (~PAGE_MASK);
--	addr -= offset;
--	size = PAGE_ALIGN(size + offset);
--
--	area = get_vm_area_caller(size, VM_IOREMAP, caller);
--	if (!area)
--		return NULL;
--	vaddr = (unsigned long)area->addr;
--
--	if (ioremap_page_range(vaddr, vaddr + size, addr, prot)) {
--		free_vm_area(area);
--		return NULL;
--	}
--
--	return (void __iomem *)(vaddr + offset);
--}
--
--/*
-- * ioremap     -   map bus memory into CPU space
-- * @offset:    bus address of the memory
-- * @size:      size of the resource to map
-- *
-- * ioremap performs a platform specific sequence of operations to
-- * make bus memory CPU accessible via the readb/readw/readl/writeb/
-- * writew/writel functions and the other mmio helpers. The returned
-- * address is not guaranteed to be usable directly as a virtual
-- * address.
-- *
-- * Must be freed with iounmap.
-- */
--void __iomem *ioremap(phys_addr_t offset, unsigned long size)
--{
--	return __ioremap_caller(offset, size, PAGE_KERNEL,
--		__builtin_return_address(0));
--}
--EXPORT_SYMBOL(ioremap);
--
--
--/**
-- * iounmap - Free a IO remapping
-- * @addr: virtual address from ioremap_*
-- *
-- * Caller must ensure there is only one unmapping for the same pointer.
-- */
--void iounmap(volatile void __iomem *addr)
--{
--	vunmap((void *)((unsigned long)addr & PAGE_MASK));
--}
--EXPORT_SYMBOL(iounmap);
+diff --git a/arch/arm/kernel/vmlinux-xip.lds.S b/arch/arm/kernel/vmlinux-xip.lds.S
+index d2a9651c24ad..21b8b271c80d 100644
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -112,7 +112,7 @@ SECTIONS
+ 
+ 	. = ALIGN(THREAD_SIZE);
+ 	_sdata = .;
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	.data.ro_after_init : AT(ADDR(.data.ro_after_init) - LOAD_OFFSET) {
+ 		*(.data..ro_after_init)
+ 	}
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index 068db6860867..319ccb10846a 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -141,7 +141,7 @@ SECTIONS
+ 	__init_end = .;
+ 
+ 	_sdata = .;
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	BSS_SECTION(0, 0, 0)
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index e7dafc29b1fa..a4b3e6c0680c 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -214,7 +214,7 @@ SECTIONS
+ 
+ 	_data = .;
+ 	_sdata = .;
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
+ 
+ 	/*
+ 	 * Data written with the MMU off but read with the MMU on requires
+diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
+index 8598bd7a7bcd..2ff37beaf2bf 100644
+--- a/arch/csky/kernel/vmlinux.lds.S
++++ b/arch/csky/kernel/vmlinux.lds.S
+@@ -50,7 +50,7 @@ SECTIONS
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	EXCEPTION_TABLE(L1_CACHE_BYTES)
+diff --git a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
+index d3247d33b115..2ac7bdcd2fe0 100644
+--- a/arch/h8300/kernel/vmlinux.lds.S
++++ b/arch/h8300/kernel/vmlinux.lds.S
+@@ -47,7 +47,7 @@ SECTIONS
+ #endif
+ 	_sdata = . ;
+ 	__data_start = . ;
+-	RW_DATA_SECTION(0, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(0, PAGE_SIZE, THREAD_SIZE)
+ #if defined(CONFIG_ROMKERNEL)
+ #undef ADDR
+ #endif
+diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+index 0145251fa317..0ca2471ddb9f 100644
+--- a/arch/hexagon/kernel/vmlinux.lds.S
++++ b/arch/hexagon/kernel/vmlinux.lds.S
+@@ -49,7 +49,7 @@ SECTIONS
+ 	INIT_DATA_SECTION(PAGE_SIZE)
+ 
+ 	_sdata = .;
+-		RW_DATA_SECTION(32,PAGE_SIZE,_THREAD_SIZE)
++		RW_DATA(32,PAGE_SIZE,_THREAD_SIZE)
+ 		RO_DATA(PAGE_SIZE)
+ 	_edata = .;
+ 
+diff --git a/arch/m68k/kernel/vmlinux-nommu.lds b/arch/m68k/kernel/vmlinux-nommu.lds
+index de80f8b8ae78..7b975420c3d9 100644
+--- a/arch/m68k/kernel/vmlinux-nommu.lds
++++ b/arch/m68k/kernel/vmlinux-nommu.lds
+@@ -61,7 +61,7 @@ SECTIONS {
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	EXCEPTION_TABLE(16)
+diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
+index 625a5785804f..6e7eb49ed985 100644
+--- a/arch/m68k/kernel/vmlinux-std.lds
++++ b/arch/m68k/kernel/vmlinux-std.lds
+@@ -33,7 +33,7 @@ SECTIONS
+ 
+   RODATA
+ 
+-  RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
++  RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
+ 
+   BSS_SECTION(0, 0, 0)
+ 
+diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
+index 9868270b0984..1a0ad6b6dd8c 100644
+--- a/arch/m68k/kernel/vmlinux-sun3.lds
++++ b/arch/m68k/kernel/vmlinux-sun3.lds
+@@ -30,7 +30,7 @@ SECTIONS
+ 
+   EXCEPTION_TABLE(16) :data
+   _sdata = .;			/* Start of rw data section */
+-  RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE) :data
++  RW_DATA(16, PAGE_SIZE, THREAD_SIZE) :data
+   /* End of data goes *here* so that freeing init code works properly. */
+   _edata = .;
+   NOTES
+diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
+index 2299694748ea..b8efb08204a1 100644
+--- a/arch/microblaze/kernel/vmlinux.lds.S
++++ b/arch/microblaze/kernel/vmlinux.lds.S
+@@ -69,7 +69,7 @@ SECTIONS {
+ 	}
+ 
+ 	_sdata = . ;
+-	RW_DATA_SECTION(32, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(32, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = . ;
+ 
+ 	/* Under the microblaze ABI, .sdata and .sbss must be contiguous */
+diff --git a/arch/nds32/kernel/vmlinux.lds.S b/arch/nds32/kernel/vmlinux.lds.S
+index 10ff570ba95b..f679d3397436 100644
+--- a/arch/nds32/kernel/vmlinux.lds.S
++++ b/arch/nds32/kernel/vmlinux.lds.S
+@@ -54,7 +54,7 @@ SECTIONS
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata  =  .;
+ 
+ 	EXCEPTION_TABLE(16)
+diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
+index 318804a2c7a1..c55a7cfa1075 100644
+--- a/arch/nios2/kernel/vmlinux.lds.S
++++ b/arch/nios2/kernel/vmlinux.lds.S
+@@ -50,7 +50,7 @@ SECTIONS
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	BSS_SECTION(0, 0, 0)
+diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
+index f73e0d3ea09f..60449fd7f16f 100644
+--- a/arch/openrisc/kernel/vmlinux.lds.S
++++ b/arch/openrisc/kernel/vmlinux.lds.S
+@@ -74,7 +74,7 @@ SECTIONS
+ 	/* Whatever comes after _e_kernel_ro had better be page-aligend, too */
+ 
+ 	/* 32 here is cacheline size... recheck this */
+-	RW_DATA_SECTION(32, PAGE_SIZE, PAGE_SIZE)
++	RW_DATA(32, PAGE_SIZE, PAGE_SIZE)
+ 
+         _edata  =  .;
+ 
+diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
+index e1c563c7dca1..12b3d7d5e9e4 100644
+--- a/arch/parisc/kernel/vmlinux.lds.S
++++ b/arch/parisc/kernel/vmlinux.lds.S
+@@ -148,7 +148,7 @@ SECTIONS
+ 	data_start = .;
+ 
+ 	/* Data */
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
+ 
+ 	/* PA-RISC locks requires 16-byte alignment */
+ 	. = ALIGN(16);
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index 66dc17d24dd9..12f42f96d46e 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -57,7 +57,7 @@ SECTIONS
+ 		*(.srodata*)
+ 	}
+ 
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	.sdata : {
+ 		__global_pointer$ = . + 0x800;
+ 		*(.sdata*)
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index b33c4823f8b5..37695499717d 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -67,7 +67,7 @@ SECTIONS
+ 	. = ALIGN(PAGE_SIZE);
+ 	__end_ro_after_init = .;
+ 
+-	RW_DATA_SECTION(0x100, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(0x100, PAGE_SIZE, THREAD_SIZE)
+ 	BOOT_DATA_PRESERVED
+ 
+ 	_edata = .;		/* End of data section */
+diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
+index fef39054cc70..c60b19958c35 100644
+--- a/arch/sh/kernel/vmlinux.lds.S
++++ b/arch/sh/kernel/vmlinux.lds.S
+@@ -51,7 +51,7 @@ SECTIONS
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	DWARF_EH_FRAME
+diff --git a/arch/sparc/kernel/vmlinux.lds.S b/arch/sparc/kernel/vmlinux.lds.S
+index 8929fbc35a80..7ec79918b566 100644
+--- a/arch/sparc/kernel/vmlinux.lds.S
++++ b/arch/sparc/kernel/vmlinux.lds.S
+@@ -67,7 +67,7 @@ SECTIONS
+ 	.data1 : {
+ 		*(.data1)
+ 	}
+-	RW_DATA_SECTION(SMP_CACHE_BYTES, 0, THREAD_SIZE)
++	RW_DATA(SMP_CACHE_BYTES, 0, THREAD_SIZE)
+ 
+ 	/* End of data section */
+ 	_edata = .;
+diff --git a/arch/unicore32/kernel/vmlinux.lds.S b/arch/unicore32/kernel/vmlinux.lds.S
+index 367c80313bec..6fb320b337ef 100644
+--- a/arch/unicore32/kernel/vmlinux.lds.S
++++ b/arch/unicore32/kernel/vmlinux.lds.S
+@@ -44,7 +44,7 @@ SECTIONS
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+-	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+ 	EXCEPTION_TABLE(L1_CACHE_BYTES)
+diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
+index b97e5798b9cf..bdbd7c4056c1 100644
+--- a/arch/xtensa/kernel/vmlinux.lds.S
++++ b/arch/xtensa/kernel/vmlinux.lds.S
+@@ -134,7 +134,7 @@ SECTIONS
+   /* Data section */
+ 
+   _sdata = .;
+-  RW_DATA_SECTION(XCHAL_ICACHE_LINESIZE, PAGE_SIZE, THREAD_SIZE)
++  RW_DATA(XCHAL_ICACHE_LINESIZE, PAGE_SIZE, THREAD_SIZE)
+   _edata = .;
+ 
+   /* Initialization code and data: */
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 061e57c609f6..356078e50a5c 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -24,7 +24,7 @@
+  *
+  *      _sdata = .;
+  *	RO_DATA(PAGE_SIZE)
+- *	RW_DATA_SECTION(...)
++ *	RW_DATA(...)
+  *	_edata = .;
+  *
+  *	EXCEPTION_TABLE(...)
+@@ -975,7 +975,7 @@
+  * matches the requirement of PAGE_ALIGNED_DATA.
+  *
+  * use 0 as page_align if page_aligned data is not used */
+-#define RW_DATA_SECTION(cacheline, pagealigned, inittask)		\
++#define RW_DATA(cacheline, pagealigned, inittask)			\
+ 	. = ALIGN(PAGE_SIZE);						\
+ 	.data : AT(ADDR(.data) - LOAD_OFFSET) {				\
+ 		INIT_TASK_DATA(inittask)				\
 -- 
-2.20.1
+2.17.1
