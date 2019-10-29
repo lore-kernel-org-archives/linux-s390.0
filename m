@@ -1,57 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32146 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2409654AbfJYRGm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Oct 2019 13:06:42 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PH4TUW123007
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:42 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vv3ck42cx-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 25 Oct 2019 13:06:41 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 25 Oct 2019 18:06:40 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 2/5] s390x: improve error reporting for interrupts
-Date: Fri, 25 Oct 2019 19:06:31 +0200
-In-Reply-To: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
-References: <1572023194-14370-1-git-send-email-imbrenda@linux.ibm.com>
-Message-Id: <1572023194-14370-3-git-send-email-imbrenda@linux.ibm.com>
+Received: from mail-qt1-f194.google.com ([209.85.160.194]:40976 "EHLO
+        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730955AbfJ2KbO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 06:31:14 -0400
+Received: by mail-qt1-f194.google.com with SMTP id o3so19385935qtj.8
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 03:31:13 -0700 (PDT)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+From: Qian Cai <cai@lca.pw>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH V8] mm/debug: Add tests validating architecture page table helpers
+Date: Tue, 29 Oct 2019 06:31:11 -0400
+Message-Id: <B6AAFA3F-745D-48E2-98CC-CFB30934CE39@lca.pw>
+References: <1572240562-23630-1-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1572240562-23630-1-git-send-email-anshuman.khandual@arm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Anshuman Khandual <Anshuman.Khandual@arm.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Improve error reporting for unexpected external interrupts to also
-print the received external interrupt code.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- lib/s390x/interrupt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 5cade23..1636207 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -118,8 +118,8 @@ void handle_ext_int(void)
- {
- 	if (!ext_int_expected &&
- 	    lc->ext_int_code != EXT_IRQ_SERVICE_SIG) {
--		report_abort("Unexpected external call interrupt: at %#lx",
--			     lc->ext_old_psw.addr);
-+		report_abort("Unexpected external call interrupt (code %#x): at %#lx",
-+			     lc->ext_int_code, lc->ext_old_psw.addr);
- 		return;
- 	}
- 
--- 
-2.7.4
+> On Oct 28, 2019, at 1:29 AM, Anshuman Khandual <Anshuman.Khandual@arm.com>=
+ wrote:
+>=20
+> This adds tests which will validate architecture page table helpers and
+> other accessors in their compliance with expected generic MM semantics.
+> This will help various architectures in validating changes to existing
+> page table helpers or addition of new ones.
+>=20
+> This test covers basic page table entry transformations including but not
+> limited to old, young, dirty, clean, write, write protect etc at various
+> level along with populating intermediate entries with next page table page=
+
+> and validating them.
+>=20
+> Test page table pages are allocated from system memory with required size
+> and alignments. The mapped pfns at page table levels are derived from a
+> real pfn representing a valid kernel text symbol. This test gets called
+> right after page_alloc_init_late().
+>=20
+> This gets build and run when CONFIG_DEBUG_VM_PGTABLE is selected along wit=
+h
+> CONFIG_VM_DEBUG. Architectures willing to subscribe this test also need to=
+
+> select CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE which for now is limited to x86 an=
+d
+> arm64. Going forward, other architectures too can enable this after fixing=
+
+> build or runtime problems (if any) with their page table helpers.
+>=20
+> Folks interested in making sure that a given platform's page table helpers=
+
+> conform to expected generic MM semantics should enable the above config
+> which will just trigger this test during boot. Any non conformity here wil=
+l
+> be reported as an warning which would need to be fixed. This test will hel=
+p
+> catch any changes to the agreed upon semantics expected from generic MM an=
+d
+> enable platforms to accommodate it thereafter.
+
+This looks like a perfect candidate to streamline with the new kunit framewo=
+rk, no?=
