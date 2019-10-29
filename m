@@ -1,162 +1,131 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 2/3] arch: msgbuf.h: make uapi asm/msgbuf.h self-contained
-Date: Wed, 30 Oct 2019 15:38:54 +0900
-Message-Id: <20191030063855.9989-2-yamada.masahiro@socionext.com>
-In-Reply-To: <20191030063855.9989-1-yamada.masahiro@socionext.com>
-References: <20191030063855.9989-1-yamada.masahiro@socionext.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:39174 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728761AbfJ2Gts (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 02:49:48 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 17/21] lib: provide a simple generic ioremap implementation
+Date: Tue, 29 Oct 2019 07:48:30 +0100
+Message-Id: <20191029064834.23438-18-hch@lst.de>
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+References: <20191029064834.23438-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Masahiro Yamada <yamada.masahiro@socionext.com>
+To: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org
+Cc: linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The user-space cannot compile <asm/msgbuf.h> due to some missing type
-definitions. For example, building it for x86 fails as follows:
+A lot of architectures reuse the same simple ioremap implementation, so
+start lifting the most simple variant to lib/ioremap.c.  It provides
+ioremap_prot and iounmap, plus a default ioremap that uses prot_noncached,
+although that can be overridden by asm/io.h.
 
-  CC      usr/include/asm/msgbuf.h.s
-In file included from ./usr/include/asm/msgbuf.h:6:0,
-                 from <command-line>:32:
-./usr/include/asm-generic/msgbuf.h:25:20: error: field ‘msg_perm’ has incomplete type
-  struct ipc64_perm msg_perm;
-                    ^~~~~~~~
-./usr/include/asm-generic/msgbuf.h:27:2: error: unknown type name ‘__kernel_time_t’
-  __kernel_time_t msg_stime; /* last msgsnd time */
-  ^~~~~~~~~~~~~~~
-./usr/include/asm-generic/msgbuf.h:28:2: error: unknown type name ‘__kernel_time_t’
-  __kernel_time_t msg_rtime; /* last msgrcv time */
-  ^~~~~~~~~~~~~~~
-./usr/include/asm-generic/msgbuf.h:29:2: error: unknown type name ‘__kernel_time_t’
-  __kernel_time_t msg_ctime; /* last change time */
-  ^~~~~~~~~~~~~~~
-./usr/include/asm-generic/msgbuf.h:41:2: error: unknown type name ‘__kernel_pid_t’
-  __kernel_pid_t msg_lspid; /* pid of last msgsnd */
-  ^~~~~~~~~~~~~~
-./usr/include/asm-generic/msgbuf.h:42:2: error: unknown type name ‘__kernel_pid_t’
-  __kernel_pid_t msg_lrpid; /* last receive pid */
-  ^~~~~~~~~~~~~~
-
-It is just a matter of missing include directive.
-
-Include <asm/ipcbuf.h> to make it self-contained, and add it to
-the compile-test coverage.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
+ include/asm-generic/io.h | 20 ++++++++++++++++----
+ lib/Kconfig              |  3 +++
+ lib/ioremap.c            | 39 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 58 insertions(+), 4 deletions(-)
 
- arch/mips/include/uapi/asm/msgbuf.h    | 1 +
- arch/parisc/include/uapi/asm/msgbuf.h  | 1 +
- arch/powerpc/include/uapi/asm/msgbuf.h | 2 ++
- arch/sparc/include/uapi/asm/msgbuf.h   | 2 ++
- arch/x86/include/uapi/asm/msgbuf.h     | 3 +++
- arch/xtensa/include/uapi/asm/msgbuf.h  | 2 ++
- include/uapi/asm-generic/msgbuf.h      | 2 ++
- usr/include/Makefile                   | 1 -
- 8 files changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/arch/mips/include/uapi/asm/msgbuf.h b/arch/mips/include/uapi/asm/msgbuf.h
-index 46aa15b13e4e..2722f9b82cf2 100644
---- a/arch/mips/include/uapi/asm/msgbuf.h
-+++ b/arch/mips/include/uapi/asm/msgbuf.h
-@@ -2,6 +2,7 @@
- #ifndef _ASM_MSGBUF_H
- #define _ASM_MSGBUF_H
- 
-+#include <asm/ipcbuf.h>
- 
- /*
-  * The msqid64_ds structure for the MIPS architecture.
-diff --git a/arch/parisc/include/uapi/asm/msgbuf.h b/arch/parisc/include/uapi/asm/msgbuf.h
-index 6a2e9ab2ef8d..02ae1f616347 100644
---- a/arch/parisc/include/uapi/asm/msgbuf.h
-+++ b/arch/parisc/include/uapi/asm/msgbuf.h
-@@ -3,6 +3,7 @@
- #define _PARISC_MSGBUF_H
- 
- #include <asm/bitsperlong.h>
-+#include <asm/ipcbuf.h>
- 
- /* 
-  * The msqid64_ds structure for parisc architecture, copied from sparc.
-diff --git a/arch/powerpc/include/uapi/asm/msgbuf.h b/arch/powerpc/include/uapi/asm/msgbuf.h
-index 2b1b37797a47..30d5e1b45553 100644
---- a/arch/powerpc/include/uapi/asm/msgbuf.h
-+++ b/arch/powerpc/include/uapi/asm/msgbuf.h
-@@ -2,6 +2,8 @@
- #ifndef _ASM_POWERPC_MSGBUF_H
- #define _ASM_POWERPC_MSGBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The msqid64_ds structure for the PowerPC architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/sparc/include/uapi/asm/msgbuf.h b/arch/sparc/include/uapi/asm/msgbuf.h
-index ffc46c211d6d..81a8460fdd67 100644
---- a/arch/sparc/include/uapi/asm/msgbuf.h
-+++ b/arch/sparc/include/uapi/asm/msgbuf.h
-@@ -2,6 +2,8 @@
- #ifndef _SPARC_MSGBUF_H
- #define _SPARC_MSGBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The msqid64_ds structure for sparc64 architecture.
-  * Note extra padding because this structure is passed back and forth
-diff --git a/arch/x86/include/uapi/asm/msgbuf.h b/arch/x86/include/uapi/asm/msgbuf.h
-index 90ab9a795b49..e09fd2363300 100644
---- a/arch/x86/include/uapi/asm/msgbuf.h
-+++ b/arch/x86/include/uapi/asm/msgbuf.h
-@@ -5,6 +5,9 @@
- #if !defined(__x86_64__) || !defined(__ILP32__)
- #include <asm-generic/msgbuf.h>
- #else
-+
-+#include <asm/ipcbuf.h>
-+
- /*
-  * The msqid64_ds structure for x86 architecture with x32 ABI.
+diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
+index 4e45e1cb6560..4a661fdd1937 100644
+--- a/include/asm-generic/io.h
++++ b/include/asm-generic/io.h
+@@ -923,9 +923,10 @@ static inline void *phys_to_virt(unsigned long address)
+  * DOC: ioremap() and ioremap_*() variants
   *
-diff --git a/arch/xtensa/include/uapi/asm/msgbuf.h b/arch/xtensa/include/uapi/asm/msgbuf.h
-index d6915e9f071c..1ed2c85b693a 100644
---- a/arch/xtensa/include/uapi/asm/msgbuf.h
-+++ b/arch/xtensa/include/uapi/asm/msgbuf.h
-@@ -17,6 +17,8 @@
- #ifndef _XTENSA_MSGBUF_H
- #define _XTENSA_MSGBUF_H
- 
-+#include <asm/ipcbuf.h>
-+
- struct msqid64_ds {
- 	struct ipc64_perm msg_perm;
- #ifdef __XTENSA_EB__
-diff --git a/include/uapi/asm-generic/msgbuf.h b/include/uapi/asm-generic/msgbuf.h
-index 9fe4881557cb..7cdc7e52490d 100644
---- a/include/uapi/asm-generic/msgbuf.h
-+++ b/include/uapi/asm-generic/msgbuf.h
-@@ -3,6 +3,8 @@
- #define __ASM_GENERIC_MSGBUF_H
- 
- #include <asm/bitsperlong.h>
-+#include <asm/ipcbuf.h>
-+
- /*
-  * generic msqid64_ds structure.
+  * Architectures with an MMU are expected to provide ioremap() and iounmap()
+- * themselves.  For NOMMU architectures we provide a default nop-op
+- * implementation that expect that the physical address used for MMIO are
+- * already marked as uncached, and can be used as kernel virtual addresses.
++ * themselves or rely on GENERIC_IOREMAP.  For NOMMU architectures we provide
++ * a default nop-op implementation that expect that the physical address used
++ * for MMIO are already marked as uncached, and can be used as kernel virtual
++ * addresses.
   *
-diff --git a/usr/include/Makefile b/usr/include/Makefile
-index 70f8fe256aed..099d7401aa23 100644
---- a/usr/include/Makefile
-+++ b/usr/include/Makefile
-@@ -16,7 +16,6 @@ override c_flags = $(UAPI_CFLAGS) -Wp,-MD,$(depfile) -I$(objtree)/usr/include
- # Please consider to fix the header first.
- #
- # Sorted alphabetically.
--header-test- += asm/msgbuf.h
- header-test- += asm/sembuf.h
- header-test- += asm/shmbuf.h
- header-test- += asm/signal.h
+  * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
+  * for specific drivers if the architecture choses to implement them.  If they
+@@ -946,7 +947,18 @@ static inline void iounmap(void __iomem *addr)
+ {
+ }
+ #endif
+-#endif /* CONFIG_MMU */
++#elif defined(CONFIG_GENERIC_IOREMAP)
++#include <asm/pgtable.h>
++
++void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot);
++void iounmap(volatile void __iomem *addr);
++
++static inline void __iomem *ioremap(phys_addr_t addr, size_t size)
++{
++	/* _PAGE_IOREMAP needs to be supplied by the architecture */
++	return ioremap_prot(addr, size, _PAGE_IOREMAP);
++}
++#endif /* !CONFIG_MMU || CONFIG_GENERIC_IOREMAP */
+ 
+ #ifndef ioremap_nocache
+ #define ioremap_nocache ioremap
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 183f92a297ca..afc78aaf2b25 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -638,6 +638,9 @@ config STRING_SELFTEST
+ 
+ endmenu
+ 
++config GENERIC_IOREMAP
++	bool
++
+ config GENERIC_LIB_ASHLDI3
+ 	bool
+ 
+diff --git a/lib/ioremap.c b/lib/ioremap.c
+index 0a2ffadc6d71..3f0e18543de8 100644
+--- a/lib/ioremap.c
++++ b/lib/ioremap.c
+@@ -231,3 +231,42 @@ int ioremap_page_range(unsigned long addr,
+ 
+ 	return err;
+ }
++
++#ifdef CONFIG_GENERIC_IOREMAP
++void __iomem *ioremap_prot(phys_addr_t addr, size_t size, unsigned long prot)
++{
++	unsigned long offset, vaddr;
++	phys_addr_t last_addr;
++	struct vm_struct *area;
++
++	/* Disallow wrap-around or zero size */
++	last_addr = addr + size - 1;
++	if (!size || last_addr < addr)
++		return NULL;
++
++	/* Page-align mappings */
++	offset = addr & (~PAGE_MASK);
++	addr -= offset;
++	size = PAGE_ALIGN(size + offset);
++
++	area = get_vm_area_caller(size, VM_IOREMAP,
++			__builtin_return_address(0));
++	if (!area)
++		return NULL;
++	vaddr = (unsigned long)area->addr;
++
++	if (ioremap_page_range(vaddr, vaddr + size, addr, __pgprot(prot))) {
++		free_vm_area(area);
++		return NULL;
++	}
++
++	return (void __iomem *)(vaddr + offset);
++}
++EXPORT_SYMBOL(ioremap_prot);
++
++void iounmap(volatile void __iomem *addr)
++{
++	vunmap((void *)((unsigned long)addr & PAGE_MASK));
++}
++EXPORT_SYMBOL(iounmap);
++#endif /* CONFIG_GENERIC_IOREMAP */
 -- 
-2.17.1
+2.20.1
