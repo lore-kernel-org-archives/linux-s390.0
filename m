@@ -1,127 +1,55 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:38764 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727561AbfJKAG3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Oct 2019 20:06:29 -0400
-Received: by mail-pf1-f196.google.com with SMTP id h195so4941997pfe.5
-        for <linux-s390@vger.kernel.org>; Thu, 10 Oct 2019 17:06:28 -0700 (PDT)
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 11/29] vmlinux.lds.h: Replace RODATA with RO_DATA
-Date: Thu, 10 Oct 2019 17:05:51 -0700
-Message-Id: <20191011000609.29728-12-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Subject: [PATCH v3 14/29] vmlinux.lds.h: Allow EXCEPTION_TABLE to live in RO_DATA
+Date: Tue, 29 Oct 2019 14:13:36 -0700
+Message-Id: <20191029211351.13243-15-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-There's no reason to keep the RODATA macro: replace the callers with
-the expected RO_DATA macro.
+Many architectures have an EXCEPTION_TABLE that only needs to
+be readable. As such, it should live in RO_DATA. Create a macro to
+identify this case for the architectures that can move EXCEPTION_TABLE
+into RO_DATA.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
 ---
- arch/alpha/kernel/vmlinux.lds.S      | 2 +-
- arch/ia64/kernel/vmlinux.lds.S       | 2 +-
- arch/microblaze/kernel/vmlinux.lds.S | 2 +-
- arch/mips/kernel/vmlinux.lds.S       | 2 +-
- arch/um/include/asm/common.lds.S     | 2 +-
- arch/xtensa/kernel/vmlinux.lds.S     | 2 +-
- include/asm-generic/vmlinux.lds.h    | 4 +---
- 7 files changed, 7 insertions(+), 9 deletions(-)
+ include/asm-generic/vmlinux.lds.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index bf28043485f6..af411817dd7d 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -34,7 +34,7 @@ SECTIONS
- 	swapper_pg_dir = SWAPPER_PGD;
- 	_etext = .;	/* End of text section */
- 
--	RODATA
-+	RO_DATA(4096)
- 	EXCEPTION_TABLE(16)
- 
- 	/* Will be freed after init */
-diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
-index fae077595756..11d5115bc44d 100644
---- a/arch/ia64/kernel/vmlinux.lds.S
-+++ b/arch/ia64/kernel/vmlinux.lds.S
-@@ -104,7 +104,7 @@ SECTIONS {
- 	code_continues2 : {
- 	} :text
- 
--	RODATA
-+	RO_DATA(4096)
- 
- 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
- 		__start_opd = .;
-diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
-index d008e50bb212..2299694748ea 100644
---- a/arch/microblaze/kernel/vmlinux.lds.S
-+++ b/arch/microblaze/kernel/vmlinux.lds.S
-@@ -51,7 +51,7 @@ SECTIONS {
- 	}
- 
- 	. = ALIGN(16);
--	RODATA
-+	RO_DATA(4096)
- 	EXCEPTION_TABLE(16)
- 
- 	/*
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-index 91e566defc16..a5f00ec73ea6 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -82,7 +82,7 @@ SECTIONS
- 	}
- 
- 	_sdata = .;			/* Start of data section */
--	RODATA
-+	RO_DATA(4096)
- 
- 	/* writeable */
- 	.data : {	/* Data */
-diff --git a/arch/um/include/asm/common.lds.S b/arch/um/include/asm/common.lds.S
-index 91aca356095f..7145ce699982 100644
---- a/arch/um/include/asm/common.lds.S
-+++ b/arch/um/include/asm/common.lds.S
-@@ -9,7 +9,7 @@
-   _sdata = .;
-   PROVIDE (sdata = .);
- 
--  RODATA
-+  RO_DATA(4096)
- 
-   .unprotected : { *(.unprotected) }
-   . = ALIGN(4096);
-diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
-index a0a843745695..b97e5798b9cf 100644
---- a/arch/xtensa/kernel/vmlinux.lds.S
-+++ b/arch/xtensa/kernel/vmlinux.lds.S
-@@ -124,7 +124,7 @@ SECTIONS
- 
-   . = ALIGN(16);
- 
--  RODATA
-+  RO_DATA(4096)
- 
-   /*  Relocation table */
- 
 diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index dc3390ec6b60..a0a989fbe411 100644
+index 356078e50a5c..9867d8e41eed 100644
 --- a/include/asm-generic/vmlinux.lds.h
 +++ b/include/asm-generic/vmlinux.lds.h
-@@ -518,9 +518,7 @@
+@@ -69,6 +69,17 @@
+ #define NOTES_HEADERS_RESTORE
+ #endif
+ 
++/*
++ * Some architectures have non-executable read-only exception tables.
++ * They can be added to the RO_DATA segment by specifying their desired
++ * alignment.
++ */
++#ifdef RO_EXCEPTION_TABLE_ALIGN
++#define RO_EXCEPTION_TABLE	EXCEPTION_TABLE(RO_EXCEPTION_TABLE_ALIGN)
++#else
++#define RO_EXCEPTION_TABLE
++#endif
++
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+ #define ALIGN_FUNCTION()  . = ALIGN(8)
+ 
+@@ -513,6 +524,7 @@
+ 		__stop___modver = .;					\
+ 	}								\
+ 									\
++	RO_EXCEPTION_TABLE						\
+ 	NOTES								\
+ 									\
  	. = ALIGN((align));						\
- 	__end_rodata = .;
- 
--/* RODATA & RO_DATA provided for backward compatibility.
-- * All archs are supposed to use RO_DATA() */
--#define RODATA          RO_DATA_SECTION(4096)
-+/* All archs are supposed to use RO_DATA() */
- #define RO_DATA(align)  RO_DATA_SECTION(align)
- 
- /*
 -- 
 2.17.1
