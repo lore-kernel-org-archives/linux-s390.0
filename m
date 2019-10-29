@@ -1,76 +1,39 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50934 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730086AbfJIIID (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 04:08:03 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9987DcB171782
-        for <linux-s390@vger.kernel.org>; Wed, 9 Oct 2019 04:08:01 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vgyqbvey3-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 09 Oct 2019 04:08:01 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Wed, 9 Oct 2019 09:07:57 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 3/5] net/smc: increase device refcount for added link group
-Date: Wed,  9 Oct 2019 10:07:45 +0200
-In-Reply-To: <20191009080747.95516-1-kgraul@linux.ibm.com>
-References: <20191009080747.95516-1-kgraul@linux.ibm.com>
-Message-Id: <20191009080747.95516-4-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 26/29] x86/mm: Remove redundant &s on addresses
+Date: Tue, 29 Oct 2019 14:13:48 -0700
+Message-Id: <20191029211351.13243-27-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+The &s on addresses are redundant. Remove them to match all the other
+similar functions.
 
-SMCD link groups belong to certain ISM-devices and SMCR link group
-links belong to certain IB-devices. Increase the refcount for
-these devices, as long as corresponding link groups exist.
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- net/smc/smc_core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/x86/mm/init_64.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 96d3150d4d1c..a12ec621b54c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -248,12 +248,14 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	lgr->conns_all = RB_ROOT;
- 	if (ini->is_smcd) {
- 		/* SMC-D specific settings */
-+		get_device(&ini->ism_dev->dev);
- 		lgr->peer_gid = ini->ism_gid;
- 		lgr->smcd = ini->ism_dev;
- 		lgr_list = &ini->ism_dev->lgr_list;
- 		lgr_lock = &lgr->smcd->lgr_lock;
- 	} else {
- 		/* SMC-R specific settings */
-+		get_device(&ini->ib_dev->ibdev->dev);
- 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
- 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
- 		       SMC_SYSTEMID_LEN);
-@@ -451,10 +453,13 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
- static void smc_lgr_free(struct smc_link_group *lgr)
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 26299e9ce6da..e67ddca8b7a8 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1300,9 +1300,9 @@ void mark_rodata_ro(void)
  {
- 	smc_lgr_free_bufs(lgr);
--	if (lgr->is_smcd)
-+	if (lgr->is_smcd) {
- 		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
--	else
-+		put_device(&lgr->smcd->dev);
-+	} else {
- 		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
-+		put_device(&lgr->lnk[SMC_SINGLE_LINK].smcibdev->ibdev->dev);
-+	}
- 	kfree(lgr);
- }
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
+-	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
+-	unsigned long text_end = PFN_ALIGN(&_etext);
+-	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
++	unsigned long end = (unsigned long)__end_rodata_hpage_align;
++	unsigned long text_end = PFN_ALIGN(_etext);
++	unsigned long rodata_end = PFN_ALIGN(__end_rodata);
+ 	unsigned long all_end;
  
+ 	printk(KERN_INFO "Write protecting the kernel read-only data: %luk\n",
 -- 
 2.17.1
