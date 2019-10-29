@@ -1,212 +1,147 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21806 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729618AbfJIIII (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Oct 2019 04:08:08 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x998809n106627
-        for <linux-s390@vger.kernel.org>; Wed, 9 Oct 2019 04:08:06 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vhbpd850n-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 09 Oct 2019 04:08:03 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Wed, 9 Oct 2019 09:07:57 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 4/5] net/smc: no new connections on disappearing devices
-Date: Wed,  9 Oct 2019 10:07:46 +0200
-In-Reply-To: <20191009080747.95516-1-kgraul@linux.ibm.com>
-References: <20191009080747.95516-1-kgraul@linux.ibm.com>
-Message-Id: <20191009080747.95516-5-kgraul@linux.ibm.com>
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:46757 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729107AbfJ2VOL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:11 -0400
+Received: by mail-pg1-f195.google.com with SMTP id f19so10480550pgn.13
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:10 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 08/29] vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes
+Date: Tue, 29 Oct 2019 14:13:30 -0700
+Message-Id: <20191029211351.13243-9-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+In preparation for moving NOTES into RO_DATA, provide a mechanism for
+architectures that want to emit a PT_NOTE Program Header to do so.
 
-Add a "going_away" indication to ISM devices and IB ports and
-avoid creation of new connections on such disappearing devices.
-
-And do not handle ISM events if ISM device is disappearing.
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
 ---
- include/net/smc.h  |  1 +
- net/smc/smc_core.c | 23 +++++++++++++++++++++++
- net/smc/smc_ib.c   | 15 +++++++++++++--
- net/smc/smc_ib.h   |  1 +
- net/smc/smc_ism.c  |  3 +++
- net/smc/smc_pnet.c |  5 ++++-
- 6 files changed, 45 insertions(+), 3 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S   |  3 +++
+ arch/ia64/kernel/vmlinux.lds.S    |  2 ++
+ arch/mips/kernel/vmlinux.lds.S    | 12 ++++++------
+ arch/powerpc/kernel/vmlinux.lds.S |  1 +
+ arch/s390/kernel/vmlinux.lds.S    |  2 ++
+ arch/x86/kernel/vmlinux.lds.S     |  2 ++
+ include/asm-generic/vmlinux.lds.h |  8 ++++++++
+ 7 files changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 438bb0261f45..05174ae4f325 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -77,6 +77,7 @@ struct smcd_dev {
- 	bool pnetid_by_user;
- 	struct list_head lgr_list;
- 	spinlock_t lgr_lock;
-+	u8 going_away : 1;
- };
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 781090cacc96..363a60ba7c31 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -1,4 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
++
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/cache.h>
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 2c4f23c390ad..7cf4958b732d 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -5,6 +5,8 @@
+ #include <asm/pgtable.h>
+ #include <asm/thread_info.h>
  
- struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a12ec621b54c..efe416f81342 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1057,6 +1057,27 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
- 	return 0;
- }
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
  
-+static void smc_core_going_away(void)
-+{
-+	struct smc_ib_device *smcibdev;
-+	struct smcd_dev *smcd;
-+
-+	spin_lock(&smc_ib_devices.lock);
-+	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
-+		int i;
-+
-+		for (i = 0; i < SMC_MAX_PORTS; i++)
-+			set_bit(i, smcibdev->ports_going_away);
-+	}
-+	spin_unlock(&smc_ib_devices.lock);
-+
-+	spin_lock(&smcd_dev_list.lock);
-+	list_for_each_entry(smcd, &smcd_dev_list.list, list) {
-+		smcd->going_away = 1;
-+	}
-+	spin_unlock(&smcd_dev_list.lock);
-+}
-+
- /* Called (from smc_exit) when module is removed */
- void smc_core_exit(void)
- {
-@@ -1064,6 +1085,8 @@ void smc_core_exit(void)
- 	LIST_HEAD(lgr_freeing_list);
- 	struct smcd_dev *smcd;
+ OUTPUT_FORMAT("elf64-ia64-little")
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 33ee0d18fb0a..1c95612eb800 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -10,6 +10,11 @@
+  */
+ #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
  
-+	smc_core_going_away();
++/* Cavium Octeon should not have a separate PT_NOTE Program Header. */
++#ifndef CONFIG_CAVIUM_OCTEON_SOC
++#define EMITS_PT_NOTE
++#endif
 +
- 	spin_lock_bh(&smc_lgr_list.lock);
- 	list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
- 	spin_unlock_bh(&smc_lgr_list.lock);
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index d14ca4af6f94..af05daeb0538 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -242,8 +242,12 @@ static void smc_ib_port_event_work(struct work_struct *work)
- 	for_each_set_bit(port_idx, &smcibdev->port_event_mask, SMC_MAX_PORTS) {
- 		smc_ib_remember_port_attr(smcibdev, port_idx + 1);
- 		clear_bit(port_idx, &smcibdev->port_event_mask);
--		if (!smc_ib_port_active(smcibdev, port_idx + 1))
-+		if (!smc_ib_port_active(smcibdev, port_idx + 1)) {
-+			set_bit(port_idx, smcibdev->ports_going_away);
- 			smc_port_terminate(smcibdev, port_idx + 1);
-+		} else {
-+			clear_bit(port_idx, smcibdev->ports_going_away);
-+		}
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ #undef mips
+@@ -76,12 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
  	}
- }
  
-@@ -259,8 +263,10 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 	switch (ibevent->event) {
- 	case IB_EVENT_DEVICE_FATAL:
- 		/* terminate all ports on device */
--		for (port_idx = 0; port_idx < SMC_MAX_PORTS; port_idx++)
-+		for (port_idx = 0; port_idx < SMC_MAX_PORTS; port_idx++) {
- 			set_bit(port_idx, &smcibdev->port_event_mask);
-+			set_bit(port_idx, smcibdev->ports_going_away);
-+		}
- 		schedule_work(&smcibdev->port_event_work);
- 		break;
- 	case IB_EVENT_PORT_ERR:
-@@ -269,6 +275,10 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 		port_idx = ibevent->element.port_num - 1;
- 		if (port_idx < SMC_MAX_PORTS) {
- 			set_bit(port_idx, &smcibdev->port_event_mask);
-+			if (ibevent->event == IB_EVENT_PORT_ERR)
-+				set_bit(port_idx, smcibdev->ports_going_away);
-+			else if (ibevent->event == IB_EVENT_PORT_ACTIVE)
-+				clear_bit(port_idx, smcibdev->ports_going_away);
- 			schedule_work(&smcibdev->port_event_work);
- 		}
- 		break;
-@@ -307,6 +317,7 @@ static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- 		port_idx = ibevent->element.qp->port - 1;
- 		if (port_idx < SMC_MAX_PORTS) {
- 			set_bit(port_idx, &smcibdev->port_event_mask);
-+			set_bit(port_idx, smcibdev->ports_going_away);
- 			schedule_work(&smcibdev->port_event_work);
- 		}
- 		break;
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index da60ab9e8d70..6a0069db6cae 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -47,6 +47,7 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	u8			initialized : 1; /* ib dev CQ, evthdl done */
- 	struct work_struct	port_event_work;
- 	unsigned long		port_event_mask;
-+	DECLARE_BITMAP(ports_going_away, SMC_MAX_PORTS);
- };
+-#ifdef CONFIG_CAVIUM_OCTEON_SOC
+-#define NOTES_HEADER
+-#else /* CONFIG_CAVIUM_OCTEON_SOC */
+-#define NOTES_HEADER :note
+-#endif /* CONFIG_CAVIUM_OCTEON_SOC */
+-	NOTES :text NOTES_HEADER
++	NOTES NOTES_HEADERS
+ 	.dummy : { *(.dummy) } :text
  
- struct smc_buf_desc;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 34dc619655e8..ee7340898cb4 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -315,6 +315,7 @@ void smcd_unregister_dev(struct smcd_dev *smcd)
- 	spin_lock(&smcd_dev_list.lock);
- 	list_del(&smcd->list);
- 	spin_unlock(&smcd_dev_list.lock);
-+	smcd->going_away = 1;
- 	flush_workqueue(smcd->event_wq);
- 	destroy_workqueue(smcd->event_wq);
- 	smc_smcd_terminate(smcd, 0, VLAN_VID_MASK);
-@@ -344,6 +345,8 @@ void smcd_handle_event(struct smcd_dev *smcd, struct smcd_event *event)
- {
- 	struct smc_ism_event_work *wrk;
+ 	_sdata = .;			/* Start of data section */
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index e184a63aa5b0..7e26e20c8324 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -6,6 +6,7 @@
+ #endif
  
-+	if (smcd->going_away)
-+		return;
- 	/* copy event to event work queue, and let it be handled there */
- 	wrk = kmalloc(sizeof(*wrk), GFP_ATOMIC);
- 	if (!wrk)
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index bab2da8cf17a..6b7799b3f5ca 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -781,6 +781,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
- 			dev_put(ndev);
- 			if (netdev == ndev &&
- 			    smc_ib_port_active(ibdev, i) &&
-+			    !test_bit(i - 1, ibdev->ports_going_away) &&
- 			    !smc_ib_determine_gid(ibdev, i, ini->vlan_id,
- 						  ini->ib_gid, NULL)) {
- 				ini->ib_dev = ibdev;
-@@ -820,6 +821,7 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
- 				continue;
- 			if (smc_pnet_match(ibdev->pnetid[i - 1], ndev_pnetid) &&
- 			    smc_ib_port_active(ibdev, i) &&
-+			    !test_bit(i - 1, ibdev->ports_going_away) &&
- 			    !smc_ib_determine_gid(ibdev, i, ini->vlan_id,
- 						  ini->ib_gid, NULL)) {
- 				ini->ib_dev = ibdev;
-@@ -846,7 +848,8 @@ static void smc_pnet_find_ism_by_pnetid(struct net_device *ndev,
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
++#define EMITS_PT_NOTE
  
- 	spin_lock(&smcd_dev_list.lock);
- 	list_for_each_entry(ismdev, &smcd_dev_list.list, list) {
--		if (smc_pnet_match(ismdev->pnetid, ndev_pnetid)) {
-+		if (smc_pnet_match(ismdev->pnetid, ndev_pnetid) &&
-+		    !ismdev->going_away) {
- 			ini->ism_dev = ismdev;
- 			break;
- 		}
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 13294fef473e..646d939346df 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -15,6 +15,8 @@
+ /* Handle ro_after_init data on our own. */
+ #define RO_AFTER_INIT_DATA
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/vmlinux.lds.h>
+ 
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 788e78978030..2e18bf5c1aed 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -21,6 +21,8 @@
+ #define LOAD_OFFSET __START_KERNEL_map
+ #endif
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index dae64600ccbf..f5dd45ce73f1 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -54,6 +54,14 @@
+ #define LOAD_OFFSET 0
+ #endif
+ 
++/*
++ * Only some architectures want to have the .notes segment visible in
++ * a separate PT_NOTE ELF Program Header.
++ */
++#ifdef EMITS_PT_NOTE
++#define NOTES_HEADERS		:text :note
++#endif
++
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+ #define ALIGN_FUNCTION()  . = ALIGN(8)
+ 
 -- 
 2.17.1
