@@ -1,54 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56966 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729226AbfJUONl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Oct 2019 10:13:41 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9LEDJ2a080994
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:41 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vqx4sjtfw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 21 Oct 2019 10:13:40 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Mon, 21 Oct 2019 15:13:25 +0100
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 0/8] net/smc: improve termination handling (part 2)
-Date: Mon, 21 Oct 2019 16:13:07 +0200
-Message-Id: <20191021141315.58969-1-kgraul@linux.ibm.com>
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:39469 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729665AbfJ2VOV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:14:21 -0400
+Received: by mail-pg1-f193.google.com with SMTP id p12so10507548pgn.6
+        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:14:20 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH v3 18/29] arm64: Move EXCEPTION_TABLE to RO_DATA segment
+Date: Tue, 29 Oct 2019 14:13:40 -0700
+Message-Id: <20191029211351.13243-19-keescook@chromium.org>
+In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
+References: <20191029211351.13243-1-keescook@chromium.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, gor@linux.ibm.com, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
 
-More patches to address abnormal termination processing of
-sockets and link groups.
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA. Also
+removes the redundant ALIGN, which is already present at the end of the
+RO_DATA macro.
 
-Ursula Braun (8):
-  net/smc: cancel send and receive for terminated socket
-  net/smc: terminate link group without holding lgr lock
-  net/smc: improve abnormal termination locking
-  net/smc: improve link group freeing
-  net/smc: tell peers about abnormal link group termination
-  net/smc: improve abnormal termination of link groups
-  net/smc: introduce link group termination worker
-  net/smc: remove close abort worker
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/kernel/vmlinux.lds.S | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
- net/smc/af_smc.c    |   4 ++
- net/smc/smc.h       |   1 +
- net/smc/smc_cdc.c   |   4 +-
- net/smc/smc_close.c |  32 ++++++-----
- net/smc/smc_close.h |   2 +
- net/smc/smc_core.c  | 129 +++++++++++++++++++++++++++++++-------------
- net/smc/smc_core.h  |   9 ++++
- net/smc/smc_llc.c   |   2 +-
- net/smc/smc_rx.c    |  10 +++-
- net/smc/smc_tx.c    |  26 +++++----
- net/smc/smc_wr.c    |  10 ++--
- 11 files changed, 157 insertions(+), 72 deletions(-)
-
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index a4b3e6c0680c..9128a26eb45b 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -5,6 +5,8 @@
+  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+  */
+ 
++#define RO_EXCEPTION_TABLE_ALIGN	8
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/cache.h>
+ #include <asm/kernel-pgtable.h>
+@@ -135,10 +137,9 @@ SECTIONS
+ 	. = ALIGN(SEGMENT_ALIGN);
+ 	_etext = .;			/* End of text section */
+ 
+-	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
+-	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
++	/* everything from this point to __init_begin will be marked RO NX */
++	RO_DATA(PAGE_SIZE)
+ 
+-	. = ALIGN(PAGE_SIZE);
+ 	idmap_pg_dir = .;
+ 	. += IDMAP_DIR_SIZE;
+ 
 -- 
 2.17.1
