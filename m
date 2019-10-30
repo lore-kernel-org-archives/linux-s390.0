@@ -1,68 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9350 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2409273AbfJXLmg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:36 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb9RV088853
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:34 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vuapnhfuy-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:34 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:32 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 25/37] KVM: s390: protvirt: STSI handling
-Date: Thu, 24 Oct 2019 07:40:47 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:34025 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726032AbfJ3KDI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Oct 2019 06:03:08 -0400
+Date: Wed, 30 Oct 2019 11:01:46 +0100
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 1/4] drm/msm: fix memleak on release
+Message-ID: <20191030100146.GC4691@localhost>
+References: <20191010131333.23635-1-johan@kernel.org>
+ <20191010131333.23635-2-johan@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-26-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191010131333.23635-2-johan@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Jordan Crouse <jcrouse@codeaurora.org>, Harald Freudenberger <freude@linux.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Fabien Dessenne <fabien.dessenne@st.com>
 
-Save response to sidad and disable address checking for protected
-guests.
+On Thu, Oct 10, 2019 at 03:13:30PM +0200, Johan Hovold wrote:
+> If a process is interrupted while accessing the "gpu" debugfs file and
+> the drm device struct_mutex is contended, release() could return early
+> and fail to free related resources.
+> 
+> Note that the return value from release() is ignored.
+> 
+> Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
+> Cc: stable <stable@vger.kernel.org>     # 4.18
+> Cc: Jordan Crouse <jcrouse@codeaurora.org>
+> Cc: Rob Clark <robdclark@gmail.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/priv.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Rob, Sean,
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index ed52ffa8d5d4..06c7e7a10825 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -872,7 +872,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 
- 	operand2 = kvm_s390_get_base_disp_s(vcpu, &ar);
- 
--	if (operand2 & 0xfff)
-+	if (!kvm_s390_pv_is_protected(vcpu->kvm) && (operand2 & 0xfff))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
- 	switch (fc) {
-@@ -893,8 +893,13 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 		handle_stsi_3_2_2(vcpu, (void *) mem);
- 		break;
- 	}
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		memcpy((void *)vcpu->arch.sie_block->sidad, (void *)mem,
-+		       PAGE_SIZE);
-+		rc = 0;
-+	} else
-+		rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
- 
--	rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
- 	if (rc) {
- 		rc = kvm_s390_inject_prog_cond(vcpu, rc);
- 		goto out;
--- 
-2.20.1
+Sending a reminder about this one, which is not yet in linux-next.
+
+Perhaps Daniel can pick it up otherwise?
+
+Thanks,
+Johan
+
+>  drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
+> index 6be879578140..1c74381a4fc9 100644
+> --- a/drivers/gpu/drm/msm/msm_debugfs.c
+> +++ b/drivers/gpu/drm/msm/msm_debugfs.c
+> @@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
+>  	struct msm_gpu_show_priv *show_priv = m->private;
+>  	struct msm_drm_private *priv = show_priv->dev->dev_private;
+>  	struct msm_gpu *gpu = priv->gpu;
+> -	int ret;
+> -
+> -	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
+> -	if (ret)
+> -		return ret;
+>  
+> +	mutex_lock(&show_priv->dev->struct_mutex);
+>  	gpu->funcs->gpu_state_put(show_priv->state);
+>  	mutex_unlock(&show_priv->dev->struct_mutex);
