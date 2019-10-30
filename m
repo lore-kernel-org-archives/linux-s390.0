@@ -1,50 +1,39 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:38341 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729950AbfJ2VUl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Oct 2019 17:20:41 -0400
-Received: by mail-pg1-f194.google.com with SMTP id w3so10519443pgt.5
-        for <linux-s390@vger.kernel.org>; Tue, 29 Oct 2019 14:20:41 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v3 23/29] parisc: Move EXCEPTION_TABLE to RO_DATA segment
-Date: Tue, 29 Oct 2019 14:13:45 -0700
-Message-Id: <20191029211351.13243-24-keescook@chromium.org>
-In-Reply-To: <20191029211351.13243-1-keescook@chromium.org>
-References: <20191029211351.13243-1-keescook@chromium.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Subject: Re: [PATCH 6/6] s390x: Mark archrandom.h functions __must_check
+References: <20191028210559.8289-1-rth@twiddle.net>
+ <20191028210559.8289-7-rth@twiddle.net>
+ <935cf73a-d06c-365d-131a-23dcb350ba17@linux.ibm.com>
+ <cd6b5b8c-77f0-ad7e-702a-27e5a929ca54@linaro.org>
+From: Harald Freudenberger <freude@linux.ibm.com>
+Date: Wed, 30 Oct 2019 08:56:07 +0100
+MIME-Version: 1.0
+In-Reply-To: <cd6b5b8c-77f0-ad7e-702a-27e5a929ca54@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Message-Id: <95aa7fd3-5e80-f11b-3f74-42628f7dfba4@linux.ibm.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>
+To: Richard Henderson <richard.henderson@linaro.org>, linux-arch@vger.kernel.org
+Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Helge Deller <deller@gmx.de>
----
- arch/parisc/kernel/vmlinux.lds.S | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index 12b3d7d5e9e4..53e29d88f99c 100644
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -19,6 +19,7 @@
- 				*(.data..vm0.pte)
- 
- #define CC_USING_PATCHABLE_FUNCTION_ENTRY
-+#define RO_EXCEPTION_TABLE_ALIGN	8
- 
- #include <asm-generic/vmlinux.lds.h>
- 
-@@ -129,9 +130,6 @@ SECTIONS
- 
- 	RO_DATA(8)
- 
--	/* RO because of BUILDTIME_EXTABLE_SORT */
--	EXCEPTION_TABLE(8)
--
- 	/* unwind info */
- 	.PARISC.unwind : {
- 		__start___unwind = .;
--- 
-2.17.1
+On 29.10.19 14:18, Richard Henderson wrote:
+> On 10/29/19 8:26 AM, Harald Freudenberger wrote:
+>> Fine with me, Thanks, reviewed, build and tested.
+>> You may add my reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+>> However, will this go into the kernel tree via crypto or s390 subsystem ?
+> That's an excellent question.
+>
+> As an API decision, perhaps going via crypto makes more sense,
+> but none of the patches are dependent on one another, so they
+> could go through separate architecture trees.
+>
+> It has been a long time since I have done much kernel work;
+> I'm open to suggestions on the subject.
+>
+>
+> r~
+Since the change needs to be done in include/linux/random.h
+and in parallel with all the arch files in arch/xxx/include/asm/archrandom.h
+it should go in one shot. I'd suggest to post the patch series to linux-crypto
+and let Herbert Xu handle this.
