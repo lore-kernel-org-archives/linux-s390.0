@@ -1,120 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28002 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726120AbfJZKPI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Oct 2019 06:15:08 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9QAC0eS082681
-        for <linux-s390@vger.kernel.org>; Sat, 26 Oct 2019 06:15:07 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vvhetbyd3-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Sat, 26 Oct 2019 06:15:06 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Sat, 26 Oct 2019 11:15:04 +0100
-Date: Sat, 26 Oct 2019 12:14:58 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.4-rc5
+Received: from mga14.intel.com ([192.55.52.115]:53590 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725822AbfJ3Hgn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 30 Oct 2019 03:36:43 -0400
+Subject: Re: [PATCH V5 4/6] mdev: introduce virtio device and its device ops
+References: <20191023130752.18980-1-jasowang@redhat.com>
+ <20191023130752.18980-5-jasowang@redhat.com>
+ <df1eb77c-d159-da11-bb8f-df2c19089ac6@linux.intel.com>
+ <14410ac9-cc01-185a-5dcf-7f6c78aefd65@redhat.com>
+From: Zhu Lingshan <lingshan.zhu@linux.intel.com>
+Message-ID: <bc6b2565-b0b6-bf0a-812f-d0bb157be086@linux.intel.com>
+Date: Wed, 30 Oct 2019 15:36:24 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <your-ad-here.call-01572084898-ext-1277@work.hours>
+In-Reply-To: <14410ac9-cc01-185a-5dcf-7f6c78aefd65@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-Hello Linus,
-
-please pull s390 changes for 5.4-rc5.
-
-Thank you,
-Vasily
-
-The following changes since commit 7d194c2100ad2a6dded545887d02754948ca5241:
-
-  Linux 5.4-rc4 (2019-10-20 15:56:22 -0400)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.4-5
-
-for you to fetch changes up to ac49303d9ef0ad98b79867a380ef23480e48870b:
-
-  s390/kaslr: add support for R_390_GLOB_DAT relocation type (2019-10-22 17:55:51 +0200)
-
-----------------------------------------------------------------
-s390 updates for 5.4-rc5
-
-- Add R_390_GLOB_DAT relocation type support. This fixes boot problem
-  on linux-next.
-
-- Fix memory leak in zcrypt.
-
-----------------------------------------------------------------
-Gerald Schaefer (1):
-      s390/kaslr: add support for R_390_GLOB_DAT relocation type
-
-Johan Hovold (1):
-      s390/zcrypt: fix memleak at release
-
- arch/s390/boot/startup.c               | 14 +++++++++++---
- arch/s390/kernel/machine_kexec_reloc.c |  1 +
- drivers/s390/crypto/zcrypt_api.c       |  3 +--
- 3 files changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
-index 596ca7cc4d7b..5367950510f6 100644
---- a/arch/s390/boot/startup.c
-+++ b/arch/s390/boot/startup.c
-@@ -101,10 +101,18 @@ static void handle_relocs(unsigned long offset)
- 	dynsym = (Elf64_Sym *) vmlinux.dynsym_start;
- 	for (rela = rela_start; rela < rela_end; rela++) {
- 		loc = rela->r_offset + offset;
--		val = rela->r_addend + offset;
-+		val = rela->r_addend;
- 		r_sym = ELF64_R_SYM(rela->r_info);
--		if (r_sym)
--			val += dynsym[r_sym].st_value;
-+		if (r_sym) {
-+			if (dynsym[r_sym].st_shndx != SHN_UNDEF)
-+				val += dynsym[r_sym].st_value + offset;
-+		} else {
-+			/*
-+			 * 0 == undefined symbol table index (STN_UNDEF),
-+			 * used for R_390_RELATIVE, only add KASLR offset
-+			 */
-+			val += offset;
-+		}
- 		r_type = ELF64_R_TYPE(rela->r_info);
- 		rc = arch_kexec_do_relocs(r_type, (void *) loc, val, 0);
- 		if (rc)
-diff --git a/arch/s390/kernel/machine_kexec_reloc.c b/arch/s390/kernel/machine_kexec_reloc.c
-index 3b664cb3ec4d..d5035de9020e 100644
---- a/arch/s390/kernel/machine_kexec_reloc.c
-+++ b/arch/s390/kernel/machine_kexec_reloc.c
-@@ -27,6 +27,7 @@ int arch_kexec_do_relocs(int r_type, void *loc, unsigned long val,
- 		*(u32 *)loc = val;
- 		break;
- 	case R_390_64:		/* Direct 64 bit.  */
-+	case R_390_GLOB_DAT:
- 		*(u64 *)loc = val;
- 		break;
- 	case R_390_PC16:	/* PC relative 16 bit.	*/
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 45bdb47f84c1..9157e728a362 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -522,8 +522,7 @@ static int zcrypt_release(struct inode *inode, struct file *filp)
- 	if (filp->f_inode->i_cdev == &zcrypt_cdev) {
- 		struct zcdn_device *zcdndev;
- 
--		if (mutex_lock_interruptible(&ap_perms_mutex))
--			return -ERESTARTSYS;
-+		mutex_lock(&ap_perms_mutex);
- 		zcdndev = find_zcdndev_by_devt(filp->f_inode->i_rdev);
- 		mutex_unlock(&ap_perms_mutex);
- 		if (zcdndev) {
+On 10/29/2019 6:42 PM, Jason Wang wrote:
+> On 2019/10/29 下午3:42, Zhu Lingshan wrote:
+>>> +    void (*set_status)(struct mdev_device *mdev, u8 status);
+>> Hi Jason
+>>
+>> Is it possible to make set_status() return an u8 or bool, because this
+>> may fail in real hardware. Without a returned code, I am not sure
+>> whether it is a good idea to set the status | NEED_RESET when fail.
+>>
+>> Thanks,
+>> BR
+>> Zhu Lingshan
+>
+> Hi:
+>
+>
+> It's possible but I'm not sure whether any user will care about it. E.g
+> see virtio_add_status():
+>
+> void virtio_add_status(struct virtio_device *dev, unsigned int status)
+> {
+>      might_sleep();
+>      dev->config->set_status(dev, dev->config->get_status(dev) | status);
+> }
+> EXPORT_SYMBOL_GPL(virtio_add_status);
+>
+> And I believe how it work should be:
+>
+> virtio_add_status(xyz);
+>
+> status = virtio_get_status();
+>
+> if (!(status & xyz))
+>
+>      error;
+>
+> Thanks
+>
+Thanks Jason, then I believe upper layer can handle this well.
+>
