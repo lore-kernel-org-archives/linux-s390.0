@@ -1,64 +1,61 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH v2 02/29] powerpc: Remove PT_NOTE workaround
-Date: Thu, 10 Oct 2019 17:05:42 -0700
-Message-Id: <20191011000609.29728-3-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-1-keescook@chromium.org>
-References: <20191011000609.29728-1-keescook@chromium.org>
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41790 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726795AbfJ3S3x (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Oct 2019 14:29:53 -0400
+Subject: Re: [RFC 27/37] KVM: s390: protvirt: SIGP handling
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-28-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <37df8c9a-091b-4da6-e1dc-294f432cb743@redhat.com>
+Date: Wed, 30 Oct 2019 19:29:45 +0100
+MIME-Version: 1.0
+In-Reply-To: <20191024114059.102802-28-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Kees Cook <keescook@chromium.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, linux-parisc@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-In preparation for moving NOTES into RO_DATA, remove the PT_NOTE
-workaround since the kernel requires at least gcc 4.6 now.
+On 24.10.19 13:40, Janosch Frank wrote:
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/powerpc/kernel/vmlinux.lds.S | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
+Can you add why this is necessary and how handle_stop() is intended to=20
+work in prot mode?
 
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 81e672654789..a3c8492b2b19 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -20,20 +20,6 @@ ENTRY(_stext)
- PHDRS {
- 	kernel PT_LOAD FLAGS(7); /* RWX */
- 	note PT_NOTE FLAGS(0);
--	dummy PT_NOTE FLAGS(0);
--
--	/* binutils < 2.18 has a bug that makes it misbehave when taking an
--	   ELF file with all segments at load address 0 as input.  This
--	   happens when running "strip" on vmlinux, because of the AT() magic
--	   in this linker script.  People using GCC >= 4.2 won't run into
--	   this problem, because the "build-id" support will put some data
--	   into the "notes" segment (at a non-zero load address).
--
--	   To work around this, we force some data into both the "dummy"
--	   segment and the kernel segment, so the dummy segment will get a
--	   non-zero load address.  It's not enough to always create the
--	   "notes" segment, since if nothing gets assigned to it, its load
--	   address will be zero.  */
- }
- 
- #ifdef CONFIG_PPC64
-@@ -178,14 +164,8 @@ SECTIONS
- 	EXCEPTION_TABLE(0)
- 
- 	NOTES :kernel :note
--
--	/* The dummy segment contents for the bug workaround mentioned above
--	   near PHDRS.  */
--	.dummy : AT(ADDR(.dummy) - LOAD_OFFSET) {
--		LONG(0)
--		LONG(0)
--		LONG(0)
--	} :kernel :dummy
-+	/* Restore program header away from PT_NOTE. */
-+	.dummy : { *(.dummy) } :kernel
- 
- /*
-  * Init sections discarded at runtime
--- 
-2.17.1
+How is SIGP handled in general in prot mode? (which intercepts are=20
+handled by QEMU)
+Would it be valid for user space to inject a STOP interrupt with "flags=20
+& KVM_S390_STOP_FLAG_STORE_STATUS" - I think not (legacy QEMU only)
+
+I think we should rather disallow injecting such stop interrupts=20
+(KVM_S390_STOP_FLAG_STORE_STATUS) in prot mode in the first place. Also,=20
+we should disallow prot virt without user_sigp.
+
+> ---
+>   arch/s390/kvm/intercept.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 37cb62bc261b..a89738e4f761 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -72,7 +72,8 @@ static int handle_stop(struct kvm_vcpu *vcpu)
+>   =09if (!stop_pending)
+>   =09=09return 0;
+>  =20
+> -=09if (flags & KVM_S390_STOP_FLAG_STORE_STATUS) {
+> +=09if (flags & KVM_S390_STOP_FLAG_STORE_STATUS &&
+> +=09    !kvm_s390_pv_is_protected(vcpu->kvm)) {
+>   =09=09rc =3D kvm_s390_vcpu_store_status(vcpu,
+>   =09=09=09=09=09=09KVM_S390_STORE_STATUS_NOADDR);
+>   =09=09if (rc)
+>=20
+
+--=20
+
+Thanks,
+
+David / dhildenb
