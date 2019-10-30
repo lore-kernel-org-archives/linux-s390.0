@@ -1,66 +1,27 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:38973 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389625AbfJ1VGL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Oct 2019 17:06:11 -0400
-Received: by mail-wr1-f65.google.com with SMTP id a11so11377543wra.6
-        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 14:06:09 -0700 (PDT)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH 6/6] s390x: Mark archrandom.h functions __must_check
-Date: Mon, 28 Oct 2019 22:05:59 +0100
-Message-Id: <20191028210559.8289-7-rth@twiddle.net>
-In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
-References: <20191028210559.8289-1-rth@twiddle.net>
+Received: from Galois.linutronix.de ([193.142.43.55]:51598 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726046AbfJ3KkA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Oct 2019 06:40:00 -0400
+Date: Wed, 30 Oct 2019 11:39:46 +0100 (CET)
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 08/21] x86: Clean up ioremap()
+In-Reply-To: <20191029064834.23438-9-hch@lst.de>
+Message-ID: <alpine.DEB.2.21.1910301139330.19226@nanos.tec.linutronix.de>
+References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-9-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-We cannot use the pointer output without validating the
-success of the random read.
+On Tue, 29 Oct 2019, Christoph Hellwig wrote:
 
-Signed-off-by: Richard Henderson <rth@twiddle.net>
----
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/archrandom.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> Use ioremap() as the main implemented function, and defines
+> ioremap_nocache() as a deprecated alias of ioremap() in
+> preparation of removing ioremap_nocache() entirely.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index c67b82dfa558..f3f1ee0a8c38 100644
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@ -33,17 +33,17 @@ static inline bool arch_has_random_seed(void)
- 	return false;
- }
- 
--static inline bool arch_get_random_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
- 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
-@@ -51,7 +51,7 @@ static inline bool arch_get_random_seed_long(unsigned long *v)
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
- 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
--- 
-2.17.1
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
