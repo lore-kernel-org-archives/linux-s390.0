@@ -1,66 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:53339 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389550AbfJ1VGJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Oct 2019 17:06:09 -0400
-Received: by mail-wm1-f68.google.com with SMTP id n7so416775wmc.3
-        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 14:06:08 -0700 (PDT)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH 5/6] powerpc: Mark archrandom.h functions __must_check
-Date: Mon, 28 Oct 2019 22:05:58 +0100
-Message-Id: <20191028210559.8289-6-rth@twiddle.net>
-In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
-References: <20191028210559.8289-1-rth@twiddle.net>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24544 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726781AbfJ3Gqk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 30 Oct 2019 02:46:40 -0400
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V6 2/6] modpost: add support for mdev class id
+Date: Wed, 30 Oct 2019 14:44:40 +0800
+Message-Id: <20191030064444.21166-3-jasowang@redhat.com>
+In-Reply-To: <20191030064444.21166-1-jasowang@redhat.com>
+References: <20191030064444.21166-1-jasowang@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
 
-We cannot use the pointer output without validating the
-success of the random read.
+Add support to parse mdev class id table.
 
-Signed-off-by: Richard Henderson <rth@twiddle.net>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
----
- arch/powerpc/include/asm/archrandom.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/vfio/mdev/vfio_mdev.c     |  2 ++
+ scripts/mod/devicetable-offsets.c |  3 +++
+ scripts/mod/file2alias.c          | 11 +++++++++++
+ 3 files changed, 16 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index f8a887c8b7f8..ee214b153a71 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -6,17 +6,17 @@
- 
- #include <asm/machdep.h>
- 
--static inline bool arch_get_random_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
- {
- 	return false;
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 38431e9ef7f5..a6641cd8b5a3 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -125,6 +125,8 @@ static const struct mdev_class_id vfio_id_table[] =3D {
+ =09{ 0 },
+ };
+=20
++MODULE_DEVICE_TABLE(mdev, vfio_id_table);
++
+ static struct mdev_driver vfio_mdev_driver =3D {
+ =09.name=09=3D "vfio_mdev",
+ =09.probe=09=3D vfio_mdev_probe,
+diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-of=
+fsets.c
+index 054405b90ba4..6cbb1062488a 100644
+--- a/scripts/mod/devicetable-offsets.c
++++ b/scripts/mod/devicetable-offsets.c
+@@ -231,5 +231,8 @@ int main(void)
+ =09DEVID(wmi_device_id);
+ =09DEVID_FIELD(wmi_device_id, guid_string);
+=20
++=09DEVID(mdev_class_id);
++=09DEVID_FIELD(mdev_class_id, id);
++
+ =09return 0;
  }
- 
--static inline bool arch_get_random_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
- {
- 	return false;
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index c91eba751804..45f1c22f49be 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -1335,6 +1335,16 @@ static int do_wmi_entry(const char *filename, void *=
+symval, char *alias)
+ =09return 1;
  }
- 
--static inline bool arch_get_random_seed_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+=20
++/* looks like: "mdev:cN" */
++static int do_mdev_entry(const char *filename, void *symval, char *alias)
++{
++=09DEF_FIELD(symval, mdev_class_id, id);
++
++=09sprintf(alias, "mdev:c%02X", id);
++=09add_wildcard(alias);
++=09return 1;
++}
++
+ /* Does namelen bytes of name exactly match the symbol? */
+ static bool sym_is(const char *name, unsigned namelen, const char *symbol)
  {
- 	if (ppc_md.get_random_seed)
- 		return ppc_md.get_random_seed(v);
-@@ -24,7 +24,7 @@ static inline bool arch_get_random_seed_long(unsigned long *v)
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- {
- 	unsigned long val;
- 	bool rc;
--- 
-2.17.1
+@@ -1407,6 +1417,7 @@ static const struct devtable devtable[] =3D {
+ =09{"typec", SIZE_typec_device_id, do_typec_entry},
+ =09{"tee", SIZE_tee_client_device_id, do_tee_entry},
+ =09{"wmi", SIZE_wmi_device_id, do_wmi_entry},
++=09{"mdev", SIZE_mdev_class_id, do_mdev_entry},
+ };
+=20
+ /* Create MODULE_ALIAS() statements.
+--=20
+2.19.1
