@@ -1,100 +1,165 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33526 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2409247AbfJXLm3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:42:29 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBb6TL103687
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:28 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vt3kjvhd1-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:42:27 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:42:24 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 21/37] KVM: S390: protvirt: Instruction emulation
-Date: Thu, 24 Oct 2019 07:40:43 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: [PATCH 3/3] arch: sembuf.h: make uapi asm/sembuf.h self-contained
+Date: Wed, 30 Oct 2019 15:38:55 +0900
+Message-Id: <20191030063855.9989-3-yamada.masahiro@socionext.com>
+In-Reply-To: <20191030063855.9989-1-yamada.masahiro@socionext.com>
+References: <20191030063855.9989-1-yamada.masahiro@socionext.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-22-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>, linux-arch <linux-arch@vger.kernel.org>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, x86@kernel.org, Arnd Bergmann <arnd@arndb.de>, sparclinux@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Masahiro Yamada <yamada.masahiro@socionext.com>
 
-We have two new SIE exit codes 104 for a secure instruction
-interception, on which the SIE needs hypervisor action to complete the
-instruction.
+The user-space cannot compile <asm/sembuf.h> due to some missing type
+definitions. For example, building it for x86 fails as follows:
 
-And 108 which is merely a notification and provides data for tracking
-and management, like for the lowcore we set notification bits for the
-lowcore pages.
+  CC      usr/include/asm/sembuf.h.s
+In file included from <command-line>:32:0:
+./usr/include/asm/sembuf.h:17:20: error: field ‘sem_perm’ has incomplete type
+  struct ipc64_perm sem_perm; /* permissions .. see ipc.h */
+                    ^~~~~~~~
+./usr/include/asm/sembuf.h:24:2: error: unknown type name ‘__kernel_time_t’
+  __kernel_time_t sem_otime; /* last semop time */
+  ^~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:25:2: error: unknown type name ‘__kernel_ulong_t’
+  __kernel_ulong_t __unused1;
+  ^~~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:26:2: error: unknown type name ‘__kernel_time_t’
+  __kernel_time_t sem_ctime; /* last change time */
+  ^~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:27:2: error: unknown type name ‘__kernel_ulong_t’
+  __kernel_ulong_t __unused2;
+  ^~~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:29:2: error: unknown type name ‘__kernel_ulong_t’
+  __kernel_ulong_t sem_nsems; /* no. of semaphores in array */
+  ^~~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:30:2: error: unknown type name ‘__kernel_ulong_t’
+  __kernel_ulong_t __unused3;
+  ^~~~~~~~~~~~~~~~
+./usr/include/asm/sembuf.h:31:2: error: unknown type name ‘__kernel_ulong_t’
+  __kernel_ulong_t __unused4;
+  ^~~~~~~~~~~~~~~~
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+It is just a matter of missing include directive.
+
+Include <asm/ipcbuf.h> to make it self-contained, and add it to
+the compile-test coverage.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/intercept.c        | 23 +++++++++++++++++++++++
- 2 files changed, 25 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 2a8a1e21e1c3..a42dfe98128b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -212,6 +212,8 @@ struct kvm_s390_sie_block {
- #define ICPT_KSS	0x5c
- #define ICPT_PV_MCHKR	0x60
- #define ICPT_PV_INT_EN	0x64
-+#define ICPT_PV_INSTR	0x68
-+#define ICPT_PV_NOT	0x6c
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index b013a9c88d43..a1df8a43c88b 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -451,6 +451,23 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
+ arch/mips/include/uapi/asm/sembuf.h    | 2 ++
+ arch/parisc/include/uapi/asm/sembuf.h  | 1 +
+ arch/powerpc/include/uapi/asm/sembuf.h | 2 ++
+ arch/sparc/include/uapi/asm/sembuf.h   | 2 ++
+ arch/x86/include/uapi/asm/sembuf.h     | 2 ++
+ arch/xtensa/include/uapi/asm/sembuf.h  | 1 +
+ include/uapi/asm-generic/sembuf.h      | 1 +
+ usr/include/Makefile                   | 1 -
+ 8 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/arch/mips/include/uapi/asm/sembuf.h b/arch/mips/include/uapi/asm/sembuf.h
+index 60c89e6cb25b..7d135b93bebd 100644
+--- a/arch/mips/include/uapi/asm/sembuf.h
++++ b/arch/mips/include/uapi/asm/sembuf.h
+@@ -2,6 +2,8 @@
+ #ifndef _ASM_SEMBUF_H
+ #define _ASM_SEMBUF_H
  
-+static int handle_pv_spx(struct kvm_vcpu *vcpu)
-+{
-+	u32 pref = *(u32 *)vcpu->arch.sie_block->sidad;
++#include <asm/ipcbuf.h>
 +
-+	kvm_s390_set_prefix(vcpu, pref);
-+	trace_kvm_s390_handle_prefix(vcpu, 1, pref);
-+	return 0;
-+}
+ /*
+  * The semid64_ds structure for the MIPS architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/parisc/include/uapi/asm/sembuf.h b/arch/parisc/include/uapi/asm/sembuf.h
+index 3c31163b1241..b17a2460b184 100644
+--- a/arch/parisc/include/uapi/asm/sembuf.h
++++ b/arch/parisc/include/uapi/asm/sembuf.h
+@@ -3,6 +3,7 @@
+ #define _PARISC_SEMBUF_H
+ 
+ #include <asm/bitsperlong.h>
++#include <asm/ipcbuf.h>
+ 
+ /* 
+  * The semid64_ds structure for parisc architecture.
+diff --git a/arch/powerpc/include/uapi/asm/sembuf.h b/arch/powerpc/include/uapi/asm/sembuf.h
+index 3f60946f77e3..f42c9c3502c7 100644
+--- a/arch/powerpc/include/uapi/asm/sembuf.h
++++ b/arch/powerpc/include/uapi/asm/sembuf.h
+@@ -2,6 +2,8 @@
+ #ifndef _ASM_POWERPC_SEMBUF_H
+ #define _ASM_POWERPC_SEMBUF_H
+ 
++#include <asm/ipcbuf.h>
 +
-+static int handle_pv_not(struct kvm_vcpu *vcpu)
-+{
-+	if (vcpu->arch.sie_block->ipa == 0xb210)
-+		return handle_pv_spx(vcpu);
+ /*
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+diff --git a/arch/sparc/include/uapi/asm/sembuf.h b/arch/sparc/include/uapi/asm/sembuf.h
+index f3d309c2e1cd..5d7764cdf80f 100644
+--- a/arch/sparc/include/uapi/asm/sembuf.h
++++ b/arch/sparc/include/uapi/asm/sembuf.h
+@@ -2,6 +2,8 @@
+ #ifndef _SPARC_SEMBUF_H
+ #define _SPARC_SEMBUF_H
+ 
++#include <asm/ipcbuf.h>
 +
-+	return handle_instruction(vcpu);
-+}
+ /*
+  * The semid64_ds structure for sparc architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/x86/include/uapi/asm/sembuf.h b/arch/x86/include/uapi/asm/sembuf.h
+index 89de6cd9f0a7..da0464af7aa6 100644
+--- a/arch/x86/include/uapi/asm/sembuf.h
++++ b/arch/x86/include/uapi/asm/sembuf.h
+@@ -2,6 +2,8 @@
+ #ifndef _ASM_X86_SEMBUF_H
+ #define _ASM_X86_SEMBUF_H
+ 
++#include <asm/ipcbuf.h>
 +
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- {
- 	int rc, per_rc = 0;
-@@ -505,6 +522,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		 */
- 		rc = 0;
- 	break;
-+	case ICPT_PV_INSTR:
-+		rc = handle_instruction(vcpu);
-+		break;
-+	case ICPT_PV_NOT:
-+		rc = handle_pv_not(vcpu);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
+ /*
+  * The semid64_ds structure for x86 architecture.
+  * Note extra padding because this structure is passed back and forth
+diff --git a/arch/xtensa/include/uapi/asm/sembuf.h b/arch/xtensa/include/uapi/asm/sembuf.h
+index 09f348d643f1..3b9cdd406dfe 100644
+--- a/arch/xtensa/include/uapi/asm/sembuf.h
++++ b/arch/xtensa/include/uapi/asm/sembuf.h
+@@ -22,6 +22,7 @@
+ #define _XTENSA_SEMBUF_H
+ 
+ #include <asm/byteorder.h>
++#include <asm/ipcbuf.h>
+ 
+ struct semid64_ds {
+ 	struct ipc64_perm sem_perm;		/* permissions .. see ipc.h */
+diff --git a/include/uapi/asm-generic/sembuf.h b/include/uapi/asm-generic/sembuf.h
+index 0bae010f1b64..5807fcd643ba 100644
+--- a/include/uapi/asm-generic/sembuf.h
++++ b/include/uapi/asm-generic/sembuf.h
+@@ -3,6 +3,7 @@
+ #define __ASM_GENERIC_SEMBUF_H
+ 
+ #include <asm/bitsperlong.h>
++#include <asm/ipcbuf.h>
+ 
+ /*
+  * The semid64_ds structure for x86 architecture.
+diff --git a/usr/include/Makefile b/usr/include/Makefile
+index 099d7401aa23..107d04bd5ee3 100644
+--- a/usr/include/Makefile
++++ b/usr/include/Makefile
+@@ -16,7 +16,6 @@ override c_flags = $(UAPI_CFLAGS) -Wp,-MD,$(depfile) -I$(objtree)/usr/include
+ # Please consider to fix the header first.
+ #
+ # Sorted alphabetically.
+-header-test- += asm/sembuf.h
+ header-test- += asm/shmbuf.h
+ header-test- += asm/signal.h
+ header-test- += asm/ucontext.h
 -- 
-2.20.1
+2.17.1
