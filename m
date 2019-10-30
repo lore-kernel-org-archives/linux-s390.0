@@ -1,71 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4938 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727012AbfJaIsb (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:58082 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728175AbfJ3Px0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 31 Oct 2019 04:48:31 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9V8m7XW038428
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 04:48:29 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vysd3wf48-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 04:48:29 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <mimu@linux.ibm.com>;
-        Thu, 31 Oct 2019 08:48:27 -0000
-Reply-To: mimu@linux.ibm.com
+        Wed, 30 Oct 2019 11:53:26 -0400
 Subject: Re: [RFC 13/37] KVM: s390: protvirt: Add interruption injection
  controls
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
  <20191024114059.102802-14-frankja@linux.ibm.com>
- <c09046eb-380f-d930-8e99-42b9cc8a62ae@redhat.com>
-From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 31 Oct 2019 09:48:21 +0100
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c09046eb-380f-d930-8e99-42b9cc8a62ae@redhat.com>
+Date: Wed, 30 Oct 2019 16:53:17 +0100
 MIME-Version: 1.0
-In-Reply-To: <c09046eb-380f-d930-8e99-42b9cc8a62ae@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
+In-Reply-To: <20191024114059.102802-14-frankja@linux.ibm.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <26dfdefa-edbe-40e5-5b41-a4de86d47d15@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+
+On 24.10.19 13:40, Janosch Frank wrote:
+> From: Michael Mueller <mimu@linux.ibm.com>
+>=20
+> Define the interruption injection codes and the related fields in the
+> sie control block for PVM interruption injection.
+>=20
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h | 25 +++++++++++++++++++++----
+>   1 file changed, 21 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm=
+_host.h
+> index 6cc3b73ca904..82443236d4cc 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -215,7 +215,15 @@ struct kvm_s390_sie_block {
+>   =09__u8=09icptcode;=09=09/* 0x0050 */
+>   =09__u8=09icptstatus;=09=09/* 0x0051 */
+>   =09__u16=09ihcpu;=09=09=09/* 0x0052 */
+> -=09__u8=09reserved54[2];=09=09/* 0x0054 */
+> +=09__u8=09reserved54;=09=09/* 0x0054 */
+> +#define IICTL_CODE_NONE=09=09 0x00
+> +#define IICTL_CODE_MCHK=09=09 0x01
+> +#define IICTL_CODE_EXT=09=09 0x02
+> +#define IICTL_CODE_IO=09=09 0x03
+> +#define IICTL_CODE_RESTART=09 0x04
+> +#define IICTL_CODE_SPECIFICATION 0x10
+> +#define IICTL_CODE_OPERAND=09 0x11
+> +=09__u8=09iictl;=09=09=09/* 0x0055 */
+>   =09__u16=09ipa;=09=09=09/* 0x0056 */
+>   =09__u32=09ipb;=09=09=09/* 0x0058 */
+>   =09__u32=09scaoh;=09=09=09/* 0x005c */
+> @@ -252,7 +260,8 @@ struct kvm_s390_sie_block {
+>   #define HPID_KVM=090x4
+>   #define HPID_VSIE=090x5
+>   =09__u8=09hpid;=09=09=09/* 0x00b8 */
+> -=09__u8=09reservedb9[11];=09=09/* 0x00b9 */
+> +=09__u8=09reservedb9[7];=09=09/* 0x00b9 */
+> +=09__u32=09eiparams;=09=09/* 0x00c0 */
+>   =09__u16=09extcpuaddr;=09=09/* 0x00c4 */
+>   =09__u16=09eic;=09=09=09/* 0x00c6 */
+>   =09__u32=09reservedc8;=09=09/* 0x00c8 */
+> @@ -268,8 +277,16 @@ struct kvm_s390_sie_block {
+>   =09__u8=09oai;=09=09=09/* 0x00e2 */
+>   =09__u8=09armid;=09=09=09/* 0x00e3 */
+>   =09__u8=09reservede4[4];=09=09/* 0x00e4 */
+> -=09__u64=09tecmc;=09=09=09/* 0x00e8 */
+> -=09__u8=09reservedf0[12];=09=09/* 0x00f0 */
+> +=09union {
+> +=09=09__u64=09tecmc;=09=09/* 0x00e8 */
+> +=09=09struct {
+> +=09=09=09__u16=09subchannel_id;=09/* 0x00e8 */
+> +=09=09=09__u16=09subchannel_nr;=09/* 0x00ea */
+> +=09=09=09__u32=09io_int_parm;=09/* 0x00ec */
+> +=09=09=09__u32=09io_int_word;=09/* 0x00f0 */
+> +=09=09};
+
+I only wonder if we should give this member a fitting name, e.g., "ioparams=
+"
+
+> +=09} __packed;
+> +=09__u8=09reservedf4[8];=09=09/* 0x00f4 */
+>   #define CRYCB_FORMAT_MASK 0x00000003
+>   #define CRYCB_FORMAT0 0x00000000
+>   #define CRYCB_FORMAT1 0x00000001
+>=20
 
 
-
-On 30.10.19 16:53, David Hildenbrand wrote:
->> @@ -268,8 +277,16 @@ struct kvm_s390_sie_block {
->>       __u8    oai;            /* 0x00e2 */
->>       __u8    armid;            /* 0x00e3 */
->>       __u8    reservede4[4];        /* 0x00e4 */
->> -    __u64    tecmc;            /* 0x00e8 */
->> -    __u8    reservedf0[12];        /* 0x00f0 */
->> +    union {
->> +        __u64    tecmc;        /* 0x00e8 */
->> +        struct {
->> +            __u16    subchannel_id;    /* 0x00e8 */
->> +            __u16    subchannel_nr;    /* 0x00ea */
->> +            __u32    io_int_parm;    /* 0x00ec */
->> +            __u32    io_int_word;    /* 0x00f0 */
->> +        };
-> 
-> I only wonder if we should give this member a fitting name, e.g., 
-> "ioparams"
-
-Do you see a real gain for that? We have a lot of other unnamed structs
-defined here as well.
-
-
-> 
->> +    } __packed;
->> +    __u8    reservedf4[8];        /* 0x00f4 */
->>   #define CRYCB_FORMAT_MASK 0x00000003
->>   #define CRYCB_FORMAT0 0x00000000
->>   #define CRYCB_FORMAT1 0x00000001
->>
+--=20
 
 Thanks,
-Michael
+
+David / dhildenb
