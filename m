@@ -1,69 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50624 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64412 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439076AbfJXLlw (ORCPT
+        by vger.kernel.org with ESMTP id S1727068AbfJaMmc (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 24 Oct 2019 07:41:52 -0400
+        Thu, 31 Oct 2019 08:42:32 -0400
 Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9OBc062108156
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:41:52 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vu9nxm0gx-1
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VCeEBg000992
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:31 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vyya3h6fp-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 24 Oct 2019 07:41:51 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:30 -0400
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 24 Oct 2019 12:41:49 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [RFC 01/37] DOCUMENTATION: protvirt: Protected virtual machine introduction
-Date: Thu, 24 Oct 2019 07:40:23 -0400
-In-Reply-To: <20191024114059.102802-1-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191024114059.102802-2-frankja@linux.ibm.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 31 Oct 2019 12:42:28 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 4/8] s390/qeth: keep IRQ disabled until NAPI is really done
+Date: Thu, 31 Oct 2019 13:42:17 +0100
+In-Reply-To: <20191031124221.34028-1-jwi@linux.ibm.com>
+References: <20191031124221.34028-1-jwi@linux.ibm.com>
+Message-Id: <20191031124221.34028-5-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com, frankja@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Introduction to Protected VMs.
+When napi_complete_done() returns false, the NAPI instance is still
+active and we can keep the IRQ disabled a little longer.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- Documentation/virtual/kvm/s390-pv.txt | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/virtual/kvm/s390-pv.txt
+ drivers/s390/net/qeth_core_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/virtual/kvm/s390-pv.txt b/Documentation/virtual/kvm/s390-pv.txt
-new file mode 100644
-index 000000000000..86ed95f36759
---- /dev/null
-+++ b/Documentation/virtual/kvm/s390-pv.txt
-@@ -0,0 +1,23 @@
-+Ultravisor and Protected VMs
-+===========================
-+
-+Summary:
-+
-+Protected VMs (PVM) are KVM VMs, where KVM can't access the VM's state
-+like guest memory and guest registers anymore. Instead the PVMs are
-+mostly managed by a new entity called Ultravisor (UV), which provides
-+an API, so KVM and the PVM can request management actions.
-+
-+Each guest starts in the non-protected mode and then transitions into
-+protected mode. On transition KVM registers the guest and its VCPUs
-+with the Ultravisor and prepares everything for running it.
-+
-+The Ultravisor will secure and decrypt the guest's boot memory
-+(i.e. kernel/initrd). It will safeguard state changes like VCPU
-+starts/stops and injected interrupts while the guest is running.
-+
-+As access to the guest's state, like the SIE state description is
-+normally needed to be able to run a VM, some changes have been made in
-+SIE behavior and fields have different meaning for a PVM. SIE exits
-+are minimized as much as possible to improve speed and reduce exposed
-+guest state.
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 52e3adb7864a..d4e66707a03f 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5213,9 +5213,9 @@ int qeth_poll(struct napi_struct *napi, int budget)
+ 		}
+ 	}
+ 
+-	napi_complete_done(napi, work_done);
+-	if (qdio_start_irq(card->data.ccwdev, 0))
+-		napi_schedule(&card->napi);
++	if (napi_complete_done(napi, work_done) &&
++	    qdio_start_irq(CARD_DDEV(card), 0))
++		napi_schedule(napi);
+ out:
+ 	return work_done;
+ }
 -- 
-2.20.1
+2.17.1
