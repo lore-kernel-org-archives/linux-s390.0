@@ -1,285 +1,186 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:59068 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2405807AbfJWNXg (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41564 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726506AbfJaMmb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Oct 2019 09:23:36 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V5 4/6] mdev: introduce virtio device and its device ops
-Date: Wed, 23 Oct 2019 21:07:50 +0800
-Message-Id: <20191023130752.18980-5-jasowang@redhat.com>
-In-Reply-To: <20191023130752.18980-1-jasowang@redhat.com>
-References: <20191023130752.18980-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+        Thu, 31 Oct 2019 08:42:31 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VCfTKV125276
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:29 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vyxpytnp1-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:29 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 31 Oct 2019 12:42:27 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 2/8] s390/qeth: use IQD Multi-Write
+Date: Thu, 31 Oct 2019 13:42:15 +0100
+In-Reply-To: <20191031124221.34028-1-jwi@linux.ibm.com>
+References: <20191031124221.34028-1-jwi@linux.ibm.com>
+Message-Id: <20191031124221.34028-3-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This patch implements basic support for mdev driver that supports
-virtio transport for kernel virtio driver.
+For IQD devices with Multi-Write support, we can defer the queue-flush
+further and transmit multiple IO buffers with a single TX doorbell.
+The same-target restriction still applies.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- drivers/vfio/mdev/mdev_core.c    |  20 ++++
- drivers/vfio/mdev/mdev_private.h |   2 +
- include/linux/mdev.h             |   6 ++
- include/linux/virtio_mdev_ops.h  | 159 +++++++++++++++++++++++++++++++
- 4 files changed, 187 insertions(+)
- create mode 100644 include/linux/virtio_mdev_ops.h
+ drivers/s390/net/qeth_core.h      |  9 ++++++
+ drivers/s390/net/qeth_core_main.c | 54 +++++++++++++++++++++++++------
+ 2 files changed, 53 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index 555bd61d8c38..9b00c3513120 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -76,6 +76,26 @@ const struct vfio_mdev_device_ops *mdev_get_vfio_ops(str=
-uct mdev_device *mdev)
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index e4b55f9aa062..d08154502b15 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -532,6 +532,8 @@ struct qeth_qdio_out_q {
+ 	struct timer_list timer;
+ 	struct qeth_hdr *prev_hdr;
+ 	u8 bulk_start;
++	u8 bulk_count;
++	u8 bulk_max;
+ };
+ 
+ #define qeth_for_each_output_queue(card, q, i)		\
+@@ -878,6 +880,13 @@ static inline u16 qeth_iqd_translate_txq(struct net_device *dev, u16 txq)
+ 	return txq;
  }
- EXPORT_SYMBOL(mdev_get_vfio_ops);
-=20
-+/* Specify the virtio device ops for the mdev device, this
-+ * must be called during create() callback for virtio mdev device.
-+ */
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct virtio_mdev_device_ops *virtio_ops)
+ 
++static inline bool qeth_iqd_is_mcast_queue(struct qeth_card *card,
++					   struct qeth_qdio_out_q *queue)
 +{
-+=09mdev_set_class(mdev, MDEV_CLASS_ID_VIRTIO);
-+=09mdev->virtio_ops =3D virtio_ops;
++	return qeth_iqd_translate_txq(card->dev, queue->queue_no) ==
++	       QETH_IQD_MCAST_TXQ;
 +}
-+EXPORT_SYMBOL(mdev_set_virtio_ops);
 +
-+/* Get the virtio device ops for the mdev device. */
-+const struct virtio_mdev_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev)
-+{
-+=09WARN_ON(mdev->class_id !=3D MDEV_CLASS_ID_VIRTIO);
-+=09return mdev->virtio_ops;
-+}
-+EXPORT_SYMBOL(mdev_get_virtio_ops);
-+
- struct device *mdev_dev(struct mdev_device *mdev)
+ static inline void qeth_scrub_qdio_buffer(struct qdio_buffer *buf,
+ 					  unsigned int elements)
  {
- =09return &mdev->dev;
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_priv=
-ate.h
-index 0770410ded2a..7b47890c34e7 100644
---- a/drivers/vfio/mdev/mdev_private.h
-+++ b/drivers/vfio/mdev/mdev_private.h
-@@ -11,6 +11,7 @@
- #define MDEV_PRIVATE_H
-=20
- #include <linux/vfio_mdev_ops.h>
-+#include <linux/virtio_mdev_ops.h>
-=20
- int  mdev_bus_register(void);
- void mdev_bus_unregister(void);
-@@ -38,6 +39,7 @@ struct mdev_device {
- =09u16 class_id;
- =09union {
- =09=09const struct vfio_mdev_device_ops *vfio_ops;
-+=09=09const struct virtio_mdev_device_ops *virtio_ops;
- =09};
- };
-=20
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 4625f1a11014..9b69b0bbebfd 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -17,6 +17,7 @@
-=20
- struct mdev_device;
- struct vfio_mdev_device_ops;
-+struct virtio_mdev_device_ops;
-=20
- /*
-  * Called by the parent device driver to set the device which represents
-@@ -112,6 +113,10 @@ void mdev_set_class(struct mdev_device *mdev, u16 id);
- void mdev_set_vfio_ops(struct mdev_device *mdev,
- =09=09       const struct vfio_mdev_device_ops *vfio_ops);
- const struct vfio_mdev_device_ops *mdev_get_vfio_ops(struct mdev_device *m=
-dev);
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct virtio_mdev_device_ops *virtio_ops);
-+const struct virtio_mdev_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev);
-=20
- extern struct bus_type mdev_bus_type;
-=20
-@@ -127,6 +132,7 @@ struct mdev_device *mdev_from_dev(struct device *dev);
-=20
- enum {
- =09MDEV_CLASS_ID_VFIO =3D 1,
-+=09MDEV_CLASS_ID_VIRTIO =3D 2,
- =09/* New entries must be added here */
- };
-=20
-diff --git a/include/linux/virtio_mdev_ops.h b/include/linux/virtio_mdev_op=
-s.h
-new file mode 100644
-index 000000000000..d417b41f2845
---- /dev/null
-+++ b/include/linux/virtio_mdev_ops.h
-@@ -0,0 +1,159 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Virtio mediated device driver
-+ *
-+ * Copyright 2019, Red Hat Corp.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ */
-+#ifndef _LINUX_VIRTIO_MDEV_H
-+#define _LINUX_VIRTIO_MDEV_H
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index dda274351c21..62054afd73cc 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2634,6 +2634,18 @@ static int qeth_init_input_buffer(struct qeth_card *card,
+ 	return 0;
+ }
+ 
++static unsigned int qeth_tx_select_bulk_max(struct qeth_card *card,
++					    struct qeth_qdio_out_q *queue)
++{
++	if (!IS_IQD(card) ||
++	    qeth_iqd_is_mcast_queue(card, queue) ||
++	    card->options.cq == QETH_CQ_ENABLED ||
++	    qdio_get_ssqd_desc(CARD_DDEV(card), &card->ssqd))
++		return 1;
 +
-+#include <linux/interrupt.h>
-+#include <linux/mdev.h>
-+#include <uapi/linux/vhost.h>
++	return card->ssqd.mmwc ? card->ssqd.mmwc : 1;
++}
 +
-+#define VIRTIO_MDEV_DEVICE_API_STRING=09=09"virtio-mdev"
-+#define VIRTIO_MDEV_F_VERSION_1 0x1
+ int qeth_init_qdio_queues(struct qeth_card *card)
+ {
+ 	unsigned int i;
+@@ -2673,6 +2685,8 @@ int qeth_init_qdio_queues(struct qeth_card *card)
+ 		queue->do_pack = 0;
+ 		queue->prev_hdr = NULL;
+ 		queue->bulk_start = 0;
++		queue->bulk_count = 0;
++		queue->bulk_max = qeth_tx_select_bulk_max(card, queue);
+ 		atomic_set(&queue->used_buffers, 0);
+ 		atomic_set(&queue->set_pci_flags_count, 0);
+ 		atomic_set(&queue->state, QETH_OUT_Q_UNLOCKED);
+@@ -3318,10 +3332,11 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 
+ static void qeth_flush_queue(struct qeth_qdio_out_q *queue)
+ {
+-	qeth_flush_buffers(queue, queue->bulk_start, 1);
++	qeth_flush_buffers(queue, queue->bulk_start, queue->bulk_count);
+ 
+-	queue->bulk_start = QDIO_BUFNR(queue->bulk_start + 1);
++	queue->bulk_start = QDIO_BUFNR(queue->bulk_start + queue->bulk_count);
+ 	queue->prev_hdr = NULL;
++	queue->bulk_count = 0;
+ }
+ 
+ static void qeth_check_outbound_queue(struct qeth_qdio_out_q *queue)
+@@ -3680,10 +3695,10 @@ static int qeth_add_hw_header(struct qeth_qdio_out_q *queue,
+ }
+ 
+ static bool qeth_iqd_may_bulk(struct qeth_qdio_out_q *queue,
+-			      struct qeth_qdio_out_buffer *buffer,
+ 			      struct sk_buff *curr_skb,
+ 			      struct qeth_hdr *curr_hdr)
+ {
++	struct qeth_qdio_out_buffer *buffer = queue->bufs[queue->bulk_start];
+ 	struct qeth_hdr *prev_hdr = queue->prev_hdr;
+ 
+ 	if (!prev_hdr)
+@@ -3803,13 +3818,14 @@ static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 		       struct qeth_hdr *hdr, unsigned int offset,
+ 		       unsigned int hd_len)
+ {
+-	struct qeth_qdio_out_buffer *buffer = queue->bufs[queue->bulk_start];
+ 	unsigned int bytes = qdisc_pkt_len(skb);
++	struct qeth_qdio_out_buffer *buffer;
+ 	unsigned int next_element;
+ 	struct netdev_queue *txq;
+ 	bool stopped = false;
+ 	bool flush;
+ 
++	buffer = queue->bufs[QDIO_BUFNR(queue->bulk_start + queue->bulk_count)];
+ 	txq = netdev_get_tx_queue(card->dev, skb_get_queue_mapping(skb));
+ 
+ 	/* Just a sanity check, the wake/stop logic should ensure that we always
+@@ -3818,11 +3834,23 @@ static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 	if (atomic_read(&buffer->state) != QETH_QDIO_BUF_EMPTY)
+ 		return -EBUSY;
+ 
+-	if ((buffer->next_element_to_fill + elements > queue->max_elements) ||
+-	    !qeth_iqd_may_bulk(queue, buffer, skb, hdr)) {
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_PRIMED);
+-		qeth_flush_queue(queue);
+-		buffer = queue->bufs[queue->bulk_start];
++	flush = !qeth_iqd_may_bulk(queue, skb, hdr);
 +
-+struct virtio_mdev_callback {
-+=09irqreturn_t (*callback)(void *data);
-+=09void *private;
-+};
++	if (flush ||
++	    (buffer->next_element_to_fill + elements > queue->max_elements)) {
++		if (buffer->next_element_to_fill > 0) {
++			atomic_set(&buffer->state, QETH_QDIO_BUF_PRIMED);
++			queue->bulk_count++;
++		}
 +
-+/**
-+ * struct vfio_mdev_device_ops - Structure to be registered for each
-+ * mdev device to register the device for virtio/vhost drivers.
-+ *
-+ * The device ops that is supported by VIRTIO_MDEV_F_VERSION_1, the
-+ * callbacks are mandatory unless explicity mentioned.
-+ *
-+ * @set_vq_address:=09=09Set the address of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@desc_area: address of desc area
-+ *=09=09=09=09@driver_area: address of driver area
-+ *=09=09=09=09@device_area: address of device area
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_vq_num:=09=09=09Set the size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@num: the size of virtqueue
-+ * @kick_vq:=09=09=09Kick the virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ * @set_vq_cb:=09=09=09Set the interrupt callback function for
-+ *=09=09=09=09a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @set_vq_ready:=09=09Set ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@ready: ready (true) not ready(false)
-+ * @get_vq_ready:=09=09Get ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns boolean: ready (true) or not (false)
-+ * @set_vq_state:=09=09Set the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@state: virtqueue state (last_avail_idx)
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @get_vq_state:=09=09Get the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns virtqueue state (last_avail_idx)
-+ * @get_vq_align:=09=09Get the virtqueue align requirement
-+ *=09=09=09=09for the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns virtqueue algin requirement
-+ * @get_features:=09=09Get virtio features supported by the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns the virtio features support by the
-+ *=09=09=09=09device
-+ * @get_features:=09=09Set virtio features supported by the driver
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@features: feature support by the driver
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_config_cb:=09=09Set the config interrupt callback
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @get_vq_num_max:=09=09Get the max size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u16: max size of virtqueue
-+ * @get_device_id:=09=09Get virtio device id
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio device id
-+ * @get_vendor_id:=09=09Get id for the vendor that provides this device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio vendor id
-+ * @get_status:=09=09=09Get the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u8: virtio device status
-+ * @set_status:=09=09=09Set the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@status: virtio device status
-+ * @get_config:=09=09=09Read from device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to read to
-+ *=09=09=09=09@len: the length to read from
-+ *=09=09=09=09configration space
-+ * @set_config:=09=09=09Write to device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to write from
-+ *=09=09=09=09@len: the length to write to
-+ *=09=09=09=09configration space
-+ * @get_mdev_features:=09=09Get a set of bits that demonstrate
-+ *=09=09=09=09thecapability of the mdev device. New
-+ *=09=09=09=09features bits must be added when
-+ *=09=09=09=09introducing new device ops.
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns the mdev features (API) support by
-+ *=09=09=09=09the device.
-+ * @get_generation:=09=09Get device config generaton (optionally)
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: device generation
-+ */
-+struct virtio_mdev_device_ops {
-+=09/* Virtqueue ops */
-+=09int (*set_vq_address)(struct mdev_device *mdev,
-+=09=09=09      u16 idx, u64 desc_area, u64 driver_area,
-+=09=09=09      u64 device_area);
-+=09void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-+=09void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-+=09void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-+=09=09=09  struct virtio_mdev_callback *cb);
-+=09void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-+=09bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-+=09int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-+=09u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
++		if (queue->bulk_count >= queue->bulk_max)
++			flush = true;
 +
-+=09/* Virtio device ops */
-+=09u16 (*get_vq_align)(struct mdev_device *mdev);
-+=09u64 (*get_features)(struct mdev_device *mdev);
-+=09int (*set_features)(struct mdev_device *mdev, u64 features);
-+=09void (*set_config_cb)(struct mdev_device *mdev,
-+=09=09=09      struct virtio_mdev_callback *cb);
-+=09u16 (*get_vq_num_max)(struct mdev_device *mdev);
-+=09u32 (*get_device_id)(struct mdev_device *mdev);
-+=09u32 (*get_vendor_id)(struct mdev_device *mdev);
-+=09u8 (*get_status)(struct mdev_device *mdev);
-+=09void (*set_status)(struct mdev_device *mdev, u8 status);
-+=09void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   void *buf, unsigned int len);
-+=09void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   const void *buf, unsigned int len);
-+=09u32 (*get_generation)(struct mdev_device *mdev);
++		if (flush)
++			qeth_flush_queue(queue);
 +
-+=09/* Mdev device ops */
-+=09u64 (*get_mdev_features)(struct mdev_device *mdev);
-+};
++		buffer = queue->bufs[QDIO_BUFNR(queue->bulk_start +
++						queue->bulk_count)];
+ 
+ 		/* Sanity-check again: */
+ 		if (atomic_read(&buffer->state) != QETH_QDIO_BUF_EMPTY)
+@@ -3848,7 +3876,13 @@ static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 
+ 	if (flush || next_element >= queue->max_elements) {
+ 		atomic_set(&buffer->state, QETH_QDIO_BUF_PRIMED);
+-		qeth_flush_queue(queue);
++		queue->bulk_count++;
 +
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct virtio_mdev_device_ops *virtio_ops);
++		if (queue->bulk_count >= queue->bulk_max)
++			flush = true;
 +
-+#endif
---=20
-2.19.1
++		if (flush)
++			qeth_flush_queue(queue);
+ 	}
+ 
+ 	if (stopped && !qeth_out_queue_is_full(queue))
+-- 
+2.17.1
