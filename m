@@ -1,397 +1,287 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45180 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726664AbfJaPbi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 31 Oct 2019 11:31:38 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37348 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728274AbfJaP2C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 31 Oct 2019 11:28:02 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VFKZVf137341
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 11:27:59 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vyym1eqkn-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 11:27:57 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 31 Oct 2019 15:27:52 -0000
 Subject: Re: [PATCH 1/1] KVM: s390: Add memcg accounting to KVM allocations
 References: <20191031151921.31871-1-borntraeger@de.ibm.com>
  <20191031151921.31871-2-borntraeger@de.ibm.com>
  <5b5dcd65-34e2-663d-a462-f381a62a0428@redhat.com>
- <90ff4d78-fdc5-6002-9f2b-44331d8e70fe@de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <aa179151-3721-4ca4-a6fe-2b81155ad67d@redhat.com>
-Date: Thu, 31 Oct 2019 16:31:27 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 31 Oct 2019 16:27:47 +0100
 MIME-Version: 1.0
-In-Reply-To: <90ff4d78-fdc5-6002-9f2b-44331d8e70fe@de.ibm.com>
+In-Reply-To: <5b5dcd65-34e2-663d-a462-f381a62a0428@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Message-Id: <90ff4d78-fdc5-6002-9f2b-44331d8e70fe@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>
 
-On 31.10.19 16:27, Christian Borntraeger wrote:
->=20
->=20
-> On 31.10.19 16:22, David Hildenbrand wrote:
->> On 31.10.19 16:19, Christian Borntraeger wrote:
->>> While I propared my KVM Forum talk about whats new in KVM including
->>> memcg, I realized that the s390 code does not take care of memcg.
->>>
->>> As far as I can tell, almost all kvm allocations in the s390x KVM code
->>> can be attributed to process that triggers the allocation (in other
->>> words, no global allocation for other guests). This will help the memcg
->>> controller to do the right decisions.
->>>
->>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>> ---
->>>  =C2=A0 arch/s390/kvm/guestdbg.c=C2=A0 |=C2=A0 8 ++++----
->>>  =C2=A0 arch/s390/kvm/intercept.c |=C2=A0 2 +-
->>>  =C2=A0 arch/s390/kvm/interrupt.c | 12 ++++++------
->>>  =C2=A0 arch/s390/kvm/kvm-s390.c=C2=A0 | 22 +++++++++++-----------
->>>  =C2=A0 arch/s390/kvm/priv.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++=
---
->>>  =C2=A0 arch/s390/kvm/vsie.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 4 ++=
---
->>>  =C2=A0 6 files changed, 26 insertions(+), 26 deletions(-)
->>>
->>> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
->>> index 394a5f53805b..3765c4223bf9 100644
->>> --- a/arch/s390/kvm/guestdbg.c
->>> +++ b/arch/s390/kvm/guestdbg.c
->>> @@ -184,7 +184,7 @@ static int __import_wp_info(struct kvm_vcpu *vcpu,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (wp_info->len < 0 || wp_info->len > =
-MAX_WP_SIZE)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 wp_info->old_data =3D kmalloc(bp_data->len,=
- GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 wp_info->old_data =3D kmalloc(bp_data->len, GFP_KER=
-NEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!wp_info->old_data)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 /* try to backup the original value */
->>> @@ -234,7 +234,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (nr_wp > 0) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 wp_info =3D kma=
-lloc_array(nr_wp,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sizeof(*wp_info),
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!wp_info) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 ret =3D -ENOMEM;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 goto error;
->>> @@ -243,7 +243,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (nr_bp > 0) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 bp_info =3D kma=
-lloc_array(nr_bp,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 sizeof(*bp_info),
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!bp_info) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 ret =3D -ENOMEM;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 goto error;
->>> @@ -349,7 +349,7 @@ static struct kvm_hw_wp_info_arch *any_wp_changed(s=
-truct kvm_vcpu *vcpu)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!wp_info ||=
- !wp_info->old_data || wp_info->len <=3D 0)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 continue;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 temp =3D kmalloc(wp=
-_info->len, GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 temp =3D kmalloc(wp_info->l=
-en, GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!temp)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 continue;
->>>  =C2=A0 diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercep=
-t.c
->>> index a389fa85cca2..fb2daae88105 100644
->>> --- a/arch/s390/kvm/intercept.c
->>> +++ b/arch/s390/kvm/intercept.c
->>> @@ -387,7 +387,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (addr & ~PAGE_MASK)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return kvm_s390=
-_inject_program_int(vcpu, PGM_SPECIFICATION);
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 sctns =3D (void *)get_zeroed_page(GFP_KERNE=
-L);
->>> +=C2=A0=C2=A0=C2=A0 sctns =3D (void *)get_zeroed_page(GFP_KERNEL_ACCOUN=
-T);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!sctns)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrup=
-t.c
->>> index 165dea4c7f19..7fe8896a82dd 100644
->>> --- a/arch/s390/kvm/interrupt.c
->>> +++ b/arch/s390/kvm/interrupt.c
->>> @@ -1668,7 +1668,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_i=
-nt(struct kvm *kvm,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>>  =C2=A0 gisa_out:
->>> -=C2=A0=C2=A0=C2=A0 tmp_inti =3D kzalloc(sizeof(*inti), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 tmp_inti =3D kzalloc(sizeof(*inti), GFP_KERNEL_ACCO=
-UNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (tmp_inti) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tmp_inti->type =
-=3D KVM_S390_INT_IO(1, 0, 0, 0);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tmp_inti->io.io=
-_int_word =3D isc_to_int_word(isc);
->>> @@ -1881,7 +1881,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct kvm_s390_interrupt_info *inti;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int rc;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 inti =3D kzalloc(sizeof(*inti), GFP_KERNEL)=
-;
->>> +=C2=A0=C2=A0=C2=A0 inti =3D kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT)=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!inti)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -2275,7 +2275,7 @@ static int enqueue_floating_irq(struct kv=
-m_device *dev,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 while (len >=3D sizeof(struct kv=
-m_s390_irq)) {
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 inti =3D kzalloc(sizeof(*in=
-ti), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 inti =3D kzalloc(sizeof(*in=
-ti), GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!inti)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -2323,7 +2323,7 @@ static int register_io_adapter(struct kvm=
-_device *dev,
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (dev->kvm->arch.adapters[adapter_inf=
-o.id] !=3D NULL)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 adapter =3D kzalloc(sizeof(*adapter), GFP_K=
-ERNEL);
->>> +=C2=A0=C2=A0=C2=A0 adapter =3D kzalloc(sizeof(*adapter), GFP_KERNEL_AC=
-COUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!adapter)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -2363,7 +2363,7 @@ static int kvm_s390_adapter_map(struct kv=
-m *kvm, unsigned int id, __u64 addr)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!adapter || !addr)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 map =3D kzalloc(sizeof(*map), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 map =3D kzalloc(sizeof(*map), GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!map) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D -ENOMEM=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>> @@ -3223,7 +3223,7 @@ int kvm_s390_gib_init(u8 nisc)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 gib =3D (struct kvm_s390_gib *)get_zeroed_p=
-age(GFP_KERNEL | GFP_DMA);
->>> +=C2=A0=C2=A0=C2=A0 gib =3D (struct kvm_s390_gib *)get_zeroed_page(GFP_=
-KERNEL_ACCOUNT | GFP_DMA);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!gib) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 rc =3D -ENOMEM;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>> index d9e6bf3d54f0..373e182fd8e8 100644
->>> --- a/arch/s390/kvm/kvm-s390.c
->>> +++ b/arch/s390/kvm/kvm-s390.c
->>> @@ -1243,7 +1243,7 @@ static int kvm_s390_set_processor(struct kvm *kvm=
-, struct kvm_device_attr *attr)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D -EBUSY;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
->>> -=C2=A0=C2=A0=C2=A0 proc =3D kzalloc(sizeof(*proc), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 proc =3D kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT)=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!proc) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D -ENOMEM=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>> @@ -1405,7 +1405,7 @@ static int kvm_s390_get_processor(struct kvm *kvm=
-, struct kvm_device_attr *attr)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct kvm_s390_vm_cpu_processor *proc;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int ret =3D 0;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 proc =3D kzalloc(sizeof(*proc), GFP_KERNEL)=
-;
->>> +=C2=A0=C2=A0=C2=A0 proc =3D kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT)=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!proc) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D -ENOMEM=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>> @@ -1433,7 +1433,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, =
-struct kvm_device_attr *attr)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct kvm_s390_vm_cpu_machine *mach;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int ret =3D 0;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 mach =3D kzalloc(sizeof(*mach), GFP_KERNEL)=
-;
->>> +=C2=A0=C2=A0=C2=A0 mach =3D kzalloc(sizeof(*mach), GFP_KERNEL_ACCOUNT)=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!mach) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ret =3D -ENOMEM=
-;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>> @@ -1801,7 +1801,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, s=
-truct kvm_s390_skeys *args)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (args->count < 1 || args->count > KV=
-M_S390_SKEYS_MAX)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 keys =3D kvmalloc_array(args->count, sizeof=
-(uint8_t), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 keys =3D kvmalloc_array(args->count, sizeof(uint8_t=
-), GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!keys)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -1846,7 +1846,7 @@ static long kvm_s390_set_skeys(struct kvm=
- *kvm, struct kvm_s390_skeys *args)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (args->count < 1 || args->count > KV=
-M_S390_SKEYS_MAX)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -EINVAL;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 keys =3D kvmalloc_array(args->count, sizeof=
-(uint8_t), GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 keys =3D kvmalloc_array(args->count, sizeof(uint8_t=
-), GFP_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!keys)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -2393,7 +2393,7 @@ static void sca_dispose(struct kvm *kvm)
->>>  =C2=A0 =C2=A0 int kvm_arch_init_vm(struct kvm *kvm, unsigned long type=
-)
->>>  =C2=A0 {
->>> -=C2=A0=C2=A0=C2=A0 gfp_t alloc_flags =3D GFP_KERNEL;
->>> +=C2=A0=C2=A0=C2=A0 gfp_t alloc_flags =3D GFP_KERNEL_ACCOUNT;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 int i, rc;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 char debug_name[16];
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 static unsigned long sca_offset;
->>> @@ -2438,7 +2438,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned lo=
-ng type)
->>>  =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 BUILD_BUG_ON(sizeof(struct sie_p=
-age2) !=3D 4096);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 kvm->arch.sie_page2 =3D
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (struct sie_page2 *) =
-get_zeroed_page(GFP_KERNEL | GFP_DMA);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (struct sie_page2 *) =
-get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!kvm->arch.sie_page2)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out_err;
->>>  =C2=A0 @@ -2652,7 +2652,7 @@ static int sca_switch_to_extended(struct =
-kvm *kvm)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 unsigned int vcpu_idx;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 u32 scaol, scaoh;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 new_sca =3D alloc_pages_exact(sizeof(*new_s=
-ca), GFP_KERNEL|__GFP_ZERO);
->>> +=C2=A0=C2=A0=C2=A0 new_sca =3D alloc_pages_exact(sizeof(*new_sca), GFP=
-_KERNEL_ACCOUNT | __GFP_ZERO);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!new_sca)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0 @@ -2947,7 +2947,7 @@ void kvm_s390_vcpu_unsetup_cmma(struct kv=
-m_vcpu *vcpu)
->>>  =C2=A0 =C2=A0 int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
->>>  =C2=A0 {
->>> -=C2=A0=C2=A0=C2=A0 vcpu->arch.sie_block->cbrlo =3D get_zeroed_page(GFP=
-_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 vcpu->arch.sie_block->cbrlo =3D get_zeroed_page(GFP=
-_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!vcpu->arch.sie_block->cbrlo)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENOMEM;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return 0;
->>> @@ -3047,12 +3047,12 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kv=
-m *kvm,
->>>  =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 rc =3D -ENOMEM;
->>>  =C2=A0 -=C2=A0=C2=A0=C2=A0 vcpu =3D kmem_cache_zalloc(kvm_vcpu_cache, =
-GFP_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 vcpu =3D kmem_cache_zalloc(kvm_vcpu_cache, GFP_KERN=
-EL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!vcpu)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out;
->>>  =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 BUILD_BUG_ON(sizeof(struct sie_p=
-age) !=3D 4096);
->>> -=C2=A0=C2=A0=C2=A0 sie_page =3D (struct sie_page *) get_zeroed_page(GF=
-P_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0 sie_page =3D (struct sie_page *) get_zeroed_page(GF=
-P_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!sie_page)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto out_free_c=
-pu;
->>>  =C2=A0 diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
->>> index ed52ffa8d5d4..536fcd599665 100644
->>> --- a/arch/s390/kvm/priv.c
->>> +++ b/arch/s390/kvm/priv.c
->>> @@ -878,7 +878,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 switch (fc) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 case 1: /* same handling for 1 and 2 */
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 case 2:
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mem =3D get_zeroed_page(GFP=
-_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mem =3D get_zeroed_page(GFP=
-_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!mem)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 goto out_no_data;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (stsi((void =
-*) mem, fc, sel1, sel2))
->>> @@ -887,7 +887,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 case 3:
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (sel1 !=3D 2=
- || sel2 !=3D 2)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 goto out_no_data;
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mem =3D get_zeroed_page(GFP=
-_KERNEL);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mem =3D get_zeroed_page(GFP=
-_KERNEL_ACCOUNT);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!mem)
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 goto out_no_data;
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 handle_stsi_3_2=
-_2(vcpu, (void *) mem);
->>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
->>> index 076090f9e666..f55fca8f94f8 100644
->>> --- a/arch/s390/kvm/vsie.c
->>> +++ b/arch/s390/kvm/vsie.c
->>> @@ -1236,7 +1236,7 @@ static struct vsie_page *get_vsie_page(struct kvm=
- *kvm, unsigned long addr)
->>>  =C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mutex_lock(&kvm->arch.vsie.mutex=
-);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (kvm->arch.vsie.page_count < nr_vcpu=
-s) {
->>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 page =3D alloc_page(GFP_KER=
-NEL | __GFP_ZERO | GFP_DMA);
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 page =3D alloc_page(GFP_KER=
-NEL_ACCOUNT | __GFP_ZERO | GFP_DMA);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!page) {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 mutex_unlock(&kvm->arch.vsie.mutex);
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 return ERR_PTR(-ENOMEM);
->>> @@ -1338,7 +1338,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
->>>  =C2=A0 void kvm_s390_vsie_init(struct kvm *kvm)
->>>  =C2=A0 {
->>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 mutex_init(&kvm->arch.vsie.mutex);
->>> -=C2=A0=C2=A0=C2=A0 INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_K=
-ERNEL);
->>> +=C2=A0=C2=A0=C2=A0 INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_K=
-ERNEL_ACCOUNT);
->>>  =C2=A0 }
->>>  =C2=A0 =C2=A0 /* Destroy the vsie data structures. To be called when a=
- vm is destroyed. */
->>>
+
+
+On 31.10.19 16:22, David Hildenbrand wrote:
+> On 31.10.19 16:19, Christian Borntraeger wrote:
+>> While I propared my KVM Forum talk about whats new in KVM including
+>> memcg, I realized that the s390 code does not take care of memcg.
 >>
->> I was wondering about the gmap, especially also page tables for nested g=
-uests. Did you consider that already?
->=20
-> No not yet. gmap would be an extra patch. I then also have to be careful =
-if there  are
-> some data structures that are shared between different guests. I think no=
-t, but I have
-> not yet looked completely through that code.
+>> As far as I can tell, almost all kvm allocations in the s390x KVM code
+>> can be attributed to process that triggers the allocation (in other
+>> words, no global allocation for other guests). This will help the memcg
+>> controller to do the right decisions.
+>>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>   arch/s390/kvm/guestdbg.c  |  8 ++++----
+>>   arch/s390/kvm/intercept.c |  2 +-
+>>   arch/s390/kvm/interrupt.c | 12 ++++++------
+>>   arch/s390/kvm/kvm-s390.c  | 22 +++++++++++-----------
+>>   arch/s390/kvm/priv.c      |  4 ++--
+>>   arch/s390/kvm/vsie.c      |  4 ++--
+>>   6 files changed, 26 insertions(+), 26 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
+>> index 394a5f53805b..3765c4223bf9 100644
+>> --- a/arch/s390/kvm/guestdbg.c
+>> +++ b/arch/s390/kvm/guestdbg.c
+>> @@ -184,7 +184,7 @@ static int __import_wp_info(struct kvm_vcpu *vcpu,
+>>       if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
+>>           return -EINVAL;
+>>   -    wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL);
+>> +    wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
+>>       if (!wp_info->old_data)
+>>           return -ENOMEM;
+>>       /* try to backup the original value */
+>> @@ -234,7 +234,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>>       if (nr_wp > 0) {
+>>           wp_info = kmalloc_array(nr_wp,
+>>                       sizeof(*wp_info),
+>> -                    GFP_KERNEL);
+>> +                    GFP_KERNEL_ACCOUNT);
+>>           if (!wp_info) {
+>>               ret = -ENOMEM;
+>>               goto error;
+>> @@ -243,7 +243,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
+>>       if (nr_bp > 0) {
+>>           bp_info = kmalloc_array(nr_bp,
+>>                       sizeof(*bp_info),
+>> -                    GFP_KERNEL);
+>> +                    GFP_KERNEL_ACCOUNT);
+>>           if (!bp_info) {
+>>               ret = -ENOMEM;
+>>               goto error;
+>> @@ -349,7 +349,7 @@ static struct kvm_hw_wp_info_arch *any_wp_changed(struct kvm_vcpu *vcpu)
+>>           if (!wp_info || !wp_info->old_data || wp_info->len <= 0)
+>>               continue;
+>>   -        temp = kmalloc(wp_info->len, GFP_KERNEL);
+>> +        temp = kmalloc(wp_info->len, GFP_KERNEL_ACCOUNT);
+>>           if (!temp)
+>>               continue;
+>>   diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+>> index a389fa85cca2..fb2daae88105 100644
+>> --- a/arch/s390/kvm/intercept.c
+>> +++ b/arch/s390/kvm/intercept.c
+>> @@ -387,7 +387,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+>>       if (addr & ~PAGE_MASK)
+>>           return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+>>   -    sctns = (void *)get_zeroed_page(GFP_KERNEL);
+>> +    sctns = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
+>>       if (!sctns)
+>>           return -ENOMEM;
+>>   diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+>> index 165dea4c7f19..7fe8896a82dd 100644
+>> --- a/arch/s390/kvm/interrupt.c
+>> +++ b/arch/s390/kvm/interrupt.c
+>> @@ -1668,7 +1668,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
+>>           goto out;
+>>       }
+>>   gisa_out:
+>> -    tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+>> +    tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>       if (tmp_inti) {
+>>           tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
+>>           tmp_inti->io.io_int_word = isc_to_int_word(isc);
+>> @@ -1881,7 +1881,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
+>>       struct kvm_s390_interrupt_info *inti;
+>>       int rc;
+>>   -    inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+>> +    inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>       if (!inti)
+>>           return -ENOMEM;
+>>   @@ -2275,7 +2275,7 @@ static int enqueue_floating_irq(struct kvm_device *dev,
+>>           return -EINVAL;
+>>         while (len >= sizeof(struct kvm_s390_irq)) {
+>> -        inti = kzalloc(sizeof(*inti), GFP_KERNEL);
+>> +        inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
+>>           if (!inti)
+>>               return -ENOMEM;
+>>   @@ -2323,7 +2323,7 @@ static int register_io_adapter(struct kvm_device *dev,
+>>       if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
+>>           return -EINVAL;
+>>   -    adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
+>> +    adapter = kzalloc(sizeof(*adapter), GFP_KERNEL_ACCOUNT);
+>>       if (!adapter)
+>>           return -ENOMEM;
+>>   @@ -2363,7 +2363,7 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
+>>       if (!adapter || !addr)
+>>           return -EINVAL;
+>>   -    map = kzalloc(sizeof(*map), GFP_KERNEL);
+>> +    map = kzalloc(sizeof(*map), GFP_KERNEL_ACCOUNT);
+>>       if (!map) {
+>>           ret = -ENOMEM;
+>>           goto out;
+>> @@ -3223,7 +3223,7 @@ int kvm_s390_gib_init(u8 nisc)
+>>           goto out;
+>>       }
+>>   -    gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+>> +    gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
+>>       if (!gib) {
+>>           rc = -ENOMEM;
+>>           goto out;
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index d9e6bf3d54f0..373e182fd8e8 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -1243,7 +1243,7 @@ static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+>>           ret = -EBUSY;
+>>           goto out;
+>>       }
+>> -    proc = kzalloc(sizeof(*proc), GFP_KERNEL);
+>> +    proc = kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT);
+>>       if (!proc) {
+>>           ret = -ENOMEM;
+>>           goto out;
+>> @@ -1405,7 +1405,7 @@ static int kvm_s390_get_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+>>       struct kvm_s390_vm_cpu_processor *proc;
+>>       int ret = 0;
+>>   -    proc = kzalloc(sizeof(*proc), GFP_KERNEL);
+>> +    proc = kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT);
+>>       if (!proc) {
+>>           ret = -ENOMEM;
+>>           goto out;
+>> @@ -1433,7 +1433,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
+>>       struct kvm_s390_vm_cpu_machine *mach;
+>>       int ret = 0;
+>>   -    mach = kzalloc(sizeof(*mach), GFP_KERNEL);
+>> +    mach = kzalloc(sizeof(*mach), GFP_KERNEL_ACCOUNT);
+>>       if (!mach) {
+>>           ret = -ENOMEM;
+>>           goto out;
+>> @@ -1801,7 +1801,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+>>       if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
+>>           return -EINVAL;
+>>   -    keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
+>> +    keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL_ACCOUNT);
+>>       if (!keys)
+>>           return -ENOMEM;
+>>   @@ -1846,7 +1846,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
+>>       if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
+>>           return -EINVAL;
+>>   -    keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
+>> +    keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL_ACCOUNT);
+>>       if (!keys)
+>>           return -ENOMEM;
+>>   @@ -2393,7 +2393,7 @@ static void sca_dispose(struct kvm *kvm)
+>>     int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>   {
+>> -    gfp_t alloc_flags = GFP_KERNEL;
+>> +    gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
+>>       int i, rc;
+>>       char debug_name[16];
+>>       static unsigned long sca_offset;
+>> @@ -2438,7 +2438,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>         BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
+>>       kvm->arch.sie_page2 =
+>> -         (struct sie_page2 *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
+>> +         (struct sie_page2 *) get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
+>>       if (!kvm->arch.sie_page2)
+>>           goto out_err;
+>>   @@ -2652,7 +2652,7 @@ static int sca_switch_to_extended(struct kvm *kvm)
+>>       unsigned int vcpu_idx;
+>>       u32 scaol, scaoh;
+>>   -    new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL|__GFP_ZERO);
+>> +    new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+>>       if (!new_sca)
+>>           return -ENOMEM;
+>>   @@ -2947,7 +2947,7 @@ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+>>     int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
+>>   {
+>> -    vcpu->arch.sie_block->cbrlo = get_zeroed_page(GFP_KERNEL);
+>> +    vcpu->arch.sie_block->cbrlo = get_zeroed_page(GFP_KERNEL_ACCOUNT);
+>>       if (!vcpu->arch.sie_block->cbrlo)
+>>           return -ENOMEM;
+>>       return 0;
+>> @@ -3047,12 +3047,12 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
+>>         rc = -ENOMEM;
+>>   -    vcpu = kmem_cache_zalloc(kvm_vcpu_cache, GFP_KERNEL);
+>> +    vcpu = kmem_cache_zalloc(kvm_vcpu_cache, GFP_KERNEL_ACCOUNT);
+>>       if (!vcpu)
+>>           goto out;
+>>         BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
+>> -    sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL);
+>> +    sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL_ACCOUNT);
+>>       if (!sie_page)
+>>           goto out_free_cpu;
+>>   diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+>> index ed52ffa8d5d4..536fcd599665 100644
+>> --- a/arch/s390/kvm/priv.c
+>> +++ b/arch/s390/kvm/priv.c
+>> @@ -878,7 +878,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>       switch (fc) {
+>>       case 1: /* same handling for 1 and 2 */
+>>       case 2:
+>> -        mem = get_zeroed_page(GFP_KERNEL);
+>> +        mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
+>>           if (!mem)
+>>               goto out_no_data;
+>>           if (stsi((void *) mem, fc, sel1, sel2))
+>> @@ -887,7 +887,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>       case 3:
+>>           if (sel1 != 2 || sel2 != 2)
+>>               goto out_no_data;
+>> -        mem = get_zeroed_page(GFP_KERNEL);
+>> +        mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
+>>           if (!mem)
+>>               goto out_no_data;
+>>           handle_stsi_3_2_2(vcpu, (void *) mem);
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 076090f9e666..f55fca8f94f8 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -1236,7 +1236,7 @@ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
+>>         mutex_lock(&kvm->arch.vsie.mutex);
+>>       if (kvm->arch.vsie.page_count < nr_vcpus) {
+>> -        page = alloc_page(GFP_KERNEL | __GFP_ZERO | GFP_DMA);
+>> +        page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO | GFP_DMA);
+>>           if (!page) {
+>>               mutex_unlock(&kvm->arch.vsie.mutex);
+>>               return ERR_PTR(-ENOMEM);
+>> @@ -1338,7 +1338,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
+>>   void kvm_s390_vsie_init(struct kvm *kvm)
+>>   {
+>>       mutex_init(&kvm->arch.vsie.mutex);
+>> -    INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL);
+>> +    INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL_ACCOUNT);
+>>   }
+>>     /* Destroy the vsie data structures. To be called when a vm is destroyed. */
+>>
+> 
+> I was wondering about the gmap, especially also page tables for nested guests. Did you consider that already?
 
-Everything that is shared should apply to the user page tables only. But=20
-all datastructures we allocate in the gmap (especially tables, radix=20
-tress ...) should be for this very process only. At least that's what I=20
-hope :D
-
-Agreed that this should go to a separate patch.
-
---=20
-
-Thanks,
-
-David / dhildenb
+No not yet. gmap would be an extra patch. I then also have to be careful if there  are
+some data structures that are shared between different guests. I think not, but I have 
+not yet looked completely through that code.
