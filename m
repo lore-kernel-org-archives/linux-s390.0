@@ -1,78 +1,242 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:48550 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728561AbfJaRal (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37370 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727593AbfJaPll (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 31 Oct 2019 13:30:41 -0400
+        Thu, 31 Oct 2019 11:41:41 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VFbs3r044159
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 11:41:38 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vyym1f5hj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 11:41:37 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 31 Oct 2019 15:41:34 -0000
 Subject: Re: [RFC 09/37] KVM: s390: protvirt: Implement on-demand pinning
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
  <20191024114059.102802-10-frankja@linux.ibm.com>
  <b76ae1ca-d211-d1c7-63d9-9b45c789f261@redhat.com>
- <7465141c-27b7-a89e-f02d-ab05cdd8505d@de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <4abdc1dc-884e-a819-2e9d-2b8b15030394@redhat.com>
-Date: Thu, 31 Oct 2019 18:30:30 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 31 Oct 2019 16:41:30 +0100
 MIME-Version: 1.0
-In-Reply-To: <7465141c-27b7-a89e-f02d-ab05cdd8505d@de.ibm.com>
+In-Reply-To: <b76ae1ca-d211-d1c7-63d9-9b45c789f261@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Message-Id: <7465141c-27b7-a89e-f02d-ab05cdd8505d@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-On 31.10.19 16:41, Christian Borntraeger wrote:
->=20
->=20
-> On 25.10.19 10:49, David Hildenbrand wrote:
->> On 24.10.19 13:40, Janosch Frank wrote:
->>> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
->>>
->>> Pin the guest pages when they are first accessed, instead of all at
->>> the same time when starting the guest.
+
+
+On 25.10.19 10:49, David Hildenbrand wrote:
+> On 24.10.19 13:40, Janosch Frank wrote:
+>> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 >>
->> Please explain why you do stuff. Why do we have to pin the hole guest me=
-mory? Why can't we mlock() the hole memory to avoid swapping in user space?
->=20
-> Basically we pin the guest for the same reason as AMD did it for their SE=
-V. It is hard
+>> Pin the guest pages when they are first accessed, instead of all at
+>> the same time when starting the guest.
+> 
+> Please explain why you do stuff. Why do we have to pin the hole guest memory? Why can't we mlock() the hole memory to avoid swapping in user space?
 
-Pinning all guest memory is very ugly. What you want is "don't page",=20
-what you get is unmovable pages all over the place. I was hoping that=20
-you could get around this by having an automatic back-and-forth=20
-conversion in place (due to the special new exceptions).
+Basically we pin the guest for the same reason as AMD did it for their SEV. It is hard
+to synchronize page import/export with the I/O for paging. For example you can actually
+fault in a page that is currently under paging I/O. What do you do? import (so that the 
+guest can run) or export (so that the I/O will work). As this turned out to be harder then
+we though we decided to defer paging to a later point in time.
 
-> to synchronize page import/export with the I/O for paging. For example yo=
-u can actually
-> fault in a page that is currently under paging I/O. What do you do? impor=
-t (so that the
-> guest can run) or export (so that the I/O will work). As this turned out =
-to be harder then
-> we though we decided to defer paging to a later point in time.
+As we do not want to rely on the userspace to do the mlock this is now done in the kernel.
 
-I don't quite see the issue yet. If you page out, the page will=20
-automatically (on access) be converted to !secure/encrypted memory. If=20
-the UV/guest wants to access it, it will be automatically converted to=20
-secure/unencrypted memory. If you have concurrent access, it will be=20
-converted back and forth until one party is done.
 
-A proper automatic conversion should make this work. What am I missing?
 
->=20
-> As we do not want to rely on the userspace to do the mlock this is now do=
-ne in the kernel.
-
-I wonder if we could come up with an alternative (similar to how we=20
-override VM_MERGEABLE in the kernel) that can be called and ensured in=20
-the kernel. E.g., marking whole VMAs as "don't page" (I remember=20
-something like "special VMAs" like used for VDSOs that achieve exactly=20
-that, but I am absolutely no expert on that). That would be much nicer=20
-than pinning all pages and remembering what you pinned in huge page=20
-arrays ...
-
---=20
-
-Thanks,
-
-David / dhildenb
+> 
+> This really screams for a proper explanation.
+>>
+>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/gmap.h |  1 +
+>>   arch/s390/include/asm/uv.h   |  6 +++++
+>>   arch/s390/kernel/uv.c        | 20 ++++++++++++++
+>>   arch/s390/kvm/kvm-s390.c     |  2 ++
+>>   arch/s390/kvm/pv.c           | 51 ++++++++++++++++++++++++++++++------
+>>   5 files changed, 72 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+>> index 99b3eedda26e..483f64427c0e 100644
+>> --- a/arch/s390/include/asm/gmap.h
+>> +++ b/arch/s390/include/asm/gmap.h
+>> @@ -63,6 +63,7 @@ struct gmap {
+>>       struct gmap *parent;
+>>       unsigned long orig_asce;
+>>       unsigned long se_handle;
+>> +    struct page **pinned_pages;
+>>       int edat_level;
+>>       bool removed;
+>>       bool initialized;
+>> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+>> index 99cdd2034503..9ce9363aee1c 100644
+>> --- a/arch/s390/include/asm/uv.h
+>> +++ b/arch/s390/include/asm/uv.h
+>> @@ -298,6 +298,7 @@ static inline int uv_convert_from_secure(unsigned long paddr)
+>>       return -EINVAL;
+>>   }
+>>   +int kvm_s390_pv_pin_page(struct gmap *gmap, unsigned long gpa);
+>>   /*
+>>    * Requests the Ultravisor to make a page accessible to a guest
+>>    * (import). If it's brought in the first time, it will be cleared. If
+>> @@ -317,6 +318,11 @@ static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long gaddr)
+>>           .gaddr = gaddr
+>>       };
+>>   +    down_read(&gmap->mm->mmap_sem);
+>> +    cc = kvm_s390_pv_pin_page(gmap, gaddr);
+>> +    up_read(&gmap->mm->mmap_sem);
+>> +    if (cc)
+>> +        return cc;
+>>       cc = uv_call(0, (u64)&uvcb);
+>>         if (!cc)
+>> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+>> index f7778493e829..36554402b5c6 100644
+>> --- a/arch/s390/kernel/uv.c
+>> +++ b/arch/s390/kernel/uv.c
+>> @@ -98,4 +98,24 @@ void adjust_to_uv_max(unsigned long *vmax)
+>>       if (prot_virt_host && *vmax > uv_info.max_sec_stor_addr)
+>>           *vmax = uv_info.max_sec_stor_addr;
+>>   }
+>> +
+>> +int kvm_s390_pv_pin_page(struct gmap *gmap, unsigned long gpa)
+>> +{
+>> +    unsigned long hva, gfn = gpa / PAGE_SIZE;
+>> +    int rc;
+>> +
+>> +    if (!gmap->pinned_pages)
+>> +        return -EINVAL;
+>> +    hva = __gmap_translate(gmap, gpa);
+>> +    if (IS_ERR_VALUE(hva))
+>> +        return -EFAULT;
+>> +    if (gmap->pinned_pages[gfn])
+>> +        return -EEXIST;
+>> +    rc = get_user_pages_fast(hva, 1, FOLL_WRITE, gmap->pinned_pages + gfn);
+>> +    if (rc < 0)
+>> +        return rc;
+>> +    return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(kvm_s390_pv_pin_page);
+>> +
+>>   #endif
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index d1ba12f857e7..490fde080107 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -2196,6 +2196,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>>           /* All VCPUs have to be destroyed before this call. */
+>>           mutex_lock(&kvm->lock);
+>>           kvm_s390_vcpu_block_all(kvm);
+>> +        kvm_s390_pv_unpin(kvm);
+>>           r = kvm_s390_pv_destroy_vm(kvm);
+>>           if (!r)
+>>               kvm_s390_pv_dealloc_vm(kvm);
+>> @@ -2680,6 +2681,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>>       kvm_s390_gisa_destroy(kvm);
+>>       if (IS_ENABLED(CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST) &&
+>>           kvm_s390_pv_is_protected(kvm)) {
+>> +        kvm_s390_pv_unpin(kvm);
+>>           kvm_s390_pv_destroy_vm(kvm);
+>>           kvm_s390_pv_dealloc_vm(kvm);
+>>       }
+>> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+>> index 80aecd5bea9e..383e660e2221 100644
+>> --- a/arch/s390/kvm/pv.c
+>> +++ b/arch/s390/kvm/pv.c
+>> @@ -15,8 +15,35 @@
+>>   #include <asm/mman.h>
+>>   #include "kvm-s390.h"
+>>   +static void unpin_destroy(struct page **pages, int nr)
+>> +{
+>> +    int i;
+>> +    struct page *page;
+>> +    u8 *val;
+>> +
+>> +    for (i = 0; i < nr; i++) {
+>> +        page = pages[i];
+>> +        if (!page)    /* page was never used */
+>> +            continue;
+>> +        val = (void *)page_to_phys(page);
+>> +        READ_ONCE(*val);
+>> +        put_page(page);
+>> +    }
+>> +}
+>> +
+>> +void kvm_s390_pv_unpin(struct kvm *kvm)
+>> +{
+>> +    unsigned long npages = kvm->arch.pv.guest_len / PAGE_SIZE;
+>> +
+>> +    mutex_lock(&kvm->slots_lock);
+>> +    unpin_destroy(kvm->arch.gmap->pinned_pages, npages);
+>> +    mutex_unlock(&kvm->slots_lock);
+>> +}
+>> +
+>>   void kvm_s390_pv_dealloc_vm(struct kvm *kvm)
+>>   {
+>> +    vfree(kvm->arch.gmap->pinned_pages);
+>> +    kvm->arch.gmap->pinned_pages = NULL;
+>>       vfree(kvm->arch.pv.stor_var);
+>>       free_pages(kvm->arch.pv.stor_base,
+>>              get_order(uv_info.guest_base_stor_len));
+>> @@ -28,7 +55,6 @@ int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>>       unsigned long base = uv_info.guest_base_stor_len;
+>>       unsigned long virt = uv_info.guest_virt_var_stor_len;
+>>       unsigned long npages = 0, vlen = 0;
+>> -    struct kvm_memslots *slots;
+>>       struct kvm_memory_slot *memslot;
+>>         kvm->arch.pv.stor_var = NULL;
+>> @@ -43,22 +69,26 @@ int kvm_s390_pv_alloc_vm(struct kvm *kvm)
+>>        * Slots are sorted by GFN
+>>        */
+>>       mutex_lock(&kvm->slots_lock);
+>> -    slots = kvm_memslots(kvm);
+>> -    memslot = slots->memslots;
+>> +    memslot = kvm_memslots(kvm)->memslots;
+>>       npages = memslot->base_gfn + memslot->npages;
+>> -
+>>       mutex_unlock(&kvm->slots_lock);
+>> +
+>> +    kvm->arch.gmap->pinned_pages = vzalloc(npages * sizeof(struct page *));
+>> +    if (!kvm->arch.gmap->pinned_pages)
+>> +        goto out_err;
+>>       kvm->arch.pv.guest_len = npages * PAGE_SIZE;
+>>         /* Allocate variable storage */
+>>       vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
+>>       vlen += uv_info.guest_virt_base_stor_len;
+>>       kvm->arch.pv.stor_var = vzalloc(vlen);
+>> -    if (!kvm->arch.pv.stor_var) {
+>> -        kvm_s390_pv_dealloc_vm(kvm);
+>> -        return -ENOMEM;
+>> -    }
+>> +    if (!kvm->arch.pv.stor_var)
+>> +        goto out_err;
+>>       return 0;
+>> +
+>> +out_err:
+>> +    kvm_s390_pv_dealloc_vm(kvm);
+>> +    return -ENOMEM;
+>>   }
+>>     int kvm_s390_pv_destroy_vm(struct kvm *kvm)
+>> @@ -216,6 +246,11 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
+>>       for (i = 0; i < size / PAGE_SIZE; i++) {
+>>           uvcb.gaddr = addr + i * PAGE_SIZE;
+>>           uvcb.tweak[1] = i * PAGE_SIZE;
+>> +        down_read(&kvm->mm->mmap_sem);
+>> +        rc = kvm_s390_pv_pin_page(kvm->arch.gmap, uvcb.gaddr);
+>> +        up_read(&kvm->mm->mmap_sem);
+>> +        if (rc && (rc != -EEXIST))
+>> +            break;
+>>   retry:
+>>           rc = uv_call(0, (u64)&uvcb);
+>>           if (!rc)
+>>
+> 
+> 
