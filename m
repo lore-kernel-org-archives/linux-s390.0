@@ -1,60 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46928 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389553AbfJ1VGH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Oct 2019 17:06:07 -0400
-Received: by mail-wr1-f65.google.com with SMTP id n15so11347857wrw.13
-        for <linux-s390@vger.kernel.org>; Mon, 28 Oct 2019 14:06:06 -0700 (PDT)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH 2/6] x86: Move arch_has_random* inside CONFIG_ARCH_RANDOM
-Date: Mon, 28 Oct 2019 22:05:55 +0100
-Message-Id: <20191028210559.8289-3-rth@twiddle.net>
-In-Reply-To: <20191028210559.8289-1-rth@twiddle.net>
-References: <20191028210559.8289-1-rth@twiddle.net>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46780 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726735AbfJaMm7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 31 Oct 2019 08:42:59 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9VCeSC7052635
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:57 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vxwmq9bea-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 31 Oct 2019 08:42:54 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 31 Oct 2019 12:42:29 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/8] s390/qeth: don't set card state in qeth_qdio_clear_card()
+Date: Thu, 31 Oct 2019 13:42:19 +0100
+In-Reply-To: <20191031124221.34028-1-jwi@linux.ibm.com>
+References: <20191031124221.34028-1-jwi@linux.ibm.com>
+Message-Id: <20191031124221.34028-7-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-These functions are declared generically without CONFIG_ARCH_RANDOM.
-The only reason this compiles for x86 is that we currently have a
-mix of inline functions are preprocessor defines.
+Any change to the card state should only be driven by
+qeth_l?_set_online() and qeth_l?_stop_card().
 
-Signed-off-by: Richard Henderson <rth@twiddle.net>
+qeth_qdio_clear_card() currently also gets called from
+(a) qeth_core_shutdown(), where we haven't walked through the whole
+    teardown sequence. So changing the state to DOWN is not accurate.
+(b) qeth_core_hardsetup_card(), which is only called while the card is
+    still in DOWN state. No change in behaviour here.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
----
- arch/x86/include/asm/archrandom.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/archrandom.h b/arch/x86/include/asm/archrandom.h
-index af45e1452f09..5904d7d9e703 100644
---- a/arch/x86/include/asm/archrandom.h
-+++ b/arch/x86/include/asm/archrandom.h
-@@ -73,10 +73,6 @@ static inline bool rdseed_int(unsigned int *v)
- 	return ok;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index d51dcb3c5a01..9e8bd8e08146 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1513,7 +1513,6 @@ int qeth_qdio_clear_card(struct qeth_card *card, int use_halt)
+ 	rc = qeth_clear_halt_card(card, use_halt);
+ 	if (rc)
+ 		QETH_CARD_TEXT_(card, 3, "2err%d", rc);
+-	card->state = CARD_STATE_DOWN;
+ 	return rc;
  }
- 
--/* Conditional execution based on CPU type */
--#define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
--#define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
--
- /*
-  * These are the generic interfaces; they must not be declared if the
-  * stubs in <linux/random.h> are to be invoked,
-@@ -84,6 +80,10 @@ static inline bool rdseed_int(unsigned int *v)
-  */
- #ifdef CONFIG_ARCH_RANDOM
- 
-+/* Conditional execution based on CPU type */
-+#define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
-+#define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
-+
- static inline bool arch_get_random_long(unsigned long *v)
- {
- 	return arch_has_random() ? rdrand_long(v) : false;
+ EXPORT_SYMBOL_GPL(qeth_qdio_clear_card);
 -- 
 2.17.1
