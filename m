@@ -1,45 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:60997 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726916AbfKKQkx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 11:40:53 -0500
-Date: Mon, 11 Nov 2019 17:40:39 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33160 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730369AbfKAMmU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Nov 2019 08:42:20 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA1CgC3W100146
+        for <linux-s390@vger.kernel.org>; Fri, 1 Nov 2019 08:42:19 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w0mgk0xtb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 01 Nov 2019 08:42:18 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 1 Nov 2019 12:42:16 -0000
 Subject: Re: [RFC 06/37] s390: UV: Add import and export to UV library
-Message-ID: <20191111174039.608f53fb.cohuck@redhat.com>
-In-Reply-To: <20191024114059.102802-7-frankja@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
-        <20191024114059.102802-7-frankja@linux.ibm.com>
+ <20191024114059.102802-7-frankja@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Fri, 1 Nov 2019 13:42:11 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191024114059.102802-7-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <76e6b68a-51fc-69de-bf68-ed3d88b135cd@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-On Thu, 24 Oct 2019 07:40:28 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
 
+
+On 24.10.19 13:40, Janosch Frank wrote:
 > The convert to/from secure (or also "import/export") ultravisor calls
 > are need for page management, i.e. paging, of secure execution VM.
->=20
+> 
 > Export encrypts a secure guest's page and makes it accessible to the
 > guest for paging.
->=20
+> 
 > Import makes a page accessible to a secure guest.
 > On the first import of that page, the page will be cleared by the
 > Ultravisor before it is given to the guest.
->=20
+> 
 > All following imports will decrypt a exported page and verify
 > integrity before giving the page to the guest.
->=20
+> 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+
+After re-reading.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
 >  arch/s390/include/asm/uv.h | 51 ++++++++++++++++++++++++++++++++++++++
 >  1 file changed, 51 insertions(+)
->=20
+> 
 > diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
 > index 0bfbafcca136..99cdd2034503 100644
 > --- a/arch/s390/include/asm/uv.h
@@ -49,14 +63,13 @@ Janosch Frank <frankja@linux.ibm.com> wrote:
 >  #include <linux/bug.h>
 >  #include <asm/page.h>
 > +#include <asm/gmap.h>
-> =20
->  #define UVC_RC_EXECUTED=09=090x0001
->  #define UVC_RC_INV_CMD=09=090x0002
-> @@ -279,6 +280,54 @@ static inline int uv_cmd_nodata(u64 handle, u16 cmd,=
- u32 *ret)
->  =09return rc ? -EINVAL : 0;
+>  
+>  #define UVC_RC_EXECUTED		0x0001
+>  #define UVC_RC_INV_CMD		0x0002
+> @@ -279,6 +280,54 @@ static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret)
+>  	return rc ? -EINVAL : 0;
 >  }
-> =20
+>  
 > +/*
 > + * Requests the Ultravisor to encrypt a guest page and make it
 > + * accessible to the host for paging (export).
@@ -65,18 +78,14 @@ Janosch Frank <frankja@linux.ibm.com> wrote:
 > + */
 > +static inline int uv_convert_from_secure(unsigned long paddr)
 > +{
-> +=09struct uv_cb_cfs uvcb =3D {
-> +=09=09.header.cmd =3D UVC_CMD_CONV_FROM_SEC_STOR,
-> +=09=09.header.len =3D sizeof(uvcb),
-> +=09=09.paddr =3D paddr
-> +=09};
-> +=09if (!uv_call(0, (u64)&uvcb))
-> +=09=09return 0;
-> +=09return -EINVAL;
-
-No possibility for other return codes here (e.g. -EFAULT)? (Asking
-because you look at a rc in the control block in the reverse function.)
-
+> +	struct uv_cb_cfs uvcb = {
+> +		.header.cmd = UVC_CMD_CONV_FROM_SEC_STOR,
+> +		.header.len = sizeof(uvcb),
+> +		.paddr = paddr
+> +	};
+> +	if (!uv_call(0, (u64)&uvcb))
+> +		return 0;
+> +	return -EINVAL;
 > +}
 > +
 > +/*
@@ -88,26 +97,25 @@ because you look at a rc in the control block in the reverse function.)
 > + * @handle: Ultravisor guest handle
 > + * @gaddr: Guest 2 absolute address to be imported
 > + */
-> +static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long =
-gaddr)
+> +static inline int uv_convert_to_secure(struct gmap *gmap, unsigned long gaddr)
 > +{
-> +=09int cc;
-> +=09struct uv_cb_cts uvcb =3D {
-> +=09=09.header.cmd =3D UVC_CMD_CONV_TO_SEC_STOR,
-> +=09=09.header.len =3D sizeof(uvcb),
-> +=09=09.guest_handle =3D gmap->se_handle,
-> +=09=09.gaddr =3D gaddr
-> +=09};
+> +	int cc;
+> +	struct uv_cb_cts uvcb = {
+> +		.header.cmd = UVC_CMD_CONV_TO_SEC_STOR,
+> +		.header.len = sizeof(uvcb),
+> +		.guest_handle = gmap->se_handle,
+> +		.gaddr = gaddr
+> +	};
 > +
-> +=09cc =3D uv_call(0, (u64)&uvcb);
+> +	cc = uv_call(0, (u64)&uvcb);
 > +
-> +=09if (!cc)
-> +=09=09return 0;
-> +=09if (uvcb.header.rc =3D=3D 0x104)
-> +=09=09return -EEXIST;
-> +=09if (uvcb.header.rc =3D=3D 0x10a)
-> +=09=09return -EFAULT;
-> +=09return -EINVAL;
+> +	if (!cc)
+> +		return 0;
+> +	if (uvcb.header.rc == 0x104)
+> +		return -EEXIST;
+> +	if (uvcb.header.rc == 0x10a)
+> +		return -EFAULT;
+> +	return -EINVAL;
 > +}
 > +
 >  void setup_uv(void);
@@ -116,13 +124,10 @@ gaddr)
 > @@ -286,6 +335,8 @@ void adjust_to_uv_max(unsigned long *vmax);
 >  static inline void setup_uv(void) {}
 >  static inline void adjust_to_uv_max(unsigned long *vmax) {}
->  static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret) { return =
-0; }
-> +static inline int uv_convert_from_secure(unsigned long paddr) { return 0=
-; }
-> +static inline int uv_convert_to_secure(unsigned long handle, unsigned lo=
-ng gaddr) { return 0; }
+>  static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret) { return 0; }
+> +static inline int uv_convert_from_secure(unsigned long paddr) { return 0; }
+> +static inline int uv_convert_to_secure(unsigned long handle, unsigned long gaddr) { return 0; }
 >  #endif
-> =20
->  #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                   =
-       \
+>  
+>  #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
+> 
