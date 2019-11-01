@@ -1,499 +1,365 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48944 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727054AbfKKRUf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 12:20:35 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xABHDMlR084903
-        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 12:20:33 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w7abxmvrt-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 12:20:33 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Mon, 11 Nov 2019 17:20:31 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 2/2] s390x: SCLP unit test
-Date: Mon, 11 Nov 2019 18:20:26 +0100
-In-Reply-To: <1573492826-24589-1-git-send-email-imbrenda@linux.ibm.com>
-References: <1573492826-24589-1-git-send-email-imbrenda@linux.ibm.com>
-Message-Id: <1573492826-24589-3-git-send-email-imbrenda@linux.ibm.com>
+Received: from mail-eopbgr50063.outbound.protection.outlook.com ([40.107.5.63]:46337
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726477AbfKATzS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 1 Nov 2019 15:55:18 -0400
+From: Parav Pandit <parav@mellanox.com>
+Subject: RE: [PATCH V6 1/6] mdev: class id support
+Date: Fri, 1 Nov 2019 19:55:07 +0000
+Message-ID: <AM0PR05MB486655EC2CC3EDA9D8C9C8E3D1620@AM0PR05MB4866.eurprd05.prod.outlook.com>
+References: <20191030064444.21166-1-jasowang@redhat.com>
+ <20191030064444.21166-2-jasowang@redhat.com>
+In-Reply-To: <20191030064444.21166-2-jasowang@redhat.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Jason Wang <jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>, "intel-gvt-dev@lists.freedesktop.org" <intel-gvt-dev@lists.freedesktop.org>, "kwankhede@nvidia.com" <kwankhede@nvidia.com>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "cohuck@redhat.com" <cohuck@redhat.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "zhenyuw@linux.intel.com" <zhenyuw@linux.intel.com>, "zhi.a.wang@intel.com" <zhi.a.wang@intel.com>, "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>, "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>, "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>, "airlied@linux.ie" <airlied@linux.ie>, "daniel@ffwll.ch" <daniel@ffwll.ch>, "farman@linux.ibm.com" <farman@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>, "sebott@linux.ibm.com" <sebott@linux.ibm.com>, "oberpar@linux.ibm.com" <oberpar@linux.ibm.com>, "heiko.carstens@de.ibm.com" <heiko.carstens@de.ibm.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "freude@linux.ibm.com" <freude@linux.ibm.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, Ido Shamay <idos@mellanox.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "christophe.de.dinechin@gmail.com" <christophe.de.dinechin@gmail.com>, "kevin.tian@intel.com" <kevin.tian@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>
 
-SCLP unit test. Testing the following:
 
-* Correctly ignoring instruction bits that should be ignored
-* Privileged instruction check
-* Check for addressing exceptions
-* Specification exceptions:
-  - SCCB size less than 8
-  - SCCB unaligned
-  - SCCB overlaps prefix or lowcore
-  - SCCB address higher than 2GB
-* Return codes for
-  - Invalid command
-  - SCCB too short (but at least 8)
-  - SCCB page boundary violation
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- s390x/Makefile      |   1 +
- s390x/sclp.c        | 417 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 +
- 3 files changed, 421 insertions(+)
- create mode 100644 s390x/sclp.c
-
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 3744372..ddb4b48 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -16,6 +16,7 @@ tests += $(TEST_DIR)/diag288.elf
- tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
-+tests += $(TEST_DIR)/sclp.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-diff --git a/s390x/sclp.c b/s390x/sclp.c
-new file mode 100644
-index 0000000..3267a92
---- /dev/null
-+++ b/s390x/sclp.c
-@@ -0,0 +1,417 @@
-+/*
-+ * Service Call tests
-+ *
-+ * Copyright (c) 2019 IBM Corp
-+ *
-+ * Authors:
-+ *  Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <asm/page.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+#include <sclp.h>
-+
-+#define PGM_NONE	1
-+#define PGM_BIT_SPEC	(1ULL << PGM_INT_CODE_SPECIFICATION)
-+#define PGM_BIT_ADDR	(1ULL << PGM_INT_CODE_ADDRESSING)
-+#define PGM_BIT_PRIV	(1ULL << PGM_INT_CODE_PRIVILEGED_OPERATION)
-+#define MKPTR(x) ((void *)(uint64_t)(x))
-+
-+static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
-+static uint8_t prefix_buf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
-+static uint8_t sccb_template[PAGE_SIZE];
-+static uint32_t valid_code;
-+static struct lowcore *lc;
-+
-+/**
-+ * Enable SCLP interrupt.
-+ */
-+static void sclp_setup_int_test(void)
-+{
-+	uint64_t mask;
-+
-+	ctl_set_bit(0, 9);
-+	mask = extract_psw_mask();
-+	mask |= PSW_MASK_EXT;
-+	load_psw_mask(mask);
-+}
-+
-+/**
-+ * Perform one service call, handling exceptions and interrupts.
-+ */
-+static int sclp_service_call_test(unsigned int command, void *sccb)
-+{
-+	int cc;
-+
-+	sclp_mark_busy();
-+	sclp_setup_int_test();
-+	cc = servc(command, __pa(sccb));
-+	if (lc->pgm_int_code) {
-+		sclp_handle_ext();
-+		return 0;
-+	}
-+	if (!cc)
-+		sclp_wait_busy();
-+	return cc;
-+}
-+
-+/**
-+ * Perform one test at the given address, optionally using the SCCB template,
-+ * checking for the expected program interrupts and return codes.
-+ * Returns 1 in case of success or 0 in case of failure
-+ */
-+static int test_one_sccb(uint32_t cmd, uint8_t *addr, uint16_t len, uint64_t exp_pgm, uint16_t exp_rc)
-+{
-+	SCCBHeader *h = (SCCBHeader *)addr;
-+	int res, pgm;
-+
-+	/* Copy the template to the test address if needed */
-+	if (len)
-+		memcpy(addr, sccb_template, len);
-+	expect_pgm_int();
-+	res = sclp_service_call_test(cmd, h);
-+	if (res) {
-+		report_info("SCLP not ready (command %#x, address %p, cc %d)", cmd, addr, res);
-+		return 0;
-+	}
-+	pgm = clear_pgm_int();
-+	/* Check if the program exception was one of the expected ones */
-+	if (!((1ULL << pgm) & exp_pgm)) {
-+		report_info("First failure at addr %p, size %d, cmd %#x, pgm code %d", addr, len, cmd, pgm);
-+		return 0;
-+	}
-+	/* Check if the response code is the one expected */
-+	if (exp_rc && (exp_rc != h->response_code)) {
-+		report_info("First failure at addr %p, size %d, cmd %#x, resp code %#x",
-+				addr, len, cmd, h->response_code);
-+		return 0;
-+	}
-+	return 1;
-+}
-+
-+/**
-+ * Wrapper for test_one_sccb to set up a simple SCCB template.
-+ * Returns 1 in case of success or 0 in case of failure
-+ */
-+static int test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
-+			uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
-+{
-+	if (buf_len)
-+		memset(sccb_template, 0, sizeof(sccb_template));
-+	((SCCBHeader *)sccb_template)->length = sccb_len;
-+	return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
-+}
-+
-+/**
-+ * Test SCCB lengths < 8.
-+ */
-+static void test_sccb_too_short(void)
-+{
-+	int len;
-+
-+	for (len = 0; len < 8; len++)
-+		if (!test_one_simple(valid_code, pagebuf, len, 8, PGM_BIT_SPEC, 0))
-+			break;
-+
-+	report("SCCB too short", len == 8);
-+}
-+
-+/**
-+ * Test SCCBs that are not 64-bit aligned.
-+ */
-+static void test_sccb_unaligned(void)
-+{
-+	int offset;
-+
-+	for (offset = 1; offset < 8; offset++)
-+		if (!test_one_simple(valid_code, offset + pagebuf, 8, 8, PGM_BIT_SPEC, 0))
-+			break;
-+	report("SCCB unaligned", offset == 8);
-+}
-+
-+/**
-+ * Test SCCBs whose address is in the lowcore or prefix area.
-+ */
-+static void test_sccb_prefix(void)
-+{
-+	uint32_t prefix, new_prefix;
-+	int offset;
-+
-+	/* can't actually trash the lowcore, unsurprisingly things break if we do */
-+	for (offset = 0; offset < 8192; offset += 8)
-+		if (!test_one_sccb(valid_code, MKPTR(offset), 0, PGM_BIT_SPEC, 0))
-+			break;
-+	report("SCCB low pages", offset == 8192);
-+
-+	memcpy(prefix_buf, 0, 8192);
-+	new_prefix = (uint32_t)(intptr_t)prefix_buf;
-+	asm volatile("stpx %0" : "=Q" (prefix));
-+	asm volatile("spx %0" : : "Q" (new_prefix) : "memory");
-+
-+	for (offset = 0; offset < 8192; offset += 8)
-+		if (!test_one_simple(valid_code, MKPTR(new_prefix + offset), 8, 8, PGM_BIT_SPEC, 0))
-+			break;
-+	report("SCCB prefix pages", offset == 8192);
-+
-+	memcpy(prefix_buf, 0, 8192);
-+	asm volatile("spx %0" : : "Q" (prefix) : "memory");
-+}
-+
-+/**
-+ * Test SCCBs that are above 2GB. If outside of memory, an addressing
-+ * exception is also allowed.
-+ */
-+static void test_sccb_high(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	uintptr_t a[33 * 4 * 2 + 2];
-+	uint64_t maxram;
-+	int i, pgm, len = 0;
-+
-+	h->length = 8;
-+
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 1UL << (i + 31);
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 3UL << (i + 31);
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 0xffffffff80000000UL << i;
-+	a[len++] = 0x80000000;
-+	for (i = 1; i < 33; i++, len++)
-+		a[len] = a[len - 1] | (1UL << (i + 31));
-+	for (i = 0; i < len; i++)
-+		a[len + i] = a[i] + (intptr_t)h;
-+	len += i;
-+	a[len++] = 0xdeadbeef00000000;
-+	a[len++] = 0xdeaddeadbeef0000;
-+
-+	maxram = get_ram_size();
-+	for (i = 0; i < len; i++) {
-+		pgm = PGM_BIT_SPEC | (a[i] >= maxram ? PGM_BIT_ADDR : 0);
-+		if (!test_one_sccb(valid_code, (void *)a[i], 0, pgm, 0))
-+			break;
-+	}
-+	report("SCCB high addresses", i == len);
-+}
-+
-+/**
-+ * Test invalid commands, both invalid command detail codes and valid
-+ * ones with invalid command class code.
-+ */
-+static void test_inval(void)
-+{
-+	const uint16_t res = SCLP_RC_INVALID_SCLP_COMMAND;
-+	uint32_t cmd;
-+	int i;
-+
-+	report_prefix_push("Invalid command");
-+	for (i = 0; i < 65536; i++) {
-+		cmd = (0xdead0000) | i;
-+		if (!test_one_simple(cmd, pagebuf, PAGE_SIZE, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report("Command detail code", i == 65536);
-+
-+	for (i = 0; i < 256; i++) {
-+		cmd = (valid_code & ~0xff) | i;
-+		if (cmd == valid_code)
-+			continue;
-+		if (!test_one_simple(cmd, pagebuf, PAGE_SIZE, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report("Command class code", i == 256);
-+	report_prefix_pop();
-+}
-+
-+
-+/**
-+ * Test short SCCBs (but larger than 8).
-+ */
-+static void test_short(void)
-+{
-+	const uint16_t res = SCLP_RC_INSUFFICIENT_SCCB_LENGTH;
-+	int i;
-+
-+	for (i = 8; i < 144; i++)
-+		if (!test_one_simple(valid_code, pagebuf, i, i, PGM_NONE, res))
-+			break;
-+	report("Insufficient SCCB length (Read SCP info)", i == 144);
-+
-+	for (i = 8; i < 40; i++)
-+		if (!test_one_simple(SCLP_READ_CPU_INFO, pagebuf, i, i, PGM_NONE, res))
-+			break;
-+	report("Insufficient SCCB length (Read CPU info)", i == 40);
-+}
-+
-+/**
-+ * Test SCCB page boundary violations.
-+ */
-+static void test_boundary(void)
-+{
-+	const uint32_t cmd = SCLP_CMD_WRITE_EVENT_DATA;
-+	const uint16_t res = SCLP_RC_SCCB_BOUNDARY_VIOLATION;
-+	WriteEventData *sccb = (WriteEventData *)sccb_template;
-+	int len, i;
-+
-+	memset(sccb_template, 0, sizeof(sccb_template));
-+	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
-+	for (len = 32; len <= 4096; len++) {
-+		i = len & 7 ? len & ~7 : len - 8;
-+		for (i = 4096 - i; i < 4096; i += 8) {
-+			sccb->h.length = len;
-+			if (!test_one_sccb(cmd, i + pagebuf, len, PGM_NONE, res))
-+				goto out;
-+		}
-+	}
-+out:
-+	report("SCCB page boundary violation", len > 4096 && i == 4096);
-+}
-+
-+/**
-+ * Test excessively long SCCBs.
-+ */
-+static void test_toolong(void)
-+{
-+	const uint32_t cmd = SCLP_CMD_WRITE_EVENT_DATA;
-+	const uint16_t res = SCLP_RC_SCCB_BOUNDARY_VIOLATION;
-+	WriteEventData *sccb = (WriteEventData *)sccb_template;
-+	int i;
-+
-+	memset(sccb_template, 0, sizeof(sccb_template));
-+	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
-+	for (i = 4097; i < 8192; i++) {
-+		sccb->h.length = i;
-+		if (!test_one_sccb(cmd, pagebuf, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report("SCCB bigger than 4k", i == 8192);
-+}
-+
-+/**
-+ * Test privileged operation.
-+ */
-+static void test_priv(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+
-+	report_prefix_push("Privileged operation");
-+	h->length = 8;
-+	expect_pgm_int();
-+	enter_pstate();
-+	servc(valid_code, __pa(h));
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+}
-+
-+/**
-+ * Test addressing exceptions. We need to test SCCB addresses between the
-+ * end of available memory and 2GB, because after 2GB a specification
-+ * exception is also allowed.
-+ * Only applicable if the VM has less than 2GB of memory
-+ */
-+static void test_addressing(void)
-+{
-+	unsigned long i, maxram = get_ram_size();
-+
-+	if (maxram >= 0x80000000) {
-+		report_skip("Invalid SCCB address");
-+		return;
-+	}
-+	for (i = maxram; i < MIN(maxram + 65536, 0x80000000); i += 8)
-+		if (!test_one_sccb(valid_code, (void *)i, 0, PGM_BIT_ADDR, 0))
-+			goto out;
-+	for (; i < MIN((maxram + 0x7fffff) & ~0xfffff, 0x80000000); i += 4096)
-+		if (!test_one_sccb(valid_code, (void *)i, 0, PGM_BIT_ADDR, 0))
-+			goto out;
-+	for (; i < 0x80000000; i += 1048576)
-+		if (!test_one_sccb(valid_code, (void *)i, 0, PGM_BIT_ADDR, 0))
-+			goto out;
-+out:
-+	report("Invalid SCCB address", i == 0x80000000);
-+}
-+
-+/**
-+ * Test some bits in the instruction format that are specified to be ignored.
-+ */
-+static void test_instbits(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	int cc;
-+
-+	expect_pgm_int();
-+	sclp_mark_busy();
-+	h->length = 8;
-+	sclp_setup_int_test();
-+
-+	asm volatile(
-+		"       .insn   rre,0xb2204200,%1,%2\n"  /* servc %1,%2 */
-+		"       ipm     %0\n"
-+		"       srl     %0,28"
-+		: "=&d" (cc) : "d" (valid_code), "a" (__pa(pagebuf))
-+		: "cc", "memory");
-+	if (lc->pgm_int_code) {
-+		sclp_handle_ext();
-+		cc = 1;
-+	} else if (!cc)
-+		sclp_wait_busy();
-+	report("Instruction format ignored bits", cc == 0);
-+}
-+
-+/**
-+ * Find a valid SCLP command code; not all codes are always allowed, and
-+ * probing should be performed in the right order.
-+ */
-+static void find_valid_sclp_code(void)
-+{
-+	const unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
-+					  SCLP_CMDW_READ_SCP_INFO };
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	int i, cc;
-+
-+	for (i = 0; i < ARRAY_SIZE(commands); i++) {
-+		sclp_mark_busy();
-+		memset(h, 0, sizeof(*h));
-+		h->length = 4096;
-+
-+		valid_code = commands[i];
-+		cc = sclp_service_call(commands[i], h);
-+		if (cc)
-+			break;
-+		if (h->response_code == SCLP_RC_NORMAL_READ_COMPLETION)
-+			return;
-+		if (h->response_code != SCLP_RC_INVALID_SCLP_COMMAND)
-+			break;
-+	}
-+	valid_code = 0;
-+	report_abort("READ_SCP_INFO failed");
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sclp");
-+	find_valid_sclp_code();
-+
-+	/* Test some basic things */
-+	test_instbits();
-+	test_priv();
-+	test_addressing();
-+
-+	/* Test the specification exceptions */
-+	test_sccb_too_short();
-+	test_sccb_unaligned();
-+	test_sccb_prefix();
-+	test_sccb_high();
-+
-+	/* Test the expected response codes */
-+	test_inval();
-+	test_short();
-+	test_boundary();
-+	test_toolong();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index f1b07cd..75e3d37 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -75,3 +75,6 @@ file = stsi.elf
- [smp]
- file = smp.elf
- extra_params =-smp 2
-+
-+[sclp]
-+file = sclp.elf
--- 
-2.7.4
+> -----Original Message-----
+> From: kvm-owner@vger.kernel.org <kvm-owner@vger.kernel.org> On Behalf
+> Of Jason Wang
+> Sent: Wednesday, October 30, 2019 1:45 AM
+> To: kvm@vger.kernel.org; linux-s390@vger.kernel.org; linux-
+> kernel@vger.kernel.org; dri-devel@lists.freedesktop.org; intel-
+> gfx@lists.freedesktop.org; intel-gvt-dev@lists.freedesktop.org;
+> kwankhede@nvidia.com; alex.williamson@redhat.com; mst@redhat.com;
+> tiwei.bie@intel.com
+> Cc: virtualization@lists.linux-foundation.org; netdev@vger.kernel.org;
+> cohuck@redhat.com; maxime.coquelin@redhat.com;
+> cunming.liang@intel.com; zhihong.wang@intel.com;
+> rob.miller@broadcom.com; xiao.w.wang@intel.com;
+> haotian.wang@sifive.com; zhenyuw@linux.intel.com; zhi.a.wang@intel.com;
+> jani.nikula@linux.intel.com; joonas.lahtinen@linux.intel.com;
+> rodrigo.vivi@intel.com; airlied@linux.ie; daniel@ffwll.ch;
+> farman@linux.ibm.com; pasic@linux.ibm.com; sebott@linux.ibm.com;
+> oberpar@linux.ibm.com; heiko.carstens@de.ibm.com; gor@linux.ibm.com;
+> borntraeger@de.ibm.com; akrowiak@linux.ibm.com; freude@linux.ibm.com;
+> lingshan.zhu@intel.com; Ido Shamay <idos@mellanox.com>;
+> eperezma@redhat.com; lulu@redhat.com; Parav Pandit
+> <parav@mellanox.com>; christophe.de.dinechin@gmail.com;
+> kevin.tian@intel.com; stefanha@redhat.com; Jason Wang
+> <jasowang@redhat.com>
+> Subject: [PATCH V6 1/6] mdev: class id support
+>=20
+> Mdev bus only supports vfio driver right now, so it doesn't implement mat=
+ch
+> method. But in the future, we may add drivers other than vfio, the first =
+driver
+> could be virtio-mdev. This means we need to add device class id support i=
+n bus
+> match method to pair the mdev device and mdev driver correctly.
+>=20
+> So this patch adds id_table to mdev_driver and class_id for mdev device w=
+ith
+> the match method for mdev bus.
+>=20
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  .../driver-api/vfio-mediated-device.rst       |  5 ++++
+>  drivers/gpu/drm/i915/gvt/kvmgt.c              |  1 +
+>  drivers/s390/cio/vfio_ccw_ops.c               |  1 +
+>  drivers/s390/crypto/vfio_ap_ops.c             |  1 +
+>  drivers/vfio/mdev/mdev_core.c                 | 16 ++++++++++++
+>  drivers/vfio/mdev/mdev_driver.c               | 25 +++++++++++++++++++
+>  drivers/vfio/mdev/mdev_private.h              |  1 +
+>  drivers/vfio/mdev/vfio_mdev.c                 |  6 +++++
+>  include/linux/mdev.h                          |  8 ++++++
+>  include/linux/mod_devicetable.h               |  8 ++++++
+>  samples/vfio-mdev/mbochs.c                    |  1 +
+>  samples/vfio-mdev/mdpy.c                      |  1 +
+>  samples/vfio-mdev/mtty.c                      |  1 +
+>  13 files changed, 75 insertions(+)
+>=20
+> diff --git a/Documentation/driver-api/vfio-mediated-device.rst
+> b/Documentation/driver-api/vfio-mediated-device.rst
+> index 25eb7d5b834b..6709413bee29 100644
+> --- a/Documentation/driver-api/vfio-mediated-device.rst
+> +++ b/Documentation/driver-api/vfio-mediated-device.rst
+> @@ -102,12 +102,14 @@ structure to represent a mediated device's driver::
+>        * @probe: called when new device created
+>        * @remove: called when device removed
+>        * @driver: device driver structure
+> +      * @id_table: the ids serviced by this driver
+>        */
+>       struct mdev_driver {
+>  	     const char *name;
+>  	     int  (*probe)  (struct device *dev);
+>  	     void (*remove) (struct device *dev);
+>  	     struct device_driver    driver;
+> +	     const struct mdev_class_id *id_table;
+>       };
+>=20
+>  A mediated bus driver for mdev should use this structure in the function=
+ calls
+> @@ -170,6 +172,9 @@ that a driver should use to unregister itself with th=
+e
+> mdev core driver::
+>=20
+>  	extern void mdev_unregister_device(struct device *dev);
+>=20
+> +It is also required to specify the class_id in create() callback through=
+::
+> +
+> +	int mdev_set_class(struct mdev_device *mdev, u16 id);
+>=20
+>  Mediated Device Management Interface Through sysfs
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> index 343d79c1cb7e..6420f0dbd31b 100644
+> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
+> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+> @@ -678,6 +678,7 @@ static int intel_vgpu_create(struct kobject *kobj, st=
+ruct
+> mdev_device *mdev)
+>  		     dev_name(mdev_dev(mdev)));
+>  	ret =3D 0;
+>=20
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  out:
+>  	return ret;
+>  }
+> diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_=
+ops.c
+> index f0d71ab77c50..cf2c013ae32f 100644
+> --- a/drivers/s390/cio/vfio_ccw_ops.c
+> +++ b/drivers/s390/cio/vfio_ccw_ops.c
+> @@ -129,6 +129,7 @@ static int vfio_ccw_mdev_create(struct kobject *kobj,
+> struct mdev_device *mdev)
+>  			   private->sch->schid.ssid,
+>  			   private->sch->schid.sch_no);
+>=20
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  	return 0;
+>  }
+>=20
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
+> b/drivers/s390/crypto/vfio_ap_ops.c
+> index 5c0f53c6dde7..07c31070afeb 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -343,6 +343,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj,
+> struct mdev_device *mdev)
+>  	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+>  	mutex_unlock(&matrix_dev->lock);
+>=20
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  	return 0;
+>  }
+>=20
+> diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.=
+c
+> index b558d4cfd082..d23ca39e3be6 100644
+> --- a/drivers/vfio/mdev/mdev_core.c
+> +++ b/drivers/vfio/mdev/mdev_core.c
+> @@ -45,6 +45,16 @@ void mdev_set_drvdata(struct mdev_device *mdev, void
+> *data)  }  EXPORT_SYMBOL(mdev_set_drvdata);
+>=20
+> +/* Specify the class for the mdev device, this must be called during
+> + * create() callback.
+> + */
+> +void mdev_set_class(struct mdev_device *mdev, u16 id) {
+> +	WARN_ON(mdev->class_id);
+> +	mdev->class_id =3D id;
+> +}
+> +EXPORT_SYMBOL(mdev_set_class);
+> +
+>  struct device *mdev_dev(struct mdev_device *mdev)  {
+>  	return &mdev->dev;
+> @@ -324,6 +334,12 @@ int mdev_device_create(struct kobject *kobj,
+>  	if (ret)
+>  		goto ops_create_fail;
+>=20
+> +	if (!mdev->class_id) {
+> +		ret =3D -EINVAL;
+> +		dev_warn(dev, "mdev vendor driver failed to specify device
+> class\n");
+> +		goto add_fail;
+> +	}
+> +
+>  	ret =3D device_add(&mdev->dev);
+>  	if (ret)
+>  		goto add_fail;
+> diff --git a/drivers/vfio/mdev/mdev_driver.c
+> b/drivers/vfio/mdev/mdev_driver.c index 0d3223aee20b..ed06433693e8
+> 100644
+> --- a/drivers/vfio/mdev/mdev_driver.c
+> +++ b/drivers/vfio/mdev/mdev_driver.c
+> @@ -69,8 +69,33 @@ static int mdev_remove(struct device *dev)
+>  	return 0;
+>  }
+>=20
+> +static int mdev_match(struct device *dev, struct device_driver *drv) {
+> +	unsigned int i;
+> +	struct mdev_device *mdev =3D to_mdev_device(dev);
+> +	struct mdev_driver *mdrv =3D to_mdev_driver(drv);
+> +	const struct mdev_class_id *ids =3D mdrv->id_table;
+> +
+> +	if (!ids)
+> +		return 0;
+> +
+> +	for (i =3D 0; ids[i].id; i++)
+> +		if (ids[i].id =3D=3D mdev->class_id)
+> +			return 1;
+> +	return 0;
+> +}
+> +
+> +static int mdev_uevent(struct device *dev, struct kobj_uevent_env *env)
+> +{
+> +	struct mdev_device *mdev =3D to_mdev_device(dev);
+> +
+> +	return add_uevent_var(env, "MODALIAS=3Dmdev:c%02X", mdev-
+> >class_id); }
+> +
+>  struct bus_type mdev_bus_type =3D {
+>  	.name		=3D "mdev",
+> +	.match		=3D mdev_match,
+> +	.uevent		=3D mdev_uevent,
+>  	.probe		=3D mdev_probe,
+>  	.remove		=3D mdev_remove,
+>  };
+> diff --git a/drivers/vfio/mdev/mdev_private.h
+> b/drivers/vfio/mdev/mdev_private.h
+> index 7d922950caaf..c65f436c1869 100644
+> --- a/drivers/vfio/mdev/mdev_private.h
+> +++ b/drivers/vfio/mdev/mdev_private.h
+> @@ -33,6 +33,7 @@ struct mdev_device {
+>  	struct kobject *type_kobj;
+>  	struct device *iommu_device;
+>  	bool active;
+> +	u16 class_id;
+>  };
+>=20
+>  #define to_mdev_device(dev)	container_of(dev, struct mdev_device, dev)
+> diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.=
+c
+> index 30964a4e0a28..38431e9ef7f5 100644
+> --- a/drivers/vfio/mdev/vfio_mdev.c
+> +++ b/drivers/vfio/mdev/vfio_mdev.c
+> @@ -120,10 +120,16 @@ static void vfio_mdev_remove(struct device *dev)
+>  	vfio_del_group_dev(dev);
+>  }
+>=20
+> +static const struct mdev_class_id vfio_id_table[] =3D {
+> +	{ MDEV_CLASS_ID_VFIO },
+> +	{ 0 },
+> +};
+> +
+>  static struct mdev_driver vfio_mdev_driver =3D {
+>  	.name	=3D "vfio_mdev",
+>  	.probe	=3D vfio_mdev_probe,
+>  	.remove	=3D vfio_mdev_remove,
+> +	.id_table =3D vfio_id_table,
+>  };
+>=20
+>  static int __init vfio_mdev_init(void)
+> diff --git a/include/linux/mdev.h b/include/linux/mdev.h index
+> 0ce30ca78db0..78b69d09eb54 100644
+> --- a/include/linux/mdev.h
+> +++ b/include/linux/mdev.h
+> @@ -118,6 +118,7 @@ struct mdev_type_attribute mdev_type_attr_##_name
+> =3D		\
+>   * @probe: called when new device created
+>   * @remove: called when device removed
+>   * @driver: device driver structure
+> + * @id_table: the ids serviced by this driver
+>   *
+>   **/
+>  struct mdev_driver {
+> @@ -125,6 +126,7 @@ struct mdev_driver {
+>  	int  (*probe)(struct device *dev);
+>  	void (*remove)(struct device *dev);
+>  	struct device_driver driver;
+> +	const struct mdev_class_id *id_table;
+>  };
+>=20
+>  #define to_mdev_driver(drv)	container_of(drv, struct mdev_driver, driver=
+)
+> @@ -132,6 +134,7 @@ struct mdev_driver {  void *mdev_get_drvdata(struct
+> mdev_device *mdev);  void mdev_set_drvdata(struct mdev_device *mdev, void
+> *data);  const guid_t *mdev_uuid(struct mdev_device *mdev);
+> +void mdev_set_class(struct mdev_device *mdev, u16 id);
+>=20
+>  extern struct bus_type mdev_bus_type;
+>=20
+> @@ -145,4 +148,9 @@ struct device *mdev_parent_dev(struct mdev_device
+> *mdev);  struct device *mdev_dev(struct mdev_device *mdev);  struct
+> mdev_device *mdev_from_dev(struct device *dev);
+>=20
+> +enum {
+> +	MDEV_CLASS_ID_VFIO =3D 1,
+> +	/* New entries must be added here */
+> +};
+> +
+>  #endif /* MDEV_H */
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_deviceta=
+ble.h
+> index 5714fd35a83c..f32c6e44fb1a 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -821,4 +821,12 @@ struct wmi_device_id {
+>  	const void *context;
+>  };
+>=20
+> +/**
+> + * struct mdev_class_id - MDEV device class identifier
+> + * @id: Used to identify a specific class of device, e.g vfio-mdev devic=
+e.
+> + */
+> +struct mdev_class_id {
+> +	__u16 id;
+> +};
+> +
+>  #endif /* LINUX_MOD_DEVICETABLE_H */
+> diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c inde=
+x
+> ac5c8c17b1ff..115bc5074656 100644
+> --- a/samples/vfio-mdev/mbochs.c
+> +++ b/samples/vfio-mdev/mbochs.c
+> @@ -561,6 +561,7 @@ static int mbochs_create(struct kobject *kobj, struct
+> mdev_device *mdev)
+>  	mbochs_reset(mdev);
+>=20
+>  	mbochs_used_mbytes +=3D type->mbytes;
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  	return 0;
+>=20
+>  err_mem:
+> diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c index
+> cc86bf6566e4..665614574d50 100644
+> --- a/samples/vfio-mdev/mdpy.c
+> +++ b/samples/vfio-mdev/mdpy.c
+> @@ -269,6 +269,7 @@ static int mdpy_create(struct kobject *kobj, struct
+> mdev_device *mdev)
+>  	mdpy_reset(mdev);
+>=20
+>  	mdpy_count++;
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  	return 0;
+>  }
+>=20
+> diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c index
+> ce84a300a4da..90da12ff7fd9 100644
+> --- a/samples/vfio-mdev/mtty.c
+> +++ b/samples/vfio-mdev/mtty.c
+> @@ -755,6 +755,7 @@ static int mtty_create(struct kobject *kobj, struct
+> mdev_device *mdev)
+>  	list_add(&mdev_state->next, &mdev_devices_list);
+>  	mutex_unlock(&mdev_list_lock);
+>=20
+> +	mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+>  	return 0;
+>  }
+>=20
+> --
+> 2.19.1
+Reviewed-by: Parav Pandit <parav@mellanox.com>
