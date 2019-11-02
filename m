@@ -1,94 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:39129 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727322AbfKDKTM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 05:19:12 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32742 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727458AbfKBIxJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 Nov 2019 04:53:09 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA28WvuF077447
+        for <linux-s390@vger.kernel.org>; Sat, 2 Nov 2019 04:53:08 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w16b70jkt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Sat, 02 Nov 2019 04:53:08 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Sat, 2 Nov 2019 08:53:06 -0000
 Subject: Re: [RFC 09/37] KVM: s390: protvirt: Implement on-demand pinning
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
  <20191024114059.102802-10-frankja@linux.ibm.com>
- <b76ae1ca-d211-d1c7-63d9-9b45c789f261@redhat.com>
- <7465141c-27b7-a89e-f02d-ab05cdd8505d@de.ibm.com>
- <4abdc1dc-884e-a819-2e9d-2b8b15030394@redhat.com>
- <2a7c4644-d718-420a-9bd7-723baccfb302@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <84bd87f0-37bf-caa8-5762-d8da58f37a8f@redhat.com>
-Date: Mon, 4 Nov 2019 11:19:00 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Sat, 2 Nov 2019 09:53:01 +0100
 MIME-Version: 1.0
-In-Reply-To: <2a7c4644-d718-420a-9bd7-723baccfb302@linux.ibm.com>
+In-Reply-To: <20191024114059.102802-10-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Message-Id: <6ff87f0a-6fad-797f-dc12-e6031933d74a@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
->>> to synchronize page import/export with the I/O for paging. For example =
-you can actually
->>> fault in a page that is currently under paging I/O. What do you do? imp=
-ort (so that the
->>> guest can run) or export (so that the I/O will work). As this turned ou=
-t to be harder then
->>> we though we decided to defer paging to a later point in time.
->>
->> I don't quite see the issue yet. If you page out, the page will
->> automatically (on access) be converted to !secure/encrypted memory. If
->> the UV/guest wants to access it, it will be automatically converted to
->> secure/unencrypted memory. If you have concurrent access, it will be
->> converted back and forth until one party is done.
->=20
-> IO does not trigger an export on an imported page, but an error
-> condition in the IO subsystem. The page code does not read pages through
 
-Ah, that makes it much clearer. Thanks!
 
-> the cpu, but often just asks the device to read directly and that's
-> where everything goes wrong. We could bounce swapping, but chose to pin
-> for now until we find a proper solution to that problem which nicely
-> integrates into linux.
+On 24.10.19 13:40, Janosch Frank wrote:
+> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> 
+> Pin the guest pages when they are first accessed, instead of all at
+> the same time when starting the guest.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+[...]
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 80aecd5bea9e..383e660e2221 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -15,8 +15,35 @@
+>  #include <asm/mman.h>
+>  #include "kvm-s390.h"
+>  
+> +static void unpin_destroy(struct page **pages, int nr)
+> +{
+> +	int i;
+> +	struct page *page;
+> +	u8 *val;
+> +
+> +	for (i = 0; i < nr; i++) {
+> +		page = pages[i];
+> +		if (!page)	/* page was never used */
+> +			continue;
+> +		val = (void *)page_to_phys(page);
 
-How hard would it be to
+Why dont we call the convert from secure directly here to avoid the fault overhead?
 
-1. Detect the error condition
-2. Try a read on the affected page from the CPU (will will automatically=20
-convert to encrypted/!secure)
-3. Restart the I/O
+> +		READ_ONCE(*val);
+> +		put_page(page);
 
-I assume that this is a corner case where we don't really have to care=20
-about performance in the first shot.
+as we also do the export here (via implicit reading that page) this can take a while.
+I think we must add a cond_resched here. 
 
->=20
->>
->> A proper automatic conversion should make this work. What am I missing?
->>
->>>
->>> As we do not want to rely on the userspace to do the mlock this is now =
-done in the kernel.
->>
->> I wonder if we could come up with an alternative (similar to how we
->> override VM_MERGEABLE in the kernel) that can be called and ensured in
->> the kernel. E.g., marking whole VMAs as "don't page" (I remember
->> something like "special VMAs" like used for VDSOs that achieve exactly
->> that, but I am absolutely no expert on that). That would be much nicer
->> than pinning all pages and remembering what you pinned in huge page
->> arrays ...
->=20
-> It might be more worthwhile to just accept one or two releases with
-> pinning and fix the root of the problem than design a nice stopgap.
+> +	}
+> +}
+> +
 
-Quite honestly, to me this feels like a prototype hack that deserves a=20
-proper solution first. The issue with this hack is that it affects user=20
-space (esp. MADV_DONTNEED no longer working correctly). It's not just=20
-something you once fix in the kernel and be done with it.
->=20
-> Btw. s390 is not alone with the problem and we'll try to have another
-> discussion tomorrow with AMD to find a solution which works for more
-> than one architecture.
+[...]
+> -
+>  	mutex_unlock(&kvm->slots_lock);
+> +
+> +	kvm->arch.gmap->pinned_pages = vzalloc(npages * sizeof(struct page *));
+> +	if (!kvm->arch.gmap->pinned_pages)
+> +		goto out_err;
+>  	kvm->arch.pv.guest_len = npages * PAGE_SIZE;
+>  
+>  	/* Allocate variable storage */
+>  	vlen = ALIGN(virt * ((npages * PAGE_SIZE) / HPAGE_SIZE), PAGE_SIZE);
+>  	vlen += uv_info.guest_virt_base_stor_len;
+>  	kvm->arch.pv.stor_var = vzalloc(vlen);
+> -	if (!kvm->arch.pv.stor_var) {
+> -		kvm_s390_pv_dealloc_vm(kvm);
+> -		return -ENOMEM;
+> -	}
+> +	if (!kvm->arch.pv.stor_var)
+> +		goto out_err;
+>  	return 0;
+> +
+> +out_err:
+> +	kvm_s390_pv_dealloc_vm(kvm);
+> +	return -ENOMEM;
+>  }
+>  
+>  int kvm_s390_pv_destroy_vm(struct kvm *kvm)
+> @@ -216,6 +246,11 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
+>  	for (i = 0; i < size / PAGE_SIZE; i++) {
+>  		uvcb.gaddr = addr + i * PAGE_SIZE;
+>  		uvcb.tweak[1] = i * PAGE_SIZE;
+> +		down_read(&kvm->mm->mmap_sem);
+> +		rc = kvm_s390_pv_pin_page(kvm->arch.gmap, uvcb.gaddr);
+> +		up_read(&kvm->mm->mmap_sem);
 
-Let me know if there was an interesting outcome.
+Here we should also have a cond_resched();
 
---=20
-
-Thanks,
-
-David / dhildenb
+> +		if (rc && (rc != -EEXIST))
+> +			break;
+>  retry:
+>  		rc = uv_call(0, (u64)&uvcb);
+>  		if (!rc)
+> 
