@@ -1,28 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:59613 "EHLO verein.lst.de"
+Received: from mail.skyhub.de ([5.9.137.197]:48792 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726949AbfKGUrs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 7 Nov 2019 15:47:48 -0500
-Date: Thu, 7 Nov 2019 21:47:43 +0100
-From: Christoph Hellwig <hch@lst.de>
-Subject: generic-iomap tree for linux-next
-Message-ID: <20191107204743.GA22863@lst.de>
-References: <20191029064834.23438-1-hch@lst.de>
+        id S1726100AbfKDI70 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 4 Nov 2019 03:59:26 -0500
+Date: Mon, 4 Nov 2019 09:59:18 +0100
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v2 01/29] powerpc: Rename "notes" PT_NOTE to "note"
+Message-ID: <20191104085918.GA7862@zn.tnic>
+References: <20191011000609.29728-1-keescook@chromium.org>
+ <20191011000609.29728-2-keescook@chromium.org>
+ <20191011082519.GI9749@gate.crashing.org>
+ <201910110910.48270FC97@keescook>
+ <20191011162552.GK9749@gate.crashing.org>
+ <20191015165412.GD596@zn.tnic>
+ <201910291414.F29F738B7@keescook>
+ <20191030010117.GJ28442@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20191029064834.23438-1-hch@lst.de>
+In-Reply-To: <20191030010117.GJ28442@gate.crashing.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Kees Cook <keescook@chromium.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Michal Simek <monstr@monstr.eu>, x86@kernel.org, linux-ia64@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-xtensa@linux-xtensa.org, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linuxppc-dev@lists.ozlabs.org, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-parisc@vger.kernel.org, Andy Lutomirski <luto@kernel.org>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, Rick Edgecombe <rick.p.edgecombe@intel.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org
 
-Hi Stephen,
+On Tue, Oct 29, 2019 at 08:01:17PM -0500, Segher Boessenkool wrote:
+> I am still not convinced the worse name is a better name, no :-)  But if
+> you don't want to do the work, and instead prefer the much smaller change,
+> that is of course a fine decision.  Thank you!
+>
+> (I would be happy with such a 30/29 as well, of course.)
 
-can you add the generic-ioremap tree:
+Ok, thanks.
 
-   git://git.infradead.org/users/hch/ioremap.git
+I'll start picking up the pile and the renaming patch can then go ontop.
 
-to linux-next? 
+-- 
+Regards/Gruss,
+    Boris.
 
-Thanks!
+https://people.kernel.org/tglx/notes-about-netiquette
