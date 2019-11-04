@@ -1,99 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23011 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727607AbfKDKAv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 05:00:51 -0500
-Subject: Re: [kvm-unit-tests PATCH] s390x: Use loop to save and restore fprs
-References: <20191104085533.2892-1-frankja@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <284994ac-6d9d-d5b5-5030-2c612f74bf42@redhat.com>
-Date: Mon, 4 Nov 2019 11:00:41 +0100
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8912 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726100AbfKDI45 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 03:56:57 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA48uE4A074562
+        for <linux-s390@vger.kernel.org>; Mon, 4 Nov 2019 03:56:54 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w2dk56hve-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 04 Nov 2019 03:56:35 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 4 Nov 2019 08:54:44 -0000
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH] s390x: Use loop to save and restore fprs
+Date: Mon,  4 Nov 2019 03:55:33 -0500
 MIME-Version: 1.0
-In-Reply-To: <20191104085533.2892-1-frankja@linux.ibm.com>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191104085533.2892-1-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, pmorel@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, pmorel@linux.ibm.com
 
-On 04.11.19 09:55, Janosch Frank wrote:
-> Let's save some lines in the assembly by using a loop to save and
-> restore the fprs.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   s390x/cstart64.S | 38 ++++++--------------------------------
->   1 file changed, 6 insertions(+), 32 deletions(-)
->=20
-> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index 5dc1577..8e2b21e 100644
-> --- a/s390x/cstart64.S
-> +++ b/s390x/cstart64.S
-> @@ -99,44 +99,18 @@ memsetxc:
->   =09lctlg=09%c0, %c0, 0(%r1)
->   =09/* save fprs 0-15 + fpc */
->   =09la=09%r1, GEN_LC_SW_INT_FPRS
-> -=09std=09%f0, 0(%r1)
-> -=09std=09%f1, 8(%r1)
-> -=09std=09%f2, 16(%r1)
-> -=09std=09%f3, 24(%r1)
-> -=09std=09%f4, 32(%r1)
-> -=09std=09%f5, 40(%r1)
-> -=09std=09%f6, 48(%r1)
-> -=09std=09%f7, 56(%r1)
-> -=09std=09%f8, 64(%r1)
-> -=09std=09%f9, 72(%r1)
-> -=09std=09%f10, 80(%r1)
-> -=09std=09%f11, 88(%r1)
-> -=09std=09%f12, 96(%r1)
-> -=09std=09%f13, 104(%r1)
-> -=09std=09%f14, 112(%r1)
-> -=09std=09%f15, 120(%r1)
-> +=09.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-> +=09std=09\i, \i * 8(%r1)
-> +=09.endr
->   =09stfpc=09GEN_LC_SW_INT_FPC
->   =09.endm
->  =20
->   =09.macro RESTORE_REGS
->   =09/* restore fprs 0-15 + fpc */
->   =09la=09%r1, GEN_LC_SW_INT_FPRS
-> -=09ld=09%f0, 0(%r1)
-> -=09ld=09%f1, 8(%r1)
-> -=09ld=09%f2, 16(%r1)
-> -=09ld=09%f3, 24(%r1)
-> -=09ld=09%f4, 32(%r1)
-> -=09ld=09%f5, 40(%r1)
-> -=09ld=09%f6, 48(%r1)
-> -=09ld=09%f7, 56(%r1)
-> -=09ld=09%f8, 64(%r1)
-> -=09ld=09%f9, 72(%r1)
-> -=09ld=09%f10, 80(%r1)
-> -=09ld=09%f11, 88(%r1)
-> -=09ld=09%f12, 96(%r1)
-> -=09ld=09%f13, 104(%r1)
-> -=09ld=09%f14, 112(%r1)
-> -=09ld=09%f15, 120(%r1)
-> +=09.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-> +=09ld=09\i, \i * 8(%r1)
-> +=09.endr
->   =09lfpc=09GEN_LC_SW_INT_FPC
->   =09/* restore cr0 */
->   =09lctlg=09%c0, %c0, GEN_LC_SW_INT_CR0
->=20
+Let's save some lines in the assembly by using a loop to save and
+restore the fprs.
 
-Looks good to me!
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ s390x/cstart64.S | 38 ++++++--------------------------------
+ 1 file changed, 6 insertions(+), 32 deletions(-)
 
-Queued to
-
-https://github.com/davidhildenbrand/kvm-unit-tests.git s390x-next
-
-For now, but waiting for more review.
-
---=20
-
-Thanks,
-
-David / dhildenb
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index 5dc1577..8e2b21e 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -99,44 +99,18 @@ memsetxc:
+ 	lctlg	%c0, %c0, 0(%r1)
+ 	/* save fprs 0-15 + fpc */
+ 	la	%r1, GEN_LC_SW_INT_FPRS
+-	std	%f0, 0(%r1)
+-	std	%f1, 8(%r1)
+-	std	%f2, 16(%r1)
+-	std	%f3, 24(%r1)
+-	std	%f4, 32(%r1)
+-	std	%f5, 40(%r1)
+-	std	%f6, 48(%r1)
+-	std	%f7, 56(%r1)
+-	std	%f8, 64(%r1)
+-	std	%f9, 72(%r1)
+-	std	%f10, 80(%r1)
+-	std	%f11, 88(%r1)
+-	std	%f12, 96(%r1)
+-	std	%f13, 104(%r1)
+-	std	%f14, 112(%r1)
+-	std	%f15, 120(%r1)
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r1)
++	.endr
+ 	stfpc	GEN_LC_SW_INT_FPC
+ 	.endm
+ 
+ 	.macro RESTORE_REGS
+ 	/* restore fprs 0-15 + fpc */
+ 	la	%r1, GEN_LC_SW_INT_FPRS
+-	ld	%f0, 0(%r1)
+-	ld	%f1, 8(%r1)
+-	ld	%f2, 16(%r1)
+-	ld	%f3, 24(%r1)
+-	ld	%f4, 32(%r1)
+-	ld	%f5, 40(%r1)
+-	ld	%f6, 48(%r1)
+-	ld	%f7, 56(%r1)
+-	ld	%f8, 64(%r1)
+-	ld	%f9, 72(%r1)
+-	ld	%f10, 80(%r1)
+-	ld	%f11, 88(%r1)
+-	ld	%f12, 96(%r1)
+-	ld	%f13, 104(%r1)
+-	ld	%f14, 112(%r1)
+-	ld	%f15, 120(%r1)
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r1)
++	.endr
+ 	lfpc	GEN_LC_SW_INT_FPC
+ 	/* restore cr0 */
+ 	lctlg	%c0, %c0, GEN_LC_SW_INT_CR0
+-- 
+2.20.1
