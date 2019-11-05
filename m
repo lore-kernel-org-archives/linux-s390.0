@@ -1,138 +1,178 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-201.mailbox.org ([80.241.56.171]:9426 "EHLO
-        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730533AbfKEJIf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:08:35 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v15 5/9] namei: LOOKUP_IN_ROOT: chroot-like scoped resolution
-Date: Tue,  5 Nov 2019 20:05:49 +1100
-Message-Id: <20191105090553.6350-6-cyphar@cyphar.com>
-In-Reply-To: <20191105090553.6350-1-cyphar@cyphar.com>
-References: <20191105090553.6350-1-cyphar@cyphar.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40655 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388128AbfKEJ2Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:24 -0500
+Date: Tue, 05 Nov 2019 09:27:33 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate
+ export of .notes
+In-Reply-To: <20191029211351.13243-9-keescook@chromium.org>
+References: <20191029211351.13243-9-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <157294605387.29376.1544999913512391970.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-/* Background. */
-Container runtimes or other administrative management processes will
-often interact with root filesystems while in the host mount namespace,
-because the cost of doing a chroot(2) on every operation is too
-prohibitive (especially in Go, which cannot safely use vfork). However,
-a malicious program can trick the management process into doing
-operations on files outside of the root filesystem through careful
-crafting of symlinks.
+The following commit has been merged into the x86/build branch of tip:
 
-Most programs that need this feature have attempted to make this process
-safe, by doing all of the path resolution in userspace (with symlinks
-being scoped to the root of the malicious root filesystem).
-Unfortunately, this method is prone to foot-guns and usually such
-implementations have subtle security bugs.
+Commit-ID:     441110a547f86a2fd0c40bf04b274853622c53cc
+Gitweb:        https://git.kernel.org/tip/441110a547f86a2fd0c40bf04b274853622c53cc
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:30 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 15:34:38 +01:00
 
-Thus, what userspace needs is a way to resolve a path as though it were
-in a chroot(2) -- with all absolute symlinks being resolved relative to
-the dirfd root (and ".." components being stuck under the dirfd root).
-It is much simpler and more straight-forward to provide this
-functionality in-kernel (because it can be done far more cheaply and
-correctly).
+vmlinux.lds.h: Provide EMIT_PT_NOTE to indicate export of .notes
 
-More classical applications that also have this problem (which have
-their own potentially buggy userspace path sanitisation code) include
-web servers, archive extraction tools, network file servers, and so on.
+In preparation for moving NOTES into RO_DATA, provide a mechanism for
+architectures that want to emit a PT_NOTE Program Header to do so.
 
-/* Userspace API. */
-LOOKUP_IN_ROOT will be exposed to userspace through openat2(2).
-
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_IN_ROOT applies to all components of the path.
-
-With LOOKUP_IN_ROOT, any path component which attempts to cross the
-starting point of the pathname lookup (the dirfd passed to openat) will
-remain at the starting point. Thus, all absolute paths and symlinks will
-be scoped within the starting point.
-
-There is a slight change in behaviour regarding pathnames -- if the
-pathname is absolute then the dirfd is still used as the root of
-resolution of LOOKUP_IN_ROOT is specified (this is to avoid obvious
-foot-guns, at the cost of a minor API inconsistency).
-
-As with LOOKUP_BENEATH, Jann's security concern about ".."[1] applies to
-LOOKUP_IN_ROOT -- therefore ".." resolution is blocked. This restriction
-will be lifted in a future patch, but requires more work to ensure that
-permitting ".." is done safely.
-
-Magic-link jumps are also blocked, because they can beam the path lookup
-across the starting point. It would be possible to detect and block
-only the "bad" crossings with path_is_under() checks, but it's unclear
-whether it makes sense to permit magic-links at all. However, userspace
-is recommended to pass LOOKUP_NO_MAGICLINKS if they want to ensure that
-magic-link crossing is entirely disabled.
-
-/* Testing. */
-LOOKUP_IN_ROOT is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/CAG48ez1jzNvxB+bfOBnERFGp=oMM0vHWuLD6EULmne3R6xa53w@mail.gmail.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-9-keescook@chromium.org
 ---
- fs/namei.c            | 15 ++++++++++++---
- include/linux/namei.h |  3 ++-
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S   |  3 +++
+ arch/ia64/kernel/vmlinux.lds.S    |  2 ++
+ arch/mips/kernel/vmlinux.lds.S    | 12 ++++++------
+ arch/powerpc/kernel/vmlinux.lds.S |  1 +
+ arch/s390/kernel/vmlinux.lds.S    |  2 ++
+ arch/x86/kernel/vmlinux.lds.S     |  2 ++
+ include/asm-generic/vmlinux.lds.h |  8 ++++++++
+ 7 files changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 54fdbdfbeb94..a3d199a60708 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2277,12 +2277,20 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 
- 	nd->m_seq = read_seqbegin(&mount_lock);
- 
--	/* Figure out the starting path and root (if needed). */
--	if (*s == '/') {
-+	/* Absolute pathname -- fetch the root. */
-+	if (flags & LOOKUP_IN_ROOT) {
-+		/* With LOOKUP_IN_ROOT, act as a relative path. */
-+		while (*s == '/')
-+			s++;
-+	} else if (*s == '/') {
- 		error = nd_jump_root(nd);
- 		if (unlikely(error))
- 			return ERR_PTR(error);
--	} else if (nd->dfd == AT_FDCWD) {
-+		return s;
-+	}
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index 781090c..363a60b 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -1,4 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
 +
-+	/* Relative pathname -- get the starting-point it is relative to. */
-+	if (nd->dfd == AT_FDCWD) {
- 		if (flags & LOOKUP_RCU) {
- 			struct fs_struct *fs = current->fs;
- 			unsigned seq;
-@@ -2322,6 +2330,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 		}
- 		fdput(f);
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/cache.h>
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 2c4f23c..7cf4958 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -5,6 +5,8 @@
+ #include <asm/pgtable.h>
+ #include <asm/thread_info.h>
+ 
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ OUTPUT_FORMAT("elf64-ia64-little")
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 33ee0d1..1c95612 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -10,6 +10,11 @@
+  */
+ #define BSS_FIRST_SECTIONS *(.bss..swapper_pg_dir)
+ 
++/* Cavium Octeon should not have a separate PT_NOTE Program Header. */
++#ifndef CONFIG_CAVIUM_OCTEON_SOC
++#define EMITS_PT_NOTE
++#endif
++
+ #include <asm-generic/vmlinux.lds.h>
+ 
+ #undef mips
+@@ -76,12 +81,7 @@ SECTIONS
+ 		__stop___dbe_table = .;
  	}
+ 
+-#ifdef CONFIG_CAVIUM_OCTEON_SOC
+-#define NOTES_HEADER
+-#else /* CONFIG_CAVIUM_OCTEON_SOC */
+-#define NOTES_HEADER :note
+-#endif /* CONFIG_CAVIUM_OCTEON_SOC */
+-	NOTES :text NOTES_HEADER
++	NOTES NOTES_HEADERS
+ 	.dummy : { *(.dummy) } :text
+ 
+ 	_sdata = .;			/* Start of data section */
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index e184a63..7e26e20 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -6,6 +6,7 @@
+ #endif
+ 
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
++#define EMITS_PT_NOTE
+ 
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 13294fe..646d939 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -15,6 +15,8 @@
+ /* Handle ro_after_init data on our own. */
+ #define RO_AFTER_INIT_DATA
+ 
++#define EMITS_PT_NOTE
 +
- 	/* For scoped-lookups we need to set the root to the dirfd as well. */
- 	if (flags & LOOKUP_IS_SCOPED) {
- 		nd->root = nd->path;
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 12f4f36835c2..96b374e08230 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -46,8 +46,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_NO_MAGICLINKS	0x040000 /* No /proc/$pid/fd/ "symlink" crossing. */
- #define LOOKUP_NO_XDEV		0x080000 /* No mountpoint crossing. */
- #define LOOKUP_BENEATH		0x100000 /* No escaping from starting point. */
-+#define LOOKUP_IN_ROOT		0x200000 /* Treat dirfd as %current->fs->root. */
- /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
--#define LOOKUP_IS_SCOPED LOOKUP_BENEATH
-+#define LOOKUP_IS_SCOPED (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/vmlinux.lds.h>
  
- extern int path_pts(struct path *path);
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 788e789..2e18bf5 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -21,6 +21,8 @@
+ #define LOAD_OFFSET __START_KERNEL_map
+ #endif
  
--- 
-2.23.0
++#define EMITS_PT_NOTE
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index dae6460..f5dd45c 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -54,6 +54,14 @@
+ #define LOAD_OFFSET 0
+ #endif
+ 
++/*
++ * Only some architectures want to have the .notes segment visible in
++ * a separate PT_NOTE ELF Program Header.
++ */
++#ifdef EMITS_PT_NOTE
++#define NOTES_HEADERS		:text :note
++#endif
++
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+ #define ALIGN_FUNCTION()  . = ALIGN(8)
+ 
