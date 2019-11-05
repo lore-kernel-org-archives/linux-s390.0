@@ -1,222 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57252 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726115AbfKNKWD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:22:03 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAKske113288
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:22:01 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92uk57pb-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:58 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:33 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 03/11] s390/qeth: drop unwanted packets earlier in RX path
-Date: Thu, 14 Nov 2019 11:19:16 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-4-jwi@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40642 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388128AbfKEJ2N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:13 -0500
+Date: Tue, 05 Nov 2019 09:27:30 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] x86/vmlinux: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-17-keescook@chromium.org>
+References: <20191029211351.13243-17-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294605067.29376.15944354524301929135.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ross Zwisler <zwisler@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-Packets with an unexpected HW format are currently first extracted from
-the RX buffer, passed upwards to the layer-specific driver and only then
-finally dropped.
+The following commit has been merged into the x86/build branch of tip:
 
-Enhance the RX path so that we can drop such packets before even
-allocating an skb. For this, add some additional logic so that when a
-packet is meant to be dropped, we can still walk along the packet's data
-chunks in the RX buffer. This allows us to extract the following
-packet(s) from the buffer.
+Commit-ID:     f0d7ee17d57c7a8510518a1e60366d053e2f3ff5
+Gitweb:        https://git.kernel.org/tip/f0d7ee17d57c7a8510518a1e60366d053e2f3ff5
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:38 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 17:55:02 +01:00
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+x86/vmlinux: Move EXCEPTION_TABLE to RO_DATA segment
+
+The exception table was needlessly marked executable. In preparation
+for execute-only memory, move the table into the RO_DATA segment via
+the new macro that can be used by any architectures that want to make
+a similar consolidation.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Ross Zwisler <zwisler@chromium.org>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-17-keescook@chromium.org
 ---
- drivers/s390/net/qeth_core_main.c | 32 +++++++++++++++++++++++++++----
- drivers/s390/net/qeth_l2_main.c   | 27 ++++++++------------------
- drivers/s390/net/qeth_l3_main.c   | 26 ++++++++-----------------
- 3 files changed, 44 insertions(+), 41 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index c52241df980b..467a9173058c 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5072,6 +5072,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	int headroom = 0;
- 	int use_rx_sg = 0;
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index a1a758e..b06d6e1 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -22,6 +22,7 @@
+ #endif
  
-+next_packet:
- 	/* qeth_hdr must not cross element boundaries */
- 	while (element->length < offset + sizeof(struct qeth_hdr)) {
- 		if (qeth_is_last_sbale(element))
-@@ -5088,10 +5089,22 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		break;
- 	case QETH_HEADER_TYPE_LAYER3:
- 		skb_len = (*hdr)->hdr.l3.length;
-+		if (!IS_LAYER3(card)) {
-+			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
-+			skb = NULL;
-+			goto walk_packet;
-+		}
-+
- 		headroom = ETH_HLEN;
- 		break;
- 	case QETH_HEADER_TYPE_OSN:
- 		skb_len = (*hdr)->hdr.osn.pdu_length;
-+		if (!IS_OSN(card)) {
-+			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
-+			skb = NULL;
-+			goto walk_packet;
-+		}
-+
- 		headroom = sizeof(struct qeth_hdr);
- 		break;
- 	default:
-@@ -5100,7 +5113,8 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		else
- 			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	16
  
--		break;
-+		/* Can't determine packet length, drop the whole buffer. */
-+		return NULL;
- 	}
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/asm-offsets.h>
+@@ -145,8 +146,6 @@ SECTIONS
+ #endif
+ 	} :text = 0x9090
  
- 	if (!skb_len)
-@@ -5126,10 +5140,12 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	if (headroom)
- 		skb_reserve(skb, headroom);
- 
-+walk_packet:
- 	data_ptr = element->addr + offset;
- 	while (skb_len) {
- 		data_len = min(skb_len, (int)(element->length - offset));
--		if (data_len) {
-+
-+		if (skb && data_len) {
- 			if (use_rx_sg)
- 				qeth_create_skb_frag(element, skb, offset,
- 						     data_len);
-@@ -5141,8 +5157,11 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 			if (qeth_is_last_sbale(element)) {
- 				QETH_CARD_TEXT(card, 4, "unexeob");
- 				QETH_CARD_HEX(card, 2, buffer, sizeof(void *));
--				dev_kfree_skb_any(skb);
--				QETH_CARD_STAT_INC(card, rx_length_errors);
-+				if (skb) {
-+					dev_kfree_skb_any(skb);
-+					QETH_CARD_STAT_INC(card,
-+							   rx_length_errors);
-+				}
- 				return NULL;
- 			}
- 			element++;
-@@ -5152,6 +5171,11 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 			offset += data_len;
- 		}
- 	}
-+
-+	/* This packet was skipped, go get another one: */
-+	if (!skb)
-+		goto next_packet;
-+
- 	*__element = element;
- 	*__offset = offset;
- 	if (use_rx_sg) {
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 1e85956f95c6..ae69c981650d 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -315,30 +315,19 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
- 			*done = 1;
- 			break;
- 		}
--		switch (hdr->hdr.l2.id) {
--		case QETH_HEADER_TYPE_LAYER2:
-+
-+		if (hdr->hdr.l2.id == QETH_HEADER_TYPE_LAYER2) {
- 			skb->protocol = eth_type_trans(skb, skb->dev);
- 			qeth_rx_csum(card, skb, hdr->hdr.l2.flags[1]);
- 			len = skb->len;
- 			napi_gro_receive(&card->napi, skb);
--			break;
--		case QETH_HEADER_TYPE_OSN:
--			if (IS_OSN(card)) {
--				skb_push(skb, sizeof(struct qeth_hdr));
--				skb_copy_to_linear_data(skb, hdr,
--						sizeof(struct qeth_hdr));
--				len = skb->len;
--				card->osn_info.data_cb(skb);
--				break;
--			}
--			/* Else, fall through */
--		default:
--			dev_kfree_skb_any(skb);
--			QETH_CARD_TEXT(card, 3, "inbunkno");
--			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
--			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
--			continue;
-+		} else {
-+			skb_push(skb, sizeof(*hdr));
-+			skb_copy_to_linear_data(skb, hdr, sizeof(*hdr));
-+			len = skb->len;
-+			card->osn_info.data_cb(skb);
- 		}
-+
- 		work_done++;
- 		budget--;
- 		QETH_CARD_STAT_INC(card, rx_packets);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 72c61faae3f9..3b901f3676c1 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1366,7 +1366,6 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 	int work_done = 0;
- 	struct sk_buff *skb;
- 	struct qeth_hdr *hdr;
--	unsigned int len;
- 
- 	*done = 0;
- 	WARN_ON_ONCE(!budget);
-@@ -1378,26 +1377,17 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 			*done = 1;
- 			break;
- 		}
--		switch (hdr->hdr.l3.id) {
--		case QETH_HEADER_TYPE_LAYER3:
-+
-+		if (hdr->hdr.l3.id == QETH_HEADER_TYPE_LAYER3)
- 			qeth_l3_rebuild_skb(card, skb, hdr);
--			/* fall through */
--		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
--			skb->protocol = eth_type_trans(skb, skb->dev);
--			len = skb->len;
--			napi_gro_receive(&card->napi, skb);
--			break;
--		default:
--			dev_kfree_skb_any(skb);
--			QETH_CARD_TEXT(card, 3, "inbunkno");
--			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
--			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
--			continue;
--		}
-+
-+		skb->protocol = eth_type_trans(skb, skb->dev);
-+		QETH_CARD_STAT_INC(card, rx_packets);
-+		QETH_CARD_STAT_ADD(card, rx_bytes, skb->len);
-+
-+		napi_gro_receive(&card->napi, skb);
- 		work_done++;
- 		budget--;
--		QETH_CARD_STAT_INC(card, rx_packets);
--		QETH_CARD_STAT_ADD(card, rx_bytes, len);
- 	}
- 	return work_done;
- }
--- 
-2.17.1
+-	EXCEPTION_TABLE(16)
+-
+ 	/* End of text section, which should occupy whole number of pages */
+ 	_etext = .;
+ 	. = ALIGN(PAGE_SIZE);
