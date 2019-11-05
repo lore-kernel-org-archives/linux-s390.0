@@ -1,60 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13758 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727122AbfKOLjl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 Nov 2019 06:39:41 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAFBX6n3033372
-        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 06:39:40 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w9nse40qk-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 06:39:40 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Fri, 15 Nov 2019 11:39:38 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net] net/smc: fix fastopen for non-blocking connect()
-Date: Fri, 15 Nov 2019 12:39:30 +0100
-Message-Id: <20191115113930.38684-1-kgraul@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40574 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729996AbfKEJ2D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:03 -0500
+Date: Tue, 05 Nov 2019 09:27:27 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] powerpc: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-25-keescook@chromium.org>
+References: <20191029211351.13243-25-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294604760.29376.759135680229659063.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+The following commit has been merged into the x86/build branch of tip:
 
-FASTOPEN does not work with SMC-sockets. Since SMC allows fallback to
-TCP native during connection start, the FASTOPEN setsockopts trigger
-this fallback, if the SMC-socket is still in state SMC_INIT.
-But if a FASTOPEN setsockopt is called after a non-blocking connect(),
-this is broken, and fallback does not make sense.
-This change complements
-commit cd2063604ea6 ("net/smc: avoid fallback in case of non-blocking connect")
-and fixes the syzbot reported problem "WARNING in smc_unhash_sk".
+Commit-ID:     4e9e559a0385930649c1c9cad703d475ee030206
+Gitweb:        https://git.kernel.org/tip/4e9e559a0385930649c1c9cad703d475ee030206
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:46 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 18:30:13 +01:00
 
-Reported-by: syzbot+8488cc4cf1c9e09b8b86@syzkaller.appspotmail.com
-Fixes: e1bbdd570474 ("net/smc: reduce sock_put() for fallback sockets")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+powerpc: Move EXCEPTION_TABLE to RO_DATA segment
+
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-25-keescook@chromium.org
 ---
- net/smc/af_smc.c | 2 +-
+ arch/powerpc/kernel/vmlinux.lds.S | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 8edf1619f0e4..737b49909a7a 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1732,7 +1732,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	case TCP_FASTOPEN_KEY:
- 	case TCP_FASTOPEN_NO_COOKIE:
- 		/* option not supported by SMC */
--		if (sk->sk_state == SMC_INIT) {
-+		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
- 		} else {
--- 
-2.17.1
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 4e7cec0..8834220 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -7,6 +7,7 @@
+ 
+ #define BSS_FIRST_SECTIONS *(.bss.prominit)
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	0
+ 
+ #include <asm/page.h>
+ #include <asm-generic/vmlinux.lds.h>
+@@ -162,7 +163,6 @@ SECTIONS
+ 		__stop__btb_flush_fixup = .;
+ 	}
+ #endif
+-	EXCEPTION_TABLE(0)
+ 
+ /*
+  * Init sections discarded at runtime
