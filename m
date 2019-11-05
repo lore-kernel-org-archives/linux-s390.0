@@ -1,179 +1,86 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V7 0/6] mdev based hardware virtio offloading support
-Date: Mon,  4 Nov 2019 20:39:46 +0800
-Message-Id: <20191104123952.17276-1-jasowang@redhat.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 05 Nov 2019 09:27:31 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] vmlinux.lds.h: Allow EXCEPTION_TABLE to live in RO_DATA
+In-Reply-To: <20191029211351.13243-15-keescook@chromium.org>
+References: <20191029211351.13243-15-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-Sender: netdev-owner@vger.kernel.org
+Message-ID: <157294605141.29376.16810559476409135725.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Will Deacon <will@kernel.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-Hi all:
+The following commit has been merged into the x86/build branch of tip:
 
-There are hardwares that can do virtio datapath offloading while
-having its own control path. This path tries to implement a mdev based
-unified API to support using kernel virtio driver to drive those
-devices. This is done by introducing a new mdev transport for virtio
-(virtio_mdev) and register itself as a new kind of mdev driver. Then
-it provides a unified way for kernel virtio driver to talk with mdev
-device implementation.
+Commit-ID:     b8c2f776164c8f74ac31c5e370ca3f029be0aa19
+Gitweb:        https://git.kernel.org/tip/b8c2f776164c8f74ac31c5e370ca3f029be0aa19
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:36 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 15:59:01 +01:00
 
-Though the series only contains kernel driver support, the goal is to
-make the transport generic enough to support userspace drivers. This
-means vhost-mdev[1] could be built on top as well by resuing the
-transport.
+vmlinux.lds.h: Allow EXCEPTION_TABLE to live in RO_DATA
 
-A sample driver is also implemented which simulate a virito-net
-loopback ethernet device on top of vringh + workqueue. This could be
-used as a reference implementation for real hardware driver.
+Many architectures have an EXCEPTION_TABLE that needs to be only
+readable. As such, it should live in RO_DATA. Create a macro to identify
+this case for the architectures that can move EXCEPTION_TABLE into
+RO_DATA.
 
-Also a real ICF VF driver was also posted here[2] which is a good
-reference for vendors who is interested in their own virtio datapath
-offloading product.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-15-keescook@chromium.org
+---
+ include/asm-generic/vmlinux.lds.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Consider mdev framework only support VFIO device and driver right now,
-this series also extend it to support other types. This is done
-through introducing class id to the device and pairing it with
-id_talbe claimed by the driver. On top, this seris also decouple
-device specific parents ops out of the common ones.
-
-Pktgen test was done with virito-net + mvnet loop back device.
-
-Please review.
-
-[1] https://lkml.org/lkml/2019/10/31/440
-[2] https://lkml.org/lkml/2019/10/15/1226
-
-Changes from V5:
-
-- use dev_warn() instead of WARN(1) when class id is not set
-- validate id_table before trying to do matching between device and
-  driver
-- add wildcard for modpost script
-- use unique name for id_table
-- move get_mdev_features() to be the first member of virtio_device_ops
-  and more comments for it
-- typo fixes for the comments above virtio_mdev_ops
-
-Changes from V4:
-
-- keep mdev_set_class() for the device that doesn't use device ops
-- use union for device ops pointer in mdev_device
-- introduce class specific helper for getting is device ops
-- use WARN_ON instead of BUG_ON in mdev_set_virtio_ops
-- explain details of get_mdev_features() and get_vendor_id()
-- distinguish the optional virito device ops from mandatory ones and
-  make get_generation() optional
-- rename vfio_mdev.h to vfio_mdev_ops.h, rename virito_mdev.h to
-  virtio_mdev_ops.h
-- don't abuse version fileds in virtio_mdev structure, use features
-  instead
-- fix warning during device remove
-- style & docs tweaks and typo fixes
-
-Changes from V3:
-
-- document that class id (device ops) must be specified in create()
-- add WARN() when trying to set class_id when it has already set
-- add WARN() when class_id is not specified in create() and correctly
-  return an error in this case
-- correct the prototype of mdev_set_class() in the doc
-- add documention of mdev_set_class()
-- remove the unnecessary "class_id_fail" label when class id is not
-  specified in create()
-- convert id_table in vfio_mdev to const
-- move mdev_set_class and its friends after mdev_uuid()
-- suqash the patch of bus uevent into patch of introducing class id
-- tweak the words in the docs per Cornelia suggestion
-- tie class_id and device ops through class specific initialization
-  routine like mdev_set_vfio_ops()
-- typos fixes in the docs of virtio-mdev callbacks
-- document the usage of virtqueues in struct virtio_mdev_device
-- remove the useless vqs array in struct virtio_mdev_device
-- rename MDEV_ID_XXX to MDEV_CLASS_ID_XXX
-
-Changes from V2:
-
-- fail when class_id is not specified
-- drop the vringh patch
-- match the doc to the code
-- tweak the commit log
-- move device_ops from parent to mdev device
-- remove the unused MDEV_ID_VHOST
-
-Changes from V1:
-
-- move virtio_mdev.c to drivers/virtio
-- store class_id in mdev_device instead of mdev_parent
-- store device_ops in mdev_device instead of mdev_parent
-- reorder the patch, vringh fix comes first
-- really silent compiling warnings
-- really switch to use u16 for class_id
-- uevent and modpost support for mdev class_id
-- vraious tweaks per comments from Parav
-
-Changes from RFC-V2:
-
-- silent compile warnings on some specific configuration
-- use u16 instead u8 for class id
-- reseve MDEV_ID_VHOST for future vhost-mdev work
-- introduce "virtio" type for mvnet and make "vhost" type for future
-  work
-- add entries in MAINTAINER
-- tweak and typos fixes in commit log
-
-Changes from RFC-V1:
-
-- rename device id to class id
-- add docs for class id and device specific ops (device_ops)
-- split device_ops into seperate headers
-- drop the mdev_set_dma_ops()
-- use device_ops to implement the transport API, then it's not a part
-  of UAPI any more
-- use GFP_ATOMIC in mvnet sample device and other tweaks
-- set_vring_base/get_vring_base support for mvnet device
-
-Jason Wang (6):
-  mdev: class id support
-  modpost: add support for mdev class id
-  mdev: introduce device specific ops
-  mdev: introduce virtio device and its device ops
-  virtio: introduce a mdev based transport
-  docs: sample driver to demonstrate how to implement virtio-mdev
-    framework
-
- .../driver-api/vfio-mediated-device.rst       |  38 +-
- MAINTAINERS                                   |   2 +
- drivers/gpu/drm/i915/gvt/kvmgt.c              |  17 +-
- drivers/s390/cio/vfio_ccw_ops.c               |  17 +-
- drivers/s390/crypto/vfio_ap_ops.c             |  13 +-
- drivers/vfio/mdev/mdev_core.c                 |  57 ++
- drivers/vfio/mdev/mdev_driver.c               |  25 +
- drivers/vfio/mdev/mdev_private.h              |   8 +
- drivers/vfio/mdev/vfio_mdev.c                 |  45 +-
- drivers/virtio/Kconfig                        |   7 +
- drivers/virtio/Makefile                       |   1 +
- drivers/virtio/virtio_mdev.c                  | 413 +++++++++++
- include/linux/mdev.h                          |  57 +-
- include/linux/mdev_vfio_ops.h                 |  52 ++
- include/linux/mdev_virtio_ops.h               | 166 +++++
- include/linux/mod_devicetable.h               |   8 +
- samples/Kconfig                               |   7 +
- samples/vfio-mdev/Makefile                    |   1 +
- samples/vfio-mdev/mbochs.c                    |  19 +-
- samples/vfio-mdev/mdpy.c                      |  19 +-
- samples/vfio-mdev/mtty.c                      |  17 +-
- samples/vfio-mdev/mvnet.c                     | 691 ++++++++++++++++++
- scripts/mod/devicetable-offsets.c             |   3 +
- scripts/mod/file2alias.c                      |  11 +
- 24 files changed, 1603 insertions(+), 91 deletions(-)
- create mode 100644 drivers/virtio/virtio_mdev.c
- create mode 100644 include/linux/mdev_vfio_ops.h
- create mode 100644 include/linux/mdev_virtio_ops.h
- create mode 100644 samples/vfio-mdev/mvnet.c
-
---=20
-2.19.1
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 356078e..9867d8e 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -69,6 +69,17 @@
+ #define NOTES_HEADERS_RESTORE
+ #endif
+ 
++/*
++ * Some architectures have non-executable read-only exception tables.
++ * They can be added to the RO_DATA segment by specifying their desired
++ * alignment.
++ */
++#ifdef RO_EXCEPTION_TABLE_ALIGN
++#define RO_EXCEPTION_TABLE	EXCEPTION_TABLE(RO_EXCEPTION_TABLE_ALIGN)
++#else
++#define RO_EXCEPTION_TABLE
++#endif
++
+ /* Align . to a 8 byte boundary equals to maximum function alignment. */
+ #define ALIGN_FUNCTION()  . = ALIGN(8)
+ 
+@@ -513,6 +524,7 @@
+ 		__stop___modver = .;					\
+ 	}								\
+ 									\
++	RO_EXCEPTION_TABLE						\
+ 	NOTES								\
+ 									\
+ 	. = ALIGN((align));						\
