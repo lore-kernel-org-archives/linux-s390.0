@@ -1,505 +1,421 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42460 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726353AbfKRGUl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Nov 2019 01:20:41 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V12 5/6] virtio: introduce a mdev based transport
-Date: Mon, 18 Nov 2019 14:17:02 +0800
-Message-Id: <20191118061703.8669-6-jasowang@redhat.com>
-In-Reply-To: <20191118061703.8669-1-jasowang@redhat.com>
-References: <20191118061703.8669-1-jasowang@redhat.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40636 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388108AbfKEJ2P (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:15 -0500
+Date: Tue, 05 Nov 2019 09:27:33 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] vmlinux.lds.h: Move NOTES into RO_DATA
+In-Reply-To: <20191029211351.13243-11-keescook@chromium.org>
+References: <20191029211351.13243-11-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <157294605308.29376.210260919268288163.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, gregkh@linuxfoundation.org, jgg@mellanox.com, Jason Wang <jasowang@redhat.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-This patch introduces a new mdev transport for virtio. This is used to
-use kernel virtio driver to drive the mediated device that is capable
-of populating virtqueue directly.
+The following commit has been merged into the x86/build branch of tip:
 
-A new virtio-mdev driver will be registered to the mdev bus, when a
-new virtio-mdev device is probed, it will register the device with
-mdev based config ops. This means it is a software transport between
-mdev driver and mdev device. The transport was implemented through
-bus_ops of mdev parent.
+Commit-ID:     eaf937075c9a42eb8ba51eb3050773d7205d3595
+Gitweb:        https://git.kernel.org/tip/eaf937075c9a42eb8ba51eb3050773d7205d3595
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:32 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 15:34:41 +01:00
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+vmlinux.lds.h: Move NOTES into RO_DATA
+
+The .notes section should be non-executable read-only data. As such,
+move it to the RO_DATA macro instead of being per-architecture defined.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-11-keescook@chromium.org
 ---
- drivers/virtio/Kconfig       |  13 ++
- drivers/virtio/Makefile      |   1 +
- drivers/virtio/virtio_mdev.c | 409 +++++++++++++++++++++++++++++++++++
- include/linux/mdev_virtio.h  |   5 +
- 4 files changed, 428 insertions(+)
- create mode 100644 drivers/virtio/virtio_mdev.c
+ arch/alpha/kernel/vmlinux.lds.S      |  2 --
+ arch/arc/kernel/vmlinux.lds.S        |  2 --
+ arch/arm/kernel/vmlinux-xip.lds.S    |  2 --
+ arch/arm/kernel/vmlinux.lds.S        |  2 --
+ arch/arm64/kernel/vmlinux.lds.S      |  1 -
+ arch/c6x/kernel/vmlinux.lds.S        |  1 -
+ arch/csky/kernel/vmlinux.lds.S       |  1 -
+ arch/h8300/kernel/vmlinux.lds.S      |  1 -
+ arch/hexagon/kernel/vmlinux.lds.S    |  1 -
+ arch/ia64/kernel/vmlinux.lds.S       |  2 --
+ arch/microblaze/kernel/vmlinux.lds.S |  1 -
+ arch/mips/kernel/vmlinux.lds.S       |  2 --
+ arch/nds32/kernel/vmlinux.lds.S      |  1 -
+ arch/nios2/kernel/vmlinux.lds.S      |  1 -
+ arch/openrisc/kernel/vmlinux.lds.S   |  1 -
+ arch/parisc/kernel/vmlinux.lds.S     |  1 -
+ arch/powerpc/kernel/vmlinux.lds.S    |  2 --
+ arch/riscv/kernel/vmlinux.lds.S      |  1 -
+ arch/s390/kernel/vmlinux.lds.S       |  2 --
+ arch/sh/kernel/vmlinux.lds.S         |  1 -
+ arch/sparc/kernel/vmlinux.lds.S      |  1 -
+ arch/um/include/asm/common.lds.S     |  1 -
+ arch/unicore32/kernel/vmlinux.lds.S  |  1 -
+ arch/x86/kernel/vmlinux.lds.S        |  2 --
+ arch/xtensa/kernel/vmlinux.lds.S     |  1 -
+ include/asm-generic/vmlinux.lds.h    |  9 +++++----
+ 26 files changed, 5 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 078615cf2afc..6a89b3de97d3 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -43,6 +43,19 @@ config VIRTIO_PCI_LEGACY
-=20
- =09  If unsure, say Y.
-=20
-+config VIRTIO_MDEV
-+=09tristate "MDEV driver for virtio devices"
-+=09depends on MDEV_VIRTIO
-+=09default n
-+=09help
-+=09  This driver provides support for virtio based paravirtual
-+=09  device driver over MDEV bus. For this to be useful, you need
-+=09  an appropriate virtio mdev device implementation that
-+=09  operates on a physical device to allow the datapath of virtio
-+=09  to be offloaded to hardware.
-+
-+=09  If unsure, say M.
-+
- config VIRTIO_PMEM
- =09tristate "Support for virtio pmem driver"
- =09depends on VIRTIO
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 3a2b5c5dcf46..f2997b6c812f 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -6,3 +6,4 @@ virtio_pci-y :=3D virtio_pci_modern.o virtio_pci_common.o
- virtio_pci-$(CONFIG_VIRTIO_PCI_LEGACY) +=3D virtio_pci_legacy.o
- obj-$(CONFIG_VIRTIO_BALLOON) +=3D virtio_balloon.o
- obj-$(CONFIG_VIRTIO_INPUT) +=3D virtio_input.o
-+obj-$(CONFIG_VIRTIO_MDEV) +=3D virtio_mdev.o
-diff --git a/drivers/virtio/virtio_mdev.c b/drivers/virtio/virtio_mdev.c
-new file mode 100644
-index 000000000000..7fdb42f055df
---- /dev/null
-+++ b/drivers/virtio/virtio_mdev.c
-@@ -0,0 +1,409 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VIRTIO based driver for Mediated device
-+ *
-+ * Copyright (c) 2019, Red Hat. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/slab.h>
-+#include <linux/uuid.h>
-+#include <linux/virtio.h>
-+#include <linux/mdev_virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_ring.h>
-+
-+#define DRIVER_VERSION  "0.1"
-+#define DRIVER_AUTHOR   "Red Hat Corporation"
-+#define DRIVER_DESC     "VIRTIO based driver for Mediated device"
-+
-+#define to_virtio_mdev_device(dev) \
-+=09container_of(dev, struct virtio_mdev_device, vdev)
-+
-+struct virtio_mdev_device {
-+=09struct virtio_device vdev;
-+=09struct mdev_device *mdev;
-+=09u64 features;
-+
-+=09/* The lock to protect virtqueue list */
-+=09spinlock_t lock;
-+=09/* List of virtio_mdev_vq_info */
-+=09struct list_head virtqueues;
-+};
-+
-+struct virtio_mdev_vq_info {
-+=09/* the actual virtqueue */
-+=09struct virtqueue *vq;
-+
-+=09/* the list node for the virtqueues list */
-+=09struct list_head node;
-+};
-+
-+static struct mdev_device *vm_get_mdev(struct virtio_device *vdev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09return mdev;
-+}
-+
-+static void virtio_mdev_get(struct virtio_device *vdev, unsigned offset,
-+=09=09=09    void *buf, unsigned len)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09ops->get_config(mdev, offset, buf, len);
-+}
-+
-+static void virtio_mdev_set(struct virtio_device *vdev, unsigned offset,
-+=09=09=09    const void *buf, unsigned len)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09ops->set_config(mdev, offset, buf, len);
-+}
-+
-+static u32 virtio_mdev_generation(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+
-+=09if (ops->get_generation)
-+=09=09return ops->get_generation(mdev);
-+
-+=09return 0;
-+}
-+
-+static u8 virtio_mdev_get_status(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09return ops->get_status(mdev);
-+}
-+
-+static void virtio_mdev_set_status(struct virtio_device *vdev, u8 status)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09return ops->set_status(mdev, status);
-+}
-+
-+static void virtio_mdev_reset(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09return ops->set_status(mdev, 0);
-+}
-+
-+static bool virtio_mdev_notify(struct virtqueue *vq)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vq->vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09ops->kick_vq(mdev, vq->index);
-+
-+=09return true;
-+}
-+
-+static irqreturn_t virtio_mdev_config_cb(void *private)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D private;
-+
-+=09virtio_config_changed(&vm_dev->vdev);
-+
-+=09return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t virtio_mdev_virtqueue_cb(void *private)
-+{
-+=09struct virtio_mdev_vq_info *info =3D private;
-+
-+=09return vring_interrupt(0, info->vq);
-+}
-+
-+static struct virtqueue *
-+virtio_mdev_setup_vq(struct virtio_device *vdev, unsigned int index,
-+=09=09     void (*callback)(struct virtqueue *vq),
-+=09=09     const char *name, bool ctx)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+=09struct virtio_mdev_vq_info *info;
-+=09struct virtio_mdev_callback cb;
-+=09struct virtqueue *vq;
-+=09u64 desc_addr, driver_addr, device_addr;
-+=09unsigned long flags;
-+=09u32 align, num;
-+=09int err;
-+
-+=09if (!name)
-+=09=09return NULL;
-+
-+=09/* Queue shouldn't already be set up. */
-+=09if (ops->get_vq_ready(mdev, index))
-+=09=09return ERR_PTR(-ENOENT);
-+
-+=09/* Allocate and fill out our active queue description */
-+=09info =3D kmalloc(sizeof(*info), GFP_KERNEL);
-+=09if (!info)
-+=09=09return ERR_PTR(-ENOMEM);
-+
-+=09num =3D ops->get_vq_num_max(mdev);
-+=09if (num =3D=3D 0) {
-+=09=09err =3D -ENOENT;
-+=09=09goto error_new_virtqueue;
-+=09}
-+
-+=09/* Create the vring */
-+=09align =3D ops->get_vq_align(mdev);
-+=09vq =3D vring_create_virtqueue(index, num, align, vdev,
-+=09=09=09=09    true, true, ctx,
-+=09=09=09=09    virtio_mdev_notify, callback, name);
-+=09if (!vq) {
-+=09=09err =3D -ENOMEM;
-+=09=09goto error_new_virtqueue;
-+=09}
-+
-+=09/* Setup virtqueue callback */
-+=09cb.callback =3D virtio_mdev_virtqueue_cb;
-+=09cb.private =3D info;
-+=09ops->set_vq_cb(mdev, index, &cb);
-+=09ops->set_vq_num(mdev, index, virtqueue_get_vring_size(vq));
-+
-+=09desc_addr =3D virtqueue_get_desc_addr(vq);
-+=09driver_addr =3D virtqueue_get_avail_addr(vq);
-+=09device_addr =3D virtqueue_get_used_addr(vq);
-+
-+=09if (ops->set_vq_address(mdev, index,
-+=09=09=09=09desc_addr, driver_addr,
-+=09=09=09=09device_addr)) {
-+=09=09err =3D -EINVAL;
-+=09=09goto err_vq;
-+=09}
-+
-+=09ops->set_vq_ready(mdev, index, 1);
-+
-+=09vq->priv =3D info;
-+=09info->vq =3D vq;
-+
-+=09spin_lock_irqsave(&vm_dev->lock, flags);
-+=09list_add(&info->node, &vm_dev->virtqueues);
-+=09spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+=09return vq;
-+
-+err_vq:
-+=09vring_del_virtqueue(vq);
-+error_new_virtqueue:
-+=09ops->set_vq_ready(mdev, index, 0);
-+=09WARN_ON(ops->get_vq_ready(mdev, index));
-+=09kfree(info);
-+=09return ERR_PTR(err);
-+}
-+
-+static void virtio_mdev_del_vq(struct virtqueue *vq)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vq->vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+=09struct virtio_mdev_vq_info *info =3D vq->priv;
-+=09unsigned int index =3D vq->index;
-+=09unsigned long flags;
-+
-+=09spin_lock_irqsave(&vm_dev->lock, flags);
-+=09list_del(&info->node);
-+=09spin_unlock_irqrestore(&vm_dev->lock, flags);
-+
-+=09/* Select and deactivate the queue */
-+=09ops->set_vq_ready(mdev, index, 0);
-+=09WARN_ON(ops->get_vq_ready(mdev, index));
-+
-+=09vring_del_virtqueue(vq);
-+
-+=09kfree(info);
-+}
-+
-+static void virtio_mdev_del_vqs(struct virtio_device *vdev)
-+{
-+=09struct virtqueue *vq, *n;
-+
-+=09list_for_each_entry_safe(vq, n, &vdev->vqs, list)
-+=09=09virtio_mdev_del_vq(vq);
-+}
-+
-+static int virtio_mdev_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-+=09=09=09=09struct virtqueue *vqs[],
-+=09=09=09=09vq_callback_t *callbacks[],
-+=09=09=09=09const char * const names[],
-+=09=09=09=09const bool *ctx,
-+=09=09=09=09struct irq_affinity *desc)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+=09struct virtio_mdev_callback cb;
-+=09int i, err, queue_idx =3D 0;
-+
-+=09for (i =3D 0; i < nvqs; ++i) {
-+=09=09if (!names[i]) {
-+=09=09=09vqs[i] =3D NULL;
-+=09=09=09continue;
-+=09=09}
-+
-+=09=09vqs[i] =3D virtio_mdev_setup_vq(vdev, queue_idx++,
-+=09=09=09=09=09      callbacks[i], names[i], ctx ?
-+=09=09=09=09=09      ctx[i] : false);
-+=09=09if (IS_ERR(vqs[i])) {
-+=09=09=09err =3D PTR_ERR(vqs[i]);
-+=09=09=09goto err_setup_vq;
-+=09=09}
-+=09}
-+
-+=09cb.callback =3D virtio_mdev_config_cb;
-+=09cb.private =3D vm_dev;
-+=09ops->set_config_cb(mdev, &cb);
-+
-+=09return 0;
-+
-+err_setup_vq:
-+=09virtio_mdev_del_vqs(vdev);
-+=09return err;
-+}
-+
-+static u64 virtio_mdev_get_features(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09return ops->get_features(mdev);
-+}
-+
-+static int virtio_mdev_finalize_features(struct virtio_device *vdev)
-+{
-+=09struct mdev_device *mdev =3D vm_get_mdev(vdev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+
-+=09/* Give virtio_ring a chance to accept features. */
-+=09vring_transport_features(vdev);
-+
-+=09return ops->set_features(mdev, vdev->features);
-+}
-+
-+static const char *virtio_mdev_bus_name(struct virtio_device *vdev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D to_virtio_mdev_device(vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09return dev_name(mdev_dev(mdev));
-+}
-+
-+static const struct virtio_config_ops virtio_mdev_config_ops =3D {
-+=09.get=09=09=3D virtio_mdev_get,
-+=09.set=09=09=3D virtio_mdev_set,
-+=09.generation=09=3D virtio_mdev_generation,
-+=09.get_status=09=3D virtio_mdev_get_status,
-+=09.set_status=09=3D virtio_mdev_set_status,
-+=09.reset=09=09=3D virtio_mdev_reset,
-+=09.find_vqs=09=3D virtio_mdev_find_vqs,
-+=09.del_vqs=09=3D virtio_mdev_del_vqs,
-+=09.get_features=09=3D virtio_mdev_get_features,
-+=09.finalize_features =3D virtio_mdev_finalize_features,
-+=09.bus_name=09=3D virtio_mdev_bus_name,
-+};
-+
-+static void virtio_mdev_release_dev(struct device *_d)
-+{
-+=09struct virtio_device *vdev =3D
-+=09       container_of(_d, struct virtio_device, dev);
-+=09struct virtio_mdev_device *vm_dev =3D
-+=09       container_of(vdev, struct virtio_mdev_device, vdev);
-+=09struct mdev_device *mdev =3D vm_dev->mdev;
-+
-+=09devm_kfree(mdev_dev(mdev), vm_dev);
-+}
-+
-+static int virtio_mdev_probe(struct device *dev)
-+{
-+=09struct mdev_device *mdev =3D mdev_virtio_from_dev(dev);
-+=09const struct mdev_virtio_ops *ops =3D mdev_virtio_get_ops(mdev);
-+=09struct virtio_mdev_device *vm_dev;
-+=09int rc;
-+
-+=09vm_dev =3D devm_kzalloc(dev, sizeof(*vm_dev), GFP_KERNEL);
-+=09if (!vm_dev)
-+=09=09return -ENOMEM;
-+
-+=09vm_dev->vdev.dev.parent =3D dev;
-+=09vm_dev->vdev.dev.release =3D virtio_mdev_release_dev;
-+=09vm_dev->vdev.config =3D &virtio_mdev_config_ops;
-+=09vm_dev->mdev =3D mdev;
-+=09INIT_LIST_HEAD(&vm_dev->virtqueues);
-+=09spin_lock_init(&vm_dev->lock);
-+
-+=09vm_dev->vdev.id.device =3D ops->get_device_id(mdev);
-+=09if (vm_dev->vdev.id.device =3D=3D 0)
-+=09=09return -ENODEV;
-+
-+=09vm_dev->vdev.id.vendor =3D ops->get_vendor_id(mdev);
-+=09rc =3D register_virtio_device(&vm_dev->vdev);
-+=09if (rc)
-+=09=09put_device(dev);
-+=09else
-+=09=09dev_set_drvdata(dev, vm_dev);
-+
-+=09return rc;
-+}
-+
-+static void virtio_mdev_remove(struct device *dev)
-+{
-+=09struct virtio_mdev_device *vm_dev =3D dev_get_drvdata(dev);
-+
-+=09unregister_virtio_device(&vm_dev->vdev);
-+}
-+
-+static const struct mdev_virtio_class_id virtio_id_table[] =3D {
-+=09{ MDEV_VIRTIO_CLASS_ID_VIRTIO },
-+=09{ 0 },
-+};
-+
-+MODULE_DEVICE_TABLE(mdev_virtio, virtio_id_table);
-+
-+static struct mdev_virtio_driver virtio_mdev_driver =3D {
-+=09.drv =3D {
-+=09=09.name=09=3D "virtio_mdev",
-+=09=09.probe=09=3D virtio_mdev_probe,
-+=09=09.remove =3D virtio_mdev_remove,
-+=09},
-+=09.id_table =3D virtio_id_table,
-+};
-+
-+static int __init virtio_mdev_init(void)
-+{
-+=09return mdev_register_driver(&virtio_mdev_driver.drv, THIS_MODULE,
-+=09=09=09=09    &mdev_virtio_bus_type);
-+}
-+
-+static void __exit virtio_mdev_exit(void)
-+{
-+=09mdev_unregister_driver(&virtio_mdev_driver.drv);
-+}
-+
-+module_init(virtio_mdev_init)
-+module_exit(virtio_mdev_exit)
-+
-+MODULE_VERSION(DRIVER_VERSION);
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-diff --git a/include/linux/mdev_virtio.h b/include/linux/mdev_virtio.h
-index ef2dbb6c383a..5f75f3cf59e1 100644
---- a/include/linux/mdev_virtio.h
-+++ b/include/linux/mdev_virtio.h
-@@ -25,6 +25,11 @@ struct virtio_mdev_callback {
- =09void *private;
- };
-=20
-+enum {
-+=09MDEV_VIRTIO_CLASS_ID_VIRTIO =3D 1,
-+=09/* New entries must be added here */
-+};
-+
- /**
-  * struct mdev_virtio_device_ops - Structure to be registered for each
-  * mdev device to register the device for virtio/vhost drivers.
---=20
-2.19.1
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index cdfdc91..bf28043 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -34,8 +34,6 @@ SECTIONS
+ 	swapper_pg_dir = SWAPPER_PGD;
+ 	_etext = .;	/* End of text section */
+ 
+-	NOTES
+-
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
+ 
+diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
+index 6c693a9..1d6eef4 100644
+--- a/arch/arc/kernel/vmlinux.lds.S
++++ b/arch/arc/kernel/vmlinux.lds.S
+@@ -118,8 +118,6 @@ SECTIONS
+ 	/DISCARD/ : {	*(.eh_frame) }
+ #endif
+ 
+-	NOTES
+-
+ 	. = ALIGN(PAGE_SIZE);
+ 	_end = . ;
+ 
+diff --git a/arch/arm/kernel/vmlinux-xip.lds.S b/arch/arm/kernel/vmlinux-xip.lds.S
+index 8c74037..d2a9651 100644
+--- a/arch/arm/kernel/vmlinux-xip.lds.S
++++ b/arch/arm/kernel/vmlinux-xip.lds.S
+@@ -70,8 +70,6 @@ SECTIONS
+ 	ARM_UNWIND_SECTIONS
+ #endif
+ 
+-	NOTES
+-
+ 	_etext = .;			/* End of text and rodata section */
+ 
+ 	ARM_VECTORS
+diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
+index 23150c0..068db68 100644
+--- a/arch/arm/kernel/vmlinux.lds.S
++++ b/arch/arm/kernel/vmlinux.lds.S
+@@ -81,8 +81,6 @@ SECTIONS
+ 	ARM_UNWIND_SECTIONS
+ #endif
+ 
+-	NOTES
+-
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+ 	. = ALIGN(1<<SECTION_SHIFT);
+ #else
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index aa76f72..e7dafc2 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -137,7 +137,6 @@ SECTIONS
+ 
+ 	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
+ 	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
+-	NOTES
+ 
+ 	. = ALIGN(PAGE_SIZE);
+ 	idmap_pg_dir = .;
+diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
+index 584bab2..d6e3802 100644
+--- a/arch/c6x/kernel/vmlinux.lds.S
++++ b/arch/c6x/kernel/vmlinux.lds.S
+@@ -81,7 +81,6 @@ SECTIONS
+ 	}
+ 
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 
+ 	RO_DATA_SECTION(PAGE_SIZE)
+ 	.const :
+diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
+index ae7961b..75dd314 100644
+--- a/arch/csky/kernel/vmlinux.lds.S
++++ b/arch/csky/kernel/vmlinux.lds.S
+@@ -53,7 +53,6 @@ SECTIONS
+ 	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+ 	_edata = .;
+ 
+-	NOTES
+ 	EXCEPTION_TABLE(L1_CACHE_BYTES)
+ 	BSS_SECTION(L1_CACHE_BYTES, PAGE_SIZE, L1_CACHE_BYTES)
+ 	VBR_BASE
+diff --git a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
+index 49f716c..88776e7 100644
+--- a/arch/h8300/kernel/vmlinux.lds.S
++++ b/arch/h8300/kernel/vmlinux.lds.S
+@@ -38,7 +38,6 @@ SECTIONS
+ 	_etext = . ;
+ 	}
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 	RO_DATA_SECTION(4)
+ 	ROMEND = .;
+ #if defined(CONFIG_ROMKERNEL)
+diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+index 78f2418..6a6e8fc 100644
+--- a/arch/hexagon/kernel/vmlinux.lds.S
++++ b/arch/hexagon/kernel/vmlinux.lds.S
+@@ -54,7 +54,6 @@ SECTIONS
+ 	_edata = .;
+ 
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 
+ 	BSS_SECTION(_PAGE_SIZE, _PAGE_SIZE, _PAGE_SIZE)
+ 
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index bfc937e..fae0775 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -70,8 +70,6 @@ SECTIONS {
+ 	/*
+ 	 * Read-only data
+ 	 */
+-	NOTES
+-
+ 	EXCEPTION_TABLE(16)
+ 
+ 	/* MCA table */
+diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
+index e1f3e87..d008e50 100644
+--- a/arch/microblaze/kernel/vmlinux.lds.S
++++ b/arch/microblaze/kernel/vmlinux.lds.S
+@@ -53,7 +53,6 @@ SECTIONS {
+ 	. = ALIGN(16);
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 
+ 	/*
+ 	 * sdata2 section can go anywhere, but must be word aligned
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 6a22f53..91e566d 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -81,8 +81,6 @@ SECTIONS
+ 		__stop___dbe_table = .;
+ 	}
+ 
+-	NOTES
+-
+ 	_sdata = .;			/* Start of data section */
+ 	RODATA
+ 
+diff --git a/arch/nds32/kernel/vmlinux.lds.S b/arch/nds32/kernel/vmlinux.lds.S
+index 9e90f30..c4f1c5a 100644
+--- a/arch/nds32/kernel/vmlinux.lds.S
++++ b/arch/nds32/kernel/vmlinux.lds.S
+@@ -58,7 +58,6 @@ SECTIONS
+ 	_edata  =  .;
+ 
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 	BSS_SECTION(4, 4, 4)
+ 	_end = .;
+ 
+diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
+index 6ad64f1..20e4078 100644
+--- a/arch/nios2/kernel/vmlinux.lds.S
++++ b/arch/nios2/kernel/vmlinux.lds.S
+@@ -58,7 +58,6 @@ SECTIONS
+ 
+ 	STABS_DEBUG
+ 	DWARF_DEBUG
+-	NOTES
+ 
+ 	DISCARDS
+ }
+diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
+index 2e2c72c..142c51c 100644
+--- a/arch/openrisc/kernel/vmlinux.lds.S
++++ b/arch/openrisc/kernel/vmlinux.lds.S
+@@ -79,7 +79,6 @@ SECTIONS
+         _edata  =  .;
+ 
+ 	EXCEPTION_TABLE(4)
+-	NOTES
+ 
+ 	/* Init code and data */
+ 	. = ALIGN(PAGE_SIZE);
+diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
+index 99cd24f..168d12b 100644
+--- a/arch/parisc/kernel/vmlinux.lds.S
++++ b/arch/parisc/kernel/vmlinux.lds.S
+@@ -131,7 +131,6 @@ SECTIONS
+ 
+ 	/* RO because of BUILDTIME_EXTABLE_SORT */
+ 	EXCEPTION_TABLE(8)
+-	NOTES
+ 
+ 	/* unwind info */
+ 	.PARISC.unwind : {
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 4f19d81..4e7cec0 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -164,8 +164,6 @@ SECTIONS
+ #endif
+ 	EXCEPTION_TABLE(0)
+ 
+-	NOTES
+-
+ /*
+  * Init sections discarded at runtime
+  */
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index 23cd1a9..df5229c 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -69,7 +69,6 @@ SECTIONS
+ 	BSS_SECTION(PAGE_SIZE, PAGE_SIZE, 0)
+ 
+ 	EXCEPTION_TABLE(0x10)
+-	NOTES
+ 
+ 	.rel.dyn : {
+ 		*(.rel.dyn*)
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index f88eede..beb4df0 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -52,8 +52,6 @@ SECTIONS
+ 		_etext = .;		/* End of text section */
+ 	} :text = 0x0700
+ 
+-	NOTES
+-
+ 	RO_DATA_SECTION(PAGE_SIZE)
+ 
+ 	. = ALIGN(PAGE_SIZE);
+diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
+index 77a59d8..fef3905 100644
+--- a/arch/sh/kernel/vmlinux.lds.S
++++ b/arch/sh/kernel/vmlinux.lds.S
+@@ -48,7 +48,6 @@ SECTIONS
+ 	} = 0x0009
+ 
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 
+ 	_sdata = .;
+ 	RO_DATA(PAGE_SIZE)
+diff --git a/arch/sparc/kernel/vmlinux.lds.S b/arch/sparc/kernel/vmlinux.lds.S
+index 61afd78..8929fbc 100644
+--- a/arch/sparc/kernel/vmlinux.lds.S
++++ b/arch/sparc/kernel/vmlinux.lds.S
+@@ -78,7 +78,6 @@ SECTIONS
+ 		__stop___fixup = .;
+ 	}
+ 	EXCEPTION_TABLE(16)
+-	NOTES
+ 
+ 	. = ALIGN(PAGE_SIZE);
+ 	__init_begin = ALIGN(PAGE_SIZE);
+diff --git a/arch/um/include/asm/common.lds.S b/arch/um/include/asm/common.lds.S
+index d7086b9..91aca35 100644
+--- a/arch/um/include/asm/common.lds.S
++++ b/arch/um/include/asm/common.lds.S
+@@ -16,7 +16,6 @@
+   PROVIDE (_unprotected_end = .);
+ 
+   . = ALIGN(4096);
+-  NOTES
+   EXCEPTION_TABLE(0)
+ 
+   BUG_TABLE
+diff --git a/arch/unicore32/kernel/vmlinux.lds.S b/arch/unicore32/kernel/vmlinux.lds.S
+index 7abf905..78c4c56 100644
+--- a/arch/unicore32/kernel/vmlinux.lds.S
++++ b/arch/unicore32/kernel/vmlinux.lds.S
+@@ -48,7 +48,6 @@ SECTIONS
+ 	_edata = .;
+ 
+ 	EXCEPTION_TABLE(L1_CACHE_BYTES)
+-	NOTES
+ 
+ 	BSS_SECTION(0, 0, 0)
+ 	_end = .;
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 8be25b0..41362e9 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -148,8 +148,6 @@ SECTIONS
+ 		_etext = .;
+ 	} :text = 0x9090
+ 
+-	NOTES
+-
+ 	EXCEPTION_TABLE(16)
+ 
+ 	/* .text should occupy whole number of pages */
+diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
+index 943f106..a0a8437 100644
+--- a/arch/xtensa/kernel/vmlinux.lds.S
++++ b/arch/xtensa/kernel/vmlinux.lds.S
+@@ -131,7 +131,6 @@ SECTIONS
+   .fixup   : { *(.fixup) }
+ 
+   EXCEPTION_TABLE(16)
+-  NOTES
+   /* Data section */
+ 
+   _sdata = .;
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 97d4299..dc3390e 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -28,7 +28,6 @@
+  *	_edata = .;
+  *
+  *	EXCEPTION_TABLE(...)
+- *	NOTES
+  *
+  *	BSS_SECTION(0, 0, 0)
+  *	_end = .;
+@@ -512,10 +511,12 @@
+ 		__start___modver = .;					\
+ 		KEEP(*(__modver))					\
+ 		__stop___modver = .;					\
+-		. = ALIGN((align));					\
+-		__end_rodata = .;					\
+ 	}								\
+-	. = ALIGN((align));
++									\
++	NOTES								\
++									\
++	. = ALIGN((align));						\
++	__end_rodata = .;
+ 
+ /* RODATA & RO_DATA provided for backward compatibility.
+  * All archs are supposed to use RO_DATA() */
