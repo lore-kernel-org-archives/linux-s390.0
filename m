@@ -1,191 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19362 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726958AbfKNKTj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:19:39 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAIJde018408
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:38 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w94yk05hp-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:37 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:35 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 10/11] s390/qeth: replace qeth_l3_get_addr_buffer()
-Date: Thu, 14 Nov 2019 11:19:23 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-11-jwi@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40643 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388151AbfKEJ2O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:14 -0500
+Date: Tue, 05 Nov 2019 09:27:35 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] alpha: Rename PT_LOAD identifier "kernel" to "text"
+In-Reply-To: <20191029211351.13243-5-keescook@chromium.org>
+References: <20191029211351.13243-5-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294605540.29376.2229675628457500488.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Matt Turner <mattst88@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Richard Henderson <rth@twiddle.net>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-The remaining usage effectively is a kmemdup() of the query object.
-By not wrapping it, some of the callers can now use GFP_KERNEL for the
-allocation.
+The following commit has been merged into the x86/build branch of tip:
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Commit-ID:     65182e6e36195fbf9340808ac4a00d1c146bc05c
+Gitweb:        https://git.kernel.org/tip/65182e6e36195fbf9340808ac4a00d1c146bc05c
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:26 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 15:34:17 +01:00
+
+alpha: Rename PT_LOAD identifier "kernel" to "text"
+
+In preparation for moving NOTES into RO_DATA, rename the linker script
+internal identifier for the PT_LOAD Program Header from "kernel" to
+"text" to match other architectures.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-5-keescook@chromium.org
 ---
- drivers/s390/net/qeth_l3.h      |  1 +
- drivers/s390/net/qeth_l3_main.c | 62 ++++++++++++---------------------
- 2 files changed, 23 insertions(+), 40 deletions(-)
+ arch/alpha/kernel/vmlinux.lds.S | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index ba913d1ab88d..2421f29021c1 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -54,6 +54,7 @@ static inline void qeth_l3_init_ipaddr(struct qeth_ipaddr *addr,
- 	addr->type = type;
- 	addr->proto = proto;
- 	addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
-+	addr->ref_counter = 1;
- }
- 
- static inline bool qeth_l3_addr_match_ip(struct qeth_ipaddr *a1,
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index f4c65971321a..e7ce73b9f016 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -63,15 +63,6 @@ void qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const __u8 *addr,
- 		qeth_l3_ipaddr6_to_string(addr, buf);
- }
- 
--static struct qeth_ipaddr *qeth_l3_get_addr_buffer(enum qeth_prot_versions prot)
--{
--	struct qeth_ipaddr *addr = kmalloc(sizeof(*addr), GFP_ATOMIC);
--
--	if (addr)
--		qeth_l3_init_ipaddr(addr, QETH_IP_TYPE_NORMAL, prot);
--	return addr;
--}
--
- static struct qeth_ipaddr *qeth_l3_find_addr_by_ip(struct qeth_card *card,
- 						   struct qeth_ipaddr *query)
+diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
+index c4b5cec..781090c 100644
+--- a/arch/alpha/kernel/vmlinux.lds.S
++++ b/arch/alpha/kernel/vmlinux.lds.S
+@@ -8,7 +8,7 @@
+ OUTPUT_FORMAT("elf64-alpha")
+ OUTPUT_ARCH(alpha)
+ ENTRY(__start)
+-PHDRS { kernel PT_LOAD; note PT_NOTE; }
++PHDRS { text PT_LOAD; note PT_NOTE; }
+ jiffies = jiffies_64;
+ SECTIONS
  {
-@@ -216,13 +207,10 @@ static int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 			 "Registering IP address %s failed\n", buf);
- 		return -EADDRINUSE;
- 	} else {
--		addr = qeth_l3_get_addr_buffer(tmp_addr->proto);
-+		addr = kmemdup(tmp_addr, sizeof(*tmp_addr), GFP_KERNEL);
- 		if (!addr)
- 			return -ENOMEM;
+@@ -27,14 +27,14 @@ SECTIONS
+ 		LOCK_TEXT
+ 		*(.fixup)
+ 		*(.gnu.warning)
+-	} :kernel
++	} :text
+ 	swapper_pg_dir = SWAPPER_PGD;
+ 	_etext = .;	/* End of text section */
  
--		memcpy(addr, tmp_addr, sizeof(struct qeth_ipaddr));
--		addr->ref_counter = 1;
--
- 		if (qeth_l3_is_addr_covered_by_ipato(card, addr)) {
- 			QETH_CARD_TEXT(card, 2, "tkovaddr");
- 			addr->ipato = 1;
-@@ -1115,11 +1103,11 @@ qeth_diags_trace(struct qeth_card *card, enum qeth_diags_trace_cmds diags_cmd)
+-	NOTES :kernel :note
++	NOTES :text :note
+ 	.dummy : {
+ 		*(.dummy)
+-	} :kernel
++	} :text
  
- static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- {
--	struct qeth_ipaddr *tmp = NULL;
- 	struct qeth_card *card = arg;
- 	struct inet6_dev *in6_dev;
- 	struct in_device *in4_dev;
- 	struct qeth_ipaddr *ipm;
-+	struct qeth_ipaddr tmp;
- 	struct ip_mc_list *im4;
- 	struct ifmcaddr6 *im6;
- 
-@@ -1128,34 +1116,31 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- 	if (!dev || !(dev->flags & IFF_UP))
- 		goto out;
- 
--	tmp = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
--	if (!tmp)
--		goto out;
--
- 	in4_dev = __in_dev_get_rtnl(dev);
- 	if (!in4_dev)
- 		goto walk_ipv6;
- 
-+	qeth_l3_init_ipaddr(&tmp, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV4);
-+	tmp.disp_flag = QETH_DISP_ADDR_ADD;
-+	tmp.is_multicast = 1;
-+
- 	for (im4 = rtnl_dereference(in4_dev->mc_list); im4 != NULL;
- 	     im4 = rtnl_dereference(im4->next_rcu)) {
--		tmp->u.a4.addr = im4->multiaddr;
--		tmp->is_multicast = 1;
-+		tmp.u.a4.addr = im4->multiaddr;
- 
--		ipm = qeth_l3_find_addr_by_ip(card, tmp);
-+		ipm = qeth_l3_find_addr_by_ip(card, &tmp);
- 		if (ipm) {
- 			/* for mcast, by-IP match means full match */
- 			ipm->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
--		} else {
--			ipm = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
--			if (!ipm)
--				continue;
--
--			ipm->u.a4.addr = im4->multiaddr;
--			ipm->is_multicast = 1;
--			ipm->disp_flag = QETH_DISP_ADDR_ADD;
--			hash_add(card->ip_mc_htable,
--					&ipm->hnode, qeth_l3_ipaddr_hash(ipm));
-+			continue;
- 		}
-+
-+		ipm = kmemdup(&tmp, sizeof(tmp), GFP_KERNEL);
-+		if (!ipm)
-+			continue;
-+
-+		hash_add(card->ip_mc_htable, &ipm->hnode,
-+			 qeth_l3_ipaddr_hash(ipm));
- 	}
- 
- walk_ipv6:
-@@ -1166,27 +1151,25 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- 	if (!in6_dev)
- 		goto out;
- 
--	qeth_l3_init_ipaddr(tmp, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV6);
-+	qeth_l3_init_ipaddr(&tmp, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV6);
-+	tmp.disp_flag = QETH_DISP_ADDR_ADD;
-+	tmp.is_multicast = 1;
- 
- 	read_lock_bh(&in6_dev->lock);
- 	for (im6 = in6_dev->mc_list; im6 != NULL; im6 = im6->next) {
--		tmp->u.a6.addr = im6->mca_addr;
--		tmp->is_multicast = 1;
-+		tmp.u.a6.addr = im6->mca_addr;
- 
--		ipm = qeth_l3_find_addr_by_ip(card, tmp);
-+		ipm = qeth_l3_find_addr_by_ip(card, &tmp);
- 		if (ipm) {
- 			/* for mcast, by-IP match means full match */
- 			ipm->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 			continue;
- 		}
- 
--		ipm = qeth_l3_get_addr_buffer(QETH_PROT_IPV6);
-+		ipm = kmemdup(&tmp, sizeof(tmp), GFP_ATOMIC);
- 		if (!ipm)
- 			continue;
- 
--		ipm->u.a6.addr = im6->mca_addr;
--		ipm->is_multicast = 1;
--		ipm->disp_flag = QETH_DISP_ADDR_ADD;
- 		hash_add(card->ip_mc_htable,
- 				&ipm->hnode, qeth_l3_ipaddr_hash(ipm));
- 
-@@ -1194,7 +1177,6 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- 	read_unlock_bh(&in6_dev->lock);
- 
- out:
--	kfree(tmp);
- 	return 0;
- }
- 
--- 
-2.17.1
+ 	RODATA
+ 	EXCEPTION_TABLE(16)
