@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 05 Nov 2019 09:27:27 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] xtensa: Move EXCEPTION_TABLE to RO_DATA segment
-In-Reply-To: <20191029211351.13243-26-keescook@chromium.org>
-References: <20191029211351.13243-26-keescook@chromium.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:35595 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389724AbfKEShp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 13:37:45 -0500
+Date: Tue, 5 Nov 2019 19:37:30 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC 12/37] KVM: s390: protvirt: Handle SE notification
+ interceptions
+Message-ID: <20191105193730.606c3c9c.cohuck@redhat.com>
+In-Reply-To: <f0837f93-ace8-b4e0-f69c-c1fbe7b95c6a@de.ibm.com>
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+        <20191024114059.102802-13-frankja@linux.ibm.com>
+        <20191105190407.68992d92.cohuck@redhat.com>
+        <f0837f93-ace8-b4e0-f69c-c1fbe7b95c6a@de.ibm.com>
 MIME-Version: 1.0
-Message-ID: <157294604726.29376.12527593781479789931.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
 
-The following commit has been merged into the x86/build branch of tip:
+On Tue, 5 Nov 2019 19:15:19 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Commit-ID:     94174c9b71c62a0e1a4364c2594e1422ba8fffcd
-Gitweb:        https://git.kernel.org/tip/94174c9b71c62a0e1a4364c2594e1422ba8fffcd
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:47 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 18:42:27 +01:00
+> On 05.11.19 19:04, Cornelia Huck wrote:
+> > On Thu, 24 Oct 2019 07:40:34 -0400
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >  =20
+> >> Since KVM doesn't emulate any form of load control and load psw
+> >> instructions anymore, we wouldn't get an interception if PSWs or CRs
+> >> are changed in the guest. That means we can't inject IRQs right after
+> >> the guest is enabled for them.
+> >>
+> >> The new interception codes solve that problem by being a notification
+> >> for changes to IRQ enablement relevant bits in CRs 0, 6 and 14, as
+> >> well a the machine check mask bit in the PSW.
+> >>
+> >> No special handling is needed for these interception codes, the KVM
+> >> pre-run code will consult all necessary CRs and PSW bits and inject
+> >> IRQs the guest is enabled for. =20
+> >=20
+> > Just to clarify: The hypervisor can still access the relevant bits for
+> > pv guests, this is only about the notification, right?
+> >  =20
+>=20
+> Yes, the hypervisor (KVM) can always read the relevant PSW bits (I,E,M) a=
+nd
+> CR bits to decide if an interrupt can be delivered. All other bits of PSW
+> and CRx are masked though.
+> This is a new intercept for notification as we do no longer get an IC4 (i=
+nstruction
+> to handle) for load control and friends so that we can re-check the bits.=
+=20
 
-xtensa: Move EXCEPTION_TABLE to RO_DATA segment
+Ok, thanks!
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-xtensa@linux-xtensa.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-26-keescook@chromium.org
----
- arch/xtensa/kernel/vmlinux.lds.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
-index bdbd7c4..0043d58 100644
---- a/arch/xtensa/kernel/vmlinux.lds.S
-+++ b/arch/xtensa/kernel/vmlinux.lds.S
-@@ -14,6 +14,8 @@
-  * Joe Taylor <joe@tensilica.com, joetylr@yahoo.com>
-  */
- 
-+#define RO_EXCEPTION_TABLE_ALIGN	16
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/page.h>
- #include <asm/thread_info.h>
-@@ -130,7 +132,6 @@ SECTIONS
- 
-   .fixup   : { *(.fixup) }
- 
--  EXCEPTION_TABLE(16)
-   /* Data section */
- 
-   _sdata = .;
+> >>
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >> ---
+> >>  arch/s390/include/asm/kvm_host.h |  2 ++
+> >>  arch/s390/kvm/intercept.c        | 18 ++++++++++++++++++
+> >>  2 files changed, 20 insertions(+) =20
+> >  =20
+>=20
