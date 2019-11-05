@@ -1,110 +1,105 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22128 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390228AbfKEQ3T (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 11:29:19 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA5GQ7wM068138
-        for <linux-s390@vger.kernel.org>; Tue, 5 Nov 2019 11:29:18 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w14m4kd6k-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 05 Nov 2019 11:29:13 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 5 Nov 2019 16:29:03 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 2/2] s390x: Remove DAT and add short indication psw bits on diag308 reset
-Date: Tue,  5 Nov 2019 11:28:28 -0500
-In-Reply-To: <20191105162828.2490-1-frankja@linux.ibm.com>
-References: <20191105162828.2490-1-frankja@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 05 Nov 2019 09:27:25 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] x86/vmlinux: Use INT3 instead of NOP for linker fill bytes
+In-Reply-To: <20191029211351.13243-30-keescook@chromium.org>
+References: <20191029211351.13243-30-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191105162828.2490-3-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Message-ID: <157294604562.29376.16128940015704175473.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ross Zwisler <zwisler@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-On a diag308 subcode 0 CRs will be reset, so we need to mask of PSW
-DAT indication until we restore our CRs.
+The following commit has been merged into the x86/build branch of tip:
 
-Also we need to set the short psw indication to be compliant with the
-architecture.
+Commit-ID:     7705dc8557973d8ad8f10840f61d8ec805695e9e
+Gitweb:        https://git.kernel.org/tip/7705dc8557973d8ad8f10840f61d8ec805695e9e
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:51 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 19:10:08 +01:00
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+x86/vmlinux: Use INT3 instead of NOP for linker fill bytes
+
+Instead of using 0x90 (NOP) to fill bytes between functions, which makes
+it easier to sloppily target functions in function pointer overwrite
+attacks, fill with 0xCC (INT3) to force a trap. Also drop the space
+between "=" and the value to better match the binutils documentation
+
+  https://sourceware.org/binutils/docs/ld/Output-Section-Fill.html#Output-Section-Fill
+
+Example "objdump -d" before:
+
+  ...
+  ffffffff810001e0 <start_cpu0>:
+  ffffffff810001e0:       48 8b 25 e1 b1 51 01    mov 0x151b1e1(%rip),%rsp        # ffffffff8251b3c8 <initial_stack>
+  ffffffff810001e7:       e9 d5 fe ff ff          jmpq   ffffffff810000c1 <secondary_startup_64+0x91>
+  ffffffff810001ec:       90                      nop
+  ffffffff810001ed:       90                      nop
+  ffffffff810001ee:       90                      nop
+  ffffffff810001ef:       90                      nop
+
+  ffffffff810001f0 <__startup_64>:
+  ...
+
+After:
+
+  ...
+  ffffffff810001e0 <start_cpu0>:
+  ffffffff810001e0:       48 8b 25 41 79 53 01    mov 0x1537941(%rip),%rsp        # ffffffff82537b28 <initial_stack>
+  ffffffff810001e7:       e9 d5 fe ff ff          jmpq   ffffffff810000c1 <secondary_startup_64+0x91>
+  ffffffff810001ec:       cc                      int3
+  ffffffff810001ed:       cc                      int3
+  ffffffff810001ee:       cc                      int3
+  ffffffff810001ef:       cc                      int3
+
+  ffffffff810001f0 <__startup_64>:
+  ...
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Ross Zwisler <zwisler@chromium.org>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-30-keescook@chromium.org
 ---
- lib/s390x/asm-offsets.c  |  1 +
- lib/s390x/asm/arch_def.h |  3 ++-
- s390x/cstart64.S         | 20 ++++++++++++++------
- 3 files changed, 17 insertions(+), 7 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
-index 4b213f8..61d2658 100644
---- a/lib/s390x/asm-offsets.c
-+++ b/lib/s390x/asm-offsets.c
-@@ -58,6 +58,7 @@ int main(void)
- 	OFFSET(GEN_LC_SW_INT_FPRS, lowcore, sw_int_fprs);
- 	OFFSET(GEN_LC_SW_INT_FPC, lowcore, sw_int_fpc);
- 	OFFSET(GEN_LC_SW_INT_CRS, lowcore, sw_int_crs);
-+	OFFSET(GEN_LC_SW_INT_PSW, lowcore, sw_int_psw);
- 	OFFSET(GEN_LC_MCCK_EXT_SA_ADDR, lowcore, mcck_ext_sa_addr);
- 	OFFSET(GEN_LC_FPRS_SA, lowcore, fprs_sa);
- 	OFFSET(GEN_LC_GRS_SA, lowcore, grs_sa);
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 07d4e5e..7d25e4f 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -79,7 +79,8 @@ struct lowcore {
- 	uint32_t	sw_int_fpc;			/* 0x0300 */
- 	uint8_t		pad_0x0304[0x0308 - 0x0304];	/* 0x0304 */
- 	uint64_t	sw_int_crs[16];			/* 0x0308 */
--	uint8_t		pad_0x0310[0x11b0 - 0x0388];	/* 0x0388 */
-+	struct psw	sw_int_psw;			/* 0x0388 */
-+	uint8_t		pad_0x0310[0x11b0 - 0x0390];	/* 0x0390 */
- 	uint64_t	mcck_ext_sa_addr;		/* 0x11b0 */
- 	uint8_t		pad_0x11b8[0x1200 - 0x11b8];	/* 0x11b8 */
- 	uint64_t	fprs_sa[16];			/* 0x1200 */
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 0455591..2e0dcf5 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -129,8 +129,15 @@ memsetxc:
- .globl diag308_load_reset
- diag308_load_reset:
- 	SAVE_REGS
--	/* Save the first PSW word to the IPL PSW */
-+	/* Backup current PSW */
- 	epsw	%r0, %r1
-+	st	%r0, GEN_LC_SW_INT_PSW
-+	st	%r1, GEN_LC_SW_INT_PSW + 4
-+	/* Disable DAT as the CRs will be reset too */
-+	nilh	%r0, 0xfbff
-+	/* Add psw bit 12 to indicate short psw */
-+	oilh	%r0, 0x0008
-+	/* Save the first PSW word to the IPL PSW */
- 	st	%r0, 0
- 	/* Store the address and the bit for 31 bit addressing */
- 	larl    %r0, 0f
-@@ -142,12 +149,13 @@ diag308_load_reset:
- 	xgr	%r2, %r2
- 	br	%r14
- 	/* Success path */
--	/* We lost cr0 due to the reset */
--0:	larl	%r1, initial_cr0
--	lctlg	%c0, %c0, 0(%r1)
--	RESTORE_REGS
-+	/* Switch to z/Architecture mode and 64-bit */
-+0:	RESTORE_REGS
- 	lhi	%r2, 1
--	br	%r14
-+	larl	%r0, 1f
-+	stg	%r0, GEN_LC_SW_INT_PSW + 8
-+	lpswe	GEN_LC_SW_INT_PSW
-+1:	br	%r14
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index b06d6e1..3a1a819 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -144,7 +144,7 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
+ #endif
+-	} :text = 0x9090
++	} :text =0xcccc
  
- .globl smp_cpu_setup_state
- smp_cpu_setup_state:
--- 
-2.20.1
+ 	/* End of text section, which should occupy whole number of pages */
+ 	_etext = .;
