@@ -1,169 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16640 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59020 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726106AbfKNKUY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:20:24 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAKJZY139326
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:20:23 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2w943wa1q1-1
+        by vger.kernel.org with ESMTP id S2390423AbfKESir (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 13:38:47 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA5IcVVL146560
+        for <linux-s390@vger.kernel.org>; Tue, 5 Nov 2019 13:38:46 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w3dfhtcgs-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:20:22 -0500
+        for <linux-s390@vger.kernel.org>; Tue, 05 Nov 2019 13:38:45 -0500
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:31 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 01/11] s390/qeth: gather more detailed RX dropped/error statistics
-Date: Thu, 14 Nov 2019 11:19:14 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-2-jwi@linux.ibm.com>
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Tue, 5 Nov 2019 18:37:38 -0000
+Subject: Re: [kvm-unit-tests PATCH 0/2] s390x: Improve architectural
+ compliance for diag308
+References: <20191105162828.2490-1-frankja@linux.ibm.com>
+ <70BDB5DE-489D-4718-B6C2-0EABD89414D2@redhat.com>
+ <0560e27d-dac8-a569-2e3f-f8188724c822@de.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Tue, 5 Nov 2019 19:37:33 +0100
+MIME-Version: 1.0
+In-Reply-To: <0560e27d-dac8-a569-2e3f-f8188724c822@de.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="lDvsFhYLqksJ9htjUDiZIGGfuoNmYiGhy"
+Message-Id: <2cb61837-dc0e-2b9f-cf40-1abb430af404@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com
 
-Where available, use the fine-grained counters in rtnl_link_stats64 to
-indicate different RX error causes. For drop reasons, use driver-private
-ethtool counters.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--lDvsFhYLqksJ9htjUDiZIGGfuoNmYiGhy
+Content-Type: multipart/mixed; boundary="hiK6TBRwoasKh5T0lZd7EpwsS64YJ1iVb"
 
-In particular this patch allows us to keep track of driver-side drops due
-to unknown/unsupported HW descriptor format.
+--hiK6TBRwoasKh5T0lZd7EpwsS64YJ1iVb
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  7 +++++--
- drivers/s390/net/qeth_core_main.c | 17 +++++++++++------
- drivers/s390/net/qeth_ethtool.c   |  2 ++
- drivers/s390/net/qeth_l2_main.c   |  1 +
- drivers/s390/net/qeth_l3_main.c   |  1 +
- 5 files changed, 20 insertions(+), 8 deletions(-)
+On 11/5/19 7:23 PM, Christian Borntraeger wrote:
+>=20
+>=20
+> On 05.11.19 18:34, David Hildenbrand wrote:
+>>
+>>
+>>> Am 05.11.2019 um 17:29 schrieb Janosch Frank <frankja@linux.ibm.com>:=
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index d08154502b15..14edc892f7c1 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -477,12 +477,15 @@ struct qeth_card_stats {
- 	u64 rx_sg_frags;
- 	u64 rx_sg_alloc_page;
- 
-+	u64 rx_dropped_nomem;
-+	u64 rx_dropped_notsupp;
-+
- 	/* rtnl_link_stats64 */
- 	u64 rx_packets;
- 	u64 rx_bytes;
--	u64 rx_errors;
--	u64 rx_dropped;
- 	u64 rx_multicast;
-+	u64 rx_length_errors;
-+	u64 rx_fifo_errors;
- };
- 
- struct qeth_out_q_stats {
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 9e8bd8e08146..4e113f359be9 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3093,7 +3093,7 @@ static int qeth_check_qdio_errors(struct qeth_card *card,
- 			       buf->element[14].sflags);
- 		QETH_CARD_TEXT_(card, 2, " qerr=%X", qdio_error);
- 		if ((buf->element[15].sflags) == 0x12) {
--			QETH_CARD_STAT_INC(card, rx_dropped);
-+			QETH_CARD_STAT_INC(card, rx_fifo_errors);
- 			return 0;
- 		} else
- 			return 1;
-@@ -4346,7 +4346,7 @@ static int qeth_mdio_read(struct net_device *dev, int phy_id, int regnum)
- 	case MII_NWAYTEST: /* N-way auto-neg test register */
- 		break;
- 	case MII_RERRCOUNTER: /* rx error counter */
--		rc = card->stats.rx_errors;
-+		rc = card->stats.rx_length_errors + card->stats.rx_fifo_errors;
- 		break;
- 	case MII_SREVISION: /* silicon revision */
- 		break;
-@@ -5092,6 +5092,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		headroom = sizeof(struct qeth_hdr);
- 		break;
- 	default:
-+		QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 		break;
- 	}
- 
-@@ -5134,7 +5135,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 				QETH_CARD_TEXT(card, 4, "unexeob");
- 				QETH_CARD_HEX(card, 2, buffer, sizeof(void *));
- 				dev_kfree_skb_any(skb);
--				QETH_CARD_STAT_INC(card, rx_errors);
-+				QETH_CARD_STAT_INC(card, rx_length_errors);
- 				return NULL;
- 			}
- 			element++;
-@@ -5156,7 +5157,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	if (net_ratelimit()) {
- 		QETH_CARD_TEXT(card, 2, "noskbmem");
- 	}
--	QETH_CARD_STAT_INC(card, rx_dropped);
-+	QETH_CARD_STAT_INC(card, rx_dropped_nomem);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(qeth_core_get_next_skb);
-@@ -6236,9 +6237,13 @@ void qeth_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
- 
- 	stats->rx_packets = card->stats.rx_packets;
- 	stats->rx_bytes = card->stats.rx_bytes;
--	stats->rx_errors = card->stats.rx_errors;
--	stats->rx_dropped = card->stats.rx_dropped;
-+	stats->rx_errors = card->stats.rx_length_errors +
-+			   card->stats.rx_fifo_errors;
-+	stats->rx_dropped = card->stats.rx_dropped_nomem +
-+			    card->stats.rx_dropped_notsupp;
- 	stats->multicast = card->stats.rx_multicast;
-+	stats->rx_length_errors = card->stats.rx_length_errors;
-+	stats->rx_fifo_errors = card->stats.rx_fifo_errors;
- 
- 	for (i = 0; i < card->qdio.no_out_queues; i++) {
- 		queue = card->qdio.out_qs[i];
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 096698df3886..f7485c6dea25 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -49,6 +49,8 @@ static const struct qeth_stats card_stats[] = {
- 	QETH_CARD_STAT("rx0 SG skbs", rx_sg_skbs),
- 	QETH_CARD_STAT("rx0 SG page frags", rx_sg_frags),
- 	QETH_CARD_STAT("rx0 SG page allocs", rx_sg_alloc_page),
-+	QETH_CARD_STAT("rx0 dropped, no memory", rx_dropped_nomem),
-+	QETH_CARD_STAT("rx0 dropped, bad format", rx_dropped_notsupp),
- };
- 
- #define TXQ_STATS_LEN	ARRAY_SIZE(txq_stats)
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 8f3093d24b12..1e85956f95c6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -336,6 +336,7 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
- 			dev_kfree_skb_any(skb);
- 			QETH_CARD_TEXT(card, 3, "inbunkno");
- 			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
-+			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 			continue;
- 		}
- 		work_done++;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 70d4586dc779..72c61faae3f9 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1391,6 +1391,7 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
- 			dev_kfree_skb_any(skb);
- 			QETH_CARD_TEXT(card, 3, "inbunkno");
- 			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
-+			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 			continue;
- 		}
- 		work_done++;
--- 
-2.17.1
+>>>
+>>> =EF=BB=BFWhen testing diag308 subcodes 0/1 on lpar with virtual mem s=
+et up, I
+>>> experienced spec PGMs and addressing PGMs due to the tests not settin=
+g
+>>> short psw bit 12 and leaving the DAT bit on.
+>>>
+>>> The problem was not found under KVM/QEMU, because Qemu just ignores
+>>> all cpu mask bits... I'm working on a fix for that too.
+>>>
+>>
+>> I don=E2=80=98t have access to documentation. Is what LPAR does docume=
+nted behavior or is this completely undocumented and therefore undefined =
+behavior? Then we should remove these test cases completely instead.
+>=20
+> Yes. It was just that KVM/QEMU never looked at the mask and just used a=
+ default
+> one. The short PSW on address 0 clearly contains a mask and we should b=
+etter set
+> it.
+
+Yeah, we're currently reviewing the QEMU patch to fix this, I'll send it
+out tomorrow.
+
+>>
+>>> Janosch Frank (2):
+>>>  s390x: Add CR save area
+>>>  s390x: Remove DAT and add short indication psw bits on diag308 reset=
+
+>>>
+>>> lib/s390x/asm-offsets.c  |  3 ++-
+>>> lib/s390x/asm/arch_def.h |  5 +++--
+>>> lib/s390x/interrupt.c    |  4 ++--
+>>> lib/s390x/smp.c          |  2 +-
+>>> s390x/cstart64.S         | 29 ++++++++++++++++++++---------
+>>> 5 files changed, 28 insertions(+), 15 deletions(-)
+>>>
+>>> --=20
+>>> 2.20.1
+>>>
+
+
+
+--hiK6TBRwoasKh5T0lZd7EpwsS64YJ1iVb--
+
+--lDvsFhYLqksJ9htjUDiZIGGfuoNmYiGhy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3BwW0ACgkQ41TmuOI4
+ufjJ1Q/9EpHnSJULLtzLNF3Yndqa3ythbwbA+v27tqA/cz7f9ghddFdQ5I90fpG0
+GcpVa3NW14lnKEmBTATYYe+Ba3iZliy33P3rlSPlGCFJInqVLwDe7Q0yB3jHGioV
+wc73Th15sE/p7EFxmsUeSEmvG8MwAvLQvvu+gNrUaPBv+hnYhHR0O+ZILn1l30Pd
++n1rJa6VE5Iz6zSX8JYkP7TK94DxHlvBP5TvINEkb8coxM92Vc9LpeGPNx2+I+mK
+UWXmL8QlzvX/c0j+nimq15Rk7w1eCxxEM/GXg0buFAd2eliYZYciU805Fv4gXob5
+2+XbI5vJipWuW3pIU0SLmIMeuLuEBkMSozosw1WL4rz419mMB5zuhXHRh6zkliJP
+2usMrPkVv5L2Bw1WIywUWbVJMosyAqmaAgH36JBG7y9feFKhdVeGm5afSeqTvWuE
+MwnCmjpXiMk8cV38ktC5hGZjfFtT6K66aBo9yXiIBwVRp3PIo43cYbjt5sV8atf8
+niHG7gGEOrC28FhVqTJxzaQwzxCMF2OiLq7HUbFycih5HJoYEtQRaRkp/1ephSt8
+Ve6mF8+vuorIsImvRfe68SX9pt3aXDC4LbBArUtsqVdSha7VGdu1L38MTkR87wbT
+KwboSCt/p6LXhSCJhBa3mQHAhT+a94Sq2OPULLj27W8DE4KmP+c=
+=zEjd
+-----END PGP SIGNATURE-----
+
+--lDvsFhYLqksJ9htjUDiZIGGfuoNmYiGhy--
