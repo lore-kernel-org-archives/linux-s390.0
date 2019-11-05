@@ -1,78 +1,79 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51142 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725280AbfKSJxr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Nov 2019 04:53:47 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAJ9qeA1181706
-        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 04:53:45 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wayaxp514-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 04:53:45 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Tue, 19 Nov 2019 09:53:43 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 0/3] s390x: SCLP Unit test
-Date: Tue, 19 Nov 2019 10:53:36 +0100
-Message-Id: <1574157219-22052-1-git-send-email-imbrenda@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 05 Nov 2019 09:27:27 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] xtensa: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-26-keescook@chromium.org>
+References: <20191029211351.13243-26-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294604726.29376.12527593781479789931.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Max Filippov <jcmvbkbc@gmail.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-This patchset contains some minor cleanup, some preparatory work and
-then the SCLP unit test itself.
+The following commit has been merged into the x86/build branch of tip:
 
-The unit test checks the following:
-    
-    * Correctly ignoring instruction bits that should be ignored
-    * Privileged instruction check
-    * Check for addressing exceptions
-    * Specification exceptions:
-      - SCCB size less than 8
-      - SCCB unaligned
-      - SCCB overlaps prefix or lowcore
-      - SCCB address higher than 2GB
-    * Return codes for
-      - Invalid command
-      - SCCB too short (but at least 8)
-      - SCCB page boundary violation
+Commit-ID:     94174c9b71c62a0e1a4364c2594e1422ba8fffcd
+Gitweb:        https://git.kernel.org/tip/94174c9b71c62a0e1a4364c2594e1422ba8fffcd
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:47 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 18:42:27 +01:00
 
-v3 -> v4
-* export sclp_setup_int instead of copying it
-* add more comments
-* rename some more variables to improve readability
-* improve the prefix test
-* improved the invalid address test
-* addressed further comments received during review
-v2 -> v3
-* generally improved the naming of variables
-* added and fixed comments
-* renamed test_one_run to test_one_simple
-* added some const where needed
-* addresed many more small comments received during review
-v1 -> v2
-* fix many small issues that came up during the first round of reviews
-* add comments to each function
-* use a static buffer for the SCCP template when used
+xtensa: Move EXCEPTION_TABLE to RO_DATA segment
 
-Claudio Imbrenda (3):
-  s390x: export sclp_setup_int
-  s390x: sclp: add service call instruction wrapper
-  s390x: SCLP unit test
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
- s390x/Makefile           |   1 +
- lib/s390x/asm/arch_def.h |  13 ++
- lib/s390x/sclp.h         |   1 +
- lib/s390x/sclp.c         |   9 +-
- s390x/sclp.c             | 465 +++++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   3 +
- 6 files changed, 485 insertions(+), 7 deletions(-)
- create mode 100644 s390x/sclp.c
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-xtensa@linux-xtensa.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-26-keescook@chromium.org
+---
+ arch/xtensa/kernel/vmlinux.lds.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
--- 
-2.7.4
+diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
+index bdbd7c4..0043d58 100644
+--- a/arch/xtensa/kernel/vmlinux.lds.S
++++ b/arch/xtensa/kernel/vmlinux.lds.S
+@@ -14,6 +14,8 @@
+  * Joe Taylor <joe@tensilica.com, joetylr@yahoo.com>
+  */
+ 
++#define RO_EXCEPTION_TABLE_ALIGN	16
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/page.h>
+ #include <asm/thread_info.h>
+@@ -130,7 +132,6 @@ SECTIONS
+ 
+   .fixup   : { *(.fixup) }
+ 
+-  EXCEPTION_TABLE(16)
+   /* Data section */
+ 
+   _sdata = .;
