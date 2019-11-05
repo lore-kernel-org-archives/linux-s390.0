@@ -1,62 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39538 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726491AbfKOD1j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 22:27:39 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAF39d5d182751
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:27:38 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2w9jcm1g2e-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:27:31 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 15 Nov 2019 02:56:24 -0000
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v1 03/10] vfio-ccw: Use subchannel lpm in the orb
-Date: Fri, 15 Nov 2019 03:56:13 +0100
-In-Reply-To: <20191115025620.19593-1-farman@linux.ibm.com>
-References: <20191115025620.19593-1-farman@linux.ibm.com>
-Message-Id: <20191115025620.19593-4-farman@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40610 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730755AbfKEJ2G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:06 -0500
+Date: Tue, 05 Nov 2019 09:27:27 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] parisc: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-24-keescook@chromium.org>
+References: <20191029211351.13243-24-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294604796.29376.17677093479346528065.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Helge Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Sven Schnelle <svens@stackframe.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-From: Farhan Ali <alifm@linux.ibm.com>
+The following commit has been merged into the x86/build branch of tip:
 
-The subchannel logical path mask (lpm) would have the most
-up to date information of channel paths that are logically
-available for the subchannel.
+Commit-ID:     6e85e23ef2d004def8e1acd36eb155411499b7cc
+Gitweb:        https://git.kernel.org/tip/6e85e23ef2d004def8e1acd36eb155411499b7cc
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:45 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 18:22:10 +01:00
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+parisc: Move EXCEPTION_TABLE to RO_DATA segment
+
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Helge Deller <deller@gmx.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Sven Schnelle <svens@stackframe.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-24-keescook@chromium.org
 ---
-
-Notes:
-    v0->v1: [EF]
-     - None; however I am greatly confused by this one.  Thoughts?
-
- drivers/s390/cio/vfio_ccw_cp.c | 4 +---
+ arch/parisc/kernel/vmlinux.lds.S | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 3645d1720c4b..d4a86fb9d162 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -779,9 +779,7 @@ union orb *cp_get_orb(struct channel_program *cp, u32 intparm, u8 lpm)
- 	orb->cmd.intparm = intparm;
- 	orb->cmd.fmt = 1;
- 	orb->cmd.key = PAGE_DEFAULT_KEY >> 4;
--
--	if (orb->cmd.lpm == 0)
--		orb->cmd.lpm = lpm;
-+	orb->cmd.lpm = lpm;
+diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
+index 12b3d7d..53e29d8 100644
+--- a/arch/parisc/kernel/vmlinux.lds.S
++++ b/arch/parisc/kernel/vmlinux.lds.S
+@@ -19,6 +19,7 @@
+ 				*(.data..vm0.pte)
  
- 	chain = list_first_entry(&cp->ccwchain_list, struct ccwchain, next);
- 	cpa = chain->ch_ccw;
--- 
-2.17.1
+ #define CC_USING_PATCHABLE_FUNCTION_ENTRY
++#define RO_EXCEPTION_TABLE_ALIGN	8
+ 
+ #include <asm-generic/vmlinux.lds.h>
+ 
+@@ -129,9 +130,6 @@ SECTIONS
+ 
+ 	RO_DATA(8)
+ 
+-	/* RO because of BUILDTIME_EXTABLE_SORT */
+-	EXCEPTION_TABLE(8)
+-
+ 	/* unwind info */
+ 	.PARISC.unwind : {
+ 		__start___unwind = .;
