@@ -1,71 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11086 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726516AbfKNKUm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:20:42 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAJ6wO037241
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:20:41 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92b9drjj-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:20:38 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:33 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 05/11] s390/qeth: clean up error path in qeth_core_probe_device()
-Date: Thu, 14 Nov 2019 11:19:18 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-6-jwi@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40613 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729996AbfKEJ2G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:06 -0500
+Date: Tue, 05 Nov 2019 09:27:28 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] ia64: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-22-keescook@chromium.org>
+References: <20191029211351.13243-22-keescook@chromium.org>
+MIME-Version: 1.0
+Message-ID: <157294604876.29376.5921428303294914196.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Tony Luck <tony.luck@intel.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-qeth_core_free_card() is meant to be the counterpart of
-qeth_alloc_card() - but unfortunately was also picked as the place
-to free the QDIO queues.
+The following commit has been merged into the x86/build branch of tip:
 
-This gets messy when qeth_core_probe_device() fails during
-qeth_add_dbf_entry(). At this point the card->qdio.state is not initialized
-yet, so qeth_free_qdio_queues() ends up operating on uninitialized data.
+Commit-ID:     9b30e704dd0d9ef9d99c7f88712318840cc8a338
+Gitweb:        https://git.kernel.org/tip/9b30e704dd0d9ef9d99c7f88712318840cc8a338
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:43 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 18:14:41 +01:00
 
-Luckily for now, the whole qeth_card struct is zero-allocated and the value
-of the QETH_QDIO_UNINITIALIZED enum is 0 as well. So there's no real impact
-from this bug at the moment, it's just really fragile.
+ia64: Move EXCEPTION_TABLE to RO_DATA segment
 
-Clean this up by moving the qeth_free_qdio_queues() call up one level in
-the hierarchy. This way it doesn't get called from the error path.
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-22-keescook@chromium.org
 ---
- drivers/s390/net/qeth_core_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/ia64/kernel/vmlinux.lds.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 08185f76a727..f1f56e354516 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4855,7 +4855,6 @@ static void qeth_core_free_card(struct qeth_card *card)
- 	qeth_clean_channel(&card->data);
- 	qeth_put_cmd(card->read_cmd);
- 	destroy_workqueue(card->event_wq);
--	qeth_free_qdio_queues(card);
- 	unregister_service_level(&card->qeth_service_level);
- 	dev_set_drvdata(&card->gdev->dev, NULL);
- 	kfree(card);
-@@ -5768,6 +5767,8 @@ static void qeth_core_remove_device(struct ccwgroup_device *gdev)
- 		qeth_core_free_discipline(card);
- 	}
+diff --git a/arch/ia64/kernel/vmlinux.lds.S b/arch/ia64/kernel/vmlinux.lds.S
+index 11d5115..1ec6b70 100644
+--- a/arch/ia64/kernel/vmlinux.lds.S
++++ b/arch/ia64/kernel/vmlinux.lds.S
+@@ -6,6 +6,7 @@
+ #include <asm/thread_info.h>
  
-+	qeth_free_qdio_queues(card);
-+
- 	free_netdev(card->dev);
- 	qeth_core_free_card(card);
- 	put_device(&gdev->dev);
--- 
-2.17.1
+ #define EMITS_PT_NOTE
++#define RO_EXCEPTION_TABLE_ALIGN	16
+ 
+ #include <asm-generic/vmlinux.lds.h>
+ 
+@@ -70,7 +71,6 @@ SECTIONS {
+ 	/*
+ 	 * Read-only data
+ 	 */
+-	EXCEPTION_TABLE(16)
+ 
+ 	/* MCA table */
+ 	. = ALIGN(16);
