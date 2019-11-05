@@ -1,198 +1,85 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V12 3/6] mdev: move to drivers/
-Date: Mon, 18 Nov 2019 14:17:00 +0800
-Message-Id: <20191118061703.8669-4-jasowang@redhat.com>
-In-Reply-To: <20191118061703.8669-1-jasowang@redhat.com>
-References: <20191118061703.8669-1-jasowang@redhat.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 05 Nov 2019 09:27:29 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] arm64: Move EXCEPTION_TABLE to RO_DATA segment
+In-Reply-To: <20191029211351.13243-19-keescook@chromium.org>
+References: <20191029211351.13243-19-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-Sender: netdev-owner@vger.kernel.org
+Message-ID: <157294604989.29376.81453750652934553.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, gregkh@linuxfoundation.org, jgg@mellanox.com, Jason Wang <jasowang@redhat.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Will Deacon <will@kernel.org>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Peter Collingbourne <pcc@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-Mdev now is nothing VFIO specific, let's move it to upper
-directory.
+The following commit has been merged into the x86/build branch of tip:
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Commit-ID:     19f6bc32c6f4216e099963f416de91eba7ca1430
+Gitweb:        https://git.kernel.org/tip/19f6bc32c6f4216e099963f416de91eba7ca1430
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:40 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 18:02:35 +01:00
+
+arm64: Move EXCEPTION_TABLE to RO_DATA segment
+
+Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA. Also
+removes the redundant ALIGN, which is already present at the end of the
+RO_DATA macro.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-19-keescook@chromium.org
 ---
- MAINTAINERS                                   |  7 +++++--
- drivers/Kconfig                               |  2 ++
- drivers/Makefile                              |  1 +
- drivers/mdev/Kconfig                          | 19 ++++++++++++++++++
- drivers/mdev/Makefile                         |  5 +++++
- drivers/{vfio =3D> }/mdev/mdev_core.c           |  0
- drivers/{vfio =3D> }/mdev/mdev_driver.c         |  0
- drivers/{vfio =3D> }/mdev/mdev_private.h        |  0
- drivers/{vfio =3D> }/mdev/mdev_sysfs.c          |  0
- .../{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c}    |  0
- drivers/vfio/mdev/Kconfig                     | 20 -------------------
- drivers/vfio/mdev/Makefile                    |  4 ----
- drivers/vfio/mdev/vfio_mdev.c                 |  2 --
- 13 files changed, 32 insertions(+), 28 deletions(-)
- create mode 100644 drivers/mdev/Kconfig
- create mode 100644 drivers/mdev/Makefile
- rename drivers/{vfio =3D> }/mdev/mdev_core.c (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_driver.c (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_private.h (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_sysfs.c (100%)
- rename drivers/{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c} (100%)
+ arch/arm64/kernel/vmlinux.lds.S | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d335949240dc..829428d8a9f5 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17111,15 +17111,18 @@ T:=09git git://github.com/awilliam/linux-vfio.git
- S:=09Maintained
- F:=09Documentation/driver-api/vfio.rst
- F:=09drivers/vfio/
-+F:=09drivers/mdev/vfio.c
- F:=09include/linux/vfio.h
- F:=09include/uapi/linux/vfio.h
-=20
--VFIO MEDIATED DEVICE DRIVERS
-+MEDIATED DEVICE DRIVERS
-+M:=09Alex Williamson <alex.williamson@redhat.com>
- M:=09Kirti Wankhede <kwankhede@nvidia.com>
-+R:=09Cornelia Huck <cohuck@redhat.com>
- L:=09kvm@vger.kernel.org
- S:=09Maintained
- F:=09Documentation/driver-api/vfio-mediated-device.rst
--F:=09drivers/vfio/mdev/
-+F:=09drivers/mdev
- F:=09include/linux/mdev.h
- F:=09include/linux/mdev_vfio.h
- F:=09samples/vfio-mdev/
-diff --git a/drivers/Kconfig b/drivers/Kconfig
-index 8befa53f43be..3e2839048fe6 100644
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -228,4 +228,6 @@ source "drivers/interconnect/Kconfig"
-=20
- source "drivers/counter/Kconfig"
-=20
-+source "drivers/mdev/Kconfig"
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index a4b3e6c..9128a26 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -5,6 +5,8 @@
+  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>
+  */
+ 
++#define RO_EXCEPTION_TABLE_ALIGN	8
 +
- endmenu
-diff --git a/drivers/Makefile b/drivers/Makefile
-index aaef17cc6512..592e23f2e629 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -186,3 +186,4 @@ obj-$(CONFIG_SIOX)=09=09+=3D siox/
- obj-$(CONFIG_GNSS)=09=09+=3D gnss/
- obj-$(CONFIG_INTERCONNECT)=09+=3D interconnect/
- obj-$(CONFIG_COUNTER)=09=09+=3D counter/
-+obj-$(CONFIG_MDEV)=09=09+=3D mdev/
-diff --git a/drivers/mdev/Kconfig b/drivers/mdev/Kconfig
-new file mode 100644
-index 000000000000..4561f2d4178f
---- /dev/null
-+++ b/drivers/mdev/Kconfig
-@@ -0,0 +1,19 @@
-+
-+config MDEV
-+=09tristate "Mediated device driver framework"
-+=09default n
-+=09help
-+=09  Provides a framework to virtualize devices.
-+
-+=09  If you don't know what do here, say N.
-+
-+config VFIO_MDEV
-+=09tristate "VFIO Mediated device driver"
-+        depends on VFIO && MDEV
-+        default n
-+=09help
-+=09  Proivdes a mediated BUS for userspace driver through VFIO
-+=09  framework. See Documentation/vfio-mediated-device.txt for
-+=09  more details.
-+
-+=09  If you don't know what do here, say N.
-diff --git a/drivers/mdev/Makefile b/drivers/mdev/Makefile
-new file mode 100644
-index 000000000000..0b749e7f8ff4
---- /dev/null
-+++ b/drivers/mdev/Makefile
-@@ -0,0 +1,5 @@
-+
-+mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
-+mdev_vfio-y :=3D vfio.o
-+obj-$(CONFIG_MDEV) +=3D mdev.o
-+obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/mdev/mdev_core.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_core.c
-rename to drivers/mdev/mdev_core.c
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/mdev/mdev_driver.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_driver.c
-rename to drivers/mdev/mdev_driver.c
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/mdev/mdev_private.h
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_private.h
-rename to drivers/mdev/mdev_private.h
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/mdev/mdev_sysfs.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_sysfs.c
-rename to drivers/mdev/mdev_sysfs.c
-diff --git a/drivers/vfio/mdev/mdev_vfio.c b/drivers/mdev/vfio.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_vfio.c
-rename to drivers/mdev/vfio.c
-diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
-index 2e07ca915a96..9a9234c3e00e 100644
---- a/drivers/vfio/mdev/Kconfig
-+++ b/drivers/vfio/mdev/Kconfig
-@@ -1,24 +1,4 @@
-=20
--config MDEV
--=09tristate "Mediated device driver framework"
--=09default n
--=09help
--=09  Provides a framework to virtualize devices.
--
--=09  If you don't know what do here, say N.
--
--config VFIO_MDEV
--=09tristate "VFIO Mediated device driver"
--        depends on VFIO && MDEV
--        default n
--=09help
--=09  Proivdes a mediated BUS for userspace driver through VFIO
--=09  framework. See Documentation/vfio-mediated-device.txt for
--=09  more details.
--
--=09  If you don't know what do here, say N.
--
--
- config VFIO_MDEV_DEVICE
- =09tristate "VFIO driver for Mediated devices"
- =09depends on VFIO && VFIO_MDEV
-diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
-index e9675501271a..e2a92df3089e 100644
---- a/drivers/vfio/mdev/Makefile
-+++ b/drivers/vfio/mdev/Makefile
-@@ -1,6 +1,2 @@
-=20
--mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
--
--obj-$(CONFIG_MDEV) +=3D mdev.o
--obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
- obj-$(CONFIG_VFIO_MDEV_DEVICE) +=3D vfio_mdev.o
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index 8b42a4b3f161..4eada31e9287 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -15,8 +15,6 @@
- #include <linux/vfio.h>
- #include <linux/mdev_vfio.h>
-=20
--#include "mdev_private.h"
--
- #define DRIVER_VERSION  "0.1"
- #define DRIVER_AUTHOR   "NVIDIA Corporation"
- #define DRIVER_DESC     "VFIO based driver for Mediated device"
---=20
-2.19.1
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/cache.h>
+ #include <asm/kernel-pgtable.h>
+@@ -135,10 +137,9 @@ SECTIONS
+ 	. = ALIGN(SEGMENT_ALIGN);
+ 	_etext = .;			/* End of text section */
+ 
+-	RO_DATA(PAGE_SIZE)		/* everything from this point to     */
+-	EXCEPTION_TABLE(8)		/* __init_begin will be marked RO NX */
++	/* everything from this point to __init_begin will be marked RO NX */
++	RO_DATA(PAGE_SIZE)
+ 
+-	. = ALIGN(PAGE_SIZE);
+ 	idmap_pg_dir = .;
+ 	. += IDMAP_DIR_SIZE;
+ 
