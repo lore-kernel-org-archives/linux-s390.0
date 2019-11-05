@@ -1,134 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-201.mailbox.org ([80.241.56.171]:60584 "EHLO
-        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727134AbfKPAbx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 15 Nov 2019 19:31:53 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v16 08/12] namei: LOOKUP_IN_ROOT: chroot-like scoped resolution
-Date: Sat, 16 Nov 2019 11:27:58 +1100
-Message-Id: <20191116002802.6663-9-cyphar@cyphar.com>
-In-Reply-To: <20191116002802.6663-1-cyphar@cyphar.com>
-References: <20191116002802.6663-1-cyphar@cyphar.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:40641 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388115AbfKEJ2N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:13 -0500
+Date: Tue, 05 Nov 2019 09:27:31 -0000
+From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: x86/build] x86/vmlinux: Actually use _etext for the end of the
+ text segment
+In-Reply-To: <20191029211351.13243-16-keescook@chromium.org>
+References: <20191029211351.13243-16-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <157294605107.29376.5449553975525420938.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Nick Desaulniers <ndesaulniers@google.com>, Peter Zijlstra <peterz@infradead.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ross Zwisler <zwisler@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
 
-/* Background. */
-Container runtimes or other administrative management processes will
-often interact with root filesystems while in the host mount namespace,
-because the cost of doing a chroot(2) on every operation is too
-prohibitive (especially in Go, which cannot safely use vfork). However,
-a malicious program can trick the management process into doing
-operations on files outside of the root filesystem through careful
-crafting of symlinks.
+The following commit has been merged into the x86/build branch of tip:
 
-Most programs that need this feature have attempted to make this process
-safe, by doing all of the path resolution in userspace (with symlinks
-being scoped to the root of the malicious root filesystem).
-Unfortunately, this method is prone to foot-guns and usually such
-implementations have subtle security bugs.
+Commit-ID:     b907693883fdcff5b492cf0cd02a0e264623055e
+Gitweb:        https://git.kernel.org/tip/b907693883fdcff5b492cf0cd02a0e264623055e
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Tue, 29 Oct 2019 14:13:37 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 04 Nov 2019 17:54:16 +01:00
 
-Thus, what userspace needs is a way to resolve a path as though it were
-in a chroot(2) -- with all absolute symlinks being resolved relative to
-the dirfd root (and ".." components being stuck under the dirfd root).
-It is much simpler and more straight-forward to provide this
-functionality in-kernel (because it can be done far more cheaply and
-correctly).
+x86/vmlinux: Actually use _etext for the end of the text segment
 
-More classical applications that also have this problem (which have
-their own potentially buggy userspace path sanitisation code) include
-web servers, archive extraction tools, network file servers, and so on.
+Various calculations are using the end of the exception table (which
+does not need to be executable) as the end of the text segment. Instead,
+in preparation for moving the exception table into RO_DATA, move _etext
+after the exception table and update the calculations.
 
-/* Userspace API. */
-LOOKUP_IN_ROOT will be exposed to userspace through openat2(2).
-
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_IN_ROOT applies to all components of the path.
-
-With LOOKUP_IN_ROOT, any path component which attempts to cross the
-starting point of the pathname lookup (the dirfd passed to openat) will
-remain at the starting point. Thus, all absolute paths and symlinks will
-be scoped within the starting point.
-
-There is a slight change in behaviour regarding pathnames -- if the
-pathname is absolute then the dirfd is still used as the root of
-resolution of LOOKUP_IN_ROOT is specified (this is to avoid obvious
-foot-guns, at the cost of a minor API inconsistency).
-
-As with LOOKUP_BENEATH, Jann's security concern about ".."[1] applies to
-LOOKUP_IN_ROOT -- therefore ".." resolution is blocked. This restriction
-will be lifted in a future patch, but requires more work to ensure that
-permitting ".." is done safely.
-
-Magic-link jumps are also blocked, because they can beam the path lookup
-across the starting point. It would be possible to detect and block
-only the "bad" crossings with path_is_under() checks, but it's unclear
-whether it makes sense to permit magic-links at all. However, userspace
-is recommended to pass LOOKUP_NO_MAGICLINKS if they want to ensure that
-magic-link crossing is entirely disabled.
-
-/* Testing. */
-LOOKUP_IN_ROOT is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/CAG48ez1jzNvxB+bfOBnERFGp=oMM0vHWuLD6EULmne3R6xa53w@mail.gmail.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-c6x-dev@linux-c6x.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Cc: Ross Zwisler <zwisler@chromium.org>
+Cc: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20191029211351.13243-16-keescook@chromium.org
 ---
- fs/namei.c            | 10 +++++++---
- include/linux/namei.h |  3 ++-
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/sections.h | 1 -
+ arch/x86/kernel/vmlinux.lds.S   | 7 +++----
+ arch/x86/mm/init_64.c           | 6 +++---
+ arch/x86/mm/pti.c               | 2 +-
+ 4 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index bad5ef56b4c8..cb0b9f411efb 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2271,13 +2271,16 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+diff --git a/arch/x86/include/asm/sections.h b/arch/x86/include/asm/sections.h
+index 71b32f2..036c360 100644
+--- a/arch/x86/include/asm/sections.h
++++ b/arch/x86/include/asm/sections.h
+@@ -6,7 +6,6 @@
+ #include <asm/extable.h>
  
- 	nd->m_seq = read_seqbegin(&mount_lock);
+ extern char __brk_base[], __brk_limit[];
+-extern struct exception_table_entry __stop___ex_table[];
+ extern char __end_rodata_aligned[];
  
--	/* Figure out the starting path and root (if needed). */
--	if (*s == '/') {
-+	/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd->dfd). */
-+	if (*s == '/' && !(flags & LOOKUP_IN_ROOT)) {
- 		error = nd_jump_root(nd);
- 		if (unlikely(error))
- 			return ERR_PTR(error);
- 		return s;
--	} else if (nd->dfd == AT_FDCWD) {
-+	}
+ #if defined(CONFIG_X86_64)
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 41362e9..a1a758e 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -143,15 +143,14 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
+ #endif
+-
+-		/* End of text section */
+-		_etext = .;
+ 	} :text = 0x9090
+ 
+ 	EXCEPTION_TABLE(16)
+ 
+-	/* .text should occupy whole number of pages */
++	/* End of text section, which should occupy whole number of pages */
++	_etext = .;
+ 	. = ALIGN(PAGE_SIZE);
 +
-+	/* Relative pathname -- get the starting-point it is relative to. */
-+	if (nd->dfd == AT_FDCWD) {
- 		if (flags & LOOKUP_RCU) {
- 			struct fs_struct *fs = current->fs;
- 			unsigned seq;
-@@ -2317,6 +2320,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 		}
- 		fdput(f);
- 	}
-+
- 	/* For scoped-lookups we need to set the root to the dirfd as well. */
- 	if (flags & LOOKUP_IS_SCOPED) {
- 		nd->root = nd->path;
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 93dad378f1e8..93151e47ec47 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -45,8 +45,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
- #define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
- #define LOOKUP_BENEATH		0x080000 /* No escaping from starting point. */
-+#define LOOKUP_IN_ROOT		0x100000 /* Treat dirfd as fs root. */
- /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
--#define LOOKUP_IS_SCOPED LOOKUP_BENEATH
-+#define LOOKUP_IS_SCOPED (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
+ 	X86_ALIGN_RODATA_BEGIN
+ 	RO_DATA(PAGE_SIZE)
+ 	X86_ALIGN_RODATA_END
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index a6b5c65..26299e9 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1263,7 +1263,7 @@ int kernel_set_to_readonly;
+ void set_kernel_text_rw(void)
+ {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
  
- extern int path_pts(struct path *path);
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1282,7 +1282,7 @@ void set_kernel_text_rw(void)
+ void set_kernel_text_ro(void)
+ {
+ 	unsigned long start = PFN_ALIGN(_text);
+-	unsigned long end = PFN_ALIGN(__stop___ex_table);
++	unsigned long end = PFN_ALIGN(_etext);
  
--- 
-2.24.0
+ 	if (!kernel_set_to_readonly)
+ 		return;
+@@ -1301,7 +1301,7 @@ void mark_rodata_ro(void)
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long rodata_start = PFN_ALIGN(__start_rodata);
+ 	unsigned long end = (unsigned long) &__end_rodata_hpage_align;
+-	unsigned long text_end = PFN_ALIGN(&__stop___ex_table);
++	unsigned long text_end = PFN_ALIGN(&_etext);
+ 	unsigned long rodata_end = PFN_ALIGN(&__end_rodata);
+ 	unsigned long all_end;
+ 
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index 7f21404..44a9f06 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -574,7 +574,7 @@ static void pti_clone_kernel_text(void)
+ 	 */
+ 	unsigned long start = PFN_ALIGN(_text);
+ 	unsigned long end_clone  = (unsigned long)__end_rodata_aligned;
+-	unsigned long end_global = PFN_ALIGN((unsigned long)__stop___ex_table);
++	unsigned long end_global = PFN_ALIGN((unsigned long)_etext);
+ 
+ 	if (!pti_kernel_image_global_ok())
+ 		return;
