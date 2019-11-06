@@ -1,12 +1,16 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:50273 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731123AbfKFHHS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 02:07:18 -0500
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V10 0/6] mdev based hardware virtio offloading support
-Date: Wed,  6 Nov 2019 21:35:25 +0800
-Message-Id: <20191106133531.693-1-jasowang@redhat.com>
+Subject: [PATCH V9 0/6] mdev based hardware virtio offloading support
+Date: Wed,  6 Nov 2019 15:05:42 +0800
+Message-Id: <20191106070548.18980-1-jasowang@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
 Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
@@ -38,8 +42,7 @@ Consider mdev framework only support VFIO device and driver right now,
 this series also extend it to support other types. This is done
 through introducing class id to the device and pairing it with
 id_talbe claimed by the driver. On top, this seris also decouple
-device specific ops out of the common ones for implementing class
-specific operations over mdev bus.
+device specific parents ops out of the common ones.
 
 Pktgen test was done with virito-net + mvnet loop back device.
 
@@ -47,9 +50,6 @@ Please review.
 
 [1] https://lkml.org/lkml/2019/11/5/424
 [2] https://lkml.org/lkml/2019/11/5/227
-
-Changes from V9:
-- Tweak the help text for virito-mdev kconfig
 
 Changes from V8:
 - try silent checkpatch, some are still there becuase they were inherited
