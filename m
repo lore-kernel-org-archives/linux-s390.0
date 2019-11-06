@@ -1,115 +1,227 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 04/13] namei: allow set_root() to produce errors
-Date: Sun, 17 Nov 2019 12:17:04 +1100
-Message-Id: <20191117011713.13032-5-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:49996 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726811AbfKFJ4H (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 6 Nov 2019 04:56:07 -0500
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: [PATCH v3 3/4] s390/unwind: prepare the unwinding interface for reliable stack traces
+Date: Wed,  6 Nov 2019 10:56:00 +0100
+Message-Id: <20191106095601.29986-4-mbenes@suse.cz>
+In-Reply-To: <20191106095601.29986-1-mbenes@suse.cz>
+References: <20191106095601.29986-1-mbenes@suse.cz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, jpoimboe@redhat.com, joe.lawrence@redhat.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org, pmladek@suse.com, nstange@suse.de, live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
 
-For LOOKUP_BENEATH and LOOKUP_IN_ROOT it is necessary to ensure that
-set_root() is never called, and thus (for hardening purposes) it should
-return an error rather than permit a breakout from the root. In
-addition, move all of the repetitive set_root() calls to nd_jump_root().
+The reliable stack traces support will require to perform more actions
+and some tasks differently. Add a new parameter to respective functions
+and propagate it where appropriate.
 
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Miroslav Benes <mbenes@suse.cz>
 ---
- fs/namei.c | 35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ arch/s390/include/asm/stacktrace.h |  3 ++-
+ arch/s390/include/asm/unwind.h     | 18 ++++++++++--------
+ arch/s390/kernel/dumpstack.c       |  5 +++--
+ arch/s390/kernel/perf_event.c      |  2 +-
+ arch/s390/kernel/stacktrace.c      |  2 +-
+ arch/s390/kernel/unwind_bc.c       | 19 +++++++++++--------
+ arch/s390/oprofile/init.c          |  2 +-
+ 7 files changed, 29 insertions(+), 22 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 1024a641f075..74574a69a614 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -798,7 +798,7 @@ static int complete_walk(struct nameidata *nd)
- 	return status;
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index 0ae4bbf7779c..f033bb70a8db 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -21,7 +21,8 @@ struct stack_info {
+ 
+ const char *stack_type_name(enum stack_type type);
+ int get_stack_info(unsigned long sp, struct task_struct *task,
+-		   struct stack_info *info, unsigned long *visit_mask);
++		   struct stack_info *info, unsigned long *visit_mask,
++		   bool unwind_reliable);
+ 
+ static inline bool on_stack(struct stack_info *info,
+ 			    unsigned long addr, size_t len)
+diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
+index eaaefeceef6f..4c36e200404e 100644
+--- a/arch/s390/include/asm/unwind.h
++++ b/arch/s390/include/asm/unwind.h
+@@ -42,8 +42,9 @@ struct unwind_state {
+ };
+ 
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+-		    struct pt_regs *regs, unsigned long first_frame);
+-bool unwind_next_frame(struct unwind_state *state);
++		    struct pt_regs *regs, unsigned long first_frame,
++		    bool unwind_reliable);
++bool unwind_next_frame(struct unwind_state *state, bool unwind_reliable);
+ unsigned long unwind_get_return_address(struct unwind_state *state);
+ 
+ static inline bool unwind_done(struct unwind_state *state)
+@@ -59,10 +60,11 @@ static inline bool unwind_error(struct unwind_state *state)
+ static inline void unwind_start(struct unwind_state *state,
+ 				struct task_struct *task,
+ 				struct pt_regs *regs,
+-				unsigned long sp)
++				unsigned long sp,
++				bool unwind_reliable)
+ {
+ 	sp = sp ? : get_stack_pointer(task, regs);
+-	__unwind_start(state, task, regs, sp);
++	__unwind_start(state, task, regs, sp, unwind_reliable);
  }
  
--static void set_root(struct nameidata *nd)
-+static int set_root(struct nameidata *nd)
- {
- 	struct fs_struct *fs = current->fs;
- 
-@@ -814,6 +814,7 @@ static void set_root(struct nameidata *nd)
- 		get_fs_root(fs, &nd->root);
- 		nd->flags |= LOOKUP_ROOT_GRABBED;
- 	}
-+	return 0;
+ static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state)
+@@ -70,10 +72,10 @@ static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state)
+ 	return unwind_done(state) ? NULL : state->regs;
  }
  
- static void path_put_conditional(struct path *path, struct nameidata *nd)
-@@ -837,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
+-#define unwind_for_each_frame(state, task, regs, first_frame)	\
+-	for (unwind_start(state, task, regs, first_frame);	\
+-	     !unwind_done(state);				\
+-	     unwind_next_frame(state))
++#define unwind_for_each_frame(state, task, regs, first_frame, unwind_reliable)	\
++	for (unwind_start(state, task, regs, first_frame, unwind_reliable);	\
++	     !unwind_done(state);						\
++	     unwind_next_frame(state, unwind_reliable))
  
- static int nd_jump_root(struct nameidata *nd)
+ static inline void unwind_init(void) {}
+ static inline void unwind_module_init(struct module *mod, void *orc_ip,
+diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
+index 34bdc60c0b11..1ee19e6336cd 100644
+--- a/arch/s390/kernel/dumpstack.c
++++ b/arch/s390/kernel/dumpstack.c
+@@ -88,7 +88,8 @@ static bool in_restart_stack(unsigned long sp, struct stack_info *info)
+ }
+ 
+ int get_stack_info(unsigned long sp, struct task_struct *task,
+-		   struct stack_info *info, unsigned long *visit_mask)
++		   struct stack_info *info, unsigned long *visit_mask,
++		   bool unwind_reliable)
  {
-+	if (!nd->root.mnt) {
-+		int error = set_root(nd);
-+		if (error)
-+			return error;
-+	}
- 	if (nd->flags & LOOKUP_RCU) {
- 		struct dentry *d;
- 		nd->path = nd->root;
-@@ -1080,10 +1086,9 @@ const char *get_link(struct nameidata *nd)
- 			return res;
+ 	if (!sp)
+ 		goto unknown;
+@@ -130,7 +131,7 @@ void show_stack(struct task_struct *task, unsigned long *stack)
+ 	printk("Call Trace:\n");
+ 	if (!task)
+ 		task = current;
+-	unwind_for_each_frame(&state, task, NULL, (unsigned long) stack)
++	unwind_for_each_frame(&state, task, NULL, (unsigned long) stack, false)
+ 		printk(state.reliable ? " [<%016lx>] %pSR \n" :
+ 					"([<%016lx>] %pSR)\n",
+ 		       state.ip, (void *) state.ip);
+diff --git a/arch/s390/kernel/perf_event.c b/arch/s390/kernel/perf_event.c
+index fcb6c2e92b07..7e81db0883e1 100644
+--- a/arch/s390/kernel/perf_event.c
++++ b/arch/s390/kernel/perf_event.c
+@@ -225,7 +225,7 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ {
+ 	struct unwind_state state;
+ 
+-	unwind_for_each_frame(&state, current, regs, 0)
++	unwind_for_each_frame(&state, current, regs, 0, false)
+ 		perf_callchain_store(entry, state.ip);
+ }
+ 
+diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
+index f8fc4f8aef9b..751c136172f7 100644
+--- a/arch/s390/kernel/stacktrace.c
++++ b/arch/s390/kernel/stacktrace.c
+@@ -16,7 +16,7 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
+ 	struct unwind_state state;
+ 	unsigned long addr;
+ 
+-	unwind_for_each_frame(&state, task, regs, 0) {
++	unwind_for_each_frame(&state, task, regs, 0, false) {
+ 		addr = unwind_get_return_address(&state);
+ 		if (!addr || !consume_entry(cookie, addr, false))
+ 			break;
+diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
+index 96da99ec7b59..092626f4e7c6 100644
+--- a/arch/s390/kernel/unwind_bc.c
++++ b/arch/s390/kernel/unwind_bc.c
+@@ -29,7 +29,7 @@ static bool update_stack_info(struct unwind_state *state, unsigned long sp)
+ 	unsigned long *mask = &state->stack_mask;
+ 
+ 	/* New stack pointer leaves the current stack */
+-	if (get_stack_info(sp, state->task, info, mask) != 0 ||
++	if (get_stack_info(sp, state->task, info, mask, false) != 0 ||
+ 	    !on_stack(info, sp, sizeof(struct stack_frame)))
+ 		/* 'sp' does not point to a valid stack */
+ 		return false;
+@@ -79,7 +79,8 @@ static bool unwind_use_regs(struct unwind_state *state)
+ 	return false;
+ }
+ 
+-static bool unwind_use_frame(struct unwind_state *state, unsigned long sp)
++static bool unwind_use_frame(struct unwind_state *state, unsigned long sp,
++			     bool unwind_reliable)
+ {
+ 	struct stack_frame *sf;
+ 	unsigned long ip;
+@@ -100,7 +101,8 @@ static bool unwind_use_frame(struct unwind_state *state, unsigned long sp)
+ 	return false;
+ }
+ 
+-static bool unwind_look_for_regs(struct unwind_state *state)
++static bool unwind_look_for_regs(struct unwind_state *state,
++				 bool unwind_reliable)
+ {
+ 	struct stack_info *info = &state->stack_info;
+ 	struct pt_regs *regs;
+@@ -123,7 +125,7 @@ static bool unwind_look_for_regs(struct unwind_state *state)
+ 	return false;
+ }
+ 
+-bool unwind_next_frame(struct unwind_state *state)
++bool unwind_next_frame(struct unwind_state *state, bool unwind_reliable)
+ {
+ 	struct stack_frame *sf;
+ 	unsigned long sp;
+@@ -136,15 +138,16 @@ bool unwind_next_frame(struct unwind_state *state)
+ 
+ 	/* Non-zero back-chain points to the previous frame */
+ 	if (likely(sp))
+-		return unwind_use_frame(state, sp);
++		return unwind_use_frame(state, sp, unwind_reliable);
+ 
+ 	/* No back-chain, look for a pt_regs structure */
+-	return unwind_look_for_regs(state);
++	return unwind_look_for_regs(state, unwind_reliable);
+ }
+ EXPORT_SYMBOL_GPL(unwind_next_frame);
+ 
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+-		    struct pt_regs *regs, unsigned long sp)
++		    struct pt_regs *regs, unsigned long sp,
++		    bool unwind_reliable)
+ {
+ 	struct stack_info *info = &state->stack_info;
+ 	unsigned long *mask = &state->stack_mask;
+@@ -163,7 +166,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
  	}
- 	if (*res == '/') {
--		if (!nd->root.mnt)
--			set_root(nd);
--		if (unlikely(nd_jump_root(nd)))
--			return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
- 		while (unlikely(*++res == '/'))
- 			;
- 	}
-@@ -1698,8 +1703,13 @@ static inline int may_lookup(struct nameidata *nd)
- static inline int handle_dots(struct nameidata *nd, int type)
- {
- 	if (type == LAST_DOTDOT) {
--		if (!nd->root.mnt)
--			set_root(nd);
-+		int error = 0;
-+
-+		if (!nd->root.mnt) {
-+			error = set_root(nd);
-+			if (error)
-+				return error;
-+		}
- 		if (nd->flags & LOOKUP_RCU) {
- 			return follow_dotdot_rcu(nd);
- 		} else
-@@ -2162,6 +2172,7 @@ static int link_path_walk(const char *name, struct nameidata *nd)
- /* must be paired with terminate_walk() */
- static const char *path_init(struct nameidata *nd, unsigned flags)
- {
-+	int error;
- 	const char *s = nd->name->name;
  
- 	if (!*s)
-@@ -2194,11 +2205,13 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 	nd->path.dentry = NULL;
+ 	/* Get current stack pointer and initialize stack info */
+-	if (get_stack_info(sp, task, info, mask) != 0 ||
++	if (get_stack_info(sp, task, info, mask, unwind_reliable) != 0 ||
+ 	    !on_stack(info, sp, sizeof(struct stack_frame))) {
+ 		/* Something is wrong with the stack pointer */
+ 		info->type = STACK_TYPE_UNKNOWN;
+diff --git a/arch/s390/oprofile/init.c b/arch/s390/oprofile/init.c
+index 7441857df51b..59d736f46cbc 100644
+--- a/arch/s390/oprofile/init.c
++++ b/arch/s390/oprofile/init.c
+@@ -19,7 +19,7 @@ static void s390_backtrace(struct pt_regs *regs, unsigned int depth)
+ {
+ 	struct unwind_state state;
  
- 	nd->m_seq = read_seqbegin(&mount_lock);
-+
-+	/* Figure out the starting path and root (if needed). */
- 	if (*s == '/') {
--		set_root(nd);
--		if (likely(!nd_jump_root(nd)))
--			return s;
--		return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
-+		return s;
- 	} else if (nd->dfd == AT_FDCWD) {
- 		if (flags & LOOKUP_RCU) {
- 			struct fs_struct *fs = current->fs;
+-	unwind_for_each_frame(&state, current, regs, 0) {
++	unwind_for_each_frame(&state, current, regs, 0, false) {
+ 		if (depth-- == 0)
+ 			break;
+ 		oprofile_add_trace(state.ip);
 -- 
-2.24.0
+2.23.0
