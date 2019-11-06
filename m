@@ -1,101 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40611 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730762AbfKEJ2G (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:06 -0500
-Date: Tue, 05 Nov 2019 09:27:36 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] powerpc: Remove PT_NOTE workaround
-In-Reply-To: <20191029211351.13243-3-keescook@chromium.org>
-References: <20191029211351.13243-3-keescook@chromium.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:40642 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725890AbfKFKxI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 05:53:08 -0500
+Date: Wed, 6 Nov 2019 11:52:33 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH V9 3/6] mdev: introduce device specific ops
+Message-ID: <20191106115233.79bdbc1c.cohuck@redhat.com>
+In-Reply-To: <20191106070548.18980-4-jasowang@redhat.com>
+References: <20191106070548.18980-1-jasowang@redhat.com>
+        <20191106070548.18980-4-jasowang@redhat.com>
 MIME-Version: 1.0
-Message-ID: <157294605610.29376.1760819077288569366.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Michael Ellerman <mpe@ellerman.id.au>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86@kernel.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-The following commit has been merged into the x86/build branch of tip:
+On Wed,  6 Nov 2019 15:05:45 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-Commit-ID:     6fc4000656a10fb679ab6566dcd516ee672f1706
-Gitweb:        https://git.kernel.org/tip/6fc4000656a10fb679ab6566dcd516ee672f1706
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:24 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 15:33:39 +01:00
+> Currently, except for the create and remove, the rest of
+> mdev_parent_ops is designed for vfio-mdev driver only and may not help
+> for kernel mdev driver. With the help of class id, this patch
+> introduces device specific callbacks inside mdev_device
+> structure. This allows different set of callback to be used by
+> vfio-mdev and virtio-mdev.
+>=20
+> Reviewed-by: Parav Pandit <parav@mellanox.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  .../driver-api/vfio-mediated-device.rst       | 35 +++++++++----
+>  MAINTAINERS                                   |  1 +
+>  drivers/gpu/drm/i915/gvt/kvmgt.c              | 18 ++++---
+>  drivers/s390/cio/vfio_ccw_ops.c               | 18 ++++---
+>  drivers/s390/crypto/vfio_ap_ops.c             | 14 +++--
+>  drivers/vfio/mdev/mdev_core.c                 | 24 ++++++++-
+>  drivers/vfio/mdev/mdev_private.h              |  5 ++
+>  drivers/vfio/mdev/vfio_mdev.c                 | 37 ++++++-------
+>  include/linux/mdev.h                          | 43 ++++-----------
+>  include/linux/mdev_vfio_ops.h                 | 52 +++++++++++++++++++
+>  samples/vfio-mdev/mbochs.c                    | 20 ++++---
+>  samples/vfio-mdev/mdpy.c                      | 20 ++++---
+>  samples/vfio-mdev/mtty.c                      | 18 ++++---
+>  13 files changed, 206 insertions(+), 99 deletions(-)
+>  create mode 100644 include/linux/mdev_vfio_ops.h
 
-powerpc: Remove PT_NOTE workaround
-
-In preparation for moving NOTES into RO_DATA, remove the PT_NOTE
-workaround since the kernel requires at least gcc 4.6 now.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86@kernel.org
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-3-keescook@chromium.org
----
- arch/powerpc/kernel/vmlinux.lds.S | 24 ++----------------------
- 1 file changed, 2 insertions(+), 22 deletions(-)
-
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 81e6726..a3c8492 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -20,20 +20,6 @@ ENTRY(_stext)
- PHDRS {
- 	kernel PT_LOAD FLAGS(7); /* RWX */
- 	note PT_NOTE FLAGS(0);
--	dummy PT_NOTE FLAGS(0);
--
--	/* binutils < 2.18 has a bug that makes it misbehave when taking an
--	   ELF file with all segments at load address 0 as input.  This
--	   happens when running "strip" on vmlinux, because of the AT() magic
--	   in this linker script.  People using GCC >= 4.2 won't run into
--	   this problem, because the "build-id" support will put some data
--	   into the "notes" segment (at a non-zero load address).
--
--	   To work around this, we force some data into both the "dummy"
--	   segment and the kernel segment, so the dummy segment will get a
--	   non-zero load address.  It's not enough to always create the
--	   "notes" segment, since if nothing gets assigned to it, its load
--	   address will be zero.  */
- }
- 
- #ifdef CONFIG_PPC64
-@@ -178,14 +164,8 @@ SECTIONS
- 	EXCEPTION_TABLE(0)
- 
- 	NOTES :kernel :note
--
--	/* The dummy segment contents for the bug workaround mentioned above
--	   near PHDRS.  */
--	.dummy : AT(ADDR(.dummy) - LOAD_OFFSET) {
--		LONG(0)
--		LONG(0)
--		LONG(0)
--	} :kernel :dummy
-+	/* Restore program header away from PT_NOTE. */
-+	.dummy : { *(.dummy) } :kernel
- 
- /*
-  * Init sections discarded at runtime
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
