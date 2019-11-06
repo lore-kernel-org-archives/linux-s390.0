@@ -1,31 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.10]:54497 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726832AbfKKKaB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Nov 2019 05:30:01 -0500
-MIME-Version: 1.0
-References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-12-hch@lst.de>
-In-Reply-To: <20191029064834.23438-12-hch@lst.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 11 Nov 2019 11:29:40 +0100
-Message-ID: <CAK8P3a36-afn--XqG0ddj6VSPCzA_cfZqRxQXDuan7yk8CKg4w@mail.gmail.com>
+Received: from verein.lst.de ([213.95.11.211]:52707 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727276AbfKFS3C (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 6 Nov 2019 13:29:02 -0500
+Date: Wed, 6 Nov 2019 19:28:57 +0100
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 11/21] asm-generic: don't provide ioremap for CONFIG_MMU
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20191106182857.GA21062@lst.de>
+References: <20191029064834.23438-12-hch@lst.de> <mhng-33ea9141-2440-4a2d-8133-62094486fc48@palmer-si-x1c4> <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdVuDp_8UDeWv8tdPAH5JS84=-yfwZjOk-YQcoYKM9za+w@mail.gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, the arch/x86 maintainers <x86@kernel.org>, alpha <linux-alpha@vger.kernel.org>, "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-ia64@vger.kernel.org, linux-m68k <linux-m68k@lists.linux-m68k.org>, linux-mips@vger.kernel.org, "moderated list:NIOS2 ARCHITECTURE" <nios2-dev@lists.rocketboards.org>, openrisc@lists.librecores.org, Parisc List <linux-parisc@vger.kernel.org>, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mtd <linux-mtd@lists.infradead.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>, Christoph Hellwig <hch@lst.de>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Guo Ren <guoren@kernel.org>, sparclinux <sparclinux@vger.kernel.org>, linux-riscv@lists.infradead.org, Vincent Chen <deanbo422@gmail.com>, Linux-Arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, linux-xtensa@linux-xtensa.org, Arnd Bergmann <arnd@arndb.de>, linux-m68k <linux-m68k@lists.linux-m68k.org>, Openrisc <openrisc@lists.librecores.org>, Greentime Hu <green.hu@gmail.com>, MTD Maling List <linux-mtd@lists.infradead.org>, Guan Xuetao <gxt@pku.edu.cn>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Michal Simek <monstr@monstr.eu>, Parisc List <linux-parisc@vger.kernel.org>, linux-mips@vger.kernel.org, alpha <linux-alpha@vger.kernel.org>, nios2-dev@lists.rocketboards.org
 
-On Tue, Oct 29, 2019 at 7:49 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> All MMU-enabled ports have a non-trivial ioremap and should thus provide
-> the prototype for their implementation instead of providing a generic
-> one unless a different symbol is not defined.  Note that this only
-> affects sparc32 nds32 as all others do provide their own version.
->
-> Also update the kerneldoc comments in asm-generic/io.h to explain the
-> situation around the default ioremap* implementations correctly.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+On Wed, Nov 06, 2019 at 07:16:38PM +0100, Geert Uytterhoeven wrote:
+> > shouldn't they all just be that first one?  In other words, wouldn't it be
+> > better to always provide the generic ioremap prototype and unify the ports
+> > instead?
+> 
+> Agreed. But I'd go for the second one.
 
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Eventually we should unify it and only have a single prototype.
+But we have lots of implementations including inline functions, so
+this will take a few more steps.
