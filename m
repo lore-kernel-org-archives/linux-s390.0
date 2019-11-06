@@ -1,75 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:47168 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727339AbfKJCpa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:45:30 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 189/191] s390/vdso: correct vdso mapping for compat tasks
-Date: Sat,  9 Nov 2019 21:40:11 -0500
-Message-Id: <20191110024013.29782-189-sashal@kernel.org>
-In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
-References: <20191110024013.29782-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:40763 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727690AbfKFON0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:26 -0500
+Received: by mail-wr1-f68.google.com with SMTP id i10so5285846wrs.7
+        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:24 -0800 (PST)
+From: Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH v2 01/10] x86: Remove arch_has_random, arch_has_random_seed
+Date: Wed,  6 Nov 2019 15:12:59 +0100
+Message-Id: <20191106141308.30535-2-rth@twiddle.net>
+In-Reply-To: <20191106141308.30535-1-rth@twiddle.net>
+References: <20191106141308.30535-1-rth@twiddle.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Stefan Liebler <stli@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-crypto@vger.kernel.org
+Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+Use the expansion of these macros directly in arch_get_random_*.
 
-[ Upstream commit 190f056fba230abee80712eb810939ef9a8c462f ]
+These symbols are currently part of the generic archrandom.h
+interface, but are currently unused and can be removed.
 
-While "s390/vdso: avoid 64-bit vdso mapping for compat tasks" fixed
-64-bit vdso mapping for compat tasks under gdb it introduced another
-problem. "compat_mm" flag is not inherited during fork and when
-31-bit process forks a child (but does not perform exec) it ends up
-with 64-bit vdso. To address that, init_new_context (which is called
-during fork and exec) now initialize compat_mm based on thread TIF_31BIT
-flag. Later compat_mm is adjusted in arch_setup_additional_pages, which
-is called during exec.
-
-Fixes: d1befa65823e ("s390/vdso: avoid 64-bit vdso mapping for compat tasks")
-Reported-by: Stefan Liebler <stli@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
 ---
- arch/s390/include/asm/mmu_context.h | 2 +-
- arch/s390/kernel/vdso.c             | 5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/archrandom.h | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index e4462202200d7..8d04e6f3f7964 100644
---- a/arch/s390/include/asm/mmu_context.h
-+++ b/arch/s390/include/asm/mmu_context.h
-@@ -25,7 +25,7 @@ static inline int init_new_context(struct task_struct *tsk,
- 	atomic_set(&mm->context.flush_count, 0);
- 	mm->context.gmap_asce = 0;
- 	mm->context.flush_mm = 0;
--	mm->context.compat_mm = 0;
-+	mm->context.compat_mm = test_thread_flag(TIF_31BIT);
- #ifdef CONFIG_PGSTE
- 	mm->context.alloc_pgste = page_table_allocate_pgste ||
- 		test_thread_flag(TIF_PGSTE) ||
-diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
-index ec31b48a42a52..7ab7d256d1eb7 100644
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -224,10 +224,9 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+diff --git a/arch/x86/include/asm/archrandom.h b/arch/x86/include/asm/archrandom.h
+index af45e1452f09..feb59461046c 100644
+--- a/arch/x86/include/asm/archrandom.h
++++ b/arch/x86/include/asm/archrandom.h
+@@ -73,10 +73,6 @@ static inline bool rdseed_int(unsigned int *v)
+ 	return ok;
+ }
  
- 	vdso_pages = vdso64_pages;
- #ifdef CONFIG_COMPAT
--	if (is_compat_task()) {
-+	mm->context.compat_mm = is_compat_task();
-+	if (mm->context.compat_mm)
- 		vdso_pages = vdso32_pages;
--		mm->context.compat_mm = 1;
--	}
- #endif
- 	/*
- 	 * vDSO has a problem and was disabled, just don't "enable" it for
+-/* Conditional execution based on CPU type */
+-#define arch_has_random()	static_cpu_has(X86_FEATURE_RDRAND)
+-#define arch_has_random_seed()	static_cpu_has(X86_FEATURE_RDSEED)
+-
+ /*
+  * These are the generic interfaces; they must not be declared if the
+  * stubs in <linux/random.h> are to be invoked,
+@@ -86,22 +82,22 @@ static inline bool rdseed_int(unsigned int *v)
+ 
+ static inline bool arch_get_random_long(unsigned long *v)
+ {
+-	return arch_has_random() ? rdrand_long(v) : false;
++	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_long(v) : false;
+ }
+ 
+ static inline bool arch_get_random_int(unsigned int *v)
+ {
+-	return arch_has_random() ? rdrand_int(v) : false;
++	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_int(v) : false;
+ }
+ 
+ static inline bool arch_get_random_seed_long(unsigned long *v)
+ {
+-	return arch_has_random_seed() ? rdseed_long(v) : false;
++	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_long(v) : false;
+ }
+ 
+ static inline bool arch_get_random_seed_int(unsigned int *v)
+ {
+-	return arch_has_random_seed() ? rdseed_int(v) : false;
++	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_int(v) : false;
+ }
+ 
+ extern void x86_init_rdrand(struct cpuinfo_x86 *c);
 -- 
-2.20.1
+2.17.1
