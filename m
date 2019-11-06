@@ -1,124 +1,329 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46487 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725280AbfKSOQe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Nov 2019 09:16:34 -0500
-Subject: Re: [PATCH v6 04/10] mm/memory_hotplug: Don't access uninitialized
- memmaps in shrink_zone_span()
-References: <20191006085646.5768-1-david@redhat.com>
- <20191006085646.5768-5-david@redhat.com>
- <5a4573de-bd8a-6cd3-55d0-86d503a236fd@redhat.com>
- <20191014121719.cb9b9efe51a7e9e985b38075@linux-foundation.org>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <8bbbd4f1-e2c9-b654-ab73-aa4314135f21@redhat.com>
-Date: Tue, 19 Nov 2019 15:16:22 +0100
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V9 1/6] mdev: class id support
+Date: Wed,  6 Nov 2019 15:05:43 +0800
+Message-Id: <20191106070548.18980-2-jasowang@redhat.com>
+In-Reply-To: <20191106070548.18980-1-jasowang@redhat.com>
+References: <20191106070548.18980-1-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191014121719.cb9b9efe51a7e9e985b38075@linux-foundation.org>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>, Toshiki Fukasawa <t-fukasawa@vx.jp.nec.com>, Alexander Duyck <alexander.duyck@gmail.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
 
-On 14.10.19 21:17, Andrew Morton wrote:
-> On Mon, 14 Oct 2019 11:32:13 +0200 David Hildenbrand <david@redhat.com> w=
-rote:
->=20
->>> Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
->>
->> @Andrew, can you convert that to
->>
->> Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded
->> memory to zones until online") # visible after d0dc12e86b319
->>
->> and add
->>
->> Cc: stable@vger.kernel.org # v4.13+
->=20
-> Done, thanks.
->=20
+Mdev bus only supports vfio driver right now, so it doesn't implement
+match method. But in the future, we may add drivers other than vfio,
+the first driver could be virtio-mdev. This means we need to add
+device class id support in bus match method to pair the mdev device
+and mdev driver correctly.
 
-Just a note that Toshiki reported a BUG (race between delayed
-initialization of ZONE_DEVICE memmaps without holding the memory
-hotplug lock and concurrent zone shrinking).
+So this patch adds id_table to mdev_driver and class_id for mdev
+device with the match method for mdev bus.
 
-https://lkml.org/lkml/2019/11/14/1040
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ .../driver-api/vfio-mediated-device.rst       |  5 ++++
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |  1 +
+ drivers/s390/cio/vfio_ccw_ops.c               |  1 +
+ drivers/s390/crypto/vfio_ap_ops.c             |  1 +
+ drivers/vfio/mdev/mdev_core.c                 | 17 +++++++++++++
+ drivers/vfio/mdev/mdev_driver.c               | 25 +++++++++++++++++++
+ drivers/vfio/mdev/mdev_private.h              |  1 +
+ drivers/vfio/mdev/vfio_mdev.c                 |  6 +++++
+ include/linux/mdev.h                          |  8 ++++++
+ include/linux/mod_devicetable.h               |  8 ++++++
+ samples/vfio-mdev/mbochs.c                    |  1 +
+ samples/vfio-mdev/mdpy.c                      |  1 +
+ samples/vfio-mdev/mtty.c                      |  1 +
+ 13 files changed, 76 insertions(+)
 
-"Iteration of create and destroy namespace causes the panic as below:
-
-[   41.207694] kernel BUG at mm/page_alloc.c:535!
-[   41.208109] invalid opcode: 0000 [#1] SMP PTI
-[   41.208508] CPU: 7 PID: 2766 Comm: ndctl Not tainted 5.4.0-rc4 #6
-[   41.209064] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
-rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
-[   41.210175] RIP: 0010:set_pfnblock_flags_mask+0x95/0xf0
-[   41.210643] Code: 04 41 83 e2 3c 48 8d 04 a8 48 c1 e0 07 48 03 04 dd e0 =
-59 55 bb 48 8b 58 68 48 39 da 73 0e 48 c7 c6 70 ac 11 bb e8 1b b2 fd ff <0f=
-> 0b 48 03 58 78 48 39 da 73 e9 49 01 ca b9 3f 00 00 00 4f 8d 0c
-[   41.212354] RSP: 0018:ffffac0d41557c80 EFLAGS: 00010246
-[   41.212821] RAX: 000000000000004a RBX: 0000000000244a00 RCX: 00000000000=
-00000
-[   41.213459] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffbb1=
-197dc
-[   41.214100] RBP: 000000000000000c R08: 0000000000000439 R09: 00000000000=
-00059
-[   41.214736] R10: 0000000000000000 R11: ffffac0d41557b08 R12: ffff8be475e=
-a72b0
-[   41.215376] R13: 000000000000fa00 R14: 0000000000250000 R15: 00000000fff=
-c0bb5
-[   41.216008] FS:  00007f30862ab600(0000) GS:ffff8be57bc40000(0000) knlGS:=
-0000000000000000
-[   41.216771] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   41.217299] CR2: 000055e824d0d508 CR3: 0000000231dac000 CR4: 00000000000=
-006e0
-[   41.217934] Call Trace:
-[   41.218225]  memmap_init_zone_device+0x165/0x17c
-[   41.218642]  memremap_pages+0x4c1/0x540
-[   41.218989]  devm_memremap_pages+0x1d/0x60
-[   41.219367]  pmem_attach_disk+0x16b/0x600 [nd_pmem]
-[   41.219804]  ? devm_nsio_enable+0xb8/0xe0
-[   41.220172]  nvdimm_bus_probe+0x69/0x1c0
-[   41.220526]  really_probe+0x1c2/0x3e0
-[   41.220856]  driver_probe_device+0xb4/0x100
-[   41.221238]  device_driver_attach+0x4f/0x60
-[   41.221611]  bind_store+0xc9/0x110
-[   41.221919]  kernfs_fop_write+0x116/0x190
-[   41.222326]  vfs_write+0xa5/0x1a0
-[   41.222626]  ksys_write+0x59/0xd0
-[   41.222927]  do_syscall_64+0x5b/0x180
-[   41.223264]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   41.223714] RIP: 0033:0x7f30865d0ed8
-[   41.224037] Code: 89 02 48 c7 c0 ff ff ff ff eb b3 0f 1f 80 00 00 00 00 =
-f3 0f 1e fa 48 8d 05 45 78 0d 00 8b 00 85 c0 75 17 b8 01 00 00 00 0f 05 <48=
-> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 49 89 d4 55
-[   41.225920] RSP: 002b:00007fffe5d30a78 EFLAGS: 00000246 ORIG_RAX: 000000=
-0000000001
-[   41.226608] RAX: ffffffffffffffda RBX: 000055e824d07f40 RCX: 00007f30865=
-d0ed8
-[   41.227242] RDX: 0000000000000007 RSI: 000055e824d07f40 RDI: 00000000000=
-00004
-[   41.227870] RBP: 0000000000000007 R08: 0000000000000007 R09: 00000000000=
-00006
-[   41.228753] R10: 0000000000000000 R11: 0000000000000246 R12: 00000000000=
-00004
-[   41.229419] R13: 00007f30862ab528 R14: 0000000000000001 R15: 000055e824d=
-07f40
-
-While creating a namespace and initializing memmap, if you destroy the name=
-space
-and shrink the zone, it will initialize the memmap outside the zone and
-trigger VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page) in
-set_pfnblock_flags_mask()."
-
-
-This BUG is also mitigated by this commit, where we for now stop to
-shrink the ZONE_DEVICE zone until we can do it in a safe and clean
-way.
-
+diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentat=
+ion/driver-api/vfio-mediated-device.rst
+index 25eb7d5b834b..6709413bee29 100644
+--- a/Documentation/driver-api/vfio-mediated-device.rst
++++ b/Documentation/driver-api/vfio-mediated-device.rst
+@@ -102,12 +102,14 @@ structure to represent a mediated device's driver::
+       * @probe: called when new device created
+       * @remove: called when device removed
+       * @driver: device driver structure
++      * @id_table: the ids serviced by this driver
+       */
+      struct mdev_driver {
+ =09     const char *name;
+ =09     int  (*probe)  (struct device *dev);
+ =09     void (*remove) (struct device *dev);
+ =09     struct device_driver    driver;
++=09     const struct mdev_class_id *id_table;
+      };
+=20
+ A mediated bus driver for mdev should use this structure in the function c=
+alls
+@@ -170,6 +172,9 @@ that a driver should use to unregister itself with the =
+mdev core driver::
+=20
+ =09extern void mdev_unregister_device(struct device *dev);
+=20
++It is also required to specify the class_id in create() callback through::
++
++=09int mdev_set_class(struct mdev_device *mdev, u16 id);
+=20
+ Mediated Device Management Interface Through sysfs
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kv=
+mgt.c
+index 343d79c1cb7e..6420f0dbd31b 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -678,6 +678,7 @@ static int intel_vgpu_create(struct kobject *kobj, stru=
+ct mdev_device *mdev)
+ =09=09     dev_name(mdev_dev(mdev)));
+ =09ret =3D 0;
+=20
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ out:
+ =09return ret;
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_op=
+s.c
+index f0d71ab77c50..cf2c013ae32f 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -129,6 +129,7 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, s=
+truct mdev_device *mdev)
+ =09=09=09   private->sch->schid.ssid,
+ =09=09=09   private->sch->schid.sch_no);
+=20
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ =09return 0;
+ }
+=20
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_a=
+p_ops.c
+index 5c0f53c6dde7..07c31070afeb 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -343,6 +343,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, st=
+ruct mdev_device *mdev)
+ =09list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+ =09mutex_unlock(&matrix_dev->lock);
+=20
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ =09return 0;
+ }
+=20
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+index b558d4cfd082..7bfa2e46e829 100644
+--- a/drivers/vfio/mdev/mdev_core.c
++++ b/drivers/vfio/mdev/mdev_core.c
+@@ -45,6 +45,17 @@ void mdev_set_drvdata(struct mdev_device *mdev, void *da=
+ta)
+ }
+ EXPORT_SYMBOL(mdev_set_drvdata);
+=20
++/*
++ * Specify the class for the mdev device, this must be called during
++ * create() callback.
++ */
++void mdev_set_class(struct mdev_device *mdev, u16 id)
++{
++=09WARN_ON(mdev->class_id);
++=09mdev->class_id =3D id;
++}
++EXPORT_SYMBOL(mdev_set_class);
++
+ struct device *mdev_dev(struct mdev_device *mdev)
+ {
+ =09return &mdev->dev;
+@@ -324,6 +335,12 @@ int mdev_device_create(struct kobject *kobj,
+ =09if (ret)
+ =09=09goto ops_create_fail;
+=20
++=09if (!mdev->class_id) {
++=09=09ret =3D -EINVAL;
++=09=09dev_warn(dev, "mdev vendor driver failed to specify device class\n")=
+;
++=09=09goto add_fail;
++=09}
++
+ =09ret =3D device_add(&mdev->dev);
+ =09if (ret)
+ =09=09goto add_fail;
+diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/vfio/mdev/mdev_drive=
+r.c
+index 0d3223aee20b..ed06433693e8 100644
+--- a/drivers/vfio/mdev/mdev_driver.c
++++ b/drivers/vfio/mdev/mdev_driver.c
+@@ -69,8 +69,33 @@ static int mdev_remove(struct device *dev)
+ =09return 0;
+ }
+=20
++static int mdev_match(struct device *dev, struct device_driver *drv)
++{
++=09unsigned int i;
++=09struct mdev_device *mdev =3D to_mdev_device(dev);
++=09struct mdev_driver *mdrv =3D to_mdev_driver(drv);
++=09const struct mdev_class_id *ids =3D mdrv->id_table;
++
++=09if (!ids)
++=09=09return 0;
++
++=09for (i =3D 0; ids[i].id; i++)
++=09=09if (ids[i].id =3D=3D mdev->class_id)
++=09=09=09return 1;
++=09return 0;
++}
++
++static int mdev_uevent(struct device *dev, struct kobj_uevent_env *env)
++{
++=09struct mdev_device *mdev =3D to_mdev_device(dev);
++
++=09return add_uevent_var(env, "MODALIAS=3Dmdev:c%02X", mdev->class_id);
++}
++
+ struct bus_type mdev_bus_type =3D {
+ =09.name=09=09=3D "mdev",
++=09.match=09=09=3D mdev_match,
++=09.uevent=09=09=3D mdev_uevent,
+ =09.probe=09=09=3D mdev_probe,
+ =09.remove=09=09=3D mdev_remove,
+ };
+diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_priv=
+ate.h
+index 7d922950caaf..c65f436c1869 100644
+--- a/drivers/vfio/mdev/mdev_private.h
++++ b/drivers/vfio/mdev/mdev_private.h
+@@ -33,6 +33,7 @@ struct mdev_device {
+ =09struct kobject *type_kobj;
+ =09struct device *iommu_device;
+ =09bool active;
++=09u16 class_id;
+ };
+=20
+ #define to_mdev_device(dev)=09container_of(dev, struct mdev_device, dev)
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 30964a4e0a28..38431e9ef7f5 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -120,10 +120,16 @@ static void vfio_mdev_remove(struct device *dev)
+ =09vfio_del_group_dev(dev);
+ }
+=20
++static const struct mdev_class_id vfio_id_table[] =3D {
++=09{ MDEV_CLASS_ID_VFIO },
++=09{ 0 },
++};
++
+ static struct mdev_driver vfio_mdev_driver =3D {
+ =09.name=09=3D "vfio_mdev",
+ =09.probe=09=3D vfio_mdev_probe,
+ =09.remove=09=3D vfio_mdev_remove,
++=09.id_table =3D vfio_id_table,
+ };
+=20
+ static int __init vfio_mdev_init(void)
+diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+index 0ce30ca78db0..78b69d09eb54 100644
+--- a/include/linux/mdev.h
++++ b/include/linux/mdev.h
+@@ -118,6 +118,7 @@ struct mdev_type_attribute mdev_type_attr_##_name =3D=
+=09=09\
+  * @probe: called when new device created
+  * @remove: called when device removed
+  * @driver: device driver structure
++ * @id_table: the ids serviced by this driver
+  *
+  **/
+ struct mdev_driver {
+@@ -125,6 +126,7 @@ struct mdev_driver {
+ =09int  (*probe)(struct device *dev);
+ =09void (*remove)(struct device *dev);
+ =09struct device_driver driver;
++=09const struct mdev_class_id *id_table;
+ };
+=20
+ #define to_mdev_driver(drv)=09container_of(drv, struct mdev_driver, driver=
+)
+@@ -132,6 +134,7 @@ struct mdev_driver {
+ void *mdev_get_drvdata(struct mdev_device *mdev);
+ void mdev_set_drvdata(struct mdev_device *mdev, void *data);
+ const guid_t *mdev_uuid(struct mdev_device *mdev);
++void mdev_set_class(struct mdev_device *mdev, u16 id);
+=20
+ extern struct bus_type mdev_bus_type;
+=20
+@@ -145,4 +148,9 @@ struct device *mdev_parent_dev(struct mdev_device *mdev=
+);
+ struct device *mdev_dev(struct mdev_device *mdev);
+ struct mdev_device *mdev_from_dev(struct device *dev);
+=20
++enum {
++=09MDEV_CLASS_ID_VFIO =3D 1,
++=09/* New entries must be added here */
++};
++
+ #endif /* MDEV_H */
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetabl=
+e.h
+index 5714fd35a83c..f32c6e44fb1a 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -821,4 +821,12 @@ struct wmi_device_id {
+ =09const void *context;
+ };
+=20
++/**
++ * struct mdev_class_id - MDEV device class identifier
++ * @id: Used to identify a specific class of device, e.g vfio-mdev device.
++ */
++struct mdev_class_id {
++=09__u16 id;
++};
++
+ #endif /* LINUX_MOD_DEVICETABLE_H */
+diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
+index ac5c8c17b1ff..115bc5074656 100644
+--- a/samples/vfio-mdev/mbochs.c
++++ b/samples/vfio-mdev/mbochs.c
+@@ -561,6 +561,7 @@ static int mbochs_create(struct kobject *kobj, struct m=
+dev_device *mdev)
+ =09mbochs_reset(mdev);
+=20
+ =09mbochs_used_mbytes +=3D type->mbytes;
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ =09return 0;
+=20
+ err_mem:
+diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
+index cc86bf6566e4..665614574d50 100644
+--- a/samples/vfio-mdev/mdpy.c
++++ b/samples/vfio-mdev/mdpy.c
+@@ -269,6 +269,7 @@ static int mdpy_create(struct kobject *kobj, struct mde=
+v_device *mdev)
+ =09mdpy_reset(mdev);
+=20
+ =09mdpy_count++;
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ =09return 0;
+ }
+=20
+diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
+index ce84a300a4da..90da12ff7fd9 100644
+--- a/samples/vfio-mdev/mtty.c
++++ b/samples/vfio-mdev/mtty.c
+@@ -755,6 +755,7 @@ static int mtty_create(struct kobject *kobj, struct mde=
+v_device *mdev)
+ =09list_add(&mdev_state->next, &mdev_devices_list);
+ =09mutex_unlock(&mdev_list_lock);
+=20
++=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
+ =09return 0;
+ }
+=20
 --=20
-
-Thanks,
-
-David / dhildenb
+2.19.1
