@@ -1,68 +1,33 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46626 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728477AbfKPPmv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:51 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 085/237] s390/perf: Return error when debug_register fails
-Date: Sat, 16 Nov 2019 10:38:40 -0500
-Message-Id: <20191116154113.7417-85-sashal@kernel.org>
-In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
-References: <20191116154113.7417-1-sashal@kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
+Date: Wed, 6 Nov 2019 11:53:56 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH V9 4/6] mdev: introduce virtio device and its device ops
+Message-ID: <20191106115356.2c3ca3b1.cohuck@redhat.com>
+In-Reply-To: <20191106070548.18980-5-jasowang@redhat.com>
+References: <20191106070548.18980-1-jasowang@redhat.com>
+        <20191106070548.18980-5-jasowang@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+On Wed,  6 Nov 2019 15:05:46 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
+> This patch implements basic support for mdev driver that supports
+> virtio transport for kernel virtio driver.
+>=20
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  MAINTAINERS                      |   1 +
+>  drivers/vfio/mdev/mdev_core.c    |  21 +++++
+>  drivers/vfio/mdev/mdev_private.h |   2 +
+>  include/linux/mdev.h             |   6 ++
+>  include/linux/mdev_virtio_ops.h  | 147 +++++++++++++++++++++++++++++++
+>  5 files changed, 177 insertions(+)
+>  create mode 100644 include/linux/mdev_virtio_ops.h
 
-Return an error when the function debug_register() fails allocating
-the debug handle.
-Also remove the registered debug handle when the initialization fails
-later on.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 44404836e9d11..df92c2af99b69 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -2045,14 +2045,17 @@ static int __init init_cpum_sampling_pmu(void)
- 	}
- 
- 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
--	if (!sfdbg)
-+	if (!sfdbg) {
- 		pr_err("Registering for s390dbf failed\n");
-+		return -ENOMEM;
-+	}
- 	debug_register_view(sfdbg, &debug_sprintf_view);
- 
- 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
- 				    cpumf_measurement_alert);
- 	if (err) {
- 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
- 
-@@ -2061,6 +2064,7 @@ static int __init init_cpum_sampling_pmu(void)
- 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
- 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
- 					cpumf_measurement_alert);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
- 
--- 
-2.20.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
