@@ -1,84 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57928 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726252AbfK1MqQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Nov 2019 07:46:16 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xASCgwLu060789
-        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:15 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2whmt0nm98-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:14 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 28 Nov 2019 12:46:12 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 0/9] s390x: Testing the Channel Subsystem I/O
-Date: Thu, 28 Nov 2019 13:45:58 +0100
-Message-Id: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:35472 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731836AbfKFONb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:31 -0500
+Received: by mail-wm1-f65.google.com with SMTP id 8so3553811wmo.0
+        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:30 -0800 (PST)
+From: Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH v2 04/10] linux/random.h: Remove arch_has_random, arch_has_random_seed
+Date: Wed,  6 Nov 2019 15:13:02 +0100
+Message-Id: <20191106141308.30535-5-rth@twiddle.net>
+In-Reply-To: <20191106141308.30535-1-rth@twiddle.net>
+References: <20191106141308.30535-1-rth@twiddle.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-crypto@vger.kernel.org
+Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Goal of the series is to have a framwork to test Channel-Subsystem I/O with
-QEMU/KVM.
+The arm64 version of archrandom.h will need to be able to test for
+support and read the random number without preemption, so a separate
+query predicate is not practical.
 
-To be able to support interrupt for CSS I/O and for SCLP we need to modify
-the interrupt framework to allow re-entrant interruptions.
+Since this part of the generic interface is unused, remove it.
 
-Making the interrupt handler weak allows the test programm to define its own
-interrupt handler. We need to do special work under interrupt like acknoledging
-the interrupt.
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+---
+ include/linux/random.h | 8 --------
+ 1 file changed, 8 deletions(-)
 
-Being working on PSW bits to allow I/O interrupt, we define all PSW bits in a
-dedicated file.
-
-The simple test tests the I/O reading by the SUB Channel. It needs QEMU to
-be patched to have the pong device defined.
-The pong device answers, for now, with a Hello World to the read request.
-
-
-Pierre Morel (9):
-  s390x: saving regs for interrupts
-  s390x: Define the PSW bits
-  s390x: irq: make IRQ handler weak
-  s390x: export the clock get_clock_ms() utility
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
-
- lib/s390x/asm/arch_bits.h |  20 +++
- lib/s390x/asm/arch_def.h  |   6 +-
- lib/s390x/asm/clock.h     |  25 ++++
- lib/s390x/css.h           | 282 ++++++++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c      | 147 +++++++++++++++++++
- lib/s390x/interrupt.c     |   2 +-
- s390x/Makefile            |   4 +-
- s390x/css.c               | 294 ++++++++++++++++++++++++++++++++++++++
- s390x/cstart64.S          |  38 +++--
- s390x/intercept.c         |  11 +-
- s390x/unittests.cfg       |   4 +
- 11 files changed, 809 insertions(+), 24 deletions(-)
- create mode 100644 lib/s390x/asm/arch_bits.h
- create mode 100644 lib/s390x/asm/clock.h
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 s390x/css.c
-
+diff --git a/include/linux/random.h b/include/linux/random.h
+index f189c927fdea..7fd0360908d2 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -175,10 +175,6 @@ static inline bool arch_get_random_int(unsigned int *v)
+ {
+ 	return 0;
+ }
+-static inline bool arch_has_random(void)
+-{
+-	return 0;
+-}
+ static inline bool arch_get_random_seed_long(unsigned long *v)
+ {
+ 	return 0;
+@@ -187,10 +183,6 @@ static inline bool arch_get_random_seed_int(unsigned int *v)
+ {
+ 	return 0;
+ }
+-static inline bool arch_has_random_seed(void)
+-{
+-	return 0;
+-}
+ #endif
+ 
+ /* Pseudo random number generator from numerical recipes. */
 -- 
-2.17.0
-
-Changelog:
-- saving floating point registers (David, Janosh)
-- suppress unused PSW bits defintions (Janosh)
-- added Thomas reviewed-by
-- style and comments modifications (Connie, Janosh)
-- moved get_clock_ms() into headers and use it (Thomas)
-- separate header and library utility from tests
-- Suppress traces, separate tests, make better usage of reports
+2.17.1
