@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.web.de ([217.72.192.78]:42343 "EHLO mout.web.de"
+Received: from mout.web.de ([212.227.17.12]:60689 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728846AbfKFNB5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 6 Nov 2019 08:01:57 -0500
+        id S1730392AbfKFNAz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 6 Nov 2019 08:00:55 -0500
 Subject: Re: s390/pkey: Use memdup_user() rather than duplicating its
  implementation
 References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
  <6137855bb4170c438c7436cbdb7dfd21639a8855.camel@perches.com>
 From: Markus Elfring <Markus.Elfring@web.de>
-Message-ID: <0f90b278-7b3e-6509-1633-301d16513c5d@web.de>
+Message-ID: <4fa0e106-2565-8610-1356-4adfba08c0a0@web.de>
 Date: Wed, 6 Nov 2019 14:00:33 +0100
 MIME-Version: 1.0
 In-Reply-To: <6137855bb4170c438c7436cbdb7dfd21639a8855.camel@perches.com>
