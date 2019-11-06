@@ -1,259 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38508 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbfKNOeq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 09:34:46 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/7] block: refactor rescan_partitions
-Date: Thu, 14 Nov 2019 15:34:32 +0100
-Message-Id: <20191114143438.14681-2-hch@lst.de>
-In-Reply-To: <20191114143438.14681-1-hch@lst.de>
-References: <20191114143438.14681-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:51806 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731921AbfKFONl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:41 -0500
+Received: by mail-wm1-f68.google.com with SMTP id q70so3627985wme.1
+        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:40 -0800 (PST)
+From: Richard Henderson <richard.henderson@linaro.org>
+Subject: [PATCH v2 10/10] s390x: Mark archrandom.h functions __must_check
+Date: Wed,  6 Nov 2019 15:13:08 +0100
+Message-Id: <20191106141308.30535-11-rth@twiddle.net>
+In-Reply-To: <20191106141308.30535-1-rth@twiddle.net>
+References: <20191106141308.30535-1-rth@twiddle.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
-Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org, Hannes Reinecke <hare@suse.de>
+To: linux-crypto@vger.kernel.org
+Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Split out a helper that adds one single partition, and another one
-calling that dealing with the parsed_partitions state.  This makes
-it much more obvious how we clean up all state and start again when
-using the rescan label.
+We must not use the pointer output without validating the
+success of the random read.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
 ---
- block/partition-generic.c | 172 +++++++++++++++++++++-----------------
- 1 file changed, 94 insertions(+), 78 deletions(-)
+ arch/s390/include/asm/archrandom.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 31bff3fb28af..0909f66aab9d 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -459,128 +459,144 @@ static int drop_partitions(struct gendisk *disk, struct block_device *bdev)
- 	return 0;
- }
+diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+index 9a6835137a16..de61ce562052 100644
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -21,17 +21,17 @@ extern atomic64_t s390_arch_random_counter;
  
--int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
-+static bool blk_add_partition(struct gendisk *disk, struct block_device *bdev,
-+		struct parsed_partitions *state, int p)
+ bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
+ 
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
  {
--	struct parsed_partitions *state = NULL;
-+	sector_t size = state->parts[p].size;
-+	sector_t from = state->parts[p].from;
- 	struct hd_struct *part;
--	int p, highest, res;
--rescan:
--	if (state && !IS_ERR(state)) {
--		free_partitions(state);
--		state = NULL;
-+
-+	if (!size)
-+		return true;
-+
-+	if (from >= get_capacity(disk)) {
-+		printk(KERN_WARNING
-+		       "%s: p%d start %llu is beyond EOD, ",
-+		       disk->disk_name, p, (unsigned long long) from);
-+		if (disk_unlock_native_capacity(disk))
-+			return false;
-+		return true;
- 	}
- 
--	res = drop_partitions(disk, bdev);
--	if (res)
--		return res;
-+	if (from + size > get_capacity(disk)) {
-+		printk(KERN_WARNING
-+		       "%s: p%d size %llu extends beyond EOD, ",
-+		       disk->disk_name, p, (unsigned long long) size);
- 
--	if (disk->fops->revalidate_disk)
--		disk->fops->revalidate_disk(disk);
--	check_disk_size_change(disk, bdev, true);
--	bdev->bd_invalidated = 0;
--	if (!get_capacity(disk) || !(state = check_partition(disk, bdev)))
-+		if (disk_unlock_native_capacity(disk))
-+			return false;
-+
-+		/*
-+		 * We can not ignore partitions of broken tables created by for
-+		 * example camera firmware, but we limit them to the end of the
-+		 * disk to avoid creating invalid block devices.
-+		 */
-+		size = get_capacity(disk) - from;
-+	}
-+
-+	part = add_partition(disk, p, from, size, state->parts[p].flags,
-+			     &state->parts[p].info);
-+	if (IS_ERR(part)) {
-+		printk(KERN_ERR " %s: p%d could not be added: %ld\n",
-+		       disk->disk_name, p, -PTR_ERR(part));
-+		return true;
-+	}
-+
-+#ifdef CONFIG_BLK_DEV_MD
-+	if (state->parts[p].flags & ADDPART_FLAG_RAID)
-+		md_autodetect_dev(part_to_dev(part)->devt);
-+#endif
-+	return true;
-+}
-+
-+static int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
-+{
-+	struct parsed_partitions *state;
-+	int ret = -EAGAIN, p, highest;
-+
-+	state = check_partition(disk, bdev);
-+	if (!state)
- 		return 0;
- 	if (IS_ERR(state)) {
- 		/*
--		 * I/O error reading the partition table.  If any
--		 * partition code tried to read beyond EOD, retry
--		 * after unlocking native capacity.
-+		 * I/O error reading the partition table.  If we tried to read
-+		 * beyond EOD, retry after unlocking the native capacity.
- 		 */
- 		if (PTR_ERR(state) == -ENOSPC) {
- 			printk(KERN_WARNING "%s: partition table beyond EOD, ",
- 			       disk->disk_name);
- 			if (disk_unlock_native_capacity(disk))
--				goto rescan;
-+				return -EAGAIN;
- 		}
- 		return -EIO;
- 	}
- 
--	/* Partitions are not supported on zoned block devices */
-+	/*
-+	 * Partitions are not supported on zoned block devices.
-+	 */
- 	if (bdev_is_zoned(bdev)) {
- 		pr_warn("%s: ignoring partition table on zoned block device\n",
- 			disk->disk_name);
--		goto out;
-+		ret = 0;
-+		goto out_free_state;
- 	}
- 
- 	/*
--	 * If any partition code tried to read beyond EOD, try
--	 * unlocking native capacity even if partition table is
--	 * successfully read as we could be missing some partitions.
-+	 * If we read beyond EOD, try unlocking native capacity even if the
-+	 * partition table was successfully read as we could be missing some
-+	 * partitions.
- 	 */
- 	if (state->access_beyond_eod) {
- 		printk(KERN_WARNING
- 		       "%s: partition table partially beyond EOD, ",
- 		       disk->disk_name);
- 		if (disk_unlock_native_capacity(disk))
--			goto rescan;
-+			goto out_free_state;
- 	}
- 
- 	/* tell userspace that the media / partition table may have changed */
- 	kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
- 
--	/* Detect the highest partition number and preallocate
--	 * disk->part_tbl.  This is an optimization and not strictly
--	 * necessary.
-+	/*
-+	 * Detect the highest partition number and preallocate disk->part_tbl.
-+	 * This is an optimization and not strictly necessary.
- 	 */
- 	for (p = 1, highest = 0; p < state->limit; p++)
- 		if (state->parts[p].size)
- 			highest = p;
--
- 	disk_expand_part_tbl(disk, highest);
- 
--	/* add partitions */
--	for (p = 1; p < state->limit; p++) {
--		sector_t size, from;
-+	for (p = 1; p < state->limit; p++)
-+		if (!blk_add_partition(disk, bdev, state, p))
-+			goto out_free_state;
- 
--		size = state->parts[p].size;
--		if (!size)
--			continue;
-+	ret = 0;
-+out_free_state:
-+	free_partitions(state);
-+	return ret;
-+}
- 
--		from = state->parts[p].from;
--		if (from >= get_capacity(disk)) {
--			printk(KERN_WARNING
--			       "%s: p%d start %llu is beyond EOD, ",
--			       disk->disk_name, p, (unsigned long long) from);
--			if (disk_unlock_native_capacity(disk))
--				goto rescan;
--			continue;
--		}
-+int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
-+{
-+	int ret;
- 
--		if (from + size > get_capacity(disk)) {
--			printk(KERN_WARNING
--			       "%s: p%d size %llu extends beyond EOD, ",
--			       disk->disk_name, p, (unsigned long long) size);
--
--			if (disk_unlock_native_capacity(disk)) {
--				/* free state and restart */
--				goto rescan;
--			} else {
--				/*
--				 * we can not ignore partitions of broken tables
--				 * created by for example camera firmware, but
--				 * we limit them to the end of the disk to avoid
--				 * creating invalid block devices
--				 */
--				size = get_capacity(disk) - from;
--			}
--		}
-+rescan:
-+	ret = drop_partitions(disk, bdev);
-+	if (ret)
-+		return ret;
- 
--		part = add_partition(disk, p, from, size,
--				     state->parts[p].flags,
--				     &state->parts[p].info);
--		if (IS_ERR(part)) {
--			printk(KERN_ERR " %s: p%d could not be added: %ld\n",
--			       disk->disk_name, p, -PTR_ERR(part));
--			continue;
--		}
--#ifdef CONFIG_BLK_DEV_MD
--		if (state->parts[p].flags & ADDPART_FLAG_RAID)
--			md_autodetect_dev(part_to_dev(part)->devt);
--#endif
--	}
--out:
--	free_partitions(state);
--	return 0;
-+	if (disk->fops->revalidate_disk)
-+		disk->fops->revalidate_disk(disk);
-+	check_disk_size_change(disk, bdev, true);
-+	bdev->bd_invalidated = 0;
-+
-+	if (!get_capacity(disk))
-+		return 0;
-+	
-+	ret = blk_add_partitions(disk, bdev);
-+	if (ret == -EAGAIN)
-+		goto rescan;
-+	return ret;
+ 	return false;
  }
  
- int invalidate_partitions(struct gendisk *disk, struct block_device *bdev)
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+ 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
+@@ -39,7 +39,7 @@ static inline bool arch_get_random_seed_long(unsigned long *v)
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	if (static_branch_likely(&s390_arch_random_available)) {
+ 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
 -- 
-2.20.1
+2.17.1
