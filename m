@@ -1,36 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52830 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:38226 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726139AbfKNN27 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 08:28:59 -0500
-Date: Thu, 14 Nov 2019 14:28:52 +0100
-From: Jan Kara <jack@suse.cz>
+        id S2387964AbfKGJsz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 7 Nov 2019 04:48:55 -0500
 Subject: Re: [PATCH 3/5] block: move rescan_partitions to fs/block_dev.c
-Message-ID: <20191114132852.GH28486@quack2.suse.cz>
 References: <20191106151439.30056-1-hch@lst.de>
  <20191106151439.30056-4-hch@lst.de>
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <fa144fed-bde9-1602-b94a-32f9fbf235c4@suse.de>
+Date: Thu, 7 Nov 2019 10:48:49 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20191106151439.30056-4-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Wed 06-11-19 16:14:37, Christoph Hellwig wrote:
+On 11/6/19 4:14 PM, Christoph Hellwig wrote:
 > Large parts of rescan_partitions aren't about partitions, and
 > moving it to block_dev.c will allow for some further cleanups by
 > merging it into its only caller.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-Looks good to me. You can add:
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-
-								Honza
-
 > ---
 >  block/partition-generic.c | 37 ++-----------------------------------
 >  fs/block_dev.c            | 38 ++++++++++++++++++++++++++++++++++++--
@@ -156,38 +150,15 @@ Reviewed-by: Jan Kara <jack@suse.cz>
 >  static void bdev_disk_changed(struct block_device *bdev, bool invalidate)
 >  {
 >  	if (disk_part_scan_enabled(bdev->bd_disk)) {
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index e0d909d35763..d233dd661df7 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -2703,8 +2703,6 @@ extern void make_bad_inode(struct inode *);
->  extern bool is_bad_inode(struct inode *);
->  
->  #ifdef CONFIG_BLOCK
-> -extern void check_disk_size_change(struct gendisk *disk,
-> -		struct block_device *bdev, bool verbose);
->  extern int revalidate_disk(struct gendisk *);
->  extern int check_disk_change(struct block_device *);
->  extern int __invalidate_device(struct block_device *, bool);
-> diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-> index fd7774e64f0b..f5cffbf63abf 100644
-> --- a/include/linux/genhd.h
-> +++ b/include/linux/genhd.h
-> @@ -621,9 +621,9 @@ extern void blk_invalidate_devt(dev_t devt);
->  extern dev_t blk_lookup_devt(const char *name, int partno);
->  extern char *disk_name (struct gendisk *hd, int partno, char *buf);
->  
-> +int blk_add_partitions(struct gendisk *disk, struct block_device *bdev);
-> +int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev);
->  extern int disk_expand_part_tbl(struct gendisk *disk, int target);
-> -int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
-> -		bool invalidate);
->  extern struct hd_struct * __must_check add_partition(struct gendisk *disk,
->  						     int partno, sector_t start,
->  						     sector_t len, int flags,
-> -- 
-> 2.20.1
-> 
+
+... see my comments in the previous patch to drop get_capacity() and
+have check_disk_size_change() return bool ...
+
+Cheers,
+
+Hannes
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Dr. Hannes Reinecke		      Teamlead Storage & Networking
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 247165 (AG München), GF: Felix Imendörffer
