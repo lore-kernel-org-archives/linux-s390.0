@@ -1,84 +1,136 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40634 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388072AbfKEJ2L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:11 -0500
-Date: Tue, 05 Nov 2019 09:27:29 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] c6x: Move EXCEPTION_TABLE to RO_DATA segment
-In-Reply-To: <20191029211351.13243-20-keescook@chromium.org>
-References: <20191029211351.13243-20-keescook@chromium.org>
+Received: from foss.arm.com ([217.140.110.172]:56012 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388368AbfKGNWT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 7 Nov 2019 08:22:19 -0500
+Subject: Re: [PATCH V8] mm/debug: Add tests validating architecture page table
+ helpers
+References: <1572240562-23630-1-git-send-email-anshuman.khandual@arm.com>
+ <3229d68d-0b9d-0719-3370-c6e1df0ea032@arm.com>
+ <42160baa-0e9d-73d0-bf72-58bdbacf10ff@c-s.fr>
+ <0e0c2ce9-636d-1153-2451-baf7317ed45f@arm.com>
+ <87tv7f4zkf.fsf@mpe.ellerman.id.au>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <83f14c65-035c-8387-3216-5dee8a287cfb@arm.com>
+Date: Thu, 7 Nov 2019 18:52:34 +0530
 MIME-Version: 1.0
-Message-ID: <157294604951.29376.5719546125567219062.tip-bot2@tip-bot2>
+In-Reply-To: <87tv7f4zkf.fsf@mpe.ellerman.id.au>
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Aurelien Jacquiot <jacquiot.aurelien@gmail.com>, Dave Hansen <dave.hansen@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Mark Salter <msalter@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Michael Ellerman <mpe@ellerman.id.au>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
 
-Commit-ID:     1e51cd538809112a6ac702a48e9719a75152c902
-Gitweb:        https://git.kernel.org/tip/1e51cd538809112a6ac702a48e9719a75152c902
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:41 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 18:10:58 +01:00
 
-c6x: Move EXCEPTION_TABLE to RO_DATA segment
+On 11/07/2019 06:24 PM, Michael Ellerman wrote:
+> Anshuman Khandual <anshuman.khandual@arm.com> writes:
+>> On 11/06/2019 12:11 PM, Christophe Leroy wrote:
+>>> Le 06/11/2019 à 04:22, Anshuman Khandual a écrit :
+>>>> On 10/28/2019 10:59 AM, Anshuman Khandual wrote:
+>>>>> +    -----------------------
+>>>>> +    |         arch |status|
+>>>>> +    -----------------------
+>>>>> +    |       alpha: | TODO |
+>>>>> +    |         arc: | TODO |
+>>>>> +    |         arm: | TODO |
+>>>>> +    |       arm64: |  ok  |
+>>>>> +    |         c6x: | TODO |
+>>>>> +    |        csky: | TODO |
+>>>>> +    |       h8300: | TODO |
+>>>>> +    |     hexagon: | TODO |
+>>>>> +    |        ia64: | TODO |
+>>>>> +    |        m68k: | TODO |
+>>>>> +    |  microblaze: | TODO |
+>>>>> +    |        mips: | TODO |
+>>>>> +    |       nds32: | TODO |
+>>>>> +    |       nios2: | TODO |
+>>>>> +    |    openrisc: | TODO |
+>>>>> +    |      parisc: | TODO |
+>>>>> +    |     powerpc: | TODO |
+>>>>> +    |       ppc32: |  ok  |
+>>>
+>>> Note that ppc32 is a part of powerpc, not a standalone arch.
+>>
+>> Right, I understand. But we are yet to hear about how this test
+>> came about on powerpc server platforms. Will update 'powerpc'
+>> arch listing above once we get some confirmation. May be once
+>> this works on all relevant powerpc platforms, we can just merge
+>> 'powerpc' and 'ppc32' entries here as just 'powerpc'.
+> 
+> On pseries:
+> 
+>   watchdog: BUG: soft lockup - CPU#0 stuck for 23s! [swapper/0:1]
+>   Modules linked in:
+>   CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc6-gcc-8.2.0-next-20191107-00001-g250339d6747b-dirty #152
+>   NIP:  c0000000010435a0 LR: c0000000010434b4 CTR: 0000000000000000
+>   REGS: c00000003a403980 TRAP: 0901   Not tainted  (5.4.0-rc6-gcc-8.2.0-next-20191107-00001-g250339d6747b-dirty)
+>   MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 44000222  XER: 00000000
+>   CFAR: c0000000010435a8 IRQMASK: 0 
+>   GPR00: c0000000010434b4 c00000003a403c10 c000000001295000 05210001000000c0 
+>   GPR04: 8000000000000105 0000000000400dc0 000000003eb00000 0000000000000001 
+>   GPR08: 0000000000000000 ffffffffffffffff 0000000000000001 0000000000000100 
+>   GPR12: 0000000000000000 c0000000018f0000 
+>   NIP [c0000000010435a0] debug_vm_pgtable+0x43c/0x82c
+>   LR [c0000000010434b4] debug_vm_pgtable+0x350/0x82c
+>   Call Trace:
+>   [c00000003a403c10] [c00000000104346c] debug_vm_pgtable+0x308/0x82c (unreliable)
+>   [c00000003a403ce0] [c000000001004310] kernel_init_freeable+0x1d0/0x39c
+>   [c00000003a403db0] [c000000000010da0] kernel_init+0x24/0x174
+>   [c00000003a403e20] [c00000000000bdc4] ret_from_kernel_thread+0x5c/0x78
+>   Instruction dump:
+>   7d075078 7ce74b78 7ce0f9ad 40c2fff0 38800000 7f83e378 4b02eee1 60000000 
+>   48000080 3920ffff 39400001 39000000 <7ea0f8a8> 7ea75039 40c2fff8 7ea74878 
+> 
+> Looking at the asm I think it's stuck in hash__pte_update() waiting for
+> H_PAGE_BUSY to clear, but not sure why.
+> 
+> That's just using qemu TCG, instructions here if anyone wants to test it
+> themselves :)
+> 
+>   https://github.com/linuxppc/wiki/wiki/Booting-with-Qemu
+> 
+> 
+> If I boot with -cpu power9 (using Radix MMU), I get a plain old BUG:
+> 
+>   debug_vm_pgtable: debug_vm_pgtable: Validating architecture page table helpers
+>   ------------[ cut here ]------------
+>   kernel BUG at arch/powerpc/mm/pgtable.c:274!
+>   Oops: Exception in kernel mode, sig: 5 [#1]
+>   LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=32 NUMA pSeries
+>   Modules linked in:
+>   CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc6-gcc-8.2.0-next-20191107-00001-g250339d6747b-dirty #152
+>   NIP:  c0000000000724e8 LR: c00000000104358c CTR: 0000000000000000
+>   REGS: c00000003a483980 TRAP: 0700   Not tainted  (5.4.0-rc6-gcc-8.2.0-next-20191107-00001-g250339d6747b-dirty)
+>   MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 24000224  XER: 20000000
+>   CFAR: c000000001043588 IRQMASK: 0 
+>   GPR00: c00000000104358c c00000003a483c10 c000000001295000 0000000000000009 
+>   GPR04: 0000000000000000 0000000000000005 0000000000000000 0000000000000009 
+>   GPR08: 0000000000000001 000000000000000e 0000000000000001 c00000003a5f0000 
+>   GPR12: 0000000000000000 c0000000018f0000 c000000000010d84 0000000000000000 
+>   GPR16: 0000000000000000 0000000000000000 c00000003a5f0000 8000000000000105 
+>   GPR20: c000000001003ab8 0000000000000015 0500613a00000080 0900603a00000080 
+>   GPR24: 09202e3a00000080 c00000000133bd90 c00000000133bd98 c00000000133bda0 
+>   GPR28: c00000003a5e0000 c00000003a600af8 c00000003a2e2d48 c00000003a6100a0 
+>   NIP [c0000000000724e8] assert_pte_locked+0x88/0x190
+>   LR [c00000000104358c] debug_vm_pgtable+0x428/0x82c
+>   Call Trace:
+>   [c00000003a483c10] [c00000000104346c] debug_vm_pgtable+0x308/0x82c (unreliable)
+>   [c00000003a483ce0] [c000000001004310] kernel_init_freeable+0x1d0/0x39c
+>   [c00000003a483db0] [c000000000010da0] kernel_init+0x24/0x174
+>   [c00000003a483e20] [c00000000000bdc4] ret_from_kernel_thread+0x5c/0x78
+>   Instruction dump:
+>   7d251a14 39070010 7d463030 7d084a14 38c6ffff 7c884436 7cc607b4 7d083038 
+>   79081f24 7ccb402a 7cc80074 7908d182 <0b080000> 78cb0022 54c8c03e 7d473830 
+>   ---[ end trace a694f1bc56529c0e ]---
 
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
+Oops. Does not seem like a quick problem to fix :) Though assert_pte_locked()
+gets checked only when DEBUG_VM is enabled. Probably will have to keep this
+test disabled on powerpc for now.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Aurelien Jacquiot <jacquiot.aurelien@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: Mark Salter <msalter@redhat.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-20-keescook@chromium.org
----
- arch/c6x/kernel/vmlinux.lds.S | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/arch/c6x/kernel/vmlinux.lds.S b/arch/c6x/kernel/vmlinux.lds.S
-index a3547f9..ac99ba0 100644
---- a/arch/c6x/kernel/vmlinux.lds.S
-+++ b/arch/c6x/kernel/vmlinux.lds.S
-@@ -5,6 +5,9 @@
-  *  Copyright (C) 2010, 2011 Texas Instruments Incorporated
-  *  Mark Salter <msalter@redhat.com>
-  */
-+
-+#define RO_EXCEPTION_TABLE_ALIGN	16
-+
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
- #include <asm/page.h>
-@@ -80,8 +83,6 @@ SECTIONS
- 		*(.gnu.warning)
- 	}
- 
--	EXCEPTION_TABLE(16)
--
- 	RO_DATA(PAGE_SIZE)
- 	.const :
- 	{
+> 
+> 
+> cheers
+> 
