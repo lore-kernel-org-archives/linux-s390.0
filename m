@@ -1,19 +1,30 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 7 Nov 2019 04:09:35 -0500
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:39608 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726800AbfKGJBY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 7 Nov 2019 04:01:24 -0500
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com [209.85.222.197])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 73C035945B
+        for <linux-s390@vger.kernel.org>; Thu,  7 Nov 2019 09:01:23 +0000 (UTC)
+Received: by mail-qk1-f197.google.com with SMTP id q29so1499861qkn.3
+        for <linux-s390@vger.kernel.org>; Thu, 07 Nov 2019 01:01:23 -0800 (PST)
+Date: Thu, 7 Nov 2019 04:01:09 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V10 0/6] mdev based hardware virtio offloading support
-Message-ID: <20191107040854-mutt-send-email-mst@kernel.org>
-References: <20191106133531.693-1-jasowang@redhat.com>
+Subject: Re: [PATCH V9 0/6] mdev based hardware virtio offloading support
+Message-ID: <20191107040055-mutt-send-email-mst@kernel.org>
+References: <20191106070548.18980-1-jasowang@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191106133531.693-1-jasowang@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191106070548.18980-1-jasowang@redhat.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Jason Wang <jasowang@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com
 
-On Wed, Nov 06, 2019 at 09:35:25PM +0800, Jason Wang wrote:
+On Wed, Nov 06, 2019 at 03:05:42PM +0800, Jason Wang wrote:
 > Hi all:
 > 
 > There are hardwares that can do virtio datapath offloading while
@@ -41,29 +52,20 @@ On Wed, Nov 06, 2019 at 09:35:25PM +0800, Jason Wang wrote:
 > this series also extend it to support other types. This is done
 > through introducing class id to the device and pairing it with
 > id_talbe claimed by the driver. On top, this seris also decouple
-> device specific ops out of the common ones for implementing class
-> specific operations over mdev bus.
+> device specific parents ops out of the common ones.
 > 
 > Pktgen test was done with virito-net + mvnet loop back device.
-
-
-Patches 1-5:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Patch 6: I'd like the module to be renamed to make it more
-obvious what it does. With that:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
+> 
 > Please review.
 > 
 > [1] https://lkml.org/lkml/2019/11/5/424
 > [2] https://lkml.org/lkml/2019/11/5/227
-> 
-> Changes from V9:
-> - Tweak the help text for virito-mdev kconfig
-> 
+
+Series:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
 > Changes from V8:
 > - try silent checkpatch, some are still there becuase they were inherited
 >   from virtio_config_ops which needs to be resolved in an independent series
