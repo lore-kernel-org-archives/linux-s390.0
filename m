@@ -1,48 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38871 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726190AbfKNLeC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 06:34:02 -0500
-Received: by mail-wm1-f66.google.com with SMTP id z19so5504347wmk.3
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 03:34:00 -0800 (PST)
-From: richard.henderson@linaro.org
-Subject: [PATCH] random: Make  RANDOM_TRUST_CPU depend on ARCH_RANDOM
-Date: Thu, 14 Nov 2019 12:33:46 +0100
-Message-Id: <20191114113346.25138-1-richard.henderson@linaro.org>
+Received: from shards.monkeyblade.net ([23.128.96.9]:59486 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727597AbfKGBqD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 20:46:03 -0500
+Date: Wed, 06 Nov 2019 17:46:01 -0800 (PST)
+Message-Id: <20191106.174601.340921510977427928.davem@davemloft.net>
+Subject: Re: [PATCH net] net/smc: fix ethernet interface refcounting
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20191106094957.94521-1-kgraul@linux.ibm.com>
+References: <20191106094957.94521-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <richard.henderson@linaro.org>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Richard Henderson <richard.henderson@linaro.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Wed,  6 Nov 2019 10:49:57 +0100
 
-Listing the set of host architectures does not scale.
-Depend instead on the existance of the architecture rng.
+> From: Ursula Braun <ubraun@linux.ibm.com>
+> 
+> If a pnet table entry is to be added mentioning a valid ethernet
+> interface, but an invalid infiniband or ISM device, the dev_put()
+> operation for the ethernet interface is called twice, resulting
+> in a negative refcount for the ethernet interface, which disables
+> removal of such a network interface.
+> 
+> This patch removes one of the dev_put() calls.
+> 
+> Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 
-Signed-off-by: Richard Henderson <richard.henderson@linaro.org>
----
- drivers/char/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index df0fc997dc3e..3c2123a23600 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -539,7 +539,7 @@ endmenu
- 
- config RANDOM_TRUST_CPU
- 	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
--	depends on X86 || S390 || PPC
-+	depends on ARCH_RANDOM
- 	default n
- 	help
- 	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
-@@ -559,4 +559,4 @@ config RANDOM_TRUST_BOOTLOADER
- 	device randomness. Say Y here to assume the entropy provided by the
- 	booloader is trustworthy so it will be added to the kernel's entropy
- 	pool. Otherwise, say N here so it will be regarded as device input that
--	only mixes the entropy pool.
-\ No newline at end of file
-+	only mixes the entropy pool.
--- 
-2.17.1
+Applied and queued up for -stable, thanks.
