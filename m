@@ -1,56 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ozlabs.org ([203.11.71.1]:40749 "EHLO ozlabs.org"
+Received: from verein.lst.de ([213.95.11.211]:59613 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725940AbfKHCUp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 7 Nov 2019 21:20:45 -0500
-Date: Fri, 8 Nov 2019 13:20:00 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: generic-iomap tree for linux-next
-Message-ID: <20191108132000.3e7bd5b8@canb.auug.org.au>
-In-Reply-To: <20191107204743.GA22863@lst.de>
+        id S1726949AbfKGUrs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 7 Nov 2019 15:47:48 -0500
+Date: Thu, 7 Nov 2019 21:47:43 +0100
+From: Christoph Hellwig <hch@lst.de>
+Subject: generic-iomap tree for linux-next
+Message-ID: <20191107204743.GA22863@lst.de>
 References: <20191029064834.23438-1-hch@lst.de>
-        <20191107204743.GA22863@lst.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/cPVZY9JpGW.gARWJr=rYvJb";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191029064834.23438-1-hch@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
 Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-ia64@vger.kernel.org, linux-parisc@vger.kernel.org, linux-sh@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, openrisc@lists.librecores.org, linux-mtd@lists.infradead.org, linux-alpha@vger.kernel.org, sparclinux@vger.kernel.org, nios2-dev@lists.rocketboards.org, linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org
 
---Sig_/cPVZY9JpGW.gARWJr=rYvJb
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi Stephen,
 
-Hi Christoph,
+can you add the generic-ioremap tree:
 
-On Thu, 7 Nov 2019 21:47:43 +0100 Christoph Hellwig <hch@lst.de> wrote:
->
-> can you add the generic-ioremap tree:
->=20
->    git://git.infradead.org/users/hch/ioremap.git
->=20
-> to linux-next?=20
+   git://git.infradead.org/users/hch/ioremap.git
 
-I assume you mean the for-next branch?
---=20
-Cheers,
-Stephen Rothwell
+to linux-next? 
 
---Sig_/cPVZY9JpGW.gARWJr=rYvJb
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl3E0NAACgkQAVBC80lX
-0GwJFAgAgWvXVOBZdx5Do4eCmZ0ZSFyBsTuUtYHPbtNtwQy/iB3LV9BkCAPS767N
-fkEYwRYkqSzUXOA/WIHUXJad89wLVEs1LjxmjeEqJQ2TvsUFGO8vjnTPyXDrfB3W
-VTmeqX0QVqJIwGn29lL9S3UqJ1r1FZVLCcSFLOZQzyRCWmgT+sF9Hofg/5Lwv6xV
-2c+V3LdCr0cTLB+ZHFOz0toYCQMeXlRJM82WAUPhV+jYc53MqEM2VxmJ2G51xIJm
-YEIGyjw5cgDkdJhgj0f+iXPoG7BZ7OM6KPpEVZHEv6pdVP2bcuz37swC+XmbpMAX
-PVoofTbgfmgGmqZ8GiRY+i/KHc43fg==
-=dI/j
------END PGP SIGNATURE-----
-
---Sig_/cPVZY9JpGW.gARWJr=rYvJb--
+Thanks!
