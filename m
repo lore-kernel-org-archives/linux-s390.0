@@ -1,97 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:10167 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbfKGThN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Nov 2019 14:37:13 -0500
-Subject: Re: [PATCH V11 2/6] modpost: add support for mdev class id
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43719 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388787AbfKGPMx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Nov 2019 10:12:53 -0500
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V11 2/6] modpost: add support for mdev class id
+Date: Thu,  7 Nov 2019 23:11:05 +0800
+Message-Id: <20191107151109.23261-3-jasowang@redhat.com>
+In-Reply-To: <20191107151109.23261-1-jasowang@redhat.com>
 References: <20191107151109.23261-1-jasowang@redhat.com>
- <20191107151109.23261-3-jasowang@redhat.com>
-From: Kirti Wankhede <kwankhede@nvidia.com>
-Message-ID: <89d87e49-e7ee-f3c4-0b81-1c5fba14959b@nvidia.com>
-Date: Fri, 8 Nov 2019 01:06:40 +0530
 MIME-Version: 1.0
-In-Reply-To: <20191107151109.23261-3-jasowang@redhat.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, Jason Wang <jasowang@redhat.com>
 
+Add support to parse mdev class id table.
 
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vfio/mdev/vfio_mdev.c     |  2 ++
+ scripts/mod/devicetable-offsets.c |  3 +++
+ scripts/mod/file2alias.c          | 11 +++++++++++
+ 3 files changed, 16 insertions(+)
 
-On 11/7/2019 8:41 PM, Jason Wang wrote:
-> Add support to parse mdev class id table.
-> 
-> Reviewed-by: Parav Pandit <parav@mellanox.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
-
-Thanks,
-Kirti
-
-> ---
->   drivers/vfio/mdev/vfio_mdev.c     |  2 ++
->   scripts/mod/devicetable-offsets.c |  3 +++
->   scripts/mod/file2alias.c          | 11 +++++++++++
->   3 files changed, 16 insertions(+)
-> 
-> diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-> index 38431e9ef7f5..a6641cd8b5a3 100644
-> --- a/drivers/vfio/mdev/vfio_mdev.c
-> +++ b/drivers/vfio/mdev/vfio_mdev.c
-> @@ -125,6 +125,8 @@ static const struct mdev_class_id vfio_id_table[] = {
->   	{ 0 },
->   };
->   
-> +MODULE_DEVICE_TABLE(mdev, vfio_id_table);
-> +
->   static struct mdev_driver vfio_mdev_driver = {
->   	.name	= "vfio_mdev",
->   	.probe	= vfio_mdev_probe,
-> diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
-> index 054405b90ba4..6cbb1062488a 100644
-> --- a/scripts/mod/devicetable-offsets.c
-> +++ b/scripts/mod/devicetable-offsets.c
-> @@ -231,5 +231,8 @@ int main(void)
->   	DEVID(wmi_device_id);
->   	DEVID_FIELD(wmi_device_id, guid_string);
->   
-> +	DEVID(mdev_class_id);
-> +	DEVID_FIELD(mdev_class_id, id);
-> +
->   	return 0;
->   }
-> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-> index c91eba751804..45f1c22f49be 100644
-> --- a/scripts/mod/file2alias.c
-> +++ b/scripts/mod/file2alias.c
-> @@ -1335,6 +1335,16 @@ static int do_wmi_entry(const char *filename, void *symval, char *alias)
->   	return 1;
->   }
->   
-> +/* looks like: "mdev:cN" */
-> +static int do_mdev_entry(const char *filename, void *symval, char *alias)
-> +{
-> +	DEF_FIELD(symval, mdev_class_id, id);
-> +
-> +	sprintf(alias, "mdev:c%02X", id);
-> +	add_wildcard(alias);
-> +	return 1;
-> +}
-> +
->   /* Does namelen bytes of name exactly match the symbol? */
->   static bool sym_is(const char *name, unsigned namelen, const char *symbol)
->   {
-> @@ -1407,6 +1417,7 @@ static const struct devtable devtable[] = {
->   	{"typec", SIZE_typec_device_id, do_typec_entry},
->   	{"tee", SIZE_tee_client_device_id, do_tee_entry},
->   	{"wmi", SIZE_wmi_device_id, do_wmi_entry},
-> +	{"mdev", SIZE_mdev_class_id, do_mdev_entry},
->   };
->   
->   /* Create MODULE_ALIAS() statements.
-> 
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 38431e9ef7f5..a6641cd8b5a3 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -125,6 +125,8 @@ static const struct mdev_class_id vfio_id_table[] =3D {
+ =09{ 0 },
+ };
+=20
++MODULE_DEVICE_TABLE(mdev, vfio_id_table);
++
+ static struct mdev_driver vfio_mdev_driver =3D {
+ =09.name=09=3D "vfio_mdev",
+ =09.probe=09=3D vfio_mdev_probe,
+diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-of=
+fsets.c
+index 054405b90ba4..6cbb1062488a 100644
+--- a/scripts/mod/devicetable-offsets.c
++++ b/scripts/mod/devicetable-offsets.c
+@@ -231,5 +231,8 @@ int main(void)
+ =09DEVID(wmi_device_id);
+ =09DEVID_FIELD(wmi_device_id, guid_string);
+=20
++=09DEVID(mdev_class_id);
++=09DEVID_FIELD(mdev_class_id, id);
++
+ =09return 0;
+ }
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index c91eba751804..45f1c22f49be 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -1335,6 +1335,16 @@ static int do_wmi_entry(const char *filename, void *=
+symval, char *alias)
+ =09return 1;
+ }
+=20
++/* looks like: "mdev:cN" */
++static int do_mdev_entry(const char *filename, void *symval, char *alias)
++{
++=09DEF_FIELD(symval, mdev_class_id, id);
++
++=09sprintf(alias, "mdev:c%02X", id);
++=09add_wildcard(alias);
++=09return 1;
++}
++
+ /* Does namelen bytes of name exactly match the symbol? */
+ static bool sym_is(const char *name, unsigned namelen, const char *symbol)
+ {
+@@ -1407,6 +1417,7 @@ static const struct devtable devtable[] =3D {
+ =09{"typec", SIZE_typec_device_id, do_typec_entry},
+ =09{"tee", SIZE_tee_client_device_id, do_tee_entry},
+ =09{"wmi", SIZE_wmi_device_id, do_wmi_entry},
++=09{"mdev", SIZE_mdev_class_id, do_mdev_entry},
+ };
+=20
+ /* Create MODULE_ALIAS() statements.
+--=20
+2.19.1
