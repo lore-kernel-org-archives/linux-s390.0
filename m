@@ -1,319 +1,226 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60846 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726871AbfKKQ0U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Nov 2019 11:26:20 -0500
-Date: Mon, 11 Nov 2019 17:25:58 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23506 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726199AbfKHNoQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 Nov 2019 08:44:16 -0500
 Subject: Re: [RFC 04/37] KVM: s390: protvirt: Add initial lifecycle handling
-Message-ID: <20191111172558.731a0d8b.cohuck@redhat.com>
-In-Reply-To: <8989f705-ce14-7b85-e5b6-6d87803db491@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
-        <20191024114059.102802-5-frankja@linux.ibm.com>
-        <20191107172956.4f4d8a90.cohuck@redhat.com>
-        <8989f705-ce14-7b85-e5b6-6d87803db491@linux.ibm.com>
+ <20191024114059.102802-5-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <1ff4397e-04b6-1398-69bc-d6a5d085fcd7@redhat.com>
+Date: Fri, 8 Nov 2019 14:44:03 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/=Bz.swff5m_75zBIaFx83X5";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+In-Reply-To: <20191024114059.102802-5-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
---Sig_/=Bz.swff5m_75zBIaFx83X5
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On 24/10/2019 13.40, Janosch Frank wrote:
+> Let's add a KVM interface to create and destroy protected VMs.
 
-On Fri, 8 Nov 2019 08:36:35 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+I agree with David, some more description here would be helpful.
 
-> On 11/7/19 5:29 PM, Cornelia Huck wrote:
-> > On Thu, 24 Oct 2019 07:40:26 -0400
-> > Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> >> @@ -2157,6 +2164,96 @@ static int kvm_s390_set_cmma_bits(struct kvm *k=
-vm,
-> >>  =09return r;
-> >>  }
-> >> =20
-> >> +#ifdef CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST
-> >> +static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd=
-)
-> >> +{
-> >> +=09int r =3D 0;
-> >> +=09void __user *argp =3D (void __user *)cmd->data;
-> >> +
-> >> +=09switch (cmd->cmd) {
-> >> +=09case KVM_PV_VM_CREATE: {
-> >> +=09=09r =3D kvm_s390_pv_alloc_vm(kvm);
-> >> +=09=09if (r)
-> >> +=09=09=09break;
-> >> +
-> >> +=09=09mutex_lock(&kvm->lock);
-> >> +=09=09kvm_s390_vcpu_block_all(kvm);
-> >> +=09=09/* FMT 4 SIE needs esca */
-> >> +=09=09r =3D sca_switch_to_extended(kvm);
-
-Looking at this again: this function calls kvm_s390_vcpu_block_all()
-(which probably does not hurt), but then kvm_s390_vcpu_unblock_all()...
-don't we want to keep the block across pv_create_vm() as well?
-
-Also, can you maybe skip calling this function if we use the esca
-already?
-
-> >> +=09=09if (!r)
-> >> +=09=09=09r =3D kvm_s390_pv_create_vm(kvm);
-> >> +=09=09kvm_s390_vcpu_unblock_all(kvm);
-> >> +=09=09mutex_unlock(&kvm->lock);
-> >> +=09=09break;
-> >> +=09}
-> >> +=09case KVM_PV_VM_DESTROY: {
-> >> +=09=09/* All VCPUs have to be destroyed before this call. */
-> >> +=09=09mutex_lock(&kvm->lock);
-> >> +=09=09kvm_s390_vcpu_block_all(kvm);
-> >> +=09=09r =3D kvm_s390_pv_destroy_vm(kvm);
-> >> +=09=09if (!r)
-> >> +=09=09=09kvm_s390_pv_dealloc_vm(kvm);
-> >> +=09=09kvm_s390_vcpu_unblock_all(kvm);
-> >> +=09=09mutex_unlock(&kvm->lock);
-> >> +=09=09break;
-> >> +=09} =20
-> >=20
-> > Would be helpful to have some code that shows when/how these are called
-> > - do you have any plans to post something soon? =20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h |  24 +++-
+>   arch/s390/include/asm/uv.h       | 110 ++++++++++++++
+>   arch/s390/kvm/Makefile           |   2 +-
+>   arch/s390/kvm/kvm-s390.c         | 173 +++++++++++++++++++++-
+>   arch/s390/kvm/kvm-s390.h         |  47 ++++++
+>   arch/s390/kvm/pv.c               | 237 +++++++++++++++++++++++++++++++
+>   include/uapi/linux/kvm.h         |  33 +++++
+>   7 files changed, 622 insertions(+), 4 deletions(-)
+>   create mode 100644 arch/s390/kvm/pv.c
 >=20
-> Qemu patches will be in internal review soonish and afterwards I'll post
-> them upstream
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm=
+_host.h
+> index 02f4c21c57f6..d4fd0f3af676 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -155,7 +155,13 @@ struct kvm_s390_sie_block {
+>   =09__u8=09reserved08[4];=09=09/* 0x0008 */
+>   #define PROG_IN_SIE (1<<0)
+>   =09__u32=09prog0c;=09=09=09/* 0x000c */
+> -=09__u8=09reserved10[16];=09=09/* 0x0010 */
+> +=09union {
+> +=09=09__u8=09reserved10[16];=09=09/* 0x0010 */
+> +=09=09struct {
+> +=09=09=09__u64=09pv_handle_cpu;
+> +=09=09=09__u64=09pv_handle_config;
+> +=09=09};
+> +=09};
 
-Great, looking forward to this :)
-
->=20
-> >=20
-> > (...)
-> >  =20
-> >> @@ -2529,6 +2642,9 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu=
-)
-> >> =20
-> >>  =09if (vcpu->kvm->arch.use_cmma)
-> >>  =09=09kvm_s390_vcpu_unsetup_cmma(vcpu);
-> >> +=09if (IS_ENABLED(CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST) &&
-> >> +=09    kvm_s390_pv_handle_cpu(vcpu)) =20
-> >=20
-> > I was a bit confused by that function name... maybe
-> > kvm_s390_pv_cpu_get_handle()? =20
->=20
-> Sure
->=20
-> >=20
-> > Also, if this always returns 0 if the config option is off, you
-> > probably don't need to check for that option? =20
->=20
-> Hmm, if we decide to remove the config option altogether then it's not
-> needed anyway and I think that's what Christian wants.
-
-That would be fine with me as well (I have not yet thought about all
-implications there, though.)
-
->=20
-> >  =20
-> >> +=09=09kvm_s390_pv_destroy_cpu(vcpu);
-> >>  =09free_page((unsigned long)(vcpu->arch.sie_block));
-> >> =20
-> >>  =09kvm_vcpu_uninit(vcpu);
-> >> @@ -2555,8 +2671,13 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
-> >>  {
-> >>  =09kvm_free_vcpus(kvm);
-> >>  =09sca_dispose(kvm);
-> >> -=09debug_unregister(kvm->arch.dbf);
-> >>  =09kvm_s390_gisa_destroy(kvm);
-> >> +=09if (IS_ENABLED(CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST) &&
-> >> +=09    kvm_s390_pv_is_protected(kvm)) {
-> >> +=09=09kvm_s390_pv_destroy_vm(kvm);
-> >> +=09=09kvm_s390_pv_dealloc_vm(kvm); =20
-> >=20
-> > It seems the pv vm can be either destroyed via the ioctl above or in
-> > the course of normal vm destruction. When is which way supposed to be
-> > used? Also, it seems kvm_s390_pv_destroy_vm() can fail -- can that be a
-> > problem in this code path? =20
->=20
-> On a reboot we need to tear down the protected VM and boot from
-> unprotected mode again. If the VM shuts down we go through this cleanup
-> path. If it fails the kernel will loose the memory that was allocated to
-> start the VM.
-
-Shouldn't you at least log a moan in that case? Hopefully, this happens
-very rarely, but the dbf will be gone...
-
->=20
-> >  =20
-> >> +=09}
-> >> +=09debug_unregister(kvm->arch.dbf);
-> >>  =09free_page((unsigned long)kvm->arch.sie_page2);
-> >>  =09if (!kvm_is_ucontrol(kvm))
-> >>  =09=09gmap_remove(kvm->arch.gmap); =20
-> >=20
-> > (...)
-> >  =20
-> >> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-> >> index 6d9448dbd052..0d61dcc51f0e 100644
-> >> --- a/arch/s390/kvm/kvm-s390.h
-> >> +++ b/arch/s390/kvm/kvm-s390.h
-> >> @@ -196,6 +196,53 @@ static inline int kvm_s390_user_cpu_state_ctrl(st=
-ruct kvm *kvm)
-> >>  =09return kvm->arch.user_cpu_state_ctrl !=3D 0;
-> >>  }
-> >> =20
-> >> +#ifdef CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST
-> >> +/* implemented in pv.c */
-> >> +void kvm_s390_pv_unpin(struct kvm *kvm);
-> >> +void kvm_s390_pv_dealloc_vm(struct kvm *kvm);
-> >> +int kvm_s390_pv_alloc_vm(struct kvm *kvm);
-> >> +int kvm_s390_pv_create_vm(struct kvm *kvm);
-> >> +int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu);
-> >> +int kvm_s390_pv_destroy_vm(struct kvm *kvm);
-> >> +int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu);
-> >> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length)=
-;
-> >> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned =
-long size,
-> >> +=09=09       unsigned long tweak);
-> >> +int kvm_s390_pv_verify(struct kvm *kvm);
-> >> +
-> >> +static inline bool kvm_s390_pv_is_protected(struct kvm *kvm)
-> >> +{
-> >> +=09return !!kvm->arch.pv.handle;
-> >> +}
-> >> +
-> >> +static inline u64 kvm_s390_pv_handle(struct kvm *kvm) =20
-> >=20
-> > This function name is less confusing than the one below, but maybe also
-> > rename this to kvm_s390_pv_get_handle() for consistency? =20
->=20
-> kvm_s390_pv_kvm_handle?
-
-kvm_s390_pv_kvm_get_handle() would mirror the cpu function :) </bikeshed>
-
->=20
-> >  =20
-> >> +{
-> >> +=09return kvm->arch.pv.handle;
-> >> +}
-> >> +
-> >> +static inline u64 kvm_s390_pv_handle_cpu(struct kvm_vcpu *vcpu)
-> >> +{
-> >> +=09return vcpu->arch.pv.handle;
-> >> +}
-> >> +#else
-> >> +static inline void kvm_s390_pv_unpin(struct kvm *kvm) {}
-> >> +static inline void kvm_s390_pv_dealloc_vm(struct kvm *kvm) {}
-> >> +static inline int kvm_s390_pv_alloc_vm(struct kvm *kvm) { return 0; }
-> >> +static inline int kvm_s390_pv_create_vm(struct kvm *kvm) { return 0; =
-}
-> >> +static inline int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu) { ret=
-urn 0; }
-> >> +static inline int kvm_s390_pv_destroy_vm(struct kvm *kvm) { return 0;=
- }
-> >> +static inline int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu) { re=
-turn 0; }
-> >> +static inline int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
-> >> +=09=09=09=09=09    u64 origin, u64 length) { return 0; }
-> >> +static inline int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long a=
-ddr,
-> >> +=09=09=09=09     unsigned long size,  unsigned long tweak)
-> >> +{ return 0; }
-> >> +static inline int kvm_s390_pv_verify(struct kvm *kvm) { return 0; }
-> >> +static inline bool kvm_s390_pv_is_protected(struct kvm *kvm) { return=
- 0; }
-> >> +static inline u64 kvm_s390_pv_handle(struct kvm *kvm) { return 0; }
-> >> +static inline u64 kvm_s390_pv_handle_cpu(struct kvm_vcpu *vcpu) { ret=
-urn 0; }
-> >> +#endif
-> >> +
-> >>  /* implemented in interrupt.c */
-> >>  int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
-> >>  void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu); =20
-> >=20
-> > (...)
-> >  =20
-> >> +int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
-> >> +{
-> >> +=09int rc;
-> >> +=09struct uv_cb_csc uvcb =3D {
-> >> +=09=09.header.cmd =3D UVC_CMD_CREATE_SEC_CPU,
-> >> +=09=09.header.len =3D sizeof(uvcb),
-> >> +=09};
-> >> +
-> >> +=09/* EEXIST and ENOENT? */ =20
-> >=20
-> > ? =20
->=20
-> I was asking myself if EEXIST or ENOENT would be better error values
-> than EINVAL.
-
-EEXIST might be better, but I don't really like ENOENT.
-
->=20
-> >  =20
-> >> +=09if (kvm_s390_pv_handle_cpu(vcpu))
-> >> +=09=09return -EINVAL;
-> >> +
-> >> +=09vcpu->arch.pv.stor_base =3D __get_free_pages(GFP_KERNEL,
-> >> +=09=09=09=09=09=09   get_order(uv_info.guest_cpu_stor_len));
-> >> +=09if (!vcpu->arch.pv.stor_base)
-> >> +=09=09return -ENOMEM;
-> >> +
-> >> +=09/* Input */
-> >> +=09uvcb.guest_handle =3D kvm_s390_pv_handle(vcpu->kvm);
-> >> +=09uvcb.num =3D vcpu->arch.sie_block->icpua;
-> >> +=09uvcb.state_origin =3D (u64)vcpu->arch.sie_block;
-> >> +=09uvcb.stor_origin =3D (u64)vcpu->arch.pv.stor_base;
-> >> +
-> >> +=09rc =3D uv_call(0, (u64)&uvcb);
-> >> +=09VCPU_EVENT(vcpu, 3, "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %=
-x rrc %x",
-> >> +=09=09   vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
-> >> +=09=09   uvcb.header.rrc);
-> >> +
-> >> +=09/* Output */
-> >> +=09vcpu->arch.pv.handle =3D uvcb.cpu_handle;
-> >> +=09vcpu->arch.sie_block->pv_handle_cpu =3D uvcb.cpu_handle;
-> >> +=09vcpu->arch.sie_block->pv_handle_config =3D kvm_s390_pv_handle(vcpu=
-->kvm);
-> >> +=09vcpu->arch.sie_block->sdf =3D 2;
-> >> +=09if (!rc)
-> >> +=09=09return 0;
-> >> +
-> >> +=09kvm_s390_pv_destroy_cpu(vcpu);
-> >> +=09return -EINVAL;
-> >> +} =20
-> >=20
-> > (...)
-> >=20
-> > Only a quick readthrough, as this patch is longish.
-> >  =20
->=20
->=20
+Why do you need to keep reserved10[] here? Simply replace it with the=20
+two new fields, and get rid of the union?
 
 
---Sig_/=Bz.swff5m_75zBIaFx83X5
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+> +/*
+> + * Generic cmd executor for calls that only transport the cpu or guest
+> + * handle and the command.
+> + */
+> +static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret)
+> +{
+> +=09int rc;
+> +=09struct uv_cb_nodata uvcb =3D {
+> +=09=09.header.cmd =3D cmd,
+> +=09=09.header.len =3D sizeof(uvcb),
+> +=09=09.handle =3D handle,
+> +=09};
+> +
+> +=09WARN(!handle, "No handle provided to Ultravisor call cmd %x\n", cmd);
 
------BEGIN PGP SIGNATURE-----
+If this is not supposed to happen, I thing you should return here=20
+instead of doing the uv_call() below?
+Or maybe even turn this into a BUG() statement?
 
-iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl3Ji5YACgkQ3s9rk8bw
-L6+nqhAAtSAC5DCFbZk3dTBYI0AGeyB9WVc1XuCfXTxbF7k+USm1dRQhfX6bzL60
-InG0Hf2XMiM6fV/GHvUUb9UHmkUBCkndYp61yioaDaoLqu9DEQR3YBdRUAr6W1EB
-OYIVRzorIBSUG/X7gelcNQVayDUuh64/eEoRioK9mscpig8FxnEE1ekgDT5GiZBE
-UGqqm0BCBp8e+1dAj8gXIjpoPSMuXEilnktW68WrO03jM4JBGP8L1CNSnj8X4m+Q
-9x4DTNH1eNgEAVEyjc/KNjvlyoAuqaPSVck7hAQZKYjnHRJHOJO3jTJOF1kgmAre
-CS0LlJj0PrkdZD9EwQn7TONqbFbxdrKEAoBFwCDSeMgsHokd49Wbc1oGgnLLv1AF
-DccWst6jSt/djdgt8TCzeS5Lra8IBJDBKbu18tTqmTmicYvvb7fo+BmmaHNjY/GG
-B5HHksEJyk+pKFPStXh8CUng3RCupgZuR4u7mZnx59qedYiTzN/khBpc9zg/SaU0
-csdvAfMr+WpoVC5fKqZhJ+3ZAwCbS88hpTQ6R9paYaJCm/RibdnBFHdn5/ReqDLS
-4+CA71FKsoiWrRB/UNsl8wnHczH8jq9gTOP9c09Jzw3e/JJeGDNWSKmgI0PCep16
-77NWPrDXBOo0GEZhqYPDYogRzdNNHjX6f9qSd/5ASBQ+OrWR8Es=
-=N6o7
------END PGP SIGNATURE-----
+> +=09rc =3D uv_call(0, (u64)&uvcb);
+> +=09if (ret)
+> +=09=09*ret =3D *(u32 *)&uvcb.header.rc;
+> +=09return rc ? -EINVAL : 0;
+> +}
+[...]
+> @@ -2157,6 +2164,96 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>   =09return r;
+>   }
+>  =20
+> +#ifdef CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST
+> +static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+> +{
+> +=09int r =3D 0;
+> +=09void __user *argp =3D (void __user *)cmd->data;
+> +
+> +=09switch (cmd->cmd) {
 
---Sig_/=Bz.swff5m_75zBIaFx83X5--
+Why are you using curly braces for the case statements below? They do=20
+not seem to be necessary in most cases?
+
+> +=09case KVM_PV_VM_CREATE: {
+> +=09=09r =3D kvm_s390_pv_alloc_vm(kvm);
+> +=09=09if (r)
+> +=09=09=09break;
+> +
+> +=09=09mutex_lock(&kvm->lock);
+> +=09=09kvm_s390_vcpu_block_all(kvm);
+> +=09=09/* FMT 4 SIE needs esca */
+> +=09=09r =3D sca_switch_to_extended(kvm);
+> +=09=09if (!r)
+> +=09=09=09r =3D kvm_s390_pv_create_vm(kvm);
+> +=09=09kvm_s390_vcpu_unblock_all(kvm);
+> +=09=09mutex_unlock(&kvm->lock);
+> +=09=09break;
+> +=09}
+> +=09case KVM_PV_VM_DESTROY: {
+> +=09=09/* All VCPUs have to be destroyed before this call. */
+> +=09=09mutex_lock(&kvm->lock);
+> +=09=09kvm_s390_vcpu_block_all(kvm);
+> +=09=09r =3D kvm_s390_pv_destroy_vm(kvm);
+> +=09=09if (!r)
+> +=09=09=09kvm_s390_pv_dealloc_vm(kvm);
+> +=09=09kvm_s390_vcpu_unblock_all(kvm);
+> +=09=09mutex_unlock(&kvm->lock);
+> +=09=09break;
+> +=09}
+> +=09case KVM_PV_VM_SET_SEC_PARMS: {
+> +=09=09struct kvm_s390_pv_sec_parm parms =3D {};
+> +=09=09void *hdr;
+> +
+> +=09=09r =3D -EFAULT;
+> +=09=09if (copy_from_user(&parms, argp, sizeof(parms)))
+> +=09=09=09break;
+> +
+> +=09=09/* Currently restricted to 8KB */
+> +=09=09r =3D -EINVAL;
+> +=09=09if (parms.length > PAGE_SIZE * 2)
+> +=09=09=09break;
+
+I think you should also check fr parms.length =3D=3D 0 ... otherwise you'll=
+=20
+get an unfriendly complaint from vmalloc().
+
+> +=09=09r =3D -ENOMEM;
+> +=09=09hdr =3D vmalloc(parms.length);
+> +=09=09if (!hdr)
+> +=09=09=09break;
+> +
+> +=09=09r =3D -EFAULT;
+> +=09=09if (!copy_from_user(hdr, (void __user *)parms.origin,
+> +=09=09=09=09   parms.length))
+> +=09=09=09r =3D kvm_s390_pv_set_sec_parms(kvm, hdr, parms.length);
+> +
+> +=09=09vfree(hdr);
+> +=09=09break;
+> +=09}
+> +=09case KVM_PV_VM_UNPACK: {
+> +=09=09struct kvm_s390_pv_unp unp =3D {};
+> +
+> +=09=09r =3D -EFAULT;
+> +=09=09if (copy_from_user(&unp, argp, sizeof(unp)))
+> +=09=09=09break;
+> +
+> +=09=09r =3D kvm_s390_pv_unpack(kvm, unp.addr, unp.size, unp.tweak);
+> +=09=09break;
+> +=09}
+> +=09case KVM_PV_VM_VERIFY: {
+> +=09=09u32 ret;
+> +
+> +=09=09r =3D -EINVAL;
+> +=09=09if (!kvm_s390_pv_is_protected(kvm))
+> +=09=09=09break;
+> +
+> +=09=09r =3D uv_cmd_nodata(kvm_s390_pv_handle(kvm),
+> +=09=09=09=09  UVC_CMD_VERIFY_IMG,
+> +=09=09=09=09  &ret);
+> +=09=09VM_EVENT(kvm, 3, "PROTVIRT VERIFY: rc %x rrc %x",
+> +=09=09=09 ret >> 16, ret & 0x0000ffff);
+> +=09=09break;
+> +=09}
+> +=09default:
+> +=09=09return -ENOTTY;
+
+Is ENOTTY the right thing to return for an invalid cmd here? It might=20
+get confused with the ioctl not being available at all? Maybe EINVAL=20
+would be better?
+
+> +=09}
+> +=09return r;
+> +}
+> +#endif
+> +
+[...]
+> @@ -4338,6 +4471,28 @@ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+>   =09return -ENOIOCTLCMD;
+>   }
+>  =20
+> +#ifdef CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST
+> +static int kvm_s390_handle_pv_vcpu(struct kvm_vcpu *vcpu,
+> +=09=09=09=09   struct kvm_pv_cmd *cmd)
+> +{
+> +=09int r =3D 0;
+> +
+> +=09switch (cmd->cmd) {
+
+Also no need for the curly braces of the case statements here?
+
+> +=09case KVM_PV_VCPU_CREATE: {
+> +=09=09r =3D kvm_s390_pv_create_cpu(vcpu);
+> +=09=09break;
+> +=09}
+> +=09case KVM_PV_VCPU_DESTROY: {
+> +=09=09r =3D kvm_s390_pv_destroy_cpu(vcpu);
+> +=09=09break;
+> +=09}
+> +=09default:
+> +=09=09r =3D -ENOTTY;
+
+Or EINVAL?
+
+> +=09}
+> +=09return r;
+> +}
+> +#endif
+
+  Thomas
