@@ -1,62 +1,68 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 6/8] net/smc: abnormal termination without orderly flag
-Date: Thu, 14 Nov 2019 13:02:45 +0100
-In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
-References: <20191114120247.68889-1-kgraul@linux.ibm.com>
-Message-Id: <20191114120247.68889-7-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 001/109] s390/qeth: invoke softirqs after napi_schedule()
+Date: Sat,  9 Nov 2019 21:43:53 -0500
+Message-Id: <20191110024541.31567-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-For abnormal termination issue an LLC DELETE_LINK without the
-orderly flag.
+[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Calling napi_schedule() from process context does not ensure that the
+NET_RX softirq is run in a timely fashion. So trigger it manually.
+
+This is no big issue with current code. A call to ndo_open() is usually
+followed by a ndo_set_rx_mode() call, and for qeth this contains a
+spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
+early.
+Nevertheless it's best to not depend on this behaviour, and just fix
+the issue at its source like all other drivers do. For instance see
+commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
+
+Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 3 +++
+ drivers/s390/net/qeth_l3_main.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 30854acb846c..ee44e8244d0c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -161,10 +161,10 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
-  * of the DELETE LINK sequence from server; or as server to
-  * initiate the delete processing. See smc_llc_rx_delete_link().
-  */
--static int smc_link_send_delete(struct smc_link *lnk)
-+static int smc_link_send_delete(struct smc_link *lnk, bool orderly)
- {
- 	if (lnk->state == SMC_LNK_ACTIVE &&
--	    !smc_llc_send_delete_link(lnk, SMC_LLC_REQ, true)) {
-+	    !smc_llc_send_delete_link(lnk, SMC_LLC_REQ, orderly)) {
- 		smc_llc_link_deleting(lnk);
- 		return 0;
- 	}
-@@ -201,7 +201,7 @@ static void smc_lgr_free_work(struct work_struct *work)
- 	if (!lgr->is_smcd && !lgr->terminating)	{
- 		/* try to send del link msg, on error free lgr immediately */
- 		if (lnk->state == SMC_LNK_ACTIVE &&
--		    !smc_link_send_delete(lnk)) {
-+		    !smc_link_send_delete(lnk, true)) {
- 			/* reschedule in case we never receive a response */
- 			smc_lgr_schedule_free_work(lgr);
- 			spin_unlock_bh(lgr_lock);
-@@ -1233,9 +1233,7 @@ static void smc_lgrs_shutdown(void)
- 		if (!lgr->is_smcd) {
- 			struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2845316db5545..6fa07c2469150 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -869,7 +869,10 @@ static int __qeth_l2_open(struct net_device *dev)
  
--			if (lnk->state == SMC_LNK_ACTIVE)
--				smc_llc_send_delete_link(lnk, SMC_LLC_REQ,
--							 false);
-+			smc_link_send_delete(&lgr->lnk[SMC_SINGLE_LINK], false);
- 			smc_llc_link_inactive(lnk);
- 		}
- 		cancel_delayed_work_sync(&lgr->free_work);
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index d9830c86d0c11..8bccfd686b735 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2849,7 +2849,10 @@ static int __qeth_l3_open(struct net_device *dev)
+ 
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
 -- 
-2.17.1
+2.20.1
