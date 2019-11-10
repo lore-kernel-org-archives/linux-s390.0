@@ -1,128 +1,196 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 03/13] namei: allow nd_jump_link() to produce errors
-Date: Sun, 17 Nov 2019 12:17:03 +1100
-Message-Id: <20191117011713.13032-4-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726559AbfKJCkQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:40:16 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 001/191] s390/qeth: uninstall IRQ handler on device removal
+Date: Sat,  9 Nov 2019 21:37:03 -0500
+Message-Id: <20191110024013.29782-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-In preparation for LOOKUP_NO_MAGICLINKS, it's necessary to add the
-ability for nd_jump_link() to return an error which the corresponding
-get_link() caller must propogate back up to the VFS.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+[ Upstream commit 121ca39aa5585def682a2c8592983442438b84dc ]
+
+When setting up, qeth installs its IRQ handler on the ccw devices. But
+the IRQ handler is not cleared on removal - so even after qeth yields
+control of the ccw devices, spurious interrupts would still be presented
+to us.
+
+Make (de-)installation of the IRQ handler part of the ccw channel
+setup/removal helpers, and while at it also add the appropriate locking.
+Shift around qeth_setup_channel() to avoid a forward declaration for
+qeth_irq().
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c                     |  3 ++-
- fs/proc/base.c                 |  3 +--
- fs/proc/namespaces.c           | 14 +++++++++-----
- include/linux/namei.h          |  2 +-
- security/apparmor/apparmorfs.c |  6 ++++--
- 5 files changed, 17 insertions(+), 11 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 102 ++++++++++++++++--------------
+ 1 file changed, 54 insertions(+), 48 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 5a47d9c09581..1024a641f075 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -859,7 +859,7 @@ static int nd_jump_root(struct nameidata *nd)
-  * Helper to directly jump to a known parsed path from ->get_link,
-  * caller must have taken a reference to path beforehand.
-  */
--void nd_jump_link(struct path *path)
-+int nd_jump_link(struct path *path)
- {
- 	struct nameidata *nd = current->nameidata;
- 	path_put(&nd->path);
-@@ -867,6 +867,7 @@ void nd_jump_link(struct path *path)
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
- 	nd->flags |= LOOKUP_JUMPED;
-+	return 0;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 461afc276db72..81e2c591acb0b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -901,44 +901,6 @@ static void qeth_send_control_data_cb(struct qeth_channel *channel,
+ 	qeth_release_buffer(channel, iob);
  }
  
- static inline void put_link(struct nameidata *nd)
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ebea9501afb8..ee97dd322f3e 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1626,8 +1626,7 @@ static const char *proc_pid_get_link(struct dentry *dentry,
- 	if (error)
- 		goto out;
- 
--	nd_jump_link(&path);
--	return NULL;
-+	error = nd_jump_link(&path);
- out:
- 	return ERR_PTR(error);
- }
-diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-index 08dd94df1a66..a8cca516f1a9 100644
---- a/fs/proc/namespaces.c
-+++ b/fs/proc/namespaces.c
-@@ -51,11 +51,15 @@ static const char *proc_ns_get_link(struct dentry *dentry,
- 	if (!task)
- 		return ERR_PTR(-EACCES);
- 
--	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
--		error = ns_get_path(&ns_path, task, ns_ops);
--		if (!error)
--			nd_jump_link(&ns_path);
+-static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
+-{
+-	int cnt;
+-
+-	QETH_DBF_TEXT(SETUP, 2, "setupch");
+-
+-	channel->ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
+-	if (!channel->ccw)
+-		return -ENOMEM;
+-	channel->state = CH_STATE_DOWN;
+-	atomic_set(&channel->irq_pending, 0);
+-	init_waitqueue_head(&channel->wait_q);
+-
+-	if (!alloc_buffers)
+-		return 0;
+-
+-	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
+-		channel->iob[cnt].data =
+-			kzalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
+-		if (channel->iob[cnt].data == NULL)
+-			break;
+-		channel->iob[cnt].state = BUF_STATE_FREE;
+-		channel->iob[cnt].channel = channel;
+-		channel->iob[cnt].callback = qeth_send_control_data_cb;
+-		channel->iob[cnt].rc = 0;
 -	}
-+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-+		goto out;
-+
-+	error = ns_get_path(&ns_path, task, ns_ops);
-+	if (error)
-+		goto out;
-+
-+	error = nd_jump_link(&ns_path);
-+out:
- 	put_task_struct(task);
- 	return ERR_PTR(error);
- }
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 397a08ade6a2..758e9b47db6f 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -68,7 +68,7 @@ extern int follow_up(struct path *);
- extern struct dentry *lock_rename(struct dentry *, struct dentry *);
- extern void unlock_rename(struct dentry *, struct dentry *);
- 
--extern void nd_jump_link(struct path *path);
-+extern int __must_check nd_jump_link(struct path *path);
- 
- static inline void nd_terminate_link(void *name, size_t len, size_t maxlen)
+-	if (cnt < QETH_CMD_BUFFER_NO) {
+-		kfree(channel->ccw);
+-		while (cnt-- > 0)
+-			kfree(channel->iob[cnt].data);
+-		return -ENOMEM;
+-	}
+-	channel->io_buf_no = 0;
+-	spin_lock_init(&channel->iob_lock);
+-
+-	return 0;
+-}
+-
+ static int qeth_set_thread_start_bit(struct qeth_card *card,
+ 		unsigned long thread)
  {
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 45d13b6462aa..0b7d6dce6291 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -2455,16 +2455,18 @@ static const char *policy_get_link(struct dentry *dentry,
+@@ -1339,14 +1301,61 @@ static void qeth_free_buffer_pool(struct qeth_card *card)
+ 
+ static void qeth_clean_channel(struct qeth_channel *channel)
  {
- 	struct aa_ns *ns;
- 	struct path path;
-+	int error;
++	struct ccw_device *cdev = channel->ccwdev;
+ 	int cnt;
  
- 	if (!dentry)
- 		return ERR_PTR(-ECHILD);
+ 	QETH_DBF_TEXT(SETUP, 2, "freech");
 +
- 	ns = aa_get_current_ns();
- 	path.mnt = mntget(aafs_mnt);
- 	path.dentry = dget(ns_dir(ns));
--	nd_jump_link(&path);
-+	error = nd_jump_link(&path);
- 	aa_put_ns(ns);
- 
--	return NULL;
-+	return ERR_PTR(error);
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = NULL;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
+ 	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++)
+ 		kfree(channel->iob[cnt].data);
+ 	kfree(channel->ccw);
  }
  
- static int policy_readlink(struct dentry *dentry, char __user *buffer,
++static int qeth_setup_channel(struct qeth_channel *channel, bool alloc_buffers)
++{
++	struct ccw_device *cdev = channel->ccwdev;
++	int cnt;
++
++	QETH_DBF_TEXT(SETUP, 2, "setupch");
++
++	channel->ccw = kmalloc(sizeof(struct ccw1), GFP_KERNEL | GFP_DMA);
++	if (!channel->ccw)
++		return -ENOMEM;
++	channel->state = CH_STATE_DOWN;
++	atomic_set(&channel->irq_pending, 0);
++	init_waitqueue_head(&channel->wait_q);
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = qeth_irq;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
++	if (!alloc_buffers)
++		return 0;
++
++	for (cnt = 0; cnt < QETH_CMD_BUFFER_NO; cnt++) {
++		channel->iob[cnt].data =
++			kzalloc(QETH_BUFSIZE, GFP_DMA|GFP_KERNEL);
++		if (channel->iob[cnt].data == NULL)
++			break;
++		channel->iob[cnt].state = BUF_STATE_FREE;
++		channel->iob[cnt].channel = channel;
++		channel->iob[cnt].callback = qeth_send_control_data_cb;
++		channel->iob[cnt].rc = 0;
++	}
++	if (cnt < QETH_CMD_BUFFER_NO) {
++		qeth_clean_channel(channel);
++		return -ENOMEM;
++	}
++	channel->io_buf_no = 0;
++	spin_lock_init(&channel->iob_lock);
++
++	return 0;
++}
++
+ static void qeth_set_single_write_queues(struct qeth_card *card)
+ {
+ 	if ((atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED) &&
+@@ -1498,7 +1507,7 @@ static void qeth_core_sl_print(struct seq_file *m, struct service_level *slr)
+ 			CARD_BUS_ID(card), card->info.mcl_level);
+ }
+ 
+-static struct qeth_card *qeth_alloc_card(void)
++static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ {
+ 	struct qeth_card *card;
+ 
+@@ -1507,6 +1516,11 @@ static struct qeth_card *qeth_alloc_card(void)
+ 	if (!card)
+ 		goto out;
+ 	QETH_DBF_HEX(SETUP, 2, &card, sizeof(void *));
++
++	card->gdev = gdev;
++	CARD_RDEV(card) = gdev->cdev[0];
++	CARD_WDEV(card) = gdev->cdev[1];
++	CARD_DDEV(card) = gdev->cdev[2];
+ 	if (qeth_setup_channel(&card->read, true))
+ 		goto out_ip;
+ 	if (qeth_setup_channel(&card->write, true))
+@@ -5745,7 +5759,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 
+ 	QETH_DBF_TEXT_(SETUP, 2, "%s", dev_name(&gdev->dev));
+ 
+-	card = qeth_alloc_card();
++	card = qeth_alloc_card(gdev);
+ 	if (!card) {
+ 		QETH_DBF_TEXT_(SETUP, 2, "1err%d", -ENOMEM);
+ 		rc = -ENOMEM;
+@@ -5761,15 +5775,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 			goto err_card;
+ 	}
+ 
+-	card->read.ccwdev  = gdev->cdev[0];
+-	card->write.ccwdev = gdev->cdev[1];
+-	card->data.ccwdev  = gdev->cdev[2];
+ 	dev_set_drvdata(&gdev->dev, card);
+-	card->gdev = gdev;
+-	gdev->cdev[0]->handler = qeth_irq;
+-	gdev->cdev[1]->handler = qeth_irq;
+-	gdev->cdev[2]->handler = qeth_irq;
+-
+ 	qeth_setup_card(card);
+ 	rc = qeth_update_from_chp_desc(card);
+ 	if (rc)
 -- 
-2.24.0
+2.20.1
