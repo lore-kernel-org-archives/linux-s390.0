@@ -1,99 +1,104 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:44796 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732465AbfKFR4h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 12:56:37 -0500
-Received: by mail-pf1-f193.google.com with SMTP id q26so19470421pfn.11
-        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 09:56:35 -0800 (PST)
-Date: Wed, 06 Nov 2019 09:56:34 -0800 (PST)
-Subject: Re: [PATCH 10/21] asm-generic: ioremap_uc should behave the same with and without MMU
-In-Reply-To: <20191029064834.23438-11-hch@lst.de>
-From: Palmer Dabbelt <palmer@dabbelt.com>
-Message-ID: <mhng-3f709a8a-a8c3-4612-b4de-847d13b4af0a@palmer-si-x1c4>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 055/191] s390/zcrypt: enable AP bus scan without a valid default domain
+Date: Sat,  9 Nov 2019 21:37:57 -0500
+Message-Id: <20191110024013.29782-55-sashal@kernel.org>
+In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
+References: <20191110024013.29782-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, guoren@kernel.org, monstr@monstr.eu, green.hu@gmail.com, deanbo422@gmail.com, gxt@pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-On Mon, 28 Oct 2019 23:48:23 PDT (-0700), Christoph Hellwig wrote:
-> Whatever reason there is for the existence of ioremap_uc, and the fact
-> that it returns NULL by default on architectures with an MMU applies
-> equally to nommu architectures, so don't provide different defaults.
->
-> In practice the difference is meaningless as the only portable driver
-> that uses ioremap_uc is atyfb which probably doesn't show up on nommu
-> devices.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  include/asm-generic/io.h | 36 ++++++++++++++++--------------------
->  1 file changed, 16 insertions(+), 20 deletions(-)
->
-> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-> index d02806513670..a98ed6325727 100644
-> --- a/include/asm-generic/io.h
-> +++ b/include/asm-generic/io.h
-> @@ -935,18 +935,7 @@ static inline void *phys_to_virt(unsigned long address)
->   * defined your own ioremap_*() variant you must then declare your own
->   * ioremap_*() variant as defined to itself to avoid the default NULL return.
->   */
-> -
-> -#ifdef CONFIG_MMU
-> -
-> -#ifndef ioremap_uc
-> -#define ioremap_uc ioremap_uc
-> -static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-> -{
-> -	return NULL;
-> -}
-> -#endif
-> -
-> -#else /* !CONFIG_MMU */
-> +#ifndef CONFIG_MMU
->
->  /*
->   * Change "struct page" to physical address.
-> @@ -980,14 +969,6 @@ static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
->  }
->  #endif
->
-> -#ifndef ioremap_uc
-> -#define ioremap_uc ioremap_uc
-> -static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-> -{
-> -	return ioremap_nocache(offset, size);
-> -}
-> -#endif
-> -
->  #ifndef ioremap_wc
->  #define ioremap_wc ioremap_wc
->  static inline void __iomem *ioremap_wc(phys_addr_t offset, size_t size)
-> @@ -1004,6 +985,21 @@ static inline void __iomem *ioremap_wt(phys_addr_t offset, size_t size)
->  }
->  #endif
->
-> +/*
-> + * ioremap_uc is special in that we do require an explicit architecture
-> + * implementation.  In general you do now want to use this function in a
+From: Halil Pasic <pasic@linux.ibm.com>
 
-Presumably that's supposed to be "do not want to use"?
+[ Upstream commit 1c472d46283263497adccd7a0bec64ee2f9c09e5 ]
 
-> + * driver and use plain ioremap, which is uncached by default.  Similarly
-> + * architectures should not implement it unless they have a very good
-> + * reason.
-> + */
-> +#ifndef ioremap_uc
-> +#define ioremap_uc ioremap_uc
-> +static inline void __iomem *ioremap_uc(phys_addr_t offset, size_t size)
-> +{
-> +	return NULL;
-> +}
-> +#endif
-> +
->  #ifdef CONFIG_HAS_IOPORT_MAP
->  #ifndef CONFIG_GENERIC_IOMAP
->  #ifndef ioport_map
+The AP bus scan is aborted before doing anything worth mentioning if
+ap_select_domain() fails, e.g. if the ap_rights.aqm mask is all zeros.
+As the result of this the ap bus fails to manage (e.g. create and
+register) devices like it is supposed to.
 
-With the fix:
+Let us make ap_scan_bus() work even if ap_select_domain() can't select a
+default domain. Let's also make ap_select_domain() return void, as there
+are no more callers interested in its return value.
 
-Reviewed-by: Palmer Dabbelt <palmer@dabbelt.com>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Michael Mueller <mimu@linux.ibm.com>
+Fixes: 7e0bdbe5c21c "s390/zcrypt: AP bus support for alternate driver(s)"
+[freude@linux.ibm.com: title and patch header slightly modified]
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/crypto/ap_bus.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 3be54651698a3..027a53eec42a5 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1223,11 +1223,10 @@ static struct bus_attribute *const ap_bus_attrs[] = {
+ };
+ 
+ /**
+- * ap_select_domain(): Select an AP domain.
+- *
+- * Pick one of the 16 AP domains.
++ * ap_select_domain(): Select an AP domain if possible and we haven't
++ * already done so before.
+  */
+-static int ap_select_domain(void)
++static void ap_select_domain(void)
+ {
+ 	int count, max_count, best_domain;
+ 	struct ap_queue_status status;
+@@ -1242,7 +1241,7 @@ static int ap_select_domain(void)
+ 	if (ap_domain_index >= 0) {
+ 		/* Domain has already been selected. */
+ 		spin_unlock_bh(&ap_domain_lock);
+-		return 0;
++		return;
+ 	}
+ 	best_domain = -1;
+ 	max_count = 0;
+@@ -1269,11 +1268,8 @@ static int ap_select_domain(void)
+ 	if (best_domain >= 0) {
+ 		ap_domain_index = best_domain;
+ 		AP_DBF(DBF_DEBUG, "new ap_domain_index=%d\n", ap_domain_index);
+-		spin_unlock_bh(&ap_domain_lock);
+-		return 0;
+ 	}
+ 	spin_unlock_bh(&ap_domain_lock);
+-	return -ENODEV;
+ }
+ 
+ /*
+@@ -1351,8 +1347,7 @@ static void ap_scan_bus(struct work_struct *unused)
+ 	AP_DBF(DBF_DEBUG, "%s running\n", __func__);
+ 
+ 	ap_query_configuration(ap_configuration);
+-	if (ap_select_domain() != 0)
+-		goto out;
++	ap_select_domain();
+ 
+ 	for (id = 0; id < AP_DEVICES; id++) {
+ 		/* check if device is registered */
+@@ -1468,12 +1463,11 @@ static void ap_scan_bus(struct work_struct *unused)
+ 		}
+ 	} /* end device loop */
+ 
+-	if (defdomdevs < 1)
++	if (ap_domain_index >= 0 && defdomdevs < 1)
+ 		AP_DBF(DBF_INFO,
+ 		       "no queue device with default domain %d available\n",
+ 		       ap_domain_index);
+ 
+-out:
+ 	mod_timer(&ap_config_timer, jiffies + ap_config_time * HZ);
+ }
+ 
+-- 
+2.20.1
