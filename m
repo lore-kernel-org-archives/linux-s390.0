@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:56552 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727984AbfKJCss (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:48:48 -0500
+        id S1728386AbfKJCuf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:50:35 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 01/66] s390/qeth: invoke softirqs after napi_schedule()
-Date: Sat,  9 Nov 2019 21:47:40 -0500
-Message-Id: <20191110024846.32598-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 01/40] s390/qeth: invoke softirqs after napi_schedule()
+Date: Sat,  9 Nov 2019 21:49:53 -0500
+Message-Id: <20191110025032.827-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -39,10 +39,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 6 insertions(+)
 
 diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 6ba4e921d2fd3..51152681aba6e 100644
+index 22045e7d78ac3..97211f7f0cf02 100644
 --- a/drivers/s390/net/qeth_l2_main.c
 +++ b/drivers/s390/net/qeth_l2_main.c
-@@ -991,7 +991,10 @@ static int __qeth_l2_open(struct net_device *dev)
+@@ -996,7 +996,10 @@ static int __qeth_l2_open(struct net_device *dev)
  
  	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
  		napi_enable(&card->napi);
@@ -54,10 +54,10 @@ index 6ba4e921d2fd3..51152681aba6e 100644
  		rc = -EIO;
  	return rc;
 diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 6e6ba1baf9c48..b40a61d9ad9ec 100644
+index 2cc9bc1ef1e38..0d71d2e6419af 100644
 --- a/drivers/s390/net/qeth_l3_main.c
 +++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3005,7 +3005,10 @@ static int __qeth_l3_open(struct net_device *dev)
+@@ -3031,7 +3031,10 @@ static int __qeth_l3_open(struct net_device *dev)
  
  	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
  		napi_enable(&card->napi);
