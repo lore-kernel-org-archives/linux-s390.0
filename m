@@ -1,8 +1,20 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.4]:57963 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726785AbfKKImd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 03:42:33 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11866 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726804AbfKKI1z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 Nov 2019 03:27:55 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAB8Rdlw126453
+        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 03:27:54 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w72sg31t8-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 03:27:54 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 11 Nov 2019 08:27:51 -0000
 Subject: Re: [v3] s390/pkey: Use memdup_user() rather than duplicating its
  implementation
 References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
@@ -16,28 +28,54 @@ References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
  <61244676-8ac1-20af-ed94-99e19c1f95d5@web.de>
  <040f3e18-d97a-fc32-b237-20e7553e1733@de.ibm.com>
  <c701adc9-dab2-46af-003f-d8a2c47bc0af@web.de>
- <ad1c533d-8e7f-b17e-d9cb-54dd9a7ed012@de.ibm.com>
-From: Markus Elfring <Markus.Elfring@web.de>
-Message-ID: <a2dbda2a-1c2f-20f1-6b97-c59dbbcaa7a8@web.de>
-Date: Mon, 11 Nov 2019 09:42:18 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 11 Nov 2019 09:27:46 +0100
 MIME-Version: 1.0
-In-Reply-To: <ad1c533d-8e7f-b17e-d9cb-54dd9a7ed012@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <c701adc9-dab2-46af-003f-d8a2c47bc0af@web.de>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <ad1c533d-8e7f-b17e-d9cb-54dd9a7ed012@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Joe Perches <joe@perches.com>
+To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Joe Perches <joe@perches.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>, Navid Emamdoost <emamd001@umn.edu>, Stephen McCamant <smccaman@umn.edu>
 
-> No, I just want to have the word "fix" in the subject.
-
-How do you think about to use the preferred subject in your final commit directly?
-(Do you insist on sending a fourth patch variant?)
 
 
-> If you are OK with changing the sign-off to your web.de address
+On 11.11.19 09:11, Markus Elfring wrote:
+>>> From: Markus Elfring <elfring@users.sourceforge.net>
+>>> Date: Fri, 8 Nov 2019 17:50:22 +0100
+> …
+>>> Fixes: f2bbc96e7cfad3891b7bf9bd3e566b9b7ab4553d ("s390/pkey: add CCA AES cipher key support")
+>>> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+>>
+>> You were sending this from a different email address.
+> 
+> Yes.
+> 
+> 
+>> Can you use the same for the sender and the signoff?
+> 
+> I would prefer to use the other email address (for a while).
 
-Does hinder you anything from continuing to use the previous known email address?
+The signoff is there to track the patch flow so I prefer that both
+addresses match.
 
-Regards,
-Markus
+>> Can you also change the subject to indicate the "fix". e.g. something like
+>>
+>> s390/pkey: fix memory leak in error case by using memdup_user() rather than open coding
+> 
+> Does this change request indicate also a need to split the software update
+> between the discussed two function implementations?
+
+No, I just want to have the word "fix" in the subject.
+
+If you are OK with changing the sign-off to your web.de address
+I can do both changes when applying.
+
+
+You can answer with 
+Signed-off-by: <your web.de address>
+
+as approval.
