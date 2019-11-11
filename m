@@ -1,92 +1,157 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:25242 "EHLO
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38372 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726107AbfKMKGL (ORCPT
+        by vger.kernel.org with ESMTP id S1726845AbfKKQyn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Nov 2019 05:06:11 -0500
+        Mon, 11 Nov 2019 11:54:43 -0500
+Date: Mon, 11 Nov 2019 17:54:21 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC 04/37] KVM: s390: protvirt: Add initial lifecycle handling
+Message-ID: <20191111175421.11424cb0.cohuck@redhat.com>
+In-Reply-To: <a99a9155-64cb-a083-07ee-a3fb543b40b5@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
- <20191024114059.102802-5-frankja@linux.ibm.com>
- <20191107172956.4f4d8a90.cohuck@redhat.com>
- <8989f705-ce14-7b85-e5b6-6d87803db491@linux.ibm.com>
- <20191111172558.731a0d8b.cohuck@redhat.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <b28ae9ba-e085-08ef-9b1b-eede5e0457af@redhat.com>
-Date: Wed, 13 Nov 2019 11:05:49 +0100
+        <20191024114059.102802-5-frankja@linux.ibm.com>
+        <20191107172956.4f4d8a90.cohuck@redhat.com>
+        <8989f705-ce14-7b85-e5b6-6d87803db491@linux.ibm.com>
+        <20191111172558.731a0d8b.cohuck@redhat.com>
+        <a99a9155-64cb-a083-07ee-a3fb543b40b5@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20191111172558.731a0d8b.cohuck@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="hljtreHj6wc9C4jdFxZK1WbE8eRgFJtB0"
+Content-Type: multipart/signed; boundary="Sig_/MC6yGPU+m8kG.Km8/6Gka7/";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---hljtreHj6wc9C4jdFxZK1WbE8eRgFJtB0
-Content-Type: multipart/mixed; boundary="9IIrUE8asiG4qWC2ZZ8GVxERneEBnU0YK"
-
---9IIrUE8asiG4qWC2ZZ8GVxERneEBnU0YK
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
+--Sig_/MC6yGPU+m8kG.Km8/6Gka7/
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-On 11/11/2019 17.25, Cornelia Huck wrote:
-> On Fri, 8 Nov 2019 08:36:35 +0100
-> Janosch Frank <frankja@linux.ibm.com> wrote:
+On Mon, 11 Nov 2019 17:39:15 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> On 11/11/19 5:25 PM, Cornelia Huck wrote:
+> > On Fri, 8 Nov 2019 08:36:35 +0100
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >  =20
+> >> On 11/7/19 5:29 PM, Cornelia Huck wrote: =20
+> >>> On Thu, 24 Oct 2019 07:40:26 -0400
+> >>> Janosch Frank <frankja@linux.ibm.com> wrote: =20
+> >  =20
+> >>>> @@ -2157,6 +2164,96 @@ static int kvm_s390_set_cmma_bits(struct kvm =
+*kvm,
+> >>>>  =09return r;
+> >>>>  }
+> >>>> =20
+> >>>> +#ifdef CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST
+> >>>> +static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *c=
+md)
+> >>>> +{
+> >>>> +=09int r =3D 0;
+> >>>> +=09void __user *argp =3D (void __user *)cmd->data;
+> >>>> +
+> >>>> +=09switch (cmd->cmd) {
+> >>>> +=09case KVM_PV_VM_CREATE: {
+> >>>> +=09=09r =3D kvm_s390_pv_alloc_vm(kvm);
+> >>>> +=09=09if (r)
+> >>>> +=09=09=09break;
+> >>>> +
+> >>>> +=09=09mutex_lock(&kvm->lock);
+> >>>> +=09=09kvm_s390_vcpu_block_all(kvm);
+> >>>> +=09=09/* FMT 4 SIE needs esca */
+> >>>> +=09=09r =3D sca_switch_to_extended(kvm); =20
+> >=20
+> > Looking at this again: this function calls kvm_s390_vcpu_block_all()
+> > (which probably does not hurt), but then kvm_s390_vcpu_unblock_all()...
+> > don't we want to keep the block across pv_create_vm() as well? =20
 >=20
->> On 11/7/19 5:29 PM, Cornelia Huck wrote:
-[...]
->>>  =20
->>>> +int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
->>>> +{
->>>> +=09int rc;
->>>> +=09struct uv_cb_csc uvcb =3D {
->>>> +=09=09.header.cmd =3D UVC_CMD_CREATE_SEC_CPU,
->>>> +=09=09.header.len =3D sizeof(uvcb),
->>>> +=09};
->>>> +
->>>> +=09/* EEXIST and ENOENT? */ =20
->>>
->>> ? =20
->>
->> I was asking myself if EEXIST or ENOENT would be better error values
->> than EINVAL.
+> Yeah
 >=20
-> EEXIST might be better, but I don't really like ENOENT.
+> >=20
+> > Also, can you maybe skip calling this function if we use the esca
+> > already? =20
 >=20
->>>  =20
->>>> +=09if (kvm_s390_pv_handle_cpu(vcpu))
->>>> +=09=09return -EINVAL;
+> Did I forget to include that in the patchset?
+> I extended sca_switch_to_extended() to just return in that case.
 
-FWIW, I'd also vote for EEXIST here.
+If you did, I likely missed it; way too much stuff to review :)
 
- Thomas
+>=20
+> >  =20
+> >>>> +=09=09if (!r)
+> >>>> +=09=09=09r =3D kvm_s390_pv_create_vm(kvm);
+> >>>> +=09=09kvm_s390_vcpu_unblock_all(kvm);
+> >>>> +=09=09mutex_unlock(&kvm->lock);
+> >>>> +=09=09break;
+> >>>> +=09}
 
+(...)
 
---9IIrUE8asiG4qWC2ZZ8GVxERneEBnU0YK--
+> >>>> @@ -2555,8 +2671,13 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+> >>>>  {
+> >>>>  =09kvm_free_vcpus(kvm);
+> >>>>  =09sca_dispose(kvm);
+> >>>> -=09debug_unregister(kvm->arch.dbf);
+> >>>>  =09kvm_s390_gisa_destroy(kvm);
+> >>>> +=09if (IS_ENABLED(CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST) &&
+> >>>> +=09    kvm_s390_pv_is_protected(kvm)) {
+> >>>> +=09=09kvm_s390_pv_destroy_vm(kvm);
+> >>>> +=09=09kvm_s390_pv_dealloc_vm(kvm);   =20
+> >>>
+> >>> It seems the pv vm can be either destroyed via the ioctl above or in
+> >>> the course of normal vm destruction. When is which way supposed to be
+> >>> used? Also, it seems kvm_s390_pv_destroy_vm() can fail -- can that be=
+ a
+> >>> problem in this code path?   =20
+> >>
+> >> On a reboot we need to tear down the protected VM and boot from
+> >> unprotected mode again. If the VM shuts down we go through this cleanu=
+p
+> >> path. If it fails the kernel will loose the memory that was allocated =
+to
+> >> start the VM. =20
+> >=20
+> > Shouldn't you at least log a moan in that case? Hopefully, this happens
+> > very rarely, but the dbf will be gone... =20
+>=20
+> That's why I created the uv dbf :-)
 
---hljtreHj6wc9C4jdFxZK1WbE8eRgFJtB0
-Content-Type: application/pgp-signature; name="signature.asc"
+Again, way too easy to get lost in these changes :)
+
+> Well, it shouldn't happen at all so maybe a WARN will be a good option
+
+Yeah, if it this is one of these "should not happen" things, a WARN
+sounds good.
+
+>=20
+> >  =20
+> >> =20
+> >>>    =20
+> >>>> +=09}
+> >>>> +=09debug_unregister(kvm->arch.dbf);
+> >>>>  =09free_page((unsigned long)kvm->arch.sie_page2);
+> >>>>  =09if (!kvm_is_ucontrol(kvm))
+> >>>>  =09=09gmap_remove(kvm->arch.gmap);   =20
+
+--Sig_/MC6yGPU+m8kG.Km8/6Gka7/
+Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEJ7iIR+7gJQEY8+q5LtnXdP5wLbUFAl3L1YUACgkQLtnXdP5w
-LbW7SQ//RExUXZOruu0BZ0+TgRSjROGyJ3AfBJvDYZDOcA1w0bp2k9tTDhq39a0o
-/qP05FxW0zmBRUn/yMRX6njAk0aFn/ArHyH5z1B5fum9m53ldjq3mir09CqECfaG
-8mfSt+YLm3aY9p3lDxygRCoT7eBu1owxarOfetTet1Fe8QutsftHFoW52so7yYvG
-amCG3YPxqxqTZ315Ef5jzGl6RllF2UHbi4Apn3u9XJ9tPzxFWKUX/U7Ug+E8aw1e
-QBHq84b+MFbZxz+0TVKWuKhNdLArRPxzpRc7dUUxJCSb+cG/3MKgSLdwrvLqOPGm
-vfvtNb0iaDyoSJa0tMQfo1zFur0YTrneflBzzMvJ8CstLVeCH0N2NjwwpGBoDICO
-CdYBbPoXU7cBnaTAVbCpY9WjAmsHaLYbfNNYzu80VPBVJ26Zz8JucrfnJRUjzBGP
-b2V6JnpPCMiTf1nNfW27LE2ViDxguwfqnnYhF3yY89Po3uYt6YWz5JI6mrBpP4d4
-WRQ58RhSHirbA7kAej047hkQDi+hn8gDzaZh388S8S3pGarWPXAa2k7/5GhNjZx9
-qLXDq8rcjr10A6vwTf1az4FIgUmECpAccIzjmHl8rkYpZGyIY60nelQ7MDjQvTK2
-6n/kU89j6RpMppC0RC1ZyrYusfS2JTxhUDuQfmcjgWrn4Ta2O0g=
-=cYoY
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl3Jkj0ACgkQ3s9rk8bw
+L6+82A/+LHWboMq9UZVl7tJU6hYxG6blsNyA6gGqRavPCwvyrDfV+9NOnUExV3be
+WHSvkks+kPPsdBF8QPQRzrhEftaAa5Sti2rPincSVf37/FJOYZZrl44nW5RTmflw
+ENZLeU94+v4E7Z0n89xXhetlucpW+HPZx4sj0ulEZWkCmEXYPCDHbyK074ayM6dw
+f9LHzKwFu0gnJD8T5hs8VsdpOkeZpVVrlq8QjcNReNV3jc0ZYujVRbiU0tr58iFg
+oTtkTlUJ3ustxXfQ05LTTDMwhKLs1mgdBQ5H8KiDnR46tqbGHCqfjTdc0Utvv/El
+U6nZFfuZV+q3X4yp0Ri2mAagm7h1BUXhA6sa5Ej3xjKlDXPVHzmO9uKGdPg2uLaM
+TTIkApJsi4iqGnOzx66/2ADSMCTkHcvxBsaipKEeASpp51ns4pcVQx4W/2AgQSZI
+GgVAe3mgdh4657n34sO36WVAlMMl9GOrgIcsZeDgPpZwzMggEVLI7nsiHOSeIqJw
+ehCBMcV1OxDoqsift6tK+Vw8Hf5kV2Jtt233eqKFraZL1F/pnnJkoo2/q0ZgFvlv
+Hvyc+Jvld/2/EpJc7R6wpBBobZaA8pldOT/+LC6XtSf9t3fy9Qn0rR3UQpmelbLM
+IObX5ep3zswpBu8ms8A2tVy916Y5m8axnyYW15g4LR6aybib/jM=
+=yq0B
 -----END PGP SIGNATURE-----
 
---hljtreHj6wc9C4jdFxZK1WbE8eRgFJtB0--
+--Sig_/MC6yGPU+m8kG.Km8/6Gka7/--
