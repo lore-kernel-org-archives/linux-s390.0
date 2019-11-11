@@ -1,87 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
+Received: from mout.web.de ([212.227.15.14]:56161 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727356AbfKVFty (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:49:54 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 041/219] s390/zcrypt: make sysfs reset attribute trigger queue reset
-Date: Fri, 22 Nov 2019 00:46:13 -0500
-Message-Id: <20191122054911.1750-34-sashal@kernel.org>
-In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
-References: <20191122054911.1750-1-sashal@kernel.org>
+        id S1726811AbfKKJ1F (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 Nov 2019 04:27:05 -0500
+Subject: Re: [v3] s390/pkey: Use memdup_user() rather than duplicating its
+ implementation
+References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
+ <6137855bb4170c438c7436cbdb7dfd21639a8855.camel@perches.com>
+ <deb7893f-3cfe-18fc-3feb-b26b290bf3c6@web.de>
+ <833d7d5e-6ede-6bdd-a2cc-2da7f0b03908@de.ibm.com>
+ <1b65bc81-f47a-eefa-f1f4-d5af6a1809c0@web.de>
+ <733b29df-207e-a165-ee80-46be8720c0c4@de.ibm.com>
+ <8f98f9fc-57df-5993-44b5-5ea4c0de7ef9@web.de>
+ <c0df9cc8-c41a-1e5d-811c-1ff045c13fcc@de.ibm.com>
+ <61244676-8ac1-20af-ed94-99e19c1f95d5@web.de>
+ <040f3e18-d97a-fc32-b237-20e7553e1733@de.ibm.com>
+ <c701adc9-dab2-46af-003f-d8a2c47bc0af@web.de>
+ <ad1c533d-8e7f-b17e-d9cb-54dd9a7ed012@de.ibm.com>
+ <a2dbda2a-1c2f-20f1-6b97-c59dbbcaa7a8@web.de>
+ <6de4f605-6f74-a3b6-92d5-c5162cb54a6f@de.ibm.com>
+ <ae4cb7b4-68e7-f989-be4b-1a9df8ce51ed@web.de>
+ <f46d8b65-bb64-db04-aa7c-db980fce1ae1@de.ibm.com>
+ <18026404-e3f0-f634-daad-191b18251ffe@web.de>
+ <1a75fa12-f29b-4a84-b285-374c9d1eec00@de.ibm.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Message-ID: <c49c02ed-9600-c6c3-20a2-d17acd91d91c@web.de>
+Date: Mon, 11 Nov 2019 10:26:49 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1a75fa12-f29b-4a84-b285-374c9d1eec00@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Joe Perches <joe@perches.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>, Navid Emamdoost <emamd001@umn.edu>, Stephen McCamant <smccaman@umn.edu>
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
+/Documentation/process/submitting-patches.rst?id=3D31f4f5b495a62c9a8b15b1c=
+3581acd5efeb9af8c#n418
+>
+> Because I am not going to add this email as the author of the patch when=
+ you are not able
+> to send emails from that address.
 
-[ Upstream commit 42a87d4103ae365e18c3be1333592ab583b8ad9d ]
+I find it more important that messages can still be sent also to
+the other known email address.
+How often would you like to switch addresses at this place?
 
-Until now there is no way to reset a AP queue or card. Driving a card
-or queue offline and online again does only toggle the 'software'
-online state. The only way to trigger a (hardware) reset is by running
-hot-unplug/hot-plug for example on the HMC.
-
-This patch makes the queue reset attribute in sysfs writable.
-Writing into this attribute triggers a reset on the AP queue's state
-machine. So the AP queue is flushed and state machine runs through the
-initial states which cause a reset (PQAP(RAPQ)) and a re-registration
-to interrupts (PQAP(AQIC)) if available.
-
-The reset sysfs attribute is writable by root only. So only an
-administrator is allowed to initiate a reset of AP queues. Please note
-that the queue's counter values are left untouched by the reset.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/crypto/ap_queue.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
-index 0aa4b3ccc948c..576ac08777c50 100644
---- a/drivers/s390/crypto/ap_queue.c
-+++ b/drivers/s390/crypto/ap_queue.c
-@@ -14,6 +14,9 @@
- #include <asm/facility.h>
- 
- #include "ap_bus.h"
-+#include "ap_debug.h"
-+
-+static void __ap_flush_queue(struct ap_queue *aq);
- 
- /**
-  * ap_queue_enable_interruption(): Enable interruption on an AP queue.
-@@ -541,7 +544,25 @@ static ssize_t reset_show(struct device *dev,
- 	return rc;
- }
- 
--static DEVICE_ATTR_RO(reset);
-+static ssize_t reset_store(struct device *dev,
-+			   struct device_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	struct ap_queue *aq = to_ap_queue(dev);
-+
-+	spin_lock_bh(&aq->lock);
-+	__ap_flush_queue(aq);
-+	aq->state = AP_STATE_RESET_START;
-+	ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
-+	spin_unlock_bh(&aq->lock);
-+
-+	AP_DBF(DBF_INFO, "reset queue=%02x.%04x triggered by user\n",
-+	       AP_QID_CARD(aq->qid), AP_QID_QUEUE(aq->qid));
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR_RW(reset);
- 
- static ssize_t interrupt_show(struct device *dev,
- 			      struct device_attribute *attr, char *buf)
--- 
-2.20.1
+Regards,
+Markus
