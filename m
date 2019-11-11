@@ -1,113 +1,32 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:44173 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726214AbfKNPPy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 10:15:54 -0500
-Date: Thu, 14 Nov 2019 16:15:26 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 17/37] DOCUMENTATION: protvirt: Instruction emulation
-Message-ID: <20191114161526.1100f4fe.cohuck@redhat.com>
-In-Reply-To: <20191024114059.102802-18-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
-        <20191024114059.102802-18-frankja@linux.ibm.com>
+Received: from mout.kundenserver.de ([217.72.192.73]:46443 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726819AbfKKKK3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Nov 2019 05:10:29 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-13-hch@lst.de>
+In-Reply-To: <20191029064834.23438-13-hch@lst.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Mon, 11 Nov 2019 11:10:07 +0100
+Message-ID: <CAK8P3a28UDPEP7Bqu_wEXsfwSpT-5i30STB2iX3RfxdvbfzrNQ@mail.gmail.com>
+Subject: Re: [PATCH 12/21] arch: rely on asm-generic/io.h for default
+ ioremap_* definitions
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Greentime Hu <green.hu@gmail.com>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, the arch/x86 maintainers <x86@kernel.org>, alpha <linux-alpha@vger.kernel.org>, "open list:SYNOPSYS ARC ARCHITECTURE" <linux-snps-arc@lists.infradead.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, linux-ia64@vger.kernel.org, linux-m68k <linux-m68k@lists.linux-m68k.org>, linux-mips@vger.kernel.org, "moderated list:NIOS2 ARCHITECTURE" <nios2-dev@lists.rocketboards.org>, openrisc@lists.librecores.org, Parisc List <linux-parisc@vger.kernel.org>, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mtd <linux-mtd@lists.infradead.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, 24 Oct 2019 07:40:39 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Tue, Oct 29, 2019 at 7:49 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Various architectures that use asm-generic/io.h still defined their
+> own default versions of ioremap_nocache, ioremap_wt and ioremap_wc
+> that point back to plain ioremap directly or indirectly.  Remove these
+> definitions and rely on asm-generic/io.h instead.  For this to work
+> the backup ioremap_* defintions needs to be changed to purely cpp
+> macros instea of inlines to cover for architectures like openrisc
+> that only define ioremap after including <asm-generic/io.h>.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-> As guest memory is inaccessible and information about the guest's
-> state is very limited, new ways for instruction emulation have been
-> introduced.
->=20
-> With a bounce area for guest GRs and instruction data, guest state
-> leaks can be limited by the Ultravisor. KVM now has to move
-> instruction input and output through these areas.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  Documentation/virtual/kvm/s390-pv.txt | 47 +++++++++++++++++++++++++++
->  1 file changed, 47 insertions(+)
->=20
-> diff --git a/Documentation/virtual/kvm/s390-pv.txt b/Documentation/virtua=
-l/kvm/s390-pv.txt
-> index e09f2dc5f164..cb08d78a7922 100644
-> --- a/Documentation/virtual/kvm/s390-pv.txt
-> +++ b/Documentation/virtual/kvm/s390-pv.txt
-> @@ -48,3 +48,50 @@ interception codes have been introduced. One which tel=
-ls us that CRs
->  have changed. And one for PSW bit 13 changes. The CRs and the PSW in
->  the state description only contain the mask bits and no further info
->  like the current instruction address.
-> +
-> +
-> +Instruction emulation:
-> +With the format 4 state description the SIE instruction already
-
-s/description/description,/
-
-> +interprets more instructions than it does with format 2. As it is not
-> +able to interpret all instruction, the SIE and the UV safeguard KVM's
-
-s/instruction/instructions/
-
-> +emulation inputs and outputs.
-> +
-> +Guest GRs and most of the instruction data, like IO data structures
-
-Hm, what 'IO data structures'?
-
-> +are filtered. Instruction data is copied to and from the Secure
-> +Instruction Data Area. Guest GRs are put into / retrieved from the
-> +Interception-Data block.
-> +
-> +The Interception-Data block from the state description's offset 0x380
-> +contains GRs 0 - 16. Only GR values needed to emulate an instruction
-> +will be copied into this area.
-> +
-> +The Interception Parameters state description field still contains the
-> +the bytes of the instruction text but with pre-set register
-> +values. I.e. each instruction always uses the same instruction text,
-> +to not leak guest instruction text.
-> +
-> +The Secure Instruction Data Area contains instruction storage
-> +data. Data for diag 500 is exempt from that and has to be moved
-> +through shared buffers to KVM.
-
-I find this paragraph a bit confusing. What does that imply for diag
-500 interception? Data is still present in gprs 1-4?
-
-(Also, why only diag 500? Because it is the 'reserved for kvm' diagnose
-call?)
-
-> +
-> +When SIE intercepts an instruction, it will only allow data and
-> +program interrupts for this instruction to be moved to the guest via
-> +the two data areas discussed before. Other data is ignored or results
-> +in validity interceptions.
-> +
-> +
-> +Instruction emulation interceptions:
-> +There are two types of SIE secure instruction intercepts. The normal
-> +and the notification type. Normal secure instruction intercepts will
-> +make the guest pending for instruction completion of the intercepted
-> +instruction type, i.e. on SIE entry it is attempted to complete
-> +emulation of the instruction with the data provided by KVM. That might
-> +be a program exception or instruction completion.
-> +
-> +The notification type intercepts inform KVM about guest environment
-> +changes due to guest instruction interpretation. Such an interception
-
-'interpretation by SIE' ?
-
-> +is recognized for the store prefix instruction and provides the new
-> +lowcore location for mapping change notification arming. Any KVM data
-> +in the data areas is ignored, program exceptions are not injected and
-> +execution continues on next SIE entry, as if no intercept had
-> +happened.
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
