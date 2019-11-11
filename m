@@ -1,8 +1,20 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.14]:56161 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726811AbfKKJ1F (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 04:27:05 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20960 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726829AbfKKJSy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 Nov 2019 04:18:54 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAB9HuEQ108794
+        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 04:18:53 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w72sg4v6r-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 11 Nov 2019 04:18:53 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 11 Nov 2019 09:18:50 -0000
 Subject: Re: [v3] s390/pkey: Use memdup_user() rather than duplicating its
  implementation
 References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
@@ -22,31 +34,34 @@ References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
  <ae4cb7b4-68e7-f989-be4b-1a9df8ce51ed@web.de>
  <f46d8b65-bb64-db04-aa7c-db980fce1ae1@de.ibm.com>
  <18026404-e3f0-f634-daad-191b18251ffe@web.de>
- <1a75fa12-f29b-4a84-b285-374c9d1eec00@de.ibm.com>
-From: Markus Elfring <Markus.Elfring@web.de>
-Message-ID: <c49c02ed-9600-c6c3-20a2-d17acd91d91c@web.de>
-Date: Mon, 11 Nov 2019 10:26:49 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 11 Nov 2019 10:18:44 +0100
 MIME-Version: 1.0
-In-Reply-To: <1a75fa12-f29b-4a84-b285-374c9d1eec00@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <18026404-e3f0-f634-daad-191b18251ffe@web.de>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Message-Id: <1a75fa12-f29b-4a84-b285-374c9d1eec00@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Joe Perches <joe@perches.com>
+To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Joe Perches <joe@perches.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>, Navid Emamdoost <emamd001@umn.edu>, Stephen McCamant <smccaman@umn.edu>
 
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
-/Documentation/process/submitting-patches.rst?id=3D31f4f5b495a62c9a8b15b1c=
-3581acd5efeb9af8c#n418
->
-> Because I am not going to add this email as the author of the patch when=
- you are not able
-> to send emails from that address.
 
-I find it more important that messages can still be sent also to
-the other known email address.
-How often would you like to switch addresses at this place?
 
-Regards,
-Markus
+On 11.11.19 10:17, Markus Elfring wrote:
+>>>>> Does hinder you anything from continuing to use the previous known email address?
+>>>>
+>>>> Can you at least send a mail from sourceforge address with the Signed-off-by?
+>>>
+>>> Not any more (for a while).
+>>
+>> Then I will not apply that patch with that email and signoff.
+> 
+> Why do you find the information “Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>” inappropriate
+> (at the moment)?
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?id=31f4f5b495a62c9a8b15b1c3581acd5efeb9af8c#n418
+
+Because I am not going to add this email as the author of the patch when you are not able
+to send emails from that address.
