@@ -1,127 +1,129 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Wed, 06 Nov 2019 10:11:37 -0800 (PST)
-Subject: Re: [PATCH 11/21] asm-generic: don't provide ioremap for CONFIG_MMU
-In-Reply-To: <20191029064834.23438-12-hch@lst.de>
-From: Palmer Dabbelt <palmer@dabbelt.com>
-Message-ID: <mhng-33ea9141-2440-4a2d-8133-62094486fc48@palmer-si-x1c4>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38752 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726832AbfKKNua (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 Nov 2019 08:50:30 -0500
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 1/4] vfio-ccw: Refactor how the traces are built
+Date: Mon, 11 Nov 2019 14:50:16 +0100
+Message-Id: <20191111135019.2394-2-cohuck@redhat.com>
+In-Reply-To: <20191111135019.2394-1-cohuck@redhat.com>
+References: <20191111135019.2394-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, guoren@kernel.org, monstr@monstr.eu, green.hu@gmail.com, deanbo422@gmail.com, gxt@pku.edu.cn, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-On Mon, 28 Oct 2019 23:48:24 PDT (-0700), Christoph Hellwig wrote:
-> All MMU-enabled ports have a non-trivial ioremap and should thus provide
-> the prototype for their implementation instead of providing a generic
-> one unless a different symbol is not defined.  Note that this only
-> affects sparc32 nds32 as all others do provide their own version.
->
-> Also update the kerneldoc comments in asm-generic/io.h to explain the
-> situation around the default ioremap* implementations correctly.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/nds32/include/asm/io.h    |  2 ++
->  arch/sparc/include/asm/io_32.h |  1 +
->  include/asm-generic/io.h       | 29 ++++++++---------------------
->  3 files changed, 11 insertions(+), 21 deletions(-)
->
-> diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-> index 16f262322b8f..fb0e8a24c7af 100644
-> --- a/arch/nds32/include/asm/io.h
-> +++ b/arch/nds32/include/asm/io.h
-> @@ -6,6 +6,7 @@
->
->  #include <linux/types.h>
->
-> +void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
->  extern void iounmap(volatile void __iomem *addr);
->  #define __raw_writeb __raw_writeb
->  static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
-> @@ -80,4 +81,5 @@ static inline u32 __raw_readl(const volatile void __iomem *addr)
->  #define writew(v,c)	({ __iowmb(); writew_relaxed((v),(c)); })
->  #define writel(v,c)	({ __iowmb(); writel_relaxed((v),(c)); })
->  #include <asm-generic/io.h>
-> +
->  #endif /* __ASM_NDS32_IO_H */
-> diff --git a/arch/sparc/include/asm/io_32.h b/arch/sparc/include/asm/io_32.h
-> index df2dc1784673..9a52d9506f80 100644
-> --- a/arch/sparc/include/asm/io_32.h
-> +++ b/arch/sparc/include/asm/io_32.h
-> @@ -127,6 +127,7 @@ static inline void sbus_memcpy_toio(volatile void __iomem *dst,
->   * Bus number may be embedded in the higher bits of the physical address.
->   * This is why we have no bus number argument to ioremap().
->   */
-> +void __iomem *ioremap(phys_addr_t offset, size_t size);
->  void iounmap(volatile void __iomem *addr);
->  /* Create a virtual mapping cookie for an IO port range */
->  void __iomem *ioport_map(unsigned long port, unsigned int nr);
-> diff --git a/include/asm-generic/io.h b/include/asm-generic/io.h
-> index a98ed6325727..6a5edc23afe2 100644
-> --- a/include/asm-generic/io.h
-> +++ b/include/asm-generic/io.h
-> @@ -922,28 +922,16 @@ static inline void *phys_to_virt(unsigned long address)
->  /**
->   * DOC: ioremap() and ioremap_*() variants
->   *
-> - * If you have an IOMMU your architecture is expected to have both ioremap()
-> - * and iounmap() implemented otherwise the asm-generic helpers will provide a
-> - * direct mapping.
-> + * Architectures with an MMU are expected to provide ioremap() and iounmap()
-> + * themselves.  For NOMMU architectures we provide a default nop-op
-> + * implementation that expect that the physical address used for MMIO are
-> + * already marked as uncached, and can be used as kernel virtual addresses.
->   *
-> - * There are ioremap_*() call variants, if you have no IOMMU we naturally will
-> - * default to direct mapping for all of them, you can override these defaults.
-> - * If you have an IOMMU you are highly encouraged to provide your own
-> - * ioremap variant implementation as there currently is no safe architecture
-> - * agnostic default. To avoid possible improper behaviour default asm-generic
-> - * ioremap_*() variants all return NULL when an IOMMU is available. If you've
-> - * defined your own ioremap_*() variant you must then declare your own
-> - * ioremap_*() variant as defined to itself to avoid the default NULL return.
-> + * ioremap_wc() and ioremap_wt() can provide more relaxed caching attributes
-> + * for specific drivers if the architecture choses to implement them.  If they
-> + * are not implemented we fall back to plain ioremap.
->   */
->  #ifndef CONFIG_MMU
-> -
-> -/*
-> - * Change "struct page" to physical address.
-> - *
-> - * This implementation is for the no-MMU case only... if you have an MMU
-> - * you'll need to provide your own definitions.
-> - */
-> -
->  #ifndef ioremap
->  #define ioremap ioremap
->  static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
-> @@ -954,14 +942,13 @@ static inline void __iomem *ioremap(phys_addr_t offset, size_t size)
->
->  #ifndef iounmap
->  #define iounmap iounmap
-> -
->  static inline void iounmap(void __iomem *addr)
->  {
->  }
->  #endif
->  #endif /* CONFIG_MMU */
-> +
->  #ifndef ioremap_nocache
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
->  #define ioremap_nocache ioremap_nocache
->  static inline void __iomem *ioremap_nocache(phys_addr_t offset, size_t size)
->  {
+From: Eric Farman <farman@linux.ibm.com>
 
-It looks like the difference in prototype between the architectures is between
+Commit 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error
+paths") added a quick trace point to determine where a channel program
+failed while being processed.  It's a great addition, but adding more
+traces to vfio-ccw is more cumbersome than it needs to be.
 
-    void __iomem *ioremap(resource_size_t, size_t)
-    void __iomem *ioremap(phys_addr_t, size_t)
-    void __iomem *ioremap(phys_addr_t, unsigned long)
-    void __iomem *ioremap(unsigned long, unsigned long)
+Let's refactor how this is done, so that additional traces are easier
+to add and can exist outside of the FSM if we ever desire.
 
-shouldn't they all just be that first one?  In other words, wouldn't it be 
-better to always provide the generic ioremap prototype and unify the ports 
-instead?
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20191016142040.14132-2-farman@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/Makefile         |  4 ++--
+ drivers/s390/cio/vfio_ccw_cp.h    |  1 +
+ drivers/s390/cio/vfio_ccw_fsm.c   |  3 ---
+ drivers/s390/cio/vfio_ccw_trace.c | 12 ++++++++++++
+ drivers/s390/cio/vfio_ccw_trace.h |  2 ++
+ 5 files changed, 17 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
+
+diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
+index f6a8db04177c..23eae4188876 100644
+--- a/drivers/s390/cio/Makefile
++++ b/drivers/s390/cio/Makefile
+@@ -5,7 +5,7 @@
+=20
+ # The following is required for define_trace.h to find ./trace.h
+ CFLAGS_trace.o :=3D -I$(src)
+-CFLAGS_vfio_ccw_fsm.o :=3D -I$(src)
++CFLAGS_vfio_ccw_trace.o :=3D -I$(src)
+=20
+ obj-y +=3D airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o \
+ =09fcx.o itcw.o crw.o ccwreq.o trace.o ioasm.o
+@@ -21,5 +21,5 @@ qdio-objs :=3D qdio_main.o qdio_thinint.o qdio_debug.o qd=
+io_setup.o
+ obj-$(CONFIG_QDIO) +=3D qdio.o
+=20
+ vfio_ccw-objs +=3D vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fs=
+m.o \
+-=09vfio_ccw_async.o
++=09vfio_ccw_async.o vfio_ccw_trace.o
+ obj-$(CONFIG_VFIO_CCW) +=3D vfio_ccw.o
+diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.=
+h
+index 7cdc38049033..ba31240ce965 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.h
++++ b/drivers/s390/cio/vfio_ccw_cp.h
+@@ -15,6 +15,7 @@
+ #include <asm/scsw.h>
+=20
+ #include "orb.h"
++#include "vfio_ccw_trace.h"
+=20
+ /*
+  * Max length for ccw chain.
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fs=
+m.c
+index 4a1e727c62d9..d4119e4c4a8c 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -15,9 +15,6 @@
+ #include "ioasm.h"
+ #include "vfio_ccw_private.h"
+=20
+-#define CREATE_TRACE_POINTS
+-#include "vfio_ccw_trace.h"
+-
+ static int fsm_io_helper(struct vfio_ccw_private *private)
+ {
+ =09struct subchannel *sch;
+diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_=
+trace.c
+new file mode 100644
+index 000000000000..d5cc943c6864
+--- /dev/null
++++ b/drivers/s390/cio/vfio_ccw_trace.c
+@@ -0,0 +1,12 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Tracepoint definitions for vfio_ccw
++ *
++ * Copyright IBM Corp. 2019
++ * Author(s): Eric Farman <farman@linux.ibm.com>
++ */
++
++#define CREATE_TRACE_POINTS
++#include "vfio_ccw_trace.h"
++
++EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
+diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_=
+trace.h
+index b1da53ddec1f..2a2937a40124 100644
+--- a/drivers/s390/cio/vfio_ccw_trace.h
++++ b/drivers/s390/cio/vfio_ccw_trace.h
+@@ -7,6 +7,8 @@
+  *            Halil Pasic <pasic@linux.vnet.ibm.com>
+  */
+=20
++#include "cio.h"
++
+ #undef TRACE_SYSTEM
+ #define TRACE_SYSTEM vfio_ccw
+=20
+--=20
+2.21.0
