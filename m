@@ -1,209 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20168 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726960AbfKNMDD (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47490 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727093AbfKLOik (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 07:03:03 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEBv7A7138347
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w9571km4g-1
+        Tue, 12 Nov 2019 09:38:40 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xACEcPQC009401
+        for <linux-s390@vger.kernel.org>; Tue, 12 Nov 2019 09:38:39 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w7w2jmj8y-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
+        for <linux-s390@vger.kernel.org>; Tue, 12 Nov 2019 09:38:38 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Thu, 14 Nov 2019 12:02:59 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 8/8] net/smc: immediate termination for SMCR link groups
-Date: Thu, 14 Nov 2019 13:02:47 +0100
-In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
-References: <20191114120247.68889-1-kgraul@linux.ibm.com>
-Message-Id: <20191114120247.68889-9-kgraul@linux.ibm.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Tue, 12 Nov 2019 14:38:34 -0000
+Subject: Re: [RFC 01/37] DOCUMENTATION: protvirt: Protected virtual machine
+ introduction
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-2-frankja@linux.ibm.com>
+ <20191104151815.6f11a274.cohuck@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Tue, 12 Nov 2019 15:38:28 +0100
+MIME-Version: 1.0
+In-Reply-To: <20191104151815.6f11a274.cohuck@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="cFb54glxZkpSyYvJMawuK0AVQOlXL9nup"
+Message-Id: <d83e9ac1-c211-872c-25b0-183a139bd11e@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--cFb54glxZkpSyYvJMawuK0AVQOlXL9nup
+Content-Type: multipart/mixed; boundary="npGzRwObC5rRZWhNpuPXe8h81aIy10Z5e"
 
-If the SMC module is unloaded or an IB device is thrown away, the
-immediate link group freeing introduced for SMCD is exploited for SMCR
-as well. That means SMCR-specifics are added to smc_conn_kill().
+--npGzRwObC5rRZWhNpuPXe8h81aIy10Z5e
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 58 +++++++++++++++++++++++++++++++---------------
- net/smc/smc_core.h |  3 ++-
- net/smc/smc_ib.c   |  3 ++-
- net/smc/smc_llc.c  |  4 +++-
- 4 files changed, 46 insertions(+), 22 deletions(-)
+On 11/4/19 3:18 PM, Cornelia Huck wrote:
+> On Thu, 24 Oct 2019 07:40:23 -0400
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+>=20
+>> Introduction to Protected VMs.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  Documentation/virtual/kvm/s390-pv.txt | 23 +++++++++++++++++++++++
+>>  1 file changed, 23 insertions(+)
+>>  create mode 100644 Documentation/virtual/kvm/s390-pv.txt
+>>
+>> diff --git a/Documentation/virtual/kvm/s390-pv.txt b/Documentation/vir=
+tual/kvm/s390-pv.txt
+>> new file mode 100644
+>> index 000000000000..86ed95f36759
+>> --- /dev/null
+>> +++ b/Documentation/virtual/kvm/s390-pv.txt
+>=20
+> This should be under /virt/, I think. Also, maybe start out with RST
+> already for new files?
+>=20
+>> @@ -0,0 +1,23 @@
+>> +Ultravisor and Protected VMs
+>> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+>> +
+>> +Summary:
+>> +
+>> +Protected VMs (PVM) are KVM VMs, where KVM can't access the VM's stat=
+e
+>> +like guest memory and guest registers anymore. Instead the PVMs are
+>=20
+> s/Instead/Instead,/
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 0755bd4b587c..97e9d21c4d1e 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -566,6 +566,10 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
- 		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
- 
- 		wake_up(&lnk->wr_reg_wait);
-+		if (lnk->state != SMC_LNK_INACTIVE) {
-+			smc_link_send_delete(lnk, false);
-+			smc_llc_link_inactive(lnk);
-+		}
- 	}
- }
- 
-@@ -638,14 +642,16 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
- 	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
- 		if (!lgr->is_smcd &&
- 		    lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
--		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
-+		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport) {
- 			list_move(&lgr->list, &lgr_free_list);
-+			lgr->freeing = 1;
-+		}
- 	}
- 	spin_unlock_bh(&smc_lgr_list.lock);
- 
- 	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
- 		list_del_init(&lgr->list);
--		__smc_lgr_terminate(lgr, true);
-+		__smc_lgr_terminate(lgr, false);
- 	}
- }
- 
-@@ -695,6 +701,36 @@ void smc_smcd_terminate_all(struct smcd_dev *smcd)
- 		wait_event(smcd->lgrs_deleted, !atomic_read(&smcd->lgr_cnt));
- }
- 
-+/* Called when an SMCR device is removed or the smc module is unloaded.
-+ * If smcibdev is given, all SMCR link groups using this device are terminated.
-+ * If smcibdev is NULL, all SMCR link groups are terminated.
-+ */
-+void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
-+{
-+	struct smc_link_group *lgr, *lg;
-+	LIST_HEAD(lgr_free_list);
-+
-+	spin_lock_bh(&smc_lgr_list.lock);
-+	if (!smcibdev) {
-+		list_splice_init(&smc_lgr_list.list, &lgr_free_list);
-+		list_for_each_entry(lgr, &lgr_free_list, list)
-+			lgr->freeing = 1;
-+	} else {
-+		list_for_each_entry_safe(lgr, lg, &smc_lgr_list.list, list) {
-+			if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev) {
-+				list_move(&lgr->list, &lgr_free_list);
-+				lgr->freeing = 1;
-+			}
-+		}
-+	}
-+	spin_unlock_bh(&smc_lgr_list.lock);
-+
-+	list_for_each_entry_safe(lgr, lg, &lgr_free_list, list) {
-+		list_del_init(&lgr->list);
-+		__smc_lgr_terminate(lgr, false);
-+	}
-+}
-+
- /* Determine vlan of internal TCP socket.
-  * @vlan_id: address to store the determined vlan id into
-  */
-@@ -1215,32 +1251,16 @@ static void smc_core_going_away(void)
- /* Clean up all SMC link groups */
- static void smc_lgrs_shutdown(void)
- {
--	struct smc_link_group *lgr, *lg;
--	LIST_HEAD(lgr_freeing_list);
- 	struct smcd_dev *smcd;
- 
- 	smc_core_going_away();
- 
--	spin_lock_bh(&smc_lgr_list.lock);
--	list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
--	spin_unlock_bh(&smc_lgr_list.lock);
-+	smc_smcr_terminate_all(NULL);
- 
- 	spin_lock(&smcd_dev_list.lock);
- 	list_for_each_entry(smcd, &smcd_dev_list.list, list)
- 		smc_smcd_terminate_all(smcd);
- 	spin_unlock(&smcd_dev_list.lock);
--
--	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
--		list_del_init(&lgr->list);
--		if (!lgr->is_smcd) {
--			struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
--
--			smc_link_send_delete(&lgr->lnk[SMC_SINGLE_LINK], false);
--			smc_llc_link_inactive(lnk);
--		}
--		cancel_delayed_work_sync(&lgr->free_work);
--		smc_lgr_free(lgr); /* free link group */
--	}
- }
- 
- /* Called (from smc_exit) when module is removed */
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 7f34f4d5a514..a428db6cd2e2 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -287,7 +287,7 @@ static inline struct smc_connection *smc_lgr_find_conn(
- 
- static inline void smc_lgr_terminate_sched(struct smc_link_group *lgr)
- {
--	if (!lgr->terminating)
-+	if (!lgr->terminating && !lgr->freeing)
- 		schedule_work(&lgr->terminate_work);
- }
- 
-@@ -301,6 +301,7 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
- void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid,
- 			unsigned short vlan);
- void smc_smcd_terminate_all(struct smcd_dev *dev);
-+void smc_smcr_terminate_all(struct smc_ib_device *smcibdev);
- int smc_buf_create(struct smc_sock *smc, bool is_smcd);
- int smc_uncompress_bufsize(u8 compressed);
- int smc_rmb_rtoken_handling(struct smc_connection *conn,
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index c15dcd08dc74..0ab122e66328 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -565,7 +565,7 @@ static void smc_ib_add_dev(struct ib_device *ibdev)
- 	schedule_work(&smcibdev->port_event_work);
- }
- 
--/* callback function for ib_register_client() */
-+/* callback function for ib_unregister_client() */
- static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
- {
- 	struct smc_ib_device *smcibdev;
-@@ -575,6 +575,7 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
- 	spin_lock(&smc_ib_devices.lock);
- 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
- 	spin_unlock(&smc_ib_devices.lock);
-+	smc_smcr_terminate_all(smcibdev);
- 	smc_ib_cleanup_per_ibdev(smcibdev);
- 	ib_unregister_event_handler(&smcibdev->event_handler);
- 	kfree(smcibdev);
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 8d1b076021ed..a9f6431dd69a 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -698,9 +698,11 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
- int smc_llc_do_delete_rkey(struct smc_link *link,
- 			   struct smc_buf_desc *rmb_desc)
- {
--	int rc;
-+	int rc = 0;
- 
- 	mutex_lock(&link->llc_delete_rkey_mutex);
-+	if (link->state != SMC_LNK_ACTIVE)
-+		goto out;
- 	reinit_completion(&link->llc_delete_rkey);
- 	rc = smc_llc_send_delete_rkey(link, rmb_desc);
- 	if (rc)
--- 
-2.17.1
+Fixed
+
+>=20
+>> +mostly managed by a new entity called Ultravisor (UV), which provides=
+
+>> +an API, so KVM and the PVM can request management actions.
+>=20
+> Hm...
+>=20
+> "The UV provides an API (both for guests and hypervisors), where PVMs
+> and KVM can request management actions." ?
+
+I applied your proposal, but removed the part in the brace, as it is
+obvious from the words that follow.
+
+>=20
+>> +
+>> +Each guest starts in the non-protected mode and then transitions into=
+
+>=20
+> "and then may make a request to transition into protected mode" ?
+
+Sure
+
+>=20
+>> +protected mode. On transition KVM registers the guest and its VCPUs
+>> +with the Ultravisor and prepares everything for running it.
+>> +
+>> +The Ultravisor will secure and decrypt the guest's boot memory
+>> +(i.e. kernel/initrd). It will safeguard state changes like VCPU
+>> +starts/stops and injected interrupts while the guest is running.
+>> +
+>> +As access to the guest's state, like the SIE state description is
+>=20
+> "such as the SIE state description," ?
+>=20
+>> +normally needed to be able to run a VM, some changes have been made i=
+n
+>> +SIE behavior and fields have different meaning for a PVM. SIE exits
+>> +are minimized as much as possible to improve speed and reduce exposed=
+
+>> +guest state.
+>=20
+
+
+
+--npGzRwObC5rRZWhNpuPXe8h81aIy10Z5e--
+
+--cFb54glxZkpSyYvJMawuK0AVQOlXL9nup
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3Kw+UACgkQ41TmuOI4
+ufh60BAAmp939Ydj/z/C9ZcICBj1gqmNrhV+bHBpSYHP4hUBAsk0q03/5iupb1vE
+XFZC9K4I4k2aqOM9h6hE8gJNgrHCOWls3K6e7TxWvxFktZXEfcln1zMVLwCrXA19
+POF5AN3C/5Afwp91M7hJxCB5QI4t22haW0yIOe/yUq69/euJIf/sqwB8+wOmSWKG
+dZ+uVVK1zYEqSkksCEKTa3pskp5yCqwCjmv5OU9YyXIPI09PfrXLwZ81A1Up6GVV
+0hojCtbMovYg9XgmHnMwvBeeGh0NhNeZFt1E9sbMlprw22nMfku7Uq5W87svva3i
+bCHHmCByKUhLEmMCKH6OuavqqOvD8pfeAoEFfcmECMq7v+5aE/mMBXx+eMnZKkVk
+UboVqPBvU93kfYSK+RWRdDGT6gRqVQ+dUHq6s/4cnIJLXrj9tcw740TNlevT1Jl/
+togPmNxV/UJVRa9809wfCLgG6nEoDiPA4wBRqD0BwJPr/LfP1ecLLxgIWrej6jZ6
+Ii7JcyBtIidLquihR0IVRFP6a5cXlYdNYLXz71F01w8bXiusqB4p6zo3nlR9IfPq
+EHV10C+9qGgoqJfFgmKCoGoDktdPrKtFkVRmwE38VgqCaslE3nDA8+i54qu7L4lj
+5qBcORgJoxMYfu3ir5Gij+TVBP4jbxUTAaUYCAfITzs2WlJsM7k=
+=InlW
+-----END PGP SIGNATURE-----
+
+--cFb54glxZkpSyYvJMawuK0AVQOlXL9nup--
