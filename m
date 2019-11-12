@@ -1,203 +1,179 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:31126 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726985AbfKRLBu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Nov 2019 06:01:50 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V13 3/6] mdev: move to drivers/
-Date: Mon, 18 Nov 2019 18:59:20 +0800
-Message-Id: <20191118105923.7991-4-jasowang@redhat.com>
-In-Reply-To: <20191118105923.7991-1-jasowang@redhat.com>
-References: <20191118105923.7991-1-jasowang@redhat.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
+References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-20-hch@lst.de>
+In-Reply-To: <20191029064834.23438-20-hch@lst.de>
+From: Greentime Hu <green.hu@gmail.com>
+Date: Tue, 12 Nov 2019 16:51:29 +0800
+Message-ID: <CAEbi=3c58Pb=Q3BqeTLhEK8OsdTpbD5tAe6VcGOC7JBWbTjetQ@mail.gmail.com>
+Subject: Re: [PATCH 19/21] nds32: use generic ioremap
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, gregkh@linuxfoundation.org, jgg@mellanox.com
-Cc: netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, jeffrey.t.kirsher@intel.com, Jason Wang <jasowang@redhat.com>
+To: Christoph Hellwig <hch@lst.de>, Nickhu <nickhu@andestech.com>, alankao@andestech.com
+Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, linux-sh@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Mdev now is nothing VFIO specific, let's move it to upper
-directory.
+Hi,
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- MAINTAINERS                                   |  7 +++++--
- drivers/Kconfig                               |  2 ++
- drivers/Makefile                              |  1 +
- drivers/mdev/Kconfig                          | 19 ++++++++++++++++++
- drivers/mdev/Makefile                         |  5 +++++
- drivers/{vfio =3D> }/mdev/mdev_core.c           |  0
- drivers/{vfio =3D> }/mdev/mdev_driver.c         |  0
- drivers/{vfio =3D> }/mdev/mdev_private.h        |  0
- drivers/{vfio =3D> }/mdev/mdev_sysfs.c          |  0
- .../{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c}    |  0
- drivers/vfio/mdev/Kconfig                     | 20 -------------------
- drivers/vfio/mdev/Makefile                    |  4 ----
- drivers/vfio/mdev/vfio_mdev.c                 |  2 --
- 13 files changed, 32 insertions(+), 28 deletions(-)
- create mode 100644 drivers/mdev/Kconfig
- create mode 100644 drivers/mdev/Makefile
- rename drivers/{vfio =3D> }/mdev/mdev_core.c (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_driver.c (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_private.h (100%)
- rename drivers/{vfio =3D> }/mdev/mdev_sysfs.c (100%)
- rename drivers/{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c} (100%)
+Christoph Hellwig <hch@lst.de> =E6=96=BC 2019=E5=B9=B410=E6=9C=8829=E6=97=
+=A5 =E9=80=B1=E4=BA=8C =E4=B8=8B=E5=8D=882:49=E5=AF=AB=E9=81=93=EF=BC=9A
+>
+> Use the generic ioremap_prot and iounmap helpers.
+>
+> Note that the io.h include in pgtable.h had to be removed to not create
+> an include loop.  As far as I can tell there was no need for it to
+> start with.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/nds32/Kconfig               |  1 +
+>  arch/nds32/include/asm/io.h      |  3 +-
+>  arch/nds32/include/asm/pgtable.h |  4 ++-
+>  arch/nds32/mm/Makefile           |  3 +-
+>  arch/nds32/mm/ioremap.c          | 62 --------------------------------
+>  5 files changed, 6 insertions(+), 67 deletions(-)
+>  delete mode 100644 arch/nds32/mm/ioremap.c
+>
+> diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
+> index fbd68329737f..12c06a833b7c 100644
+> --- a/arch/nds32/Kconfig
+> +++ b/arch/nds32/Kconfig
+> @@ -20,6 +20,7 @@ config NDS32
+>         select GENERIC_CLOCKEVENTS
+>         select GENERIC_IRQ_CHIP
+>         select GENERIC_IRQ_SHOW
+> +       select GENERIC_IOREMAP
+>         select GENERIC_LIB_ASHLDI3
+>         select GENERIC_LIB_ASHRDI3
+>         select GENERIC_LIB_CMPDI2
+> diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
+> index fb0e8a24c7af..e57378d04006 100644
+> --- a/arch/nds32/include/asm/io.h
+> +++ b/arch/nds32/include/asm/io.h
+> @@ -6,8 +6,6 @@
+>
+>  #include <linux/types.h>
+>
+> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+> -extern void iounmap(volatile void __iomem *addr);
+>  #define __raw_writeb __raw_writeb
+>  static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
+>  {
+> @@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iom=
+em *addr)
+>  #define writeb(v,c)    ({ __iowmb(); writeb_relaxed((v),(c)); })
+>  #define writew(v,c)    ({ __iowmb(); writew_relaxed((v),(c)); })
+>  #define writel(v,c)    ({ __iowmb(); writel_relaxed((v),(c)); })
+> +
+>  #include <asm-generic/io.h>
+>
+>  #endif /* __ASM_NDS32_IO_H */
+> diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pg=
+table.h
+> index 0588ec99725c..6fbf251cfc26 100644
+> --- a/arch/nds32/include/asm/pgtable.h
+> +++ b/arch/nds32/include/asm/pgtable.h
+> @@ -12,7 +12,6 @@
+>  #include <asm/nds32.h>
+>  #ifndef __ASSEMBLY__
+>  #include <asm/fixmap.h>
+> -#include <asm/io.h>
+>  #include <nds32_intrinsic.h>
+>  #endif
+>
+> @@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, u=
+nsigned long val);
+>  #define _PAGE_CACHE            _PAGE_C_MEM_WB
+>  #endif
+>
+> +#define _PAGE_IOREMAP \
+> +       (_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
+> +
+>  /*
+>   * + Level 1 descriptor (PMD)
+>   */
+> diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
+> index bd360e4583b5..897ecaf5cf54 100644
+> --- a/arch/nds32/mm/Makefile
+> +++ b/arch/nds32/mm/Makefile
+> @@ -1,6 +1,5 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> -obj-y                          :=3D extable.o tlb.o \
+> -                                  fault.o init.o ioremap.o mmap.o \
+> +obj-y                          :=3D extable.o tlb.o fault.o init.o mmap.=
+o \
+>                                     mm-nds32.o cacheflush.o proc.o
+>
+>  obj-$(CONFIG_ALIGNMENT_TRAP)   +=3D alignment.o
+> diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
+> deleted file mode 100644
+> index 690140bb23a2..000000000000
+> --- a/arch/nds32/mm/ioremap.c
+> +++ /dev/null
+> @@ -1,62 +0,0 @@
+> -// SPDX-License-Identifier: GPL-2.0
+> -// Copyright (C) 2005-2017 Andes Technology Corporation
+> -
+> -#include <linux/vmalloc.h>
+> -#include <linux/io.h>
+> -#include <linux/mm.h>
+> -#include <asm/pgtable.h>
+> -
+> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
+> -
+> -static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size=
+,
+> -                                     void *caller)
+> -{
+> -       struct vm_struct *area;
+> -       unsigned long addr, offset, last_addr;
+> -       pgprot_t prot;
+> -
+> -       /* Don't allow wraparound or zero size */
+> -       last_addr =3D phys_addr + size - 1;
+> -       if (!size || last_addr < phys_addr)
+> -               return NULL;
+> -
+> -       /*
+> -        * Mappings have to be page-aligned
+> -        */
+> -       offset =3D phys_addr & ~PAGE_MASK;
+> -       phys_addr &=3D PAGE_MASK;
+> -       size =3D PAGE_ALIGN(last_addr + 1) - phys_addr;
+> -
+> -       /*
+> -        * Ok, go for it..
+> -        */
+> -       area =3D get_vm_area_caller(size, VM_IOREMAP, caller);
+> -       if (!area)
+> -               return NULL;
+> -
+> -       area->phys_addr =3D phys_addr;
+> -       addr =3D (unsigned long)area->addr;
+> -       prot =3D __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
+> -                       _PAGE_G | _PAGE_C_DEV);
+> -       if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
+> -               vunmap((void *)addr);
+> -               return NULL;
+> -       }
+> -       return (__force void __iomem *)(offset + (char *)addr);
+> -
+> -}
+> -
+> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
+> -{
+> -       return __ioremap_caller(phys_addr, size,
+> -                               __builtin_return_address(0));
+> -}
+> -
+> -EXPORT_SYMBOL(ioremap);
+> -
+> -void iounmap(volatile void __iomem * addr)
+> -{
+> -       vunmap((void *)(PAGE_MASK & (unsigned long)addr));
+> -}
+> -
+> -EXPORT_SYMBOL(iounmap);
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6d590afb62c3..5d7e8badf58c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17129,15 +17129,18 @@ T:=09git git://github.com/awilliam/linux-vfio.git
- S:=09Maintained
- F:=09Documentation/driver-api/vfio.rst
- F:=09drivers/vfio/
-+F:=09drivers/mdev/vfio.c
- F:=09include/linux/vfio.h
- F:=09include/uapi/linux/vfio.h
-=20
--VFIO MEDIATED DEVICE DRIVERS
-+MEDIATED DEVICE DRIVERS
-+M:=09Alex Williamson <alex.williamson@redhat.com>
- M:=09Kirti Wankhede <kwankhede@nvidia.com>
-+R:=09Cornelia Huck <cohuck@redhat.com>
- L:=09kvm@vger.kernel.org
- S:=09Maintained
- F:=09Documentation/driver-api/vfio-mediated-device.rst
--F:=09drivers/vfio/mdev/
-+F:=09drivers/mdev
- F:=09include/linux/mdev.h
- F:=09include/linux/mdev_vfio.h
- F:=09samples/vfio-mdev/
-diff --git a/drivers/Kconfig b/drivers/Kconfig
-index 8befa53f43be..3e2839048fe6 100644
---- a/drivers/Kconfig
-+++ b/drivers/Kconfig
-@@ -228,4 +228,6 @@ source "drivers/interconnect/Kconfig"
-=20
- source "drivers/counter/Kconfig"
-=20
-+source "drivers/mdev/Kconfig"
-+
- endmenu
-diff --git a/drivers/Makefile b/drivers/Makefile
-index aaef17cc6512..592e23f2e629 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -186,3 +186,4 @@ obj-$(CONFIG_SIOX)=09=09+=3D siox/
- obj-$(CONFIG_GNSS)=09=09+=3D gnss/
- obj-$(CONFIG_INTERCONNECT)=09+=3D interconnect/
- obj-$(CONFIG_COUNTER)=09=09+=3D counter/
-+obj-$(CONFIG_MDEV)=09=09+=3D mdev/
-diff --git a/drivers/mdev/Kconfig b/drivers/mdev/Kconfig
-new file mode 100644
-index 000000000000..4561f2d4178f
---- /dev/null
-+++ b/drivers/mdev/Kconfig
-@@ -0,0 +1,19 @@
-+
-+config MDEV
-+=09tristate "Mediated device driver framework"
-+=09default n
-+=09help
-+=09  Provides a framework to virtualize devices.
-+
-+=09  If you don't know what do here, say N.
-+
-+config VFIO_MDEV
-+=09tristate "VFIO Mediated device driver"
-+        depends on VFIO && MDEV
-+        default n
-+=09help
-+=09  Proivdes a mediated BUS for userspace driver through VFIO
-+=09  framework. See Documentation/vfio-mediated-device.txt for
-+=09  more details.
-+
-+=09  If you don't know what do here, say N.
-diff --git a/drivers/mdev/Makefile b/drivers/mdev/Makefile
-new file mode 100644
-index 000000000000..0b749e7f8ff4
---- /dev/null
-+++ b/drivers/mdev/Makefile
-@@ -0,0 +1,5 @@
-+
-+mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
-+mdev_vfio-y :=3D vfio.o
-+obj-$(CONFIG_MDEV) +=3D mdev.o
-+obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/mdev/mdev_core.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_core.c
-rename to drivers/mdev/mdev_core.c
-diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/mdev/mdev_driver.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_driver.c
-rename to drivers/mdev/mdev_driver.c
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/mdev/mdev_private.h
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_private.h
-rename to drivers/mdev/mdev_private.h
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/mdev/mdev_sysfs.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_sysfs.c
-rename to drivers/mdev/mdev_sysfs.c
-diff --git a/drivers/vfio/mdev/mdev_vfio.c b/drivers/mdev/vfio.c
-similarity index 100%
-rename from drivers/vfio/mdev/mdev_vfio.c
-rename to drivers/mdev/vfio.c
-diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
-index 2e07ca915a96..9a9234c3e00e 100644
---- a/drivers/vfio/mdev/Kconfig
-+++ b/drivers/vfio/mdev/Kconfig
-@@ -1,24 +1,4 @@
-=20
--config MDEV
--=09tristate "Mediated device driver framework"
--=09default n
--=09help
--=09  Provides a framework to virtualize devices.
--
--=09  If you don't know what do here, say N.
--
--config VFIO_MDEV
--=09tristate "VFIO Mediated device driver"
--        depends on VFIO && MDEV
--        default n
--=09help
--=09  Proivdes a mediated BUS for userspace driver through VFIO
--=09  framework. See Documentation/vfio-mediated-device.txt for
--=09  more details.
--
--=09  If you don't know what do here, say N.
--
--
- config VFIO_MDEV_DEVICE
- =09tristate "VFIO driver for Mediated devices"
- =09depends on VFIO && VFIO_MDEV
-diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
-index e9675501271a..e2a92df3089e 100644
---- a/drivers/vfio/mdev/Makefile
-+++ b/drivers/vfio/mdev/Makefile
-@@ -1,6 +1,2 @@
-=20
--mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
--
--obj-$(CONFIG_MDEV) +=3D mdev.o
--obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
- obj-$(CONFIG_VFIO_MDEV_DEVICE) +=3D vfio_mdev.o
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index 8b42a4b3f161..4eada31e9287 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -15,8 +15,6 @@
- #include <linux/vfio.h>
- #include <linux/mdev_vfio.h>
-=20
--#include "mdev_private.h"
--
- #define DRIVER_VERSION  "0.1"
- #define DRIVER_AUTHOR   "NVIDIA Corporation"
- #define DRIVER_DESC     "VFIO based driver for Mediated device"
---=20
-2.19.1
+Acked-by: Greentime Hu <green.hu@gmail.com>
+Looks good to me.
