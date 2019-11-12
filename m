@@ -1,77 +1,56 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40574 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729996AbfKEJ2D (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:03 -0500
-Date: Tue, 05 Nov 2019 09:27:27 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] powerpc: Move EXCEPTION_TABLE to RO_DATA segment
-In-Reply-To: <20191029211351.13243-25-keescook@chromium.org>
-References: <20191029211351.13243-25-keescook@chromium.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Tue, 12 Nov 2019 12:55:09 -0800
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v2 11/29] vmlinux.lds.h: Replace RODATA with RO_DATA
+Message-ID: <201911121252.25720DC6@keescook>
+References: <20191011000609.29728-1-keescook@chromium.org>
+ <20191011000609.29728-12-keescook@chromium.org>
+ <CAMuHMdXfPyti1wFBb0hhf3CeDSQ=zVv7cV-taeYCmDswMQkXPQ@mail.gmail.com>
+ <201911110922.17A2112B0@keescook>
+ <CAMuHMdUJ8QPvqf51nVmOg1Zm20SNT7pXR72z=qmco=ecwawZ7A@mail.gmail.com>
 MIME-Version: 1.0
-Message-ID: <157294604760.29376.759135680229659063.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUJ8QPvqf51nVmOg1Zm20SNT7pXR72z=qmco=ecwawZ7A@mail.gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Borislav Petkov <bp@alien8.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, alpha <linux-alpha@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, Parisc List <linux-parisc@vger.kernel.org>, linux-xtensa@linux-xtensa.org, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-The following commit has been merged into the x86/build branch of tip:
+On Mon, Nov 11, 2019 at 07:08:51PM +0100, Geert Uytterhoeven wrote:
+> Hi Kees,
+> 
+> On Mon, Nov 11, 2019 at 6:23 PM Kees Cook <keescook@chromium.org> wrote:
+> > On Mon, Nov 11, 2019 at 05:58:06PM +0100, Geert Uytterhoeven wrote:
+> > > On Fri, Oct 11, 2019 at 2:07 AM Kees Cook <keescook@chromium.org> wrote:
+> > > > There's no reason to keep the RODATA macro: replace the callers with
+> > > > the expected RO_DATA macro.
+> > > >
+> > > > Signed-off-by: Kees Cook <keescook@chromium.org>
+> > > > ---
+> > > >  arch/alpha/kernel/vmlinux.lds.S      | 2 +-
+> > > >  arch/ia64/kernel/vmlinux.lds.S       | 2 +-
+> > > >  arch/microblaze/kernel/vmlinux.lds.S | 2 +-
+> > > >  arch/mips/kernel/vmlinux.lds.S       | 2 +-
+> > > >  arch/um/include/asm/common.lds.S     | 2 +-
+> > > >  arch/xtensa/kernel/vmlinux.lds.S     | 2 +-
+> > > >  include/asm-generic/vmlinux.lds.h    | 4 +---
+> > > >  7 files changed, 7 insertions(+), 9 deletions(-)
+> > >
+> > > Somehow you missed:
+> > >
+> > >     arch/m68k/kernel/vmlinux-std.lds:  RODATA
+> > >     arch/m68k/kernel/vmlinux-sun3.lds:      RODATA
+> >
+> > Argh. I've sent a patch; sorry and thanks for catching this. For my own
+> > cross-build testing, which defconfig targets will hit these two linker
+> > scripts?
+> 
+> vmlinux-sun3.lds: sun3_defconfig
+> vmlinux-std.lds: All other classic 680x0 targets with an MMU, e.g. plain
+>                  defconfig aka multi_defconfig.
 
-Commit-ID:     4e9e559a0385930649c1c9cad703d475ee030206
-Gitweb:        https://git.kernel.org/tip/4e9e559a0385930649c1c9cad703d475ee030206
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:46 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 18:30:13 +01:00
+Excellent, thank you; I've updated my multi-arch build list. :)
 
-powerpc: Move EXCEPTION_TABLE to RO_DATA segment
-
-Since the EXCEPTION_TABLE is read-only, collapse it into RO_DATA.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-25-keescook@chromium.org
----
- arch/powerpc/kernel/vmlinux.lds.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 4e7cec0..8834220 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -7,6 +7,7 @@
- 
- #define BSS_FIRST_SECTIONS *(.bss.prominit)
- #define EMITS_PT_NOTE
-+#define RO_EXCEPTION_TABLE_ALIGN	0
- 
- #include <asm/page.h>
- #include <asm-generic/vmlinux.lds.h>
-@@ -162,7 +163,6 @@ SECTIONS
- 		__stop__btb_flush_fixup = .;
- 	}
- #endif
--	EXCEPTION_TABLE(0)
- 
- /*
-  * Init sections discarded at runtime
+-- 
+Kees Cook
