@@ -1,129 +1,120 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38752 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726832AbfKKNua (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:50:30 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35184 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726957AbfKMOgQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 09:36:16 -0500
+Date: Wed, 13 Nov 2019 15:36:05 +0100
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/4] vfio-ccw: Refactor how the traces are built
-Date: Mon, 11 Nov 2019 14:50:16 +0100
-Message-Id: <20191111135019.2394-2-cohuck@redhat.com>
-In-Reply-To: <20191111135019.2394-1-cohuck@redhat.com>
-References: <20191111135019.2394-1-cohuck@redhat.com>
+Subject: Re: [PATCH] Fix unpack
+Message-ID: <20191113153605.09daa11c.cohuck@redhat.com>
+In-Reply-To: <20191113140306.2952-1-frankja@linux.ibm.com>
+References: <07705597-8e8f-28d4-f9a1-d3d5dc9a4555@redhat.com>
+        <20191113140306.2952-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-From: Eric Farman <farman@linux.ibm.com>
+On Wed, 13 Nov 2019 09:03:06 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Commit 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error
-paths") added a quick trace point to determine where a channel program
-failed while being processed.  It's a great addition, but adding more
-traces to vfio-ccw is more cumbersome than it needs to be.
+You seem to have dropped some cc:s :(
 
-Let's refactor how this is done, so that additional traces are easier
-to add and can exist outside of the FSM if we ever desire.
+> That should be easier to read :)
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  arch/s390/kvm/pv.c | 60 +++++++++++++++++++++++++++-------------------
+>  1 file changed, 35 insertions(+), 25 deletions(-)
+>=20
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 94cf16f40f25..fd73afb33b20 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -195,43 +195,53 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
+>  =09return 0;
+>  }
+> =20
+> -int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned lon=
+g size,
+> -=09=09       unsigned long tweak)
+> +static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak[2])
+>  {
+> -=09int i, rc =3D 0;
+> +=09int rc;
+>  =09struct uv_cb_unp uvcb =3D {
+>  =09=09.header.cmd =3D UVC_CMD_UNPACK_IMG,
+>  =09=09.header.len =3D sizeof(uvcb),
+>  =09=09.guest_handle =3D kvm_s390_pv_handle(kvm),
+> -=09=09.tweak[0] =3D tweak
+> +=09=09.gaddr =3D addr,
+> +=09=09.tweak[0] =3D tweak[0],
+> +=09=09.tweak[1] =3D tweak[1],
+>  =09};
+> =20
+> -=09if (addr & ~PAGE_MASK || size & ~PAGE_MASK)
+> -=09=09return -EINVAL;
+> +=09rc =3D uv_call(0, (u64)&uvcb);
+> +=09if (!rc)
+> +=09=09return rc;
+> +=09if (uvcb.header.rc =3D=3D 0x10a) {
+> +=09=09/* If not yet mapped fault and retry */
+> +=09=09rc =3D gmap_fault(kvm->arch.gmap, uvcb.gaddr,
+> +=09=09=09=09FAULT_FLAG_WRITE);
+> +=09=09if (!rc)
+> +=09=09=09return -EAGAIN;
+> +=09}
+> +=09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx rc %x rrc %x",
+> +=09=09 uvcb.gaddr, uvcb.header.rc, uvcb.header.rrc);
+> +=09return rc;
+> +}
+> =20
+> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned lon=
+g size,
+> +=09=09       unsigned long tweak)
+> +{
+> +=09int rc =3D 0;
+> +=09u64 tw[2] =3D {tweak, 0};
+> +
+> +=09if (addr & ~PAGE_MASK || !size || size & ~PAGE_MASK)
+> +=09=09return -EINVAL;
+> =20
+>  =09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %lx size %lx",
+>  =09=09 addr, size);
+> -=09for (i =3D 0; i < size / PAGE_SIZE; i++) {
+> -=09=09uvcb.gaddr =3D addr + i * PAGE_SIZE;
+> -=09=09uvcb.tweak[1] =3D i * PAGE_SIZE;
+> -retry:
+> -=09=09rc =3D uv_call(0, (u64)&uvcb);
+> -=09=09if (!rc)
+> +=09while (tw[1] < size) {
+> +=09=09rc =3D unpack_one(kvm, addr, tw);
+> +=09=09if (rc =3D=3D -EAGAIN)
+>  =09=09=09continue;
+> -=09=09/* If not yet mapped fault and retry */
+> -=09=09if (uvcb.header.rc =3D=3D 0x10a) {
+> -=09=09=09rc =3D gmap_fault(kvm->arch.gmap, uvcb.gaddr,
+> -=09=09=09=09=09FAULT_FLAG_WRITE);
+> -=09=09=09if (rc)
+> -=09=09=09=09return rc;
+> -=09=09=09goto retry;
+> -=09=09}
+> -=09=09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx rc %x rrc %=
+x",
+> -=09=09=09 uvcb.gaddr, uvcb.header.rc, uvcb.header.rrc);
+> -=09=09break;
+> +=09=09if (rc)
+> +=09=09=09break;
+> +=09=09addr +=3D PAGE_SIZE;
+> +=09=09tw[1] +=3D PAGE_SIZE;
+>  =09}
+> -=09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x rrc %x",
+> -=09=09 uvcb.header.rc, uvcb.header.rrc);
+> +=09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished rc %x", rc);
+>  =09return rc;
+>  }
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20191016142040.14132-2-farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/Makefile         |  4 ++--
- drivers/s390/cio/vfio_ccw_cp.h    |  1 +
- drivers/s390/cio/vfio_ccw_fsm.c   |  3 ---
- drivers/s390/cio/vfio_ccw_trace.c | 12 ++++++++++++
- drivers/s390/cio/vfio_ccw_trace.h |  2 ++
- 5 files changed, 17 insertions(+), 5 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_trace.c
-
-diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
-index f6a8db04177c..23eae4188876 100644
---- a/drivers/s390/cio/Makefile
-+++ b/drivers/s390/cio/Makefile
-@@ -5,7 +5,7 @@
-=20
- # The following is required for define_trace.h to find ./trace.h
- CFLAGS_trace.o :=3D -I$(src)
--CFLAGS_vfio_ccw_fsm.o :=3D -I$(src)
-+CFLAGS_vfio_ccw_trace.o :=3D -I$(src)
-=20
- obj-y +=3D airq.o blacklist.o chsc.o cio.o css.o chp.o idset.o isc.o \
- =09fcx.o itcw.o crw.o ccwreq.o trace.o ioasm.o
-@@ -21,5 +21,5 @@ qdio-objs :=3D qdio_main.o qdio_thinint.o qdio_debug.o qd=
-io_setup.o
- obj-$(CONFIG_QDIO) +=3D qdio.o
-=20
- vfio_ccw-objs +=3D vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fs=
-m.o \
--=09vfio_ccw_async.o
-+=09vfio_ccw_async.o vfio_ccw_trace.o
- obj-$(CONFIG_VFIO_CCW) +=3D vfio_ccw.o
-diff --git a/drivers/s390/cio/vfio_ccw_cp.h b/drivers/s390/cio/vfio_ccw_cp.=
-h
-index 7cdc38049033..ba31240ce965 100644
---- a/drivers/s390/cio/vfio_ccw_cp.h
-+++ b/drivers/s390/cio/vfio_ccw_cp.h
-@@ -15,6 +15,7 @@
- #include <asm/scsw.h>
-=20
- #include "orb.h"
-+#include "vfio_ccw_trace.h"
-=20
- /*
-  * Max length for ccw chain.
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fs=
-m.c
-index 4a1e727c62d9..d4119e4c4a8c 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -15,9 +15,6 @@
- #include "ioasm.h"
- #include "vfio_ccw_private.h"
-=20
--#define CREATE_TRACE_POINTS
--#include "vfio_ccw_trace.h"
--
- static int fsm_io_helper(struct vfio_ccw_private *private)
- {
- =09struct subchannel *sch;
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_=
-trace.c
-new file mode 100644
-index 000000000000..d5cc943c6864
---- /dev/null
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -0,0 +1,12 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Tracepoint definitions for vfio_ccw
-+ *
-+ * Copyright IBM Corp. 2019
-+ * Author(s): Eric Farman <farman@linux.ibm.com>
-+ */
-+
-+#define CREATE_TRACE_POINTS
-+#include "vfio_ccw_trace.h"
-+
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_=
-trace.h
-index b1da53ddec1f..2a2937a40124 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -7,6 +7,8 @@
-  *            Halil Pasic <pasic@linux.vnet.ibm.com>
-  */
-=20
-+#include "cio.h"
-+
- #undef TRACE_SYSTEM
- #define TRACE_SYSTEM vfio_ccw
-=20
---=20
-2.21.0
+Yes, this looks more readable.
