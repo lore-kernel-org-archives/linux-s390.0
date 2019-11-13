@@ -1,139 +1,39 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35890 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726832AbfKANCO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 Nov 2019 09:02:14 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA1CvTJx013217
-        for <linux-s390@vger.kernel.org>; Fri, 1 Nov 2019 09:02:13 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w0kjbuu1t-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 01 Nov 2019 09:02:13 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 1 Nov 2019 13:02:10 -0000
-Subject: Re: [RFC v2] KVM: s390: protvirt: Secure memory is not mergeable
-References: <20191024114059.102802-8-frankja@linux.ibm.com>
- <20191025082446.754-1-frankja@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Fri, 1 Nov 2019 14:02:06 +0100
+Received: from mout.web.de ([212.227.17.12]:45209 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726155AbfKMRJs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 Nov 2019 12:09:48 -0500
+Subject: Re: [v4] s390/pkey: Fix memory leak in error case by using
+ memdup_user() rather than open coding
+References: <08422b7e-2071-ee52-049e-c3ac55bc67a9@web.de>
+ <6137855bb4170c438c7436cbdb7dfd21639a8855.camel@perches.com>
+ <deb7893f-3cfe-18fc-3feb-b26b290bf3c6@web.de>
+ <833d7d5e-6ede-6bdd-a2cc-2da7f0b03908@de.ibm.com>
+ <1b65bc81-f47a-eefa-f1f4-d5af6a1809c0@web.de>
+ <733b29df-207e-a165-ee80-46be8720c0c4@de.ibm.com>
+ <8f98f9fc-57df-5993-44b5-5ea4c0de7ef9@web.de>
+ <c0df9cc8-c41a-1e5d-811c-1ff045c13fcc@de.ibm.com>
+ <61244676-8ac1-20af-ed94-99e19c1f95d5@web.de>
+ <040f3e18-d97a-fc32-b237-20e7553e1733@de.ibm.com>
+ <aca044e8-e4b2-eda8-d724-b08772a44ed9@web.de>
+ <0c47ee47-35a0-65ee-4da1-e1745f882947@de.ibm.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Message-ID: <52593fb9-cfc4-e444-6657-aff6c622607d@web.de>
+Date: Wed, 13 Nov 2019 18:09:27 +0100
 MIME-Version: 1.0
-In-Reply-To: <20191025082446.754-1-frankja@linux.ibm.com>
+In-Reply-To: <0c47ee47-35a0-65ee-4da1-e1745f882947@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <a94b90c4-34bc-f2b0-b234-8c62812ec6f9@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: linux-s390@vger.kernel.org, =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>, Navid Emamdoost <emamd001@umn.edu>, Stephen McCamant <smccaman@umn.edu>, Harald Freudenberger <freude@linux.ibm.com>, Ingo Franzki <ifranzki@linux.ibm.com>, Joe Perches <joe@perches.com>
 
+> applied. [...]
 
+I find it interesting how the commit message was changed once more.
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=8b57e7c852fc58a62e668a83c0fa8d9246131803
+("s390/pkey: use memdup_user() to simplify code")
 
-On 25.10.19 10:24, Janosch Frank wrote:
-> KSM will not work on secure pages, because when the kernel reads a
-> secure page, it will be encrypted and hence no two pages will look the
-> same.
-> 
-> Let's mark the guest pages as unmergeable when we transition to secure
-> mode.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-
-v2 Looks better.
-
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-> ---
->  arch/s390/include/asm/gmap.h |  1 +
->  arch/s390/kvm/kvm-s390.c     |  6 ++++++
->  arch/s390/mm/gmap.c          | 32 +++++++++++++++++++++-----------
->  3 files changed, 28 insertions(+), 11 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index 6efc0b501227..eab6a2ec3599 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -145,4 +145,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
->  
->  void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
->  			     unsigned long gaddr, unsigned long vmaddr);
-> +int gmap_mark_unmergeable(void);
->  #endif /* _ASM_S390_GMAP_H */
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 924132d92782..d1ba12f857e7 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2176,6 +2176,12 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->  		if (r)
->  			break;
->  
-> +		down_write(&current->mm->mmap_sem);
-> +		r = gmap_mark_unmergeable();
-> +		up_write(&current->mm->mmap_sem);
-> +		if (r)
-> +			break;
-> +
->  		mutex_lock(&kvm->lock);
->  		kvm_s390_vcpu_block_all(kvm);
->  		/* FMT 4 SIE needs esca */
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index edcdca97e85e..faecdf81abdb 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -2548,6 +2548,23 @@ int s390_enable_sie(void)
->  }
->  EXPORT_SYMBOL_GPL(s390_enable_sie);
->  
-> +int gmap_mark_unmergeable(void)
-> +{
-> +	struct mm_struct *mm = current->mm;
-> +	struct vm_area_struct *vma;
-> +
-> +
-> +	for (vma = mm->mmap; vma; vma = vma->vm_next) {
-> +		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
-> +				MADV_UNMERGEABLE, &vma->vm_flags))
-> +			return -ENOMEM;
-> +	}
-> +	mm->def_flags &= ~VM_MERGEABLE;
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(gmap_mark_unmergeable);
-> +
->  /*
->   * Enable storage key handling from now on and initialize the storage
->   * keys with the default key.
-> @@ -2593,24 +2610,17 @@ static const struct mm_walk_ops enable_skey_walk_ops = {
->  int s390_enable_skey(void)
->  {
->  	struct mm_struct *mm = current->mm;
-> -	struct vm_area_struct *vma;
->  	int rc = 0;
->  
->  	down_write(&mm->mmap_sem);
->  	if (mm_uses_skeys(mm))
->  		goto out_up;
->  
-> -	mm->context.uses_skeys = 1;
-> -	for (vma = mm->mmap; vma; vma = vma->vm_next) {
-> -		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
-> -				MADV_UNMERGEABLE, &vma->vm_flags)) {
-> -			mm->context.uses_skeys = 0;
-> -			rc = -ENOMEM;
-> -			goto out_up;
-> -		}
-> -	}
-> -	mm->def_flags &= ~VM_MERGEABLE;
-> +	rc = gmap_mark_unmergeable();
-> +	if (rc)
-> +		goto out_up;
->  
-> +	mm->context.uses_skeys = 1;
->  	walk_page_range(mm, 0, TASK_SIZE, &enable_skey_walk_ops, NULL);
->  
->  out_up:
-> 
+Regards,
+Markus
