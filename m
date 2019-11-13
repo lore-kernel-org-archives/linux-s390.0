@@ -1,28 +1,25 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35184 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:34438 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726957AbfKMOgQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 09:36:16 -0500
-Date: Wed, 13 Nov 2019 15:36:05 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        with ESMTP id S1726410AbfKMOTc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 09:19:32 -0500
 Subject: Re: [PATCH] Fix unpack
-Message-ID: <20191113153605.09daa11c.cohuck@redhat.com>
-In-Reply-To: <20191113140306.2952-1-frankja@linux.ibm.com>
 References: <07705597-8e8f-28d4-f9a1-d3d5dc9a4555@redhat.com>
-        <20191113140306.2952-1-frankja@linux.ibm.com>
+ <20191113140306.2952-1-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <02bf4a93-5635-bf90-0a5d-05dc575413d4@redhat.com>
+Date: Wed, 13 Nov 2019 15:19:23 +0100
 MIME-Version: 1.0
+In-Reply-To: <20191113140306.2952-1-frankja@linux.ibm.com>
+Content-Language: en-US
 Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com
 
-On Wed, 13 Nov 2019 09:03:06 -0500
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-You seem to have dropped some cc:s :(
-
+On 13/11/2019 15.03, Janosch Frank wrote:
 > That should be easier to read :)
 >=20
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
@@ -116,5 +113,8 @@ x",
 > +=09VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished rc %x", rc);
 >  =09return rc;
 >  }
+>=20
 
-Yes, this looks more readable.
+Yes, I think that will be better, thanks!
+
+ Thomas
