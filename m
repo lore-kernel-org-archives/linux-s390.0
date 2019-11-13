@@ -1,51 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-202.mailbox.org ([80.241.56.172]:46306 "EHLO
-        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726416AbfKQBSn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:18:43 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 01/13] namei: only return -ECHILD from follow_dotdot_rcu()
-Date: Sun, 17 Nov 2019 12:17:01 +1100
-Message-Id: <20191117011713.13032-2-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Received: from mail.kernel.org ([198.145.29.99]:56722 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729120AbfKMCBC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:02 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 50/68] s390/kasan: avoid vdso instrumentation
+Date: Tue, 12 Nov 2019 20:59:14 -0500
+Message-Id: <20191113015932.12655-50-sashal@kernel.org>
+In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
+References: <20191113015932.12655-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-It's over-zealous to return hard errors under RCU-walk here, given that
-a REF-walk will be triggered for all other cases handling ".." under
-RCU.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-The original purpose of this check was to ensure that if a rename occurs
-such that a directory is moved outside of the bind-mount which the
-resolution started in, it would be detected and blocked to avoid being
-able to mess with paths outside of the bind-mount. However, triggering a
-new REF-walk is just as effective a solution.
+[ Upstream commit 348498458505e202df41b6b9a78da448d39298b7 ]
 
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Fixes: 397d425dc26d ("vfs: Test for and handle paths that are unreachable from their mnt_root")
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+vdso is mapped into user space processes, which won't have kasan
+shodow mapped.
+
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/vdso32/Makefile | 3 ++-
+ arch/s390/kernel/vdso64/Makefile | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 671c3c1a3425..5a47d9c09581 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1359,7 +1359,7 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 			nd->path.dentry = parent;
- 			nd->seq = seq;
- 			if (unlikely(!path_connected(&nd->path)))
--				return -ENOENT;
-+				return -ECHILD;
- 			break;
- 		} else {
- 			struct mount *mnt = real_mount(nd->path.mnt);
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index ca7c3c34f94ba..2bb3a255e51a4 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -24,9 +24,10 @@ obj-y += vdso32_wrapper.o
+ extra-y += vdso32.lds
+ CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+ 
+-# Disable gcov profiling and ubsan for VDSO code
++# Disable gcov profiling, ubsan and kasan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
+ 
+ # Force dependency (incbin is bad)
+ $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 84af2b6b64c42..76c56b5382be9 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -24,9 +24,10 @@ obj-y += vdso64_wrapper.o
+ extra-y += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
+ 
+-# Disable gcov profiling and ubsan for VDSO code
++# Disable gcov profiling, ubsan and kasan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
+ 
+ # Force dependency (incbin is bad)
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
 -- 
-2.24.0
+2.20.1
