@@ -1,71 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-102.mailbox.org ([80.241.56.152]:21844 "EHLO
-        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726505AbfKNE6S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 23:58:18 -0500
-Date: Thu, 14 Nov 2019 15:57:44 +1100
+Received: from mout-p-201.mailbox.org ([80.241.56.171]:42266 "EHLO
+        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726107AbfKMHsf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 02:48:35 -0500
+Date: Wed, 13 Nov 2019 18:47:57 +1100
 From: Aleksa Sarai <cyphar@cyphar.com>
 Subject: Re: [PATCH v15 4/9] namei: LOOKUP_BENEATH: O_BENEATH-like scoped
  resolution
-Message-ID: <20191114045744.d3e7mp3zrupfe2wr@yavin.dot.cyphar.com>
+Message-ID: <20191113074757.5b4u5vlyx2u6pbn6@yavin.dot.cyphar.com>
 References: <20191105090553.6350-1-cyphar@cyphar.com>
  <20191105090553.6350-5-cyphar@cyphar.com>
  <20191113015534.GA26530@ZenIV.linux.org.uk>
- <20191113074757.5b4u5vlyx2u6pbn6@yavin.dot.cyphar.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6gz2i7fpwlz4mefu"
+        protocol="application/pgp-signature"; boundary="odomi6wtik4yoblv"
 Content-Disposition: inline
-In-Reply-To: <20191113074757.5b4u5vlyx2u6pbn6@yavin.dot.cyphar.com>
+In-Reply-To: <20191113015534.GA26530@ZenIV.linux.org.uk>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-ia64@vger.kernel.org, linux-sh@vger.kernel.org, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexei Starovoitov <ast@kernel.org>, linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>, linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org, Christian Brauner <christian.brauner@ubuntu.com>, Shuah Khan <shuah@kernel.org>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Jann Horn <jannh@google.com>, linuxppc-dev@lists.ozlabs.org, linux-m68k@lists.linux-m68k.org, Andy Lutomirski <luto@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Namhyung Kim <namhyung@kernel.org>, David Drysdale <drysdale@google.com>, "J. Bruce Fields" <bfields@fieldses.org>, libc-alpha@sourceware.org, linux-parisc@vger.kernel.org, linux-api@vger.kernel.org, Chanho Min <chanho.min@lge.com>, Jeff Layton <jlayton@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Eric Biederman <ebiederm@xmission.com>, linux-alpha@vger.kernel.org, linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org
+Cc: Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
 
---6gz2i7fpwlz4mefu
+--odomi6wtik4yoblv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 2019-11-13, Aleksa Sarai <cyphar@cyphar.com> wrote:
-> On 2019-11-13, Al Viro <viro@zeniv.linux.org.uk> wrote:
-> > Minor nit here - I'd split "move the conditional call of set_root()
-> > into nd_jump_root()" into a separate patch before that one.  Makes
-> > for fewer distractions in this one.  I'd probably fold "and be
-> > ready for errors other than -ECHILD" into the same preliminary
-> > patch.
->=20
-> Will do.
->=20
-> > > +			/* Not currently safe for scoped-lookups. */
-> > > +			if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
-> > > +				return ERR_PTR(-EXDEV);
-> >=20
-> > Also a candidate for doing in nd_jump_link()...
-> >=20
-> > > @@ -1373,8 +1403,11 @@ static int follow_dotdot_rcu(struct nameidata =
-*nd)
-> > >  	struct inode *inode =3D nd->inode;
-> > > =20
-> > >  	while (1) {
-> > > -		if (path_equal(&nd->path, &nd->root))
-> > > +		if (path_equal(&nd->path, &nd->root)) {
-> > > +			if (unlikely(nd->flags & LOOKUP_BENEATH))
-> > > +				return -EXDEV;
-> >=20
-> > Umm...  Are you sure it's not -ECHILD?
->=20
-> It wouldn't hurt to be -ECHILD -- though it's not clear to me how likely
-> a success would be in REF-walk if the parent components didn't already
-> trigger an unlazy_walk() in RCU-walk.
->=20
-> I guess that also means LOOKUP_NO_XDEV should trigger -ECHILD in
-> follow_dotdot_rcu()?
+On 2019-11-13, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> Minor nit here - I'd split "move the conditional call of set_root()
+> into nd_jump_root()" into a separate patch before that one.  Makes
+> for fewer distractions in this one.  I'd probably fold "and be
+> ready for errors other than -ECHILD" into the same preliminary
+> patch.
 
-Scratch the last question -- AFAICS we don't need to do that for
-LOOKUP_NO_XDEV because we check against mount_lock so it's very unlikely
-that -ECHILD will have any benefit.
+Will do.
+
+> > +			/* Not currently safe for scoped-lookups. */
+> > +			if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
+> > +				return ERR_PTR(-EXDEV);
+>=20
+> Also a candidate for doing in nd_jump_link()...
+>=20
+> > @@ -1373,8 +1403,11 @@ static int follow_dotdot_rcu(struct nameidata *n=
+d)
+> >  	struct inode *inode =3D nd->inode;
+> > =20
+> >  	while (1) {
+> > -		if (path_equal(&nd->path, &nd->root))
+> > +		if (path_equal(&nd->path, &nd->root)) {
+> > +			if (unlikely(nd->flags & LOOKUP_BENEATH))
+> > +				return -EXDEV;
+>=20
+> Umm...  Are you sure it's not -ECHILD?
+
+It wouldn't hurt to be -ECHILD -- though it's not clear to me how likely
+a success would be in REF-walk if the parent components didn't already
+trigger an unlazy_walk() in RCU-walk.
+
+I guess that also means LOOKUP_NO_XDEV should trigger -ECHILD in
+follow_dotdot_rcu()?
 
 --=20
 Aleksa Sarai
@@ -73,15 +67,15 @@ Senior Software Engineer (Containers)
 SUSE Linux GmbH
 <https://www.cyphar.com/>
 
---6gz2i7fpwlz4mefu
+--odomi6wtik4yoblv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXczexQAKCRCdlLljIbnQ
-Em3mAQDOIg6+v9zFmJZ9+uYnLQ8tGd3ay8OeAsu6/xVlfCimMwD/cMP8o+o1KTbo
-+rDSfA6D7b6Zhy7K3Vlf0k0OTebeSwI=
-=kHIA
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXcu1KgAKCRCdlLljIbnQ
+EpYSAQDaNIB4LkhLlbFgkuRPiavU6vZ03HuSIHKseqaD6uMARwD+OcGzTDahyjJ6
+YeuKal+s33ETzSjupl7K2mKfYQpA2Q0=
+=nyQ8
 -----END PGP SIGNATURE-----
 
---6gz2i7fpwlz4mefu--
+--odomi6wtik4yoblv--
