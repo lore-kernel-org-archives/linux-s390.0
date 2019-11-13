@@ -1,88 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41305 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729008AbfKDMoE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 07:44:04 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V7 2/6] modpost: add support for mdev class id
-Date: Mon,  4 Nov 2019 20:39:48 +0800
-Message-Id: <20191104123952.17276-3-jasowang@redhat.com>
-In-Reply-To: <20191104123952.17276-1-jasowang@redhat.com>
-References: <20191104123952.17276-1-jasowang@redhat.com>
+Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730123AbfKMB6t (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:58:49 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 087/115] s390/kasan: avoid vdso instrumentation
+Date: Tue, 12 Nov 2019 20:55:54 -0500
+Message-Id: <20191113015622.11592-87-sashal@kernel.org>
+In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
+References: <20191113015622.11592-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Add support to parse mdev class id table.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+[ Upstream commit 348498458505e202df41b6b9a78da448d39298b7 ]
+
+vdso is mapped into user space processes, which won't have kasan
+shodow mapped.
+
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/mdev/vfio_mdev.c     |  2 ++
- scripts/mod/devicetable-offsets.c |  3 +++
- scripts/mod/file2alias.c          | 11 +++++++++++
- 3 files changed, 16 insertions(+)
+ arch/s390/kernel/vdso32/Makefile | 3 ++-
+ arch/s390/kernel/vdso64/Makefile | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index 38431e9ef7f5..a6641cd8b5a3 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -125,6 +125,8 @@ static const struct mdev_class_id vfio_id_table[] =3D {
- =09{ 0 },
- };
-=20
-+MODULE_DEVICE_TABLE(mdev, vfio_id_table);
-+
- static struct mdev_driver vfio_mdev_driver =3D {
- =09.name=09=3D "vfio_mdev",
- =09.probe=09=3D vfio_mdev_probe,
-diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-of=
-fsets.c
-index 054405b90ba4..6cbb1062488a 100644
---- a/scripts/mod/devicetable-offsets.c
-+++ b/scripts/mod/devicetable-offsets.c
-@@ -231,5 +231,8 @@ int main(void)
- =09DEVID(wmi_device_id);
- =09DEVID_FIELD(wmi_device_id, guid_string);
-=20
-+=09DEVID(mdev_class_id);
-+=09DEVID_FIELD(mdev_class_id, id);
-+
- =09return 0;
- }
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index c91eba751804..45f1c22f49be 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -1335,6 +1335,16 @@ static int do_wmi_entry(const char *filename, void *=
-symval, char *alias)
- =09return 1;
- }
-=20
-+/* looks like: "mdev:cN" */
-+static int do_mdev_entry(const char *filename, void *symval, char *alias)
-+{
-+=09DEF_FIELD(symval, mdev_class_id, id);
-+
-+=09sprintf(alias, "mdev:c%02X", id);
-+=09add_wildcard(alias);
-+=09return 1;
-+}
-+
- /* Does namelen bytes of name exactly match the symbol? */
- static bool sym_is(const char *name, unsigned namelen, const char *symbol)
- {
-@@ -1407,6 +1417,7 @@ static const struct devtable devtable[] =3D {
- =09{"typec", SIZE_typec_device_id, do_typec_entry},
- =09{"tee", SIZE_tee_client_device_id, do_tee_entry},
- =09{"wmi", SIZE_wmi_device_id, do_wmi_entry},
-+=09{"mdev", SIZE_mdev_class_id, do_mdev_entry},
- };
-=20
- /* Create MODULE_ALIAS() statements.
---=20
-2.19.1
+diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
+index 101cadabfc89e..6d87f800b4f2c 100644
+--- a/arch/s390/kernel/vdso32/Makefile
++++ b/arch/s390/kernel/vdso32/Makefile
+@@ -25,9 +25,10 @@ obj-y += vdso32_wrapper.o
+ extra-y += vdso32.lds
+ CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+ 
+-# Disable gcov profiling and ubsan for VDSO code
++# Disable gcov profiling, ubsan and kasan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
+ 
+ # Force dependency (incbin is bad)
+ $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 36bbafcf4a770..4bc166b8c0cbd 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -25,9 +25,10 @@ obj-y += vdso64_wrapper.o
+ extra-y += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
+ 
+-# Disable gcov profiling and ubsan for VDSO code
++# Disable gcov profiling, ubsan and kasan for VDSO code
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
+ 
+ # Force dependency (incbin is bad)
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
+-- 
+2.20.1
