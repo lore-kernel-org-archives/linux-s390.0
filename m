@@ -1,92 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8912 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726100AbfKDI45 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 03:56:57 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA48uE4A074562
-        for <linux-s390@vger.kernel.org>; Mon, 4 Nov 2019 03:56:54 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w2dk56hve-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 04 Nov 2019 03:56:35 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Mon, 4 Nov 2019 08:54:44 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: Use loop to save and restore fprs
-Date: Mon,  4 Nov 2019 03:55:33 -0500
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Wed, 13 Nov 2019 18:52:27 +1100
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH v15 6/9] namei: LOOKUP_{IN_ROOT,BENEATH}: permit limited
+ ".." resolution
+Message-ID: <20191113075227.lu5b5uvc2nuk76uk@yavin.dot.cyphar.com>
+References: <20191105090553.6350-1-cyphar@cyphar.com>
+ <20191105090553.6350-7-cyphar@cyphar.com>
+ <20191113020917.GC26530@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191104085533.2892-1-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qprdfpbfkuvffdu5"
+Content-Disposition: inline
+In-Reply-To: <20191113020917.GC26530@ZenIV.linux.org.uk>
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, pmorel@linux.ibm.com
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Christian Brauner <christian.brauner@ubuntu.com>, Jann Horn <jannh@google.com>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Let's save some lines in the assembly by using a loop to save and
-restore the fprs.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/cstart64.S | 38 ++++++--------------------------------
- 1 file changed, 6 insertions(+), 32 deletions(-)
+--qprdfpbfkuvffdu5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 5dc1577..8e2b21e 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -99,44 +99,18 @@ memsetxc:
- 	lctlg	%c0, %c0, 0(%r1)
- 	/* save fprs 0-15 + fpc */
- 	la	%r1, GEN_LC_SW_INT_FPRS
--	std	%f0, 0(%r1)
--	std	%f1, 8(%r1)
--	std	%f2, 16(%r1)
--	std	%f3, 24(%r1)
--	std	%f4, 32(%r1)
--	std	%f5, 40(%r1)
--	std	%f6, 48(%r1)
--	std	%f7, 56(%r1)
--	std	%f8, 64(%r1)
--	std	%f9, 72(%r1)
--	std	%f10, 80(%r1)
--	std	%f11, 88(%r1)
--	std	%f12, 96(%r1)
--	std	%f13, 104(%r1)
--	std	%f14, 112(%r1)
--	std	%f15, 120(%r1)
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r1)
-+	.endr
- 	stfpc	GEN_LC_SW_INT_FPC
- 	.endm
- 
- 	.macro RESTORE_REGS
- 	/* restore fprs 0-15 + fpc */
- 	la	%r1, GEN_LC_SW_INT_FPRS
--	ld	%f0, 0(%r1)
--	ld	%f1, 8(%r1)
--	ld	%f2, 16(%r1)
--	ld	%f3, 24(%r1)
--	ld	%f4, 32(%r1)
--	ld	%f5, 40(%r1)
--	ld	%f6, 48(%r1)
--	ld	%f7, 56(%r1)
--	ld	%f8, 64(%r1)
--	ld	%f9, 72(%r1)
--	ld	%f10, 80(%r1)
--	ld	%f11, 88(%r1)
--	ld	%f12, 96(%r1)
--	ld	%f13, 104(%r1)
--	ld	%f14, 112(%r1)
--	ld	%f15, 120(%r1)
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r1)
-+	.endr
- 	lfpc	GEN_LC_SW_INT_FPC
- 	/* restore cr0 */
- 	lctlg	%c0, %c0, GEN_LC_SW_INT_CR0
--- 
-2.20.1
+On 2019-11-13, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> On Tue, Nov 05, 2019 at 08:05:50PM +1100, Aleksa Sarai wrote:
+>=20
+> > One other possible alternative (which previous versions of this patch
+> > used) would be to check with path_is_under() if there was a racing
+> > rename or mount (after re-taking the relevant seqlocks). While this does
+> > work, it results in possible O(n*m) behaviour if there are many renames
+> > or mounts occuring *anywhere on the system*.
+>=20
+> BTW, do you realize that open-by-fhandle (or working nfsd, for that matte=
+r)
+> will trigger arseloads of write_seqlock(&rename_lock) simply on d_splice_=
+alias()
+> bringing disconnected subtrees in contact with parent?
+
+I wasn't aware of that -- that makes path_is_under() even less viable.
+I'll reword it to be clearer that path_is_under() isn't a good idea and
+why we went with -EAGAIN over an in-kernel retry.
+
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
+
+--qprdfpbfkuvffdu5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXcu2OAAKCRCdlLljIbnQ
+EtqZAQCjNdiANKBF7WCOTHUeD48U+o/7WczR7I/1WTsCcSBp9gEA6HgEdHKRHmol
++5Fvn3Eg1Tya83fWQgWoVLu8i6CUUwE=
+=voMa
+-----END PGP SIGNATURE-----
+
+--qprdfpbfkuvffdu5--
