@@ -1,138 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26330 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727149AbfKMMX1 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16174 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726185AbfKMMnk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Nov 2019 07:23:27 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xADCIFur035599
-        for <linux-s390@vger.kernel.org>; Wed, 13 Nov 2019 07:23:26 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w8g79krnq-1
+        Wed, 13 Nov 2019 07:43:40 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xADCeUeD027973
+        for <linux-s390@vger.kernel.org>; Wed, 13 Nov 2019 07:43:39 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w8j1w84xy-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 13 Nov 2019 07:23:26 -0500
+        for <linux-s390@vger.kernel.org>; Wed, 13 Nov 2019 07:43:39 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Wed, 13 Nov 2019 12:23:24 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 2/4] s390x: Define the PSW bits
-Date: Wed, 13 Nov 2019 13:23:17 +0100
-In-Reply-To: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 13 Nov 2019 12:43:37 -0000
+Subject: Re: [PATCH v1 0/4] s390x: Testing the Subchannel I/O
 References: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1573647799-30584-3-git-send-email-pmorel@linux.ibm.com>
+ <30d17ea4-1c35-f44a-8736-05725b251c69@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 13 Nov 2019 13:43:34 +0100
+MIME-Version: 1.0
+In-Reply-To: <30d17ea4-1c35-f44a-8736-05725b251c69@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Message-Id: <9f3100d9-de50-7e9e-f8a0-dcef2ee923ef@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com
 
-Instead of assigning obfuscated masks to the PSW dedicated to the
-exceptions, let's define the masks explicitely, it will clarify the
-usage.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/asm/arch_bits.h | 32 ++++++++++++++++++++++++++++++++
- lib/s390x/asm/arch_def.h  |  6 ++----
- s390x/cstart64.S          | 13 +++++++------
- 3 files changed, 41 insertions(+), 10 deletions(-)
- create mode 100644 lib/s390x/asm/arch_bits.h
+On 2019-11-13 13:35, Thomas Huth wrote:
+>   Hi Pierre!
+>
+> Meta-comment: Please use "[kvm-unit-tests PATCH ...]" in the subject for
+> future kvm-unit-tests patches.
 
-diff --git a/lib/s390x/asm/arch_bits.h b/lib/s390x/asm/arch_bits.h
-new file mode 100644
-index 0000000..0521125
---- /dev/null
-+++ b/lib/s390x/asm/arch_bits.h
-@@ -0,0 +1,32 @@
-+
-+/*
-+ * Copyright (c) 2019 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU Library General Public License version 2.
-+ */
-+#ifndef _ASM_S390X_ARCH_BITS_H_
-+#define _ASM_S390X_ARCH_BITS_H_
-+
-+#define PSW_MASK_PER		0x4000000000000000
-+#define PSW_MASK_DAT		0x0400000000000000
-+#define PSW_MASK_IO		0x0200000000000000
-+#define PSW_MASK_EXT		0x0100000000000000
-+#define PSW_MASK_BASE		0x0000000000000000
-+#define PSW_MASK_KEY		0x00F0000000000000
-+#define PSW_MASK_MCHECK		0x0004000000000000
-+#define PSW_MASK_WAIT		0x0002000000000000
-+#define PSW_MASK_PSTATE		0x0001000000000000
-+#define PSW_MASK_ASC		0x0000C00000000000
-+#define PSW_MASK_CC		0x0000300000000000
-+#define PSW_MASK_PM		0x00000F0000000000
-+#define PSW_MASK_RI		0x0000008000000000
-+#define PSW_MASK_EA		0x0000000100000000
-+#define PSW_MASK_BA		0x0000000080000000
-+
-+#define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
-+
-+#endif
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 96cca2e..34c1188 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -10,15 +10,13 @@
- #ifndef _ASM_S390X_ARCH_DEF_H_
- #define _ASM_S390X_ARCH_DEF_H_
- 
-+#include <asm/arch_bits.h>
-+
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
- };
- 
--#define PSW_MASK_EXT			0x0100000000000000UL
--#define PSW_MASK_DAT			0x0400000000000000UL
--#define PSW_MASK_PSTATE			0x0001000000000000UL
--
- #define CR0_EXTM_SCLP			0X0000000000000200UL
- #define CR0_EXTM_EXTC			0X0000000000002000UL
- #define CR0_EXTM_EMGC			0X0000000000004000UL
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index eaff481..7475f32 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -11,6 +11,7 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <asm/asm-offsets.h>
-+#include <asm/arch_bits.h>
- #include <asm/sigp.h>
- 
- .section .init
-@@ -196,17 +197,17 @@ svc_int:
- 
- 	.align	8
- initial_psw:
--	.quad	0x0000000180000000, clear_bss_start
-+	.quad	PSW_EXCEPTION_MASK, clear_bss_start
- pgm_int_psw:
--	.quad	0x0000000180000000, pgm_int
-+	.quad	PSW_EXCEPTION_MASK, pgm_int
- ext_int_psw:
--	.quad	0x0000000180000000, ext_int
-+	.quad	PSW_EXCEPTION_MASK, ext_int
- mcck_int_psw:
--	.quad	0x0000000180000000, mcck_int
-+	.quad	PSW_EXCEPTION_MASK, mcck_int
- io_int_psw:
--	.quad	0x0000000180000000, io_int
-+	.quad	PSW_EXCEPTION_MASK, io_int
- svc_int_psw:
--	.quad	0x0000000180000000, svc_int
-+	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
- 	.quad	0x0000000000040000
+
+Oh sorry, I didn't notice, thanks.
+
+Will take care for the next series.
+
+
+>
+> On 13/11/2019 13.23, Pierre Morel wrote:
+> [...]
+>> The simple test tests the I/O reading by the SUB Channel. It needs QEMU to
+>> be patched to have the pong device defined.
+> Are you going to send QEMU patches for this? I assume that's a
+> prerequisite for this patch series?
+>
+>   Thomas
+>
+Yes I will.
+
+Regards,
+
+Pierre
+
+
 -- 
-2.7.4
+Pierre Morel
+IBM Lab Boeblingen
