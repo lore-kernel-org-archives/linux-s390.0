@@ -1,74 +1,39 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33176 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726560AbfKJCkR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:40:17 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 002/191] s390/qeth: invoke softirqs after napi_schedule()
-Date: Sat,  9 Nov 2019 21:37:04 -0500
-Message-Id: <20191110024013.29782-2-sashal@kernel.org>
-In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
-References: <20191110024013.29782-1-sashal@kernel.org>
+Received: from mail-il1-f170.google.com ([209.85.166.170]:43592 "EHLO
+        mail-il1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726957AbfKNOom (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 09:44:42 -0500
+Received: by mail-il1-f170.google.com with SMTP id r9so5543474ilq.10
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 06:44:41 -0800 (PST)
+Subject: Re: disk revalidation cleanups and fixlets v2
+References: <20191114143438.14681-1-hch@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <10175732-a3f0-510d-e423-f7f7072fef2b@kernel.dk>
+Date: Thu, 14 Nov 2019 07:44:38 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191114143438.14681-1-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On 11/14/19 7:34 AM, Christoph Hellwig wrote:
+> Hi Jens and Jan,
+> 
+> this series takes the disk size change detection and revalidations
+> from Jan a step further and fully integrate the code path for
+> partitioned vs non-partitioned devices.  It also fixes up a few
+> bits where we have unintentionally differing behavior.
+> 
+> Changes since v1:
+>   - rebased on to of for-5.5/zoned
+>   - fixed a commit message
+>   - added two new trivial patches
 
-[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
+Applied, thanks.
 
-Calling napi_schedule() from process context does not ensure that the
-NET_RX softirq is run in a timely fashion. So trigger it manually.
-
-This is no big issue with current code. A call to ndo_open() is usually
-followed by a ndo_set_rx_mode() call, and for qeth this contains a
-spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
-early.
-Nevertheless it's best to not depend on this behaviour, and just fix
-the issue at its source like all other drivers do. For instance see
-commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
-
-Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 3 +++
- drivers/s390/net/qeth_l3_main.c | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index c1c35eccd5b65..95669d47c389e 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -789,7 +789,10 @@ static int __qeth_l2_open(struct net_device *dev)
- 
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 9c5e801b3f6cb..52e0ae4dc7241 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2414,7 +2414,10 @@ static int __qeth_l3_open(struct net_device *dev)
- 
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
 -- 
-2.20.1
+Jens Axboe
