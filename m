@@ -1,287 +1,209 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:42207 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387964AbfKGPNq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Nov 2019 10:13:46 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V11 4/6] mdev: introduce virtio device and its device ops
-Date: Thu,  7 Nov 2019 23:11:07 +0800
-Message-Id: <20191107151109.23261-5-jasowang@redhat.com>
-In-Reply-To: <20191107151109.23261-1-jasowang@redhat.com>
-References: <20191107151109.23261-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20168 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726960AbfKNMDD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 07:03:03 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEBv7A7138347
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w9571km4g-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Thu, 14 Nov 2019 12:02:59 -0000
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 8/8] net/smc: immediate termination for SMCR link groups
+Date: Thu, 14 Nov 2019 13:02:47 +0100
+In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
+References: <20191114120247.68889-1-kgraul@linux.ibm.com>
+Message-Id: <20191114120247.68889-9-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, Jason Wang <jasowang@redhat.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This patch implements basic support for mdev driver that supports
-virtio transport for kernel virtio driver.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+If the SMC module is unloaded or an IB device is thrown away, the
+immediate link group freeing introduced for SMCD is exploited for SMCR
+as well. That means SMCR-specifics are added to smc_conn_kill().
+
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- MAINTAINERS                      |   1 +
- drivers/vfio/mdev/mdev_core.c    |  21 +++++
- drivers/vfio/mdev/mdev_private.h |   2 +
- include/linux/mdev.h             |   6 ++
- include/linux/mdev_virtio_ops.h  | 147 +++++++++++++++++++++++++++++++
- 5 files changed, 177 insertions(+)
- create mode 100644 include/linux/mdev_virtio_ops.h
+ net/smc/smc_core.c | 58 +++++++++++++++++++++++++++++++---------------
+ net/smc/smc_core.h |  3 ++-
+ net/smc/smc_ib.c   |  3 ++-
+ net/smc/smc_llc.c  |  4 +++-
+ 4 files changed, 46 insertions(+), 22 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f661d13344d6..4997957443df 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17248,6 +17248,7 @@ F:=09include/linux/virtio*.h
- F:=09include/uapi/linux/virtio_*.h
- F:=09drivers/crypto/virtio/
- F:=09mm/balloon_compaction.c
-+F:=09include/linux/mdev_virtio_ops.h
-=20
- VIRTIO BLOCK AND SCSI DRIVERS
- M:=09"Michael S. Tsirkin" <mst@redhat.com>
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index 4e70f19ac145..c58253404ed5 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -78,6 +78,27 @@ const struct mdev_vfio_device_ops *mdev_get_vfio_ops(str=
-uct mdev_device *mdev)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 0755bd4b587c..97e9d21c4d1e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -566,6 +566,10 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
+ 
+ 		wake_up(&lnk->wr_reg_wait);
++		if (lnk->state != SMC_LNK_INACTIVE) {
++			smc_link_send_delete(lnk, false);
++			smc_llc_link_inactive(lnk);
++		}
+ 	}
  }
- EXPORT_SYMBOL(mdev_get_vfio_ops);
-=20
-+/*
-+ * Specify the virtio device ops for the mdev device, this
-+ * must be called during create() callback for virtio mdev device.
+ 
+@@ -638,14 +642,16 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
+ 	list_for_each_entry_safe(lgr, l, &smc_lgr_list.list, list) {
+ 		if (!lgr->is_smcd &&
+ 		    lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev &&
+-		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport)
++		    lgr->lnk[SMC_SINGLE_LINK].ibport == ibport) {
+ 			list_move(&lgr->list, &lgr_free_list);
++			lgr->freeing = 1;
++		}
+ 	}
+ 	spin_unlock_bh(&smc_lgr_list.lock);
+ 
+ 	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
+ 		list_del_init(&lgr->list);
+-		__smc_lgr_terminate(lgr, true);
++		__smc_lgr_terminate(lgr, false);
+ 	}
+ }
+ 
+@@ -695,6 +701,36 @@ void smc_smcd_terminate_all(struct smcd_dev *smcd)
+ 		wait_event(smcd->lgrs_deleted, !atomic_read(&smcd->lgr_cnt));
+ }
+ 
++/* Called when an SMCR device is removed or the smc module is unloaded.
++ * If smcibdev is given, all SMCR link groups using this device are terminated.
++ * If smcibdev is NULL, all SMCR link groups are terminated.
 + */
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops)
++void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
 +{
-+=09mdev_set_class(mdev, MDEV_CLASS_ID_VIRTIO);
-+=09mdev->virtio_ops =3D virtio_ops;
-+}
-+EXPORT_SYMBOL(mdev_set_virtio_ops);
++	struct smc_link_group *lgr, *lg;
++	LIST_HEAD(lgr_free_list);
 +
-+/* Get the virtio device ops for the mdev device. */
-+const struct mdev_virtio_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev)
-+{
-+=09WARN_ON(mdev->class_id !=3D MDEV_CLASS_ID_VIRTIO);
-+=09return mdev->virtio_ops;
-+}
-+EXPORT_SYMBOL(mdev_get_virtio_ops);
++	spin_lock_bh(&smc_lgr_list.lock);
++	if (!smcibdev) {
++		list_splice_init(&smc_lgr_list.list, &lgr_free_list);
++		list_for_each_entry(lgr, &lgr_free_list, list)
++			lgr->freeing = 1;
++	} else {
++		list_for_each_entry_safe(lgr, lg, &smc_lgr_list.list, list) {
++			if (lgr->lnk[SMC_SINGLE_LINK].smcibdev == smcibdev) {
++				list_move(&lgr->list, &lgr_free_list);
++				lgr->freeing = 1;
++			}
++		}
++	}
++	spin_unlock_bh(&smc_lgr_list.lock);
 +
- struct device *mdev_dev(struct mdev_device *mdev)
++	list_for_each_entry_safe(lgr, lg, &lgr_free_list, list) {
++		list_del_init(&lgr->list);
++		__smc_lgr_terminate(lgr, false);
++	}
++}
++
+ /* Determine vlan of internal TCP socket.
+  * @vlan_id: address to store the determined vlan id into
+  */
+@@ -1215,32 +1251,16 @@ static void smc_core_going_away(void)
+ /* Clean up all SMC link groups */
+ static void smc_lgrs_shutdown(void)
  {
- =09return &mdev->dev;
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_priv=
-ate.h
-index 411227373625..2c74dd032409 100644
---- a/drivers/vfio/mdev/mdev_private.h
-+++ b/drivers/vfio/mdev/mdev_private.h
-@@ -11,6 +11,7 @@
- #define MDEV_PRIVATE_H
-=20
- #include <linux/mdev_vfio_ops.h>
-+#include <linux/mdev_virtio_ops.h>
-=20
- int  mdev_bus_register(void);
- void mdev_bus_unregister(void);
-@@ -38,6 +39,7 @@ struct mdev_device {
- =09u16 class_id;
- =09union {
- =09=09const struct mdev_vfio_device_ops *vfio_ops;
-+=09=09const struct mdev_virtio_device_ops *virtio_ops;
- =09};
- };
-=20
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 9e37506d1987..f3d75a60c2b5 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -17,6 +17,7 @@
-=20
- struct mdev_device;
- struct mdev_vfio_device_ops;
-+struct mdev_virtio_device_ops;
-=20
- /*
-  * Called by the parent device driver to set the device which represents
-@@ -112,6 +113,10 @@ void mdev_set_class(struct mdev_device *mdev, u16 id);
- void mdev_set_vfio_ops(struct mdev_device *mdev,
- =09=09       const struct mdev_vfio_device_ops *vfio_ops);
- const struct mdev_vfio_device_ops *mdev_get_vfio_ops(struct mdev_device *m=
-dev);
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops);
-+const struct mdev_virtio_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev);
-=20
- extern struct bus_type mdev_bus_type;
-=20
-@@ -127,6 +132,7 @@ struct mdev_device *mdev_from_dev(struct device *dev);
-=20
- enum {
- =09MDEV_CLASS_ID_VFIO =3D 1,
-+=09MDEV_CLASS_ID_VIRTIO =3D 2,
- =09/* New entries must be added here */
- };
-=20
-diff --git a/include/linux/mdev_virtio_ops.h b/include/linux/mdev_virtio_op=
-s.h
-new file mode 100644
-index 000000000000..8951331c6629
---- /dev/null
-+++ b/include/linux/mdev_virtio_ops.h
-@@ -0,0 +1,147 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Virtio mediated device driver
-+ *
-+ * Copyright 2019, Red Hat Corp.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ */
-+#ifndef MDEV_VIRTIO_OPS_H
-+#define MDEV_VIRTIO_OPS_H
-+
-+#include <linux/interrupt.h>
-+#include <linux/mdev.h>
-+#include <uapi/linux/vhost.h>
-+
-+#define VIRTIO_MDEV_DEVICE_API_STRING=09=09"virtio-mdev"
-+
-+struct virtio_mdev_callback {
-+=09irqreturn_t (*callback)(void *data);
-+=09void *private;
-+};
-+
-+/**
-+ * struct mdev_virtio_device_ops - Structure to be registered for each
-+ * mdev device to register the device for virtio/vhost drivers.
-+ *
-+ * The callbacks are mandatory unless explicitly mentioned.
-+ *
-+ * @set_vq_address:=09=09Set the address of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@desc_area: address of desc area
-+ *=09=09=09=09@driver_area: address of driver area
-+ *=09=09=09=09@device_area: address of device area
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_vq_num:=09=09=09Set the size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@num: the size of virtqueue
-+ * @kick_vq:=09=09=09Kick the virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ * @set_vq_cb:=09=09=09Set the interrupt callback function for
-+ *=09=09=09=09a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @set_vq_ready:=09=09Set ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@ready: ready (true) not ready(false)
-+ * @get_vq_ready:=09=09Get ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns boolean: ready (true) or not (false)
-+ * @set_vq_state:=09=09Set the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@state: virtqueue state (last_avail_idx)
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @get_vq_state:=09=09Get the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns virtqueue state (last_avail_idx)
-+ * @get_vq_align:=09=09Get the virtqueue align requirement
-+ *=09=09=09=09for the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns virtqueue algin requirement
-+ * @get_features:=09=09Get virtio features supported by the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns the virtio features support by the
-+ *=09=09=09=09device
-+ * @set_features:=09=09Set virtio features supported by the driver
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@features: feature support by the driver
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_config_cb:=09=09Set the config interrupt callback
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @get_vq_num_max:=09=09Get the max size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u16: max size of virtqueue
-+ * @get_device_id:=09=09Get virtio device id
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio device id
-+ * @get_vendor_id:=09=09Get id for the vendor that provides this device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio vendor id
-+ * @get_status:=09=09=09Get the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u8: virtio device status
-+ * @set_status:=09=09=09Set the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@status: virtio device status
-+ * @get_config:=09=09=09Read from device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to read to
-+ *=09=09=09=09@len: the length to read from
-+ *=09=09=09=09configration space
-+ * @set_config:=09=09=09Write to device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to write from
-+ *=09=09=09=09@len: the length to write to
-+ *=09=09=09=09configration space
-+ * @get_generation:=09=09Get device config generaton (optional)
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: device generation
-+ */
-+struct mdev_virtio_device_ops {
-+=09/* Virtqueue ops */
-+=09int (*set_vq_address)(struct mdev_device *mdev,
-+=09=09=09      u16 idx, u64 desc_area, u64 driver_area,
-+=09=09=09      u64 device_area);
-+=09void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-+=09void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-+=09void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-+=09=09=09  struct virtio_mdev_callback *cb);
-+=09void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-+=09bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-+=09int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-+=09u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-+
-+=09/* Virtio device ops */
-+=09u16 (*get_vq_align)(struct mdev_device *mdev);
-+=09u64 (*get_features)(struct mdev_device *mdev);
-+=09int (*set_features)(struct mdev_device *mdev, u64 features);
-+=09void (*set_config_cb)(struct mdev_device *mdev,
-+=09=09=09      struct virtio_mdev_callback *cb);
-+=09u16 (*get_vq_num_max)(struct mdev_device *mdev);
-+=09u32 (*get_device_id)(struct mdev_device *mdev);
-+=09u32 (*get_vendor_id)(struct mdev_device *mdev);
-+=09u8 (*get_status)(struct mdev_device *mdev);
-+=09void (*set_status)(struct mdev_device *mdev, u8 status);
-+=09void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   void *buf, unsigned int len);
-+=09void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   const void *buf, unsigned int len);
-+=09u32 (*get_generation)(struct mdev_device *mdev);
-+};
-+
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops);
-+
-+#endif
---=20
-2.19.1
+-	struct smc_link_group *lgr, *lg;
+-	LIST_HEAD(lgr_freeing_list);
+ 	struct smcd_dev *smcd;
+ 
+ 	smc_core_going_away();
+ 
+-	spin_lock_bh(&smc_lgr_list.lock);
+-	list_splice_init(&smc_lgr_list.list, &lgr_freeing_list);
+-	spin_unlock_bh(&smc_lgr_list.lock);
++	smc_smcr_terminate_all(NULL);
+ 
+ 	spin_lock(&smcd_dev_list.lock);
+ 	list_for_each_entry(smcd, &smcd_dev_list.list, list)
+ 		smc_smcd_terminate_all(smcd);
+ 	spin_unlock(&smcd_dev_list.lock);
+-
+-	list_for_each_entry_safe(lgr, lg, &lgr_freeing_list, list) {
+-		list_del_init(&lgr->list);
+-		if (!lgr->is_smcd) {
+-			struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
+-
+-			smc_link_send_delete(&lgr->lnk[SMC_SINGLE_LINK], false);
+-			smc_llc_link_inactive(lnk);
+-		}
+-		cancel_delayed_work_sync(&lgr->free_work);
+-		smc_lgr_free(lgr); /* free link group */
+-	}
+ }
+ 
+ /* Called (from smc_exit) when module is removed */
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 7f34f4d5a514..a428db6cd2e2 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -287,7 +287,7 @@ static inline struct smc_connection *smc_lgr_find_conn(
+ 
+ static inline void smc_lgr_terminate_sched(struct smc_link_group *lgr)
+ {
+-	if (!lgr->terminating)
++	if (!lgr->terminating && !lgr->freeing)
+ 		schedule_work(&lgr->terminate_work);
+ }
+ 
+@@ -301,6 +301,7 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
+ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid,
+ 			unsigned short vlan);
+ void smc_smcd_terminate_all(struct smcd_dev *dev);
++void smc_smcr_terminate_all(struct smc_ib_device *smcibdev);
+ int smc_buf_create(struct smc_sock *smc, bool is_smcd);
+ int smc_uncompress_bufsize(u8 compressed);
+ int smc_rmb_rtoken_handling(struct smc_connection *conn,
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index c15dcd08dc74..0ab122e66328 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -565,7 +565,7 @@ static void smc_ib_add_dev(struct ib_device *ibdev)
+ 	schedule_work(&smcibdev->port_event_work);
+ }
+ 
+-/* callback function for ib_register_client() */
++/* callback function for ib_unregister_client() */
+ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+ {
+ 	struct smc_ib_device *smcibdev;
+@@ -575,6 +575,7 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+ 	spin_lock(&smc_ib_devices.lock);
+ 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
+ 	spin_unlock(&smc_ib_devices.lock);
++	smc_smcr_terminate_all(smcibdev);
+ 	smc_ib_cleanup_per_ibdev(smcibdev);
+ 	ib_unregister_event_handler(&smcibdev->event_handler);
+ 	kfree(smcibdev);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 8d1b076021ed..a9f6431dd69a 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -698,9 +698,11 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
+ int smc_llc_do_delete_rkey(struct smc_link *link,
+ 			   struct smc_buf_desc *rmb_desc)
+ {
+-	int rc;
++	int rc = 0;
+ 
+ 	mutex_lock(&link->llc_delete_rkey_mutex);
++	if (link->state != SMC_LNK_ACTIVE)
++		goto out;
+ 	reinit_completion(&link->llc_delete_rkey);
+ 	rc = smc_llc_send_delete_rkey(link, rmb_desc);
+ 	if (rc)
+-- 
+2.17.1
