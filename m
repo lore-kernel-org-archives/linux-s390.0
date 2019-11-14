@@ -1,117 +1,222 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725280AbfKSFNx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:13:53 -0500
-Date: Mon, 18 Nov 2019 21:13:50 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-Subject: Re: memory leak in new_inode_pseudo (2)
-Message-ID: <20191119051350.GK163020@sol.localdomain>
-References: <000000000000111cbe058dc7754d@google.com>
- <000000000000ed664f058dc82773@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000000000000ed664f058dc82773@google.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726115AbfKNKWD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 05:22:03 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAKske113288
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:22:01 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92uk57pb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:58 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 14 Nov 2019 10:19:33 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 03/11] s390/qeth: drop unwanted packets earlier in RX path
+Date: Thu, 14 Nov 2019 11:19:16 +0100
+In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
+References: <20191114101924.29558-1-jwi@linux.ibm.com>
+Message-Id: <20191114101924.29558-4-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, syzbot <syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Ursula and Karsten,
+Packets with an unexpected HW format are currently first extracted from
+the RX buffer, passed upwards to the layer-specific driver and only then
+finally dropped.
 
-On Tue, Jul 16, 2019 at 01:28:06AM -0700, syzbot wrote:
-> syzbot has found a reproducer for the following crash on:
-> 
-> HEAD commit:    be8454af Merge tag 'drm-next-2019-07-16' of git://anongit...
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=13d5f750600000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=d23a1a7bf85c5250
-> dashboard link: https://syzkaller.appspot.com/bug?extid=e682cca30bc101a4d9d9
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=155c5800600000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1738f800600000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com
-> 
-> executing program
-> executing program
-> executing program
-> executing program
-> BUG: memory leak
-> unreferenced object 0xffff888128ea0980 (size 768):
->   comm "syz-executor303", pid 7044, jiffies 4294943526 (age 13.490s)
->   hex dump (first 32 bytes):
->     01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
->     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
->   backtrace:
->     [<000000005ba542b8>] kmemleak_alloc_recursive
-> include/linux/kmemleak.h:43 [inline]
->     [<000000005ba542b8>] slab_post_alloc_hook mm/slab.h:522 [inline]
->     [<000000005ba542b8>] slab_alloc mm/slab.c:3319 [inline]
->     [<000000005ba542b8>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
->     [<000000006532a1e9>] sock_alloc_inode+0x1c/0xa0 net/socket.c:238
->     [<0000000014ddc967>] alloc_inode+0x2c/0xe0 fs/inode.c:227
->     [<0000000056541455>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
->     [<000000003b5b5444>] sock_alloc+0x1c/0x90 net/socket.c:554
->     [<00000000e623b353>] __sock_create+0x8f/0x250 net/socket.c:1378
->     [<000000000e094708>] sock_create_kern+0x3b/0x50 net/socket.c:1483
->     [<000000009fe4f64f>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
->     [<0000000056be84a7>] __sock_create+0x164/0x250 net/socket.c:1414
->     [<000000005915e5fe>] sock_create net/socket.c:1465 [inline]
->     [<000000005915e5fe>] __sys_socket+0x69/0x110 net/socket.c:1507
->     [<00000000afa837b2>] __do_sys_socket net/socket.c:1516 [inline]
->     [<00000000afa837b2>] __se_sys_socket net/socket.c:1514 [inline]
->     [<00000000afa837b2>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
->     [<00000000d0addad1>] do_syscall_64+0x76/0x1a0
-> arch/x86/entry/common.c:296
->     [<000000004e8e7c22>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> BUG: memory leak
-> unreferenced object 0xffff88811faeeab8 (size 56):
->   comm "syz-executor303", pid 7044, jiffies 4294943526 (age 13.490s)
->   hex dump (first 32 bytes):
->     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
->     00 0a ea 28 81 88 ff ff d0 ea ae 1f 81 88 ff ff  ...(............
->   backtrace:
->     [<000000005ba542b8>] kmemleak_alloc_recursive
-> include/linux/kmemleak.h:43 [inline]
->     [<000000005ba542b8>] slab_post_alloc_hook mm/slab.h:522 [inline]
->     [<000000005ba542b8>] slab_alloc mm/slab.c:3319 [inline]
->     [<000000005ba542b8>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
->     [<000000008ca63096>] kmem_cache_zalloc include/linux/slab.h:738 [inline]
->     [<000000008ca63096>] lsm_inode_alloc security/security.c:522 [inline]
->     [<000000008ca63096>] security_inode_alloc+0x33/0xb0
-> security/security.c:875
->     [<00000000b335d930>] inode_init_always+0x108/0x200 fs/inode.c:169
->     [<0000000015dcffb3>] alloc_inode+0x49/0xe0 fs/inode.c:234
->     [<0000000056541455>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
->     [<000000003b5b5444>] sock_alloc+0x1c/0x90 net/socket.c:554
->     [<00000000e623b353>] __sock_create+0x8f/0x250 net/socket.c:1378
->     [<000000000e094708>] sock_create_kern+0x3b/0x50 net/socket.c:1483
->     [<000000009fe4f64f>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
->     [<0000000056be84a7>] __sock_create+0x164/0x250 net/socket.c:1414
->     [<000000005915e5fe>] sock_create net/socket.c:1465 [inline]
->     [<000000005915e5fe>] __sys_socket+0x69/0x110 net/socket.c:1507
->     [<00000000afa837b2>] __do_sys_socket net/socket.c:1516 [inline]
->     [<00000000afa837b2>] __se_sys_socket net/socket.c:1514 [inline]
->     [<00000000afa837b2>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
->     [<00000000d0addad1>] do_syscall_64+0x76/0x1a0
-> arch/x86/entry/common.c:296
->     [<000000004e8e7c22>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
+Enhance the RX path so that we can drop such packets before even
+allocating an skb. For this, add some additional logic so that when a
+packet is meant to be dropped, we can still walk along the packet's data
+chunks in the RX buffer. This allows us to extract the following
+packet(s) from the buffer.
 
-Do you think this was fixed by:
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 32 +++++++++++++++++++++++++++----
+ drivers/s390/net/qeth_l2_main.c   | 27 ++++++++------------------
+ drivers/s390/net/qeth_l3_main.c   | 26 ++++++++-----------------
+ 3 files changed, 44 insertions(+), 41 deletions(-)
 
-	commit 6d6dd528d5af05dc2d0c773951ed68d630a0c3f1
-	Author: Ursula Braun <ubraun@linux.ibm.com>
-	Date:   Tue Nov 12 16:03:41 2019 +0100
-
-	    net/smc: fix refcount non-blocking connect() -part 2
-
-?
-
-Thanks!
-
-- Eric
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index c52241df980b..467a9173058c 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5072,6 +5072,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 	int headroom = 0;
+ 	int use_rx_sg = 0;
+ 
++next_packet:
+ 	/* qeth_hdr must not cross element boundaries */
+ 	while (element->length < offset + sizeof(struct qeth_hdr)) {
+ 		if (qeth_is_last_sbale(element))
+@@ -5088,10 +5089,22 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 		break;
+ 	case QETH_HEADER_TYPE_LAYER3:
+ 		skb_len = (*hdr)->hdr.l3.length;
++		if (!IS_LAYER3(card)) {
++			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
++			skb = NULL;
++			goto walk_packet;
++		}
++
+ 		headroom = ETH_HLEN;
+ 		break;
+ 	case QETH_HEADER_TYPE_OSN:
+ 		skb_len = (*hdr)->hdr.osn.pdu_length;
++		if (!IS_OSN(card)) {
++			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
++			skb = NULL;
++			goto walk_packet;
++		}
++
+ 		headroom = sizeof(struct qeth_hdr);
+ 		break;
+ 	default:
+@@ -5100,7 +5113,8 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 		else
+ 			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
+ 
+-		break;
++		/* Can't determine packet length, drop the whole buffer. */
++		return NULL;
+ 	}
+ 
+ 	if (!skb_len)
+@@ -5126,10 +5140,12 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 	if (headroom)
+ 		skb_reserve(skb, headroom);
+ 
++walk_packet:
+ 	data_ptr = element->addr + offset;
+ 	while (skb_len) {
+ 		data_len = min(skb_len, (int)(element->length - offset));
+-		if (data_len) {
++
++		if (skb && data_len) {
+ 			if (use_rx_sg)
+ 				qeth_create_skb_frag(element, skb, offset,
+ 						     data_len);
+@@ -5141,8 +5157,11 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 			if (qeth_is_last_sbale(element)) {
+ 				QETH_CARD_TEXT(card, 4, "unexeob");
+ 				QETH_CARD_HEX(card, 2, buffer, sizeof(void *));
+-				dev_kfree_skb_any(skb);
+-				QETH_CARD_STAT_INC(card, rx_length_errors);
++				if (skb) {
++					dev_kfree_skb_any(skb);
++					QETH_CARD_STAT_INC(card,
++							   rx_length_errors);
++				}
+ 				return NULL;
+ 			}
+ 			element++;
+@@ -5152,6 +5171,11 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 			offset += data_len;
+ 		}
+ 	}
++
++	/* This packet was skipped, go get another one: */
++	if (!skb)
++		goto next_packet;
++
+ 	*__element = element;
+ 	*__offset = offset;
+ 	if (use_rx_sg) {
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 1e85956f95c6..ae69c981650d 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -315,30 +315,19 @@ static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
+ 			*done = 1;
+ 			break;
+ 		}
+-		switch (hdr->hdr.l2.id) {
+-		case QETH_HEADER_TYPE_LAYER2:
++
++		if (hdr->hdr.l2.id == QETH_HEADER_TYPE_LAYER2) {
+ 			skb->protocol = eth_type_trans(skb, skb->dev);
+ 			qeth_rx_csum(card, skb, hdr->hdr.l2.flags[1]);
+ 			len = skb->len;
+ 			napi_gro_receive(&card->napi, skb);
+-			break;
+-		case QETH_HEADER_TYPE_OSN:
+-			if (IS_OSN(card)) {
+-				skb_push(skb, sizeof(struct qeth_hdr));
+-				skb_copy_to_linear_data(skb, hdr,
+-						sizeof(struct qeth_hdr));
+-				len = skb->len;
+-				card->osn_info.data_cb(skb);
+-				break;
+-			}
+-			/* Else, fall through */
+-		default:
+-			dev_kfree_skb_any(skb);
+-			QETH_CARD_TEXT(card, 3, "inbunkno");
+-			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
+-			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
+-			continue;
++		} else {
++			skb_push(skb, sizeof(*hdr));
++			skb_copy_to_linear_data(skb, hdr, sizeof(*hdr));
++			len = skb->len;
++			card->osn_info.data_cb(skb);
+ 		}
++
+ 		work_done++;
+ 		budget--;
+ 		QETH_CARD_STAT_INC(card, rx_packets);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 72c61faae3f9..3b901f3676c1 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1366,7 +1366,6 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 	int work_done = 0;
+ 	struct sk_buff *skb;
+ 	struct qeth_hdr *hdr;
+-	unsigned int len;
+ 
+ 	*done = 0;
+ 	WARN_ON_ONCE(!budget);
+@@ -1378,26 +1377,17 @@ static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
+ 			*done = 1;
+ 			break;
+ 		}
+-		switch (hdr->hdr.l3.id) {
+-		case QETH_HEADER_TYPE_LAYER3:
++
++		if (hdr->hdr.l3.id == QETH_HEADER_TYPE_LAYER3)
+ 			qeth_l3_rebuild_skb(card, skb, hdr);
+-			/* fall through */
+-		case QETH_HEADER_TYPE_LAYER2: /* for HiperSockets sniffer */
+-			skb->protocol = eth_type_trans(skb, skb->dev);
+-			len = skb->len;
+-			napi_gro_receive(&card->napi, skb);
+-			break;
+-		default:
+-			dev_kfree_skb_any(skb);
+-			QETH_CARD_TEXT(card, 3, "inbunkno");
+-			QETH_DBF_HEX(CTRL, 3, hdr, sizeof(*hdr));
+-			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
+-			continue;
+-		}
++
++		skb->protocol = eth_type_trans(skb, skb->dev);
++		QETH_CARD_STAT_INC(card, rx_packets);
++		QETH_CARD_STAT_ADD(card, rx_bytes, skb->len);
++
++		napi_gro_receive(&card->napi, skb);
+ 		work_done++;
+ 		budget--;
+-		QETH_CARD_STAT_INC(card, rx_packets);
+-		QETH_CARD_STAT_ADD(card, rx_bytes, len);
+ 	}
+ 	return work_done;
+ }
+-- 
+2.17.1
