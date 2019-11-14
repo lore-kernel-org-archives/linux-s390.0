@@ -1,64 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:51806 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731921AbfKFONl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:41 -0500
-Received: by mail-wm1-f68.google.com with SMTP id q70so3627985wme.1
-        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:40 -0800 (PST)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH v2 10/10] s390x: Mark archrandom.h functions __must_check
-Date: Wed,  6 Nov 2019 15:13:08 +0100
-Message-Id: <20191106141308.30535-11-rth@twiddle.net>
-In-Reply-To: <20191106141308.30535-1-rth@twiddle.net>
-References: <20191106141308.30535-1-rth@twiddle.net>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56038 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726087AbfKNLtK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 06:49:10 -0500
+Subject: Re: [RFC 13/37] KVM: s390: protvirt: Add interruption injection
+ controls
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-14-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <a81da821-5dad-8564-4b91-a1753d8e4bd0@redhat.com>
+Date: Thu, 14 Nov 2019 12:48:52 +0100
+MIME-Version: 1.0
+In-Reply-To: <20191024114059.102802-14-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-We must not use the pointer output without validating the
-success of the random read.
+On 24/10/2019 13.40, Janosch Frank wrote:
+> From: Michael Mueller <mimu@linux.ibm.com>
+>=20
+> Define the interruption injection codes and the related fields in the
+> sie control block for PVM interruption injection.
+>=20
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h | 25 +++++++++++++++++++++----
+>  1 file changed, 21 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm=
+_host.h
+> index 6cc3b73ca904..82443236d4cc 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -215,7 +215,15 @@ struct kvm_s390_sie_block {
+>  =09__u8=09icptcode;=09=09/* 0x0050 */
+>  =09__u8=09icptstatus;=09=09/* 0x0051 */
+>  =09__u16=09ihcpu;=09=09=09/* 0x0052 */
+> -=09__u8=09reserved54[2];=09=09/* 0x0054 */
+> +=09__u8=09reserved54;=09=09/* 0x0054 */
+> +#define IICTL_CODE_NONE=09=09 0x00
+> +#define IICTL_CODE_MCHK=09=09 0x01
+> +#define IICTL_CODE_EXT=09=09 0x02
+> +#define IICTL_CODE_IO=09=09 0x03
+> +#define IICTL_CODE_RESTART=09 0x04
+> +#define IICTL_CODE_SPECIFICATION 0x10
+> +#define IICTL_CODE_OPERAND=09 0x11
+> +=09__u8=09iictl;=09=09=09/* 0x0055 */
+>  =09__u16=09ipa;=09=09=09/* 0x0056 */
+>  =09__u32=09ipb;=09=09=09/* 0x0058 */
+>  =09__u32=09scaoh;=09=09=09/* 0x005c */
+> @@ -252,7 +260,8 @@ struct kvm_s390_sie_block {
+>  #define HPID_KVM=090x4
+>  #define HPID_VSIE=090x5
+>  =09__u8=09hpid;=09=09=09/* 0x00b8 */
+> -=09__u8=09reservedb9[11];=09=09/* 0x00b9 */
+> +=09__u8=09reservedb9[7];=09=09/* 0x00b9 */
+> +=09__u32=09eiparams;=09=09/* 0x00c0 */
+>  =09__u16=09extcpuaddr;=09=09/* 0x00c4 */
+>  =09__u16=09eic;=09=09=09/* 0x00c6 */
+>  =09__u32=09reservedc8;=09=09/* 0x00c8 */
+> @@ -268,8 +277,16 @@ struct kvm_s390_sie_block {
+>  =09__u8=09oai;=09=09=09/* 0x00e2 */
+>  =09__u8=09armid;=09=09=09/* 0x00e3 */
+>  =09__u8=09reservede4[4];=09=09/* 0x00e4 */
+> -=09__u64=09tecmc;=09=09=09/* 0x00e8 */
+> -=09__u8=09reservedf0[12];=09=09/* 0x00f0 */
+> +=09union {
+> +=09=09__u64=09tecmc;=09=09/* 0x00e8 */
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Richard Henderson <rth@twiddle.net>
----
- arch/s390/include/asm/archrandom.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+I have to admit that I always have to think twice where the compiler
+might put the padding in this case. Maybe you could do that manually to
+make it obvious and wrap it in a struct, too:
 
-diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index 9a6835137a16..de61ce562052 100644
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@ -21,17 +21,17 @@ extern atomic64_t s390_arch_random_counter;
- 
- bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
- 
--static inline bool arch_get_random_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_long(unsigned long *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_int(unsigned int *v)
- {
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_long(unsigned long *v)
-+static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
- 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
-@@ -39,7 +39,7 @@ static inline bool arch_get_random_seed_long(unsigned long *v)
- 	return false;
- }
- 
--static inline bool arch_get_random_seed_int(unsigned int *v)
-+static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
- {
- 	if (static_branch_likely(&s390_arch_random_available)) {
- 		return s390_arch_random_generate((u8 *)v, sizeof(*v));
--- 
-2.17.1
+                struct {
+=09=09=09__u64=09tecmc;=09=09/* 0x00e8 */
+=09=09=09__u8=09reservedf0[4];=09/* 0x00f0 */
+ =09=09};
+
+?
+
+Just my 0.02 =E2=82=AC, though.
+
+ Thomas
+
+
+> +=09=09struct {
+> +=09=09=09__u16=09subchannel_id;=09/* 0x00e8 */
+> +=09=09=09__u16=09subchannel_nr;=09/* 0x00ea */
+> +=09=09=09__u32=09io_int_parm;=09/* 0x00ec */
+> +=09=09=09__u32=09io_int_word;=09/* 0x00f0 */
+> +=09=09};
+> +=09} __packed;
+> +=09__u8=09reservedf4[8];=09=09/* 0x00f4 */
+>  #define CRYCB_FORMAT_MASK 0x00000003
+>  #define CRYCB_FORMAT0 0x00000000
+>  #define CRYCB_FORMAT1 0x00000001
+>=20
