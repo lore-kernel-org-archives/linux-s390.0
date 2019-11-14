@@ -1,190 +1,50 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: [PATCH v3 2/4] s390/unwind: split unwind_next_frame() to several functions
-Date: Wed,  6 Nov 2019 10:55:59 +0100
-Message-Id: <20191106095601.29986-3-mbenes@suse.cz>
-In-Reply-To: <20191106095601.29986-1-mbenes@suse.cz>
-References: <20191106095601.29986-1-mbenes@suse.cz>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:29291 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726592AbfKNOWn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 09:22:43 -0500
+Subject: Re: [RFC 18/37] KVM: s390: protvirt: Handle spec exception loops
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-19-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <6d1d7c2f-0191-b41f-dbed-146a98c9ec4c@redhat.com>
+Date: Thu, 14 Nov 2019 15:22:26 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191024114059.102802-19-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, jpoimboe@redhat.com, joe.lawrence@redhat.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org, pmladek@suse.com, nstange@suse.de, live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-Function unwind_next_frame() becomes less readable with each new
-change. Split it to several functions to amend it and prepare for new
-additions.
+On 24/10/2019 13.40, Janosch Frank wrote:
+> SIE intercept code 8 is used only on exception loops for protected
+> guests. That means we need stop the guest when we see it.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  arch/s390/kvm/intercept.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index acc1710fc472..b013a9c88d43 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -231,6 +231,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+> =20
+>  =09vcpu->stat.exit_program_interruption++;
+> =20
+> +=09/*
+> +=09 * Intercept 8 indicates a loop of specification exceptions
+> +=09 * for protected guests
+> +=09 */
+> +=09if (kvm_s390_pv_is_protected(vcpu->kvm))
+> +=09=09return -EOPNOTSUPP;
+> +
+>  =09if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
+>  =09=09rc =3D kvm_s390_handle_per_event(vcpu);
+>  =09=09if (rc)
 
-No functional change.
-
-Suggested-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
----
- arch/s390/kernel/unwind_bc.c | 136 ++++++++++++++++++++++-------------
- 1 file changed, 88 insertions(+), 48 deletions(-)
-
-diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
-index 5a78deacb972..96da99ec7b59 100644
---- a/arch/s390/kernel/unwind_bc.c
-+++ b/arch/s390/kernel/unwind_bc.c
-@@ -36,55 +36,10 @@ static bool update_stack_info(struct unwind_state *state, unsigned long sp)
- 	return true;
- }
- 
--bool unwind_next_frame(struct unwind_state *state)
-+static bool unwind_update_state(struct unwind_state *state,
-+				unsigned long sp, unsigned long ip,
-+				struct pt_regs *regs, bool reliable)
- {
--	struct stack_info *info = &state->stack_info;
--	struct stack_frame *sf;
--	struct pt_regs *regs;
--	unsigned long sp, ip;
--	bool reliable;
--
--	regs = state->regs;
--	if (unlikely(regs)) {
--		if (state->reuse_sp) {
--			sp = state->sp;
--			state->reuse_sp = false;
--		} else {
--			sp = READ_ONCE_NOCHECK(regs->gprs[15]);
--			if (unlikely(outside_of_stack(state, sp))) {
--				if (!update_stack_info(state, sp))
--					goto out_err;
--			}
--		}
--		sf = (struct stack_frame *) sp;
--		ip = READ_ONCE_NOCHECK(sf->gprs[8]);
--		reliable = false;
--		regs = NULL;
--	} else {
--		sf = (struct stack_frame *) state->sp;
--		sp = READ_ONCE_NOCHECK(sf->back_chain);
--		if (likely(sp)) {
--			/* Non-zero back-chain points to the previous frame */
--			if (unlikely(outside_of_stack(state, sp))) {
--				if (!update_stack_info(state, sp))
--					goto out_err;
--			}
--			sf = (struct stack_frame *) sp;
--			ip = READ_ONCE_NOCHECK(sf->gprs[8]);
--			reliable = true;
--		} else {
--			/* No back-chain, look for a pt_regs structure */
--			sp = state->sp + STACK_FRAME_OVERHEAD;
--			if (!on_stack(info, sp, sizeof(struct pt_regs)))
--				goto out_stop;
--			regs = (struct pt_regs *) sp;
--			if (READ_ONCE_NOCHECK(regs->psw.mask) & PSW_MASK_PSTATE)
--				goto out_stop;
--			ip = READ_ONCE_NOCHECK(regs->psw.addr);
--			reliable = true;
--		}
--	}
--
- 	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
- 				   ip, (void *) sp);
- 
-@@ -94,13 +49,98 @@ bool unwind_next_frame(struct unwind_state *state)
- 	state->regs = regs;
- 	state->reliable = reliable;
- 	return true;
-+}
-+
-+static bool unwind_use_regs(struct unwind_state *state)
-+{
-+	struct stack_frame *sf;
-+	unsigned long sp, ip;
-+	struct pt_regs *regs = state->regs;
-+
-+	if (state->reuse_sp) {
-+		sp = state->sp;
-+		state->reuse_sp = false;
-+	} else {
-+		sp = READ_ONCE_NOCHECK(regs->gprs[15]);
-+		if (unlikely(outside_of_stack(state, sp))) {
-+			if (!update_stack_info(state, sp))
-+				goto out_err;
-+		}
-+	}
-+
-+	sf = (struct stack_frame *) sp;
-+	ip = READ_ONCE_NOCHECK(sf->gprs[8]);
-+
-+	return unwind_update_state(state, sp, ip, NULL, false);
-+
-+out_err:
-+	state->error = true;
-+	state->stack_info.type = STACK_TYPE_UNKNOWN;
-+	return false;
-+}
-+
-+static bool unwind_use_frame(struct unwind_state *state, unsigned long sp)
-+{
-+	struct stack_frame *sf;
-+	unsigned long ip;
-+
-+	if (unlikely(outside_of_stack(state, sp))) {
-+		if (!update_stack_info(state, sp))
-+			goto out_err;
-+	}
-+
-+	sf = (struct stack_frame *) sp;
-+	ip = READ_ONCE_NOCHECK(sf->gprs[8]);
-+
-+	return unwind_update_state(state, sp, ip, NULL, true);
- 
- out_err:
- 	state->error = true;
-+	state->stack_info.type = STACK_TYPE_UNKNOWN;
-+	return false;
-+}
-+
-+static bool unwind_look_for_regs(struct unwind_state *state)
-+{
-+	struct stack_info *info = &state->stack_info;
-+	struct pt_regs *regs;
-+	unsigned long sp, ip;
-+
-+	sp = state->sp + STACK_FRAME_OVERHEAD;
-+	if (!on_stack(info, sp, sizeof(struct pt_regs)))
-+		goto out_stop;
-+
-+	regs = (struct pt_regs *) sp;
-+	if (READ_ONCE_NOCHECK(regs->psw.mask) & PSW_MASK_PSTATE)
-+		goto out_stop;
-+
-+	ip = READ_ONCE_NOCHECK(regs->psw.addr);
-+
-+	return unwind_update_state(state, sp, ip, regs, true);
-+
- out_stop:
- 	state->stack_info.type = STACK_TYPE_UNKNOWN;
- 	return false;
- }
-+
-+bool unwind_next_frame(struct unwind_state *state)
-+{
-+	struct stack_frame *sf;
-+	unsigned long sp;
-+
-+	if (unlikely(state->regs))
-+		return unwind_use_regs(state);
-+
-+	sf = (struct stack_frame *) state->sp;
-+	sp = READ_ONCE_NOCHECK(sf->back_chain);
-+
-+	/* Non-zero back-chain points to the previous frame */
-+	if (likely(sp))
-+		return unwind_use_frame(state, sp);
-+
-+	/* No back-chain, look for a pt_regs structure */
-+	return unwind_look_for_regs(state);
-+}
- EXPORT_SYMBOL_GPL(unwind_next_frame);
- 
- void __unwind_start(struct unwind_state *state, struct task_struct *task,
--- 
-2.23.0
+Reviewed-by: Thomas Huth <thuth@redhat.com>
