@@ -1,51 +1,193 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46510 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726074AbfKMM2D (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 13 Nov 2019 07:28:03 -0500
-Subject: Re: [RFC 08/37] KVM: s390: add missing include in gmap.h
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
- <20191024114059.102802-9-frankja@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <2eeb323f-0bf0-60d7-e8ea-58bd0262fd76@redhat.com>
-Date: Wed, 13 Nov 2019 13:27:50 +0100
+Received: from mx2.suse.de ([195.135.220.15]:52830 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726139AbfKNN27 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 08:28:59 -0500
+Date: Thu, 14 Nov 2019 14:28:52 +0100
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH 3/5] block: move rescan_partitions to fs/block_dev.c
+Message-ID: <20191114132852.GH28486@quack2.suse.cz>
+References: <20191106151439.30056-1-hch@lst.de>
+ <20191106151439.30056-4-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20191024114059.102802-9-frankja@linux.ibm.com>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191106151439.30056-4-hch@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-On 24/10/2019 13.40, Janosch Frank wrote:
-> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
->=20
-> gmap.h references radix trees, but does not include linux/radix-tree.h
-> itself. Sources that include gmap.h but not also radix-tree.h will
-> therefore fail to compile.
->=20
-> This simple patch adds the include for linux/radix-tree.h in gmap.h so
-> that users of gmap.h will be able to compile.
->=20
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+On Wed 06-11-19 16:14:37, Christoph Hellwig wrote:
+> Large parts of rescan_partitions aren't about partitions, and
+> moving it to block_dev.c will allow for some further cleanups by
+> merging it into its only caller.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Looks good to me. You can add:
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
+
 > ---
->  arch/s390/include/asm/gmap.h | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-> index eab6a2ec3599..99b3eedda26e 100644
-> --- a/arch/s390/include/asm/gmap.h
-> +++ b/arch/s390/include/asm/gmap.h
-> @@ -10,6 +10,7 @@
->  #define _ASM_S390_GMAP_H
-> =20
->  #include <linux/refcount.h>
-> +#include <linux/radix-tree.h>
-> =20
->  /* Generic bits for GMAP notification on DAT table entry changes. */
->  #define GMAP_NOTIFY_SHADOW=090x2
->=20
-
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+>  block/partition-generic.c | 37 ++-----------------------------------
+>  fs/block_dev.c            | 38 ++++++++++++++++++++++++++++++++++++--
+>  include/linux/fs.h        |  2 --
+>  include/linux/genhd.h     |  4 ++--
+>  4 files changed, 40 insertions(+), 41 deletions(-)
+> 
+> diff --git a/block/partition-generic.c b/block/partition-generic.c
+> index eae9daa8a523..7a6e406ac490 100644
+> --- a/block/partition-generic.c
+> +++ b/block/partition-generic.c
+> @@ -439,7 +439,7 @@ static bool disk_unlock_native_capacity(struct gendisk *disk)
+>  	}
+>  }
+>  
+> -static int drop_partitions(struct gendisk *disk, struct block_device *bdev)
+> +int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
+>  {
+>  	struct disk_part_iter piter;
+>  	struct hd_struct *part;
+> @@ -573,7 +573,7 @@ static bool blk_add_partition(struct gendisk *disk, struct block_device *bdev,
+>  	return true;
+>  }
+>  
+> -static int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
+> +int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
+>  {
+>  	struct parsed_partitions *state;
+>  	int ret = -EAGAIN, p, highest;
+> @@ -632,39 +632,6 @@ static int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
+>  	return ret;
+>  }
+>  
+> -int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
+> -		bool invalidate)
+> -{
+> -	int ret;
+> -
+> -rescan:
+> -	ret = drop_partitions(disk, bdev);
+> -	if (ret)
+> -		return ret;
+> -
+> -	if (invalidate)
+> -		set_capacity(disk, 0);
+> -	else if (disk->fops->revalidate_disk)
+> -		disk->fops->revalidate_disk(disk);
+> -
+> -	check_disk_size_change(disk, bdev, !invalidate);
+> -	bdev->bd_invalidated = 0;
+> -
+> -	if (!get_capacity(disk)) {
+> -		/*
+> -		 * Tell userspace that the media / partition table may have
+> -		 * changed.
+> -		 */
+> -		kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
+> -		return 0;
+> -	}
+> -	
+> -	ret = blk_add_partitions(disk, bdev);
+> -	if (ret == -EAGAIN)
+> -		goto rescan;
+> -	return ret;
+> -}
+> -
+>  unsigned char *read_dev_sector(struct block_device *bdev, sector_t n, Sector *p)
+>  {
+>  	struct address_space *mapping = bdev->bd_inode->i_mapping;
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index 0af62b76d031..f0710085e1f1 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -1416,8 +1416,8 @@ static void flush_disk(struct block_device *bdev, bool kill_dirty)
+>   * and adjusts it if it differs. When shrinking the bdev size, its all caches
+>   * are freed.
+>   */
+> -void check_disk_size_change(struct gendisk *disk, struct block_device *bdev,
+> -		bool verbose)
+> +static void check_disk_size_change(struct gendisk *disk,
+> +		struct block_device *bdev, bool verbose)
+>  {
+>  	loff_t disk_size, bdev_size;
+>  
+> @@ -1508,6 +1508,40 @@ EXPORT_SYMBOL(bd_set_size);
+>  
+>  static void __blkdev_put(struct block_device *bdev, fmode_t mode, int for_part);
+>  
+> +static int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
+> +		bool invalidate)
+> +{
+> +	int ret;
+> +
+> +rescan:
+> +	ret = blk_drop_partitions(disk, bdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (invalidate)
+> +		set_capacity(disk, 0);
+> +	else if (disk->fops->revalidate_disk)
+> +		disk->fops->revalidate_disk(disk);
+> +
+> +	check_disk_size_change(disk, bdev, !invalidate);
+> +	bdev->bd_invalidated = 0;
+> +
+> +	if (!get_capacity(disk)) {
+> +		/*
+> +		 * Tell userspace that the media / partition table may have
+> +		 * changed.
+> +		 */
+> +		kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
+> +		return 0;
+> +	}
+> +	
+> +	ret = blk_add_partitions(disk, bdev);
+> +	if (ret == -EAGAIN)
+> +		goto rescan;
+> +	return ret;
+> +}
+> +
+> +
+>  static void bdev_disk_changed(struct block_device *bdev, bool invalidate)
+>  {
+>  	if (disk_part_scan_enabled(bdev->bd_disk)) {
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index e0d909d35763..d233dd661df7 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -2703,8 +2703,6 @@ extern void make_bad_inode(struct inode *);
+>  extern bool is_bad_inode(struct inode *);
+>  
+>  #ifdef CONFIG_BLOCK
+> -extern void check_disk_size_change(struct gendisk *disk,
+> -		struct block_device *bdev, bool verbose);
+>  extern int revalidate_disk(struct gendisk *);
+>  extern int check_disk_change(struct block_device *);
+>  extern int __invalidate_device(struct block_device *, bool);
+> diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+> index fd7774e64f0b..f5cffbf63abf 100644
+> --- a/include/linux/genhd.h
+> +++ b/include/linux/genhd.h
+> @@ -621,9 +621,9 @@ extern void blk_invalidate_devt(dev_t devt);
+>  extern dev_t blk_lookup_devt(const char *name, int partno);
+>  extern char *disk_name (struct gendisk *hd, int partno, char *buf);
+>  
+> +int blk_add_partitions(struct gendisk *disk, struct block_device *bdev);
+> +int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev);
+>  extern int disk_expand_part_tbl(struct gendisk *disk, int target);
+> -int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
+> -		bool invalidate);
+>  extern struct hd_struct * __must_check add_partition(struct gendisk *disk,
+>  						     int partno, sector_t start,
+>  						     sector_t len, int flags,
+> -- 
+> 2.20.1
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
