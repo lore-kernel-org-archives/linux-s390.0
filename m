@@ -1,87 +1,144 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:33135 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727132AbfKOKEf (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52574 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726024AbfKNKVV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 Nov 2019 05:04:35 -0500
-Subject: Re: [RFC 31/37] KVM: s390: protvirt: Add diag 308 subcode 8 - 10
- handling
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
- <20191024114059.102802-32-frankja@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <a1c263ff-954e-a7c3-28b4-e9bd866eb35f@redhat.com>
-Date: Fri, 15 Nov 2019 11:04:23 +0100
-MIME-Version: 1.0
-In-Reply-To: <20191024114059.102802-32-frankja@linux.ibm.com>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+        Thu, 14 Nov 2019 05:21:21 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAL5Dt114082
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:20 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92uk57q0-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:17 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 14 Nov 2019 10:19:35 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 09/11] s390/qeth: remove VLAN tracking for L3 devices
+Date: Thu, 14 Nov 2019 11:19:22 +0100
+In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
+References: <20191114101924.29558-1-jwi@linux.ibm.com>
+Message-Id: <20191114101924.29558-10-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On 24/10/2019 13.40, Janosch Frank wrote:
-> If the host initialized the Ultravisor, we can set stfle bit 161
-> (protected virtual IPL enhancements facility), which indicates, that
-> the IPL subcodes 8, 9 and are valid. These subcodes are used by a
-> normal guest to set/retrieve a IPIB of type 5 and transition into
-> protected mode.
->=20
-> Once in protected mode, the VM will loose the facility bit, as each
+Use vlan_for_each() instead of tracking each registered VID internally.
 
-So should the bit be cleared in the host code again? ... I don't see
-this happening in this patch?
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h    |  1 -
+ drivers/s390/net/qeth_l3_main.c | 42 +++++++++------------------------
+ 2 files changed, 11 insertions(+), 32 deletions(-)
 
- Thomas
-
-
-> boot into protected mode has to go through non-protected. There is no
-> secure re-ipl with subcode 10 without a previous subcode 3.
->=20
-> In protected mode, there is no subcode 4 available, as the VM has no
-> more access to its memory from non-protected mode. I.e. each IPL
-> clears.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  arch/s390/kvm/diag.c     | 6 ++++++
->  arch/s390/kvm/kvm-s390.c | 5 +++++
->  2 files changed, 11 insertions(+)
->=20
-> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-> index 3fb54ec2cf3e..b951dbdcb6a0 100644
-> --- a/arch/s390/kvm/diag.c
-> +++ b/arch/s390/kvm/diag.c
-> @@ -197,6 +197,12 @@ static int __diag_ipl_functions(struct kvm_vcpu *vcp=
-u)
->  =09case 4:
->  =09=09vcpu->run->s390_reset_flags =3D 0;
->  =09=09break;
-> +=09case 8:
-> +=09case 9:
-> +=09case 10:
-> +=09=09if (!test_kvm_facility(vcpu->kvm, 161))
-> +=09=09=09return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-> +=09=09/* fall through */
->  =09default:
->  =09=09return -EOPNOTSUPP;
->  =09}
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 500972a1f742..8947f1812b12 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -2590,6 +2590,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned lon=
-g type)
->  =09if (css_general_characteristics.aiv && test_facility(65))
->  =09=09set_kvm_facility(kvm->arch.model.fac_mask, 65);
-> =20
-> +=09if (is_prot_virt_host()) {
-> +=09=09set_kvm_facility(kvm->arch.model.fac_mask, 161);
-> +=09=09set_kvm_facility(kvm->arch.model.fac_list, 161);
-> +=09}
-> +
->  =09kvm->arch.model.cpuid =3D kvm_s390_get_initial_cpuid();
->  =09kvm->arch.model.ibc =3D sclp.ibc & 0x0fff;
-> =20
->=20
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 52fd3c4bb132..f81f1523d528 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -824,7 +824,6 @@ struct qeth_card {
+ 	struct workqueue_struct *event_wq;
+ 	struct workqueue_struct *cmd_wq;
+ 	wait_queue_head_t wait_q;
+-	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
+ 	DECLARE_HASHTABLE(mac_htable, 4);
+ 	DECLARE_HASHTABLE(ip_htable, 4);
+ 	struct mutex ip_lock;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 1e060331a8cc..f4c65971321a 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1113,10 +1113,10 @@ qeth_diags_trace(struct qeth_card *card, enum qeth_diags_trace_cmds diags_cmd)
+ 	return qeth_send_ipa_cmd(card, iob, qeth_diags_trace_cb, NULL);
+ }
+ 
+-static void qeth_l3_add_mcast_rcu(struct net_device *dev,
+-				  struct qeth_card *card)
++static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
+ {
+ 	struct qeth_ipaddr *tmp = NULL;
++	struct qeth_card *card = arg;
+ 	struct inet6_dev *in6_dev;
+ 	struct in_device *in4_dev;
+ 	struct qeth_ipaddr *ipm;
+@@ -1132,12 +1132,12 @@ static void qeth_l3_add_mcast_rcu(struct net_device *dev,
+ 	if (!tmp)
+ 		goto out;
+ 
+-	in4_dev = __in_dev_get_rcu(dev);
++	in4_dev = __in_dev_get_rtnl(dev);
+ 	if (!in4_dev)
+ 		goto walk_ipv6;
+ 
+-	for (im4 = rcu_dereference(in4_dev->mc_list); im4 != NULL;
+-	     im4 = rcu_dereference(im4->next_rcu)) {
++	for (im4 = rtnl_dereference(in4_dev->mc_list); im4 != NULL;
++	     im4 = rtnl_dereference(im4->next_rcu)) {
+ 		tmp->u.a4.addr = im4->multiaddr;
+ 		tmp->is_multicast = 1;
+ 
+@@ -1195,25 +1195,7 @@ static void qeth_l3_add_mcast_rcu(struct net_device *dev,
+ 
+ out:
+ 	kfree(tmp);
+-}
+-
+-/* called with rcu_read_lock */
+-static void qeth_l3_add_vlan_mc(struct qeth_card *card)
+-{
+-	u16 vid;
+-
+-	QETH_CARD_TEXT(card, 4, "admc6vl");
+-
+-	if (!qeth_is_supported(card, IPA_FULL_VLAN))
+-		return;
+-
+-	for_each_set_bit(vid, card->active_vlans, VLAN_N_VID) {
+-		struct net_device *netdev;
+-
+-		netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q),
+-					      vid);
+-		qeth_l3_add_mcast_rcu(netdev, card);
+-	}
++	return 0;
+ }
+ 
+ static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
+@@ -1221,7 +1203,7 @@ static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
+ {
+ 	struct qeth_card *card = dev->ml_priv;
+ 
+-	set_bit(vid, card->active_vlans);
++	QETH_CARD_TEXT_(card, 4, "aid:%d", vid);
+ 	return 0;
+ }
+ 
+@@ -1231,8 +1213,6 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
+ 	struct qeth_card *card = dev->ml_priv;
+ 
+ 	QETH_CARD_TEXT_(card, 4, "kid:%d", vid);
+-
+-	clear_bit(vid, card->active_vlans);
+ 	return 0;
+ }
+ 
+@@ -1387,11 +1367,11 @@ static void qeth_l3_rx_mode_work(struct work_struct *work)
+ 	QETH_CARD_TEXT(card, 3, "setmulti");
+ 
+ 	if (!card->options.sniffer) {
+-		rcu_read_lock();
+-		qeth_l3_add_mcast_rcu(card->dev, card);
++		rtnl_lock();
++		qeth_l3_add_mcast_rtnl(card->dev, 0, card);
+ 		if (qeth_is_supported(card, IPA_FULL_VLAN))
+-			qeth_l3_add_vlan_mc(card);
+-		rcu_read_unlock();
++			vlan_for_each(card->dev, qeth_l3_add_mcast_rtnl, card);
++		rtnl_unlock();
+ 
+ 		hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
+ 			switch (addr->disp_flag) {
+-- 
+2.17.1
