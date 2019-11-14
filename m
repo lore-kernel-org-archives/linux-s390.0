@@ -1,93 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42778 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726474AbfKNQXL (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24478 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726251AbfKNPZo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 11:23:11 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEGLDB6071877
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 11:23:09 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92jm6nwe-1
+        Thu, 14 Nov 2019 10:25:44 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEFNgj9137034
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 10:25:43 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w99hbr4v1-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 11:23:05 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 10:25:39 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 14 Nov 2019 16:22:03 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH] Fixup sida bouncing
-Date: Thu, 14 Nov 2019 11:21:53 -0500
-In-Reply-To: <ad0f9b90-3ce4-c2d2-b661-635fe439f7e2@redhat.com>
-References: <ad0f9b90-3ce4-c2d2-b661-635fe439f7e2@redhat.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 14 Nov 2019 15:25:34 -0000
+Subject: Re: [PATCH v1 2/4] s390x: Define the PSW bits
+References: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
+ <1573647799-30584-3-git-send-email-pmorel@linux.ibm.com>
+ <5796f620-7ee6-6333-e4f4-5e904284a331@linux.ibm.com>
+ <189f8129-86c5-8761-fdfe-d08c34fb1f18@linux.ibm.com>
+ <e27023c2-5f9c-884d-e194-4420ec6e3023@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 14 Nov 2019 16:25:29 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191114162153.25349-1-frankja@linux.ibm.com>
+In-Reply-To: <e27023c2-5f9c-884d-e194-4420ec6e3023@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Message-Id: <33163b34-247d-71b2-54a3-8a6b476b7157@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 0fa7c6d9ed0e..9820fde04887 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4432,13 +4432,21 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 	if (mop->size > MEM_OP_MAX_SIZE)
- 		return -E2BIG;
- 
--	/* Protected guests move instruction data over the satellite
-+	/*
-+	 * Protected guests move instruction data over the satellite
- 	 * block which has its own size limit
- 	 */
- 	if (kvm_s390_pv_is_protected(vcpu->kvm) &&
--	    mop->size > ((vcpu->arch.sie_block->sidad & 0x0f) + 1) * PAGE_SIZE)
-+	    mop->size > ((vcpu->arch.sie_block->sidad & 0xff) + 1) * PAGE_SIZE)
- 		return -E2BIG;
- 
-+	/* We can currently only offset into the one SIDA page. */
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		mop->gaddr &= ~PAGE_MASK;
-+		if (mop->gaddr + mop->size > PAGE_SIZE)
-+			return -EINVAL;
-+	}
-+
- 	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
- 		tmpbuf = vmalloc(mop->size);
- 		if (!tmpbuf)
-@@ -4451,6 +4459,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 	case KVM_S390_MEMOP_LOGICAL_READ:
- 		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
- 			if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+				/* We can always copy into the SIDA */
- 				r = 0;
- 				break;
- 			}
-@@ -4461,8 +4470,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
- 			r = 0;
- 			if (copy_to_user(uaddr, (void *)vcpu->arch.sie_block->sidad +
--					 (mop->gaddr & ~PAGE_MASK),
--					 mop->size))
-+					 mop->gaddr, mop->size))
- 				r = -EFAULT;
- 			break;
- 		}
-@@ -4485,8 +4493,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
- 			r = 0;
- 			if (copy_from_user((void *)vcpu->arch.sie_block->sidad +
--					   (mop->gaddr & ~PAGE_MASK), uaddr,
--					   mop->size))
-+					   mop->gaddr, uaddr, mop->size))
- 				r = -EFAULT;
- 			break;
- 		}
+On 2019-11-14 09:53, Janosch Frank wrote:
+> On 11/14/19 9:40 AM, Pierre Morel wrote:
+>> On 2019-11-13 17:05, Janosch Frank wrote:
+>>> On 11/13/19 1:23 PM, Pierre Morel wrote:
+>>>> Instead of assigning obfuscated masks to the PSW dedicated to the
+>>>> exceptions, let's define the masks explicitely, it will clarify the
+>>> s/explicitely/explicitly/
+>>> Try to break that up into sentences.
+>> OK thx
+...snip...
+>>>> +
+>>>> +#define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
+>>> That's not a bit anymore, shouldn't that be in arch_def.h?
+>>> Also please add a comment, that this is 64 bit addressing.
+>>
+>> Don't we use the 64bit architecture only?
+> architecture != addressing
+> We can do 24 bit addressing on zArch...
+> We mostly use ESAME (zArch), but old machines start up in the old mode
+> and then we transition to zArch via a SIGP.
+
+
+Yes, this is done during the first instructions of cstart.S:
+
+- Setting the architecture to 64bit / ESAME using SIGP
+
+- Set addressing mode to 64bit
+
+After that AFAIK we never change the addressing mode.
+
+The definitions in the file are intended for PSW flags which AFAIK are 
+always 64bits.
+
+I created arch_bits.h to avoid using arch_def.h which contains C 
+structures and functions, so preventing to include it in assembler files.
+
+
+Regards,
+
+Pierre
+
+
+>
+>> Regards,
+>>
+>> Pierre
+>>
+>>
+>
 -- 
-2.20.1
+Pierre Morel
+IBM Lab Boeblingen
