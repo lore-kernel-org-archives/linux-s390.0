@@ -1,794 +1,736 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58141 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731222AbfKFHLF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 02:11:05 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V9 3/6] mdev: introduce device specific ops
-Date: Wed,  6 Nov 2019 15:05:45 +0800
-Message-Id: <20191106070548.18980-4-jasowang@redhat.com>
-In-Reply-To: <20191106070548.18980-1-jasowang@redhat.com>
-References: <20191106070548.18980-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56942 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726979AbfKNKTr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 05:19:47 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAJYdS060610
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:46 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92x53ynt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:45 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 14 Nov 2019 10:19:35 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 11/11] s390/qeth: don't check drvdata in sysfs code
+Date: Thu, 14 Nov 2019 11:19:24 +0100
+In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
+References: <20191114101924.29558-1-jwi@linux.ibm.com>
+Message-Id: <20191114101924.29558-12-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Currently, except for the create and remove, the rest of
-mdev_parent_ops is designed for vfio-mdev driver only and may not help
-for kernel mdev driver. With the help of class id, this patch
-introduces device specific callbacks inside mdev_device
-structure. This allows different set of callback to be used by
-vfio-mdev and virtio-mdev.
+Given the way how the sysfs attributes are registered / unregistered,
+the show/store helpers will never be called with a NULL drvdata.
 
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- .../driver-api/vfio-mediated-device.rst       | 35 +++++++++----
- MAINTAINERS                                   |  1 +
- drivers/gpu/drm/i915/gvt/kvmgt.c              | 18 ++++---
- drivers/s390/cio/vfio_ccw_ops.c               | 18 ++++---
- drivers/s390/crypto/vfio_ap_ops.c             | 14 +++--
- drivers/vfio/mdev/mdev_core.c                 | 24 ++++++++-
- drivers/vfio/mdev/mdev_private.h              |  5 ++
- drivers/vfio/mdev/vfio_mdev.c                 | 37 ++++++-------
- include/linux/mdev.h                          | 43 ++++-----------
- include/linux/mdev_vfio_ops.h                 | 52 +++++++++++++++++++
- samples/vfio-mdev/mbochs.c                    | 20 ++++---
- samples/vfio-mdev/mdpy.c                      | 20 ++++---
- samples/vfio-mdev/mtty.c                      | 18 ++++---
- 13 files changed, 206 insertions(+), 99 deletions(-)
- create mode 100644 include/linux/mdev_vfio_ops.h
+ drivers/s390/net/qeth_core_sys.c | 80 ++-------------------------
+ drivers/s390/net/qeth_l2_sys.c   | 29 ----------
+ drivers/s390/net/qeth_l3_sys.c   | 94 --------------------------------
+ 3 files changed, 4 insertions(+), 199 deletions(-)
 
-diff --git a/Documentation/driver-api/vfio-mediated-device.rst b/Documentat=
-ion/driver-api/vfio-mediated-device.rst
-index 6709413bee29..04d56884c357 100644
---- a/Documentation/driver-api/vfio-mediated-device.rst
-+++ b/Documentation/driver-api/vfio-mediated-device.rst
-@@ -152,15 +152,6 @@ callbacks per mdev parent device, per mdev type, or an=
-y other categorization.
- Vendor drivers are expected to be fully asynchronous in this respect or
- provide their own internal resource protection.)
-=20
--The callbacks in the mdev_parent_ops structure are as follows:
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 9f392497d570..e81170ab6d9a 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -20,8 +20,6 @@ static ssize_t qeth_dev_state_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
+ 
+ 	switch (card->state) {
+ 	case CARD_STATE_DOWN:
+@@ -45,8 +43,6 @@ static ssize_t qeth_dev_chpid_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
+ 
+ 	return sprintf(buf, "%02X\n", card->info.chpid);
+ }
+@@ -57,8 +53,7 @@ static ssize_t qeth_dev_if_name_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
++
+ 	return sprintf(buf, "%s\n", QETH_CARD_IFNAME(card));
+ }
+ 
+@@ -68,8 +63,6 @@ static ssize_t qeth_dev_card_type_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
+ 
+ 	return sprintf(buf, "%s\n", qeth_get_cardname_short(card));
+ }
+@@ -94,8 +87,6 @@ static ssize_t qeth_dev_inbuf_size_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
+ 
+ 	return sprintf(buf, "%s\n", qeth_get_bufsize_str(card));
+ }
+@@ -106,8 +97,6 @@ static ssize_t qeth_dev_portno_show(struct device *dev,
+ 			struct device_attribute *attr, char *buf)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+-	if (!card)
+-		return -EINVAL;
+ 
+ 	return sprintf(buf, "%i\n", card->dev->dev_port);
+ }
+@@ -120,9 +109,6 @@ static ssize_t qeth_dev_portno_store(struct device *dev,
+ 	unsigned int portno, limit;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
 -
--* open: open callback of mediated device
--* close: close callback of mediated device
--* ioctl: ioctl callback of mediated device
--* read : read emulation callback
--* write: write emulation callback
--* mmap: mmap emulation callback
+ 	mutex_lock(&card->conf_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -171,9 +157,6 @@ static ssize_t qeth_dev_prioqing_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
 -
- A driver should use the mdev_parent_ops structure in the function call to
- register itself with the mdev core driver::
-=20
-@@ -172,10 +163,34 @@ that a driver should use to unregister itself with th=
-e mdev core driver::
-=20
- =09extern void mdev_unregister_device(struct device *dev);
-=20
--It is also required to specify the class_id in create() callback through::
-+As multiple types of mediated devices may be supported, class id needs
-+to be specified in the create() callback. This could be done
-+explicitly for the device that interacts with the mdev device directly
-+through::
-=20
- =09int mdev_set_class(struct mdev_device *mdev, u16 id);
-=20
-+For the device that uses the mdev bus for its operation, the class
-+should provide helper function to set class id and device specific
-+ops. E.g for vfio-mdev devices, the function to be called is::
-+
-+=09int mdev_set_vfio_ops(struct mdev_device *mdev,
-+                              const struct mdev_vfio_device_ops *vfio_ops)=
-;
-+
-+The class id (set by this function to MDEV_CLASS_ID_VFIO) is used to
-+match a device with an mdev driver via its id table. The device
-+specific callbacks (specified in *vfio_ops) are obtainable via
-+mdev_get_vfio_ops() (for use by the mdev bus driver). A vfio-mdev
-+device (class id MDEV_CLASS_ID_VFIO) uses the following
-+device-specific ops:
-+
-+* open: open callback of vfio mediated device
-+* close: close callback of vfio mediated device
-+* ioctl: ioctl callback of vfio mediated device
-+* read : read emulation callback
-+* write: write emulation callback
-+* mmap: mmap emulation callback
-+
- Mediated Device Management Interface Through sysfs
- =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-=20
-diff --git a/MAINTAINERS b/MAINTAINERS
-index cba1095547fd..f661d13344d6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17121,6 +17121,7 @@ S:=09Maintained
- F:=09Documentation/driver-api/vfio-mediated-device.rst
- F:=09drivers/vfio/mdev/
- F:=09include/linux/mdev.h
-+F:=09include/linux/mdev_vfio_ops.h
- F:=09samples/vfio-mdev/
-=20
- VFIO PLATFORM DRIVER
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kv=
-mgt.c
-index 6420f0dbd31b..662f3a672372 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -42,6 +42,7 @@
- #include <linux/kvm_host.h>
- #include <linux/vfio.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <linux/debugfs.h>
-=20
- #include <linux/nospec.h>
-@@ -643,6 +644,8 @@ static void kvmgt_put_vfio_device(void *vgpu)
- =09vfio_device_put(((struct intel_vgpu *)vgpu)->vdev.vfio_device);
- }
-=20
-+static const struct mdev_vfio_device_ops intel_vfio_vgpu_dev_ops;
-+
- static int intel_vgpu_create(struct kobject *kobj, struct mdev_device *mde=
-v)
- {
- =09struct intel_vgpu *vgpu =3D NULL;
-@@ -678,7 +681,7 @@ static int intel_vgpu_create(struct kobject *kobj, stru=
-ct mdev_device *mdev)
- =09=09     dev_name(mdev_dev(mdev)));
- =09ret =3D 0;
-=20
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &intel_vfio_vgpu_dev_ops);
- out:
- =09return ret;
- }
-@@ -1599,20 +1602,21 @@ static const struct attribute_group *intel_vgpu_gro=
-ups[] =3D {
- =09NULL,
- };
-=20
--static struct mdev_parent_ops intel_vgpu_ops =3D {
--=09.mdev_attr_groups       =3D intel_vgpu_groups,
--=09.create=09=09=09=3D intel_vgpu_create,
--=09.remove=09=09=09=3D intel_vgpu_remove,
+ 	switch (card->qdio.do_prio_queueing) {
+ 	case QETH_PRIO_Q_ING_PREC:
+ 		return sprintf(buf, "%s\n", "by precedence");
+@@ -195,9 +178,6 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
 -
-+static const struct mdev_vfio_device_ops intel_vfio_vgpu_dev_ops =3D {
- =09.open=09=09=09=3D intel_vgpu_open,
- =09.release=09=09=3D intel_vgpu_release,
+ 	if (IS_IQD(card))
+ 		return -EOPNOTSUPP;
+ 
+@@ -262,9 +242,6 @@ static ssize_t qeth_dev_bufcnt_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
 -
- =09.read=09=09=09=3D intel_vgpu_read,
- =09.write=09=09=09=3D intel_vgpu_write,
- =09.mmap=09=09=09=3D intel_vgpu_mmap,
- =09.ioctl=09=09=09=3D intel_vgpu_ioctl,
- };
-=20
-+static struct mdev_parent_ops intel_vgpu_ops =3D {
-+=09.mdev_attr_groups       =3D intel_vgpu_groups,
-+=09.create=09=09=09=3D intel_vgpu_create,
-+=09.remove=09=09=09=3D intel_vgpu_remove,
-+};
-+
- static int kvmgt_host_init(struct device *dev, void *gvt, const void *ops)
+ 	return sprintf(buf, "%i\n", card->qdio.in_buf_pool.buf_count);
+ }
+ 
+@@ -276,9 +253,6 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
+ 	int cnt, old_cnt;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -307,9 +281,6 @@ static ssize_t qeth_dev_recover_store(struct device *dev,
+ 	char *tmp;
+ 	int i;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (!qeth_card_hw_is_reachable(card))
+ 		return -EPERM;
+ 
+@@ -325,11 +296,6 @@ static DEVICE_ATTR(recover, 0200, NULL, qeth_dev_recover_store);
+ static ssize_t qeth_dev_performance_stats_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
  {
- =09struct attribute **kvm_type_attrs;
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_op=
-s.c
-index cf2c013ae32f..fa473ded71c7 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -12,6 +12,7 @@
-=20
- #include <linux/vfio.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <linux/nospec.h>
- #include <linux/slab.h>
-=20
-@@ -110,6 +111,8 @@ static struct attribute_group *mdev_type_groups[] =3D {
- =09NULL,
- };
-=20
-+static const struct mdev_vfio_device_ops mdev_vfio_ops;
-+
- static int vfio_ccw_mdev_create(struct kobject *kobj, struct mdev_device *=
-mdev)
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "1\n");
+ }
+ 
+@@ -342,9 +308,6 @@ static ssize_t qeth_dev_performance_stats_store(struct device *dev,
+ 	bool reset;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	rc = kstrtobool(buf, &reset);
+ 	if (rc)
+ 		return rc;
+@@ -370,9 +333,6 @@ static ssize_t qeth_dev_layer2_show(struct device *dev,
  {
- =09struct vfio_ccw_private *private =3D
-@@ -129,7 +132,7 @@ static int vfio_ccw_mdev_create(struct kobject *kobj, s=
-truct mdev_device *mdev)
- =09=09=09   private->sch->schid.ssid,
- =09=09=09   private->sch->schid.sch_no);
-=20
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &mdev_vfio_ops);
- =09return 0;
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->options.layer);
  }
-=20
-@@ -575,11 +578,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device =
-*mdev,
- =09}
- }
-=20
--static const struct mdev_parent_ops vfio_ccw_mdev_ops =3D {
--=09.owner=09=09=09=3D THIS_MODULE,
--=09.supported_type_groups  =3D mdev_type_groups,
--=09.create=09=09=09=3D vfio_ccw_mdev_create,
--=09.remove=09=09=09=3D vfio_ccw_mdev_remove,
-+static const struct mdev_vfio_device_ops mdev_vfio_ops =3D {
- =09.open=09=09=09=3D vfio_ccw_mdev_open,
- =09.release=09=09=3D vfio_ccw_mdev_release,
- =09.read=09=09=09=3D vfio_ccw_mdev_read,
-@@ -587,6 +586,13 @@ static const struct mdev_parent_ops vfio_ccw_mdev_ops =
-=3D {
- =09.ioctl=09=09=09=3D vfio_ccw_mdev_ioctl,
- };
-=20
-+static const struct mdev_parent_ops vfio_ccw_mdev_ops =3D {
-+=09.owner=09=09=09=3D THIS_MODULE,
-+=09.supported_type_groups  =3D mdev_type_groups,
-+=09.create=09=09=09=3D vfio_ccw_mdev_create,
-+=09.remove=09=09=09=3D vfio_ccw_mdev_remove,
-+};
-+
- int vfio_ccw_mdev_reg(struct subchannel *sch)
+ 
+@@ -385,9 +345,6 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
+ 	int i, rc = 0;
+ 	enum qeth_discipline_id newdis;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->discipline_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -453,9 +410,6 @@ static ssize_t qeth_dev_isolation_show(struct device *dev,
  {
- =09return mdev_register_device(&sch->dev, &vfio_ccw_mdev_ops);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_a=
-p_ops.c
-index 07c31070afeb..7bdc62393112 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -16,6 +16,7 @@
- #include <linux/bitops.h>
- #include <linux/kvm_host.h>
- #include <linux/module.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <asm/kvm.h>
- #include <asm/zcrypt.h>
-=20
-@@ -321,6 +322,8 @@ static void vfio_ap_matrix_init(struct ap_config_info *=
-info,
- =09matrix->adm_max =3D info->apxa ? info->Nd : 15;
- }
-=20
-+static const struct mdev_vfio_device_ops mdev_vfio_ops;
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *m=
-dev)
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	switch (card->options.isolation) {
+ 	case ISOLATION_MODE_NONE:
+ 		return snprintf(buf, 6, "%s\n", ATTR_QETH_ISOLATION_NONE);
+@@ -475,9 +429,6 @@ static ssize_t qeth_dev_isolation_store(struct device *dev,
+ 	enum qeth_ipa_isolation_modes isolation;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (!IS_OSD(card) && !IS_OSX(card)) {
+ 		rc = -EOPNOTSUPP;
+@@ -522,9 +473,6 @@ static ssize_t qeth_dev_switch_attrs_show(struct device *dev,
+ 	struct qeth_switch_info sw_info;
+ 	int	rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (!qeth_card_hw_is_reachable(card))
+ 		return sprintf(buf, "n/a\n");
+ 
+@@ -555,8 +503,6 @@ static ssize_t qeth_hw_trap_show(struct device *dev,
  {
- =09struct ap_matrix_mdev *matrix_mdev;
-@@ -343,7 +346,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, st=
-ruct mdev_device *mdev)
- =09list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
- =09mutex_unlock(&matrix_dev->lock);
-=20
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &mdev_vfio_ops);
- =09return 0;
- }
-=20
-@@ -1281,15 +1284,18 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_devic=
-e *mdev,
- =09return ret;
- }
-=20
-+static const struct mdev_vfio_device_ops mdev_vfio_ops =3D {
-+=09.open=09=09=09=3D vfio_ap_mdev_open,
-+=09.release=09=09=3D vfio_ap_mdev_release,
-+=09.ioctl=09=09=09=3D vfio_ap_mdev_ioctl,
-+};
-+
- static const struct mdev_parent_ops vfio_ap_matrix_ops =3D {
- =09.owner=09=09=09=3D THIS_MODULE,
- =09.supported_type_groups=09=3D vfio_ap_mdev_type_groups,
- =09.mdev_attr_groups=09=3D vfio_ap_mdev_attr_groups,
- =09.create=09=09=09=3D vfio_ap_mdev_create,
- =09.remove=09=09=09=3D vfio_ap_mdev_remove,
--=09.open=09=09=09=3D vfio_ap_mdev_open,
--=09.release=09=09=3D vfio_ap_mdev_release,
--=09.ioctl=09=09=09=3D vfio_ap_mdev_ioctl,
- };
-=20
- int vfio_ap_mdev_register(void)
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index 7bfa2e46e829..4e70f19ac145 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -47,7 +47,8 @@ EXPORT_SYMBOL(mdev_set_drvdata);
-=20
- /*
-  * Specify the class for the mdev device, this must be called during
-- * create() callback.
-+ * create() callback explicitly or implicitly through the helpers
-+ * provided by each class.
-  */
- void mdev_set_class(struct mdev_device *mdev, u16 id)
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+ 	if (card->info.hwtrap)
+ 		return snprintf(buf, 5, "arm\n");
+ 	else
+@@ -570,9 +516,6 @@ static ssize_t qeth_hw_trap_store(struct device *dev,
+ 	int rc = 0;
+ 	int state = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (qeth_card_hw_is_reachable(card))
+ 		state = 1;
+@@ -607,24 +550,12 @@ static ssize_t qeth_hw_trap_store(struct device *dev,
+ static DEVICE_ATTR(hw_trap, 0644, qeth_hw_trap_show,
+ 		   qeth_hw_trap_store);
+ 
+-static ssize_t qeth_dev_blkt_show(char *buf, struct qeth_card *card, int value)
+-{
+-
+-	if (!card)
+-		return -EINVAL;
+-
+-	return sprintf(buf, "%i\n", value);
+-}
+-
+ static ssize_t qeth_dev_blkt_store(struct qeth_card *card,
+ 		const char *buf, size_t count, int *value, int max_value)
  {
-@@ -56,6 +57,27 @@ void mdev_set_class(struct mdev_device *mdev, u16 id)
- }
- EXPORT_SYMBOL(mdev_set_class);
-=20
-+/*
-+ * Specify the mdev device to be a VFIO mdev device, and set VFIO
-+ * device ops for it. This must be called from the create() callback
-+ * for VFIO mdev device.
-+ */
-+void mdev_set_vfio_ops(struct mdev_device *mdev,
-+=09=09       const struct mdev_vfio_device_ops *vfio_ops)
-+{
-+=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev->vfio_ops =3D vfio_ops;
-+}
-+EXPORT_SYMBOL(mdev_set_vfio_ops);
-+
-+/* Get the VFIO device ops for the mdev device. */
-+const struct mdev_vfio_device_ops *mdev_get_vfio_ops(struct mdev_device *m=
-dev)
-+{
-+=09WARN_ON(mdev->class_id !=3D MDEV_CLASS_ID_VFIO);
-+=09return mdev->vfio_ops;
-+}
-+EXPORT_SYMBOL(mdev_get_vfio_ops);
-+
- struct device *mdev_dev(struct mdev_device *mdev)
+ 	char *tmp;
+ 	int i, rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -645,7 +576,7 @@ static ssize_t qeth_dev_blkt_total_show(struct device *dev,
  {
- =09return &mdev->dev;
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_priv=
-ate.h
-index c65f436c1869..411227373625 100644
---- a/drivers/vfio/mdev/mdev_private.h
-+++ b/drivers/vfio/mdev/mdev_private.h
-@@ -10,6 +10,8 @@
- #ifndef MDEV_PRIVATE_H
- #define MDEV_PRIVATE_H
-=20
-+#include <linux/mdev_vfio_ops.h>
-+
- int  mdev_bus_register(void);
- void mdev_bus_unregister(void);
-=20
-@@ -34,6 +36,9 @@ struct mdev_device {
- =09struct device *iommu_device;
- =09bool active;
- =09u16 class_id;
-+=09union {
-+=09=09const struct mdev_vfio_device_ops *vfio_ops;
-+=09};
- };
-=20
- #define to_mdev_device(dev)=09container_of(dev, struct mdev_device, dev)
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index a6641cd8b5a3..c01e2194e4b3 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -14,6 +14,7 @@
- #include <linux/slab.h>
- #include <linux/vfio.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
-=20
- #include "mdev_private.h"
-=20
-@@ -24,16 +25,16 @@
- static int vfio_mdev_open(void *device_data)
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return qeth_dev_blkt_show(buf, card, card->info.blkt.time_total);
++	return sprintf(buf, "%i\n", card->info.blkt.time_total);
+ }
+ 
+ static ssize_t qeth_dev_blkt_total_store(struct device *dev,
+@@ -657,8 +588,6 @@ static ssize_t qeth_dev_blkt_total_store(struct device *dev,
+ 				   &card->info.blkt.time_total, 5000);
+ }
+ 
+-
+-
+ static DEVICE_ATTR(total, 0644, qeth_dev_blkt_total_show,
+ 		   qeth_dev_blkt_total_store);
+ 
+@@ -667,7 +596,7 @@ static ssize_t qeth_dev_blkt_inter_show(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
- =09int ret;
-=20
--=09if (unlikely(!parent->ops->open))
-+=09if (unlikely(!ops->open))
- =09=09return -EINVAL;
-=20
- =09if (!try_module_get(THIS_MODULE))
- =09=09return -ENODEV;
-=20
--=09ret =3D parent->ops->open(mdev);
-+=09ret =3D ops->open(mdev);
- =09if (ret)
- =09=09module_put(THIS_MODULE);
-=20
-@@ -43,10 +44,10 @@ static int vfio_mdev_open(void *device_data)
- static void vfio_mdev_release(void *device_data)
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return qeth_dev_blkt_show(buf, card, card->info.blkt.inter_packet);
++	return sprintf(buf, "%i\n", card->info.blkt.inter_packet);
+ }
+ 
+ static ssize_t qeth_dev_blkt_inter_store(struct device *dev,
+@@ -687,8 +616,7 @@ static ssize_t qeth_dev_blkt_inter_jumbo_show(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
-=20
--=09if (likely(parent->ops->release))
--=09=09parent->ops->release(mdev);
-+=09if (likely(ops->release))
-+=09=09ops->release(mdev);
-=20
- =09module_put(THIS_MODULE);
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return qeth_dev_blkt_show(buf, card,
+-				  card->info.blkt.inter_packet_jumbo);
++	return sprintf(buf, "%i\n", card->info.blkt.inter_packet_jumbo);
  }
-@@ -55,47 +56,47 @@ static long vfio_mdev_unlocked_ioctl(void *device_data,
- =09=09=09=09     unsigned int cmd, unsigned long arg)
+ 
+ static ssize_t qeth_dev_blkt_inter_jumbo_store(struct device *dev,
+diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
+index f2c3b127b1e4..d9af5fe040be 100644
+--- a/drivers/s390/net/qeth_l2_sys.c
++++ b/drivers/s390/net/qeth_l2_sys.c
+@@ -18,9 +18,6 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
+ 	int rc = 0;
+ 	char *word;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (qeth_l2_vnicc_is_in_use(card))
+ 		return sprintf(buf, "n/a (VNIC characteristics)\n");
+ 
+@@ -79,8 +76,6 @@ static ssize_t qeth_bridge_port_role_store(struct device *dev,
+ 	int rc = 0;
+ 	enum qeth_sbp_roles role;
+ 
+-	if (!card)
+-		return -EINVAL;
+ 	if (sysfs_streq(buf, "primary"))
+ 		role = QETH_SBP_ROLE_PRIMARY;
+ 	else if (sysfs_streq(buf, "secondary"))
+@@ -132,9 +127,6 @@ static ssize_t qeth_bridgeport_hostnotification_show(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	int enabled;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (qeth_l2_vnicc_is_in_use(card))
+ 		return sprintf(buf, "n/a (VNIC characteristics)\n");
+ 
+@@ -150,9 +142,6 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
+ 	bool enable;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	rc = kstrtobool(buf, &enable);
+ 	if (rc)
+ 		return rc;
+@@ -183,9 +172,6 @@ static ssize_t qeth_bridgeport_reflect_show(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	char *state;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (qeth_l2_vnicc_is_in_use(card))
+ 		return sprintf(buf, "n/a (VNIC characteristics)\n");
+ 
+@@ -207,9 +193,6 @@ static ssize_t qeth_bridgeport_reflect_store(struct device *dev,
+ 	int enable, primary;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (sysfs_streq(buf, "none")) {
+ 		enable = 0;
+ 		primary = 0;
+@@ -315,9 +298,6 @@ static ssize_t qeth_vnicc_timeout_show(struct device *dev,
+ 	u32 timeout;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	rc = qeth_l2_vnicc_get_timeout(card, &timeout);
+ 	if (rc == -EBUSY)
+ 		return sprintf(buf, "n/a (BridgePort)\n");
+@@ -335,9 +315,6 @@ static ssize_t qeth_vnicc_timeout_store(struct device *dev,
+ 	u32 timeout;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	rc = kstrtou32(buf, 10, &timeout);
+ 	if (rc)
+ 		return rc;
+@@ -357,9 +334,6 @@ static ssize_t qeth_vnicc_char_show(struct device *dev,
+ 	u32 vnicc;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	vnicc = qeth_l2_vnicc_sysfs_attr_to_char(attr->attr.name);
+ 	rc = qeth_l2_vnicc_get_state(card, vnicc, &state);
+ 
+@@ -380,9 +354,6 @@ static ssize_t qeth_vnicc_char_store(struct device *dev,
+ 	u32 vnicc;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (kstrtobool(buf, &state))
+ 		return -EINVAL;
+ 
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 2f73b33c9347..b6b38b69a5f4 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -60,9 +60,6 @@ static ssize_t qeth_l3_dev_route4_show(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
-=20
--=09if (unlikely(!parent->ops->ioctl))
-+=09if (unlikely(!ops->ioctl))
- =09=09return -EINVAL;
-=20
--=09return parent->ops->ioctl(mdev, cmd, arg);
-+=09return ops->ioctl(mdev, cmd, arg);
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_route_show(card, &card->options.route4, buf);
  }
-=20
- static ssize_t vfio_mdev_read(void *device_data, char __user *buf,
- =09=09=09      size_t count, loff_t *ppos)
+ 
+@@ -109,9 +106,6 @@ static ssize_t qeth_l3_dev_route4_store(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
-=20
--=09if (unlikely(!parent->ops->read))
-+=09if (unlikely(!ops->read))
- =09=09return -EINVAL;
-=20
--=09return parent->ops->read(mdev, buf, count, ppos);
-+=09return ops->read(mdev, buf, count, ppos);
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_route_store(card, &card->options.route4,
+ 				QETH_PROT_IPV4, buf, count);
  }
-=20
- static ssize_t vfio_mdev_write(void *device_data, const char __user *buf,
- =09=09=09       size_t count, loff_t *ppos)
+@@ -124,9 +118,6 @@ static ssize_t qeth_l3_dev_route6_show(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
-=20
--=09if (unlikely(!parent->ops->write))
-+=09if (unlikely(!ops->write))
- =09=09return -EINVAL;
-=20
--=09return parent->ops->write(mdev, buf, count, ppos);
-+=09return ops->write(mdev, buf, count, ppos);
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_route_show(card, &card->options.route6, buf);
  }
-=20
- static int vfio_mdev_mmap(void *device_data, struct vm_area_struct *vma)
+ 
+@@ -135,9 +126,6 @@ static ssize_t qeth_l3_dev_route6_store(struct device *dev,
  {
- =09struct mdev_device *mdev =3D device_data;
--=09struct mdev_parent *parent =3D mdev->parent;
-+=09const struct mdev_vfio_device_ops *ops =3D mdev_get_vfio_ops(mdev);
-=20
--=09if (unlikely(!parent->ops->mmap))
-+=09if (unlikely(!ops->mmap))
- =09=09return -EINVAL;
-=20
--=09return parent->ops->mmap(mdev, vma);
-+=09return ops->mmap(mdev, vma);
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_route_store(card, &card->options.route6,
+ 				QETH_PROT_IPV6, buf, count);
  }
-=20
- static const struct vfio_device_ops vfio_mdev_dev_ops =3D {
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 78b69d09eb54..9e37506d1987 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -10,7 +10,13 @@
- #ifndef MDEV_H
- #define MDEV_H
-=20
-+#include <linux/types.h>
-+#include <linux/device.h>
-+#include <linux/mdev.h>
-+#include <uapi/linux/uuid.h>
-+
- struct mdev_device;
-+struct mdev_vfio_device_ops;
-=20
- /*
-  * Called by the parent device driver to set the device which represents
-@@ -48,30 +54,7 @@ struct device *mdev_get_iommu_device(struct device *dev)=
-;
-  *=09=09=09@mdev: mdev_device device structure which is being
-  *=09=09=09       destroyed
-  *=09=09=09Returns integer: success (0) or error (< 0)
-- * @open:=09=09Open mediated device.
-- *=09=09=09@mdev: mediated device.
-- *=09=09=09Returns integer: success (0) or error (< 0)
-- * @release:=09=09release mediated device
-- *=09=09=09@mdev: mediated device.
-- * @read:=09=09Read emulation callback
-- *=09=09=09@mdev: mediated device structure
-- *=09=09=09@buf: read buffer
-- *=09=09=09@count: number of bytes to read
-- *=09=09=09@ppos: address.
-- *=09=09=09Retuns number on bytes read on success or error.
-- * @write:=09=09Write emulation callback
-- *=09=09=09@mdev: mediated device structure
-- *=09=09=09@buf: write buffer
-- *=09=09=09@count: number of bytes to be written
-- *=09=09=09@ppos: address.
-- *=09=09=09Retuns number on bytes written on success or error.
-- * @ioctl:=09=09IOCTL callback
-- *=09=09=09@mdev: mediated device structure
-- *=09=09=09@cmd: ioctl command
-- *=09=09=09@arg: arguments to ioctl
-- * @mmap:=09=09mmap callback
-- *=09=09=09@mdev: mediated device structure
-- *=09=09=09@vma: vma structure
-+ *
-  * Parent device that support mediated device should be registered with md=
-ev
-  * module with mdev_parent_ops structure.
-  **/
-@@ -83,15 +66,6 @@ struct mdev_parent_ops {
-=20
- =09int     (*create)(struct kobject *kobj, struct mdev_device *mdev);
- =09int     (*remove)(struct mdev_device *mdev);
--=09int     (*open)(struct mdev_device *mdev);
--=09void    (*release)(struct mdev_device *mdev);
--=09ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
--=09=09=09size_t count, loff_t *ppos);
--=09ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
--=09=09=09 size_t count, loff_t *ppos);
--=09long=09(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
--=09=09=09 unsigned long arg);
--=09int=09(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
- };
-=20
- /* interface for exporting mdev supported type attributes */
-@@ -135,6 +109,9 @@ void *mdev_get_drvdata(struct mdev_device *mdev);
- void mdev_set_drvdata(struct mdev_device *mdev, void *data);
- const guid_t *mdev_uuid(struct mdev_device *mdev);
- void mdev_set_class(struct mdev_device *mdev, u16 id);
-+void mdev_set_vfio_ops(struct mdev_device *mdev,
-+=09=09       const struct mdev_vfio_device_ops *vfio_ops);
-+const struct mdev_vfio_device_ops *mdev_get_vfio_ops(struct mdev_device *m=
-dev);
-=20
- extern struct bus_type mdev_bus_type;
-=20
-diff --git a/include/linux/mdev_vfio_ops.h b/include/linux/mdev_vfio_ops.h
-new file mode 100644
-index 000000000000..317518f30621
---- /dev/null
-+++ b/include/linux/mdev_vfio_ops.h
-@@ -0,0 +1,52 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * VFIO Mediated device definition
-+ */
-+
-+#ifndef MDEV_VFIO_OPS_H
-+#define MDEV_VFIO_OPS_H
-+
-+#include <linux/mdev.h>
-+
-+/**
-+ * struct mdev_vfio_device_ops - Structure to be registered for each
-+ * mdev device to register the device to vfio-mdev module.
-+ *
-+ * @open:=09=09Open mediated device.
-+ *=09=09=09@mdev: mediated device.
-+ *=09=09=09Returns integer: success (0) or error (< 0)
-+ * @release:=09=09release mediated device
-+ *=09=09=09@mdev: mediated device.
-+ * @read:=09=09Read emulation callback
-+ *=09=09=09@mdev: mediated device structure
-+ *=09=09=09@buf: read buffer
-+ *=09=09=09@count: number of bytes to read
-+ *=09=09=09@ppos: address.
-+ *=09=09=09Retuns number on bytes read on success or error.
-+ * @write:=09=09Write emulation callback
-+ *=09=09=09@mdev: mediated device structure
-+ *=09=09=09@buf: write buffer
-+ *=09=09=09@count: number of bytes to be written
-+ *=09=09=09@ppos: address.
-+ *=09=09=09Retuns number on bytes written on success or error.
-+ * @ioctl:=09=09IOCTL callback
-+ *=09=09=09@mdev: mediated device structure
-+ *=09=09=09@cmd: ioctl command
-+ *=09=09=09@arg: arguments to ioctl
-+ * @mmap:=09=09mmap callback
-+ *=09=09=09@mdev: mediated device structure
-+ *=09=09=09@vma: vma structure
-+ */
-+struct mdev_vfio_device_ops {
-+=09int     (*open)(struct mdev_device *mdev);
-+=09void    (*release)(struct mdev_device *mdev);
-+=09ssize_t (*read)(struct mdev_device *mdev, char __user *buf,
-+=09=09=09size_t count, loff_t *ppos);
-+=09ssize_t (*write)(struct mdev_device *mdev, const char __user *buf,
-+=09=09=09 size_t count, loff_t *ppos);
-+=09long=09(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
-+=09=09=09 unsigned long arg);
-+=09int=09(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
-+};
-+
-+#endif
-diff --git a/samples/vfio-mdev/mbochs.c b/samples/vfio-mdev/mbochs.c
-index 115bc5074656..12963767ba37 100644
---- a/samples/vfio-mdev/mbochs.c
-+++ b/samples/vfio-mdev/mbochs.c
-@@ -30,6 +30,7 @@
- #include <linux/iommu.h>
- #include <linux/sysfs.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <linux/pci.h>
- #include <linux/dma-buf.h>
- #include <linux/highmem.h>
-@@ -516,6 +517,8 @@ static int mbochs_reset(struct mdev_device *mdev)
- =09return 0;
- }
-=20
-+static const struct mdev_vfio_device_ops mdev_vfio_ops;
-+
- static int mbochs_create(struct kobject *kobj, struct mdev_device *mdev)
+@@ -150,9 +138,6 @@ static ssize_t qeth_l3_dev_fake_broadcast_show(struct device *dev,
  {
- =09const struct mbochs_type *type =3D mbochs_find_type(kobj);
-@@ -561,7 +564,7 @@ static int mbochs_create(struct kobject *kobj, struct m=
-dev_device *mdev)
- =09mbochs_reset(mdev);
-=20
- =09mbochs_used_mbytes +=3D type->mbytes;
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &mdev_vfio_ops);
- =09return 0;
-=20
- err_mem:
-@@ -1419,12 +1422,7 @@ static struct attribute_group *mdev_type_groups[] =
-=3D {
- =09NULL,
- };
-=20
--static const struct mdev_parent_ops mdev_fops =3D {
--=09.owner=09=09=09=3D THIS_MODULE,
--=09.mdev_attr_groups=09=3D mdev_dev_groups,
--=09.supported_type_groups=09=3D mdev_type_groups,
--=09.create=09=09=09=3D mbochs_create,
--=09.remove=09=09=09=3D mbochs_remove,
-+static const struct mdev_vfio_device_ops mdev_vfio_ops =3D {
- =09.open=09=09=09=3D mbochs_open,
- =09.release=09=09=3D mbochs_close,
- =09.read=09=09=09=3D mbochs_read,
-@@ -1433,6 +1431,14 @@ static const struct mdev_parent_ops mdev_fops =3D {
- =09.mmap=09=09=09=3D mbochs_mmap,
- };
-=20
-+static const struct mdev_parent_ops mdev_fops =3D {
-+=09.owner=09=09=09=3D THIS_MODULE,
-+=09.mdev_attr_groups=09=3D mdev_dev_groups,
-+=09.supported_type_groups=09=3D mdev_type_groups,
-+=09.create=09=09=09=3D mbochs_create,
-+=09.remove=09=09=09=3D mbochs_remove,
-+};
-+
- static const struct file_operations vd_fops =3D {
- =09.owner=09=09=3D THIS_MODULE,
- };
-diff --git a/samples/vfio-mdev/mdpy.c b/samples/vfio-mdev/mdpy.c
-index 665614574d50..50ee6c98b2af 100644
---- a/samples/vfio-mdev/mdpy.c
-+++ b/samples/vfio-mdev/mdpy.c
-@@ -26,6 +26,7 @@
- #include <linux/iommu.h>
- #include <linux/sysfs.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <linux/pci.h>
- #include <drm/drm_fourcc.h>
- #include "mdpy-defs.h"
-@@ -226,6 +227,8 @@ static int mdpy_reset(struct mdev_device *mdev)
- =09return 0;
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->options.fake_broadcast? 1:0);
  }
-=20
-+static const struct mdev_vfio_device_ops mdev_vfio_ops;
-+
- static int mdpy_create(struct kobject *kobj, struct mdev_device *mdev)
+ 
+@@ -163,9 +148,6 @@ static ssize_t qeth_l3_dev_fake_broadcast_store(struct device *dev,
+ 	char *tmp;
+ 	int i, rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -190,9 +172,6 @@ static ssize_t qeth_l3_dev_sniffer_show(struct device *dev,
  {
- =09const struct mdpy_type *type =3D mdpy_find_type(kobj);
-@@ -269,7 +272,7 @@ static int mdpy_create(struct kobject *kobj, struct mde=
-v_device *mdev)
- =09mdpy_reset(mdev);
-=20
- =09mdpy_count++;
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &mdev_vfio_ops);
- =09return 0;
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->options.sniffer ? 1 : 0);
  }
-=20
-@@ -726,12 +729,7 @@ static struct attribute_group *mdev_type_groups[] =3D =
-{
- =09NULL,
- };
-=20
--static const struct mdev_parent_ops mdev_fops =3D {
--=09.owner=09=09=09=3D THIS_MODULE,
--=09.mdev_attr_groups=09=3D mdev_dev_groups,
--=09.supported_type_groups=09=3D mdev_type_groups,
--=09.create=09=09=09=3D mdpy_create,
--=09.remove=09=09=09=3D mdpy_remove,
-+static const struct mdev_vfio_device_ops mdev_vfio_ops =3D {
- =09.open=09=09=09=3D mdpy_open,
- =09.release=09=09=3D mdpy_close,
- =09.read=09=09=09=3D mdpy_read,
-@@ -740,6 +738,14 @@ static const struct mdev_parent_ops mdev_fops =3D {
- =09.mmap=09=09=09=3D mdpy_mmap,
- };
-=20
-+static const struct mdev_parent_ops mdev_fops =3D {
-+=09.owner=09=09=09=3D THIS_MODULE,
-+=09.mdev_attr_groups=09=3D mdev_dev_groups,
-+=09.supported_type_groups=09=3D mdev_type_groups,
-+=09.create=09=09=09=3D mdpy_create,
-+=09.remove=09=09=09=3D mdpy_remove,
-+};
-+
- static const struct file_operations vd_fops =3D {
- =09.owner=09=09=3D THIS_MODULE,
- };
-diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
-index 90da12ff7fd9..be476e7ad1f8 100644
---- a/samples/vfio-mdev/mtty.c
-+++ b/samples/vfio-mdev/mtty.c
-@@ -27,6 +27,7 @@
- #include <linux/ctype.h>
- #include <linux/file.h>
- #include <linux/mdev.h>
-+#include <linux/mdev_vfio_ops.h>
- #include <linux/pci.h>
- #include <linux/serial.h>
- #include <uapi/linux/serial_reg.h>
-@@ -708,6 +709,8 @@ static ssize_t mdev_access(struct mdev_device *mdev, u8=
- *buf, size_t count,
- =09return ret;
- }
-=20
-+static const struct mdev_vfio_device_ops vfio_dev_ops;
-+
- static int mtty_create(struct kobject *kobj, struct mdev_device *mdev)
+ 
+@@ -203,9 +182,6 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
+ 	int rc = 0;
+ 	unsigned long i;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (!IS_IQD(card))
+ 		return -EPERM;
+ 	if (card->options.cq == QETH_CQ_ENABLED)
+@@ -248,16 +224,12 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
+ static DEVICE_ATTR(sniffer, 0644, qeth_l3_dev_sniffer_show,
+ 		qeth_l3_dev_sniffer_store);
+ 
+-
+ static ssize_t qeth_l3_dev_hsuid_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
  {
- =09struct mdev_state *mdev_state;
-@@ -755,7 +758,7 @@ static int mtty_create(struct kobject *kobj, struct mde=
-v_device *mdev)
- =09list_add(&mdev_state->next, &mdev_devices_list);
- =09mutex_unlock(&mdev_list_lock);
-=20
--=09mdev_set_class(mdev, MDEV_CLASS_ID_VFIO);
-+=09mdev_set_vfio_ops(mdev, &vfio_dev_ops);
- =09return 0;
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	char tmp_hsuid[9];
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (!IS_IQD(card))
+ 		return -EPERM;
+ 
+@@ -273,9 +245,6 @@ static ssize_t qeth_l3_dev_hsuid_store(struct device *dev,
+ 	char *tmp;
+ 	int rc;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	if (!IS_IQD(card))
+ 		return -EPERM;
+ 	if (card->state != CARD_STATE_DOWN)
+@@ -336,9 +305,6 @@ static ssize_t qeth_l3_dev_ipato_enable_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->ipato.enabled? 1:0);
  }
-=20
-@@ -1388,6 +1391,14 @@ static struct attribute_group *mdev_type_groups[] =
-=3D {
- =09NULL,
- };
-=20
-+static const struct mdev_vfio_device_ops vfio_dev_ops =3D {
-+=09.open=09=09=3D mtty_open,
-+=09.release=09=3D mtty_close,
-+=09.read=09=09=3D mtty_read,
-+=09.write=09=09=3D mtty_write,
-+=09.ioctl=09=09=3D mtty_ioctl,
-+};
-+
- static const struct mdev_parent_ops mdev_fops =3D {
- =09.owner                  =3D THIS_MODULE,
- =09.dev_attr_groups        =3D mtty_dev_groups,
-@@ -1395,11 +1406,6 @@ static const struct mdev_parent_ops mdev_fops =3D {
- =09.supported_type_groups  =3D mdev_type_groups,
- =09.create                 =3D mtty_create,
- =09.remove=09=09=09=3D mtty_remove,
--=09.open                   =3D mtty_open,
--=09.release                =3D mtty_close,
--=09.read                   =3D mtty_read,
--=09.write                  =3D mtty_write,
--=09.ioctl=09=09        =3D mtty_ioctl,
- };
-=20
- static void mtty_device_release(struct device *dev)
---=20
-2.19.1
+ 
+@@ -349,9 +315,6 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
+ 	bool enable;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (card->state != CARD_STATE_DOWN) {
+ 		rc = -EPERM;
+@@ -385,9 +348,6 @@ static ssize_t qeth_l3_dev_ipato_invert4_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->ipato.invert4? 1:0);
+ }
+ 
+@@ -399,9 +359,6 @@ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
+ 	bool invert;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (sysfs_streq(buf, "toggle")) {
+ 		invert = !card->ipato.invert4;
+@@ -460,9 +417,6 @@ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_add_show(buf, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -528,9 +482,6 @@ static ssize_t qeth_l3_dev_ipato_add4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_add_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -558,9 +509,6 @@ static ssize_t qeth_l3_dev_ipato_del4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_del_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -572,9 +520,6 @@ static ssize_t qeth_l3_dev_ipato_invert6_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return sprintf(buf, "%i\n", card->ipato.invert6? 1:0);
+ }
+ 
+@@ -585,9 +530,6 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
+ 	bool invert;
+ 	int rc = 0;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	mutex_lock(&card->conf_mutex);
+ 	if (sysfs_streq(buf, "toggle")) {
+ 		invert = !card->ipato.invert6;
+@@ -617,9 +559,6 @@ static ssize_t qeth_l3_dev_ipato_add6_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_add_show(buf, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -628,9 +567,6 @@ static ssize_t qeth_l3_dev_ipato_add6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_add_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -643,9 +579,6 @@ static ssize_t qeth_l3_dev_ipato_del6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_ipato_del_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -679,9 +612,6 @@ static ssize_t qeth_l3_dev_ip_add_show(struct device *dev, char *buf,
+ 	int entry_len; /* length of 1 entry string, differs between v4 and v6 */
+ 	int i;
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	entry_len = (proto == QETH_PROT_IPV4)? 12 : 40;
+ 	entry_len += 2; /* \n + terminator */
+ 	mutex_lock(&card->ip_lock);
+@@ -741,9 +671,6 @@ static ssize_t qeth_l3_dev_vipa_add4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_vipa_add_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -771,9 +698,6 @@ static ssize_t qeth_l3_dev_vipa_del4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_vipa_del_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -793,9 +717,6 @@ static ssize_t qeth_l3_dev_vipa_add6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_vipa_add_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -808,9 +729,6 @@ static ssize_t qeth_l3_dev_vipa_del6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_vipa_del_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -884,9 +802,6 @@ static ssize_t qeth_l3_dev_rxip_add4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_rxip_add_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -914,9 +829,6 @@ static ssize_t qeth_l3_dev_rxip_del4_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_rxip_del_store(buf, count, card, QETH_PROT_IPV4);
+ }
+ 
+@@ -936,9 +848,6 @@ static ssize_t qeth_l3_dev_rxip_add6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_rxip_add_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+@@ -951,9 +860,6 @@ static ssize_t qeth_l3_dev_rxip_del6_store(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	if (!card)
+-		return -EINVAL;
+-
+ 	return qeth_l3_dev_rxip_del_store(buf, count, card, QETH_PROT_IPV6);
+ }
+ 
+-- 
+2.17.1
