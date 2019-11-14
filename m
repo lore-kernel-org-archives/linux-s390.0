@@ -1,68 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731413AbfKPPyR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:54:17 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 29/77] s390/perf: Return error when debug_register fails
-Date: Sat, 16 Nov 2019 10:52:51 -0500
-Message-Id: <20191116155339.11909-29-sashal@kernel.org>
-In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
-References: <20191116155339.11909-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20808 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726962AbfKNMDD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 07:03:03 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEBwOn4057183
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w962es88p-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:03:01 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Thu, 14 Nov 2019 12:02:59 -0000
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 5/8] net/smc: no WR buffer wait for terminating link group
+Date: Thu, 14 Nov 2019 13:02:44 +0100
+In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
+References: <20191114120247.68889-1-kgraul@linux.ibm.com>
+Message-Id: <20191114120247.68889-6-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
+Avoid waiting for a free work request buffer, if the link group
+is already terminating.
 
-Return an error when the function debug_register() fails allocating
-the debug handle.
-Also remove the registered debug handle when the initialization fails
-later on.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/smc/smc_llc.c |  3 +++
+ net/smc/smc_wr.c  | 10 ++++++----
+ net/smc/smc_wr.h  | 10 ++++++++++
+ 3 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index b79d51459cf25..874762a51c546 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1616,14 +1616,17 @@ static int __init init_cpum_sampling_pmu(void)
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 26a18c872455..8d1b076021ed 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -656,6 +656,7 @@ void smc_llc_link_active(struct smc_link *link, int testlink_time)
+ void smc_llc_link_deleting(struct smc_link *link)
+ {
+ 	link->state = SMC_LNK_DELETING;
++	smc_wr_wakeup_tx_wait(link);
+ }
+ 
+ /* called in tasklet context */
+@@ -663,6 +664,8 @@ void smc_llc_link_inactive(struct smc_link *link)
+ {
+ 	link->state = SMC_LNK_INACTIVE;
+ 	cancel_delayed_work(&link->llc_testlink_wrk);
++	smc_wr_wakeup_reg_wait(link);
++	smc_wr_wakeup_tx_wait(link);
+ }
+ 
+ /* called in worker context */
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 50743dc56c86..619dd89fbac0 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -75,7 +75,7 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 			link->wr_reg_state = FAILED;
+ 		else
+ 			link->wr_reg_state = CONFIRMED;
+-		wake_up(&link->wr_reg_wait);
++		smc_wr_wakeup_reg_wait(link);
+ 		return;
  	}
  
- 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
--	if (!sfdbg)
-+	if (!sfdbg) {
- 		pr_err("Registering for s390dbf failed\n");
-+		return -ENOMEM;
-+	}
- 	debug_register_view(sfdbg, &debug_sprintf_view);
+@@ -171,6 +171,7 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 			    struct smc_rdma_wr **wr_rdma_buf,
+ 			    struct smc_wr_tx_pend_priv **wr_pend_priv)
+ {
++	struct smc_link_group *lgr = smc_get_lgr(link);
+ 	struct smc_wr_tx_pend *wr_pend;
+ 	u32 idx = link->wr_tx_cnt;
+ 	struct ib_send_wr *wr_ib;
+@@ -179,19 +180,20 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
  
- 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
- 				    cpumf_measurement_alert);
- 	if (err) {
- 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
+ 	*wr_buf = NULL;
+ 	*wr_pend_priv = NULL;
+-	if (in_softirq()) {
++	if (in_softirq() || lgr->terminating) {
+ 		rc = smc_wr_tx_get_free_slot_index(link, &idx);
+ 		if (rc)
+ 			return rc;
+ 	} else {
+-		rc = wait_event_timeout(
++		rc = wait_event_interruptible_timeout(
+ 			link->wr_tx_wait,
+ 			link->state == SMC_LNK_INACTIVE ||
++			lgr->terminating ||
+ 			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
+ 			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
+ 		if (!rc) {
+ 			/* timeout - terminate connections */
+-			smc_lgr_terminate_sched(smc_get_lgr(link));
++			smc_lgr_terminate_sched(lgr);
+ 			return -EPIPE;
+ 		}
+ 		if (idx == link->wr_tx_cnt)
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 09bf32fd3959..3ac99c898418 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -60,6 +60,16 @@ static inline void smc_wr_tx_set_wr_id(atomic_long_t *wr_tx_id, long val)
+ 	atomic_long_set(wr_tx_id, val);
+ }
  
-@@ -1632,6 +1635,7 @@ static int __init init_cpum_sampling_pmu(void)
- 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
- 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
- 					cpumf_measurement_alert);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
- 	perf_cpu_notifier(cpumf_pmu_notifier);
++static inline void smc_wr_wakeup_tx_wait(struct smc_link *lnk)
++{
++	wake_up_all(&lnk->wr_tx_wait);
++}
++
++static inline void smc_wr_wakeup_reg_wait(struct smc_link *lnk)
++{
++	wake_up(&lnk->wr_reg_wait);
++}
++
+ /* post a new receive work request to fill a completed old work request entry */
+ static inline int smc_wr_rx_post(struct smc_link *link)
+ {
 -- 
-2.20.1
+2.17.1
