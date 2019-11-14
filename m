@@ -1,73 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46238 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726410AbfKNQjF (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2790 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726057AbfKNKL2 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 11:39:05 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEGVGif096712
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 11:39:05 -0500
+        Thu, 14 Nov 2019 05:11:28 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAA9c6064134
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:11:26 -0500
 Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w99dbkjq8-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w92bjnh03-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 11:39:04 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:11:24 -0500
 Received: from localhost
         by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 14 Nov 2019 16:39:02 -0000
+        Thu, 14 Nov 2019 10:11:21 -0000
 Subject: Re: [PATCH v1 4/4] s390x: Testing the Subchannel I/O read
 References: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
  <1573647799-30584-5-git-send-email-pmorel@linux.ibm.com>
- <db451544-fcb1-9d81-7042-ef91c8324204@linux.ibm.com>
+ <20191113140539.4d153d5f.cohuck@redhat.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Thu, 14 Nov 2019 17:38:58 +0100
+Date: Thu, 14 Nov 2019 11:11:18 +0100
 MIME-Version: 1.0
-In-Reply-To: <db451544-fcb1-9d81-7042-ef91c8324204@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191113140539.4d153d5f.cohuck@redhat.com>
+Content-Type: text/plain; charset="windows-1252"; format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
-Message-Id: <81ef68d4-5ec5-b14e-6c3d-6935e9a6a1c1@linux.ibm.com>
+Message-Id: <802c298d-d2da-83c4-c222-67bb78131988@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
 
-On 2019-11-14 10:15, Janosch Frank wrote:
-> On 11/13/19 1:23 PM, Pierre Morel wrote:
+On 2019-11-13 14:05, Cornelia Huck wrote:
+> On Wed, 13 Nov 2019 13:23:19 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>
 >> This simple test test the I/O reading by the SUB Channel by:
 >> - initializing the Channel SubSystem with predefined CSSID:
 >>    0xfe000000 CSSID for a Virtual CCW
+> 0 should be fine with recent QEMU versions as well, I guess?
+Right
+
+
+>
 >>    0x00090000 SSID for CCW-PONG
+> subchannel id, or subchannel set id?
+
+hum, only part of, I had SSID (Subchannel Set ID) 4 (a.k.a m bit) + Bit=20
+47=EF=BF=BD =3D1
+
+But as you said, I can use CSSID 0 and m =3D 0 which makes:
+
+Subsystem Identification word =3D 0x00010000
+
+
+>
 >> - initializing the ORB pointing to a single READ CCW
+> Out of curiosity: Would using a NOP also be an option?
+
+It will work but will not be handled by this device, css.c intercept it=20
+in sch_handle_start_func_virtual.
+
+AFAIU If we want to have a really good testing environment, for driver=20
+testing for exemple, then it would be interesting to add a new=20
+do_subchannel_work callback like do_subchannel_work_emulation along with=20
+the _virtual and _paththrough variantes.
+
+Having a dedicated callback for emulation, we can answer to any CSS=20
+instructions and SSCH commands, including NOP and TIC.
+
+My goal here was to quickly develop a device answering to some basic=20
+READ/WRITE command to start memory transfers from inside a guest without=20
+Linux and without implementing VIRTIO in KVM tests.
+
+
+
+>
 >> - starts the STSH command with the ORB
+> s/STSH/SSCH/ ?
+
+:) yes, thanks
+
+
+>
 >> - Expect an interrupt
 >> - writes the read data to output
 >>
 >> The test implements lots of traces when DEBUG is on and
 >> tests if memory above the stack is corrupted.
-> What happens if we do not habe the pong device?
-
-CC error on stsch() which is currently not cached (but will in the next 
-version)
-
-CC error on msch() and on ssch() which is cached and makes the test to fail.
-
-
->
+>>
 >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 >> ---
->>   lib/s390x/css.h      | 244 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>>   lib/s390x/css.h      | 244 +++++++++++++++++++++++++++++++++++++++++++=
+++++++++
 >>   lib/s390x/css_dump.c | 141 +++++++++++++++++++++++++++++
-> Hmm, what about splitting the patch into css.h/css_dump.c and the actual
-> test in s390x/css.c?
-
-OK
-
-
->
 >>   s390x/Makefile       |   2 +
->>   s390x/css.c          | 222 ++++++++++++++++++++++++++++++++++++++++++++++
+>>   s390x/css.c          | 222 +++++++++++++++++++++++++++++++++++++++++++=
++++
 >>   s390x/unittests.cfg  |   4 +
 >>   5 files changed, 613 insertions(+)
 >>   create mode 100644 lib/s390x/css.h
@@ -76,163 +107,148 @@ OK
 >>
 >> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
 >> new file mode 100644
+>> index 0000000..a7c42fd
+>> --- /dev/null
+>> +++ b/lib/s390x/css.h
+> (...)
+>
+>> +static inline int rsch(unsigned long schid)
+> I don't think anyone has tried rsch with QEMU before; sounds like a
+> good idea to test this :)
 
-OK to all comments...  (I sniped out for clarity)
+With an do_subchannel_work_emulation() callback?
+
+
+>
+>> +{
+>> +	register unsigned long reg1 asm("1") =3D schid;
+>> +	int ccode;
+>> +
+>> +	asm volatile(
+>> +		"	rsch\n"
+>> +		"	ipm	%0\n"
+>> +		"	srl	%0,28"
+>> +		: "=3Dd" (ccode)
+>> +		: "d" (reg1)
+>> +		: "cc");
+>> +	return ccode;
+>> +}
+>> +
+>> +static inline int rchp(unsigned long chpid)
+> Anything useful we can test here?
+
+Not for now.
+
+I certainly can reduce the size of the file by removing the unused CSS=20
+instructions calls.
 
 ...snip...
-
-
->> +static char buffer[4096];
->> +
->> +static void delay(int d)
->> +{
->> +	int i, j;
->> +
->> +	while (d--)
->> +		for (i = 1000000; i; i--)
->> +			for (j = 1000000; j; j--)
->> +				;
->> +}
-> You could set a timer.
-
-
-Hum, do we really want to do this?
-
-
->
->> +
->> +static void set_io_irq_subclass_mask(uint64_t const new_mask)
->> +{
->> +	asm volatile (
->> +		"lctlg %%c6, %%c6, %[source]\n"
->> +		: /* No outputs */
->> +		: [source] "R" (new_mask));
-> arch_def.h has lctlg() and ctl_set/clear_bit
-
-
-OK, thanks
-
-
->
->> +}
->> +
->> +static void set_system_mask(uint8_t new_mask)
->> +{
->> +	asm volatile (
->> +		"ssm %[source]\n"
->> +		: /* No outputs */
->> +		: [source] "R" (new_mask));
->> +}
->> +
+> +
 >> +static void enable_io_irq(void)
 >> +{
 >> +	set_io_irq_subclass_mask(0x00000000ff000000);
+> So, you always enable all iscs? Maybe add a comment?
+
+OK, is just a lazy option to get IRQ for this test.
+
+Right, I add a comment.
+
+
+>
 >> +	set_system_mask(PSW_PRG_MASK >> 56);
-> load_psw_mask(extract_psw_mask() | PSW_PRG_MASK); no need for another
-> inline asm function :)
->
-> Or add a psw_set/clear_bit function and fixup enter_pstate()
-
-I look at this.
-
-
->
 >> +}
 >> +
 >> +void handle_io_int(sregs_t *regs)
 >> +{
-,,,snip...
+>> +	int ret =3D 0;
 >> +
->> +	delay(1);
+>> +	DBG("IO IRQ: subsys_id_word=3D%08x", lowcore->subsys_id_word);
+>> +	DBG("......: io_int_parm   =3D%08x", lowcore->io_int_param);
+>> +	DBG("......: io_int_word   =3D%08x", lowcore->io_int_word);
+>> +	ret =3D tsch(lowcore->subsys_id_word, &irb);
+>> +	dump_irb(&irb);
+>> +	if (ret)
+>> +		DBG("......: tsch retval %d", ret);
+>> +	DBG("IO IRQ: END");
+>> +}
 >> +
->> +	stsch(CSSID_PONG, &schib);
+>> +static void set_schib(struct schib *sch)
+>> +{
+>> +	struct pmcw *p =3D &sch->pmcw;
+>> +
+>> +	p->intparm =3D 0xdeadbeef;
+>> +	p->devnum =3D 0xc0ca;
+>> +	p->lpm =3D 0x80;
+>> +	p->flags =3D 0x3081;
+> Use #defines instead of magic numbers?
+
+OK
+
+
+>
+>> +	p->chpid[7] =3D 0x22;
+>> +	p->pim =3D 0x0f;
+>> +	p->pam =3D 0x0f;
+>> +	p->pom =3D 0x0f;
+>> +	p->lpm =3D 0x0f;
+>> +	p->lpum =3D 0xaa;
+>> +	p->pnom =3D 0xf0;
+>> +	p->mbi =3D 0xaa;
+>> +	p->mbi =3D 0xaaaa;
+> Many of these fields are not supposed to be modifiable by the program
+> -- do you want to check what you get back after msch?
+>
+> Also, you set mbi twice ;) (And for it to actually have any effect,
+> you'd have to execute SET CHANNEL MONITOR, no?)
+
+Yes, it was for me to check what happens but I should remove most of=20
+these field initialization.
+
+As you said they are not modifiable by the program.
+
+Will clean this.
+
+
+>
+>
+>> +}
+>> +
+>> +static void css_enable(void)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret =3D stsch(CSSID_PONG, &schib);
+>> +	if (ret)
+>> +		DBG("stsch: %x\n", ret);
 >> +	dump_schib(&schib);
-> Is all that dumping necessary or just a dev remainder?
-
-
-it goes in the logs, so I thought it could be interresting to keep it.
-
-
->
->> +	DBG("got: %s\n", buffer);
->> +
->> +	return 0;
+>> +	set_schib(&schib);
+>> +	dump_schib(&schib);
+>> +	ret =3D msch(CSSID_PONG, &schib);
+>> +	if (ret)
+>> +		DBG("msch : %x\n", ret);
 >> +}
 >> +
->> +#define MAX_ERRORS 10
->> +static int checkmem(phys_addr_t start, phys_addr_t end)
->> +{
->> +	phys_addr_t curr;
->> +	int err = 0;
->> +
->> +	for (curr = start; curr != end; curr += PAGE_SIZE)
->> +		if (memcmp((void *)start, (void *)curr, PAGE_SIZE)) {
->> +			report("memcmp failed %lx", true, curr);
-> How many errors do you normally run into (hopefully 0)?
-
-
-hopefully.
-
-However I thought it could be interesting to know how many pages have 
-been dirtied.
-
-
+>> +/* These two definitions are part of the QEMU PONG interface */
+>> +#define PONG_WRITE 0x21
+>> +#define PONG_READ  0x22
+> Ah, so it's not a plain read/write, but a specialized one? Mention that
+> in the patch description?
 >
->> +			if (err++ > MAX_ERRORS)
->> +				break;
->> +		}
->> +	return err;
->> +}
 >> +
->> +extern unsigned long bss_end;
->> +
->> +int main(int argc, char *argv[])
+>> +static int css_run(int fake)
 >> +{
->> +	phys_addr_t base, top;
->> +	int check_mem = 0;
->> +	int err = 0;
->> +
->> +	if (argc == 2 && !strcmp(argv[1], "-i"))
->> +		check_mem = 1;
->> +
->> +	report_prefix_push("css");
->> +	phys_alloc_get_unused(&base, &top);
->> +
->> +	top = 0x08000000; /* 128MB Need to be updated */
->> +	base = (phys_addr_t)&stacktop;
->> +
->> +	if (check_mem)
->> +		memset((void *)base, 0x00, top - base);
->> +
->> +	if (check_mem)
->> +		err = checkmem(base, top);
->> +	if (err)
->> +		goto out;
->> +
->> +	err = css_run(0);
->> +	if (err)
->> +		goto out;
->> +
->> +	if (check_mem)
->> +		err = checkmem(base, top);
->> +
->> +out:
->> +	if (err)
->> +		report("Tested", 0);
->> +	else
->> +		report("Tested", 1);
-> Normally we report the sucsess or failure of single actions and a
-> summary will tell us if the whole test ran into errors.
+>> +	struct orb *p =3D orb;
+> I'd maybe call that variable 'orb' instead; at a glance, I was confused
+> what you did with the pmcw below, until I realized that it's the orb :)
 
-Right, will be enhanced.
+OK, is clearly better to use orb.
 
-Thanks for the comments.
 
-Regards,
+Thanks,
 
 Pierre
 
 
--- 
+--=20
 Pierre Morel
 IBM Lab Boeblingen
