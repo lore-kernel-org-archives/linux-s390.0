@@ -1,69 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33235 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731904AbfKFONi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:38 -0500
-Received: by mail-wr1-f66.google.com with SMTP id w30so3274220wra.0
-        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:36 -0800 (PST)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH v2 08/10] powerpc: Use bool in archrandom.h
-Date: Wed,  6 Nov 2019 15:13:06 +0100
-Message-Id: <20191106141308.30535-9-rth@twiddle.net>
-In-Reply-To: <20191106141308.30535-1-rth@twiddle.net>
-References: <20191106141308.30535-1-rth@twiddle.net>
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38871 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726190AbfKNLeC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 06:34:02 -0500
+Received: by mail-wm1-f66.google.com with SMTP id z19so5504347wmk.3
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 03:34:00 -0800 (PST)
+From: richard.henderson@linaro.org
+Subject: [PATCH] random: Make  RANDOM_TRUST_CPU depend on ARCH_RANDOM
+Date: Thu, 14 Nov 2019 12:33:46 +0100
+Message-Id: <20191114113346.25138-1-richard.henderson@linaro.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-crypto@vger.kernel.org
-Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <richard.henderson@linaro.org>
 
-The generic interface uses bool not int; match that.
+From: Richard Henderson <richard.henderson@linaro.org>
 
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Richard Henderson <rth@twiddle.net>
+Listing the set of host architectures does not scale.
+Depend instead on the existance of the architecture rng.
+
+Signed-off-by: Richard Henderson <richard.henderson@linaro.org>
 ---
- arch/powerpc/include/asm/archrandom.h | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/char/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
-index c2ed3b4681f5..7766812e2355 100644
---- a/arch/powerpc/include/asm/archrandom.h
-+++ b/arch/powerpc/include/asm/archrandom.h
-@@ -6,27 +6,28 @@
+diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+index df0fc997dc3e..3c2123a23600 100644
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -539,7 +539,7 @@ endmenu
  
- #include <asm/machdep.h>
- 
--static inline int arch_get_random_long(unsigned long *v)
-+static inline bool arch_get_random_long(unsigned long *v)
- {
--	return 0;
-+	return false;
- }
- 
--static inline int arch_get_random_int(unsigned int *v)
-+static inline bool arch_get_random_int(unsigned int *v)
- {
--	return 0;
-+	return false;
- }
- 
--static inline int arch_get_random_seed_long(unsigned long *v)
-+static inline bool arch_get_random_seed_long(unsigned long *v)
- {
- 	if (ppc_md.get_random_seed)
- 		return ppc_md.get_random_seed(v);
- 
--	return 0;
-+	return false;
- }
--static inline int arch_get_random_seed_int(unsigned int *v)
-+
-+static inline bool arch_get_random_seed_int(unsigned int *v)
- {
- 	unsigned long val;
--	int rc;
-+	bool rc;
- 
- 	rc = arch_get_random_long(&val);
- 	if (rc)
+ config RANDOM_TRUST_CPU
+ 	bool "Trust the CPU manufacturer to initialize Linux's CRNG"
+-	depends on X86 || S390 || PPC
++	depends on ARCH_RANDOM
+ 	default n
+ 	help
+ 	Assume that CPU manufacturer (e.g., Intel or AMD for RDSEED or
+@@ -559,4 +559,4 @@ config RANDOM_TRUST_BOOTLOADER
+ 	device randomness. Say Y here to assume the entropy provided by the
+ 	booloader is trustworthy so it will be added to the kernel's entropy
+ 	pool. Otherwise, say N here so it will be regarded as device input that
+-	only mixes the entropy pool.
+\ No newline at end of file
++	only mixes the entropy pool.
 -- 
 2.17.1
