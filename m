@@ -1,113 +1,35 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 7/8] net/smc: wait for tx completions before link freeing
-Date: Thu, 14 Nov 2019 13:02:46 +0100
-In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
-References: <20191114120247.68889-1-kgraul@linux.ibm.com>
-Message-Id: <20191114120247.68889-8-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from verein.lst.de ([213.95.11.211]:39909 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726251AbfKNOcr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 09:32:47 -0500
+Date: Thu, 14 Nov 2019 15:32:45 +0100
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: disk revalidation cleanups and fixlets
+Message-ID: <20191114143245.GB1591@lst.de>
+References: <20191106151439.30056-1-hch@lst.de> <e994fc4b-cc72-c2db-cc2c-754a0aa03057@kernel.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e994fc4b-cc72-c2db-cc2c-754a0aa03057@kernel.dk>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+On Thu, Nov 14, 2019 at 07:08:55AM -0700, Jens Axboe wrote:
+> On 11/6/19 8:14 AM, Christoph Hellwig wrote:
+> > Hi Jens and Jan,
+> > 
+> > this series takes the disk size change detection and revalidations
+> > from Jan a step further and fully integrate the code path for
+> > partitioned vs non-partitioned devices.  It also fixes up a few
+> > bits where we have unintentionally differing behavior.
+> > 
+> 
+> Were you going to re-send this on top of the other stuff for 5.5?
+> If so, should probably get queued up...
 
-Make sure all pending work requests are completed before freeing
-a link.
-Dismiss tx pending slots already when terminating a link group to
-exploit termination shortcut in tx completion queue handler.
-
-And kill the completion queue tasklets after destroy of the
-completion queues, otherwise there is a time window for another
-tasklet schedule of an already killed tasklet.
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c |  2 ++
- net/smc/smc_ib.c   |  2 +-
- net/smc/smc_wr.c   | 27 +++++++++++++++++++++++++--
- 3 files changed, 28 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ee44e8244d0c..0755bd4b587c 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -548,6 +548,8 @@ static void smc_conn_kill(struct smc_connection *conn, bool soft)
- 			tasklet_kill(&conn->rx_tsklet);
- 		else
- 			tasklet_unlock_wait(&conn->rx_tsklet);
-+	} else {
-+		smc_cdc_tx_dismiss_slots(conn);
- 	}
- 	smc_lgr_unregister_conn(conn);
- 	smc_close_active_abort(smc);
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index af05daeb0538..c15dcd08dc74 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -520,9 +520,9 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
- 	if (!smcibdev->initialized)
- 		return;
- 	smcibdev->initialized = 0;
--	smc_wr_remove_dev(smcibdev);
- 	ib_destroy_cq(smcibdev->roce_cq_recv);
- 	ib_destroy_cq(smcibdev->roce_cq_send);
-+	smc_wr_remove_dev(smcibdev);
- }
- 
- static struct ib_client smc_ib_client;
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 619dd89fbac0..337ee52ad3d3 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -50,6 +50,26 @@ struct smc_wr_tx_pend {	/* control data for a pending send request */
- 
- /*------------------------------- completion --------------------------------*/
- 
-+/* returns true if at least one tx work request is pending on the given link */
-+static inline bool smc_wr_is_tx_pend(struct smc_link *link)
-+{
-+	if (find_first_bit(link->wr_tx_mask, link->wr_tx_cnt) !=
-+							link->wr_tx_cnt) {
-+		return true;
-+	}
-+	return false;
-+}
-+
-+/* wait till all pending tx work requests on the given link are completed */
-+static inline int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
-+{
-+	if (wait_event_timeout(link->wr_tx_wait, !smc_wr_is_tx_pend(link),
-+			       SMC_WR_TX_WAIT_PENDING_TIME))
-+		return 0;
-+	else /* timeout */
-+		return -EPIPE;
-+}
-+
- static inline int smc_wr_tx_find_pending_index(struct smc_link *link, u64 wr_id)
- {
- 	u32 i;
-@@ -229,6 +249,7 @@ int smc_wr_tx_put_slot(struct smc_link *link,
- 		memset(&link->wr_tx_bufs[idx], 0,
- 		       sizeof(link->wr_tx_bufs[idx]));
- 		test_and_clear_bit(idx, link->wr_tx_mask);
-+		wake_up(&link->wr_tx_wait);
- 		return 1;
- 	}
- 
-@@ -512,8 +533,10 @@ void smc_wr_free_link(struct smc_link *lnk)
- {
- 	struct ib_device *ibdev;
- 
--	memset(lnk->wr_tx_mask, 0,
--	       BITS_TO_LONGS(SMC_WR_BUF_CNT) * sizeof(*lnk->wr_tx_mask));
-+	if (smc_wr_tx_wait_no_pending_sends(lnk))
-+		memset(lnk->wr_tx_mask, 0,
-+		       BITS_TO_LONGS(SMC_WR_BUF_CNT) *
-+						sizeof(*lnk->wr_tx_mask));
- 
- 	if (!lnk->smcibdev)
- 		return;
--- 
-2.17.1
+Hmm.  I am pretty sure I resent it, but I can't find it in the
+archives either.  Let me do that now with the typo fix and review
+tags added to it.
