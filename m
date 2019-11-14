@@ -1,54 +1,224 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:41314 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbfKNTVV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 14:21:21 -0500
-Date: Thu, 14 Nov 2019 11:21:18 -0800
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH -next] writeback: fix -Wformat compilation warnings
-Message-ID: <20191114192118.GK4163745@devbig004.ftw2.facebook.com>
-References: <1573751861-10303-1-git-send-email-cai@lca.pw>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1573751861-10303-1-git-send-email-cai@lca.pw>
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:44981 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726949AbfKNRUq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 12:20:46 -0500
+Received: by mail-qk1-f193.google.com with SMTP id m16so5632036qki.11
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 09:20:45 -0800 (PST)
+From: Qian Cai <cai@lca.pw>
+Subject: [PATCH -next] writeback: fix -Wformat compilation warnings
+Date: Thu, 14 Nov 2019 12:17:41 -0500
+Message-Id: <1573751861-10303-1-git-send-email-cai@lca.pw>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Qian Cai <cai@lca.pw>
-Cc: jack@suse.cz, gregkh@linuxfoundation.org, cgroups@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, axboe@kernel.dk, linux-kernel@vger.kernel.org
+To: tj@kernel.org
+Cc: jack@suse.cz, gregkh@linuxfoundation.org, cgroups@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, axboe@kernel.dk, linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>
 
-On Thu, Nov 14, 2019 at 12:17:41PM -0500, Qian Cai wrote:
-> The commit f05499a06fb4 ("writeback: use ino_t for inodes in
-> tracepoints") introduced a lot of GCC compilation warnings on s390,
-> 
-> In file included from ./include/trace/define_trace.h:102,
->                  from ./include/trace/events/writeback.h:904,
->                  from fs/fs-writeback.c:82:
-> ./include/trace/events/writeback.h: In function
-> 'trace_raw_output_writeback_page_template':
-> ./include/trace/events/writeback.h:76:12: warning: format '%lu' expects
-> argument of type 'long unsigned int', but argument 4 has type 'ino_t'
-> {aka 'unsigned int'} [-Wformat=]
->   TP_printk("bdi %s: ino=%lu index=%lu",
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ./include/trace/trace_events.h:360:22: note: in definition of macro
-> 'DECLARE_EVENT_CLASS'
->   trace_seq_printf(s, print);     \
->                       ^~~~~
-> ./include/trace/events/writeback.h:76:2: note: in expansion of macro
-> 'TP_printk'
->   TP_printk("bdi %s: ino=%lu index=%lu",
->   ^~~~~~~~~
-> 
-> Fix them by adding necessary casts where ino_t could be either "unsigned
-> int" or "unsigned long".
-> 
-> Fixes: f05499a06fb4 ("writeback: use ino_t for inodes in tracepoints")
-> Signed-off-by: Qian Cai <cai@lca.pw>
+The commit f05499a06fb4 ("writeback: use ino_t for inodes in
+tracepoints") introduced a lot of GCC compilation warnings on s390,
 
-Acked-by: Tejun Heo <tj@kernel.org>
+In file included from ./include/trace/define_trace.h:102,
+                 from ./include/trace/events/writeback.h:904,
+                 from fs/fs-writeback.c:82:
+./include/trace/events/writeback.h: In function
+'trace_raw_output_writeback_page_template':
+./include/trace/events/writeback.h:76:12: warning: format '%lu' expects
+argument of type 'long unsigned int', but argument 4 has type 'ino_t'
+{aka 'unsigned int'} [-Wformat=]
+  TP_printk("bdi %s: ino=%lu index=%lu",
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+./include/trace/trace_events.h:360:22: note: in definition of macro
+'DECLARE_EVENT_CLASS'
+  trace_seq_printf(s, print);     \
+                      ^~~~~
+./include/trace/events/writeback.h:76:2: note: in expansion of macro
+'TP_printk'
+  TP_printk("bdi %s: ino=%lu index=%lu",
+  ^~~~~~~~~
 
-Thanks.
+Fix them by adding necessary casts where ino_t could be either "unsigned
+int" or "unsigned long".
 
+Fixes: f05499a06fb4 ("writeback: use ino_t for inodes in tracepoints")
+Signed-off-by: Qian Cai <cai@lca.pw>
+---
+ include/trace/events/writeback.h | 48 ++++++++++++++++++++--------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
+
+diff --git a/include/trace/events/writeback.h b/include/trace/events/writeback.h
+index b4f0ffe1817e..ef50be4e5e6c 100644
+--- a/include/trace/events/writeback.h
++++ b/include/trace/events/writeback.h
+@@ -75,7 +75,7 @@
+ 
+ 	TP_printk("bdi %s: ino=%lu index=%lu",
+ 		__entry->name,
+-		__entry->ino,
++		(unsigned long)__entry->ino,
+ 		__entry->index
+ 	)
+ );
+@@ -120,7 +120,7 @@
+ 
+ 	TP_printk("bdi %s: ino=%lu state=%s flags=%s",
+ 		__entry->name,
+-		__entry->ino,
++		(unsigned long)__entry->ino,
+ 		show_inode_state(__entry->state),
+ 		show_inode_state(__entry->flags)
+ 	)
+@@ -201,8 +201,8 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("bdi %s: ino=%lu cgroup_ino=%lu history=0x%x",
+ 		__entry->name,
+-		__entry->ino,
+-		__entry->cgroup_ino,
++		(unsigned long)__entry->ino,
++		(unsigned long)__entry->cgroup_ino,
+ 		__entry->history
+ 	)
+ );
+@@ -230,9 +230,9 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("bdi %s: ino=%lu old_cgroup_ino=%lu new_cgroup_ino=%lu",
+ 		__entry->name,
+-		__entry->ino,
+-		__entry->old_cgroup_ino,
+-		__entry->new_cgroup_ino
++		(unsigned long)__entry->ino,
++		(unsigned long)__entry->old_cgroup_ino,
++		(unsigned long)__entry->new_cgroup_ino
+ 	)
+ );
+ 
+@@ -266,10 +266,10 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 	TP_printk("bdi %s[%llu]: ino=%lu memcg_id=%u cgroup_ino=%lu page_cgroup_ino=%lu",
+ 		__entry->name,
+ 		__entry->bdi_id,
+-		__entry->ino,
++		(unsigned long)__entry->ino,
+ 		__entry->memcg_id,
+-		__entry->cgroup_ino,
+-		__entry->page_cgroup_ino
++		(unsigned long)__entry->cgroup_ino,
++		(unsigned long)__entry->page_cgroup_ino
+ 	)
+ );
+ 
+@@ -296,7 +296,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("bdi %s: cgroup_ino=%lu frn_bdi_id=%u frn_memcg_id=%u",
+ 		__entry->name,
+-		__entry->cgroup_ino,
++		(unsigned long)__entry->cgroup_ino,
+ 		__entry->frn_bdi_id,
+ 		__entry->frn_memcg_id
+ 	)
+@@ -326,9 +326,9 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("bdi %s: ino=%lu sync_mode=%d cgroup_ino=%lu",
+ 		__entry->name,
+-		__entry->ino,
++		(unsigned long)__entry->ino,
+ 		__entry->sync_mode,
+-		__entry->cgroup_ino
++		(unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ 
+@@ -383,7 +383,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 		  __entry->range_cyclic,
+ 		  __entry->for_background,
+ 		  __print_symbolic(__entry->reason, WB_WORK_REASON),
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ #define DEFINE_WRITEBACK_WORK_EVENT(name) \
+@@ -421,7 +421,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 	),
+ 	TP_printk("bdi %s: cgroup_ino=%lu",
+ 		  __entry->name,
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ #define DEFINE_WRITEBACK_EVENT(name) \
+@@ -489,7 +489,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 		__entry->range_cyclic,
+ 		__entry->range_start,
+ 		__entry->range_end,
+-		__entry->cgroup_ino
++		(unsigned long)__entry->cgroup_ino
+ 	)
+ )
+ 
+@@ -528,7 +528,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 		__entry->age,	/* older_than_this in relative milliseconds */
+ 		__entry->moved,
+ 		__print_symbolic(__entry->reason, WB_WORK_REASON),
+-		__entry->cgroup_ino
++		(unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ 
+@@ -622,7 +622,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 		  __entry->dirty_ratelimit,	/* base ratelimit */
+ 		  __entry->task_ratelimit, /* ratelimit with position control */
+ 		  __entry->balanced_dirty_ratelimit, /* the balanced ratelimit */
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ 
+@@ -707,7 +707,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 		  __entry->pause,	/* ms */
+ 		  __entry->period,	/* ms */
+ 		  __entry->think,	/* ms */
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	  )
+ );
+ 
+@@ -735,11 +735,11 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("bdi %s: ino=%lu state=%s dirtied_when=%lu age=%lu cgroup_ino=%lu",
+ 		  __entry->name,
+-		  __entry->ino,
++		  (unsigned long)__entry->ino,
+ 		  show_inode_state(__entry->state),
+ 		  __entry->dirtied_when,
+ 		  (jiffies - __entry->dirtied_when) / HZ,
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ 
+@@ -813,14 +813,14 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 	TP_printk("bdi %s: ino=%lu state=%s dirtied_when=%lu age=%lu "
+ 		  "index=%lu to_write=%ld wrote=%lu cgroup_ino=%lu",
+ 		  __entry->name,
+-		  __entry->ino,
++		  (unsigned long)__entry->ino,
+ 		  show_inode_state(__entry->state),
+ 		  __entry->dirtied_when,
+ 		  (jiffies - __entry->dirtied_when) / HZ,
+ 		  __entry->writeback_index,
+ 		  __entry->nr_to_write,
+ 		  __entry->wrote,
+-		  __entry->cgroup_ino
++		  (unsigned long)__entry->cgroup_ino
+ 	)
+ );
+ 
+@@ -861,7 +861,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+ 
+ 	TP_printk("dev %d,%d ino %lu dirtied %lu state %s mode 0%o",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+-		  __entry->ino, __entry->dirtied_when,
++		  (unsigned long)__entry->ino, __entry->dirtied_when,
+ 		  show_inode_state(__entry->state), __entry->mode)
+ );
+ 
 -- 
-tejun
+1.8.3.1
