@@ -1,246 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:60360 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727824AbfKFPOp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 10:14:45 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/5] block: refactor rescan_partitions
-Date: Wed,  6 Nov 2019 16:14:35 +0100
-Message-Id: <20191106151439.30056-2-hch@lst.de>
-In-Reply-To: <20191106151439.30056-1-hch@lst.de>
-References: <20191106151439.30056-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50874 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726521AbfKOLiF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 06:38:05 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAFBWsXB033784
+        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 06:38:03 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w9jtvt9gp-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 06:38:03 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Fri, 15 Nov 2019 11:38:01 -0000
+Subject: Re: [RFC 35/37] KVM: s390: Fix cpu reset local IRQ clearing
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-36-frankja@linux.ibm.com>
+ <6128cef9-5780-a5dd-68a1-62d7cfeaf05a@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Fri, 15 Nov 2019 12:37:57 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <6128cef9-5780-a5dd-68a1-62d7cfeaf05a@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="vDEtcf0lPdu94hX9l4qJc7eI1vgURv0n8"
+Message-Id: <c4214ae3-483e-5b68-8b68-73ac3b4f3ea1@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
-Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-Split out a helper that adds one single partition, and another one
-calling that dealing with the parsed_partitions state.  This makes
-it much more obvious how we clean up all state and start again when
-using the rescan label.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--vDEtcf0lPdu94hX9l4qJc7eI1vgURv0n8
+Content-Type: multipart/mixed; boundary="NK9JZlCj9SzSpbumC42VvYdNEWZf5wXFV"
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/partition-generic.c | 176 +++++++++++++++++++++-----------------
- 1 file changed, 96 insertions(+), 80 deletions(-)
+--NK9JZlCj9SzSpbumC42VvYdNEWZf5wXFV
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index aee643ce13d1..f113be069b40 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -509,26 +509,77 @@ static bool part_zone_aligned(struct gendisk *disk,
- 	return true;
- }
- 
--int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
-+static bool blk_add_partition(struct gendisk *disk, struct block_device *bdev,
-+		struct parsed_partitions *state, int p)
- {
--	struct parsed_partitions *state = NULL;
-+	sector_t size = state->parts[p].size;
-+	sector_t from = state->parts[p].from;
- 	struct hd_struct *part;
--	int p, highest, res;
--rescan:
--	if (state && !IS_ERR(state)) {
--		free_partitions(state);
--		state = NULL;
-+
-+	if (!size)
-+		return true;
-+
-+	if (from >= get_capacity(disk)) {
-+		printk(KERN_WARNING
-+		       "%s: p%d start %llu is beyond EOD, ",
-+		       disk->disk_name, p, (unsigned long long) from);
-+		if (disk_unlock_native_capacity(disk))
-+			return false;
-+		return true;
- 	}
- 
--	res = drop_partitions(disk, bdev);
--	if (res)
--		return res;
-+	if (from + size > get_capacity(disk)) {
-+		printk(KERN_WARNING
-+		       "%s: p%d size %llu extends beyond EOD, ",
-+		       disk->disk_name, p, (unsigned long long) size);
- 
--	if (disk->fops->revalidate_disk)
--		disk->fops->revalidate_disk(disk);
--	check_disk_size_change(disk, bdev, true);
--	bdev->bd_invalidated = 0;
--	if (!get_capacity(disk) || !(state = check_partition(disk, bdev)))
-+		if (disk_unlock_native_capacity(disk))
-+			return false;
-+
-+		/*
-+		 * We can not ignore partitions of broken tables created by for
-+		 * example camera firmware, but we limit them to the end of the
-+		 * disk to avoid creating invalid block devices.
-+		 */
-+		size = get_capacity(disk) - from;
-+	}
-+
-+	/*
-+	 * On a zoned block device, partitions should be aligned on the device
-+	 * zone size (i.e. zone boundary crossing not allowed).  Otherwise,
-+	 * resetting the write pointer of the last zone of one partition may
-+	 * impact the following partition.
-+	 */
-+	if (bdev_is_zoned(bdev) && !part_zone_aligned(disk, bdev, from, size)) {
-+		printk(KERN_WARNING
-+		       "%s: p%d start %llu+%llu is not zone aligned\n",
-+		       disk->disk_name, p, (unsigned long long) from,
-+		       (unsigned long long) size);
-+		return true;
-+	}
-+
-+	part = add_partition(disk, p, from, size, state->parts[p].flags,
-+			     &state->parts[p].info);
-+	if (IS_ERR(part)) {
-+		printk(KERN_ERR " %s: p%d could not be added: %ld\n",
-+		       disk->disk_name, p, -PTR_ERR(part));
-+		return true;
-+	}
-+
-+#ifdef CONFIG_BLK_DEV_MD
-+	if (state->parts[p].flags & ADDPART_FLAG_RAID)
-+		md_autodetect_dev(part_to_dev(part)->devt);
-+#endif
-+	return true;
-+}
-+
-+static int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
-+{
-+	struct parsed_partitions *state;
-+	int ret = -EAGAIN, p, highest;
-+
-+	state = check_partition(disk, bdev);
-+	if (!state)
- 		return 0;
- 	if (IS_ERR(state)) {
- 		/*
-@@ -540,7 +591,7 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
- 			printk(KERN_WARNING "%s: partition table beyond EOD, ",
- 			       disk->disk_name);
- 			if (disk_unlock_native_capacity(disk))
--				goto rescan;
-+				return -EAGAIN;
- 		}
- 		return -EIO;
- 	}
-@@ -554,7 +605,7 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
- 		       "%s: partition table partially beyond EOD, ",
- 		       disk->disk_name);
- 		if (disk_unlock_native_capacity(disk))
--			goto rescan;
-+			goto out_free_state;
- 	}
- 
- 	/* tell userspace that the media / partition table may have changed */
-@@ -571,72 +622,37 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
- 	disk_expand_part_tbl(disk, highest);
- 
- 	/* add partitions */
--	for (p = 1; p < state->limit; p++) {
--		sector_t size, from;
--
--		size = state->parts[p].size;
--		if (!size)
--			continue;
--
--		from = state->parts[p].from;
--		if (from >= get_capacity(disk)) {
--			printk(KERN_WARNING
--			       "%s: p%d start %llu is beyond EOD, ",
--			       disk->disk_name, p, (unsigned long long) from);
--			if (disk_unlock_native_capacity(disk))
--				goto rescan;
--			continue;
--		}
-+	for (p = 1; p < state->limit; p++)
-+		if (!blk_add_partition(disk, bdev, state, p))
-+			goto out_free_state;
- 
--		if (from + size > get_capacity(disk)) {
--			printk(KERN_WARNING
--			       "%s: p%d size %llu extends beyond EOD, ",
--			       disk->disk_name, p, (unsigned long long) size);
--
--			if (disk_unlock_native_capacity(disk)) {
--				/* free state and restart */
--				goto rescan;
--			} else {
--				/*
--				 * we can not ignore partitions of broken tables
--				 * created by for example camera firmware, but
--				 * we limit them to the end of the disk to avoid
--				 * creating invalid block devices
--				 */
--				size = get_capacity(disk) - from;
--			}
--		}
-+	ret = 0;
-+out_free_state:
-+	free_partitions(state);
-+	return ret;
-+}
- 
--		/*
--		 * On a zoned block device, partitions should be aligned on the
--		 * device zone size (i.e. zone boundary crossing not allowed).
--		 * Otherwise, resetting the write pointer of the last zone of
--		 * one partition may impact the following partition.
--		 */
--		if (bdev_is_zoned(bdev) &&
--		    !part_zone_aligned(disk, bdev, from, size)) {
--			printk(KERN_WARNING
--			       "%s: p%d start %llu+%llu is not zone aligned\n",
--			       disk->disk_name, p, (unsigned long long) from,
--			       (unsigned long long) size);
--			continue;
--		}
-+int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
-+{
-+	int ret;
- 
--		part = add_partition(disk, p, from, size,
--				     state->parts[p].flags,
--				     &state->parts[p].info);
--		if (IS_ERR(part)) {
--			printk(KERN_ERR " %s: p%d could not be added: %ld\n",
--			       disk->disk_name, p, -PTR_ERR(part));
--			continue;
--		}
--#ifdef CONFIG_BLK_DEV_MD
--		if (state->parts[p].flags & ADDPART_FLAG_RAID)
--			md_autodetect_dev(part_to_dev(part)->devt);
--#endif
--	}
--	free_partitions(state);
--	return 0;
-+rescan:
-+	ret = drop_partitions(disk, bdev);
-+	if (ret)
-+		return ret;
-+
-+	if (disk->fops->revalidate_disk)
-+		disk->fops->revalidate_disk(disk);
-+	check_disk_size_change(disk, bdev, true);
-+	bdev->bd_invalidated = 0;
-+
-+	if (!get_capacity(disk))
-+		return 0;
-+	
-+	ret = blk_add_partitions(disk, bdev);
-+	if (ret == -EAGAIN)
-+		goto rescan;
-+	return ret;
- }
- 
- int invalidate_partitions(struct gendisk *disk, struct block_device *bdev)
--- 
-2.20.1
+On 11/15/19 12:23 PM, Thomas Huth wrote:
+> On 24/10/2019 13.40, Janosch Frank wrote:
+>> The architecture states that we need to reset local IRQs for all CPU
+>> resets. Because the old reset interface did not support the normal CPU=
+
+>> reset we never did that.
+>>
+>> Now that we have a new interface, let's properly clear out local IRQs
+>> and let this commit be a reminder.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index ba6144fdb5d1..cc5feb67f145 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -3485,6 +3485,8 @@ static int kvm_arch_vcpu_ioctl_reset(struct kvm_=
+vcpu *vcpu,
+>>  		 * non-protected case.
+>>  		 */
+>>  		rc =3D 0;
+>> +		kvm_clear_async_pf_completion_queue(vcpu);
+>> +		kvm_s390_clear_local_irqs(vcpu);
+>>  		if (kvm_s390_pv_handle_cpu(vcpu)) {
+>>  			rc =3D uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
+>>  					   UVC_CMD_CPU_RESET, &ret);
+>>
+>=20
+> I think you could squash this into patch 33/37 where you've introduced
+> the RESET_NORMAL (and adjust the patch description there).
+>=20
+>  Thomas
+>=20
+
+Yes, that hunk was singled out to have an item to discuss internally.
+Since we now established, that it is needed, I can squash it.
+
+
+--NK9JZlCj9SzSpbumC42VvYdNEWZf5wXFV--
+
+--vDEtcf0lPdu94hX9l4qJc7eI1vgURv0n8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3OjhUACgkQ41TmuOI4
+ufjRvw/+L4XX9ZE2pt1DqwjknPSh7pUIj1wKrt+N0pCdtW78gx1HrtQH/m5cdWds
+26akSsFjWLipNdSZ+Ce5eBgUpi+lz7DFaT5EdWVX3t5UtBUskYN3xgSHl4vtSavN
+DJb2YUZENNmKtn6RKg9O4L8Sz/HdKVc5Z10689VuqcWMTXGWCBSY9bNZkV+g5eAe
+dcjeQdMSv2VmZuUC1Zo6tY0jfGOHSIDogthmmXi+48pcurlO2ljAfh7drzCAcVj0
+K4niO3emSkE1hOfuP6mSddKNqH84Bz63hzjJdzZSnccTAvpc34hCSv1ZJFWgwCGq
+vBZxdcw6EDZ4WzG1OwsQLVRO8CENePkndaUYPUdGUAN1P6ErbuLvx1SyQBV4mIn2
+/HFagU+8mP9m7DvMlslKL4KNtg10S1f+cm2laxSkLTpLKa7U28VuS4zmqZdP4UQh
+gxvAcm+ih1SxehOqNUBzZFfT5RT81aYaCDkAhDHUEORTm8QL8WLfrApgwCITetFJ
+PI/5h6TziBz1ERHwXs0PyF2by1TOkcUWjAiXS/WF8F073Y9P5aTDyl9sEVP0GC8i
+T0FOo712vfA2UWzt6c9f3NvVA7JeV0rsncaQa0k3YH62Y5+Cw/HmkJNc6b3OM/yX
+vAt5bFSHuzVKJV4Hon8KfJx0deI5Mhi2QLoL8II32DXRbXMJ+xo=
+=TCfJ
+-----END PGP SIGNATURE-----
+
+--vDEtcf0lPdu94hX9l4qJc7eI1vgURv0n8--
