@@ -1,191 +1,171 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26934 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730592AbfKEJdu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:33:50 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V8 0/6] mdev based hardware virtio offloading support
-Date: Tue,  5 Nov 2019 17:32:34 +0800
-Message-Id: <20191105093240.5135-1-jasowang@redhat.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:47810 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727442AbfKONox (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 08:44:53 -0500
+Subject: Re: [RFC 33/37] KVM: s390: Introduce VCPU reset IOCTL
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-34-frankja@linux.ibm.com>
+ <e7a62927-7e0e-1309-d5ad-b4a59149bb6a@redhat.com>
+ <fde8cd83-035e-5ef6-6b34-455857b3c579@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <9ba7930d-1a95-bc36-9a1f-1a095e5a59fb@redhat.com>
+Date: Fri, 15 Nov 2019 14:18:40 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <fde8cd83-035e-5ef6-6b34-455857b3c579@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="ddptErXd9qsUlaaXGCLFsflRZUWgKMSyS"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-Hi all:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--ddptErXd9qsUlaaXGCLFsflRZUWgKMSyS
+Content-Type: multipart/mixed; boundary="7jVYc2MxHJm2jr1cDd4mPwuSbNVpSs1WC"
 
-There are hardwares that can do virtio datapath offloading while
-having its own control path. This path tries to implement a mdev based
-unified API to support using kernel virtio driver to drive those
-devices. This is done by introducing a new mdev transport for virtio
-(virtio_mdev) and register itself as a new kind of mdev driver. Then
-it provides a unified way for kernel virtio driver to talk with mdev
-device implementation.
+--7jVYc2MxHJm2jr1cDd4mPwuSbNVpSs1WC
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Though the series only contains kernel driver support, the goal is to
-make the transport generic enough to support userspace drivers. This
-means vhost-mdev[1] could be built on top as well by resuing the
-transport.
+On 15/11/2019 14.06, Janosch Frank wrote:
+> On 11/15/19 11:47 AM, Thomas Huth wrote:
+>> On 24/10/2019 13.40, Janosch Frank wrote:
+>>> With PV we need to do things for all reset types, not only initial...
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>  arch/s390/kvm/kvm-s390.c | 53 ++++++++++++++++++++++++++++++++++++++++
+>>>  include/uapi/linux/kvm.h |  6 +++++
+>>>  2 files changed, 59 insertions(+)
+>>>
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index d3fd3ad1d09b..d8ee3a98e961 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -3472,6 +3472,53 @@ static int kvm_arch_vcpu_ioctl_initial_reset(str=
+uct kvm_vcpu *vcpu)
+>>>  =09return 0;
+>>>  }
+>>> =20
+>>> +static int kvm_arch_vcpu_ioctl_reset(struct kvm_vcpu *vcpu,
+>>> +=09=09=09=09     unsigned long type)
+>>> +{
+>>> +=09int rc;
+>>> +=09u32 ret;
+>>> +
+>>> +=09switch (type) {
+>>> +=09case KVM_S390_VCPU_RESET_NORMAL:
+>>> +=09=09/*
+>>> +=09=09 * Only very little is reset, userspace handles the
+>>> +=09=09 * non-protected case.
+>>> +=09=09 */
+>>> +=09=09rc =3D 0;
+>>> +=09=09if (kvm_s390_pv_handle_cpu(vcpu)) {
+>>> +=09=09=09rc =3D uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
+>>> +=09=09=09=09=09   UVC_CMD_CPU_RESET, &ret);
+>>> +=09=09=09VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: cpu %d rc %x=
+ rrc %x",
+>>> +=09=09=09=09   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
+>>> +=09=09}
+>>> +=09=09break;
+>>> +=09case KVM_S390_VCPU_RESET_INITIAL:
+>>> +=09=09rc =3D kvm_arch_vcpu_ioctl_initial_reset(vcpu);
+>>> +=09=09if (kvm_s390_pv_handle_cpu(vcpu)) {
+>>> +=09=09=09uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
+>>> +=09=09=09=09      UVC_CMD_CPU_RESET_INITIAL,
+>>> +=09=09=09=09      &ret);
+>>> +=09=09=09VCPU_EVENT(vcpu, 3, "PROTVIRT RESET INITIAL VCPU: cpu %d rc %=
+x rrc %x",
+>>> +=09=09=09=09   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
+>>> +=09=09}
+>>> +=09=09break;
+>>> +=09case KVM_S390_VCPU_RESET_CLEAR:
+>>> +=09=09rc =3D kvm_arch_vcpu_ioctl_initial_reset(vcpu);
+>>> +=09=09if (kvm_s390_pv_handle_cpu(vcpu)) {
+>>> +=09=09=09rc =3D uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
+>>> +=09=09=09=09=09   UVC_CMD_CPU_RESET_CLEAR, &ret);
+>>> +=09=09=09VCPU_EVENT(vcpu, 3, "PROTVIRT RESET CLEAR VCPU: cpu %d rc %x =
+rrc %x",
+>>> +=09=09=09=09   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
+>>> +=09=09}
+>>> +=09=09break;
+>>> +=09default:
+>>> +=09=09rc =3D -EINVAL;
+>>> +=09=09break;
+>>
+>> (nit: you could drop the "break;" here)
+>>
+>>> +=09}
+>>> +=09return rc;
+>>> +}
+>>> +
+>>> +
+>>>  int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_reg=
+s *regs)
+>>>  {
+>>>  =09vcpu_load(vcpu);
+>>> @@ -4633,8 +4680,14 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>>>  =09=09break;
+>>>  =09}
+>>>  =09case KVM_S390_INITIAL_RESET:
+>>> +=09=09r =3D -EINVAL;
+>>> +=09=09if (kvm_s390_pv_is_protected(vcpu->kvm))
+>>> +=09=09=09break;
+>>
+>> Wouldn't it be nicer to call
+>>
+>>   kvm_arch_vcpu_ioctl_reset(vcpu, KVM_S390_VCPU_RESET_INITIAL)
+>>
+>> in this case instead?
+>=20
+> How about:
+>         case KVM_S390_INITIAL_RESET:
+>=20
+>=20
+>                 arg =3D KVM_S390_VCPU_RESET_INITIAL;
+>=20
 
-A sample driver is also implemented which simulate a virito-net
-loopback ethernet device on top of vringh + workqueue. This could be
-used as a reference implementation for real hardware driver.
+Add a "/* fallthrough */" comment here...
 
-Also a real ICF VF driver was also posted here[2] which is a good
-reference for vendors who is interested in their own virtio datapath
-offloading product.
+>         case KVM_S390_VCPU_RESET:
+>=20
+>=20
+>                 r =3D kvm_arch_vcpu_ioctl_reset(vcpu, arg);
+>=20
+>=20
+>                 break;
 
-Consider mdev framework only support VFIO device and driver right now,
-this series also extend it to support other types. This is done
-through introducing class id to the device and pairing it with
-id_talbe claimed by the driver. On top, this seris also decouple
-device specific parents ops out of the common ones.
+... then this looks good, yes!
 
-Pktgen test was done with virito-net + mvnet loop back device.
+ Thomas
 
-Please review.
 
-[1] https://lkml.org/lkml/2019/10/31/440
-[2] https://lkml.org/lkml/2019/10/15/1226
+--7jVYc2MxHJm2jr1cDd4mPwuSbNVpSs1WC--
 
-Changes from V7:
-- drop {set|get}_mdev_features for virtio
-- typo and comment style fixes
+--ddptErXd9qsUlaaXGCLFsflRZUWgKMSyS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Changes from V6:
+-----BEGIN PGP SIGNATURE-----
 
-- rename ops files and compile guard
+iQIzBAEBCAAdFiEEJ7iIR+7gJQEY8+q5LtnXdP5wLbUFAl3OpbwACgkQLtnXdP5w
+LbUFFA//XgnJZcgvYpUMvdaTT3HOwu/ZcJE5Nq4kGGj0ZXYDrfjNVbgYVUPSRV5U
+E+Eepl54g3ZmgSH3u+u58v2Q4OQIsTCfEoRUECxOAhM3IxxxnEQrf99vGODEieCE
+/J8kiHhfOQI+m8gsyiHFfCGRA3N0VchuvxMiwRwvU00XQJcRd3Xm3RDMfbcWqdtn
+7y7vfMaolB9sC/uyWeLHtpkHJhqW/m6IntiM0UH2KjRhekkW6ZkRWleAF22aVtk+
+B8aJ7VM5f7OW4TaO+/F2mF/Vq6lDVjz3CTjpbJ52qEILSkfMIJd+db7NeFsp/vQh
+HzmZN3/ARtqjzVEDlOZNQk9OXxxdliAAfwWIJujYIKWq5WZo2XaipiiT9LhlFQsB
+5sVfJDntZx2JaZScgnvgp3EX4PXeSqgfi6kFzvAYrt+sepRjjUJLLVBe6YOUXxbS
+L3bHWSbWye8BqFtJHBoQANBAyq8/0wF6D/bD+/2ac8KNmq7YVYTJx4TjUrmRSXrJ
+uFI3nnvRksubhg3VjM5TacrvujDN5FqDyTSeQJ7si6XYFZBs4EdlNGSV2UixSXT8
+NvXZl1z0vXsMtPpgv1yRepAd27DRLp/1sm5DN2VBjYw2YzJH3jnNinFVedxDi6L0
+69Gqc3+oPYYliNbSWKkEM6kpLDiMc1ZhEeVS6xVCIVLCP4gHsoI=
+=c7do
+-----END PGP SIGNATURE-----
 
-Changes from V5:
-
-- use dev_warn() instead of WARN(1) when class id is not set
-- validate id_table before trying to do matching between device and
-  driver
-- add wildcard for modpost script
-- use unique name for id_table
-- move get_mdev_features() to be the first member of virtio_device_ops
-  and more comments for it
-- typo fixes for the comments above virtio_mdev_ops
-
-Changes from V4:
-
-- keep mdev_set_class() for the device that doesn't use device ops
-- use union for device ops pointer in mdev_device
-- introduce class specific helper for getting is device ops
-- use WARN_ON instead of BUG_ON in mdev_set_virtio_ops
-- explain details of get_mdev_features() and get_vendor_id()
-- distinguish the optional virito device ops from mandatory ones and
-  make get_generation() optional
-- rename vfio_mdev.h to vfio_mdev_ops.h, rename virito_mdev.h to
-  virtio_mdev_ops.h
-- don't abuse version fileds in virtio_mdev structure, use features
-  instead
-- fix warning during device remove
-- style & docs tweaks and typo fixes
-
-Changes from V3:
-
-- document that class id (device ops) must be specified in create()
-- add WARN() when trying to set class_id when it has already set
-- add WARN() when class_id is not specified in create() and correctly
-  return an error in this case
-- correct the prototype of mdev_set_class() in the doc
-- add documention of mdev_set_class()
-- remove the unnecessary "class_id_fail" label when class id is not
-  specified in create()
-- convert id_table in vfio_mdev to const
-- move mdev_set_class and its friends after mdev_uuid()
-- suqash the patch of bus uevent into patch of introducing class id
-- tweak the words in the docs per Cornelia suggestion
-- tie class_id and device ops through class specific initialization
-  routine like mdev_set_vfio_ops()
-- typos fixes in the docs of virtio-mdev callbacks
-- document the usage of virtqueues in struct virtio_mdev_device
-- remove the useless vqs array in struct virtio_mdev_device
-- rename MDEV_ID_XXX to MDEV_CLASS_ID_XXX
-
-Changes from V2:
-
-- fail when class_id is not specified
-- drop the vringh patch
-- match the doc to the code
-- tweak the commit log
-- move device_ops from parent to mdev device
-- remove the unused MDEV_ID_VHOST
-
-Changes from V1:
-
-- move virtio_mdev.c to drivers/virtio
-- store class_id in mdev_device instead of mdev_parent
-- store device_ops in mdev_device instead of mdev_parent
-- reorder the patch, vringh fix comes first
-- really silent compiling warnings
-- really switch to use u16 for class_id
-- uevent and modpost support for mdev class_id
-- vraious tweaks per comments from Parav
-
-Changes from RFC-V2:
-
-- silent compile warnings on some specific configuration
-- use u16 instead u8 for class id
-- reseve MDEV_ID_VHOST for future vhost-mdev work
-- introduce "virtio" type for mvnet and make "vhost" type for future
-  work
-- add entries in MAINTAINER
-- tweak and typos fixes in commit log
-
-Changes from RFC-V1:
-
-- rename device id to class id
-- add docs for class id and device specific ops (device_ops)
-- split device_ops into seperate headers
-- drop the mdev_set_dma_ops()
-- use device_ops to implement the transport API, then it's not a part
-  of UAPI any more
-- use GFP_ATOMIC in mvnet sample device and other tweaks
-- set_vring_base/get_vring_base support for mvnet device
-
-Jason Wang (6):
-  mdev: class id support
-  modpost: add support for mdev class id
-  mdev: introduce device specific ops
-  mdev: introduce virtio device and its device ops
-  virtio: introduce a mdev based transport
-  docs: sample driver to demonstrate how to implement virtio-mdev
-    framework
-
- .../driver-api/vfio-mediated-device.rst       |  38 +-
- MAINTAINERS                                   |   2 +
- drivers/gpu/drm/i915/gvt/kvmgt.c              |  17 +-
- drivers/s390/cio/vfio_ccw_ops.c               |  17 +-
- drivers/s390/crypto/vfio_ap_ops.c             |  13 +-
- drivers/vfio/mdev/mdev_core.c                 |  60 ++
- drivers/vfio/mdev/mdev_driver.c               |  25 +
- drivers/vfio/mdev/mdev_private.h              |   8 +
- drivers/vfio/mdev/vfio_mdev.c                 |  45 +-
- drivers/virtio/Kconfig                        |   7 +
- drivers/virtio/Makefile                       |   1 +
- drivers/virtio/virtio_mdev.c                  | 407 +++++++++++
- include/linux/mdev.h                          |  57 +-
- include/linux/mdev_vfio_ops.h                 |  52 ++
- include/linux/mdev_virtio_ops.h               | 149 ++++
- include/linux/mod_devicetable.h               |   8 +
- samples/Kconfig                               |   7 +
- samples/vfio-mdev/Makefile                    |   1 +
- samples/vfio-mdev/mbochs.c                    |  19 +-
- samples/vfio-mdev/mdpy.c                      |  19 +-
- samples/vfio-mdev/mtty.c                      |  17 +-
- samples/vfio-mdev/mvnet.c                     | 685 ++++++++++++++++++
- scripts/mod/devicetable-offsets.c             |   3 +
- scripts/mod/file2alias.c                      |  11 +
- 24 files changed, 1577 insertions(+), 91 deletions(-)
- create mode 100644 drivers/virtio/virtio_mdev.c
- create mode 100644 include/linux/mdev_vfio_ops.h
- create mode 100644 include/linux/mdev_virtio_ops.h
- create mode 100644 samples/vfio-mdev/mvnet.c
-
---=20
-2.19.1
+--ddptErXd9qsUlaaXGCLFsflRZUWgKMSyS--
