@@ -1,27 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41676 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726981AbfK3Vto (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 30 Nov 2019 16:49:44 -0500
-Date: Sat, 30 Nov 2019 13:49:42 -0800
-From: Eric Biggers <ebiggers@kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:44636 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727729AbfKOKF5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 05:05:57 -0500
 Subject: Re: [PATCH 2/7] block: merge invalidate_partitions into
  rescan_partitions
-Message-ID: <20191130214942.GA676@sol.localdomain>
 References: <20191114143438.14681-1-hch@lst.de>
  <20191114143438.14681-3-hch@lst.de>
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <15ec0586-550b-2e98-d750-66f16b4f6bad@suse.de>
+Date: Fri, 15 Nov 2019 11:05:54 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20191114143438.14681-3-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hi Christoph,
-
-On Thu, Nov 14, 2019 at 03:34:33PM +0100, Christoph Hellwig wrote:
+On 11/14/19 3:34 PM, Christoph Hellwig wrote:
 > A lot of the logic in invalidate_partitions and rescan_partitions is
 > shared.  Merge the two functions to simplify things.  There is a small
 > behavior change in that we now send the kevent change notice also if we
@@ -37,27 +36,13 @@ On Thu, Nov 14, 2019 at 03:34:33PM +0100, Christoph Hellwig wrote:
 >  include/linux/genhd.h     |  4 ++--
 >  4 files changed, 18 insertions(+), 31 deletions(-)
 > 
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Mainline is broken for me because systemd-udevd spins forever using max CPU
-starting at boot time.  I bisected it to this commit.
+Cheers,
 
-I'm not an expert in this code, but the following patch fixes it:
-
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 6b9f4f5d993a..b0eebd7580ab 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -599,7 +599,8 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
- 		 * Tell userspace that the media / partition table may have
- 		 * changed.
- 		 */
--		kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
-+		if (invalidate)
-+			kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
- 		return 0;
- 	}
-
-
-Do you have any better suggestion, or should I just send this as a formal patch?
-
-- Eric
+Hannes
+-- 
+Dr. Hannes Reinecke		      Teamlead Storage & Networking
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 247165 (AG München), GF: Felix Imendörffer
