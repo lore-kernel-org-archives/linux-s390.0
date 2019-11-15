@@ -1,122 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60489 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726351AbfKSMsT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Nov 2019 07:48:19 -0500
-Date: Tue, 19 Nov 2019 13:48:09 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH v1 02/10] vfio-ccw: Register a chp_event callback
- for vfio-ccw
-Message-ID: <20191119134809.75ba276b.cohuck@redhat.com>
-In-Reply-To: <20191115025620.19593-3-farman@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47854 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726491AbfKOD0u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Nov 2019 22:26:50 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAF39WBs182350
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:26:49 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w9jcm1g2f-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:26:48 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 15 Nov 2019 02:56:24 -0000
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [RFC PATCH v1 02/10] vfio-ccw: Register a chp_event callback for vfio-ccw
+Date: Fri, 15 Nov 2019 03:56:12 +0100
+In-Reply-To: <20191115025620.19593-1-farman@linux.ibm.com>
 References: <20191115025620.19593-1-farman@linux.ibm.com>
-        <20191115025620.19593-3-farman@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Message-Id: <20191115025620.19593-3-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-On Fri, 15 Nov 2019 03:56:12 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
+From: Farhan Ali <alifm@linux.ibm.com>
 
-> From: Farhan Ali <alifm@linux.ibm.com>
->=20
-> Register the chp_event callback to receive channel path related
-> events for the subchannels managed by vfio-ccw.
->=20
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
->=20
-> Notes:
->     v0->v1: [EF]
->      - Add s390dbf trace
->=20
->  drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
->  1 file changed, 44 insertions(+)
->=20
-> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
-drv.c
-> index 91989269faf1..05da1facee60 100644
-> --- a/drivers/s390/cio/vfio_ccw_drv.c
-> +++ b/drivers/s390/cio/vfio_ccw_drv.c
-> @@ -19,6 +19,7 @@
-> =20
->  #include <asm/isc.h>
-> =20
-> +#include "chp.h"
->  #include "ioasm.h"
->  #include "css.h"
->  #include "vfio_ccw_private.h"
-> @@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch=
-, int process)
->  =09return rc;
->  }
-> =20
-> +static int vfio_ccw_chp_event(struct subchannel *sch,
-> +=09=09=09      struct chp_link *link, int event)
-> +{
-> +=09struct vfio_ccw_private *private =3D dev_get_drvdata(&sch->dev);
-> +=09int mask =3D chp_ssd_get_mask(&sch->ssd_info, link);
-> +=09int retry =3D 255;
-> +
-> +=09if (!private || !mask)
-> +=09=09return 0;
-> +
-> +=09if (cio_update_schib(sch))
-> +=09=09return -ENODEV;
+Register the chp_event callback to receive channel path related
+events for the subchannels managed by vfio-ccw.
 
-It seems this return code is only checked by the common I/O layer for
-the _OFFLINE case; still, it's probably not a bad idea, even though it
-is different from what the vanilla I/O subchannel driver does.
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
 
-> +
-> +=09VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=3D0x%x event=3D%d\n",
-> +=09=09=09   mdev_uuid(private->mdev), sch->schid.cssid,
-> +=09=09=09   sch->schid.ssid, sch->schid.sch_no,
-> +=09=09=09   mask, event);
+Notes:
+    v0->v1: [EF]
+     - Add s390dbf trace
 
-If you log only here, you're missing the case above.
+ drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-> +
-> +=09switch (event) {
-> +=09case CHP_VARY_OFF:
-> +=09=09/* Path logically turned off */
-> +=09=09sch->opm &=3D ~mask;
-> +=09=09sch->lpm &=3D ~mask;
-> +=09=09break;
-> +=09case CHP_OFFLINE:
-> +=09=09/* Path is gone */
-> +=09=09cio_cancel_halt_clear(sch, &retry);
-> +=09=09break;
-> +=09case CHP_VARY_ON:
-> +=09=09/* Path logically turned on */
-> +=09=09sch->opm |=3D mask;
-> +=09=09sch->lpm |=3D mask;
-> +=09=09break;
-> +=09case CHP_ONLINE:
-> +=09=09/* Path became available */
-> +=09=09sch->lpm |=3D mask & sch->opm;
-> +=09=09break;
-> +=09}
-
-Looks sane as the first round.
-
-> +
-> +=09return 0;
-> +}
-> +
->  static struct css_device_id vfio_ccw_sch_ids[] =3D {
->  =09{ .match_flags =3D 0x1, .type =3D SUBCHANNEL_TYPE_IO, },
->  =09{ /* end of list */ },
-> @@ -274,6 +317,7 @@ static struct css_driver vfio_ccw_sch_driver =3D {
->  =09.remove =3D vfio_ccw_sch_remove,
->  =09.shutdown =3D vfio_ccw_sch_shutdown,
->  =09.sch_event =3D vfio_ccw_sch_event,
-> +=09.chp_event =3D vfio_ccw_chp_event,
->  };
-> =20
->  static int __init vfio_ccw_debug_init(void)
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 91989269faf1..05da1facee60 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -19,6 +19,7 @@
+ 
+ #include <asm/isc.h>
+ 
++#include "chp.h"
+ #include "ioasm.h"
+ #include "css.h"
+ #include "vfio_ccw_private.h"
+@@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 	return rc;
+ }
+ 
++static int vfio_ccw_chp_event(struct subchannel *sch,
++			      struct chp_link *link, int event)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
++	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
++	int retry = 255;
++
++	if (!private || !mask)
++		return 0;
++
++	if (cio_update_schib(sch))
++		return -ENODEV;
++
++	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
++			   mdev_uuid(private->mdev), sch->schid.cssid,
++			   sch->schid.ssid, sch->schid.sch_no,
++			   mask, event);
++
++	switch (event) {
++	case CHP_VARY_OFF:
++		/* Path logically turned off */
++		sch->opm &= ~mask;
++		sch->lpm &= ~mask;
++		break;
++	case CHP_OFFLINE:
++		/* Path is gone */
++		cio_cancel_halt_clear(sch, &retry);
++		break;
++	case CHP_VARY_ON:
++		/* Path logically turned on */
++		sch->opm |= mask;
++		sch->lpm |= mask;
++		break;
++	case CHP_ONLINE:
++		/* Path became available */
++		sch->lpm |= mask & sch->opm;
++		break;
++	}
++
++	return 0;
++}
++
+ static struct css_device_id vfio_ccw_sch_ids[] = {
+ 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
+ 	{ /* end of list */ },
+@@ -274,6 +317,7 @@ static struct css_driver vfio_ccw_sch_driver = {
+ 	.remove = vfio_ccw_sch_remove,
+ 	.shutdown = vfio_ccw_sch_shutdown,
+ 	.sch_event = vfio_ccw_sch_event,
++	.chp_event = vfio_ccw_chp_event,
+ };
+ 
+ static int __init vfio_ccw_debug_init(void)
+-- 
+2.17.1
