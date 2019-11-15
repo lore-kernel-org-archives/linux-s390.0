@@ -1,64 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:34396 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728227AbfKDCPk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 3 Nov 2019 21:15:40 -0500
-Subject: Re: [PATCH V8] mm/debug: Add tests validating architecture page table
- helpers
-References: <1572240562-23630-1-git-send-email-anshuman.khandual@arm.com>
- <B6AAFA3F-745D-48E2-98CC-CFB30934CE39@lca.pw>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Message-ID: <fdb72ac1-5f21-bcf1-ebab-411f56e67b56@arm.com>
-Date: Mon, 4 Nov 2019 07:45:56 +0530
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22510 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727089AbfKOKBZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 05:01:25 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAF9waUO087259
+        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 05:01:24 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w9nux88aj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 15 Nov 2019 05:01:24 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Fri, 15 Nov 2019 10:01:22 -0000
+Subject: Re: [RFC 26/37] KVM: s390: protvirt: Only sync fmt4 registers
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-27-frankja@linux.ibm.com>
+ <197c1218-3171-3e22-caf8-47cdab58caf8@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Fri, 15 Nov 2019 11:01:16 +0100
 MIME-Version: 1.0
-In-Reply-To: <B6AAFA3F-745D-48E2-98CC-CFB30934CE39@lca.pw>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <197c1218-3171-3e22-caf8-47cdab58caf8@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="PdhOTjLoZjYXjs1szoQtZlknVfAmDU2P3"
+Message-Id: <c89c28a9-15f9-0a40-4815-4f50883c93d3@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Qian Cai <cai@lca.pw>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--PdhOTjLoZjYXjs1szoQtZlknVfAmDU2P3
+Content-Type: multipart/mixed; boundary="1guMIYcNAznUAlPhQ2sQsZhbgu0Qy4zZn"
+
+--1guMIYcNAznUAlPhQ2sQsZhbgu0Qy4zZn
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 11/15/19 10:02 AM, Thomas Huth wrote:
+> On 24/10/2019 13.40, Janosch Frank wrote:
+>> A lot of the registers are controlled by the Ultravisor and never
+>> visible to KVM. Also some registers are overlayed, like gbea is with
+>> sidad, which might leak data to userspace.
+>>
+>> Hence we sync a minimal set of registers for both SIE formats and then=
+
+>> check and sync format 2 registers if necessary.
+>>
+>> Also we disable set/get one reg for the same reason. It's an old
+>> interface anyway.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 138 +++++++++++++++++++++++---------------=
+-
+>>  1 file changed, 82 insertions(+), 56 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 17a78774c617..f623c64aeade 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -2997,7 +2997,8 @@ static void kvm_s390_vcpu_initial_reset(struct k=
+vm_vcpu *vcpu)
+>>  	/* make sure the new fpc will be lazily loaded */
+>>  	save_fpu_regs();
+>>  	current->thread.fpu.fpc =3D 0;
+>> -	vcpu->arch.sie_block->gbea =3D 1;
+>> +	if (!kvm_s390_pv_is_protected(vcpu->kvm))
+>> +		vcpu->arch.sie_block->gbea =3D 1;
+>>  	vcpu->arch.sie_block->pp =3D 0;
+>>  	vcpu->arch.sie_block->fpf &=3D ~FPF_BPBC;
+>>  	vcpu->arch.pfault_token =3D KVM_S390_PFAULT_TOKEN_INVALID;
+>> @@ -3367,6 +3368,10 @@ static int kvm_arch_vcpu_ioctl_get_one_reg(stru=
+ct kvm_vcpu *vcpu,
+>>  			     (u64 __user *)reg->addr);
+>>  		break;
+>>  	case KVM_REG_S390_GBEA:
+>> +		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>> +			r =3D 0;
+>> +			break;
+>> +		}
+>>  		r =3D put_user(vcpu->arch.sie_block->gbea,
+>>  			     (u64 __user *)reg->addr);
+>>  		break;
+>> @@ -3420,6 +3425,10 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(stru=
+ct kvm_vcpu *vcpu,
+>>  			     (u64 __user *)reg->addr);
+>>  		break;
+>>  	case KVM_REG_S390_GBEA:
+>> +		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>> +			r =3D 0;
+>> +			break;
+>> +		}
+>=20
+> Wouldn't it be better to return EINVAL in this case? ... the callers
+> definitely do not get what they expected here...
+>=20
+>  Thomas
+>=20
+
+Hrm, new QEMUs will use cpu run anyway and hence I guess it would make
+sense as old QEMUs hopefully won't have pv support.
 
 
+--1guMIYcNAznUAlPhQ2sQsZhbgu0Qy4zZn--
 
-On 10/29/2019 04:01 PM, Qian Cai wrote:
-> 
-> 
->> On Oct 28, 2019, at 1:29 AM, Anshuman Khandual <Anshuman.Khandual@arm.com> wrote:
->>
->> This adds tests which will validate architecture page table helpers and
->> other accessors in their compliance with expected generic MM semantics.
->> This will help various architectures in validating changes to existing
->> page table helpers or addition of new ones.
->>
->> This test covers basic page table entry transformations including but not
->> limited to old, young, dirty, clean, write, write protect etc at various
->> level along with populating intermediate entries with next page table page
->> and validating them.
->>
->> Test page table pages are allocated from system memory with required size
->> and alignments. The mapped pfns at page table levels are derived from a
->> real pfn representing a valid kernel text symbol. This test gets called
->> right after page_alloc_init_late().
->>
->> This gets build and run when CONFIG_DEBUG_VM_PGTABLE is selected along with
->> CONFIG_VM_DEBUG. Architectures willing to subscribe this test also need to
->> select CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE which for now is limited to x86 and
->> arm64. Going forward, other architectures too can enable this after fixing
->> build or runtime problems (if any) with their page table helpers.
->>
->> Folks interested in making sure that a given platform's page table helpers
->> conform to expected generic MM semantics should enable the above config
->> which will just trigger this test during boot. Any non conformity here will
->> be reported as an warning which would need to be fixed. This test will help
->> catch any changes to the agreed upon semantics expected from generic MM and
->> enable platforms to accommodate it thereafter.
-> 
-> This looks like a perfect candidate to streamline with the new kunit framework, no?
+--PdhOTjLoZjYXjs1szoQtZlknVfAmDU2P3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-I have not been following the kunit test framework. But being highly dependent on
-existing MM accessors (generic or platform) and very much page table modification
-centric, mm/ is the best place for this test IMHO. It is now also part of DEBUG_VM
-set of tests. Probably in future all existing MM tests (mm/ or lib/) might move to
-kunit framework but for now it should remain with DEBUG_VM set of tests.
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3Od2wACgkQ41TmuOI4
+ufhyng//U7oBygOGsq1WSOMtR5WkCWlExYl0QexBSk80lP1Q41AjlFBEd/agzo8F
+e3CORr53g+xNdle1TX4cAr+jpu5cJ/hFv/pAFyU4GqT5/H97DOotV7FXYEZHqXKj
+tih9O5b1CMw2+s5ZAtAda3Z0LbhP0B+nAitXQ8Jeoj7Kb/cDAJftcZbKZ7MbD1Jw
+l0JoGDDeo1Xp5MuqcL06j1yMrDRGGVUZPsh6UFJjarC44oolJLA5Mi6FIgYP9PKr
+uw+Sl9NGk+y9u5kPH1SlxQKFsGryLsrs1ooJuT/JndDJMw/nO+34ZjeXS/CoNnSG
+fQwBbE2M3zYvfLWR9UmjSHRYi+za/0YNwwgcBrgHPifdpuhK5EOAnlinmT0NmMyE
+B2t93rAa2mskyRN/YGVU66XZ3TUSGxZiZ5tn4BeR+/HNVX44+U9T0Ct/xAVvArLV
+JrGwOgGbuPu/hsRnLrUeSa6dmldHR3zGExKuAHyFNwwcBhQbQpPBzD69Bqs0QKer
+/k+v0WsaWULWP8o8/WG0CghWmJqJGioWpXFEB+sYQGz10vkHax9W0fgvPUKbPW+3
+0NDXks99lWClSOzloAchvuOqxJwwkinUoc/uM8WfT2DiFV1Fh8Qu9oIiIDeEfQEO
+Dim9UaRRremdSFG7XAamqmVyzlGuWeBxsPKn3hDGUSLkDUYZE4E=
+=k+mg
+-----END PGP SIGNATURE-----
+
+--PdhOTjLoZjYXjs1szoQtZlknVfAmDU2P3--
