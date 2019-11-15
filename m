@@ -1,68 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22524 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728039AbfKZOlk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 Nov 2019 09:41:40 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAQEXpRA026419
-        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:39 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wh49u500p-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:38 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
-        Tue, 26 Nov 2019 14:41:36 -0000
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Subject: [PATCH 2/5] s390/boot: Rename HEAP_SIZE due to name collision
-Date: Tue, 26 Nov 2019 15:41:27 +0100
-In-Reply-To: <20191126144130.75710-1-zaslonko@linux.ibm.com>
-References: <20191126144130.75710-1-zaslonko@linux.ibm.com>
-Message-Id: <20191126144130.75710-3-zaslonko@linux.ibm.com>
+Received: from mx2.suse.de ([195.135.220.15]:47784 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727004AbfKOKIy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 05:08:54 -0500
+Subject: Re: [PATCH 6/7] block: move clearing bd_invalidated into
+ check_disk_size_change
+References: <20191114143438.14681-1-hch@lst.de>
+ <20191114143438.14681-7-hch@lst.de>
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <71fc0a5b-ad15-3041-9ea8-8e37b398931d@suse.de>
+Date: Fri, 15 Nov 2019 11:08:51 +0100
+MIME-Version: 1.0
+In-Reply-To: <20191114143438.14681-7-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-Change the conflicting macro name in preparation for zlib_inflate
-hardware support.
+On 11/14/19 3:34 PM, Christoph Hellwig wrote:
+> Both callers of check_disk_size_change clear bd_invalidate directly
+> after the call, so move the clearing into check_disk_size_change
+> itself.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  fs/block_dev.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
----
- arch/s390/boot/compressed/decompressor.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Cheers,
 
-diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-index 45046630c56a..368fd372c875 100644
---- a/arch/s390/boot/compressed/decompressor.c
-+++ b/arch/s390/boot/compressed/decompressor.c
-@@ -30,13 +30,13 @@ extern unsigned char _compressed_start[];
- extern unsigned char _compressed_end[];
- 
- #ifdef CONFIG_HAVE_KERNEL_BZIP2
--#define HEAP_SIZE	0x400000
-+#define BOOT_HEAP_SIZE	0x400000
- #else
--#define HEAP_SIZE	0x10000
-+#define BOOT_HEAP_SIZE	0x10000
- #endif
- 
- static unsigned long free_mem_ptr = (unsigned long) _end;
--static unsigned long free_mem_end_ptr = (unsigned long) _end + HEAP_SIZE;
-+static unsigned long free_mem_end_ptr = (unsigned long) _end + BOOT_HEAP_SIZE;
- 
- #ifdef CONFIG_KERNEL_GZIP
- #include "../../../../lib/decompress_inflate.c"
-@@ -62,7 +62,7 @@ static unsigned long free_mem_end_ptr = (unsigned long) _end + HEAP_SIZE;
- #include "../../../../lib/decompress_unxz.c"
- #endif
- 
--#define decompress_offset ALIGN((unsigned long)_end + HEAP_SIZE, PAGE_SIZE)
-+#define decompress_offset ALIGN((unsigned long)_end + BOOT_HEAP_SIZE, PAGE_SIZE)
- 
- unsigned long mem_safe_offset(void)
- {
+Hannes
 -- 
-2.17.1
+Dr. Hannes Reinecke		      Teamlead Storage & Networking
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 247165 (AG München), GF: Felix Imendörffer
