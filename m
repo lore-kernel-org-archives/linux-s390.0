@@ -1,119 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41609 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726970AbfKKNui (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:50:38 -0500
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 4/4] vfio-ccw: Rework the io_fctl trace
-Date: Mon, 11 Nov 2019 14:50:19 +0100
-Message-Id: <20191111135019.2394-5-cohuck@redhat.com>
-In-Reply-To: <20191111135019.2394-1-cohuck@redhat.com>
-References: <20191111135019.2394-1-cohuck@redhat.com>
+Received: from mx2.suse.de ([195.135.220.15]:47856 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727089AbfKOKJR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 Nov 2019 05:09:17 -0500
+Subject: Re: [PATCH 7/7] block: move setting bd_invalidated from flush_disk to
+ check_disk_change
+References: <20191114143438.14681-1-hch@lst.de>
+ <20191114143438.14681-8-hch@lst.de>
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <118ce019-45ce-138c-afe2-5793c33ea0c9@suse.de>
+Date: Fri, 15 Nov 2019 11:09:14 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191114143438.14681-8-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
+Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+On 11/14/19 3:34 PM, Christoph Hellwig wrote:
+> The only other caller of flush_disk instantly clears the flag, so don't
+> bother setting it there.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  fs/block_dev.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index ee63c2732fa2..f60739b5a24f 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -1403,7 +1403,6 @@ static void flush_disk(struct block_device *bdev, bool kill_dirty)
+>  		       "resized disk %s\n",
+>  		       bdev->bd_disk ? bdev->bd_disk->disk_name : "");
+>  	}
+> -	bdev->bd_invalidated = 1;
+>  }
+>  
+>  /**
+> @@ -1491,6 +1490,7 @@ int check_disk_change(struct block_device *bdev)
+>  		return 0;
+>  
+>  	flush_disk(bdev, true);
+> +	bdev->bd_invalidated = 1;
+>  	if (bdops->revalidate_disk)
+>  		bdops->revalidate_disk(bdev->bd_disk);
+>  	return 1;
+> 
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Using __field_struct for the schib is convenient, but it doesn't
-appear to let us filter based on any of the schib elements.
-Specifying the full schid or any element within it results
-in various errors by the parser.  So, expand that out to its
-component elements, so we can limit the trace to a single device.
+Cheers,
 
-While we are at it, rename this trace to the function name, so we
-remember what is being traced instead of an abstract reference to the
-function control bit of the SCSW.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20191016142040.14132-5-farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_fsm.c   |  4 ++--
- drivers/s390/cio/vfio_ccw_trace.c |  2 +-
- drivers/s390/cio/vfio_ccw_trace.h | 18 +++++++++++-------
- 3 files changed, 14 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fs=
-m.c
-index 23648a9aa721..23e61aa638e4 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -318,8 +318,8 @@ static void fsm_io_request(struct vfio_ccw_private *pri=
-vate,
- =09}
-=20
- err_out:
--=09trace_vfio_ccw_io_fctl(scsw->cmd.fctl, schid,
--=09=09=09       io_region->ret_code, errstr);
-+=09trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
-+=09=09=09=09      io_region->ret_code, errstr);
- }
-=20
- /*
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_=
-trace.c
-index 37ecbf8be805..8c671d2519f6 100644
---- a/drivers/s390/cio/vfio_ccw_trace.c
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -11,4 +11,4 @@
-=20
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_async_request);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_event);
--EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_io_request);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_=
-trace.h
-index 5f57cefa84dd..30162a318a8a 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -73,28 +73,32 @@ TRACE_EVENT(vfio_ccw_fsm_event,
- =09=09__entry->event)
- );
-=20
--TRACE_EVENT(vfio_ccw_io_fctl,
-+TRACE_EVENT(vfio_ccw_fsm_io_request,
- =09TP_PROTO(int fctl, struct subchannel_id schid, int errno, char *errstr)=
-,
- =09TP_ARGS(fctl, schid, errno, errstr),
-=20
- =09TP_STRUCT__entry(
-+=09=09__field(u8, cssid)
-+=09=09__field(u8, ssid)
-+=09=09__field(u16, sch_no)
- =09=09__field(int, fctl)
--=09=09__field_struct(struct subchannel_id, schid)
- =09=09__field(int, errno)
- =09=09__field(char*, errstr)
- =09),
-=20
- =09TP_fast_assign(
-+=09=09__entry->cssid =3D schid.cssid;
-+=09=09__entry->ssid =3D schid.ssid;
-+=09=09__entry->sch_no =3D schid.sch_no;
- =09=09__entry->fctl =3D fctl;
--=09=09__entry->schid =3D schid;
- =09=09__entry->errno =3D errno;
- =09=09__entry->errstr =3D errstr;
- =09),
-=20
--=09TP_printk("schid=3D%x.%x.%04x fctl=3D%x errno=3D%d info=3D%s",
--=09=09  __entry->schid.cssid,
--=09=09  __entry->schid.ssid,
--=09=09  __entry->schid.sch_no,
-+=09TP_printk("schid=3D%x.%x.%04x fctl=3D0x%x errno=3D%d info=3D%s",
-+=09=09  __entry->cssid,
-+=09=09  __entry->ssid,
-+=09=09  __entry->sch_no,
- =09=09  __entry->fctl,
- =09=09  __entry->errno,
- =09=09  __entry->errstr)
---=20
-2.21.0
+Hannes
+-- 
+Dr. Hannes Reinecke		      Teamlead Storage & Networking
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 247165 (AG München), GF: Felix Imendörffer
