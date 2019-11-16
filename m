@@ -1,113 +1,154 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46842 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726100AbfKDIUy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 03:20:54 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA48KowW083962
-        for <linux-s390@vger.kernel.org>; Mon, 4 Nov 2019 03:20:53 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w2egcbmem-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 04 Nov 2019 03:20:52 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 4 Nov 2019 08:19:00 -0000
-Subject: Re: [RFC 04/37] KVM: s390: protvirt: Add initial lifecycle handling
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
- <20191024114059.102802-5-frankja@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 4 Nov 2019 09:18:56 +0100
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v16 06/12] namei: LOOKUP_NO_XDEV: block mountpoint crossing
+Date: Sat, 16 Nov 2019 11:27:56 +1100
+Message-Id: <20191116002802.6663-7-cyphar@cyphar.com>
+In-Reply-To: <20191116002802.6663-1-cyphar@cyphar.com>
+References: <20191116002802.6663-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-In-Reply-To: <20191024114059.102802-5-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <d87e2322-2dc6-0633-b64b-e3286186ea4c@de.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kselftest-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
+/* Background. */
+The need to contain path operations within a mountpoint has been a
+long-standing usecase that userspace has historically implemented
+manually with liberal usage of stat(). find, rsync, tar and
+many other programs implement these semantics -- but it'd be much
+simpler to have a fool-proof way of refusing to open a path if it
+crosses a mountpoint.
 
+This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
+variation on David Drysdale's O_BENEATH patchset[2], which in turn was
+based on the Capsicum project[3]).
 
-On 24.10.19 13:40, Janosch Frank wrote:
-> Let's add a KVM interface to create and destroy protected VMs.
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  arch/s390/include/asm/kvm_host.h |  24 +++-
->  arch/s390/include/asm/uv.h       | 110 ++++++++++++++
->  arch/s390/kvm/Makefile           |   2 +-
->  arch/s390/kvm/kvm-s390.c         | 173 +++++++++++++++++++++-
->  arch/s390/kvm/kvm-s390.h         |  47 ++++++
->  arch/s390/kvm/pv.c               | 237 +++++++++++++++++++++++++++++++
->  include/uapi/linux/kvm.h         |  33 +++++
->  7 files changed, 622 insertions(+), 4 deletions(-)
->  create mode 100644 arch/s390/kvm/pv.c
-[...]
+/* Userspace API. */
+LOOKUP_NO_XDEV will be exposed to userspace through openat2(2).
 
-> +	case KVM_PV_VM_UNPACK: {
-> +		struct kvm_s390_pv_unp unp = {};
-> +
-> +		r = -EFAULT;
-> +		if (copy_from_user(&unp, argp, sizeof(unp)))
-> +			break;
-> +
-> +		r = kvm_s390_pv_unpack(kvm, unp.addr, unp.size, unp.tweak);
-> +		break;
-> +	}
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_NO_XDEV applies to all components of the path.
 
+With LOOKUP_NO_XDEV, any path component which crosses a mount-point
+during path resolution (including "..") will yield an -EXDEV. Absolute
+paths, absolute symlinks, and magic-links will only yield an -EXDEV if
+the jump involved changing mount-points.
 
+/* Testing. */
+LOOKUP_NO_XDEV is tested as part of the openat2(2) selftests.
 
-[....]
+[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
+[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
+[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
 
-> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
-> +		       unsigned long tweak)
-> +{
-> +	int i, rc = 0;
-> +	struct uv_cb_unp uvcb = {
-> +		.header.cmd = UVC_CMD_UNPACK_IMG,
-> +		.header.len = sizeof(uvcb),
-> +		.guest_handle = kvm_s390_pv_handle(kvm),
-> +		.tweak[0] = tweak
-> +	};
-> +
-> +	if (addr & ~PAGE_MASK || size & ~PAGE_MASK)
-> +		return -EINVAL;
-> +
-> +
-> +	VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %lx size %lx",
-> +		 addr, size);
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: David Drysdale <drysdale@google.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/namei.c            | 29 +++++++++++++++++++++++++----
+ include/linux/namei.h |  1 +
+ 2 files changed, 26 insertions(+), 4 deletions(-)
 
-Does it make sense to check for addr and addr+size to be within the memory
-size of the guest? The uv_call or gmap_fault will fail later on, but we 
-could do an early exit if the the site is wrong. 
-
-
-
-
-> +	for (i = 0; i < size / PAGE_SIZE; i++) {
-> +		uvcb.gaddr = addr + i * PAGE_SIZE;
-> +		uvcb.tweak[1] = i * PAGE_SIZE;
-
-
-> +retry:
-
-> +		rc = uv_call(0, (u64)&uvcb);
-> +		if (!rc)
-> +			continue;
-> +		/* If not yet mapped fault and retry */
-> +		if (uvcb.header.rc == 0x10a) {
-> +			rc = gmap_fault(kvm->arch.gmap, uvcb.gaddr,
-> +					FAULT_FLAG_WRITE);
-> +			if (rc)
-> +				return rc;
-> +			goto retry;
-> +		}
-> +		VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx rc %x rrc %x",
-> +			 uvcb.gaddr, uvcb.header.rc, uvcb.header.rrc);
-> +		break;
-> +	}
-[...]
+diff --git a/fs/namei.c b/fs/namei.c
+index a97facc232af..854a1cbbe7b0 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -838,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
+ 
+ static int nd_jump_root(struct nameidata *nd)
+ {
++	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
++		/* Absolute path arguments to path_init() are allowed. */
++		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
++			return -EXDEV;
++	}
+ 	if (!nd->root.mnt) {
+ 		int error = set_root(nd);
+ 		if (error)
+@@ -871,6 +876,10 @@ int nd_jump_link(struct path *path)
+ 
+ 	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
+ 		return -ELOOP;
++	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
++		if (nd->path.mnt != path->mnt)
++			return -EXDEV;
++	}
+ 
+ 	path_put(&nd->path);
+ 	nd->path = *path;
+@@ -1275,12 +1284,16 @@ static int follow_managed(struct path *path, struct nameidata *nd)
+ 		break;
+ 	}
+ 
+-	if (need_mntput && path->mnt == mnt)
+-		mntput(path->mnt);
++	if (need_mntput) {
++		if (path->mnt == mnt)
++			mntput(path->mnt);
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			ret = -EXDEV;
++		else
++			nd->flags |= LOOKUP_JUMPED;
++	}
+ 	if (ret == -EISDIR || !ret)
+ 		ret = 1;
+-	if (need_mntput)
+-		nd->flags |= LOOKUP_JUMPED;
+ 	if (unlikely(ret < 0))
+ 		path_put_conditional(path, nd);
+ 	return ret;
+@@ -1337,6 +1350,8 @@ static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
+ 		mounted = __lookup_mnt(path->mnt, path->dentry);
+ 		if (!mounted)
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return false;
+ 		path->mnt = &mounted->mnt;
+ 		path->dentry = mounted->mnt.mnt_root;
+ 		nd->flags |= LOOKUP_JUMPED;
+@@ -1383,6 +1398,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 				return -ECHILD;
+ 			if (&mparent->mnt == nd->path.mnt)
+ 				break;
++			if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++				return -EXDEV;
+ 			/* we know that mountpoint was pinned */
+ 			nd->path.dentry = mountpoint;
+ 			nd->path.mnt = &mparent->mnt;
+@@ -1397,6 +1414,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 			return -ECHILD;
+ 		if (!mounted)
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return -EXDEV;
+ 		nd->path.mnt = &mounted->mnt;
+ 		nd->path.dentry = mounted->mnt.mnt_root;
+ 		inode = nd->path.dentry->d_inode;
+@@ -1495,6 +1514,8 @@ static int follow_dotdot(struct nameidata *nd)
+ 		}
+ 		if (!follow_up(&nd->path))
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return -EXDEV;
+ 	}
+ 	follow_mount(&nd->path);
+ 	nd->inode = nd->path.dentry->d_inode;
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 1573b8493d98..25ee88c4acb1 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -42,6 +42,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ /* Scoping flags for lookup. */
+ #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
+ #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
++#define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
+ 
+ extern int path_pts(struct path *path);
+ 
+-- 
+2.24.0
