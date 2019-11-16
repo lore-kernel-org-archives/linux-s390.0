@@ -1,87 +1,39 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v15 1/9] namei: LOOKUP_NO_SYMLINKS: block symlink resolution
-Date: Tue,  5 Nov 2019 20:05:45 +1100
-Message-Id: <20191105090553.6350-2-cyphar@cyphar.com>
-In-Reply-To: <20191105090553.6350-1-cyphar@cyphar.com>
-References: <20191105090553.6350-1-cyphar@cyphar.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kselftest-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from shards.monkeyblade.net ([23.128.96.9]:53808 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727485AbfKPVEX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 16:04:23 -0500
+Date: Sat, 16 Nov 2019 13:04:22 -0800 (PST)
+Message-Id: <20191116.130422.2084572901433723641.davem@davemloft.net>
+Subject: Re: [PATCH net] net/smc: fix fastopen for non-blocking connect()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20191115113930.38684-1-kgraul@linux.ibm.com>
+References: <20191115113930.38684-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-/* Background. */
-Userspace cannot easily resolve a path without resolving symlinks, and
-would have to manually resolve each path component with O_PATH and
-O_NOFOLLOW. This is clearly inefficient, and can be fairly easy to screw
-up (resulting in possible security bugs). Linus has mentioned that Git
-has a particular need for this kind of flag[1]. It also resolves a
-fairly long-standing perceived deficiency in O_NOFOLLOw -- that it only
-blocks the opening of trailing symlinks.
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Fri, 15 Nov 2019 12:39:30 +0100
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[2] (which was a
-variation on David Drysdale's O_BENEATH patchset[3], which in turn was
-based on the Capsicum project[4]).
+> From: Ursula Braun <ubraun@linux.ibm.com>
+> 
+> FASTOPEN does not work with SMC-sockets. Since SMC allows fallback to
+> TCP native during connection start, the FASTOPEN setsockopts trigger
+> this fallback, if the SMC-socket is still in state SMC_INIT.
+> But if a FASTOPEN setsockopt is called after a non-blocking connect(),
+> this is broken, and fallback does not make sense.
+> This change complements
+> commit cd2063604ea6 ("net/smc: avoid fallback in case of non-blocking connect")
+> and fixes the syzbot reported problem "WARNING in smc_unhash_sk".
+> 
+> Reported-by: syzbot+8488cc4cf1c9e09b8b86@syzkaller.appspotmail.com
+> Fixes: e1bbdd570474 ("net/smc: reduce sock_put() for fallback sockets")
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 
-/* Userspace API. */
-LOOKUP_NO_SYMLINKS will be exposed to userspace through openat2(2).
-
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_SYMLINKS applies to all components of the path.
-
-With LOOKUP_NO_SYMLINKS, any symlink path component encountered during
-path resolution will yield -ELOOP. If the trailing component is a
-symlink (and no other components were symlinks), then O_PATH|O_NOFOLLOW
-will not error out and will instead provide a handle to the trailing
-symlink -- without resolving it.
-
-/* Testing. */
-LOOKUP_NO_SYMLINKS is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/CA+55aFyOKM7DW7+0sdDFKdZFXgptb5r1id9=Wvhd8AgSP7qjwQ@mail.gmail.com/
-[2]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[3]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[4]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c            | 3 +++
- include/linux/namei.h | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 671c3c1a3425..4e85d6fa4048 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1045,6 +1045,9 @@ const char *get_link(struct nameidata *nd)
- 	int error;
- 	const char *res;
- 
-+	if (unlikely(nd->flags & LOOKUP_NO_SYMLINKS))
-+		return ERR_PTR(-ELOOP);
-+
- 	if (!(nd->flags & LOOKUP_RCU)) {
- 		touch_atime(&last->link);
- 		cond_resched();
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 397a08ade6a2..ee2e35af387f 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -39,6 +39,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_ROOT		0x2000
- #define LOOKUP_ROOT_GRABBED	0x0008
- 
-+/* Scoping flags for lookup. */
-+#define LOOKUP_NO_SYMLINKS	0x020000 /* No symlink crossing. */
-+
- extern int path_pts(struct path *path);
- 
- extern int user_path_at_empty(int, const char __user *, unsigned, struct path *, int *empty);
--- 
-2.23.0
+Applied and queued up for -stable, thanks.
