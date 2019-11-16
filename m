@@ -1,80 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44572 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726996AbfKNKT6 (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62800 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727666AbfKPQrr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:19:58 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAIHc4007208
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:57 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92jkvke2-1
+        Sat, 16 Nov 2019 11:47:47 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAGGl5jA108260
+        for <linux-s390@vger.kernel.org>; Sat, 16 Nov 2019 11:47:46 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wae50srdq-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:55 -0500
+        for <linux-s390@vger.kernel.org>; Sat, 16 Nov 2019 11:47:46 -0500
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:34 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 06/11] s390/qeth: fine-tune L3 mcast locking
-Date: Thu, 14 Nov 2019 11:19:19 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-7-jwi@linux.ibm.com>
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Sat, 16 Nov 2019 16:47:44 -0000
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 2/4] net/smc: guarantee removal of link groups in reboot
+Date: Sat, 16 Nov 2019 17:47:30 +0100
+In-Reply-To: <20191116164732.47059-1-kgraul@linux.ibm.com>
+References: <20191116164732.47059-1-kgraul@linux.ibm.com>
+Message-Id: <20191116164732.47059-3-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Push the inet6_dev locking down into the helper that actually needs it
-for walking the mc_list.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+When rebooting it should be guaranteed all link groups are cleaned
+up and freed.
+
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/smc/smc_core.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 3b901f3676c1..a8f18bf0c227 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1206,6 +1206,7 @@ static void qeth_l3_add_mc6_to_hash(struct qeth_card *card,
- 	if (!tmp)
- 		return;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index cf34b9d96595..bb92c7c6214c 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -14,6 +14,7 @@
+ #include <linux/random.h>
+ #include <linux/workqueue.h>
+ #include <linux/wait.h>
++#include <linux/reboot.h>
+ #include <net/tcp.h>
+ #include <net/sock.h>
+ #include <rdma/ib_verbs.h>
+@@ -1282,14 +1283,27 @@ static void smc_lgrs_shutdown(void)
+ 	spin_unlock(&smcd_dev_list.lock);
+ }
  
-+	read_lock_bh(&in6_dev->lock);
- 	for (im6 = in6_dev->mc_list; im6 != NULL; im6 = im6->next) {
- 		tmp->u.a6.addr = im6->mca_addr;
- 		tmp->is_multicast = 1;
-@@ -1228,6 +1229,8 @@ static void qeth_l3_add_mc6_to_hash(struct qeth_card *card,
- 				&ipm->hnode, qeth_l3_ipaddr_hash(ipm));
- 
- 	}
-+	read_unlock_bh(&in6_dev->lock);
++static int smc_core_reboot_event(struct notifier_block *this,
++				 unsigned long event, void *ptr)
++{
++	smc_lgrs_shutdown();
 +
- 	kfree(tmp);
++	return 0;
++}
++
++static struct notifier_block smc_reboot_notifier = {
++	.notifier_call = smc_core_reboot_event,
++};
++
+ int __init smc_core_init(void)
+ {
+ 	atomic_set(&lgr_cnt, 0);
+-	return 0;
++	return register_reboot_notifier(&smc_reboot_notifier);
  }
  
-@@ -1253,9 +1256,7 @@ static void qeth_l3_add_vlan_mc6(struct qeth_card *card)
- 		in_dev = in6_dev_get(netdev);
- 		if (!in_dev)
- 			continue;
--		read_lock_bh(&in_dev->lock);
- 		qeth_l3_add_mc6_to_hash(card, in_dev);
--		read_unlock_bh(&in_dev->lock);
- 		in6_dev_put(in_dev);
- 	}
- }
-@@ -1273,10 +1274,8 @@ static void qeth_l3_add_multicast_ipv6(struct qeth_card *card)
- 		return;
- 
- 	rcu_read_lock();
--	read_lock_bh(&in6_dev->lock);
- 	qeth_l3_add_mc6_to_hash(card, in6_dev);
- 	qeth_l3_add_vlan_mc6(card);
--	read_unlock_bh(&in6_dev->lock);
- 	rcu_read_unlock();
- 	in6_dev_put(in6_dev);
+ /* Called (from smc_exit) when module is removed */
+ void smc_core_exit(void)
+ {
++	unregister_reboot_notifier(&smc_reboot_notifier);
+ 	smc_lgrs_shutdown();
  }
 -- 
 2.17.1
