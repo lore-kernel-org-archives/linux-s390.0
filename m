@@ -1,224 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:44981 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726949AbfKNRUq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 12:20:46 -0500
-Received: by mail-qk1-f193.google.com with SMTP id m16so5632036qki.11
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 09:20:45 -0800 (PST)
-From: Qian Cai <cai@lca.pw>
-Subject: [PATCH -next] writeback: fix -Wformat compilation warnings
-Date: Thu, 14 Nov 2019 12:17:41 -0500
-Message-Id: <1573751861-10303-1-git-send-email-cai@lca.pw>
+Received: from mout-p-201.mailbox.org ([80.241.56.171]:21218 "EHLO
+        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725839AbfKQBWG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:22:06 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v17 09/13] namei: LOOKUP_IN_ROOT: chroot-like scoped resolution
+Date: Sun, 17 Nov 2019 12:17:09 +1100
+Message-Id: <20191117011713.13032-10-cyphar@cyphar.com>
+In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
+References: <20191117011713.13032-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: tj@kernel.org
-Cc: jack@suse.cz, gregkh@linuxfoundation.org, cgroups@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, axboe@kernel.dk, linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The commit f05499a06fb4 ("writeback: use ino_t for inodes in
-tracepoints") introduced a lot of GCC compilation warnings on s390,
+/* Background. */
+Container runtimes or other administrative management processes will
+often interact with root filesystems while in the host mount namespace,
+because the cost of doing a chroot(2) on every operation is too
+prohibitive (especially in Go, which cannot safely use vfork). However,
+a malicious program can trick the management process into doing
+operations on files outside of the root filesystem through careful
+crafting of symlinks.
 
-In file included from ./include/trace/define_trace.h:102,
-                 from ./include/trace/events/writeback.h:904,
-                 from fs/fs-writeback.c:82:
-./include/trace/events/writeback.h: In function
-'trace_raw_output_writeback_page_template':
-./include/trace/events/writeback.h:76:12: warning: format '%lu' expects
-argument of type 'long unsigned int', but argument 4 has type 'ino_t'
-{aka 'unsigned int'} [-Wformat=]
-  TP_printk("bdi %s: ino=%lu index=%lu",
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/trace/trace_events.h:360:22: note: in definition of macro
-'DECLARE_EVENT_CLASS'
-  trace_seq_printf(s, print);     \
-                      ^~~~~
-./include/trace/events/writeback.h:76:2: note: in expansion of macro
-'TP_printk'
-  TP_printk("bdi %s: ino=%lu index=%lu",
-  ^~~~~~~~~
+Most programs that need this feature have attempted to make this process
+safe, by doing all of the path resolution in userspace (with symlinks
+being scoped to the root of the malicious root filesystem).
+Unfortunately, this method is prone to foot-guns and usually such
+implementations have subtle security bugs.
 
-Fix them by adding necessary casts where ino_t could be either "unsigned
-int" or "unsigned long".
+Thus, what userspace needs is a way to resolve a path as though it were
+in a chroot(2) -- with all absolute symlinks being resolved relative to
+the dirfd root (and ".." components being stuck under the dirfd root).
+It is much simpler and more straight-forward to provide this
+functionality in-kernel (because it can be done far more cheaply and
+correctly).
 
-Fixes: f05499a06fb4 ("writeback: use ino_t for inodes in tracepoints")
-Signed-off-by: Qian Cai <cai@lca.pw>
+More classical applications that also have this problem (which have
+their own potentially buggy userspace path sanitisation code) include
+web servers, archive extraction tools, network file servers, and so on.
+
+/* Userspace API. */
+LOOKUP_IN_ROOT will be exposed to userspace through openat2(2).
+
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_IN_ROOT applies to all components of the path.
+
+With LOOKUP_IN_ROOT, any path component which attempts to cross the
+starting point of the pathname lookup (the dirfd passed to openat) will
+remain at the starting point. Thus, all absolute paths and symlinks will
+be scoped within the starting point.
+
+There is a slight change in behaviour regarding pathnames -- if the
+pathname is absolute then the dirfd is still used as the root of
+resolution of LOOKUP_IN_ROOT is specified (this is to avoid obvious
+foot-guns, at the cost of a minor API inconsistency).
+
+As with LOOKUP_BENEATH, Jann's security concern about ".."[1] applies to
+LOOKUP_IN_ROOT -- therefore ".." resolution is blocked. This restriction
+will be lifted in a future patch, but requires more work to ensure that
+permitting ".." is done safely.
+
+Magic-link jumps are also blocked, because they can beam the path lookup
+across the starting point. It would be possible to detect and block
+only the "bad" crossings with path_is_under() checks, but it's unclear
+whether it makes sense to permit magic-links at all. However, userspace
+is recommended to pass LOOKUP_NO_MAGICLINKS if they want to ensure that
+magic-link crossing is entirely disabled.
+
+/* Testing. */
+LOOKUP_IN_ROOT is tested as part of the openat2(2) selftests.
+
+[1]: https://lore.kernel.org/lkml/CAG48ez1jzNvxB+bfOBnERFGp=oMM0vHWuLD6EULmne3R6xa53w@mail.gmail.com/
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- include/trace/events/writeback.h | 48 ++++++++++++++++++++--------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
+ fs/namei.c            | 10 +++++++---
+ include/linux/namei.h |  3 ++-
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/trace/events/writeback.h b/include/trace/events/writeback.h
-index b4f0ffe1817e..ef50be4e5e6c 100644
---- a/include/trace/events/writeback.h
-+++ b/include/trace/events/writeback.h
-@@ -75,7 +75,7 @@
+diff --git a/fs/namei.c b/fs/namei.c
+index 3f7bb22c375d..a6196786db13 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2289,13 +2289,16 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
  
- 	TP_printk("bdi %s: ino=%lu index=%lu",
- 		__entry->name,
--		__entry->ino,
-+		(unsigned long)__entry->ino,
- 		__entry->index
- 	)
- );
-@@ -120,7 +120,7 @@
+ 	nd->m_seq = read_seqbegin(&mount_lock);
  
- 	TP_printk("bdi %s: ino=%lu state=%s flags=%s",
- 		__entry->name,
--		__entry->ino,
-+		(unsigned long)__entry->ino,
- 		show_inode_state(__entry->state),
- 		show_inode_state(__entry->flags)
- 	)
-@@ -201,8 +201,8 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
+-	/* Figure out the starting path and root (if needed). */
+-	if (*s == '/') {
++	/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd->dfd). */
++	if (*s == '/' && !(flags & LOOKUP_IN_ROOT)) {
+ 		error = nd_jump_root(nd);
+ 		if (unlikely(error))
+ 			return ERR_PTR(error);
+ 		return s;
+-	} else if (nd->dfd == AT_FDCWD) {
++	}
++
++	/* Relative pathname -- get the starting-point it is relative to. */
++	if (nd->dfd == AT_FDCWD) {
+ 		if (flags & LOOKUP_RCU) {
+ 			struct fs_struct *fs = current->fs;
+ 			unsigned seq;
+@@ -2335,6 +2338,7 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 		}
+ 		fdput(f);
+ 	}
++
+ 	/* For scoped-lookups we need to set the root to the dirfd as well. */
+ 	if (flags & LOOKUP_IS_SCOPED) {
+ 		nd->root = nd->path;
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 93dad378f1e8..93151e47ec47 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -45,8 +45,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
+ #define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
+ #define LOOKUP_BENEATH		0x080000 /* No escaping from starting point. */
++#define LOOKUP_IN_ROOT		0x100000 /* Treat dirfd as fs root. */
+ /* LOOKUP_* flags which do scope-related checks based on the dirfd. */
+-#define LOOKUP_IS_SCOPED LOOKUP_BENEATH
++#define LOOKUP_IS_SCOPED (LOOKUP_BENEATH | LOOKUP_IN_ROOT)
  
- 	TP_printk("bdi %s: ino=%lu cgroup_ino=%lu history=0x%x",
- 		__entry->name,
--		__entry->ino,
--		__entry->cgroup_ino,
-+		(unsigned long)__entry->ino,
-+		(unsigned long)__entry->cgroup_ino,
- 		__entry->history
- 	)
- );
-@@ -230,9 +230,9 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 
- 	TP_printk("bdi %s: ino=%lu old_cgroup_ino=%lu new_cgroup_ino=%lu",
- 		__entry->name,
--		__entry->ino,
--		__entry->old_cgroup_ino,
--		__entry->new_cgroup_ino
-+		(unsigned long)__entry->ino,
-+		(unsigned long)__entry->old_cgroup_ino,
-+		(unsigned long)__entry->new_cgroup_ino
- 	)
- );
- 
-@@ -266,10 +266,10 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 	TP_printk("bdi %s[%llu]: ino=%lu memcg_id=%u cgroup_ino=%lu page_cgroup_ino=%lu",
- 		__entry->name,
- 		__entry->bdi_id,
--		__entry->ino,
-+		(unsigned long)__entry->ino,
- 		__entry->memcg_id,
--		__entry->cgroup_ino,
--		__entry->page_cgroup_ino
-+		(unsigned long)__entry->cgroup_ino,
-+		(unsigned long)__entry->page_cgroup_ino
- 	)
- );
- 
-@@ -296,7 +296,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 
- 	TP_printk("bdi %s: cgroup_ino=%lu frn_bdi_id=%u frn_memcg_id=%u",
- 		__entry->name,
--		__entry->cgroup_ino,
-+		(unsigned long)__entry->cgroup_ino,
- 		__entry->frn_bdi_id,
- 		__entry->frn_memcg_id
- 	)
-@@ -326,9 +326,9 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 
- 	TP_printk("bdi %s: ino=%lu sync_mode=%d cgroup_ino=%lu",
- 		__entry->name,
--		__entry->ino,
-+		(unsigned long)__entry->ino,
- 		__entry->sync_mode,
--		__entry->cgroup_ino
-+		(unsigned long)__entry->cgroup_ino
- 	)
- );
- 
-@@ -383,7 +383,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 		  __entry->range_cyclic,
- 		  __entry->for_background,
- 		  __print_symbolic(__entry->reason, WB_WORK_REASON),
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	)
- );
- #define DEFINE_WRITEBACK_WORK_EVENT(name) \
-@@ -421,7 +421,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 	),
- 	TP_printk("bdi %s: cgroup_ino=%lu",
- 		  __entry->name,
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	)
- );
- #define DEFINE_WRITEBACK_EVENT(name) \
-@@ -489,7 +489,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 		__entry->range_cyclic,
- 		__entry->range_start,
- 		__entry->range_end,
--		__entry->cgroup_ino
-+		(unsigned long)__entry->cgroup_ino
- 	)
- )
- 
-@@ -528,7 +528,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 		__entry->age,	/* older_than_this in relative milliseconds */
- 		__entry->moved,
- 		__print_symbolic(__entry->reason, WB_WORK_REASON),
--		__entry->cgroup_ino
-+		(unsigned long)__entry->cgroup_ino
- 	)
- );
- 
-@@ -622,7 +622,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 		  __entry->dirty_ratelimit,	/* base ratelimit */
- 		  __entry->task_ratelimit, /* ratelimit with position control */
- 		  __entry->balanced_dirty_ratelimit, /* the balanced ratelimit */
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	)
- );
- 
-@@ -707,7 +707,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 		  __entry->pause,	/* ms */
- 		  __entry->period,	/* ms */
- 		  __entry->think,	/* ms */
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	  )
- );
- 
-@@ -735,11 +735,11 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 
- 	TP_printk("bdi %s: ino=%lu state=%s dirtied_when=%lu age=%lu cgroup_ino=%lu",
- 		  __entry->name,
--		  __entry->ino,
-+		  (unsigned long)__entry->ino,
- 		  show_inode_state(__entry->state),
- 		  __entry->dirtied_when,
- 		  (jiffies - __entry->dirtied_when) / HZ,
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	)
- );
- 
-@@ -813,14 +813,14 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 	TP_printk("bdi %s: ino=%lu state=%s dirtied_when=%lu age=%lu "
- 		  "index=%lu to_write=%ld wrote=%lu cgroup_ino=%lu",
- 		  __entry->name,
--		  __entry->ino,
-+		  (unsigned long)__entry->ino,
- 		  show_inode_state(__entry->state),
- 		  __entry->dirtied_when,
- 		  (jiffies - __entry->dirtied_when) / HZ,
- 		  __entry->writeback_index,
- 		  __entry->nr_to_write,
- 		  __entry->wrote,
--		  __entry->cgroup_ino
-+		  (unsigned long)__entry->cgroup_ino
- 	)
- );
- 
-@@ -861,7 +861,7 @@ static inline ino_t __trace_wbc_assign_cgroup(struct writeback_control *wbc)
- 
- 	TP_printk("dev %d,%d ino %lu dirtied %lu state %s mode 0%o",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
--		  __entry->ino, __entry->dirtied_when,
-+		  (unsigned long)__entry->ino, __entry->dirtied_when,
- 		  show_inode_state(__entry->state), __entry->mode)
- );
+ extern int path_pts(struct path *path);
  
 -- 
-1.8.3.1
+2.24.0
