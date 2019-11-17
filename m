@@ -1,276 +1,160 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35134 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726386AbfKNMDA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 07:03:00 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEBwPEe057207
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:02:59 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2w962es867-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:02:58 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Thu, 14 Nov 2019 12:02:57 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 2/8] net/smc: immediate termination for SMCD link groups
-Date: Thu, 14 Nov 2019 13:02:41 +0100
-In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
-References: <20191114120247.68889-1-kgraul@linux.ibm.com>
-Message-Id: <20191114120247.68889-3-kgraul@linux.ibm.com>
+Received: from mout-p-102.mailbox.org ([80.241.56.152]:32482 "EHLO
+        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725959AbfKQBVP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:21:15 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v17 07/13] namei: LOOKUP_NO_XDEV: block mountpoint crossing
+Date: Sun, 17 Nov 2019 12:17:07 +1100
+Message-Id: <20191117011713.13032-8-cyphar@cyphar.com>
+In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
+References: <20191117011713.13032-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+/* Background. */
+The need to contain path operations within a mountpoint has been a
+long-standing usecase that userspace has historically implemented
+manually with liberal usage of stat(). find, rsync, tar and
+many other programs implement these semantics -- but it'd be much
+simpler to have a fool-proof way of refusing to open a path if it
+crosses a mountpoint.
 
-SMCD link group termination is called when peer signals its shutdown
-of its corresponding link group. For regular shutdowns no connections
-exist anymore. For abnormal shutdowns connections must be killed and
-their DMBs must be unregistered immediately. That means the SMCR method
-to delay the link group freeing several seconds does not fit.
+This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
+variation on David Drysdale's O_BENEATH patchset[2], which in turn was
+based on the Capsicum project[3]).
 
-This patch adds immediate termination of a link group and its SMCD
-connections and makes sure all SMCD link group related cleanup steps
-are finished.
+/* Userspace API. */
+LOOKUP_NO_XDEV will be exposed to userspace through openat2(2).
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_NO_XDEV applies to all components of the path.
+
+With LOOKUP_NO_XDEV, any path component which crosses a mount-point
+during path resolution (including "..") will yield an -EXDEV. Absolute
+paths, absolute symlinks, and magic-links will only yield an -EXDEV if
+the jump involved changing mount-points.
+
+/* Testing. */
+LOOKUP_NO_XDEV is tested as part of the openat2(2) selftests.
+
+[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
+[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
+[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: David Drysdale <drysdale@google.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/net/ism.h |  2 --
- include/net/smc.h      |  2 ++
- net/smc/smc_close.c    | 25 +++++++++++++++++------
- net/smc/smc_core.c     | 46 +++++++++++++++++++++++++++++++++++-------
- net/smc/smc_ism.c      | 14 +++++++++++--
- 5 files changed, 72 insertions(+), 17 deletions(-)
+ fs/namei.c            | 31 +++++++++++++++++++++++++++----
+ include/linux/namei.h |  1 +
+ 2 files changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
-index 66eac2b9704d..1901e9c80ed8 100644
---- a/drivers/s390/net/ism.h
-+++ b/drivers/s390/net/ism.h
-@@ -32,8 +32,6 @@
- #define ISM_UNREG_SBA	0x11
- #define ISM_UNREG_IEQ	0x12
+diff --git a/fs/namei.c b/fs/namei.c
+index 415a897729c8..321c8ad5d6b3 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -838,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
  
--#define ISM_ERROR	0xFFFF
--
- struct ism_req_hdr {
- 	u32 cmd;
- 	u16 : 16;
-diff --git a/include/net/smc.h b/include/net/smc.h
-index 05174ae4f325..7c2082341bb3 100644
---- a/include/net/smc.h
-+++ b/include/net/smc.h
-@@ -37,6 +37,8 @@ struct smcd_dmb {
- #define ISM_EVENT_GID	1
- #define ISM_EVENT_SWR	2
- 
-+#define ISM_ERROR	0xFFFF
-+
- struct smcd_event {
- 	u32 type;
- 	u32 code;
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index d34e5adce2eb..d205b2114006 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -110,6 +110,17 @@ int smc_close_abort(struct smc_connection *conn)
- 	return smc_cdc_get_slot_and_msg_send(conn);
- }
- 
-+static void smc_close_cancel_work(struct smc_sock *smc)
-+{
-+	struct sock *sk = &smc->sk;
-+
-+	release_sock(sk);
-+	cancel_work_sync(&smc->conn.close_work);
-+	cancel_delayed_work_sync(&smc->conn.tx_work);
-+	lock_sock(sk);
-+	sk->sk_state = SMC_CLOSED;
-+}
-+
- /* terminate smc socket abnormally - active abort
-  * link group is terminated, i.e. RDMA communication no longer possible
-  */
-@@ -126,23 +137,21 @@ void smc_close_active_abort(struct smc_sock *smc)
- 	switch (sk->sk_state) {
- 	case SMC_ACTIVE:
- 		sk->sk_state = SMC_PEERABORTWAIT;
--		release_sock(sk);
--		cancel_delayed_work_sync(&smc->conn.tx_work);
--		lock_sock(sk);
-+		smc_close_cancel_work(smc);
- 		sk->sk_state = SMC_CLOSED;
- 		sock_put(sk); /* passive closing */
- 		break;
- 	case SMC_APPCLOSEWAIT1:
- 	case SMC_APPCLOSEWAIT2:
--		release_sock(sk);
--		cancel_delayed_work_sync(&smc->conn.tx_work);
--		lock_sock(sk);
-+		smc_close_cancel_work(smc);
- 		sk->sk_state = SMC_CLOSED;
- 		sock_put(sk); /* postponed passive closing */
- 		break;
- 	case SMC_PEERCLOSEWAIT1:
- 	case SMC_PEERCLOSEWAIT2:
- 	case SMC_PEERFINCLOSEWAIT:
-+		sk->sk_state = SMC_PEERABORTWAIT;
-+		smc_close_cancel_work(smc);
- 		sk->sk_state = SMC_CLOSED;
- 		smc_conn_free(&smc->conn);
- 		release_clcsock = true;
-@@ -150,7 +159,11 @@ void smc_close_active_abort(struct smc_sock *smc)
- 		break;
- 	case SMC_PROCESSABORT:
- 	case SMC_APPFINCLOSEWAIT:
-+		sk->sk_state = SMC_PEERABORTWAIT;
-+		smc_close_cancel_work(smc);
- 		sk->sk_state = SMC_CLOSED;
-+		smc_conn_free(&smc->conn);
-+		release_clcsock = true;
- 		break;
- 	case SMC_INIT:
- 	case SMC_PEERABORTWAIT:
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 561f069b30de..9d6da2c7413d 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -214,7 +214,7 @@ static void smc_lgr_free_work(struct work_struct *work)
- 
- 	if (!lgr->is_smcd && lnk->state != SMC_LNK_INACTIVE)
- 		smc_llc_link_inactive(lnk);
--	if (lgr->is_smcd)
-+	if (lgr->is_smcd && !lgr->terminating)
- 		smc_ism_signal_shutdown(lgr);
- 	smc_lgr_free(lgr);
- }
-@@ -381,7 +381,8 @@ void smc_conn_free(struct smc_connection *conn)
- 	if (!lgr)
- 		return;
- 	if (lgr->is_smcd) {
--		smc_ism_unset_conn(conn);
-+		if (!list_empty(&lgr->list))
-+			smc_ism_unset_conn(conn);
- 		tasklet_kill(&conn->rx_tsklet);
- 	} else {
- 		smc_cdc_tx_dismiss_slots(conn);
-@@ -481,8 +482,10 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+ static int nd_jump_root(struct nameidata *nd)
  {
- 	smc_lgr_free_bufs(lgr);
- 	if (lgr->is_smcd) {
--		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
--		put_device(&lgr->smcd->dev);
-+		if (!lgr->terminating) {
-+			smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
-+			put_device(&lgr->smcd->dev);
-+		}
- 	} else {
- 		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
- 		put_device(&lgr->lnk[SMC_SINGLE_LINK].smcibdev->ibdev->dev);
-@@ -503,6 +506,20 @@ void smc_lgr_forget(struct smc_link_group *lgr)
- 	spin_unlock_bh(lgr_lock);
- }
++	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
++		/* Absolute path arguments to path_init() are allowed. */
++		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
++			return -EXDEV;
++	}
+ 	if (!nd->root.mnt) {
+ 		int error = set_root(nd);
+ 		if (error)
+@@ -873,6 +878,12 @@ int nd_jump_link(struct path *path)
+ 	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
+ 		goto err;
  
-+static void smcd_unregister_all_dmbs(struct smc_link_group *lgr)
-+{
-+	int i;
-+
-+	for (i = 0; i < SMC_RMBE_SIZES; i++) {
-+		struct smc_buf_desc *buf_desc;
-+
-+		list_for_each_entry(buf_desc, &lgr->rmbs[i], list) {
-+			buf_desc->len += sizeof(struct smcd_cdc_msg);
-+			smc_ism_unregister_dmb(lgr->smcd, buf_desc);
-+		}
++	error = -EXDEV;
++	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
++		if (nd->path.mnt != path->mnt)
++			goto err;
 +	}
-+}
 +
- static void smc_sk_wake_ups(struct smc_sock *smc)
- {
- 	smc->sk.sk_write_space(&smc->sk);
-@@ -522,12 +539,28 @@ static void smc_conn_kill(struct smc_connection *conn)
- 	conn->killed = 1;
- 	smc->sk.sk_err = ECONNABORTED;
- 	smc_sk_wake_ups(smc);
--	if (conn->lgr->is_smcd)
-+	if (conn->lgr->is_smcd) {
-+		smc_ism_unset_conn(conn);
- 		tasklet_kill(&conn->rx_tsklet);
-+	}
- 	smc_lgr_unregister_conn(conn);
- 	smc_close_active_abort(smc);
- }
- 
-+static void smc_lgr_cleanup(struct smc_link_group *lgr)
-+{
-+	if (lgr->is_smcd) {
-+		smc_ism_signal_shutdown(lgr);
-+		smcd_unregister_all_dmbs(lgr);
-+		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
-+		put_device(&lgr->smcd->dev);
-+	} else {
-+		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
-+
-+		wake_up(&lnk->wr_reg_wait);
-+	}
-+}
-+
- /* terminate link group */
- static void __smc_lgr_terminate(struct smc_link_group *lgr)
- {
-@@ -557,8 +590,7 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr)
- 		node = rb_first(&lgr->conns_all);
+ 	path_put(&nd->path);
+ 	nd->path = *path;
+ 	nd->inode = nd->path.dentry->d_inode;
+@@ -1280,12 +1291,16 @@ static int follow_managed(struct path *path, struct nameidata *nd)
+ 		break;
  	}
- 	read_unlock_bh(&lgr->conns_lock);
--	if (!lgr->is_smcd)
--		wake_up(&lgr->lnk[SMC_SINGLE_LINK].wr_reg_wait);
-+	smc_lgr_cleanup(lgr);
- 	smc_lgr_schedule_free_work_fast(lgr);
- }
  
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 18946e95a3be..903da947b20d 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -146,6 +146,10 @@ int smc_ism_put_vlan(struct smcd_dev *smcd, unsigned short vlanid)
- int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
- {
- 	struct smcd_dmb dmb;
-+	int rc = 0;
-+
-+	if (!dmb_desc->dma_addr)
-+		return rc;
- 
- 	memset(&dmb, 0, sizeof(dmb));
- 	dmb.dmb_tok = dmb_desc->token;
-@@ -153,7 +157,13 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
- 	dmb.cpu_addr = dmb_desc->cpu_addr;
- 	dmb.dma_addr = dmb_desc->dma_addr;
- 	dmb.dmb_len = dmb_desc->len;
--	return smcd->ops->unregister_dmb(smcd, &dmb);
-+	rc = smcd->ops->unregister_dmb(smcd, &dmb);
-+	if (!rc || rc == ISM_ERROR) {
-+		dmb_desc->cpu_addr = NULL;
-+		dmb_desc->dma_addr = 0;
+-	if (need_mntput && path->mnt == mnt)
+-		mntput(path->mnt);
++	if (need_mntput) {
++		if (path->mnt == mnt)
++			mntput(path->mnt);
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			ret = -EXDEV;
++		else
++			nd->flags |= LOOKUP_JUMPED;
 +	}
-+
-+	return rc;
- }
+ 	if (ret == -EISDIR || !ret)
+ 		ret = 1;
+-	if (need_mntput)
+-		nd->flags |= LOOKUP_JUMPED;
+ 	if (unlikely(ret < 0))
+ 		path_put_conditional(path, nd);
+ 	return ret;
+@@ -1342,6 +1357,8 @@ static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
+ 		mounted = __lookup_mnt(path->mnt, path->dentry);
+ 		if (!mounted)
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return false;
+ 		path->mnt = &mounted->mnt;
+ 		path->dentry = mounted->mnt.mnt_root;
+ 		nd->flags |= LOOKUP_JUMPED;
+@@ -1388,6 +1405,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 				return -ECHILD;
+ 			if (&mparent->mnt == nd->path.mnt)
+ 				break;
++			if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++				return -ECHILD;
+ 			/* we know that mountpoint was pinned */
+ 			nd->path.dentry = mountpoint;
+ 			nd->path.mnt = &mparent->mnt;
+@@ -1402,6 +1421,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 			return -ECHILD;
+ 		if (!mounted)
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return -ECHILD;
+ 		nd->path.mnt = &mounted->mnt;
+ 		nd->path.dentry = mounted->mnt.mnt_root;
+ 		inode = nd->path.dentry->d_inode;
+@@ -1500,6 +1521,8 @@ static int follow_dotdot(struct nameidata *nd)
+ 		}
+ 		if (!follow_up(&nd->path))
+ 			break;
++		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
++			return -EXDEV;
+ 	}
+ 	follow_mount(&nd->path);
+ 	nd->inode = nd->path.dentry->d_inode;
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 1573b8493d98..25ee88c4acb1 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -42,6 +42,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ /* Scoping flags for lookup. */
+ #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
+ #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
++#define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
  
- int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
-@@ -375,7 +385,7 @@ void smcd_handle_irq(struct smcd_dev *smcd, unsigned int dmbno)
+ extern int path_pts(struct path *path);
  
- 	spin_lock_irqsave(&smcd->lock, flags);
- 	conn = smcd->conn[dmbno];
--	if (conn)
-+	if (conn && !conn->killed)
- 		tasklet_schedule(&conn->rx_tsklet);
- 	spin_unlock_irqrestore(&smcd->lock, flags);
- }
 -- 
-2.17.1
+2.24.0
