@@ -1,79 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2552 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727998AbfKTNVH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Nov 2019 08:21:07 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAKDILL1024848
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:06 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wcf489n0e-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:06 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 20 Nov 2019 13:21:04 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 2/2] s390/qeth: return proper errno on IO error
-Date: Wed, 20 Nov 2019 14:20:57 +0100
-In-Reply-To: <20191120132057.1788-1-jwi@linux.ibm.com>
-References: <20191120132057.1788-1-jwi@linux.ibm.com>
-Message-Id: <20191120132057.1788-3-jwi@linux.ibm.com>
+Received: from mout-p-202.mailbox.org ([80.241.56.172]:46354 "EHLO
+        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725880AbfKQBUX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:20:23 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v17 05/13] namei: LOOKUP_NO_SYMLINKS: block symlink resolution
+Date: Sun, 17 Nov 2019 12:17:05 +1100
+Message-Id: <20191117011713.13032-6-cyphar@cyphar.com>
+In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
+References: <20191117011713.13032-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-When propagating IO errors back to userspace, one error path in
-qeth_irq() currently returns '1' instead of a proper errno.
+/* Background. */
+Userspace cannot easily resolve a path without resolving symlinks, and
+would have to manually resolve each path component with O_PATH and
+O_NOFOLLOW. This is clearly inefficient, and can be fairly easy to screw
+up (resulting in possible security bugs). Linus has mentioned that Git
+has a particular need for this kind of flag[1]. It also resolves a
+fairly long-standing perceived deficiency in O_NOFOLLOw -- that it only
+blocks the opening of trailing symlinks.
 
-Fixes: 54daaca7024d ("s390/qeth: cancel cmd on early error")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+This is part of a refresh of Al's AT_NO_JUMPS patchset[2] (which was a
+variation on David Drysdale's O_BENEATH patchset[3], which in turn was
+based on the Capsicum project[4]).
+
+/* Userspace API. */
+LOOKUP_NO_SYMLINKS will be exposed to userspace through openat2(2).
+
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_NO_SYMLINKS applies to all components of the path.
+
+With LOOKUP_NO_SYMLINKS, any symlink path component encountered during
+path resolution will yield -ELOOP. If the trailing component is a
+symlink (and no other components were symlinks), then O_PATH|O_NOFOLLOW
+will not error out and will instead provide a handle to the trailing
+symlink -- without resolving it.
+
+/* Testing. */
+LOOKUP_NO_SYMLINKS is tested as part of the openat2(2) selftests.
+
+[1]: https://lore.kernel.org/lkml/CA+55aFyOKM7DW7+0sdDFKdZFXgptb5r1id9=Wvhd8AgSP7qjwQ@mail.gmail.com/
+[2]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
+[3]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
+[4]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/net/qeth_core_main.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/namei.c            | 3 +++
+ include/linux/namei.h | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index dda274351c21..83794d7494d4 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -901,30 +901,30 @@ static int qeth_get_problem(struct qeth_card *card, struct ccw_device *cdev,
- 				 CCW_DEVID(cdev), dstat, cstat);
- 		print_hex_dump(KERN_WARNING, "qeth: irb ", DUMP_PREFIX_OFFSET,
- 				16, 1, irb, 64, 1);
--		return 1;
-+		return -EIO;
- 	}
+diff --git a/fs/namei.c b/fs/namei.c
+index 74574a69a614..303731935eb2 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1052,6 +1052,9 @@ const char *get_link(struct nameidata *nd)
+ 	int error;
+ 	const char *res;
  
- 	if (dstat & DEV_STAT_UNIT_CHECK) {
- 		if (sense[SENSE_RESETTING_EVENT_BYTE] &
- 		    SENSE_RESETTING_EVENT_FLAG) {
- 			QETH_CARD_TEXT(card, 2, "REVIND");
--			return 1;
-+			return -EIO;
- 		}
- 		if (sense[SENSE_COMMAND_REJECT_BYTE] &
- 		    SENSE_COMMAND_REJECT_FLAG) {
- 			QETH_CARD_TEXT(card, 2, "CMDREJi");
--			return 1;
-+			return -EIO;
- 		}
- 		if ((sense[2] == 0xaf) && (sense[3] == 0xfe)) {
- 			QETH_CARD_TEXT(card, 2, "AFFE");
--			return 1;
-+			return -EIO;
- 		}
- 		if ((!sense[0]) && (!sense[1]) && (!sense[2]) && (!sense[3])) {
- 			QETH_CARD_TEXT(card, 2, "ZEROSEN");
- 			return 0;
- 		}
- 		QETH_CARD_TEXT(card, 2, "DGENCHK");
--			return 1;
-+			return -EIO;
- 	}
- 	return 0;
- }
++	if (unlikely(nd->flags & LOOKUP_NO_SYMLINKS))
++		return ERR_PTR(-ELOOP);
++
+ 	if (!(nd->flags & LOOKUP_RCU)) {
+ 		touch_atime(&last->link);
+ 		cond_resched();
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 758e9b47db6f..0d86e75c04a7 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -39,6 +39,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+ #define LOOKUP_ROOT		0x2000
+ #define LOOKUP_ROOT_GRABBED	0x0008
+ 
++/* Scoping flags for lookup. */
++#define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
++
+ extern int path_pts(struct path *path);
+ 
+ extern int user_path_at_empty(int, const char __user *, unsigned, struct path *, int *empty);
 -- 
-2.17.1
+2.24.0
