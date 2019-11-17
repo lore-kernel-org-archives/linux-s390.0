@@ -1,51 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30458 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730344AbfKTNVe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Nov 2019 08:21:34 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAKDIPiZ050214
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:33 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wd3fkp9su-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:32 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 20 Nov 2019 13:21:04 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 0/2] s390/qeth: fixes 2019-11-20
-Date: Wed, 20 Nov 2019 14:20:55 +0100
-Message-Id: <20191120132057.1788-1-jwi@linux.ibm.com>
+Received: from mout-p-202.mailbox.org ([80.241.56.172]:46306 "EHLO
+        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726416AbfKQBSn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:18:43 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v17 01/13] namei: only return -ECHILD from follow_dotdot_rcu()
+Date: Sun, 17 Nov 2019 12:17:01 +1100
+Message-Id: <20191117011713.13032-2-cyphar@cyphar.com>
+In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
+References: <20191117011713.13032-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Hi Dave,
+It's over-zealous to return hard errors under RCU-walk here, given that
+a REF-walk will be triggered for all other cases handling ".." under
+RCU.
 
-please apply two late qeth fixes to your net tree.
+The original purpose of this check was to ensure that if a rename occurs
+such that a directory is moved outside of the bind-mount which the
+resolution started in, it would be detected and blocked to avoid being
+able to mess with paths outside of the bind-mount. However, triggering a
+new REF-walk is just as effective a solution.
 
-The first fixes a deadlock that can occur if a qeth device is set
-offline while in the middle of processing deferred HW events.
-The second patch converts the return value of an error path to
-use -EIO, so that it can be passed back to userspace.
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 397d425dc26d ("vfs: Test for and handle paths that are unreachable from their mnt_root")
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Julian
-
-
-Julian Wiedmann (2):
-  s390/qeth: fix potential deadlock on workqueue flush
-  s390/qeth: return proper errno on IO error
-
- drivers/s390/net/qeth_core.h      |  1 +
- drivers/s390/net/qeth_core_main.c | 10 +++++-----
- drivers/s390/net/qeth_l2_main.c   | 21 ++++++++++++++-------
- drivers/s390/net/qeth_l2_sys.c    | 14 +++++++++++++-
- 4 files changed, 33 insertions(+), 13 deletions(-)
-
+diff --git a/fs/namei.c b/fs/namei.c
+index 671c3c1a3425..5a47d9c09581 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1359,7 +1359,7 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 			nd->path.dentry = parent;
+ 			nd->seq = seq;
+ 			if (unlikely(!path_connected(&nd->path)))
+-				return -ENOENT;
++				return -ECHILD;
+ 			break;
+ 		} else {
+ 			struct mount *mnt = real_mount(nd->path.mnt);
 -- 
-2.17.1
+2.24.0
