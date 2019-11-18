@@ -1,58 +1,35 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:36076 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728289AbfKAOKS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 1 Nov 2019 10:10:18 -0400
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v15 08/23] s390: mm: Add p?d_leaf() definitions
-Date: Fri,  1 Nov 2019 14:09:27 +0000
-Message-Id: <20191101140942.51554-9-steven.price@arm.com>
-In-Reply-To: <20191101140942.51554-1-steven.price@arm.com>
-References: <20191101140942.51554-1-steven.price@arm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+Subject: Re: [PATCH V12 5/6] virtio: introduce a mdev based transport
+References: <20191118061703.8669-1-jasowang@redhat.com>
+ <20191118061703.8669-6-jasowang@redhat.com>
+ <20191118054339-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <a59bf414-aefb-954c-86ea-b970513171bf@redhat.com>
+Date: Mon, 18 Nov 2019 18:56:52 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20191118054339-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
-Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, tiwei.bie@intel.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, gregkh@linuxfoundation.org, jgg@mellanox.com
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_leaf() functions/macros.
 
-For s390, pud_large() and pmd_large() are already implemented as static
-inline functions. Add a macro to provide the p?d_leaf names for the
-generic code to use.
+On 2019/11/18 =E4=B8=8B=E5=8D=886:44, Michael S. Tsirkin wrote:
+>> +static const struct mdev_virtio_class_id virtio_id_table[] =3D {
+>> +=09{ MDEV_VIRTIO_CLASS_ID_VIRTIO },
+>> +=09{ 0 },
+>> +};
+>> +
+> Do we still need the class ID? It's a virtio mdev bus,
+> do we need a virtio class as well?
+>
 
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
----
- arch/s390/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+If we want to have auto match between vhost-mdev driver and vhost-mdev=20
+device, we need this.
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 36c578c0ff96..acab5a455490 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -675,6 +675,7 @@ static inline int pud_none(pud_t pud)
- 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
- }
- 
-+#define pud_leaf	pud_large
- static inline int pud_large(pud_t pud)
- {
- 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-@@ -692,6 +693,7 @@ static inline unsigned long pud_pfn(pud_t pud)
- 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
- }
- 
-+#define pmd_leaf	pmd_large
- static inline int pmd_large(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
--- 
-2.20.1
+Otherwise, user need to manually probe or bind driver to the device.
+
+Thanks
