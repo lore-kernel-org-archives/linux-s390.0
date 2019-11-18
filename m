@@ -1,60 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727175AbfKVF5s (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:48 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 108/127] net/smc: prevent races between smc_lgr_terminate() and smc_conn_free()
-Date: Fri, 22 Nov 2019 00:55:26 -0500
-Message-Id: <20191122055544.3299-107-sashal@kernel.org>
-In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
-References: <20191122055544.3299-1-sashal@kernel.org>
-MIME-Version: 1.0
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33898 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726460AbfKRIgK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 18 Nov 2019 03:36:10 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAI8WKuM073620
+        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:09 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wayaw422v-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:08 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 18 Nov 2019 08:36:07 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/5] KVM: s390: Remove unused parameter from __inject_sigp_restart()
+Date: Mon, 18 Nov 2019 09:35:58 +0100
+In-Reply-To: <20191118083602.15835-1-borntraeger@de.ibm.com>
+References: <20191118083602.15835-1-borntraeger@de.ibm.com>
+Message-Id: <20191118083602.15835-2-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
 
-[ Upstream commit 77f838ace755d2f466536c44dac6c856f62cd901 ]
+It's not required, so drop it to make it clear that this interrupt
+does not have any extra parameters.
 
-To prevent races between smc_lgr_terminate() and smc_conn_free() add an
-extra check of the lgr field before accessing it, and cancel a delayed
-free_work when a new smc connection is created.
-This fixes the problem that free_work cleared the lgr variable but
-smc_lgr_terminate() or smc_conn_free() still access it in parallel.
-
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/kvm/20190912070250.15131-1-thuth@redhat.com
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- net/smc/smc_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kvm/interrupt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f04a037dc9677..0de788fa43e95 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -103,6 +103,8 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- 	struct smc_link_group *lgr = conn->lgr;
- 	int reduced = 0;
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index d1ccc168c071..165dea4c7f19 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1477,8 +1477,7 @@ static int __inject_sigp_stop(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 	return 0;
+ }
  
-+	if (!lgr)
-+		return;
- 	write_lock_bh(&lgr->conns_lock);
- 	if (conn->alert_token_local) {
- 		reduced = 1;
-@@ -431,6 +433,8 @@ int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
- 			local_contact = SMC_REUSE_CONTACT;
- 			conn->lgr = lgr;
- 			smc_lgr_register_conn(conn); /* add smc conn to lgr */
-+			if (delayed_work_pending(&lgr->free_work))
-+				cancel_delayed_work(&lgr->free_work);
- 			write_unlock_bh(&lgr->conns_lock);
- 			break;
- 		}
+-static int __inject_sigp_restart(struct kvm_vcpu *vcpu,
+-				 struct kvm_s390_irq *irq)
++static int __inject_sigp_restart(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+ 
+@@ -2007,7 +2006,7 @@ static int do_inject_vcpu(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
+ 		rc = __inject_sigp_stop(vcpu, irq);
+ 		break;
+ 	case KVM_S390_RESTART:
+-		rc = __inject_sigp_restart(vcpu, irq);
++		rc = __inject_sigp_restart(vcpu);
+ 		break;
+ 	case KVM_S390_INT_CLOCK_COMP:
+ 		rc = __inject_ckc(vcpu);
 -- 
-2.20.1
+2.21.0
