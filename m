@@ -1,111 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39640 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4170 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727001AbfKNKTt (ORCPT
+        by vger.kernel.org with ESMTP id S1726654AbfKRIgL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:19:49 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAIfWh112668
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:48 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w91m7ejv5-1
+        Mon, 18 Nov 2019 03:36:11 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAI8WXZp014248
+        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:11 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2way8kuqp2-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:46 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:10 -0500
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:34 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 04/11] s390/qeth: handle skb allocation error gracefully
-Date: Thu, 14 Nov 2019 11:19:17 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-5-jwi@linux.ibm.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 18 Nov 2019 08:36:08 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/5] selftests: kvm: make syncregs more reliable on s390
+Date: Mon, 18 Nov 2019 09:36:00 +0100
+In-Reply-To: <20191118083602.15835-1-borntraeger@de.ibm.com>
+References: <20191118083602.15835-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191118083602.15835-4-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
 
-When current code fails to allocate an skb in the RX path, it drops the
-whole RX buffer. Considering the large number of packets that a single
-RX buffer might contain, this is quite drastic.
+similar to commit 2c57da356800 ("selftests: kvm: fix sync_regs_test with
+newer gccs") and commit 204c91eff798a ("KVM: selftests: do not blindly
+clobber registers in guest asm") we better do not rely on gcc leaving
+r11 untouched.  We can write the simple ucall inline and have the guest
+code completely as small assembler function.
 
-Skip over the packet instead, and try to extract the next packet from
-the RX buffer.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- drivers/s390/net/qeth_core_main.c | 25 ++++++++++---------------
- 1 file changed, 10 insertions(+), 15 deletions(-)
+ .../testing/selftests/kvm/s390x/sync_regs_test.c  | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 467a9173058c..08185f76a727 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5065,12 +5065,12 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	struct qdio_buffer_element *element = *__element;
- 	struct qdio_buffer *buffer = qethbuffer->buffer;
- 	int offset = *__offset;
-+	bool use_rx_sg = false;
-+	unsigned int headroom;
- 	struct sk_buff *skb;
- 	int skb_len = 0;
- 	void *data_ptr;
- 	int data_len;
--	int headroom = 0;
--	int use_rx_sg = 0;
+diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+index d5290b4ad636..b705637ca14b 100644
+--- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
++++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+@@ -25,12 +25,15 @@
  
- next_packet:
- 	/* qeth_hdr must not cross element boundaries */
-@@ -5086,6 +5086,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	switch ((*hdr)->hdr.l2.id) {
- 	case QETH_HEADER_TYPE_LAYER2:
- 		skb_len = (*hdr)->hdr.l2.pkt_length;
-+		headroom = 0;
- 		break;
- 	case QETH_HEADER_TYPE_LAYER3:
- 		skb_len = (*hdr)->hdr.l3.length;
-@@ -5120,11 +5121,10 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	if (!skb_len)
- 		return NULL;
- 
--	if (((skb_len >= card->options.rx_sg_cb) &&
--	     !IS_OSN(card) &&
--	     (!atomic_read(&card->force_alloc_skb))) ||
--	    (card->options.cq == QETH_CQ_ENABLED))
--		use_rx_sg = 1;
-+	use_rx_sg = (card->options.cq == QETH_CQ_ENABLED) ||
-+		    ((skb_len >= card->options.rx_sg_cb) &&
-+		     !atomic_read(&card->force_alloc_skb) &&
-+		     !IS_OSN(card));
- 
- 	if (use_rx_sg && qethbuffer->rx_skb) {
- 		/* QETH_CQ_ENABLED only: */
-@@ -5135,9 +5135,10 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 
- 		skb = napi_alloc_skb(&card->napi, linear + headroom);
- 	}
-+
- 	if (!skb)
--		goto no_mem;
--	if (headroom)
-+		QETH_CARD_STAT_INC(card, rx_dropped_nomem);
-+	else if (headroom)
- 		skb_reserve(skb, headroom);
- 
- walk_packet:
-@@ -5184,12 +5185,6 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 				   skb_shinfo(skb)->nr_frags);
- 	}
- 	return skb;
--no_mem:
--	if (net_ratelimit()) {
--		QETH_CARD_TEXT(card, 2, "noskbmem");
+ static void guest_code(void)
+ {
+-	register u64 stage asm("11") = 0;
+-
+-	for (;;) {
+-		GUEST_SYNC(0);
+-		asm volatile ("ahi %0,1" : : "r"(stage));
 -	}
--	QETH_CARD_STAT_INC(card, rx_dropped_nomem);
--	return NULL;
++	/*
++	 * We embed diag 501 here instead of doing a ucall to avoid that
++	 * the compiler has messed with r11 at the time of the ucall.
++	 */
++	asm volatile (
++		"0:	diag 0,0,0x501\n"
++		"	ahi 11,1\n"
++		"	j 0b\n"
++	);
  }
- EXPORT_SYMBOL_GPL(qeth_core_get_next_skb);
  
+ #define REG_COMPARE(reg) \
 -- 
-2.17.1
+2.21.0
