@@ -1,105 +1,198 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:59670 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726991AbfKKNue (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:50:34 -0500
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 2/4] vfio-ccw: Trace the FSM jumptable
-Date: Mon, 11 Nov 2019 14:50:17 +0100
-Message-Id: <20191111135019.2394-3-cohuck@redhat.com>
-In-Reply-To: <20191111135019.2394-1-cohuck@redhat.com>
-References: <20191111135019.2394-1-cohuck@redhat.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V12 3/6] mdev: move to drivers/
+Date: Mon, 18 Nov 2019 14:17:00 +0800
+Message-Id: <20191118061703.8669-4-jasowang@redhat.com>
+In-Reply-To: <20191118061703.8669-1-jasowang@redhat.com>
+References: <20191118061703.8669-1-jasowang@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, gregkh@linuxfoundation.org, jgg@mellanox.com, Jason Wang <jasowang@redhat.com>
 
-From: Eric Farman <farman@linux.ibm.com>
+Mdev now is nothing VFIO specific, let's move it to upper
+directory.
 
-It would be nice if we could track the sequence of events within
-vfio-ccw, based on the state of the device/FSM and our calling
-sequence within it.  So let's add a simple trace here so we can
-watch the states change as things go, and allow it to be folded
-into the rest of the other cio traces.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20191016142040.14132-3-farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- drivers/s390/cio/vfio_ccw_trace.c   |  1 +
- drivers/s390/cio/vfio_ccw_trace.h   | 26 ++++++++++++++++++++++++++
- 3 files changed, 28 insertions(+)
+ MAINTAINERS                                   |  7 +++++--
+ drivers/Kconfig                               |  2 ++
+ drivers/Makefile                              |  1 +
+ drivers/mdev/Kconfig                          | 19 ++++++++++++++++++
+ drivers/mdev/Makefile                         |  5 +++++
+ drivers/{vfio =3D> }/mdev/mdev_core.c           |  0
+ drivers/{vfio =3D> }/mdev/mdev_driver.c         |  0
+ drivers/{vfio =3D> }/mdev/mdev_private.h        |  0
+ drivers/{vfio =3D> }/mdev/mdev_sysfs.c          |  0
+ .../{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c}    |  0
+ drivers/vfio/mdev/Kconfig                     | 20 -------------------
+ drivers/vfio/mdev/Makefile                    |  4 ----
+ drivers/vfio/mdev/vfio_mdev.c                 |  2 --
+ 13 files changed, 32 insertions(+), 28 deletions(-)
+ create mode 100644 drivers/mdev/Kconfig
+ create mode 100644 drivers/mdev/Makefile
+ rename drivers/{vfio =3D> }/mdev/mdev_core.c (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_driver.c (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_private.h (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_sysfs.c (100%)
+ rename drivers/{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c} (100%)
 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_cc=
-w_private.h
-index bbe9babf767b..9b9bb4982972 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -135,6 +135,7 @@ extern fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATE=
-S][NR_VFIO_CCW_EVENTS];
- static inline void vfio_ccw_fsm_event(struct vfio_ccw_private *private,
- =09=09=09=09     int event)
- {
-+=09trace_vfio_ccw_fsm_event(private->sch->schid, private->state, event);
- =09vfio_ccw_jumptable[private->state][event](private, event);
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d335949240dc..829428d8a9f5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17111,15 +17111,18 @@ T:=09git git://github.com/awilliam/linux-vfio.git
+ S:=09Maintained
+ F:=09Documentation/driver-api/vfio.rst
+ F:=09drivers/vfio/
++F:=09drivers/mdev/vfio.c
+ F:=09include/linux/vfio.h
+ F:=09include/uapi/linux/vfio.h
 =20
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_=
-trace.c
-index d5cc943c6864..b37bc68e7f18 100644
---- a/drivers/s390/cio/vfio_ccw_trace.c
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -9,4 +9,5 @@
- #define CREATE_TRACE_POINTS
- #include "vfio_ccw_trace.h"
+-VFIO MEDIATED DEVICE DRIVERS
++MEDIATED DEVICE DRIVERS
++M:=09Alex Williamson <alex.williamson@redhat.com>
+ M:=09Kirti Wankhede <kwankhede@nvidia.com>
++R:=09Cornelia Huck <cohuck@redhat.com>
+ L:=09kvm@vger.kernel.org
+ S:=09Maintained
+ F:=09Documentation/driver-api/vfio-mediated-device.rst
+-F:=09drivers/vfio/mdev/
++F:=09drivers/mdev
+ F:=09include/linux/mdev.h
+ F:=09include/linux/mdev_vfio.h
+ F:=09samples/vfio-mdev/
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 8befa53f43be..3e2839048fe6 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -228,4 +228,6 @@ source "drivers/interconnect/Kconfig"
 =20
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_event);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_io_fctl);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_=
-trace.h
-index 2a2937a40124..5005d57901b4 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -17,6 +17,32 @@
+ source "drivers/counter/Kconfig"
 =20
- #include <linux/tracepoint.h>
++source "drivers/mdev/Kconfig"
++
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index aaef17cc6512..592e23f2e629 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -186,3 +186,4 @@ obj-$(CONFIG_SIOX)=09=09+=3D siox/
+ obj-$(CONFIG_GNSS)=09=09+=3D gnss/
+ obj-$(CONFIG_INTERCONNECT)=09+=3D interconnect/
+ obj-$(CONFIG_COUNTER)=09=09+=3D counter/
++obj-$(CONFIG_MDEV)=09=09+=3D mdev/
+diff --git a/drivers/mdev/Kconfig b/drivers/mdev/Kconfig
+new file mode 100644
+index 000000000000..4561f2d4178f
+--- /dev/null
++++ b/drivers/mdev/Kconfig
+@@ -0,0 +1,19 @@
++
++config MDEV
++=09tristate "Mediated device driver framework"
++=09default n
++=09help
++=09  Provides a framework to virtualize devices.
++
++=09  If you don't know what do here, say N.
++
++config VFIO_MDEV
++=09tristate "VFIO Mediated device driver"
++        depends on VFIO && MDEV
++        default n
++=09help
++=09  Proivdes a mediated BUS for userspace driver through VFIO
++=09  framework. See Documentation/vfio-mediated-device.txt for
++=09  more details.
++
++=09  If you don't know what do here, say N.
+diff --git a/drivers/mdev/Makefile b/drivers/mdev/Makefile
+new file mode 100644
+index 000000000000..0b749e7f8ff4
+--- /dev/null
++++ b/drivers/mdev/Makefile
+@@ -0,0 +1,5 @@
++
++mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
++mdev_vfio-y :=3D vfio.o
++obj-$(CONFIG_MDEV) +=3D mdev.o
++obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/mdev/mdev_core.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_core.c
+rename to drivers/mdev/mdev_core.c
+diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/mdev/mdev_driver.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_driver.c
+rename to drivers/mdev/mdev_driver.c
+diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/mdev/mdev_private.h
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_private.h
+rename to drivers/mdev/mdev_private.h
+diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/mdev/mdev_sysfs.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_sysfs.c
+rename to drivers/mdev/mdev_sysfs.c
+diff --git a/drivers/vfio/mdev/mdev_vfio.c b/drivers/mdev/vfio.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_vfio.c
+rename to drivers/mdev/vfio.c
+diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
+index 2e07ca915a96..9a9234c3e00e 100644
+--- a/drivers/vfio/mdev/Kconfig
++++ b/drivers/vfio/mdev/Kconfig
+@@ -1,24 +1,4 @@
 =20
-+TRACE_EVENT(vfio_ccw_fsm_event,
-+=09TP_PROTO(struct subchannel_id schid, int state, int event),
-+=09TP_ARGS(schid, state, event),
-+
-+=09TP_STRUCT__entry(
-+=09=09__field(u8, cssid)
-+=09=09__field(u8, ssid)
-+=09=09__field(u16, schno)
-+=09=09__field(int, state)
-+=09=09__field(int, event)
-+=09),
-+
-+=09TP_fast_assign(
-+=09=09__entry->cssid =3D schid.cssid;
-+=09=09__entry->ssid =3D schid.ssid;
-+=09=09__entry->schno =3D schid.sch_no;
-+=09=09__entry->state =3D state;
-+=09=09__entry->event =3D event;
-+=09),
-+
-+=09TP_printk("schid=3D%x.%x.%04x state=3D%d event=3D%d",
-+=09=09__entry->cssid, __entry->ssid, __entry->schno,
-+=09=09__entry->state,
-+=09=09__entry->event)
-+);
-+
- TRACE_EVENT(vfio_ccw_io_fctl,
- =09TP_PROTO(int fctl, struct subchannel_id schid, int errno, char *errstr)=
-,
- =09TP_ARGS(fctl, schid, errno, errstr),
+-config MDEV
+-=09tristate "Mediated device driver framework"
+-=09default n
+-=09help
+-=09  Provides a framework to virtualize devices.
+-
+-=09  If you don't know what do here, say N.
+-
+-config VFIO_MDEV
+-=09tristate "VFIO Mediated device driver"
+-        depends on VFIO && MDEV
+-        default n
+-=09help
+-=09  Proivdes a mediated BUS for userspace driver through VFIO
+-=09  framework. See Documentation/vfio-mediated-device.txt for
+-=09  more details.
+-
+-=09  If you don't know what do here, say N.
+-
+-
+ config VFIO_MDEV_DEVICE
+ =09tristate "VFIO driver for Mediated devices"
+ =09depends on VFIO && VFIO_MDEV
+diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
+index e9675501271a..e2a92df3089e 100644
+--- a/drivers/vfio/mdev/Makefile
++++ b/drivers/vfio/mdev/Makefile
+@@ -1,6 +1,2 @@
+=20
+-mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
+-
+-obj-$(CONFIG_MDEV) +=3D mdev.o
+-obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
+ obj-$(CONFIG_VFIO_MDEV_DEVICE) +=3D vfio_mdev.o
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 8b42a4b3f161..4eada31e9287 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -15,8 +15,6 @@
+ #include <linux/vfio.h>
+ #include <linux/mdev_vfio.h>
+=20
+-#include "mdev_private.h"
+-
+ #define DRIVER_VERSION  "0.1"
+ #define DRIVER_AUTHOR   "NVIDIA Corporation"
+ #define DRIVER_DESC     "VFIO based driver for Mediated device"
 --=20
-2.21.0
+2.19.1
