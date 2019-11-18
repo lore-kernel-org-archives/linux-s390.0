@@ -1,57 +1,203 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38060 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727112AbfKSDLg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 18 Nov 2019 22:11:36 -0500
-Subject: Re: [PATCH V13 3/6] mdev: move to drivers/
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:31126 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726985AbfKRLBu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 18 Nov 2019 06:01:50 -0500
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V13 3/6] mdev: move to drivers/
+Date: Mon, 18 Nov 2019 18:59:20 +0800
+Message-Id: <20191118105923.7991-4-jasowang@redhat.com>
+In-Reply-To: <20191118105923.7991-1-jasowang@redhat.com>
 References: <20191118105923.7991-1-jasowang@redhat.com>
- <20191118105923.7991-4-jasowang@redhat.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <195f2686-752c-67f0-0dba-04178a6f5dda@infradead.org>
-Date: Mon, 18 Nov 2019 19:11:26 -0800
 MIME-Version: 1.0
-In-Reply-To: <20191118105923.7991-4-jasowang@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, gregkh@linuxfoundation.org, jgg@mellanox.com
-Cc: netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, jeffrey.t.kirsher@intel.com
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com, gregkh@linuxfoundation.org, jgg@mellanox.com
+Cc: netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jakub.kicinski@netronome.com, jiri@mellanox.com, jeffrey.t.kirsher@intel.com, Jason Wang <jasowang@redhat.com>
 
-On 11/18/19 2:59 AM, Jason Wang wrote:
-> diff --git a/drivers/mdev/Kconfig b/drivers/mdev/Kconfig
-> new file mode 100644
-> index 000000000000..4561f2d4178f
-> --- /dev/null
-> +++ b/drivers/mdev/Kconfig
-> @@ -0,0 +1,19 @@
-> +
-> +config MDEV
-> +	tristate "Mediated device driver framework"
-> +	default n
-> +	help
-> +	  Provides a framework to virtualize devices.
-> +
-> +	  If you don't know what do here, say N.
-> +
-> +config VFIO_MDEV
-> +	tristate "VFIO Mediated device driver"
-> +        depends on VFIO && MDEV
-> +        default n
+Mdev now is nothing VFIO specific, let's move it to upper
+directory.
 
-Use tab on the 2 lines above, not spaces.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ MAINTAINERS                                   |  7 +++++--
+ drivers/Kconfig                               |  2 ++
+ drivers/Makefile                              |  1 +
+ drivers/mdev/Kconfig                          | 19 ++++++++++++++++++
+ drivers/mdev/Makefile                         |  5 +++++
+ drivers/{vfio =3D> }/mdev/mdev_core.c           |  0
+ drivers/{vfio =3D> }/mdev/mdev_driver.c         |  0
+ drivers/{vfio =3D> }/mdev/mdev_private.h        |  0
+ drivers/{vfio =3D> }/mdev/mdev_sysfs.c          |  0
+ .../{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c}    |  0
+ drivers/vfio/mdev/Kconfig                     | 20 -------------------
+ drivers/vfio/mdev/Makefile                    |  4 ----
+ drivers/vfio/mdev/vfio_mdev.c                 |  2 --
+ 13 files changed, 32 insertions(+), 28 deletions(-)
+ create mode 100644 drivers/mdev/Kconfig
+ create mode 100644 drivers/mdev/Makefile
+ rename drivers/{vfio =3D> }/mdev/mdev_core.c (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_driver.c (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_private.h (100%)
+ rename drivers/{vfio =3D> }/mdev/mdev_sysfs.c (100%)
+ rename drivers/{vfio/mdev/mdev_vfio.c =3D> mdev/vfio.c} (100%)
 
-> +	help
-> +	  Proivdes a mediated BUS for userspace driver through VFIO
-
-	  Provides
-
-> +	  framework. See Documentation/vfio-mediated-device.txt for
-> +	  more details.
-> +
-> +	  If you don't know what do here, say N.
-
-
--- 
-~Randy
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6d590afb62c3..5d7e8badf58c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17129,15 +17129,18 @@ T:=09git git://github.com/awilliam/linux-vfio.git
+ S:=09Maintained
+ F:=09Documentation/driver-api/vfio.rst
+ F:=09drivers/vfio/
++F:=09drivers/mdev/vfio.c
+ F:=09include/linux/vfio.h
+ F:=09include/uapi/linux/vfio.h
+=20
+-VFIO MEDIATED DEVICE DRIVERS
++MEDIATED DEVICE DRIVERS
++M:=09Alex Williamson <alex.williamson@redhat.com>
+ M:=09Kirti Wankhede <kwankhede@nvidia.com>
++R:=09Cornelia Huck <cohuck@redhat.com>
+ L:=09kvm@vger.kernel.org
+ S:=09Maintained
+ F:=09Documentation/driver-api/vfio-mediated-device.rst
+-F:=09drivers/vfio/mdev/
++F:=09drivers/mdev
+ F:=09include/linux/mdev.h
+ F:=09include/linux/mdev_vfio.h
+ F:=09samples/vfio-mdev/
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 8befa53f43be..3e2839048fe6 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -228,4 +228,6 @@ source "drivers/interconnect/Kconfig"
+=20
+ source "drivers/counter/Kconfig"
+=20
++source "drivers/mdev/Kconfig"
++
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index aaef17cc6512..592e23f2e629 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -186,3 +186,4 @@ obj-$(CONFIG_SIOX)=09=09+=3D siox/
+ obj-$(CONFIG_GNSS)=09=09+=3D gnss/
+ obj-$(CONFIG_INTERCONNECT)=09+=3D interconnect/
+ obj-$(CONFIG_COUNTER)=09=09+=3D counter/
++obj-$(CONFIG_MDEV)=09=09+=3D mdev/
+diff --git a/drivers/mdev/Kconfig b/drivers/mdev/Kconfig
+new file mode 100644
+index 000000000000..4561f2d4178f
+--- /dev/null
++++ b/drivers/mdev/Kconfig
+@@ -0,0 +1,19 @@
++
++config MDEV
++=09tristate "Mediated device driver framework"
++=09default n
++=09help
++=09  Provides a framework to virtualize devices.
++
++=09  If you don't know what do here, say N.
++
++config VFIO_MDEV
++=09tristate "VFIO Mediated device driver"
++        depends on VFIO && MDEV
++        default n
++=09help
++=09  Proivdes a mediated BUS for userspace driver through VFIO
++=09  framework. See Documentation/vfio-mediated-device.txt for
++=09  more details.
++
++=09  If you don't know what do here, say N.
+diff --git a/drivers/mdev/Makefile b/drivers/mdev/Makefile
+new file mode 100644
+index 000000000000..0b749e7f8ff4
+--- /dev/null
++++ b/drivers/mdev/Makefile
+@@ -0,0 +1,5 @@
++
++mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
++mdev_vfio-y :=3D vfio.o
++obj-$(CONFIG_MDEV) +=3D mdev.o
++obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
+diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/mdev/mdev_core.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_core.c
+rename to drivers/mdev/mdev_core.c
+diff --git a/drivers/vfio/mdev/mdev_driver.c b/drivers/mdev/mdev_driver.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_driver.c
+rename to drivers/mdev/mdev_driver.c
+diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/mdev/mdev_private.h
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_private.h
+rename to drivers/mdev/mdev_private.h
+diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/mdev/mdev_sysfs.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_sysfs.c
+rename to drivers/mdev/mdev_sysfs.c
+diff --git a/drivers/vfio/mdev/mdev_vfio.c b/drivers/mdev/vfio.c
+similarity index 100%
+rename from drivers/vfio/mdev/mdev_vfio.c
+rename to drivers/mdev/vfio.c
+diff --git a/drivers/vfio/mdev/Kconfig b/drivers/vfio/mdev/Kconfig
+index 2e07ca915a96..9a9234c3e00e 100644
+--- a/drivers/vfio/mdev/Kconfig
++++ b/drivers/vfio/mdev/Kconfig
+@@ -1,24 +1,4 @@
+=20
+-config MDEV
+-=09tristate "Mediated device driver framework"
+-=09default n
+-=09help
+-=09  Provides a framework to virtualize devices.
+-
+-=09  If you don't know what do here, say N.
+-
+-config VFIO_MDEV
+-=09tristate "VFIO Mediated device driver"
+-        depends on VFIO && MDEV
+-        default n
+-=09help
+-=09  Proivdes a mediated BUS for userspace driver through VFIO
+-=09  framework. See Documentation/vfio-mediated-device.txt for
+-=09  more details.
+-
+-=09  If you don't know what do here, say N.
+-
+-
+ config VFIO_MDEV_DEVICE
+ =09tristate "VFIO driver for Mediated devices"
+ =09depends on VFIO && VFIO_MDEV
+diff --git a/drivers/vfio/mdev/Makefile b/drivers/vfio/mdev/Makefile
+index e9675501271a..e2a92df3089e 100644
+--- a/drivers/vfio/mdev/Makefile
++++ b/drivers/vfio/mdev/Makefile
+@@ -1,6 +1,2 @@
+=20
+-mdev-y :=3D mdev_core.o mdev_sysfs.o mdev_driver.o
+-
+-obj-$(CONFIG_MDEV) +=3D mdev.o
+-obj-$(CONFIG_VFIO_MDEV) +=3D mdev_vfio.o
+ obj-$(CONFIG_VFIO_MDEV_DEVICE) +=3D vfio_mdev.o
+diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+index 8b42a4b3f161..4eada31e9287 100644
+--- a/drivers/vfio/mdev/vfio_mdev.c
++++ b/drivers/vfio/mdev/vfio_mdev.c
+@@ -15,8 +15,6 @@
+ #include <linux/vfio.h>
+ #include <linux/mdev_vfio.h>
+=20
+-#include "mdev_private.h"
+-
+ #define DRIVER_VERSION  "0.1"
+ #define DRIVER_AUTHOR   "NVIDIA Corporation"
+ #define DRIVER_DESC     "VFIO based driver for Mediated device"
+--=20
+2.19.1
