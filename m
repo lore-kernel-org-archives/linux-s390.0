@@ -1,105 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6554 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727584AbfKSKJZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Nov 2019 05:09:25 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAJA9KHo083457
-        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 05:09:23 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2way6avtcm-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 05:09:22 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 19 Nov 2019 10:08:40 -0000
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58998 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725280AbfKSJpv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 19 Nov 2019 04:45:51 -0500
+Date: Tue, 19 Nov 2019 10:45:28 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC 23/37] KVM: s390: protvirt: Make sure prefix is always
  protected
+Message-ID: <20191119104528.3f3c2620.cohuck@redhat.com>
+In-Reply-To: <db54630b-8959-feba-168e-0afecc30d4b9@linux.ibm.com>
 References: <20191024114059.102802-1-frankja@linux.ibm.com>
- <20191024114059.102802-24-frankja@linux.ibm.com>
- <20191118173942.0252b731.cohuck@redhat.com>
- <db54630b-8959-feba-168e-0afecc30d4b9@linux.ibm.com>
- <20191119104528.3f3c2620.cohuck@redhat.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Date: Tue, 19 Nov 2019 11:08:36 +0100
+        <20191024114059.102802-24-frankja@linux.ibm.com>
+        <20191118173942.0252b731.cohuck@redhat.com>
+        <db54630b-8959-feba-168e-0afecc30d4b9@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20191119104528.3f3c2620.cohuck@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="iw8GvkYJ1VK8Sh1gF4dFKK03mUZa2LDZd"
-Message-Id: <f19ce1fe-2761-d8ed-15b6-fa7e06117475@linux.ibm.com>
+Content-Type: multipart/signed; boundary="Sig_/zhv7PoOZ1lQTw1Ax=3I64YS";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---iw8GvkYJ1VK8Sh1gF4dFKK03mUZa2LDZd
-Content-Type: multipart/mixed; boundary="hUTNCY5HXLYf7wRdxkG0joeKNNVWmRRf4"
-
---hUTNCY5HXLYf7wRdxkG0joeKNNVWmRRf4
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
+--Sig_/zhv7PoOZ1lQTw1Ax=3I64YS
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-On 11/19/19 10:45 AM, Cornelia Huck wrote:
-> On Tue, 19 Nov 2019 09:11:11 +0100
-[...]
->>>
->>> So, what happens if we have an error other than -EEXIST (which
->>> presumably means that we already protected it) here? The page is not
->>> protected, and further accesses will get an error? (Another question:=
+On Tue, 19 Nov 2019 09:11:11 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
->>> what can actually go wrong here?) =20
->>
->> If KVM or QEMU write into a lowcore, we will fail the integrity check =
-on
->> import and this cpu will never run again.
+> On 11/18/19 5:39 PM, Cornelia Huck wrote:
+> > On Thu, 24 Oct 2019 07:40:45 -0400
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >=20
+> > Add at least a short sentence here? =20
 >=20
-> From the guest's POV, is that similar to a cpu going into xstop?
+> For protected VMs the lowcore does not only need to be mapped, but also
+> needs to be protected memory, if not we'll get a validity interception
+> when trying to run it.
 
-Not really, I'm wondering what happens, if we try to send a restart to
-such a cpu.
+Much better, thanks!
 
-> =20
->> In retrospect a warn_on_once might be the wrong error handling here.
->>
->>>  =20
->>>> +		}
->>>>  		if (rc) {
->>>>  			kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
->>>>  			return rc; =20
->>>  =20
->>
->>
+>=20
+> >  =20
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >> ---
+> >>  arch/s390/kvm/kvm-s390.c | 9 +++++++++
+> >>  1 file changed, 9 insertions(+)
+> >>
+> >> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> >> index eddc9508c1b1..17a78774c617 100644
+> >> --- a/arch/s390/kvm/kvm-s390.c
+> >> +++ b/arch/s390/kvm/kvm-s390.c
+> >> @@ -3646,6 +3646,15 @@ static int kvm_s390_handle_requests(struct kvm_=
+vcpu *vcpu)
+> >>  =09=09rc =3D gmap_mprotect_notify(vcpu->arch.gmap,
+> >>  =09=09=09=09=09  kvm_s390_get_prefix(vcpu),
+> >>  =09=09=09=09=09  PAGE_SIZE * 2, PROT_WRITE);
+> >> +=09=09if (!rc && kvm_s390_pv_is_protected(vcpu->kvm)) {
+> >> +=09=09=09rc =3D uv_convert_to_secure(vcpu->arch.gmap,
+> >> +=09=09=09=09=09=09  kvm_s390_get_prefix(vcpu));
+> >> +=09=09=09WARN_ON_ONCE(rc && rc !=3D -EEXIST);
+> >> +=09=09=09rc =3D uv_convert_to_secure(vcpu->arch.gmap,
+> >> +=09=09=09=09=09=09  kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
+> >> +=09=09=09WARN_ON_ONCE(rc && rc !=3D -EEXIST);
+> >> +=09=09=09rc =3D 0; =20
+> >=20
+> > So, what happens if we have an error other than -EEXIST (which
+> > presumably means that we already protected it) here? The page is not
+> > protected, and further accesses will get an error? (Another question:
+> > what can actually go wrong here?) =20
+>=20
+> If KVM or QEMU write into a lowcore, we will fail the integrity check on
+> import and this cpu will never run again.
+
+From the guest's POV, is that similar to a cpu going into xstop?
+=20
+> In retrospect a warn_on_once might be the wrong error handling here.
+>=20
+> >  =20
+> >> +=09=09}
+> >>  =09=09if (rc) {
+> >>  =09=09=09kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
+> >>  =09=09=09return rc; =20
+> >  =20
+>=20
 >=20
 
 
-
---hUTNCY5HXLYf7wRdxkG0joeKNNVWmRRf4--
-
---iw8GvkYJ1VK8Sh1gF4dFKK03mUZa2LDZd
-Content-Type: application/pgp-signature; name="signature.asc"
+--Sig_/zhv7PoOZ1lQTw1Ax=3I64YS
+Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3TvyQACgkQ41TmuOI4
-ufhHjw/7BaXIre2ND8lvliazh0c4CiNaTTdBI2DHm75ayM4Nsen03uqp4J54yHMn
-sRyax174VJpGJeK8ds0f8azzdSZdxhJC+k5lDDK5vVbwskyCS5F9cynsiRVY/lKn
-z/SVHRvjfz0nRFgZAdDsBtOBSTJtIhL3h6fqFZEfaoQX6eYjYdC9HhJ2+jN+IUWx
-NxgebOmya6Tej7M6NCpUiEwVg1L1dluvzq4wi1523YJ9qaTNoo29SJ/YfFP6z8/l
-ov52EnofMwyTO726D59GaLhPItDme347IeZWL81eSW4EbCCb3fG/crkkjew/HlsZ
-02B29rEfQFybQDhKi1cu1zI+Wx9LpVfknVgA4ZsOmohzGL5pl81HTa8/dB51WBW/
-IjKeAyPY3z9u23IbgHgS8ecxlER7n14NdcaQ75GLv/9Gq1g7hUHA4yAmb+HH7e8Z
-fzRgxWfCuXpHtFefvOmhA7FuVxC8zMVjdeCXixzpRlWhvRDgP50zI9ImX8U7wr8x
-VnQLn6aTSIxf9Kp1+9zPsZFmaYRFa5fUeMpZxheIL4yKB3vqrsqI+/DlMuLZcVe8
-IAFDMIHT8JVu144acLeeQSWtXNJqOOo2C9hPeAXS2cDq5JimPAw9l5oUd2a4Rv4R
-rURVuaIQKiEBLHXSIOQF89DX69cEZ4Iae1xVzRtDfra14BkvNGA=
-=UVRR
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl3TubgACgkQ3s9rk8bw
+L68TyxAAj7WCu4pHHzMaOOfcByYdpzzcqt4Z1xEWoh20i9FK+b7uRAQRBA0WdIBA
+RcxwMzsjNwJAspxH4/g/1agXJvDb5GK5ryaqvqBvOIm8cHLUOewT/jC0L+1qIC6J
+6w9yXU4Ml813k7hEj/qLwcjRqYIwxQe5r18IHGoI6tXnfBn2WYkokBzI4TzlADLr
+tpRIc6WvSQSorTqTm0xckBPJ+X3hL2/HWfq54SWl6XFdKbvmP0kQRvvZq6+UEaPs
+bbJ4AV6qGiWPzNt/yuv/9wKlS9zVTdnip5Tv1SZ/I2r8HQCyCZcG5yNUszCjKhp7
+P6pSIIvesjVXRVdPlWILoBZKxEcHLHD8yXhpjOcv9gn5ES3BcRrnT+wIuZbfTk8b
+3s1mgjAukFFOB/dvAFt1+bx5a2J7d3i1YlXSyTVRIbvdS1UK5hpwFFRP05GpAZpv
+cRdZ392oN5siqAOOgHuvwOGMOpMQYK4Zl55X1lCuV4uqdUe7s4EOVH1/qu8M8zoU
+ifeS0LTc3RAp0rbKEbqMffWw+8MiZ42SFSo3BXeQvn97tK52budt2nphwdA8PGsE
+CsmFM0P4Rgbal5i7MAx5vHvJVFEgcsEiBdlZ1XUo2aaGyGJ2bmfvTilJW1jRbJgd
+WyTWhPnpZnN+QLuZmSM2ESZmxg64QS3hCsZwllJJ3kB8JK6fkBw=
+=vkoq
 -----END PGP SIGNATURE-----
 
---iw8GvkYJ1VK8Sh1gF4dFKK03mUZa2LDZd--
+--Sig_/zhv7PoOZ1lQTw1Ax=3I64YS--
