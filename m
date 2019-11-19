@@ -1,233 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-201.mailbox.org ([80.241.56.171]:21076 "EHLO
-        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726201AbfKQBTI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:19:08 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 02/13] nsfs: clean-up ns_get_path() signature to return int
-Date: Sun, 17 Nov 2019 12:17:02 +1100
-Message-Id: <20191117011713.13032-3-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4086 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726351AbfKSLgb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Nov 2019 06:36:31 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAJBWrq4111124
+        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 06:36:30 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wcf579n3n-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 19 Nov 2019 06:36:30 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Tue, 19 Nov 2019 11:36:29 -0000
+Subject: Re: [RFC 23/37] KVM: s390: protvirt: Make sure prefix is always
+ protected
+References: <20191024114059.102802-1-frankja@linux.ibm.com>
+ <20191024114059.102802-24-frankja@linux.ibm.com>
+ <ded0154c-a9b4-4419-14c8-a34095494d82@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Tue, 19 Nov 2019 12:36:24 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <ded0154c-a9b4-4419-14c8-a34095494d82@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="r96P6bmXUHkwtLw6Y9aFNZgIB8pjwkINf"
+Message-Id: <ab65cb14-e9b1-aced-9068-11d2ca566093@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, cohuck@redhat.com, gor@linux.ibm.com
 
-ns_get_path() and ns_get_path_cb() only ever return either NULL or an
-ERR_PTR. It is far more idiomatic to simply return an integer, and it
-makes all of the callers of ns_get_path() more straightforward to read.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--r96P6bmXUHkwtLw6Y9aFNZgIB8pjwkINf
+Content-Type: multipart/mixed; boundary="2g65zlWkLNPx2YehiJq15LI9IfSdpeiDQ"
 
-Fixes: e149ed2b805f ("take the targets of /proc/*/ns/* symlinks to separate fs")
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/nsfs.c               | 29 ++++++++++++++---------------
- fs/proc/namespaces.c    |  6 +++---
- include/linux/proc_ns.h |  4 ++--
- kernel/bpf/offload.c    | 12 ++++++------
- kernel/events/core.c    |  2 +-
- 5 files changed, 26 insertions(+), 27 deletions(-)
+--2g65zlWkLNPx2YehiJq15LI9IfSdpeiDQ
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/fs/nsfs.c b/fs/nsfs.c
-index a0431642c6b5..f3d2833c5781 100644
---- a/fs/nsfs.c
-+++ b/fs/nsfs.c
-@@ -52,7 +52,7 @@ static void nsfs_evict(struct inode *inode)
- 	ns->ops->put(ns);
- }
- 
--static void *__ns_get_path(struct path *path, struct ns_common *ns)
-+static int __ns_get_path(struct path *path, struct ns_common *ns)
- {
- 	struct vfsmount *mnt = nsfs_mnt;
- 	struct dentry *dentry;
-@@ -71,13 +71,13 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
- got_it:
- 	path->mnt = mntget(mnt);
- 	path->dentry = dentry;
--	return NULL;
-+	return 0;
- slow:
- 	rcu_read_unlock();
- 	inode = new_inode_pseudo(mnt->mnt_sb);
- 	if (!inode) {
- 		ns->ops->put(ns);
--		return ERR_PTR(-ENOMEM);
-+		return -ENOMEM;
- 	}
- 	inode->i_ino = ns->inum;
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
-@@ -89,7 +89,7 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
- 	dentry = d_alloc_anon(mnt->mnt_sb);
- 	if (!dentry) {
- 		iput(inode);
--		return ERR_PTR(-ENOMEM);
-+		return -ENOMEM;
- 	}
- 	d_instantiate(dentry, inode);
- 	dentry->d_fsdata = (void *)ns->ops;
-@@ -98,23 +98,22 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
- 		d_delete(dentry);	/* make sure ->d_prune() does nothing */
- 		dput(dentry);
- 		cpu_relax();
--		return ERR_PTR(-EAGAIN);
-+		return -EAGAIN;
- 	}
- 	goto got_it;
- }
- 
--void *ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
-+int ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
- 		     void *private_data)
- {
--	void *ret;
-+	int ret;
- 
- 	do {
- 		struct ns_common *ns = ns_get_cb(private_data);
- 		if (!ns)
--			return ERR_PTR(-ENOENT);
--
-+			return -ENOENT;
- 		ret = __ns_get_path(path, ns);
--	} while (ret == ERR_PTR(-EAGAIN));
-+	} while (ret == -EAGAIN);
- 
- 	return ret;
- }
-@@ -131,7 +130,7 @@ static struct ns_common *ns_get_path_task(void *private_data)
- 	return args->ns_ops->get(args->task);
- }
- 
--void *ns_get_path(struct path *path, struct task_struct *task,
-+int ns_get_path(struct path *path, struct task_struct *task,
- 		  const struct proc_ns_operations *ns_ops)
- {
- 	struct ns_get_path_task_args args = {
-@@ -147,7 +146,7 @@ int open_related_ns(struct ns_common *ns,
- {
- 	struct path path = {};
- 	struct file *f;
--	void *err;
-+	int err;
- 	int fd;
- 
- 	fd = get_unused_fd_flags(O_CLOEXEC);
-@@ -164,11 +163,11 @@ int open_related_ns(struct ns_common *ns,
- 		}
- 
- 		err = __ns_get_path(&path, relative);
--	} while (err == ERR_PTR(-EAGAIN));
-+	} while (err == -EAGAIN);
- 
--	if (IS_ERR(err)) {
-+	if (err) {
- 		put_unused_fd(fd);
--		return PTR_ERR(err);
-+		return err;
- 	}
- 
- 	f = dentry_open(&path, O_RDONLY, current_cred());
-diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-index dd2b35f78b09..08dd94df1a66 100644
---- a/fs/proc/namespaces.c
-+++ b/fs/proc/namespaces.c
-@@ -42,14 +42,14 @@ static const char *proc_ns_get_link(struct dentry *dentry,
- 	const struct proc_ns_operations *ns_ops = PROC_I(inode)->ns_ops;
- 	struct task_struct *task;
- 	struct path ns_path;
--	void *error = ERR_PTR(-EACCES);
-+	int error = -EACCES;
- 
- 	if (!dentry)
- 		return ERR_PTR(-ECHILD);
- 
- 	task = get_proc_task(inode);
- 	if (!task)
--		return error;
-+		return ERR_PTR(-EACCES);
- 
- 	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
- 		error = ns_get_path(&ns_path, task, ns_ops);
-@@ -57,7 +57,7 @@ static const char *proc_ns_get_link(struct dentry *dentry,
- 			nd_jump_link(&ns_path);
- 	}
- 	put_task_struct(task);
--	return error;
-+	return ERR_PTR(error);
- }
- 
- static int proc_ns_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-diff --git a/include/linux/proc_ns.h b/include/linux/proc_ns.h
-index d31cb6215905..aed366b4795c 100644
---- a/include/linux/proc_ns.h
-+++ b/include/linux/proc_ns.h
-@@ -76,10 +76,10 @@ static inline int ns_alloc_inum(struct ns_common *ns)
- 
- extern struct file *proc_ns_fget(int fd);
- #define get_proc_ns(inode) ((struct ns_common *)(inode)->i_private)
--extern void *ns_get_path(struct path *path, struct task_struct *task,
-+extern int ns_get_path(struct path *path, struct task_struct *task,
- 			const struct proc_ns_operations *ns_ops);
- typedef struct ns_common *ns_get_path_helper_t(void *);
--extern void *ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
-+extern int ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
- 			    void *private_data);
- 
- extern int ns_get_name(char *buf, size_t size, struct task_struct *task,
-diff --git a/kernel/bpf/offload.c b/kernel/bpf/offload.c
-index ba635209ae9a..a2253a044f90 100644
---- a/kernel/bpf/offload.c
-+++ b/kernel/bpf/offload.c
-@@ -302,14 +302,14 @@ int bpf_prog_offload_info_fill(struct bpf_prog_info *info,
- 	struct inode *ns_inode;
- 	struct path ns_path;
- 	char __user *uinsns;
--	void *res;
-+	int res;
- 	u32 ulen;
- 
- 	res = ns_get_path_cb(&ns_path, bpf_prog_offload_info_fill_ns, &args);
--	if (IS_ERR(res)) {
-+	if (res) {
- 		if (!info->ifindex)
- 			return -ENODEV;
--		return PTR_ERR(res);
-+		return res;
- 	}
- 
- 	down_read(&bpf_devs_lock);
-@@ -526,13 +526,13 @@ int bpf_map_offload_info_fill(struct bpf_map_info *info, struct bpf_map *map)
- 	};
- 	struct inode *ns_inode;
- 	struct path ns_path;
--	void *res;
-+	int res;
- 
- 	res = ns_get_path_cb(&ns_path, bpf_map_offload_info_fill_ns, &args);
--	if (IS_ERR(res)) {
-+	if (res) {
- 		if (!info->ifindex)
- 			return -ENODEV;
--		return PTR_ERR(res);
-+		return res;
- 	}
- 
- 	ns_inode = ns_path.dentry->d_inode;
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index aec8dba2bea4..39c5711e868a 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -7258,7 +7258,7 @@ static void perf_fill_ns_link_info(struct perf_ns_link_info *ns_link_info,
- {
- 	struct path ns_path;
- 	struct inode *ns_inode;
--	void *error;
-+	int error;
- 
- 	error = ns_get_path(&ns_path, task, ns_ops);
- 	if (!error) {
--- 
-2.24.0
+On 11/19/19 11:18 AM, David Hildenbrand wrote:
+> On 24.10.19 13:40, Janosch Frank wrote:
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   arch/s390/kvm/kvm-s390.c | 9 +++++++++
+>>   1 file changed, 9 insertions(+)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index eddc9508c1b1..17a78774c617 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -3646,6 +3646,15 @@ static int kvm_s390_handle_requests(struct kvm_=
+vcpu *vcpu)
+>>   		rc =3D gmap_mprotect_notify(vcpu->arch.gmap,
+>>   					  kvm_s390_get_prefix(vcpu),
+>>   					  PAGE_SIZE * 2, PROT_WRITE);
+>> +		if (!rc && kvm_s390_pv_is_protected(vcpu->kvm)) {
+>> +			rc =3D uv_convert_to_secure(vcpu->arch.gmap,
+>> +						  kvm_s390_get_prefix(vcpu));
+>> +			WARN_ON_ONCE(rc && rc !=3D -EEXIST);
+>> +			rc =3D uv_convert_to_secure(vcpu->arch.gmap,
+>> +						  kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
+>> +			WARN_ON_ONCE(rc && rc !=3D -EEXIST);
+>> +			rc =3D 0;
+>> +		}
+>=20
+> ... what if userspace reads the prefix pages just after these calls?=20
+> validity? :/
+
+Currently yes, we're working with firmware to fix this.
+
+>=20
+>>   		if (rc) {
+>>   			kvm_make_request(KVM_REQ_MMU_RELOAD, vcpu);
+>>   			return rc;
+>>
+>=20
+
+
+
+--2g65zlWkLNPx2YehiJq15LI9IfSdpeiDQ--
+
+--r96P6bmXUHkwtLw6Y9aFNZgIB8pjwkINf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3T07gACgkQ41TmuOI4
+ufiZZw/+KG8Ugl2/ARQI9jsKFfVRqwX3Q5DmxTBDiyuGO0UWlJTe6RiaLS3hTRjL
+tWbE+LvD1U1gjXQtc4VgedVfJL8nYIzNwHU93iEXqYIHSHbWIaiRwTNLDa6OPu0A
+ikPRUHHOS9uL8mD+KdYKUlp9+22NUuQ8D1VRVoaQtP+G2pzERXRKY03VNrd7LbDJ
+3ojJFVDOSwMKTbKiSbMrqGLvwFONQ1EGYO6TsBbO4hu1z/xcNG8qXQtBrQXedP07
+AhbEhlvUHltf426Tqt4R4Si9cgkbtyTG6Cf+yI098FAEfm9sRqBgq0Lfu7EehJ8c
+mz5AiNsK0dancuLafFDbQA70f35eTuoWSTh1rhYyiSCgBzCCAuXJkDyHSad1T5Jp
+OOxyqwuwbEtuauzrWhYUzgpuQ6vR9RoDzDld1Oe0EYkfelu+w9TkfgAYZae688AA
+Sk+l14Sj4ohBbX40mhReTBc2yDb/AK49wnBflgnOY8iiNk/YHYkJ46S6iCsJU5hL
+cioA/FHIiK0FRWq/vfvWT7DgDzkizFioom4iYbWETdj+T7+ECJNFI5epICIzloHW
+zfYZ3jEUPo09HMkFepa06S0Kx8Ys4gaeqEFo1GeP5a96LHB/3RHmHVJ2D3wR0F9w
+vljIbd6xo1BSRwaIXd5ohl9ryS1yUzSG048mIyVR4PsugVhmS6Y=
+=VII4
+-----END PGP SIGNATURE-----
+
+--r96P6bmXUHkwtLw6Y9aFNZgIB8pjwkINf--
