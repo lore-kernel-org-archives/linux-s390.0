@@ -1,56 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51755 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727324AbfKFONZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 09:13:25 -0500
-Received: by mail-wm1-f66.google.com with SMTP id q70so3626719wme.1
-        for <linux-s390@vger.kernel.org>; Wed, 06 Nov 2019 06:13:22 -0800 (PST)
-From: Richard Henderson <richard.henderson@linaro.org>
-Subject: [PATCH v2 00/10] Improvements for random.h/archrandom.h
-Date: Wed,  6 Nov 2019 15:12:58 +0100
-Message-Id: <20191106141308.30535-1-rth@twiddle.net>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:39074 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726351AbfKSMdo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Nov 2019 07:33:44 -0500
+Date: Tue, 19 Nov 2019 13:33:35 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH v1 01/10] vfio-ccw: Introduce new helper functions
+ to free/destroy regions
+Message-ID: <20191119133335.6cfff081.cohuck@redhat.com>
+In-Reply-To: <20191115025620.19593-2-farman@linux.ibm.com>
+References: <20191115025620.19593-1-farman@linux.ibm.com>
+        <20191115025620.19593-2-farman@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: herbert@gondor.apana.org.au, linux-arch@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-During patch review for an addition of archrandom.h for arm64, it was
-suggeted that the arch_random_get_* functions should be marked __must_check.
-Which does sound like a good idea, since the by-reference integer output
-may be uninitialized when the boolean result is false.
+On Fri, 15 Nov 2019 03:56:11 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
 
-In addition, it turns out that arch_has_random() and arch_has_random_seed()
-are not used, and not easy to support for arm64.  Rather than cobble
-something together that would not be testable, remove the interfaces
-against some future accidental use.
+> From: Farhan Ali <alifm@linux.ibm.com>
+>=20
+> Consolidate some of the cleanup code for the regions, so that
+> as more are added we reduce code duplication.
+>=20
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>=20
+> Notes:
+>     v0->v1: [EF]
+>      - Commit message
+>=20
+>  drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++++++++----------
+>  1 file changed, 18 insertions(+), 10 deletions(-)
 
-In addition, I noticed a few other minor inconsistencies between the
-different architectures, e.g. powerpc isn't using bool.
+Makes sense.
 
-Change since v1:
-  * Remove arch_has_random, arch_has_random_seed.
-
-
-r~
-
-
-Richard Henderson (10):
-  x86: Remove arch_has_random, arch_has_random_seed
-  powerpc: Remove arch_has_random, arch_has_random_seed
-  s390: Remove arch_has_random, arch_has_random_seed
-  linux/random.h: Remove arch_has_random, arch_has_random_seed
-  linux/random.h: Use false with bool
-  linux/random.h: Mark CONFIG_ARCH_RANDOM functions __must_check
-  x86: Mark archrandom.h functions __must_check
-  powerpc: Use bool in archrandom.h
-  powerpc: Mark archrandom.h functions __must_check
-  s390x: Mark archrandom.h functions __must_check
-
- arch/powerpc/include/asm/archrandom.h | 27 +++++++++-----------------
- arch/s390/include/asm/archrandom.h    | 20 ++++---------------
- arch/x86/include/asm/archrandom.h     | 28 ++++++++++++---------------
- include/linux/random.h                | 24 ++++++++---------------
- 4 files changed, 33 insertions(+), 66 deletions(-)
-
--- 
-2.17.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
