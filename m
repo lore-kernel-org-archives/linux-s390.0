@@ -1,146 +1,138 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:38514 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726214AbfKNOer (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 14 Nov 2019 09:34:47 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/7] block: merge invalidate_partitions into rescan_partitions
-Date: Thu, 14 Nov 2019 15:34:33 +0100
-Message-Id: <20191114143438.14681-3-hch@lst.de>
-In-Reply-To: <20191114143438.14681-1-hch@lst.de>
-References: <20191114143438.14681-1-hch@lst.de>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:26293 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727530AbfKSSwq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 Nov 2019 13:52:46 -0500
+Date: Tue, 19 Nov 2019 19:52:36 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH v1 08/10] vfio-ccw: Wire up the CRW irq and CRW
+ region
+Message-ID: <20191119195236.35189d5b.cohuck@redhat.com>
+In-Reply-To: <20191115025620.19593-9-farman@linux.ibm.com>
+References: <20191115025620.19593-1-farman@linux.ibm.com>
+        <20191115025620.19593-9-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>, Jan Kara <jack@suse.cz>
-Cc: linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-A lot of the logic in invalidate_partitions and rescan_partitions is
-shared.  Merge the two functions to simplify things.  There is a small
-behavior change in that we now send the kevent change notice also if we
-were not invalidating but no partitions were found, which seems like
-the right thing to do.
+On Fri, 15 Nov 2019 03:56:18 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jan Kara <jack@suse.cz>
----
- block/ioctl.c             |  2 +-
- block/partition-generic.c | 38 ++++++++++++++------------------------
- fs/block_dev.c            |  5 +----
- include/linux/genhd.h     |  4 ++--
- 4 files changed, 18 insertions(+), 31 deletions(-)
+> From: Farhan Ali <alifm@linux.ibm.com>
+>=20
+> Use an IRQ to notify userspace that there is a CRW
+> pending in the region, related to path-availability
+> changes on the passthrough subchannel.
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 8756efb1419e..f6576a6d5778 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -171,7 +171,7 @@ int __blkdev_reread_part(struct block_device *bdev)
- 
- 	lockdep_assert_held(&bdev->bd_mutex);
- 
--	return rescan_partitions(disk, bdev);
-+	return rescan_partitions(disk, bdev, false);
- }
- EXPORT_SYMBOL(__blkdev_reread_part);
- 
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 0909f66aab9d..da39a858fe47 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -576,7 +576,8 @@ static int blk_add_partitions(struct gendisk *disk, struct block_device *bdev)
- 	return ret;
- }
- 
--int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
-+int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
-+		bool invalidate)
- {
- 	int ret;
- 
-@@ -585,13 +586,22 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
- 	if (ret)
- 		return ret;
- 
--	if (disk->fops->revalidate_disk)
-+	if (invalidate)
-+		set_capacity(disk, 0);
-+	else if (disk->fops->revalidate_disk)
- 		disk->fops->revalidate_disk(disk);
--	check_disk_size_change(disk, bdev, true);
-+
-+	check_disk_size_change(disk, bdev, !invalidate);
- 	bdev->bd_invalidated = 0;
- 
--	if (!get_capacity(disk))
-+	if (!get_capacity(disk)) {
-+		/*
-+		 * Tell userspace that the media / partition table may have
-+		 * changed.
-+		 */
-+		kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
- 		return 0;
-+	}
- 	
- 	ret = blk_add_partitions(disk, bdev);
- 	if (ret == -EAGAIN)
-@@ -599,26 +609,6 @@ int rescan_partitions(struct gendisk *disk, struct block_device *bdev)
- 	return ret;
- }
- 
--int invalidate_partitions(struct gendisk *disk, struct block_device *bdev)
--{
--	int res;
--
--	if (!bdev->bd_invalidated)
--		return 0;
--
--	res = drop_partitions(disk, bdev);
--	if (res)
--		return res;
--
--	set_capacity(disk, 0);
--	check_disk_size_change(disk, bdev, false);
--	bdev->bd_invalidated = 0;
--	/* tell userspace that the media / partition table may have changed */
--	kobject_uevent(&disk_to_dev(disk)->kobj, KOBJ_CHANGE);
--
--	return 0;
--}
--
- unsigned char *read_dev_sector(struct block_device *bdev, sector_t n, Sector *p)
- {
- 	struct address_space *mapping = bdev->bd_inode->i_mapping;
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index d612468ee66b..0af62b76d031 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1511,10 +1511,7 @@ static void __blkdev_put(struct block_device *bdev, fmode_t mode, int for_part);
- static void bdev_disk_changed(struct block_device *bdev, bool invalidate)
- {
- 	if (disk_part_scan_enabled(bdev->bd_disk)) {
--		if (invalidate)
--			invalidate_partitions(bdev->bd_disk, bdev);
--		else
--			rescan_partitions(bdev->bd_disk, bdev);
-+		rescan_partitions(bdev->bd_disk, bdev, invalidate);
- 	} else {
- 		check_disk_size_change(bdev->bd_disk, bdev, !invalidate);
- 		bdev->bd_invalidated = 0;
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 8b5330dd5ac0..fd7774e64f0b 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -622,8 +622,8 @@ extern dev_t blk_lookup_devt(const char *name, int partno);
- extern char *disk_name (struct gendisk *hd, int partno, char *buf);
- 
- extern int disk_expand_part_tbl(struct gendisk *disk, int target);
--extern int rescan_partitions(struct gendisk *disk, struct block_device *bdev);
--extern int invalidate_partitions(struct gendisk *disk, struct block_device *bdev);
-+int rescan_partitions(struct gendisk *disk, struct block_device *bdev,
-+		bool invalidate);
- extern struct hd_struct * __must_check add_partition(struct gendisk *disk,
- 						     int partno, sector_t start,
- 						     sector_t len, int flags,
--- 
-2.20.1
+Thinking a bit more about this, it feels a bit odd that a crw for a
+chpid ends up on one subchannel. What happens if we have multiple
+subchannels passed through by vfio-ccw that use that same chpid?
+
+>=20
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+>=20
+> Notes:
+>     v0->v1: [EF]
+>      - Place the non-refactoring changes from the previous patch here
+>      - Clean up checkpatch (whitespace) errors
+>      - s/chp_crw/crw/
+>      - Move acquire/release of io_mutex in vfio_ccw_crw_region_read()
+>        into patch that introduces that region
+>      - Remove duplicate include from vfio_ccw_drv.c
+>      - Reorder include in vfio_ccw_private.h
+>=20
+>  drivers/s390/cio/vfio_ccw_drv.c     | 27 +++++++++++++++++++++++++++
+>  drivers/s390/cio/vfio_ccw_ops.c     |  4 ++++
+>  drivers/s390/cio/vfio_ccw_private.h |  4 ++++
+>  include/uapi/linux/vfio.h           |  1 +
+>  4 files changed, 36 insertions(+)
+>=20
+> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_=
+drv.c
+> index d1b9020d037b..ab20c32e5319 100644
+> --- a/drivers/s390/cio/vfio_ccw_drv.c
+> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+> @@ -108,6 +108,22 @@ static void vfio_ccw_sch_io_todo(struct work_struct =
+*work)
+>  =09=09eventfd_signal(private->io_trigger, 1);
+>  }
+> =20
+> +static void vfio_ccw_crw_todo(struct work_struct *work)
+> +{
+> +=09struct vfio_ccw_private *private;
+> +=09struct crw *crw;
+> +
+> +=09private =3D container_of(work, struct vfio_ccw_private, crw_work);
+> +=09crw =3D &private->crw;
+> +
+> +=09mutex_lock(&private->io_mutex);
+> +=09memcpy(&private->crw_region->crw0, crw, sizeof(*crw));
+
+This looks a bit inflexible. Should we want to support subchannel crws
+in the future, we'd need to copy two crws.
+
+Maybe keep two crws (they're not that large, anyway) in the private
+structure and copy the second one iff the first one has the chaining
+bit on?
+
+> +=09mutex_unlock(&private->io_mutex);
+> +
+> +=09if (private->crw_trigger)
+> +=09=09eventfd_signal(private->crw_trigger, 1);
+> +}
+> +
+>  /*
+>   * Css driver callbacks
+>   */
+> @@ -187,6 +203,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+>  =09=09goto out_free;
+> =20
+>  =09INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
+> +=09INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+>  =09atomic_set(&private->avail, 1);
+>  =09private->state =3D VFIO_CCW_STATE_STANDBY;
+> =20
+> @@ -303,6 +320,11 @@ static int vfio_ccw_chp_event(struct subchannel *sch=
+,
+>  =09case CHP_OFFLINE:
+>  =09=09/* Path is gone */
+>  =09=09cio_cancel_halt_clear(sch, &retry);
+> +=09=09private->crw.rsc =3D CRW_RSC_CPATH;
+> +=09=09private->crw.rsid =3D 0x0 | (link->chpid.cssid << 8) |
+
+What's the leading '0x0' for?
+
+> +=09=09=09=09    link->chpid.id;
+> +=09=09private->crw.erc =3D CRW_ERC_PERRN;
+> +=09=09queue_work(vfio_ccw_work_q, &private->crw_work);
+>  =09=09break;
+>  =09case CHP_VARY_ON:
+>  =09=09/* Path logically turned on */
+> @@ -312,6 +334,11 @@ static int vfio_ccw_chp_event(struct subchannel *sch=
+,
+>  =09case CHP_ONLINE:
+>  =09=09/* Path became available */
+>  =09=09sch->lpm |=3D mask & sch->opm;
+> +=09=09private->crw.rsc =3D CRW_RSC_CPATH;
+> +=09=09private->crw.rsid =3D 0x0 | (link->chpid.cssid << 8) |
+> +=09=09=09=09    link->chpid.id;
+> +=09=09private->crw.erc =3D CRW_ERC_INIT;
+> +=09=09queue_work(vfio_ccw_work_q, &private->crw_work);
+
+Isn't that racy? Imagine you get one notification for a chpid and queue
+it. Then, you get another notification for another chpid and queue it
+as well. Depending on when userspace reads, it gets different chpids.
+Moreover, a crw may be lost... or am I missing something obvious?
+
+Maybe you need a real queue for the generated crws?
+
+>  =09=09break;
+>  =09}
+> =20
