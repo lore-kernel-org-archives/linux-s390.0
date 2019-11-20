@@ -1,179 +1,132 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mout-p-101.mailbox.org ([80.241.56.151]:11722 "EHLO
+        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726083AbfKTFJH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Nov 2019 00:09:07 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v17 03/13] namei: allow nd_jump_link() to produce errors
+Date: Wed, 20 Nov 2019 16:06:21 +1100
+Message-Id: <20191120050631.12816-4-cyphar@cyphar.com>
+In-Reply-To: <20191120050631.12816-1-cyphar@cyphar.com>
+References: <20191120050631.12816-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-References: <20191029064834.23438-1-hch@lst.de> <20191029064834.23438-20-hch@lst.de>
-In-Reply-To: <20191029064834.23438-20-hch@lst.de>
-From: Greentime Hu <green.hu@gmail.com>
-Date: Tue, 12 Nov 2019 16:51:29 +0800
-Message-ID: <CAEbi=3c58Pb=Q3BqeTLhEK8OsdTpbD5tAe6VcGOC7JBWbTjetQ@mail.gmail.com>
-Subject: Re: [PATCH 19/21] nds32: use generic ioremap
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, Nickhu <nickhu@andestech.com>, alankao@andestech.com
-Cc: Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, Michal Simek <monstr@monstr.eu>, Vincent Chen <deanbo422@gmail.com>, Guan Xuetao <gxt@pku.edu.cn>, x86@kernel.org, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>, linux-sh@vger.kernel.org, sparclinux <sparclinux@vger.kernel.org>, linux-xtensa@linux-xtensa.org, linux-mtd@lists.infradead.org, linux-arch <linux-arch@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-Hi,
+In preparation for LOOKUP_NO_MAGICLINKS, it's necessary to add the
+ability for nd_jump_link() to return an error which the corresponding
+get_link() caller must propogate back up to the VFS.
 
-Christoph Hellwig <hch@lst.de> =E6=96=BC 2019=E5=B9=B410=E6=9C=8829=E6=97=
-=A5 =E9=80=B1=E4=BA=8C =E4=B8=8B=E5=8D=882:49=E5=AF=AB=E9=81=93=EF=BC=9A
->
-> Use the generic ioremap_prot and iounmap helpers.
->
-> Note that the io.h include in pgtable.h had to be removed to not create
-> an include loop.  As far as I can tell there was no need for it to
-> start with.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  arch/nds32/Kconfig               |  1 +
->  arch/nds32/include/asm/io.h      |  3 +-
->  arch/nds32/include/asm/pgtable.h |  4 ++-
->  arch/nds32/mm/Makefile           |  3 +-
->  arch/nds32/mm/ioremap.c          | 62 --------------------------------
->  5 files changed, 6 insertions(+), 67 deletions(-)
->  delete mode 100644 arch/nds32/mm/ioremap.c
->
-> diff --git a/arch/nds32/Kconfig b/arch/nds32/Kconfig
-> index fbd68329737f..12c06a833b7c 100644
-> --- a/arch/nds32/Kconfig
-> +++ b/arch/nds32/Kconfig
-> @@ -20,6 +20,7 @@ config NDS32
->         select GENERIC_CLOCKEVENTS
->         select GENERIC_IRQ_CHIP
->         select GENERIC_IRQ_SHOW
-> +       select GENERIC_IOREMAP
->         select GENERIC_LIB_ASHLDI3
->         select GENERIC_LIB_ASHRDI3
->         select GENERIC_LIB_CMPDI2
-> diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
-> index fb0e8a24c7af..e57378d04006 100644
-> --- a/arch/nds32/include/asm/io.h
-> +++ b/arch/nds32/include/asm/io.h
-> @@ -6,8 +6,6 @@
->
->  #include <linux/types.h>
->
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -extern void iounmap(volatile void __iomem *addr);
->  #define __raw_writeb __raw_writeb
->  static inline void __raw_writeb(u8 val, volatile void __iomem *addr)
->  {
-> @@ -80,6 +78,7 @@ static inline u32 __raw_readl(const volatile void __iom=
-em *addr)
->  #define writeb(v,c)    ({ __iowmb(); writeb_relaxed((v),(c)); })
->  #define writew(v,c)    ({ __iowmb(); writew_relaxed((v),(c)); })
->  #define writel(v,c)    ({ __iowmb(); writel_relaxed((v),(c)); })
-> +
->  #include <asm-generic/io.h>
->
->  #endif /* __ASM_NDS32_IO_H */
-> diff --git a/arch/nds32/include/asm/pgtable.h b/arch/nds32/include/asm/pg=
-table.h
-> index 0588ec99725c..6fbf251cfc26 100644
-> --- a/arch/nds32/include/asm/pgtable.h
-> +++ b/arch/nds32/include/asm/pgtable.h
-> @@ -12,7 +12,6 @@
->  #include <asm/nds32.h>
->  #ifndef __ASSEMBLY__
->  #include <asm/fixmap.h>
-> -#include <asm/io.h>
->  #include <nds32_intrinsic.h>
->  #endif
->
-> @@ -130,6 +129,9 @@ extern void __pgd_error(const char *file, int line, u=
-nsigned long val);
->  #define _PAGE_CACHE            _PAGE_C_MEM_WB
->  #endif
->
-> +#define _PAGE_IOREMAP \
-> +       (_PAGE_V | _PAGE_M_KRW | _PAGE_D | _PAGE_G | _PAGE_C_DEV)
-> +
->  /*
->   * + Level 1 descriptor (PMD)
->   */
-> diff --git a/arch/nds32/mm/Makefile b/arch/nds32/mm/Makefile
-> index bd360e4583b5..897ecaf5cf54 100644
-> --- a/arch/nds32/mm/Makefile
-> +++ b/arch/nds32/mm/Makefile
-> @@ -1,6 +1,5 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -obj-y                          :=3D extable.o tlb.o \
-> -                                  fault.o init.o ioremap.o mmap.o \
-> +obj-y                          :=3D extable.o tlb.o fault.o init.o mmap.=
-o \
->                                     mm-nds32.o cacheflush.o proc.o
->
->  obj-$(CONFIG_ALIGNMENT_TRAP)   +=3D alignment.o
-> diff --git a/arch/nds32/mm/ioremap.c b/arch/nds32/mm/ioremap.c
-> deleted file mode 100644
-> index 690140bb23a2..000000000000
-> --- a/arch/nds32/mm/ioremap.c
-> +++ /dev/null
-> @@ -1,62 +0,0 @@
-> -// SPDX-License-Identifier: GPL-2.0
-> -// Copyright (C) 2005-2017 Andes Technology Corporation
-> -
-> -#include <linux/vmalloc.h>
-> -#include <linux/io.h>
-> -#include <linux/mm.h>
-> -#include <asm/pgtable.h>
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size);
-> -
-> -static void __iomem *__ioremap_caller(phys_addr_t phys_addr, size_t size=
-,
-> -                                     void *caller)
-> -{
-> -       struct vm_struct *area;
-> -       unsigned long addr, offset, last_addr;
-> -       pgprot_t prot;
-> -
-> -       /* Don't allow wraparound or zero size */
-> -       last_addr =3D phys_addr + size - 1;
-> -       if (!size || last_addr < phys_addr)
-> -               return NULL;
-> -
-> -       /*
-> -        * Mappings have to be page-aligned
-> -        */
-> -       offset =3D phys_addr & ~PAGE_MASK;
-> -       phys_addr &=3D PAGE_MASK;
-> -       size =3D PAGE_ALIGN(last_addr + 1) - phys_addr;
-> -
-> -       /*
-> -        * Ok, go for it..
-> -        */
-> -       area =3D get_vm_area_caller(size, VM_IOREMAP, caller);
-> -       if (!area)
-> -               return NULL;
-> -
-> -       area->phys_addr =3D phys_addr;
-> -       addr =3D (unsigned long)area->addr;
-> -       prot =3D __pgprot(_PAGE_V | _PAGE_M_KRW | _PAGE_D |
-> -                       _PAGE_G | _PAGE_C_DEV);
-> -       if (ioremap_page_range(addr, addr + size, phys_addr, prot)) {
-> -               vunmap((void *)addr);
-> -               return NULL;
-> -       }
-> -       return (__force void __iomem *)(offset + (char *)addr);
-> -
-> -}
-> -
-> -void __iomem *ioremap(phys_addr_t phys_addr, size_t size)
-> -{
-> -       return __ioremap_caller(phys_addr, size,
-> -                               __builtin_return_address(0));
-> -}
-> -
-> -EXPORT_SYMBOL(ioremap);
-> -
-> -void iounmap(volatile void __iomem * addr)
-> -{
-> -       vunmap((void *)(PAGE_MASK & (unsigned long)addr));
-> -}
-> -
-> -EXPORT_SYMBOL(iounmap);
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/namei.c                     |  3 ++-
+ fs/proc/base.c                 |  3 +--
+ fs/proc/namespaces.c           | 14 +++++++++-----
+ include/linux/namei.h          |  2 +-
+ security/apparmor/apparmorfs.c |  6 ++++--
+ 5 files changed, 17 insertions(+), 11 deletions(-)
 
-Acked-by: Greentime Hu <green.hu@gmail.com>
-Looks good to me.
+diff --git a/fs/namei.c b/fs/namei.c
+index 5a47d9c09581..1024a641f075 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -859,7 +859,7 @@ static int nd_jump_root(struct nameidata *nd)
+  * Helper to directly jump to a known parsed path from ->get_link,
+  * caller must have taken a reference to path beforehand.
+  */
+-void nd_jump_link(struct path *path)
++int nd_jump_link(struct path *path)
+ {
+ 	struct nameidata *nd = current->nameidata;
+ 	path_put(&nd->path);
+@@ -867,6 +867,7 @@ void nd_jump_link(struct path *path)
+ 	nd->path = *path;
+ 	nd->inode = nd->path.dentry->d_inode;
+ 	nd->flags |= LOOKUP_JUMPED;
++	return 0;
+ }
+ 
+ static inline void put_link(struct nameidata *nd)
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea9501afb8..ee97dd322f3e 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1626,8 +1626,7 @@ static const char *proc_pid_get_link(struct dentry *dentry,
+ 	if (error)
+ 		goto out;
+ 
+-	nd_jump_link(&path);
+-	return NULL;
++	error = nd_jump_link(&path);
+ out:
+ 	return ERR_PTR(error);
+ }
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index 08dd94df1a66..a8cca516f1a9 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -51,11 +51,15 @@ static const char *proc_ns_get_link(struct dentry *dentry,
+ 	if (!task)
+ 		return ERR_PTR(-EACCES);
+ 
+-	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
+-		error = ns_get_path(&ns_path, task, ns_ops);
+-		if (!error)
+-			nd_jump_link(&ns_path);
+-	}
++	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
++		goto out;
++
++	error = ns_get_path(&ns_path, task, ns_ops);
++	if (error)
++		goto out;
++
++	error = nd_jump_link(&ns_path);
++out:
+ 	put_task_struct(task);
+ 	return ERR_PTR(error);
+ }
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 397a08ade6a2..758e9b47db6f 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -68,7 +68,7 @@ extern int follow_up(struct path *);
+ extern struct dentry *lock_rename(struct dentry *, struct dentry *);
+ extern void unlock_rename(struct dentry *, struct dentry *);
+ 
+-extern void nd_jump_link(struct path *path);
++extern int __must_check nd_jump_link(struct path *path);
+ 
+ static inline void nd_terminate_link(void *name, size_t len, size_t maxlen)
+ {
+diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
+index 45d13b6462aa..0b7d6dce6291 100644
+--- a/security/apparmor/apparmorfs.c
++++ b/security/apparmor/apparmorfs.c
+@@ -2455,16 +2455,18 @@ static const char *policy_get_link(struct dentry *dentry,
+ {
+ 	struct aa_ns *ns;
+ 	struct path path;
++	int error;
+ 
+ 	if (!dentry)
+ 		return ERR_PTR(-ECHILD);
++
+ 	ns = aa_get_current_ns();
+ 	path.mnt = mntget(aafs_mnt);
+ 	path.dentry = dget(ns_dir(ns));
+-	nd_jump_link(&path);
++	error = nd_jump_link(&path);
+ 	aa_put_ns(ns);
+ 
+-	return NULL;
++	return ERR_PTR(error);
+ }
+ 
+ static int policy_readlink(struct dentry *dentry, char __user *buffer,
+-- 
+2.24.0
