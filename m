@@ -1,141 +1,160 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40632 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388027AbfKEJ2K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:10 -0500
-Date: Tue, 05 Nov 2019 09:27:26 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] x86/mm: Report which part of kernel image is freed
-In-Reply-To: <20191029211351.13243-28-keescook@chromium.org>
-References: <20191029211351.13243-28-keescook@chromium.org>
+Received: from mout-p-101.mailbox.org ([80.241.56.151]:11922 "EHLO
+        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725554AbfKTFLp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Nov 2019 00:11:45 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v17 10/13] namei: LOOKUP_{IN_ROOT,BENEATH}: permit limited ".." resolution
+Date: Wed, 20 Nov 2019 16:06:28 +1100
+Message-Id: <20191120050631.12816-11-cyphar@cyphar.com>
+In-Reply-To: <20191120050631.12816-1-cyphar@cyphar.com>
+References: <20191120050631.12816-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-Message-ID: <157294604642.29376.15246989052906644663.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Peter Zijlstra <peterz@infradead.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Jann Horn <jannh@google.com>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
+Allow LOOKUP_BENEATH and LOOKUP_IN_ROOT to safely permit ".." resolution
+(in the case of LOOKUP_BENEATH the resolution will still fail if ".."
+resolution would resolve a path outside of the root -- while
+LOOKUP_IN_ROOT will chroot(2)-style scope it). Magic-link jumps are
+still disallowed entirely[*].
 
-Commit-ID:     5494c3a6a0b965906ffdcb620d94079ea4cb69ea
-Gitweb:        https://git.kernel.org/tip/5494c3a6a0b965906ffdcb620d94079ea4cb69ea
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:49 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 18:50:33 +01:00
+As Jann explains[1,2], the need for this patch (and the original no-".."
+restriction) is explained by observing there is a fairly easy-to-exploit
+race condition with chroot(2) (and thus by extension LOOKUP_IN_ROOT and
+LOOKUP_BENEATH if ".." is allowed) where a rename(2) of a path can be
+used to "skip over" nd->root and thus escape to the filesystem above
+nd->root.
 
-x86/mm: Report which part of kernel image is freed
+  thread1 [attacker]:
+    for (;;)
+      renameat2(AT_FDCWD, "/a/b/c", AT_FDCWD, "/a/d", RENAME_EXCHANGE);
+  thread2 [victim]:
+    for (;;)
+      openat2(dirb, "b/c/../../etc/shadow",
+              { .flags = O_PATH, .resolve = RESOLVE_IN_ROOT } );
 
-The memory freeing report wasn't very useful for figuring out which
-parts of the kernel image were being freed. Add the details for clearer
-reporting in dmesg.
+With fairly significant regularity, thread2 will resolve to
+"/etc/shadow" rather than "/a/b/etc/shadow". There is also a similar
+(though somewhat more privileged) attack using MS_MOVE.
 
-Before:
+With this patch, such cases will be detected *during* ".." resolution
+and will return -EAGAIN for userspace to decide to either retry or abort
+the lookup. It should be noted that ".." is the weak point of chroot(2)
+-- walking *into* a subdirectory tautologically cannot result in you
+walking *outside* nd->root (except through a bind-mount or magic-link).
+There is also no other way for a directory's parent to change (which is
+the primary worry with ".." resolution here) other than a rename or
+MS_MOVE.
 
-  Freeing unused kernel image memory: 1348K
-  Write protecting the kernel read-only data: 20480k
-  Freeing unused kernel image memory: 2040K
-  Freeing unused kernel image memory: 172K
+The primary reason for deferring to userspace with -EAGAIN is that an
+in-kernel retry loop (or doing a path_is_under() check after re-taking
+the relevant seqlocks) can become unreasonably expensive on machines
+with lots of VFS activity (nfsd can cause lots of rename_lock updates).
+Thus it should be up to userspace how many times they wish to retry the
+lookup -- the selftests for this attack indicate that there is a ~35%
+chance of the lookup succeeding on the first try even with an attacker
+thrashing rename_lock.
 
-After:
+A variant of the above attack is included in the selftests for
+openat2(2) later in this patch series. I've run this test on several
+machines for several days and no instances of a breakout were detected.
+While this is not concrete proof that this is safe, when combined with
+the above argument it should lend some trustworthiness to this
+construction.
 
-  Freeing unused kernel image (initmem) memory: 1348K
-  Write protecting the kernel read-only data: 20480k
-  Freeing unused kernel image (text/rodata gap) memory: 2040K
-  Freeing unused kernel image (rodata/data gap) memory: 172K
+[*] It may be acceptable in the future to do a path_is_under() check for
+    magic-links after they are resolved. However this seems unlikely to
+    be a feature that people *really* need -- it can be added later if
+    it turns out a lot of people want it.
 
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-28-keescook@chromium.org
+[1]: https://lore.kernel.org/lkml/CAG48ez1jzNvxB+bfOBnERFGp=oMM0vHWuLD6EULmne3R6xa53w@mail.gmail.com/
+[2]: https://lore.kernel.org/lkml/CAG48ez30WJhbsro2HOc_DR7V91M+hNFzBP5ogRMZaxbAORvqzg@mail.gmail.com/
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/x86/include/asm/processor.h | 2 +-
- arch/x86/mm/init.c               | 8 ++++----
- arch/x86/mm/init_64.c            | 6 ++++--
- 3 files changed, 9 insertions(+), 7 deletions(-)
+ fs/namei.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
-index 6e0a3b4..790f250 100644
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -958,7 +958,7 @@ static inline uint32_t hypervisor_cpuid_base(const char *sig, uint32_t leaves)
+diff --git a/fs/namei.c b/fs/namei.c
+index a6196786db13..88c706e459f6 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -491,7 +491,7 @@ struct nameidata {
+ 	struct path	root;
+ 	struct inode	*inode; /* path.dentry.d_inode */
+ 	unsigned int	flags;
+-	unsigned	seq, m_seq;
++	unsigned	seq, m_seq, r_seq;
+ 	int		last_type;
+ 	unsigned	depth;
+ 	int		total_link_count;
+@@ -1781,22 +1781,30 @@ static inline int handle_dots(struct nameidata *nd, int type)
+ 	if (type == LAST_DOTDOT) {
+ 		int error = 0;
  
- extern unsigned long arch_align_stack(unsigned long sp);
- void free_init_pages(const char *what, unsigned long begin, unsigned long end);
--extern void free_kernel_image_pages(void *begin, void *end);
-+extern void free_kernel_image_pages(const char *what, void *begin, void *end);
- 
- void default_idle(void);
- #ifdef	CONFIG_XEN
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index fd10d91..e7bb483 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -829,14 +829,13 @@ void free_init_pages(const char *what, unsigned long begin, unsigned long end)
-  * used for the kernel image only.  free_init_pages() will do the
-  * right thing for either kind of address.
-  */
--void free_kernel_image_pages(void *begin, void *end)
-+void free_kernel_image_pages(const char *what, void *begin, void *end)
- {
- 	unsigned long begin_ul = (unsigned long)begin;
- 	unsigned long end_ul = (unsigned long)end;
- 	unsigned long len_pages = (end_ul - begin_ul) >> PAGE_SHIFT;
- 
--
--	free_init_pages("unused kernel image", begin_ul, end_ul);
-+	free_init_pages(what, begin_ul, end_ul);
- 
- 	/*
- 	 * PTI maps some of the kernel into userspace.  For performance,
-@@ -865,7 +864,8 @@ void __ref free_initmem(void)
- 
- 	mem_encrypt_free_decrypted_mem();
- 
--	free_kernel_image_pages(&__init_begin, &__init_end);
-+	free_kernel_image_pages("unused kernel image (initmem)",
-+				&__init_begin, &__init_end);
+-		/*
+-		 * Scoped-lookup flags resolving ".." is not currently safe --
+-		 * races can cause our parent to have moved outside of the root
+-		 * and us to skip over it.
+-		 */
+-		if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
+-			return -EXDEV;
+ 		if (!nd->root.mnt) {
+ 			error = set_root(nd);
+ 			if (error)
+ 				return error;
+ 		}
+-		if (nd->flags & LOOKUP_RCU) {
+-			return follow_dotdot_rcu(nd);
+-		} else
+-			return follow_dotdot(nd);
++		if (nd->flags & LOOKUP_RCU)
++			error = follow_dotdot_rcu(nd);
++		else
++			error = follow_dotdot(nd);
++		if (error)
++			return error;
++
++		if (unlikely(nd->flags & LOOKUP_IS_SCOPED)) {
++			/*
++			 * If there was a racing rename or mount along our
++			 * path, then we can't be sure that ".." hasn't jumped
++			 * above nd->root (and so userspace should retry or use
++			 * some fallback).
++			 */
++			if (unlikely(read_seqretry(&mount_lock, nd->m_seq)))
++				return -EAGAIN;
++			if (unlikely(read_seqretry(&rename_lock, nd->r_seq)))
++				return -EAGAIN;
++		}
+ 	}
+ 	return 0;
  }
+@@ -2266,6 +2274,10 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+ 	nd->flags = flags | LOOKUP_JUMPED | LOOKUP_PARENT;
+ 	nd->depth = 0;
++
++	nd->m_seq = read_seqbegin(&mount_lock);
++	nd->r_seq = read_seqbegin(&rename_lock);
++
+ 	if (flags & LOOKUP_ROOT) {
+ 		struct dentry *root = nd->root.dentry;
+ 		struct inode *inode = root->d_inode;
+@@ -2287,7 +2299,6 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
+ 	nd->path.mnt = NULL;
+ 	nd->path.dentry = NULL;
  
- #ifdef CONFIG_BLK_DEV_INITRD
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index e67ddca..dcb9bc9 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1334,8 +1334,10 @@ void mark_rodata_ro(void)
- 	set_memory_ro(start, (end-start) >> PAGE_SHIFT);
- #endif
+-	nd->m_seq = read_seqbegin(&mount_lock);
  
--	free_kernel_image_pages((void *)text_end, (void *)rodata_start);
--	free_kernel_image_pages((void *)rodata_end, (void *)_sdata);
-+	free_kernel_image_pages("unused kernel image (text/rodata gap)",
-+				(void *)text_end, (void *)rodata_start);
-+	free_kernel_image_pages("unused kernel image (rodata/data gap)",
-+				(void *)rodata_end, (void *)_sdata);
- 
- 	debug_checkwx();
- }
+ 	/* Absolute pathname -- fetch the root (LOOKUP_IN_ROOT uses nd->dfd). */
+ 	if (*s == '/' && !(flags & LOOKUP_IN_ROOT)) {
+-- 
+2.24.0
