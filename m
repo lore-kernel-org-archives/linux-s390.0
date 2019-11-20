@@ -1,115 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47854 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726491AbfKOD0u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 22:26:50 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAF39WBs182350
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:26:49 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2w9jcm1g2f-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 22:26:48 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 15 Nov 2019 02:56:24 -0000
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v1 02/10] vfio-ccw: Register a chp_event callback for vfio-ccw
-Date: Fri, 15 Nov 2019 03:56:12 +0100
-In-Reply-To: <20191115025620.19593-1-farman@linux.ibm.com>
-References: <20191115025620.19593-1-farman@linux.ibm.com>
-Message-Id: <20191115025620.19593-3-farman@linux.ibm.com>
+Received: from mout-p-201.mailbox.org ([80.241.56.171]:42370 "EHLO
+        mout-p-201.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726038AbfKTFKN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 Nov 2019 00:10:13 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v17 06/13] namei: LOOKUP_NO_MAGICLINKS: block magic-link resolution
+Date: Wed, 20 Nov 2019 16:06:24 +1100
+Message-Id: <20191120050631.12816-7-cyphar@cyphar.com>
+In-Reply-To: <20191120050631.12816-1-cyphar@cyphar.com>
+References: <20191120050631.12816-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Farhan Ali <alifm@linux.ibm.com>
+/* Background. */
+There has always been a special class of symlink-like objects in procfs
+(and a few other pseudo-filesystems) which allow for non-lexical
+resolution of paths using nd_jump_link(). These "magic-links" do not
+follow traditional mount namespace boundaries, and have been used
+consistently in container escape attacks because they can be used to
+trick unsuspecting privileged processes into resolving unexpected paths.
 
-Register the chp_event callback to receive channel path related
-events for the subchannels managed by vfio-ccw.
+It is also non-trivial for userspace to unambiguously avoid resolving
+magic-links, because they do not have a reliable indication that they
+are a magic-link (in order to verify them you'd have to manually open
+the path given by readlink(2) and then verify that the two file
+descriptors reference the same underlying file, which is plagued with
+possible race conditions or supplementary attack scenarios).
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+It would therefore be very helpful for userspace to be able to avoid
+these symlinks easily, thus hopefully removing a tool from attackers'
+toolboxes.
+
+This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
+variation on David Drysdale's O_BENEATH patchset[2], which in turn was
+based on the Capsicum project[3]).
+
+/* Userspace API. */
+LOOKUP_NO_MAGICLINKS will be exposed to userspace through openat2(2).
+
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_NO_MAGICLINKS applies to all components of the path.
+
+With LOOKUP_NO_MAGICLINKS, any magic-link path component encountered
+during path resolution will yield -ELOOP. The handling of ~LOOKUP_FOLLOW
+for a trailing magic-link is identical to LOOKUP_NO_SYMLINKS.
+
+LOOKUP_NO_SYMLINKS implies LOOKUP_NO_MAGICLINKS.
+
+/* Testing. */
+LOOKUP_NO_MAGICLINKS is tested as part of the openat2(2) selftests.
+
+[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
+[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
+[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
+
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: David Drysdale <drysdale@google.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
+ fs/namei.c            | 10 +++++++++-
+ include/linux/namei.h |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-Notes:
-    v0->v1: [EF]
-     - Add s390dbf trace
-
- drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 91989269faf1..05da1facee60 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -19,6 +19,7 @@
+diff --git a/fs/namei.c b/fs/namei.c
+index 303731935eb2..415a897729c8 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -867,13 +867,21 @@ static int nd_jump_root(struct nameidata *nd)
+  */
+ int nd_jump_link(struct path *path)
+ {
++	int error = -ELOOP;
+ 	struct nameidata *nd = current->nameidata;
+-	path_put(&nd->path);
  
- #include <asm/isc.h>
- 
-+#include "chp.h"
- #include "ioasm.h"
- #include "css.h"
- #include "vfio_ccw_private.h"
-@@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
++	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
++		goto err;
++
++	path_put(&nd->path);
+ 	nd->path = *path;
+ 	nd->inode = nd->path.dentry->d_inode;
+ 	nd->flags |= LOOKUP_JUMPED;
+ 	return 0;
++
++err:
++	path_put(path);
++	return error;
  }
  
-+static int vfio_ccw_chp_event(struct subchannel *sch,
-+			      struct chp_link *link, int event)
-+{
-+	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-+	int retry = 255;
-+
-+	if (!private || !mask)
-+		return 0;
-+
-+	if (cio_update_schib(sch))
-+		return -ENODEV;
-+
-+	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-+			   mdev_uuid(private->mdev), sch->schid.cssid,
-+			   sch->schid.ssid, sch->schid.sch_no,
-+			   mask, event);
-+
-+	switch (event) {
-+	case CHP_VARY_OFF:
-+		/* Path logically turned off */
-+		sch->opm &= ~mask;
-+		sch->lpm &= ~mask;
-+		break;
-+	case CHP_OFFLINE:
-+		/* Path is gone */
-+		cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_VARY_ON:
-+		/* Path logically turned on */
-+		sch->opm |= mask;
-+		sch->lpm |= mask;
-+		break;
-+	case CHP_ONLINE:
-+		/* Path became available */
-+		sch->lpm |= mask & sch->opm;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static struct css_device_id vfio_ccw_sch_ids[] = {
- 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
- 	{ /* end of list */ },
-@@ -274,6 +317,7 @@ static struct css_driver vfio_ccw_sch_driver = {
- 	.remove = vfio_ccw_sch_remove,
- 	.shutdown = vfio_ccw_sch_shutdown,
- 	.sch_event = vfio_ccw_sch_event,
-+	.chp_event = vfio_ccw_chp_event,
- };
+ static inline void put_link(struct nameidata *nd)
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 0d86e75c04a7..1573b8493d98 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -41,6 +41,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
  
- static int __init vfio_ccw_debug_init(void)
+ /* Scoping flags for lookup. */
+ #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
++#define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
+ 
+ extern int path_pts(struct path *path);
+ 
 -- 
-2.17.1
+2.24.0
