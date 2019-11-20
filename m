@@ -1,79 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34370 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbfKVF4d (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:33 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 042/127] KVM: s390: unregister debug feature on failing arch init
-Date: Fri, 22 Nov 2019 00:54:20 -0500
-Message-Id: <20191122055544.3299-41-sashal@kernel.org>
-In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
-References: <20191122055544.3299-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9050 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729484AbfKTQtt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Nov 2019 11:49:49 -0500
+Subject: Re: [RFC PATCH v1 05/10] vfio-ccw: Introduce a new schib region
+References: <20191115025620.19593-1-farman@linux.ibm.com>
+ <20191115025620.19593-6-farman@linux.ibm.com>
+ <20191119175253.3e688369.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <97e27530-fed5-40df-0dc7-7b7adc219b96@linux.ibm.com>
+Date: Wed, 20 Nov 2019 11:49:46 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191119175253.3e688369.cohuck@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Michael Mueller <mimu@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-Make sure the debug feature and its allocated resources get
-released upon unsuccessful architecture initialization.
+On 11/19/19 11:52 AM, Cornelia Huck wrote:
+> On Fri, 15 Nov 2019 03:56:15 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> From: Farhan Ali <alifm@linux.ibm.com>
+>>
+>> The schib region can be used by userspace to get the SCHIB for the
+>> passthrough subchannel. This can be useful to get information such
+>> as channel path information via the SCHIB.PMCW.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>
+>> Notes:
+>>     v0->v1: [EF]
+>>      - Clean up checkpatch (#include, whitespace) errors
+>>      - Remove unnecessary includes from vfio_ccw_chp.c
+>>      - Add ret=-ENOMEM in error path for new region
+>>      - Add call to vfio_ccw_unregister_dev_regions() during error exit
+>>        path of vfio_ccw_mdev_open()
+>>      - New info on the module prologue
+>>      - Reorder cleanup of regions
+>>
+>>  drivers/s390/cio/Makefile           |  2 +-
+>>  drivers/s390/cio/vfio_ccw_chp.c     | 75 +++++++++++++++++++++++++++++
+>>  drivers/s390/cio/vfio_ccw_drv.c     | 20 ++++++++
+>>  drivers/s390/cio/vfio_ccw_ops.c     | 14 +++++-
+>>  drivers/s390/cio/vfio_ccw_private.h |  3 ++
+>>  include/uapi/linux/vfio.h           |  1 +
+>>  include/uapi/linux/vfio_ccw.h       |  5 ++
+>>  7 files changed, 117 insertions(+), 3 deletions(-)
+>>  create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
+>>
+> 
+>> diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
+>> index cbecbf0cd54f..7c0a834e5d7a 100644
+>> --- a/include/uapi/linux/vfio_ccw.h
+>> +++ b/include/uapi/linux/vfio_ccw.h
+>> @@ -34,4 +34,9 @@ struct ccw_cmd_region {
+>>  	__u32 ret_code;
+>>  } __packed;
+>>
+> 
+> Let's add a comment:
+> - that reading this region triggers a stsch()
+> - that this region is guarded by a capability
+> 
+> ?
 
-A related indication of the issue will be reported as kernel
-message.
+Agreed, and ditto for patch 6.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+>   
+>> +struct ccw_schib_region {
+>> +#define SCHIB_AREA_SIZE 52
+>> +	__u8 schib_area[SCHIB_AREA_SIZE];
+>> +} __packed;
+>> +
+>>  #endif
+> 
+> Seems sane; but I need to continue reading this and the QEMU series to
+> see how it is used.
+> 
+> Oh, and please update Documentation/s390/vfio-ccw.rst :)
+> 
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ff62a4fe2159a..91c24e87fe10a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -361,19 +361,30 @@ static void kvm_s390_cpu_feat_init(void)
- 
- int kvm_arch_init(void *opaque)
- {
-+	int rc;
-+
- 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
- 
- 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
--		debug_unregister(kvm_s390_dbf);
--		return -ENOMEM;
-+		rc = -ENOMEM;
-+		goto out_debug_unreg;
- 	}
- 
- 	kvm_s390_cpu_feat_init();
- 
- 	/* Register floating interrupt controller interface. */
--	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	if (rc) {
-+		pr_err("Failed to register FLIC rc=%d\n", rc);
-+		goto out_debug_unreg;
-+	}
-+	return 0;
-+
-+out_debug_unreg:
-+	debug_unregister(kvm_s390_dbf);
-+	return rc;
- }
- 
- void kvm_arch_exit(void)
--- 
-2.20.1
+Whoops!  Yes, I'll do that here and in patch 6.
