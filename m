@@ -1,220 +1,229 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19252 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728335AbfKTNVI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Nov 2019 08:21:08 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAKDIMdv048014
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:07 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wcf5914u1-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 20 Nov 2019 08:21:06 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 20 Nov 2019 13:21:05 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 1/2] s390/qeth: fix potential deadlock on workqueue flush
-Date: Wed, 20 Nov 2019 14:20:56 +0100
-In-Reply-To: <20191120132057.1788-1-jwi@linux.ibm.com>
-References: <20191120132057.1788-1-jwi@linux.ibm.com>
-Message-Id: <20191120132057.1788-2-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v17 02/13] nsfs: clean-up ns_get_path() signature to return int
+Date: Wed, 20 Nov 2019 16:06:20 +1100
+Message-Id: <20191120050631.12816-3-cyphar@cyphar.com>
+In-Reply-To: <20191120050631.12816-1-cyphar@cyphar.com>
+References: <20191120050631.12816-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The L2 bridgeport code uses the coarse 'conf_mutex' for guarding access
-to its configuration state.
-This can result in a deadlock when qeth_l2_stop_card() - called under the
-conf_mutex - blocks on flush_workqueue() to wait for the completion of
-pending bridgeport workers. Such workers would also need to aquire
-the conf_mutex, stalling indefinitely.
+ns_get_path() and ns_get_path_cb() only ever return either NULL or an
+ERR_PTR. It is far more idiomatic to simply return an integer, and it
+makes all of the callers of ns_get_path() more straightforward to read.
 
-Introduce a lock that specifically guards the bridgeport configuration,
-so that the workers no longer need the conf_mutex.
-Wrapping qeth_l2_promisc_to_bridge() in this fine-grained lock then also
-fixes a theoretical race against a concurrent qeth_bridge_port_role_store()
-operation.
-
-Fixes: c0a2e4d10d93 ("s390/qeth: conclude all event processing before offlining a card")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Fixes: e149ed2b805f ("take the targets of /proc/*/ns/* symlinks to separate fs")
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/net/qeth_core.h    |  1 +
- drivers/s390/net/qeth_l2_main.c | 21 ++++++++++++++-------
- drivers/s390/net/qeth_l2_sys.c  | 14 +++++++++++++-
- 3 files changed, 28 insertions(+), 8 deletions(-)
+ fs/nsfs.c               | 29 ++++++++++++++---------------
+ fs/proc/namespaces.c    |  6 +++---
+ include/linux/proc_ns.h |  4 ++--
+ kernel/bpf/offload.c    | 12 ++++++------
+ kernel/events/core.c    |  2 +-
+ 5 files changed, 26 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index e4b55f9aa062..65e31df37b1f 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -839,6 +839,7 @@ struct qeth_card {
- 	struct service_level qeth_service_level;
- 	struct qdio_ssqd_desc ssqd;
- 	debug_info_t *debug;
-+	struct mutex sbp_lock;
- 	struct mutex conf_mutex;
- 	struct mutex discipline_mutex;
- 	struct napi_struct napi;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index bd8143e51747..4bccdce19b5a 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -467,10 +467,14 @@ static void qeth_l2_set_promisc_mode(struct qeth_card *card)
- 	if (card->info.promisc_mode == enable)
- 		return;
- 
--	if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
-+	if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE)) {
- 		qeth_setadp_promisc_mode(card, enable);
--	else if (card->options.sbp.reflect_promisc)
--		qeth_l2_promisc_to_bridge(card, enable);
-+	} else {
-+		mutex_lock(&card->sbp_lock);
-+		if (card->options.sbp.reflect_promisc)
-+			qeth_l2_promisc_to_bridge(card, enable);
-+		mutex_unlock(&card->sbp_lock);
-+	}
+diff --git a/fs/nsfs.c b/fs/nsfs.c
+index a0431642c6b5..f3d2833c5781 100644
+--- a/fs/nsfs.c
++++ b/fs/nsfs.c
+@@ -52,7 +52,7 @@ static void nsfs_evict(struct inode *inode)
+ 	ns->ops->put(ns);
  }
  
- /* New MAC address is added to the hash table and marked to be written on card
-@@ -631,6 +635,7 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
- 	int rc;
- 
- 	qeth_l2_vnicc_set_defaults(card);
-+	mutex_init(&card->sbp_lock);
- 
- 	if (gdev->dev.type == &qeth_generic_devtype) {
- 		rc = qeth_l2_create_device_attributes(&gdev->dev);
-@@ -804,10 +809,12 @@ static int qeth_l2_set_online(struct ccwgroup_device *gdev)
- 	} else
- 		card->info.hwtrap = 0;
- 
-+	mutex_lock(&card->sbp_lock);
- 	qeth_bridgeport_query_support(card);
- 	if (card->options.sbp.supported_funcs)
- 		dev_info(&card->gdev->dev,
- 		"The device represents a Bridge Capable Port\n");
-+	mutex_unlock(&card->sbp_lock);
- 
- 	qeth_l2_register_dev_addr(card);
- 
-@@ -1162,9 +1169,9 @@ static void qeth_bridge_state_change_worker(struct work_struct *work)
- 
- 	/* Role should not change by itself, but if it did, */
- 	/* information from the hardware is authoritative.  */
--	mutex_lock(&data->card->conf_mutex);
-+	mutex_lock(&data->card->sbp_lock);
- 	data->card->options.sbp.role = entry->role;
--	mutex_unlock(&data->card->conf_mutex);
-+	mutex_unlock(&data->card->sbp_lock);
- 
- 	snprintf(env_locrem, sizeof(env_locrem), "BRIDGEPORT=statechange");
- 	snprintf(env_role, sizeof(env_role), "ROLE=%s",
-@@ -1230,9 +1237,9 @@ static void qeth_bridge_host_event_worker(struct work_struct *work)
- 			: (data->hostevs.lost_event_mask == 0x02)
- 			? "Bridge port state change"
- 			: "Unknown reason");
--		mutex_lock(&data->card->conf_mutex);
-+		mutex_lock(&data->card->sbp_lock);
- 		data->card->options.sbp.hostnotification = 0;
--		mutex_unlock(&data->card->conf_mutex);
-+		mutex_unlock(&data->card->sbp_lock);
- 		qeth_bridge_emit_host_event(data->card, anev_abort,
- 			0, NULL, NULL);
- 	} else
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index f2c3b127b1e4..e2bcb26105a3 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -24,6 +24,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
- 	if (qeth_l2_vnicc_is_in_use(card))
- 		return sprintf(buf, "n/a (VNIC characteristics)\n");
- 
-+	mutex_lock(&card->sbp_lock);
- 	if (qeth_card_hw_is_reachable(card) &&
- 					card->options.sbp.supported_funcs)
- 		rc = qeth_bridgeport_query_ports(card,
-@@ -57,6 +58,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
- 		else
- 			rc = sprintf(buf, "%s\n", word);
+-static void *__ns_get_path(struct path *path, struct ns_common *ns)
++static int __ns_get_path(struct path *path, struct ns_common *ns)
+ {
+ 	struct vfsmount *mnt = nsfs_mnt;
+ 	struct dentry *dentry;
+@@ -71,13 +71,13 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ got_it:
+ 	path->mnt = mntget(mnt);
+ 	path->dentry = dentry;
+-	return NULL;
++	return 0;
+ slow:
+ 	rcu_read_unlock();
+ 	inode = new_inode_pseudo(mnt->mnt_sb);
+ 	if (!inode) {
+ 		ns->ops->put(ns);
+-		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
  	}
-+	mutex_unlock(&card->sbp_lock);
- 
- 	return rc;
+ 	inode->i_ino = ns->inum;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+@@ -89,7 +89,7 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ 	dentry = d_alloc_anon(mnt->mnt_sb);
+ 	if (!dentry) {
+ 		iput(inode);
+-		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
+ 	}
+ 	d_instantiate(dentry, inode);
+ 	dentry->d_fsdata = (void *)ns->ops;
+@@ -98,23 +98,22 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ 		d_delete(dentry);	/* make sure ->d_prune() does nothing */
+ 		dput(dentry);
+ 		cpu_relax();
+-		return ERR_PTR(-EAGAIN);
++		return -EAGAIN;
+ 	}
+ 	goto got_it;
  }
-@@ -91,6 +93,7 @@ static ssize_t qeth_bridge_port_role_store(struct device *dev,
- 		return -EINVAL;
  
- 	mutex_lock(&card->conf_mutex);
-+	mutex_lock(&card->sbp_lock);
+-void *ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
++int ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
+ 		     void *private_data)
+ {
+-	void *ret;
++	int ret;
  
- 	if (qeth_l2_vnicc_is_in_use(card))
- 		rc = -EBUSY;
-@@ -104,6 +107,7 @@ static ssize_t qeth_bridge_port_role_store(struct device *dev,
- 	} else
- 		card->options.sbp.role = role;
+ 	do {
+ 		struct ns_common *ns = ns_get_cb(private_data);
+ 		if (!ns)
+-			return ERR_PTR(-ENOENT);
+-
++			return -ENOENT;
+ 		ret = __ns_get_path(path, ns);
+-	} while (ret == ERR_PTR(-EAGAIN));
++	} while (ret == -EAGAIN);
  
-+	mutex_unlock(&card->sbp_lock);
- 	mutex_unlock(&card->conf_mutex);
+ 	return ret;
+ }
+@@ -131,7 +130,7 @@ static struct ns_common *ns_get_path_task(void *private_data)
+ 	return args->ns_ops->get(args->task);
+ }
  
- 	return rc ? rc : count;
-@@ -158,6 +162,7 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 		return rc;
+-void *ns_get_path(struct path *path, struct task_struct *task,
++int ns_get_path(struct path *path, struct task_struct *task,
+ 		  const struct proc_ns_operations *ns_ops)
+ {
+ 	struct ns_get_path_task_args args = {
+@@ -147,7 +146,7 @@ int open_related_ns(struct ns_common *ns,
+ {
+ 	struct path path = {};
+ 	struct file *f;
+-	void *err;
++	int err;
+ 	int fd;
  
- 	mutex_lock(&card->conf_mutex);
-+	mutex_lock(&card->sbp_lock);
+ 	fd = get_unused_fd_flags(O_CLOEXEC);
+@@ -164,11 +163,11 @@ int open_related_ns(struct ns_common *ns,
+ 		}
  
- 	if (qeth_l2_vnicc_is_in_use(card))
- 		rc = -EBUSY;
-@@ -168,6 +173,7 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 	} else
- 		card->options.sbp.hostnotification = enable;
+ 		err = __ns_get_path(&path, relative);
+-	} while (err == ERR_PTR(-EAGAIN));
++	} while (err == -EAGAIN);
  
-+	mutex_unlock(&card->sbp_lock);
- 	mutex_unlock(&card->conf_mutex);
- 
- 	return rc ? rc : count;
-@@ -223,6 +229,7 @@ static ssize_t qeth_bridgeport_reflect_store(struct device *dev,
- 		return -EINVAL;
- 
- 	mutex_lock(&card->conf_mutex);
-+	mutex_lock(&card->sbp_lock);
- 
- 	if (qeth_l2_vnicc_is_in_use(card))
- 		rc = -EBUSY;
-@@ -234,6 +241,7 @@ static ssize_t qeth_bridgeport_reflect_store(struct device *dev,
- 		rc = 0;
+-	if (IS_ERR(err)) {
++	if (err) {
+ 		put_unused_fd(fd);
+-		return PTR_ERR(err);
++		return err;
  	}
  
-+	mutex_unlock(&card->sbp_lock);
- 	mutex_unlock(&card->conf_mutex);
+ 	f = dentry_open(&path, O_RDONLY, current_cred());
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index dd2b35f78b09..08dd94df1a66 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -42,14 +42,14 @@ static const char *proc_ns_get_link(struct dentry *dentry,
+ 	const struct proc_ns_operations *ns_ops = PROC_I(inode)->ns_ops;
+ 	struct task_struct *task;
+ 	struct path ns_path;
+-	void *error = ERR_PTR(-EACCES);
++	int error = -EACCES;
  
- 	return rc ? rc : count;
-@@ -269,6 +277,8 @@ void qeth_l2_setup_bridgeport_attrs(struct qeth_card *card)
- 		return;
- 	if (!card->options.sbp.supported_funcs)
- 		return;
-+
-+	mutex_lock(&card->sbp_lock);
- 	if (card->options.sbp.role != QETH_SBP_ROLE_NONE) {
- 		/* Conditional to avoid spurious error messages */
- 		qeth_bridgeport_setrole(card, card->options.sbp.role);
-@@ -280,8 +290,10 @@ void qeth_l2_setup_bridgeport_attrs(struct qeth_card *card)
- 		rc = qeth_bridgeport_an_set(card, 1);
- 		if (rc)
- 			card->options.sbp.hostnotification = 0;
--	} else
-+	} else {
- 		qeth_bridgeport_an_set(card, 0);
-+	}
-+	mutex_unlock(&card->sbp_lock);
+ 	if (!dentry)
+ 		return ERR_PTR(-ECHILD);
+ 
+ 	task = get_proc_task(inode);
+ 	if (!task)
+-		return error;
++		return ERR_PTR(-EACCES);
+ 
+ 	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
+ 		error = ns_get_path(&ns_path, task, ns_ops);
+@@ -57,7 +57,7 @@ static const char *proc_ns_get_link(struct dentry *dentry,
+ 			nd_jump_link(&ns_path);
+ 	}
+ 	put_task_struct(task);
+-	return error;
++	return ERR_PTR(error);
  }
  
- /* VNIC CHARS support */
+ static int proc_ns_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+diff --git a/include/linux/proc_ns.h b/include/linux/proc_ns.h
+index d31cb6215905..aed366b4795c 100644
+--- a/include/linux/proc_ns.h
++++ b/include/linux/proc_ns.h
+@@ -76,10 +76,10 @@ static inline int ns_alloc_inum(struct ns_common *ns)
+ 
+ extern struct file *proc_ns_fget(int fd);
+ #define get_proc_ns(inode) ((struct ns_common *)(inode)->i_private)
+-extern void *ns_get_path(struct path *path, struct task_struct *task,
++extern int ns_get_path(struct path *path, struct task_struct *task,
+ 			const struct proc_ns_operations *ns_ops);
+ typedef struct ns_common *ns_get_path_helper_t(void *);
+-extern void *ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
++extern int ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
+ 			    void *private_data);
+ 
+ extern int ns_get_name(char *buf, size_t size, struct task_struct *task,
+diff --git a/kernel/bpf/offload.c b/kernel/bpf/offload.c
+index ba635209ae9a..a2253a044f90 100644
+--- a/kernel/bpf/offload.c
++++ b/kernel/bpf/offload.c
+@@ -302,14 +302,14 @@ int bpf_prog_offload_info_fill(struct bpf_prog_info *info,
+ 	struct inode *ns_inode;
+ 	struct path ns_path;
+ 	char __user *uinsns;
+-	void *res;
++	int res;
+ 	u32 ulen;
+ 
+ 	res = ns_get_path_cb(&ns_path, bpf_prog_offload_info_fill_ns, &args);
+-	if (IS_ERR(res)) {
++	if (res) {
+ 		if (!info->ifindex)
+ 			return -ENODEV;
+-		return PTR_ERR(res);
++		return res;
+ 	}
+ 
+ 	down_read(&bpf_devs_lock);
+@@ -526,13 +526,13 @@ int bpf_map_offload_info_fill(struct bpf_map_info *info, struct bpf_map *map)
+ 	};
+ 	struct inode *ns_inode;
+ 	struct path ns_path;
+-	void *res;
++	int res;
+ 
+ 	res = ns_get_path_cb(&ns_path, bpf_map_offload_info_fill_ns, &args);
+-	if (IS_ERR(res)) {
++	if (res) {
+ 		if (!info->ifindex)
+ 			return -ENODEV;
+-		return PTR_ERR(res);
++		return res;
+ 	}
+ 
+ 	ns_inode = ns_path.dentry->d_inode;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 00a014670ed0..3772a04ca802 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -7258,7 +7258,7 @@ static void perf_fill_ns_link_info(struct perf_ns_link_info *ns_link_info,
+ {
+ 	struct path ns_path;
+ 	struct inode *ns_inode;
+-	void *error;
++	int error;
+ 
+ 	error = ns_get_path(&ns_path, task, ns_ops);
+ 	if (!error) {
 -- 
-2.17.1
+2.24.0
