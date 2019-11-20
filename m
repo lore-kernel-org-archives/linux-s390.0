@@ -1,65 +1,47 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49956 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725906AbfKFJ4E (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 6 Nov 2019 04:56:04 -0500
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: [PATCH v3 1/4] s390/unwind: drop unnecessary code around calling ftrace_graph_ret_addr()
-Date: Wed,  6 Nov 2019 10:55:58 +0100
-Message-Id: <20191106095601.29986-2-mbenes@suse.cz>
-In-Reply-To: <20191106095601.29986-1-mbenes@suse.cz>
-References: <20191106095601.29986-1-mbenes@suse.cz>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH RESEND v17 01/13] namei: only return -ECHILD from follow_dotdot_rcu()
+Date: Wed, 20 Nov 2019 16:06:19 +1100
+Message-Id: <20191120050631.12816-2-cyphar@cyphar.com>
+In-Reply-To: <20191120050631.12816-1-cyphar@cyphar.com>
+References: <20191120050631.12816-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, jpoimboe@redhat.com, joe.lawrence@redhat.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org, pmladek@suse.com, nstange@suse.de, live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-The current code around calling ftrace_graph_ret_addr() is ifdeffed and
-also tests if ftrace redirection is present on stack.
-ftrace_graph_ret_addr() however performs the test internally and there
-is a version for !CONFIG_FUNCTION_GRAPH_TRACER as well. The unnecessary
-code can thus be dropped.
+It's over-zealous to return hard errors under RCU-walk here, given that
+a REF-walk will be triggered for all other cases handling ".." under
+RCU.
 
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
+The original purpose of this check was to ensure that if a rename occurs
+such that a directory is moved outside of the bind-mount which the
+resolution started in, it would be detected and blocked to avoid being
+able to mess with paths outside of the bind-mount. However, triggering a
+new REF-walk is just as effective a solution.
+
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 397d425dc26d ("vfs: Test for and handle paths that are unreachable from their mnt_root")
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/s390/kernel/unwind_bc.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ fs/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/unwind_bc.c b/arch/s390/kernel/unwind_bc.c
-index a8204f952315..5a78deacb972 100644
---- a/arch/s390/kernel/unwind_bc.c
-+++ b/arch/s390/kernel/unwind_bc.c
-@@ -85,12 +85,8 @@ bool unwind_next_frame(struct unwind_state *state)
- 		}
- 	}
- 
--#ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	/* Decode any ftrace redirection */
--	if (ip == (unsigned long) return_to_handler)
--		ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
--					   ip, (void *) sp);
--#endif
-+	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
-+				   ip, (void *) sp);
- 
- 	/* Update unwind state */
- 	state->sp = sp;
-@@ -147,12 +143,8 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		reuse_sp = false;
- 	}
- 
--#ifdef CONFIG_FUNCTION_GRAPH_TRACER
--	/* Decode any ftrace redirection */
--	if (ip == (unsigned long) return_to_handler)
--		ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
--					   ip, NULL);
--#endif
-+	ip = ftrace_graph_ret_addr(state->task, &state->graph_idx,
-+				   ip, NULL);
- 
- 	/* Update unwind state */
- 	state->sp = sp;
+diff --git a/fs/namei.c b/fs/namei.c
+index 671c3c1a3425..5a47d9c09581 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1359,7 +1359,7 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 			nd->path.dentry = parent;
+ 			nd->seq = seq;
+ 			if (unlikely(!path_connected(&nd->path)))
+-				return -ENOENT;
++				return -ECHILD;
+ 			break;
+ 		} else {
+ 			struct mount *mnt = real_mount(nd->path.mnt);
 -- 
-2.23.0
+2.24.0
