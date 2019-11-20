@@ -1,72 +1,41 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728386AbfKJCuf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:50:35 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 01/40] s390/qeth: invoke softirqs after napi_schedule()
-Date: Sat,  9 Nov 2019 21:49:53 -0500
-Message-Id: <20191110025032.827-1-sashal@kernel.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+References: <20190820024941.12640-1-dja@axtens.net> <877e6vutiu.fsf@dja-thinkpad.axtens.net>
+ <878sp57z44.fsf@dja-thinkpad.axtens.net> <CANpmjNOCxTxTpbB_LwUQS5jzfQ_2zbZVAc4nKf0FRXmrwO-7sA@mail.gmail.com>
+ <87a78xgu8o.fsf@dja-thinkpad.axtens.net> <87y2wbf0xx.fsf@dja-thinkpad.axtens.net>
+In-Reply-To: <87y2wbf0xx.fsf@dja-thinkpad.axtens.net>
+From: Marco Elver <elver@google.com>
+Date: Wed, 20 Nov 2019 09:32:55 +0100
+Message-ID: <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] kasan: support instrumented bitops combined with
+ generic bitops
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Daniel Axtens <dja@axtens.net>
+Cc: christophe.leroy@c-s.fr, linux-s390@vger.kernel.org, linux-arch <linux-arch@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, linuxppc-dev@lists.ozlabs.org, kasan-dev <kasan-dev@googlegroups.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Wed, 20 Nov 2019 at 08:42, Daniel Axtens <dja@axtens.net> wrote:
+>
+> > But the docs do seem to indicate that it's atomic (for whatever that
+> > means for a single read operation?), so you are right, it should live in
+> > instrumented-atomic.h.
+>
+> Actually, on further inspection, test_bit has lived in
+> bitops/non-atomic.h since it was added in 4117b02132d1 ("[PATCH] bitops:
+> generic __{,test_and_}{set,clear,change}_bit() and test_bit()")
+>
+> So to match that, the wrapper should live in instrumented-non-atomic.h
+> too.
+>
+> If test_bit should move, that would need to be a different patch. But I
+> don't really know if it makes too much sense to stress about a read
+> operation, as opposed to a read/modify/write...
 
-[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
+That's fair enough. I suppose this can stay where it is because it's
+not hurting anyone per-se, but the only bad thing about it is that
+kernel-api documentation will present test_bit() in non-atomic
+operations.
 
-Calling napi_schedule() from process context does not ensure that the
-NET_RX softirq is run in a timely fashion. So trigger it manually.
-
-This is no big issue with current code. A call to ndo_open() is usually
-followed by a ndo_set_rx_mode() call, and for qeth this contains a
-spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
-early.
-Nevertheless it's best to not depend on this behaviour, and just fix
-the issue at its source like all other drivers do. For instance see
-commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
-
-Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 3 +++
- drivers/s390/net/qeth_l3_main.c | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 22045e7d78ac3..97211f7f0cf02 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -996,7 +996,10 @@ static int __qeth_l2_open(struct net_device *dev)
- 
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 2cc9bc1ef1e38..0d71d2e6419af 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3031,7 +3031,10 @@ static int __qeth_l3_open(struct net_device *dev)
- 
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
--- 
-2.20.1
+Thanks,
+-- Marco
