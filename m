@@ -1,160 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-102.mailbox.org ([80.241.56.152]:32482 "EHLO
-        mout-p-102.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725959AbfKQBVP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:21:15 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 07/13] namei: LOOKUP_NO_XDEV: block mountpoint crossing
-Date: Sun, 17 Nov 2019 12:17:07 +1100
-Message-Id: <20191117011713.13032-8-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4810 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726230AbfKUMgJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 Nov 2019 07:36:09 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xALCWBUw109697
+        for <linux-s390@vger.kernel.org>; Thu, 21 Nov 2019 07:36:08 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wcf73779n-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 21 Nov 2019 07:36:07 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <hoeppner@linux.ibm.com>;
+        Thu, 21 Nov 2019 12:36:05 -0000
+Subject: Re: [PATCH] dasd_fba: Display '00000000' for zero page when dumping
+ sense
+References: <20191118111226.56666-1-hare@suse.de>
+From: =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>
+Date: Thu, 21 Nov 2019 13:36:00 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191118111226.56666-1-hare@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <d329f133-6ed7-0389-2c7f-64c6bdc364c5@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Hannes Reinecke <hare@suse.de>
+Cc: Stefan Haberland <sth@linux.ibm.com>, linux-s390@vger.kernel.org, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, Hannes Reinecke <hare@suse.com>, Sebastian Parschauer <sparschauer@suse.de>
 
-/* Background. */
-The need to contain path operations within a mountpoint has been a
-long-standing usecase that userspace has historically implemented
-manually with liberal usage of stat(). find, rsync, tar and
-many other programs implement these semantics -- but it'd be much
-simpler to have a fool-proof way of refusing to open a path if it
-crosses a mountpoint.
+On 11/18/19 12:12 PM, Hannes Reinecke wrote:
+> When a discard I/O fails, dasd_fba_dump_sense() will crash as it
+> tries to print out the CCW, and failing to take into account that
+> for discard I/O we have only one data pointer, not one per sg.
+> As the data pointer will always point to the zero page this patch
+> replaces the data pointer output with '00000000' to avoid the crash.
+> 
+> Signed-off-by: Hannes Reinecke <hare@suse.com>
+> [sparschauer: replaced "ccw" with "act", "snprintf" with "sprintf"]
+> [sparschauer v2: added missing curly braces to for loops]
+> Signed-off-by: Sebastian Parschauer <sparschauer@suse.de>
+> ---
+>  drivers/s390/block/dasd_fba.c | 21 ++++++++++++++++++---
+>  1 file changed, 18 insertions(+), 3 deletions(-)
+> 
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
-variation on David Drysdale's O_BENEATH patchset[2], which in turn was
-based on the Capsicum project[3]).
+Hi Hannes,
 
-/* Userspace API. */
-LOOKUP_NO_XDEV will be exposed to userspace through openat2(2).
+thanks for the patch. However,
 
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_XDEV applies to all components of the path.
+> diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+> index cbb770824226..4b867bd6b164 100644
+> --- a/drivers/s390/block/dasd_fba.c
+> +++ b/drivers/s390/block/dasd_fba.c
+> @@ -717,10 +717,15 @@ dasd_fba_dump_sense(struct dasd_device *device, struct dasd_ccw_req * req,
+>  			       " CCW %p: %08X %08X DAT:",
+>  			       act, ((int *) act)[0], ((int *) act)[1]);
+>  		for (count = 0; count < 32 && count < act->count;
+> -		     count += sizeof(int))
+> +		     count += sizeof(int)) {
+> +			if (act->flags & CCW_FLAG_SLI) {
 
-With LOOKUP_NO_XDEV, any path component which crosses a mount-point
-during path resolution (including "..") will yield an -EXDEV. Absolute
-paths, absolute symlinks, and magic-links will only yield an -EXDEV if
-the jump involved changing mount-points.
+I'm not quite happy with the usage of CCW_FLAG_SLI here.
+We're currently looking into this issue in more detail to fully
+understand the problem.
 
-/* Testing. */
-LOOKUP_NO_XDEV is tested as part of the openat2(2) selftests.
+I'll let you know the outcome and possible improvements for the
+patch as soon as possible.
 
-[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c            | 31 +++++++++++++++++++++++++++----
- include/linux/namei.h |  1 +
- 2 files changed, 28 insertions(+), 4 deletions(-)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 415a897729c8..321c8ad5d6b3 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -838,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
- 
- static int nd_jump_root(struct nameidata *nd)
- {
-+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
-+		/* Absolute path arguments to path_init() are allowed. */
-+		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
-+			return -EXDEV;
-+	}
- 	if (!nd->root.mnt) {
- 		int error = set_root(nd);
- 		if (error)
-@@ -873,6 +878,12 @@ int nd_jump_link(struct path *path)
- 	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
- 		goto err;
- 
-+	error = -EXDEV;
-+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
-+		if (nd->path.mnt != path->mnt)
-+			goto err;
-+	}
-+
- 	path_put(&nd->path);
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
-@@ -1280,12 +1291,16 @@ static int follow_managed(struct path *path, struct nameidata *nd)
- 		break;
- 	}
- 
--	if (need_mntput && path->mnt == mnt)
--		mntput(path->mnt);
-+	if (need_mntput) {
-+		if (path->mnt == mnt)
-+			mntput(path->mnt);
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			ret = -EXDEV;
-+		else
-+			nd->flags |= LOOKUP_JUMPED;
-+	}
- 	if (ret == -EISDIR || !ret)
- 		ret = 1;
--	if (need_mntput)
--		nd->flags |= LOOKUP_JUMPED;
- 	if (unlikely(ret < 0))
- 		path_put_conditional(path, nd);
- 	return ret;
-@@ -1342,6 +1357,8 @@ static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
- 		mounted = __lookup_mnt(path->mnt, path->dentry);
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return false;
- 		path->mnt = &mounted->mnt;
- 		path->dentry = mounted->mnt.mnt_root;
- 		nd->flags |= LOOKUP_JUMPED;
-@@ -1388,6 +1405,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 				return -ECHILD;
- 			if (&mparent->mnt == nd->path.mnt)
- 				break;
-+			if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+				return -ECHILD;
- 			/* we know that mountpoint was pinned */
- 			nd->path.dentry = mountpoint;
- 			nd->path.mnt = &mparent->mnt;
-@@ -1402,6 +1421,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 			return -ECHILD;
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -ECHILD;
- 		nd->path.mnt = &mounted->mnt;
- 		nd->path.dentry = mounted->mnt.mnt_root;
- 		inode = nd->path.dentry->d_inode;
-@@ -1500,6 +1521,8 @@ static int follow_dotdot(struct nameidata *nd)
- 		}
- 		if (!follow_up(&nd->path))
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -EXDEV;
- 	}
- 	follow_mount(&nd->path);
- 	nd->inode = nd->path.dentry->d_inode;
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 1573b8493d98..25ee88c4acb1 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -42,6 +42,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- /* Scoping flags for lookup. */
- #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
- #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
-+#define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
- 
- extern int path_pts(struct path *path);
- 
--- 
-2.24.0
+regards,
+Jan
