@@ -1,158 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14132 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726784AbfKVJD2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Nov 2019 04:03:28 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAM92aKE057047
-        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2019 04:03:26 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wd3fnmw3a-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2019 04:03:26 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 22 Nov 2019 09:03:24 -0000
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39786 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726358AbfKUQCt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Nov 2019 11:02:49 -0500
+Date: Thu, 21 Nov 2019 17:02:37 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v1 4/4] s390x: Testing the Subchannel I/O read
+Message-ID: <20191121170237.72e0bd45.cohuck@redhat.com>
+In-Reply-To: <802c298d-d2da-83c4-c222-67bb78131988@linux.ibm.com>
 References: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
- <1573647799-30584-5-git-send-email-pmorel@linux.ibm.com>
- <20191113140539.4d153d5f.cohuck@redhat.com>
- <802c298d-d2da-83c4-c222-67bb78131988@linux.ibm.com>
- <20191121170237.72e0bd45.cohuck@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Fri, 22 Nov 2019 10:03:21 +0100
+        <1573647799-30584-5-git-send-email-pmorel@linux.ibm.com>
+        <20191113140539.4d153d5f.cohuck@redhat.com>
+        <802c298d-d2da-83c4-c222-67bb78131988@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20191121170237.72e0bd45.cohuck@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-Message-Id: <0c9d19ef-8ef7-0dab-b283-3db243b95476@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
+On Thu, 14 Nov 2019 11:11:18 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-On 2019-11-21 17:02, Cornelia Huck wrote:
-> On Thu, 14 Nov 2019 11:11:18 +0100
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
->
->> On 2019-11-13 14:05, Cornelia Huck wrote:
->>> On Wed, 13 Nov 2019 13:23:19 +0100
->>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>   
->>>> This simple test test the I/O reading by the SUB Channel by:
->>>> - initializing the Channel SubSystem with predefined CSSID:
->>>>     0xfe000000 CSSID for a Virtual CCW
->>> 0 should be fine with recent QEMU versions as well, I guess?
->> Right
->>
->>
->>>   
->>>>     0x00090000 SSID for CCW-PONG
->>> subchannel id, or subchannel set id?
->> hum, only part of, I had SSID (Subchannel Set ID) 4 (a.k.a m bit) + Bit
->> 47  =1
->>
->> But as you said, I can use CSSID 0 and m = 0 which makes:
->>
->> Subsystem Identification word = 0x00010000
-> Yeah, I was mainly confused by the name 'SSID'.
+> On 2019-11-13 14:05, Cornelia Huck wrote:
+> > On Wed, 13 Nov 2019 13:23:19 +0100
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> > =20
+> >> This simple test test the I/O reading by the SUB Channel by:
+> >> - initializing the Channel SubSystem with predefined CSSID:
+> >>    0xfe000000 CSSID for a Virtual CCW =20
+> > 0 should be fine with recent QEMU versions as well, I guess? =20
+> Right
+>=20
+>=20
+> > =20
+> >>    0x00090000 SSID for CCW-PONG =20
+> > subchannel id, or subchannel set id? =20
+>=20
+> hum, only part of, I had SSID (Subchannel Set ID) 4 (a.k.a m bit) + Bit=
+=20
+> 47=C2=A0 =3D1
+>=20
+> But as you said, I can use CSSID 0 and m =3D 0 which makes:
+>=20
+> Subsystem Identification word =3D 0x00010000
 
-Hum, yes sorry, I posted this to give a response to the kvm-test-unit 
-css test.
+Yeah, I was mainly confused by the name 'SSID'.
 
-I should have a lot more rework this old device before to post this series.
-In between I did, so I will post a v2 which will suppress all these 
-approximations.
+> >> - initializing the ORB pointing to a single READ CCW =20
+> > Out of curiosity: Would using a NOP also be an option? =20
+>=20
+> It will work but will not be handled by this device, css.c intercept it=
+=20
+> in sch_handle_start_func_virtual.
+>=20
+> AFAIU If we want to have a really good testing environment, for driver=20
+> testing for exemple, then it would be interesting to add a new=20
+> do_subchannel_work callback like do_subchannel_work_emulation along with=
+=20
+> the _virtual and _paththrough variantes.
+>=20
+> Having a dedicated callback for emulation, we can answer to any CSS=20
+> instructions and SSCH commands, including NOP and TIC.
 
+I guess that depends on what you want to test; if you actually want to
+test device emulation as used by virtio etc., you obviously want to go
+through the existing _virtual callback :)
 
->
->>>> - initializing the ORB pointing to a single READ CCW
->>> Out of curiosity: Would using a NOP also be an option?
->> It will work but will not be handled by this device, css.c intercept it
->> in sch_handle_start_func_virtual.
->>
->> AFAIU If we want to have a really good testing environment, for driver
->> testing for exemple, then it would be interesting to add a new
->> do_subchannel_work callback like do_subchannel_work_emulation along with
->> the _virtual and _paththrough variantes.
->>
->> Having a dedicated callback for emulation, we can answer to any CSS
->> instructions and SSCH commands, including NOP and TIC.
-> I guess that depends on what you want to test; if you actually want to
-> test device emulation as used by virtio etc., you obviously want to go
-> through the existing _virtual callback :)
+The actual motivation behind my question was:
+Is it possible to e.g. throw NOP (or TIC, or something else not
+device-specific) at a normal, existing virtio device for test purposes?
+You'd end up testing the common emulation code without needing any
+extra support in QEMU. No idea how useful that would be.
 
-The first goal is to test basic I/O from inside the kvm-unit-test, 
-producing errors and see how the system respond to errors.
+>=20
+> My goal here was to quickly develop a device answering to some basic=20
+> READ/WRITE command to start memory transfers from inside a guest without=
+=20
+> Linux and without implementing VIRTIO in KVM tests.
 
-In a standard system errors will be generated by QEMU analysing the I/O 
-instruction after interception.
+Yes, if you want to do some simple memory transfers, virtio is probably
+not the first choice. Would e.g. doing a SenseID or so actually be
+useful in some way already? After all, it does transfer memory (but
+only in one direction).
 
-In a secured guest, we expect the same errors, however we want to check 
-this.
+> >> +static inline int rsch(unsigned long schid) =20
+> > I don't think anyone has tried rsch with QEMU before; sounds like a
+> > good idea to test this :) =20
+>=20
+> With an do_subchannel_work_emulation() callback?
 
-This PONG device is intended to be low level, no VIRTIO, and to allow 
-basic I/O.
-
-
->
-> The actual motivation behind my question was:
-> Is it possible to e.g. throw NOP (or TIC, or something else not
-> device-specific) at a normal, existing virtio device for test purposes?
-> You'd end up testing the common emulation code without needing any
-> extra support in QEMU. No idea how useful that would be.
-
-Writing a VIRTIO driver inside the kvm-unit-test is something we can do 
-in the future.
-
-As you said, the common code already handle NOP and TIC, the 
-interpretation of the
-CCW chain, once the SSCH has been intercepted is done by QEMU.
-I do not think it would be different with SE.
-
-
->
->> My goal here was to quickly develop a device answering to some basic
->> READ/WRITE command to start memory transfers from inside a guest without
->> Linux and without implementing VIRTIO in KVM tests.
-> Yes, if you want to do some simple memory transfers, virtio is probably
-> not the first choice. Would e.g. doing a SenseID or so actually be
-> useful in some way already? After all, it does transfer memory (but
-> only in one direction).
-
-The kvm-unit-test part is in development too.
-
-Doing a SenseID will be implemented to recognize the PONG device.
-
-
->
->>>> +static inline int rsch(unsigned long schid)
->>> I don't think anyone has tried rsch with QEMU before; sounds like a
->>> good idea to test this :)
->> With an do_subchannel_work_emulation() callback?
-> You probably need to build a simple channel program that suspends
-> itself and can be resumed later.
-
-Yes, that is something I plan to do.
-
-To sum-up:
-
-in kvm-unit-test: implement all I/O instructions and force instructions 
-errors, like memory error, operand etc. and expect the right reaction of 
-the system.
-
-in QEMU, add the necessary infrastructure to test this.
-
-
-Regards,
-
-Pierre
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+You probably need to build a simple channel program that suspends
+itself and can be resumed later.
