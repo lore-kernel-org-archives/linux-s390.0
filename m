@@ -1,77 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50686 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729316AbfKVGN2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:13:28 -0500
+        id S1728617AbfKVFwj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:52:39 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 23/68] KVM: s390: unregister debug feature on failing arch init
-Date: Fri, 22 Nov 2019 01:12:16 -0500
-Message-Id: <20191122061301.4947-22-sashal@kernel.org>
-In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
-References: <20191122061301.4947-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 180/219] net/smc: prevent races between smc_lgr_terminate() and smc_conn_free()
+Date: Fri, 22 Nov 2019 00:48:32 -0500
+Message-Id: <20191122054911.1750-173-sashal@kernel.org>
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Michael Mueller <mimu@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
+[ Upstream commit 77f838ace755d2f466536c44dac6c856f62cd901 ]
 
-Make sure the debug feature and its allocated resources get
-released upon unsuccessful architecture initialization.
+To prevent races between smc_lgr_terminate() and smc_conn_free() add an
+extra check of the lgr field before accessing it, and cancel a delayed
+free_work when a new smc connection is created.
+This fixes the problem that free_work cleared the lgr variable but
+smc_lgr_terminate() or smc_conn_free() still access it in parallel.
 
-A related indication of the issue will be reported as kernel
-message.
-
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3e46f62d32adf..b4032d625d225 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -185,17 +185,28 @@ void kvm_arch_hardware_unsetup(void)
- 
- int kvm_arch_init(void *opaque)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 18daebcef1813..2c9baf8bf1189 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -128,6 +128,8 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
  {
-+	int rc;
-+
- 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
+ 	struct smc_link_group *lgr = conn->lgr;
  
- 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
--		debug_unregister(kvm_s390_dbf);
--		return -ENOMEM;
-+		rc = -ENOMEM;
-+		goto out_debug_unreg;
- 	}
- 
- 	/* Register floating interrupt controller interface. */
--	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	if (rc) {
-+		pr_err("Failed to register FLIC rc=%d\n", rc);
-+		goto out_debug_unreg;
-+	}
-+	return 0;
-+
-+out_debug_unreg:
-+	debug_unregister(kvm_s390_dbf);
-+	return rc;
- }
- 
- void kvm_arch_exit(void)
++	if (!lgr)
++		return;
+ 	write_lock_bh(&lgr->conns_lock);
+ 	if (conn->alert_token_local) {
+ 		__smc_lgr_unregister_conn(conn);
+@@ -612,6 +614,8 @@ int smc_conn_create(struct smc_sock *smc, bool is_smcd, int srv_first_contact,
+ 			local_contact = SMC_REUSE_CONTACT;
+ 			conn->lgr = lgr;
+ 			smc_lgr_register_conn(conn); /* add smc conn to lgr */
++			if (delayed_work_pending(&lgr->free_work))
++				cancel_delayed_work(&lgr->free_work);
+ 			write_unlock_bh(&lgr->conns_lock);
+ 			break;
+ 		}
 -- 
 2.20.1
