@@ -1,105 +1,89 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-Date: Tue, 05 Nov 2019 09:27:25 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] x86/vmlinux: Use INT3 instead of NOP for linker fill bytes
-In-Reply-To: <20191029211351.13243-30-keescook@chromium.org>
-References: <20191029211351.13243-30-keescook@chromium.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 186/219] net/smc: fix byte_order for rx_curs_confirmed
+Date: Fri, 22 Nov 2019 00:48:38 -0500
+Message-Id: <20191122054911.1750-179-sashal@kernel.org>
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
 MIME-Version: 1.0
-Message-ID: <157294604562.29376.16128940015704175473.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ross Zwisler <zwisler@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Commit-ID:     7705dc8557973d8ad8f10840f61d8ec805695e9e
-Gitweb:        https://git.kernel.org/tip/7705dc8557973d8ad8f10840f61d8ec805695e9e
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:51 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 19:10:08 +01:00
+[ Upstream commit ccc8ca9b90acb45a3309f922b2591b07b4e070ec ]
 
-x86/vmlinux: Use INT3 instead of NOP for linker fill bytes
+The recent change in the rx_curs_confirmed assignment disregards
+byte order, which causes problems on little endian architectures.
+This patch fixes it.
 
-Instead of using 0x90 (NOP) to fill bytes between functions, which makes
-it easier to sloppily target functions in function pointer overwrite
-attacks, fill with 0xCC (INT3) to force a trap. Also drop the space
-between "=" and the value to better match the binutils documentation
-
-  https://sourceware.org/binutils/docs/ld/Output-Section-Fill.html#Output-Section-Fill
-
-Example "objdump -d" before:
-
-  ...
-  ffffffff810001e0 <start_cpu0>:
-  ffffffff810001e0:       48 8b 25 e1 b1 51 01    mov 0x151b1e1(%rip),%rsp        # ffffffff8251b3c8 <initial_stack>
-  ffffffff810001e7:       e9 d5 fe ff ff          jmpq   ffffffff810000c1 <secondary_startup_64+0x91>
-  ffffffff810001ec:       90                      nop
-  ffffffff810001ed:       90                      nop
-  ffffffff810001ee:       90                      nop
-  ffffffff810001ef:       90                      nop
-
-  ffffffff810001f0 <__startup_64>:
-  ...
-
-After:
-
-  ...
-  ffffffff810001e0 <start_cpu0>:
-  ffffffff810001e0:       48 8b 25 41 79 53 01    mov 0x1537941(%rip),%rsp        # ffffffff82537b28 <initial_stack>
-  ffffffff810001e7:       e9 d5 fe ff ff          jmpq   ffffffff810000c1 <secondary_startup_64+0x91>
-  ffffffff810001ec:       cc                      int3
-  ffffffff810001ed:       cc                      int3
-  ffffffff810001ee:       cc                      int3
-  ffffffff810001ef:       cc                      int3
-
-  ffffffff810001f0 <__startup_64>:
-  ...
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Ross Zwisler <zwisler@chromium.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-30-keescook@chromium.org
+Fixes: b8649efad879 ("net/smc: fix sender_free computation") (net-tree)
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/vmlinux.lds.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/smc_cdc.c |  4 +---
+ net/smc/smc_cdc.h | 19 ++++++++++---------
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index b06d6e1..3a1a819 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -144,7 +144,7 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--	} :text = 0x9090
-+	} :text =0xcccc
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 8f691b5a44ddf..333e4353498f8 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -106,9 +106,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
  
- 	/* End of text section, which should occupy whole number of pages */
- 	_etext = .;
+ 	conn->tx_cdc_seq++;
+ 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
+-	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
+-			    &conn->local_tx_ctrl, conn);
+-	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
++	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
+ 	if (!rc)
+ 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 2377a51772d51..34d2e1450320a 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -186,26 +186,27 @@ static inline int smc_curs_diff_large(unsigned int size,
+ 
+ static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
+ 					  union smc_host_cursor *local,
++					  union smc_host_cursor *save,
+ 					  struct smc_connection *conn)
+ {
+-	union smc_host_cursor temp;
+-
+-	smc_curs_copy(&temp, local, conn);
+-	peer->count = htonl(temp.count);
+-	peer->wrap = htons(temp.wrap);
++	smc_curs_copy(save, local, conn);
++	peer->count = htonl(save->count);
++	peer->wrap = htons(save->wrap);
+ 	/* peer->reserved = htons(0); must be ensured by caller */
+ }
+ 
+ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+-				       struct smc_host_cdc_msg *local,
+-				       struct smc_connection *conn)
++				       struct smc_connection *conn,
++				       union smc_host_cursor *save)
+ {
++	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
++
+ 	peer->common.type = local->common.type;
+ 	peer->len = local->len;
+ 	peer->seqno = htons(local->seqno);
+ 	peer->token = htonl(local->token);
+-	smc_host_cursor_to_cdc(&peer->prod, &local->prod, conn);
+-	smc_host_cursor_to_cdc(&peer->cons, &local->cons, conn);
++	smc_host_cursor_to_cdc(&peer->prod, &local->prod, save, conn);
++	smc_host_cursor_to_cdc(&peer->cons, &local->cons, save, conn);
+ 	peer->prod_flags = local->prod_flags;
+ 	peer->conn_state_flags = local->conn_state_flags;
+ }
+-- 
+2.20.1
