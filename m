@@ -1,118 +1,147 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47844 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2366 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726808AbfK2OVo (ORCPT
+        by vger.kernel.org with ESMTP id S1727072AbfKVMtA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 29 Nov 2019 09:21:44 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xATEIamC044787
-        for <linux-s390@vger.kernel.org>; Fri, 29 Nov 2019 09:21:43 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wjvfgh896-1
+        Fri, 22 Nov 2019 07:49:00 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAMCl5Yg011090
+        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2019 07:48:59 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wdu63h2ry-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 29 Nov 2019 09:21:43 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 22 Nov 2019 07:48:59 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 29 Nov 2019 14:21:41 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH] KVM: s390: Add new reset vcpu API
-Date: Fri, 29 Nov 2019 09:21:22 -0500
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Fri, 22 Nov 2019 12:48:56 -0000
+Subject: Re: [PATCH v1 4/4] s390x: Testing the Subchannel I/O read
+References: <1573647799-30584-1-git-send-email-pmorel@linux.ibm.com>
+ <1573647799-30584-5-git-send-email-pmorel@linux.ibm.com>
+ <20191113140539.4d153d5f.cohuck@redhat.com>
+ <802c298d-d2da-83c4-c222-67bb78131988@linux.ibm.com>
+ <20191121170237.72e0bd45.cohuck@redhat.com>
+ <0c9d19ef-8ef7-0dab-b283-3db243b95476@linux.ibm.com>
+ <20191122115422.56019f03.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Fri, 22 Nov 2019 13:48:52 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191129142122.21528-1-frankja@linux.ibm.com>
+In-Reply-To: <20191122115422.56019f03.cohuck@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+Message-Id: <bcdd966d-b60d-471c-0c48-a7d0cd006e42@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, mihajlov@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-The architecture states that we need to reset local IRQs for all CPU
-resets. Because the old reset interface did not support the normal CPU
-reset we never did that.
 
-Now that we have a new interface, let's properly clear out local IRQs
-and let this commit be a reminder.
+On 2019-11-22 11:54, Cornelia Huck wrote:
+> On Fri, 22 Nov 2019 10:03:21 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>
+>> On 2019-11-21 17:02, Cornelia Huck wrote:
+>>> On Thu, 14 Nov 2019 11:11:18 +0100
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>   
+>>>> On 2019-11-13 14:05, Cornelia Huck wrote:
+>>>>> On Wed, 13 Nov 2019 13:23:19 +0100
+>>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>>>> - initializing the ORB pointing to a single READ CCW
+>>>>> Out of curiosity: Would using a NOP also be an option?
+>>>> It will work but will not be handled by this device, css.c intercept it
+>>>> in sch_handle_start_func_virtual.
+>>>>
+>>>> AFAIU If we want to have a really good testing environment, for driver
+>>>> testing for exemple, then it would be interesting to add a new
+>>>> do_subchannel_work callback like do_subchannel_work_emulation along with
+>>>> the _virtual and _paththrough variantes.
+>>>>
+>>>> Having a dedicated callback for emulation, we can answer to any CSS
+>>>> instructions and SSCH commands, including NOP and TIC.
+>>> I guess that depends on what you want to test; if you actually want to
+>>> test device emulation as used by virtio etc., you obviously want to go
+>>> through the existing _virtual callback :)
+>> The first goal is to test basic I/O from inside the kvm-unit-test,
+>> producing errors and see how the system respond to errors.
+>>
+>> In a standard system errors will be generated by QEMU analysing the I/O
+>> instruction after interception.
+>>
+>> In a secured guest, we expect the same errors, however we want to check
+>> this.
+> But we still get the intercepts for all I/O instructions, right? We
+> just get/inject the parameters in a slightly different way, IIUC.
+>
+> Not that I disagree with wanting to check this :)
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 25 ++++++++++++++++++++++++-
- include/uapi/linux/kvm.h |  7 +++++++
- 2 files changed, 31 insertions(+), 1 deletion(-)
+AFAIU the SE firmware, the SIE and KVM first handle the instruction 
+interception before it comes to the QEMU code.
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3d54f0..2f74ff46b176 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -529,6 +529,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_CMMA_MIGRATION:
- 	case KVM_CAP_S390_AIS:
- 	case KVM_CAP_S390_AIS_MIGRATION:
-+	case KVM_CAP_S390_VCPU_RESETS:
- 		r = 1;
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
-@@ -3293,6 +3294,25 @@ static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int kvm_arch_vcpu_ioctl_reset(struct kvm_vcpu *vcpu, unsigned long type)
-+{
-+	int rc = -EINVAL;
-+
-+	switch (type) {
-+	case KVM_S390_VCPU_RESET_NORMAL:
-+		rc = 0;
-+		kvm_clear_async_pf_completion_queue(vcpu);
-+		kvm_s390_clear_local_irqs(vcpu);
-+		break;
-+	case KVM_S390_VCPU_RESET_INITIAL:
-+		/* fallthrough */
-+	case KVM_S390_VCPU_RESET_CLEAR:
-+		rc = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		break;
-+	}
-+	return rc;
-+}
-+
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- {
- 	vcpu_load(vcpu);
-@@ -4364,7 +4384,10 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		break;
- 	}
- 	case KVM_S390_INITIAL_RESET:
--		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		arg = KVM_S390_VCPU_RESET_INITIAL;
-+		/* fallthrough */
-+	case KVM_S390_VCPU_RESET:
-+		r = kvm_arch_vcpu_ioctl_reset(vcpu, arg);
- 		break;
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 52641d8ca9e8..6da16b1f2c86 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1000,6 +1000,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_PMU_EVENT_FILTER 173
- #define KVM_CAP_ARM_IRQ_LINE_LAYOUT_2 174
- #define KVM_CAP_HYPERV_DIRECT_TLBFLUSH 175
-+#define KVM_CAP_S390_VCPU_RESETS 180
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -1461,6 +1462,12 @@ struct kvm_enc_region {
- /* Available with KVM_CAP_ARM_SVE */
- #define KVM_ARM_VCPU_FINALIZE	  _IOW(KVMIO,  0xc2, int)
- 
-+#define KVM_S390_VCPU_RESET_NORMAL	0
-+#define KVM_S390_VCPU_RESET_INITIAL	1
-+#define KVM_S390_VCPU_RESET_CLEAR	2
-+
-+#define KVM_S390_VCPU_RESET    _IO(KVMIO,   0xc3)
-+
- /* Secure Encrypted Virtualization command */
- enum sev_cmd_id {
- 	/* Guest initialization commands */
+There are two major changes with secure execution that we want to test, 
+SE firmware and SIE modifications.
+If the instruction is treated by QEMU, then hopefully we get the same 
+answer as without SE.
+
+
+>
+>> This PONG device is intended to be low level, no VIRTIO, and to allow
+>> basic I/O.
+> Ok, so this is designed to test basic channel I/O handling, not
+> necessarily if the guest has set up all its control structures
+> correctly?
+
+More than this it is intended, in the next version, to test answers to 
+bad configurations and wrong instruction's arguments.
+
+
+>
+>>> The actual motivation behind my question was:
+>>> Is it possible to e.g. throw NOP (or TIC, or something else not
+>>> device-specific) at a normal, existing virtio device for test purposes?
+>>> You'd end up testing the common emulation code without needing any
+>>> extra support in QEMU. No idea how useful that would be.
+>> Writing a VIRTIO driver inside the kvm-unit-test is something we can do
+>> in the future.
+>>
+>> As you said, the common code already handle NOP and TIC, the
+>> interpretation of the
+>> CCW chain, once the SSCH has been intercepted is done by QEMU.
+>> I do not think it would be different with SE.
+> Yes. You don't really need to get the virtio device up on the virtio
+> side; if recognizing the device correctly via senseID works and you
+> maybe can do some NOP/TIC commands, you might have a very basic test
+> without introducing a new device.
+
+Right, but the test is incomplete, as you said before, no write 
+operation with this procedure.
+
+
+>
+> Testing virtio-ccw via kvm-unit-tests is probably a good idea for the
+> future.
+>
+>> To sum-up:
+>>
+>> in kvm-unit-test: implement all I/O instructions and force instructions
+>> errors, like memory error, operand etc. and expect the right reaction of
+>> the system.
+>>
+>> in QEMU, add the necessary infrastructure to test this.
+> Sounds good to me.
+
+Thanks,
+
+I think the next version will make the purpose of all of it even more 
+obvious,
+and hopefully answers all your questions better.
+
+Best regards,
+
+Pierre
+
+>
 -- 
-2.20.1
+Pierre Morel
+IBM Lab Boeblingen
