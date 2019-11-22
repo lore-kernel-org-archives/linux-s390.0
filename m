@@ -1,144 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52574 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726024AbfKNKVV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:21:21 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAL5Dt114082
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:20 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92uk57q0-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:21:17 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:35 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 09/11] s390/qeth: remove VLAN tracking for L3 devices
-Date: Thu, 14 Nov 2019 11:19:22 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-10-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:58584 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728657AbfKVFwo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:52:44 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 184/219] net/smc: fix sender_free computation
+Date: Fri, 22 Nov 2019 00:48:36 -0500
+Message-Id: <20191122054911.1750-177-sashal@kernel.org>
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-Use vlan_for_each() instead of tracking each registered VID internally.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+[ Upstream commit b8649efad879c69c7ab1f19ce8814fcabef1f72b ]
+
+In some scenarios a separate consumer cursor update is necessary.
+The decision is made in smc_tx_consumer_cursor_update(). The
+sender_free computation could be wrong:
+
+The rx confirmed cursor is always smaller than or equal to the
+rx producer cursor. The parameters in the smc_curs_diff() call
+have to be exchanged, otherwise sender_free might even be negative.
+
+And if more data arrives local_rx_ctrl.prod might be updated, enabling
+a cursor difference between local_rx_ctrl.prod and rx confirmed cursor
+larger than the RMB size. This case is not covered by smc_curs_diff().
+Thus function smc_curs_diff_large() is introduced here.
+
+If a recvmsg() is processed in parallel, local_tx_ctrl.cons might
+change during smc_cdc_msg_send. Make sure rx_curs_confirmed is updated
+with the actually sent local_tx_ctrl.cons value.
+
+Fixes: e82f2e31f559 ("net/smc: optimize consumer cursor updates")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h    |  1 -
- drivers/s390/net/qeth_l3_main.c | 42 +++++++++------------------------
- 2 files changed, 11 insertions(+), 32 deletions(-)
+ net/smc/smc_cdc.c |  5 +++--
+ net/smc/smc_cdc.h | 26 +++++++++++++++++++++++++-
+ net/smc/smc_tx.c  |  3 ++-
+ 3 files changed, 30 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 52fd3c4bb132..f81f1523d528 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -824,7 +824,6 @@ struct qeth_card {
- 	struct workqueue_struct *event_wq;
- 	struct workqueue_struct *cmd_wq;
- 	wait_queue_head_t wait_q;
--	unsigned long active_vlans[BITS_TO_LONGS(VLAN_N_VID)];
- 	DECLARE_HASHTABLE(mac_htable, 4);
- 	DECLARE_HASHTABLE(ip_htable, 4);
- 	struct mutex ip_lock;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 1e060331a8cc..f4c65971321a 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1113,10 +1113,10 @@ qeth_diags_trace(struct qeth_card *card, enum qeth_diags_trace_cmds diags_cmd)
- 	return qeth_send_ipa_cmd(card, iob, qeth_diags_trace_cb, NULL);
- }
- 
--static void qeth_l3_add_mcast_rcu(struct net_device *dev,
--				  struct qeth_card *card)
-+static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index ed5dcf03fe0b6..8f691b5a44ddf 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -96,6 +96,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 		     struct smc_wr_buf *wr_buf,
+ 		     struct smc_cdc_tx_pend *pend)
  {
- 	struct qeth_ipaddr *tmp = NULL;
-+	struct qeth_card *card = arg;
- 	struct inet6_dev *in6_dev;
- 	struct in_device *in4_dev;
- 	struct qeth_ipaddr *ipm;
-@@ -1132,12 +1132,12 @@ static void qeth_l3_add_mcast_rcu(struct net_device *dev,
- 	if (!tmp)
- 		goto out;
++	union smc_host_cursor cfed;
+ 	struct smc_link *link;
+ 	int rc;
  
--	in4_dev = __in_dev_get_rcu(dev);
-+	in4_dev = __in_dev_get_rtnl(dev);
- 	if (!in4_dev)
- 		goto walk_ipv6;
+@@ -107,10 +108,10 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
+ 	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
+ 			    &conn->local_tx_ctrl, conn);
++	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
+ 	if (!rc)
+-		smc_curs_copy(&conn->rx_curs_confirmed,
+-			      &conn->local_tx_ctrl.cons, conn);
++		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
  
--	for (im4 = rcu_dereference(in4_dev->mc_list); im4 != NULL;
--	     im4 = rcu_dereference(im4->next_rcu)) {
-+	for (im4 = rtnl_dereference(in4_dev->mc_list); im4 != NULL;
-+	     im4 = rtnl_dereference(im4->next_rcu)) {
- 		tmp->u.a4.addr = im4->multiaddr;
- 		tmp->is_multicast = 1;
- 
-@@ -1195,25 +1195,7 @@ static void qeth_l3_add_mcast_rcu(struct net_device *dev,
- 
- out:
- 	kfree(tmp);
--}
--
--/* called with rcu_read_lock */
--static void qeth_l3_add_vlan_mc(struct qeth_card *card)
--{
--	u16 vid;
--
--	QETH_CARD_TEXT(card, 4, "admc6vl");
--
--	if (!qeth_is_supported(card, IPA_FULL_VLAN))
--		return;
--
--	for_each_set_bit(vid, card->active_vlans, VLAN_N_VID) {
--		struct net_device *netdev;
--
--		netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q),
--					      vid);
--		qeth_l3_add_mcast_rcu(netdev, card);
--	}
-+	return 0;
+ 	return rc;
+ }
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 934df4473a7ce..2377a51772d51 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -135,7 +135,9 @@ static inline void smc_curs_copy_net(union smc_cdc_cursor *tgt,
+ #endif
  }
  
- static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
-@@ -1221,7 +1203,7 @@ static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
- {
- 	struct qeth_card *card = dev->ml_priv;
- 
--	set_bit(vid, card->active_vlans);
-+	QETH_CARD_TEXT_(card, 4, "aid:%d", vid);
- 	return 0;
+-/* calculate cursor difference between old and new, where old <= new */
++/* calculate cursor difference between old and new, where old <= new and
++ * difference cannot exceed size
++ */
+ static inline int smc_curs_diff(unsigned int size,
+ 				union smc_host_cursor *old,
+ 				union smc_host_cursor *new)
+@@ -160,6 +162,28 @@ static inline int smc_curs_comp(unsigned int size,
+ 	return smc_curs_diff(size, old, new);
  }
  
-@@ -1231,8 +1213,6 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
- 	struct qeth_card *card = dev->ml_priv;
++/* calculate cursor difference between old and new, where old <= new and
++ * difference may exceed size
++ */
++static inline int smc_curs_diff_large(unsigned int size,
++				      union smc_host_cursor *old,
++				      union smc_host_cursor *new)
++{
++	if (old->wrap < new->wrap)
++		return min_t(int,
++			     (size - old->count) + new->count +
++			     (new->wrap - old->wrap - 1) * size,
++			     size);
++
++	if (old->wrap > new->wrap) /* wrap has switched from 0xffff to 0x0000 */
++		return min_t(int,
++			     (size - old->count) + new->count +
++			     (new->wrap + 0xffff - old->wrap) * size,
++			     size);
++
++	return max_t(int, 0, (new->count - old->count));
++}
++
+ static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
+ 					  union smc_host_cursor *local,
+ 					  struct smc_connection *conn)
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index f1f621675db01..0ecbbdc337b82 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -595,7 +595,8 @@ void smc_tx_consumer_update(struct smc_connection *conn, bool force)
+ 	if (to_confirm > conn->rmbe_update_limit) {
+ 		smc_curs_copy(&prod, &conn->local_rx_ctrl.prod, conn);
+ 		sender_free = conn->rmb_desc->len -
+-			      smc_curs_diff(conn->rmb_desc->len, &prod, &cfed);
++			      smc_curs_diff_large(conn->rmb_desc->len,
++						  &cfed, &prod);
+ 	}
  
- 	QETH_CARD_TEXT_(card, 4, "kid:%d", vid);
--
--	clear_bit(vid, card->active_vlans);
- 	return 0;
- }
- 
-@@ -1387,11 +1367,11 @@ static void qeth_l3_rx_mode_work(struct work_struct *work)
- 	QETH_CARD_TEXT(card, 3, "setmulti");
- 
- 	if (!card->options.sniffer) {
--		rcu_read_lock();
--		qeth_l3_add_mcast_rcu(card->dev, card);
-+		rtnl_lock();
-+		qeth_l3_add_mcast_rtnl(card->dev, 0, card);
- 		if (qeth_is_supported(card, IPA_FULL_VLAN))
--			qeth_l3_add_vlan_mc(card);
--		rcu_read_unlock();
-+			vlan_for_each(card->dev, qeth_l3_add_mcast_rtnl, card);
-+		rtnl_unlock();
- 
- 		hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
- 			switch (addr->disp_flag) {
+ 	if (conn->local_rx_ctrl.prod_flags.cons_curs_upd_req ||
 -- 
-2.17.1
+2.20.1
