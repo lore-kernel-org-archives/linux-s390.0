@@ -1,121 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40660 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388319AbfKEJ2i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:38 -0500
-Date: Tue, 05 Nov 2019 09:27:26 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] x86/mm: Report actual image regions in /proc/iomem
-In-Reply-To: <20191029211351.13243-29-keescook@chromium.org>
-References: <20191029211351.13243-29-keescook@chromium.org>
+Received: from mail.kernel.org ([198.145.29.99]:40426 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729476AbfKVGCA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:02:00 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 28/91] KVM: s390: unregister debug feature on failing arch init
+Date: Fri, 22 Nov 2019 01:00:26 -0500
+Message-Id: <20191122060129.4239-27-sashal@kernel.org>
+In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
+References: <20191122060129.4239-1-sashal@kernel.org>
 MIME-Version: 1.0
-Message-ID: <157294604609.29376.12550972363918870518.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Young <dyoung@redhat.com>, David Howells <dhowells@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Juergen Gross <jgross@suse.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Robert Richter <rrichter@marvell.com>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Michael Mueller <mimu@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
+From: Michael Mueller <mimu@linux.ibm.com>
 
-Commit-ID:     a329975491aafcb1fb6e2fad0de22cae5c16154f
-Gitweb:        https://git.kernel.org/tip/a329975491aafcb1fb6e2fad0de22cae5c16154f
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:50 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 19:02:25 +01:00
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-x86/mm: Report actual image regions in /proc/iomem
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-The resource reservations in /proc/iomem made for the kernel image did
-not reflect the gaps between text, rodata, and data. Add the "rodata"
-resource and update the start/end calculations to match the respective
-calls to free_kernel_image_pages().
+A related indication of the issue will be reported as kernel
+message.
 
-Before (booted with "nokaslr" for easier comparison):
-
-00100000-bffd9fff : System RAM
-  01000000-01e011d0 : Kernel code
-  01e011d1-025619bf : Kernel data
-  02a95000-035fffff : Kernel bss
-
-After:
-
-00100000-bffd9fff : System RAM
-  01000000-01e011d0 : Kernel code
-  02000000-023d4fff : Kernel rodata
-  02400000-025619ff : Kernel data
-  02a95000-035fffff : Kernel bss
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Robert Richter <rrichter@marvell.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-29-keescook@chromium.org
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/setup.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 77ea96b..591e885 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -143,6 +143,13 @@ struct boot_params boot_params;
- /*
-  * Machine setup..
-  */
-+static struct resource rodata_resource = {
-+	.name	= "Kernel rodata",
-+	.start	= 0,
-+	.end	= 0,
-+	.flags	= IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM
-+};
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 37c254677ccda..d8fd2eadcda7f 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -319,19 +319,30 @@ static void kvm_s390_cpu_feat_init(void)
+ 
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
 +
- static struct resource data_resource = {
- 	.name	= "Kernel data",
- 	.start	= 0,
-@@ -951,7 +958,9 @@ void __init setup_arch(char **cmdline_p)
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
  
- 	code_resource.start = __pa_symbol(_text);
- 	code_resource.end = __pa_symbol(_etext)-1;
--	data_resource.start = __pa_symbol(_etext);
-+	rodata_resource.start = __pa_symbol(__start_rodata);
-+	rodata_resource.end = __pa_symbol(__end_rodata)-1;
-+	data_resource.start = __pa_symbol(_sdata);
- 	data_resource.end = __pa_symbol(_edata)-1;
- 	bss_resource.start = __pa_symbol(__bss_start);
- 	bss_resource.end = __pa_symbol(__bss_stop)-1;
-@@ -1040,6 +1049,7 @@ void __init setup_arch(char **cmdline_p)
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
  
- 	/* after parse_early_param, so could debug it */
- 	insert_resource(&iomem_resource, &code_resource);
-+	insert_resource(&iomem_resource, &rodata_resource);
- 	insert_resource(&iomem_resource, &data_resource);
- 	insert_resource(&iomem_resource, &bss_resource);
+ 	kvm_s390_cpu_feat_init();
  
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
++
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
+ }
+ 
+ void kvm_arch_exit(void)
+-- 
+2.20.1
