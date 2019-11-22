@@ -1,60 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:38250 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726879AbfKKQ6S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 Nov 2019 11:58:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727356AbfKVFty (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:49:54 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 041/219] s390/zcrypt: make sysfs reset attribute trigger queue reset
+Date: Fri, 22 Nov 2019 00:46:13 -0500
+Message-Id: <20191122054911.1750-34-sashal@kernel.org>
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20191011000609.29728-1-keescook@chromium.org> <20191011000609.29728-12-keescook@chromium.org>
-In-Reply-To: <20191011000609.29728-12-keescook@chromium.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 11 Nov 2019 17:58:06 +0100
-Message-ID: <CAMuHMdXfPyti1wFBb0hhf3CeDSQ=zVv7cV-taeYCmDswMQkXPQ@mail.gmail.com>
-Subject: Re: [PATCH v2 11/29] vmlinux.lds.h: Replace RODATA with RO_DATA
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@alien8.de>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Will Deacon <will@kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, alpha <linux-alpha@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-c6x-dev@linux-c6x.org, Yoshinori Sato <ysato@users.sourceforge.jp>, Michal Simek <monstr@monstr.eu>, Parisc List <linux-parisc@vger.kernel.org>, linux-xtensa@linux-xtensa.org, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Hi Kees,
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-On Fri, Oct 11, 2019 at 2:07 AM Kees Cook <keescook@chromium.org> wrote:
-> There's no reason to keep the RODATA macro: replace the callers with
-> the expected RO_DATA macro.
->
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  arch/alpha/kernel/vmlinux.lds.S      | 2 +-
->  arch/ia64/kernel/vmlinux.lds.S       | 2 +-
->  arch/microblaze/kernel/vmlinux.lds.S | 2 +-
->  arch/mips/kernel/vmlinux.lds.S       | 2 +-
->  arch/um/include/asm/common.lds.S     | 2 +-
->  arch/xtensa/kernel/vmlinux.lds.S     | 2 +-
->  include/asm-generic/vmlinux.lds.h    | 4 +---
->  7 files changed, 7 insertions(+), 9 deletions(-)
+[ Upstream commit 42a87d4103ae365e18c3be1333592ab583b8ad9d ]
 
-Somehow you missed:
+Until now there is no way to reset a AP queue or card. Driving a card
+or queue offline and online again does only toggle the 'software'
+online state. The only way to trigger a (hardware) reset is by running
+hot-unplug/hot-plug for example on the HMC.
 
-    arch/m68k/kernel/vmlinux-std.lds:  RODATA
-    arch/m68k/kernel/vmlinux-sun3.lds:      RODATA
+This patch makes the queue reset attribute in sysfs writable.
+Writing into this attribute triggers a reset on the AP queue's state
+machine. So the AP queue is flushed and state machine runs through the
+initial states which cause a reset (PQAP(RAPQ)) and a re-registration
+to interrupts (PQAP(AQIC)) if available.
 
-Leading to build failures in next-20191111:
+The reset sysfs attribute is writable by root only. So only an
+administrator is allowed to initiate a reset of AP queues. Please note
+that the queue's counter values are left untouched by the reset.
 
-    /opt/cross/kisskb/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-ld:./arch/m68k/kernel/vmlinux.lds:29:
-syntax error
-    make[1]: *** [/kisskb/src/Makefile:1075: vmlinux] Error 1
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/crypto/ap_queue.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-Reported-by: noreply@ellerman.id.au
-http://kisskb.ellerman.id.au/kisskb/buildresult/14022846/
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index 0aa4b3ccc948c..576ac08777c50 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -14,6 +14,9 @@
+ #include <asm/facility.h>
+ 
+ #include "ap_bus.h"
++#include "ap_debug.h"
++
++static void __ap_flush_queue(struct ap_queue *aq);
+ 
+ /**
+  * ap_queue_enable_interruption(): Enable interruption on an AP queue.
+@@ -541,7 +544,25 @@ static ssize_t reset_show(struct device *dev,
+ 	return rc;
+ }
+ 
+-static DEVICE_ATTR_RO(reset);
++static ssize_t reset_store(struct device *dev,
++			   struct device_attribute *attr,
++			   const char *buf, size_t count)
++{
++	struct ap_queue *aq = to_ap_queue(dev);
++
++	spin_lock_bh(&aq->lock);
++	__ap_flush_queue(aq);
++	aq->state = AP_STATE_RESET_START;
++	ap_wait(ap_sm_event(aq, AP_EVENT_POLL));
++	spin_unlock_bh(&aq->lock);
++
++	AP_DBF(DBF_INFO, "reset queue=%02x.%04x triggered by user\n",
++	       AP_QID_CARD(aq->qid), AP_QID_QUEUE(aq->qid));
++
++	return count;
++}
++
++static DEVICE_ATTR_RW(reset);
+ 
+ static ssize_t interrupt_show(struct device *dev,
+ 			      struct device_attribute *attr, char *buf)
+-- 
+2.20.1
