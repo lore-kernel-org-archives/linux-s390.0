@@ -1,291 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20231 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728188AbfKDMrX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Nov 2019 07:47:23 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V7 4/6] mdev: introduce virtio device and its device ops
-Date: Mon,  4 Nov 2019 20:39:50 +0800
-Message-Id: <20191104123952.17276-5-jasowang@redhat.com>
-In-Reply-To: <20191104123952.17276-1-jasowang@redhat.com>
-References: <20191104123952.17276-1-jasowang@redhat.com>
+Received: from mail.kernel.org ([198.145.29.99]:55800 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727877AbfKVFu5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:50:57 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 093/219] KVM: s390: unregister debug feature on failing arch init
+Date: Fri, 22 Nov 2019 00:47:05 -0500
+Message-Id: <20191122054911.1750-86-sashal@kernel.org>
+In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
+References: <20191122054911.1750-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Michael Mueller <mimu@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-This patch implements basic support for mdev driver that supports
-virtio transport for kernel virtio driver.
+From: Michael Mueller <mimu@linux.ibm.com>
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
+
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
+
+A related indication of the issue will be reported as kernel
+message.
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/mdev/mdev_core.c    |  20 ++++
- drivers/vfio/mdev/mdev_private.h |   2 +
- include/linux/mdev.h             |   6 ++
- include/linux/mdev_virtio_ops.h  | 166 +++++++++++++++++++++++++++++++
- 4 files changed, 194 insertions(+)
- create mode 100644 include/linux/mdev_virtio_ops.h
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
-index 8d579d7ed82f..95ee4126ff9c 100644
---- a/drivers/vfio/mdev/mdev_core.c
-+++ b/drivers/vfio/mdev/mdev_core.c
-@@ -76,6 +76,26 @@ const struct mdev_vfio_device_ops *mdev_get_vfio_ops(str=
-uct mdev_device *mdev)
- }
- EXPORT_SYMBOL(mdev_get_vfio_ops);
-=20
-+/* Specify the virtio device ops for the mdev device, this
-+ * must be called during create() callback for virtio mdev device.
-+ */
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops)
-+{
-+=09mdev_set_class(mdev, MDEV_CLASS_ID_VIRTIO);
-+=09mdev->virtio_ops =3D virtio_ops;
-+}
-+EXPORT_SYMBOL(mdev_set_virtio_ops);
-+
-+/* Get the virtio device ops for the mdev device. */
-+const struct mdev_virtio_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev)
-+{
-+=09WARN_ON(mdev->class_id !=3D MDEV_CLASS_ID_VIRTIO);
-+=09return mdev->virtio_ops;
-+}
-+EXPORT_SYMBOL(mdev_get_virtio_ops);
-+
- struct device *mdev_dev(struct mdev_device *mdev)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3c317bc6b7997..db3196aebaa1c 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -416,19 +416,30 @@ static void kvm_s390_cpu_feat_init(void)
+ 
+ int kvm_arch_init(void *opaque)
  {
- =09return &mdev->dev;
-diff --git a/drivers/vfio/mdev/mdev_private.h b/drivers/vfio/mdev/mdev_priv=
-ate.h
-index 411227373625..2c74dd032409 100644
---- a/drivers/vfio/mdev/mdev_private.h
-+++ b/drivers/vfio/mdev/mdev_private.h
-@@ -11,6 +11,7 @@
- #define MDEV_PRIVATE_H
-=20
- #include <linux/mdev_vfio_ops.h>
-+#include <linux/mdev_virtio_ops.h>
-=20
- int  mdev_bus_register(void);
- void mdev_bus_unregister(void);
-@@ -38,6 +39,7 @@ struct mdev_device {
- =09u16 class_id;
- =09union {
- =09=09const struct mdev_vfio_device_ops *vfio_ops;
-+=09=09const struct mdev_virtio_device_ops *virtio_ops;
- =09};
- };
-=20
-diff --git a/include/linux/mdev.h b/include/linux/mdev.h
-index 9e37506d1987..f3d75a60c2b5 100644
---- a/include/linux/mdev.h
-+++ b/include/linux/mdev.h
-@@ -17,6 +17,7 @@
-=20
- struct mdev_device;
- struct mdev_vfio_device_ops;
-+struct mdev_virtio_device_ops;
-=20
- /*
-  * Called by the parent device driver to set the device which represents
-@@ -112,6 +113,10 @@ void mdev_set_class(struct mdev_device *mdev, u16 id);
- void mdev_set_vfio_ops(struct mdev_device *mdev,
- =09=09       const struct mdev_vfio_device_ops *vfio_ops);
- const struct mdev_vfio_device_ops *mdev_get_vfio_ops(struct mdev_device *m=
-dev);
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops);
-+const struct mdev_virtio_device_ops *
-+mdev_get_virtio_ops(struct mdev_device *mdev);
-=20
- extern struct bus_type mdev_bus_type;
-=20
-@@ -127,6 +132,7 @@ struct mdev_device *mdev_from_dev(struct device *dev);
-=20
- enum {
- =09MDEV_CLASS_ID_VFIO =3D 1,
-+=09MDEV_CLASS_ID_VIRTIO =3D 2,
- =09/* New entries must be added here */
- };
-=20
-diff --git a/include/linux/mdev_virtio_ops.h b/include/linux/mdev_virtio_op=
-s.h
-new file mode 100644
-index 000000000000..0dcae7fa31e5
---- /dev/null
-+++ b/include/linux/mdev_virtio_ops.h
-@@ -0,0 +1,166 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Virtio mediated device driver
-+ *
-+ * Copyright 2019, Red Hat Corp.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ */
-+#ifndef MDEV_VIRTIO_OPS_H
-+#define MDEV_VIRTIO_OPS_H
++	int rc;
 +
-+#include <linux/interrupt.h>
-+#include <linux/mdev.h>
-+#include <uapi/linux/vhost.h>
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
+ 
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
+ 
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
 +
-+#define VIRTIO_MDEV_DEVICE_API_STRING=09=09"virtio-mdev"
-+#define VIRTIO_MDEV_F_VERSION_1 0x1
-+
-+struct virtio_mdev_callback {
-+=09irqreturn_t (*callback)(void *data);
-+=09void *private;
-+};
-+
-+/**
-+ * struct mdev_virtio_device_ops - Structure to be registered for each
-+ * mdev device to register the device for virtio/vhost drivers.
-+ *
-+ * The device ops that is supported by VIRTIO_MDEV_F_VERSION_1, the
-+ * callbacks are mandatory unless explicity mentioned.
-+ *
-+ * @get_mdev_features:=09=09Get a set of bits that demonstrate
-+ *=09=09=09=09the capability of the mdev device. New
-+ *=09=09=09=09feature bits must be added when
-+ *=09=09=09=09introducing new device ops. This
-+ *=09=09=09=09allows the device ops to be extended
-+ *=09=09=09=09(one feature could have N new ops).
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns the mdev features (API) support by
-+ *=09=09=09=09the device.
-+ * @get_mdev_features:=09=09Set a set of features that will be
-+ *=09=09=09=09used by the driver.
-+ *=09=09=09=09@features: features used by the driver
-+ *=09=09=09=09Returns bollean: whether the features
-+ *=09=09=09=09is accepted by the device.
-+ * @set_vq_address:=09=09Set the address of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@desc_area: address of desc area
-+ *=09=09=09=09@driver_area: address of driver area
-+ *=09=09=09=09@device_area: address of device area
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_vq_num:=09=09=09Set the size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@num: the size of virtqueue
-+ * @kick_vq:=09=09=09Kick the virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ * @set_vq_cb:=09=09=09Set the interrupt callback function for
-+ *=09=09=09=09a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @set_vq_ready:=09=09Set ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@ready: ready (true) not ready(false)
-+ * @get_vq_ready:=09=09Get ready status for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns boolean: ready (true) or not (false)
-+ * @set_vq_state:=09=09Set the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09@state: virtqueue state (last_avail_idx)
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @get_vq_state:=09=09Get the state for a virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@idx: virtqueue index
-+ *=09=09=09=09Returns virtqueue state (last_avail_idx)
-+ * @get_vq_align:=09=09Get the virtqueue align requirement
-+ *=09=09=09=09for the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns virtqueue algin requirement
-+ * @get_features:=09=09Get virtio features supported by the device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns the virtio features support by the
-+ *=09=09=09=09device
-+ * @set_features:=09=09Set virtio features supported by the driver
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@features: feature support by the driver
-+ *=09=09=09=09Returns integer: success (0) or error (< 0)
-+ * @set_config_cb:=09=09Set the config interrupt callback
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@cb: virtio-mdev interrupt callback structure
-+ * @get_vq_num_max:=09=09Get the max size of virtqueue
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u16: max size of virtqueue
-+ * @get_device_id:=09=09Get virtio device id
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio device id
-+ * @get_vendor_id:=09=09Get id for the vendor that provides this device
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: virtio vendor id
-+ * @get_status:=09=09=09Get the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u8: virtio device status
-+ * @set_status:=09=09=09Set the device status
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@status: virtio device status
-+ * @get_config:=09=09=09Read from device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to read to
-+ *=09=09=09=09@len: the length to read from
-+ *=09=09=09=09configration space
-+ * @set_config:=09=09=09Write to device specific configuration space
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09@offset: offset from the beginning of
-+ *=09=09=09=09configuration space
-+ *=09=09=09=09@buf: buffer used to write from
-+ *=09=09=09=09@len: the length to write to
-+ *=09=09=09=09configration space
-+ * @get_generation:=09=09Get device config generaton (optional)
-+ *=09=09=09=09@mdev: mediated device
-+ *=09=09=09=09Returns u32: device generation
-+ */
-+struct mdev_virtio_device_ops {
-+=09/* Mdev device ops */
-+=09u64 (*get_mdev_features)(struct mdev_device *mdev);
-+=09bool (*set_mdev_feature)(struct mdev_device *mdev);
-+=09/* Virtqueue ops */
-+=09int (*set_vq_address)(struct mdev_device *mdev,
-+=09=09=09      u16 idx, u64 desc_area, u64 driver_area,
-+=09=09=09      u64 device_area);
-+=09void (*set_vq_num)(struct mdev_device *mdev, u16 idx, u32 num);
-+=09void (*kick_vq)(struct mdev_device *mdev, u16 idx);
-+=09void (*set_vq_cb)(struct mdev_device *mdev, u16 idx,
-+=09=09=09  struct virtio_mdev_callback *cb);
-+=09void (*set_vq_ready)(struct mdev_device *mdev, u16 idx, bool ready);
-+=09bool (*get_vq_ready)(struct mdev_device *mdev, u16 idx);
-+=09int (*set_vq_state)(struct mdev_device *mdev, u16 idx, u64 state);
-+=09u64 (*get_vq_state)(struct mdev_device *mdev, u16 idx);
-+
-+=09/* Virtio device ops */
-+=09u16 (*get_vq_align)(struct mdev_device *mdev);
-+=09u64 (*get_features)(struct mdev_device *mdev);
-+=09int (*set_features)(struct mdev_device *mdev, u64 features);
-+=09void (*set_config_cb)(struct mdev_device *mdev,
-+=09=09=09      struct virtio_mdev_callback *cb);
-+=09u16 (*get_vq_num_max)(struct mdev_device *mdev);
-+=09u32 (*get_device_id)(struct mdev_device *mdev);
-+=09u32 (*get_vendor_id)(struct mdev_device *mdev);
-+=09u8 (*get_status)(struct mdev_device *mdev);
-+=09void (*set_status)(struct mdev_device *mdev, u8 status);
-+=09void (*get_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   void *buf, unsigned int len);
-+=09void (*set_config)(struct mdev_device *mdev, unsigned int offset,
-+=09=09=09   const void *buf, unsigned int len);
-+=09u32 (*get_generation)(struct mdev_device *mdev);
-+};
-+
-+void mdev_set_virtio_ops(struct mdev_device *mdev,
-+=09=09=09 const struct mdev_virtio_device_ops *virtio_ops);
-+
-+#endif
---=20
-2.19.1
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
+ }
+ 
+ void kvm_arch_exit(void)
+-- 
+2.20.1
