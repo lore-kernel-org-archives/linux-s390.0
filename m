@@ -1,91 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-202.mailbox.org ([80.241.56.172]:46354 "EHLO
-        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725880AbfKQBUX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 16 Nov 2019 20:20:23 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v17 05/13] namei: LOOKUP_NO_SYMLINKS: block symlink resolution
-Date: Sun, 17 Nov 2019 12:17:05 +1100
-Message-Id: <20191117011713.13032-6-cyphar@cyphar.com>
-In-Reply-To: <20191117011713.13032-1-cyphar@cyphar.com>
-References: <20191117011713.13032-1-cyphar@cyphar.com>
+Received: from mail.kernel.org ([198.145.29.99]:50686 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729316AbfKVGN2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:13:28 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 23/68] KVM: s390: unregister debug feature on failing arch init
+Date: Fri, 22 Nov 2019 01:12:16 -0500
+Message-Id: <20191122061301.4947-22-sashal@kernel.org>
+In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
+References: <20191122061301.4947-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Michael Mueller <mimu@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-/* Background. */
-Userspace cannot easily resolve a path without resolving symlinks, and
-would have to manually resolve each path component with O_PATH and
-O_NOFOLLOW. This is clearly inefficient, and can be fairly easy to screw
-up (resulting in possible security bugs). Linus has mentioned that Git
-has a particular need for this kind of flag[1]. It also resolves a
-fairly long-standing perceived deficiency in O_NOFOLLOw -- that it only
-blocks the opening of trailing symlinks.
+From: Michael Mueller <mimu@linux.ibm.com>
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[2] (which was a
-variation on David Drysdale's O_BENEATH patchset[3], which in turn was
-based on the Capsicum project[4]).
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-/* Userspace API. */
-LOOKUP_NO_SYMLINKS will be exposed to userspace through openat2(2).
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_SYMLINKS applies to all components of the path.
+A related indication of the issue will be reported as kernel
+message.
 
-With LOOKUP_NO_SYMLINKS, any symlink path component encountered during
-path resolution will yield -ELOOP. If the trailing component is a
-symlink (and no other components were symlinks), then O_PATH|O_NOFOLLOW
-will not error out and will instead provide a handle to the trailing
-symlink -- without resolving it.
-
-/* Testing. */
-LOOKUP_NO_SYMLINKS is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/CA+55aFyOKM7DW7+0sdDFKdZFXgptb5r1id9=Wvhd8AgSP7qjwQ@mail.gmail.com/
-[2]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[3]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[4]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c            | 3 +++
- include/linux/namei.h | 3 +++
- 2 files changed, 6 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 74574a69a614..303731935eb2 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -1052,6 +1052,9 @@ const char *get_link(struct nameidata *nd)
- 	int error;
- 	const char *res;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 3e46f62d32adf..b4032d625d225 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -185,17 +185,28 @@ void kvm_arch_hardware_unsetup(void)
  
-+	if (unlikely(nd->flags & LOOKUP_NO_SYMLINKS))
-+		return ERR_PTR(-ELOOP);
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
 +
- 	if (!(nd->flags & LOOKUP_RCU)) {
- 		touch_atime(&last->link);
- 		cond_resched();
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 758e9b47db6f..0d86e75c04a7 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -39,6 +39,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_ROOT		0x2000
- #define LOOKUP_ROOT_GRABBED	0x0008
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
  
-+/* Scoping flags for lookup. */
-+#define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
+-		return -ENOMEM;
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
 +
- extern int path_pts(struct path *path);
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
+ }
  
- extern int user_path_at_empty(int, const char __user *, unsigned, struct path *, int *empty);
+ void kvm_arch_exit(void)
 -- 
-2.24.0
+2.20.1
