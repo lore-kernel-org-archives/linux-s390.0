@@ -1,87 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40642 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388128AbfKEJ2N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:13 -0500
-Date: Tue, 05 Nov 2019 09:27:30 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] x86/vmlinux: Move EXCEPTION_TABLE to RO_DATA segment
-In-Reply-To: <20191029211351.13243-17-keescook@chromium.org>
-References: <20191029211351.13243-17-keescook@chromium.org>
+Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727175AbfKVF5s (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:48 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 108/127] net/smc: prevent races between smc_lgr_terminate() and smc_conn_free()
+Date: Fri, 22 Nov 2019 00:55:26 -0500
+Message-Id: <20191122055544.3299-107-sashal@kernel.org>
+In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
+References: <20191122055544.3299-1-sashal@kernel.org>
 MIME-Version: 1.0
-Message-ID: <157294605067.29376.15944354524301929135.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Ross Zwisler <zwisler@chromium.org>, Segher Boessenkool <segher@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Thomas Lendacky <Thomas.Lendacky@amd.com>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-Commit-ID:     f0d7ee17d57c7a8510518a1e60366d053e2f3ff5
-Gitweb:        https://git.kernel.org/tip/f0d7ee17d57c7a8510518a1e60366d053e2f3ff5
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:38 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 17:55:02 +01:00
+[ Upstream commit 77f838ace755d2f466536c44dac6c856f62cd901 ]
 
-x86/vmlinux: Move EXCEPTION_TABLE to RO_DATA segment
+To prevent races between smc_lgr_terminate() and smc_conn_free() add an
+extra check of the lgr field before accessing it, and cancel a delayed
+free_work when a new smc connection is created.
+This fixes the problem that free_work cleared the lgr variable but
+smc_lgr_terminate() or smc_conn_free() still access it in parallel.
 
-The exception table was needlessly marked executable. In preparation
-for execute-only memory, move the table into the RO_DATA segment via
-the new macro that can be used by any architectures that want to make
-a similar consolidation.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Ross Zwisler <zwisler@chromium.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-17-keescook@chromium.org
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/vmlinux.lds.S | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/smc/smc_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index a1a758e..b06d6e1 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -22,6 +22,7 @@
- #endif
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index f04a037dc9677..0de788fa43e95 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -103,6 +103,8 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	struct smc_link_group *lgr = conn->lgr;
+ 	int reduced = 0;
  
- #define EMITS_PT_NOTE
-+#define RO_EXCEPTION_TABLE_ALIGN	16
- 
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/asm-offsets.h>
-@@ -145,8 +146,6 @@ SECTIONS
- #endif
- 	} :text = 0x9090
- 
--	EXCEPTION_TABLE(16)
--
- 	/* End of text section, which should occupy whole number of pages */
- 	_etext = .;
- 	. = ALIGN(PAGE_SIZE);
++	if (!lgr)
++		return;
+ 	write_lock_bh(&lgr->conns_lock);
+ 	if (conn->alert_token_local) {
+ 		reduced = 1;
+@@ -431,6 +433,8 @@ int smc_conn_create(struct smc_sock *smc, __be32 peer_in_addr,
+ 			local_contact = SMC_REUSE_CONTACT;
+ 			conn->lgr = lgr;
+ 			smc_lgr_register_conn(conn); /* add smc conn to lgr */
++			if (delayed_work_pending(&lgr->free_work))
++				cancel_delayed_work(&lgr->free_work);
+ 			write_unlock_bh(&lgr->conns_lock);
+ 			break;
+ 		}
+-- 
+2.20.1
