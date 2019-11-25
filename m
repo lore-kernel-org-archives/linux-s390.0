@@ -1,70 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63332 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726575AbfKRIgL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Nov 2019 03:36:11 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAI8WRB7047303
-        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:10 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wayfmkp5g-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 18 Nov 2019 03:36:10 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 18 Nov 2019 08:36:07 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/5] KVM: s390: fixes and enhancements for 5.5
-Date: Mon, 18 Nov 2019 09:35:57 +0100
+Received: from foss.arm.com ([217.140.110.172]:44392 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726990AbfKYE1h (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 24 Nov 2019 23:27:37 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V10] mm/debug: Add tests validating architecture page
+ table helpers
+References: <1574227906-20550-1-git-send-email-anshuman.khandual@arm.com>
+Message-ID: <d20b95b2-369c-bcb8-3bf0-f7ce32d0fb12@arm.com>
+Date: Mon, 25 Nov 2019 09:58:06 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20191118083602.15835-1-borntraeger@de.ibm.com>
+In-Reply-To: <1574227906-20550-1-git-send-email-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
+To: linux-mm@kvack.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-Paolo, Radim,
+On 11/20/2019 11:01 AM, Anshuman Khandual wrote:
+> This adds tests which will validate architecture page table helpers and
+> other accessors in their compliance with expected generic MM semantics.
+> This will help various architectures in validating changes to existing
+> page table helpers or addition of new ones.
+> 
+> This test covers basic page table entry transformations including but not
+> limited to old, young, dirty, clean, write, write protect etc at various
+> level along with populating intermediate entries with next page table page
+> and validating them.
+> 
+> Test page table pages are allocated from system memory with required size
+> and alignments. The mapped pfns at page table levels are derived from a
+> real pfn representing a valid kernel text symbol. This test gets called
+> right after page_alloc_init_late().
+> 
+> This gets build and run when CONFIG_DEBUG_VM_PGTABLE is selected along with
+> CONFIG_VM_DEBUG. Architectures willing to subscribe this test also need to
+> select CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE which for now is limited to x86 and
+> arm64. Going forward, other architectures too can enable this after fixing
+> build or runtime problems (if any) with their page table helpers.
+> 
+> Folks interested in making sure that a given platform's page table helpers
+> conform to expected generic MM semantics should enable the above config
+> which will just trigger this test during boot. Any non conformity here will
+> be reported as an warning which would need to be fixed. This test will help
+> catch any changes to the agreed upon semantics expected from generic MM and
+> enable platforms to accommodate it thereafter.
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Steven Price <Steven.Price@arm.com>
+> Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Sri Krishna chowdary <schowdary@nvidia.com>
+> Cc: Dave Hansen <dave.hansen@intel.com>
+> Cc: Russell King - ARM Linux <linux@armlinux.org.uk>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Vineet Gupta <vgupta@synopsys.com>
+> Cc: James Hogan <jhogan@kernel.org>
+> Cc: Paul Burton <paul.burton@mips.com>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Kirill A. Shutemov <kirill@shutemov.name>
+> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Cc: Ingo Molnar <mingo@kernel.org>
+> Cc: linux-snps-arc@lists.infradead.org
+> Cc: linux-mips@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-s390@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: sparclinux@vger.kernel.org
+> Cc: x86@kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> 
+> Tested-by: Christophe Leroy <christophe.leroy@c-s.fr>		#PPC32
+> Reviewed-by: Ingo Molnar <mingo@kernel.org>
+> Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+> This adds a test validation for architecture exported page table helpers.
+> Patch adds basic transformation tests at various levels of the page table.
+> 
+> This test was originally suggested by Catalin during arm64 THP migration
+> RFC discussion earlier. Going forward it can include more specific tests
+> with respect to various generic MM functions like THP, HugeTLB etc and
+> platform specific tests.
+> 
+> https://lore.kernel.org/linux-mm/20190628102003.GA56463@arrakis.emea.arm.com/
+> 
+> Needs to be applied on linux-next (next-20191108).
+> 
+> Changes in V10:
+> 
+> - Always enable DEBUG_VM_PGTABLE when DEBUG_VM is enabled per Ingo
+> - Added tags from Ingo
 
-everybody is busy on the ultravisor related things, so only a small
-number of changes for s390 for 5.5.
+Hello Andrew,
 
-The following changes since commit 54ecb8f7028c5eb3d740bb82b0f1d90f2df63c5c:
+There has not been any further comments on the previous version (V9) or this version
+(V10) of the patch which accommodated a comment from Ingo Molnar regarding making
+DEBUG_VM_PGTABLE always enabled when DEBUG_VM is selected. If this version looks okay,
+then would you please consider merging ? But if there is anything which still needs
+to be improved, please do let me know. I will try to incorporate that. Thank you.
 
-  Linux 5.4-rc1 (2019-09-30 10:35:40 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.5-1
-
-for you to fetch changes up to c7b7de63124645089ccf9900b9e5ea08059ccae0:
-
-  KVM: s390: Do not yield when target is already running (2019-10-10 13:18:40 +0200)
-
-----------------------------------------------------------------
-KVM: s390: small fixes and enhancements
-
-- selftest improvements
-- yield improvements
-- cleanups
-
-----------------------------------------------------------------
-Christian Borntraeger (3):
-      selftests: kvm: make syncregs more reliable on s390
-      KVM: s390: count invalid yields
-      KVM: s390: Do not yield when target is already running
-
-Janosch Frank (1):
-      KVM: s390: Cleanup kvm_arch_init error path
-
-Thomas Huth (1):
-      KVM: s390: Remove unused parameter from __inject_sigp_restart()
-
- arch/s390/include/asm/kvm_host.h                   |  1 +
- arch/s390/kvm/diag.c                               | 22 ++++++++++++++++++----
- arch/s390/kvm/interrupt.c                          |  5 ++---
- arch/s390/kvm/kvm-s390.c                           | 19 ++++++++-----------
- tools/testing/selftests/kvm/s390x/sync_regs_test.c | 15 +++++++++------
- 5 files changed, 38 insertions(+), 24 deletions(-)
+- Anshuman
