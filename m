@@ -1,391 +1,467 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:40653 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388319AbfKEJ2X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:28:23 -0500
-Date: Tue, 05 Nov 2019 09:27:31 -0000
-From: "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: x86/build] vmlinux.lds.h: Replace RW_DATA_SECTION with RW_DATA
-In-Reply-To: <20191029211351.13243-14-keescook@chromium.org>
-References: <20191029211351.13243-14-keescook@chromium.org>
-MIME-Version: 1.0
-Message-ID: <157294605183.29376.4264994567912835871.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47284 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728056AbfKZOlk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 Nov 2019 09:41:40 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAQEZeMk032703
+        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:39 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wfju9jq4w-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:38 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
+        Tue, 26 Nov 2019 14:41:37 -0000
+From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Subject: [PATCH 3/5] lib/zlib: Add s390 hardware support for kernel zlib_inflate
+Date: Tue, 26 Nov 2019 15:41:28 +0100
+In-Reply-To: <20191126144130.75710-1-zaslonko@linux.ibm.com>
+References: <20191126144130.75710-1-zaslonko@linux.ibm.com>
+Message-Id: <20191126144130.75710-4-zaslonko@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>, Borislav Petkov <bp@suse.de>, Heiko Carstens <heiko.carstens@de.ibm.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Dave Hansen <dave.hansen@linux.intel.com>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Rick Edgecombe <rick.p.edgecombe@intel.com>, Segher Boessenkool <segher@kernel.crashing.org>, Will Deacon <will@kernel.org>, x86-ml <x86@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The following commit has been merged into the x86/build branch of tip:
+Add decompression functions to zlib_dfltcc library.
+Update zlib_inflate functions with the hooks for s390 hardware support
+and adjust workspace structures with extra parameter lists required
+for hardware inflate decompression.
 
-Commit-ID:     c9174047b48d700a785b633319dd7d27288b86be
-Gitweb:        https://git.kernel.org/tip/c9174047b48d700a785b633319dd7d27288b86be
-Author:        Kees Cook <keescook@chromium.org>
-AuthorDate:    Tue, 29 Oct 2019 14:13:35 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 04 Nov 2019 15:57:41 +01:00
-
-vmlinux.lds.h: Replace RW_DATA_SECTION with RW_DATA
-
-Rename RW_DATA_SECTION to RW_DATA. (Calling this a "section" is a lie,
-since it's multiple sections and section flags cannot be applied to
-the macro.)
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com> # s390
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: x86-ml <x86@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Link: https://lkml.kernel.org/r/20191029211351.13243-14-keescook@chromium.org
+Co-developed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
 ---
- arch/alpha/kernel/vmlinux.lds.S      | 2 +-
- arch/arc/kernel/vmlinux.lds.S        | 2 +-
- arch/arm/kernel/vmlinux-xip.lds.S    | 2 +-
- arch/arm/kernel/vmlinux.lds.S        | 2 +-
- arch/arm64/kernel/vmlinux.lds.S      | 2 +-
- arch/csky/kernel/vmlinux.lds.S       | 2 +-
- arch/h8300/kernel/vmlinux.lds.S      | 2 +-
- arch/hexagon/kernel/vmlinux.lds.S    | 2 +-
- arch/m68k/kernel/vmlinux-nommu.lds   | 2 +-
- arch/m68k/kernel/vmlinux-std.lds     | 2 +-
- arch/m68k/kernel/vmlinux-sun3.lds    | 2 +-
- arch/microblaze/kernel/vmlinux.lds.S | 2 +-
- arch/nds32/kernel/vmlinux.lds.S      | 2 +-
- arch/nios2/kernel/vmlinux.lds.S      | 2 +-
- arch/openrisc/kernel/vmlinux.lds.S   | 2 +-
- arch/parisc/kernel/vmlinux.lds.S     | 2 +-
- arch/riscv/kernel/vmlinux.lds.S      | 2 +-
- arch/s390/kernel/vmlinux.lds.S       | 2 +-
- arch/sh/kernel/vmlinux.lds.S         | 2 +-
- arch/sparc/kernel/vmlinux.lds.S      | 2 +-
- arch/unicore32/kernel/vmlinux.lds.S  | 2 +-
- arch/xtensa/kernel/vmlinux.lds.S     | 2 +-
- include/asm-generic/vmlinux.lds.h    | 4 ++--
- 23 files changed, 24 insertions(+), 24 deletions(-)
+ lib/Kconfig                      |   8 ++
+ lib/decompress_inflate.c         |  13 +++
+ lib/zlib_dfltcc/Makefile         |   2 +-
+ lib/zlib_dfltcc/dfltcc.h         |  28 ++++++
+ lib/zlib_dfltcc/dfltcc_inflate.c | 143 +++++++++++++++++++++++++++++++
+ lib/zlib_inflate/inflate.c       |  32 +++++--
+ lib/zlib_inflate/inflate.h       |   8 ++
+ lib/zlib_inflate/infutil.h       |  18 +++-
+ 8 files changed, 241 insertions(+), 11 deletions(-)
+ create mode 100644 lib/zlib_dfltcc/dfltcc_inflate.c
 
-diff --git a/arch/alpha/kernel/vmlinux.lds.S b/arch/alpha/kernel/vmlinux.lds.S
-index af41181..edc45f4 100644
---- a/arch/alpha/kernel/vmlinux.lds.S
-+++ b/arch/alpha/kernel/vmlinux.lds.S
-@@ -50,7 +50,7 @@ SECTIONS
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 7ccaa54006c3..a29264d6e98d 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -292,6 +292,14 @@ config ZLIB_DFLTCC_DEFLATE
+ 	help
+ 	 Enable s390x hardware support for zlib deflate in the kernel.
  
- 	_sdata = .;	/* Start of rw data section */
- 	_data = .;
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
++config ZLIB_DFLTCC_INFLATE
++	def_bool y
++	depends on ZLIB_DFLTCC && ZLIB_INFLATE
++	prompt "Enable s390x hardware support for zlib inflate functions"
++	help
++	 Enable s390x hardware support for zlib inflate in the kernel.
++
++
+ config LZO_COMPRESS
+ 	tristate
  
- 	.got : {
- 		*(.got)
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index 7d1d270..54139a6 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -101,7 +101,7 @@ SECTIONS
- 	 * 1. this is .data essentially
- 	 * 2. THREAD_SIZE for init.task, must be kernel-stk sz aligned
- 	 */
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
+diff --git a/lib/decompress_inflate.c b/lib/decompress_inflate.c
+index 63b4b7eee138..523651e23c06 100644
+--- a/lib/decompress_inflate.c
++++ b/lib/decompress_inflate.c
+@@ -10,6 +10,10 @@
+ #include "zlib_inflate/inftrees.c"
+ #include "zlib_inflate/inffast.c"
+ #include "zlib_inflate/inflate.c"
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++#include "zlib_dfltcc/dfltcc.c"
++#include "zlib_dfltcc/dfltcc_inflate.c"
++#endif
  
- 	_edata = .;
- 
-diff --git a/arch/arm/kernel/vmlinux-xip.lds.S b/arch/arm/kernel/vmlinux-xip.lds.S
-index d2a9651..21b8b27 100644
---- a/arch/arm/kernel/vmlinux-xip.lds.S
-+++ b/arch/arm/kernel/vmlinux-xip.lds.S
-@@ -112,7 +112,7 @@ SECTIONS
- 
- 	. = ALIGN(THREAD_SIZE);
- 	_sdata = .;
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	.data.ro_after_init : AT(ADDR(.data.ro_after_init) - LOAD_OFFSET) {
- 		*(.data..ro_after_init)
+ #else /* STATIC */
+ /* initramfs et al: linked */
+@@ -76,7 +80,12 @@ STATIC int INIT __gunzip(unsigned char *buf, long len,
  	}
-diff --git a/arch/arm/kernel/vmlinux.lds.S b/arch/arm/kernel/vmlinux.lds.S
-index 068db68..319ccb1 100644
---- a/arch/arm/kernel/vmlinux.lds.S
-+++ b/arch/arm/kernel/vmlinux.lds.S
-@@ -141,7 +141,7 @@ SECTIONS
- 	__init_end = .;
  
- 	_sdata = .;
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
+ 	strm->workspace = malloc(flush ? zlib_inflate_workspacesize() :
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++	/* Always allocate the full workspace for DFLTCC */
++				 zlib_inflate_workspacesize());
++#else
+ 				 sizeof(struct inflate_state));
++#endif
+ 	if (strm->workspace == NULL) {
+ 		error("Out of memory while allocating workspace");
+ 		goto gunzip_nomem4;
+@@ -123,10 +132,14 @@ STATIC int INIT __gunzip(unsigned char *buf, long len,
  
- 	BSS_SECTION(0, 0, 0)
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index e7dafc2..a4b3e6c 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -214,7 +214,7 @@ SECTIONS
+ 	rc = zlib_inflateInit2(strm, -MAX_WBITS);
  
- 	_data = .;
- 	_sdata = .;
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_ALIGN)
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++	/* Always keep the window for DFLTCC */
++#else
+ 	if (!flush) {
+ 		WS(strm)->inflate_state.wsize = 0;
+ 		WS(strm)->inflate_state.window = NULL;
+ 	}
++#endif
  
- 	/*
- 	 * Data written with the MMU off but read with the MMU on requires
-diff --git a/arch/csky/kernel/vmlinux.lds.S b/arch/csky/kernel/vmlinux.lds.S
-index 8598bd7..2ff37be 100644
---- a/arch/csky/kernel/vmlinux.lds.S
-+++ b/arch/csky/kernel/vmlinux.lds.S
-@@ -50,7 +50,7 @@ SECTIONS
+ 	while (rc == Z_OK) {
+ 		if (strm->avail_in == 0) {
+diff --git a/lib/zlib_dfltcc/Makefile b/lib/zlib_dfltcc/Makefile
+index 863d3b37e09d..8e4d5afbbb10 100644
+--- a/lib/zlib_dfltcc/Makefile
++++ b/lib/zlib_dfltcc/Makefile
+@@ -8,4 +8,4 @@
  
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
+ obj-$(CONFIG_ZLIB_DFLTCC) += zlib_dfltcc.o
  
- 	EXCEPTION_TABLE(L1_CACHE_BYTES)
-diff --git a/arch/h8300/kernel/vmlinux.lds.S b/arch/h8300/kernel/vmlinux.lds.S
-index d3247d3..2ac7bdc 100644
---- a/arch/h8300/kernel/vmlinux.lds.S
-+++ b/arch/h8300/kernel/vmlinux.lds.S
-@@ -47,7 +47,7 @@ SECTIONS
+-zlib_dfltcc-objs := dfltcc.o dfltcc_deflate.o dfltcc_syms.o
++zlib_dfltcc-objs := dfltcc.o dfltcc_deflate.o dfltcc_inflate.o dfltcc_syms.o
+diff --git a/lib/zlib_dfltcc/dfltcc.h b/lib/zlib_dfltcc/dfltcc.h
+index 18fed7a444bc..4782c92bb2ff 100644
+--- a/lib/zlib_dfltcc/dfltcc.h
++++ b/lib/zlib_dfltcc/dfltcc.h
+@@ -104,6 +104,14 @@ int dfltcc_deflate(z_streamp strm,
+                    int flush,
+                    block_state *result);
+ void dfltcc_reset(z_streamp strm, uInt size);
++int dfltcc_can_inflate(z_streamp strm);
++typedef enum {
++    DFLTCC_INFLATE_CONTINUE,
++    DFLTCC_INFLATE_BREAK,
++    DFLTCC_INFLATE_SOFTWARE,
++} dfltcc_inflate_action;
++dfltcc_inflate_action dfltcc_inflate(z_streamp strm,
++                                     int flush, int *ret);
+ 
+ #define DEFLATE_RESET_HOOK(strm) \
+     dfltcc_reset((strm), sizeof(deflate_state))
+@@ -112,4 +120,24 @@ void dfltcc_reset(z_streamp strm, uInt size);
+ 
+ #define DEFLATE_NEED_CHECKSUM(strm) (!dfltcc_can_deflate((strm)))
+ 
++#define INFLATE_RESET_HOOK(strm) \
++    dfltcc_reset((strm), sizeof(struct inflate_state))
++
++#define INFLATE_TYPEDO_HOOK(strm, flush) \
++    if (dfltcc_can_inflate((strm))) { \
++        dfltcc_inflate_action action; \
++\
++        RESTORE(); \
++        action = dfltcc_inflate((strm), (flush), &ret); \
++        LOAD(); \
++        if (action == DFLTCC_INFLATE_CONTINUE) \
++            break; \
++        else if (action == DFLTCC_INFLATE_BREAK) \
++            goto inf_leave; \
++    }
++
++#define INFLATE_NEED_CHECKSUM(strm) (!dfltcc_can_inflate((strm)))
++
++#define INFLATE_NEED_UPDATEWINDOW(strm) (!dfltcc_can_inflate((strm)))
++
+ #endif /* DFLTCC_H */
+diff --git a/lib/zlib_dfltcc/dfltcc_inflate.c b/lib/zlib_dfltcc/dfltcc_inflate.c
+new file mode 100644
+index 000000000000..12a93a06bd61
+--- /dev/null
++++ b/lib/zlib_dfltcc/dfltcc_inflate.c
+@@ -0,0 +1,143 @@
++// SPDX-License-Identifier: Zlib
++
++#include "../zlib_inflate/inflate.h"
++#include "dfltcc_util.h"
++#include "dfltcc.h"
++#include <linux/zutil.h>
++
++/*
++ * Expand.
++ */
++int dfltcc_can_inflate(
++    z_streamp strm
++)
++{
++    struct inflate_state *state = (struct inflate_state *)strm->state;
++    struct dfltcc_state *dfltcc_state = GET_DFLTCC_STATE(state);
++
++    /* Unsupported compression settings */
++    if (state->wbits != HB_BITS)
++        return 0;
++
++    /* Unsupported hardware */
++    return is_bit_set(dfltcc_state->af.fns, DFLTCC_XPND) &&
++               is_bit_set(dfltcc_state->af.fmts, DFLTCC_FMT0);
++}
++
++static int dfltcc_was_inflate_used(
++    z_streamp strm
++)
++{
++    struct inflate_state *state = (struct inflate_state *)strm->state;
++    struct dfltcc_param_v0 *param = &GET_DFLTCC_STATE(state)->param;
++
++    return !param->nt;
++}
++
++static int dfltcc_inflate_disable(
++    z_streamp strm
++)
++{
++    struct inflate_state *state = (struct inflate_state *)strm->state;
++    struct dfltcc_state *dfltcc_state = GET_DFLTCC_STATE(state);
++
++    if (!dfltcc_can_inflate(strm))
++        return 0;
++    if (dfltcc_was_inflate_used(strm))
++        /* DFLTCC has already decompressed some data. Since there is not
++         * enough information to resume decompression in software, the call
++         * must fail.
++         */
++        return 1;
++    /* DFLTCC was not used yet - decompress in software */
++    memset(&dfltcc_state->af, 0, sizeof(dfltcc_state->af));
++    return 0;
++}
++
++static dfltcc_cc dfltcc_xpnd(
++    z_streamp strm
++)
++{
++    struct inflate_state *state = (struct inflate_state *)strm->state;
++    struct dfltcc_param_v0 *param = &GET_DFLTCC_STATE(state)->param;
++    size_t avail_in = strm->avail_in;
++    size_t avail_out = strm->avail_out;
++    dfltcc_cc cc;
++
++    cc = dfltcc(DFLTCC_XPND | HBT_CIRCULAR,
++                param, &strm->next_out, &avail_out,
++                &strm->next_in, &avail_in, state->window);
++    strm->avail_in = avail_in;
++    strm->avail_out = avail_out;
++    return cc;
++}
++
++dfltcc_inflate_action dfltcc_inflate(
++    z_streamp strm,
++    int flush,
++    int *ret
++)
++{
++    struct inflate_state *state = (struct inflate_state *)strm->state;
++    struct dfltcc_state *dfltcc_state = GET_DFLTCC_STATE(state);
++    struct dfltcc_param_v0 *param = &dfltcc_state->param;
++    dfltcc_cc cc;
++
++    if (flush == Z_BLOCK) {
++        /* DFLTCC does not support stopping on block boundaries */
++        if (dfltcc_inflate_disable(strm)) {
++            *ret = Z_STREAM_ERROR;
++            return DFLTCC_INFLATE_BREAK;
++        } else
++            return DFLTCC_INFLATE_SOFTWARE;
++    }
++
++    if (state->last) {
++        if (state->bits != 0) {
++            strm->next_in++;
++            strm->avail_in--;
++            state->bits = 0;
++        }
++        state->mode = CHECK;
++        return DFLTCC_INFLATE_CONTINUE;
++    }
++
++    if (strm->avail_in == 0 && !param->cf)
++        return DFLTCC_INFLATE_BREAK;
++
++    if (!state->window || state->wsize == 0) {
++        state->mode = MEM;
++        return DFLTCC_INFLATE_CONTINUE;
++    }
++
++    /* Translate stream to parameter block */
++    param->cvt = CVT_ADLER32;
++    param->sbb = state->bits;
++    param->hl = state->whave; /* Software and hardware history formats match */
++    param->ho = (state->write - state->whave) & ((1 << HB_BITS) - 1);
++    if (param->hl)
++        param->nt = 0; /* Honor history for the first block */
++    param->cv = state->flags ? REVERSE(state->check) : state->check;
++
++    /* Inflate */
++    do {
++        cc = dfltcc_xpnd(strm);
++    } while (cc == DFLTCC_CC_AGAIN);
++
++    /* Translate parameter block to stream */
++    strm->msg = oesc_msg(dfltcc_state->msg, param->oesc);
++    state->last = cc == DFLTCC_CC_OK;
++    state->bits = param->sbb;
++    state->whave = param->hl;
++    state->write = (param->ho + param->hl) & ((1 << HB_BITS) - 1);
++    state->check = state->flags ? REVERSE(param->cv) : param->cv;
++    if (cc == DFLTCC_CC_OP2_CORRUPT && param->oesc != 0) {
++        /* Report an error if stream is corrupted */
++        state->mode = BAD;
++        return DFLTCC_INFLATE_CONTINUE;
++    }
++    state->mode = TYPEDO;
++    /* Break if operands are exhausted, otherwise continue looping */
++    return (cc == DFLTCC_CC_OP1_TOO_SHORT || cc == DFLTCC_CC_OP2_TOO_SHORT) ?
++        DFLTCC_INFLATE_BREAK : DFLTCC_INFLATE_CONTINUE;
++}
+diff --git a/lib/zlib_inflate/inflate.c b/lib/zlib_inflate/inflate.c
+index 48f14cd58c77..59de6c18f2fc 100644
+--- a/lib/zlib_inflate/inflate.c
++++ b/lib/zlib_inflate/inflate.c
+@@ -15,6 +15,16 @@
+ #include "inffast.h"
+ #include "infutil.h"
+ 
++/* architecture-specific bits */
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++#  include "../zlib_dfltcc/dfltcc.h"
++#else
++#define INFLATE_RESET_HOOK(strm) do {} while (0)
++#define INFLATE_TYPEDO_HOOK(strm, flush) do {} while (0)
++#define INFLATE_NEED_UPDATEWINDOW(strm) 1
++#define INFLATE_NEED_CHECKSUM(strm) 1
++#endif
++
+ int zlib_inflate_workspacesize(void)
+ {
+     return sizeof(struct inflate_workspace);
+@@ -42,6 +52,7 @@ int zlib_inflateReset(z_streamp strm)
+     state->write = 0;
+     state->whave = 0;
+ 
++    INFLATE_RESET_HOOK(strm);
+     return Z_OK;
+ }
+ 
+@@ -66,7 +77,15 @@ int zlib_inflateInit2(z_streamp strm, int windowBits)
+         return Z_STREAM_ERROR;
+     }
+     state->wbits = (unsigned)windowBits;
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++    /*
++     * DFLTCC requires the window to be page aligned.
++     * Thus, we overallocate and take the aligned portion of the buffer.
++     */
++    state->window = PTR_ALIGN(&WS(strm)->working_window[0], PAGE_SIZE);
++#else
+     state->window = &WS(strm)->working_window[0];
++#endif
+ 
+     return zlib_inflateReset(strm);
+ }
+@@ -227,11 +246,6 @@ static int zlib_inflateSyncPacket(z_streamp strm)
+         bits -= bits & 7; \
+     } while (0)
+ 
+-/* Reverse the bytes in a 32-bit value */
+-#define REVERSE(q) \
+-    ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
+-     (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
+-
+ /*
+    inflate() uses a state machine to process as much input data and generate as
+    much output data as possible before returning.  The state machine is
+@@ -395,6 +409,7 @@ int zlib_inflate(z_streamp strm, int flush)
+             if (flush == Z_BLOCK) goto inf_leave;
+ 	    /* fall through */
+         case TYPEDO:
++            INFLATE_TYPEDO_HOOK(strm, flush);
+             if (state->last) {
+                 BYTEBITS();
+                 state->mode = CHECK;
+@@ -692,7 +707,7 @@ int zlib_inflate(z_streamp strm, int flush)
+                 out -= left;
+                 strm->total_out += out;
+                 state->total += out;
+-                if (out)
++                if (INFLATE_NEED_CHECKSUM(strm) && out)
+                     strm->adler = state->check =
+                         UPDATE(state->check, put - out, out);
+                 out = left;
+@@ -726,7 +741,8 @@ int zlib_inflate(z_streamp strm, int flush)
+      */
+   inf_leave:
+     RESTORE();
+-    if (state->wsize || (state->mode < CHECK && out != strm->avail_out))
++    if (INFLATE_NEED_UPDATEWINDOW(strm) &&
++            (state->wsize || (state->mode < CHECK && out != strm->avail_out)))
+         zlib_updatewindow(strm, out);
+ 
+     in -= strm->avail_in;
+@@ -734,7 +750,7 @@ int zlib_inflate(z_streamp strm, int flush)
+     strm->total_in += in;
+     strm->total_out += out;
+     state->total += out;
+-    if (state->wrap && out)
++    if (INFLATE_NEED_CHECKSUM(strm) && state->wrap && out)
+         strm->adler = state->check =
+             UPDATE(state->check, strm->next_out - out, out);
+ 
+diff --git a/lib/zlib_inflate/inflate.h b/lib/zlib_inflate/inflate.h
+index 3d17b3d1b21f..f79337ddf98c 100644
+--- a/lib/zlib_inflate/inflate.h
++++ b/lib/zlib_inflate/inflate.h
+@@ -11,6 +11,8 @@
+    subject to change. Applications should only use zlib.h.
+  */
+ 
++#include "inftrees.h"
++
+ /* Possible inflate modes between inflate() calls */
+ typedef enum {
+     HEAD,       /* i: waiting for magic header */
+@@ -108,4 +110,10 @@ struct inflate_state {
+     unsigned short work[288];   /* work area for code table building */
+     code codes[ENOUGH];         /* space for code tables */
+ };
++
++/* Reverse the bytes in a 32-bit value */
++#define REVERSE(q) \
++    ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
++     (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
++
  #endif
- 	_sdata = . ;
- 	__data_start = . ;
--	RW_DATA_SECTION(0, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(0, PAGE_SIZE, THREAD_SIZE)
- #if defined(CONFIG_ROMKERNEL)
- #undef ADDR
+diff --git a/lib/zlib_inflate/infutil.h b/lib/zlib_inflate/infutil.h
+index eb1a9007bd86..0264b15c9192 100644
+--- a/lib/zlib_inflate/infutil.h
++++ b/lib/zlib_inflate/infutil.h
+@@ -12,14 +12,28 @@
+ #define _INFUTIL_H
+ 
+ #include <linux/zlib.h>
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++#include "../zlib_dfltcc/dfltcc.h"
++#include <asm/page.h>
++#endif
+ 
+ /* memory allocation for inflation */
+ 
+ struct inflate_workspace {
+ 	struct inflate_state inflate_state;
+-	unsigned char working_window[1 << MAX_WBITS];
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++	struct dfltcc_state dfltcc_state;
++	unsigned char working_window[(1 << MAX_WBITS) + PAGE_SIZE];
++#else
++	unsigned char working_window[(1 << MAX_WBITS)];
++#endif
+ };
+ 
+-#define WS(z) ((struct inflate_workspace *)(z->workspace))
++#ifdef CONFIG_ZLIB_DFLTCC_INFLATE
++/* dfltcc_state must be doubleword aligned for DFLTCC call */
++static_assert(offsetof(struct inflate_workspace, dfltcc_state) % 8 == 0);
++#endif
++
++#define WS(strm) ((struct inflate_workspace *)(strm->workspace))
+ 
  #endif
-diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-index 0145251..0ca2471 100644
---- a/arch/hexagon/kernel/vmlinux.lds.S
-+++ b/arch/hexagon/kernel/vmlinux.lds.S
-@@ -49,7 +49,7 @@ SECTIONS
- 	INIT_DATA_SECTION(PAGE_SIZE)
- 
- 	_sdata = .;
--		RW_DATA_SECTION(32,PAGE_SIZE,_THREAD_SIZE)
-+		RW_DATA(32,PAGE_SIZE,_THREAD_SIZE)
- 		RO_DATA(PAGE_SIZE)
- 	_edata = .;
- 
-diff --git a/arch/m68k/kernel/vmlinux-nommu.lds b/arch/m68k/kernel/vmlinux-nommu.lds
-index de80f8b..7b97542 100644
---- a/arch/m68k/kernel/vmlinux-nommu.lds
-+++ b/arch/m68k/kernel/vmlinux-nommu.lds
-@@ -61,7 +61,7 @@ SECTIONS {
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
- 	EXCEPTION_TABLE(16)
-diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
-index 625a578..6e7eb49 100644
---- a/arch/m68k/kernel/vmlinux-std.lds
-+++ b/arch/m68k/kernel/vmlinux-std.lds
-@@ -33,7 +33,7 @@ SECTIONS
- 
-   RODATA
- 
--  RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE)
-+  RW_DATA(16, PAGE_SIZE, THREAD_SIZE)
- 
-   BSS_SECTION(0, 0, 0)
- 
-diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
-index 9868270..1a0ad6b 100644
---- a/arch/m68k/kernel/vmlinux-sun3.lds
-+++ b/arch/m68k/kernel/vmlinux-sun3.lds
-@@ -30,7 +30,7 @@ SECTIONS
- 
-   EXCEPTION_TABLE(16) :data
-   _sdata = .;			/* Start of rw data section */
--  RW_DATA_SECTION(16, PAGE_SIZE, THREAD_SIZE) :data
-+  RW_DATA(16, PAGE_SIZE, THREAD_SIZE) :data
-   /* End of data goes *here* so that freeing init code works properly. */
-   _edata = .;
-   NOTES
-diff --git a/arch/microblaze/kernel/vmlinux.lds.S b/arch/microblaze/kernel/vmlinux.lds.S
-index 2299694..b8efb08 100644
---- a/arch/microblaze/kernel/vmlinux.lds.S
-+++ b/arch/microblaze/kernel/vmlinux.lds.S
-@@ -69,7 +69,7 @@ SECTIONS {
- 	}
- 
- 	_sdata = . ;
--	RW_DATA_SECTION(32, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(32, PAGE_SIZE, THREAD_SIZE)
- 	_edata = . ;
- 
- 	/* Under the microblaze ABI, .sdata and .sbss must be contiguous */
-diff --git a/arch/nds32/kernel/vmlinux.lds.S b/arch/nds32/kernel/vmlinux.lds.S
-index 10ff570..f679d33 100644
---- a/arch/nds32/kernel/vmlinux.lds.S
-+++ b/arch/nds32/kernel/vmlinux.lds.S
-@@ -54,7 +54,7 @@ SECTIONS
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata  =  .;
- 
- 	EXCEPTION_TABLE(16)
-diff --git a/arch/nios2/kernel/vmlinux.lds.S b/arch/nios2/kernel/vmlinux.lds.S
-index 318804a..c55a7cf 100644
---- a/arch/nios2/kernel/vmlinux.lds.S
-+++ b/arch/nios2/kernel/vmlinux.lds.S
-@@ -50,7 +50,7 @@ SECTIONS
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
- 	BSS_SECTION(0, 0, 0)
-diff --git a/arch/openrisc/kernel/vmlinux.lds.S b/arch/openrisc/kernel/vmlinux.lds.S
-index f73e0d3..60449fd 100644
---- a/arch/openrisc/kernel/vmlinux.lds.S
-+++ b/arch/openrisc/kernel/vmlinux.lds.S
-@@ -74,7 +74,7 @@ SECTIONS
- 	/* Whatever comes after _e_kernel_ro had better be page-aligend, too */
- 
- 	/* 32 here is cacheline size... recheck this */
--	RW_DATA_SECTION(32, PAGE_SIZE, PAGE_SIZE)
-+	RW_DATA(32, PAGE_SIZE, PAGE_SIZE)
- 
-         _edata  =  .;
- 
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index e1c563c..12b3d7d 100644
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -148,7 +148,7 @@ SECTIONS
- 	data_start = .;
- 
- 	/* Data */
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, PAGE_SIZE)
- 
- 	/* PA-RISC locks requires 16-byte alignment */
- 	. = ALIGN(16);
-diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
-index 66dc17d..12f42f9 100644
---- a/arch/riscv/kernel/vmlinux.lds.S
-+++ b/arch/riscv/kernel/vmlinux.lds.S
-@@ -57,7 +57,7 @@ SECTIONS
- 		*(.srodata*)
- 	}
- 
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	.sdata : {
- 		__global_pointer$ = . + 0x800;
- 		*(.sdata*)
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index b33c482..3769549 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -67,7 +67,7 @@ SECTIONS
- 	. = ALIGN(PAGE_SIZE);
- 	__end_ro_after_init = .;
- 
--	RW_DATA_SECTION(0x100, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(0x100, PAGE_SIZE, THREAD_SIZE)
- 	BOOT_DATA_PRESERVED
- 
- 	_edata = .;		/* End of data section */
-diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
-index fef3905..c60b199 100644
---- a/arch/sh/kernel/vmlinux.lds.S
-+++ b/arch/sh/kernel/vmlinux.lds.S
-@@ -51,7 +51,7 @@ SECTIONS
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
- 	DWARF_EH_FRAME
-diff --git a/arch/sparc/kernel/vmlinux.lds.S b/arch/sparc/kernel/vmlinux.lds.S
-index 8929fbc..7ec7991 100644
---- a/arch/sparc/kernel/vmlinux.lds.S
-+++ b/arch/sparc/kernel/vmlinux.lds.S
-@@ -67,7 +67,7 @@ SECTIONS
- 	.data1 : {
- 		*(.data1)
- 	}
--	RW_DATA_SECTION(SMP_CACHE_BYTES, 0, THREAD_SIZE)
-+	RW_DATA(SMP_CACHE_BYTES, 0, THREAD_SIZE)
- 
- 	/* End of data section */
- 	_edata = .;
-diff --git a/arch/unicore32/kernel/vmlinux.lds.S b/arch/unicore32/kernel/vmlinux.lds.S
-index 367c803..6fb320b 100644
---- a/arch/unicore32/kernel/vmlinux.lds.S
-+++ b/arch/unicore32/kernel/vmlinux.lds.S
-@@ -44,7 +44,7 @@ SECTIONS
- 
- 	_sdata = .;
- 	RO_DATA(PAGE_SIZE)
--	RW_DATA_SECTION(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
-+	RW_DATA(L1_CACHE_BYTES, PAGE_SIZE, THREAD_SIZE)
- 	_edata = .;
- 
- 	EXCEPTION_TABLE(L1_CACHE_BYTES)
-diff --git a/arch/xtensa/kernel/vmlinux.lds.S b/arch/xtensa/kernel/vmlinux.lds.S
-index b97e579..bdbd7c4 100644
---- a/arch/xtensa/kernel/vmlinux.lds.S
-+++ b/arch/xtensa/kernel/vmlinux.lds.S
-@@ -134,7 +134,7 @@ SECTIONS
-   /* Data section */
- 
-   _sdata = .;
--  RW_DATA_SECTION(XCHAL_ICACHE_LINESIZE, PAGE_SIZE, THREAD_SIZE)
-+  RW_DATA(XCHAL_ICACHE_LINESIZE, PAGE_SIZE, THREAD_SIZE)
-   _edata = .;
- 
-   /* Initialization code and data: */
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 061e57c..356078e 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -24,7 +24,7 @@
-  *
-  *      _sdata = .;
-  *	RO_DATA(PAGE_SIZE)
-- *	RW_DATA_SECTION(...)
-+ *	RW_DATA(...)
-  *	_edata = .;
-  *
-  *	EXCEPTION_TABLE(...)
-@@ -975,7 +975,7 @@
-  * matches the requirement of PAGE_ALIGNED_DATA.
-  *
-  * use 0 as page_align if page_aligned data is not used */
--#define RW_DATA_SECTION(cacheline, pagealigned, inittask)		\
-+#define RW_DATA(cacheline, pagealigned, inittask)			\
- 	. = ALIGN(PAGE_SIZE);						\
- 	.data : AT(ADDR(.data) - LOAD_OFFSET) {				\
- 		INIT_TASK_DATA(inittask)				\
+-- 
+2.17.1
