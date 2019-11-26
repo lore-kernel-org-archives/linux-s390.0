@@ -1,216 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45740 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727031AbfKNKT6 (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17466 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728039AbfKZOlr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 05:19:58 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEAIHc5007208
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:57 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2w92jkvke0-1
+        Tue, 26 Nov 2019 09:41:47 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAQEWwVE039029
+        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:46 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wf19xu6ex-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 05:19:56 -0500
+        for <linux-s390@vger.kernel.org>; Tue, 26 Nov 2019 09:41:43 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 14 Nov 2019 10:19:33 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 08/11] s390/qeth: consolidate L3 mcast registration code
-Date: Thu, 14 Nov 2019 11:19:21 +0100
-In-Reply-To: <20191114101924.29558-1-jwi@linux.ibm.com>
-References: <20191114101924.29558-1-jwi@linux.ibm.com>
-Message-Id: <20191114101924.29558-9-jwi@linux.ibm.com>
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
+        Tue, 26 Nov 2019 14:41:35 -0000
+From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Subject: [PATCH 0/5] S390 hardware compression support for kernel zlib
+Date: Tue, 26 Nov 2019 15:41:25 +0100
+Message-Id: <20191126144130.75710-1-zaslonko@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Current code processes each (VLAN) device twice - once to inspect the
-IPv4 mcast addresses, and then a second time to walk the IPv6 mcast
-addresses. Unify all this into a single helper, thus removing some
-checks and a duplicated VLAN lookup.
+With IBM z15 mainframe the new DFLTCC instruction is available. It
+implements deflate algorithm in hardware (Nest Acceleration Unit - NXU)
+with estimated compression and decompression performance orders of
+magnitude faster than the current zlib.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l3_main.c | 120 ++++++++------------------------
- 1 file changed, 30 insertions(+), 90 deletions(-)
+This patch-set adds s390 hardware compression support to kernel zlib.
+The code is based on the userspace zlib implementation:
+https://github.com/madler/zlib/pull/410
+The coding style is also preserved for future maintainability.
+There is only limited set of userspace zlib functions represented in
+kernel. Apart from that, all the memory allocation should be performed
+in advance. Thus, the workarea structures are extended with the parameter
+lists required for the DEFLATE CONVENTION CALL instruction.
+Since kernel zlib itself does not support gzip headers, only Adler-32
+checksum is processed (also can be produced by DFLTCC facility).
+Like it was implemented for userspace, kernel zlib will compress in
+hardware on level 1, and in software on all other levels. Decompression
+will always happen in hardware (when enabled).
+Two DFLTCC compression calls produce the same results only when they
+both are made on machines of the same generation, and when the
+respective buffers have the same offset relative to the start of the
+page. Therefore care should be taken when using hardware compression
+when reproducible results are desired. However it does always produce
+the standard conform output which can be inflated anyway.
+The new kernel command line parameter 'dfltcc' is introduced to
+configure s390 zlib hardware support:
+    Format: { on | off | def_only | inf_only | always }
+     on:       s390 zlib hardware support for compression on
+               level 1 and decompression (default)
+     off:      No s390 zlib hardware support
+     def_only: s390 zlib hardware support for deflate
+               only (compression on level 1)
+     inf_only: s390 zlib hardware support for inflate
+               only (decompression)
+     always:   Same as 'on' but ignores the selected compression
+               level always using hardware support (used for debugging)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 0497ee46660b..1e060331a8cc 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1113,17 +1113,28 @@ qeth_diags_trace(struct qeth_card *card, enum qeth_diags_trace_cmds diags_cmd)
- 	return qeth_send_ipa_cmd(card, iob, qeth_diags_trace_cb, NULL);
- }
- 
--static void
--qeth_l3_add_mc_to_hash(struct qeth_card *card, struct in_device *in4_dev)
-+static void qeth_l3_add_mcast_rcu(struct net_device *dev,
-+				  struct qeth_card *card)
- {
-+	struct qeth_ipaddr *tmp = NULL;
-+	struct inet6_dev *in6_dev;
-+	struct in_device *in4_dev;
-+	struct qeth_ipaddr *ipm;
- 	struct ip_mc_list *im4;
--	struct qeth_ipaddr *tmp, *ipm;
-+	struct ifmcaddr6 *im6;
- 
- 	QETH_CARD_TEXT(card, 4, "addmc");
- 
-+	if (!dev || !(dev->flags & IFF_UP))
-+		goto out;
-+
- 	tmp = qeth_l3_get_addr_buffer(QETH_PROT_IPV4);
- 	if (!tmp)
--		return;
-+		goto out;
-+
-+	in4_dev = __in_dev_get_rcu(dev);
-+	if (!in4_dev)
-+		goto walk_ipv6;
- 
- 	for (im4 = rcu_dereference(in4_dev->mc_list); im4 != NULL;
- 	     im4 = rcu_dereference(im4->next_rcu)) {
-@@ -1147,63 +1158,15 @@ qeth_l3_add_mc_to_hash(struct qeth_card *card, struct in_device *in4_dev)
- 		}
- 	}
- 
--	kfree(tmp);
--}
--
--/* called with rcu_read_lock */
--static void qeth_l3_add_vlan_mc(struct qeth_card *card)
--{
--	struct in_device *in_dev;
--	u16 vid;
--
--	QETH_CARD_TEXT(card, 4, "addmcvl");
--
--	if (!qeth_is_supported(card, IPA_FULL_VLAN))
--		return;
--
--	for_each_set_bit(vid, card->active_vlans, VLAN_N_VID) {
--		struct net_device *netdev;
--
--		netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q),
--					      vid);
--		if (netdev == NULL ||
--		    !(netdev->flags & IFF_UP))
--			continue;
--		in_dev = __in_dev_get_rcu(netdev);
--		if (!in_dev)
--			continue;
--		qeth_l3_add_mc_to_hash(card, in_dev);
--	}
--}
--
--static void qeth_l3_add_multicast_ipv4(struct qeth_card *card)
--{
--	struct in_device *in4_dev;
--
--	QETH_CARD_TEXT(card, 4, "chkmcv4");
--
--	rcu_read_lock();
--	in4_dev = __in_dev_get_rcu(card->dev);
--	if (in4_dev == NULL)
--		goto unlock;
--	qeth_l3_add_mc_to_hash(card, in4_dev);
--	qeth_l3_add_vlan_mc(card);
--unlock:
--	rcu_read_unlock();
--}
--
--static void qeth_l3_add_mc6_to_hash(struct qeth_card *card,
--				    struct inet6_dev *in6_dev)
--{
--	struct qeth_ipaddr *ipm;
--	struct ifmcaddr6 *im6;
--	struct qeth_ipaddr *tmp;
-+walk_ipv6:
-+	if (!qeth_is_supported(card, IPA_IPV6))
-+		goto out;
- 
--	QETH_CARD_TEXT(card, 4, "addmc6");
-+	in6_dev = __in6_dev_get(dev);
-+	if (!in6_dev)
-+		goto out;
- 
--	tmp = qeth_l3_get_addr_buffer(QETH_PROT_IPV6);
--	if (!tmp)
--		return;
-+	qeth_l3_init_ipaddr(tmp, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV6);
- 
- 	read_lock_bh(&in6_dev->lock);
- 	for (im6 = in6_dev->mc_list; im6 != NULL; im6 = im6->next) {
-@@ -1230,13 +1193,13 @@ static void qeth_l3_add_mc6_to_hash(struct qeth_card *card,
- 	}
- 	read_unlock_bh(&in6_dev->lock);
- 
-+out:
- 	kfree(tmp);
- }
- 
- /* called with rcu_read_lock */
--static void qeth_l3_add_vlan_mc6(struct qeth_card *card)
-+static void qeth_l3_add_vlan_mc(struct qeth_card *card)
- {
--	struct inet6_dev *in_dev;
- 	u16 vid;
- 
- 	QETH_CARD_TEXT(card, 4, "admc6vl");
-@@ -1249,36 +1212,10 @@ static void qeth_l3_add_vlan_mc6(struct qeth_card *card)
- 
- 		netdev = __vlan_find_dev_deep_rcu(card->dev, htons(ETH_P_8021Q),
- 					      vid);
--		if (netdev == NULL ||
--		    !(netdev->flags & IFF_UP))
--			continue;
--		in_dev = in6_dev_get(netdev);
--		if (!in_dev)
--			continue;
--		qeth_l3_add_mc6_to_hash(card, in_dev);
--		in6_dev_put(in_dev);
-+		qeth_l3_add_mcast_rcu(netdev, card);
- 	}
- }
- 
--static void qeth_l3_add_multicast_ipv6(struct qeth_card *card)
--{
--	struct inet6_dev *in6_dev;
--
--	QETH_CARD_TEXT(card, 4, "chkmcv6");
--
--	if (!qeth_is_supported(card, IPA_IPV6))
--		return ;
--	in6_dev = in6_dev_get(card->dev);
--	if (!in6_dev)
--		return;
--
--	rcu_read_lock();
--	qeth_l3_add_mc6_to_hash(card, in6_dev);
--	qeth_l3_add_vlan_mc6(card);
--	rcu_read_unlock();
--	in6_dev_put(in6_dev);
--}
--
- static int qeth_l3_vlan_rx_add_vid(struct net_device *dev,
- 				   __be16 proto, u16 vid)
- {
-@@ -1450,8 +1387,11 @@ static void qeth_l3_rx_mode_work(struct work_struct *work)
- 	QETH_CARD_TEXT(card, 3, "setmulti");
- 
- 	if (!card->options.sniffer) {
--		qeth_l3_add_multicast_ipv4(card);
--		qeth_l3_add_multicast_ipv6(card);
-+		rcu_read_lock();
-+		qeth_l3_add_mcast_rcu(card->dev, card);
-+		if (qeth_is_supported(card, IPA_FULL_VLAN))
-+			qeth_l3_add_vlan_mc(card);
-+		rcu_read_unlock();
- 
- 		hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
- 			switch (addr->disp_flag) {
+The main purpose of the integration of the NXU support into the kernel zlib
+is the use of hardware deflate in btrfs filesystem with on-the-fly
+compression enabled. Apart from that, hardware support can also be used
+during boot for decompressing the kernel or the ramdisk image 
+
+With the patch for btrfs expanding zlib buffer from 1 to 4 pages (patch 5)
+the following performance results have been achieved using the ramdisk
+with btrfs. These are relative numbers based on throughput rate and
+compression ratio for zlib level 1:
+
+  Input data              Deflate rate   Inflate rate   Compression ratio
+                          NXU/Software   NXU/Software   NXU/Software
+  stream of zeroes        1.46           1.02           1.00
+  random ASCII data       10.44          3.00           0.96
+  ASCII text (dickens)    6,21           3.33           0.94
+  binary data (vmlinux)   8,37           3.90           1.02
+
+This means that s390 hardware deflate can provide up to 10 times faster
+compression (on level 1) and up to 4 times faster decompression (refers to
+all compression  levels) for btrfs zlib.
+
+Disclaimer: Performance results are based on IBM internal tests using DD
+command-line utility on btrfs on a Fedora 30 based internal driver in native
+LPAR on a z15 system. Results may vary based on individual workload,
+configuration and software levels.
+
+Mikhail Zaslonko (5):
+  lib/zlib: Add s390 hardware support for kernel zlib_deflate
+  s390/boot: Rename HEAP_SIZE due to name collision
+  lib/zlib: Add s390 hardware support for kernel zlib_inflate
+  s390/boot: Add dfltcc= kernel command line parameter
+  btrfs: Increase buffer size for zlib functions
+
+ .../admin-guide/kernel-parameters.txt         |  12 +
+ arch/s390/boot/compressed/decompressor.c      |   8 +-
+ arch/s390/boot/ipl_parm.c                     |  14 +
+ arch/s390/include/asm/setup.h                 |   7 +
+ arch/s390/kernel/setup.c                      |   1 +
+ fs/btrfs/compression.c                        |   2 +-
+ fs/btrfs/zlib.c                               | 109 ++++---
+ lib/Kconfig                                   |  22 ++
+ lib/Makefile                                  |   1 +
+ lib/decompress_inflate.c                      |  13 +
+ lib/zlib_deflate/deflate.c                    |  79 ++---
+ lib/zlib_deflate/deftree.c                    |  54 ----
+ lib/zlib_deflate/defutil.h                    | 134 ++++++++-
+ lib/zlib_dfltcc/Makefile                      |  11 +
+ lib/zlib_dfltcc/dfltcc.c                      |  55 ++++
+ lib/zlib_dfltcc/dfltcc.h                      | 144 +++++++++
+ lib/zlib_dfltcc/dfltcc_deflate.c              | 280 ++++++++++++++++++
+ lib/zlib_dfltcc/dfltcc_inflate.c              | 149 ++++++++++
+ lib/zlib_dfltcc/dfltcc_syms.c                 |  17 ++
+ lib/zlib_dfltcc/dfltcc_util.h                 | 124 ++++++++
+ lib/zlib_inflate/inflate.c                    |  32 +-
+ lib/zlib_inflate/inflate.h                    |   8 +
+ lib/zlib_inflate/infutil.h                    |  18 +-
+ 23 files changed, 1137 insertions(+), 157 deletions(-)
+ create mode 100644 lib/zlib_dfltcc/Makefile
+ create mode 100644 lib/zlib_dfltcc/dfltcc.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc.h
+ create mode 100644 lib/zlib_dfltcc/dfltcc_deflate.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_inflate.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_syms.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_util.h
+
 -- 
 2.17.1
