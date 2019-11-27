@@ -1,163 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60188 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42000 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726106AbfKNMDA (ORCPT
+        by vger.kernel.org with ESMTP id S1726576AbfK0SCE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Nov 2019 07:03:00 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAEBwpv7060060
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:02:59 -0500
+        Wed, 27 Nov 2019 13:02:04 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xARHq7xb154271
+        for <linux-s390@vger.kernel.org>; Wed, 27 Nov 2019 13:02:02 -0500
 Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2w943wcugy-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2whcxpmed5-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 14 Nov 2019 07:02:59 -0500
+        for <linux-s390@vger.kernel.org>; Wed, 27 Nov 2019 13:02:02 -0500
 Received: from localhost
         by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Thu, 14 Nov 2019 12:02:57 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/8] net/smc: fix final cleanup sequence for SMCD devices
-Date: Thu, 14 Nov 2019 13:02:40 +0100
-In-Reply-To: <20191114120247.68889-1-kgraul@linux.ibm.com>
-References: <20191114120247.68889-1-kgraul@linux.ibm.com>
-Message-Id: <20191114120247.68889-2-kgraul@linux.ibm.com>
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Wed, 27 Nov 2019 18:02:00 -0000
+Subject: Re: [kvm-unit-tests PATCH v4 1/3] s390x: export sclp_setup_int
+References: <1574157219-22052-1-git-send-email-imbrenda@linux.ibm.com>
+ <1574157219-22052-2-git-send-email-imbrenda@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Wed, 27 Nov 2019 19:01:55 +0100
+MIME-Version: 1.0
+In-Reply-To: <1574157219-22052-2-git-send-email-imbrenda@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="pInQUD3OJ8iYmPnKMZddE2f6kLzyHVQV7"
+Message-Id: <6b598de6-3f9b-d62d-9a5b-3eab933d687f@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--pInQUD3OJ8iYmPnKMZddE2f6kLzyHVQV7
+Content-Type: multipart/mixed; boundary="cgXEdsFpStbPBxUNlNXLrtPd91mg6Rzzb"
 
-If peer announces shutdown, use the link group terminate worker for
-local cleanup of link groups and connections to terminate link group
-in proper context.
+--cgXEdsFpStbPBxUNlNXLrtPd91mg6Rzzb
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Make sure link groups are cleaned up first before destroying the
-event queue of the SMCD device, because link group cleanup may
-raise events.
+On 11/19/19 10:53 AM, Claudio Imbrenda wrote:
+> Export sclp_setup_int() so that it can be used from outside.
 
-Send signal shutdown only if peer has not done it already.
+=2E.. so that it can be used in tests / outside of lib/s390x/sclp.c
 
-Send socket abort or close only, if peer has not already announced
-shutdown.
+Choose one
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_cdc.c  |  3 +++
- net/smc/smc_core.c | 18 +++++++++++-------
- net/smc/smc_core.h |  2 ++
- net/smc/smc_ism.c  |  7 +++++--
- 4 files changed, 21 insertions(+), 9 deletions(-)
+>=20
+> Needed for an upocoming unit test.
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index 7dc07ec2379b..164f1584861b 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -131,6 +131,9 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
- {
- 	int rc;
- 
-+	if (!conn->lgr || (conn->lgr->is_smcd && conn->lgr->peer_shutdown))
-+		return -EPIPE;
-+
- 	if (conn->lgr->is_smcd) {
- 		spin_lock_bh(&conn->send_lock);
- 		rc = smcd_cdc_msg_send(conn);
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 0d92456729ab..561f069b30de 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -275,6 +275,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 		lgr->smcd = ini->ism_dev;
- 		lgr_list = &ini->ism_dev->lgr_list;
- 		lgr_lock = &lgr->smcd->lgr_lock;
-+		lgr->peer_shutdown = 0;
- 	} else {
- 		/* SMC-R specific settings */
- 		get_device(&ini->ib_dev->ibdev->dev);
-@@ -514,11 +515,16 @@ static void smc_conn_kill(struct smc_connection *conn)
- {
- 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
- 
--	smc_close_abort(conn);
-+	if (conn->lgr->is_smcd && conn->lgr->peer_shutdown)
-+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+	else
-+		smc_close_abort(conn);
- 	conn->killed = 1;
-+	smc->sk.sk_err = ECONNABORTED;
- 	smc_sk_wake_ups(smc);
-+	if (conn->lgr->is_smcd)
-+		tasklet_kill(&conn->rx_tsklet);
- 	smc_lgr_unregister_conn(conn);
--	smc->sk.sk_err = ECONNABORTED;
- 	smc_close_active_abort(smc);
- }
- 
-@@ -604,6 +610,8 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid, unsigned short vlan)
- 	list_for_each_entry_safe(lgr, l, &dev->lgr_list, list) {
- 		if ((!peer_gid || lgr->peer_gid == peer_gid) &&
- 		    (vlan == VLAN_VID_MASK || lgr->vlan_id == vlan)) {
-+			if (peer_gid) /* peer triggered termination */
-+				lgr->peer_shutdown = 1;
- 			list_move(&lgr->list, &lgr_free_list);
- 		}
- 	}
-@@ -612,11 +620,7 @@ void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid, unsigned short vlan)
- 	/* cancel the regular free workers and actually free lgrs */
- 	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
- 		list_del_init(&lgr->list);
--		__smc_lgr_terminate(lgr);
--		cancel_delayed_work_sync(&lgr->free_work);
--		if (!peer_gid && vlan == VLAN_VID_MASK) /* dev terminated? */
--			smc_ism_signal_shutdown(lgr);
--		smc_lgr_free(lgr);
-+		schedule_work(&lgr->terminate_work);
- 	}
- }
- 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index e6fd1ed42064..097ceba86caf 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -228,6 +228,8 @@ struct smc_link_group {
- 						/* Peer GID (remote) */
- 			struct smcd_dev		*smcd;
- 						/* ISM device for VLAN reg. */
-+			u8			peer_shutdown : 1;
-+						/* peer triggered shutdownn */
- 		};
- 	};
- };
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index ee7340898cb4..18946e95a3be 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -226,6 +226,9 @@ int smc_ism_signal_shutdown(struct smc_link_group *lgr)
- 	int rc;
- 	union smcd_sw_event_info ev_info;
- 
-+	if (lgr->peer_shutdown)
-+		return 0;
-+
- 	memcpy(ev_info.uid, lgr->id, SMC_LGR_ID_SIZE);
- 	ev_info.vlan_id = lgr->vlan_id;
- 	ev_info.code = ISM_EVENT_REQUEST;
-@@ -313,12 +316,12 @@ EXPORT_SYMBOL_GPL(smcd_register_dev);
- void smcd_unregister_dev(struct smcd_dev *smcd)
- {
- 	spin_lock(&smcd_dev_list.lock);
--	list_del(&smcd->list);
-+	list_del_init(&smcd->list);
- 	spin_unlock(&smcd_dev_list.lock);
- 	smcd->going_away = 1;
-+	smc_smcd_terminate(smcd, 0, VLAN_VID_MASK);
- 	flush_workqueue(smcd->event_wq);
- 	destroy_workqueue(smcd->event_wq);
--	smc_smcd_terminate(smcd, 0, VLAN_VID_MASK);
- 
- 	device_del(&smcd->dev);
- }
--- 
-2.17.1
+upocoming?
+
+>=20
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  lib/s390x/sclp.h | 1 +
+>  lib/s390x/sclp.c | 2 +-
+>  2 files changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 6d40fb7..675f07e 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -265,6 +265,7 @@ typedef struct ReadEventData {
+>  } __attribute__((packed)) ReadEventData;
+> =20
+>  extern char _sccb[];
+> +void sclp_setup_int(void);
+>  void sclp_handle_ext(void);
+>  void sclp_wait_busy(void);
+>  void sclp_mark_busy(void);
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 7798f04..123b639 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -45,7 +45,7 @@ static void mem_init(phys_addr_t mem_end)
+>  	page_alloc_ops_enable();
+>  }
+> =20
+> -static void sclp_setup_int(void)
+> +void sclp_setup_int(void)
+>  {
+>  	uint64_t mask;
+> =20
+>=20
+
+
+
+--cgXEdsFpStbPBxUNlNXLrtPd91mg6Rzzb--
+
+--pInQUD3OJ8iYmPnKMZddE2f6kLzyHVQV7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl3euhQACgkQ41TmuOI4
+ufiUlw/2PdxcLZWb2mpm8B/elWnBVYnlr3vDxdjEQU8rk+i//AoAe1F0rHiTMkg8
+zdLynRVMBdgzcSwviO0xlVSTlmvMdSZgCjQ6dOKsVf3Nqc5Yb3wGZIhUkUs7p9+s
+S88LNZ4MmQJNmPkz8Mf5nF7S8qVyIiAtUwQ0ZAJbX4pliwdJI+bU+EKFL/5PXFaT
+6bp/OkIc+QRYOeCL2YgODJaWVuIAeMpNDANWMLb0qxDmbWyiFVjoGj3iEFDLpOBX
+MIdY85HA/JEtW2KwCenzwNfz8dVI4iSImtH765I2wkW1MRSWnrUS8Z/uj3SW77qc
+faPvGbWqhmKCbw+buOsL7sOQIxCrsdAl6mq7w4x81G7Cd3PnB64yO1dNQTlo7cm4
+uSo4+Mfij9pgQwRx2GjYK6boD+I5FlLd+TR+XQzKgHqPYav7YPJ9VMDvRcsH+JIE
+bN16bQYYwLoqXrz/uN3/OY0ZOZ1jg3/LnAFcoKOv/yzvsbxg+75b7d3nV6u1mp4y
+xpU2xBd7tAaUxxDxzhZgl/3a6EXgAGwzxGLFi995cBoR6b5DxTwHiggCj8gXIgkk
+y5XfICeC3Az6q/chW0ZBk+PaSzpBAO8QQHYtcxUlVvvdD0zdoyzpPP3fks98tGRp
+K26+3Z2jhGSqcv/lfDrXtvNFGeNtxrYuKMjQjY7uM6wh9I8AgA==
+=Xoxw
+-----END PGP SIGNATURE-----
+
+--pInQUD3OJ8iYmPnKMZddE2f6kLzyHVQV7--
