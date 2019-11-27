@@ -1,122 +1,141 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-101.mailbox.org ([80.241.56.151]:52700 "EHLO
-        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730520AbfKEJHw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Nov 2019 04:07:52 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v15 2/9] namei: LOOKUP_NO_MAGICLINKS: block magic-link resolution
-Date: Tue,  5 Nov 2019 20:05:46 +1100
-Message-Id: <20191105090553.6350-3-cyphar@cyphar.com>
-In-Reply-To: <20191105090553.6350-1-cyphar@cyphar.com>
-References: <20191105090553.6350-1-cyphar@cyphar.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39680 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726530AbfK0MFU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 27 Nov 2019 07:05:20 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xARC2f1L016509
+        for <linux-s390@vger.kernel.org>; Wed, 27 Nov 2019 07:05:20 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2whmsy9p9m-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 27 Nov 2019 07:05:19 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
+        Wed, 27 Nov 2019 12:05:17 -0000
+Subject: Re: memory leak in new_inode_pseudo (2)
+References: <000000000000111cbe058dc7754d@google.com>
+ <000000000000ed664f058dc82773@google.com>
+ <20191119051350.GK163020@sol.localdomain>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Wed, 27 Nov 2019 13:05:14 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191119051350.GK163020@sol.localdomain>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <27dff6d8-b4f2-6940-355a-4bcb47464e71@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Alexei Starovoitov <ast@kernel.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, containers@lists.linux-foundation.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Eric Biggers <ebiggers@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, syzbot <syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com>
 
-/* Background. */
-There has always been a special class of symlink-like objects in procfs
-(and a few other pseudo-filesystems) which allow for non-lexical
-resolution of paths using nd_jump_link(). These "magic-links" do not
-follow traditional mount namespace boundaries, and have been used
-consistently in container escape attacks because they can be used to
-trick unsuspecting privileged processes into resolving unexpected paths.
 
-It is also non-trivial for userspace to unambiguously avoid resolving
-magic-links, because they do not have a reliable indication that they
-are a magic-link (in order to verify them you'd have to manually open
-the path given by readlink(2) and then verify that the two file
-descriptors reference the same underlying file, which is plagued with
-possible race conditions or supplementary attack scenarios).
 
-It would therefore be very helpful for userspace to be able to avoid
-these symlinks easily, thus hopefully removing a tool from attackers'
-toolboxes.
+On 11/19/19 6:13 AM, Eric Biggers wrote:
+> Ursula and Karsten,
+> 
+> On Tue, Jul 16, 2019 at 01:28:06AM -0700, syzbot wrote:
+>> syzbot has found a reproducer for the following crash on:
+>>
+>> HEAD commit:    be8454af Merge tag 'drm-next-2019-07-16' of git://anongit...
+>> git tree:       upstream
+>> console output: https://syzkaller.appspot.com/x/log.txt?x=13d5f750600000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=d23a1a7bf85c5250
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=e682cca30bc101a4d9d9
+>> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=155c5800600000
+>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1738f800600000
+>>
+>> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+>> Reported-by: syzbot+e682cca30bc101a4d9d9@syzkaller.appspotmail.com
+>>
+>> executing program
+>> executing program
+>> executing program
+>> executing program
+>> BUG: memory leak
+>> unreferenced object 0xffff888128ea0980 (size 768):
+>>   comm "syz-executor303", pid 7044, jiffies 4294943526 (age 13.490s)
+>>   hex dump (first 32 bytes):
+>>     01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00  ................
+>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>>   backtrace:
+>>     [<000000005ba542b8>] kmemleak_alloc_recursive
+>> include/linux/kmemleak.h:43 [inline]
+>>     [<000000005ba542b8>] slab_post_alloc_hook mm/slab.h:522 [inline]
+>>     [<000000005ba542b8>] slab_alloc mm/slab.c:3319 [inline]
+>>     [<000000005ba542b8>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+>>     [<000000006532a1e9>] sock_alloc_inode+0x1c/0xa0 net/socket.c:238
+>>     [<0000000014ddc967>] alloc_inode+0x2c/0xe0 fs/inode.c:227
+>>     [<0000000056541455>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
+>>     [<000000003b5b5444>] sock_alloc+0x1c/0x90 net/socket.c:554
+>>     [<00000000e623b353>] __sock_create+0x8f/0x250 net/socket.c:1378
+>>     [<000000000e094708>] sock_create_kern+0x3b/0x50 net/socket.c:1483
+>>     [<000000009fe4f64f>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
+>>     [<0000000056be84a7>] __sock_create+0x164/0x250 net/socket.c:1414
+>>     [<000000005915e5fe>] sock_create net/socket.c:1465 [inline]
+>>     [<000000005915e5fe>] __sys_socket+0x69/0x110 net/socket.c:1507
+>>     [<00000000afa837b2>] __do_sys_socket net/socket.c:1516 [inline]
+>>     [<00000000afa837b2>] __se_sys_socket net/socket.c:1514 [inline]
+>>     [<00000000afa837b2>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
+>>     [<00000000d0addad1>] do_syscall_64+0x76/0x1a0
+>> arch/x86/entry/common.c:296
+>>     [<000000004e8e7c22>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>
+>> BUG: memory leak
+>> unreferenced object 0xffff88811faeeab8 (size 56):
+>>   comm "syz-executor303", pid 7044, jiffies 4294943526 (age 13.490s)
+>>   hex dump (first 32 bytes):
+>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>>     00 0a ea 28 81 88 ff ff d0 ea ae 1f 81 88 ff ff  ...(............
+>>   backtrace:
+>>     [<000000005ba542b8>] kmemleak_alloc_recursive
+>> include/linux/kmemleak.h:43 [inline]
+>>     [<000000005ba542b8>] slab_post_alloc_hook mm/slab.h:522 [inline]
+>>     [<000000005ba542b8>] slab_alloc mm/slab.c:3319 [inline]
+>>     [<000000005ba542b8>] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+>>     [<000000008ca63096>] kmem_cache_zalloc include/linux/slab.h:738 [inline]
+>>     [<000000008ca63096>] lsm_inode_alloc security/security.c:522 [inline]
+>>     [<000000008ca63096>] security_inode_alloc+0x33/0xb0
+>> security/security.c:875
+>>     [<00000000b335d930>] inode_init_always+0x108/0x200 fs/inode.c:169
+>>     [<0000000015dcffb3>] alloc_inode+0x49/0xe0 fs/inode.c:234
+>>     [<0000000056541455>] new_inode_pseudo+0x18/0x70 fs/inode.c:916
+>>     [<000000003b5b5444>] sock_alloc+0x1c/0x90 net/socket.c:554
+>>     [<00000000e623b353>] __sock_create+0x8f/0x250 net/socket.c:1378
+>>     [<000000000e094708>] sock_create_kern+0x3b/0x50 net/socket.c:1483
+>>     [<000000009fe4f64f>] smc_create+0xae/0x160 net/smc/af_smc.c:1975
+>>     [<0000000056be84a7>] __sock_create+0x164/0x250 net/socket.c:1414
+>>     [<000000005915e5fe>] sock_create net/socket.c:1465 [inline]
+>>     [<000000005915e5fe>] __sys_socket+0x69/0x110 net/socket.c:1507
+>>     [<00000000afa837b2>] __do_sys_socket net/socket.c:1516 [inline]
+>>     [<00000000afa837b2>] __se_sys_socket net/socket.c:1514 [inline]
+>>     [<00000000afa837b2>] __x64_sys_socket+0x1e/0x30 net/socket.c:1514
+>>     [<00000000d0addad1>] do_syscall_64+0x76/0x1a0
+>> arch/x86/entry/common.c:296
+>>     [<000000004e8e7c22>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>
+> 
+> Do you think this was fixed by:
+> 
+> 	commit 6d6dd528d5af05dc2d0c773951ed68d630a0c3f1
+> 	Author: Ursula Braun <ubraun@linux.ibm.com>
+> 	Date:   Tue Nov 12 16:03:41 2019 +0100
+> 
+> 	    net/smc: fix refcount non-blocking connect() -part 2
+> 
+> ?
+> 
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
-variation on David Drysdale's O_BENEATH patchset[2], which in turn was
-based on the Capsicum project[3]).
+No, I don't think so. This patch changes the SMC connect() code, but I do not
+see any connect() call in the syzbot C-reproducer.
 
-/* Userspace API. */
-LOOKUP_NO_MAGICLINKS will be exposed to userspace through openat2(2).
+Regards, Ursula
 
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_MAGICLINKS applies to all components of the path.
-
-With LOOKUP_NO_MAGICLINKS, any magic-link path component encountered
-during path resolution will yield -ELOOP. The handling of ~LOOKUP_FOLLOW
-for a trailing magic-link is identical to LOOKUP_NO_SYMLINKS.
-
-LOOKUP_NO_SYMLINKS implies LOOKUP_NO_MAGICLINKS.
-
-/* Testing. */
-LOOKUP_NO_MAGICLINKS is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c            | 7 ++++++-
- include/linux/namei.h | 2 ++
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 4e85d6fa4048..1f0d871199e5 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -866,7 +866,7 @@ void nd_jump_link(struct path *path)
- 
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
--	nd->flags |= LOOKUP_JUMPED;
-+	nd->flags |= LOOKUP_JUMPED | LOOKUP_MAGICLINK_JUMPED;
- }
- 
- static inline void put_link(struct nameidata *nd)
-@@ -1063,6 +1063,7 @@ const char *get_link(struct nameidata *nd)
- 		return ERR_PTR(error);
- 
- 	nd->last_type = LAST_BIND;
-+	nd->flags &= ~LOOKUP_MAGICLINK_JUMPED;
- 	res = READ_ONCE(inode->i_link);
- 	if (!res) {
- 		const char * (*get)(struct dentry *, struct inode *,
-@@ -1078,6 +1079,10 @@ const char *get_link(struct nameidata *nd)
- 		} else {
- 			res = get(dentry, inode, &last->done);
- 		}
-+		if (nd->flags & LOOKUP_MAGICLINK_JUMPED) {
-+			if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
-+				return ERR_PTR(-ELOOP);
-+		}
- 		if (IS_ERR_OR_NULL(res))
- 			return res;
- 	}
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index ee2e35af387f..a8b3f93338da 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -38,9 +38,11 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_JUMPED		0x1000
- #define LOOKUP_ROOT		0x2000
- #define LOOKUP_ROOT_GRABBED	0x0008
-+#define LOOKUP_MAGICLINK_JUMPED	0x10000
- 
- /* Scoping flags for lookup. */
- #define LOOKUP_NO_SYMLINKS	0x020000 /* No symlink crossing. */
-+#define LOOKUP_NO_MAGICLINKS	0x040000 /* No /proc/$pid/fd/ "symlink" crossing. */
- 
- extern int path_pts(struct path *path);
- 
--- 
-2.23.0
+> Thanks!
+> 
+> - Eric
+> 
