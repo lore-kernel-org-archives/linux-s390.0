@@ -1,68 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60768 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730867AbfKPPvz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:51:55 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 36/99] s390/perf: Return error when debug_register fails
-Date: Sat, 16 Nov 2019 10:49:59 -0500
-Message-Id: <20191116155103.10971-36-sashal@kernel.org>
-In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
-References: <20191116155103.10971-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56292 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726320AbfK1MqR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 28 Nov 2019 07:46:17 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xASCgxpK081570
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:15 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2whcxs1t0j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:15 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 28 Nov 2019 12:46:13 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 1/9] s390x: saving regs for interrupts
+Date: Thu, 28 Nov 2019 13:45:59 +0100
+In-Reply-To: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
+References: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1574945167-29677-2-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+If we use multiple source of interrupts, for exemple, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
 
-[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
+Instead of saving at a static memory address, let's save the base
+registers and the floating point registers on the stack.
 
-Return an error when the function debug_register() fails allocating
-the debug handle.
-Also remove the registered debug handle when the initialization fails
-later on.
+Note that we keep the static register saving to recover from the
+RESET tests.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ s390x/cstart64.S | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 96e4fcad57bf7..f46e5c0cb6d95 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1611,14 +1611,17 @@ static int __init init_cpum_sampling_pmu(void)
- 	}
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index 399ae9b..525c464 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,25 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
  
- 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
--	if (!sfdbg)
-+	if (!sfdbg) {
- 		pr_err("Registering for s390dbf failed\n");
-+		return -ENOMEM;
-+	}
- 	debug_register_view(sfdbg, &debug_sprintf_view);
++	.macro SAVE_IRQ_REGS
++	slgfi   %r15, 15 * 8
++	stmg    %r0, %r14, 0(%r15)
++	slgfi   %r15, 16 * 8
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	lgr     %r2, %r15
++	.endm
++
++	.macro RESTORE_IRQ_REGS
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	algfi   %r15, 16 * 8
++	lmg     %r0, %r14, 0(%r15)
++	algfi   %r15, 15 * 8
++	.endm
++
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -154,6 +173,8 @@ diag308_load_reset:
+ 	lpswe	GEN_LC_SW_INT_PSW
+ 1:	br	%r14
  
- 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
- 				    cpumf_measurement_alert);
- 	if (err) {
- 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
++
++
+ .globl smp_cpu_setup_state
+ smp_cpu_setup_state:
+ 	xgr	%r1, %r1
+@@ -180,9 +201,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
  
-@@ -1627,6 +1630,7 @@ static int __init init_cpum_sampling_pmu(void)
- 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
- 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
- 					cpumf_measurement_alert);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
+ io_int:
+-	SAVE_REGS
++	SAVE_IRQ_REGS
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_IRQ_REGS
+ 	lpswe	GEN_LC_IO_OLD_PSW
  
+ svc_int:
 -- 
-2.20.1
+2.17.0
