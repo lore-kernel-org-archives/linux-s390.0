@@ -1,89 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:39641 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728018AbfKFNjX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 08:39:23 -0500
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V10 2/6] modpost: add support for mdev class id
-Date: Wed,  6 Nov 2019 21:35:27 +0800
-Message-Id: <20191106133531.693-3-jasowang@redhat.com>
-In-Reply-To: <20191106133531.693-1-jasowang@redhat.com>
-References: <20191106133531.693-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57928 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726252AbfK1MqQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 28 Nov 2019 07:46:16 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xASCgwLu060789
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:15 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2whmt0nm98-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 28 Nov 2019 07:46:14 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 28 Nov 2019 12:46:12 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/9] s390x: Testing the Channel Subsystem I/O
+Date: Thu, 28 Nov 2019 13:45:58 +0100
+Message-Id: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, kwankhede@nvidia.com, alex.williamson@redhat.com, mst@redhat.com, tiwei.bie@intel.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, cohuck@redhat.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, zhenyuw@linux.intel.com, zhi.a.wang@intel.com, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, daniel@ffwll.ch, farman@linux.ibm.com, pasic@linux.ibm.com, sebott@linux.ibm.com, oberpar@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, akrowiak@linux.ibm.com, freude@linux.ibm.com, lingshan.zhu@intel.com, idos@mellanox.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, christophe.de.dinechin@gmail.com, kevin.tian@intel.com, stefanha@redhat.com, Jason Wang <jasowang@redhat.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-Add support to parse mdev class id table.
+Goal of the series is to have a framwork to test Channel-Subsystem I/O with
+QEMU/KVM.
 
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vfio/mdev/vfio_mdev.c     |  2 ++
- scripts/mod/devicetable-offsets.c |  3 +++
- scripts/mod/file2alias.c          | 11 +++++++++++
- 3 files changed, 16 insertions(+)
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
 
-diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
-index 38431e9ef7f5..a6641cd8b5a3 100644
---- a/drivers/vfio/mdev/vfio_mdev.c
-+++ b/drivers/vfio/mdev/vfio_mdev.c
-@@ -125,6 +125,8 @@ static const struct mdev_class_id vfio_id_table[] =3D {
- =09{ 0 },
- };
-=20
-+MODULE_DEVICE_TABLE(mdev, vfio_id_table);
-+
- static struct mdev_driver vfio_mdev_driver =3D {
- =09.name=09=3D "vfio_mdev",
- =09.probe=09=3D vfio_mdev_probe,
-diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-of=
-fsets.c
-index 054405b90ba4..6cbb1062488a 100644
---- a/scripts/mod/devicetable-offsets.c
-+++ b/scripts/mod/devicetable-offsets.c
-@@ -231,5 +231,8 @@ int main(void)
- =09DEVID(wmi_device_id);
- =09DEVID_FIELD(wmi_device_id, guid_string);
-=20
-+=09DEVID(mdev_class_id);
-+=09DEVID_FIELD(mdev_class_id, id);
-+
- =09return 0;
- }
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index c91eba751804..45f1c22f49be 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -1335,6 +1335,16 @@ static int do_wmi_entry(const char *filename, void *=
-symval, char *alias)
- =09return 1;
- }
-=20
-+/* looks like: "mdev:cN" */
-+static int do_mdev_entry(const char *filename, void *symval, char *alias)
-+{
-+=09DEF_FIELD(symval, mdev_class_id, id);
-+
-+=09sprintf(alias, "mdev:c%02X", id);
-+=09add_wildcard(alias);
-+=09return 1;
-+}
-+
- /* Does namelen bytes of name exactly match the symbol? */
- static bool sym_is(const char *name, unsigned namelen, const char *symbol)
- {
-@@ -1407,6 +1417,7 @@ static const struct devtable devtable[] =3D {
- =09{"typec", SIZE_typec_device_id, do_typec_entry},
- =09{"tee", SIZE_tee_client_device_id, do_tee_entry},
- =09{"wmi", SIZE_wmi_device_id, do_wmi_entry},
-+=09{"mdev", SIZE_mdev_class_id, do_mdev_entry},
- };
-=20
- /* Create MODULE_ALIAS() statements.
---=20
-2.19.1
+Making the interrupt handler weak allows the test programm to define its own
+interrupt handler. We need to do special work under interrupt like acknoledging
+the interrupt.
+
+Being working on PSW bits to allow I/O interrupt, we define all PSW bits in a
+dedicated file.
+
+The simple test tests the I/O reading by the SUB Channel. It needs QEMU to
+be patched to have the pong device defined.
+The pong device answers, for now, with a Hello World to the read request.
+
+
+Pierre Morel (9):
+  s390x: saving regs for interrupts
+  s390x: Define the PSW bits
+  s390x: irq: make IRQ handler weak
+  s390x: export the clock get_clock_ms() utility
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+  s390x: css: ping pong
+
+ lib/s390x/asm/arch_bits.h |  20 +++
+ lib/s390x/asm/arch_def.h  |   6 +-
+ lib/s390x/asm/clock.h     |  25 ++++
+ lib/s390x/css.h           | 282 ++++++++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c      | 147 +++++++++++++++++++
+ lib/s390x/interrupt.c     |   2 +-
+ s390x/Makefile            |   4 +-
+ s390x/css.c               | 294 ++++++++++++++++++++++++++++++++++++++
+ s390x/cstart64.S          |  38 +++--
+ s390x/intercept.c         |  11 +-
+ s390x/unittests.cfg       |   4 +
+ 11 files changed, 809 insertions(+), 24 deletions(-)
+ create mode 100644 lib/s390x/asm/arch_bits.h
+ create mode 100644 lib/s390x/asm/clock.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 s390x/css.c
+
+-- 
+2.17.0
+
+Changelog:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
