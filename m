@@ -1,51 +1,35 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37604 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726668AbfLSLvY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 19 Dec 2019 06:51:24 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBJBlcQ5131310
-        for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2019 06:51:23 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2x03hccv47-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 19 Dec 2019 06:51:23 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Thu, 19 Dec 2019 11:51:21 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net] net/smc: unregister ib devices in reboot_event
-Date: Thu, 19 Dec 2019 12:51:13 +0100
-Message-Id: <20191219115113.49414-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+Date: Sun, 01 Dec 2019 04:21:01 -0800
+In-Reply-To: <0000000000007cace40598282858@google.com>
+Message-ID: <000000000000ff87e40598a37ead@google.com>
+Subject: Re: WARNING: refcount bug in smc_release (2)
+From: syzbot <syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: davem@davemloft.net, kgraul@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
 
-In the reboot_event handler, unregister the ib devices and enable
-the IB layer to release the devices before the reboot.
+syzbot has bisected this bug to:
 
-Fixes: a33a803cfe64 ("net/smc: guarantee removal of link groups in reboot")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+commit 50717a37db032ce783f50685a73bb2ac68471a5a
+Author: Ursula Braun <ubraun@linux.ibm.com>
+Date:   Fri Apr 12 10:57:23 2019 +0000
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c16b8d3e200b..2249de5379ee 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1287,7 +1287,7 @@ static int smc_core_reboot_event(struct notifier_block *this,
- 				 unsigned long event, void *ptr)
- {
- 	smc_lgrs_shutdown();
--
-+	smc_ib_unregister_client();
- 	return 0;
- }
- 
--- 
-2.21.0
+     net/smc: nonblocking connect rework
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=10a234a2e00000
+start commit:   32ef9553 Merge tag 'fsnotify_for_v5.5-rc1' of git://git.ke..
+git tree:       upstream
+final crash:    https://syzkaller.appspot.com/x/report.txt?x=12a234a2e00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=14a234a2e00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=ff560c3de405258c
+dashboard link: https://syzkaller.appspot.com/bug?extid=96d3f9ff6a86d37e44c8
+userspace arch: i386
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14b57336e00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=149e357ae00000
+
+Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
+Fixes: 50717a37db03 ("net/smc: nonblocking connect rework")
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
