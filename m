@@ -1,56 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:56032 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726365AbfLITOF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 9 Dec 2019 14:14:05 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  9 Dec 2019 12:13:46 -0700
-Message-Id: <20191209191346.5197-7-logang@deltatee.com>
-In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
-References: <20191209191346.5197-1-logang@deltatee.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:55251 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbfLBJCS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Dec 2019 04:02:18 -0500
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH][next] s390/test_unwind: fix spelling mistake "reqister" -> "register"
+Date: Mon,  2 Dec 2019 09:02:15 +0000
+Message-Id: <20191202090215.28766-1-colin.king@canonical.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH 6/6] mm/memremap: Set caching mode for PCI P2PDMA memory to WC
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Jason Gunthorpe <jgg@ziepe.ca>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-PCI BAR IO memory should never be mapped as WB, however prior to this
-the PAT bits were set WB and it was typically overridden by MTRR
-registers set by the firmware.
+From: Colin Ian King <colin.king@canonical.com>
 
-Set PCI P2PDMA memory to be WC (writecombining) as the only current
-user (the NVMe CMB) was originally mapped WC before the P2PDMA code
-replaced the mapping with devm_memremap_pages().
+There is a spelling mistake in a pr_info message. Fix it.
 
-Future use-cases may need to generalize this by adding flags to
-select the caching type, as some P2PDMA cases will not want WC.
-However, those use-cases are not upstream yet and this can be changed
-when they arrive.
-
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- mm/memremap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/lib/test_unwind.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 4edcca074e15..ced32593e4a7 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -187,7 +187,10 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 		}
- 		break;
- 	case MEMORY_DEVICE_DEVDAX:
-+		need_devmap_managed = false;
-+		break;
- 	case MEMORY_DEVICE_PCI_P2PDMA:
-+		pgprot = pgprot_writecombine(pgprot);
- 		need_devmap_managed = false;
- 		break;
- 	default:
+diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
+index bda7ac0ddd29..32b7a30b2485 100644
+--- a/arch/s390/lib/test_unwind.c
++++ b/arch/s390/lib/test_unwind.c
+@@ -238,7 +238,7 @@ static int test_unwind_irq(struct unwindme *u)
+ {
+ 	preempt_disable();
+ 	if (register_external_irq(EXT_IRQ_CLK_COMP, unwindme_irq_handler)) {
+-		pr_info("Couldn't reqister external interrupt handler");
++		pr_info("Couldn't register external interrupt handler");
+ 		return -1;
+ 	}
+ 	u->task = current;
 -- 
-2.20.1
+2.24.0
