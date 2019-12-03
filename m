@@ -1,36 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:55533 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40529 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726718AbfLCQ2P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 11:28:15 -0500
-Date: Tue, 3 Dec 2019 17:28:02 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        with ESMTP id S1726598AbfLCQYk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 11:24:40 -0500
 Subject: Re: [PATCH v2] KVM: s390: Add new reset vcpu API
-Message-ID: <20191203172802.7d67d31d.cohuck@redhat.com>
-In-Reply-To: <20191203162055.3519-1-frankja@linux.ibm.com>
 References: <20191203162055.3519-1-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <f08ed440-b159-84f5-13cf-03165765f7e6@redhat.com>
+Date: Tue, 3 Dec 2019 17:24:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20191203162055.3519-1-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, mihajlov@linux.ibm.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, mihajlov@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-On Tue,  3 Dec 2019 11:20:55 -0500
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
+On 03.12.19 17:20, Janosch Frank wrote:
 > The architecture states that we need to reset local IRQs for all CPU
 > resets. Because the old reset interface did not support the normal CPU
 > reset we never did that.
 > 
 > Now that we have a new interface, let's properly clear out local IRQs
 > and let this commit be a reminder.
-
-Well, the new interface did not appear magically, this patch introduces
-it :) (The whole sentence is a bit confusing; what is this commit
-supposed to remind us of?)
-
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
@@ -75,10 +69,6 @@ supposed to remind us of?)
 > +		/* fallthrough */
 > +	case KVM_S390_CLEAR_RESET:
 >  		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-
-The cover letter probably should also mention that clear reset falls
-back to initial reset for now?
-
 >  		break;
 >  	case KVM_SET_ONE_REG:
 > diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
@@ -97,11 +87,22 @@ back to initial reset for now?
 >  /* Available with KVM_CAP_ARM_SVE */
 >  #define KVM_ARM_VCPU_FINALIZE	  _IOW(KVMIO,  0xc2, int)
 >  
+
+Maybe also a comment like
+
+"Available with KVM_CAP_S390_VCPU_RESETS" ?
+
 > +#define KVM_S390_NORMAL_RESET	_IO(KVMIO,   0xc3)
 > +#define KVM_S390_CLEAR_RESET    _IO(KVMIO,   0xc4)
 > +
 >  /* Secure Encrypted Virtualization command */
 >  enum sev_cmd_id {
 >  	/* Guest initialization commands */
+> 
 
-Looks sane, but please also document the new ioctls and the new cap.
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
