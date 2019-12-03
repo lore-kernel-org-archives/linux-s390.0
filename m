@@ -1,115 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v18 04/13] namei: allow set_root() to produce errors
-Date: Sat,  7 Dec 2019 01:13:29 +1100
-Message-Id: <20191206141338.23338-5-cyphar@cyphar.com>
-In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
-References: <20191206141338.23338-1-cyphar@cyphar.com>
+Subject: Re: [PATCH v6 05/10] mm/memory_hotplug: Shrink zones when offlining
+ memory
+References: <20191006085646.5768-1-david@redhat.com>
+ <20191006085646.5768-6-david@redhat.com> <20191203151030.GB2600@linux>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <9789e892-dd15-c37d-7c0a-0ccb4db1a987@redhat.com>
+Date: Tue, 3 Dec 2019 16:27:12 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191203151030.GB2600@linux>
+Content-Language: en-US
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Oscar Salvador <osalvador@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Logan Gunthorpe <logang@deltatee.com>
 
-For LOOKUP_BENEATH and LOOKUP_IN_ROOT it is necessary to ensure that
-set_root() is never called, and thus (for hardening purposes) it should
-return an error rather than permit a breakout from the root. In
-addition, move all of the repetitive set_root() calls to nd_jump_root().
+On 03.12.19 16:10, Oscar Salvador wrote:
+> On Sun, Oct 06, 2019 at 10:56:41AM +0200, David Hildenbrand wrote:
+>> Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>=20
+> I did not see anything wrong with the taken approach, and makes sense to =
+me.
+> The only thing that puzzles me is we seem to not balance spanned_pages
+> for ZONE_DEVICE anymore.
+> memremap_pages() increments them via move_pfn_range_to_zone, but we skip
+> ZONE_DEVICE in remove_pfn_range_from_zone.
 
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c | 35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+Yes, documented e.g., in
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 1024a641f075..74574a69a614 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -798,7 +798,7 @@ static int complete_walk(struct nameidata *nd)
- 	return status;
- }
- 
--static void set_root(struct nameidata *nd)
-+static int set_root(struct nameidata *nd)
- {
- 	struct fs_struct *fs = current->fs;
- 
-@@ -814,6 +814,7 @@ static void set_root(struct nameidata *nd)
- 		get_fs_root(fs, &nd->root);
- 		nd->flags |= LOOKUP_ROOT_GRABBED;
- 	}
-+	return 0;
- }
- 
- static void path_put_conditional(struct path *path, struct nameidata *nd)
-@@ -837,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
- 
- static int nd_jump_root(struct nameidata *nd)
- {
-+	if (!nd->root.mnt) {
-+		int error = set_root(nd);
-+		if (error)
-+			return error;
-+	}
- 	if (nd->flags & LOOKUP_RCU) {
- 		struct dentry *d;
- 		nd->path = nd->root;
-@@ -1080,10 +1086,9 @@ const char *get_link(struct nameidata *nd)
- 			return res;
- 	}
- 	if (*res == '/') {
--		if (!nd->root.mnt)
--			set_root(nd);
--		if (unlikely(nd_jump_root(nd)))
--			return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
- 		while (unlikely(*++res == '/'))
- 			;
- 	}
-@@ -1698,8 +1703,13 @@ static inline int may_lookup(struct nameidata *nd)
- static inline int handle_dots(struct nameidata *nd, int type)
- {
- 	if (type == LAST_DOTDOT) {
--		if (!nd->root.mnt)
--			set_root(nd);
-+		int error = 0;
-+
-+		if (!nd->root.mnt) {
-+			error = set_root(nd);
-+			if (error)
-+				return error;
-+		}
- 		if (nd->flags & LOOKUP_RCU) {
- 			return follow_dotdot_rcu(nd);
- 		} else
-@@ -2162,6 +2172,7 @@ static int link_path_walk(const char *name, struct nameidata *nd)
- /* must be paired with terminate_walk() */
- static const char *path_init(struct nameidata *nd, unsigned flags)
- {
-+	int error;
- 	const char *s = nd->name->name;
- 
- 	if (!*s)
-@@ -2194,11 +2205,13 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 	nd->path.dentry = NULL;
- 
- 	nd->m_seq = read_seqbegin(&mount_lock);
-+
-+	/* Figure out the starting path and root (if needed). */
- 	if (*s == '/') {
--		set_root(nd);
--		if (likely(!nd_jump_root(nd)))
--			return s;
--		return ERR_PTR(-ECHILD);
-+		error = nd_jump_root(nd);
-+		if (unlikely(error))
-+			return ERR_PTR(error);
-+		return s;
- 	} else if (nd->dfd == AT_FDCWD) {
- 		if (flags & LOOKUP_RCU) {
- 			struct fs_struct *fs = current->fs;
--- 
-2.24.0
+commit 7ce700bf11b5e2cb84e4352bbdf2123a7a239c84
+Author: David Hildenbrand <david@redhat.com>
+Date:   Thu Nov 21 17:53:56 2019 -0800
+
+    mm/memory_hotplug: don't access uninitialized memmaps in
+shrink_zone_span()
+
+Needs some more thought - but is definitely not urgent (well, now it's
+at least no longer completely broken).
+
+>=20
+> That is not really related to this patch, so I might be missing something=
+,
+> but it caught my eye while reviewing this.
+>=20
+> Anyway, for this one:
+>=20
+> Reviewed-by: Oscar Salvador <osalvador@suse.de>
+>=20
+
+Thanks!
+
+>=20
+> off-topic: I __think__ we really need to trim the CC list.
+
+Yes we should :) - done.
+
+--=20
+Thanks,
+
+David / dhildenb
