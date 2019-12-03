@@ -1,24 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:33579 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726298AbfLCXjt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 18:39:49 -0500
-Received: by mail-pl1-f195.google.com with SMTP id ay6so2332950plb.0
-        for <linux-s390@vger.kernel.org>; Tue, 03 Dec 2019 15:39:48 -0800 (PST)
-From: Daniel Axtens <dja@axtens.net>
-Subject: Re: [PATCH v2 1/2] kasan: support instrumented bitops combined with generic bitops
-In-Reply-To: <87r21lef1k.fsf@mpe.ellerman.id.au>
-References: <20190820024941.12640-1-dja@axtens.net> <877e6vutiu.fsf@dja-thinkpad.axtens.net> <878sp57z44.fsf@dja-thinkpad.axtens.net> <CANpmjNOCxTxTpbB_LwUQS5jzfQ_2zbZVAc4nKf0FRXmrwO-7sA@mail.gmail.com> <87a78xgu8o.fsf@dja-thinkpad.axtens.net> <87y2wbf0xx.fsf@dja-thinkpad.axtens.net> <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com> <87r21lef1k.fsf@mpe.ellerman.id.au>
-Date: Wed, 04 Dec 2019 10:39:44 +1100
-Message-ID: <87pnh5dlmn.fsf@dja-thinkpad.axtens.net>
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:46276 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726079AbfLCNgg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 08:36:36 -0500
+Received: by mail-oi1-f194.google.com with SMTP id a124so3222033oii.13
+        for <linux-s390@vger.kernel.org>; Tue, 03 Dec 2019 05:36:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20190820024941.12640-1-dja@axtens.net> <877e6vutiu.fsf@dja-thinkpad.axtens.net>
+ <878sp57z44.fsf@dja-thinkpad.axtens.net> <CANpmjNOCxTxTpbB_LwUQS5jzfQ_2zbZVAc4nKf0FRXmrwO-7sA@mail.gmail.com>
+ <87a78xgu8o.fsf@dja-thinkpad.axtens.net> <87y2wbf0xx.fsf@dja-thinkpad.axtens.net>
+ <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com> <87r21lef1k.fsf@mpe.ellerman.id.au>
+In-Reply-To: <87r21lef1k.fsf@mpe.ellerman.id.au>
+From: Marco Elver <elver@google.com>
+Date: Tue, 3 Dec 2019 14:36:23 +0100
+Message-ID: <CANpmjNO5MgoBGBxv5iTDCegF-Saxg7dxeiTBqQRKdeUf1F5wXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] kasan: support instrumented bitops combined with
+ generic bitops
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>, Marco Elver <elver@google.com>
-Cc: linux-s390@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, kasan-dev <kasan-dev@googlegroups.com>, linux-arch <linux-arch@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Daniel Axtens <dja@axtens.net>, linux-s390@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, kasan-dev <kasan-dev@googlegroups.com>, linux-arch <linux-arch@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
 
-Hi Michael,
+On Tue, 3 Dec 2019 at 14:04, Michael Ellerman <mpe@ellerman.id.au> wrote:
+>
+> Marco Elver <elver@google.com> writes:
+> > On Wed, 20 Nov 2019 at 08:42, Daniel Axtens <dja@axtens.net> wrote:
+> >>
+> >> > But the docs do seem to indicate that it's atomic (for whatever that
+> >> > means for a single read operation?), so you are right, it should live in
+> >> > instrumented-atomic.h.
+> >>
+> >> Actually, on further inspection, test_bit has lived in
+> >> bitops/non-atomic.h since it was added in 4117b02132d1 ("[PATCH] bitops:
+> >> generic __{,test_and_}{set,clear,change}_bit() and test_bit()")
+> >>
+> >> So to match that, the wrapper should live in instrumented-non-atomic.h
+> >> too.
+> >>
+> >> If test_bit should move, that would need to be a different patch. But I
+> >> don't really know if it makes too much sense to stress about a read
+> >> operation, as opposed to a read/modify/write...
+> >
+> > That's fair enough. I suppose this can stay where it is because it's
+> > not hurting anyone per-se, but the only bad thing about it is that
+> > kernel-api documentation will present test_bit() in non-atomic
+> > operations.
+>
 > I only just noticed this thread as I was about to send a pull request
 > for these two commits.
 >
@@ -33,12 +61,11 @@ Hi Michael,
 >
 > Thoughts?
 
-That sounds good to me.
+For Documentation, this look reasonable to me.
 
-Regards,
-Daniel
+Thanks,
+-- Marco
 
->
 > cheers
 >
 >
@@ -49,22 +76,22 @@ Daniel
 > @@ -57,21 +57,12 @@ The Linux kernel provides more basic utility functions.
 >  Bit Operations
 >  --------------
->  
+>
 > -Atomic Operations
 > -~~~~~~~~~~~~~~~~~
 > -
 >  .. kernel-doc:: include/asm-generic/bitops/instrumented-atomic.h
 >     :internal:
->  
+>
 > -Non-atomic Operations
 > -~~~~~~~~~~~~~~~~~~~~~
 > -
 >  .. kernel-doc:: include/asm-generic/bitops/instrumented-non-atomic.h
 >     :internal:
->  
+>
 > -Locking Operations
 > -~~~~~~~~~~~~~~~~~~
 > -
 >  .. kernel-doc:: include/asm-generic/bitops/instrumented-lock.h
 >     :internal:
->  
+>
