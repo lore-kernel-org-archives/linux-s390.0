@@ -1,77 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35070 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728690AbfLJWET (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Dec 2019 17:04:19 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 065/130] s390/time: ensure get_clock_monotonic() returns monotonic values
-Date: Tue, 10 Dec 2019 17:01:56 -0500
-Message-Id: <20191210220301.13262-65-sashal@kernel.org>
-In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
-References: <20191210220301.13262-1-sashal@kernel.org>
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:33579 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726298AbfLCXjt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 18:39:49 -0500
+Received: by mail-pl1-f195.google.com with SMTP id ay6so2332950plb.0
+        for <linux-s390@vger.kernel.org>; Tue, 03 Dec 2019 15:39:48 -0800 (PST)
+From: Daniel Axtens <dja@axtens.net>
+Subject: Re: [PATCH v2 1/2] kasan: support instrumented bitops combined with generic bitops
+In-Reply-To: <87r21lef1k.fsf@mpe.ellerman.id.au>
+References: <20190820024941.12640-1-dja@axtens.net> <877e6vutiu.fsf@dja-thinkpad.axtens.net> <878sp57z44.fsf@dja-thinkpad.axtens.net> <CANpmjNOCxTxTpbB_LwUQS5jzfQ_2zbZVAc4nKf0FRXmrwO-7sA@mail.gmail.com> <87a78xgu8o.fsf@dja-thinkpad.axtens.net> <87y2wbf0xx.fsf@dja-thinkpad.axtens.net> <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com> <87r21lef1k.fsf@mpe.ellerman.id.au>
+Date: Wed, 04 Dec 2019 10:39:44 +1100
+Message-ID: <87pnh5dlmn.fsf@dja-thinkpad.axtens.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Michael Ellerman <mpe@ellerman.id.au>, Marco Elver <elver@google.com>
+Cc: linux-s390@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, kasan-dev <kasan-dev@googlegroups.com>, linux-arch <linux-arch@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Hi Michael,
+> I only just noticed this thread as I was about to send a pull request
+> for these two commits.
+>
+> I think I agree that test_bit() shouldn't move (yet), but I dislike that
+> the documentation ends up being confusing due to this patch.
+>
+> So I'm inclined to append or squash in the patch below, which removes
+> the new headers from the documentation. The end result is the docs look
+> more or less the same, just the ordering of some of the functions
+> changes. But we don't end up with test_bit() under the "Non-atomic"
+> header, and then also documented in Documentation/atomic_bitops.txt.
+>
+> Thoughts?
 
-[ Upstream commit 011620688a71f2f1fe9901dbc2479a7c01053196 ]
+That sounds good to me.
 
-The current implementation of get_clock_monotonic() leaves it up to
-the caller to call the function with preemption disabled. The only
-core kernel caller (sched_clock) however does not disable preemption.
+Regards,
+Daniel
 
-In order to make sure that all callers of this function see monotonic
-values handle disabling preemption within the function itself.
-
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/include/asm/timex.h | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
-index 64539c221672b..0f12a3f912820 100644
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -10,8 +10,9 @@
- #ifndef _ASM_S390_TIMEX_H
- #define _ASM_S390_TIMEX_H
- 
--#include <asm/lowcore.h>
-+#include <linux/preempt.h>
- #include <linux/time64.h>
-+#include <asm/lowcore.h>
- 
- /* The value of the TOD clock for 1.1.1970. */
- #define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
-@@ -186,15 +187,18 @@ extern unsigned char tod_clock_base[16] __aligned(8);
- /**
-  * get_clock_monotonic - returns current time in clock rate units
-  *
-- * The caller must ensure that preemption is disabled.
-  * The clock and tod_clock_base get changed via stop_machine.
-- * Therefore preemption must be disabled when calling this
-- * function, otherwise the returned value is not guaranteed to
-- * be monotonic.
-+ * Therefore preemption must be disabled, otherwise the returned
-+ * value is not guaranteed to be monotonic.
-  */
- static inline unsigned long long get_tod_clock_monotonic(void)
- {
--	return get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
-+	unsigned long long tod;
-+
-+	preempt_disable();
-+	tod = get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
-+	preempt_enable();
-+	return tod;
- }
- 
- /**
--- 
-2.20.1
+>
+> cheers
+>
+>
+> diff --git a/Documentation/core-api/kernel-api.rst b/Documentation/core-api/kernel-api.rst
+> index 2caaeb55e8dd..4ac53a1363f6 100644
+> --- a/Documentation/core-api/kernel-api.rst
+> +++ b/Documentation/core-api/kernel-api.rst
+> @@ -57,21 +57,12 @@ The Linux kernel provides more basic utility functions.
+>  Bit Operations
+>  --------------
+>  
+> -Atomic Operations
+> -~~~~~~~~~~~~~~~~~
+> -
+>  .. kernel-doc:: include/asm-generic/bitops/instrumented-atomic.h
+>     :internal:
+>  
+> -Non-atomic Operations
+> -~~~~~~~~~~~~~~~~~~~~~
+> -
+>  .. kernel-doc:: include/asm-generic/bitops/instrumented-non-atomic.h
+>     :internal:
+>  
+> -Locking Operations
+> -~~~~~~~~~~~~~~~~~~
+> -
+>  .. kernel-doc:: include/asm-generic/bitops/instrumented-lock.h
+>     :internal:
+>  
