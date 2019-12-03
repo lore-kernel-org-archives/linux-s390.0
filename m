@@ -1,84 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:55199 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725954AbfLCNEf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 3 Dec 2019 08:04:35 -0500
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v2 1/2] kasan: support instrumented bitops combined with generic bitops
-In-Reply-To: <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com>
-References: <20190820024941.12640-1-dja@axtens.net> <877e6vutiu.fsf@dja-thinkpad.axtens.net> <878sp57z44.fsf@dja-thinkpad.axtens.net> <CANpmjNOCxTxTpbB_LwUQS5jzfQ_2zbZVAc4nKf0FRXmrwO-7sA@mail.gmail.com> <87a78xgu8o.fsf@dja-thinkpad.axtens.net> <87y2wbf0xx.fsf@dja-thinkpad.axtens.net> <CANpmjNN-=F6GK_jHPUx8OdpboK7nMV=i=sKKfSsKwKEHnMTG0g@mail.gmail.com>
-Date: Wed, 04 Dec 2019 00:04:23 +1100
-Message-ID: <87r21lef1k.fsf@mpe.ellerman.id.au>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47182 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725848AbfLCIoJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 03:44:09 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB38bQU0059651
+        for <linux-s390@vger.kernel.org>; Tue, 3 Dec 2019 03:44:07 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wkm47k8xp-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 03 Dec 2019 03:44:05 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Tue, 3 Dec 2019 08:43:59 -0000
+Subject: Re: [kvm-unit-tests PATCH v2 6/9] s390x: css: stsch, enumeration test
+References: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
+ <1574945167-29677-7-git-send-email-pmorel@linux.ibm.com>
+ <20191202152246.4d627b0e.cohuck@redhat.com>
+ <aa588c00-79ac-2942-7911-b476abb224db@linux.ibm.com>
+ <20191202191541.1ffd987e.cohuck@redhat.com>
+ <bb189d95-ddfc-7031-d0dd-7de3e0dd5a7f@linux.ibm.com>
+ <20191202204922.508d389f.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Tue, 3 Dec 2019 09:43:55 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20191202204922.508d389f.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <6bc09e13-69f9-78de-9ee1-94f65798f747@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Marco Elver <elver@google.com>, Daniel Axtens <dja@axtens.net>
-Cc: linux-s390@vger.kernel.org, the arch/x86 maintainers <x86@kernel.org>, kasan-dev <kasan-dev@googlegroups.com>, linux-arch <linux-arch@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-Marco Elver <elver@google.com> writes:
-> On Wed, 20 Nov 2019 at 08:42, Daniel Axtens <dja@axtens.net> wrote:
+
+
+On 2019-12-02 20:49, Cornelia Huck wrote:
+> On Mon, 2 Dec 2019 19:33:59 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 2019-12-02 19:15, Cornelia Huck wrote:
+>>> On Mon, 2 Dec 2019 18:53:16 +0100
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> On 2019-12-02 15:22, Cornelia Huck wrote:
+>>>>> On Thu, 28 Nov 2019 13:46:04 +0100
+>>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>>>> +static int test_device_sid;
+>>>>>> +
+>>>>>> +static void test_enumerate(void)
+>>>>>> +{
+>>>>>> +	struct pmcw *pmcw = &schib.pmcw;
+>>>>>> +	int sid;
+>>>>>> +	int ret, i;
+>>>>>> +	int found = 0;
+>>>>>> +
+>>>>>> +	for (sid = 0; sid < 0xffff; sid++) {
+>>>>>> +		ret = stsch(sid|SID_ONE, &schib);
+>>>>>
+>>>>> This seems a bit odd. You are basically putting the subchannel number
+>>>>> into sid, OR in the one, and then use the resulting value as the sid
+>>>>> (subchannel identifier).
+>>>>>       
+>>>>>> +		if (!ret && (pmcw->flags & PMCW_DNV)) {
+>>>>>> +			report_info("SID %04x Type %s PIM %x", sid,
+>>>>>
+>>>>> That's not a sid, but the subchannel number (see above).
+>>>>>       
+>>>>>> +				     Channel_type[pmcw->st], pmcw->pim);
+>>>>>> +			for (i = 0; i < 8; i++)  {
+>>>>>> +				if ((pmcw->pim << i) & 0x80) {
+>>>>>> +					report_info("CHPID[%d]: %02x", i,
+>>>>>> +						    pmcw->chpid[i]);
+>>>>>> +					break;
+>>>>>> +				}
+>>>>>> +			}
+>>>>>> +			found++;
+>>>>>> +	
+>>>>>> +		}
+>>>>>
+>>>>> Here, you iterate over the 0-0xffff range, even if you got a condition
+>>>>> code 3 (indicating no more subchannels in that set). Is that
+>>>>> intentional?
+>>>>
+>>>> I thought there could be more subchannels.
+>>>> I need then a break in the loop when this happens.
+>>>> I will reread the PoP to see how to find that no more subchannel are in
+>>>> that set.
+>>>
+>>> The fact that cc 3 for stsch == no more subchannels is unfortunately a
+>>> bit scattered across the PoP :/ Dug it out some time ago, maybe it's
+>>> still in the archives somewhere...
 >>
->> > But the docs do seem to indicate that it's atomic (for whatever that
->> > means for a single read operation?), so you are right, it should live in
->> > instrumented-atomic.h.
->>
->> Actually, on further inspection, test_bit has lived in
->> bitops/non-atomic.h since it was added in 4117b02132d1 ("[PATCH] bitops:
->> generic __{,test_and_}{set,clear,change}_bit() and test_bit()")
->>
->> So to match that, the wrapper should live in instrumented-non-atomic.h
->> too.
->>
->> If test_bit should move, that would need to be a different patch. But I
->> don't really know if it makes too much sense to stress about a read
->> operation, as opposed to a read/modify/write...
->
-> That's fair enough. I suppose this can stay where it is because it's
-> not hurting anyone per-se, but the only bad thing about it is that
-> kernel-api documentation will present test_bit() in non-atomic
-> operations.
+>> So the the subchannel are always one after the other?
+> 
+> While QEMU (and z/VM) usually do that, they can really be scattered
+> around. For the in-between I/O subchannels that don't lead to a device,
+> you'll still get cc 0, it's just the dnv bit that is 0. The cc 3
+> basically just tells you that you can stop looking.
+> 
 
-I only just noticed this thread as I was about to send a pull request
-for these two commits.
+Thanks for the explanation, I will change the code accordingly.
 
-I think I agree that test_bit() shouldn't move (yet), but I dislike that
-the documentation ends up being confusing due to this patch.
+Regards,
+Pierre
 
-So I'm inclined to append or squash in the patch below, which removes
-the new headers from the documentation. The end result is the docs look
-more or less the same, just the ordering of some of the functions
-changes. But we don't end up with test_bit() under the "Non-atomic"
-header, and then also documented in Documentation/atomic_bitops.txt.
-
-Thoughts?
-
-cheers
-
-
-diff --git a/Documentation/core-api/kernel-api.rst b/Documentation/core-api/kernel-api.rst
-index 2caaeb55e8dd..4ac53a1363f6 100644
---- a/Documentation/core-api/kernel-api.rst
-+++ b/Documentation/core-api/kernel-api.rst
-@@ -57,21 +57,12 @@ The Linux kernel provides more basic utility functions.
- Bit Operations
- --------------
- 
--Atomic Operations
--~~~~~~~~~~~~~~~~~
--
- .. kernel-doc:: include/asm-generic/bitops/instrumented-atomic.h
-    :internal:
- 
--Non-atomic Operations
--~~~~~~~~~~~~~~~~~~~~~
--
- .. kernel-doc:: include/asm-generic/bitops/instrumented-non-atomic.h
-    :internal:
- 
--Locking Operations
--~~~~~~~~~~~~~~~~~~
--
- .. kernel-doc:: include/asm-generic/bitops/instrumented-lock.h
-    :internal:
- 
+-- 
+Pierre Morel
+IBM Lab Boeblingen
