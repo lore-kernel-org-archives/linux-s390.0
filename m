@@ -1,89 +1,139 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727954AbfLTOa5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:57 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 46/52] s390/cpum_sf: Avoid SBD overflow condition in irq handler
-Date: Fri, 20 Dec 2019 09:29:48 -0500
-Message-Id: <20191220142954.9500-46-sashal@kernel.org>
-In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
-References: <20191220142954.9500-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:34668 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727268AbfLDKhb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Dec 2019 05:37:31 -0500
+Subject: Re: [PATCH v2] KVM: s390: Add new reset vcpu API
+References: <20191203162055.3519-1-frankja@linux.ibm.com>
+ <c22eefd7-2c99-ec8e-3b5c-fabb343230a9@redhat.com>
+ <26845508-9a35-7ec6-fc01-49ab4b7e3473@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <ac908a16-9b00-9c86-42f2-88cff497ed5c@redhat.com>
+Date: Wed, 4 Dec 2019 11:37:15 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <26845508-9a35-7ec6-fc01-49ab4b7e3473@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="qR7wqTKRxEjnmAonEU9nCTVzn0nEQX453"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, borntraeger@de.ibm.com, mihajlov@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--qR7wqTKRxEjnmAonEU9nCTVzn0nEQX453
+Content-Type: multipart/mixed; boundary="XOTxow7ibzXRVYbHlE1y7VQsmzPAjTnA7";
+ protected-headers="v1"
+From: Thomas Huth <thuth@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, borntraeger@de.ibm.com, mihajlov@linux.ibm.com,
+ cohuck@redhat.com, linux-s390@vger.kernel.org
+Message-ID: <ac908a16-9b00-9c86-42f2-88cff497ed5c@redhat.com>
+Subject: Re: [PATCH v2] KVM: s390: Add new reset vcpu API
+References: <20191203162055.3519-1-frankja@linux.ibm.com>
+ <c22eefd7-2c99-ec8e-3b5c-fabb343230a9@redhat.com>
+ <26845508-9a35-7ec6-fc01-49ab4b7e3473@linux.ibm.com>
+In-Reply-To: <26845508-9a35-7ec6-fc01-49ab4b7e3473@linux.ibm.com>
 
-[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+--XOTxow7ibzXRVYbHlE1y7VQsmzPAjTnA7
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-The s390 CPU Measurement sampling facility has an overflow condition
-which fires when all entries in a SBD are used.
-The measurement alert interrupt is triggered and reads out all samples
-in this SDB. It then tests the successor SDB, if this SBD is not full,
-the interrupt handler does not read any samples at all from this SDB
-The design waits for the hardware to fill this SBD and then trigger
-another meassurement alert interrupt.
+On 04/12/2019 11.06, Janosch Frank wrote:
+> On 12/4/19 10:32 AM, Thomas Huth wrote:
+>> On 03/12/2019 17.20, Janosch Frank wrote:
+>>> The architecture states that we need to reset local IRQs for all CPU
+>>> resets. Because the old reset interface did not support the normal CPU
+>>> reset we never did that.
+>>>
+>>> Now that we have a new interface, let's properly clear out local IRQs
+>>> and let this commit be a reminder.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>  arch/s390/kvm/kvm-s390.c | 13 +++++++++++++
+>>>  include/uapi/linux/kvm.h |  4 ++++
+>>>  2 files changed, 17 insertions(+)
+>>>
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index d9e6bf3d54f0..602214c5616c 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -529,6 +529,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, l=
+ong ext)
+>>>  =09case KVM_CAP_S390_CMMA_MIGRATION:
+>>>  =09case KVM_CAP_S390_AIS:
+>>>  =09case KVM_CAP_S390_AIS_MIGRATION:
+>>> +=09case KVM_CAP_S390_VCPU_RESETS:
+>>>  =09=09r =3D 1;
+>>>  =09=09break;
+>>>  =09case KVM_CAP_S390_HPAGE_1M:
+>>> @@ -3287,6 +3288,13 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(struc=
+t kvm_vcpu *vcpu,
+>>>  =09return r;
+>>>  }
+>>> =20
+>>> +static int kvm_arch_vcpu_ioctl_normal_reset(struct kvm_vcpu *vcpu)
+>>> +{
+>>> +=09kvm_clear_async_pf_completion_queue(vcpu);
+>>> +=09kvm_s390_clear_local_irqs(vcpu);
+>>> +=09return 0;
+>>> +}
+>>> +
+>>>  static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+>>>  {
+>>>  =09kvm_s390_vcpu_initial_reset(vcpu);
+>>> @@ -4363,7 +4371,12 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>>>  =09=09r =3D kvm_arch_vcpu_ioctl_set_initial_psw(vcpu, psw);
+>>>  =09=09break;
+>>>  =09}
+>>> +=09case KVM_S390_NORMAL_RESET:
+>>> +=09=09r =3D kvm_arch_vcpu_ioctl_normal_reset(vcpu);
+>>> +=09=09break;
+>>>  =09case KVM_S390_INITIAL_RESET:
+>>> +=09=09/* fallthrough */
+>>> +=09case KVM_S390_CLEAR_RESET:
+>>>  =09=09r =3D kvm_arch_vcpu_ioctl_initial_reset(vcpu);
+>>>  =09=09break;
+>>
+>> Isn't clear reset supposed to do more than the initial reset? If so, I'd
+>> rather expect it the other way round:
+>=20
+> In the PV patch I remove the fallthrough and add a function for the
+> clear reset. I add the UV reset calls into the
+> kvm_arch_vcpu_ioctl_*_reset() functions, therefore I can't fallthrough
+> because the Ultravisor does currently not allow staged resets (i.e.
+> first initial then clear if a clear reset is needed)
 
-This scheme works nicely until
-an perf_event_overflow() function call discards the sample due to
-a too high sampling rate.
-The interrupt handler has logic to read out a partially filled SDB
-when the perf event overflow condition in linux common code is met.
-This causes the CPUM sampling measurement hardware and the PMU
-device driver to operate on the same SBD's trailer entry.
-This should not happen.
+Ok, then it's fine. But in case you respin your patch, it's maybe less
+confusing if you swap it.
 
-This can be seen here using this trace:
-   cpumsf_pmu_add: tear:0xb5286000
-   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 1. interrupt
-   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 2. interrupt
-	... this goes on fine until...
-   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
-   perf_push_sample1: overflow
-      one or more samples read from the IRQ handler are rejected by
-      perf_event_overflow() and the IRQ handler advances to the next SDB
-      and modifies the trailer entry of a partially filled SDB.
-   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
-      timestamp: 14:32:52.519953
+ Thomas
 
-Next time the IRQ handler is called for this SDB the trailer entry shows
-an overflow count of 19 missed entries.
-   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
-      timestamp: 14:32:52.970058
 
-Remove access to a follow on SDB when event overflow happened.
+--XOTxow7ibzXRVYbHlE1y7VQsmzPAjTnA7--
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 6 ------
- 1 file changed, 6 deletions(-)
+--qR7wqTKRxEjnmAonEU9nCTVzn0nEQX453
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 8c384e6ea36ac..8ad406f7264a4 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1300,12 +1300,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 		 */
- 		if (flush_all && done)
- 			break;
--
--		/* If an event overflow happened, discard samples by
--		 * processing any remaining sample-data-blocks.
--		 */
--		if (event_overflow)
--			flush_all = 1;
- 	}
- 
- 	/* Account sample overflows in the event hardware structure */
--- 
-2.20.1
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJ7iIR+7gJQEY8+q5LtnXdP5wLbUFAl3njGAACgkQLtnXdP5w
+LbVn6Q/8CnGgKZzCuHCOdW6qjfakbo/fIfuAPbPOA5zm14avRLAUMJP/eJKZGcQl
+U1gAILLeQ6QcTsi0WGvS2qm7kdbKJKDKzy2N3/wboTV/huFGvLXdvUEu/wLMw8mQ
+ozieP2gD+TLCvI6NKHISoAfm65IgMrzhL+b6c3aZx9brIbsgD87sZrSum4F6XxMW
+jjxr+0dg/tvHu1hSU+VlTBrxhj5z6+Ix+gcGwgafnJ4V/gN0SFyHOfx5bwudHAHD
+oAF4RUXOcHnnJ3Sp9KttingpAGGsU7pSZWbYmQJsyQEvIM7X4qu485FOEkfRSFll
+hToZcVnSMISMM7Rdb+XpIRAen7095re3jI4YL6Xsrw/bOfR0+f11YUMcDQowbL+y
+FrnZa3PsEJqeOqtbXzY52uuhZLZlx5kkDXqNwvlvaYgTE5qPW7/3yu3wKZk8i2fi
+MM8uGSWKTi9Oajj5djm7XrODQZJZKLOuxKOVsJjBOmygcC2JF2aNbgPppzQ2KbRu
+Gz9JjDEGOxYrw9QZBWAaWc7Y+P7rMK2ZjnLyEB2b2npbZfBb3a/qSssXBaYOUbeF
+VztexG66N0PK5tOIieIE0nnkqJ+Zkw3VM9ICgMxCJZWBPVcE8LV2sGFC6LcCeYGv
+7eS6jHvWvDEslwMYwhfgGXG9Bbnl7+kQ8LjC4nMG7jUg5/mnT5E=
+=nXSx
+-----END PGP SIGNATURE-----
+
+--qR7wqTKRxEjnmAonEU9nCTVzn0nEQX453--
