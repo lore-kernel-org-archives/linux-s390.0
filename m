@@ -1,81 +1,142 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 272/350] s390/disassembler: don't hide instruction addresses
-Date: Tue, 10 Dec 2019 16:06:17 -0500
-Message-Id: <20191210210735.9077-233-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58528 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727446AbfLDLr5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Dec 2019 06:47:57 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB4BjqJ0098341
+        for <linux-s390@vger.kernel.org>; Wed, 4 Dec 2019 06:47:56 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wntctbkpm-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 04 Dec 2019 06:47:56 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
+        Wed, 4 Dec 2019 11:47:54 -0000
+Subject: Re: WARNING: refcount bug in smc_release (2)
+References: <20191201122517.18720-1-hdanton@sina.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Wed, 4 Dec 2019 12:47:49 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191201122517.18720-1-hdanton@sina.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <e943de9d-a81a-e709-e228-64eaddc328da@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Hillf Danton <hdanton@sina.com>, syzbot <syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com>
+Cc: davem@davemloft.net, kgraul@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
 
-Due to kptr_restrict, JITted BPF code is now displayed like this:
+On 12/1/19 1:25 PM, Hillf Danton wrote:
+> 
+> On Sat, 30 Nov 2019 20:37:09 -0800
+>>
+>> syzbot has found a reproducer for the following crash on:
+>>
+>> HEAD commit:    32ef9553 Merge tag 'fsnotify_for_v5.5-rc1' of git://git.ke..
+>> git tree:       upstream
+>> console output: https://syzkaller.appspot.com/x/log.txt?x=15f6d82ae00000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=ff560c3de405258c
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=96d3f9ff6a86d37e44c8
+>> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+>> userspace arch: i386
+>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14b57336e00000
+>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=149e357ae00000
+>>
+>> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+>> Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
+>>
+>> ------------[ cut here ]------------
+>> refcount_t: underflow; use-after-free.
+>> WARNING: CPU: 1 PID: 9807 at lib/refcount.c:28  
+>> refcount_warn_saturate+0x1dc/0x1f0 lib/refcount.c:28
+>> Kernel panic - not syncing: panic_on_warn set ...
+>> CPU: 1 PID: 9807 Comm: syz-executor293 Not tainted 5.4.0-syzkaller #0
+>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+>> Google 01/01/2011
+>> Call Trace:
+>>   __dump_stack lib/dump_stack.c:77 [inline]
+>>   dump_stack+0x197/0x210 lib/dump_stack.c:118
+>>   panic+0x2e3/0x75c kernel/panic.c:221
+>>   __warn.cold+0x2f/0x3e kernel/panic.c:582
+>>   report_bug+0x289/0x300 lib/bug.c:195
+>>   fixup_bug arch/x86/kernel/traps.c:174 [inline]
+>>   fixup_bug arch/x86/kernel/traps.c:169 [inline]
+>>   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
+>>   do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
+>>   invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
+>> RIP: 0010:refcount_warn_saturate+0x1dc/0x1f0 lib/refcount.c:28
+>> Code: e9 d8 fe ff ff 48 89 df e8 c1 5a 24 fe e9 85 fe ff ff e8 e7 08 e7 fd  
+>> 48 c7 c7 a0 6f 4f 88 c6 05 60 b8 a4 06 01 e8 53 bd b7 fd <0f> 0b e9 ac fe  
+>> ff ff 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 55 48
+>> RSP: 0018:ffff888093c97998 EFLAGS: 00010286
+>> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+>> RDX: 0000000000000000 RSI: ffffffff815e4316 RDI: ffffed1012792f25
+>> RBP: ffff888093c979a8 R08: ffff8880a04d4380 R09: ffffed1015d26621
+>> R10: ffffed1015d26620 R11: ffff8880ae933107 R12: 0000000000000003
+>> R13: 0000000000000000 R14: ffff8880a118d380 R15: ffff88809427e558
+>>   refcount_sub_and_test include/linux/refcount.h:261 [inline]
+>>   refcount_dec_and_test include/linux/refcount.h:281 [inline]
+>>   sock_put include/net/sock.h:1728 [inline]
+>>   smc_release+0x445/0x520 net/smc/af_smc.c:202
+>>   __sock_release+0xce/0x280 net/socket.c:591
+>>   sock_close+0x1e/0x30 net/socket.c:1269
+>>   __fput+0x2ff/0x890 fs/file_table.c:280
+>>   ____fput+0x16/0x20 fs/file_table.c:313
+>>   task_work_run+0x145/0x1c0 kernel/task_work.c:113
+>>   exit_task_work include/linux/task_work.h:22 [inline]
+>>   do_exit+0x8e7/0x2ef0 kernel/exit.c:797
+>>   do_group_exit+0x135/0x360 kernel/exit.c:895
+>>   get_signal+0x47c/0x24f0 kernel/signal.c:2734
+>>   do_signal+0x87/0x1700 arch/x86/kernel/signal.c:815
+>>   exit_to_usermode_loop+0x286/0x380 arch/x86/entry/common.c:160
+>>   prepare_exit_to_usermode arch/x86/entry/common.c:195 [inline]
+>>   syscall_return_slowpath arch/x86/entry/common.c:278 [inline]
+>>   do_syscall_32_irqs_on arch/x86/entry/common.c:352 [inline]
+>>   do_fast_syscall_32+0xbbd/0xe16 arch/x86/entry/common.c:408
+>>   entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
+> 
+> Prevent repeated release using cmpxchg and the sock_hold/put pair is
+> cut off as a bonus cleanup (which would go in another seperate one if
+> necessary).
+> 
 
-000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
-000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
-00000000fbad41b0: a7fbffa0      aghi    %r15,-96
+Thanks, Hilff, for this cmpxchg() idea. We keep it in mind, but analyzing
+possible scenarios of the C reproducer I detected an errorneous duplicate
+refcount decrease possibility for the combination of non-blocking connect()
+and FASTOPEN_KEY setsockopt(). I am working on a fix.
 
-Leaking kernel addresses to dmesg is not a concern in this case, because
-this happens only when JIT debugging is explicitly activated, which only
-root can do.
+Thus I assume the syzbot problem is not caused by a repeated release.
 
-Use %px in this particular instance, and also to print an instruction
-address in show_code and PCREL (e.g. brasl) arguments in print_insn.
-While at present functionally equivalent to %016lx, %px is recommended
-by Documentation/core-api/printk-formats.rst for such cases.
+Kind regards, Ursula
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/dis.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
-index 7abe6ae261b42..f304802ecf7be 100644
---- a/arch/s390/kernel/dis.c
-+++ b/arch/s390/kernel/dis.c
-@@ -461,10 +461,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
- 				ptr += sprintf(ptr, "%%c%i", value);
- 			else if (operand->flags & OPERAND_VR)
- 				ptr += sprintf(ptr, "%%v%i", value);
--			else if (operand->flags & OPERAND_PCREL)
--				ptr += sprintf(ptr, "%lx", (signed int) value
--								      + addr);
--			else if (operand->flags & OPERAND_SIGNED)
-+			else if (operand->flags & OPERAND_PCREL) {
-+				void *pcrel = (void *)((int)value + addr);
-+
-+				ptr += sprintf(ptr, "%px", pcrel);
-+			} else if (operand->flags & OPERAND_SIGNED)
- 				ptr += sprintf(ptr, "%i", value);
- 			else
- 				ptr += sprintf(ptr, "%u", value);
-@@ -536,7 +537,7 @@ void show_code(struct pt_regs *regs)
- 		else
- 			*ptr++ = ' ';
- 		addr = regs->psw.addr + start - 32;
--		ptr += sprintf(ptr, "%016lx: ", addr);
-+		ptr += sprintf(ptr, "%px: ", (void *)addr);
- 		if (start + opsize >= end)
- 			break;
- 		for (i = 0; i < opsize; i++)
-@@ -564,7 +565,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
- 		opsize = insn_length(*code);
- 		if (opsize > len)
- 			break;
--		ptr += sprintf(ptr, "%p: ", code);
-+		ptr += sprintf(ptr, "%px: ", code);
- 		for (i = 0; i < opsize; i++)
- 			ptr += sprintf(ptr, "%02x", code[i]);
- 		*ptr++ = '\t';
--- 
-2.20.1
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -172,10 +172,9 @@ static int smc_release(struct socket *so
+>  	struct smc_sock *smc;
+>  	int rc = 0;
+>  
+> -	if (!sk)
+> -		goto out;
+> +	if (!sk || sk != cmpxchg(&sock->sk, sk, NULL))
+> +		return 0;
+>  
+> -	sock_hold(sk); /* sock_put below */
+>  	smc = smc_sk(sk);
+>  
+>  	/* cleanup for a dangling non-blocking connect */
+> @@ -198,9 +197,7 @@ static int smc_release(struct socket *so
+>  	sock->sk = NULL;
+>  	release_sock(sk);
+>  
+> -	sock_put(sk); /* sock_hold above */
+>  	sock_put(sk); /* final sock_put */
+> -out:
+>  	return rc;
+>  }
+>  
+> 
