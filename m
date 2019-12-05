@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 182/350] s390/time: ensure get_clock_monotonic() returns monotonic values
-Date: Tue, 10 Dec 2019 16:04:47 -0500
-Message-Id: <20191210210735.9077-143-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:52880 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729260AbfLEMuV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 07:50:21 -0500
+Subject: Re: [PATCH v4] KVM: s390: Add new reset vcpu API
+References: <20191205131930.1b78f78b.cohuck@redhat.com>
+ <20191205122810.10672-1-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <081eebc2-fbe4-d928-ad54-7e90fa06e0b2@redhat.com>
+Date: Thu, 5 Dec 2019 13:50:13 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191205122810.10672-1-frankja@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+On 05/12/2019 13.28, Janosch Frank wrote:
+> The architecture states that we need to reset local IRQs for all CPU
+> resets. Because the old reset interface did not support the normal CPU
+> reset we never did that. Now that we have a new interface, let's
+> properly clear out local IRQs.
+>=20
+> Also we add a ioctl for the clear reset to have all resets exposed to
+> userspace. Currently the clear reset falls back to the initial reset,
+> but we plan to have clear reset specific code in the future.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> ---
+>  Documentation/virt/kvm/api.txt | 48 ++++++++++++++++++++++++++++++++++
+>  arch/s390/kvm/kvm-s390.c       | 14 ++++++++++
+>  include/uapi/linux/kvm.h       |  5 ++++
+>  3 files changed, 67 insertions(+)
+[...]
+> +4.123 KVM_S390_CLEAR_RESET
+> +
+> +Capability: KVM_CAP_S390_VCPU_RESETS
+> +Architectures: s390
+> +Type: vcpu ioctl
+> +Parameters: none
+> +Returns: 0
+> +
+> +This ioctl resets VCPU registers and control structures that userspace
+> +can't access via the kvm_run structure. It is intended to be called
+> +when an initial reset (which is a superset of the normal reset) is
+> +performed on the vcpu and additionally clears general, access,
+> +floating and vector registers.
 
-[ Upstream commit 011620688a71f2f1fe9901dbc2479a7c01053196 ]
+So now you've documented that this ioctl clears the GPRs, ARs and
+FRs/VRs ... but the implementation does not! That's quite ugly.
+Can you please state clearly that it is the job of userspace to clear
+these registers (in the default, non-protected case) and that this ioctl
+should be called on top?
 
-The current implementation of get_clock_monotonic() leaves it up to
-the caller to call the function with preemption disabled. The only
-core kernel caller (sched_clock) however does not disable preemption.
+Same problem with the PSW bit 24 and riccb during normal reset.
 
-In order to make sure that all callers of this function see monotonic
-values handle disabling preemption within the function itself.
+Or should the kernel code maybe also clear these in addition to
+userspace, just to be in line with the initial reset?
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/include/asm/timex.h | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
-index 64539c221672b..0f12a3f912820 100644
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -10,8 +10,9 @@
- #ifndef _ASM_S390_TIMEX_H
- #define _ASM_S390_TIMEX_H
- 
--#include <asm/lowcore.h>
-+#include <linux/preempt.h>
- #include <linux/time64.h>
-+#include <asm/lowcore.h>
- 
- /* The value of the TOD clock for 1.1.1970. */
- #define TOD_UNIX_EPOCH 0x7d91048bca000000ULL
-@@ -186,15 +187,18 @@ extern unsigned char tod_clock_base[16] __aligned(8);
- /**
-  * get_clock_monotonic - returns current time in clock rate units
-  *
-- * The caller must ensure that preemption is disabled.
-  * The clock and tod_clock_base get changed via stop_machine.
-- * Therefore preemption must be disabled when calling this
-- * function, otherwise the returned value is not guaranteed to
-- * be monotonic.
-+ * Therefore preemption must be disabled, otherwise the returned
-+ * value is not guaranteed to be monotonic.
-  */
- static inline unsigned long long get_tod_clock_monotonic(void)
- {
--	return get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
-+	unsigned long long tod;
-+
-+	preempt_disable();
-+	tod = get_tod_clock() - *(unsigned long long *) &tod_clock_base[1];
-+	preempt_enable();
-+	return tod;
- }
- 
- /**
--- 
-2.20.1
+ Thomas
