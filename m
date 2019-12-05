@@ -1,52 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16180 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729672AbfLEQJn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 11:09:43 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB5G5wvD091122
-        for <linux-s390@vger.kernel.org>; Thu, 5 Dec 2019 11:09:41 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wq2tuqsvt-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33402 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729099AbfLEOuv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 09:50:51 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB5ElL8c045984
+        for <linux-s390@vger.kernel.org>; Thu, 5 Dec 2019 09:50:50 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq1pnphes-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Dec 2019 11:09:41 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 05 Dec 2019 09:50:49 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Thu, 5 Dec 2019 16:09:39 -0000
-Date: Thu, 5 Dec 2019 17:09:30 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 5 Dec 2019 14:50:45 -0000
 Subject: Re: [PATCH] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
 References: <20191205125147.229367-1-borntraeger@de.ibm.com>
- <087b1693-6ec0-94e3-d94a-f55c2e717438@redhat.com>
- <26f905be-3f09-3b3b-3008-ef64fc93e36c@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 5 Dec 2019 15:50:41 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26f905be-3f09-3b3b-3008-ef64fc93e36c@de.ibm.com>
-Message-Id: <20191205160930.GA13800@osiris>
+In-Reply-To: <20191205125147.229367-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Message-Id: <82377b35-79dc-05e1-cb1c-e84d397f4321@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On Thu, Dec 05, 2019 at 02:16:02PM +0100, Christian Borntraeger wrote:
-> On 05.12.19 14:09, Thomas Huth wrote:
-> > On 05/12/2019 13.51, Christian Borntraeger wrote:
-> >> There is no ENOTSUPP for userspace
-> >>
-> >> Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
-> >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> >> ---
-> >> -		return -ENOTSUPP;
-> >> +		return -EOPNOTSUPP;
-> > There seems to be another one in arch/s390/include/asm/uv.h, are you
-> > going to fix that, too?
-> I looked into that but it seemed that this is not exposed to
-> userspace and just kept internal.
 
-Could you remove that one as well, please? Otherwise people start
-copy-pasting this (again). I thought we got rid of them all, and now
-they crept in again.
+On 05.12.19 13:51, Christian Borntraeger wrote:
+> There is no ENOTSUPP for userspace
+> 
+> Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Same for dasd ioctl code...
+applied.
+
+> ---
+>  arch/s390/kvm/interrupt.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 2a711bae69a7..bd9b339bbb5e 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2312,7 +2312,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+>  		return -EINVAL;
+>  
+>  	if (!test_kvm_facility(kvm, 72))
+> -		return -ENOTSUPP;
+> +		return -EOPNOTSUPP;
+>  
+>  	mutex_lock(&fi->ais_lock);
+>  	ais.simm = fi->simm;
+> @@ -2621,7 +2621,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+>  	int ret = 0;
+>  
+>  	if (!test_kvm_facility(kvm, 72))
+> -		return -ENOTSUPP;
+> +		return -EOPNOTSUPP;
+>  
+>  	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+>  		return -EFAULT;
+> @@ -2701,7 +2701,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+>  	struct kvm_s390_ais_all ais;
+>  
+>  	if (!test_kvm_facility(kvm, 72))
+> -		return -ENOTSUPP;
+> +		return -EOPNOTSUPP;
+>  
+>  	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+>  		return -EFAULT;
+> 
