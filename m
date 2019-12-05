@@ -1,37 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45892 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729165AbfLENFo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 08:05:44 -0500
-Date: Thu, 5 Dec 2019 14:05:32 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
-Message-ID: <20191205140532.7760b69c.cohuck@redhat.com>
-In-Reply-To: <20191205125147.229367-1-borntraeger@de.ibm.com>
-References: <20191205125147.229367-1-borntraeger@de.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20118 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729290AbfLEMvz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 07:51:55 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB5ClWIY139329
+        for <linux-s390@vger.kernel.org>; Thu, 5 Dec 2019 07:51:54 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq1ky1ym6-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 05 Dec 2019 07:51:54 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 5 Dec 2019 12:51:51 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date: Thu,  5 Dec 2019 13:51:47 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20191205125147.229367-1-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On Thu,  5 Dec 2019 13:51:47 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+There is no ENOTSUPP for userspace
 
-> There is no ENOTSUPP for userspace
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-s/userspace/userspace./
-
-Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
-Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
-
-> 
-> Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/kvm/interrupt.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 2a711bae69a7..bd9b339bbb5e 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2312,7 +2312,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2621,7 +2621,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2701,7 +2701,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
+-- 
+2.24.0
