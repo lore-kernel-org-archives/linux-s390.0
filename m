@@ -1,178 +1,301 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730237AbfLEUpl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 15:45:41 -0500
-From: Eric Farman <farman@linux.ibm.com>
-Subject: Re: [RFC PATCH v1 08/10] vfio-ccw: Wire up the CRW irq and CRW region
-References: <20191115025620.19593-1-farman@linux.ibm.com>
- <20191115025620.19593-9-farman@linux.ibm.com>
- <20191119195236.35189d5b.cohuck@redhat.com>
-Message-ID: <02d98858-ddac-df7e-96a6-7c61335d3cee@linux.ibm.com>
-Date: Thu, 5 Dec 2019 15:43:55 -0500
-MIME-Version: 1.0
-In-Reply-To: <20191119195236.35189d5b.cohuck@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/3] s390/qeth: fix dangling IO buffers after halt/clear
+Date: Thu,  5 Dec 2019 14:33:04 +0100
+In-Reply-To: <20191205133304.58895-1-jwi@linux.ibm.com>
+References: <20191205133304.58895-1-jwi@linux.ibm.com>
+Message-Id: <20191205133304.58895-4-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
+The cio layer's intparm logic does not align itself well with how qeth
+manages cmd IOs. When an active IO gets terminated via halt/clear, the
+corresponding IRQ's intparm does not reflect the cmd buffer but rather
+the intparm that was passed to ccw_device_halt() / ccw_device_clear().
+This behaviour was recently clarified in
+commit b91d9e67e50b ("s390/cio: fix intparm documentation").
 
+As a result, qeth_irq() currently doesn't cancel a cmd that was
+terminated via halt/clear. This primarily causes us to leak
+card->read_cmd after the qeth device is removed, since our IO path still
+holds a refcount for this cmd.
 
-On 11/19/19 1:52 PM, Cornelia Huck wrote:
-> On Fri, 15 Nov 2019 03:56:18 +0100
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
->> From: Farhan Ali <alifm@linux.ibm.com>
->>
->> Use an IRQ to notify userspace that there is a CRW
->> pending in the region, related to path-availability
->> changes on the passthrough subchannel.
-> 
-> Thinking a bit more about this, it feels a bit odd that a crw for a
-> chpid ends up on one subchannel. What happens if we have multiple
-> subchannels passed through by vfio-ccw that use that same chpid?
+For qeth this means that we need to keep track of which IO is pending on
+a device ('active_cmd'), and use this as the intparm when calling
+halt/clear. Otherwise qeth_irq() can't match the subsequent IRQ to its
+cmd buffer.
+Since we now keep track of the _expected_ intparm, we can also detect
+any mismatch; this would constitute a bug somewhere in the lower layers.
+In this case cancel the active cmd - we effectively "lost" the IRQ and
+should not expect any further notification for this IO.
 
-Yeah...  It doesn't end up on one subchannel, it ends up on every
-affected subchannel, based on the loops in (for example)
-chsc_chp_offline().  This means that "let's configure off a CHPID to the
-LPAR" translates one channel-path CRW into N channel-path CRWs (one each
-sent to N subchannels).  It would make more sense if we just presented
-one channel-path CRW to the guest, but I'm having difficulty seeing how
-we could wire this up.  What we do here is use the channel-path event
-handler in vfio-ccw also create a channel-path CRW to be presented to
-the guest, even though it's processing something at the subchannel level.
+Fixes: 405548959cc7 ("s390/qeth: add support for dynamically allocated cmds")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      |  3 ++
+ drivers/s390/net/qeth_core_main.c | 71 ++++++++++++++++++++++---------
+ drivers/s390/net/qeth_core_mpc.h  | 14 ------
+ drivers/s390/net/qeth_l2_main.c   | 12 +++---
+ drivers/s390/net/qeth_l3_main.c   | 13 +++---
+ 5 files changed, 67 insertions(+), 46 deletions(-)
 
-The actual CRW handlers are in the base cio code, and we only get into
-vfio-ccw when processing the individual subchannels.  Do we need to make
-a device (or something?) at the guest level for the chpids that exist?
-Or do something to say "hey we got this from a subchannel, put it on a
-global queue if it's unique, or throw it away if it's a duplicate we
-haven't processed yet" ?  Thoughts?
-
-> 
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>
->> Notes:
->>     v0->v1: [EF]
->>      - Place the non-refactoring changes from the previous patch here
->>      - Clean up checkpatch (whitespace) errors
->>      - s/chp_crw/crw/
->>      - Move acquire/release of io_mutex in vfio_ccw_crw_region_read()
->>        into patch that introduces that region
->>      - Remove duplicate include from vfio_ccw_drv.c
->>      - Reorder include in vfio_ccw_private.h
->>
->>  drivers/s390/cio/vfio_ccw_drv.c     | 27 +++++++++++++++++++++++++++
->>  drivers/s390/cio/vfio_ccw_ops.c     |  4 ++++
->>  drivers/s390/cio/vfio_ccw_private.h |  4 ++++
->>  include/uapi/linux/vfio.h           |  1 +
->>  4 files changed, 36 insertions(+)
->>
->> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
->> index d1b9020d037b..ab20c32e5319 100644
->> --- a/drivers/s390/cio/vfio_ccw_drv.c
->> +++ b/drivers/s390/cio/vfio_ccw_drv.c
->> @@ -108,6 +108,22 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
->>  		eventfd_signal(private->io_trigger, 1);
->>  }
->>  
->> +static void vfio_ccw_crw_todo(struct work_struct *work)
->> +{
->> +	struct vfio_ccw_private *private;
->> +	struct crw *crw;
->> +
->> +	private = container_of(work, struct vfio_ccw_private, crw_work);
->> +	crw = &private->crw;
->> +
->> +	mutex_lock(&private->io_mutex);
->> +	memcpy(&private->crw_region->crw0, crw, sizeof(*crw));
-> 
-> This looks a bit inflexible. Should we want to support subchannel crws
-> in the future, we'd need to copy two crws.
-> 
-> Maybe keep two crws (they're not that large, anyway) in the private
-> structure and copy the second one iff the first one has the chaining
-> bit on?
-
-That's a good idea.
-
-> 
->> +	mutex_unlock(&private->io_mutex);
->> +
->> +	if (private->crw_trigger)
->> +		eventfd_signal(private->crw_trigger, 1);
->> +}
->> +
->>  /*
->>   * Css driver callbacks
->>   */
->> @@ -187,6 +203,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
->>  		goto out_free;
->>  
->>  	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
->> +	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
->>  	atomic_set(&private->avail, 1);
->>  	private->state = VFIO_CCW_STATE_STANDBY;
->>  
->> @@ -303,6 +320,11 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
->>  	case CHP_OFFLINE:
->>  		/* Path is gone */
->>  		cio_cancel_halt_clear(sch, &retry);
->> +		private->crw.rsc = CRW_RSC_CPATH;
->> +		private->crw.rsid = 0x0 | (link->chpid.cssid << 8) |
-> 
-> What's the leading '0x0' for?
-
-Um, yeah.  It's SUPER important.  :)
-
-> 
->> +				    link->chpid.id;
->> +		private->crw.erc = CRW_ERC_PERRN;
->> +		queue_work(vfio_ccw_work_q, &private->crw_work);
->>  		break;
->>  	case CHP_VARY_ON:
->>  		/* Path logically turned on */
->> @@ -312,6 +334,11 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
->>  	case CHP_ONLINE:
->>  		/* Path became available */
->>  		sch->lpm |= mask & sch->opm;
->> +		private->crw.rsc = CRW_RSC_CPATH;
->> +		private->crw.rsid = 0x0 | (link->chpid.cssid << 8) |
->> +				    link->chpid.id;
->> +		private->crw.erc = CRW_ERC_INIT;
->> +		queue_work(vfio_ccw_work_q, &private->crw_work);
-> 
-> Isn't that racy? Imagine you get one notification for a chpid and queue
-> it. Then, you get another notification for another chpid and queue it
-> as well. Depending on when userspace reads, it gets different chpids.
-> Moreover, a crw may be lost... or am I missing something obvious?
-
-Nope, you're right on.  If I start thrashing config on/off chpids on the
-host, I eventually fall down with all sorts of weirdness.
-
-> 
-> Maybe you need a real queue for the generated crws?
-
-I guess this is what I'm wrestling with...  We don't have a queue for
-guest-wide work items, as it's currently broken apart by subchannel.  Is
-adding one at the vfio-ccw level right?  Feels odd to me, since multiple
-guests could use devices connected via vfio-ccw, which may or may share
-common chpids.
-
-I have a rough hack that serializes things a bit, while still keeping
-the CRW duplication at the subchannel level.  Things improve
-considerably, but it still seems odd to me.  I'll keep working on that
-unless anyone has any better ideas.
-
-> 
->>  		break;
->>  	}
->>  
-> 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 7cdebd2e329f..871d44746f5c 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -628,6 +628,7 @@ struct qeth_ipato {
+ 
+ struct qeth_channel {
+ 	struct ccw_device *ccwdev;
++	struct qeth_cmd_buffer *active_cmd;
+ 	enum qeth_channel_states state;
+ 	atomic_t irq_pending;
+ };
+@@ -1038,6 +1039,8 @@ int qeth_do_run_thread(struct qeth_card *, unsigned long);
+ void qeth_clear_thread_start_bit(struct qeth_card *, unsigned long);
+ void qeth_clear_thread_running_bit(struct qeth_card *, unsigned long);
+ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok);
++int qeth_stop_channel(struct qeth_channel *channel);
++
+ void qeth_print_status_message(struct qeth_card *);
+ int qeth_init_qdio_queues(struct qeth_card *);
+ int qeth_send_ipa_cmd(struct qeth_card *, struct qeth_cmd_buffer *,
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 634913112441..b9a2349e4b90 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -515,7 +515,9 @@ static int __qeth_issue_next_read(struct qeth_card *card)
+ 
+ 	QETH_CARD_TEXT(card, 6, "noirqpnd");
+ 	rc = ccw_device_start(channel->ccwdev, ccw, (addr_t) iob, 0, 0);
+-	if (rc) {
++	if (!rc) {
++		channel->active_cmd = iob;
++	} else {
+ 		QETH_DBF_MESSAGE(2, "error %i on device %x when starting next read ccw!\n",
+ 				 rc, CARD_DEVID(card));
+ 		atomic_set(&channel->irq_pending, 0);
+@@ -986,8 +988,21 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 		QETH_CARD_TEXT(card, 5, "data");
+ 	}
+ 
+-	if (qeth_intparm_is_iob(intparm))
+-		iob = (struct qeth_cmd_buffer *) __va((addr_t)intparm);
++	if (intparm == 0) {
++		QETH_CARD_TEXT(card, 5, "irqunsol");
++	} else if ((addr_t)intparm != (addr_t)channel->active_cmd) {
++		QETH_CARD_TEXT(card, 5, "irqunexp");
++
++		dev_err(&cdev->dev,
++			"Received IRQ with intparm %lx, expected %px\n",
++			intparm, channel->active_cmd);
++		if (channel->active_cmd)
++			qeth_cancel_cmd(channel->active_cmd, -EIO);
++	} else {
++		iob = (struct qeth_cmd_buffer *) (addr_t)intparm;
++	}
++
++	channel->active_cmd = NULL;
+ 
+ 	rc = qeth_check_irb_error(card, cdev, irb);
+ 	if (rc) {
+@@ -1007,15 +1022,10 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	if (irb->scsw.cmd.fctl & (SCSW_FCTL_HALT_FUNC))
+ 		channel->state = CH_STATE_HALTED;
+ 
+-	if (intparm == QETH_CLEAR_CHANNEL_PARM) {
+-		QETH_CARD_TEXT(card, 6, "clrchpar");
+-		/* we don't have to handle this further */
+-		intparm = 0;
+-	}
+-	if (intparm == QETH_HALT_CHANNEL_PARM) {
+-		QETH_CARD_TEXT(card, 6, "hltchpar");
+-		/* we don't have to handle this further */
+-		intparm = 0;
++	if (iob && (irb->scsw.cmd.fctl & (SCSW_FCTL_CLEAR_FUNC |
++					  SCSW_FCTL_HALT_FUNC))) {
++		qeth_cancel_cmd(iob, -ECANCELED);
++		iob = NULL;
+ 	}
+ 
+ 	cstat = irb->scsw.cmd.cstat;
+@@ -1408,7 +1418,7 @@ static int qeth_clear_channel(struct qeth_card *card,
+ 
+ 	QETH_CARD_TEXT(card, 3, "clearch");
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+-	rc = ccw_device_clear(channel->ccwdev, QETH_CLEAR_CHANNEL_PARM);
++	rc = ccw_device_clear(channel->ccwdev, (addr_t)channel->active_cmd);
+ 	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+ 
+ 	if (rc)
+@@ -1430,7 +1440,7 @@ static int qeth_halt_channel(struct qeth_card *card,
+ 
+ 	QETH_CARD_TEXT(card, 3, "haltch");
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+-	rc = ccw_device_halt(channel->ccwdev, QETH_HALT_CHANNEL_PARM);
++	rc = ccw_device_halt(channel->ccwdev, (addr_t)channel->active_cmd);
+ 	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+ 
+ 	if (rc)
+@@ -1444,6 +1454,25 @@ static int qeth_halt_channel(struct qeth_card *card,
+ 	return 0;
+ }
+ 
++int qeth_stop_channel(struct qeth_channel *channel)
++{
++	struct ccw_device *cdev = channel->ccwdev;
++	int rc;
++
++	rc = ccw_device_set_offline(cdev);
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	if (channel->active_cmd) {
++		dev_err(&cdev->dev, "Stopped channel while cmd %px was still active\n",
++			channel->active_cmd);
++		channel->active_cmd = NULL;
++	}
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
++	return rc;
++}
++EXPORT_SYMBOL_GPL(qeth_stop_channel);
++
+ static int qeth_halt_channels(struct qeth_card *card)
+ {
+ 	int rc1 = 0, rc2 = 0, rc3 = 0;
+@@ -1746,6 +1775,8 @@ static int qeth_send_control_data(struct qeth_card *card,
+ 	spin_lock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	rc = ccw_device_start_timeout(channel->ccwdev, __ccw_from_cmd(iob),
+ 				      (addr_t) iob, 0, 0, timeout);
++	if (!rc)
++		channel->active_cmd = iob;
+ 	spin_unlock_irq(get_ccwdev_lock(channel->ccwdev));
+ 	if (rc) {
+ 		QETH_DBF_MESSAGE(2, "qeth_send_control_data on device %x: ccw_device_start rc = %i\n",
+@@ -4667,12 +4698,12 @@ EXPORT_SYMBOL_GPL(qeth_vm_request_mac);
+ 
+ static void qeth_determine_capabilities(struct qeth_card *card)
+ {
++	struct qeth_channel *channel = &card->data;
++	struct ccw_device *ddev = channel->ccwdev;
+ 	int rc;
+-	struct ccw_device *ddev;
+ 	int ddev_offline = 0;
+ 
+ 	QETH_CARD_TEXT(card, 2, "detcapab");
+-	ddev = CARD_DDEV(card);
+ 	if (!ddev->online) {
+ 		ddev_offline = 1;
+ 		rc = ccw_device_set_online(ddev);
+@@ -4711,7 +4742,7 @@ static void qeth_determine_capabilities(struct qeth_card *card)
+ 
+ out_offline:
+ 	if (ddev_offline == 1)
+-		ccw_device_set_offline(ddev);
++		qeth_stop_channel(channel);
+ out:
+ 	return;
+ }
+@@ -4911,9 +4942,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 		QETH_DBF_MESSAGE(2, "Retrying to do IDX activates on device %x.\n",
+ 				 CARD_DEVID(card));
+ 	rc = qeth_qdio_clear_card(card, !IS_IQD(card));
+-	ccw_device_set_offline(CARD_DDEV(card));
+-	ccw_device_set_offline(CARD_WDEV(card));
+-	ccw_device_set_offline(CARD_RDEV(card));
++	qeth_stop_channel(&card->data);
++	qeth_stop_channel(&card->write);
++	qeth_stop_channel(&card->read);
+ 	qdio_free(CARD_DDEV(card));
+ 	rc = ccw_device_set_online(CARD_RDEV(card));
+ 	if (rc)
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 53fcf6641154..88f4dc140751 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -29,20 +29,6 @@ extern unsigned char IPA_PDU_HEADER[];
+ #define QETH_TIMEOUT		(10 * HZ)
+ #define QETH_IPA_TIMEOUT	(45 * HZ)
+ 
+-#define QETH_CLEAR_CHANNEL_PARM	-10
+-#define QETH_HALT_CHANNEL_PARM	-11
+-
+-static inline bool qeth_intparm_is_iob(unsigned long intparm)
+-{
+-	switch (intparm) {
+-	case QETH_CLEAR_CHANNEL_PARM:
+-	case QETH_HALT_CHANNEL_PARM:
+-	case 0:
+-		return false;
+-	}
+-	return true;
+-}
+-
+ /*****************************************************************************/
+ /* IP Assist related definitions                                             */
+ /*****************************************************************************/
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 989935d67b31..9086bc04fa6b 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -845,9 +845,9 @@ static int qeth_l2_set_online(struct ccwgroup_device *gdev)
+ 
+ out_remove:
+ 	qeth_l2_stop_card(card);
+-	ccw_device_set_offline(CARD_DDEV(card));
+-	ccw_device_set_offline(CARD_WDEV(card));
+-	ccw_device_set_offline(CARD_RDEV(card));
++	qeth_stop_channel(&card->data);
++	qeth_stop_channel(&card->write);
++	qeth_stop_channel(&card->read);
+ 	qdio_free(CARD_DDEV(card));
+ 
+ 	mutex_unlock(&card->conf_mutex);
+@@ -878,9 +878,9 @@ static int __qeth_l2_set_offline(struct ccwgroup_device *cgdev,
+ 	rtnl_unlock();
+ 
+ 	qeth_l2_stop_card(card);
+-	rc  = ccw_device_set_offline(CARD_DDEV(card));
+-	rc2 = ccw_device_set_offline(CARD_WDEV(card));
+-	rc3 = ccw_device_set_offline(CARD_RDEV(card));
++	rc  = qeth_stop_channel(&card->data);
++	rc2 = qeth_stop_channel(&card->write);
++	rc3 = qeth_stop_channel(&card->read);
+ 	if (!rc)
+ 		rc = (rc2) ? rc2 : rc3;
+ 	if (rc)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index e7ce73b9f016..27126330a4b0 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2259,9 +2259,9 @@ static int qeth_l3_set_online(struct ccwgroup_device *gdev)
+ 	return 0;
+ out_remove:
+ 	qeth_l3_stop_card(card);
+-	ccw_device_set_offline(CARD_DDEV(card));
+-	ccw_device_set_offline(CARD_WDEV(card));
+-	ccw_device_set_offline(CARD_RDEV(card));
++	qeth_stop_channel(&card->data);
++	qeth_stop_channel(&card->write);
++	qeth_stop_channel(&card->read);
+ 	qdio_free(CARD_DDEV(card));
+ 
+ 	mutex_unlock(&card->conf_mutex);
+@@ -2297,9 +2297,10 @@ static int __qeth_l3_set_offline(struct ccwgroup_device *cgdev,
+ 		call_netdevice_notifiers(NETDEV_REBOOT, card->dev);
+ 		rtnl_unlock();
+ 	}
+-	rc  = ccw_device_set_offline(CARD_DDEV(card));
+-	rc2 = ccw_device_set_offline(CARD_WDEV(card));
+-	rc3 = ccw_device_set_offline(CARD_RDEV(card));
++
++	rc  = qeth_stop_channel(&card->data);
++	rc2 = qeth_stop_channel(&card->write);
++	rc3 = qeth_stop_channel(&card->read);
+ 	if (!rc)
+ 		rc = (rc2) ? rc2 : rc3;
+ 	if (rc)
+-- 
+2.17.1
