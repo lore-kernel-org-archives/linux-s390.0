@@ -1,100 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10474 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726455AbfLFQ0k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 11:26:40 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6GESEQ004829
-        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 11:26:39 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq8ujnq6t-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 11:26:39 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 6 Dec 2019 16:26:37 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 7/9] s390x: css: msch, enable test
-Date: Fri,  6 Dec 2019 17:26:26 +0100
-In-Reply-To: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1575649588-6127-8-git-send-email-pmorel@linux.ibm.com>
+Received: from mout-p-101.mailbox.org ([80.241.56.151]:21862 "EHLO
+        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726264AbfLFOPD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:15:03 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v18 01/13] namei: only return -ECHILD from follow_dotdot_rcu()
+Date: Sat,  7 Dec 2019 01:13:26 +1100
+Message-Id: <20191206141338.23338-2-cyphar@cyphar.com>
+In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
+References: <20191206141338.23338-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current SubCHannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled.
+It's over-zealous to return hard errors under RCU-walk here, given that
+a REF-walk will be triggered for all other cases handling ".." under
+RCU.
 
-This tests the success of the MSCH instruction by enabling a channel.
+The original purpose of this check was to ensure that if a rename occurs
+such that a directory is moved outside of the bind-mount which the
+resolution started in, it would be detected and blocked to avoid being
+able to mess with paths outside of the bind-mount. However, triggering a
+new REF-walk is just as effective a solution.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 397d425dc26d ("vfs: Test for and handle paths that are unreachable from their mnt_root")
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- s390x/css.c | 39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ fs/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/s390x/css.c b/s390x/css.c
-index 3d4a986..4c0031c 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -58,11 +58,50 @@ static void test_enumerate(void)
- 	report("Tested %d devices, %d found", 1, scn, found);
- }
- 
-+static void test_enable(void)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+	/* Read the SCIB for this subchannel */
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report("stsch cc=%d", 0, cc);
-+		return;
-+	}
-+	/* Update the SCHIB to enable the channel */
-+	pmcw->flags |= PMCW_ENABLE;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(test_device_sid, &schib);
-+	if (cc) {
-+		report("msch cc=%d", 0, cc);
-+		return;
-+	}
-+
-+	/* Read the SCHIB again to verify the enablement */
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report("stsch cc=%d", 0, cc);
-+		return;
-+	}
-+	if (!(pmcw->flags & PMCW_ENABLE)) {
-+		report("Enable failed. pmcw: %x", 0, pmcw->flags);
-+		return;
-+	}
-+	report("Tested", 1);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
- 
+diff --git a/fs/namei.c b/fs/namei.c
+index 671c3c1a3425..5a47d9c09581 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1359,7 +1359,7 @@ static int follow_dotdot_rcu(struct nameidata *nd)
+ 			nd->path.dentry = parent;
+ 			nd->seq = seq;
+ 			if (unlikely(!path_connected(&nd->path)))
+-				return -ENOENT;
++				return -ECHILD;
+ 			break;
+ 		} else {
+ 			struct mount *mnt = real_mount(nd->path.mnt);
 -- 
-2.17.0
+2.24.0
