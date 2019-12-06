@@ -1,80 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:44390 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726890AbfLJErj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 23:47:39 -0500
-Received: by mail-pg1-f193.google.com with SMTP id x7so8241971pgl.11
-        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2019 20:47:38 -0800 (PST)
-From: Daniel Axtens <dja@axtens.net>
-Subject: [PATCH v2 2/4] kasan: use MAX_PTRS_PER_* for early shadow
-Date: Tue, 10 Dec 2019 15:47:12 +1100
-Message-Id: <20191210044714.27265-3-dja@axtens.net>
-In-Reply-To: <20191210044714.27265-1-dja@axtens.net>
-References: <20191210044714.27265-1-dja@axtens.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18038 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726455AbfLFQ0m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 11:26:42 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6GEIVB048254
+        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 11:26:41 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq905s8a0-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 11:26:40 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Fri, 6 Dec 2019 16:26:38 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v3 9/9] s390x: css: ping pong
+Date: Fri,  6 Dec 2019 17:26:28 +0100
+In-Reply-To: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
+References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1575649588-6127-10-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, christophe.leroy@c-s.fr, aneesh.kumar@linux.ibm.com, bsingharora@gmail.com
-Cc: Daniel Axtens <dja@axtens.net>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-This helps with powerpc support, and should have no effect on
-anything else.
+To test a write command with the SSCH instruction we need a QEMU device,
+with control unit type 0xC0CA. The PONG device is such a device.
 
-Suggested-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
+This type of device responds to PONG_WRITE requests by incrementing an
+integer, stored as a string at offset 0 of the CCW data.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- include/linux/kasan.h | 6 +++---
- mm/kasan/init.c       | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ s390x/css.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/include/linux/kasan.h b/include/linux/kasan.h
-index e18fe54969e9..d2f2a4ffcb12 100644
---- a/include/linux/kasan.h
-+++ b/include/linux/kasan.h
-@@ -15,9 +15,9 @@ struct task_struct;
- #include <asm/pgtable.h>
+diff --git a/s390x/css.c b/s390x/css.c
+index 54a7b38..3b5ce9d 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -23,6 +23,10 @@
+ #define SID_ONE		0x00010000
+ #define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
  
- extern unsigned char kasan_early_shadow_page[PAGE_SIZE];
--extern pte_t kasan_early_shadow_pte[PTRS_PER_PTE];
--extern pmd_t kasan_early_shadow_pmd[PTRS_PER_PMD];
--extern pud_t kasan_early_shadow_pud[PTRS_PER_PUD];
-+extern pte_t kasan_early_shadow_pte[MAX_PTRS_PER_PTE];
-+extern pmd_t kasan_early_shadow_pmd[MAX_PTRS_PER_PMD];
-+extern pud_t kasan_early_shadow_pud[MAX_PTRS_PER_PUD];
- extern p4d_t kasan_early_shadow_p4d[MAX_PTRS_PER_P4D];
++/* Channel Commands for PONG device */
++#define PONG_WRITE	0x21 /* Write */
++#define PONG_READ	0x22 /* Read buffer */
++
+ struct lowcore *lowcore = (void *)0x0;
  
- int kasan_populate_early_shadow(const void *shadow_start,
-diff --git a/mm/kasan/init.c b/mm/kasan/init.c
-index ce45c491ebcd..8b54a96d3b3e 100644
---- a/mm/kasan/init.c
-+++ b/mm/kasan/init.c
-@@ -46,7 +46,7 @@ static inline bool kasan_p4d_table(pgd_t pgd)
+ static struct schib schib;
+@@ -259,6 +263,51 @@ unreg_cb:
+ 	unregister_io_int_func(irq_io);
  }
- #endif
- #if CONFIG_PGTABLE_LEVELS > 3
--pud_t kasan_early_shadow_pud[PTRS_PER_PUD] __page_aligned_bss;
-+pud_t kasan_early_shadow_pud[MAX_PTRS_PER_PUD] __page_aligned_bss;
- static inline bool kasan_pud_table(p4d_t p4d)
- {
- 	return p4d_page(p4d) == virt_to_page(lm_alias(kasan_early_shadow_pud));
-@@ -58,7 +58,7 @@ static inline bool kasan_pud_table(p4d_t p4d)
- }
- #endif
- #if CONFIG_PGTABLE_LEVELS > 2
--pmd_t kasan_early_shadow_pmd[PTRS_PER_PMD] __page_aligned_bss;
-+pmd_t kasan_early_shadow_pmd[MAX_PTRS_PER_PMD] __page_aligned_bss;
- static inline bool kasan_pmd_table(pud_t pud)
- {
- 	return pud_page(pud) == virt_to_page(lm_alias(kasan_early_shadow_pmd));
-@@ -69,7 +69,7 @@ static inline bool kasan_pmd_table(pud_t pud)
- 	return false;
- }
- #endif
--pte_t kasan_early_shadow_pte[PTRS_PER_PTE] __page_aligned_bss;
-+pte_t kasan_early_shadow_pte[MAX_PTRS_PER_PTE] __page_aligned_bss;
  
- static inline bool kasan_pte_table(pmd_t pmd)
- {
++static void test_ping(void)
++{
++	int success, result;
++	int cnt = 0, max = 4;
++
++	if (senseid.cu_type != PONG_CU) {
++		report_skip("No PONG, no ping-pong");
++		return;
++	}
++
++	result = register_io_int_func(irq_io);
++	if (result) {
++		report("Could not register IRQ handler", 0);
++		return;
++	}
++
++	while (cnt++ < max) {
++		snprintf(buffer, BUF_SZ, "%08x\n", cnt);
++		success = start_subchannel(PONG_WRITE, buffer, 8);
++		if (!success) {
++			report("start_subchannel failed", 0);
++			goto unreg_cb;
++		}
++		delay(100);
++		success = start_subchannel(PONG_READ, buffer, 8);
++		if (!success) {
++			report("start_subchannel failed", 0);
++			goto unreg_cb;
++		}
++		result = atol(buffer);
++		if (result != (cnt + 1)) {
++			report("Bad answer from pong: %08x - %08x",
++				0, cnt, result);
++			goto unreg_cb;
++		} else
++			report_info("%08x - %08x", cnt, result);
++
++		delay(100);
++	}
++	report("ping-pong count 0x%08x", 1, cnt);
++
++unreg_cb:
++	unregister_io_int_func(irq_io);
++}
++
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+@@ -266,6 +315,7 @@ static struct {
+ 	{ "enumerate (stsch)", test_enumerate },
+ 	{ "enable (msch)", test_enable },
+ 	{ "sense (ssch/tsch)", test_sense },
++	{ "ping-pong (ssch/tsch)", test_ping },
+ 	{ NULL, NULL }
+ };
+ 
 -- 
-2.20.1
+2.17.0
