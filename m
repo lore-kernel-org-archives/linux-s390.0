@@ -1,531 +1,229 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42450 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726867AbfLWOWh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Dec 2019 09:22:37 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNEJx4X081909
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:22:35 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2x1gt9rn0r-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:22:35 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Mon, 23 Dec 2019 14:22:32 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 1/3] s390/qeth: consolidate RX code
-Date: Mon, 23 Dec 2019 15:22:25 +0100
-In-Reply-To: <20191223142227.19500-1-jwi@linux.ibm.com>
-References: <20191223142227.19500-1-jwi@linux.ibm.com>
-Message-Id: <20191223142227.19500-2-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v18 02/13] nsfs: clean-up ns_get_path() signature to return int
+Date: Sat,  7 Dec 2019 01:13:27 +1100
+Message-Id: <20191206141338.23338-3-cyphar@cyphar.com>
+In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
+References: <20191206141338.23338-1-cyphar@cyphar.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-To reduce the path length and levels of indirection, move the RX
-processing from the sub-drivers into the core.
+ns_get_path() and ns_get_path_cb() only ever return either NULL or an
+ERR_PTR. It is far more idiomatic to simply return an integer, and it
+makes all of the callers of ns_get_path() more straightforward to read.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: e149ed2b805f ("take the targets of /proc/*/ns/* symlinks to separate fs")
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- drivers/s390/net/qeth_core.h      |  16 ---
- drivers/s390/net/qeth_core_main.c | 180 +++++++++++++++++++++++++-----
- drivers/s390/net/qeth_l2_main.c   |  40 -------
- drivers/s390/net/qeth_l3_main.c   |  91 ---------------
- 4 files changed, 153 insertions(+), 174 deletions(-)
+ fs/nsfs.c               | 29 ++++++++++++++---------------
+ fs/proc/namespaces.c    |  6 +++---
+ include/linux/proc_ns.h |  4 ++--
+ kernel/bpf/offload.c    | 12 ++++++------
+ kernel/events/core.c    |  2 +-
+ 5 files changed, 26 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 6e16b19732f6..4ab3be814ea7 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -728,7 +728,6 @@ struct qeth_osn_info {
- 
- struct qeth_discipline {
- 	const struct device_type *devtype;
--	int (*process_rx_buffer)(struct qeth_card *card, int budget, int *done);
- 	int (*recover)(void *ptr);
- 	int (*setup) (struct ccwgroup_device *);
- 	void (*remove) (struct ccwgroup_device *);
-@@ -923,18 +922,6 @@ static inline struct dst_entry *qeth_dst_check_rcu(struct sk_buff *skb, int ipv)
- 	return dst;
+diff --git a/fs/nsfs.c b/fs/nsfs.c
+index a0431642c6b5..f3d2833c5781 100644
+--- a/fs/nsfs.c
++++ b/fs/nsfs.c
+@@ -52,7 +52,7 @@ static void nsfs_evict(struct inode *inode)
+ 	ns->ops->put(ns);
  }
  
--static inline void qeth_rx_csum(struct qeth_card *card, struct sk_buff *skb,
--				u8 flags)
--{
--	if ((card->dev->features & NETIF_F_RXCSUM) &&
--	    (flags & QETH_HDR_EXT_CSUM_TRANSP_REQ)) {
--		skb->ip_summed = CHECKSUM_UNNECESSARY;
--		QETH_CARD_STAT_INC(card, rx_skb_csum);
--	} else {
--		skb->ip_summed = CHECKSUM_NONE;
--	}
--}
--
- static inline void qeth_tx_csum(struct sk_buff *skb, u8 *flags, int ipv)
+-static void *__ns_get_path(struct path *path, struct ns_common *ns)
++static int __ns_get_path(struct path *path, struct ns_common *ns)
  {
- 	*flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
-@@ -1031,9 +1018,6 @@ struct qeth_cmd_buffer *qeth_get_diag_cmd(struct qeth_card *card,
- void qeth_notify_cmd(struct qeth_cmd_buffer *iob, int reason);
- void qeth_put_cmd(struct qeth_cmd_buffer *iob);
- 
--struct sk_buff *qeth_core_get_next_skb(struct qeth_card *,
--		struct qeth_qdio_buffer *, struct qdio_buffer_element **, int *,
--		struct qeth_hdr **);
- void qeth_schedule_recovery(struct qeth_card *);
- int qeth_poll(struct napi_struct *napi, int budget);
- void qeth_clear_ipacmd_list(struct qeth_card *);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 41f37ce89a4f..8e2c0588525f 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5046,6 +5046,114 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
- }
- EXPORT_SYMBOL_GPL(qeth_core_hardsetup_card);
- 
-+#if IS_ENABLED(CONFIG_QETH_L3)
-+static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
-+				struct qeth_hdr *hdr)
-+{
-+	struct af_iucv_trans_hdr *iucv = (struct af_iucv_trans_hdr *) skb->data;
-+	struct qeth_hdr_layer3 *l3_hdr = &hdr->hdr.l3;
-+	struct net_device *dev = skb->dev;
-+
-+	if (IS_IQD(card) && iucv->magic == ETH_P_AF_IUCV) {
-+		dev_hard_header(skb, dev, ETH_P_AF_IUCV, dev->dev_addr,
-+				"FAKELL", skb->len);
-+		return;
-+	}
-+
-+	if (!(l3_hdr->flags & QETH_HDR_PASSTHRU)) {
-+		u16 prot = (l3_hdr->flags & QETH_HDR_IPV6) ? ETH_P_IPV6 :
-+							     ETH_P_IP;
-+		unsigned char tg_addr[ETH_ALEN];
-+
-+		skb_reset_network_header(skb);
-+		switch (l3_hdr->flags & QETH_HDR_CAST_MASK) {
-+		case QETH_CAST_MULTICAST:
-+			if (prot == ETH_P_IP)
-+				ip_eth_mc_map(ip_hdr(skb)->daddr, tg_addr);
-+			else
-+				ipv6_eth_mc_map(&ipv6_hdr(skb)->daddr, tg_addr);
-+			QETH_CARD_STAT_INC(card, rx_multicast);
-+			break;
-+		case QETH_CAST_BROADCAST:
-+			ether_addr_copy(tg_addr, dev->broadcast);
-+			QETH_CARD_STAT_INC(card, rx_multicast);
-+			break;
-+		default:
-+			if (card->options.sniffer)
-+				skb->pkt_type = PACKET_OTHERHOST;
-+			ether_addr_copy(tg_addr, dev->dev_addr);
-+		}
-+
-+		if (l3_hdr->ext_flags & QETH_HDR_EXT_SRC_MAC_ADDR)
-+			dev_hard_header(skb, dev, prot, tg_addr,
-+					&l3_hdr->next_hop.rx.src_mac, skb->len);
-+		else
-+			dev_hard_header(skb, dev, prot, tg_addr, "FAKELL",
-+					skb->len);
-+	}
-+
-+	/* copy VLAN tag from hdr into skb */
-+	if (!card->options.sniffer &&
-+	    (l3_hdr->ext_flags & (QETH_HDR_EXT_VLAN_FRAME |
-+				  QETH_HDR_EXT_INCLUDE_VLAN_TAG))) {
-+		u16 tag = (l3_hdr->ext_flags & QETH_HDR_EXT_VLAN_FRAME) ?
-+				l3_hdr->vlan_id :
-+				l3_hdr->next_hop.rx.vlan_id;
-+
-+		__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), tag);
-+	}
-+}
-+#endif
-+
-+static void qeth_receive_skb(struct qeth_card *card, struct sk_buff *skb,
-+			     struct qeth_hdr *hdr)
-+{
-+	bool is_cso;
-+
-+	switch (hdr->hdr.l2.id) {
-+	case QETH_HEADER_TYPE_OSN:
-+		skb_push(skb, sizeof(*hdr));
-+		skb_copy_to_linear_data(skb, hdr, sizeof(*hdr));
-+		QETH_CARD_STAT_ADD(card, rx_bytes, skb->len);
-+		QETH_CARD_STAT_INC(card, rx_packets);
-+
-+		card->osn_info.data_cb(skb);
-+		return;
-+#if IS_ENABLED(CONFIG_QETH_L3)
-+	case QETH_HEADER_TYPE_LAYER3:
-+		qeth_l3_rebuild_skb(card, skb, hdr);
-+		is_cso = hdr->hdr.l3.ext_flags & QETH_HDR_EXT_CSUM_TRANSP_REQ;
-+		break;
-+#endif
-+	case QETH_HEADER_TYPE_LAYER2:
-+		is_cso = hdr->hdr.l2.flags[1] & QETH_HDR_EXT_CSUM_TRANSP_REQ;
-+		break;
-+	default:
-+		/* never happens */
-+		dev_kfree_skb_any(skb);
-+		return;
-+	}
-+
-+	if (is_cso && (card->dev->features & NETIF_F_RXCSUM)) {
-+		skb->ip_summed = CHECKSUM_UNNECESSARY;
-+		QETH_CARD_STAT_INC(card, rx_skb_csum);
-+	} else {
-+		skb->ip_summed = CHECKSUM_NONE;
-+	}
-+
-+	skb->protocol = eth_type_trans(skb, skb->dev);
-+
-+	QETH_CARD_STAT_ADD(card, rx_bytes, skb->len);
-+	QETH_CARD_STAT_INC(card, rx_packets);
-+	if (skb_is_nonlinear(skb)) {
-+		QETH_CARD_STAT_INC(card, rx_sg_skbs);
-+		QETH_CARD_STAT_ADD(card, rx_sg_frags,
-+				   skb_shinfo(skb)->nr_frags);
-+	}
-+
-+	napi_gro_receive(&card->napi, skb);
-+}
-+
- static void qeth_create_skb_frag(struct sk_buff *skb, char *data, int data_len)
- {
- 	struct page *page = virt_to_page(data);
-@@ -5062,10 +5170,10 @@ static inline int qeth_is_last_sbale(struct qdio_buffer_element *sbale)
- 	return (sbale->eflags & SBAL_EFLAGS_LAST_ENTRY);
- }
- 
--struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
--		struct qeth_qdio_buffer *qethbuffer,
--		struct qdio_buffer_element **__element, int *__offset,
--		struct qeth_hdr **hdr)
-+static int qeth_extract_skb(struct qeth_card *card,
-+			    struct qeth_qdio_buffer *qethbuffer,
-+			    struct qdio_buffer_element **__element,
-+			    int *__offset)
- {
- 	struct qdio_buffer_element *element = *__element;
- 	struct qdio_buffer *buffer = qethbuffer->buffer;
-@@ -5073,6 +5181,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	int offset = *__offset;
- 	bool use_rx_sg = false;
- 	unsigned int headroom;
-+	struct qeth_hdr *hdr;
- 	struct sk_buff *skb;
- 	int skb_len = 0;
- 
-@@ -5080,42 +5189,42 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 	/* qeth_hdr must not cross element boundaries */
- 	while (element->length < offset + sizeof(struct qeth_hdr)) {
- 		if (qeth_is_last_sbale(element))
--			return NULL;
-+			return -ENODATA;
- 		element++;
- 		offset = 0;
- 	}
--	*hdr = element->addr + offset;
- 
--	offset += sizeof(struct qeth_hdr);
-+	hdr = element->addr + offset;
-+	offset += sizeof(*hdr);
- 	skb = NULL;
- 
--	switch ((*hdr)->hdr.l2.id) {
-+	switch (hdr->hdr.l2.id) {
- 	case QETH_HEADER_TYPE_LAYER2:
--		skb_len = (*hdr)->hdr.l2.pkt_length;
-+		skb_len = hdr->hdr.l2.pkt_length;
- 		linear_len = ETH_HLEN;
- 		headroom = 0;
- 		break;
- 	case QETH_HEADER_TYPE_LAYER3:
--		skb_len = (*hdr)->hdr.l3.length;
-+		skb_len = hdr->hdr.l3.length;
- 		if (!IS_LAYER3(card)) {
- 			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 			goto walk_packet;
- 		}
- 
--		if ((*hdr)->hdr.l3.flags & QETH_HDR_PASSTHRU) {
-+		if (hdr->hdr.l3.flags & QETH_HDR_PASSTHRU) {
- 			linear_len = ETH_HLEN;
- 			headroom = 0;
- 			break;
- 		}
- 
--		if ((*hdr)->hdr.l3.flags & QETH_HDR_IPV6)
-+		if (hdr->hdr.l3.flags & QETH_HDR_IPV6)
- 			linear_len = sizeof(struct ipv6hdr);
- 		else
- 			linear_len = sizeof(struct iphdr);
- 		headroom = ETH_HLEN;
- 		break;
- 	case QETH_HEADER_TYPE_OSN:
--		skb_len = (*hdr)->hdr.osn.pdu_length;
-+		skb_len = hdr->hdr.osn.pdu_length;
- 		if (!IS_OSN(card)) {
- 			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 			goto walk_packet;
-@@ -5125,13 +5234,13 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		headroom = sizeof(struct qeth_hdr);
- 		break;
- 	default:
--		if ((*hdr)->hdr.l2.id & QETH_HEADER_MASK_INVAL)
-+		if (hdr->hdr.l2.id & QETH_HEADER_MASK_INVAL)
- 			QETH_CARD_STAT_INC(card, rx_frame_errors);
- 		else
- 			QETH_CARD_STAT_INC(card, rx_dropped_notsupp);
- 
- 		/* Can't determine packet length, drop the whole buffer. */
--		return NULL;
-+		return -EPROTONOSUPPORT;
- 	}
- 
- 	if (skb_len < linear_len) {
-@@ -5195,7 +5304,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 					QETH_CARD_STAT_INC(card,
- 							   rx_length_errors);
- 				}
--				return NULL;
-+				return -EMSGSIZE;
- 			}
- 			element++;
- 			offset = 0;
-@@ -5208,22 +5317,40 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 
- 	*__element = element;
- 	*__offset = offset;
--	if (use_rx_sg) {
--		QETH_CARD_STAT_INC(card, rx_sg_skbs);
--		QETH_CARD_STAT_ADD(card, rx_sg_frags,
--				   skb_shinfo(skb)->nr_frags);
-+
-+	qeth_receive_skb(card, skb, hdr);
+ 	struct vfsmount *mnt = nsfs_mnt;
+ 	struct dentry *dentry;
+@@ -71,13 +71,13 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ got_it:
+ 	path->mnt = mntget(mnt);
+ 	path->dentry = dentry;
+-	return NULL;
 +	return 0;
-+}
-+
-+static int qeth_extract_skbs(struct qeth_card *card, int budget,
-+			     struct qeth_qdio_buffer *buf, bool *done)
-+{
-+	int work_done = 0;
-+
-+	WARN_ON_ONCE(!budget);
-+	*done = false;
-+
-+	while (budget) {
-+		if (qeth_extract_skb(card, buf, &card->rx.b_element,
-+				     &card->rx.e_offset)) {
-+			*done = true;
-+			break;
-+		}
-+
-+		work_done++;
-+		budget--;
+ slow:
+ 	rcu_read_unlock();
+ 	inode = new_inode_pseudo(mnt->mnt_sb);
+ 	if (!inode) {
+ 		ns->ops->put(ns);
+-		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
  	}
--	return skb;
-+
-+	return work_done;
- }
--EXPORT_SYMBOL_GPL(qeth_core_get_next_skb);
- 
- int qeth_poll(struct napi_struct *napi, int budget)
- {
- 	struct qeth_card *card = container_of(napi, struct qeth_card, napi);
- 	int work_done = 0;
- 	struct qeth_qdio_buffer *buffer;
--	int done;
- 	int new_budget = budget;
-+	bool done;
- 
- 	while (1) {
- 		if (!card->rx.b_count) {
-@@ -5246,11 +5373,10 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 			if (!(card->rx.qdio_err &&
- 			    qeth_check_qdio_errors(card, buffer->buffer,
- 			    card->rx.qdio_err, "qinerr")))
--				work_done +=
--					card->discipline->process_rx_buffer(
--						card, new_budget, &done);
-+				work_done += qeth_extract_skbs(card, new_budget,
-+							       buffer, &done);
- 			else
--				done = 1;
-+				done = true;
- 
- 			if (done) {
- 				QETH_CARD_STAT_INC(card, rx_bufs);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 8c95e6019bac..69d147c4d2ca 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -298,45 +298,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	card->info.promisc_mode = 0;
+ 	inode->i_ino = ns->inum;
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+@@ -89,7 +89,7 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ 	dentry = d_alloc_anon(mnt->mnt_sb);
+ 	if (!dentry) {
+ 		iput(inode);
+-		return ERR_PTR(-ENOMEM);
++		return -ENOMEM;
+ 	}
+ 	d_instantiate(dentry, inode);
+ 	dentry->d_fsdata = (void *)ns->ops;
+@@ -98,23 +98,22 @@ static void *__ns_get_path(struct path *path, struct ns_common *ns)
+ 		d_delete(dentry);	/* make sure ->d_prune() does nothing */
+ 		dput(dentry);
+ 		cpu_relax();
+-		return ERR_PTR(-EAGAIN);
++		return -EAGAIN;
+ 	}
+ 	goto got_it;
  }
  
--static int qeth_l2_process_inbound_buffer(struct qeth_card *card,
--				int budget, int *done)
--{
--	int work_done = 0;
--	struct sk_buff *skb;
--	struct qeth_hdr *hdr;
--	unsigned int len;
--
--	*done = 0;
--	WARN_ON_ONCE(!budget);
--	while (budget) {
--		skb = qeth_core_get_next_skb(card,
--			&card->qdio.in_q->bufs[card->rx.b_index],
--			&card->rx.b_element, &card->rx.e_offset, &hdr);
--		if (!skb) {
--			*done = 1;
--			break;
--		}
--
--		if (hdr->hdr.l2.id == QETH_HEADER_TYPE_LAYER2) {
--			skb->protocol = eth_type_trans(skb, skb->dev);
--			qeth_rx_csum(card, skb, hdr->hdr.l2.flags[1]);
--			len = skb->len;
--			napi_gro_receive(&card->napi, skb);
--		} else {
--			skb_push(skb, sizeof(*hdr));
--			skb_copy_to_linear_data(skb, hdr, sizeof(*hdr));
--			len = skb->len;
--			card->osn_info.data_cb(skb);
--		}
--
--		work_done++;
--		budget--;
--		QETH_CARD_STAT_INC(card, rx_packets);
--		QETH_CARD_STAT_ADD(card, rx_bytes, len);
--	}
--	return work_done;
--}
--
- static int qeth_l2_request_initial_mac(struct qeth_card *card)
+-void *ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
++int ns_get_path_cb(struct path *path, ns_get_path_helper_t *ns_get_cb,
+ 		     void *private_data)
  {
- 	int rc = 0;
-@@ -961,7 +922,6 @@ static int qeth_l2_control_event(struct qeth_card *card,
+-	void *ret;
++	int ret;
  
- struct qeth_discipline qeth_l2_discipline = {
- 	.devtype = &qeth_l2_devtype,
--	.process_rx_buffer = qeth_l2_process_inbound_buffer,
- 	.recover = qeth_l2_recover,
- 	.setup = qeth_l2_probe_device,
- 	.remove = qeth_l2_remove_device,
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 04d7777b7d16..8a1535ee1467 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1164,96 +1164,6 @@ static int qeth_l3_vlan_rx_kill_vid(struct net_device *dev,
- 	return 0;
+ 	do {
+ 		struct ns_common *ns = ns_get_cb(private_data);
+ 		if (!ns)
+-			return ERR_PTR(-ENOENT);
+-
++			return -ENOENT;
+ 		ret = __ns_get_path(path, ns);
+-	} while (ret == ERR_PTR(-EAGAIN));
++	} while (ret == -EAGAIN);
+ 
+ 	return ret;
+ }
+@@ -131,7 +130,7 @@ static struct ns_common *ns_get_path_task(void *private_data)
+ 	return args->ns_ops->get(args->task);
  }
  
--static void qeth_l3_rebuild_skb(struct qeth_card *card, struct sk_buff *skb,
--				struct qeth_hdr *hdr)
--{
--	struct af_iucv_trans_hdr *iucv = (struct af_iucv_trans_hdr *) skb->data;
--	struct net_device *dev = skb->dev;
--
--	if (IS_IQD(card) && iucv->magic == ETH_P_AF_IUCV) {
--		dev_hard_header(skb, dev, ETH_P_AF_IUCV, dev->dev_addr,
--				"FAKELL", skb->len);
--		return;
--	}
--
--	if (!(hdr->hdr.l3.flags & QETH_HDR_PASSTHRU)) {
--		u16 prot = (hdr->hdr.l3.flags & QETH_HDR_IPV6) ? ETH_P_IPV6 :
--								 ETH_P_IP;
--		unsigned char tg_addr[ETH_ALEN];
--
--		skb_reset_network_header(skb);
--		switch (hdr->hdr.l3.flags & QETH_HDR_CAST_MASK) {
--		case QETH_CAST_MULTICAST:
--			if (prot == ETH_P_IP)
--				ip_eth_mc_map(ip_hdr(skb)->daddr, tg_addr);
--			else
--				ipv6_eth_mc_map(&ipv6_hdr(skb)->daddr, tg_addr);
--			QETH_CARD_STAT_INC(card, rx_multicast);
--			break;
--		case QETH_CAST_BROADCAST:
--			ether_addr_copy(tg_addr, card->dev->broadcast);
--			QETH_CARD_STAT_INC(card, rx_multicast);
--			break;
--		default:
--			if (card->options.sniffer)
--				skb->pkt_type = PACKET_OTHERHOST;
--			ether_addr_copy(tg_addr, card->dev->dev_addr);
--		}
--
--		if (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_SRC_MAC_ADDR)
--			card->dev->header_ops->create(skb, card->dev, prot,
--				tg_addr, &hdr->hdr.l3.next_hop.rx.src_mac,
--				skb->len);
--		else
--			card->dev->header_ops->create(skb, card->dev, prot,
--				tg_addr, "FAKELL", skb->len);
--	}
--
--	/* copy VLAN tag from hdr into skb */
--	if (!card->options.sniffer &&
--	    (hdr->hdr.l3.ext_flags & (QETH_HDR_EXT_VLAN_FRAME |
--				      QETH_HDR_EXT_INCLUDE_VLAN_TAG))) {
--		u16 tag = (hdr->hdr.l3.ext_flags & QETH_HDR_EXT_VLAN_FRAME) ?
--				hdr->hdr.l3.vlan_id :
--				hdr->hdr.l3.next_hop.rx.vlan_id;
--		__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q), tag);
--	}
--
--	qeth_rx_csum(card, skb, hdr->hdr.l3.ext_flags);
--}
--
--static int qeth_l3_process_inbound_buffer(struct qeth_card *card,
--				int budget, int *done)
--{
--	int work_done = 0;
--	struct sk_buff *skb;
--	struct qeth_hdr *hdr;
--
--	*done = 0;
--	WARN_ON_ONCE(!budget);
--	while (budget) {
--		skb = qeth_core_get_next_skb(card,
--			&card->qdio.in_q->bufs[card->rx.b_index],
--			&card->rx.b_element, &card->rx.e_offset, &hdr);
--		if (!skb) {
--			*done = 1;
--			break;
--		}
--
--		if (hdr->hdr.l3.id == QETH_HEADER_TYPE_LAYER3)
--			qeth_l3_rebuild_skb(card, skb, hdr);
--
--		skb->protocol = eth_type_trans(skb, skb->dev);
--		QETH_CARD_STAT_INC(card, rx_packets);
--		QETH_CARD_STAT_ADD(card, rx_bytes, skb->len);
--
--		napi_gro_receive(&card->napi, skb);
--		work_done++;
--		budget--;
--	}
--	return work_done;
--}
--
- static void qeth_l3_stop_card(struct qeth_card *card)
+-void *ns_get_path(struct path *path, struct task_struct *task,
++int ns_get_path(struct path *path, struct task_struct *task,
+ 		  const struct proc_ns_operations *ns_ops)
  {
- 	QETH_CARD_TEXT(card, 2, "stopcard");
-@@ -2317,7 +2227,6 @@ static int qeth_l3_control_event(struct qeth_card *card,
+ 	struct ns_get_path_task_args args = {
+@@ -147,7 +146,7 @@ int open_related_ns(struct ns_common *ns,
+ {
+ 	struct path path = {};
+ 	struct file *f;
+-	void *err;
++	int err;
+ 	int fd;
  
- struct qeth_discipline qeth_l3_discipline = {
- 	.devtype = &qeth_l3_devtype,
--	.process_rx_buffer = qeth_l3_process_inbound_buffer,
- 	.recover = qeth_l3_recover,
- 	.setup = qeth_l3_probe_device,
- 	.remove = qeth_l3_remove_device,
+ 	fd = get_unused_fd_flags(O_CLOEXEC);
+@@ -164,11 +163,11 @@ int open_related_ns(struct ns_common *ns,
+ 		}
+ 
+ 		err = __ns_get_path(&path, relative);
+-	} while (err == ERR_PTR(-EAGAIN));
++	} while (err == -EAGAIN);
+ 
+-	if (IS_ERR(err)) {
++	if (err) {
+ 		put_unused_fd(fd);
+-		return PTR_ERR(err);
++		return err;
+ 	}
+ 
+ 	f = dentry_open(&path, O_RDONLY, current_cred());
+diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
+index dd2b35f78b09..08dd94df1a66 100644
+--- a/fs/proc/namespaces.c
++++ b/fs/proc/namespaces.c
+@@ -42,14 +42,14 @@ static const char *proc_ns_get_link(struct dentry *dentry,
+ 	const struct proc_ns_operations *ns_ops = PROC_I(inode)->ns_ops;
+ 	struct task_struct *task;
+ 	struct path ns_path;
+-	void *error = ERR_PTR(-EACCES);
++	int error = -EACCES;
+ 
+ 	if (!dentry)
+ 		return ERR_PTR(-ECHILD);
+ 
+ 	task = get_proc_task(inode);
+ 	if (!task)
+-		return error;
++		return ERR_PTR(-EACCES);
+ 
+ 	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
+ 		error = ns_get_path(&ns_path, task, ns_ops);
+@@ -57,7 +57,7 @@ static const char *proc_ns_get_link(struct dentry *dentry,
+ 			nd_jump_link(&ns_path);
+ 	}
+ 	put_task_struct(task);
+-	return error;
++	return ERR_PTR(error);
+ }
+ 
+ static int proc_ns_readlink(struct dentry *dentry, char __user *buffer, int buflen)
+diff --git a/include/linux/proc_ns.h b/include/linux/proc_ns.h
+index d31cb6215905..aed366b4795c 100644
+--- a/include/linux/proc_ns.h
++++ b/include/linux/proc_ns.h
+@@ -76,10 +76,10 @@ static inline int ns_alloc_inum(struct ns_common *ns)
+ 
+ extern struct file *proc_ns_fget(int fd);
+ #define get_proc_ns(inode) ((struct ns_common *)(inode)->i_private)
+-extern void *ns_get_path(struct path *path, struct task_struct *task,
++extern int ns_get_path(struct path *path, struct task_struct *task,
+ 			const struct proc_ns_operations *ns_ops);
+ typedef struct ns_common *ns_get_path_helper_t(void *);
+-extern void *ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
++extern int ns_get_path_cb(struct path *path, ns_get_path_helper_t ns_get_cb,
+ 			    void *private_data);
+ 
+ extern int ns_get_name(char *buf, size_t size, struct task_struct *task,
+diff --git a/kernel/bpf/offload.c b/kernel/bpf/offload.c
+index 5b9da0954a27..2c5dc6541ece 100644
+--- a/kernel/bpf/offload.c
++++ b/kernel/bpf/offload.c
+@@ -302,14 +302,14 @@ int bpf_prog_offload_info_fill(struct bpf_prog_info *info,
+ 	struct inode *ns_inode;
+ 	struct path ns_path;
+ 	char __user *uinsns;
+-	void *res;
++	int res;
+ 	u32 ulen;
+ 
+ 	res = ns_get_path_cb(&ns_path, bpf_prog_offload_info_fill_ns, &args);
+-	if (IS_ERR(res)) {
++	if (res) {
+ 		if (!info->ifindex)
+ 			return -ENODEV;
+-		return PTR_ERR(res);
++		return res;
+ 	}
+ 
+ 	down_read(&bpf_devs_lock);
+@@ -526,13 +526,13 @@ int bpf_map_offload_info_fill(struct bpf_map_info *info, struct bpf_map *map)
+ 	};
+ 	struct inode *ns_inode;
+ 	struct path ns_path;
+-	void *res;
++	int res;
+ 
+ 	res = ns_get_path_cb(&ns_path, bpf_map_offload_info_fill_ns, &args);
+-	if (IS_ERR(res)) {
++	if (res) {
+ 		if (!info->ifindex)
+ 			return -ENODEV;
+-		return PTR_ERR(res);
++		return res;
+ 	}
+ 
+ 	ns_inode = ns_path.dentry->d_inode;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 00a014670ed0..3772a04ca802 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -7258,7 +7258,7 @@ static void perf_fill_ns_link_info(struct perf_ns_link_info *ns_link_info,
+ {
+ 	struct path ns_path;
+ 	struct inode *ns_inode;
+-	void *error;
++	int error;
+ 
+ 	error = ns_get_path(&ns_path, task, ns_ops);
+ 	if (!error) {
 -- 
-2.17.1
+2.24.0
