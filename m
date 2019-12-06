@@ -1,260 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-202.mailbox.org ([80.241.56.172]:28810 "EHLO
-        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbfLFORz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:17:55 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v18 08/13] namei: LOOKUP_BENEATH: O_BENEATH-like scoped resolution
-Date: Sat,  7 Dec 2019 01:13:33 +1100
-Message-Id: <20191206141338.23338-9-cyphar@cyphar.com>
-In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
-References: <20191206141338.23338-1-cyphar@cyphar.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32624 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726262AbfLFOSt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:18:49 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6EGtF6133322
+        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 09:18:47 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq905n047-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 09:18:44 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Fri, 6 Dec 2019 14:18:37 -0000
+Subject: Re: [kvm-unit-tests PATCH v2 9/9] s390x: css: ping pong
+From: Pierre Morel <pmorel@linux.ibm.com>
+References: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
+ <1574945167-29677-10-git-send-email-pmorel@linux.ibm.com>
+ <20191202160341.5e96fb81.cohuck@redhat.com>
+ <0ee2ac68-04a8-c804-a280-04f273489a0a@linux.ibm.com>
+Date: Fri, 6 Dec 2019 15:18:32 +0100
 MIME-Version: 1.0
+In-Reply-To: <0ee2ac68-04a8-c804-a280-04f273489a0a@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Message-Id: <43ac889d-1c62-759c-6555-6216d737cdff@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-/* Background. */
-There are many circumstances when userspace wants to resolve a path and
-ensure that it doesn't go outside of a particular root directory during
-resolution. Obvious examples include archive extraction tools, as well as
-other security-conscious userspace programs. FreeBSD spun out O_BENEATH
-from their Capsicum project[1,2], so it also seems reasonable to
-implement similar functionality for Linux.
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[3] (which was a
-variation on David Drysdale's O_BENEATH patchset[4], which in turn was
-based on the Capsicum project[5]).
 
-/* Userspace API. */
-LOOKUP_BENEATH will be exposed to userspace through openat2(2).
+On 2019-12-02 19:25, Pierre Morel wrote:
+> 
+> 
+> On 2019-12-02 16:03, Cornelia Huck wrote:
+>> On Thu, 28 Nov 2019 13:46:07 +0100
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>>> To test a write command with the SSCH instruction we need a QEMU device,
+>>> with control unit type 0xC0CA. The PONG device is such a device.
+>>
+>> "We want to test some read/write ccws via the SSCH instruction with a
+>> QEMU device with control unit type 0xC0CA." ?
+>>
+>>>
+>>> This type of device respond to PONG_WRITE requests by incrementing an
+>>
+>> s/respond/responds/
+> 
+> oiiinnnn..... but yes
+> 
+>>
+>>> integer, stored as a string at offset 0 of the CCW data.
+>>>
+>>> This is only a success test, no error expected.
+>>
+>> Nobody expects the Spanish Inquisition^W^W^W an error :)
+>>
+>>>
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> ---
+>>>   s390x/css.c | 46 +++++++++++++++++++++++++++++++++++++++++++++-
+>>>   1 file changed, 45 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/s390x/css.c b/s390x/css.c
+>>> index 534864f..0761e70 100644
+>>> --- a/s390x/css.c
+>>> +++ b/s390x/css.c
+>>> @@ -23,6 +23,10 @@
+>>>   #define SID_ONE        0x00010000
+>>>   #define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
+>>> +/* Local Channel Commands */
+>>
+>> /* Channel commands for the PONG device */
+>>
+>> ?
+> 
+> better, thanks
+> 
+>>
+>>> +#define PONG_WRITE    0x21 /* Write */
+>>> +#define PONG_READ    0x22 /* Read buffer */
+>>> +
+>>>   struct lowcore *lowcore = (void *)0x0;
+>>>   static struct schib schib;
+>>> @@ -31,7 +35,8 @@ static struct ccw ccw[NB_CCW];
+>>>   #define NB_ORB  100
+>>>   static struct orb orb[NB_ORB];
+>>>   static struct irb irb;
+>>> -static char buffer[0x1000] __attribute__ ((aligned(8)));
+>>> +#define BUF_SZ    0x1000
+>>> +static char buffer[BUF_SZ] __attribute__ ((aligned(8)));
+>>
+>> Merge this with the introduction of this variable?
+> 
+> yes, better too
+> 
+>>
+>>>   static struct senseid senseid;
+>>>   static const char *Channel_type[3] = {
+>>> @@ -224,6 +229,44 @@ static void test_sense(void)
+>>>           report("cu_type: expect c0ca, got %04x", 0, senseid.cu_type);
+>>>   }
+>>> +static void test_ping(void)
+>>> +{
+>>> +    int success, result;
+>>> +    int cnt = 0, max = 4;
+>>> +
+>>> +    if (senseid.cu_type != PONG_CU) {
+>>> +        report_skip("No PONG, no ping-pong");
+>>
+>> :D
+>>
+>>> +        return;
+>>> +    }
+>>> +
+>>> +    enable_io_irq();
+>>
+>> Hasn't that been enabled already for doing SenseID?
+> 
+> Yes, but same remark as before, the sub tests here are independant, 
+> started from the test[] table.
+> If the sense test is commented out, the...
 
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_BENEATH applies to all components of the path.
+hum, coming back here again, the tests depends one from the other and 
+are absolutely not independent as I pretended. so...
+You are right I do not need to enable IRQ here.
 
-With LOOKUP_BENEATH, any path component which attempts to "escape" the
-starting point of the filesystem lookup (the dirfd passed to openat)
-will yield -EXDEV. Thus, all absolute paths and symlinks are disallowed.
+> 
+>>
+>>> +
+>>> +    while (cnt++ < max) {
+>>> +report_info("cnt..: %08x", cnt);
+>>
+>> Wrong indentation?
+> 
+> wrong report !
+> forgotten from a test.
+> 
+> Thanks for the review,
+> Regards,
+> Pierre
+> 
+> 
 
-Due to a security concern brought up by Jann[6], any ".." path
-components are also blocked. This restriction will be lifted in a future
-patch, but requires more work to ensure that permitting ".." is done
-safely.
-
-Magic-link jumps are also blocked, because they can beam the path lookup
-across the starting point. It would be possible to detect and block
-only the "bad" crossings with path_is_under() checks, but it's unclear
-whether it makes sense to permit magic-links at all. However, userspace
-is recommended to pass LOOKUP_NO_MAGICLINKS if they want to ensure that
-magic-link crossing is entirely disabled.
-
-/* Testing. */
-LOOKUP_BENEATH is tested as part of the openat2(2) selftests.
-
-[1]: https://reviews.freebsd.org/D2808
-[2]: https://reviews.freebsd.org/D17547
-[3]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[4]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[5]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-[6]: https://lore.kernel.org/lkml/CAG48ez1jzNvxB+bfOBnERFGp=oMM0vHWuLD6EULmne3R6xa53w@mail.gmail.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/namei.c            | 80 +++++++++++++++++++++++++++++++++++++++----
- include/linux/namei.h |  4 +++
- 2 files changed, 78 insertions(+), 6 deletions(-)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 321c8ad5d6b3..f0c15d2ace54 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -641,6 +641,14 @@ static bool legitimize_links(struct nameidata *nd)
- 
- static bool legitimize_root(struct nameidata *nd)
- {
-+	/*
-+	 * For scoped-lookups (where nd->root has been zeroed), we need to
-+	 * restart the whole lookup from scratch -- because set_root() is wrong
-+	 * for these lookups (nd->dfd is the root, not the filesystem root).
-+	 */
-+	if (!nd->root.mnt && (nd->flags & LOOKUP_IS_SCOPED))
-+		return false;
-+	/* Nothing to do if nd->root is zero or is managed by the VFS user. */
- 	if (!nd->root.mnt || (nd->flags & LOOKUP_ROOT))
- 		return true;
- 	nd->flags |= LOOKUP_ROOT_GRABBED;
-@@ -776,12 +784,37 @@ static int complete_walk(struct nameidata *nd)
- 	int status;
- 
- 	if (nd->flags & LOOKUP_RCU) {
--		if (!(nd->flags & LOOKUP_ROOT))
-+		/*
-+		 * We don't want to zero nd->root for scoped-lookups or
-+		 * externally-managed nd->root.
-+		 */
-+		if (!(nd->flags & (LOOKUP_ROOT | LOOKUP_IS_SCOPED)))
- 			nd->root.mnt = NULL;
- 		if (unlikely(unlazy_walk(nd)))
- 			return -ECHILD;
- 	}
- 
-+	if (unlikely(nd->flags & LOOKUP_IS_SCOPED)) {
-+		/*
-+		 * While the guarantee of LOOKUP_IS_SCOPED is (roughly) "don't
-+		 * ever step outside the root during lookup" and should already
-+		 * be guaranteed by the rest of namei, we want to avoid a namei
-+		 * BUG resulting in userspace being given a path that was not
-+		 * scoped within the root at some point during the lookup.
-+		 *
-+		 * So, do a final sanity-check to make sure that in the
-+		 * worst-case scenario (a complete bypass of LOOKUP_IS_SCOPED)
-+		 * we won't silently return an fd completely outside of the
-+		 * requested root to userspace.
-+		 *
-+		 * Userspace could move the path outside the root after this
-+		 * check, but as discussed elsewhere this is not a concern (the
-+		 * resolved file was inside the root at some point).
-+		 */
-+		if (!path_is_under(&nd->path, &nd->root))
-+			return -EXDEV;
-+	}
-+
- 	if (likely(!(nd->flags & LOOKUP_JUMPED)))
- 		return 0;
- 
-@@ -802,6 +835,14 @@ static int set_root(struct nameidata *nd)
- {
- 	struct fs_struct *fs = current->fs;
- 
-+	/*
-+	 * Jumping to the real root in a scoped-lookup is a BUG in namei, but we
-+	 * still have to ensure it doesn't happen because it will cause a breakout
-+	 * from the dirfd.
-+	 */
-+	if (WARN_ON(nd->flags & LOOKUP_IS_SCOPED))
-+		return -ENOTRECOVERABLE;
-+
- 	if (nd->flags & LOOKUP_RCU) {
- 		unsigned seq;
- 
-@@ -838,6 +879,8 @@ static inline void path_to_nameidata(const struct path *path,
- 
- static int nd_jump_root(struct nameidata *nd)
- {
-+	if (unlikely(nd->flags & LOOKUP_BENEATH))
-+		return -EXDEV;
- 	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
- 		/* Absolute path arguments to path_init() are allowed. */
- 		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
-@@ -883,6 +926,9 @@ int nd_jump_link(struct path *path)
- 		if (nd->path.mnt != path->mnt)
- 			goto err;
- 	}
-+	/* Not currently safe for scoped-lookups. */
-+	if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
-+		goto err;
- 
- 	path_put(&nd->path);
- 	nd->path = *path;
-@@ -1379,8 +1425,11 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 	struct inode *inode = nd->inode;
- 
- 	while (1) {
--		if (path_equal(&nd->path, &nd->root))
-+		if (path_equal(&nd->path, &nd->root)) {
-+			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+				return -ECHILD;
- 			break;
-+		}
- 		if (nd->path.dentry != nd->path.mnt->mnt_root) {
- 			struct dentry *old = nd->path.dentry;
- 			struct dentry *parent = old->d_parent;
-@@ -1510,9 +1559,12 @@ static int path_parent_directory(struct path *path)
- 
- static int follow_dotdot(struct nameidata *nd)
- {
--	while(1) {
--		if (path_equal(&nd->path, &nd->root))
-+	while (1) {
-+		if (path_equal(&nd->path, &nd->root)) {
-+			if (unlikely(nd->flags & LOOKUP_BENEATH))
-+				return -EXDEV;
- 			break;
-+		}
- 		if (nd->path.dentry != nd->path.mnt->mnt_root) {
- 			int ret = path_parent_directory(&nd->path);
- 			if (ret)
-@@ -1739,6 +1791,13 @@ static inline int handle_dots(struct nameidata *nd, int type)
- 	if (type == LAST_DOTDOT) {
- 		int error = 0;
- 
-+		/*
-+		 * Scoped-lookup flags resolving ".." is not currently safe --
-+		 * races can cause our parent to have moved outside of the root
-+		 * and us to skip over it.
-+		 */
-+		if (unlikely(nd->flags & LOOKUP_IS_SCOPED))
-+			return -EXDEV;
- 		if (!nd->root.mnt) {
- 			error = set_root(nd);
- 			if (error)
-@@ -2261,7 +2320,6 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 			get_fs_pwd(current->fs, &nd->path);
- 			nd->inode = nd->path.dentry->d_inode;
- 		}
--		return s;
- 	} else {
- 		/* Caller must check execute permissions on the starting path component */
- 		struct fd f = fdget_raw(nd->dfd);
-@@ -2286,8 +2344,18 @@ static const char *path_init(struct nameidata *nd, unsigned flags)
- 			nd->inode = nd->path.dentry->d_inode;
- 		}
- 		fdput(f);
--		return s;
- 	}
-+	/* For scoped-lookups we need to set the root to the dirfd as well. */
-+	if (flags & LOOKUP_IS_SCOPED) {
-+		nd->root = nd->path;
-+		if (flags & LOOKUP_RCU) {
-+			nd->root_seq = nd->seq;
-+		} else {
-+			path_get(&nd->root);
-+			nd->flags |= LOOKUP_ROOT_GRABBED;
-+		}
-+	}
-+	return s;
- }
- 
- static const char *trailing_symlink(struct nameidata *nd)
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 25ee88c4acb1..93dad378f1e8 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -2,6 +2,7 @@
- #ifndef _LINUX_NAMEI_H
- #define _LINUX_NAMEI_H
- 
-+#include <linux/fs.h>
- #include <linux/kernel.h>
- #include <linux/path.h>
- #include <linux/fcntl.h>
-@@ -43,6 +44,9 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
- #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
- #define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
-+#define LOOKUP_BENEATH		0x080000 /* No escaping from starting point. */
-+/* LOOKUP_* flags which do scope-related checks based on the dirfd. */
-+#define LOOKUP_IS_SCOPED LOOKUP_BENEATH
- 
- extern int path_pts(struct path *path);
- 
 -- 
-2.24.0
+Pierre Morel
+IBM Lab Boeblingen
