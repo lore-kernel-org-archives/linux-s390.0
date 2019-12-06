@@ -1,115 +1,113 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 40/42] s390/cpum_sf: Check for SDBT and SDB consistency
-Date: Wed, 11 Dec 2019 10:35:08 -0500
-Message-Id: <20191211153510.23861-40-sashal@kernel.org>
-In-Reply-To: <20191211153510.23861-1-sashal@kernel.org>
-References: <20191211153510.23861-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mout-p-101.mailbox.org ([80.241.56.151]:21974 "EHLO
+        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726244AbfLFORD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:17:03 -0500
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: [PATCH v18 06/13] namei: LOOKUP_NO_MAGICLINKS: block magic-link resolution
+Date: Sat,  7 Dec 2019 01:13:31 +1100
+Message-Id: <20191206141338.23338-7-cyphar@cyphar.com>
+In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
+References: <20191206141338.23338-1-cyphar@cyphar.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
+Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+/* Background. */
+There has always been a special class of symlink-like objects in procfs
+(and a few other pseudo-filesystems) which allow for non-lexical
+resolution of paths using nd_jump_link(). These "magic-links" do not
+follow traditional mount namespace boundaries, and have been used
+consistently in container escape attacks because they can be used to
+trick unsuspecting privileged processes into resolving unexpected paths.
 
-[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
+It is also non-trivial for userspace to unambiguously avoid resolving
+magic-links, because they do not have a reliable indication that they
+are a magic-link (in order to verify them you'd have to manually open
+the path given by readlink(2) and then verify that the two file
+descriptors reference the same underlying file, which is plagued with
+possible race conditions or supplementary attack scenarios).
 
-Each SBDT is located at a 4KB page and contains 512 entries.
-Each entry of a SDBT points to a SDB, a 4KB page containing
-sampled data. The last entry is a link to another SDBT page.
+It would therefore be very helpful for userspace to be able to avoid
+these symlinks easily, thus hopefully removing a tool from attackers'
+toolboxes.
 
-When an event is created the function sequence executed is:
+This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
+variation on David Drysdale's O_BENEATH patchset[2], which in turn was
+based on the Capsicum project[3]).
 
-  __hw_perf_event_init()
-  +--> allocate_buffers()
-       +--> realloc_sampling_buffers()
-	    +---> alloc_sample_data_block()
+/* Userspace API. */
+LOOKUP_NO_MAGICLINKS will be exposed to userspace through openat2(2).
 
-Both functions realloc_sampling_buffers() and
-alloc_sample_data_block() allocate pages and the allocation
-can fail. This is handled correctly and all allocated
-pages are freed and error -ENOMEM is returned to the
-top calling function. Finally the event is not created.
+/* Semantics. */
+Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
+LOOKUP_NO_MAGICLINKS applies to all components of the path.
 
-Once the event has been created, the amount of initially
-allocated SDBT and SDB can be too low. This is detected
-during measurement interrupt handling, where the amount
-of lost samples is calculated. If the number of lost samples
-is too high considering sampling frequency and already allocated
-SBDs, the number of SDBs is enlarged during the next execution
-of cpumsf_pmu_enable().
+With LOOKUP_NO_MAGICLINKS, any magic-link path component encountered
+during path resolution will yield -ELOOP. The handling of ~LOOKUP_FOLLOW
+for a trailing magic-link is identical to LOOKUP_NO_SYMLINKS.
 
-If more SBDs need to be allocated, functions
+LOOKUP_NO_SYMLINKS implies LOOKUP_NO_MAGICLINKS.
 
-       realloc_sampling_buffers()
-       +---> alloc-sample_data_block()
+/* Testing. */
+LOOKUP_NO_MAGICLINKS is tested as part of the openat2(2) selftests.
 
-are called to allocate more pages. Page allocation may fail
-and the returned error is ignored. A SDBT and SDB setup
-already exists.
+[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
+[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
+[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
 
-However the modified SDBTs and SDBs might end up in a situation
-where the first entry of an SDBT does not point to an SDB,
-but another SDBT, basicly an SBDT without payload.
-This can not be handled by the interrupt handler, where an SDBT
-must have at least one entry pointing to an SBD.
-
-Add a check to avoid SDBTs with out payload (SDBs) when enlarging
-the buffer setup.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Suggested-by: David Drysdale <drysdale@google.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ fs/namei.c            | 10 +++++++++-
+ include/linux/namei.h |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index f46e5c0cb6d95..02476d2333df3 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 				   unsigned long num_sdb, gfp_t gfp_flags)
+diff --git a/fs/namei.c b/fs/namei.c
+index 303731935eb2..415a897729c8 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -867,13 +867,21 @@ static int nd_jump_root(struct nameidata *nd)
+  */
+ int nd_jump_link(struct path *path)
  {
- 	int i, rc;
--	unsigned long *new, *tail;
-+	unsigned long *new, *tail, *tail_prev = NULL;
++	int error = -ELOOP;
+ 	struct nameidata *nd = current->nameidata;
+-	path_put(&nd->path);
  
- 	if (!sfb->sdbt || !sfb->tail)
- 		return -EINVAL;
-@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 			sfb->num_sdbt++;
- 			/* Link current page to tail of chain */
- 			*tail = (unsigned long)(void *) new + 1;
-+			tail_prev = tail;
- 			tail = new;
- 		}
++	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
++		goto err;
++
++	path_put(&nd->path);
+ 	nd->path = *path;
+ 	nd->inode = nd->path.dentry->d_inode;
+ 	nd->flags |= LOOKUP_JUMPED;
+ 	return 0;
++
++err:
++	path_put(path);
++	return error;
+ }
  
-@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 		 * issue, a new realloc call (if required) might succeed.
- 		 */
- 		rc = alloc_sample_data_block(tail, gfp_flags);
--		if (rc)
-+		if (rc) {
-+			/* Undo last SDBT. An SDBT with no SDB at its first
-+			 * entry but with an SDBT entry instead can not be
-+			 * handled by the interrupt handler code.
-+			 * Avoid this situation.
-+			 */
-+			if (tail_prev) {
-+				sfb->num_sdbt--;
-+				free_page((unsigned long) new);
-+				tail = tail_prev;
-+			}
- 			break;
-+		}
- 		sfb->num_sdb++;
- 		tail++;
-+		tail_prev = new = NULL;	/* Allocated at least one SBD */
- 	}
+ static inline void put_link(struct nameidata *nd)
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index 0d86e75c04a7..1573b8493d98 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -41,6 +41,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
  
- 	/* Link sampling buffer to its origin */
+ /* Scoping flags for lookup. */
+ #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
++#define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
+ 
+ extern int path_pts(struct path *path);
+ 
 -- 
-2.20.1
+2.24.0
