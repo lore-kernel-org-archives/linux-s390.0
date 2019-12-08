@@ -1,37 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-m973.mail.163.com ([123.126.97.3]:46260 "EHLO
-        mail-m973.mail.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726076AbfLFCuY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 21:50:24 -0500
-From: Xidong Wang <wangxidong_97@163.com>
-Subject: [PATCH 1/1] scsi: zfcp: check qdio before use
-Date: Fri,  6 Dec 2019 10:34:04 +0800
-Message-Id: <1575599644-15837-1-git-send-email-wangxidong_97@163.com>
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60726 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727016AbfLHNyv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Dec 2019 08:54:51 -0500
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+From: Ben Hutchings <ben@decadent.org.uk>
+Date: Sun, 08 Dec 2019 13:53:19 +0000
+Message-ID: <lsq.1575813165.422392579@decadent.org.uk>
+Subject: [PATCH 3.16 35/72] hypfs: Fix error number left in struct pointer
+ member
+In-Reply-To: <lsq.1575813164.154362148@decadent.org.uk>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Xidong Wang <wangxidong_97@163.com>, Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, David Howells <dhowells@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-In zfcp_fsf_fcp_cmnd(), zfcp_qdio_sbal_get(qdio) should
-be checked before zfcp_fsf_req_create() is called.
+3.16.79-rc1 review patch.  If anyone has any objections, please let me know.
 
-Signed-off-by: Xidong Wang <wangxidong_97@163.com>
+------------------
+
+From: David Howells <dhowells@redhat.com>
+
+commit b54c64f7adeb241423cd46598f458b5486b0375e upstream.
+
+In hypfs_fill_super(), if hypfs_create_update_file() fails,
+sbi->update_file is left holding an error number.  This is passed to
+hypfs_kill_super() which doesn't check for this.
+
+Fix this by not setting sbi->update_value until after we've checked for
+error.
+
+Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/hypfs/inode.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index cf63916..8e460e3 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -2292,6 +2292,9 @@ int zfcp_fsf_fcp_cmnd(struct scsi_cmnd *scsi_cmnd)
- 	if (scsi_cmnd->sc_data_direction == DMA_TO_DEVICE)
- 		sbtype = SBAL_SFLAGS0_TYPE_WRITE;
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -275,7 +275,7 @@ static int hypfs_show_options(struct seq
+ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *root_inode;
+-	struct dentry *root_dentry;
++	struct dentry *root_dentry, *update_file;
+ 	int rc = 0;
+ 	struct hypfs_sb_info *sbi;
  
-+	if (zfcp_qdio_sbal_get(qdio))
-+		goto out;
-+
- 	req = zfcp_fsf_req_create(qdio, FSF_QTCB_FCP_CMND,
- 				  sbtype, adapter->pool.scsi_req);
- 
--- 
-2.7.4
+@@ -306,9 +306,10 @@ static int hypfs_fill_super(struct super
+ 		rc = hypfs_diag_create_files(root_dentry);
+ 	if (rc)
+ 		return rc;
+-	sbi->update_file = hypfs_create_update_file(root_dentry);
+-	if (IS_ERR(sbi->update_file))
+-		return PTR_ERR(sbi->update_file);
++	update_file = hypfs_create_update_file(root_dentry);
++	if (IS_ERR(update_file))
++		return PTR_ERR(update_file);
++	sbi->update_file = update_file;
+ 	hypfs_update_update(sb);
+ 	pr_info("Hypervisor filesystem mounted\n");
+ 	return 0;
