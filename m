@@ -1,68 +1,123 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50182 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729108AbfLKL7g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 06:59:36 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBBBqAIK060724
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 06:59:35 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wr8kytag5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 06:59:35 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 11 Dec 2019 11:59:32 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 1/2] s390x: smp: Use full PSW to bringup new cpu
-Date: Wed, 11 Dec 2019 06:59:22 -0500
-In-Reply-To: <20191211115923.9191-1-frankja@linux.ibm.com>
-References: <20191211115923.9191-1-frankja@linux.ibm.com>
+Received: from ale.deltatee.com ([207.54.116.67]:56068 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726365AbfLITOI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Dec 2019 14:14:08 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Mon,  9 Dec 2019 12:13:44 -0700
+Message-Id: <20191209191346.5197-5-logang@deltatee.com>
+In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
+References: <20191209191346.5197-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191211115923.9191-2-frankja@linux.ibm.com>
+Subject: [PATCH 4/6] s390/mm: Thread pgprot_t through vmem_add_mapping()
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Up to now we ignored the psw mask and only used the psw address when
-bringing up a new cpu. For DAT we need to also load the mask, so let's
-do that.
+In prepartion to support a pgprot_t argument for arch_add_memory().
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- lib/s390x/smp.c  | 2 ++
- s390x/cstart64.S | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/pgtable.h |  3 ++-
+ arch/s390/mm/extmem.c           |  3 ++-
+ arch/s390/mm/init.c             |  2 +-
+ arch/s390/mm/vmem.c             | 10 +++++-----
+ 4 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index f57f420..e17751a 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -185,6 +185,8 @@ int smp_cpu_setup(uint16_t addr, struct psw psw)
- 	cpu->stack = (uint64_t *)alloc_pages(2);
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 5ff98d76a66c..e0d5ed38282b 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -1673,7 +1673,8 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
  
- 	/* Start without DAT and any other mask bits. */
-+	cpu->lowcore->sw_int_psw.mask = psw.mask;
-+	cpu->lowcore->sw_int_psw.addr = psw.addr;
- 	cpu->lowcore->sw_int_grs[14] = psw.addr;
- 	cpu->lowcore->sw_int_grs[15] = (uint64_t)cpu->stack + (PAGE_SIZE * 4);
- 	lc->restart_new_psw.mask = 0x0000000180000000UL;
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 86dd4c4..e6a6bdb 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -159,7 +159,7 @@ smp_cpu_setup_state:
- 	xgr	%r1, %r1
- 	lmg     %r0, %r15, GEN_LC_SW_INT_GRS
- 	lctlg   %c0, %c0, GEN_LC_SW_INT_CRS
--	br	%r14
-+	lpswe	GEN_LC_SW_INT_PSW
+ #define kern_addr_valid(addr)   (1)
  
- pgm_int:
- 	SAVE_REGS
+-extern int vmem_add_mapping(unsigned long start, unsigned long size);
++extern int vmem_add_mapping(unsigned long start, unsigned long size,
++			    pgprot_t prot);
+ extern int vmem_remove_mapping(unsigned long start, unsigned long size);
+ extern int s390_enable_sie(void);
+ extern int s390_enable_skey(void);
+diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
+index fd0dae9d10f4..6cf7029a7b35 100644
+--- a/arch/s390/mm/extmem.c
++++ b/arch/s390/mm/extmem.c
+@@ -313,7 +313,8 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
+ 		goto out_free;
+ 	}
+ 
+-	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
++	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1,
++			      PAGE_KERNEL);
+ 
+ 	if (rc)
+ 		goto out_free;
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index a124f19f7b3c..263ebb074cdd 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -276,7 +276,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	if (WARN_ON_ONCE(restrictions->altmap))
+ 		return -EINVAL;
+ 
+-	rc = vmem_add_mapping(start, size);
++	rc = vmem_add_mapping(start, size, PAGE_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index b403fa14847d..8a5e95f184a2 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -66,7 +66,7 @@ pte_t __ref *vmem_pte_alloc(void)
+ /*
+  * Add a physical memory range to the 1:1 mapping.
+  */
+-static int vmem_add_mem(unsigned long start, unsigned long size)
++static int vmem_add_mem(unsigned long start, unsigned long size, pgprot_t prot)
+ {
+ 	unsigned long pgt_prot, sgt_prot, r3_prot;
+ 	unsigned long pages4k, pages1m, pages2g;
+@@ -79,7 +79,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size)
+ 	pte_t *pt_dir;
+ 	int ret = -ENOMEM;
+ 
+-	pgt_prot = pgprot_val(PAGE_KERNEL);
++	pgt_prot = pgprot_val(prot);
+ 	sgt_prot = pgprot_val(SEGMENT_KERNEL);
+ 	r3_prot = pgprot_val(REGION3_KERNEL);
+ 	if (!MACHINE_HAS_NX) {
+@@ -362,7 +362,7 @@ int vmem_remove_mapping(unsigned long start, unsigned long size)
+ 	return ret;
+ }
+ 
+-int vmem_add_mapping(unsigned long start, unsigned long size)
++int vmem_add_mapping(unsigned long start, unsigned long size, pgprot_t prot)
+ {
+ 	struct memory_segment *seg;
+ 	int ret;
+@@ -379,7 +379,7 @@ int vmem_add_mapping(unsigned long start, unsigned long size)
+ 	if (ret)
+ 		goto out_free;
+ 
+-	ret = vmem_add_mem(start, size);
++	ret = vmem_add_mem(start, size, prot);
+ 	if (ret)
+ 		goto out_remove;
+ 	goto out;
+@@ -403,7 +403,7 @@ void __init vmem_map_init(void)
+ 	struct memblock_region *reg;
+ 
+ 	for_each_memblock(memory, reg)
+-		vmem_add_mem(reg->base, reg->size);
++		vmem_add_mem(reg->base, reg->size, PAGE_KERNEL);
+ 	__set_memory((unsigned long)_stext,
+ 		     (unsigned long)(_etext - _stext) >> PAGE_SHIFT,
+ 		     SET_MEMORY_RO | SET_MEMORY_X);
 -- 
 2.20.1
