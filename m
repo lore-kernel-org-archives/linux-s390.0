@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 105/130] s390/disassembler: don't hide instruction addresses
-Date: Tue, 10 Dec 2019 17:02:36 -0500
-Message-Id: <20191210220301.13262-105-sashal@kernel.org>
-In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
-References: <20191210220301.13262-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from ale.deltatee.com ([207.54.116.67]:56028 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726354AbfLITOE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Dec 2019 14:14:04 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Mon,  9 Dec 2019 12:13:42 -0700
+Message-Id: <20191209191346.5197-3-logang@deltatee.com>
+In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
+References: <20191209191346.5197-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 2/6] x86/mm: Introduce _set_memory_prot()
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+For use in the 32bit arch_add_memory() to set the pgprot type of the
+memory to add.
 
-[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
-
-Due to kptr_restrict, JITted BPF code is now displayed like this:
-
-000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
-000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
-00000000fbad41b0: a7fbffa0      aghi    %r15,-96
-
-Leaking kernel addresses to dmesg is not a concern in this case, because
-this happens only when JIT debugging is explicitly activated, which only
-root can do.
-
-Use %px in this particular instance, and also to print an instruction
-address in show_code and PCREL (e.g. brasl) arguments in print_insn.
-While at present functionally equivalent to %016lx, %px is recommended
-by Documentation/core-api/printk-formats.rst for such cases.
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- arch/s390/kernel/dis.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/set_memory.h | 1 +
+ arch/x86/mm/pageattr.c            | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
-index 2394557653d57..6d154069c9623 100644
---- a/arch/s390/kernel/dis.c
-+++ b/arch/s390/kernel/dis.c
-@@ -1930,10 +1930,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
- 				ptr += sprintf(ptr, "%%c%i", value);
- 			else if (operand->flags & OPERAND_VR)
- 				ptr += sprintf(ptr, "%%v%i", value);
--			else if (operand->flags & OPERAND_PCREL)
--				ptr += sprintf(ptr, "%lx", (signed int) value
--								      + addr);
--			else if (operand->flags & OPERAND_SIGNED)
-+			else if (operand->flags & OPERAND_PCREL) {
-+				void *pcrel = (void *)((int)value + addr);
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 2ee8e469dcf5..d728c2f3ad96 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -34,6 +34,7 @@
+  * The caller is required to take care of these.
+  */
+ 
++int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot);
+ int _set_memory_uc(unsigned long addr, int numpages);
+ int _set_memory_wc(unsigned long addr, int numpages);
+ int _set_memory_wt(unsigned long addr, int numpages);
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 0d09cc5aad61..024e3ddf494d 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -1781,6 +1781,13 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
+ 		CPA_PAGES_ARRAY, pages);
+ }
+ 
++int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot)
++{
++	return change_page_attr_set_clr(&addr, numpages, prot,
++					__pgprot(~pgprot_val(prot)), 0, 0,
++					NULL);
++}
 +
-+				ptr += sprintf(ptr, "%px", pcrel);
-+			} else if (operand->flags & OPERAND_SIGNED)
- 				ptr += sprintf(ptr, "%i", value);
- 			else
- 				ptr += sprintf(ptr, "%u", value);
-@@ -2005,7 +2006,7 @@ void show_code(struct pt_regs *regs)
- 		else
- 			*ptr++ = ' ';
- 		addr = regs->psw.addr + start - 32;
--		ptr += sprintf(ptr, "%016lx: ", addr);
-+		ptr += sprintf(ptr, "%px: ", (void *)addr);
- 		if (start + opsize >= end)
- 			break;
- 		for (i = 0; i < opsize; i++)
-@@ -2033,7 +2034,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
- 		opsize = insn_length(*code);
- 		if (opsize > len)
- 			break;
--		ptr += sprintf(ptr, "%p: ", code);
-+		ptr += sprintf(ptr, "%px: ", code);
- 		for (i = 0; i < opsize; i++)
- 			ptr += sprintf(ptr, "%02x", code[i]);
- 		*ptr++ = '\t';
+ int _set_memory_uc(unsigned long addr, int numpages)
+ {
+ 	/*
 -- 
 2.20.1
