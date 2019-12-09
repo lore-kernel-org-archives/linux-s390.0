@@ -1,285 +1,210 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35472 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726769AbfLIP37 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 10:29:59 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB9FSkoH075916
-        for <linux-s390@vger.kernel.org>; Mon, 9 Dec 2019 10:29:59 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wsrdm9gks-1
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9424 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726377AbfLIIx3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 03:53:29 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB98qP0a107955
+        for <linux-s390@vger.kernel.org>; Mon, 9 Dec 2019 03:53:28 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wrtdp1293-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2019 10:29:58 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2019 03:53:27 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
-        Mon, 9 Dec 2019 15:29:56 -0000
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Subject: [PATCH v2 6/6] btrfs: Use larger zlib buffer for s390 hardware compression
-Date: Mon,  9 Dec 2019 16:29:48 +0100
-In-Reply-To: <20191209152948.37080-1-zaslonko@linux.ibm.com>
-References: <20191209152948.37080-1-zaslonko@linux.ibm.com>
-Message-Id: <20191209152948.37080-7-zaslonko@linux.ibm.com>
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Mon, 9 Dec 2019 08:53:26 -0000
+Subject: Re: [kvm-unit-tests PATCH v3 2/9] s390x: Define the PSW bits
+References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
+ <1575649588-6127-3-git-send-email-pmorel@linux.ibm.com>
+ <4d034f27-0449-08ea-5b45-be91a788bd6d@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Mon, 9 Dec 2019 09:53:22 +0100
+MIME-Version: 1.0
+In-Reply-To: <4d034f27-0449-08ea-5b45-be91a788bd6d@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <36847ac9-fef4-1eea-8b3a-d8a94a989a6e@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, zaslonko@linux.ibm.com
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-Due to the small size of zlib buffer (1 page) set in btrfs code, s390
-hardware compression is rather limited in terms of performance. Increasing
-the buffer size to 4 pages when s390 zlib hardware support is enabled
-would bring significant benefit to btrfs zlib (up to 60% better performance
-compared to the PAGE_SIZE buffer). In case of memory pressure we fall back
-to a single page buffer during workspace allocation.
 
-Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
----
- fs/btrfs/compression.c |   2 +-
- fs/btrfs/zlib.c        | 118 +++++++++++++++++++++++++++--------------
- 2 files changed, 80 insertions(+), 40 deletions(-)
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index b05b361e2062..f789b356fd8b 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -1158,7 +1158,7 @@ int btrfs_decompress_buf2page(const char *buf, unsigned long buf_start,
- 	/* copy bytes from the working buffer into the pages */
- 	while (working_bytes > 0) {
- 		bytes = min_t(unsigned long, bvec.bv_len,
--				PAGE_SIZE - buf_offset);
-+				PAGE_SIZE - (buf_offset % PAGE_SIZE));
- 		bytes = min(bytes, working_bytes);
- 
- 		kaddr = kmap_atomic(bvec.bv_page);
-diff --git a/fs/btrfs/zlib.c b/fs/btrfs/zlib.c
-index df1aace5df50..0bc0d57ba233 100644
---- a/fs/btrfs/zlib.c
-+++ b/fs/btrfs/zlib.c
-@@ -20,9 +20,12 @@
- #include <linux/refcount.h>
- #include "compression.h"
- 
-+#define ZLIB_DFLTCC_BUF_SIZE    (4 * PAGE_SIZE)
-+
- struct workspace {
- 	z_stream strm;
- 	char *buf;
-+	unsigned long buf_size;
- 	struct list_head list;
- 	int level;
- };
-@@ -76,7 +79,17 @@ static struct list_head *zlib_alloc_workspace(unsigned int level)
- 			zlib_inflate_workspacesize());
- 	workspace->strm.workspace = kvmalloc(workspacesize, GFP_KERNEL);
- 	workspace->level = level;
--	workspace->buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	workspace->buf = NULL;
-+	if (zlib_deflate_dfltcc_enabled()) {
-+		workspace->buf = kmalloc(ZLIB_DFLTCC_BUF_SIZE,
-+					 __GFP_NOMEMALLOC | __GFP_NORETRY |
-+					 __GFP_NOWARN | GFP_NOIO);
-+		workspace->buf_size = ZLIB_DFLTCC_BUF_SIZE;
-+	}
-+	if (!workspace->buf) {
-+		workspace->buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+		workspace->buf_size = PAGE_SIZE;
-+	}
- 	if (!workspace->strm.workspace || !workspace->buf)
- 		goto fail;
- 
-@@ -97,6 +110,7 @@ static int zlib_compress_pages(struct list_head *ws,
- 			       unsigned long *total_out)
- {
- 	struct workspace *workspace = list_entry(ws, struct workspace, list);
-+	int i;
- 	int ret;
- 	char *data_in;
- 	char *cpage_out;
-@@ -104,6 +118,7 @@ static int zlib_compress_pages(struct list_head *ws,
- 	struct page *in_page = NULL;
- 	struct page *out_page = NULL;
- 	unsigned long bytes_left;
-+	unsigned long in_buf_pages;
- 	unsigned long len = *total_out;
- 	unsigned long nr_dest_pages = *out_pages;
- 	const unsigned long max_out = nr_dest_pages * PAGE_SIZE;
-@@ -121,9 +136,6 @@ static int zlib_compress_pages(struct list_head *ws,
- 	workspace->strm.total_in = 0;
- 	workspace->strm.total_out = 0;
- 
--	in_page = find_get_page(mapping, start >> PAGE_SHIFT);
--	data_in = kmap(in_page);
--
- 	out_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
- 	if (out_page == NULL) {
- 		ret = -ENOMEM;
-@@ -133,12 +145,34 @@ static int zlib_compress_pages(struct list_head *ws,
- 	pages[0] = out_page;
- 	nr_pages = 1;
- 
--	workspace->strm.next_in = data_in;
-+	workspace->strm.next_in = workspace->buf;
-+	workspace->strm.avail_in = 0;
- 	workspace->strm.next_out = cpage_out;
- 	workspace->strm.avail_out = PAGE_SIZE;
--	workspace->strm.avail_in = min(len, PAGE_SIZE);
- 
- 	while (workspace->strm.total_in < len) {
-+		/* get next set of pages and copy their contents to
-+		 * the input buffer for the following deflate call
-+		 */
-+		if (workspace->strm.avail_in == 0) {
-+			bytes_left = len - workspace->strm.total_in;
-+			in_buf_pages = min(DIV_ROUND_UP(bytes_left, PAGE_SIZE),
-+					   workspace->buf_size / PAGE_SIZE);
-+			for (i = 0; i < in_buf_pages; i++) {
-+				in_page = find_get_page(mapping,
-+							start >> PAGE_SHIFT);
-+				data_in = kmap(in_page);
-+				memcpy(workspace->buf + i*PAGE_SIZE, data_in,
-+				       PAGE_SIZE);
-+				kunmap(in_page);
-+				put_page(in_page);
-+				start += PAGE_SIZE;
-+			}
-+			workspace->strm.avail_in = min(bytes_left,
-+						       workspace->buf_size);
-+			workspace->strm.next_in = workspace->buf;
-+		}
-+
- 		ret = zlib_deflate(&workspace->strm, Z_SYNC_FLUSH);
- 		if (ret != Z_OK) {
- 			pr_debug("BTRFS: deflate in loop returned %d\n",
-@@ -155,6 +189,7 @@ static int zlib_compress_pages(struct list_head *ws,
- 			ret = -E2BIG;
- 			goto out;
- 		}
-+
- 		/* we need another page for writing out.  Test this
- 		 * before the total_in so we will pull in a new page for
- 		 * the stream end if required
-@@ -180,33 +215,42 @@ static int zlib_compress_pages(struct list_head *ws,
- 		/* we're all done */
- 		if (workspace->strm.total_in >= len)
- 			break;
--
--		/* we've read in a full page, get a new one */
--		if (workspace->strm.avail_in == 0) {
--			if (workspace->strm.total_out > max_out)
--				break;
--
--			bytes_left = len - workspace->strm.total_in;
--			kunmap(in_page);
--			put_page(in_page);
--
--			start += PAGE_SIZE;
--			in_page = find_get_page(mapping,
--						start >> PAGE_SHIFT);
--			data_in = kmap(in_page);
--			workspace->strm.avail_in = min(bytes_left,
--							   PAGE_SIZE);
--			workspace->strm.next_in = data_in;
--		}
-+		if (workspace->strm.total_out > max_out)
-+			break;
- 	}
- 	workspace->strm.avail_in = 0;
--	ret = zlib_deflate(&workspace->strm, Z_FINISH);
--	zlib_deflateEnd(&workspace->strm);
--
--	if (ret != Z_STREAM_END) {
--		ret = -EIO;
--		goto out;
-+	/* call deflate with Z_FINISH flush parameter providing more output
-+	 * space but no more input data, until it returns with Z_STREAM_END
-+	 */
-+	while (ret != Z_STREAM_END) {
-+		ret = zlib_deflate(&workspace->strm, Z_FINISH);
-+		if (ret == Z_STREAM_END)
-+			break;
-+		if (ret != Z_OK && ret != Z_BUF_ERROR) {
-+			zlib_deflateEnd(&workspace->strm);
-+			ret = -EIO;
-+			goto out;
-+		} else if (workspace->strm.avail_out == 0) {
-+			/* get another page for the stream end */
-+			kunmap(out_page);
-+			if (nr_pages == nr_dest_pages) {
-+				out_page = NULL;
-+				ret = -E2BIG;
-+				goto out;
-+			}
-+			out_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
-+			if (out_page == NULL) {
-+				ret = -ENOMEM;
-+				goto out;
-+			}
-+			cpage_out = kmap(out_page);
-+			pages[nr_pages] = out_page;
-+			nr_pages++;
-+			workspace->strm.avail_out = PAGE_SIZE;
-+			workspace->strm.next_out = cpage_out;
-+		}
- 	}
-+	zlib_deflateEnd(&workspace->strm);
- 
- 	if (workspace->strm.total_out >= workspace->strm.total_in) {
- 		ret = -E2BIG;
-@@ -221,10 +265,6 @@ static int zlib_compress_pages(struct list_head *ws,
- 	if (out_page)
- 		kunmap(out_page);
- 
--	if (in_page) {
--		kunmap(in_page);
--		put_page(in_page);
--	}
- 	return ret;
- }
- 
-@@ -250,7 +290,7 @@ static int zlib_decompress_bio(struct list_head *ws, struct compressed_bio *cb)
- 
- 	workspace->strm.total_out = 0;
- 	workspace->strm.next_out = workspace->buf;
--	workspace->strm.avail_out = PAGE_SIZE;
-+	workspace->strm.avail_out = workspace->buf_size;
- 
- 	/* If it's deflate, and it's got no preset dictionary, then
- 	   we can tell zlib to skip the adler32 check. */
-@@ -289,7 +329,7 @@ static int zlib_decompress_bio(struct list_head *ws, struct compressed_bio *cb)
- 		}
- 
- 		workspace->strm.next_out = workspace->buf;
--		workspace->strm.avail_out = PAGE_SIZE;
-+		workspace->strm.avail_out = workspace->buf_size;
- 
- 		if (workspace->strm.avail_in == 0) {
- 			unsigned long tmp;
-@@ -340,7 +380,7 @@ static int zlib_decompress(struct list_head *ws, unsigned char *data_in,
- 	workspace->strm.total_in = 0;
- 
- 	workspace->strm.next_out = workspace->buf;
--	workspace->strm.avail_out = PAGE_SIZE;
-+	workspace->strm.avail_out = workspace->buf_size;
- 	workspace->strm.total_out = 0;
- 	/* If it's deflate, and it's got no preset dictionary, then
- 	   we can tell zlib to skip the adler32 check. */
-@@ -384,7 +424,7 @@ static int zlib_decompress(struct list_head *ws, unsigned char *data_in,
- 			buf_offset = 0;
- 
- 		bytes = min(PAGE_SIZE - pg_offset,
--			    PAGE_SIZE - buf_offset);
-+			    PAGE_SIZE - (buf_offset % PAGE_SIZE));
- 		bytes = min(bytes, bytes_left);
- 
- 		kaddr = kmap_atomic(dest_page);
-@@ -395,7 +435,7 @@ static int zlib_decompress(struct list_head *ws, unsigned char *data_in,
- 		bytes_left -= bytes;
- next:
- 		workspace->strm.next_out = workspace->buf;
--		workspace->strm.avail_out = PAGE_SIZE;
-+		workspace->strm.avail_out = workspace->buf_size;
- 	}
- 
- 	if (ret != Z_STREAM_END && bytes_left != 0)
+On 2019-12-06 17:29, Thomas Huth wrote:
+> On 06/12/2019 17.26, Pierre Morel wrote:
+>> Let's define the PSW bits explicitly, it will clarify their
+>> usage.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h | 127 +++++++++++++++++++++------------------
+>>   s390x/cstart64.S         |  13 ++--
+>>   2 files changed, 74 insertions(+), 66 deletions(-)
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index cf6e1ca..1293640 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -10,20 +10,81 @@
+>>   #ifndef _ASM_S390X_ARCH_DEF_H_
+>>   #define _ASM_S390X_ARCH_DEF_H_
+>>   
+>> -struct psw {
+>> -	uint64_t	mask;
+>> -	uint64_t	addr;
+>> -};
+>> -
+>>   #define PSW_MASK_EXT			0x0100000000000000UL
+>>   #define PSW_MASK_DAT			0x0400000000000000UL
+>>   #define PSW_MASK_PSTATE			0x0001000000000000UL
+>> +#define PSW_MASK_IO			0x0200000000000000
+>> +#define PSW_MASK_EA			0x0000000100000000
+>> +#define PSW_MASK_BA			0x0000000080000000
+>> +
+>> +#define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
+>>   
+>>   #define CR0_EXTM_SCLP			0X0000000000000200UL
+>>   #define CR0_EXTM_EXTC			0X0000000000002000UL
+>>   #define CR0_EXTM_EMGC			0X0000000000004000UL
+>>   #define CR0_EXTM_MASK			0X0000000000006200UL
+>>   
+>> +#define PGM_INT_CODE_OPERATION			0x01
+>> +#define PGM_INT_CODE_PRIVILEGED_OPERATION	0x02
+>> +#define PGM_INT_CODE_EXECUTE			0x03
+>> +#define PGM_INT_CODE_PROTECTION			0x04
+>> +#define PGM_INT_CODE_ADDRESSING			0x05
+>> +#define PGM_INT_CODE_SPECIFICATION		0x06
+>> +#define PGM_INT_CODE_DATA			0x07
+>> +#define PGM_INT_CODE_FIXED_POINT_OVERFLOW	0x08
+>> +#define PGM_INT_CODE_FIXED_POINT_DIVIDE		0x09
+>> +#define PGM_INT_CODE_DECIMAL_OVERFLOW		0x0a
+>> +#define PGM_INT_CODE_DECIMAL_DIVIDE		0x0b
+>> +#define PGM_INT_CODE_HFP_EXPONENT_OVERFLOW	0x0c
+>> +#define PGM_INT_CODE_HFP_EXPONENT_UNDERFLOW	0x0d
+>> +#define PGM_INT_CODE_HFP_SIGNIFICANCE		0x0e
+>> +#define PGM_INT_CODE_HFP_DIVIDE			0x0f
+>> +#define PGM_INT_CODE_SEGMENT_TRANSLATION	0x10
+>> +#define PGM_INT_CODE_PAGE_TRANSLATION		0x11
+>> +#define PGM_INT_CODE_TRANSLATION_SPEC		0x12
+>> +#define PGM_INT_CODE_SPECIAL_OPERATION		0x13
+>> +#define PGM_INT_CODE_OPERAND			0x15
+>> +#define PGM_INT_CODE_TRACE_TABLE		0x16
+>> +#define PGM_INT_CODE_VECTOR_PROCESSING		0x1b
+>> +#define PGM_INT_CODE_SPACE_SWITCH_EVENT		0x1c
+>> +#define PGM_INT_CODE_HFP_SQUARE_ROOT		0x1d
+>> +#define PGM_INT_CODE_PC_TRANSLATION_SPEC	0x1f
+>> +#define PGM_INT_CODE_AFX_TRANSLATION		0x20
+>> +#define PGM_INT_CODE_ASX_TRANSLATION		0x21
+>> +#define PGM_INT_CODE_LX_TRANSLATION		0x22
+>> +#define PGM_INT_CODE_EX_TRANSLATION		0x23
+>> +#define PGM_INT_CODE_PRIMARY_AUTHORITY		0x24
+>> +#define PGM_INT_CODE_SECONDARY_AUTHORITY	0x25
+>> +#define PGM_INT_CODE_LFX_TRANSLATION		0x26
+>> +#define PGM_INT_CODE_LSX_TRANSLATION		0x27
+>> +#define PGM_INT_CODE_ALET_SPECIFICATION		0x28
+>> +#define PGM_INT_CODE_ALEN_TRANSLATION		0x29
+>> +#define PGM_INT_CODE_ALE_SEQUENCE		0x2a
+>> +#define PGM_INT_CODE_ASTE_VALIDITY		0x2b
+>> +#define PGM_INT_CODE_ASTE_SEQUENCE		0x2c
+>> +#define PGM_INT_CODE_EXTENDED_AUTHORITY		0x2d
+>> +#define PGM_INT_CODE_LSTE_SEQUENCE		0x2e
+>> +#define PGM_INT_CODE_ASTE_INSTANCE		0x2f
+>> +#define PGM_INT_CODE_STACK_FULL			0x30
+>> +#define PGM_INT_CODE_STACK_EMPTY		0x31
+>> +#define PGM_INT_CODE_STACK_SPECIFICATION	0x32
+>> +#define PGM_INT_CODE_STACK_TYPE			0x33
+>> +#define PGM_INT_CODE_STACK_OPERATION		0x34
+>> +#define PGM_INT_CODE_ASCE_TYPE			0x38
+>> +#define PGM_INT_CODE_REGION_FIRST_TRANS		0x39
+>> +#define PGM_INT_CODE_REGION_SECOND_TRANS	0x3a
+>> +#define PGM_INT_CODE_REGION_THIRD_TRANS		0x3b
+>> +#define PGM_INT_CODE_MONITOR_EVENT		0x40
+>> +#define PGM_INT_CODE_PER			0x80
+>> +#define PGM_INT_CODE_CRYPTO_OPERATION		0x119
+>> +#define PGM_INT_CODE_TX_ABORTED_EVENT		0x200
+>> +
+>> +#ifndef __ASSEMBLER__
+>> +struct psw {
+>> +	uint64_t	mask;
+>> +	uint64_t	addr;
+>> +};
+>> +
+>>   struct lowcore {
+>>   	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+>>   	uint32_t	ext_int_param;			/* 0x0080 */
+>> @@ -101,61 +162,6 @@ struct lowcore {
+>>   } __attribute__ ((__packed__));
+>>   _Static_assert(sizeof(struct lowcore) == 0x1900, "Lowcore size");
+>>   
+>> -#define PGM_INT_CODE_OPERATION			0x01
+>> -#define PGM_INT_CODE_PRIVILEGED_OPERATION	0x02
+>> -#define PGM_INT_CODE_EXECUTE			0x03
+>> -#define PGM_INT_CODE_PROTECTION			0x04
+>> -#define PGM_INT_CODE_ADDRESSING			0x05
+>> -#define PGM_INT_CODE_SPECIFICATION		0x06
+>> -#define PGM_INT_CODE_DATA			0x07
+>> -#define PGM_INT_CODE_FIXED_POINT_OVERFLOW	0x08
+>> -#define PGM_INT_CODE_FIXED_POINT_DIVIDE		0x09
+>> -#define PGM_INT_CODE_DECIMAL_OVERFLOW		0x0a
+>> -#define PGM_INT_CODE_DECIMAL_DIVIDE		0x0b
+>> -#define PGM_INT_CODE_HFP_EXPONENT_OVERFLOW	0x0c
+>> -#define PGM_INT_CODE_HFP_EXPONENT_UNDERFLOW	0x0d
+>> -#define PGM_INT_CODE_HFP_SIGNIFICANCE		0x0e
+>> -#define PGM_INT_CODE_HFP_DIVIDE			0x0f
+>> -#define PGM_INT_CODE_SEGMENT_TRANSLATION	0x10
+>> -#define PGM_INT_CODE_PAGE_TRANSLATION		0x11
+>> -#define PGM_INT_CODE_TRANSLATION_SPEC		0x12
+>> -#define PGM_INT_CODE_SPECIAL_OPERATION		0x13
+>> -#define PGM_INT_CODE_OPERAND			0x15
+>> -#define PGM_INT_CODE_TRACE_TABLE		0x16
+>> -#define PGM_INT_CODE_VECTOR_PROCESSING		0x1b
+>> -#define PGM_INT_CODE_SPACE_SWITCH_EVENT		0x1c
+>> -#define PGM_INT_CODE_HFP_SQUARE_ROOT		0x1d
+>> -#define PGM_INT_CODE_PC_TRANSLATION_SPEC	0x1f
+>> -#define PGM_INT_CODE_AFX_TRANSLATION		0x20
+>> -#define PGM_INT_CODE_ASX_TRANSLATION		0x21
+>> -#define PGM_INT_CODE_LX_TRANSLATION		0x22
+>> -#define PGM_INT_CODE_EX_TRANSLATION		0x23
+>> -#define PGM_INT_CODE_PRIMARY_AUTHORITY		0x24
+>> -#define PGM_INT_CODE_SECONDARY_AUTHORITY	0x25
+>> -#define PGM_INT_CODE_LFX_TRANSLATION		0x26
+>> -#define PGM_INT_CODE_LSX_TRANSLATION		0x27
+>> -#define PGM_INT_CODE_ALET_SPECIFICATION		0x28
+>> -#define PGM_INT_CODE_ALEN_TRANSLATION		0x29
+>> -#define PGM_INT_CODE_ALE_SEQUENCE		0x2a
+>> -#define PGM_INT_CODE_ASTE_VALIDITY		0x2b
+>> -#define PGM_INT_CODE_ASTE_SEQUENCE		0x2c
+>> -#define PGM_INT_CODE_EXTENDED_AUTHORITY		0x2d
+>> -#define PGM_INT_CODE_LSTE_SEQUENCE		0x2e
+>> -#define PGM_INT_CODE_ASTE_INSTANCE		0x2f
+>> -#define PGM_INT_CODE_STACK_FULL			0x30
+>> -#define PGM_INT_CODE_STACK_EMPTY		0x31
+>> -#define PGM_INT_CODE_STACK_SPECIFICATION	0x32
+>> -#define PGM_INT_CODE_STACK_TYPE			0x33
+>> -#define PGM_INT_CODE_STACK_OPERATION		0x34
+>> -#define PGM_INT_CODE_ASCE_TYPE			0x38
+>> -#define PGM_INT_CODE_REGION_FIRST_TRANS		0x39
+>> -#define PGM_INT_CODE_REGION_SECOND_TRANS	0x3a
+>> -#define PGM_INT_CODE_REGION_THIRD_TRANS		0x3b
+>> -#define PGM_INT_CODE_MONITOR_EVENT		0x40
+>> -#define PGM_INT_CODE_PER			0x80
+>> -#define PGM_INT_CODE_CRYPTO_OPERATION		0x119
+>> -#define PGM_INT_CODE_TX_ABORTED_EVENT		0x200
+> 
+> This patch definitely does more than you've mentioned in the patch
+> description. Please avoid the movement of the PGM definitions here and
+> move that into a separate patch (if it is really necessary).
+> 
+>   Thomas
+> 
+
+OK, thanks,
+
+Pierre
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
