@@ -1,140 +1,141 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12284 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732885AbfLKPqU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:46:20 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBBFhQU0043092
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:19 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wsqc2fdhc-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18912 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726619AbfLIP36 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 10:29:58 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB9FSJQB085472
+        for <linux-s390@vger.kernel.org>; Mon, 9 Dec 2019 10:29:57 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wsm2cwj75-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:18 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2019 10:29:57 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Wed, 11 Dec 2019 15:46:17 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 7/9] s390x: css: msch, enable test
-Date: Wed, 11 Dec 2019 16:46:08 +0100
-In-Reply-To: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
-References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1576079170-7244-8-git-send-email-pmorel@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
+        Mon, 9 Dec 2019 15:29:55 -0000
+From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Subject: [PATCH v2 0/6] S390 hardware compression support for kernel zlib
+Date: Mon,  9 Dec 2019 16:29:42 +0100
+Message-Id: <20191209152948.37080-1-zaslonko@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, zaslonko@linux.ibm.com
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current SubCHannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled.
+With IBM z15 mainframe the new DFLTCC instruction is available. It
+implements deflate algorithm in hardware (Nest Acceleration Unit - NXU)
+with estimated compression and decompression performance orders of
+magnitude faster than the current zlib.
 
-This tests the success of the MSCH instruction by enabling a channel.
+This patch-set adds s390 hardware compression support to kernel zlib.
+The code is based on the userspace zlib implementation:
+https://github.com/madler/zlib/pull/410
+The coding style is also preserved for future maintainability.
+There is only limited set of userspace zlib functions represented in
+kernel. Apart from that, all the memory allocation should be performed
+in advance. Thus, the workarea structures are extended with the parameter
+lists required for the DEFLATE CONVENTION CALL instruction.
+Since kernel zlib itself does not support gzip headers, only Adler-32
+checksum is processed (also can be produced by DFLTCC facility).
+Like it was implemented for userspace, kernel zlib will compress in
+hardware on level 1, and in software on all other levels. Decompression
+will always happen in hardware (when enabled).
+Two DFLTCC compression calls produce the same results only when they
+both are made on machines of the same generation, and when the
+respective buffers have the same offset relative to the start of the
+page. Therefore care should be taken when using hardware compression
+when reproducible results are desired. However it does always produce
+the standard conform output which can be inflated anyway.
+The new kernel command line parameter 'dfltcc' is introduced to
+configure s390 zlib hardware support:
+    Format: { on | off | def_only | inf_only | always }
+     on:       s390 zlib hardware support for compression on
+               level 1 and decompression (default)
+     off:      No s390 zlib hardware support
+     def_only: s390 zlib hardware support for deflate
+               only (compression on level 1)
+     inf_only: s390 zlib hardware support for inflate
+               only (decompression)
+     always:   Same as 'on' but ignores the selected compression
+               level always using hardware support (used for debugging)
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/css.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+The main purpose of the integration of the NXU support into the kernel zlib
+is the use of hardware deflate in btrfs filesystem with on-the-fly
+compression enabled. Apart from that, hardware support can also be used
+during boot for decompressing the kernel or the ramdisk image 
 
-diff --git a/s390x/css.c b/s390x/css.c
-index dfab35f..b8824ad 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -19,12 +19,24 @@
- #include <asm/time.h>
- 
- #include <css.h>
-+#include <asm/time.h>
- 
- #define SID_ONE		0x00010000
- 
- static struct schib schib;
- static int test_device_sid;
- 
-+static inline void delay(unsigned long ms)
-+{
-+	unsigned long startclk;
-+
-+	startclk = get_clock_ms();
-+	for (;;) {
-+		if (get_clock_ms() - startclk > ms)
-+			break;
-+	}
-+}
-+
- static void test_enumerate(void)
- {
- 	struct pmcw *pmcw = &schib.pmcw;
-@@ -64,11 +76,64 @@ out:
- 	report(1, "Devices, tested: %d, I/O type: %d", scn, scn_found);
- }
- 
-+static void test_enable(void)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+		int count = 0;
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report(0, "stsch cc=%d", cc);
-+		return;
-+	}
-+
-+	/* Update the SCHIB to enable the channel */
-+	pmcw->flags |= PMCW_ENABLE;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(test_device_sid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report(0, "msch cc=%d", cc);
-+		return;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 * insert a little delay and try 5 times.
-+	 */
-+	do {
-+		cc = stsch(test_device_sid, &schib);
-+		if (cc) {
-+			report(0, "stsch cc=%d", cc);
-+			return;
-+		}
-+		delay(10);
-+	} while (!(pmcw->flags & PMCW_ENABLE) && count++ < 5);
-+
-+	if (!(pmcw->flags & PMCW_ENABLE)) {
-+		report(0, "Enable failed. pmcw: %x", pmcw->flags);
-+		return;
-+	}
-+	report(1, "Tested");
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
- 
+With the patch for btrfs expanding zlib buffer from 1 to 4 pages (patch 6)
+the following performance results have been achieved using the ramdisk
+with btrfs. These are relative numbers based on throughput rate and
+compression ratio for zlib level 1:
+
+  Input data              Deflate rate   Inflate rate   Compression ratio
+                          NXU/Software   NXU/Software   NXU/Software
+  stream of zeroes        1.46           1.02           1.00
+  random ASCII data       10.44          3.00           0.96
+  ASCII text (dickens)    6,21           3.33           0.94
+  binary data (vmlinux)   8,37           3.90           1.02
+
+This means that s390 hardware deflate can provide up to 10 times faster
+compression (on level 1) and up to 4 times faster decompression (refers to
+all compression  levels) for btrfs zlib.
+
+Disclaimer: Performance results are based on IBM internal tests using DD
+command-line utility on btrfs on a Fedora 30 based internal driver in native
+LPAR on a z15 system. Results may vary based on individual workload,
+configuration and software levels.
+
+Changelog:
+v1 -> v2:
+ - Added new external zlib function to check if s390 Deflate-Conversion
+   facility is installed and enabled (see patch 5).
+ - The larger buffer for btrfs zlib workspace is allocated only if
+   s390 hardware compression is enabled. In case of failure to allocate
+   4-page buffer, we fall back to a PAGE_SIZE buffer, as proposed
+   by Josef Bacik (see patch 6).
+
+Mikhail Zaslonko (6):
+  lib/zlib: Add s390 hardware support for kernel zlib_deflate
+  s390/boot: Rename HEAP_SIZE due to name collision
+  lib/zlib: Add s390 hardware support for kernel zlib_inflate
+  s390/boot: Add dfltcc= kernel command line parameter
+  lib/zlib: Add zlib_deflate_dfltcc_enabled() function
+  btrfs: Use larger zlib buffer for s390 hardware compression
+
+ .../admin-guide/kernel-parameters.txt         |  12 +
+ arch/s390/boot/compressed/decompressor.c      |   8 +-
+ arch/s390/boot/ipl_parm.c                     |  14 +
+ arch/s390/include/asm/setup.h                 |   7 +
+ arch/s390/kernel/setup.c                      |   1 +
+ fs/btrfs/compression.c                        |   2 +-
+ fs/btrfs/zlib.c                               | 118 +++++---
+ include/linux/zlib.h                          |   6 +
+ lib/Kconfig                                   |  22 ++
+ lib/Makefile                                  |   1 +
+ lib/decompress_inflate.c                      |  13 +
+ lib/zlib_deflate/deflate.c                    |  85 +++---
+ lib/zlib_deflate/deflate_syms.c               |   1 +
+ lib/zlib_deflate/deftree.c                    |  54 ----
+ lib/zlib_deflate/defutil.h                    | 134 ++++++++-
+ lib/zlib_dfltcc/Makefile                      |  11 +
+ lib/zlib_dfltcc/dfltcc.c                      |  55 ++++
+ lib/zlib_dfltcc/dfltcc.h                      | 147 +++++++++
+ lib/zlib_dfltcc/dfltcc_deflate.c              | 280 ++++++++++++++++++
+ lib/zlib_dfltcc/dfltcc_inflate.c              | 149 ++++++++++
+ lib/zlib_dfltcc/dfltcc_syms.c                 |  17 ++
+ lib/zlib_dfltcc/dfltcc_util.h                 | 124 ++++++++
+ lib/zlib_inflate/inflate.c                    |  32 +-
+ lib/zlib_inflate/inflate.h                    |   8 +
+ lib/zlib_inflate/infutil.h                    |  18 +-
+ 25 files changed, 1163 insertions(+), 156 deletions(-)
+ create mode 100644 lib/zlib_dfltcc/Makefile
+ create mode 100644 lib/zlib_dfltcc/dfltcc.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc.h
+ create mode 100644 lib/zlib_dfltcc/dfltcc_deflate.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_inflate.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_syms.c
+ create mode 100644 lib/zlib_dfltcc/dfltcc_util.h
+
 -- 
-2.17.0
+2.17.1
