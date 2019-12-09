@@ -1,89 +1,32 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
+Received: from verein.lst.de ([213.95.11.211]:44566 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728379AbfLTOiB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:38:01 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 15/19] s390/cpum_sf: Avoid SBD overflow condition in irq handler
-Date: Fri, 20 Dec 2019 09:37:36 -0500
-Message-Id: <20191220143741.10220-15-sashal@kernel.org>
-In-Reply-To: <20191220143741.10220-1-sashal@kernel.org>
-References: <20191220143741.10220-1-sashal@kernel.org>
+        id S1726230AbfLIUnu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Dec 2019 15:43:50 -0500
+Date: Mon, 9 Dec 2019 21:43:45 +0100
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 0/6] Allow setting caching mode in arch_add_memory()
+ for P2PDMA
+Message-ID: <20191209204345.GA29265@lst.de>
+References: <20191209191346.5197-1-logang@deltatee.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+On Mon, Dec 09, 2019 at 12:13:40PM -0700, Logan Gunthorpe wrote:
+> This changes is pretty routine for most of the arches: x86_64, s390, arm64
+> and powerpc simply need to thread the pgprot through to where the page tables
+> are setup. x86_32 unfortunately sets up the page tables at boot so
+> must use _set_memory_prot() to change their caching mode. ia64 and sh
+> don't appear to have an easy way to change the page tables so, for now
+> at least, we just return -EINVAL on such mappings and thus they will
+> not support P2PDMA memory until the work for this is done.
 
-[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+ia64 and sh don't support ZONE_DEVICE mappings anyway as far as I know.
 
-The s390 CPU Measurement sampling facility has an overflow condition
-which fires when all entries in a SBD are used.
-The measurement alert interrupt is triggered and reads out all samples
-in this SDB. It then tests the successor SDB, if this SBD is not full,
-the interrupt handler does not read any samples at all from this SDB
-The design waits for the hardware to fill this SBD and then trigger
-another meassurement alert interrupt.
-
-This scheme works nicely until
-an perf_event_overflow() function call discards the sample due to
-a too high sampling rate.
-The interrupt handler has logic to read out a partially filled SDB
-when the perf event overflow condition in linux common code is met.
-This causes the CPUM sampling measurement hardware and the PMU
-device driver to operate on the same SBD's trailer entry.
-This should not happen.
-
-This can be seen here using this trace:
-   cpumsf_pmu_add: tear:0xb5286000
-   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 1. interrupt
-   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
-   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
-        above shows 2. interrupt
-	... this goes on fine until...
-   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
-   perf_push_sample1: overflow
-      one or more samples read from the IRQ handler are rejected by
-      perf_event_overflow() and the IRQ handler advances to the next SDB
-      and modifies the trailer entry of a partially filled SDB.
-   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
-      timestamp: 14:32:52.519953
-
-Next time the IRQ handler is called for this SDB the trailer entry shows
-an overflow count of 19 missed entries.
-   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
-      timestamp: 14:32:52.970058
-
-Remove access to a follow on SDB when event overflow happened.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 3c98a0999b71f..84f5da83f684b 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1281,12 +1281,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 		 */
- 		if (flush_all && done)
- 			break;
--
--		/* If an event overflow happened, discard samples by
--		 * processing any remaining sample-data-blocks.
--		 */
--		if (event_overflow)
--			flush_all = 1;
- 	}
- 
- 	/* Account sample overflows in the event hardware structure */
--- 
-2.20.1
+This generally looks fine to me.
