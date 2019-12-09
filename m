@@ -1,95 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32736 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37954 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726332AbfLFQ0h (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 11:26:37 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6GEJ6V048284
-        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 11:26:36 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq905s86x-1
+        by vger.kernel.org with ESMTP id S1726230AbfLIQoc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 11:44:32 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB9GMKrk029901
+        for <linux-s390@vger.kernel.org>; Mon, 9 Dec 2019 11:44:31 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wrt1yda09-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 11:26:35 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 09 Dec 2019 11:44:30 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 6 Dec 2019 16:26:33 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 1/9] s390x: saving regs for interrupts
-Date: Fri,  6 Dec 2019 17:26:20 +0100
-In-Reply-To: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
+        Mon, 9 Dec 2019 16:44:28 -0000
+Subject: Re: [kvm-unit-tests PATCH v3 4/9] s390x: export the clock
+ get_clock_ms() utility
 References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1575649588-6127-2-git-send-email-pmorel@linux.ibm.com>
+ <1575649588-6127-5-git-send-email-pmorel@linux.ibm.com>
+ <fc6e103d-100b-151b-4a6e-359f3103d5fa@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Mon, 9 Dec 2019 17:44:23 +0100
+MIME-Version: 1.0
+In-Reply-To: <fc6e103d-100b-151b-4a6e-359f3103d5fa@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <59e71889-66e5-306b-5a63-82fada3ef7ec@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-If we use multiple source of interrupts, for exemple, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
 
-Instead of saving at a static memory address, let's save the base
-registers and the floating point registers on the stack.
 
-Note that we keep the static register saving to recover from the
-RESET tests.
+On 2019-12-09 12:42, Thomas Huth wrote:
+> On 06/12/2019 17.26, Pierre Morel wrote:
+>> To serve multiple times, the function get_clock_ms() is moved
+>> from intercept.c test to the new file asm/time.h.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   lib/s390x/asm/time.h | 27 +++++++++++++++++++++++++++
+>>   s390x/intercept.c    | 11 +----------
+>>   2 files changed, 28 insertions(+), 10 deletions(-)
+>>   create mode 100644 lib/s390x/asm/time.h
+>>
+>> diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+>> new file mode 100644
+>> index 0000000..b07ccbd
+>> --- /dev/null
+>> +++ b/lib/s390x/asm/time.h
+>> @@ -0,0 +1,27 @@
+>> +/*
+>> + * Clock utilities for s390
+>> + *
+>> + * Authors:
+>> + *  Thomas Huth <thuth@redhat.com>
+>> + *
+>> + * Copied from the s390/intercept test by:
+>> + *  Pierre Morel <pmorel@linux.ibm.com>
+>> + *
+>> + * This code is free software; you can redistribute it and/or modify it
+>> + * under the terms of the GNU General Public License version 2.
+>> + */
+>> +#ifndef _ASM_S390X_TIME_H_
+>> +#define _ASM_S390X_TIME_H_
+>> +
+>> +static inline uint64_t get_clock_ms(void)
+>> +{
+>> +	uint64_t clk;
+>> +
+>> +	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
+>> +
+>> +	/* Bit 51 is incrememented each microsecond */
+>> +	return (clk >> (63 - 51)) / 1000;
+>> +}
+>> +
+>> +
+> 
+> Please remove one of the two empty lines.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/cstart64.S | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+yes, of course, thanks.
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 86dd4c4..ff05f9b 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -118,6 +118,25 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
- 
-+	.macro SAVE_IRQ_REGS
-+	slgfi   %r15, 15 * 8
-+	stmg    %r0, %r14, 0(%r15)
-+	slgfi   %r15, 16 * 8
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	lgr     %r2, %r15
-+	.endm
-+
-+	.macro RESTORE_IRQ_REGS
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	algfi   %r15, 16 * 8
-+	lmg     %r0, %r14, 0(%r15)
-+	algfi   %r15, 15 * 8
-+	.endm
-+
- .section .text
- /*
-  * load_reset calling convention:
-@@ -154,6 +173,8 @@ diag308_load_reset:
- 	lpswe	GEN_LC_SW_INT_PSW
- 1:	br	%r14
- 
-+
-+
- .globl smp_cpu_setup_state
- smp_cpu_setup_state:
- 	xgr	%r1, %r1
-@@ -180,9 +201,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
- 
- io_int:
--	SAVE_REGS
-+	SAVE_IRQ_REGS
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_IRQ_REGS
- 	lpswe	GEN_LC_IO_OLD_PSW
- 
- svc_int:
+> 
+> With that cosmetic nit fixed:
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> 
+
+Thanks,
+Pierre
+
 -- 
-2.17.0
+Pierre Morel
+IBM Lab Boeblingen
