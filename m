@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 243/350] s390/bpf: Use kvcalloc for addrs array
-Date: Tue, 10 Dec 2019 16:05:48 -0500
-Message-Id: <20191210210735.9077-204-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32588 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726197AbfLIQkQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 11:40:16 -0500
+Subject: Re: [PATCH 5/5] btrfs: Increase buffer size for zlib functions
+References: <20191126144130.75710-1-zaslonko@linux.ibm.com>
+ <20191126144130.75710-6-zaslonko@linux.ibm.com>
+ <20191126155249.j2dktiggykfoz4iz@MacBook-Pro-91.local>
+ <20191127121423.GQ2734@suse.cz>
+From: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+Message-ID: <a8dc0941-ee2d-6df7-cb32-c6af26bdc54c@linux.ibm.com>
+Date: Mon, 9 Dec 2019 17:39:51 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191127121423.GQ2734@suse.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
+To: dsterba@suse.cz
+Cc: Josef Bacik <josef@toxicpanda.com>, Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+Hi David,
 
-[ Upstream commit 166f11d11f6f70439830d09bfa5552ec1b368494 ]
+On 27.11.2019 13:14, David Sterba wrote:
+> On Tue, Nov 26, 2019 at 10:52:49AM -0500, Josef Bacik wrote:
+>> On Tue, Nov 26, 2019 at 03:41:30PM +0100, Mikhail Zaslonko wrote:
+>>> Due to the small size of zlib buffer (1 page) set in btrfs code, s390
+>>> hardware compression is rather limited in terms of performance. Increasing
+>>> the buffer size to 4 pages would bring significant benefit for s390
+>>> hardware compression (up to 60% better performance compared to the
+>>> PAGE_SIZE buffer) and should not bring much overhead in terms of memory
+>>> consumption due to order 2 allocations.
+>>>
+>>> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+>>
+>> We may have to make these allocations under memory pressure in the IO context,
+>> order 2 allocations here is going to be not awesome.  If you really want it then
+>> you need to at least be able to fall back to single page if you fail to get the
+>> allocation.  Thanks,
+> 
+> The allocation is only for the workspace and it does not happen on the
+> IO path for each call. There's the pool and if
+> 
+> btrfs_get_workspace
+>   alloc_workspace
+> 
+> fails, then there's fallback path to wait for an existing workspace to
+> be free.
+> 
+> The order 2 allocation can put more pressure on the allocator though so
+> it's possible to have effects in some corner cases, but not in general.
+> I don't think the single page fallback code is needed.
+> 
+> And of course evaluation of the effects of the larger zlib buffer should
+> be done, it could improve compression but probably at the cost of cpu
+> time. Also decompression of blocks created on new code (4 pages) must
+> work on the old code (1 page).
+Regarding 'improve compression but probably at the cost of cpu' ... what would be 
+the proper way to evaluate this effect?
+As for backward compatibility, I do not see side effects of using larger buffers. 
+Data in the compressed state might differ indeed, but it will sill conform to zlib
+standard and thus can be decompressed.
 
-A BPF program may consist of 1m instructions, which means JIT
-instruction-address mapping can be as large as 4m. s390 has
-FORCE_MAX_ZONEORDER=9 (for memory hotplug reasons), which means maximum
-kmalloc size is 1m. This makes it impossible to JIT programs with more
-than 256k instructions.
-
-Fix by using kvcalloc, which falls back to vmalloc for larger
-allocations. An alternative would be to use a radix tree, but that is
-not supported by bpf_prog_fill_jited_linfo.
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20191107141838.92202-1-iii@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/net/bpf_jit_comp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index ce88211b9c6cd..c8c16b5eed6be 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -23,6 +23,7 @@
- #include <linux/filter.h>
- #include <linux/init.h>
- #include <linux/bpf.h>
-+#include <linux/mm.h>
- #include <asm/cacheflush.h>
- #include <asm/dis.h>
- #include <asm/facility.h>
-@@ -1369,7 +1370,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- 	}
- 
- 	memset(&jit, 0, sizeof(jit));
--	jit.addrs = kcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
-+	jit.addrs = kvcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
- 	if (jit.addrs == NULL) {
- 		fp = orig_fp;
- 		goto out;
-@@ -1422,7 +1423,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- 	if (!fp->is_func || extra_pass) {
- 		bpf_prog_fill_jited_linfo(fp, jit.addrs + 1);
- free_addrs:
--		kfree(jit.addrs);
-+		kvfree(jit.addrs);
- 		kfree(jit_data);
- 		fp->aux->jit_data = NULL;
- 	}
--- 
-2.20.1
+BTW, I have sent around V2 of the patch set. I would appreciate if you take a look 
+as well.
+> 
+Thanks,
+Mikhail
