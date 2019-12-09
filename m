@@ -1,25 +1,25 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24233 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727074AbfLILtH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 06:49:07 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41582 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727326AbfLILk1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Dec 2019 06:40:27 -0500
 Subject: Re: [kvm-unit-tests PATCH v3 3/9] s390: interrupt registration
 References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
  <1575649588-6127-4-git-send-email-pmorel@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <864d5ba5-7b06-4880-3d0c-131ef76b8488@redhat.com>
-Date: Mon, 9 Dec 2019 12:48:59 +0100
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <c2decfb9-71e3-556d-2b91-4cd19ad9312a@redhat.com>
+Date: Mon, 9 Dec 2019 12:40:15 +0100
 MIME-Version: 1.0
 In-Reply-To: <1575649588-6127-4-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, thuth@redhat.com, cohuck@redhat.com
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-On 06.12.19 17:26, Pierre Morel wrote:
+On 06/12/2019 17.26, Pierre Morel wrote:
 > Define two functions to register and to unregister a call back for IO
 > Interrupt handling.
 > 
@@ -97,9 +97,4 @@ On 06.12.19 17:26, Pierre Morel wrote:
 > +#endif
 > 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Thomas Huth <thuth@redhat.com>
