@@ -1,45 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46024 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729058AbfLKL7f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 06:59:35 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBBBqHiJ135782
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 06:59:34 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wtfbxag8d-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 06:59:34 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 11 Dec 2019 11:59:31 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/2] s390x: smp: Improve setup of additional cpus
-Date: Wed, 11 Dec 2019 06:59:21 -0500
+Received: from ale.deltatee.com ([207.54.116.67]:56032 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726365AbfLITOF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Dec 2019 14:14:05 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Mon,  9 Dec 2019 12:13:46 -0700
+Message-Id: <20191209191346.5197-7-logang@deltatee.com>
+In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
+References: <20191209191346.5197-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191211115923.9191-1-frankja@linux.ibm.com>
+Subject: [PATCH 6/6] mm/memremap: Set caching mode for PCI P2PDMA memory to WC
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Jason Gunthorpe <jgg@ziepe.ca>
 
-Let's not use constants for the PSW mask and CRs, but set them from
-input data or cpu 0.
+PCI BAR IO memory should never be mapped as WB, however prior to this
+the PAT bits were set WB and it was typically overridden by MTRR
+registers set by the firmware.
 
-Later on we could add functions that take a ptr for setting up CRs of
-additional cpus, but for now using the CRs 0,1,7,13 from cpu 0 will at
-least result in a working DAT environment.
+Set PCI P2PDMA memory to be WC (writecombining) as the only current
+user (the NVMe CMB) was originally mapped WC before the P2PDMA code
+replaced the mapping with devm_memremap_pages().
 
-Janosch Frank (2):
-  s390x: smp: Use full PSW to bringup new cpu
-  s390x: smp: Setup CRs from cpu 0
+Future use-cases may need to generalize this by adding flags to
+select the caching type, as some P2PDMA cases will not want WC.
+However, those use-cases are not upstream yet and this can be changed
+when they arrive.
 
- lib/s390x/smp.c  | 7 ++++++-
- s390x/cstart64.S | 4 ++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+---
+ mm/memremap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 4edcca074e15..ced32593e4a7 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -187,7 +187,10 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
+ 		}
+ 		break;
+ 	case MEMORY_DEVICE_DEVDAX:
++		need_devmap_managed = false;
++		break;
+ 	case MEMORY_DEVICE_PCI_P2PDMA:
++		pgprot = pgprot_writecombine(pgprot);
+ 		need_devmap_managed = false;
+ 		break;
+ 	default:
 -- 
 2.20.1
