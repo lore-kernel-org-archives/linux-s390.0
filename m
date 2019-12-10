@@ -1,84 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57752 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727391AbfLBOap (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Dec 2019 09:30:45 -0500
-Date: Mon, 2 Dec 2019 15:30:16 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v2 7/9] s390x: css: msch, enable test
-Message-ID: <20191202153016.382e3fa8.cohuck@redhat.com>
-In-Reply-To: <1574945167-29677-8-git-send-email-pmorel@linux.ibm.com>
-References: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
-        <1574945167-29677-8-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:55896 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727193AbfLJVI3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Dec 2019 16:08:29 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 082/350] net/smc: increase device refcount for added link group
+Date: Tue, 10 Dec 2019 16:03:07 -0500
+Message-Id: <20191210210735.9077-43-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-On Thu, 28 Nov 2019 13:46:05 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-> A second step when testing the channel subsystem is to prepare a channel
-> for use.
-> 
-> This tests the success of the MSCH instruction by enabling a channel.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  s390x/css.c | 27 +++++++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
-> 
-> diff --git a/s390x/css.c b/s390x/css.c
-> index 8186f55..e42dc2f 100644
-> --- a/s390x/css.c
-> +++ b/s390x/css.c
-> @@ -62,11 +62,38 @@ static void test_enumerate(void)
->  	return;
->  }
->  
-> +static void set_schib(void)
-> +{
-> +	struct pmcw *p = &schib.pmcw;
-> +
-> +	p->intparm = 0xdeadbeef;
-> +	p->flags |= PMCW_ENABLE;
-> +}
-> +
-> +static void test_enable(void)
-> +{
-> +	int ret;
-> +
-> +	if (!test_device_sid) {
-> +		report_skip("No device");
-> +		return;
-> +	}
-> +	set_schib();
-> +	dump_schib(&schib);
-> +
-> +	ret = msch(test_device_sid, &schib);
-> +	if (ret)
-> +		report("msch cc=%d", 0, ret);
+[ Upstream commit b3cb53c05f20c5b4026a36a7bbd3010d1f3e0a55 ]
 
-Maybe do a stsch and then check/dump the contents of the schib again?
+SMCD link groups belong to certain ISM-devices and SMCR link group
+links belong to certain IB-devices. Increase the refcount for
+these devices, as long as corresponding link groups exist.
 
-Background: The architecture allows that msch returns success, but that
-the fields modified by the issuer remain unchanged at the subchannel
-regardless. That should not happen with QEMU; but I remember versions
-of z/VM where we sometimes had to call msch twice to make changes stick.
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/smc_core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-> +	else
-> +		report("Tested", 1);
-> +}
-> +
->  static struct {
->  	const char *name;
->  	void (*func)(void);
->  } tests[] = {
->  	{ "enumerate (stsch)", test_enumerate },
-> +	{ "enable (msch)", test_enable },
->  	{ NULL, NULL }
->  };
->  
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2ba97ff325a5d..0c5fcb8ed404d 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -231,10 +231,12 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	lgr->conns_all = RB_ROOT;
+ 	if (ini->is_smcd) {
+ 		/* SMC-D specific settings */
++		get_device(&ini->ism_dev->dev);
+ 		lgr->peer_gid = ini->ism_gid;
+ 		lgr->smcd = ini->ism_dev;
+ 	} else {
+ 		/* SMC-R specific settings */
++		get_device(&ini->ib_dev->ibdev->dev);
+ 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+ 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
+ 		       SMC_SYSTEMID_LEN);
+@@ -433,10 +435,13 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
+ static void smc_lgr_free(struct smc_link_group *lgr)
+ {
+ 	smc_lgr_free_bufs(lgr);
+-	if (lgr->is_smcd)
++	if (lgr->is_smcd) {
+ 		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
+-	else
++		put_device(&lgr->smcd->dev);
++	} else {
+ 		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
++		put_device(&lgr->lnk[SMC_SINGLE_LINK].smcibdev->ibdev->dev);
++	}
+ 	kfree(lgr);
+ }
+ 
+-- 
+2.20.1
