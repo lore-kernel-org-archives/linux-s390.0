@@ -1,192 +1,81 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:39406 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727274AbfLUPE3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 10:04:29 -0500
-Received: by mail-ed1-f65.google.com with SMTP id t17so11391301eds.6
-        for <linux-s390@vger.kernel.org>; Sat, 21 Dec 2019 07:04:27 -0800 (PST)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 2/8] iommu/vt-d: Use default dma_direct_* mapping functions for direct mapped devices
-Date: Sat, 21 Dec 2019 15:03:54 +0000
-Message-Id: <20191221150402.13868-3-murphyt7@tcd.ie>
-In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 70/91] s390/disassembler: don't hide instruction addresses
+Date: Tue, 10 Dec 2019 17:30:14 -0500
+Message-Id: <20191210223035.14270-70-sashal@kernel.org>
+In-Reply-To: <20191210223035.14270-1-sashal@kernel.org>
+References: <20191210223035.14270-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Auger <eric.auger@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-We should only assign intel_dma_ops to devices which will actually use
-the iommu and let the default fall back dma_direct_* functions handle
-all other devices. This won't change any behaviour but will just use the
-generic implementations for direct mapped devices rather than intel
-specific ones.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
+
+Due to kptr_restrict, JITted BPF code is now displayed like this:
+
+000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
+000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
+00000000fbad41b0: a7fbffa0      aghi    %r15,-96
+
+Leaking kernel addresses to dmesg is not a concern in this case, because
+this happens only when JIT debugging is explicitly activated, which only
+root can do.
+
+Use %px in this particular instance, and also to print an instruction
+address in show_code and PCREL (e.g. brasl) arguments in print_insn.
+While at present functionally equivalent to %016lx, %px is recommended
+by Documentation/core-api/printk-formats.rst for such cases.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 52 +++++--------------------------------
- 1 file changed, 6 insertions(+), 46 deletions(-)
+ arch/s390/kernel/dis.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index c1ea66467918..64b1a9793daa 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -2794,17 +2794,6 @@ static int __init si_domain_init(int hw)
- 	return 0;
- }
- 
--static int identity_mapping(struct device *dev)
--{
--	struct device_domain_info *info;
--
--	info = dev->archdata.iommu;
--	if (info && info != DUMMY_DEVICE_DOMAIN_INFO && info != DEFER_DEVICE_DOMAIN_INFO)
--		return (info->domain == si_domain);
--
--	return 0;
--}
--
- static int domain_add_dev_info(struct dmar_domain *domain, struct device *dev)
- {
- 	struct dmar_domain *ndomain;
-@@ -3461,12 +3450,6 @@ static struct dmar_domain *get_private_domain_for_dev(struct device *dev)
- 	return domain;
- }
- 
--/* Check if the dev needs to go through non-identity map and unmap process.*/
--static bool iommu_no_mapping(struct device *dev)
--{
--	return iommu_dummy(dev) || identity_mapping(dev);
--}
--
- static dma_addr_t __intel_map_single(struct device *dev, phys_addr_t paddr,
- 				     size_t size, int dir, u64 dma_mask)
- {
-@@ -3531,9 +3514,6 @@ static dma_addr_t intel_map_page(struct device *dev, struct page *page,
- 				 enum dma_data_direction dir,
- 				 unsigned long attrs)
- {
--	if (iommu_no_mapping(dev))
--		return dma_direct_map_page(dev, page, offset, size, dir, attrs);
--
- 	return __intel_map_single(dev, page_to_phys(page) + offset, size, dir,
- 			*dev->dma_mask);
- }
-@@ -3542,10 +3522,6 @@ static dma_addr_t intel_map_resource(struct device *dev, phys_addr_t phys_addr,
- 				     size_t size, enum dma_data_direction dir,
- 				     unsigned long attrs)
- {
--	if (iommu_no_mapping(dev))
--		return dma_direct_map_resource(dev, phys_addr, size, dir,
--				attrs);
--
- 	return __intel_map_single(dev, phys_addr, size, dir, *dev->dma_mask);
- }
- 
-@@ -3597,17 +3573,13 @@ static void intel_unmap_page(struct device *dev, dma_addr_t dev_addr,
- 			     size_t size, enum dma_data_direction dir,
- 			     unsigned long attrs)
- {
--	if (iommu_no_mapping(dev))
--		dma_direct_unmap_page(dev, dev_addr, size, dir, attrs);
--	else
--		intel_unmap(dev, dev_addr, size);
-+	intel_unmap(dev, dev_addr, size);
- }
- 
- static void intel_unmap_resource(struct device *dev, dma_addr_t dev_addr,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
--	if (!iommu_no_mapping(dev))
--		intel_unmap(dev, dev_addr, size);
-+	intel_unmap(dev, dev_addr, size);
- }
- 
- static void *intel_alloc_coherent(struct device *dev, size_t size,
-@@ -3617,9 +3589,6 @@ static void *intel_alloc_coherent(struct device *dev, size_t size,
- 	struct page *page = NULL;
- 	int order;
- 
--	if (iommu_no_mapping(dev))
--		return dma_direct_alloc(dev, size, dma_handle, flags, attrs);
--
- 	size = PAGE_ALIGN(size);
- 	order = get_order(size);
- 
-@@ -3653,9 +3622,6 @@ static void intel_free_coherent(struct device *dev, size_t size, void *vaddr,
- 	int order;
- 	struct page *page = virt_to_page(vaddr);
- 
--	if (iommu_no_mapping(dev))
--		return dma_direct_free(dev, size, vaddr, dma_handle, attrs);
--
- 	size = PAGE_ALIGN(size);
- 	order = get_order(size);
- 
-@@ -3673,9 +3639,6 @@ static void intel_unmap_sg(struct device *dev, struct scatterlist *sglist,
- 	struct scatterlist *sg;
- 	int i;
- 
--	if (iommu_no_mapping(dev))
--		return dma_direct_unmap_sg(dev, sglist, nelems, dir, attrs);
--
- 	for_each_sg(sglist, sg, nelems, i) {
- 		nrpages += aligned_nrpages(sg_dma_address(sg), sg_dma_len(sg));
- 	}
-@@ -3699,8 +3662,6 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
- 	struct intel_iommu *iommu;
- 
- 	BUG_ON(dir == DMA_NONE);
--	if (iommu_no_mapping(dev))
--		return dma_direct_map_sg(dev, sglist, nelems, dir, attrs);
- 
- 	domain = deferred_attach_domain(dev);
- 	if (!domain)
-@@ -3747,8 +3708,6 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
- 
- static u64 intel_get_required_mask(struct device *dev)
- {
--	if (iommu_no_mapping(dev))
--		return dma_direct_get_required_mask(dev);
- 	return DMA_BIT_MASK(32);
- }
- 
-@@ -5014,7 +4973,6 @@ int __init intel_iommu_init(void)
- 	if (!has_untrusted_dev() || intel_no_bounce)
- 		swiotlb = 0;
- #endif
--	dma_ops = &intel_dma_ops;
- 
- 	init_iommu_pm_ops();
- 
-@@ -5623,6 +5581,8 @@ static int intel_iommu_add_device(struct device *dev)
- 				dev_info(dev,
- 					 "Device uses a private identity domain.\n");
- 			}
-+		} else {
-+			dev->dma_ops = &intel_dma_ops;
- 		}
- 	} else {
- 		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
-@@ -5639,6 +5599,7 @@ static int intel_iommu_add_device(struct device *dev)
- 				dev_info(dev,
- 					 "Device uses a private dma domain.\n");
- 			}
-+			dev->dma_ops = &intel_dma_ops;
- 		}
- 	}
- 
-@@ -5665,8 +5626,7 @@ static void intel_iommu_remove_device(struct device *dev)
- 
- 	iommu_device_unlink(&iommu->iommu, dev);
- 
--	if (device_needs_bounce(dev))
--		set_dma_ops(dev, NULL);
-+	set_dma_ops(dev, NULL);
- }
- 
- static void intel_iommu_get_resv_regions(struct device *device,
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index aaf9dab3c1933..f9dca1aed9a4b 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -1930,10 +1930,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
+ 				ptr += sprintf(ptr, "%%c%i", value);
+ 			else if (operand->flags & OPERAND_VR)
+ 				ptr += sprintf(ptr, "%%v%i", value);
+-			else if (operand->flags & OPERAND_PCREL)
+-				ptr += sprintf(ptr, "%lx", (signed int) value
+-								      + addr);
+-			else if (operand->flags & OPERAND_SIGNED)
++			else if (operand->flags & OPERAND_PCREL) {
++				void *pcrel = (void *)((int)value + addr);
++
++				ptr += sprintf(ptr, "%px", pcrel);
++			} else if (operand->flags & OPERAND_SIGNED)
+ 				ptr += sprintf(ptr, "%i", value);
+ 			else
+ 				ptr += sprintf(ptr, "%u", value);
+@@ -2005,7 +2006,7 @@ void show_code(struct pt_regs *regs)
+ 		else
+ 			*ptr++ = ' ';
+ 		addr = regs->psw.addr + start - 32;
+-		ptr += sprintf(ptr, "%016lx: ", addr);
++		ptr += sprintf(ptr, "%px: ", (void *)addr);
+ 		if (start + opsize >= end)
+ 			break;
+ 		for (i = 0; i < opsize; i++)
+@@ -2033,7 +2034,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
+ 		opsize = insn_length(*code);
+ 		if (opsize > len)
+ 			break;
+-		ptr += sprintf(ptr, "%p: ", code);
++		ptr += sprintf(ptr, "%px: ", code);
+ 		for (i = 0; i < opsize; i++)
+ 			ptr += sprintf(ptr, "%02x", code[i]);
+ 		*ptr++ = '\t';
 -- 
 2.20.1
