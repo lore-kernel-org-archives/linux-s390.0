@@ -1,171 +1,68 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56164 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729260AbfLEMKL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 07:10:11 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB5C001w020356
-        for <linux-s390@vger.kernel.org>; Thu, 5 Dec 2019 07:10:10 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wpuqpe5ax-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Dec 2019 07:10:09 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 5 Dec 2019 12:10:04 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v3] KVM: s390: Add new reset vcpu API
-Date: Thu,  5 Dec 2019 07:09:56 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 243/350] s390/bpf: Use kvcalloc for addrs array
+Date: Tue, 10 Dec 2019 16:05:48 -0500
+Message-Id: <20191210210735.9077-204-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191205120956.50930-1-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
 
-The architecture states that we need to reset local IRQs for all CPU
-resets. Because the old reset interface did not support the normal CPU
-reset we never did that. Now that we have a new interface, let's
-properly clear out local IRQs and let this commit be a reminder.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Also we add a ioctl for the clear reset to have all resets exposed to
-userspace. Currently the clear reset falls back to the initial reset,
-but we plan to have clear reset specific code in the future.
+[ Upstream commit 166f11d11f6f70439830d09bfa5552ec1b368494 ]
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+A BPF program may consist of 1m instructions, which means JIT
+instruction-address mapping can be as large as 4m. s390 has
+FORCE_MAX_ZONEORDER=9 (for memory hotplug reasons), which means maximum
+kmalloc size is 1m. This makes it impossible to JIT programs with more
+than 256k instructions.
+
+Fix by using kvcalloc, which falls back to vmalloc for larger
+allocations. An alternative would be to use a radix tree, but that is
+not supported by bpf_prog_fill_jited_linfo.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20191107141838.92202-1-iii@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/virt/kvm/api.txt | 45 ++++++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c       | 14 +++++++++++
- include/uapi/linux/kvm.h       |  5 ++++
- 3 files changed, 64 insertions(+)
+ arch/s390/net/bpf_jit_comp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
-index 4833904d32a5..3b62489308e0 100644
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -4126,6 +4126,44 @@ Valid values for 'action':
- #define KVM_PMU_EVENT_ALLOW 0
- #define KVM_PMU_EVENT_DENY 1
- 
-+4.121 KVM_S390_NORMAL_RESET
-+
-+Capability: KVM_CAP_S390_VCPU_RESETS
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures that QEMU
-+can't access via the kvm_run structure. The normal reset clears local
-+interrupts, the riccb and PSW bit 24.
-+
-+4.122 KVM_S390_INITIAL_RESET
-+
-+Capability: none
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures that QEMU
-+can't access via the kvm_run structure. The initial reset is a
-+superset of the normal reset and additionally clears the psw, prefix,
-+timing related registers, as well as setting the control registers to
-+their initial value.
-+
-+4.123 KVM_S390_CLEAR_RESET
-+
-+Capability: KVM_CAP_S390_VCPU_RESETS
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures that QEMU
-+can't access via the kvm_run structure. The clear reset is a superset
-+of the initial reset and additionally clears general, access, floating
-+and vector registers.
- 
- 5. The kvm_run structure
- ------------------------
-@@ -5322,3 +5360,10 @@ handling by KVM (as some KVM hypercall may be mistakenly treated as TLB
- flush hypercalls by Hyper-V) so userspace should disable KVM identification
- in CPUID and only exposes Hyper-V identification. In this case, guest
- thinks it's running on Hyper-V and only use Hyper-V hypercalls.
-+
-+8.22 KVM_CAP_S390_VCPU_RESETS
-+
-+Architectures: s390
-+
-+This capability indicates that the KVM_S390_NORMAL_RESET and
-+KVM_S390_CLEAR_RESET ioctls are available.
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3d54f0..7f3ede0b2715 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -529,6 +529,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_CMMA_MIGRATION:
- 	case KVM_CAP_S390_AIS:
- 	case KVM_CAP_S390_AIS_MIGRATION:
-+	case KVM_CAP_S390_VCPU_RESETS:
- 		r = 1;
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
-@@ -3287,6 +3288,13 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu,
- 	return r;
- }
- 
-+static int kvm_arch_vcpu_ioctl_normal_reset(struct kvm_vcpu *vcpu)
-+{
-+	kvm_clear_async_pf_completion_queue(vcpu);
-+	kvm_s390_clear_local_irqs(vcpu);
-+	return 0;
-+}
-+
- static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_vcpu_initial_reset(vcpu);
-@@ -4363,9 +4371,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		r = kvm_arch_vcpu_ioctl_set_initial_psw(vcpu, psw);
- 		break;
+diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
+index ce88211b9c6cd..c8c16b5eed6be 100644
+--- a/arch/s390/net/bpf_jit_comp.c
++++ b/arch/s390/net/bpf_jit_comp.c
+@@ -23,6 +23,7 @@
+ #include <linux/filter.h>
+ #include <linux/init.h>
+ #include <linux/bpf.h>
++#include <linux/mm.h>
+ #include <asm/cacheflush.h>
+ #include <asm/dis.h>
+ #include <asm/facility.h>
+@@ -1369,7 +1370,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
  	}
-+
-+	case KVM_S390_CLEAR_RESET:
-+		/* fallthrough */
- 	case KVM_S390_INITIAL_RESET:
- 		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
- 		break;
-+	case KVM_S390_NORMAL_RESET:
-+		r = kvm_arch_vcpu_ioctl_normal_reset(vcpu);
-+		break;
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
- 		struct kvm_one_reg reg;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 52641d8ca9e8..edbb2da43f02 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1000,6 +1000,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_PMU_EVENT_FILTER 173
- #define KVM_CAP_ARM_IRQ_LINE_LAYOUT_2 174
- #define KVM_CAP_HYPERV_DIRECT_TLBFLUSH 175
-+#define KVM_CAP_S390_VCPU_RESETS 176
  
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -1461,6 +1462,10 @@ struct kvm_enc_region {
- /* Available with KVM_CAP_ARM_SVE */
- #define KVM_ARM_VCPU_FINALIZE	  _IOW(KVMIO,  0xc2, int)
- 
-+/* Available with  KVM_CAP_S390_VCPU_RESETS */
-+#define KVM_S390_NORMAL_RESET	_IO(KVMIO,   0xc3)
-+#define KVM_S390_CLEAR_RESET	_IO(KVMIO,   0xc4)
-+
- /* Secure Encrypted Virtualization command */
- enum sev_cmd_id {
- 	/* Guest initialization commands */
+ 	memset(&jit, 0, sizeof(jit));
+-	jit.addrs = kcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
++	jit.addrs = kvcalloc(fp->len + 1, sizeof(*jit.addrs), GFP_KERNEL);
+ 	if (jit.addrs == NULL) {
+ 		fp = orig_fp;
+ 		goto out;
+@@ -1422,7 +1423,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
+ 	if (!fp->is_func || extra_pass) {
+ 		bpf_prog_fill_jited_linfo(fp, jit.addrs + 1);
+ free_addrs:
+-		kfree(jit.addrs);
++		kvfree(jit.addrs);
+ 		kfree(jit_data);
+ 		fp->aux->jit_data = NULL;
+ 	}
 -- 
 2.20.1
