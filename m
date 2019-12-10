@@ -1,123 +1,58 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:56068 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726365AbfLITOI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 9 Dec 2019 14:14:08 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  9 Dec 2019 12:13:44 -0700
-Message-Id: <20191209191346.5197-5-logang@deltatee.com>
-In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
-References: <20191209191346.5197-1-logang@deltatee.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 317/350] s390/crypto: Fix unsigned variable compared with zero
+Date: Tue, 10 Dec 2019 16:07:02 -0500
+Message-Id: <20191210210735.9077-278-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH 4/6] s390/mm: Thread pgprot_t through vmem_add_mapping()
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>, Joerg Schmidbauer <jschmidb@linux.vnet.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
 
-In prepartion to support a pgprot_t argument for arch_add_memory().
+From: YueHaibing <yuehaibing@huawei.com>
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+[ Upstream commit 0398d4ab1677f7d8cd43aac2aa29a93dfcf9e2e3 ]
+
+s390_crypto_shash_parmsize() return type is int, it
+should not be stored in a unsigned variable, which
+compared with zero.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 3c2eb6b76cab ("s390/crypto: Support for SHA3 via CPACF (MSA6)")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Joerg Schmidbauer <jschmidb@linux.vnet.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pgtable.h |  3 ++-
- arch/s390/mm/extmem.c           |  3 ++-
- arch/s390/mm/init.c             |  2 +-
- arch/s390/mm/vmem.c             | 10 +++++-----
- 4 files changed, 10 insertions(+), 8 deletions(-)
+ arch/s390/crypto/sha_common.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 5ff98d76a66c..e0d5ed38282b 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1673,7 +1673,8 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
+diff --git a/arch/s390/crypto/sha_common.c b/arch/s390/crypto/sha_common.c
+index d39e0f0792170..686fe7aa192f4 100644
+--- a/arch/s390/crypto/sha_common.c
++++ b/arch/s390/crypto/sha_common.c
+@@ -74,14 +74,17 @@ int s390_sha_final(struct shash_desc *desc, u8 *out)
+ 	struct s390_sha_ctx *ctx = shash_desc_ctx(desc);
+ 	unsigned int bsize = crypto_shash_blocksize(desc->tfm);
+ 	u64 bits;
+-	unsigned int n, mbl_offset;
++	unsigned int n;
++	int mbl_offset;
  
- #define kern_addr_valid(addr)   (1)
- 
--extern int vmem_add_mapping(unsigned long start, unsigned long size);
-+extern int vmem_add_mapping(unsigned long start, unsigned long size,
-+			    pgprot_t prot);
- extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
- extern int s390_enable_skey(void);
-diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
-index fd0dae9d10f4..6cf7029a7b35 100644
---- a/arch/s390/mm/extmem.c
-+++ b/arch/s390/mm/extmem.c
-@@ -313,7 +313,8 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 		goto out_free;
- 	}
- 
--	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
-+	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1,
-+			      PAGE_KERNEL);
- 
- 	if (rc)
- 		goto out_free;
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index a124f19f7b3c..263ebb074cdd 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -276,7 +276,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	if (WARN_ON_ONCE(restrictions->altmap))
+ 	n = ctx->count % bsize;
+ 	bits = ctx->count * 8;
+-	mbl_offset = s390_crypto_shash_parmsize(ctx->func) / sizeof(u32);
++	mbl_offset = s390_crypto_shash_parmsize(ctx->func);
+ 	if (mbl_offset < 0)
  		return -EINVAL;
  
--	rc = vmem_add_mapping(start, size);
-+	rc = vmem_add_mapping(start, size, PAGE_KERNEL);
- 	if (rc)
- 		return rc;
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index b403fa14847d..8a5e95f184a2 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -66,7 +66,7 @@ pte_t __ref *vmem_pte_alloc(void)
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
--static int vmem_add_mem(unsigned long start, unsigned long size)
-+static int vmem_add_mem(unsigned long start, unsigned long size, pgprot_t prot)
- {
- 	unsigned long pgt_prot, sgt_prot, r3_prot;
- 	unsigned long pages4k, pages1m, pages2g;
-@@ -79,7 +79,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size)
- 	pte_t *pt_dir;
- 	int ret = -ENOMEM;
- 
--	pgt_prot = pgprot_val(PAGE_KERNEL);
-+	pgt_prot = pgprot_val(prot);
- 	sgt_prot = pgprot_val(SEGMENT_KERNEL);
- 	r3_prot = pgprot_val(REGION3_KERNEL);
- 	if (!MACHINE_HAS_NX) {
-@@ -362,7 +362,7 @@ int vmem_remove_mapping(unsigned long start, unsigned long size)
- 	return ret;
- }
- 
--int vmem_add_mapping(unsigned long start, unsigned long size)
-+int vmem_add_mapping(unsigned long start, unsigned long size, pgprot_t prot)
- {
- 	struct memory_segment *seg;
- 	int ret;
-@@ -379,7 +379,7 @@ int vmem_add_mapping(unsigned long start, unsigned long size)
- 	if (ret)
- 		goto out_free;
- 
--	ret = vmem_add_mem(start, size);
-+	ret = vmem_add_mem(start, size, prot);
- 	if (ret)
- 		goto out_remove;
- 	goto out;
-@@ -403,7 +403,7 @@ void __init vmem_map_init(void)
- 	struct memblock_region *reg;
- 
- 	for_each_memblock(memory, reg)
--		vmem_add_mem(reg->base, reg->size);
-+		vmem_add_mem(reg->base, reg->size, PAGE_KERNEL);
- 	__set_memory((unsigned long)_stext,
- 		     (unsigned long)(_etext - _stext) >> PAGE_SHIFT,
- 		     SET_MEMORY_RO | SET_MEMORY_X);
++	mbl_offset = mbl_offset / sizeof(u32);
++
+ 	/* set total msg bit length (mbl) in CPACF parmblock */
+ 	switch (ctx->func) {
+ 	case CPACF_KLMD_SHA_1:
 -- 
 2.20.1
