@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v6 05/10] mm/memory_hotplug: Shrink zones when offlining
- memory
-References: <20191006085646.5768-1-david@redhat.com>
- <20191006085646.5768-6-david@redhat.com> <20191203151030.GB2600@linux>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <9789e892-dd15-c37d-7c0a-0ccb4db1a987@redhat.com>
-Date: Tue, 3 Dec 2019 16:27:12 +0100
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 105/130] s390/disassembler: don't hide instruction addresses
+Date: Tue, 10 Dec 2019 17:02:36 -0500
+Message-Id: <20191210220301.13262-105-sashal@kernel.org>
+In-Reply-To: <20191210220301.13262-1-sashal@kernel.org>
+References: <20191210220301.13262-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20191203151030.GB2600@linux>
-Content-Language: en-US
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Oscar Salvador <osalvador@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Logan Gunthorpe <logang@deltatee.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-On 03.12.19 16:10, Oscar Salvador wrote:
-> On Sun, Oct 06, 2019 at 10:56:41AM +0200, David Hildenbrand wrote:
->> Fixes: d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug")
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->=20
-> I did not see anything wrong with the taken approach, and makes sense to =
-me.
-> The only thing that puzzles me is we seem to not balance spanned_pages
-> for ZONE_DEVICE anymore.
-> memremap_pages() increments them via move_pfn_range_to_zone, but we skip
-> ZONE_DEVICE in remove_pfn_range_from_zone.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Yes, documented e.g., in
+[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
 
-commit 7ce700bf11b5e2cb84e4352bbdf2123a7a239c84
-Author: David Hildenbrand <david@redhat.com>
-Date:   Thu Nov 21 17:53:56 2019 -0800
+Due to kptr_restrict, JITted BPF code is now displayed like this:
 
-    mm/memory_hotplug: don't access uninitialized memmaps in
-shrink_zone_span()
+000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
+000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
+00000000fbad41b0: a7fbffa0      aghi    %r15,-96
 
-Needs some more thought - but is definitely not urgent (well, now it's
-at least no longer completely broken).
+Leaking kernel addresses to dmesg is not a concern in this case, because
+this happens only when JIT debugging is explicitly activated, which only
+root can do.
 
->=20
-> That is not really related to this patch, so I might be missing something=
-,
-> but it caught my eye while reviewing this.
->=20
-> Anyway, for this one:
->=20
-> Reviewed-by: Oscar Salvador <osalvador@suse.de>
->=20
+Use %px in this particular instance, and also to print an instruction
+address in show_code and PCREL (e.g. brasl) arguments in print_insn.
+While at present functionally equivalent to %016lx, %px is recommended
+by Documentation/core-api/printk-formats.rst for such cases.
 
-Thanks!
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kernel/dis.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
->=20
-> off-topic: I __think__ we really need to trim the CC list.
-
-Yes we should :) - done.
-
---=20
-Thanks,
-
-David / dhildenb
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index 2394557653d57..6d154069c9623 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -1930,10 +1930,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
+ 				ptr += sprintf(ptr, "%%c%i", value);
+ 			else if (operand->flags & OPERAND_VR)
+ 				ptr += sprintf(ptr, "%%v%i", value);
+-			else if (operand->flags & OPERAND_PCREL)
+-				ptr += sprintf(ptr, "%lx", (signed int) value
+-								      + addr);
+-			else if (operand->flags & OPERAND_SIGNED)
++			else if (operand->flags & OPERAND_PCREL) {
++				void *pcrel = (void *)((int)value + addr);
++
++				ptr += sprintf(ptr, "%px", pcrel);
++			} else if (operand->flags & OPERAND_SIGNED)
+ 				ptr += sprintf(ptr, "%i", value);
+ 			else
+ 				ptr += sprintf(ptr, "%u", value);
+@@ -2005,7 +2006,7 @@ void show_code(struct pt_regs *regs)
+ 		else
+ 			*ptr++ = ' ';
+ 		addr = regs->psw.addr + start - 32;
+-		ptr += sprintf(ptr, "%016lx: ", addr);
++		ptr += sprintf(ptr, "%px: ", (void *)addr);
+ 		if (start + opsize >= end)
+ 			break;
+ 		for (i = 0; i < opsize; i++)
+@@ -2033,7 +2034,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
+ 		opsize = insn_length(*code);
+ 		if (opsize > len)
+ 			break;
+-		ptr += sprintf(ptr, "%p: ", code);
++		ptr += sprintf(ptr, "%px: ", code);
+ 		for (i = 0; i < opsize; i++)
+ 			ptr += sprintf(ptr, "%02x", code[i]);
+ 		*ptr++ = '\t';
+-- 
+2.20.1
