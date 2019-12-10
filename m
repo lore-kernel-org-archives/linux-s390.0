@@ -1,60 +1,81 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39926 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727539AbfLRQfC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Dec 2019 11:35:02 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYVQk152806
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:00 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wyq5r1cmd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:00 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Dec 2019 16:34:58 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 6/9] s390/qeth: don't raise NETDEV_REBOOT event from L3 offline path
-Date: Wed, 18 Dec 2019 17:34:47 +0100
-In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
-References: <20191218163450.36731-1-jwi@linux.ibm.com>
-Message-Id: <20191218163450.36731-7-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 272/350] s390/disassembler: don't hide instruction addresses
+Date: Tue, 10 Dec 2019 16:06:17 -0500
+Message-Id: <20191210210735.9077-233-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-This is a leftover from back when a recovery action didn't go through
-dev_close(), and was meant to shoot down all remaining af_iucv sockets
-on the interface.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Now that the offline path always calls dev_close(), the
-NETDEV_GOING_DOWN event from __dev_close_many() is sufficient and this
-hack can be removed.
+[ Upstream commit 544f1d62e3e6c6e6d17a5e56f6139208acb5ff46 ]
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Due to kptr_restrict, JITted BPF code is now displayed like this:
+
+000000000b6ed1b2: ebdff0800024  stmg    %r13,%r15,128(%r15)
+000000004cde2ba0: 41d0f040      la      %r13,64(%r15)
+00000000fbad41b0: a7fbffa0      aghi    %r15,-96
+
+Leaking kernel addresses to dmesg is not a concern in this case, because
+this happens only when JIT debugging is explicitly activated, which only
+root can do.
+
+Use %px in this particular instance, and also to print an instruction
+address in show_code and PCREL (e.g. brasl) arguments in print_insn.
+While at present functionally equivalent to %016lx, %px is recommended
+by Documentation/core-api/printk-formats.rst for such cases.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l3_main.c | 6 ------
- 1 file changed, 6 deletions(-)
+ arch/s390/kernel/dis.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index bd2273f9ca35..8bd3fc73a4fb 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2288,12 +2288,6 @@ static int __qeth_l3_set_offline(struct ccwgroup_device *cgdev,
- 	rtnl_unlock();
- 
- 	qeth_l3_stop_card(card);
--	if (card->options.cq == QETH_CQ_ENABLED) {
--		rtnl_lock();
--		call_netdevice_notifiers(NETDEV_REBOOT, card->dev);
--		rtnl_unlock();
--	}
--
- 	rc  = qeth_stop_channel(&card->data);
- 	rc2 = qeth_stop_channel(&card->write);
- 	rc3 = qeth_stop_channel(&card->read);
+diff --git a/arch/s390/kernel/dis.c b/arch/s390/kernel/dis.c
+index 7abe6ae261b42..f304802ecf7be 100644
+--- a/arch/s390/kernel/dis.c
++++ b/arch/s390/kernel/dis.c
+@@ -461,10 +461,11 @@ static int print_insn(char *buffer, unsigned char *code, unsigned long addr)
+ 				ptr += sprintf(ptr, "%%c%i", value);
+ 			else if (operand->flags & OPERAND_VR)
+ 				ptr += sprintf(ptr, "%%v%i", value);
+-			else if (operand->flags & OPERAND_PCREL)
+-				ptr += sprintf(ptr, "%lx", (signed int) value
+-								      + addr);
+-			else if (operand->flags & OPERAND_SIGNED)
++			else if (operand->flags & OPERAND_PCREL) {
++				void *pcrel = (void *)((int)value + addr);
++
++				ptr += sprintf(ptr, "%px", pcrel);
++			} else if (operand->flags & OPERAND_SIGNED)
+ 				ptr += sprintf(ptr, "%i", value);
+ 			else
+ 				ptr += sprintf(ptr, "%u", value);
+@@ -536,7 +537,7 @@ void show_code(struct pt_regs *regs)
+ 		else
+ 			*ptr++ = ' ';
+ 		addr = regs->psw.addr + start - 32;
+-		ptr += sprintf(ptr, "%016lx: ", addr);
++		ptr += sprintf(ptr, "%px: ", (void *)addr);
+ 		if (start + opsize >= end)
+ 			break;
+ 		for (i = 0; i < opsize; i++)
+@@ -564,7 +565,7 @@ void print_fn_code(unsigned char *code, unsigned long len)
+ 		opsize = insn_length(*code);
+ 		if (opsize > len)
+ 			break;
+-		ptr += sprintf(ptr, "%p: ", code);
++		ptr += sprintf(ptr, "%px: ", code);
+ 		for (i = 0; i < opsize; i++)
+ 			ptr += sprintf(ptr, "%02x", code[i]);
+ 		*ptr++ = '\t';
 -- 
-2.17.1
+2.20.1
