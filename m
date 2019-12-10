@@ -1,67 +1,51 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:56028 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726354AbfLITOE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 9 Dec 2019 14:14:04 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Mon,  9 Dec 2019 12:13:42 -0700
-Message-Id: <20191209191346.5197-3-logang@deltatee.com>
-In-Reply-To: <20191209191346.5197-1-logang@deltatee.com>
-References: <20191209191346.5197-1-logang@deltatee.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 183/350] s390: add error handling to perf_callchain_kernel
+Date: Tue, 10 Dec 2019 16:04:48 -0500
+Message-Id: <20191210210735.9077-144-sashal@kernel.org>
+In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
+References: <20191210210735.9077-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH 2/6] x86/mm: Introduce _set_memory_prot()
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Christoph Hellwig <hch@lst.de>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Logan Gunthorpe <logang@deltatee.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-For use in the 32bit arch_add_memory() to set the pgprot type of the
-memory to add.
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+[ Upstream commit effb83ccc83a97dbbe5214f4c443522719f05f3a ]
+
+perf_callchain_kernel stops neither when it encounters a garbage
+address, nor when it runs out of space. Fix both issues using x86
+version as an inspiration.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/set_memory.h | 1 +
- arch/x86/mm/pageattr.c            | 7 +++++++
- 2 files changed, 8 insertions(+)
+ arch/s390/kernel/perf_event.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index 2ee8e469dcf5..d728c2f3ad96 100644
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -34,6 +34,7 @@
-  * The caller is required to take care of these.
-  */
+diff --git a/arch/s390/kernel/perf_event.c b/arch/s390/kernel/perf_event.c
+index fcb6c2e92b071..1e75cc9835468 100644
+--- a/arch/s390/kernel/perf_event.c
++++ b/arch/s390/kernel/perf_event.c
+@@ -224,9 +224,13 @@ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 			   struct pt_regs *regs)
+ {
+ 	struct unwind_state state;
++	unsigned long addr;
  
-+int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot);
- int _set_memory_uc(unsigned long addr, int numpages);
- int _set_memory_wc(unsigned long addr, int numpages);
- int _set_memory_wt(unsigned long addr, int numpages);
-diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
-index 0d09cc5aad61..024e3ddf494d 100644
---- a/arch/x86/mm/pageattr.c
-+++ b/arch/x86/mm/pageattr.c
-@@ -1781,6 +1781,13 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
- 		CPA_PAGES_ARRAY, pages);
+-	unwind_for_each_frame(&state, current, regs, 0)
+-		perf_callchain_store(entry, state.ip);
++	unwind_for_each_frame(&state, current, regs, 0) {
++		addr = unwind_get_return_address(&state);
++		if (!addr || perf_callchain_store(entry, addr))
++			return;
++	}
  }
  
-+int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot)
-+{
-+	return change_page_attr_set_clr(&addr, numpages, prot,
-+					__pgprot(~pgprot_val(prot)), 0, 0,
-+					NULL);
-+}
-+
- int _set_memory_uc(unsigned long addr, int numpages)
- {
- 	/*
+ /* Perf definitions for PMU event attributes in sysfs */
 -- 
 2.20.1
