@@ -1,46 +1,42 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:46353 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726915AbfLJK6P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Dec 2019 05:58:15 -0500
+Return-Path: <linux-arch-owner@vger.kernel.org>
 Subject: Re: [PATCH v2 4/4] powerpc: Book3S 64-bit "heavyweight" KASAN support
 References: <20191210044714.27265-1-dja@axtens.net>
  <20191210044714.27265-5-dja@axtens.net>
-From: Balbir Singh <bsingharora@gmail.com>
-Message-ID: <71751e27-e9c5-f685-7a13-ca2e007214bc@gmail.com>
-Date: Tue, 10 Dec 2019 21:57:58 +1100
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Message-ID: <414293e0-3b75-8e78-90d8-2c14182f3739@c-s.fr>
+Date: Tue, 10 Dec 2019 08:21:49 +0100
 MIME-Version: 1.0
 In-Reply-To: <20191210044714.27265-5-dja@axtens.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Daniel Axtens <dja@axtens.net>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, christophe.leroy@c-s.fr, aneesh.kumar@linux.ibm.com
+To: Daniel Axtens <dja@axtens.net>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, aneesh.kumar@linux.ibm.com, bsingharora@gmail.com
 
 
 
-On 10/12/19 3:47 pm, Daniel Axtens wrote:
+Le 10/12/2019 à 05:47, Daniel Axtens a écrit :
 > KASAN support on powerpc64 is challenging:
 > 
->  - We want to be able to support inline instrumentation so as to be
->    able to catch global and stack issues.
+>   - We want to be able to support inline instrumentation so as to be
+>     able to catch global and stack issues.
 > 
->  - We run some code in real mode after boot, most notably a lot of
->    KVM code. We'd like to be able to instrument this.
+>   - We run some code in real mode after boot, most notably a lot of
+>     KVM code. We'd like to be able to instrument this.
 > 
->    [For those not immersed in ppc64, in real mode, the top nibble or
->    2 bits (depending on radix/hash mmu) of the address is ignored. The
->    linear mapping is placed at 0xc000000000000000. This means that a
->    pointer to part of the linear mapping will work both in real mode,
->    where it will be interpreted as a physical address of the form
->    0x000..., and out of real mode, where it will go via the linear
->    mapping.]
+>     [For those not immersed in ppc64, in real mode, the top nibble or
+>     2 bits (depending on radix/hash mmu) of the address is ignored. The
+>     linear mapping is placed at 0xc000000000000000. This means that a
+>     pointer to part of the linear mapping will work both in real mode,
+>     where it will be interpreted as a physical address of the form
+>     0x000..., and out of real mode, where it will go via the linear
+>     mapping.]
 > 
->  - Inline instrumentation requires a fixed offset.
+>   - Inline instrumentation requires a fixed offset.
 > 
->  - Because of our running things in real mode, the offset has to
->    point to valid memory both in and out of real mode.
+>   - Because of our running things in real mode, the offset has to
+>     point to valid memory both in and out of real mode.
 > 
 > This makes finding somewhere to put the KASAN shadow region challenging.
 > 
@@ -48,20 +44,35 @@ On 10/12/19 3:47 pm, Daniel Axtens wrote:
 > the address->shadow calculation. This way we can delay all checking
 > until after we get everything set up to our satisfaction. However,
 > we'd really like to do better.
+
+I think all the 'we' wordings should be rephrased in line with kernel 
+process (see 
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html):
+
+Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
+instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
+to do frotz", as if you are giving orders to the codebase to change
+its behaviour.
+
+For instance, could instead be:
+"This way all checking can be delay after everything get set up to 
+satisfaction. However, better could really be done."
+
+
 > 
 > What we can do - if we know _at compile time_ how much contiguous
 > physical memory we have - is to set aside the top 1/8th of the memory
 > and use that. This is a big hammer (hence the "heavyweight" name) and
 > comes with 3 big consequences:
 > 
->  - kernels will simply fail to boot on machines with less memory than
->    specified when compiling.
+>   - kernels will simply fail to boot on machines with less memory than
+>     specified when compiling.
 > 
->  - kernels running on machines with more memory than specified when
->    compiling will simply ignore the extra memory.
+>   - kernels running on machines with more memory than specified when
+>     compiling will simply ignore the extra memory.
 > 
->  - there's no nice way to handle physically discontiguous memory, so
->    you are restricted to the first physical memory block.
+>   - there's no nice way to handle physically discontiguous memory, so
+>     you are restricted to the first physical memory block.
 > 
 > If you can bear all this, you get full support for KASAN.
 > 
@@ -76,66 +87,66 @@ On 10/12/19 3:47 pm, Daniel Axtens wrote:
 > 
 > ---
 > Changes since v1:
->  - Landed kasan vmalloc support upstream
->  - Lots of feedback from Christophe.
+>   - Landed kasan vmalloc support upstream
+>   - Lots of feedback from Christophe.
 > 
 > Changes since the rfc:
 > 
->  - Boots real and virtual hardware, kvm works.
+>   - Boots real and virtual hardware, kvm works.
 > 
->  - disabled reporting when we're checking the stack for exception
->    frames. The behaviour isn't wrong, just incompatible with KASAN.
+>   - disabled reporting when we're checking the stack for exception
+>     frames. The behaviour isn't wrong, just incompatible with KASAN.
 > 
->  - Documentation!
+>   - Documentation!
 > 
->  - Dropped old module stuff in favour of KASAN_VMALLOC.
+>   - Dropped old module stuff in favour of KASAN_VMALLOC.
 > 
 > The bugs with ftrace and kuap were due to kernel bloat pushing
 > prom_init calls to be done via the plt. Because we did not have
 > a relocatable kernel, and they are done very early, this caused
 > everything to explode. Compile with CONFIG_RELOCATABLE!
 > ---
->  Documentation/dev-tools/kasan.rst             |   8 +-
->  Documentation/powerpc/kasan.txt               | 102 +++++++++++++++++-
->  arch/powerpc/Kconfig                          |   3 +
->  arch/powerpc/Kconfig.debug                    |  21 ++++
->  arch/powerpc/Makefile                         |  11 ++
->  arch/powerpc/include/asm/kasan.h              |  20 +++-
->  arch/powerpc/kernel/process.c                 |   8 ++
->  arch/powerpc/kernel/prom.c                    |  59 +++++++++-
->  arch/powerpc/mm/kasan/Makefile                |   3 +-
->  .../mm/kasan/{kasan_init_32.c => init_32.c}   |   0
->  arch/powerpc/mm/kasan/init_book3s_64.c        |  67 ++++++++++++
->  11 files changed, 293 insertions(+), 9 deletions(-)
->  rename arch/powerpc/mm/kasan/{kasan_init_32.c => init_32.c} (100%)
->  create mode 100644 arch/powerpc/mm/kasan/init_book3s_64.c
+>   Documentation/dev-tools/kasan.rst             |   8 +-
+>   Documentation/powerpc/kasan.txt               | 102 +++++++++++++++++-
+>   arch/powerpc/Kconfig                          |   3 +
+>   arch/powerpc/Kconfig.debug                    |  21 ++++
+>   arch/powerpc/Makefile                         |  11 ++
+>   arch/powerpc/include/asm/kasan.h              |  20 +++-
+>   arch/powerpc/kernel/process.c                 |   8 ++
+>   arch/powerpc/kernel/prom.c                    |  59 +++++++++-
+>   arch/powerpc/mm/kasan/Makefile                |   3 +-
+>   .../mm/kasan/{kasan_init_32.c => init_32.c}   |   0
+>   arch/powerpc/mm/kasan/init_book3s_64.c        |  67 ++++++++++++
+>   11 files changed, 293 insertions(+), 9 deletions(-)
+>   rename arch/powerpc/mm/kasan/{kasan_init_32.c => init_32.c} (100%)
+>   create mode 100644 arch/powerpc/mm/kasan/init_book3s_64.c
 > 
 > diff --git a/Documentation/dev-tools/kasan.rst b/Documentation/dev-tools/kasan.rst
 > index 4af2b5d2c9b4..d99dc580bc11 100644
 > --- a/Documentation/dev-tools/kasan.rst
 > +++ b/Documentation/dev-tools/kasan.rst
 > @@ -22,8 +22,9 @@ global variables yet.
->  Tag-based KASAN is only supported in Clang and requires version 7.0.0 or later.
->  
->  Currently generic KASAN is supported for the x86_64, arm64, xtensa and s390
+>   Tag-based KASAN is only supported in Clang and requires version 7.0.0 or later.
+>   
+>   Currently generic KASAN is supported for the x86_64, arm64, xtensa and s390
 > -architectures. It is also supported on 32-bit powerpc kernels. Tag-based KASAN
 > -is supported only on arm64.
 > +architectures. It is also supported on powerpc, for 32-bit kernels, and for
 > +64-bit kernels running under the Radix MMU. Tag-based KASAN is supported only
 > +on arm64.
->  
->  Usage
->  -----
+>   
+>   Usage
+>   -----
 > @@ -256,7 +257,8 @@ CONFIG_KASAN_VMALLOC
->  ~~~~~~~~~~~~~~~~~~~~
->  
->  With ``CONFIG_KASAN_VMALLOC``, KASAN can cover vmalloc space at the
+>   ~~~~~~~~~~~~~~~~~~~~
+>   
+>   With ``CONFIG_KASAN_VMALLOC``, KASAN can cover vmalloc space at the
 > -cost of greater memory usage. Currently this is only supported on x86.
 > +cost of greater memory usage. Currently this is optional on x86, and
 > +required on 64-bit powerpc.
->  
->  This works by hooking into vmalloc and vmap, and dynamically
->  allocating real shadow memory to back the mappings.
+>   
+>   This works by hooking into vmalloc and vmap, and dynamically
+>   allocating real shadow memory to back the mappings.
 > diff --git a/Documentation/powerpc/kasan.txt b/Documentation/powerpc/kasan.txt
 > index a85ce2ff8244..d6e7a415195c 100644
 > --- a/Documentation/powerpc/kasan.txt
@@ -143,16 +154,25 @@ On 10/12/19 3:47 pm, Daniel Axtens wrote:
 > @@ -1,4 +1,4 @@
 > -KASAN is supported on powerpc on 32-bit only.
 > +KASAN is supported on powerpc on 32-bit and 64-bit Radix only.
->  
->  32 bit support
->  ==============
+
+May be understood as : KASAN is supported on powerpc on 32-bit Radix and 
+64-bit Radix only.
+Maybe would be more clear as : KASAN is supported on powerpc on 32-bit 
+and Radix 64-bit only.
+
+>   
+>   32 bit support
+>   ==============
 > @@ -10,3 +10,103 @@ fixmap area and occupies one eighth of the total kernel virtual memory space.
->  
->  Instrumentation of the vmalloc area is not currently supported, but modules
->  are.
+>   
+>   Instrumentation of the vmalloc area is not currently supported, but modules
+>   are.
 > +
 > +64 bit support
 > +==============
+
+A lot of 'we' form here as well. Can it be avoided ?
+
 > +
 > +Currently, only the radix MMU is supported. There have been versions for Book3E
 > +processors floating around on the mailing list, but nothing has been merged.
@@ -223,11 +243,6 @@ On 10/12/19 3:47 pm, Daniel Axtens wrote:
 > +   region. But when we try to access any of that, we'll try to access pages
 > +   that are not physically present.
 > +
-
-If we reserved memory for KASAN from each node (discontig region), we might survive
-this no? May be we need NUMA aware KASAN? That might be a generic change, just thinking
-out loud.
-
 > + - If we try to base the shadow region size on the top address, we'll need to
 > +   reserve 0x2008_0000_0000 / 8 = 0x0401_0000_0000 bytes = 4100 GB of memory,
 > +   which will clearly not work on a system with 64GB of RAM.
@@ -260,23 +275,28 @@ out loud.
 > --- a/arch/powerpc/Kconfig
 > +++ b/arch/powerpc/Kconfig
 > @@ -173,6 +173,9 @@ config PPC
->  	select HAVE_ARCH_HUGE_VMAP		if PPC_BOOK3S_64 && PPC_RADIX_MMU
->  	select HAVE_ARCH_JUMP_LABEL
->  	select HAVE_ARCH_KASAN			if PPC32
+>   	select HAVE_ARCH_HUGE_VMAP		if PPC_BOOK3S_64 && PPC_RADIX_MMU
+>   	select HAVE_ARCH_JUMP_LABEL
+>   	select HAVE_ARCH_KASAN			if PPC32
 > +	select HAVE_ARCH_KASAN			if PPC_BOOK3S_64 && PPC_RADIX_MMU
 > +	select HAVE_ARCH_KASAN_VMALLOC		if PPC_BOOK3S_64
+
+Does it mean, if PPC_RADIX_MMU, HAVE_ARCH_KASAN_VMALLOC will be defined 
+and not HAVE_ARCH_KASAN ?
+
+
 > +	select KASAN_VMALLOC			if KASAN && PPC_BOOK3S_64
->  	select HAVE_ARCH_KGDB
->  	select HAVE_ARCH_MMAP_RND_BITS
->  	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
+>   	select HAVE_ARCH_KGDB
+>   	select HAVE_ARCH_MMAP_RND_BITS
+>   	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
 > diff --git a/arch/powerpc/Kconfig.debug b/arch/powerpc/Kconfig.debug
 > index 4e1d39847462..90bb48455cb8 100644
 > --- a/arch/powerpc/Kconfig.debug
 > +++ b/arch/powerpc/Kconfig.debug
 > @@ -394,6 +394,27 @@ config PPC_FAST_ENDIAN_SWITCH
->  	help
->  	  If you're unsure what this is, say N.
->  
+>   	help
+>   	  If you're unsure what this is, say N.
+>   
 > +config PHYS_MEM_SIZE_FOR_KASAN
 > +	int "Contiguous physical memory size for KASAN (MB)" if KASAN && PPC_BOOK3S_64
 > +	default 0
@@ -298,17 +318,17 @@ out loud.
 > +	  at the memory layout info printed to dmesg by the radix MMU code
 > +	  early in boot. See Documentation/powerpc/kasan.txt.
 > +
->  config KASAN_SHADOW_OFFSET
->  	hex
->  	depends on KASAN
+>   config KASAN_SHADOW_OFFSET
+>   	hex
+>   	depends on KASAN
 > diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
 > index f35730548e42..eff693527462 100644
 > --- a/arch/powerpc/Makefile
 > +++ b/arch/powerpc/Makefile
 > @@ -230,6 +230,17 @@ ifdef CONFIG_476FPE_ERR46
->  		-T $(srctree)/arch/powerpc/platforms/44x/ppc476_modules.lds
->  endif
->  
+>   		-T $(srctree)/arch/powerpc/platforms/44x/ppc476_modules.lds
+>   endif
+>   
 > +ifdef CONFIG_PPC_BOOK3S_64
 > +# The KASAN shadow offset is such that linear map (0xc000...) is shadowed by
 > +# the last 8th of linearly mapped physical memory. This way, if the code uses
@@ -320,44 +340,47 @@ out loud.
 > +KBUILD_CFLAGS += -DKASAN_SHADOW_OFFSET=$(KASAN_SHADOW_OFFSET)UL
 > +endif
 > +
->  # No AltiVec or VSX instructions when building kernel
->  KBUILD_CFLAGS += $(call cc-option,-mno-altivec)
->  KBUILD_CFLAGS += $(call cc-option,-mno-vsx)
+>   # No AltiVec or VSX instructions when building kernel
+>   KBUILD_CFLAGS += $(call cc-option,-mno-altivec)
+>   KBUILD_CFLAGS += $(call cc-option,-mno-vsx)
 > diff --git a/arch/powerpc/include/asm/kasan.h b/arch/powerpc/include/asm/kasan.h
 > index 296e51c2f066..98d995bc9b5e 100644
 > --- a/arch/powerpc/include/asm/kasan.h
 > +++ b/arch/powerpc/include/asm/kasan.h
 > @@ -14,13 +14,20 @@
->  
->  #ifndef __ASSEMBLY__
->  
+>   
+>   #ifndef __ASSEMBLY__
+>   
 > -#include <asm/page.h>
 > +#ifdef CONFIG_KASAN
 > +void kasan_init(void);
 > +#else
 > +static inline void kasan_init(void) { }
 > +#endif
->  
->  #define KASAN_SHADOW_SCALE_SHIFT	3
->  
->  #define KASAN_SHADOW_START	(KASAN_SHADOW_OFFSET + \
->  				 (PAGE_OFFSET >> KASAN_SHADOW_SCALE_SHIFT))
->  
+>   
+>   #define KASAN_SHADOW_SCALE_SHIFT	3
+>   
+>   #define KASAN_SHADOW_START	(KASAN_SHADOW_OFFSET + \
+>   				 (PAGE_OFFSET >> KASAN_SHADOW_SCALE_SHIFT))
+>   
 > +#ifdef CONFIG_PPC32
 > +#include <asm/page.h>
+
+Is that a problem to include page.h is not PPC32 ?
+
 > +
->  #define KASAN_SHADOW_OFFSET	ASM_CONST(CONFIG_KASAN_SHADOW_OFFSET)
->  
->  #define KASAN_SHADOW_END	0UL
+>   #define KASAN_SHADOW_OFFSET	ASM_CONST(CONFIG_KASAN_SHADOW_OFFSET)
+>   
+>   #define KASAN_SHADOW_END	0UL
 > @@ -30,11 +37,18 @@
->  #ifdef CONFIG_KASAN
->  void kasan_early_init(void);
->  void kasan_mmu_init(void);
+>   #ifdef CONFIG_KASAN
+>   void kasan_early_init(void);
+>   void kasan_mmu_init(void);
 > -void kasan_init(void);
->  #else
+>   #else
 > -static inline void kasan_init(void) { }
->  static inline void kasan_mmu_init(void) { }
->  #endif
+>   static inline void kasan_mmu_init(void) { }
+>   #endif
 > +#endif
 > +
 > +#ifdef CONFIG_PPC_BOOK3S_64
@@ -367,53 +390,58 @@ out loud.
 > +				1024 * 1024 * 1 / 8)
 > +
 > +#endif /* CONFIG_PPC_BOOK3S_64 */
->  
->  #endif /* __ASSEMBLY */
->  #endif
+>   
+>   #endif /* __ASSEMBLY */
+>   #endif
 > diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
 > index 4df94b6e2f32..c60ff299f39b 100644
 > --- a/arch/powerpc/kernel/process.c
 > +++ b/arch/powerpc/kernel/process.c
 > @@ -2081,7 +2081,14 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
->  		/*
->  		 * See if this is an exception frame.
->  		 * We look for the "regshere" marker in the current frame.
+>   		/*
+>   		 * See if this is an exception frame.
+>   		 * We look for the "regshere" marker in the current frame.
 > +		 *
 > +		 * KASAN may complain about this. If it is an exception frame,
 > +		 * we won't have unpoisoned the stack in asm when we set the
 > +		 * exception marker. If it's not an exception frame, who knows
 > +		 * how things are laid out - the shadow could be in any state
 > +		 * at all. Just disable KASAN reporting for now.
->  		 */
+>   		 */
 > +		kasan_disable_current();
->  		if (validate_sp(sp, tsk, STACK_INT_FRAME_SIZE)
->  		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
->  			struct pt_regs *regs = (struct pt_regs *)
+>   		if (validate_sp(sp, tsk, STACK_INT_FRAME_SIZE)
+>   		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
+>   			struct pt_regs *regs = (struct pt_regs *)
 > @@ -2091,6 +2098,7 @@ void show_stack(struct task_struct *tsk, unsigned long *stack)
->  			       regs->trap, (void *)regs->nip, (void *)lr);
->  			firstframe = 1;
->  		}
+>   			       regs->trap, (void *)regs->nip, (void *)lr);
+>   			firstframe = 1;
+>   		}
 > +		kasan_enable_current();
->  
->  		sp = newsp;
->  	} while (count++ < kstack_depth_to_print);
+>   
+>   		sp = newsp;
+>   	} while (count++ < kstack_depth_to_print);
 > diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
 > index 6620f37abe73..b32036f61cad 100644
 > --- a/arch/powerpc/kernel/prom.c
 > +++ b/arch/powerpc/kernel/prom.c
 > @@ -72,6 +72,7 @@ unsigned long tce_alloc_start, tce_alloc_end;
->  u64 ppc64_rma_size;
->  #endif
->  static phys_addr_t first_memblock_size;
+>   u64 ppc64_rma_size;
+>   #endif
+>   static phys_addr_t first_memblock_size;
 > +static phys_addr_t top_phys_addr;
->  static int __initdata boot_cpu_count;
->  
->  static int __init early_parse_mem(char *p)
+>   static int __initdata boot_cpu_count;
+>   
+>   static int __init early_parse_mem(char *p)
 > @@ -449,6 +450,21 @@ static bool validate_mem_limit(u64 base, u64 *size)
->  {
->  	u64 max_mem = 1UL << (MAX_PHYSMEM_BITS);
->  
+>   {
+>   	u64 max_mem = 1UL << (MAX_PHYSMEM_BITS);
+>   
 > +#ifdef CONFIG_KASAN
+
+CONFIG_PHYS_MEM_SIZE_FOR_KASAN is know defined at all time, so this 
+ifdef can be avoided and replaced for instance by adding verification of 
+IS_ENABLED(CONFIG_KASAN) in the if() below.
+
 > +	/*
 > +	 * To handle the NUMA/discontiguous memory case, don't allow a block
 > +	 * to be added if it falls completely beyond the configured physical
@@ -428,35 +456,35 @@ out loud.
 > +	}
 > +#endif
 > +
->  	if (base >= max_mem)
->  		return false;
->  	if ((base + *size) > max_mem)
+>   	if (base >= max_mem)
+>   		return false;
+>   	if ((base + *size) > max_mem)
 > @@ -572,8 +588,11 @@ void __init early_init_dt_add_memory_arch(u64 base, u64 size)
->  
->  	/* Add the chunk to the MEMBLOCK list */
->  	if (add_mem_to_memblock) {
+>   
+>   	/* Add the chunk to the MEMBLOCK list */
+>   	if (add_mem_to_memblock) {
 > -		if (validate_mem_limit(base, &size))
 > +		if (validate_mem_limit(base, &size)) {
->  			memblock_add(base, size);
+>   			memblock_add(base, size);
 > +			if (base + size > top_phys_addr)
 > +				top_phys_addr = base + size;
 > +		}
->  	}
->  }
->  
+>   	}
+>   }
+>   
 > @@ -613,6 +632,8 @@ static void __init early_reserve_mem_dt(void)
->  static void __init early_reserve_mem(void)
->  {
->  	__be64 *reserve_map;
+>   static void __init early_reserve_mem(void)
+>   {
+>   	__be64 *reserve_map;
 > +	phys_addr_t kasan_shadow_start;
 > +	phys_addr_t kasan_memory_size;
->  
->  	reserve_map = (__be64 *)(((unsigned long)initial_boot_params) +
->  			fdt_off_mem_rsvmap(initial_boot_params));
+>   
+>   	reserve_map = (__be64 *)(((unsigned long)initial_boot_params) +
+>   			fdt_off_mem_rsvmap(initial_boot_params));
 > @@ -651,6 +672,42 @@ static void __init early_reserve_mem(void)
->  		return;
->  	}
->  #endif
+>   		return;
+>   	}
+>   #endif
 > +
 > +	if (IS_ENABLED(CONFIG_KASAN) && IS_ENABLED(CONFIG_PPC_BOOK3S_64)) {
 > +		kasan_memory_size =
@@ -472,11 +500,18 @@ out loud.
 > +			 * somewhere that will help you debug it if you look at
 > +			 * it in qemu.
 > +			 */
+
+This function is called from early_init_devtree() which also includes a 
+call to panic(). That panic call should be changed then ?
+
 > +			while (true)
 > +				;
 
-Again with the right hooks in check_memory_region_inline() these are recoverable,
-or so I think
+Can we trap instead, with BUG() or __builtin_trap() ?
+
+Maybe define a function prom_panic() which calls panic() when 
+CONFIG_KASAN is not set, and does whatever works when CONFIG_KASAN is set ?
+
 
 > +		} else if (top_phys_addr > kasan_memory_size) {
 > +			/* print a biiiig warning in hopes people notice */
@@ -497,17 +532,17 @@ or so I think
 > +		memblock_reserve(kasan_shadow_start,
 > +				 top_phys_addr - kasan_shadow_start);
 > +	}
->  }
->  
->  #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
+>   }
+>   
+>   #ifdef CONFIG_PPC_TRANSACTIONAL_MEM
 > diff --git a/arch/powerpc/mm/kasan/Makefile b/arch/powerpc/mm/kasan/Makefile
 > index 6577897673dd..f02b15c78e4d 100644
 > --- a/arch/powerpc/mm/kasan/Makefile
 > +++ b/arch/powerpc/mm/kasan/Makefile
 > @@ -2,4 +2,5 @@
->  
->  KASAN_SANITIZE := n
->  
+>   
+>   KASAN_SANITIZE := n
+>   
 > -obj-$(CONFIG_PPC32)           += kasan_init_32.o
 > +obj-$(CONFIG_PPC32)           += init_32.o
 > +obj-$(CONFIG_PPC_BOOK3S_64)   += init_book3s_64.o
@@ -548,11 +583,6 @@ or so I think
 > +	if (!early_radix_enabled())
 > +		panic("KASAN requires radix!");
 > +
-
-I think this is avoidable, we could use a static key for disabling kasan in
-the generic code. I wonder what happens if someone tries to boot this
-image on a Power8 box and keeps panic'ing with no easy way of recovering.
-
 > +	for (i = 0; i < PTRS_PER_PTE; i++)
 > +		__set_pte_at(&init_mm, (unsigned long)kasan_early_shadow_page,
 > +			     &kasan_early_shadow_pte[i], pte, 0);
@@ -583,11 +613,18 @@ image on a Power8 box and keeps panic'ing with no easy way of recovering.
 > +	/* mark early shadow region as RO and wipe */
 > +	pte = __pte(__pa(kasan_early_shadow_page) |
 > +		    pgprot_val(PAGE_KERNEL_RO) | _PAGE_PTE);
+
+Any reason for _PAGE_PTE being required here and not being included in 
+PAGE_KERNEL_RO ?
+
 > +	for (i = 0; i < PTRS_PER_PTE; i++)
 > +		__set_pte_at(&init_mm, (unsigned long)kasan_early_shadow_page,
 > +			     &kasan_early_shadow_pte[i], pte, 0);
 > +
 > +	memset(kasan_early_shadow_page, 0, PAGE_SIZE);
+
+Can use clear_page() instead ?
+
 > +
 > +	/* Enable error messages */
 > +	init_task.kasan_depth = 0;
@@ -595,7 +632,5 @@ image on a Power8 box and keeps panic'ing with no easy way of recovering.
 > +}
 > 
 
-NOTE: I can't test any of these, well may be with qemu, let me see if I can spin
-the series and provide more feedback
 
-Balbir
+Christophe
