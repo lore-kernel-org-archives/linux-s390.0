@@ -1,88 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39388 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbfLJVNT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:19 -0500
+        id S2388501AbfLKPiw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:38:52 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 318/350] s390/kasan: support memcpy_real with TRACE_IRQFLAGS
-Date: Tue, 10 Dec 2019 16:07:03 -0500
-Message-Id: <20191210210735.9077-279-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 35/37] s390/cpum_sf: Check for SDBT and SDB consistency
+Date: Wed, 11 Dec 2019 10:38:11 -0500
+Message-Id: <20191211153813.24126-35-sashal@kernel.org>
+In-Reply-To: <20191211153813.24126-1-sashal@kernel.org>
+References: <20191211153813.24126-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 13f9bae579c6bd051e58f326913dd09af1291208 ]
+[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
 
-Currently if the kernel is built with CONFIG_TRACE_IRQFLAGS and KASAN
-and used as crash kernel it crashes itself due to
-trace_hardirqs_off/trace_hardirqs_on being called with DAT off. This
-happens because trace_hardirqs_off/trace_hardirqs_on are instrumented and
-kasan code tries to perform access to shadow memory to validate memory
-accesses. Kasan shadow memory is populated with vmemmap, so all accesses
-require DAT on.
+Each SBDT is located at a 4KB page and contains 512 entries.
+Each entry of a SDBT points to a SDB, a 4KB page containing
+sampled data. The last entry is a link to another SDBT page.
 
-memcpy_real could be called with DAT on or off (with kasan enabled DAT
-is set even before early code is executed).
+When an event is created the function sequence executed is:
 
-Make sure that trace_hardirqs_off/trace_hardirqs_on are called with DAT
-on and only actual __memcpy_real is called with DAT off.
+  __hw_perf_event_init()
+  +--> allocate_buffers()
+       +--> realloc_sampling_buffers()
+	    +---> alloc_sample_data_block()
 
-Also annotate __memcpy_real and _memcpy_real with __no_sanitize_address
-to avoid further problems due to switching DAT off.
+Both functions realloc_sampling_buffers() and
+alloc_sample_data_block() allocate pages and the allocation
+can fail. This is handled correctly and all allocated
+pages are freed and error -ENOMEM is returned to the
+top calling function. Finally the event is not created.
 
-Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
+Once the event has been created, the amount of initially
+allocated SDBT and SDB can be too low. This is detected
+during measurement interrupt handling, where the amount
+of lost samples is calculated. If the number of lost samples
+is too high considering sampling frequency and already allocated
+SBDs, the number of SDBs is enlarged during the next execution
+of cpumsf_pmu_enable().
+
+If more SBDs need to be allocated, functions
+
+       realloc_sampling_buffers()
+       +---> alloc-sample_data_block()
+
+are called to allocate more pages. Page allocation may fail
+and the returned error is ignored. A SDBT and SDB setup
+already exists.
+
+However the modified SDBTs and SDBs might end up in a situation
+where the first entry of an SDBT does not point to an SDB,
+but another SDBT, basicly an SBDT without payload.
+This can not be handled by the interrupt handler, where an SDBT
+must have at least one entry pointing to an SBD.
+
+Add a check to avoid SDBTs with out payload (SDBs) when enlarging
+the buffer setup.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/maccess.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
-index 1864a8bb9622f..59ad7997fed16 100644
---- a/arch/s390/mm/maccess.c
-+++ b/arch/s390/mm/maccess.c
-@@ -70,7 +70,7 @@ void notrace s390_kernel_write(void *dst, const void *src, size_t size)
- 	spin_unlock_irqrestore(&s390_kernel_write_lock, flags);
- }
- 
--static int __memcpy_real(void *dest, void *src, size_t count)
-+static int __no_sanitize_address __memcpy_real(void *dest, void *src, size_t count)
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 874762a51c546..7490c52b27153 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 				   unsigned long num_sdb, gfp_t gfp_flags)
  {
- 	register unsigned long _dest asm("2") = (unsigned long) dest;
- 	register unsigned long _len1 asm("3") = (unsigned long) count;
-@@ -91,19 +91,23 @@ static int __memcpy_real(void *dest, void *src, size_t count)
- 	return rc;
- }
+ 	int i, rc;
+-	unsigned long *new, *tail;
++	unsigned long *new, *tail, *tail_prev = NULL;
  
--static unsigned long _memcpy_real(unsigned long dest, unsigned long src,
--				  unsigned long count)
-+static unsigned long __no_sanitize_address _memcpy_real(unsigned long dest,
-+							unsigned long src,
-+							unsigned long count)
- {
- 	int irqs_disabled, rc;
- 	unsigned long flags;
+ 	if (!sfb->sdbt || !sfb->tail)
+ 		return -EINVAL;
+@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 			sfb->num_sdbt++;
+ 			/* Link current page to tail of chain */
+ 			*tail = (unsigned long)(void *) new + 1;
++			tail_prev = tail;
+ 			tail = new;
+ 		}
  
- 	if (!count)
- 		return 0;
--	flags = __arch_local_irq_stnsm(0xf8UL);
-+	flags = arch_local_irq_save();
- 	irqs_disabled = arch_irqs_disabled_flags(flags);
- 	if (!irqs_disabled)
- 		trace_hardirqs_off();
-+	__arch_local_irq_stnsm(0xf8); // disable DAT
- 	rc = __memcpy_real((void *) dest, (void *) src, (size_t) count);
-+	if (flags & PSW_MASK_DAT)
-+		__arch_local_irq_stosm(0x04); // enable DAT
- 	if (!irqs_disabled)
- 		trace_hardirqs_on();
- 	__arch_local_irq_ssm(flags);
+@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 		 * issue, a new realloc call (if required) might succeed.
+ 		 */
+ 		rc = alloc_sample_data_block(tail, gfp_flags);
+-		if (rc)
++		if (rc) {
++			/* Undo last SDBT. An SDBT with no SDB at its first
++			 * entry but with an SDBT entry instead can not be
++			 * handled by the interrupt handler code.
++			 * Avoid this situation.
++			 */
++			if (tail_prev) {
++				sfb->num_sdbt--;
++				free_page((unsigned long) new);
++				tail = tail_prev;
++			}
+ 			break;
++		}
+ 		sfb->num_sdb++;
+ 		tail++;
++		tail_prev = new = NULL;	/* Allocated at least one SBD */
+ 	}
+ 
+ 	/* Link sampling buffer to its origin */
 -- 
 2.20.1
