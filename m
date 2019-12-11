@@ -1,69 +1,59 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55896 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727193AbfLJVI3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:08:29 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 082/350] net/smc: increase device refcount for added link group
-Date: Tue, 10 Dec 2019 16:03:07 -0500
-Message-Id: <20191210210735.9077-43-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 53/58] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
+Date: Wed, 11 Dec 2019 10:28:26 -0500
+Message-Id: <20191211152831.23507-53-sashal@kernel.org>
+In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
+References: <20191211152831.23507-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit b3cb53c05f20c5b4026a36a7bbd3010d1f3e0a55 ]
+[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
 
-SMCD link groups belong to certain ISM-devices and SMCR link group
-links belong to certain IB-devices. Increase the refcount for
-these devices, as long as corresponding link groups exist.
+This patch introduces support for a new architectured reply
+code 0x8B indicating that a hypervisor layer (if any) has
+rejected an ap message.
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Linux may run as a guest on top of a hypervisor like zVM
+or KVM. So the crypto hardware seen by the ap bus may be
+restricted by the hypervisor for example only a subset like
+only clear key crypto requests may be supported. Other
+requests will be filtered out - rejected by the hypervisor.
+The new reply code 0x8B will appear in such cases and needs
+to get recognized by the ap bus and zcrypt device driver zoo.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/s390/crypto/zcrypt_error.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2ba97ff325a5d..0c5fcb8ed404d 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -231,10 +231,12 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	lgr->conns_all = RB_ROOT;
- 	if (ini->is_smcd) {
- 		/* SMC-D specific settings */
-+		get_device(&ini->ism_dev->dev);
- 		lgr->peer_gid = ini->ism_gid;
- 		lgr->smcd = ini->ism_dev;
- 	} else {
- 		/* SMC-R specific settings */
-+		get_device(&ini->ib_dev->ibdev->dev);
- 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
- 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
- 		       SMC_SYSTEMID_LEN);
-@@ -433,10 +435,13 @@ static void smc_lgr_free_bufs(struct smc_link_group *lgr)
- static void smc_lgr_free(struct smc_link_group *lgr)
- {
- 	smc_lgr_free_bufs(lgr);
--	if (lgr->is_smcd)
-+	if (lgr->is_smcd) {
- 		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
--	else
-+		put_device(&lgr->smcd->dev);
-+	} else {
- 		smc_link_clear(&lgr->lnk[SMC_SINGLE_LINK]);
-+		put_device(&lgr->lnk[SMC_SINGLE_LINK].smcibdev->ibdev->dev);
-+	}
- 	kfree(lgr);
- }
- 
+diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
+index 9499cd3a05f85..02a936db00923 100644
+--- a/drivers/s390/crypto/zcrypt_error.h
++++ b/drivers/s390/crypto/zcrypt_error.h
+@@ -75,6 +75,7 @@ struct error_hdr {
+ #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
+ #define REP82_ERROR_RESERVED_FIELD	    0x88
+ #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
++#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
+ #define REP82_ERROR_TRANSPORT_FAIL	    0x90
+ #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
+ #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
+@@ -105,6 +106,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
+ 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
+ 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
+ 	case REP82_ERROR_INVALID_SPECIAL_CMD:
++	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
+ 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
+ 	//   REP88_ERROR_OPERAND		// '84' CEX2A
+ 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
 -- 
 2.20.1
