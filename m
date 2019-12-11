@@ -1,200 +1,104 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 3/8] iommu/vt-d: Remove IOVA handling code from non-dma_ops path
-Date: Sat, 21 Dec 2019 15:03:55 +0000
-Message-Id: <20191221150402.13868-4-murphyt7@tcd.ie>
-In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:26193 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729996AbfLKRS3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Dec 2019 12:18:29 -0500
+Received: by mail-yb1-f199.google.com with SMTP id n80so16978037ybf.18
+        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 09:18:26 -0800 (PST)
+Date: Wed, 11 Dec 2019 12:18:22 -0500
+From: Jeremy Cline <jcline@redhat.com>
+Subject: Re: s390 depending on cc-options makes it difficult to configure
+Message-ID: <20191211171822.GA36366@dev.jcline.org>
+References: <20191209164155.GA78160@dev.jcline.org>
+ <20191210090108.GA22512@unicorn.suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191210090108.GA22512@unicorn.suse.cz>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Auger <eric.auger@redhat.com>, Marc Zyngier <maz@kernel.org>, Julien Grall <julien.grall@arm.com>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Michal Kubecek <mkubecek@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
 
-Remove all IOVA handling code from the non-dma_ops path in the intel
-iommu driver.
+On Tue, Dec 10, 2019 at 10:01:08AM +0100, Michal Kubecek wrote:
+> On Mon, Dec 09, 2019 at 11:41:55AM -0500, Jeremy Cline wrote:
+> > Hi folks,
+> > 
+> > Commit 5474080a3a0a ("s390/Kconfig: make use of 'depends on cc-option'")
+> > makes it difficult to produce an s390 configuration for Fedora and Red
+> > Hat kernels.
+> > 
+> > The issue is I have the following configurations:
+> > 
+> > CONFIG_MARCH_Z13=y
+> > CONFIG_TUNE_Z14=y
+> > # CONFIG_TUNE_DEFAULT is not set
+> > 
+> > When the configuration is prepared on a non-s390x host without a
+> > compiler with -march=z* it changes CONFIG_TUNE_DEFAULT to y which, as
+> > far as I can tell, leads to a kernel tuned for z13 instead of z14.
+> > Fedora and Red Hat build processes produce complete configurations from
+> > snippets on any available host in the build infrastructure which very
+> > frequently is *not* s390.
+> 
+> We have exactly the same problem. Our developers need to update config
+> files for different architectures and different kernel versions on their
+> machines which are usually x86_64 but that often produces different
+> configs than the real build environment.
+> 
 
-There's no need for the non-dma_ops path to keep track of IOVAs. The
-whole point of the non-dma_ops path is that it allows the IOVAs to be
-handled separately. The IOVA handling code removed in this patch is
-pointless.
+Glad (or sad?) to hear we're not the only ones hitting this.
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
----
- drivers/iommu/intel-iommu.c | 89 ++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 56 deletions(-)
+> This is not an issue for upstream development as one usually updates
+> configs on the same system where the build takes place but it's a big
+> problem for distribution maintainers.
+> 
+> > I did a quick search and couldn't find any other examples of Kconfigs
+> > depending on march or mtune compiler flags and it seems like it'd
+> > generally problematic for people preparing configurations.
+> 
+> There are more issues like this. In general, since 4.17 or 4.18, the
+> resulting config depends on both architecture and compiler version.
+> Earlier, you could simply run "ARCH=... make oldconfig" (or menuconfig)
+> to update configs for all architectures and distribution versions.
+> Today, you need to use the right compiler version (results with e.g.
+> 4.8, 7.4 and 9.2 differ) and architecture.
+> 
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 64b1a9793daa..8d72ea0fb843 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -1908,7 +1908,8 @@ static void domain_exit(struct dmar_domain *domain)
- 	domain_remove_dev_info(domain);
- 
- 	/* destroy iovas */
--	put_iova_domain(&domain->iovad);
-+	if (domain->domain.type == IOMMU_DOMAIN_DMA)
-+		put_iova_domain(&domain->iovad);
- 
- 	if (domain->pgd) {
- 		struct page *freelist;
-@@ -2671,19 +2672,9 @@ static struct dmar_domain *set_domain_for_dev(struct device *dev,
- }
- 
- static int iommu_domain_identity_map(struct dmar_domain *domain,
--				     unsigned long long start,
--				     unsigned long long end)
-+				     unsigned long first_vpfn,
-+				     unsigned long last_vpfn)
- {
--	unsigned long first_vpfn = start >> VTD_PAGE_SHIFT;
--	unsigned long last_vpfn = end >> VTD_PAGE_SHIFT;
--
--	if (!reserve_iova(&domain->iovad, dma_to_mm_pfn(first_vpfn),
--			  dma_to_mm_pfn(last_vpfn))) {
--		pr_err("Reserving iova failed\n");
--		return -ENOMEM;
--	}
--
--	pr_debug("Mapping reserved region %llx-%llx\n", start, end);
- 	/*
- 	 * RMRR range might have overlap with physical memory range,
- 	 * clear it first
-@@ -2760,7 +2751,8 @@ static int __init si_domain_init(int hw)
- 
- 		for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
- 			ret = iommu_domain_identity_map(si_domain,
--					PFN_PHYS(start_pfn), PFN_PHYS(end_pfn));
-+					mm_to_dma_pfn(start_pfn),
-+					mm_to_dma_pfn(end_pfn));
- 			if (ret)
- 				return ret;
- 		}
-@@ -4593,58 +4585,37 @@ static int intel_iommu_memory_notifier(struct notifier_block *nb,
- 				       unsigned long val, void *v)
- {
- 	struct memory_notify *mhp = v;
--	unsigned long long start, end;
--	unsigned long start_vpfn, last_vpfn;
-+	unsigned long start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
-+	unsigned long last_vpfn = mm_to_dma_pfn(mhp->start_pfn +
-+			mhp->nr_pages - 1);
- 
- 	switch (val) {
- 	case MEM_GOING_ONLINE:
--		start = mhp->start_pfn << PAGE_SHIFT;
--		end = ((mhp->start_pfn + mhp->nr_pages) << PAGE_SHIFT) - 1;
--		if (iommu_domain_identity_map(si_domain, start, end)) {
--			pr_warn("Failed to build identity map for [%llx-%llx]\n",
--				start, end);
-+		if (iommu_domain_identity_map(si_domain, start_vpfn,
-+					last_vpfn)) {
-+			pr_warn("Failed to build identity map for [%lx-%lx]\n",
-+				start_vpfn, last_vpfn);
- 			return NOTIFY_BAD;
- 		}
- 		break;
- 
- 	case MEM_OFFLINE:
- 	case MEM_CANCEL_ONLINE:
--		start_vpfn = mm_to_dma_pfn(mhp->start_pfn);
--		last_vpfn = mm_to_dma_pfn(mhp->start_pfn + mhp->nr_pages - 1);
--		while (start_vpfn <= last_vpfn) {
--			struct iova *iova;
-+		{
- 			struct dmar_drhd_unit *drhd;
- 			struct intel_iommu *iommu;
- 			struct page *freelist;
- 
--			iova = find_iova(&si_domain->iovad, start_vpfn);
--			if (iova == NULL) {
--				pr_debug("Failed get IOVA for PFN %lx\n",
--					 start_vpfn);
--				break;
--			}
--
--			iova = split_and_remove_iova(&si_domain->iovad, iova,
--						     start_vpfn, last_vpfn);
--			if (iova == NULL) {
--				pr_warn("Failed to split IOVA PFN [%lx-%lx]\n",
--					start_vpfn, last_vpfn);
--				return NOTIFY_BAD;
--			}
--
--			freelist = domain_unmap(si_domain, iova->pfn_lo,
--					       iova->pfn_hi);
-+			freelist = domain_unmap(si_domain, start_vpfn,
-+					last_vpfn);
- 
- 			rcu_read_lock();
- 			for_each_active_iommu(iommu, drhd)
- 				iommu_flush_iotlb_psi(iommu, si_domain,
--					iova->pfn_lo, iova_size(iova),
-+					start_vpfn, mhp->nr_pages,
- 					!freelist, 0);
- 			rcu_read_unlock();
- 			dma_free_pagelist(freelist);
--
--			start_vpfn = iova->pfn_hi + 1;
--			free_iova_mem(iova);
- 		}
- 		break;
- 	}
-@@ -4672,8 +4643,9 @@ static void free_all_cpu_cached_iovas(unsigned int cpu)
- 		for (did = 0; did < cap_ndoms(iommu->cap); did++) {
- 			domain = get_iommu_domain(iommu, (u16)did);
- 
--			if (!domain)
-+			if (!domain || domain->domain.type != IOMMU_DOMAIN_DMA)
- 				continue;
-+
- 			free_cpu_cached_iovas(cpu, &domain->iovad);
- 		}
- 	}
-@@ -5095,9 +5067,6 @@ static int md_domain_init(struct dmar_domain *domain, int guest_width)
- {
- 	int adjust_width;
- 
--	init_iova_domain(&domain->iovad, VTD_PAGE_SIZE, IOVA_START_PFN);
--	domain_reserve_special_ranges(domain);
--
- 	/* calculate AGAW */
- 	domain->gaw = guest_width;
- 	adjust_width = guestwidth_to_adjustwidth(guest_width);
-@@ -5116,6 +5085,18 @@ static int md_domain_init(struct dmar_domain *domain, int guest_width)
- 	return 0;
- }
- 
-+static void intel_init_iova_domain(struct dmar_domain *dmar_domain)
-+{
-+	init_iova_domain(&dmar_domain->iovad, VTD_PAGE_SIZE, IOVA_START_PFN);
-+	copy_reserved_iova(&reserved_iova_list, &dmar_domain->iovad);
-+
-+	if (init_iova_flush_queue(&dmar_domain->iovad, iommu_flush_iova,
-+				iova_entry_free)) {
-+		pr_warn("iova flush queue initialization failed\n");
-+		intel_iommu_strict = 1;
-+	}
-+}
-+
- static struct iommu_domain *intel_iommu_domain_alloc(unsigned type)
- {
- 	struct dmar_domain *dmar_domain;
-@@ -5136,12 +5117,8 @@ static struct iommu_domain *intel_iommu_domain_alloc(unsigned type)
- 			return NULL;
- 		}
- 
--		if (type == IOMMU_DOMAIN_DMA &&
--		    init_iova_flush_queue(&dmar_domain->iovad,
--					  iommu_flush_iova, iova_entry_free)) {
--			pr_warn("iova flush queue initialization failed\n");
--			intel_iommu_strict = 1;
--		}
-+		if (type == IOMMU_DOMAIN_DMA)
-+			intel_init_iova_domain(dmar_domain);
- 
- 		domain_update_iommu_cap(dmar_domain);
- 
--- 
-2.20.1
+Yeah, that's also troublesome. This is by no means the first problem
+related to the environment at configuration time, but it the most
+bothersome to work around (at least for Fedora kernel configuration).
+
+> At the moment, I'm working around the issue by using chroot environments
+> with target distributions (e.g. openSUSE Tumbleweed) and set of cross
+> compilers for supported architectures but it's far from perfect and even
+> this way, there are problemantic points, e.g. BPFILTER_UMH which depends
+> on gcc being able to not only compile but also link.
+> 
+> IMHO the key problem is that .config mixes configuration with
+> description of build environment. I have an idea of a solution which
+> would consist of
+> 
+>   - an option to extract "config" options which describe build
+>     environment (i.e. their values are determined by running some
+>     command, rather than reading from a file or asking user) into
+>     a cache file
+>   - an option telling "make *config" to use such cache file for these
+>     environment "config" options instead of running the test scripts
+>     (and probably issue an error if an environment option is missing)
+> 
+
+I agree that the issue is mixing kernel configuration with build
+environment. I suppose a cache file would work, but it still sounds like
+a difficult process that is working around that fact that folks are
+coupling the configuration step with the build step.
+
+I would advocate that this patch be reverted and an effort made to not
+mix build environment checks into the configuration. I'm much happier
+for the build to fail because the configuration can't be satisfied by
+the environment than I am for the configuration to quietly change or for
+the tools to not allow me to make the configuration in the first place.
+Ideally the tools would warn the user if their environment won't build
+the configuration, but that's a nice-to-have.
+
+- Jeremy
