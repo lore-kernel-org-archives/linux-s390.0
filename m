@@ -1,147 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60528 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727393AbfLRQfB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Dec 2019 11:35:01 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYo0P091832
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:34:59 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wym9r0g2s-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:34:59 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Dec 2019 16:34:57 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/9] s390/qeth: remove open-coded inet_make_mask()
-Date: Wed, 18 Dec 2019 17:34:46 +0100
-In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
-References: <20191218163450.36731-1-jwi@linux.ibm.com>
-Message-Id: <20191218163450.36731-6-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387901AbfLKP3b (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:29:31 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 55/58] s390/cpum_sf: Check for SDBT and SDB consistency
+Date: Wed, 11 Dec 2019 10:28:28 -0500
+Message-Id: <20191211152831.23507-55-sashal@kernel.org>
+In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
+References: <20191211152831.23507-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Use inet_make_mask() to replace some complicated bit-fiddling.
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-Also use the right data types to replace some raw memcpy calls with
-proper assignments.
+[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Each SBDT is located at a 4KB page and contains 512 entries.
+Each entry of a SDBT points to a SDB, a 4KB page containing
+sampled data. The last entry is a link to another SDBT page.
+
+When an event is created the function sequence executed is:
+
+  __hw_perf_event_init()
+  +--> allocate_buffers()
+       +--> realloc_sampling_buffers()
+	    +---> alloc_sample_data_block()
+
+Both functions realloc_sampling_buffers() and
+alloc_sample_data_block() allocate pages and the allocation
+can fail. This is handled correctly and all allocated
+pages are freed and error -ENOMEM is returned to the
+top calling function. Finally the event is not created.
+
+Once the event has been created, the amount of initially
+allocated SDBT and SDB can be too low. This is detected
+during measurement interrupt handling, where the amount
+of lost samples is calculated. If the number of lost samples
+is too high considering sampling frequency and already allocated
+SBDs, the number of SDBs is enlarged during the next execution
+of cpumsf_pmu_enable().
+
+If more SBDs need to be allocated, functions
+
+       realloc_sampling_buffers()
+       +---> alloc-sample_data_block()
+
+are called to allocate more pages. Page allocation may fail
+and the returned error is ignored. A SDBT and SDB setup
+already exists.
+
+However the modified SDBTs and SDBs might end up in a situation
+where the first entry of an SDBT does not point to an SDB,
+but another SDBT, basicly an SBDT without payload.
+This can not be handled by the interrupt handler, where an SDBT
+must have at least one entry pointing to an SBD.
+
+Add a check to avoid SDBTs with out payload (SDBs) when enlarging
+the buffer setup.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_mpc.h |  8 ++++----
- drivers/s390/net/qeth_l3.h       |  2 +-
- drivers/s390/net/qeth_l3_main.c  | 34 ++++++++++++++------------------
- 3 files changed, 20 insertions(+), 24 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 88f4dc140751..f13225b43781 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -338,14 +338,14 @@ enum qeth_card_info_port_speed {
- 
- /* (SET)DELIP(M) IPA stuff ***************************************************/
- struct qeth_ipacmd_setdelip4 {
--	__u8   ip_addr[4];
--	__u8   mask[4];
-+	__be32 addr;
-+	__be32 mask;
- 	__u32  flags;
- } __attribute__ ((packed));
- 
- struct qeth_ipacmd_setdelip6 {
--	__u8   ip_addr[16];
--	__u8   mask[16];
-+	struct in6_addr addr;
-+	struct in6_addr prefix;
- 	__u32  flags;
- } __attribute__ ((packed));
- 
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index 2383ffad0a4a..89fb91dad12e 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -35,7 +35,7 @@ struct qeth_ipaddr {
- 	union {
- 		struct {
- 			__be32 addr;
--			unsigned int mask;
-+			__be32 mask;
- 		} a4;
- 		struct {
- 			struct in6_addr addr;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 8db548340632..bd2273f9ca35 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -369,17 +369,16 @@ static int qeth_l3_send_setdelmc(struct qeth_card *card,
- 	return qeth_send_ipa_cmd(card, iob, qeth_l3_setdelip_cb, NULL);
- }
- 
--static void qeth_l3_fill_netmask(u8 *netmask, unsigned int len)
-+static void qeth_l3_set_ipv6_prefix(struct in6_addr *prefix, unsigned int len)
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 2e2fd9535f865..45304085b6eea 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 				   unsigned long num_sdb, gfp_t gfp_flags)
  {
--	int i, j;
--	for (i = 0; i < 16; i++) {
--		j = (len) - (i * 8);
--		if (j >= 8)
--			netmask[i] = 0xff;
--		else if (j > 0)
--			netmask[i] = (u8)(0xFF00 >> j);
--		else
--			netmask[i] = 0;
-+	unsigned int i = 0;
-+
-+	while (len && i < 4) {
-+		int mask_len = min_t(int, len, 32);
-+
-+		prefix->s6_addr32[i] = inet_make_mask(mask_len);
-+		len -= mask_len;
-+		i++;
- 	}
- }
+ 	int i, rc;
+-	unsigned long *new, *tail;
++	unsigned long *new, *tail, *tail_prev = NULL;
  
-@@ -402,7 +401,6 @@ static int qeth_l3_send_setdelip(struct qeth_card *card,
- {
- 	struct qeth_cmd_buffer *iob;
- 	struct qeth_ipa_cmd *cmd;
--	__u8 netmask[16];
- 	u32 flags;
+ 	if (!sfb->sdbt || !sfb->tail)
+ 		return -EINVAL;
+@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 			sfb->num_sdbt++;
+ 			/* Link current page to tail of chain */
+ 			*tail = (unsigned long)(void *) new + 1;
++			tail_prev = tail;
+ 			tail = new;
+ 		}
  
- 	QETH_CARD_TEXT(card, 4, "setdelip");
-@@ -417,15 +415,13 @@ static int qeth_l3_send_setdelip(struct qeth_card *card,
- 	QETH_CARD_TEXT_(card, 4, "flags%02X", flags);
- 
- 	if (addr->proto == QETH_PROT_IPV6) {
--		memcpy(cmd->data.setdelip6.ip_addr, &addr->u.a6.addr,
--		       sizeof(struct in6_addr));
--		qeth_l3_fill_netmask(netmask, addr->u.a6.pfxlen);
--		memcpy(cmd->data.setdelip6.mask, netmask,
--		       sizeof(struct in6_addr));
-+		cmd->data.setdelip6.addr = addr->u.a6.addr;
-+		qeth_l3_set_ipv6_prefix(&cmd->data.setdelip6.prefix,
-+					addr->u.a6.pfxlen);
- 		cmd->data.setdelip6.flags = flags;
- 	} else {
--		memcpy(cmd->data.setdelip4.ip_addr, &addr->u.a4.addr, 4);
--		memcpy(cmd->data.setdelip4.mask, &addr->u.a4.mask, 4);
-+		cmd->data.setdelip4.addr = addr->u.a4.addr;
-+		cmd->data.setdelip4.mask = addr->u.a4.mask;
- 		cmd->data.setdelip4.flags = flags;
+@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 		 * issue, a new realloc call (if required) might succeed.
+ 		 */
+ 		rc = alloc_sample_data_block(tail, gfp_flags);
+-		if (rc)
++		if (rc) {
++			/* Undo last SDBT. An SDBT with no SDB at its first
++			 * entry but with an SDBT entry instead can not be
++			 * handled by the interrupt handler code.
++			 * Avoid this situation.
++			 */
++			if (tail_prev) {
++				sfb->num_sdbt--;
++				free_page((unsigned long) new);
++				tail = tail_prev;
++			}
+ 			break;
++		}
+ 		sfb->num_sdb++;
+ 		tail++;
++		tail_prev = new = NULL;	/* Allocated at least one SBD */
  	}
  
-@@ -2436,7 +2432,7 @@ static int qeth_l3_ip_event(struct notifier_block *this,
- 
- 	qeth_l3_init_ipaddr(&addr, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV4);
- 	addr.u.a4.addr = ifa->ifa_address;
--	addr.u.a4.mask = be32_to_cpu(ifa->ifa_mask);
-+	addr.u.a4.mask = ifa->ifa_mask;
- 
- 	return qeth_l3_handle_ip_event(card, &addr, event);
- }
+ 	/* Link sampling buffer to its origin */
 -- 
-2.17.1
+2.20.1
