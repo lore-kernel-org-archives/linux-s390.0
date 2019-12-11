@@ -1,94 +1,115 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:39416 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727381AbfLBNMp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Dec 2019 08:12:45 -0500
-Date: Mon, 2 Dec 2019 16:12:33 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [bug report] net/smc: fix ethernet interface refcounting
-Message-ID: <20191202131233.2b4daujqmi27tecx@kili.mountain>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 75/79] s390/cpum_sf: Check for SDBT and SDB consistency
+Date: Wed, 11 Dec 2019 10:26:39 -0500
+Message-Id: <20191211152643.23056-75-sashal@kernel.org>
+In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
+References: <20191211152643.23056-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: ubraun@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Hello Ursula Braun,
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-The patch 98f3375505b8: "net/smc: fix ethernet interface refcounting"
-from Nov 6, 2019, leads to the following static checker warning:
+[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
 
-	net/smc/smc_pnet.c:379 smc_pnet_fill_entry()
-	warn: 'pnetelem->ndev' held on error path.
+Each SBDT is located at a 4KB page and contains 512 entries.
+Each entry of a SDBT points to a SDB, a 4KB page containing
+sampled data. The last entry is a link to another SDBT page.
 
-net/smc/smc_pnet.c
-   329  static int smc_pnet_fill_entry(struct net *net,
-   330                                 struct smc_user_pnetentry *pnetelem,
-   331                                 struct nlattr *tb[])
-   332  {
-   333          char *string, *ibname;
-   334          int rc;
-   335  
-   336          memset(pnetelem, 0, sizeof(*pnetelem));
-   337          INIT_LIST_HEAD(&pnetelem->list);
-   338  
-   339          rc = -EINVAL;
-   340          if (!tb[SMC_PNETID_NAME])
-   341                  goto error;
-   342          string = (char *)nla_data(tb[SMC_PNETID_NAME]);
-   343          if (!smc_pnetid_valid(string, pnetelem->pnet_name))
-   344                  goto error;
-   345  
-   346          rc = -EINVAL;
-   347          if (tb[SMC_PNETID_ETHNAME]) {
-   348                  string = (char *)nla_data(tb[SMC_PNETID_ETHNAME]);
-   349                  pnetelem->ndev = dev_get_by_name(net, string);
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-dev_hold().
+When an event is created the function sequence executed is:
 
-   350                  if (!pnetelem->ndev)
-   351                          goto error;
-   352          }
-   353  
-   354          /* if this is not the initial namespace, stop here */
-   355          if (net != &init_net)
-   356                  return 0;
-   357  
-   358          rc = -EINVAL;
-   359          if (tb[SMC_PNETID_IBNAME]) {
-   360                  ibname = (char *)nla_data(tb[SMC_PNETID_IBNAME]);
-   361                  ibname = strim(ibname);
-   362                  pnetelem->smcibdev = smc_pnet_find_ib(ibname);
-   363                  pnetelem->smcd_dev = smc_pnet_find_smcd(ibname);
-   364                  if (!pnetelem->smcibdev && !pnetelem->smcd_dev)
-   365                          goto error;
-                                ^^^^^^^^^^
-Smatch thinks these require dev_put()
+  __hw_perf_event_init()
+  +--> allocate_buffers()
+       +--> realloc_sampling_buffers()
+	    +---> alloc_sample_data_block()
 
-   366                  if (pnetelem->smcibdev) {
-   367                          if (!tb[SMC_PNETID_IBPORT])
-   368                                  goto error;
-   369                          pnetelem->ib_port = nla_get_u8(tb[SMC_PNETID_IBPORT]);
-   370                          if (pnetelem->ib_port < 1 ||
-   371                              pnetelem->ib_port > SMC_MAX_PORTS)
-   372                                  goto error;
-                                        ^^^^^^^^^^
-   373                  }
-   374          }
-   375  
-   376          return 0;
-   377  
-   378  error:
+Both functions realloc_sampling_buffers() and
+alloc_sample_data_block() allocate pages and the allocation
+can fail. This is handled correctly and all allocated
+pages are freed and error -ENOMEM is returned to the
+top calling function. Finally the event is not created.
 
-So maybe this should be:
+Once the event has been created, the amount of initially
+allocated SDBT and SDB can be too low. This is detected
+during measurement interrupt handling, where the amount
+of lost samples is calculated. If the number of lost samples
+is too high considering sampling frequency and already allocated
+SBDs, the number of SDBs is enlarged during the next execution
+of cpumsf_pmu_enable().
 
-	if (pnetelem->ndev && tb[SMC_PNETID_ETHNAME])
-		dev_put(pnetelem->ndev);
+If more SBDs need to be allocated, functions
 
-   379          return rc;
-   380  }
+       realloc_sampling_buffers()
+       +---> alloc-sample_data_block()
 
-regards,
-dan carpenter
+are called to allocate more pages. Page allocation may fail
+and the returned error is ignored. A SDBT and SDB setup
+already exists.
+
+However the modified SDBTs and SDBs might end up in a situation
+where the first entry of an SDBT does not point to an SDB,
+but another SDBT, basicly an SBDT without payload.
+This can not be handled by the interrupt handler, where an SDBT
+must have at least one entry pointing to an SBD.
+
+Add a check to avoid SDBTs with out payload (SDBs) when enlarging
+the buffer setup.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index df92c2af99b69..5c3fd9032b747 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -193,7 +193,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 				   unsigned long num_sdb, gfp_t gfp_flags)
+ {
+ 	int i, rc;
+-	unsigned long *new, *tail;
++	unsigned long *new, *tail, *tail_prev = NULL;
+ 
+ 	if (!sfb->sdbt || !sfb->tail)
+ 		return -EINVAL;
+@@ -232,6 +232,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 			sfb->num_sdbt++;
+ 			/* Link current page to tail of chain */
+ 			*tail = (unsigned long)(void *) new + 1;
++			tail_prev = tail;
+ 			tail = new;
+ 		}
+ 
+@@ -241,10 +242,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
+ 		 * issue, a new realloc call (if required) might succeed.
+ 		 */
+ 		rc = alloc_sample_data_block(tail, gfp_flags);
+-		if (rc)
++		if (rc) {
++			/* Undo last SDBT. An SDBT with no SDB at its first
++			 * entry but with an SDBT entry instead can not be
++			 * handled by the interrupt handler code.
++			 * Avoid this situation.
++			 */
++			if (tail_prev) {
++				sfb->num_sdbt--;
++				free_page((unsigned long) new);
++				tail = tail_prev;
++			}
+ 			break;
++		}
+ 		sfb->num_sdb++;
+ 		tail++;
++		tail_prev = new = NULL;	/* Allocated at least one SBD */
+ 	}
+ 
+ 	/* Link sampling buffer to its origin */
+-- 
+2.20.1
