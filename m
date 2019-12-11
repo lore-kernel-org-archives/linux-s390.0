@@ -1,87 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46394 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727893AbfLTOr4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:56 -0500
+        id S1730879AbfLKPOG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:06 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 09/11] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
-Date: Fri, 20 Dec 2019 09:47:41 -0500
-Message-Id: <20191220144744.10565-9-sashal@kernel.org>
-In-Reply-To: <20191220144744.10565-1-sashal@kernel.org>
-References: <20191220144744.10565-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 123/134] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
+Date: Wed, 11 Dec 2019 10:11:39 -0500
+Message-Id: <20191211151150.19073-123-sashal@kernel.org>
+In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
+References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
+[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
 
-Function perf_event_ever_overflow() and perf_event_account_interrupt()
-are called every time samples are processed by the interrupt handler.
-However function perf_event_account_interrupt() has checks to avoid being
-flooded with interrupts (more then 1000 samples are received per
-task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
-added to the perf data. The perf subsystem limit calculation is:
+This patch introduces support for a new architectured reply
+code 0x8B indicating that a hypervisor layer (if any) has
+rejected an ap message.
 
-    maximum sample frequency := 100000 --> 1 samples per 10 us
-    task_tick = 10ms = 10000us --> 1000 samples per task_tick
+Linux may run as a guest on top of a hypervisor like zVM
+or KVM. So the crypto hardware seen by the ap bus may be
+restricted by the hypervisor for example only a subset like
+only clear key crypto requests may be supported. Other
+requests will be filtered out - rejected by the hypervisor.
+The new reply code 0x8B will appear in such cases and needs
+to get recognized by the ap bus and zcrypt device driver zoo.
 
-The work flow is
-
-measurement_alert() uses SDBT head and each SBDT points to 511
- SDB pages, each with 126 sample entries. After processing 8 SBDs
- and for each valid sample calling:
-
-     perf_event_overflow()
-       perf_event_account_interrupts()
-
-there is a considerable amount of samples being dropped, especially when
-the sample frequency is very high and near the 100000 limit.
-
-To avoid the high amount of samples being dropped near the end of a
-task_tick time frame, increment the sampling interval in case of
-dropped events. The CPU Measurement sampling facility on the s390
-supports only intervals, specifiing how many CPU cycles have to be
-executed before a sample is generated. Increase the interval when the
-samples being generated hit the task_tick limit.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/s390/crypto/zcrypt_error.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 874762a51c546..c81627527af0a 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1293,6 +1293,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 	if (sampl_overflow)
- 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
- 						 sampl_overflow, 1 + num_sdb);
-+
-+	/* Perf_event_overflow() and perf_event_account_interrupt() limit
-+	 * the interrupt rate to an upper limit. Roughly 1000 samples per
-+	 * task tick.
-+	 * Hitting this limit results in a large number
-+	 * of throttled REF_REPORT_THROTTLE entries and the samples
-+	 * are dropped.
-+	 * Slightly increase the interval to avoid hitting this limit.
-+	 */
-+	if (event_overflow) {
-+		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
-+		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
-+				    __func__,
-+				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
-+	}
-+
- 	if (sampl_overflow || event_overflow)
- 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
- 				    "overflow stats: sample=%llu event=%llu\n",
+diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
+index f34ee41cbed88..4f4dd9d727c9e 100644
+--- a/drivers/s390/crypto/zcrypt_error.h
++++ b/drivers/s390/crypto/zcrypt_error.h
+@@ -61,6 +61,7 @@ struct error_hdr {
+ #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
+ #define REP82_ERROR_RESERVED_FIELD	    0x88
+ #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
++#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
+ #define REP82_ERROR_TRANSPORT_FAIL	    0x90
+ #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
+ #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
+@@ -91,6 +92,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
+ 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
+ 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
+ 	case REP82_ERROR_INVALID_SPECIAL_CMD:
++	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
+ 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
+ 	//   REP88_ERROR_OPERAND		// '84' CEX2A
+ 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
 -- 
 2.20.1
