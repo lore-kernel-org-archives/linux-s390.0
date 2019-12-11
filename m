@@ -1,160 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-202.mailbox.org ([80.241.56.172]:28794 "EHLO
-        mout-p-202.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbfLFORb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:17:31 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v18 07/13] namei: LOOKUP_NO_XDEV: block mountpoint crossing
-Date: Sat,  7 Dec 2019 01:13:32 +1100
-Message-Id: <20191206141338.23338-8-cyphar@cyphar.com>
-In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
-References: <20191206141338.23338-1-cyphar@cyphar.com>
+Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731602AbfLKPOO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Dec 2019 10:14:14 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 130/134] s390: disable preemption when switching to nodat stack with CALL_ON_STACK
+Date: Wed, 11 Dec 2019 10:11:46 -0500
+Message-Id: <20191211151150.19073-130-sashal@kernel.org>
+In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
+References: <20191211151150.19073-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-/* Background. */
-The need to contain path operations within a mountpoint has been a
-long-standing usecase that userspace has historically implemented
-manually with liberal usage of stat(). find, rsync, tar and
-many other programs implement these semantics -- but it'd be much
-simpler to have a fool-proof way of refusing to open a path if it
-crosses a mountpoint.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
-variation on David Drysdale's O_BENEATH patchset[2], which in turn was
-based on the Capsicum project[3]).
+[ Upstream commit 7f28dad395243c5026d649136823bbc40029a828 ]
 
-/* Userspace API. */
-LOOKUP_NO_XDEV will be exposed to userspace through openat2(2).
+Make sure preemption is disabled when temporary switching to nodat
+stack with CALL_ON_STACK helper, because nodat stack is per cpu.
 
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_XDEV applies to all components of the path.
-
-With LOOKUP_NO_XDEV, any path component which crosses a mount-point
-during path resolution (including "..") will yield an -EXDEV. Absolute
-paths, absolute symlinks, and magic-links will only yield an -EXDEV if
-the jump involved changing mount-points.
-
-/* Testing. */
-LOOKUP_NO_XDEV is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c            | 31 +++++++++++++++++++++++++++----
- include/linux/namei.h |  1 +
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ arch/s390/kernel/machine_kexec.c |  2 ++
+ arch/s390/mm/maccess.c           | 12 +++++++++---
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 415a897729c8..321c8ad5d6b3 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -838,6 +838,11 @@ static inline void path_to_nameidata(const struct path *path,
+diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
+index 444a19125a815..dcaadceaf6efc 100644
+--- a/arch/s390/kernel/machine_kexec.c
++++ b/arch/s390/kernel/machine_kexec.c
+@@ -164,7 +164,9 @@ static bool kdump_csum_valid(struct kimage *image)
+ #ifdef CONFIG_CRASH_DUMP
+ 	int rc;
  
- static int nd_jump_root(struct nameidata *nd)
++	preempt_disable();
+ 	rc = CALL_ON_STACK(do_start_kdump, S390_lowcore.nodat_stack, 1, image);
++	preempt_enable();
+ 	return rc == 0;
+ #else
+ 	return false;
+diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
+index 1864a8bb9622f..88d5fcf67a2f1 100644
+--- a/arch/s390/mm/maccess.c
++++ b/arch/s390/mm/maccess.c
+@@ -115,9 +115,15 @@ static unsigned long _memcpy_real(unsigned long dest, unsigned long src,
+  */
+ int memcpy_real(void *dest, void *src, size_t count)
  {
-+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
-+		/* Absolute path arguments to path_init() are allowed. */
-+		if (nd->path.mnt != NULL && nd->path.mnt != nd->root.mnt)
-+			return -EXDEV;
-+	}
- 	if (!nd->root.mnt) {
- 		int error = set_root(nd);
- 		if (error)
-@@ -873,6 +878,12 @@ int nd_jump_link(struct path *path)
- 	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
- 		goto err;
- 
-+	error = -EXDEV;
-+	if (unlikely(nd->flags & LOOKUP_NO_XDEV)) {
-+		if (nd->path.mnt != path->mnt)
-+			goto err;
-+	}
+-	if (S390_lowcore.nodat_stack != 0)
+-		return CALL_ON_STACK(_memcpy_real, S390_lowcore.nodat_stack,
+-				     3, dest, src, count);
++	int rc;
 +
- 	path_put(&nd->path);
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
-@@ -1280,12 +1291,16 @@ static int follow_managed(struct path *path, struct nameidata *nd)
- 		break;
- 	}
- 
--	if (need_mntput && path->mnt == mnt)
--		mntput(path->mnt);
-+	if (need_mntput) {
-+		if (path->mnt == mnt)
-+			mntput(path->mnt);
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			ret = -EXDEV;
-+		else
-+			nd->flags |= LOOKUP_JUMPED;
++	if (S390_lowcore.nodat_stack != 0) {
++		preempt_disable();
++		rc = CALL_ON_STACK(_memcpy_real, S390_lowcore.nodat_stack, 3,
++				   dest, src, count);
++		preempt_enable();
++		return rc;
 +	}
- 	if (ret == -EISDIR || !ret)
- 		ret = 1;
--	if (need_mntput)
--		nd->flags |= LOOKUP_JUMPED;
- 	if (unlikely(ret < 0))
- 		path_put_conditional(path, nd);
- 	return ret;
-@@ -1342,6 +1357,8 @@ static bool __follow_mount_rcu(struct nameidata *nd, struct path *path,
- 		mounted = __lookup_mnt(path->mnt, path->dentry);
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return false;
- 		path->mnt = &mounted->mnt;
- 		path->dentry = mounted->mnt.mnt_root;
- 		nd->flags |= LOOKUP_JUMPED;
-@@ -1388,6 +1405,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 				return -ECHILD;
- 			if (&mparent->mnt == nd->path.mnt)
- 				break;
-+			if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+				return -ECHILD;
- 			/* we know that mountpoint was pinned */
- 			nd->path.dentry = mountpoint;
- 			nd->path.mnt = &mparent->mnt;
-@@ -1402,6 +1421,8 @@ static int follow_dotdot_rcu(struct nameidata *nd)
- 			return -ECHILD;
- 		if (!mounted)
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -ECHILD;
- 		nd->path.mnt = &mounted->mnt;
- 		nd->path.dentry = mounted->mnt.mnt_root;
- 		inode = nd->path.dentry->d_inode;
-@@ -1500,6 +1521,8 @@ static int follow_dotdot(struct nameidata *nd)
- 		}
- 		if (!follow_up(&nd->path))
- 			break;
-+		if (unlikely(nd->flags & LOOKUP_NO_XDEV))
-+			return -EXDEV;
- 	}
- 	follow_mount(&nd->path);
- 	nd->inode = nd->path.dentry->d_inode;
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 1573b8493d98..25ee88c4acb1 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -42,6 +42,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
- /* Scoping flags for lookup. */
- #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
- #define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
-+#define LOOKUP_NO_XDEV		0x040000 /* No mountpoint crossing. */
- 
- extern int path_pts(struct path *path);
- 
+ 	/*
+ 	 * This is a really early memcpy_real call, the stacks are
+ 	 * not set up yet. Just call _memcpy_real on the early boot
 -- 
-2.24.0
+2.20.1
