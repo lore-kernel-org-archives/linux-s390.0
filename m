@@ -1,60 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43316 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730902AbfLLVfx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Dec 2019 16:35:53 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBCLYHX4009079
-        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 16:35:52 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wusmjykx2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 16:35:51 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Thu, 12 Dec 2019 21:35:50 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next] net/smc: shorten lgr_cnt initialization
-Date: Thu, 12 Dec 2019 22:35:41 +0100
-Message-Id: <20191212213541.10485-1-kgraul@linux.ibm.com>
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:51374 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725973AbfLKIht (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Dec 2019 03:37:49 -0500
+Date: Wed, 11 Dec 2019 09:37:45 +0100
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH 5/6] mm, memory_hotplug: Provide argument for the
+ pgprot_t in arch_add_memory()
+Message-ID: <20191211083745.GA14655@dhcp22.suse.cz>
+References: <20191209191346.5197-1-logang@deltatee.com>
+ <20191209191346.5197-6-logang@deltatee.com>
+ <ce50d9da-c60e-05a1-a86b-3bb3629de502@redhat.com>
+ <f34a4c52-cc95-15ed-8a72-c05ab4fd6d33@deltatee.com>
+ <CAPcyv4hpXCZxV5p7WaeGgE7ceujBBa5NOz9Z8fepDHOt6zHO2A@mail.gmail.com>
+ <20191210100432.GC10404@dhcp22.suse.cz>
+ <6da2b279-6a6d-d89c-a34c-962ed021d91d@redhat.com>
+ <20191210103452.GF10404@dhcp22.suse.cz>
+ <a9d6cfe8-39fb-accf-acdc-7cce5578bf2f@redhat.com>
+ <297b7cc0-c5bc-a4c6-83eb-afc008395234@deltatee.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <297b7cc0-c5bc-a4c6-83eb-afc008395234@deltatee.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: David Hildenbrand <david@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, platform-driver-x86@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+On Tue 10-12-19 16:52:31, Logan Gunthorpe wrote:
+[...]
+> In my opinion, having a coder and reviewer see PAGE_KERNEL and ask if
+> that makes sense is a benefit. Having it hidden because we don't want
+> people to think about it is worse, harder to understand and results in
+> bugs that are more difficult to spot.
 
-Save a line of code by making use of ATOMIC_INIT() for lgr_cnt.
+My experience would disagree here. We have several examples in the MM
+where an overly complex and versatile APIs led to suble bugs, a lot of
+copy&pasting and cargo cult programing (just look at the page allocator
+as a shiny example - e.g. gfp_flags). So I am always trying to be
+carefull here.
 
-Suggested-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+> Though, we may be overthinking this: arch_add_memory() is a low level
+> non-exported API that's currently used in exactly two places.
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index bb92c7c6214c..c16b8d3e200b 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -41,7 +41,7 @@ static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- 	.num = 0,
- };
- 
--static atomic_t lgr_cnt;		/* number of existing link groups */
-+static atomic_t lgr_cnt = ATOMIC_INIT(0); /* number of existing link groups */
- static DECLARE_WAIT_QUEUE_HEAD(lgrs_deleted);
- 
- static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
-@@ -1297,7 +1297,6 @@ static struct notifier_block smc_reboot_notifier = {
- 
- int __init smc_core_init(void)
- {
--	atomic_set(&lgr_cnt, 0);
- 	return register_reboot_notifier(&smc_reboot_notifier);
- }
- 
+This is a fair argument. Most users are and should be using
+add_memory().
+
+> I don't
+> think there's going to be many, if any, valid new use cases coming up
+> for it in the future. That's more what memremap_pages() is for.
+
+OK, fair enough. If this is indeed the simplest way forward then I will
+not stand in the way.
 -- 
-2.21.0
+Michal Hocko
+SUSE Labs
