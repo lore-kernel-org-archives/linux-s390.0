@@ -1,43 +1,88 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Axtens <dja@axtens.net>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 Subject: Re: [PATCH v2 4/4] powerpc: Book3S 64-bit "heavyweight" KASAN support
-In-Reply-To: <414293e0-3b75-8e78-90d8-2c14182f3739@c-s.fr>
-References: <20191210044714.27265-1-dja@axtens.net> <20191210044714.27265-5-dja@axtens.net> <414293e0-3b75-8e78-90d8-2c14182f3739@c-s.fr>
-Date: Fri, 13 Dec 2019 00:41:14 +1100
-Message-ID: <87tv65br0l.fsf@dja-thinkpad.axtens.net>
+References: <20191210044714.27265-1-dja@axtens.net>
+ <20191210044714.27265-5-dja@axtens.net>
+ <71751e27-e9c5-f685-7a13-ca2e007214bc@gmail.com>
+ <875zincu8a.fsf@dja-thinkpad.axtens.net>
+ <2e0f21e6-7552-815b-1bf3-b54b0fc5caa9@gmail.com>
+ <87wob3aqis.fsf@dja-thinkpad.axtens.net>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Message-ID: <023d59f1-c007-e153-9893-3231a4caf7d1@virtuozzo.com>
+Date: Thu, 12 Dec 2019 12:56:56 +0300
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <87wob3aqis.fsf@dja-thinkpad.axtens.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christophe Leroy <christophe.leroy@c-s.fr>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, aneesh.kumar@linux.ibm.com, bsingharora@gmail.com
+To: Daniel Axtens <dja@axtens.net>, Balbir Singh <bsingharora@gmail.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, christophe.leroy@c-s.fr, aneesh.kumar@linux.ibm.com, Dmitry Vyukov <dvyukov@google.com>
 
-Hi Christophe,
+On 12/11/19 5:24 PM, Daniel Axtens wrote:
+> Hi Balbir,
+> 
+>>>>> +Discontiguous memory can occur when you have a machine with memory spread
+>>>>> +across multiple nodes. For example, on a Talos II with 64GB of RAM:
+>>>>> +
+>>>>> + - 32GB runs from 0x0 to 0x0000_0008_0000_0000,
+>>>>> + - then there's a gap,
+>>>>> + - then the final 32GB runs from 0x0000_2000_0000_0000 to 0x0000_2008_0000_0000
+>>>>> +
+>>>>> +This can create _significant_ issues:
+>>>>> +
+>>>>> + - If we try to treat the machine as having 64GB of _contiguous_ RAM, we would
+>>>>> +   assume that ran from 0x0 to 0x0000_0010_0000_0000. We'd then reserve the
+>>>>> +   last 1/8th - 0x0000_000e_0000_0000 to 0x0000_0010_0000_0000 as the shadow
+>>>>> +   region. But when we try to access any of that, we'll try to access pages
+>>>>> +   that are not physically present.
+>>>>> +
+>>>>
+>>>> If we reserved memory for KASAN from each node (discontig region), we might survive
+>>>> this no? May be we need NUMA aware KASAN? That might be a generic change, just thinking
+>>>> out loud.
+>>>
+>>> The challenge is that - AIUI - in inline instrumentation, the compiler
+>>> doesn't generate calls to things like __asan_loadN and
+>>> __asan_storeN. Instead it uses -fasan-shadow-offset to compute the
+>>> checks, and only calls the __asan_report* family of functions if it
+>>> detects an issue. This also matches what I can observe with objdump
+>>> across outline and inline instrumentation settings.
+>>>
+>>> This means that for this sort of thing to work we would need to either
+>>> drop back to out-of-line calls, or teach the compiler how to use a
+>>> nonlinear, NUMA aware mem-to-shadow mapping.
+>>
+>> Yes, out of line is expensive, but seems to work well for all use cases.
+> 
+> I'm not sure this is true. Looking at scripts/Makefile.kasan, allocas,
+> stacks and globals will only be instrumented if you can provide
+> KASAN_SHADOW_OFFSET. In the case you're proposing, we can't provide a
+> static offset. I _think_ this is a compiler limitation, where some of
+> those instrumentations only work/make sense with a static offset, but
+> perhaps that's not right? Dmitry and Andrey, can you shed some light on
+> this?
+> 
 
-I think I've covered everything you've mentioned in the v3 I'm about to
-send, except for:
+There is no code in the kernel is poisoning/unpoisoning
+redzones/variables on stack. It's because it's always done by the compiler, it inserts
+some code in prologue/epilogue of every function.
+So compiler needs to know the shadow offset which will be used to poison/unpoison
+stack frames.
 
->> +	/* mark early shadow region as RO and wipe */
->> +	pte = __pte(__pa(kasan_early_shadow_page) |
->> +		    pgprot_val(PAGE_KERNEL_RO) | _PAGE_PTE);
->
-> Any reason for _PAGE_PTE being required here and not being included in 
-> PAGE_KERNEL_RO ?
+There is no such kind of limitation on globals instrumentation. The only reason globals
+instrumentation depends on -fasan-shadow-offset is because there was some bug related to
+globals in old gcc version which didn't support -fasan-shadow-offset.
 
-I'm not 100% sure quite what you mean here. I think you're asking: why
-do we need to supply _PAGE_PTE here, shouldn't PAGE_KERNEL_RO set that
-bit or cover that case?
 
-_PAGE_PTE is defined by section 5.7.10.2 of Book III of ISA 3.0: bit 1
-(linux bit 62) is 'Leaf (entry is a PTE)' I originally had this because
-it was set in Balbir's original implementation, but the bit is also set
-by pte_mkpte which is called in set_pte_at, so I also think it's right
-to set it.
+If you want stack instrumentation with not standard mem-to-shadow mapping, the options are:
+1. Patch compiler to make it possible the poisoning/unpoisonig of stack frames via function calls.
+2. Use out-line instrumentation and do whatever mem-to-shadow mapping you want, but keep all kernel
+stacks in some special place for which standard mem-to-shadow mapping (addr >>3 +offset)
+works.
 
-I don't know why it's not included in the permission classes; I suspect
-it's because it's not conceptually a permission, it's set and cleared in
-things like swp entry code.
 
-Does that answer your question?
-
-Regards,
-Daniel
+> Also, as it currently stands, the speed difference between inline and
+> outline is approximately 2x, and given that we'd like to run this
+> full-time in syzkaller I think there is value in trading off speed for
+> some limitations.
+> 
