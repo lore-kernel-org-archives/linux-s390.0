@@ -1,124 +1,178 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54948 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729591AbfLLOKO (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39790 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729524AbfLLOBO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Dec 2019 09:10:14 -0500
-Date: Thu, 12 Dec 2019 15:10:02 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        Thu, 12 Dec 2019 09:01:14 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBCDoVlq036744
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 09:01:12 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wu4t7859c-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 09:01:12 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 12 Dec 2019 14:01:10 -0000
 Subject: Re: [kvm-unit-tests PATCH v4 7/9] s390x: css: msch, enable test
-Message-ID: <20191212151002.1c7ca4eb.cohuck@redhat.com>
-In-Reply-To: <83d45c31-30c3-36e1-1d68-51b88448f4af@linux.ibm.com>
 References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
-        <1576079170-7244-8-git-send-email-pmorel@linux.ibm.com>
-        <20191212130111.0f75fe7f.cohuck@redhat.com>
-        <83d45c31-30c3-36e1-1d68-51b88448f4af@linux.ibm.com>
+ <1576079170-7244-8-git-send-email-pmorel@linux.ibm.com>
+ <20191212130111.0f75fe7f.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 12 Dec 2019 15:01:07 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20191212130111.0f75fe7f.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <83d45c31-30c3-36e1-1d68-51b88448f4af@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-On Thu, 12 Dec 2019 15:01:07 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> On 2019-12-12 13:01, Cornelia Huck wrote:
-> > On Wed, 11 Dec 2019 16:46:08 +0100
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
-> >   
-> >> A second step when testing the channel subsystem is to prepare a channel
-> >> for use.
-> >> This includes:
-> >> - Get the current SubCHannel Information Block (SCHIB) using STSCH
-> >> - Update it in memory to set the ENABLE bit
-> >> - Tell the CSS that the SCHIB has been modified using MSCH
-> >> - Get the SCHIB from the CSS again to verify that the subchannel is
-> >>    enabled.
-> >>
-> >> This tests the success of the MSCH instruction by enabling a channel.
-> >>
-> >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> >> ---
-> >>   s390x/css.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++
-> >>   1 file changed, 65 insertions(+)
 
-> >> +	/* Read the SCHIB for this subchannel */
-> >> +	cc = stsch(test_device_sid, &schib);
-> >> +	if (cc) {
-> >> +		report(0, "stsch cc=%d", cc);
-> >> +		return;
-> >> +	}
-> >> +
-> >> +	/* Update the SCHIB to enable the channel */
-> >> +	pmcw->flags |= PMCW_ENABLE;
-> >> +
-> >> +	/* Tell the CSS we want to modify the subchannel */
-> >> +	cc = msch(test_device_sid, &schib);
-> >> +	if (cc) {
-> >> +		/*
-> >> +		 * If the subchannel is status pending or
-> >> +		 * if a function is in progress,
-> >> +		 * we consider both cases as errors.
-> >> +		 */
-> >> +		report(0, "msch cc=%d", cc);
-> >> +		return;
-> >> +	}
-> >> +
-> >> +	/*
-> >> +	 * Read the SCHIB again to verify the enablement
-> >> +	 * insert a little delay and try 5 times.
-> >> +	 */
-> >> +	do {
-> >> +		cc = stsch(test_device_sid, &schib);
-> >> +		if (cc) {
-> >> +			report(0, "stsch cc=%d", cc);
-> >> +			return;
-> >> +		}
-> >> +		delay(10);  
-> > 
-> > That's just a short delay to avoid a busy loop, right? msch should be
-> > immediate,  
+On 2019-12-12 13:01, Cornelia Huck wrote:
+> On Wed, 11 Dec 2019 16:46:08 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> Thought you told to me that it may not be immediate in zVM did I 
-> misunderstand?
+>> A second step when testing the channel subsystem is to prepare a channel
+>> for use.
+>> This includes:
+>> - Get the current SubCHannel Information Block (SCHIB) using STSCH
+>> - Update it in memory to set the ENABLE bit
+>> - Tell the CSS that the SCHIB has been modified using MSCH
+>> - Get the SCHIB from the CSS again to verify that the subchannel is
+>>    enabled.
+>>
+>> This tests the success of the MSCH instruction by enabling a channel.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   s390x/css.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 65 insertions(+)
+>>
+>> diff --git a/s390x/css.c b/s390x/css.c
+>> index dfab35f..b8824ad 100644
+>> --- a/s390x/css.c
+>> +++ b/s390x/css.c
+>> @@ -19,12 +19,24 @@
+>>   #include <asm/time.h>
+>>   
+>>   #include <css.h>
+>> +#include <asm/time.h>
+>>   
+>>   #define SID_ONE		0x00010000
+>>   
+>>   static struct schib schib;
+>>   static int test_device_sid;
+>>   
+>> +static inline void delay(unsigned long ms)
+>> +{
+>> +	unsigned long startclk;
+>> +
+>> +	startclk = get_clock_ms();
+>> +	for (;;) {
+>> +		if (get_clock_ms() - startclk > ms)
+>> +			break;
+>> +	}
+>> +} >
+> Would this function be useful for other callers as well? I.e., should
+> it go into a common header?
 
-Maybe I have been confusing... what I'm referring to is this
-programming note for msch:
-
-"It is recommended that the program inspect the
-contents of the subchannel by subsequently
-issuing STORE SUBCHANNEL when MODIFY
-SUBCHANNEL sets condition code 0. Use of
-STORE SUBCHANNEL is a method for deter-
-mining if the designated subchannel was
-changed or not. Failure to inspect the subchan-
-nel following the setting of condition code 0 by
-MODIFY SUBCHANNEL may result in conditions
-that the program does not expect to occur."
-
-That's exactly what we had to do under z/VM back then: do the msch,
-check via stsch, redo the msch if needed, check again via stsch. It
-usually worked with the second msch the latest.
+Yes, I wanted to put it in the new time.h with the get_clock_ms()  but 
+did not since I already got the RB.
+I also did not want to add a patch to the series, but since you ask, I 
+can put it in a separate patch to keep the RB and to add it in the time.h
 
 > 
-> > and you probably should not delay on success?  
+>> +
+>>   static void test_enumerate(void)
+>>   {
+>>   	struct pmcw *pmcw = &schib.pmcw;
+>> @@ -64,11 +76,64 @@ out:
+>>   	report(1, "Devices, tested: %d, I/O type: %d", scn, scn_found);
+>>   }
+>>   
+>> +static void test_enable(void)
+>> +{
+>> +	struct pmcw *pmcw = &schib.pmcw;
+>> +		int count = 0;
 > 
-> yes, it is not optimized, I can test PMCW_ENABLE in the loop this way we 
-> can see if, in the zVM case we need to do retries or not.
-> 
-> 
-> >   
-> >> +	} while (!(pmcw->flags & PMCW_ENABLE) && count++ < 5);  
-> > 
-> > How is this supposed to work? Doesn't the stsch overwrite the control
-> > block again, so you need to re-set the enable bit before you retry?  
-> 
-> I do not think so, there is no msch() in the loop.
-> Do I miss something?
+> Odd indentation.
 
-Well, _I_ missed that the msch() was missing :) You need it (see above);
-just waiting and re-doing the stsch is useless, as msch is a
-synchronous instruction which has finished its processing after the cc
-has been set.
+indeed!
+
+> 
+>> +	int cc;
+>> +
+>> +	if (!test_device_sid) {
+>> +		report_skip("No device");
+>> +		return;
+>> +	}
+>> +	/* Read the SCHIB for this subchannel */
+>> +	cc = stsch(test_device_sid, &schib);
+>> +	if (cc) {
+>> +		report(0, "stsch cc=%d", cc);
+>> +		return;
+>> +	}
+>> +
+>> +	/* Update the SCHIB to enable the channel */
+>> +	pmcw->flags |= PMCW_ENABLE;
+>> +
+>> +	/* Tell the CSS we want to modify the subchannel */
+>> +	cc = msch(test_device_sid, &schib);
+>> +	if (cc) {
+>> +		/*
+>> +		 * If the subchannel is status pending or
+>> +		 * if a function is in progress,
+>> +		 * we consider both cases as errors.
+>> +		 */
+>> +		report(0, "msch cc=%d", cc);
+>> +		return;
+>> +	}
+>> +
+>> +	/*
+>> +	 * Read the SCHIB again to verify the enablement
+>> +	 * insert a little delay and try 5 times.
+>> +	 */
+>> +	do {
+>> +		cc = stsch(test_device_sid, &schib);
+>> +		if (cc) {
+>> +			report(0, "stsch cc=%d", cc);
+>> +			return;
+>> +		}
+>> +		delay(10);
+> 
+> That's just a short delay to avoid a busy loop, right? msch should be
+> immediate,
+
+Thought you told to me that it may not be immediate in zVM did I 
+misunderstand?
+
+> and you probably should not delay on success?
+
+yes, it is not optimized, I can test PMCW_ENABLE in the loop this way we 
+can see if, in the zVM case we need to do retries or not.
+
+
+> 
+>> +	} while (!(pmcw->flags & PMCW_ENABLE) && count++ < 5);
+> 
+> How is this supposed to work? Doesn't the stsch overwrite the control
+> block again, so you need to re-set the enable bit before you retry?
+
+I do not think so, there is no msch() in the loop.
+Do I miss something?
+
+Thanks for the review,
+Regards,
+
+Pierre
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
