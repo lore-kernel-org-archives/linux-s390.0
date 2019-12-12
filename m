@@ -1,158 +1,43 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3174 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726933AbfLWODk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Dec 2019 09:03:40 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE3N3F141708
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:39 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2x21wbdftn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:39 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Mon, 23 Dec 2019 14:03:35 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 1/6] s390/qeth: fix qdio teardown after early init error
-Date: Mon, 23 Dec 2019 15:03:21 +0100
-In-Reply-To: <20191223140326.16488-1-jwi@linux.ibm.com>
-References: <20191223140326.16488-1-jwi@linux.ibm.com>
-Message-Id: <20191223140326.16488-2-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Axtens <dja@axtens.net>
+Subject: Re: [PATCH v2 4/4] powerpc: Book3S 64-bit "heavyweight" KASAN support
+In-Reply-To: <414293e0-3b75-8e78-90d8-2c14182f3739@c-s.fr>
+References: <20191210044714.27265-1-dja@axtens.net> <20191210044714.27265-5-dja@axtens.net> <414293e0-3b75-8e78-90d8-2c14182f3739@c-s.fr>
+Date: Fri, 13 Dec 2019 00:41:14 +1100
+Message-ID: <87tv65br0l.fsf@dja-thinkpad.axtens.net>
+MIME-Version: 1.0
+Content-Type: text/plain
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christophe Leroy <christophe.leroy@c-s.fr>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kasan-dev@googlegroups.com, aneesh.kumar@linux.ibm.com, bsingharora@gmail.com
 
-qeth_l?_set_online() goes through a number of initialization steps, and
-on any error uses qeth_l?_stop_card() to tear down the residual state.
+Hi Christophe,
 
-The first initialization step is qeth_core_hardsetup_card(). When this
-fails after having established a QDIO context on the device
-(ie. somewhere after qeth_mpc_initialize()), qeth_l?_stop_card() doesn't
-shut down this QDIO context again (since the card state hasn't
-progressed from DOWN at this stage).
+I think I've covered everything you've mentioned in the v3 I'm about to
+send, except for:
 
-Even worse, we then call qdio_free() as final teardown step to free the
-QDIO data structures - while some of them are still hooked into wider
-QDIO infrastructure such as the IRQ list. This is inevitably followed by
-use-after-frees and other nastyness.
+>> +	/* mark early shadow region as RO and wipe */
+>> +	pte = __pte(__pa(kasan_early_shadow_page) |
+>> +		    pgprot_val(PAGE_KERNEL_RO) | _PAGE_PTE);
+>
+> Any reason for _PAGE_PTE being required here and not being included in 
+> PAGE_KERNEL_RO ?
 
-Fix this by unconditionally calling qeth_qdio_clear_card() to shut down
-the QDIO context, and also to halt/clear any pending activity on the
-various IO channels.
-Remove the naive attempt at handling the teardown in
-qeth_mpc_initialize(), it clearly doesn't suffice and we're handling it
-properly now in the wider teardown code.
+I'm not 100% sure quite what you mean here. I think you're asking: why
+do we need to supply _PAGE_PTE here, shouldn't PAGE_KERNEL_RO set that
+bit or cover that case?
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 20 ++++++++------------
- drivers/s390/net/qeth_l2_main.c   |  2 +-
- drivers/s390/net/qeth_l3_main.c   |  2 +-
- 3 files changed, 10 insertions(+), 14 deletions(-)
+_PAGE_PTE is defined by section 5.7.10.2 of Book III of ISA 3.0: bit 1
+(linux bit 62) is 'Leaf (entry is a PTE)' I originally had this because
+it was set in Balbir's original implementation, but the bit is also set
+by pte_mkpte which is called in set_pte_at, so I also think it's right
+to set it.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index bc4158888af9..324cf22f9111 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2482,50 +2482,46 @@ static int qeth_mpc_initialize(struct qeth_card *card)
- 	rc = qeth_cm_enable(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "2err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_cm_setup(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "3err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_ulp_enable(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "4err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_ulp_setup(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_alloc_qdio_queues(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_qdio_establish(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "6err%d", rc);
- 		qeth_free_qdio_queues(card);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_qdio_activate(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "7err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 	rc = qeth_dm_act(card);
- 	if (rc) {
- 		QETH_CARD_TEXT_(card, 2, "8err%d", rc);
--		goto out_qdio;
-+		return rc;
- 	}
- 
- 	return 0;
--out_qdio:
--	qeth_qdio_clear_card(card, !IS_IQD(card));
--	qdio_free(CARD_DDEV(card));
--	return rc;
- }
- 
- void qeth_print_status_message(struct qeth_card *card)
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 8c95e6019bac..15e2fd65d434 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -287,12 +287,12 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 		card->state = CARD_STATE_HARDSETUP;
- 	}
- 	if (card->state == CARD_STATE_HARDSETUP) {
--		qeth_qdio_clear_card(card, 0);
- 		qeth_drain_output_queues(card);
- 		qeth_clear_working_pool_list(card);
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
-+	qeth_qdio_clear_card(card, 0);
- 	flush_workqueue(card->event_wq);
- 	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
- 	card->info.promisc_mode = 0;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 04e301de376f..5508ab89b518 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1307,12 +1307,12 @@ static void qeth_l3_stop_card(struct qeth_card *card)
- 		card->state = CARD_STATE_HARDSETUP;
- 	}
- 	if (card->state == CARD_STATE_HARDSETUP) {
--		qeth_qdio_clear_card(card, 0);
- 		qeth_drain_output_queues(card);
- 		qeth_clear_working_pool_list(card);
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
-+	qeth_qdio_clear_card(card, 0);
- 	flush_workqueue(card->event_wq);
- 	card->info.promisc_mode = 0;
- }
--- 
-2.17.1
+I don't know why it's not included in the permission classes; I suspect
+it's because it's not conceptually a permission, it's set and cleared in
+things like swp entry code.
+
+Does that answer your question?
+
+Regards,
+Daniel
