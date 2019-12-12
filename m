@@ -1,87 +1,310 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727630AbfLTOrM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:47:12 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 09/14] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
-Date: Fri, 20 Dec 2019 09:46:53 -0500
-Message-Id: <20191220144658.10414-9-sashal@kernel.org>
-In-Reply-To: <20191220144658.10414-1-sashal@kernel.org>
-References: <20191220144658.10414-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21370 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729465AbfLLNnP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Dec 2019 08:43:15 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBCDgiLv174185
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:43:14 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wtbt3ctwd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:43:14 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 12 Dec 2019 13:43:12 -0000
+Subject: Re: [kvm-unit-tests PATCH v4 5/9] s390x: Library resources for CSS
+ tests
+References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+ <1576079170-7244-6-git-send-email-pmorel@linux.ibm.com>
+ <dd5b82c6-f5bd-ff3d-b65f-300cacfee8a3@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 12 Dec 2019 14:43:08 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <dd5b82c6-f5bd-ff3d-b65f-300cacfee8a3@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <71d58ae9-2a43-733e-847a-5db1a289eb5f@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
 
-Function perf_event_ever_overflow() and perf_event_account_interrupt()
-are called every time samples are processed by the interrupt handler.
-However function perf_event_account_interrupt() has checks to avoid being
-flooded with interrupts (more then 1000 samples are received per
-task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
-added to the perf data. The perf subsystem limit calculation is:
+On 2019-12-12 10:51, Janosch Frank wrote:
+> On 12/11/19 4:46 PM, Pierre Morel wrote:
+>> These are the include and library utilities for the css tests patch
+>> series.
+>>
+>> Debug function can be activated by defining DEBUG_CSS before the
+>> inclusion of the css.h header file.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/css.h      | 259 +++++++++++++++++++++++++++++++++++++++++++
+>>   lib/s390x/css_dump.c | 157 ++++++++++++++++++++++++++
+>>   2 files changed, 416 insertions(+)
+>>   create mode 100644 lib/s390x/css.h
+>>   create mode 100644 lib/s390x/css_dump.c
+>>
+>> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+>> new file mode 100644
+>> index 0000000..fd086aa
+>> --- /dev/null
+>> +++ b/lib/s390x/css.h
+>> @@ -0,0 +1,259 @@
+>> +/*
+>> + * CSS definitions
+>> + *
+>> + * Copyright IBM, Corp. 2019
+>> + * Author: Pierre Morel <pmorel@linux.ibm.com>
+>> + *
+>> + * This work is licensed under the terms of the GNU GPL, version 2 or (at
+>> + * your option) any later version. See the COPYING file in the top-level
+>> + * directory.
+>> + */
+>> +
+>> +#ifndef CSS_H
+>> +#define CSS_H
+>> +
+>> +#define CCW_F_CD	0x80
+>> +#define CCW_F_CC	0x40
+>> +#define CCW_F_SLI	0x20
+>> +#define CCW_F_SKP	0x10
+>> +#define CCW_F_PCI	0x08
+>> +#define CCW_F_IDA	0x04
+>> +#define CCW_F_S		0x02
+>> +#define CCW_F_MIDA	0x01
+>> +
+>> +#define CCW_C_NOP	0x03
+>> +#define CCW_C_TIC	0x08
+>> +
+>> +struct ccw1 {
+>> +	unsigned char code;
+>> +	unsigned char flags;
+>> +	unsigned short count;
+>> +	uint32_t data_address;
+>> +} __attribute__ ((aligned(4)));
+>> +
+>> +#define ORB_M_KEY	0xf0000000
+>> +#define ORB_F_SUSPEND	0x08000000
+>> +#define ORB_F_STREAMING	0x04000000
+>> +#define ORB_F_MODIFCTRL	0x02000000
+>> +#define ORB_F_SYNC	0x01000000
+>> +#define ORB_F_FORMAT	0x00800000
+>> +#define ORB_F_PREFETCH	0x00400000
+>> +#define ORB_F_INIT_IRQ	0x00200000
+>> +#define ORB_F_ADDRLIMIT	0x00100000
+>> +#define ORB_F_SUSP_IRQ	0x00080000
+>> +#define ORB_F_TRANSPORT	0x00040000
+>> +#define ORB_F_IDAW2	0x00020000
+>> +#define ORB_F_IDAW_2K	0x00010000
+>> +#define ORB_M_LPM	0x0000ff00
+>> +#define ORB_F_LPM_DFLT	0x00008000
+>> +#define ORB_F_ILSM	0x00000080
+>> +#define ORB_F_CCW_IND	0x00000040
+>> +#define ORB_F_ORB_EXT	0x00000001
+> 
+> That looks weird.
+> 
+>> +
+>> +struct orb {
+>> +	uint32_t intparm;
+>> +	uint32_t ctrl;
+>> +	uint32_t cpa;
+>> +	uint32_t prio;
+>> +	uint32_t reserved[4];
+>> +} __attribute__ ((aligned(4)));
+> 
+> Are any of these ever stack allocated and therefore need alignment?
 
-    maximum sample frequency := 100000 --> 1 samples per 10 us
-    task_tick = 10ms = 10000us --> 1000 samples per task_tick
+ORB can be eventually allocated on the stack.
 
-The work flow is
+scsw and pmcw not but the SCHIB or the IRB could.
 
-measurement_alert() uses SDBT head and each SBDT points to 511
- SDB pages, each with 126 sample entries. After processing 8 SBDs
- and for each valid sample calling:
+> 
+>> +
+>> +struct scsw {
+>> +	uint32_t ctrl;
+>> +	uint32_t ccw_addr;
+>> +	uint8_t  dev_stat;
+>> +	uint8_t  sch_stat;
+>> +	uint16_t count;
+>> +};
+>> +
+>> +struct pmcw {
+>> +	uint32_t intparm;
+>> +#define PMCW_DNV        0x0001
+>> +#define PMCW_ENABLE     0x0080
+>> +	uint16_t flags;
+>> +	uint16_t devnum;
+>> +	uint8_t  lpm;
+>> +	uint8_t  pnom;
+>> +	uint8_t  lpum;
+>> +	uint8_t  pim;
+>> +	uint16_t mbi;
+>> +	uint8_t  pom;
+>> +	uint8_t  pam;
+>> +	uint8_t  chpid[8];
+>> +	uint32_t flags2;
+>> +};
+>> +
+>> +struct schib {
+>> +	struct pmcw pmcw;
+>> +	struct scsw scsw;
+>> +	uint8_t  md[12];
+>> +} __attribute__ ((aligned(4)));
+>> +
+>> +struct irb {
+>> +	struct scsw scsw;
+>> +	uint32_t esw[5];
+>> +	uint32_t ecw[8];
+>> +	uint32_t emw[8];
+>> +} __attribute__ ((aligned(4)));
+>> +
+>> +/* CSS low level access functions */
+>> +
+>> +static inline int ssch(unsigned long schid, struct orb *addr)
+>> +{
+>> +	register long long reg1 asm("1") = schid;
+>> +	int cc = -1;
+> 
+> Why is this one initialized but no other cc is?
 
-     perf_event_overflow()
-       perf_event_account_interrupts()
+it does not need to.
+will disapear.
 
-there is a considerable amount of samples being dropped, especially when
-the sample frequency is very high and near the 100000 limit.
+> 
+>> +
+>> +	asm volatile(
+>> +		"	   ssch	0(%2)\n"
+>> +		"0:	 ipm	 %0\n"
+>> +		"	   srl	 %0,28\n"
+> 
+> Formatting?
+> 
+>> +		"1:\n"
+> 
+> What do these jump labels do?
 
-To avoid the high amount of samples being dropped near the end of a
-task_tick time frame, increment the sampling interval in case of
-dropped events. The CPU Measurement sampling facility on the s390
-supports only intervals, specifiing how many CPU cycles have to be
-executed before a sample is generated. Increase the interval when the
-samples being generated hit the task_tick limit.
+forgotten from a previous implementation.
+will disapear
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+> 
+>> +		: "+d" (cc)
+>> +		: "d" (reg1), "a" (addr), "m" (*addr)
+>> +		: "cc", "memory");
+>> +	return cc;
+>> +}
+>> +
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index f46e5c0cb6d95..0cf130d37a325 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1294,6 +1294,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 	if (sampl_overflow)
- 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
- 						 sampl_overflow, 1 + num_sdb);
-+
-+	/* Perf_event_overflow() and perf_event_account_interrupt() limit
-+	 * the interrupt rate to an upper limit. Roughly 1000 samples per
-+	 * task tick.
-+	 * Hitting this limit results in a large number
-+	 * of throttled REF_REPORT_THROTTLE entries and the samples
-+	 * are dropped.
-+	 * Slightly increase the interval to avoid hitting this limit.
-+	 */
-+	if (event_overflow) {
-+		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
-+		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
-+				    __func__,
-+				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
-+	}
-+
- 	if (sampl_overflow || event_overflow)
- 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
- 				    "overflow stats: sample=%llu event=%llu\n",
+...
+
+>> +extern unsigned long stacktop;
+> 
+> That should be exported somewhere else, we also use it in
+> lib/s390x/sclp.c. Btw. why is it in here at all?
+
+also forgotten from a previous implementation.
+
+> 
+>> +#endif
+>> diff --git a/lib/s390x/css_dump.c b/lib/s390x/css_dump.c
+>> new file mode 100644
+>> index 0000000..ff1a812
+>> --- /dev/null
+>> +++ b/lib/s390x/css_dump.c
+>> @@ -0,0 +1,157 @@
+>> +/*
+>> + * Channel subsystem structures dumping
+>> + *
+>> + * Copyright (c) 2019 IBM Corp.
+>> + *
+>> + * Authors:
+>> + *  Pierre Morel <pmorel@linux.ibm.com>
+>> + *
+>> + * This code is free software; you can redistribute it and/or modify it
+>> + * under the terms of the GNU Library General Public License version 2.
+>> + *
+>> + * Description:
+>> + * Provides the dumping functions for various structures used by subchannels:
+>> + * - ORB  : Operation request block, describes the I/O operation and points to
+>> + *          a CCW chain
+>> + * - CCW  : Channel Command Word, describes the data and flow control
+>> + * - IRB  : Interuption response Block, describes the result of an operation
+>> + *          holds a SCSW and model-dependent data.
+>> + * - SCHIB: SubCHannel Information Block composed of:
+>> + *   - SCSW: SubChannel Status Word, status of the channel.
+>> + *   - PMCW: Path Management Control Word
+>> + * You need the QEMU ccw-pong device in QEMU to answer the I/O transfers.
+>> + */
+>> +
+>> +#include <unistd.h>
+>> +#include <stdio.h>
+>> +#include <stdint.h>
+>> +#include <string.h>
+>> +
+>> +#undef DEBUG_CSS
+>> +#include <css.h>
+>> +
+>> +/*
+>> + * Try to have a more human representation of the SCSW flags:
+>> + * each letter in the two strings he under represent the first
+> 
+> s/he under//
+
+yes, thanks.
+
+> 
+>> + * letter of the associated bit in the flag.
+> 
+> in the flag fields?
+
+OK
+
+> 
+>> + */
+>> +static const char *scsw_str = "kkkkslccfpixuzen";
+>> +static const char *scsw_str2 = "1SHCrshcsdsAIPSs";
+>> +static char scsw_line[64] = {};
+>> +
+>> +char *dump_scsw_flags(uint32_t f)
+>> +{
+>> +	int i;
+>> +
+>> +	for (i = 0; i < 16; i++) {
+>> +		if ((f << i) & 0x80000000)
+>> +			scsw_line[i] = scsw_str[i];
+>> +		else
+>> +			scsw_line[i] = '_';
+>> +	}
+>> +	scsw_line[i] = ' ';
+>> +	for (; i < 32; i++) {
+>> +		if ((f << i) & 0x80000000)
+>> +			scsw_line[i + 1] = scsw_str2[i - 16];
+>> +		else
+>> +			scsw_line[i + 1] = '_';
+>> +	}
+>> +	return scsw_line;
+>> +}
+>> +
+>> +/*
+>> + * Try o have a more human representation of the PMCW flags
+>> + * each letter in the two strings he under represent the first
+>> + * letter of the associated bit in the flag.
+> 
+> Please rephrase
+> 
+OK.
+
+Thanks.
+regards,
+Pierre
+
 -- 
-2.20.1
+Pierre Morel
+IBM Lab Boeblingen
