@@ -1,212 +1,125 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:52981 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727362AbfLBOzV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Dec 2019 09:55:21 -0500
-Date: Mon, 2 Dec 2019 15:55:10 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v2 8/9] s390x: css: ssch/tsch with sense
- and interrupt
-Message-ID: <20191202155510.410666a0.cohuck@redhat.com>
-In-Reply-To: <1574945167-29677-9-git-send-email-pmorel@linux.ibm.com>
-References: <1574945167-29677-1-git-send-email-pmorel@linux.ibm.com>
-        <1574945167-29677-9-git-send-email-pmorel@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60730 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729395AbfLLNeW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Dec 2019 08:34:22 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBCDXF9x148566
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:34:21 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wtf70hum8-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:34:04 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 12 Dec 2019 13:32:19 -0000
+Subject: Re: [kvm-unit-tests PATCH v4 1/9] s390x: saving regs for interrupts
+References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+ <1576079170-7244-2-git-send-email-pmorel@linux.ibm.com>
+ <19f572f1-5855-154a-af2b-1273d485be51@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 12 Dec 2019 14:32:15 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <19f572f1-5855-154a-af2b-1273d485be51@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <eada4a92-afab-c6fa-a125-fdcc254643dd@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-On Thu, 28 Nov 2019 13:46:06 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> When a channel is enabled we can start a SENSE command using the SSCH
-> instruction to recognize the control unit and device.
+
+On 2019-12-12 10:24, Janosch Frank wrote:
+> On 12/11/19 4:46 PM, Pierre Morel wrote:
+>> If we use multiple source of interrupts, for exemple, using SCLP
 > 
-> This tests the success of SSCH, the I/O interruption and the TSCH
-> instructions.
-> 
-> The test expect a device with a control unit type of 0xC0CA.
+> s/exemple/example/
 
-s/expect/expects/
+OK, thanks
 
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/css.h |  13 +++++
->  s390x/css.c     | 137 ++++++++++++++++++++++++++++++++++++++++++++++++
->  2 files changed, 150 insertions(+)
+>> console to print information while using I/O interrupts, we need
+>> to have a re-entrant register saving interruption handling.
+>>
+>> Instead of saving at a static memory address, let's save the base
+>> registers and the floating point registers on the stack.
+>>
+>> Note that we keep the static register saving to recover from the
+>> RESET tests.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   s390x/cstart64.S | 25 +++++++++++++++++++++++--
+>>   1 file changed, 23 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index 86dd4c4..ff05f9b 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -118,6 +118,25 @@ memsetxc:
+>>   	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+>>   	.endm
+>>> +	.macro SAVE_IRQ_REGS
 > 
+> Maybe add comments to the start of the macros like:
+> "Save registers on the stack, so we can have stacked interrupts."
 
-(...)
+OK.
 
-> diff --git a/s390x/css.c b/s390x/css.c
-> index e42dc2f..534864f 100644
-> --- a/s390x/css.c
-> +++ b/s390x/css.c
-> @@ -11,12 +11,28 @@
->   */
->  
->  #include <libcflat.h>
-> +#include <alloc_phys.h>
-> +#include <asm/page.h>
-> +#include <string.h>
-> +#include <asm/interrupt.h>
-> +#include <asm/arch_def.h>
-> +#include <asm/clock.h>
->  
->  #include <css.h>
->  
->  #define SID_ONE		0x00010000
-> +#define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
-> +
-> +struct lowcore *lowcore = (void *)0x0;
->  
->  static struct schib schib;
-> +#define NB_CCW  100
+> 
+>> +	slgfi   %r15, 15 * 8
+>> +	stmg    %r0, %r14, 0(%r15)
+>> +	slgfi   %r15, 16 * 8
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	std	\i, \i * 8(%r15)
+>> +	.endr
+>> +	lgr     %r2, %r15
+> 
+> What's that doing?
 
-s/NB_CCW/NUM_CCWS/ ?
+Passing a parameter to the saved registers to the handler.
+makes me think that since I reworked the interrupt handler to add 
+registration the parameter disappeared...
 
-I was scratching my head a bit when I first saw that define.
+I will remove this line and come back with a new series at the time we 
+need to access the registers.
 
-> +static struct ccw ccw[NB_CCW];
-> +#define NB_ORB  100
-> +static struct orb orb[NB_ORB];
-> +static struct irb irb;
-> +static char buffer[0x1000] __attribute__ ((aligned(8)));
-> +static struct senseid senseid;
->  
->  static const char *Channel_type[3] = {
->  	"I/O", "CHSC", "MSG"
-> @@ -24,6 +40,34 @@ static const char *Channel_type[3] = {
->  
->  static int test_device_sid;
->  
+> 
+>> +	.endm
+>> +
+>> +	.macro RESTORE_IRQ_REGS
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	ld	\i, \i * 8(%r15)
+>> +	.endr
+>> +	algfi   %r15, 16 * 8
+>> +	lmg     %r0, %r14, 0(%r15)
+>> +	algfi   %r15, 15 * 8
+>> +	.endm
+>> +
+>>   .section .text
+>>   /*
+>>    * load_reset calling convention:
+>> @@ -154,6 +173,8 @@ diag308_load_reset:
+>>   	lpswe	GEN_LC_SW_INT_PSW
+>>   1:	br	%r14
+>>   
+>> +
+>> +
+> 
+> Still not fixed
 
-(...)
+sorry I did not see this
 
-> +void handle_io_int(void)
-> +{
-> +	int ret = 0;
-> +	char *flags;
-> +
-> +	report_prefix_push("Interrupt");
-> +	if (lowcore->io_int_param != 0xcafec0ca) {
-> +		report("Bad io_int_param: %x", 0, lowcore->io_int_param);
-> +		report_prefix_pop();
-> +		return;
-> +	}
+Thanks for review,
+Regards,
+Pierre
 
-Should you accommodate unsolicited interrupts as well?
 
-> +	report("io_int_param: %x", 1, lowcore->io_int_param);
-> +	report_prefix_pop();
-> +
-> +	ret = tsch(lowcore->subsys_id_word, &irb);
-> +	dump_irb(&irb);
-> +	flags = dump_scsw_flags(irb.scsw.ctrl);
-> +
-> +	if (ret)
-> +		report("IRB scsw flags: %s", 0, flags);
-> +	else
-> +		report("IRB scsw flags: %s", 1, flags);
-> +	report_prefix_pop();
-> +}
-> +
-> +static int start_subchannel(int code, char *data, int count)
-> +{
-> +	int ret;
-> +	struct pmcw *p = &schib.pmcw;
-> +	struct orb *orb_p = &orb[0];
-> +
-> +	if (!test_device_sid) {
-> +		report_skip("No device");
-> +		return 0;
-> +	}
-> +	ret = stsch(test_device_sid, &schib);
-
-That schib is a global variable, isn't it? Why do you need to re-check?
-
-> +	if (ret) {
-> +		report("Err %d on stsch on sid %08x", 0, ret, test_device_sid);
-> +		return 0;
-> +	}
-> +	if (!(p->flags & PMCW_ENABLE)) {
-> +		report_skip("Device (sid %08x) not enabled", test_device_sid);
-> +		return 0;
-> +	}
-> +	ccw[0].code = code ;
-
-Extra ' ' before ';'
-
-> +	ccw[0].flags = CCW_F_PCI;
-
-Huh, what's that PCI for?
-
-> +	ccw[0].count = count;
-> +	ccw[0].data = (int)(unsigned long)data;
-
-Can you be sure that data is always below 2G?
-
-> +	orb_p->intparm = 0xcafec0ca;
-> +	orb_p->ctrl = ORB_F_INIT_IRQ|ORB_F_FORMAT|ORB_F_LPM_DFLT;
-> +	orb_p->cpa = (unsigned int) (unsigned long)&ccw[0];
-> +
-> +	report_prefix_push("Start Subchannel");
-> +	ret = ssch(test_device_sid, orb_p);
-> +	if (ret) {
-> +		report("ssch cc=%d", 0, ret);
-> +		report_prefix_pop();
-> +		return 0;
-> +	}
-> +	report_prefix_pop();
-> +	return 1;
-> +}
-> +
-> +static void test_sense(void)
-> +{
-> +	int success;
-> +
-> +	enable_io_irq();
-> +
-> +	success = start_subchannel(CCW_CMD_SENSE_ID, buffer, sizeof(senseid));
-> +	if (!success) {
-> +		report("start_subchannel failed", 0);
-> +		return;
-> +	}
-> +
-> +	senseid.cu_type = buffer[2] | (buffer[1] << 8);
-> +	delay(1000);
-> +
-> +	/* Sense ID is non packed cut_type is at offset +1 byte */
-> +	if (senseid.cu_type == PONG_CU)
-> +		report("cu_type: expect c0ca, got %04x", 1, senseid.cu_type);
-> +	else
-> +		report("cu_type: expect c0ca, got %04x", 0, senseid.cu_type);
-> +}
-
-I'm not really convinced by that logic here. This will fall apart if
-you don't have your pong device exactly in the right place, and it does
-not make it easy to extend this for more devices in the future.
-
-What about the following:
-- do a stsch() loop (basically re-use your first patch)
-- for each I/O subchannel with dnv=1, do SenseID
-- use the first (?) device with a c0ca CU type as your test device
-
-Or maybe I'm overthinking this? It just does not strike me as very
-robust and reusable.
-
-> +
->  static struct {
->  	const char *name;
->  	void (*func)(void);
->  } tests[] = {
->  	{ "enumerate (stsch)", test_enumerate },
->  	{ "enable (msch)", test_enable },
-> +	{ "sense (ssch/tsch)", test_sense },
->  	{ NULL, NULL }
->  };
->  
+-- 
+Pierre Morel
+IBM Lab Boeblingen
