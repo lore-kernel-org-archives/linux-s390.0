@@ -1,61 +1,161 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30170 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32352 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726763AbfLWODi (ORCPT
+        by vger.kernel.org with ESMTP id S1729392AbfLLNeN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Dec 2019 09:03:38 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE3Qie131747
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:37 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2x21ky59et-1
+        Thu, 12 Dec 2019 08:34:13 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBCDX1pT099017
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:34:11 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wtcd32ksm-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:36 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 12 Dec 2019 08:34:11 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Mon, 23 Dec 2019 14:03:35 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 5/6] s390/qeth: vnicc Fix init to default
-Date: Mon, 23 Dec 2019 15:03:25 +0100
-In-Reply-To: <20191223140326.16488-1-jwi@linux.ibm.com>
-References: <20191223140326.16488-1-jwi@linux.ibm.com>
-Message-Id: <20191223140326.16488-6-jwi@linux.ibm.com>
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 12 Dec 2019 13:34:09 -0000
+Subject: Re: [kvm-unit-tests PATCH v4 2/9] s390x: Use PSW bits definitions in
+ cstart
+References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+ <1576079170-7244-3-git-send-email-pmorel@linux.ibm.com>
+ <41887741-3db0-5969-edb4-1f50e7b17da7@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Thu, 12 Dec 2019 14:34:05 +0100
+MIME-Version: 1.0
+In-Reply-To: <41887741-3db0-5969-edb4-1f50e7b17da7@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <371eaf81-f433-e251-f69c-0ee3c404ffdb@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
 
-During vnicc_init wanted_char should be compared to cur_char and not
-to QETH_VNICC_DEFAULT. Without this patch there is no way to enforce
-the default values as desired values.
 
-Note, that it is expected, that a card comes online with default values.
-This patch was tested with private card firmware.
+On 2019-12-12 10:31, Janosch Frank wrote:
+> On 12/11/19 4:46 PM, Pierre Morel wrote:
+>> This patch defines the PSW bits EA/BA used to initialize the PSW masks
+>> for exceptions.
+>>
+>> Since some PSW mask definitions exist already in arch_def.h we add these
+>> definitions there.
+>> We move all PSW definitions together and protect assembler code against
+>> C syntax.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h | 16 ++++++++++++----
+>>   s390x/cstart64.S         | 15 ++++++++-------
+>>   2 files changed, 20 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index cf6e1ca..b6bb8c1 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -10,15 +10,22 @@
+>>   #ifndef _ASM_S390X_ARCH_DEF_H_
+>>   #define _ASM_S390X_ARCH_DEF_H_
+>>   
+>> +#define PSW_MASK_IO			0x0200000000000000UL
+> 
+> That's new and not used in this patch, please move it to the patch where
+> it's needed.
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l2_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+OK, I can do this.
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 8024a2112a87..47d37e75dda6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2039,7 +2039,9 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 	/* enforce assumed default values and recover settings, if changed  */
- 	error |= qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
- 					       timeout);
--	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
-+	/* Change chars, if necessary  */
-+	chars_tmp = card->options.vnicc.wanted_chars ^
-+		    card->options.vnicc.cur_chars;
- 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
- 	for_each_set_bit(i, &chars_tmp, chars_len) {
- 		vnicc = BIT(i);
+> 
+>> +#define PSW_MASK_EXT			0x0100000000000000UL
+>> +#define PSW_MASK_DAT			0x0400000000000000UL
+>> +#define PSW_MASK_PSTATE			0x0001000000000000UL
+>> +#define PSW_MASK_BA			0x0000000080000000UL
+>> +#define PSW_MASK_EA			0x0000000100000000UL
+>> +
+>> +
+>> +#define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
+>> +
+>> +#ifndef __ASSEMBLER__
+> 
+> \n
+> 
+
+OK
+
+>>   struct psw {
+>>   	uint64_t	mask;
+>>   	uint64_t	addr;
+>>   };
+>>   
+>> -#define PSW_MASK_EXT			0x0100000000000000UL
+>> -#define PSW_MASK_DAT			0x0400000000000000UL
+>> -#define PSW_MASK_PSTATE			0x0001000000000000UL
+>> -
+>>   #define CR0_EXTM_SCLP			0X0000000000000200UL
+>>   #define CR0_EXTM_EXTC			0X0000000000002000UL
+>>   #define CR0_EXTM_EMGC			0X0000000000004000UL
+>> @@ -272,3 +279,4 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
+>>   }
+>>   
+>>   #endif
+>> +#endif
+> 
+> Please add a comment to which ifdef this endif belongs.
+> 
+
+OK
+
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index ff05f9b..56a2045 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -12,6 +12,7 @@
+>>    */
+>>   #include <asm/asm-offsets.h>
+>>   #include <asm/sigp.h>
+>> +#include <asm/arch_def.h>
+>>   
+>>   .section .init
+>>   
+>> @@ -214,19 +215,19 @@ svc_int:
+>>   
+>>   	.align	8
+>>   reset_psw:
+>> -	.quad	0x0008000180000000
+>> +	.quad	PSW_EXCEPTION_MASK
+>>   initial_psw:
+>> -	.quad	0x0000000180000000, clear_bss_start
+>> +	.quad	PSW_EXCEPTION_MASK, clear_bss_start
+>>   pgm_int_psw:
+>> -	.quad	0x0000000180000000, pgm_int
+>> +	.quad	PSW_EXCEPTION_MASK, pgm_int
+>>   ext_int_psw:
+>> -	.quad	0x0000000180000000, ext_int
+>> +	.quad	PSW_EXCEPTION_MASK, ext_int
+>>   mcck_int_psw:
+>> -	.quad	0x0000000180000000, mcck_int
+>> +	.quad	PSW_EXCEPTION_MASK, mcck_int
+>>   io_int_psw:
+>> -	.quad	0x0000000180000000, io_int
+>> +	.quad	PSW_EXCEPTION_MASK, io_int
+>>   svc_int_psw:
+>> -	.quad	0x0000000180000000, svc_int
+>> +	.quad	PSW_EXCEPTION_MASK, svc_int
+> 
+> 
+>>   initial_cr0:
+>>   	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
+>>   	.quad	0x0000000000040000
+> 
+> Could you maybe also fix that up in a separate patch and use the same
+> constant in lib/s390x/smp.c
+
+Yes, OK.
+
+regards,
+Pierre
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
