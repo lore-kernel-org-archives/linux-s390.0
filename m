@@ -1,143 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58364 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732292AbfLKPqS (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:27793 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727927AbfLMPxm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:46:18 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBBFi7n8058342
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:17 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wtf83vxhd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:16 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Wed, 11 Dec 2019 15:46:15 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 0/9] s390x: Testing the Channel Subsystem I/O
-Date: Wed, 11 Dec 2019 16:46:01 +0100
-Message-Id: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+        Fri, 13 Dec 2019 10:53:42 -0500
+Date: Fri, 13 Dec 2019 16:53:31 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v4 8/9] s390x: css: ssch/tsch with sense
+ and interrupt
+Message-ID: <20191213165331.69cb8a34.cohuck@redhat.com>
+In-Reply-To: <ea7707f9-bba2-e9f4-77ad-7f2e9fdef21d@linux.ibm.com>
+References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+        <1576079170-7244-9-git-send-email-pmorel@linux.ibm.com>
+        <20191212132634.3a16a389.cohuck@redhat.com>
+        <1ea58644-9f24-f547-92d5-a99dcb041502@linux.ibm.com>
+        <96034dbc-489a-7f76-0402-d5c0c42d20b3@linux.ibm.com>
+        <20191213104350.6ebe4aa6.cohuck@redhat.com>
+        <ea7707f9-bba2-e9f4-77ad-7f2e9fdef21d@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-Goal of the series is to have a framwork to test Channel-Subsystem I/O with
-QEMU/KVM.
-  
-To be able to support interrupt for CSS I/O and for SCLP we need to modify
-the interrupt framework to allow re-entrant interruptions.
-  
-We add a registration for IRQ callbacks to the test programm to define its own
-interrupt handler. We need to do special work under interrupt like acknoledging
-the interrupt.
-  
-Being working on PSW bits to allow I/O interrupt, we define new PSW bits
-in arch_def.h and use __ASSEMBLER__ define to be able to include this header
-in an assembler source file. 
- 
-This series presents four major tests:
-- Enumeration:
-        The CSS is enumerated using the STSCH instruction recursively on all
-        potentially existing channels.
-        Keeping the first channel found as a reference for future use.
-        Checks STSCH
- 
-- Enable:
-        If the enumeration succeeded the tests enables the reference
-        channel with MSCH and verifies with STSCH that the channel is
-        effectively enabled
-        Checks MSCH 
- 
-- Sense:
-        If the channel is enabled this test sends a SENSE_ID command
-        to the reference channel, analysing the answer and expecting
-        the Control unit type being 0xc0ca
-        Checks SSCH(READ) and IO-IRQ
+On Fri, 13 Dec 2019 16:24:18 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-- ping-pong:
-        If the reference channel leads to the PONG device (0xc0ca),
-        the test exchanges a string containing a 9 digit number with
-        the PONG device and expecting this number to be incremented
-        by the PONG device.
-        Checks SSCH(WRITE)
+> On 2019-12-13 10:43, Cornelia Huck wrote:
+> > On Thu, 12 Dec 2019 19:20:07 +0100
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >  =20
+> >> On 2019-12-12 15:10, Pierre Morel wrote: =20
+> >>>
+> >>>
+> >>> On 2019-12-12 13:26, Cornelia Huck wrote: =20
+> >>>> On Wed, 11 Dec 2019 16:46:09 +0100
+> >>>> Pierre Morel <pmorel@linux.ibm.com> wrote: =20
+> >  =20
+> >>>>> +
+> >>>>> +=C2=A0=C2=A0=C2=A0 senseid.cu_type =3D buffer[2] | (buffer[1] << 8=
+); =20
+> >>>>
+> >>>> This still looks odd; why not have the ccw fill out the senseid
+> >>>> structure directly? =20
+> >>>
+> >>> Oh sorry, you already said and I forgot to modify this.
+> >>> thanks =20
+> >>
+> >> hum, sorry, I forgot, the sense structure is not padded so I need this=
+. =20
+> >=20
+> > Very confused; I see padding in the senseid structure? (And what does
+> > padding have to do with it?) =20
+>=20
+> Sorry my fault:
+> I wanted to say packed and... I forgot to pack the senseid structure.
+> So I change this.
 
+Ah, good :)
 
-Pierre Morel (9):
-  s390x: saving regs for interrupts
-  s390x: Use PSW bits definitions in cstart
-  s390x: interrupt registration
-  s390x: export the clock get_clock_ms() utility
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
+>=20
+> >=20
+> > Also, you only copy the cu type... it would really be much better if
+> > you looked at the whole structure you got back from the hypervisor;
+> > that would also allow you to do some more sanity checks etc. If you
+> > really can't pass in a senseid structure directly, just copy everything
+> > you got?
+> >  =20
+>=20
+> No I can, just need to work properly ;)
+>=20
+> I will only check on the cu_type but report_info() on all fields.
 
- lib/s390x/asm/arch_def.h |  16 +-
- lib/s390x/asm/time.h     |  26 +++
- lib/s390x/css.h          | 273 ++++++++++++++++++++++++++++
- lib/s390x/css_dump.c     | 157 ++++++++++++++++
- lib/s390x/interrupt.c    |  23 ++-
- lib/s390x/interrupt.h    |   7 +
- s390x/Makefile           |   2 +
- s390x/css.c              | 374 +++++++++++++++++++++++++++++++++++++++
- s390x/cstart64.S         |  40 ++++-
- s390x/intercept.c        |  11 +-
- s390x/unittests.cfg      |   4 +
- 11 files changed, 909 insertions(+), 24 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 lib/s390x/interrupt.h
- create mode 100644 s390x/css.c
-
--- 
-2.17.0
-
-Changelog:
-from v3 to v4
-- add RB from David and Thomas for patchs 
-  (3) irq registrqtion and (4) clock export
-- rework the PSW bit definitions
-  (Thomas)
-- Suppress undef DEBUG from css_dump
-  (Thomas)
-- rework report() functions using new scheme
-  (Thomas)
-- suppress un-necessary report_info()
-- more spelling corrections
-- add a loop around enable bit testing
-  (Connie)
-- rework IRQ testing
-  (Connie)
-- Test data addresses to be under 2G
-  (Connie)
-
-from v2 to v3:
-- Rework spelling
-  (Connie)
-- More descriptions
-  (Connie)
-- use __ASSEMBLER__ preprocessing to keep
-  bits definitions and C structures in the same file
-  (David)
-- rename the new file clock.h as time.h
-  (Janosch, David?)
-- use registration for the IO interruption
-  (David, Thomas)
-- test the SCHIB to verify it has really be modified
-  (Connie)
-- Lot of simplifications in the tests
-  (Connie)
-
-from v1 to v2:
-- saving floating point registers (David, Janosh)
-- suppress unused PSW bits defintions (Janosh)
-- added Thomas reviewed-by
-- style and comments modifications (Connie, Janosh)
-- moved get_clock_ms() into headers and use it (Thomas)
-- separate header and library utility from tests
-- Suppress traces, separate tests, make better usage of reports
+Sounds good!
