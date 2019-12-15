@@ -1,87 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727948AbfLTOaz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:30:55 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 45/52] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
-Date: Fri, 20 Dec 2019 09:29:47 -0500
-Message-Id: <20191220142954.9500-45-sashal@kernel.org>
-In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
-References: <20191220142954.9500-1-sashal@kernel.org>
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:44774 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726260AbfLOTQB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 15 Dec 2019 14:16:01 -0500
+Received: by mail-pl1-f196.google.com with SMTP id az3so3487451plb.11
+        for <linux-s390@vger.kernel.org>; Sun, 15 Dec 2019 11:16:01 -0800 (PST)
+Date: Sun, 15 Dec 2019 11:15:58 -0800
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: Re: [PATCH net] net/smc: add fallback check to connect()
+Message-ID: <20191215111558.57dfdcf9@cakuba.netronome.com>
+In-Reply-To: <20191212213558.10564-1-kgraul@linux.ibm.com>
+References: <20191212213558.10564-1-kgraul@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+On Thu, 12 Dec 2019 22:35:58 +0100, Karsten Graul wrote:
+> From: Ursula Braun <ubraun@linux.ibm.com>
+> 
+> FASTOPEN setsockopt() or sendmsg() may switch the SMC socket to fallback
+> mode. Once fallback mode is active, the native TCP socket functions are
+> called. Nevertheless there is a small race window, when FASTOPEN
+> setsockopt/sendmsg runs in parallel to a connect(), and switch the
+> socket into fallback mode before connect() takes the sock lock.
+> Make sure the SMC-specific connect setup is omitted in this case.
+> 
+> This way a syzbot-reported refcount problem is fixed, triggered by
+> different threads running non-blocking connect() and FASTOPEN_KEY
+> setsockopt.
+> 
+> Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
+> Fixes: 6d6dd528d5af ("net/smc: fix refcount non-blocking connect() -part 2")
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
-
-Function perf_event_ever_overflow() and perf_event_account_interrupt()
-are called every time samples are processed by the interrupt handler.
-However function perf_event_account_interrupt() has checks to avoid being
-flooded with interrupts (more then 1000 samples are received per
-task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
-added to the perf data. The perf subsystem limit calculation is:
-
-    maximum sample frequency := 100000 --> 1 samples per 10 us
-    task_tick = 10ms = 10000us --> 1000 samples per task_tick
-
-The work flow is
-
-measurement_alert() uses SDBT head and each SBDT points to 511
- SDB pages, each with 126 sample entries. After processing 8 SBDs
- and for each valid sample calling:
-
-     perf_event_overflow()
-       perf_event_account_interrupts()
-
-there is a considerable amount of samples being dropped, especially when
-the sample frequency is very high and near the 100000 limit.
-
-To avoid the high amount of samples being dropped near the end of a
-task_tick time frame, increment the sampling interval in case of
-dropped events. The CPU Measurement sampling facility on the s390
-supports only intervals, specifiing how many CPU cycles have to be
-executed before a sample is generated. Increase the interval when the
-samples being generated hit the task_tick limit.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 3d8b12a9a6ff4..8c384e6ea36ac 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1312,6 +1312,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
- 	if (sampl_overflow)
- 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
- 						 sampl_overflow, 1 + num_sdb);
-+
-+	/* Perf_event_overflow() and perf_event_account_interrupt() limit
-+	 * the interrupt rate to an upper limit. Roughly 1000 samples per
-+	 * task tick.
-+	 * Hitting this limit results in a large number
-+	 * of throttled REF_REPORT_THROTTLE entries and the samples
-+	 * are dropped.
-+	 * Slightly increase the interval to avoid hitting this limit.
-+	 */
-+	if (event_overflow) {
-+		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
-+		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
-+				    __func__,
-+				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
-+	}
-+
- 	if (sampl_overflow || event_overflow)
- 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
- 				    "overflow stats: sample=%llu event=%llu\n",
--- 
-2.20.1
+Applied, and queued for stable, thank you!
