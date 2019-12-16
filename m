@@ -1,115 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:36763 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726535AbfLHO6m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Dec 2019 09:58:42 -0500
-Date: Sun, 08 Dec 2019 14:58:32 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: sched/urgent] sched/rt, s390: Use CONFIG_PREEMPTION
-In-Reply-To: <20191015191821.11479-18-bigeasy@linutronix.de>
-References: <20191015191821.11479-18-bigeasy@linutronix.de>
+Received: from foss.arm.com ([217.140.110.172]:39820 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726437AbfLPE4w (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 15 Dec 2019 23:56:52 -0500
+Subject: Re: [PATCH V11] mm/debug: Add tests validating architecture page
+ table helpers
+References: <1575364731-18131-1-git-send-email-anshuman.khandual@arm.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <d433f5a8-20a5-2862-8228-9ca72633b530@arm.com>
+Date: Mon, 16 Dec 2019 10:27:10 +0530
 MIME-Version: 1.0
-Message-ID: <157581711219.21853.18122159496311508925.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <1575364731-18131-1-git-send-email-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Rapoport <rppt@linux.vnet.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Peter Zijlstra <peterz@infradead.org>, Michal Hocko <mhocko@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Steven Price <Steven.Price@arm.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Kees Cook <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Matthew Wilcox <willy@infradead.org>, Sri Krishna chowdary <schowdary@nvidia.com>, Dave Hansen <dave.hansen@intel.com>, Russell King - ARM Linux <linux@armlinux.org.uk>, Michael Ellerman <mpe@ellerman.id.au>, Paul Mackerras <paulus@samba.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Ralf Baechle <ralf@linux-mips.org>, "Kirill A . Shutemov" <kirill@shutemov.name>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Ingo Molnar <mingo@kernel.org>, linux-snps-arc@lists.infradead.org, linux-mips@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 
-The following commit has been merged into the sched/urgent branch of tip:
 
-Commit-ID:     fa686453053b70a8a01b7517df8cfc5872f63196
-Gitweb:        https://git.kernel.org/tip/fa686453053b70a8a01b7517df8cfc5872f63196
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 15 Oct 2019 21:18:04 +02:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Sun, 08 Dec 2019 14:37:35 +01:00
 
-sched/rt, s390: Use CONFIG_PREEMPTION
+On 12/03/2019 02:48 PM, Anshuman Khandual wrote:
+> This adds tests which will validate architecture page table helpers and
+> other accessors in their compliance with expected generic MM semantics.
+> This will help various architectures in validating changes to existing
+> page table helpers or addition of new ones.
+> 
+> This test covers basic page table entry transformations including but not
+> limited to old, young, dirty, clean, write, write protect etc at various
+> level along with populating intermediate entries with next page table page
+> and validating them.
+> 
+> Test page table pages are allocated from system memory with required size
+> and alignments. The mapped pfns at page table levels are derived from a
+> real pfn representing a valid kernel text symbol. This test gets called
+> right after page_alloc_init_late().
+> 
+> This gets build and run when CONFIG_DEBUG_VM_PGTABLE is selected along with
+> CONFIG_VM_DEBUG. Architectures willing to subscribe this test also need to
+> select CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE which for now is limited to x86 and
+> arm64. Going forward, other architectures too can enable this after fixing
+> build or runtime problems (if any) with their page table helpers.
+> 
+> Folks interested in making sure that a given platform's page table helpers
+> conform to expected generic MM semantics should enable the above config
+> which will just trigger this test during boot. Any non conformity here will
+> be reported as an warning which would need to be fixed. This test will help
+> catch any changes to the agreed upon semantics expected from generic MM and
+> enable platforms to accommodate it thereafter.
 
-CONFIG_PREEMPTION is selected by CONFIG_PREEMPT and by CONFIG_PREEMPT_RT.
-Both PREEMPT and PREEMPT_RT require the same functionality which today
-depends on CONFIG_PREEMPT.
-
-Switch the preemption and entry code over to use CONFIG_PREEMPTION. Add
-PREEMPT_RT output to die().
-
-[bigeasy: +Kconfig, dumpstack.c]
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Link: https://lore.kernel.org/r/20191015191821.11479-18-bigeasy@linutronix.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
----
- arch/s390/Kconfig               | 2 +-
- arch/s390/include/asm/preempt.h | 4 ++--
- arch/s390/kernel/dumpstack.c    | 2 ++
- arch/s390/kernel/entry.S        | 2 +-
- 4 files changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index d4051e8..62b10a3 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -30,7 +30,7 @@ config GENERIC_BUG_RELATIVE_POINTERS
- 	def_bool y
- 
- config GENERIC_LOCKBREAK
--	def_bool y if PREEMPT
-+	def_bool y if PREEMPTTION
- 
- config PGSTE
- 	def_bool y if KVM
-diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
-index b5ea9e1..6ede299 100644
---- a/arch/s390/include/asm/preempt.h
-+++ b/arch/s390/include/asm/preempt.h
-@@ -130,11 +130,11 @@ static inline bool should_resched(int preempt_offset)
- 
- #endif /* CONFIG_HAVE_MARCH_Z196_FEATURES */
- 
--#ifdef CONFIG_PREEMPT
-+#ifdef CONFIG_PREEMPTION
- extern asmlinkage void preempt_schedule(void);
- #define __preempt_schedule() preempt_schedule()
- extern asmlinkage void preempt_schedule_notrace(void);
- #define __preempt_schedule_notrace() preempt_schedule_notrace()
--#endif /* CONFIG_PREEMPT */
-+#endif /* CONFIG_PREEMPTION */
- 
- #endif /* __ASM_PREEMPT_H */
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index d306fe0..2c122d8 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -195,6 +195,8 @@ void die(struct pt_regs *regs, const char *str)
- 	       regs->int_code >> 17, ++die_counter);
- #ifdef CONFIG_PREEMPT
- 	pr_cont("PREEMPT ");
-+#elif defined(CONFIG_PREEMPT_RT)
-+	pr_cont("PREEMPT_RT ");
- #endif
- 	pr_cont("SMP ");
- 	if (debug_pagealloc_enabled())
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 270d1d1..9205add 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -790,7 +790,7 @@ ENTRY(io_int_handler)
- .Lio_work:
- 	tm	__PT_PSW+1(%r11),0x01	# returning to user ?
- 	jo	.Lio_work_user		# yes -> do resched & signal
--#ifdef CONFIG_PREEMPT
-+#ifdef CONFIG_PREEMPTION
- 	# check for preemptive scheduling
- 	icm	%r0,15,__LC_PREEMPT_COUNT
- 	jnz	.Lio_restore		# preemption is disabled
+Any updates on this ?
