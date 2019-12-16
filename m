@@ -1,273 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:44223 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727417AbfLUPEz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 10:04:55 -0500
-Received: by mail-ed1-f68.google.com with SMTP id bx28so11365906edb.11
-        for <linux-s390@vger.kernel.org>; Sat, 21 Dec 2019 07:04:53 -0800 (PST)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH 6/8] iommu: allow the dma-iommu api to use bounce buffers
-Date: Sat, 21 Dec 2019 15:03:58 +0000
-Message-Id: <20191221150402.13868-7-murphyt7@tcd.ie>
-In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37074 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727436AbfLPKyT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Dec 2019 05:54:19 -0500
+Date: Mon, 16 Dec 2019 11:54:09 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v4 9/9] s390x: css: ping pong
+Message-ID: <20191216115409.3a89717a.cohuck@redhat.com>
+In-Reply-To: <bb6c04a1-501c-16c4-107b-f10ac9d1e41d@linux.ibm.com>
+References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
+        <1576079170-7244-10-git-send-email-pmorel@linux.ibm.com>
+        <20191213105009.482bab48.cohuck@redhat.com>
+        <bb6c04a1-501c-16c4-107b-f10ac9d1e41d@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Auger <eric.auger@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-Allow the dma-iommu api to use bounce buffers for untrusted devices.
-This is a copy of the intel bounce buffer code.
+On Fri, 13 Dec 2019 17:50:02 +0100
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
----
- drivers/iommu/dma-iommu.c | 93 ++++++++++++++++++++++++++++++++-------
- drivers/iommu/iommu.c     | 10 +++++
- include/linux/iommu.h     |  9 +++-
- 3 files changed, 95 insertions(+), 17 deletions(-)
+> On 2019-12-13 10:50, Cornelia Huck wrote:
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 4eac3cd35443..cf778db7d84d 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -20,9 +20,11 @@
- #include <linux/irq.h>
- #include <linux/mm.h>
- #include <linux/pci.h>
-+#include <linux/swiotlb.h>
- #include <linux/scatterlist.h>
- #include <linux/vmalloc.h>
- #include <linux/crash_dump.h>
-+#include <linux/dma-direct.h>
- 
- struct iommu_dma_msi_page {
- 	struct list_head	list;
-@@ -505,29 +507,89 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
- 			iommu_tlb_sync(domain, &iotlb_gather);
- 	}
- 
-+
- 	iommu_dma_free_iova(cookie, dma_addr, size, freelist);
- }
- 
-+static void __iommu_dma_unmap_swiotlb(struct device *dev, dma_addr_t dma_addr,
-+		size_t size, enum dma_data_direction dir,
-+		unsigned long attrs)
-+{
-+	struct iommu_domain *domain = iommu_get_dma_domain(dev);
-+	struct iommu_dma_cookie *cookie = domain->iova_cookie;
-+	struct iova_domain *iovad = &cookie->iovad;
-+	size_t iova_off = iova_offset(iovad, dma_addr);
-+	size_t aligned_size = iova_align(iovad, size + iova_off);
-+	phys_addr_t phys;
-+
-+	phys = iommu_iova_to_phys(domain, dma_addr);
-+	if (WARN_ON(!phys))
-+		return;
-+
-+	__iommu_dma_unmap(dev, dma_addr, size);
-+
-+#ifdef CONFIG_SWIOTLB
-+	if (unlikely(is_swiotlb_buffer(phys)))
-+		swiotlb_tbl_unmap_single(dev, phys, size,
-+				aligned_size, dir, attrs);
-+#endif
-+}
-+
- static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
--		size_t size, int prot, dma_addr_t dma_mask)
-+		size_t org_size, dma_addr_t dma_mask, bool coherent,
-+		enum dma_data_direction dir, unsigned long attrs)
- {
-+	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	struct iommu_domain *domain = iommu_get_dma_domain(dev);
- 	struct iommu_dma_cookie *cookie = domain->iova_cookie;
- 	struct iova_domain *iovad = &cookie->iovad;
- 	size_t iova_off = iova_offset(iovad, phys);
-+	size_t aligned_size = iova_align(iovad, org_size + iova_off);
- 	dma_addr_t iova;
- 
- 	if (unlikely(iommu_dma_deferred_attach(dev, domain)))
- 		return DMA_MAPPING_ERROR;
- 
--	size = iova_align(iovad, size + iova_off);
-+#ifdef CONFIG_SWIOTLB
-+	/*
-+	 * If both the physical buffer start address and size are
-+	 * page aligned, we don't need to use a bounce page.
-+	 */
-+	if (iommu_needs_bounce_buffer(dev)
-+			&& !iova_offset(iovad, phys | org_size)) {
-+		phys = swiotlb_tbl_map_single(dev,
-+				__phys_to_dma(dev, io_tlb_start),
-+				phys, org_size, aligned_size, dir, attrs);
-+
-+		if (phys == DMA_MAPPING_ERROR)
-+			return DMA_MAPPING_ERROR;
-+
-+		/* Cleanup the padding area. */
-+		void *padding_start = phys_to_virt(phys);
-+		size_t padding_size = aligned_size;
-+
-+		if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
-+		    (dir == DMA_TO_DEVICE ||
-+		     dir == DMA_BIDIRECTIONAL)) {
-+			padding_start += org_size;
-+			padding_size -= org_size;
-+		}
- 
--	iova = iommu_dma_alloc_iova(domain, size, dma_mask, dev);
-+		memset(padding_start, 0, padding_size);
-+	}
-+#endif
-+
-+	iova = iommu_dma_alloc_iova(domain, aligned_size, dma_mask, dev);
- 	if (!iova)
- 		return DMA_MAPPING_ERROR;
- 
--	if (iommu_map_atomic(domain, iova, phys - iova_off, size, prot)) {
--		iommu_dma_free_iova(cookie, iova, size, NULL);
-+	if (iommu_map_atomic(domain, iova, phys - iova_off, aligned_size,
-+				prot)) {
-+
-+		if (unlikely(is_swiotlb_buffer(phys)))
-+			swiotlb_tbl_unmap_single(dev, phys, aligned_size,
-+					aligned_size, dir, attrs);
-+		iommu_dma_free_iova(cookie, iova, aligned_size, NULL);
- 		return DMA_MAPPING_ERROR;
- 	}
- 	return iova + iova_off;
-@@ -761,10 +823,10 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
- {
- 	phys_addr_t phys = page_to_phys(page) + offset;
- 	bool coherent = dev_is_dma_coherent(dev);
--	int prot = dma_info_to_prot(dir, coherent, attrs);
- 	dma_addr_t dma_handle;
- 
--	dma_handle = __iommu_dma_map(dev, phys, size, prot, dma_get_mask(dev));
-+	dma_handle = __iommu_dma_map(dev, phys, size, dma_get_mask(dev),
-+			coherent, dir, attrs);
- 	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
- 	    dma_handle != DMA_MAPPING_ERROR)
- 		arch_sync_dma_for_device(phys, size, dir);
-@@ -776,7 +838,7 @@ static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
- {
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
- 		iommu_dma_sync_single_for_cpu(dev, dma_handle, size, dir);
--	__iommu_dma_unmap(dev, dma_handle, size);
-+	__iommu_dma_unmap_swiotlb(dev, dma_handle, size, dir, attrs);
- }
- 
- /*
-@@ -960,21 +1022,20 @@ static void iommu_dma_unmap_sg(struct device *dev, struct scatterlist *sg,
- 		sg = tmp;
- 	}
- 	end = sg_dma_address(sg) + sg_dma_len(sg);
--	__iommu_dma_unmap(dev, start, end - start);
-+	__iommu_dma_unmap_swiotlb(dev, start, end - start, dir, attrs);
- }
- 
- static dma_addr_t iommu_dma_map_resource(struct device *dev, phys_addr_t phys,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
--	return __iommu_dma_map(dev, phys, size,
--			dma_info_to_prot(dir, false, attrs) | IOMMU_MMIO,
--			dma_get_mask(dev));
-+	return __iommu_dma_map(dev, phys, size, dma_get_mask(dev), false, dir,
-+			attrs);
- }
- 
- static void iommu_dma_unmap_resource(struct device *dev, dma_addr_t handle,
- 		size_t size, enum dma_data_direction dir, unsigned long attrs)
- {
--	__iommu_dma_unmap(dev, handle, size);
-+	__iommu_dma_unmap_swiotlb(dev, handle, size, dir, attrs);
- }
- 
- static void __iommu_dma_free(struct device *dev, size_t size, void *cpu_addr)
-@@ -1056,7 +1117,6 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 		dma_addr_t *handle, gfp_t gfp, unsigned long attrs)
- {
- 	bool coherent = dev_is_dma_coherent(dev);
--	int ioprot = dma_info_to_prot(DMA_BIDIRECTIONAL, coherent, attrs);
- 	struct page *page = NULL;
- 	void *cpu_addr;
- 
-@@ -1074,8 +1134,9 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 	if (!cpu_addr)
- 		return NULL;
- 
--	*handle = __iommu_dma_map(dev, page_to_phys(page), size, ioprot,
--			dev->coherent_dma_mask);
-+	*handle = __iommu_dma_map(dev, page_to_phys(page), size,
-+			dev->coherent_dma_mask, coherent, DMA_BIDIRECTIONAL,
-+			attrs);
- 	if (*handle == DMA_MAPPING_ERROR) {
- 		__iommu_dma_free(dev, size, cpu_addr);
- 		return NULL;
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index cec728f40d9c..e5653cb20c83 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2236,6 +2236,16 @@ void iommu_get_resv_regions(struct device *dev, struct list_head *list)
- 		ops->get_resv_regions(dev, list);
- }
- 
-+int iommu_needs_bounce_buffer(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+
-+	if (ops && ops->needs_bounce_buffer)
-+		return ops->needs_bounce_buffer(dev);
-+
-+	return 0;
-+}
-+
- void iommu_put_resv_regions(struct device *dev, struct list_head *list)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 61cac25410b5..d377ffa362a7 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -280,6 +280,7 @@ struct iommu_ops {
- 			       enum iommu_attr attr, void *data);
- 	int (*domain_set_attr)(struct iommu_domain *domain,
- 			       enum iommu_attr attr, void *data);
-+	int (*needs_bounce_buffer)(struct device *dev);
- 
- 	/* Request/Free a list of reserved regions for a device */
- 	void (*get_resv_regions)(struct device *dev, struct list_head *list);
-@@ -460,6 +461,7 @@ extern phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t io
- extern void iommu_set_fault_handler(struct iommu_domain *domain,
- 			iommu_fault_handler_t handler, void *token);
- 
-+extern int iommu_needs_bounce_buffer(struct device *dev);
- extern void iommu_get_resv_regions(struct device *dev, struct list_head *list);
- extern void iommu_put_resv_regions(struct device *dev, struct list_head *list);
- extern int iommu_request_dm_for_dev(struct device *dev);
-@@ -530,7 +532,7 @@ static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
- 		domain->ops->flush_iotlb_all(domain);
- }
- 
--static inline void flush_iotlb_range(struct iommu_domain *domain,
-+static inline void iommu_flush_iotlb_range(struct iommu_domain *domain,
- 			unsigned long iova, size_t size,
- 			struct page *freelist)
- {
-@@ -764,6 +766,11 @@ static inline void iommu_set_fault_handler(struct iommu_domain *domain,
- {
- }
- 
-+static inline int iommu_needs_bounce_buffer(struct device *dev)
-+{
-+	return 0;
-+}
-+
- static inline void iommu_get_resv_regions(struct device *dev,
- 					struct list_head *list)
- {
--- 
-2.20.1
+> > [This also got me thinking about your start_subchannel function
+> > again... do you also want to allow flags like e.g. SLI? It's not
+> > unusual for commands to return different lengths of data depending on
+> > what features are available; it might be worthwhile to allow short data
+> > if you're not sure that e.g. a command returns either the short or the
+> > long version of a structure.]  
+> 
+> I would prefer to keep simple it in this series if you agree.
+
+Sure, that's fine.
+
+> 
+> AFAIU the current QEMU implementation use a fix length and if a short 
+> read occurs it is an error.
+> Since we test on PONG, there should be no error.
+
+It all depends on how the QEMU device is supposed to work. For a
+command reading/writing some data, I'd usually expect the following:
+
+- If SLI is not set, require the length to be the exact value expected
+  by the device; otherwise, generate an error.
+- If SLI is set, require the length to be between the minimum length
+  that makes sense and the full length of the buffer; otherwise,
+  generate an error.
+
+Of course, if minimum length == full length, SLI has no real effect :)
+
+> 
+> I agree that for a general test we should change this, but currently the 
+> goal is just to verify that the remote device is PONG.
+> 
+> If we accept variable length, we need to check the length of what we 
+> received, and this could need some infrastructure changes that I would 
+> like to do later.
+
+You mean at the device level? At the driver level (== here), you should
+simply get an error or not, I guess.
+
+> 
+> When the series is accepted I will begin to do more complicated things like:
+> - checking the exceptions for wrong parameters
+>    This is the first I will add.
+
+Agreed, that's probably the most useful one.
+
+> - checking the response difference on flags (SLI, SKP)
+> - using CC and CD flags for chaining
+> - TIC, NOP, suspend/resume and PCI
+> 
+> These last one will be fun, we can also trying to play with prefetch 
+> while at it. :)
+
+I think any kind of ccw chain will already be fun :) It's probably not
+so well tested anyway, as virtio is basically single-command.
