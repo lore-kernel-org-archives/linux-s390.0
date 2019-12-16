@@ -1,63 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730879AbfLKPOG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:14:06 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 123/134] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
-Date: Wed, 11 Dec 2019 10:11:39 -0500
-Message-Id: <20191211151150.19073-123-sashal@kernel.org>
-In-Reply-To: <20191211151150.19073-1-sashal@kernel.org>
-References: <20191211151150.19073-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23314 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727609AbfLPNno (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 16 Dec 2019 08:43:44 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBGDcU1Q191464
+        for <linux-s390@vger.kernel.org>; Mon, 16 Dec 2019 08:43:42 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wwdxybnrc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 16 Dec 2019 08:43:42 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <oberpar@linux.ibm.com>;
+        Mon, 16 Dec 2019 13:43:40 -0000
+Subject: Re: [RFC QEMU PATCH] pc-bios/s390-ccw: Add zipl-like "BOOT_IMAGE=x"
+ to the kernel parameters
+References: <20191216112432.13412-1-thuth@redhat.com>
+ <ffea8f68-714b-798e-3563-12f9bf0668fa@de.ibm.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
+Date: Mon, 16 Dec 2019 14:43:33 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <ffea8f68-714b-798e-3563-12f9bf0668fa@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <ea23540a-34bc-bdc3-07f2-8c7b21fe16c7@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Huth <thuth@redhat.com>, qemu-devel@nongnu.org, Stefan Haberland <sth@linux.ibm.com>
+Cc: qemu-s390x@nongnu.org, Cornelia Huck <cohuck@redhat.com>, psundara@redhat.com, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
+On 16.12.2019 12:29, Christian Borntraeger wrote:
+> 
+> 
+> On 16.12.19 12:24, Thomas Huth wrote:
+>>  Note: I've marked the patch as RFC since I'm not quite sure whether
+>>  this is really the right way to address this issue: It's unfortunate
+>>  that we have to mess with different location in ZIPL which might also
+>>  change again in the future.
 
-[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
+Having QEMU or any other tooling rely on undocumented on-disk format
+specifics of zipl is definitely wrong and prone to break with the next
+change. This is _not_ an ABI.
 
-This patch introduces support for a new architectured reply
-code 0x8B indicating that a hypervisor layer (if any) has
-rejected an ap message.
+>>  As suggested by Christian on IRC last week,
+>>  maybe it would make more sense to change ZIPL to add this parameter
+>>  already when zipl is installed (i.e. by the Linux userspace "zipl" pro-
+>>  gram), instead of adding it during boot time? Also, the BOOT_IMAGE para-
+>>  meter on s390x is quite different from the BOOT_IMAGE paramter that is
+>>  used on x86 - while s390x only uses one single number here, the x86
+>>  variant (added by grub2, I guess) uses the boot device + full filename
+>>  of the kernel on the boot partition. Should we maybe make the s390x
+>>  variant more conform to x86? If so, I think this really has to be fixed
+>>  in zipl userspace tool, and not in the s390-ccw bios (and zipl stage3
+>>  bootloader).
+> 
+> Yes, I actually think we should revisit the whole BOOT_IMAGE scheme on s390.
+> Maybe we should use the kernel name, or the name of the boot menu entry.
+> And maybe we should not use 0 (when the default is running) but instead
+> really use to what 0 points to.
 
-Linux may run as a guest on top of a hypervisor like zVM
-or KVM. So the crypto hardware seen by the ap bus may be
-restricted by the hypervisor for example only a subset like
-only clear key crypto requests may be supported. Other
-requests will be filtered out - rejected by the hypervisor.
-The new reply code 0x8B will appear in such cases and needs
-to get recognized by the ap bus and zcrypt device driver zoo.
+BOOT_IMAGE on s390 currently only exists for DASD, so any tooling that
+relies on it today would be broken for SCSI boot. The equivalent
+information for SCSI would be the boot program selector at
+/sys/firmware/ipl/bootprog. There is currently no other way to get this
+information when booting from DASD.
 
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/crypto/zcrypt_error.h | 2 ++
- 1 file changed, 2 insertions(+)
+Also note that the format of BOOT_IMAGE is dependent on the boot loader
+that created it. The use of the menu number (and 0 for default) has the
+advantage that this number can be used, e.g. to select the same number
+for the next boot using the LOADPARM. Changing BOOT_IMAGE to show the
+kernel name would take away that use case.
 
-diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
-index f34ee41cbed88..4f4dd9d727c9e 100644
---- a/drivers/s390/crypto/zcrypt_error.h
-+++ b/drivers/s390/crypto/zcrypt_error.h
-@@ -61,6 +61,7 @@ struct error_hdr {
- #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
- #define REP82_ERROR_RESERVED_FIELD	    0x88
- #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
-+#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
- #define REP82_ERROR_TRANSPORT_FAIL	    0x90
- #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
- #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
-@@ -91,6 +92,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
- 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
- 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
- 	case REP82_ERROR_INVALID_SPECIAL_CMD:
-+	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
- 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
- 	//   REP88_ERROR_OPERAND		// '84' CEX2A
- 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
+At this time I would suggest to start by identifying any current users
+of BOOT_IMAGE and to understand what their actual requirement is. Once
+that information is available, we can think about how this requirement
+could best be implemented. Looking at the dracut link it seems like
+their requirement cannot be met at all with the information currently
+provided on s390 via the BOOT_IMAGE parameter.
+
 -- 
-2.20.1
+Peter Oberparleiter
+Linux on Z Development - IBM Germany
