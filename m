@@ -1,117 +1,104 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34114 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727578AbfLRQfF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Dec 2019 11:35:05 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYTIE085832
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:04 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wy7ub8vns-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:03 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Dec 2019 16:34:57 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 7/9] s390/qeth: stop yielding the ip_lock during IPv4 registration
-Date: Wed, 18 Dec 2019 17:34:48 +0100
-In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
-References: <20191218163450.36731-1-jwi@linux.ibm.com>
-Message-Id: <20191218163450.36731-8-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+Date: Tue, 17 Dec 2019 17:39:50 +1100
+From: Aleksa Sarai <cyphar@cyphar.com>
+Subject: Re: [PATCH v18 11/13] open: introduce openat2(2) syscall
+Message-ID: <20191217063950.5oqwwqz5p3bu7t2x@yavin.dot.cyphar.com>
+References: <20191206141338.23338-1-cyphar@cyphar.com>
+ <20191206141338.23338-12-cyphar@cyphar.com>
+ <20191216192158.B9F19832924A@oldenburg2.str.redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vzwczu2ztdefrrfu"
+Content-Disposition: inline
+In-Reply-To: <20191216192158.B9F19832924A@oldenburg2.str.redhat.com>
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Florian Weimer <fweimer@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>, linux-ia64@vger.kernel.org, linux-doc@vger.kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org, linux-api@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, David Drysdale <drysdale@google.com>, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, linuxppc-dev@lists.ozlabs.org, dev@opencontainers.org, Andy Lutomirski <luto@kernel.org>, Namhyung Kim <namhyung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, libc-alpha@sourceware.org, linux-parisc@vger.kernel.org, linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Eric Biederman <ebiederm@xmission.com>, linux-alpha@vger.kernel.org, linux-fsdevel@vger.kernel.org, bpf@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, containers@lists.linux-foundation.org
 
-As commit df2a2a5225cc ("s390/qeth: convert IP table spinlock to mutex")
-converted the ip_lock to a mutex, we no longer have to yield it while
-the subsequent IO sleep-waits for completion.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l3.h      |  1 -
- drivers/s390/net/qeth_l3_main.c | 34 ++-------------------------------
- 2 files changed, 2 insertions(+), 33 deletions(-)
+--vzwczu2ztdefrrfu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index 89fb91dad12e..6ccfe2121095 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -23,7 +23,6 @@ struct qeth_ipaddr {
- 	struct hlist_node hnode;
- 	enum qeth_ip_types type;
- 	u8 is_multicast:1;
--	u8 in_progress:1;
- 	u8 disp_flag:2;
- 	u8 ipato:1;			/* ucast only */
- 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 8bd3fc73a4fb..789d3b2ba0de 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -151,8 +151,6 @@ static int qeth_l3_delete_ip(struct qeth_card *card,
- 	addr->ref_counter--;
- 	if (addr->type == QETH_IP_TYPE_NORMAL && addr->ref_counter > 0)
- 		return rc;
--	if (addr->in_progress)
--		return -EINPROGRESS;
- 
- 	if (qeth_card_hw_is_reachable(card))
- 		rc = qeth_l3_deregister_addr_entry(card, addr);
-@@ -213,29 +211,10 @@ static int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
- 			return 0;
- 		}
- 
--		/* qeth_l3_register_addr_entry can go to sleep
--		 * if we add a IPV4 addr. It is caused by the reason
--		 * that SETIP ipa cmd starts ARP staff for IPV4 addr.
--		 * Thus we should unlock spinlock, and make a protection
--		 * using in_progress variable to indicate that there is
--		 * an hardware operation with this IPV4 address
--		 */
--		if (addr->proto == QETH_PROT_IPV4) {
--			addr->in_progress = 1;
--			mutex_unlock(&card->ip_lock);
--			rc = qeth_l3_register_addr_entry(card, addr);
--			mutex_lock(&card->ip_lock);
--			addr->in_progress = 0;
--		} else
--			rc = qeth_l3_register_addr_entry(card, addr);
-+		rc = qeth_l3_register_addr_entry(card, addr);
- 
- 		if (!rc || rc == -EADDRINUSE || rc == -ENETDOWN) {
- 			addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
--			if (addr->ref_counter < 1) {
--				qeth_l3_deregister_addr_entry(card, addr);
--				hash_del(&addr->hnode);
--				kfree(addr);
--			}
- 		} else {
- 			hash_del(&addr->hnode);
- 			kfree(addr);
-@@ -303,19 +282,10 @@ static void qeth_l3_recover_ip(struct qeth_card *card)
- 
- 	hash_for_each_safe(card->ip_htable, i, tmp, addr, hnode) {
- 		if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
--			if (addr->proto == QETH_PROT_IPV4) {
--				addr->in_progress = 1;
--				mutex_unlock(&card->ip_lock);
--				rc = qeth_l3_register_addr_entry(card, addr);
--				mutex_lock(&card->ip_lock);
--				addr->in_progress = 0;
--			} else
--				rc = qeth_l3_register_addr_entry(card, addr);
-+			rc = qeth_l3_register_addr_entry(card, addr);
- 
- 			if (!rc) {
- 				addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
--				if (addr->ref_counter < 1)
--					qeth_l3_delete_ip(card, addr);
- 			} else {
- 				hash_del(&addr->hnode);
- 				kfree(addr);
--- 
-2.17.1
+On 2019-12-16, Florian Weimer <fweimer@redhat.com> wrote:
+> > diff --git a/include/uapi/linux/fcntl.h b/include/uapi/linux/fcntl.h
+> > index 1d338357df8a..58c3a0e543c6 100644
+> > --- a/include/uapi/linux/fcntl.h
+> > +++ b/include/uapi/linux/fcntl.h
+> > @@ -93,5 +93,40 @@
+> > =20
+> >  #define AT_RECURSIVE		0x8000	/* Apply to the entire subtree */
+> > =20
+> > +/*
+> > + * Arguments for how openat2(2) should open the target path. If @resol=
+ve is
+> > + * zero, then openat2(2) operates very similarly to openat(2).
+> > + *
+> > + * However, unlike openat(2), unknown bits in @flags result in -EINVAL=
+ rather
+> > + * than being silently ignored. @mode must be zero unless one of {O_CR=
+EAT,
+> > + * O_TMPFILE} are set.
+> > + *
+> > + * @flags: O_* flags.
+> > + * @mode: O_CREAT/O_TMPFILE file mode.
+> > + * @resolve: RESOLVE_* flags.
+> > + */
+> > +struct open_how {
+> > +	__aligned_u64 flags;
+> > +	__u16 mode;
+> > +	__u16 __padding[3]; /* must be zeroed */
+> > +	__aligned_u64 resolve;
+> > +};
+> > +
+> > +#define OPEN_HOW_SIZE_VER0	24 /* sizeof first published struct */
+> > +#define OPEN_HOW_SIZE_LATEST	OPEN_HOW_SIZE_VER0
+> > +
+> > +/* how->resolve flags for openat2(2). */
+> > +#define RESOLVE_NO_XDEV		0x01 /* Block mount-point crossings
+> > +					(includes bind-mounts). */
+> > +#define RESOLVE_NO_MAGICLINKS	0x02 /* Block traversal through procfs-s=
+tyle
+> > +					"magic-links". */
+> > +#define RESOLVE_NO_SYMLINKS	0x04 /* Block traversal through all symlin=
+ks
+> > +					(implies OEXT_NO_MAGICLINKS) */
+> > +#define RESOLVE_BENEATH		0x08 /* Block "lexical" trickery like
+> > +					"..", symlinks, and absolute
+> > +					paths which escape the dirfd. */
+> > +#define RESOLVE_IN_ROOT		0x10 /* Make all jumps to "/" and ".."
+> > +					be scoped inside the dirfd
+> > +					(similar to chroot(2)). */
+> > =20
+> >  #endif /* _UAPI_LINUX_FCNTL_H */
+>=20
+> Would it be possible to move these to a new UAPI header?
+>=20
+> In glibc, we currently do not #include <linux/fcntl.h>.  We need some of
+> the AT_* constants in POSIX mode, and the header is not necessarily
+> namespace-clean.  If there was a separate header for openat2 support, we
+> could use that easily, and we would only have to maintain the baseline
+> definitions (which never change).
+
+Sure, (assuming nobody objects) I can move it to "linux/openat2.h".
+
+--=20
+Aleksa Sarai
+Senior Software Engineer (Containers)
+SUSE Linux GmbH
+<https://www.cyphar.com/>
+
+--vzwczu2ztdefrrfu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQSxZm6dtfE8gxLLfYqdlLljIbnQEgUCXfh4MQAKCRCdlLljIbnQ
+EvJ/AP9e+RbEhnKlfXeue8RftgpgyUu8To5+ZOcmuoKfUFVefgEAmch0tDU0glq6
+a0g2iw25N8tzxhAIzQpE/p2HRuzcPgo=
+=p/bo
+-----END PGP SIGNATURE-----
+
+--vzwczu2ztdefrrfu--
