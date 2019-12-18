@@ -1,119 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49616 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388501AbfLKPiw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:38:52 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 35/37] s390/cpum_sf: Check for SDBT and SDB consistency
-Date: Wed, 11 Dec 2019 10:38:11 -0500
-Message-Id: <20191211153813.24126-35-sashal@kernel.org>
-In-Reply-To: <20191211153813.24126-1-sashal@kernel.org>
-References: <20191211153813.24126-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34114 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727578AbfLRQfF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Dec 2019 11:35:05 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYTIE085832
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:04 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wy7ub8vns-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:03 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Dec 2019 16:34:57 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 7/9] s390/qeth: stop yielding the ip_lock during IPv4 registration
+Date: Wed, 18 Dec 2019 17:34:48 +0100
+In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
+References: <20191218163450.36731-1-jwi@linux.ibm.com>
+Message-Id: <20191218163450.36731-8-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+As commit df2a2a5225cc ("s390/qeth: convert IP table spinlock to mutex")
+converted the ip_lock to a mutex, we no longer have to yield it while
+the subsequent IO sleep-waits for completion.
 
-[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
-
-Each SBDT is located at a 4KB page and contains 512 entries.
-Each entry of a SDBT points to a SDB, a 4KB page containing
-sampled data. The last entry is a link to another SDBT page.
-
-When an event is created the function sequence executed is:
-
-  __hw_perf_event_init()
-  +--> allocate_buffers()
-       +--> realloc_sampling_buffers()
-	    +---> alloc_sample_data_block()
-
-Both functions realloc_sampling_buffers() and
-alloc_sample_data_block() allocate pages and the allocation
-can fail. This is handled correctly and all allocated
-pages are freed and error -ENOMEM is returned to the
-top calling function. Finally the event is not created.
-
-Once the event has been created, the amount of initially
-allocated SDBT and SDB can be too low. This is detected
-during measurement interrupt handling, where the amount
-of lost samples is calculated. If the number of lost samples
-is too high considering sampling frequency and already allocated
-SBDs, the number of SDBs is enlarged during the next execution
-of cpumsf_pmu_enable().
-
-If more SBDs need to be allocated, functions
-
-       realloc_sampling_buffers()
-       +---> alloc-sample_data_block()
-
-are called to allocate more pages. Page allocation may fail
-and the returned error is ignored. A SDBT and SDB setup
-already exists.
-
-However the modified SDBTs and SDBs might end up in a situation
-where the first entry of an SDBT does not point to an SDB,
-but another SDBT, basicly an SBDT without payload.
-This can not be handled by the interrupt handler, where an SDBT
-must have at least one entry pointing to an SBD.
-
-Add a check to avoid SDBTs with out payload (SDBs) when enlarging
-the buffer setup.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_l3.h      |  1 -
+ drivers/s390/net/qeth_l3_main.c | 34 ++-------------------------------
+ 2 files changed, 2 insertions(+), 33 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 874762a51c546..7490c52b27153 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 				   unsigned long num_sdb, gfp_t gfp_flags)
- {
- 	int i, rc;
--	unsigned long *new, *tail;
-+	unsigned long *new, *tail, *tail_prev = NULL;
+diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
+index 89fb91dad12e..6ccfe2121095 100644
+--- a/drivers/s390/net/qeth_l3.h
++++ b/drivers/s390/net/qeth_l3.h
+@@ -23,7 +23,6 @@ struct qeth_ipaddr {
+ 	struct hlist_node hnode;
+ 	enum qeth_ip_types type;
+ 	u8 is_multicast:1;
+-	u8 in_progress:1;
+ 	u8 disp_flag:2;
+ 	u8 ipato:1;			/* ucast only */
  
- 	if (!sfb->sdbt || !sfb->tail)
- 		return -EINVAL;
-@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 			sfb->num_sdbt++;
- 			/* Link current page to tail of chain */
- 			*tail = (unsigned long)(void *) new + 1;
-+			tail_prev = tail;
- 			tail = new;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 8bd3fc73a4fb..789d3b2ba0de 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -151,8 +151,6 @@ static int qeth_l3_delete_ip(struct qeth_card *card,
+ 	addr->ref_counter--;
+ 	if (addr->type == QETH_IP_TYPE_NORMAL && addr->ref_counter > 0)
+ 		return rc;
+-	if (addr->in_progress)
+-		return -EINPROGRESS;
+ 
+ 	if (qeth_card_hw_is_reachable(card))
+ 		rc = qeth_l3_deregister_addr_entry(card, addr);
+@@ -213,29 +211,10 @@ static int qeth_l3_add_ip(struct qeth_card *card, struct qeth_ipaddr *tmp_addr)
+ 			return 0;
  		}
  
-@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 		 * issue, a new realloc call (if required) might succeed.
- 		 */
- 		rc = alloc_sample_data_block(tail, gfp_flags);
--		if (rc)
-+		if (rc) {
-+			/* Undo last SDBT. An SDBT with no SDB at its first
-+			 * entry but with an SDBT entry instead can not be
-+			 * handled by the interrupt handler code.
-+			 * Avoid this situation.
-+			 */
-+			if (tail_prev) {
-+				sfb->num_sdbt--;
-+				free_page((unsigned long) new);
-+				tail = tail_prev;
-+			}
- 			break;
-+		}
- 		sfb->num_sdb++;
- 		tail++;
-+		tail_prev = new = NULL;	/* Allocated at least one SBD */
- 	}
+-		/* qeth_l3_register_addr_entry can go to sleep
+-		 * if we add a IPV4 addr. It is caused by the reason
+-		 * that SETIP ipa cmd starts ARP staff for IPV4 addr.
+-		 * Thus we should unlock spinlock, and make a protection
+-		 * using in_progress variable to indicate that there is
+-		 * an hardware operation with this IPV4 address
+-		 */
+-		if (addr->proto == QETH_PROT_IPV4) {
+-			addr->in_progress = 1;
+-			mutex_unlock(&card->ip_lock);
+-			rc = qeth_l3_register_addr_entry(card, addr);
+-			mutex_lock(&card->ip_lock);
+-			addr->in_progress = 0;
+-		} else
+-			rc = qeth_l3_register_addr_entry(card, addr);
++		rc = qeth_l3_register_addr_entry(card, addr);
  
- 	/* Link sampling buffer to its origin */
+ 		if (!rc || rc == -EADDRINUSE || rc == -ENETDOWN) {
+ 			addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
+-			if (addr->ref_counter < 1) {
+-				qeth_l3_deregister_addr_entry(card, addr);
+-				hash_del(&addr->hnode);
+-				kfree(addr);
+-			}
+ 		} else {
+ 			hash_del(&addr->hnode);
+ 			kfree(addr);
+@@ -303,19 +282,10 @@ static void qeth_l3_recover_ip(struct qeth_card *card)
+ 
+ 	hash_for_each_safe(card->ip_htable, i, tmp, addr, hnode) {
+ 		if (addr->disp_flag == QETH_DISP_ADDR_ADD) {
+-			if (addr->proto == QETH_PROT_IPV4) {
+-				addr->in_progress = 1;
+-				mutex_unlock(&card->ip_lock);
+-				rc = qeth_l3_register_addr_entry(card, addr);
+-				mutex_lock(&card->ip_lock);
+-				addr->in_progress = 0;
+-			} else
+-				rc = qeth_l3_register_addr_entry(card, addr);
++			rc = qeth_l3_register_addr_entry(card, addr);
+ 
+ 			if (!rc) {
+ 				addr->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
+-				if (addr->ref_counter < 1)
+-					qeth_l3_delete_ip(card, addr);
+ 			} else {
+ 				hash_del(&addr->hnode);
+ 				kfree(addr);
 -- 
-2.20.1
+2.17.1
