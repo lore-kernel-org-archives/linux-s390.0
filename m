@@ -1,113 +1,147 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout-p-101.mailbox.org ([80.241.56.151]:21974 "EHLO
-        mout-p-101.mailbox.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726244AbfLFORD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 09:17:03 -0500
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v18 06/13] namei: LOOKUP_NO_MAGICLINKS: block magic-link resolution
-Date: Sat,  7 Dec 2019 01:13:31 +1100
-Message-Id: <20191206141338.23338-7-cyphar@cyphar.com>
-In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
-References: <20191206141338.23338-1-cyphar@cyphar.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60528 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727393AbfLRQfB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Dec 2019 11:35:01 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYo0P091832
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:34:59 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wym9r0g2s-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:34:59 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Dec 2019 16:34:57 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/9] s390/qeth: remove open-coded inet_make_mask()
+Date: Wed, 18 Dec 2019 17:34:46 +0100
+In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
+References: <20191218163450.36731-1-jwi@linux.ibm.com>
+Message-Id: <20191218163450.36731-6-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Christian Brauner <christian.brauner@ubuntu.com>, David Drysdale <drysdale@google.com>, Andy Lutomirski <luto@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Eric Biederman <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-/* Background. */
-There has always been a special class of symlink-like objects in procfs
-(and a few other pseudo-filesystems) which allow for non-lexical
-resolution of paths using nd_jump_link(). These "magic-links" do not
-follow traditional mount namespace boundaries, and have been used
-consistently in container escape attacks because they can be used to
-trick unsuspecting privileged processes into resolving unexpected paths.
+Use inet_make_mask() to replace some complicated bit-fiddling.
 
-It is also non-trivial for userspace to unambiguously avoid resolving
-magic-links, because they do not have a reliable indication that they
-are a magic-link (in order to verify them you'd have to manually open
-the path given by readlink(2) and then verify that the two file
-descriptors reference the same underlying file, which is plagued with
-possible race conditions or supplementary attack scenarios).
+Also use the right data types to replace some raw memcpy calls with
+proper assignments.
 
-It would therefore be very helpful for userspace to be able to avoid
-these symlinks easily, thus hopefully removing a tool from attackers'
-toolboxes.
-
-This is part of a refresh of Al's AT_NO_JUMPS patchset[1] (which was a
-variation on David Drysdale's O_BENEATH patchset[2], which in turn was
-based on the Capsicum project[3]).
-
-/* Userspace API. */
-LOOKUP_NO_MAGICLINKS will be exposed to userspace through openat2(2).
-
-/* Semantics. */
-Unlike most other LOOKUP flags (most notably LOOKUP_FOLLOW),
-LOOKUP_NO_MAGICLINKS applies to all components of the path.
-
-With LOOKUP_NO_MAGICLINKS, any magic-link path component encountered
-during path resolution will yield -ELOOP. The handling of ~LOOKUP_FOLLOW
-for a trailing magic-link is identical to LOOKUP_NO_SYMLINKS.
-
-LOOKUP_NO_SYMLINKS implies LOOKUP_NO_MAGICLINKS.
-
-/* Testing. */
-LOOKUP_NO_MAGICLINKS is tested as part of the openat2(2) selftests.
-
-[1]: https://lore.kernel.org/lkml/20170429220414.GT29622@ZenIV.linux.org.uk/
-[2]: https://lore.kernel.org/lkml/1415094884-18349-1-git-send-email-drysdale@google.com/
-[3]: https://lore.kernel.org/lkml/1404124096-21445-1-git-send-email-drysdale@google.com/
-
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: David Drysdale <drysdale@google.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- fs/namei.c            | 10 +++++++++-
- include/linux/namei.h |  1 +
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_mpc.h |  8 ++++----
+ drivers/s390/net/qeth_l3.h       |  2 +-
+ drivers/s390/net/qeth_l3_main.c  | 34 ++++++++++++++------------------
+ 3 files changed, 20 insertions(+), 24 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 303731935eb2..415a897729c8 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -867,13 +867,21 @@ static int nd_jump_root(struct nameidata *nd)
-  */
- int nd_jump_link(struct path *path)
- {
-+	int error = -ELOOP;
- 	struct nameidata *nd = current->nameidata;
--	path_put(&nd->path);
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 88f4dc140751..f13225b43781 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -338,14 +338,14 @@ enum qeth_card_info_port_speed {
  
-+	if (unlikely(nd->flags & LOOKUP_NO_MAGICLINKS))
-+		goto err;
-+
-+	path_put(&nd->path);
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
- 	nd->flags |= LOOKUP_JUMPED;
- 	return 0;
-+
-+err:
-+	path_put(path);
-+	return error;
+ /* (SET)DELIP(M) IPA stuff ***************************************************/
+ struct qeth_ipacmd_setdelip4 {
+-	__u8   ip_addr[4];
+-	__u8   mask[4];
++	__be32 addr;
++	__be32 mask;
+ 	__u32  flags;
+ } __attribute__ ((packed));
+ 
+ struct qeth_ipacmd_setdelip6 {
+-	__u8   ip_addr[16];
+-	__u8   mask[16];
++	struct in6_addr addr;
++	struct in6_addr prefix;
+ 	__u32  flags;
+ } __attribute__ ((packed));
+ 
+diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
+index 2383ffad0a4a..89fb91dad12e 100644
+--- a/drivers/s390/net/qeth_l3.h
++++ b/drivers/s390/net/qeth_l3.h
+@@ -35,7 +35,7 @@ struct qeth_ipaddr {
+ 	union {
+ 		struct {
+ 			__be32 addr;
+-			unsigned int mask;
++			__be32 mask;
+ 		} a4;
+ 		struct {
+ 			struct in6_addr addr;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 8db548340632..bd2273f9ca35 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -369,17 +369,16 @@ static int qeth_l3_send_setdelmc(struct qeth_card *card,
+ 	return qeth_send_ipa_cmd(card, iob, qeth_l3_setdelip_cb, NULL);
  }
  
- static inline void put_link(struct nameidata *nd)
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 0d86e75c04a7..1573b8493d98 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -41,6 +41,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT, LAST_BIND};
+-static void qeth_l3_fill_netmask(u8 *netmask, unsigned int len)
++static void qeth_l3_set_ipv6_prefix(struct in6_addr *prefix, unsigned int len)
+ {
+-	int i, j;
+-	for (i = 0; i < 16; i++) {
+-		j = (len) - (i * 8);
+-		if (j >= 8)
+-			netmask[i] = 0xff;
+-		else if (j > 0)
+-			netmask[i] = (u8)(0xFF00 >> j);
+-		else
+-			netmask[i] = 0;
++	unsigned int i = 0;
++
++	while (len && i < 4) {
++		int mask_len = min_t(int, len, 32);
++
++		prefix->s6_addr32[i] = inet_make_mask(mask_len);
++		len -= mask_len;
++		i++;
+ 	}
+ }
  
- /* Scoping flags for lookup. */
- #define LOOKUP_NO_SYMLINKS	0x010000 /* No symlink crossing. */
-+#define LOOKUP_NO_MAGICLINKS	0x020000 /* No nd_jump_link() crossing. */
+@@ -402,7 +401,6 @@ static int qeth_l3_send_setdelip(struct qeth_card *card,
+ {
+ 	struct qeth_cmd_buffer *iob;
+ 	struct qeth_ipa_cmd *cmd;
+-	__u8 netmask[16];
+ 	u32 flags;
  
- extern int path_pts(struct path *path);
+ 	QETH_CARD_TEXT(card, 4, "setdelip");
+@@ -417,15 +415,13 @@ static int qeth_l3_send_setdelip(struct qeth_card *card,
+ 	QETH_CARD_TEXT_(card, 4, "flags%02X", flags);
  
+ 	if (addr->proto == QETH_PROT_IPV6) {
+-		memcpy(cmd->data.setdelip6.ip_addr, &addr->u.a6.addr,
+-		       sizeof(struct in6_addr));
+-		qeth_l3_fill_netmask(netmask, addr->u.a6.pfxlen);
+-		memcpy(cmd->data.setdelip6.mask, netmask,
+-		       sizeof(struct in6_addr));
++		cmd->data.setdelip6.addr = addr->u.a6.addr;
++		qeth_l3_set_ipv6_prefix(&cmd->data.setdelip6.prefix,
++					addr->u.a6.pfxlen);
+ 		cmd->data.setdelip6.flags = flags;
+ 	} else {
+-		memcpy(cmd->data.setdelip4.ip_addr, &addr->u.a4.addr, 4);
+-		memcpy(cmd->data.setdelip4.mask, &addr->u.a4.mask, 4);
++		cmd->data.setdelip4.addr = addr->u.a4.addr;
++		cmd->data.setdelip4.mask = addr->u.a4.mask;
+ 		cmd->data.setdelip4.flags = flags;
+ 	}
+ 
+@@ -2436,7 +2432,7 @@ static int qeth_l3_ip_event(struct notifier_block *this,
+ 
+ 	qeth_l3_init_ipaddr(&addr, QETH_IP_TYPE_NORMAL, QETH_PROT_IPV4);
+ 	addr.u.a4.addr = ifa->ifa_address;
+-	addr.u.a4.mask = be32_to_cpu(ifa->ifa_mask);
++	addr.u.a4.mask = ifa->ifa_mask;
+ 
+ 	return qeth_l3_handle_ip_event(card, &addr, event);
+ }
 -- 
-2.24.0
+2.17.1
