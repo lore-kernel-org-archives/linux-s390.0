@@ -1,115 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18038 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726455AbfLFQ0m (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 11:26:42 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6GEIVB048254
-        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 11:26:41 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq905s8a0-1
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39926 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727539AbfLRQfC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Dec 2019 11:35:02 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYVQk152806
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:00 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2wyq5r1cmd-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 11:26:40 -0500
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:00 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 6 Dec 2019 16:26:38 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 9/9] s390x: css: ping pong
-Date: Fri,  6 Dec 2019 17:26:28 +0100
-In-Reply-To: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1575649588-6127-10-git-send-email-pmorel@linux.ibm.com>
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Dec 2019 16:34:58 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/9] s390/qeth: don't raise NETDEV_REBOOT event from L3 offline path
+Date: Wed, 18 Dec 2019 17:34:47 +0100
+In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
+References: <20191218163450.36731-1-jwi@linux.ibm.com>
+Message-Id: <20191218163450.36731-7-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-To test a write command with the SSCH instruction we need a QEMU device,
-with control unit type 0xC0CA. The PONG device is such a device.
+This is a leftover from back when a recovery action didn't go through
+dev_close(), and was meant to shoot down all remaining af_iucv sockets
+on the interface.
 
-This type of device responds to PONG_WRITE requests by incrementing an
-integer, stored as a string at offset 0 of the CCW data.
+Now that the offline path always calls dev_close(), the
+NETDEV_GOING_DOWN event from __dev_close_many() is sufficient and this
+hack can be removed.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- s390x/css.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ drivers/s390/net/qeth_l3_main.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/s390x/css.c b/s390x/css.c
-index 54a7b38..3b5ce9d 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -23,6 +23,10 @@
- #define SID_ONE		0x00010000
- #define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index bd2273f9ca35..8bd3fc73a4fb 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2288,12 +2288,6 @@ static int __qeth_l3_set_offline(struct ccwgroup_device *cgdev,
+ 	rtnl_unlock();
  
-+/* Channel Commands for PONG device */
-+#define PONG_WRITE	0x21 /* Write */
-+#define PONG_READ	0x22 /* Read buffer */
-+
- struct lowcore *lowcore = (void *)0x0;
- 
- static struct schib schib;
-@@ -259,6 +263,51 @@ unreg_cb:
- 	unregister_io_int_func(irq_io);
- }
- 
-+static void test_ping(void)
-+{
-+	int success, result;
-+	int cnt = 0, max = 4;
-+
-+	if (senseid.cu_type != PONG_CU) {
-+		report_skip("No PONG, no ping-pong");
-+		return;
-+	}
-+
-+	result = register_io_int_func(irq_io);
-+	if (result) {
-+		report("Could not register IRQ handler", 0);
-+		return;
-+	}
-+
-+	while (cnt++ < max) {
-+		snprintf(buffer, BUF_SZ, "%08x\n", cnt);
-+		success = start_subchannel(PONG_WRITE, buffer, 8);
-+		if (!success) {
-+			report("start_subchannel failed", 0);
-+			goto unreg_cb;
-+		}
-+		delay(100);
-+		success = start_subchannel(PONG_READ, buffer, 8);
-+		if (!success) {
-+			report("start_subchannel failed", 0);
-+			goto unreg_cb;
-+		}
-+		result = atol(buffer);
-+		if (result != (cnt + 1)) {
-+			report("Bad answer from pong: %08x - %08x",
-+				0, cnt, result);
-+			goto unreg_cb;
-+		} else
-+			report_info("%08x - %08x", cnt, result);
-+
-+		delay(100);
-+	}
-+	report("ping-pong count 0x%08x", 1, cnt);
-+
-+unreg_cb:
-+	unregister_io_int_func(irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
-@@ -266,6 +315,7 @@ static struct {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
- 	{ "sense (ssch/tsch)", test_sense },
-+	{ "ping-pong (ssch/tsch)", test_ping },
- 	{ NULL, NULL }
- };
- 
+ 	qeth_l3_stop_card(card);
+-	if (card->options.cq == QETH_CQ_ENABLED) {
+-		rtnl_lock();
+-		call_netdevice_notifiers(NETDEV_REBOOT, card->dev);
+-		rtnl_unlock();
+-	}
+-
+ 	rc  = qeth_stop_channel(&card->data);
+ 	rc2 = qeth_stop_channel(&card->write);
+ 	rc3 = qeth_stop_channel(&card->read);
 -- 
-2.17.0
+2.17.1
