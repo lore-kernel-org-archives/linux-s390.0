@@ -1,102 +1,213 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ozlabs.org ([203.11.71.1]:34691 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726124AbfLFMqT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 6 Dec 2019 07:46:19 -0500
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: [GIT PULL] Please pull powerpc/linux.git powerpc-5.5-2 tag (topic/kasan-bitops)
-Date: Fri, 06 Dec 2019 23:46:11 +1100
-Message-ID: <87blslei5o.fsf@mpe.ellerman.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64804 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727579AbfLRQfF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Dec 2019 11:35:05 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIGYiSC122116
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:04 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wyq5q9hm5-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 11:35:03 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Dec 2019 16:34:58 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 8/9] s390/qeth: consolidate helpers for capability checking
+Date: Wed, 18 Dec 2019 17:34:49 +0100
+In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
+References: <20191218163450.36731-1-jwi@linux.ibm.com>
+Message-Id: <20191218163450.36731-9-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: dja@axtens.net, elver@google.com, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, christophe.leroy@c-s.fr, linux-s390@vger.kernel.org, linux-arch@vger.kernel.org, x86@kernel.org, kasan-dev@googlegroups.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Convert the old code to use struct qeth_ipa_caps, and while at it remove
+all unused helper macros.
 
-Hi Linus,
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      | 47 ++-----------------------------
+ drivers/s390/net/qeth_core_main.c | 28 +++++++++---------
+ drivers/s390/net/qeth_core_mpc.h  | 13 +++++++--
+ 3 files changed, 27 insertions(+), 61 deletions(-)
 
-Please pull another powerpc update for 5.5.
-
-As you'll see from the diffstat this is mostly not powerpc code. In order to do
-KASAN instrumentation of bitops we needed to juggle some of the generic bitops
-headers.
-
-Because those changes potentially affect several architectures I wasn't
-confident putting them directly into my tree, so I've had them sitting in a
-topic branch. That branch (topic/kasan-bitops) has been in linux-next for a
-month, and I've not had any feedback that it's caused any problems.
-
-So I think this is good to merge, but it's a standalone pull so if anyone does
-object it's not a problem.
-
-cheers
-
-
-The following changes since commit da0c9ea146cbe92b832f1b0f694840ea8eb33cce:
-
-  Linux 5.4-rc2 (2019-10-06 14:27:30 -0700)
-
-are available in the git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git tags/powerpc-5.5-2
-
-for you to fetch changes up to 4f4afc2c9599520300b3f2b3666d2034fca03df3:
-
-  docs/core-api: Remove possibly confusing sub-headings from Bit Operations (2019-12-04 21:20:28 +1100)
-
-- ------------------------------------------------------------------
-powerpc updates for 5.5 #2
-
-A few commits splitting the KASAN instrumented bitops header in
-three, to match the split of the asm-generic bitops headers.
-
-This is needed on powerpc because we use asm-generic/bitops/non-atomic.h,
-for the non-atomic bitops, whereas the existing KASAN instrumented
-bitops assume all the underlying operations are provided by the arch
-as arch_foo() versions.
-
-Thanks to:
-  Daniel Axtens & Christophe Leroy.
-
-- ------------------------------------------------------------------
-Daniel Axtens (2):
-      kasan: support instrumented bitops combined with generic bitops
-      powerpc: support KASAN instrumentation of bitops
-
-Michael Ellerman (1):
-      docs/core-api: Remove possibly confusing sub-headings from Bit Operations
-
-
- Documentation/core-api/kernel-api.rst                |   8 +-
- arch/powerpc/include/asm/bitops.h                    |  51 ++--
- arch/s390/include/asm/bitops.h                       |   4 +-
- arch/x86/include/asm/bitops.h                        |   4 +-
- include/asm-generic/bitops-instrumented.h            | 263 --------------------
- include/asm-generic/bitops/instrumented-atomic.h     | 100 ++++++++
- include/asm-generic/bitops/instrumented-lock.h       |  81 ++++++
- include/asm-generic/bitops/instrumented-non-atomic.h | 114 +++++++++
- 8 files changed, 337 insertions(+), 288 deletions(-)
- delete mode 100644 include/asm-generic/bitops-instrumented.h
- create mode 100644 include/asm-generic/bitops/instrumented-atomic.h
- create mode 100644 include/asm-generic/bitops/instrumented-lock.h
- create mode 100644 include/asm-generic/bitops/instrumented-non-atomic.h
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEJFGtCPCthwEv2Y/bUevqPMjhpYAFAl3qSS4ACgkQUevqPMjh
-pYCp1Q//TrG2tPMDPHpWqCzNdWoh96zpIo2UsauDcc8l+XT7shkwHcGnpoECgCfK
-NjhP77qqXI61E+5qUCfO16/j5g6PbvvG/E/xlQEdgX7lIxBeGs4IkoRU8QjkJ9w5
-wAjG/XwaMJ21CQY2F51dn9NPQUvFxKV0o6QJ+/pIFBnv0eeYCtRWno7+tZGIiMhk
-ExfJhR0rnBdBc6oonNOTAfWn5u51FRRqUeICeo4iFoICu5v4cTbPiU3/8bZYzhSb
-wM9WdG+/IUs02PffIQF4GDyMmzi/Qm3Ujl3tUIEaFHlfN9pF6X7Yog7Co26CShJj
-No4wJK5rS3ECXmwo7Yd69sV9FZrMZZvGY9x7p7bEE7mqk1fHMaM3DMXvR8Gx6UGM
-NCXX2QIIigz3RUTbj3CW2iZa9R/FTSFXs3Ih4YDDJdPNanYpcX3/wE6mpwsco8do
-lxWcN1AMGXLiaNdQ8IkRZ6hOLH/Po34RvDo1P1mS06NzfyyTZW7JNiUtU2HSqPRs
-vjIkHDM7585ika6jeDHU4cJaLy7bsCNV2fLsHWDE3Xno43g7qcKGOx+PtO25XubZ
-iP1vojR4Qml+e3ySf6dDiOIDltSWZwjCGtbi2gmdErHiLdLeJX2XGjC36Qnep6u6
-15HIWzX41tg8y4QRJDmPyeDm3Ccbabz+m4LaccbdObgGWVwxwgA=
-=06Wr
------END PGP SIGNATURE-----
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index b54ef12840a2..6e16b19732f6 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -125,12 +125,6 @@ struct qeth_routing_info {
+ 	enum qeth_routing_types type;
+ };
+ 
+-/* IPA stuff */
+-struct qeth_ipa_info {
+-	__u32 supported_funcs;
+-	__u32 enabled_funcs;
+-};
+-
+ /* SETBRIDGEPORT stuff */
+ enum qeth_sbp_roles {
+ 	QETH_SBP_ROLE_NONE	= 0,
+@@ -169,41 +163,6 @@ struct qeth_vnicc_info {
+ 	bool rx_bcast_enabled;
+ };
+ 
+-static inline int qeth_is_adp_supported(struct qeth_ipa_info *ipa,
+-		enum qeth_ipa_setadp_cmd func)
+-{
+-	return (ipa->supported_funcs & func);
+-}
+-
+-static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
+-		enum qeth_ipa_funcs func)
+-{
+-	return (ipa->supported_funcs & func);
+-}
+-
+-static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
+-		enum qeth_ipa_funcs func)
+-{
+-	return (ipa->supported_funcs & ipa->enabled_funcs & func);
+-}
+-
+-#define qeth_adp_supported(c, f) \
+-	qeth_is_adp_supported(&c->options.adp, f)
+-#define qeth_is_supported(c, f) \
+-	qeth_is_ipa_supported(&c->options.ipa4, f)
+-#define qeth_is_enabled(c, f) \
+-	qeth_is_ipa_enabled(&c->options.ipa4, f)
+-#define qeth_is_supported6(c, f) \
+-	qeth_is_ipa_supported(&c->options.ipa6, f)
+-#define qeth_is_enabled6(c, f) \
+-	qeth_is_ipa_enabled(&c->options.ipa6, f)
+-#define qeth_is_ipafunc_supported(c, prot, f) \
+-	 ((prot == QETH_PROT_IPV6) ? \
+-		qeth_is_supported6(c, f) : qeth_is_supported(c, f))
+-#define qeth_is_ipafunc_enabled(c, prot, f) \
+-	 ((prot == QETH_PROT_IPV6) ? \
+-		qeth_is_enabled6(c, f) : qeth_is_enabled(c, f))
+-
+ #define QETH_IDX_FUNC_LEVEL_OSD		 0x0101
+ #define QETH_IDX_FUNC_LEVEL_IQD		 0x4108
+ 
+@@ -735,11 +694,11 @@ enum qeth_discipline_id {
+ };
+ 
+ struct qeth_card_options {
++	struct qeth_ipa_caps ipa4;
++	struct qeth_ipa_caps ipa6;
+ 	struct qeth_routing_info route4;
+-	struct qeth_ipa_info ipa4;
+-	struct qeth_ipa_info adp; /*Adapter parameters*/
+ 	struct qeth_routing_info route6;
+-	struct qeth_ipa_info ipa6;
++	struct qeth_ipa_caps adp; /* Adapter parameters */
+ 	struct qeth_sbp_info sbp; /* SETBRIDGEPORT options */
+ 	struct qeth_vnicc_info vnicc; /* VNICC options */
+ 	int fake_broadcast;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 38f3ed7567bc..6b55271091cb 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2862,7 +2862,7 @@ static int qeth_query_setadapterparms_cb(struct qeth_card *card,
+ 		      cmd->data.setadapterparms.data.query_cmds_supp.lan_type;
+ 		QETH_CARD_TEXT_(card, 2, "lnk %d", card->info.link_type);
+ 	}
+-	card->options.adp.supported_funcs =
++	card->options.adp.supported =
+ 		cmd->data.setadapterparms.data.query_cmds_supp.supported_cmds;
+ 	return 0;
+ }
+@@ -2918,8 +2918,8 @@ static int qeth_query_ipassists_cb(struct qeth_card *card,
+ 	case IPA_RC_NOTSUPP:
+ 	case IPA_RC_L2_UNSUPPORTED_CMD:
+ 		QETH_CARD_TEXT(card, 2, "ipaunsup");
+-		card->options.ipa4.supported_funcs |= IPA_SETADAPTERPARMS;
+-		card->options.ipa6.supported_funcs |= IPA_SETADAPTERPARMS;
++		card->options.ipa4.supported |= IPA_SETADAPTERPARMS;
++		card->options.ipa6.supported |= IPA_SETADAPTERPARMS;
+ 		return -EOPNOTSUPP;
+ 	default:
+ 		QETH_DBF_MESSAGE(1, "IPA_CMD_QIPASSIST on device %x: Unhandled rc=%#x\n",
+@@ -2927,13 +2927,11 @@ static int qeth_query_ipassists_cb(struct qeth_card *card,
+ 		return -EIO;
+ 	}
+ 
+-	if (cmd->hdr.prot_version == QETH_PROT_IPV4) {
+-		card->options.ipa4.supported_funcs = cmd->hdr.ipa_supported;
+-		card->options.ipa4.enabled_funcs = cmd->hdr.ipa_enabled;
+-	} else if (cmd->hdr.prot_version == QETH_PROT_IPV6) {
+-		card->options.ipa6.supported_funcs = cmd->hdr.ipa_supported;
+-		card->options.ipa6.enabled_funcs = cmd->hdr.ipa_enabled;
+-	} else
++	if (cmd->hdr.prot_version == QETH_PROT_IPV4)
++		card->options.ipa4 = cmd->hdr.assists;
++	else if (cmd->hdr.prot_version == QETH_PROT_IPV6)
++		card->options.ipa6 = cmd->hdr.assists;
++	else
+ 		QETH_DBF_MESSAGE(1, "IPA_CMD_QIPASSIST on device %x: Flawed LIC detected\n",
+ 				 CARD_DEVID(card));
+ 	return 0;
+@@ -5002,9 +5000,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 		*carrier_ok = true;
+ 	}
+ 
+-	card->options.ipa4.supported_funcs = 0;
+-	card->options.ipa6.supported_funcs = 0;
+-	card->options.adp.supported_funcs = 0;
++	card->options.ipa4.supported = 0;
++	card->options.ipa6.supported = 0;
++	card->options.adp.supported = 0;
+ 	card->options.sbp.supported_funcs = 0;
+ 	card->info.diagass_support = 0;
+ 	rc = qeth_query_ipassists(card, QETH_PROT_IPV4);
+@@ -5421,9 +5419,9 @@ int qeth_setassparms_cb(struct qeth_card *card,
+ 
+ 	cmd->hdr.return_code = cmd->data.setassparms.hdr.return_code;
+ 	if (cmd->hdr.prot_version == QETH_PROT_IPV4)
+-		card->options.ipa4.enabled_funcs = cmd->hdr.ipa_enabled;
++		card->options.ipa4.enabled = cmd->hdr.assists.enabled;
+ 	if (cmd->hdr.prot_version == QETH_PROT_IPV6)
+-		card->options.ipa6.enabled_funcs = cmd->hdr.ipa_enabled;
++		card->options.ipa6.enabled = cmd->hdr.assists.enabled;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(qeth_setassparms_cb);
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index f13225b43781..f4dc37e28ac7 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -53,6 +53,16 @@ static inline bool qeth_ipa_caps_enabled(struct qeth_ipa_caps *caps, u32 mask)
+ 	return (caps->enabled & mask) == mask;
+ }
+ 
++#define qeth_adp_supported(c, f) \
++	qeth_ipa_caps_supported(&c->options.adp, f)
++#define qeth_is_supported(c, f) \
++	qeth_ipa_caps_supported(&c->options.ipa4, f)
++#define qeth_is_supported6(c, f) \
++	qeth_ipa_caps_supported(&c->options.ipa6, f)
++#define qeth_is_ipafunc_supported(c, prot, f) \
++	 ((prot == QETH_PROT_IPV6) ? qeth_is_supported6(c, f) : \
++				     qeth_is_supported(c, f))
++
+ enum qeth_card_types {
+ 	QETH_CARD_TYPE_OSD     = 1,
+ 	QETH_CARD_TYPE_IQD     = 5,
+@@ -766,8 +776,7 @@ struct qeth_ipacmd_hdr {
+ 	__u8   prim_version_no;
+ 	__u8   param_count;
+ 	__u16  prot_version;
+-	__u32  ipa_supported;
+-	__u32  ipa_enabled;
++	struct qeth_ipa_caps assists;
+ } __attribute__ ((packed));
+ 
+ /* The IPA command itself */
+-- 
+2.17.1
