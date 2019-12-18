@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 73/79] s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
-Date: Wed, 11 Dec 2019 10:26:37 -0500
-Message-Id: <20191211152643.23056-73-sashal@kernel.org>
-In-Reply-To: <20191211152643.23056-1-sashal@kernel.org>
-References: <20191211152643.23056-1-sashal@kernel.org>
+Subject: Re: [PATCH resend] s390/purgatory: Make sure we fail the build if
+ purgatory has missing symbols
+References: <20191212205304.191610-1-hdegoede@redhat.com>
+ <201912180823.P38gmVhW%lkp@intel.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 18 Dec 2019 09:12:53 +0100
 MIME-Version: 1.0
+In-Reply-To: <201912180823.P38gmVhW%lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Message-Id: <9c999218-0a2d-dd8d-71b7-e7f552957261@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kbuild test robot <lkp@intel.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: kbuild-all@lists.01.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 6733775a92eacd612ac88afa0fd922e4ffeb2bc7 ]
+On 18.12.19 01:25, kbuild test robot wrote:
+> Hi Hans,
+> 
+> I love your patch! Yet something to improve:
+> 
+> [auto build test ERROR on s390/features]
+> [also build test ERROR on v5.5-rc2 next-20191217]
+> [if your patch is applied to the wrong git tree, please drop us a note to help
+> improve the system. BTW, we also suggest to use '--base' option to specify the
+> base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Hans-de-Goede/s390-purgatory-Make-sure-we-fail-the-build-if-purgatory-has-missing-symbols/20191216-045305
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-randconfig-a001-20191217 (attached as .config)
+> compiler: s390-linux-gcc (GCC) 7.5.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=7.5.0 make.cross ARCH=s390 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
 
-This patch introduces support for a new architectured reply
-code 0x8B indicating that a hypervisor layer (if any) has
-rejected an ap message.
-
-Linux may run as a guest on top of a hypervisor like zVM
-or KVM. So the crypto hardware seen by the ap bus may be
-restricted by the hypervisor for example only a subset like
-only clear key crypto requests may be supported. Other
-requests will be filtered out - rejected by the hypervisor.
-The new reply code 0x8B will appear in such cases and needs
-to get recognized by the ap bus and zcrypt device driver zoo.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/crypto/zcrypt_error.h | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/s390/crypto/zcrypt_error.h b/drivers/s390/crypto/zcrypt_error.h
-index 2e1a27bd97d12..2126f4cc6d374 100644
---- a/drivers/s390/crypto/zcrypt_error.h
-+++ b/drivers/s390/crypto/zcrypt_error.h
-@@ -62,6 +62,7 @@ struct error_hdr {
- #define REP82_ERROR_EVEN_MOD_IN_OPND	    0x85
- #define REP82_ERROR_RESERVED_FIELD	    0x88
- #define REP82_ERROR_INVALID_DOMAIN_PENDING  0x8A
-+#define REP82_ERROR_FILTERED_BY_HYPERVISOR  0x8B
- #define REP82_ERROR_TRANSPORT_FAIL	    0x90
- #define REP82_ERROR_PACKET_TRUNCATED	    0xA0
- #define REP82_ERROR_ZERO_BUFFER_LEN	    0xB0
-@@ -92,6 +93,7 @@ static inline int convert_error(struct zcrypt_queue *zq,
- 	case REP82_ERROR_INVALID_DOMAIN_PRECHECK:
- 	case REP82_ERROR_INVALID_DOMAIN_PENDING:
- 	case REP82_ERROR_INVALID_SPECIAL_CMD:
-+	case REP82_ERROR_FILTERED_BY_HYPERVISOR:
- 	//   REP88_ERROR_INVALID_KEY		// '82' CEX2A
- 	//   REP88_ERROR_OPERAND		// '84' CEX2A
- 	//   REP88_ERROR_OPERAND_EVEN_MOD	// '85' CEX2A
--- 
-2.20.1
+This actually looks like the patch is doing exactly what it should.
+It seems we must not build the purgatory with kasan. Will have a look
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    arch/s390/purgatory/purgatory: In function `verify_sha256_digest':
+>>> (.text+0x20c6): undefined reference to `__asan_report_load8_noabort'
+>    (.text+0x20e8): undefined reference to `__asan_report_load8_noabort'
+>    (.text+0x212a): undefined reference to `memcmp'
+>    arch/s390/purgatory/purgatory: In function `sha256_update':
+>    (.text+0x21e4): undefined reference to `__asan_report_load8_noabort'
+>>> (.text+0x22b6): undefined reference to `__asan_report_load4_noabort'
+>>> (.text+0x2308): undefined reference to `__asan_report_store4_noabort'
+>    (.text+0x236e): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x23d8): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x2432): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x2498): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x24f2): undefined reference to `__asan_report_store4_noabort'
+>    (.text+0x254c): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x25a2): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x25f8): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x264e): undefined reference to `__asan_report_load4_noabort'
+>    (.text+0x26a4): undefined reference to `__asan_report_load4_noabort'
+>    arch/s390/purgatory/purgatory:(.text+0x26fa): more undefined references to `__asan_report_load4_noabort' follow
+>    arch/s390/purgatory/purgatory: In function `__sha256_final':
+>>> sha256.c:(.text+0x4062): undefined reference to `__asan_report_load8_noabort'
+>>> sha256.c:(.text+0x4120): undefined reference to `__asan_report_load4_noabort'
+>>> sha256.c:(.text+0x416e): undefined reference to `__asan_report_store4_noabort'
+>    arch/s390/purgatory/purgatory: In function `_GLOBAL__sub_D_65535_0_sha256_update':
+>    sha256.c:(.text+0x4444): undefined reference to `__asan_unregister_globals'
+>    arch/s390/purgatory/purgatory: In function `_GLOBAL__sub_I_65535_1_sha256_update':
+>    sha256.c:(.text+0x4454): undefined reference to `__asan_register_globals'
+> 
+> ---
+> 0-DAY kernel test infrastructure                 Open Source Technology Center
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org Intel Corporation
+> 
