@@ -1,104 +1,156 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 50/57] s390/dasd/cio: Interpret ccw_device_get_mdc return value correctly
-Date: Fri, 27 Dec 2019 13:02:15 -0500
-Message-Id: <20191227180222.7076-50-sashal@kernel.org>
-In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
-References: <20191227180222.7076-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/9] s390/qeth: only handle IRQs while device is online
+Date: Wed, 18 Dec 2019 17:34:42 +0100
+In-Reply-To: <20191218163450.36731-1-jwi@linux.ibm.com>
+References: <20191218163450.36731-1-jwi@linux.ibm.com>
+Message-Id: <20191218163450.36731-2-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+A qeth device that's offline should not be receiving any IRQs - all
+pending IOs have been terminated, and we avoid starting any new ones.
 
-[ Upstream commit dd4b3c83b9efac10d48a94c61372119fc555a077 ]
+So rather than immediately registering the IRQ handler when the device
+is probed, only register it while the device is online.
 
-The max data count (mdc) is an unsigned 16-bit integer value as per AR
-documentation and is received via ccw_device_get_mdc() for a specific
-path mask from the CIO layer. The function itself also always returns a
-positive mdc value or 0 in case mdc isn't supported or couldn't be
-determined.
-
-Though, the comment for this function describes a negative return value
-to indicate failures.
-
-As a result, the DASD device driver interprets the return value of
-ccw_device_get_mdc() incorrectly. The error case is essentially a dead
-code path.
-
-To fix this behaviour, check explicitly for a return value of 0 and
-change the comment for ccw_device_get_mdc() accordingly.
-
-This fix merely enables the error code path in the DASD functions
-get_fcx_max_data() and verify_fcx_max_data(). The actual functionality
-stays the same and is still correct.
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/block/dasd_eckd.c | 9 +++++----
- drivers/s390/cio/device_ops.c  | 2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 68 ++++++++++++++-----------------
+ 1 file changed, 31 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 0d5e2d92e05b..81359312a987 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1133,7 +1133,8 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
- 	int fcx_in_css, fcx_in_gneq, fcx_in_features;
--	int tpm, mdc;
-+	unsigned int mdc;
-+	int tpm;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index ce7ff1abbef3..3d2374801308 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -972,8 +972,6 @@ static void qeth_irq(struct ccw_device *cdev, unsigned long intparm,
+ 	/* while we hold the ccwdev lock, this stays valid: */
+ 	gdev = dev_get_drvdata(&cdev->dev);
+ 	card = dev_get_drvdata(&gdev->dev);
+-	if (!card)
+-		return;
  
- 	if (dasd_nofcx)
- 		return 0;
-@@ -1147,7 +1148,7 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- 		return 0;
+ 	QETH_CARD_TEXT(card, 5, "irq");
  
- 	mdc = ccw_device_get_mdc(device->cdev, 0);
--	if (mdc < 0) {
-+	if (mdc == 0) {
- 		dev_warn(&device->cdev->dev, "Detecting the maximum supported data size for zHPF requests failed\n");
- 		return 0;
- 	} else {
-@@ -1158,12 +1159,12 @@ static u32 get_fcx_max_data(struct dasd_device *device)
- static int verify_fcx_max_data(struct dasd_device *device, __u8 lpm)
- {
- 	struct dasd_eckd_private *private = device->private;
--	int mdc;
-+	unsigned int mdc;
- 	u32 fcx_max_data;
+@@ -1198,31 +1196,6 @@ static void qeth_free_buffer_pool(struct qeth_card *card)
+ 	}
+ }
  
- 	if (private->fcx_max_data) {
- 		mdc = ccw_device_get_mdc(device->cdev, lpm);
--		if ((mdc < 0)) {
-+		if (mdc == 0) {
- 			dev_warn(&device->cdev->dev,
- 				 "Detecting the maximum data size for zHPF "
- 				 "requests failed (rc=%d) for a new path %x\n",
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index b22922ec32d1..474afec9ab87 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -595,7 +595,7 @@ EXPORT_SYMBOL(ccw_device_tm_start_timeout);
-  * @mask: mask of paths to use
-  *
-  * Return the number of 64K-bytes blocks all paths at least support
-- * for a transport command. Return values <= 0 indicate failures.
-+ * for a transport command. Return value 0 indicates failure.
-  */
- int ccw_device_get_mdc(struct ccw_device *cdev, u8 mask)
+-static void qeth_clean_channel(struct qeth_channel *channel)
+-{
+-	struct ccw_device *cdev = channel->ccwdev;
+-
+-	QETH_DBF_TEXT(SETUP, 2, "freech");
+-
+-	spin_lock_irq(get_ccwdev_lock(cdev));
+-	cdev->handler = NULL;
+-	spin_unlock_irq(get_ccwdev_lock(cdev));
+-}
+-
+-static void qeth_setup_channel(struct qeth_channel *channel)
+-{
+-	struct ccw_device *cdev = channel->ccwdev;
+-
+-	QETH_DBF_TEXT(SETUP, 2, "setupch");
+-
+-	channel->state = CH_STATE_DOWN;
+-	atomic_set(&channel->irq_pending, 0);
+-
+-	spin_lock_irq(get_ccwdev_lock(cdev));
+-	cdev->handler = qeth_irq;
+-	spin_unlock_irq(get_ccwdev_lock(cdev));
+-}
+-
+ static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
  {
+ 	unsigned int count = single ? 1 : card->dev->num_tx_queues;
+@@ -1395,9 +1368,6 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 	if (!card->read_cmd)
+ 		goto out_read_cmd;
+ 
+-	qeth_setup_channel(&card->read);
+-	qeth_setup_channel(&card->write);
+-	qeth_setup_channel(&card->data);
+ 	card->qeth_service_level.seq_print = qeth_core_sl_print;
+ 	register_service_level(&card->qeth_service_level);
+ 	return card;
+@@ -1467,12 +1437,38 @@ int qeth_stop_channel(struct qeth_channel *channel)
+ 			channel->active_cmd);
+ 		channel->active_cmd = NULL;
+ 	}
++	cdev->handler = NULL;
+ 	spin_unlock_irq(get_ccwdev_lock(cdev));
+ 
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(qeth_stop_channel);
+ 
++static int qeth_start_channel(struct qeth_channel *channel)
++{
++	struct ccw_device *cdev = channel->ccwdev;
++	int rc;
++
++	channel->state = CH_STATE_DOWN;
++	atomic_set(&channel->irq_pending, 0);
++
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = qeth_irq;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++
++	rc = ccw_device_set_online(cdev);
++	if (rc)
++		goto err;
++
++	return 0;
++
++err:
++	spin_lock_irq(get_ccwdev_lock(cdev));
++	cdev->handler = NULL;
++	spin_unlock_irq(get_ccwdev_lock(cdev));
++	return rc;
++}
++
+ static int qeth_halt_channels(struct qeth_card *card)
+ {
+ 	int rc1 = 0, rc2 = 0, rc3 = 0;
+@@ -4706,7 +4702,7 @@ static void qeth_determine_capabilities(struct qeth_card *card)
+ 	QETH_CARD_TEXT(card, 2, "detcapab");
+ 	if (!ddev->online) {
+ 		ddev_offline = 1;
+-		rc = ccw_device_set_online(ddev);
++		rc = qeth_start_channel(channel);
+ 		if (rc) {
+ 			QETH_CARD_TEXT_(card, 2, "3err%d", rc);
+ 			goto out;
+@@ -4881,9 +4877,6 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ static void qeth_core_free_card(struct qeth_card *card)
+ {
+ 	QETH_CARD_TEXT(card, 2, "freecrd");
+-	qeth_clean_channel(&card->read);
+-	qeth_clean_channel(&card->write);
+-	qeth_clean_channel(&card->data);
+ 	qeth_put_cmd(card->read_cmd);
+ 	destroy_workqueue(card->event_wq);
+ 	unregister_service_level(&card->qeth_service_level);
+@@ -4946,13 +4939,14 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 	qeth_stop_channel(&card->write);
+ 	qeth_stop_channel(&card->read);
+ 	qdio_free(CARD_DDEV(card));
+-	rc = ccw_device_set_online(CARD_RDEV(card));
++
++	rc = qeth_start_channel(&card->read);
+ 	if (rc)
+ 		goto retriable;
+-	rc = ccw_device_set_online(CARD_WDEV(card));
++	rc = qeth_start_channel(&card->write);
+ 	if (rc)
+ 		goto retriable;
+-	rc = ccw_device_set_online(CARD_DDEV(card));
++	rc = qeth_start_channel(&card->data);
+ 	if (rc)
+ 		goto retriable;
+ retriable:
 -- 
-2.20.1
+2.17.1
