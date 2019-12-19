@@ -1,166 +1,124 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34759 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726079AbfLCMci (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Dec 2019 07:32:38 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB3CMvOs076182
-        for <linux-s390@vger.kernel.org>; Tue, 3 Dec 2019 07:32:37 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wnje9ervd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 03 Dec 2019 07:32:37 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Tue, 3 Dec 2019 12:32:35 -0000
-Date: Tue, 3 Dec 2019 13:32:29 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 patches for the 5.5 merge window #2
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:59135 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726824AbfLSJZJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 19 Dec 2019 04:25:09 -0500
+Date: Thu, 19 Dec 2019 10:24:59 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/3] s390/dasd/cio: Interpret ccw_device_get_mdc return
+ value correctly
+Message-ID: <20191219102459.053999a2.cohuck@redhat.com>
+In-Reply-To: <20191219084352.75114-2-sth@linux.ibm.com>
+References: <20191219084352.75114-1-sth@linux.ibm.com>
+        <20191219084352.75114-2-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <your-ad-here.call-01575376349-ext-1325@work.hours>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-Hello Linus,
+On Thu, 19 Dec 2019 09:43:50 +0100
+Stefan Haberland <sth@linux.ibm.com> wrote:
 
-please pull the second round of s390 fixes and features for 5.5.
+> From: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+>=20
+> The max data count (mdc) is an unsigned 16-bit integer value as per AR
+> documentation and is received via ccw_device_get_mdc() for a specific
+> path mask from the CIO layer. The function itself also always returns a
+> positive mdc value or 0 in case mdc isn't supported or couldn't be
+> determined.
+>=20
+> Though, the comment for this function describes a negative return value
+> to indicate failures.
 
-Thank you,
-Vasily
+Note that this used to be true before 040495d110ba ("s390/cio: make use
+of newly added format 1 channel-path data").
 
-The following changes since commit ea1f56fa16ae5f6e67f6ea03836b36c6053d33d1:
+>=20
+> As a result, the DASD device driver interprets the return value of
+> ccw_device_get_mdc() incorrectly. The error case is essentially a dead
+> code path.
 
-  Merge tag 's390-5.5-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2019-11-25 17:23:53 -0800)
+To be pedantic: It did not check for <=3D 0 (as documented) either :)
 
-are available in the Git repository at:
+>=20
+> To fix this behaviour, check explicitly for a return value of 0 and
+> change the comment for ccw_device_get_mdc() accordingly.
+>=20
+> This fix merely enables the error code path in the DASD functions
+> get_fcx_max_data() and verify_fcx_max_data(). The actual functionality
+> stays the same and is still correct.
+>=20
+> Signed-off-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+> Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+> Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+> ---
+>  drivers/s390/block/dasd_eckd.c | 9 +++++----
+>  drivers/s390/cio/device_ops.c  | 2 +-
+>  2 files changed, 6 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eck=
+d.c
+> index c94184d080f8..f5622f4a2ecf 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -1128,7 +1128,8 @@ static u32 get_fcx_max_data(struct dasd_device *dev=
+ice)
+>  {
+>  	struct dasd_eckd_private *private =3D device->private;
+>  	int fcx_in_css, fcx_in_gneq, fcx_in_features;
+> -	int tpm, mdc;
+> +	unsigned int mdc;
+> +	int tpm;
+> =20
+>  	if (dasd_nofcx)
+>  		return 0;
+> @@ -1142,7 +1143,7 @@ static u32 get_fcx_max_data(struct dasd_device *dev=
+ice)
+>  		return 0;
+> =20
+>  	mdc =3D ccw_device_get_mdc(device->cdev, 0);
+> -	if (mdc < 0) {
+> +	if (mdc =3D=3D 0) {
+>  		dev_warn(&device->cdev->dev, "Detecting the maximum supported data siz=
+e for zHPF requests failed\n");
+>  		return 0;
+>  	} else {
+> @@ -1153,12 +1154,12 @@ static u32 get_fcx_max_data(struct dasd_device *d=
+evice)
+>  static int verify_fcx_max_data(struct dasd_device *device, __u8 lpm)
+>  {
+>  	struct dasd_eckd_private *private =3D device->private;
+> -	int mdc;
+> +	unsigned int mdc;
+>  	u32 fcx_max_data;
+> =20
+>  	if (private->fcx_max_data) {
+>  		mdc =3D ccw_device_get_mdc(device->cdev, lpm);
+> -		if ((mdc < 0)) {
+> +		if (mdc =3D=3D 0) {
+>  			dev_warn(&device->cdev->dev,
+>  				 "Detecting the maximum data size for zHPF "
+>  				 "requests failed (rc=3D%d) for a new path %x\n",
+> diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
+> index 65841af15748..ccecf6b9504e 100644
+> --- a/drivers/s390/cio/device_ops.c
+> +++ b/drivers/s390/cio/device_ops.c
+> @@ -635,7 +635,7 @@ EXPORT_SYMBOL(ccw_device_tm_start_timeout);
+>   * @mask: mask of paths to use
+>   *
+>   * Return the number of 64K-bytes blocks all paths at least support
+> - * for a transport command. Return values <=3D 0 indicate failures.
+> + * for a transport command. Return value 0 indicates failure.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux tags/s390-5.5-2
+s/Return value/The return value/ ?
 
-for you to fetch changes up to 2115fbf7210bd053ba55a95e7ebc366df41aa9cf:
+>   */
+>  int ccw_device_get_mdc(struct ccw_device *cdev, u8 mask)
+>  {
 
-  s390: remove compat vdso code (2019-12-01 12:48:49 +0100)
-
-----------------------------------------------------------------
-s390 updates for the 5.5 merge window #2
-
-- Make stack unwinder reliable and suitable for livepatching. Add unwinder
-  testing module.
-
-- Fixes for CALL_ON_STACK helper used for stack switching.
-
-- Fix unwinding from bpf code.
-
-- Fix getcpu and remove compat support in vdso code.
-
-- Fix address space control registers initialization.
-
-- Save KASLR offset for early dumps.
-
-- Handle new FILTERED_BY_HYPERVISOR reply code in crypto code.
-
-- Minor perf code cleanup and potential memory leak fix.
-
-- Add couple of error messages for corner cases during PCI device
-  creation.
-
-----------------------------------------------------------------
-Gerald Schaefer (1):
-      s390/kaslr: store KASLR offset for early dumps
-
-Harald Freudenberger (1):
-      s390/zcrypt: handle new reply code FILTERED_BY_HYPERVISOR
-
-Heiko Carstens (3):
-      s390/smp,vdso: fix ASCE handling
-      s390/vdso: fix getcpu
-      s390: remove compat vdso code
-
-Ilya Leoshkevich (2):
-      s390: implement perf_arch_fetch_caller_regs
-      s390/unwind: add a test for the internal API
-
-Miroslav Benes (2):
-      s390/unwind: add stack pointer alignment sanity checks
-      s390/livepatch: Implement reliable stack tracing for the consistency model
-
-Niklas Schnelle (2):
-      s390/pci: add error message for UID collision
-      s390/pci: add error message on device number limit
-
-Thomas Richter (4):
-      s390/cpum_sf: Replace function name in debug statements
-      s390/cpum_sf: Remove unnecessary check for pending SDBs
-      s390/cpum_sf: Use TEAR_REG macro consistantly
-      s390/cpum_sf: Check for SDBT and SDB consistency
-
-Vasily Gorbik (18):
-      s390: always inline disabled_wait
-      s390: disable preemption when switching to nodat stack with CALL_ON_STACK
-      s390/unwind: unify task is current checks
-      s390: correct CALL_ON_STACK back_chain saving
-      s390: avoid misusing CALL_ON_STACK for task stack setup
-      s390/unwind: report an error if pt_regs are not on stack
-      s390/unwind: make reuse_sp default when unwinding pt_regs
-      s390/head64: correct init_task stack setup
-      s390/unwind: stop gracefully at task pt_regs
-      s390/unwind: always inline get_stack_pointer
-      s390/test_unwind: require that unwinding ended successfully
-      s390: fix register clobbering in CALL_ON_STACK
-      s390/test_unwind: add CALL_ON_STACK tests
-      s390/test_unwind: print verbose unwinding results
-      s390/test_unwind: add irq context tests
-      s390/test_unwind: add program check context tests
-      s390/unwind: start unwinding from reliable state
-      s390/unwind: filter out unreliable bogus %r14
-
- arch/s390/Kconfig                        |  18 +-
- arch/s390/Makefile                       |   1 -
- arch/s390/boot/startup.c                 |   5 +
- arch/s390/include/asm/cpu_mf.h           |   2 +-
- arch/s390/include/asm/perf_event.h       |   7 +
- arch/s390/include/asm/processor.h        |   2 +-
- arch/s390/include/asm/stacktrace.h       |  36 +++-
- arch/s390/include/asm/unwind.h           |   8 +-
- arch/s390/include/asm/vdso.h             |  13 +-
- arch/s390/kernel/Makefile                |   1 -
- arch/s390/kernel/asm-offsets.c           |   3 +-
- arch/s390/kernel/dumpstack.c             |   7 +-
- arch/s390/kernel/head64.S                |   2 +-
- arch/s390/kernel/machine_kexec.c         |   4 +-
- arch/s390/kernel/perf_cpum_sf.c          | 136 ++++++------
- arch/s390/kernel/setup.c                 |   9 +-
- arch/s390/kernel/smp.c                   |   7 +-
- arch/s390/kernel/stacktrace.c            |  43 ++++
- arch/s390/kernel/unwind_bc.c             |  80 ++++---
- arch/s390/kernel/vdso.c                  |  42 +---
- arch/s390/kernel/vdso32/.gitignore       |   1 -
- arch/s390/kernel/vdso32/Makefile         |  66 ------
- arch/s390/kernel/vdso32/clock_getres.S   |  44 ----
- arch/s390/kernel/vdso32/clock_gettime.S  | 179 ----------------
- arch/s390/kernel/vdso32/getcpu.S         |  33 ---
- arch/s390/kernel/vdso32/gettimeofday.S   | 103 ---------
- arch/s390/kernel/vdso32/note.S           |  13 --
- arch/s390/kernel/vdso32/vdso32.lds.S     | 142 -------------
- arch/s390/kernel/vdso32/vdso32_wrapper.S |  15 --
- arch/s390/kernel/vdso64/getcpu.S         |   4 +-
- arch/s390/lib/Makefile                   |   3 +
- arch/s390/lib/test_unwind.c              | 347 +++++++++++++++++++++++++++++++
- arch/s390/mm/maccess.c                   |  12 +-
- arch/s390/pci/pci.c                      |   5 +
- drivers/s390/crypto/zcrypt_error.h       |   2 +
- 35 files changed, 627 insertions(+), 768 deletions(-)
- delete mode 100644 arch/s390/kernel/vdso32/.gitignore
- delete mode 100644 arch/s390/kernel/vdso32/Makefile
- delete mode 100644 arch/s390/kernel/vdso32/clock_getres.S
- delete mode 100644 arch/s390/kernel/vdso32/clock_gettime.S
- delete mode 100644 arch/s390/kernel/vdso32/getcpu.S
- delete mode 100644 arch/s390/kernel/vdso32/gettimeofday.S
- delete mode 100644 arch/s390/kernel/vdso32/note.S
- delete mode 100644 arch/s390/kernel/vdso32/vdso32.lds.S
- delete mode 100644 arch/s390/kernel/vdso32/vdso32_wrapper.S
- create mode 100644 arch/s390/lib/test_unwind.c
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
