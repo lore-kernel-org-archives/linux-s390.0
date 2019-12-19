@@ -1,119 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387901AbfLKP3b (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:29:31 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 55/58] s390/cpum_sf: Check for SDBT and SDB consistency
-Date: Wed, 11 Dec 2019 10:28:28 -0500
-Message-Id: <20191211152831.23507-55-sashal@kernel.org>
-In-Reply-To: <20191211152831.23507-1-sashal@kernel.org>
-References: <20191211152831.23507-1-sashal@kernel.org>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:60638 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726652AbfLSJah (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 19 Dec 2019 04:30:37 -0500
+Date: Thu, 19 Dec 2019 10:30:26 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 3/3] s390/dasd: fix typo in copyright statement
+Message-ID: <20191219103026.75037abe.cohuck@redhat.com>
+In-Reply-To: <20191219084352.75114-4-sth@linux.ibm.com>
+References: <20191219084352.75114-1-sth@linux.ibm.com>
+        <20191219084352.75114-4-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+On Thu, 19 Dec 2019 09:43:52 +0100
+Stefan Haberland <sth@linux.ibm.com> wrote:
 
-[ Upstream commit 247f265fa502e7b17a0cb0cc330e055a36aafce4 ]
+> coypright -> copyright
+> 
+> Reported-by: Kate Stewart <kstewart@linuxfoundation.org>
+> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+> ---
+>  drivers/s390/block/dasd_fba.h  | 2 +-
+>  drivers/s390/block/dasd_proc.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/block/dasd_fba.h b/drivers/s390/block/dasd_fba.h
+> index 8f75df06e893..45ddabec4017 100644
+> --- a/drivers/s390/block/dasd_fba.h
+> +++ b/drivers/s390/block/dasd_fba.h
+> @@ -2,7 +2,7 @@
+>  /*
+>   * Author(s)......: Holger Smolinski <Holger.Smolinski@de.ibm.com>
+>   * Bugreports.to..: <Linux390@de.ibm.com>
 
-Each SBDT is located at a 4KB page and contains 512 entries.
-Each entry of a SDBT points to a SDB, a 4KB page containing
-sampled data. The last entry is a link to another SDBT page.
+No comment on the actual patch; but do you really still want people to
+send bug reports to that address?
 
-When an event is created the function sequence executed is:
+(A quick grep shows that it is mostly present in the dasd code, but also
+in some other code parts.)
 
-  __hw_perf_event_init()
-  +--> allocate_buffers()
-       +--> realloc_sampling_buffers()
-	    +---> alloc_sample_data_block()
-
-Both functions realloc_sampling_buffers() and
-alloc_sample_data_block() allocate pages and the allocation
-can fail. This is handled correctly and all allocated
-pages are freed and error -ENOMEM is returned to the
-top calling function. Finally the event is not created.
-
-Once the event has been created, the amount of initially
-allocated SDBT and SDB can be too low. This is detected
-during measurement interrupt handling, where the amount
-of lost samples is calculated. If the number of lost samples
-is too high considering sampling frequency and already allocated
-SBDs, the number of SDBs is enlarged during the next execution
-of cpumsf_pmu_enable().
-
-If more SBDs need to be allocated, functions
-
-       realloc_sampling_buffers()
-       +---> alloc-sample_data_block()
-
-are called to allocate more pages. Page allocation may fail
-and the returned error is ignored. A SDBT and SDB setup
-already exists.
-
-However the modified SDBTs and SDBs might end up in a situation
-where the first entry of an SDBT does not point to an SDB,
-but another SDBT, basicly an SBDT without payload.
-This can not be handled by the interrupt handler, where an SDBT
-must have at least one entry pointing to an SBD.
-
-Add a check to avoid SDBTs with out payload (SDBs) when enlarging
-the buffer setup.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 2e2fd9535f865..45304085b6eea 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -185,7 +185,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 				   unsigned long num_sdb, gfp_t gfp_flags)
- {
- 	int i, rc;
--	unsigned long *new, *tail;
-+	unsigned long *new, *tail, *tail_prev = NULL;
- 
- 	if (!sfb->sdbt || !sfb->tail)
- 		return -EINVAL;
-@@ -224,6 +224,7 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 			sfb->num_sdbt++;
- 			/* Link current page to tail of chain */
- 			*tail = (unsigned long)(void *) new + 1;
-+			tail_prev = tail;
- 			tail = new;
- 		}
- 
-@@ -233,10 +234,22 @@ static int realloc_sampling_buffer(struct sf_buffer *sfb,
- 		 * issue, a new realloc call (if required) might succeed.
- 		 */
- 		rc = alloc_sample_data_block(tail, gfp_flags);
--		if (rc)
-+		if (rc) {
-+			/* Undo last SDBT. An SDBT with no SDB at its first
-+			 * entry but with an SDBT entry instead can not be
-+			 * handled by the interrupt handler code.
-+			 * Avoid this situation.
-+			 */
-+			if (tail_prev) {
-+				sfb->num_sdbt--;
-+				free_page((unsigned long) new);
-+				tail = tail_prev;
-+			}
- 			break;
-+		}
- 		sfb->num_sdb++;
- 		tail++;
-+		tail_prev = new = NULL;	/* Allocated at least one SBD */
- 	}
- 
- 	/* Link sampling buffer to its origin */
--- 
-2.20.1
+> - * Coypright IBM Corp. 1999, 2000
+> + * Copyright IBM Corp. 1999, 2000
+>   *
+>   */
+>  
+> diff --git a/drivers/s390/block/dasd_proc.c b/drivers/s390/block/dasd_proc.c
+> index 1770b99f607e..8d4d69ea5baf 100644
+> --- a/drivers/s390/block/dasd_proc.c
+> +++ b/drivers/s390/block/dasd_proc.c
+> @@ -5,7 +5,7 @@
+>   *		    Carsten Otte <Cotte@de.ibm.com>
+>   *		    Martin Schwidefsky <schwidefsky@de.ibm.com>
+>   * Bugreports.to..: <Linux390@de.ibm.com>
+> - * Coypright IBM Corp. 1999, 2002
+> + * Copyright IBM Corp. 1999, 2002
+>   *
+>   * /proc interface for the dasd driver.
+>   *
