@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39622 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727832AbfLTOfM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Dec 2019 09:35:12 -0500
+        id S1727667AbfLTOrM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:12 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 29/34] s390/cpum_sf: Avoid SBD overflow condition in irq handler
-Date: Fri, 20 Dec 2019 09:34:28 -0500
-Message-Id: <20191220143433.9922-29-sashal@kernel.org>
-In-Reply-To: <20191220143433.9922-1-sashal@kernel.org>
-References: <20191220143433.9922-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/14] s390/cpum_sf: Avoid SBD overflow condition in irq handler
+Date: Fri, 20 Dec 2019 09:46:54 -0500
+Message-Id: <20191220144658.10414-10-sashal@kernel.org>
+In-Reply-To: <20191220144658.10414-1-sashal@kernel.org>
+References: <20191220144658.10414-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 deletions(-)
 
 diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 0b09585305521..8ba440ba84624 100644
+index 0cf130d37a325..ed37f3092e81f 100644
 --- a/arch/s390/kernel/perf_cpum_sf.c
 +++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1248,12 +1248,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+@@ -1282,12 +1282,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
  		 */
  		if (flush_all && done)
  			break;
