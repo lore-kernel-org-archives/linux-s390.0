@@ -1,128 +1,89 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Aleksa Sarai <cyphar@cyphar.com>
-Subject: [PATCH v18 03/13] namei: allow nd_jump_link() to produce errors
-Date: Sat,  7 Dec 2019 01:13:28 +1100
-Message-Id: <20191206141338.23338-4-cyphar@cyphar.com>
-In-Reply-To: <20191206141338.23338-1-cyphar@cyphar.com>
-References: <20191206141338.23338-1-cyphar@cyphar.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:42196 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728379AbfLTOiB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:38:01 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 15/19] s390/cpum_sf: Avoid SBD overflow condition in irq handler
+Date: Fri, 20 Dec 2019 09:37:36 -0500
+Message-Id: <20191220143741.10220-15-sashal@kernel.org>
+In-Reply-To: <20191220143741.10220-1-sashal@kernel.org>
+References: <20191220143741.10220-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>, Jeff Layton <jlayton@kernel.org>, "J. Bruce Fields" <bfields@fieldses.org>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Martin KaFai Lau <kafai@fb.com>, Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Aleksa Sarai <cyphar@cyphar.com>, Eric Biederman <ebiederm@xmission.com>, Andy Lutomirski <luto@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, Tycho Andersen <tycho@tycho.ws>, David Drysdale <drysdale@google.com>, Chanho Min <chanho.min@lge.com>, Oleg Nesterov <oleg@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Christian Brauner <christian@brauner.io>, Aleksa Sarai <asarai@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, dev@opencontainers.org, containers@lists.linux-foundation.org, bpf@vger.kernel.org, netdev@vger.kernel.org, linux-alpha@vger.kernel.org, linux-api@vger.kernel.org, libc-alpha@sourceware.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, sparclinux@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-In preparation for LOOKUP_NO_MAGICLINKS, it's necessary to add the
-ability for nd_jump_link() to return an error which the corresponding
-get_link() caller must propogate back up to the VFS.
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+
+The s390 CPU Measurement sampling facility has an overflow condition
+which fires when all entries in a SBD are used.
+The measurement alert interrupt is triggered and reads out all samples
+in this SDB. It then tests the successor SDB, if this SBD is not full,
+the interrupt handler does not read any samples at all from this SDB
+The design waits for the hardware to fill this SBD and then trigger
+another meassurement alert interrupt.
+
+This scheme works nicely until
+an perf_event_overflow() function call discards the sample due to
+a too high sampling rate.
+The interrupt handler has logic to read out a partially filled SDB
+when the perf event overflow condition in linux common code is met.
+This causes the CPUM sampling measurement hardware and the PMU
+device driver to operate on the same SBD's trailer entry.
+This should not happen.
+
+This can be seen here using this trace:
+   cpumsf_pmu_add: tear:0xb5286000
+   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 1. interrupt
+   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 2. interrupt
+	... this goes on fine until...
+   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
+   perf_push_sample1: overflow
+      one or more samples read from the IRQ handler are rejected by
+      perf_event_overflow() and the IRQ handler advances to the next SDB
+      and modifies the trailer entry of a partially filled SDB.
+   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
+      timestamp: 14:32:52.519953
+
+Next time the IRQ handler is called for this SDB the trailer entry shows
+an overflow count of 19 missed entries.
+   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
+      timestamp: 14:32:52.970058
+
+Remove access to a follow on SDB when event overflow happened.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c                     |  3 ++-
- fs/proc/base.c                 |  3 +--
- fs/proc/namespaces.c           | 14 +++++++++-----
- include/linux/namei.h          |  2 +-
- security/apparmor/apparmorfs.c |  6 ++++--
- 5 files changed, 17 insertions(+), 11 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 5a47d9c09581..1024a641f075 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -859,7 +859,7 @@ static int nd_jump_root(struct nameidata *nd)
-  * Helper to directly jump to a known parsed path from ->get_link,
-  * caller must have taken a reference to path beforehand.
-  */
--void nd_jump_link(struct path *path)
-+int nd_jump_link(struct path *path)
- {
- 	struct nameidata *nd = current->nameidata;
- 	path_put(&nd->path);
-@@ -867,6 +867,7 @@ void nd_jump_link(struct path *path)
- 	nd->path = *path;
- 	nd->inode = nd->path.dentry->d_inode;
- 	nd->flags |= LOOKUP_JUMPED;
-+	return 0;
- }
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 3c98a0999b71f..84f5da83f684b 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1281,12 +1281,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		 */
+ 		if (flush_all && done)
+ 			break;
+-
+-		/* If an event overflow happened, discard samples by
+-		 * processing any remaining sample-data-blocks.
+-		 */
+-		if (event_overflow)
+-			flush_all = 1;
+ 	}
  
- static inline void put_link(struct nameidata *nd)
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ebea9501afb8..ee97dd322f3e 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1626,8 +1626,7 @@ static const char *proc_pid_get_link(struct dentry *dentry,
- 	if (error)
- 		goto out;
- 
--	nd_jump_link(&path);
--	return NULL;
-+	error = nd_jump_link(&path);
- out:
- 	return ERR_PTR(error);
- }
-diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-index 08dd94df1a66..a8cca516f1a9 100644
---- a/fs/proc/namespaces.c
-+++ b/fs/proc/namespaces.c
-@@ -51,11 +51,15 @@ static const char *proc_ns_get_link(struct dentry *dentry,
- 	if (!task)
- 		return ERR_PTR(-EACCES);
- 
--	if (ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)) {
--		error = ns_get_path(&ns_path, task, ns_ops);
--		if (!error)
--			nd_jump_link(&ns_path);
--	}
-+	if (!ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS))
-+		goto out;
-+
-+	error = ns_get_path(&ns_path, task, ns_ops);
-+	if (error)
-+		goto out;
-+
-+	error = nd_jump_link(&ns_path);
-+out:
- 	put_task_struct(task);
- 	return ERR_PTR(error);
- }
-diff --git a/include/linux/namei.h b/include/linux/namei.h
-index 397a08ade6a2..758e9b47db6f 100644
---- a/include/linux/namei.h
-+++ b/include/linux/namei.h
-@@ -68,7 +68,7 @@ extern int follow_up(struct path *);
- extern struct dentry *lock_rename(struct dentry *, struct dentry *);
- extern void unlock_rename(struct dentry *, struct dentry *);
- 
--extern void nd_jump_link(struct path *path);
-+extern int __must_check nd_jump_link(struct path *path);
- 
- static inline void nd_terminate_link(void *name, size_t len, size_t maxlen)
- {
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 45d13b6462aa..0b7d6dce6291 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -2455,16 +2455,18 @@ static const char *policy_get_link(struct dentry *dentry,
- {
- 	struct aa_ns *ns;
- 	struct path path;
-+	int error;
- 
- 	if (!dentry)
- 		return ERR_PTR(-ECHILD);
-+
- 	ns = aa_get_current_ns();
- 	path.mnt = mntget(aafs_mnt);
- 	path.dentry = dget(ns_dir(ns));
--	nd_jump_link(&path);
-+	error = nd_jump_link(&path);
- 	aa_put_ns(ns);
- 
--	return NULL;
-+	return ERR_PTR(error);
- }
- 
- static int policy_readlink(struct dentry *dentry, char __user *buffer,
+ 	/* Account sample overflows in the event hardware structure */
 -- 
-2.24.0
+2.20.1
