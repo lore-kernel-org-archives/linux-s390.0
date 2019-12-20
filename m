@@ -1,68 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20118 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729290AbfLEMvz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 5 Dec 2019 07:51:55 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB5ClWIY139329
-        for <linux-s390@vger.kernel.org>; Thu, 5 Dec 2019 07:51:54 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wq1ky1ym6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 05 Dec 2019 07:51:54 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Thu, 5 Dec 2019 12:51:51 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
-Date: Thu,  5 Dec 2019 13:51:47 +0100
+Received: from mail.kernel.org ([198.145.29.99]:35004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727954AbfLTOa5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:30:57 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 46/52] s390/cpum_sf: Avoid SBD overflow condition in irq handler
+Date: Fri, 20 Dec 2019 09:29:48 -0500
+Message-Id: <20191220142954.9500-46-sashal@kernel.org>
+In-Reply-To: <20191220142954.9500-1-sashal@kernel.org>
+References: <20191220142954.9500-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20191205125147.229367-1-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-There is no ENOTSUPP for userspace
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
+
+The s390 CPU Measurement sampling facility has an overflow condition
+which fires when all entries in a SBD are used.
+The measurement alert interrupt is triggered and reads out all samples
+in this SDB. It then tests the successor SDB, if this SBD is not full,
+the interrupt handler does not read any samples at all from this SDB
+The design waits for the hardware to fill this SBD and then trigger
+another meassurement alert interrupt.
+
+This scheme works nicely until
+an perf_event_overflow() function call discards the sample due to
+a too high sampling rate.
+The interrupt handler has logic to read out a partially filled SDB
+when the perf event overflow condition in linux common code is met.
+This causes the CPUM sampling measurement hardware and the PMU
+device driver to operate on the same SBD's trailer entry.
+This should not happen.
+
+This can be seen here using this trace:
+   cpumsf_pmu_add: tear:0xb5286000
+   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 1. interrupt
+   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 2. interrupt
+	... this goes on fine until...
+   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
+   perf_push_sample1: overflow
+      one or more samples read from the IRQ handler are rejected by
+      perf_event_overflow() and the IRQ handler advances to the next SDB
+      and modifies the trailer entry of a partially filled SDB.
+   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
+      timestamp: 14:32:52.519953
+
+Next time the IRQ handler is called for this SDB the trailer entry shows
+an overflow count of 19 missed entries.
+   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
+      timestamp: 14:32:52.970058
+
+Remove access to a follow on SDB when event overflow happened.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2a711bae69a7..bd9b339bbb5e 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2312,7 +2312,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -EINVAL;
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 8c384e6ea36ac..8ad406f7264a4 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1300,12 +1300,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		 */
+ 		if (flush_all && done)
+ 			break;
+-
+-		/* If an event overflow happened, discard samples by
+-		 * processing any remaining sample-data-blocks.
+-		 */
+-		if (event_overflow)
+-			flush_all = 1;
+ 	}
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	mutex_lock(&fi->ais_lock);
- 	ais.simm = fi->simm;
-@@ -2621,7 +2621,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	int ret = 0;
- 
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
- 		return -EFAULT;
-@@ -2701,7 +2701,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_ais_all ais;
- 
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
- 		return -EFAULT;
+ 	/* Account sample overflows in the event hardware structure */
 -- 
-2.24.0
+2.20.1
