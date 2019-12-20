@@ -1,269 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24680 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726416AbfLFQ0j (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Dec 2019 11:26:39 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB6GEUNS018511
-        for <linux-s390@vger.kernel.org>; Fri, 6 Dec 2019 11:26:37 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wq2tw7a6g-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 06 Dec 2019 11:26:37 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 6 Dec 2019 16:26:36 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 8/9] s390x: css: ssch/tsch with sense and interrupt
-Date: Fri,  6 Dec 2019 17:26:27 +0100
-In-Reply-To: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-References: <1575649588-6127-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1575649588-6127-9-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728207AbfLTOfL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:35:11 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 28/34] s390/cpum_sf: Adjust sampling interval to avoid hitting sample limits
+Date: Fri, 20 Dec 2019 09:34:27 -0500
+Message-Id: <20191220143433.9922-28-sashal@kernel.org>
+In-Reply-To: <20191220143433.9922-1-sashal@kernel.org>
+References: <20191220143433.9922-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-When a channel is enabled we can start a SENSE command using the SSCH
-instruction to recognize the control unit and device.
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-This tests the success of SSCH, the I/O interruption and the TSCH
-instructions.
+[ Upstream commit 39d4a501a9ef55c57b51e3ef07fc2aeed7f30b3b ]
 
-The test expects a device with a control unit type of 0xC0CA as the
-first subchannel of the CSS.
+Function perf_event_ever_overflow() and perf_event_account_interrupt()
+are called every time samples are processed by the interrupt handler.
+However function perf_event_account_interrupt() has checks to avoid being
+flooded with interrupts (more then 1000 samples are received per
+task_tick).  Samples are then dropped and a PERF_RECORD_THROTTLED is
+added to the perf data. The perf subsystem limit calculation is:
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+    maximum sample frequency := 100000 --> 1 samples per 10 us
+    task_tick = 10ms = 10000us --> 1000 samples per task_tick
+
+The work flow is
+
+measurement_alert() uses SDBT head and each SBDT points to 511
+ SDB pages, each with 126 sample entries. After processing 8 SBDs
+ and for each valid sample calling:
+
+     perf_event_overflow()
+       perf_event_account_interrupts()
+
+there is a considerable amount of samples being dropped, especially when
+the sample frequency is very high and near the 100000 limit.
+
+To avoid the high amount of samples being dropped near the end of a
+task_tick time frame, increment the sampling interval in case of
+dropped events. The CPU Measurement sampling facility on the s390
+supports only intervals, specifiing how many CPU cycles have to be
+executed before a sample is generated. Increase the interval when the
+samples being generated hit the task_tick limit.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/s390x/css.h |  13 ++++
- s390x/css.c     | 164 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 177 insertions(+)
+ arch/s390/kernel/perf_cpum_sf.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index d37227b..2ac8ad7 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -97,6 +97,19 @@ struct irb {
- 	uint32_t emw[8];
- } __attribute__ ((aligned(4)));
- 
-+#define CCW_CMD_SENSE_ID	0xe4
-+#define PONG_CU			0xc0ca
-+struct senseid {
-+	/* common part */
-+	uint8_t reserved;        /* always 0x'FF' */
-+	uint16_t cu_type;        /* control unit type */
-+	uint8_t cu_model;        /* control unit model */
-+	uint16_t dev_type;       /* device type */
-+	uint8_t dev_model;       /* device model */
-+	uint8_t unused;          /* padding byte */
-+	uint8_t padding[256 - 10]; /* Extra padding for CCW */
-+} __attribute__ ((aligned(8)));
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index df92c2af99b69..0b09585305521 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1260,6 +1260,22 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 	if (sampl_overflow)
+ 		OVERFLOW_REG(hwc) = DIV_ROUND_UP(OVERFLOW_REG(hwc) +
+ 						 sampl_overflow, 1 + num_sdb);
 +
- /* CSS low level access functions */
- 
- static inline int ssch(unsigned long schid, struct orb *addr)
-diff --git a/s390x/css.c b/s390x/css.c
-index 4c0031c..54a7b38 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -11,12 +11,29 @@
-  */
- 
- #include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+#include <asm/time.h>
- 
- #include <css.h>
- 
- #define SID_ONE		0x00010000
-+#define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
-+
-+struct lowcore *lowcore = (void *)0x0;
- 
- static struct schib schib;
-+#define NUM_CCW  100
-+static struct ccw1 ccw[NUM_CCW];
-+#define NUM_ORB  100
-+static struct orb orb[NUM_ORB];
-+static struct irb irb;
-+#define BUF_SZ  0x1000
-+static char buffer[BUF_SZ] __attribute__ ((aligned(8)));
-+static struct senseid senseid;
- 
- static const char *Channel_type[4] = {
- 	"I/O", "CHSC", "MSG", "EADM"
-@@ -24,6 +41,34 @@ static const char *Channel_type[4] = {
- 
- static int test_device_sid;
- 
-+static void delay(unsigned long ms)
-+{
-+	unsigned long startclk;
-+
-+	startclk = get_clock_ms();
-+	for (;;) {
-+		if (get_clock_ms() - startclk > ms)
-+			break;
-+	}
-+}
-+
-+static void set_io_irq_subclass_mask(uint64_t const new_mask)
-+{
-+	asm volatile (
-+		"lctlg %%c6, %%c6, %[source]\n"
-+		: /* No outputs */
-+		: [source] "R" (new_mask));
-+}
-+
-+static void set_system_mask(uint8_t new_mask)
-+{
-+	asm volatile (
-+		"ssm %[source]\n"
-+		: /* No outputs */
-+		: [source] "R" (new_mask));
-+}
-+
-+
- static void test_enumerate(void)
- {
- 	struct pmcw *pmcw = &schib.pmcw;
-@@ -96,12 +141,131 @@ static void test_enable(void)
- 	report("Tested", 1);
- }
- 
-+static void enable_io_irq(void)
-+{
-+	/* Let's enable all ISCs for I/O interrupt */
-+	set_io_irq_subclass_mask(0x00000000ff000000);
-+	set_system_mask(PSW_PRG_MASK >> 56);
-+}
-+
-+static void irq_io(void)
-+{
-+	int ret = 0;
-+	char *flags;
-+
-+	report_prefix_push("Interrupt");
-+	if (lowcore->io_int_param != 0xcafec0ca) {
-+		report("Bad io_int_param: %x", 0, lowcore->io_int_param);
-+		report_prefix_pop();
-+		return;
-+	}
-+	report("io_int_param: %x", 1, lowcore->io_int_param);
-+	report_prefix_pop();
-+
-+	ret = tsch(lowcore->subsys_id_word, &irb);
-+	dump_irb(&irb);
-+	flags = dump_scsw_flags(irb.scsw.ctrl);
-+
-+	if (ret)
-+		report("IRB scsw flags: %s", 0, flags);
-+	else
-+		report("IRB scsw flags: %s", 1, flags);
-+	report_prefix_pop();
-+}
-+
-+static int start_subchannel(int code, char *data, int count)
-+{
-+	int ret;
-+	struct pmcw *p = &schib.pmcw;
-+	struct orb *orb_p = &orb[0];
-+
-+	/* Verify that a test subchannel has been set */
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return 0;
++	/* Perf_event_overflow() and perf_event_account_interrupt() limit
++	 * the interrupt rate to an upper limit. Roughly 1000 samples per
++	 * task tick.
++	 * Hitting this limit results in a large number
++	 * of throttled REF_REPORT_THROTTLE entries and the samples
++	 * are dropped.
++	 * Slightly increase the interval to avoid hitting this limit.
++	 */
++	if (event_overflow) {
++		SAMPL_RATE(hwc) += DIV_ROUND_UP(SAMPL_RATE(hwc), 10);
++		debug_sprintf_event(sfdbg, 1, "%s: rate adjustment %ld\n",
++				    __func__,
++				    DIV_ROUND_UP(SAMPL_RATE(hwc), 10));
 +	}
 +
-+	/* Verify that the subchannel has been enabled */
-+	ret = stsch(test_device_sid, &schib);
-+	if (ret) {
-+		report("Err %d on stsch on sid %08x", 0, ret, test_device_sid);
-+		return 0;
-+	}
-+	if (!(p->flags & PMCW_ENABLE)) {
-+		report_skip("Device (sid %08x) not enabled", test_device_sid);
-+		return 0;
-+	}
-+
-+	report_prefix_push("Start Subchannel");
-+	/* Build the CCW chain with a single CCW */
-+	ccw[0].code = code;
-+	ccw[0].flags = 0; /* No flags need to be set */
-+	ccw[0].count = count;
-+	ccw[0].data_address = (int)(unsigned long)data;
-+	orb_p->intparm = 0xcafec0ca;
-+	orb_p->ctrl = ORB_F_INIT_IRQ|ORB_F_FORMAT|ORB_F_LPM_DFLT;
-+	if ((unsigned long)&ccw[0] >= 0x80000000UL) {
-+		report("Data above 2G! %016lx", 0, (unsigned long)&ccw[0]);
-+		report_prefix_pop();
-+		return 0;
-+	}
-+	orb_p->cpa = (unsigned int) (unsigned long)&ccw[0];
-+
-+	ret = ssch(test_device_sid, orb_p);
-+	if (ret) {
-+		report("ssch cc=%d", 0, ret);
-+		report_prefix_pop();
-+		return 0;
-+	}
-+	report_prefix_pop();
-+	return 1;
-+}
-+
-+/*
-+ * test_sense
-+ * Pre-requisits:
-+ * 	We need the QEMU PONG device as the first recognized
-+ *	device by the enumeration.
-+ *	./s390x-run s390x/css.elf -device ccw-pong,cu_type=0xc0ca
-+ */
-+static void test_sense(void)
-+{
-+	int ret;
-+
-+	ret = register_io_int_func(irq_io);
-+	if (ret) {
-+		report("Could not register IRQ handler", 0);
-+		goto unreg_cb;
-+	}
-+
-+	enable_io_irq();
-+
-+	ret = start_subchannel(CCW_CMD_SENSE_ID, buffer, sizeof(senseid));
-+	if (!ret) {
-+		report("start_subchannel failed", 0);
-+		goto unreg_cb;
-+	}
-+
-+	senseid.cu_type = buffer[2] | (buffer[1] << 8);
-+	delay(100);
-+
-+	/* Sense ID is non packed cut_type is at offset +1 byte */
-+	if (senseid.cu_type == PONG_CU)
-+		report("cu_type: expect c0ca, got %04x", 1, senseid.cu_type);
-+	else
-+		report("cu_type: expect c0ca, got %04x", 0, senseid.cu_type);
-+
-+unreg_cb:
-+	unregister_io_int_func(irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
-+	{ "sense (ssch/tsch)", test_sense },
- 	{ NULL, NULL }
- };
- 
+ 	if (sampl_overflow || event_overflow)
+ 		debug_sprintf_event(sfdbg, 4, "hw_perf_event_update: "
+ 				    "overflow stats: sample=%llu event=%llu\n",
 -- 
-2.17.0
+2.20.1
