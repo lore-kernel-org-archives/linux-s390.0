@@ -1,63 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35762 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726754AbfLWOEK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Dec 2019 09:04:10 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE44v0008165
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:04:09 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2x21b0da6d-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:04:07 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Mon, 23 Dec 2019 14:03:37 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 6/6] s390/qeth: fix initialization on old HW
-Date: Mon, 23 Dec 2019 15:03:26 +0100
-In-Reply-To: <20191223140326.16488-1-jwi@linux.ibm.com>
-References: <20191223140326.16488-1-jwi@linux.ibm.com>
-Message-Id: <20191223140326.16488-7-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:46422 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727900AbfLTOr5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Dec 2019 09:47:57 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 10/11] s390/cpum_sf: Avoid SBD overflow condition in irq handler
+Date: Fri, 20 Dec 2019 09:47:42 -0500
+Message-Id: <20191220144744.10565-10-sashal@kernel.org>
+In-Reply-To: <20191220144744.10565-1-sashal@kernel.org>
+References: <20191220144744.10565-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-I stumbled over an old OSA model that claims to support DIAG_ASSIST,
-but then rejects the cmd to query its DIAG capabilities.
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-In the old code this was ok, as the returned raw error code was > 0.
-Now that we translate the raw codes to errnos, the "rc < 0" causes us
-to fail the initialization of the device.
+[ Upstream commit 0539ad0b22877225095d8adef0c376f52cc23834 ]
 
-The fix is trivial: don't bail out when the DIAG query fails. Such an
-error is not critical, we can still use the device (with a slightly
-reduced set of features).
+The s390 CPU Measurement sampling facility has an overflow condition
+which fires when all entries in a SBD are used.
+The measurement alert interrupt is triggered and reads out all samples
+in this SDB. It then tests the successor SDB, if this SBD is not full,
+the interrupt handler does not read any samples at all from this SDB
+The design waits for the hardware to fill this SBD and then trigger
+another meassurement alert interrupt.
 
-Fixes: 742d4d40831d ("s390/qeth: convert remaining legacy cmd callbacks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+This scheme works nicely until
+an perf_event_overflow() function call discards the sample due to
+a too high sampling rate.
+The interrupt handler has logic to read out a partially filled SDB
+when the perf event overflow condition in linux common code is met.
+This causes the CPUM sampling measurement hardware and the PMU
+device driver to operate on the same SBD's trailer entry.
+This should not happen.
+
+This can be seen here using this trace:
+   cpumsf_pmu_add: tear:0xb5286000
+   hw_perf_event_update: sdbt 0xb5286000 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 1. interrupt
+   hw_perf_event_update: sdbt 0xb5286008 full 1 over 0 flush_all:0
+   hw_perf_event_update: sdbt 0xb5286008 full 0 over 0 flush_all:0
+        above shows 2. interrupt
+	... this goes on fine until...
+   hw_perf_event_update: sdbt 0xb5286068 full 1 over 0 flush_all:0
+   perf_push_sample1: overflow
+      one or more samples read from the IRQ handler are rejected by
+      perf_event_overflow() and the IRQ handler advances to the next SDB
+      and modifies the trailer entry of a partially filled SDB.
+   hw_perf_event_update: sdbt 0xb5286070 full 0 over 0 flush_all:1
+      timestamp: 14:32:52.519953
+
+Next time the IRQ handler is called for this SDB the trailer entry shows
+an overflow count of 19 missed entries.
+   hw_perf_event_update: sdbt 0xb5286070 full 1 over 19 flush_all:1
+      timestamp: 14:32:52.970058
+
+Remove access to a follow on SDB when event overflow happened.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index c64ef55f0dff..29facb913671 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5026,10 +5026,8 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
- 	}
- 	if (qeth_adp_supported(card, IPA_SETADP_SET_DIAG_ASSIST)) {
- 		rc = qeth_query_setdiagass(card);
--		if (rc < 0) {
-+		if (rc)
- 			QETH_CARD_TEXT_(card, 2, "8err%d", rc);
--			goto out;
--		}
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index c81627527af0a..00d2cf8d394a7 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1281,12 +1281,6 @@ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ 		 */
+ 		if (flush_all && done)
+ 			break;
+-
+-		/* If an event overflow happened, discard samples by
+-		 * processing any remaining sample-data-blocks.
+-		 */
+-		if (event_overflow)
+-			flush_all = 1;
  	}
  
- 	if (!qeth_is_diagass_supported(card, QETH_DIAGS_CMD_TRAP) ||
+ 	/* Account sample overflows in the event hardware structure */
 -- 
-2.17.1
+2.20.1
