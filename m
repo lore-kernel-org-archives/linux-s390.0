@@ -1,142 +1,192 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58528 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727446AbfLDLr5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Dec 2019 06:47:57 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB4BjqJ0098341
-        for <linux-s390@vger.kernel.org>; Wed, 4 Dec 2019 06:47:56 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2wntctbkpm-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 04 Dec 2019 06:47:56 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
-        Wed, 4 Dec 2019 11:47:54 -0000
-Subject: Re: WARNING: refcount bug in smc_release (2)
-References: <20191201122517.18720-1-hdanton@sina.com>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Date: Wed, 4 Dec 2019 12:47:49 +0100
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:39406 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727274AbfLUPE3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 10:04:29 -0500
+Received: by mail-ed1-f65.google.com with SMTP id t17so11391301eds.6
+        for <linux-s390@vger.kernel.org>; Sat, 21 Dec 2019 07:04:27 -0800 (PST)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH 2/8] iommu/vt-d: Use default dma_direct_* mapping functions for direct mapped devices
+Date: Sat, 21 Dec 2019 15:03:54 +0000
+Message-Id: <20191221150402.13868-3-murphyt7@tcd.ie>
+In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
 MIME-Version: 1.0
-In-Reply-To: <20191201122517.18720-1-hdanton@sina.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <e943de9d-a81a-e709-e228-64eaddc328da@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Hillf Danton <hdanton@sina.com>, syzbot <syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com>
-Cc: davem@davemloft.net, kgraul@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Auger <eric.auger@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
+We should only assign intel_dma_ops to devices which will actually use
+the iommu and let the default fall back dma_direct_* functions handle
+all other devices. This won't change any behaviour but will just use the
+generic implementations for direct mapped devices rather than intel
+specific ones.
 
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+---
+ drivers/iommu/intel-iommu.c | 52 +++++--------------------------------
+ 1 file changed, 6 insertions(+), 46 deletions(-)
 
-On 12/1/19 1:25 PM, Hillf Danton wrote:
-> 
-> On Sat, 30 Nov 2019 20:37:09 -0800
->>
->> syzbot has found a reproducer for the following crash on:
->>
->> HEAD commit:    32ef9553 Merge tag 'fsnotify_for_v5.5-rc1' of git://git.ke..
->> git tree:       upstream
->> console output: https://syzkaller.appspot.com/x/log.txt?x=15f6d82ae00000
->> kernel config:  https://syzkaller.appspot.com/x/.config?x=ff560c3de405258c
->> dashboard link: https://syzkaller.appspot.com/bug?extid=96d3f9ff6a86d37e44c8
->> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
->> userspace arch: i386
->> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14b57336e00000
->> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=149e357ae00000
->>
->> IMPORTANT: if you fix the bug, please add the following tag to the commit:
->> Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
->>
->> ------------[ cut here ]------------
->> refcount_t: underflow; use-after-free.
->> WARNING: CPU: 1 PID: 9807 at lib/refcount.c:28  
->> refcount_warn_saturate+0x1dc/0x1f0 lib/refcount.c:28
->> Kernel panic - not syncing: panic_on_warn set ...
->> CPU: 1 PID: 9807 Comm: syz-executor293 Not tainted 5.4.0-syzkaller #0
->> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
->> Google 01/01/2011
->> Call Trace:
->>   __dump_stack lib/dump_stack.c:77 [inline]
->>   dump_stack+0x197/0x210 lib/dump_stack.c:118
->>   panic+0x2e3/0x75c kernel/panic.c:221
->>   __warn.cold+0x2f/0x3e kernel/panic.c:582
->>   report_bug+0x289/0x300 lib/bug.c:195
->>   fixup_bug arch/x86/kernel/traps.c:174 [inline]
->>   fixup_bug arch/x86/kernel/traps.c:169 [inline]
->>   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
->>   do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
->>   invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
->> RIP: 0010:refcount_warn_saturate+0x1dc/0x1f0 lib/refcount.c:28
->> Code: e9 d8 fe ff ff 48 89 df e8 c1 5a 24 fe e9 85 fe ff ff e8 e7 08 e7 fd  
->> 48 c7 c7 a0 6f 4f 88 c6 05 60 b8 a4 06 01 e8 53 bd b7 fd <0f> 0b e9 ac fe  
->> ff ff 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 55 48
->> RSP: 0018:ffff888093c97998 EFLAGS: 00010286
->> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
->> RDX: 0000000000000000 RSI: ffffffff815e4316 RDI: ffffed1012792f25
->> RBP: ffff888093c979a8 R08: ffff8880a04d4380 R09: ffffed1015d26621
->> R10: ffffed1015d26620 R11: ffff8880ae933107 R12: 0000000000000003
->> R13: 0000000000000000 R14: ffff8880a118d380 R15: ffff88809427e558
->>   refcount_sub_and_test include/linux/refcount.h:261 [inline]
->>   refcount_dec_and_test include/linux/refcount.h:281 [inline]
->>   sock_put include/net/sock.h:1728 [inline]
->>   smc_release+0x445/0x520 net/smc/af_smc.c:202
->>   __sock_release+0xce/0x280 net/socket.c:591
->>   sock_close+0x1e/0x30 net/socket.c:1269
->>   __fput+0x2ff/0x890 fs/file_table.c:280
->>   ____fput+0x16/0x20 fs/file_table.c:313
->>   task_work_run+0x145/0x1c0 kernel/task_work.c:113
->>   exit_task_work include/linux/task_work.h:22 [inline]
->>   do_exit+0x8e7/0x2ef0 kernel/exit.c:797
->>   do_group_exit+0x135/0x360 kernel/exit.c:895
->>   get_signal+0x47c/0x24f0 kernel/signal.c:2734
->>   do_signal+0x87/0x1700 arch/x86/kernel/signal.c:815
->>   exit_to_usermode_loop+0x286/0x380 arch/x86/entry/common.c:160
->>   prepare_exit_to_usermode arch/x86/entry/common.c:195 [inline]
->>   syscall_return_slowpath arch/x86/entry/common.c:278 [inline]
->>   do_syscall_32_irqs_on arch/x86/entry/common.c:352 [inline]
->>   do_fast_syscall_32+0xbbd/0xe16 arch/x86/entry/common.c:408
->>   entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> 
-> Prevent repeated release using cmpxchg and the sock_hold/put pair is
-> cut off as a bonus cleanup (which would go in another seperate one if
-> necessary).
-> 
-
-Thanks, Hilff, for this cmpxchg() idea. We keep it in mind, but analyzing
-possible scenarios of the C reproducer I detected an errorneous duplicate
-refcount decrease possibility for the combination of non-blocking connect()
-and FASTOPEN_KEY setsockopt(). I am working on a fix.
-
-Thus I assume the syzbot problem is not caused by a repeated release.
-
-Kind regards, Ursula
-
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -172,10 +172,9 @@ static int smc_release(struct socket *so
->  	struct smc_sock *smc;
->  	int rc = 0;
->  
-> -	if (!sk)
-> -		goto out;
-> +	if (!sk || sk != cmpxchg(&sock->sk, sk, NULL))
-> +		return 0;
->  
-> -	sock_hold(sk); /* sock_put below */
->  	smc = smc_sk(sk);
->  
->  	/* cleanup for a dangling non-blocking connect */
-> @@ -198,9 +197,7 @@ static int smc_release(struct socket *so
->  	sock->sk = NULL;
->  	release_sock(sk);
->  
-> -	sock_put(sk); /* sock_hold above */
->  	sock_put(sk); /* final sock_put */
-> -out:
->  	return rc;
->  }
->  
-> 
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index c1ea66467918..64b1a9793daa 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -2794,17 +2794,6 @@ static int __init si_domain_init(int hw)
+ 	return 0;
+ }
+ 
+-static int identity_mapping(struct device *dev)
+-{
+-	struct device_domain_info *info;
+-
+-	info = dev->archdata.iommu;
+-	if (info && info != DUMMY_DEVICE_DOMAIN_INFO && info != DEFER_DEVICE_DOMAIN_INFO)
+-		return (info->domain == si_domain);
+-
+-	return 0;
+-}
+-
+ static int domain_add_dev_info(struct dmar_domain *domain, struct device *dev)
+ {
+ 	struct dmar_domain *ndomain;
+@@ -3461,12 +3450,6 @@ static struct dmar_domain *get_private_domain_for_dev(struct device *dev)
+ 	return domain;
+ }
+ 
+-/* Check if the dev needs to go through non-identity map and unmap process.*/
+-static bool iommu_no_mapping(struct device *dev)
+-{
+-	return iommu_dummy(dev) || identity_mapping(dev);
+-}
+-
+ static dma_addr_t __intel_map_single(struct device *dev, phys_addr_t paddr,
+ 				     size_t size, int dir, u64 dma_mask)
+ {
+@@ -3531,9 +3514,6 @@ static dma_addr_t intel_map_page(struct device *dev, struct page *page,
+ 				 enum dma_data_direction dir,
+ 				 unsigned long attrs)
+ {
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_map_page(dev, page, offset, size, dir, attrs);
+-
+ 	return __intel_map_single(dev, page_to_phys(page) + offset, size, dir,
+ 			*dev->dma_mask);
+ }
+@@ -3542,10 +3522,6 @@ static dma_addr_t intel_map_resource(struct device *dev, phys_addr_t phys_addr,
+ 				     size_t size, enum dma_data_direction dir,
+ 				     unsigned long attrs)
+ {
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_map_resource(dev, phys_addr, size, dir,
+-				attrs);
+-
+ 	return __intel_map_single(dev, phys_addr, size, dir, *dev->dma_mask);
+ }
+ 
+@@ -3597,17 +3573,13 @@ static void intel_unmap_page(struct device *dev, dma_addr_t dev_addr,
+ 			     size_t size, enum dma_data_direction dir,
+ 			     unsigned long attrs)
+ {
+-	if (iommu_no_mapping(dev))
+-		dma_direct_unmap_page(dev, dev_addr, size, dir, attrs);
+-	else
+-		intel_unmap(dev, dev_addr, size);
++	intel_unmap(dev, dev_addr, size);
+ }
+ 
+ static void intel_unmap_resource(struct device *dev, dma_addr_t dev_addr,
+ 		size_t size, enum dma_data_direction dir, unsigned long attrs)
+ {
+-	if (!iommu_no_mapping(dev))
+-		intel_unmap(dev, dev_addr, size);
++	intel_unmap(dev, dev_addr, size);
+ }
+ 
+ static void *intel_alloc_coherent(struct device *dev, size_t size,
+@@ -3617,9 +3589,6 @@ static void *intel_alloc_coherent(struct device *dev, size_t size,
+ 	struct page *page = NULL;
+ 	int order;
+ 
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_alloc(dev, size, dma_handle, flags, attrs);
+-
+ 	size = PAGE_ALIGN(size);
+ 	order = get_order(size);
+ 
+@@ -3653,9 +3622,6 @@ static void intel_free_coherent(struct device *dev, size_t size, void *vaddr,
+ 	int order;
+ 	struct page *page = virt_to_page(vaddr);
+ 
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_free(dev, size, vaddr, dma_handle, attrs);
+-
+ 	size = PAGE_ALIGN(size);
+ 	order = get_order(size);
+ 
+@@ -3673,9 +3639,6 @@ static void intel_unmap_sg(struct device *dev, struct scatterlist *sglist,
+ 	struct scatterlist *sg;
+ 	int i;
+ 
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_unmap_sg(dev, sglist, nelems, dir, attrs);
+-
+ 	for_each_sg(sglist, sg, nelems, i) {
+ 		nrpages += aligned_nrpages(sg_dma_address(sg), sg_dma_len(sg));
+ 	}
+@@ -3699,8 +3662,6 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
+ 	struct intel_iommu *iommu;
+ 
+ 	BUG_ON(dir == DMA_NONE);
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_map_sg(dev, sglist, nelems, dir, attrs);
+ 
+ 	domain = deferred_attach_domain(dev);
+ 	if (!domain)
+@@ -3747,8 +3708,6 @@ static int intel_map_sg(struct device *dev, struct scatterlist *sglist, int nele
+ 
+ static u64 intel_get_required_mask(struct device *dev)
+ {
+-	if (iommu_no_mapping(dev))
+-		return dma_direct_get_required_mask(dev);
+ 	return DMA_BIT_MASK(32);
+ }
+ 
+@@ -5014,7 +4973,6 @@ int __init intel_iommu_init(void)
+ 	if (!has_untrusted_dev() || intel_no_bounce)
+ 		swiotlb = 0;
+ #endif
+-	dma_ops = &intel_dma_ops;
+ 
+ 	init_iommu_pm_ops();
+ 
+@@ -5623,6 +5581,8 @@ static int intel_iommu_add_device(struct device *dev)
+ 				dev_info(dev,
+ 					 "Device uses a private identity domain.\n");
+ 			}
++		} else {
++			dev->dma_ops = &intel_dma_ops;
+ 		}
+ 	} else {
+ 		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
+@@ -5639,6 +5599,7 @@ static int intel_iommu_add_device(struct device *dev)
+ 				dev_info(dev,
+ 					 "Device uses a private dma domain.\n");
+ 			}
++			dev->dma_ops = &intel_dma_ops;
+ 		}
+ 	}
+ 
+@@ -5665,8 +5626,7 @@ static void intel_iommu_remove_device(struct device *dev)
+ 
+ 	iommu_device_unlink(&iommu->iommu, dev);
+ 
+-	if (device_needs_bounce(dev))
+-		set_dma_ops(dev, NULL);
++	set_dma_ops(dev, NULL);
+ }
+ 
+ static void intel_iommu_get_resv_regions(struct device *device,
+-- 
+2.20.1
