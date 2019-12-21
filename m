@@ -1,51 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42606 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727130AbfLRPcg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Dec 2019 10:32:36 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBIFSKkS138435
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 10:32:35 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wyp9esh4c-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Dec 2019 10:32:35 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Dec 2019 15:32:33 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 0/3] s390/qeth: fixes 2019-12-18
-Date: Wed, 18 Dec 2019 16:32:25 +0100
-Message-Id: <20191218153228.29908-1-jwi@linux.ibm.com>
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:43416 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727452AbfLUPEs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 10:04:48 -0500
+Received: by mail-ed1-f68.google.com with SMTP id dc19so11378216edb.10
+        for <linux-s390@vger.kernel.org>; Sat, 21 Dec 2019 07:04:47 -0800 (PST)
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH 5/8] iommu: Add iommu_dma_free_cpu_cached_iovas function
+Date: Sat, 21 Dec 2019 15:03:57 +0000
+Message-Id: <20191221150402.13868-6-murphyt7@tcd.ie>
+In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Eric Auger <eric.auger@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-Hi Dave,
+to dma-iommu ops
 
-please apply the following patch series to your net tree.
-This brings two fixes for initialization / teardown issues, and one
-ENOTSUPP cleanup.
+Add a iommu_dma_free_cpu_cached_iovas function to allow drivers which
+use the dma-iommu ops to free cached cpu iovas.
 
-Thanks,
-Julian
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+---
+ drivers/iommu/dma-iommu.c | 9 +++++++++
+ include/linux/dma-iommu.h | 3 +++
+ 2 files changed, 12 insertions(+)
 
-
-Julian Wiedmann (3):
-  s390/qeth: handle error due to unsupported transport mode
-  s390/qeth: fix promiscuous mode after reset
-  s390/qeth: don't return -ENOTSUPP to userspace
-
- drivers/s390/net/qeth_core_main.c | 14 +++++++-------
- drivers/s390/net/qeth_core_mpc.h  |  5 +++++
- drivers/s390/net/qeth_core_sys.c  |  2 +-
- drivers/s390/net/qeth_l2_main.c   |  1 +
- drivers/s390/net/qeth_l2_sys.c    |  3 ++-
- drivers/s390/net/qeth_l3_main.c   |  1 +
- 6 files changed, 17 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index df28facdfb8b..4eac3cd35443 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -50,6 +50,15 @@ struct iommu_dma_cookie {
+ 	struct iommu_domain		*fq_domain;
+ };
+ 
++void iommu_dma_free_cpu_cached_iovas(unsigned int cpu,
++		struct iommu_domain *domain)
++{
++	struct iommu_dma_cookie *cookie = domain->iova_cookie;
++	struct iova_domain *iovad = &cookie->iovad;
++
++	free_cpu_cached_iovas(cpu, iovad);
++}
++
+ static void iommu_dma_entry_dtor(unsigned long data)
+ {
+ 	struct page *freelist = (struct page *)data;
+diff --git a/include/linux/dma-iommu.h b/include/linux/dma-iommu.h
+index 2112f21f73d8..316d22a4a860 100644
+--- a/include/linux/dma-iommu.h
++++ b/include/linux/dma-iommu.h
+@@ -37,6 +37,9 @@ void iommu_dma_compose_msi_msg(struct msi_desc *desc,
+ 
+ void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
+ 
++void iommu_dma_free_cpu_cached_iovas(unsigned int cpu,
++		struct iommu_domain *domain);
++
+ #else /* CONFIG_IOMMU_DMA */
+ 
+ struct iommu_domain;
 -- 
-2.17.1
+2.20.1
