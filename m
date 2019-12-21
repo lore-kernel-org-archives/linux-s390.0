@@ -1,99 +1,28 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net] net/smc: add fallback check to connect()
-Date: Thu, 12 Dec 2019 22:35:58 +0100
-Message-Id: <20191212213558.10564-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:47950 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726905AbfLUUUK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 21 Dec 2019 15:20:10 -0500
+Subject: Re: [GIT PULL] s390 updates for 5.5-rc3
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <your-ad-here.call-01576957972-ext-6011@work.hours>
+References: <your-ad-here.call-01576957972-ext-6011@work.hours>
+Message-Id: <157695960957.315.3541305310902676791.pr-tracker-bot@kernel.org>
+Date: Sat, 21 Dec 2019 20:20:09 +0000
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+The pull request you sent on Sat, 21 Dec 2019 20:52:52 +0100:
 
-FASTOPEN setsockopt() or sendmsg() may switch the SMC socket to fallback
-mode. Once fallback mode is active, the native TCP socket functions are
-called. Nevertheless there is a small race window, when FASTOPEN
-setsockopt/sendmsg runs in parallel to a connect(), and switch the
-socket into fallback mode before connect() takes the sock lock.
-Make sure the SMC-specific connect setup is omitted in this case.
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.5-4
 
-This way a syzbot-reported refcount problem is fixed, triggered by
-different threads running non-blocking connect() and FASTOPEN_KEY
-setsockopt.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/60b04df6bfbf7e65954c44f7945b381e0fee5b6a
 
-Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
-Fixes: 6d6dd528d5af ("net/smc: fix refcount non-blocking connect() -part 2")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+Thank you!
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index b997072c72e5..cee5bf4a9bb9 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -857,6 +857,8 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
- 		goto out;
- 
- 	sock_hold(&smc->sk); /* sock put in passive closing */
-+	if (smc->use_fallback)
-+		goto out;
- 	if (flags & O_NONBLOCK) {
- 		if (schedule_work(&smc->connect_work))
- 			smc->connect_nonblock = 1;
-@@ -1721,8 +1723,6 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		sk->sk_err = smc->clcsock->sk->sk_err;
- 		sk->sk_error_report(sk);
- 	}
--	if (rc)
--		return rc;
- 
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
-@@ -1730,6 +1730,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		return -EFAULT;
- 
- 	lock_sock(sk);
-+	if (rc || smc->use_fallback)
-+		goto out;
- 	switch (optname) {
- 	case TCP_ULP:
- 	case TCP_FASTOPEN:
-@@ -1741,15 +1743,14 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
- 		} else {
--			if (!smc->use_fallback)
--				rc = -EINVAL;
-+			rc = -EINVAL;
- 		}
- 		break;
- 	case TCP_NODELAY:
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (val && !smc->use_fallback)
-+			if (val)
- 				mod_delayed_work(system_wq, &smc->conn.tx_work,
- 						 0);
- 		}
-@@ -1758,7 +1759,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (!val && !smc->use_fallback)
-+			if (!val)
- 				mod_delayed_work(system_wq, &smc->conn.tx_work,
- 						 0);
- 		}
-@@ -1769,6 +1770,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	default:
- 		break;
- 	}
-+out:
- 	release_sock(sk);
- 
- 	return rc;
 -- 
-2.21.0
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
