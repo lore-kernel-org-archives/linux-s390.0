@@ -1,146 +1,30 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 2/3] s390/qeth: ensure linear access to packet headers
-Date: Thu,  5 Dec 2019 14:33:03 +0100
-In-Reply-To: <20191205133304.58895-1-jwi@linux.ibm.com>
-References: <20191205133304.58895-1-jwi@linux.ibm.com>
-Message-Id: <20191205133304.58895-3-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from shards.monkeyblade.net ([23.128.96.9]:56946 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725773AbfLUFby (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 00:31:54 -0500
+Date: Fri, 20 Dec 2019 21:31:53 -0800 (PST)
+Message-Id: <20191220.213153.1257291319387433154.davem@davemloft.net>
+Subject: Re: [PATCH net] net/smc: unregister ib devices in reboot_event
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20191219115113.49414-1-kgraul@linux.ibm.com>
+References: <20191219115113.49414-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-When the RX path builds non-linear skbs, the packet headers can
-currently spill over into page fragments. Depending on the packet type
-and what fields we need to access in the headers, this could cause us
-to go past the end of skb->data.
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Thu, 19 Dec 2019 12:51:13 +0100
 
-So for non-linear packets, copy precisely the length of the necessary
-headers ('linear_len') into skb->data.
-And don't copy more, upper-level protocols will peel whatever additional
-packet headers they need.
+> In the reboot_event handler, unregister the ib devices and enable
+> the IB layer to release the devices before the reboot.
+> 
+> Fixes: a33a803cfe64 ("net/smc: guarantee removal of link groups in reboot")
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 64 +++++++++++++++----------------
- 1 file changed, 31 insertions(+), 33 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 7285484212de..634913112441 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5028,27 +5028,15 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
- }
- EXPORT_SYMBOL_GPL(qeth_core_hardsetup_card);
- 
--static void qeth_create_skb_frag(struct qdio_buffer_element *element,
--				 struct sk_buff *skb, int offset, int data_len)
-+static void qeth_create_skb_frag(struct sk_buff *skb, char *data, int data_len)
- {
--	struct page *page = virt_to_page(element->addr);
-+	struct page *page = virt_to_page(data);
- 	unsigned int next_frag;
- 
--	/* first fill the linear space */
--	if (!skb->len) {
--		unsigned int linear = min(data_len, skb_tailroom(skb));
--
--		skb_put_data(skb, element->addr + offset, linear);
--		data_len -= linear;
--		if (!data_len)
--			return;
--		offset += linear;
--		/* fall through to add page frag for remaining data */
--	}
--
- 	next_frag = skb_shinfo(skb)->nr_frags;
- 	get_page(page);
--	skb_add_rx_frag(skb, next_frag, page, offset, data_len, data_len);
-+	skb_add_rx_frag(skb, next_frag, page, offset_in_page(data), data_len,
-+			data_len);
- }
- 
- static inline int qeth_is_last_sbale(struct qdio_buffer_element *sbale)
-@@ -5063,13 +5051,12 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- {
- 	struct qdio_buffer_element *element = *__element;
- 	struct qdio_buffer *buffer = qethbuffer->buffer;
--	unsigned int headroom, linear_len;
-+	unsigned int linear_len = 0;
- 	int offset = *__offset;
- 	bool use_rx_sg = false;
-+	unsigned int headroom;
- 	struct sk_buff *skb;
- 	int skb_len = 0;
--	void *data_ptr;
--	int data_len;
- 
- next_packet:
- 	/* qeth_hdr must not cross element boundaries */
-@@ -5144,9 +5131,9 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		skb = qethbuffer->rx_skb;
- 		qethbuffer->rx_skb = NULL;
- 	} else {
--		unsigned int linear = (use_rx_sg) ? QETH_RX_PULL_LEN : skb_len;
--
--		skb = napi_alloc_skb(&card->napi, linear + headroom);
-+		if (!use_rx_sg)
-+			linear_len = skb_len;
-+		skb = napi_alloc_skb(&card->napi, linear_len + headroom);
- 	}
- 
- 	if (!skb)
-@@ -5155,18 +5142,32 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 		skb_reserve(skb, headroom);
- 
- walk_packet:
--	data_ptr = element->addr + offset;
- 	while (skb_len) {
--		data_len = min(skb_len, (int)(element->length - offset));
-+		int data_len = min(skb_len, (int)(element->length - offset));
-+		char *data = element->addr + offset;
-+
-+		skb_len -= data_len;
-+		offset += data_len;
- 
-+		/* Extract data from current element: */
- 		if (skb && data_len) {
--			if (use_rx_sg)
--				qeth_create_skb_frag(element, skb, offset,
--						     data_len);
--			else
--				skb_put_data(skb, data_ptr, data_len);
-+			if (linear_len) {
-+				unsigned int copy_len;
-+
-+				copy_len = min_t(unsigned int, linear_len,
-+						 data_len);
-+
-+				skb_put_data(skb, data, copy_len);
-+				linear_len -= copy_len;
-+				data_len -= copy_len;
-+				data += copy_len;
-+			}
-+
-+			if (data_len)
-+				qeth_create_skb_frag(skb, data, data_len);
- 		}
--		skb_len -= data_len;
-+
-+		/* Step forward to next element: */
- 		if (skb_len) {
- 			if (qeth_is_last_sbale(element)) {
- 				QETH_CARD_TEXT(card, 4, "unexeob");
-@@ -5180,9 +5181,6 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
- 			}
- 			element++;
- 			offset = 0;
--			data_ptr = element->addr;
--		} else {
--			offset += data_len;
- 		}
- 	}
- 
--- 
-2.17.1
+Applied.
