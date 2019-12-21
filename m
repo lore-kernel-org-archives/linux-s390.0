@@ -1,147 +1,92 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39728 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbfLJVN2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Dec 2019 16:13:28 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 325/350] s390/cpumf: Adjust registration of s390 PMU device drivers
-Date: Tue, 10 Dec 2019 16:07:10 -0500
-Message-Id: <20191210210735.9077-286-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH 8/8] DO NOT MERGE: iommu: disable list appending in dma-iommu
+Date: Sat, 21 Dec 2019 15:04:00 +0000
+Message-Id: <20191221150402.13868-9-murphyt7@tcd.ie>
+In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Marc Zyngier <maz@kernel.org>, Eric Auger <eric.auger@redhat.com>, Julien Grall <julien.grall@arm.com>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+ops __finalise_sg
 
-[ Upstream commit 6a82e23f45fe0aa821e7a935e39d0acb20c275c0 ]
+Disable combining sg segments in the dma-iommu api.
+Combining the sg segments exposes a bug in the intel i915 driver which
+causes visual artifacts and the screen to freeze. This is most likely
+because of how the i915 handles the returned list. It probably doesn't
+respect the returned value specifying the number of elements in the list
+and instead depends on the previous behaviour of the intel iommu driver
+which would return the same number of elements in the output list as in
+the input list.
 
-Linux-next commit titled "perf/core: Optimize perf_init_event()"
-changed the semantics of PMU device driver registration.
-It was done to speed up the lookup/handling of PMU device driver
-specific events. It also enforces that only one PMU device
-driver will be registered of type PERF_EVENT_RAW.
-
-This change added these line in function perf_pmu_register():
-
-  ...
-  +       ret = idr_alloc(&pmu_idr, pmu, max, 0, GFP_KERNEL);
-  +       if (ret < 0)
-                goto free_pdc;
-  +
-  +       WARN_ON(type >= 0 && ret != type);
-
-The warn_on generates a message. We have 3 PMU device drivers,
-each registered as type PERF_TYPE_RAW.
-The cf_diag device driver (arch/s390/kernel/perf_cpumf_cf_diag.c)
-always hits the WARN_ON because it is the second PMU device driver
-(after sampling device driver arch/s390/kernel/perf_cpumf_sf.c)
-which is registered as type 4 (PERF_TYPE_RAW).
-So when the sampling device driver is registered, ret has value 4.
-When cf_diag device driver is registered with type 4,
-ret has value of 5 and WARN_ON fires.
-
-Adjust the PMU device drivers for s390 to support the new
-semantics required by perf_pmu_register().
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- arch/s390/kernel/perf_cpum_cf.c      | 21 ++++++++++-----------
- arch/s390/kernel/perf_cpum_cf_diag.c | 10 +++++-----
- 2 files changed, 15 insertions(+), 16 deletions(-)
+ drivers/iommu/dma-iommu.c | 38 +++++++-------------------------------
+ 1 file changed, 7 insertions(+), 31 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 48d48b6187c0d..0eb1d1cc53a88 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -199,7 +199,7 @@ static const int cpumf_generic_events_user[] = {
- 	[PERF_COUNT_HW_BUS_CYCLES]	    = -1,
- };
- 
--static int __hw_perf_event_init(struct perf_event *event)
-+static int __hw_perf_event_init(struct perf_event *event, unsigned int type)
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index cf778db7d84d..d7547b912c87 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -853,8 +853,7 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
  {
- 	struct perf_event_attr *attr = &event->attr;
- 	struct hw_perf_event *hwc = &event->hw;
-@@ -207,7 +207,7 @@ static int __hw_perf_event_init(struct perf_event *event)
- 	int err = 0;
- 	u64 ev;
+ 	struct scatterlist *s, *cur = sg;
+ 	unsigned long seg_mask = dma_get_seg_boundary(dev);
+-	unsigned int cur_len = 0, max_len = dma_get_max_seg_size(dev);
+-	int i, count = 0;
++	int i;
  
--	switch (attr->type) {
-+	switch (type) {
- 	case PERF_TYPE_RAW:
- 		/* Raw events are used to access counters directly,
- 		 * hence do not permit excludes */
-@@ -294,17 +294,16 @@ static int __hw_perf_event_init(struct perf_event *event)
+ 	for_each_sg(sg, s, nents, i) {
+ 		/* Restore this segment's original unaligned fields first */
+@@ -862,39 +861,16 @@ static int __finalise_sg(struct device *dev, struct scatterlist *sg, int nents,
+ 		unsigned int s_length = sg_dma_len(s);
+ 		unsigned int s_iova_len = s->length;
  
- static int cpumf_pmu_event_init(struct perf_event *event)
- {
-+	unsigned int type = event->attr.type;
- 	int err;
- 
--	switch (event->attr.type) {
--	case PERF_TYPE_HARDWARE:
--	case PERF_TYPE_HW_CACHE:
--	case PERF_TYPE_RAW:
--		err = __hw_perf_event_init(event);
--		break;
--	default:
-+	if (type == PERF_TYPE_HARDWARE || type == PERF_TYPE_RAW)
-+		err = __hw_perf_event_init(event, type);
-+	else if (event->pmu->type == type)
-+		/* Registered as unknown PMU */
-+		err = __hw_perf_event_init(event, PERF_TYPE_RAW);
-+	else
- 		return -ENOENT;
--	}
- 
- 	if (unlikely(err) && event->destroy)
- 		event->destroy(event);
-@@ -553,7 +552,7 @@ static int __init cpumf_pmu_init(void)
- 		return -ENODEV;
- 
- 	cpumf_pmu.attr_groups = cpumf_cf_event_group();
--	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", PERF_TYPE_RAW);
-+	rc = perf_pmu_register(&cpumf_pmu, "cpum_cf", -1);
- 	if (rc)
- 		pr_err("Registering the cpum_cf PMU failed with rc=%i\n", rc);
- 	return rc;
-diff --git a/arch/s390/kernel/perf_cpum_cf_diag.c b/arch/s390/kernel/perf_cpum_cf_diag.c
-index 2654e348801a1..e949ab832ed75 100644
---- a/arch/s390/kernel/perf_cpum_cf_diag.c
-+++ b/arch/s390/kernel/perf_cpum_cf_diag.c
-@@ -243,13 +243,13 @@ static int cf_diag_event_init(struct perf_event *event)
- 	int err = -ENOENT;
- 
- 	debug_sprintf_event(cf_diag_dbg, 5,
--			    "%s event %p cpu %d config %#llx "
-+			    "%s event %p cpu %d config %#llx type:%u "
- 			    "sample_type %#llx cf_diag_events %d\n", __func__,
--			    event, event->cpu, attr->config, attr->sample_type,
--			    atomic_read(&cf_diag_events));
-+			    event, event->cpu, attr->config, event->pmu->type,
-+			    attr->sample_type, atomic_read(&cf_diag_events));
- 
- 	if (event->attr.config != PERF_EVENT_CPUM_CF_DIAG ||
--	    event->attr.type != PERF_TYPE_RAW)
-+	    event->attr.type != event->pmu->type)
- 		goto out;
- 
- 	/* Raw events are used to access counters directly,
-@@ -693,7 +693,7 @@ static int __init cf_diag_init(void)
++		if (i > 0)
++			cur = sg_next(cur);
++
+ 		s->offset += s_iova_off;
+ 		s->length = s_length;
+-		sg_dma_address(s) = DMA_MAPPING_ERROR;
+-		sg_dma_len(s) = 0;
+-
+-		/*
+-		 * Now fill in the real DMA data. If...
+-		 * - there is a valid output segment to append to
+-		 * - and this segment starts on an IOVA page boundary
+-		 * - but doesn't fall at a segment boundary
+-		 * - and wouldn't make the resulting output segment too long
+-		 */
+-		if (cur_len && !s_iova_off && (dma_addr & seg_mask) &&
+-		    (max_len - cur_len >= s_length)) {
+-			/* ...then concatenate it with the previous one */
+-			cur_len += s_length;
+-		} else {
+-			/* Otherwise start the next output segment */
+-			if (i > 0)
+-				cur = sg_next(cur);
+-			cur_len = s_length;
+-			count++;
+-
+-			sg_dma_address(cur) = dma_addr + s_iova_off;
+-		}
+-
+-		sg_dma_len(cur) = cur_len;
++		sg_dma_address(cur) = dma_addr + s_iova_off;
++		sg_dma_len(cur) = s_length;
+ 		dma_addr += s_iova_len;
+-
+-		if (s_length + s_iova_off < s_iova_len)
+-			cur_len = 0;
  	}
- 	debug_register_view(cf_diag_dbg, &debug_sprintf_view);
+-	return count;
++	return nents;
+ }
  
--	rc = perf_pmu_register(&cf_diag, "cpum_cf_diag", PERF_TYPE_RAW);
-+	rc = perf_pmu_register(&cf_diag, "cpum_cf_diag", -1);
- 	if (rc) {
- 		debug_unregister_view(cf_diag_dbg, &debug_sprintf_view);
- 		debug_unregister(cf_diag_dbg);
+ /*
 -- 
 2.20.1
