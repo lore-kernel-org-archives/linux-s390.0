@@ -1,107 +1,38 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 117/187] net/smc: add fallback check to connect()
-Date: Fri, 27 Dec 2019 12:39:45 -0500
-Message-Id: <20191227174055.4923-117-sashal@kernel.org>
-In-Reply-To: <20191227174055.4923-1-sashal@kernel.org>
-References: <20191227174055.4923-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:41822 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725773AbfLUGO3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 21 Dec 2019 01:14:29 -0500
+Received: by mail-pg1-f194.google.com with SMTP id x8so6040195pgk.8
+        for <linux-s390@vger.kernel.org>; Fri, 20 Dec 2019 22:14:29 -0800 (PST)
+From: maholova <maholova.wda@gmail.com>
+Subject: [PATCH] s390: IEEE FPU emulation error in Kernel-3.16.y
+Date: Sat, 21 Dec 2019 15:12:54 +0900
+Message-Id: <20191221061253.31997-1-maholova.wda@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ursula Braun <ubraun@linux.ibm.com>, syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com, Karsten Graul <kgraul@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: linux-s390@vger.kernel.org
+Cc: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, maholova <maholova.wda@gmail.com>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
-
-[ Upstream commit 86434744fedf0cfe07a9eee3f4632c0e25c1d136 ]
-
-FASTOPEN setsockopt() or sendmsg() may switch the SMC socket to fallback
-mode. Once fallback mode is active, the native TCP socket functions are
-called. Nevertheless there is a small race window, when FASTOPEN
-setsockopt/sendmsg runs in parallel to a connect(), and switch the
-socket into fallback mode before connect() takes the sock lock.
-Make sure the SMC-specific connect setup is omitted in this case.
-
-This way a syzbot-reported refcount problem is fixed, triggered by
-different threads running non-blocking connect() and FASTOPEN_KEY
-setsockopt.
-
-Reported-by: syzbot+96d3f9ff6a86d37e44c8@syzkaller.appspotmail.com
-Fixes: 6d6dd528d5af ("net/smc: fix refcount non-blocking connect() -part 2")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: maholova <maholova.wda@gmail.com>
 ---
- net/smc/af_smc.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/s390/kernel/traps.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 737b49909a7a..6a6d3b2aa5a9 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -854,6 +854,8 @@ static int smc_connect(struct socket *sock, struct sockaddr *addr,
- 		goto out;
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index c5762324d9ee..fda8b571466e 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -19,6 +19,8 @@
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include "entry.h"
++#include <asm/mathemu.h>
++
  
- 	sock_hold(&smc->sk); /* sock put in passive closing */
-+	if (smc->use_fallback)
-+		goto out;
- 	if (flags & O_NONBLOCK) {
- 		if (schedule_work(&smc->connect_work))
- 			smc->connect_nonblock = 1;
-@@ -1716,8 +1718,6 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		sk->sk_err = smc->clcsock->sk->sk_err;
- 		sk->sk_error_report(sk);
- 	}
--	if (rc)
--		return rc;
+ int show_unhandled_signals = 1;
  
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
-@@ -1725,6 +1725,8 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		return -EFAULT;
- 
- 	lock_sock(sk);
-+	if (rc || smc->use_fallback)
-+		goto out;
- 	switch (optname) {
- 	case TCP_ULP:
- 	case TCP_FASTOPEN:
-@@ -1736,15 +1738,14 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 			smc_switch_to_fallback(smc);
- 			smc->fallback_rsn = SMC_CLC_DECL_OPTUNSUPP;
- 		} else {
--			if (!smc->use_fallback)
--				rc = -EINVAL;
-+			rc = -EINVAL;
- 		}
- 		break;
- 	case TCP_NODELAY:
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (val && !smc->use_fallback)
-+			if (val)
- 				mod_delayed_work(system_wq, &smc->conn.tx_work,
- 						 0);
- 		}
-@@ -1753,7 +1754,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		if (sk->sk_state != SMC_INIT &&
- 		    sk->sk_state != SMC_LISTEN &&
- 		    sk->sk_state != SMC_CLOSED) {
--			if (!val && !smc->use_fallback)
-+			if (!val)
- 				mod_delayed_work(system_wq, &smc->conn.tx_work,
- 						 0);
- 		}
-@@ -1764,6 +1765,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	default:
- 		break;
- 	}
-+out:
- 	release_sock(sk);
- 
- 	return rc;
 -- 
 2.20.1
