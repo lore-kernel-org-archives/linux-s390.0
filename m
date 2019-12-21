@@ -1,173 +1,698 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24321 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727377AbfLPLYl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Dec 2019 06:24:41 -0500
-From: Thomas Huth <thuth@redhat.com>
-Subject: [RFC QEMU PATCH] pc-bios/s390-ccw: Add zipl-like "BOOT_IMAGE=x" to the kernel parameters
-Date: Mon, 16 Dec 2019 12:24:32 +0100
-Message-Id: <20191216112432.13412-1-thuth@redhat.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tom Murphy <murphyt7@tcd.ie>
+Subject: [PATCH 4/8] iommu: Handle freelists when using deferred flushing in iommu drivers
+Date: Sat, 21 Dec 2019 15:03:56 +0000
+Message-Id: <20191221150402.13868-5-murphyt7@tcd.ie>
+In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org, Stefan Haberland <sth@linux.ibm.com>
-Cc: qemu-s390x@nongnu.org, Cornelia Huck <cohuck@redhat.com>, psundara@redhat.com, =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: Tom Murphy <murphyt7@tcd.ie>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Julien Grall <julien.grall@arm.com>, Eric Auger <eric.auger@redhat.com>, Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-ZIPL adds a "BOOT_IMAGE=x" to the kernel parameters to indicate which
-kernel entry has been chosen during the boot process. Apparently some
-Linux tools like "dracut" use this setting, so we should provide this
-kernel parameter with the s390-ccw bios, too.
+Allow the iommu_unmap_fast to return newly freed page table pages and
+pass the freelist to queue_iova in the dma-iommu ops path.
 
-However, it's a little bit tricky to get additional parameters from the
-s390-ccw bios into the kernel command line: Since we are running the
-ZIPL stage 3 boot loader first (which then finally jumps into the Linux
-kernel), we have to adapt to the parameter conventions of ZIPL and put
-the argument into ZIPLs "COMMAND_LINE_EXTRA" area. Unfortunately, the
-location of this area changed in the course of time (it has been moved
-between ZIPL v2.9 and v2.10), so we need to detect the right version of
-ZIPL here, too. The only reasonable way that I could figure out was the
-start address of the ZIPL stage 3 bootloader which has been changed in
-almost the same timeframe - just a little bit earlier, between v2.8 and
-v2.9, so if a user is using exactly ZIPL v2.9, they won't see the new
-BOOT_IMAGE parameter (but at least the new code in s390-ccw should also
-not hurt in this case - the area where we write the parameter to is just
-the lowest part of the stack area of ZIPL, which should be unused).
+This is useful for iommu drivers (in this case the intel iommu driver)
+which need to wait for the ioTLB to be flushed before newly
+free/unmapped page table pages can be freed. This way we can still batch
+ioTLB free operations and handle the freelists.
 
-Buglink: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
-Signed-off-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
- Note: I've marked the patch as RFC since I'm not quite sure whether
- this is really the right way to address this issue: It's unfortunate
- that we have to mess with different location in ZIPL which might also
- change again in the future. As suggested by Christian on IRC last week,
- maybe it would make more sense to change ZIPL to add this parameter
- already when zipl is installed (i.e. by the Linux userspace "zipl" pro-
- gram), instead of adding it during boot time? Also, the BOOT_IMAGE para-
- meter on s390x is quite different from the BOOT_IMAGE paramter that is
- used on x86 - while s390x only uses one single number here, the x86
- variant (added by grub2, I guess) uses the boot device + full filename
- of the kernel on the boot partition. Should we maybe make the s390x
- variant more conform to x86? If so, I think this really has to be fixed
- in zipl userspace tool, and not in the s390-ccw bios (and zipl stage3
- bootloader).
+ drivers/iommu/amd_iommu.c       | 14 ++++++++-
+ drivers/iommu/arm-smmu-v3.c     |  3 +-
+ drivers/iommu/arm-smmu.c        |  3 +-
+ drivers/iommu/dma-iommu.c       | 45 ++++++++++++++++++++++-------
+ drivers/iommu/exynos-iommu.c    |  3 +-
+ drivers/iommu/intel-iommu.c     | 51 +++++++++++++++++++++------------
+ drivers/iommu/iommu.c           | 29 ++++++++++++++-----
+ drivers/iommu/ipmmu-vmsa.c      |  3 +-
+ drivers/iommu/msm_iommu.c       |  3 +-
+ drivers/iommu/mtk_iommu.c       |  3 +-
+ drivers/iommu/mtk_iommu_v1.c    |  3 +-
+ drivers/iommu/omap-iommu.c      |  3 +-
+ drivers/iommu/qcom_iommu.c      |  3 +-
+ drivers/iommu/rockchip-iommu.c  |  3 +-
+ drivers/iommu/s390-iommu.c      |  3 +-
+ drivers/iommu/tegra-gart.c      |  3 +-
+ drivers/iommu/tegra-smmu.c      |  3 +-
+ drivers/iommu/virtio-iommu.c    |  3 +-
+ drivers/vfio/vfio_iommu_type1.c |  2 +-
+ include/linux/iommu.h           | 25 ++++++++++++----
+ 20 files changed, 151 insertions(+), 57 deletions(-)
 
- pc-bios/s390-ccw/bootmap.c  | 56 +++++++++++++++++++++++++++++++++++--
- pc-bios/s390-ccw/jump2ipl.c |  2 +-
- pc-bios/s390-ccw/s390-ccw.h |  2 ++
- 3 files changed, 57 insertions(+), 3 deletions(-)
-
-diff --git a/pc-bios/s390-ccw/bootmap.c b/pc-bios/s390-ccw/bootmap.c
-index d13b7cbd15..bc7fa597b4 100644
---- a/pc-bios/s390-ccw/bootmap.c
-+++ b/pc-bios/s390-ccw/bootmap.c
-@@ -49,6 +49,56 @@ static inline bool is_iso_vd_valid(IsoVolDesc *vd)
-            vd->type <= VOL_DESC_TYPE_PARTITION;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index bd25674ee4db..e8a4c0842624 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2542,7 +2542,8 @@ static int amd_iommu_map(struct iommu_domain *dom, unsigned long iova,
+ 
+ static size_t amd_iommu_unmap(struct iommu_domain *dom, unsigned long iova,
+ 			      size_t page_size,
+-			      struct iommu_iotlb_gather *gather)
++			      struct iommu_iotlb_gather *gather,
++			      struct page **freelist)
+ {
+ 	struct protection_domain *domain = to_pdomain(dom);
+ 
+@@ -2668,6 +2669,16 @@ static void amd_iommu_flush_iotlb_all(struct iommu_domain *domain)
+ 	spin_unlock_irqrestore(&dom->lock, flags);
  }
  
-+/**
-+ * The ZIPL boot loader adds a BOOT_IMAGE=x to the kernel parameters
-+ * (where x is the number of the selected boot entry). Since some
-+ * programs might rely on this parameter, we mimic this behavior here.
-+ */
-+static void add_boot_image_param(uint64_t start_addr, int index)
++static void amd_iommu_flush_iotlb_range(struct iommu_domain *domain,
++					unsigned long iova, size_t size,
++					struct page *freelist)
 +{
-+    /* "BOOT_IMAGE=00" in EBCDIC */
-+    char bootimg_str[15] = {
-+        0xc2, 0xd6, 0xd6, 0xe3, 0x6d, 0xc9, 0xd4, 0xc1, 0xc7, 0xc5, 0x7e,
-+        0xf0, 0xf0, 0
-+    };
++	struct protection_domain *dom = to_pdomain(domain);
 +
-+    /* Only do it for Linux images */
-+    if (memcmp((char *)LINUX_MAGIC_ADDR, "S390EP", 6) != 0) {
-+        return;
-+    }
-+
-+    if (index < 10) {
-+        bootimg_str[11] = 0xf0 + index;  /* 0xf0 is '0' in EBCDIC */
-+        bootimg_str[12] = 0;
-+    } else if (index < 100) {
-+        bootimg_str[11] = 0xf0 + index / 10;
-+        bootimg_str[12] = 0xf0 + index % 10;
-+    } else {
-+        /* This should never happen since index should be < MAX_BOOT_ENTRIES */
-+        panic("BOOT_IMAGE index too big");
-+    }
-+
-+    /*
-+     * Now write the parameter to the COMMAND_LINE_EXTRA area of the zipl
-+     * stage3 boot loader that we are going to run. Unfortunately, the
-+     * location of this area changed in the course of time, but we can
-+     * use the stage3 start address to determine which area we have to
-+     * use (unless it is zipl v2.9 - the start address already has changed
-+     * there but the area has not been moved yet ... so for this version
-+     * we are writing the parameters into the unused stack area instead
-+     * and thus the BOOT_PARAM won't show up there)
-+     */
-+    if ((start_addr & 0x7fffffff) == 0xa050) {
-+        *(uint64_t *)0xa020 = true;
-+        memcpy((char *)0xa000 - 0x400, bootimg_str, sizeof(bootimg_str));
-+    } else if ((start_addr & 0x7fffffff) == 0xa000) {
-+        *(uint64_t *)0x9020 = true;
-+        memcpy((char *)0xe000, bootimg_str, sizeof(bootimg_str));
-+    } else {
-+        sclp_print("\nWarning: Unsupported ZIPL stage 3 start address.\n");
-+    }
++	domain_flush_pages(dom, iova, size);
++	domain_flush_complete(dom);
 +}
 +
- /***********************************************************************
-  * IPL an ECKD DASD (CDL or LDL/CMS format)
-  */
-@@ -480,7 +530,7 @@ static void zipl_load_segment(ComponentEntry *entry)
- }
- 
- /* Run a zipl program */
--static void zipl_run(ScsiBlockPtr *pte)
-+static void zipl_run(ScsiBlockPtr *pte, int loadparm)
+ static void amd_iommu_iotlb_sync(struct iommu_domain *domain,
+ 				 struct iommu_iotlb_gather *gather)
  {
-     ComponentHeader *header;
-     ComponentEntry *entry;
-@@ -515,6 +565,8 @@ static void zipl_run(ScsiBlockPtr *pte)
+@@ -2692,6 +2703,7 @@ const struct iommu_ops amd_iommu_ops = {
+ 	.is_attach_deferred = amd_iommu_is_attach_deferred,
+ 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
+ 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
++	.flush_iotlb_range = amd_iommu_flush_iotlb_range,
+ 	.iotlb_sync = amd_iommu_iotlb_sync,
+ };
  
-     IPL_assert(entry->component_type == ZIPL_COMP_ENTRY_EXEC, "No EXEC entry");
- 
-+    add_boot_image_param(entry->load_address, loadparm);
-+
-     /* should not return */
-     jump_to_IPL_code(entry->load_address);
- }
-@@ -565,7 +617,7 @@ static void ipl_scsi(void)
-     IPL_assert(loadparm < MAX_BOOT_ENTRIES, "loadparm value greater than"
-                " maximum number of boot entries allowed");
- 
--    zipl_run(&prog_table->entry[loadparm].scsi); /* no return */
-+    zipl_run(&prog_table->entry[loadparm].scsi, loadparm); /* no return */
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index effe72eb89e7..a27d4bf4492c 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -2459,7 +2459,8 @@ static int arm_smmu_map(struct iommu_domain *domain, unsigned long iova,
  }
  
- /***********************************************************************
-diff --git a/pc-bios/s390-ccw/jump2ipl.c b/pc-bios/s390-ccw/jump2ipl.c
-index 266f1502b9..36090631f9 100644
---- a/pc-bios/s390-ccw/jump2ipl.c
-+++ b/pc-bios/s390-ccw/jump2ipl.c
-@@ -77,7 +77,7 @@ void jump_to_low_kernel(void)
-      * kernel start address (when jumping to the PSW-at-zero address instead,
-      * the kernel startup code fails when we booted from a network device).
-      */
--    if (!memcmp((char *)0x10008, "S390EP", 6)) {
-+    if (!memcmp((char *)LINUX_MAGIC_ADDR, "S390EP", 6)) {
-         jump_to_IPL_code(KERN_IMAGE_START);
-     }
+ static size_t arm_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			     size_t size, struct iommu_iotlb_gather *gather)
++			     size_t size, struct iommu_iotlb_gather *gather,
++			     struct page **freelist)
+ {
+ 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
+ 	struct io_pgtable_ops *ops = smmu_domain->pgtbl_ops;
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 4f1a350d9529..ea1ab3387a07 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -1205,7 +1205,8 @@ static int arm_smmu_map(struct iommu_domain *domain, unsigned long iova,
+ }
  
-diff --git a/pc-bios/s390-ccw/s390-ccw.h b/pc-bios/s390-ccw/s390-ccw.h
-index 11bce7d73c..3e23c3c400 100644
---- a/pc-bios/s390-ccw/s390-ccw.h
-+++ b/pc-bios/s390-ccw/s390-ccw.h
-@@ -46,6 +46,8 @@ typedef unsigned long long __u64;
+ static size_t arm_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			     size_t size, struct iommu_iotlb_gather *gather)
++			     size_t size, struct iommu_iotlb_gather *gather,
++			     struct page **freelist)
+ {
+ 	struct io_pgtable_ops *ops = to_smmu_domain(domain)->pgtbl_ops;
+ 	struct arm_smmu_device *smmu = to_smmu_domain(domain)->smmu;
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 0cc702a70a96..df28facdfb8b 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -50,6 +50,19 @@ struct iommu_dma_cookie {
+ 	struct iommu_domain		*fq_domain;
+ };
  
- #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
- 
-+#define LINUX_MAGIC_ADDR  0x010008UL
++static void iommu_dma_entry_dtor(unsigned long data)
++{
++	struct page *freelist = (struct page *)data;
 +
- #include "cio.h"
- #include "iplb.h"
++	while (freelist != NULL) {
++		unsigned long p = (unsigned long)page_address(freelist);
++
++		freelist = freelist->freelist;
++		free_page(p);
++	}
++}
++
++
+ static inline size_t cookie_msi_granule(struct iommu_dma_cookie *cookie)
+ {
+ 	if (cookie->type == IOMMU_DMA_IOVA_COOKIE)
+@@ -345,7 +358,8 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+ 	if (!cookie->fq_domain && !iommu_domain_get_attr(domain,
+ 			DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE, &attr) && attr) {
+ 		cookie->fq_domain = domain;
+-		init_iova_flush_queue(iovad, iommu_dma_flush_iotlb_all, NULL);
++		init_iova_flush_queue(iovad, iommu_dma_flush_iotlb_all,
++				iommu_dma_entry_dtor);
+ 	}
+ 
+ 	if (!dev)
+@@ -439,7 +453,7 @@ static dma_addr_t iommu_dma_alloc_iova(struct iommu_domain *domain,
+ }
+ 
+ static void iommu_dma_free_iova(struct iommu_dma_cookie *cookie,
+-		dma_addr_t iova, size_t size)
++		dma_addr_t iova, size_t size, struct page *freelist)
+ {
+ 	struct iova_domain *iovad = &cookie->iovad;
+ 
+@@ -448,7 +462,8 @@ static void iommu_dma_free_iova(struct iommu_dma_cookie *cookie,
+ 		cookie->msi_iova -= size;
+ 	else if (cookie->fq_domain)	/* non-strict mode */
+ 		queue_iova(iovad, iova_pfn(iovad, iova),
+-				size >> iova_shift(iovad), 0);
++				size >> iova_shift(iovad),
++				(unsigned long) freelist);
+ 	else
+ 		free_iova_fast(iovad, iova_pfn(iovad, iova),
+ 				size >> iova_shift(iovad));
+@@ -462,18 +477,26 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
+ 	struct iova_domain *iovad = &cookie->iovad;
+ 	size_t iova_off = iova_offset(iovad, dma_addr);
+ 	struct iommu_iotlb_gather iotlb_gather;
++	struct page *freelist = NULL;
+ 	size_t unmapped;
+ 
+ 	dma_addr -= iova_off;
+ 	size = iova_align(iovad, size + iova_off);
+ 	iommu_iotlb_gather_init(&iotlb_gather);
+ 
+-	unmapped = iommu_unmap_fast(domain, dma_addr, size, &iotlb_gather);
++	unmapped = iommu_unmap_fast(domain, dma_addr, size, &iotlb_gather,
++			&freelist);
+ 	WARN_ON(unmapped != size);
+ 
+-	if (!cookie->fq_domain)
+-		iommu_tlb_sync(domain, &iotlb_gather);
+-	iommu_dma_free_iova(cookie, dma_addr, size);
++	if (!cookie->fq_domain) {
++		if (domain->ops->flush_iotlb_range)
++			domain->ops->flush_iotlb_range(domain, dma_addr, size,
++					freelist);
++		else
++			iommu_tlb_sync(domain, &iotlb_gather);
++	}
++
++	iommu_dma_free_iova(cookie, dma_addr, size, freelist);
+ }
+ 
+ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+@@ -495,7 +518,7 @@ static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+ 		return DMA_MAPPING_ERROR;
+ 
+ 	if (iommu_map_atomic(domain, iova, phys - iova_off, size, prot)) {
+-		iommu_dma_free_iova(cookie, iova, size);
++		iommu_dma_free_iova(cookie, iova, size, NULL);
+ 		return DMA_MAPPING_ERROR;
+ 	}
+ 	return iova + iova_off;
+@@ -650,7 +673,7 @@ static void *iommu_dma_alloc_remap(struct device *dev, size_t size,
+ out_free_sg:
+ 	sg_free_table(&sgt);
+ out_free_iova:
+-	iommu_dma_free_iova(cookie, iova, size);
++	iommu_dma_free_iova(cookie, iova, size, NULL);
+ out_free_pages:
+ 	__iommu_dma_free_pages(pages, count);
+ 	return NULL;
+@@ -901,7 +924,7 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
+ 	return __finalise_sg(dev, sg, nents, iova);
+ 
+ out_free_iova:
+-	iommu_dma_free_iova(cookie, iova, iova_len);
++	iommu_dma_free_iova(cookie, iova, iova_len, NULL);
+ out_restore_sg:
+ 	__invalidate_sg(sg, nents);
+ 	return 0;
+@@ -1194,7 +1217,7 @@ static struct iommu_dma_msi_page *iommu_dma_get_msi_page(struct device *dev,
+ 	return msi_page;
+ 
+ out_free_iova:
+-	iommu_dma_free_iova(cookie, iova, size);
++	iommu_dma_free_iova(cookie, iova, size, NULL);
+ out_free_page:
+ 	kfree(msi_page);
+ 	return NULL;
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 186ff5cc975c..e6456eb8ac4d 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1129,7 +1129,8 @@ static void exynos_iommu_tlb_invalidate_entry(struct exynos_iommu_domain *domain
+ 
+ static size_t exynos_iommu_unmap(struct iommu_domain *iommu_domain,
+ 				 unsigned long l_iova, size_t size,
+-				 struct iommu_iotlb_gather *gather)
++				 struct iommu_iotlb_gather *gather,
++				 struct page **freelist)
+ {
+ 	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
+ 	sysmmu_iova_t iova = (sysmmu_iova_t)l_iova;
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 8d72ea0fb843..675ca2aa6e20 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -1145,9 +1145,9 @@ static struct page *dma_pte_clear_level(struct dmar_domain *domain, int level,
+    pages can only be freed after the IOTLB flush has been done. */
+ static struct page *domain_unmap(struct dmar_domain *domain,
+ 				 unsigned long start_pfn,
+-				 unsigned long last_pfn)
++				 unsigned long last_pfn,
++				 struct page *freelist)
+ {
+-	struct page *freelist;
+ 
+ 	BUG_ON(!domain_pfn_supported(domain, start_pfn));
+ 	BUG_ON(!domain_pfn_supported(domain, last_pfn));
+@@ -1155,7 +1155,8 @@ static struct page *domain_unmap(struct dmar_domain *domain,
+ 
+ 	/* we don't need lock here; nobody else touches the iova range */
+ 	freelist = dma_pte_clear_level(domain, agaw_to_level(domain->agaw),
+-				       domain->pgd, 0, start_pfn, last_pfn, NULL);
++				       domain->pgd, 0, start_pfn, last_pfn,
++				       freelist);
+ 
+ 	/* free pgd */
+ 	if (start_pfn == 0 && last_pfn == DOMAIN_MAX_PFN(domain->gaw)) {
+@@ -1914,7 +1915,8 @@ static void domain_exit(struct dmar_domain *domain)
+ 	if (domain->pgd) {
+ 		struct page *freelist;
+ 
+-		freelist = domain_unmap(domain, 0, DOMAIN_MAX_PFN(domain->gaw));
++		freelist = domain_unmap(domain, 0, DOMAIN_MAX_PFN(domain->gaw),
++				NULL);
+ 		dma_free_pagelist(freelist);
+ 	}
+ 
+@@ -3541,7 +3543,7 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
+ 	if (dev_is_pci(dev))
+ 		pdev = to_pci_dev(dev);
+ 
+-	freelist = domain_unmap(domain, start_pfn, last_pfn);
++	freelist = domain_unmap(domain, start_pfn, last_pfn, NULL);
+ 	if (intel_iommu_strict || (pdev && pdev->untrusted) ||
+ 			!has_iova_flush_queue(&domain->iovad)) {
+ 		iommu_flush_iotlb_psi(iommu, domain, start_pfn,
+@@ -4607,7 +4609,7 @@ static int intel_iommu_memory_notifier(struct notifier_block *nb,
+ 			struct page *freelist;
+ 
+ 			freelist = domain_unmap(si_domain, start_vpfn,
+-					last_vpfn);
++					last_vpfn, NULL);
+ 
+ 			rcu_read_lock();
+ 			for_each_active_iommu(iommu, drhd)
+@@ -5412,13 +5414,12 @@ static int intel_iommu_map(struct iommu_domain *domain,
+ 
+ static size_t intel_iommu_unmap(struct iommu_domain *domain,
+ 				unsigned long iova, size_t size,
+-				struct iommu_iotlb_gather *gather)
++				struct iommu_iotlb_gather *gather,
++				struct page **freelist)
+ {
+ 	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+-	struct page *freelist = NULL;
+ 	unsigned long start_pfn, last_pfn;
+-	unsigned int npages;
+-	int iommu_id, level = 0;
++	int level = 0;
+ 
+ 	/* Cope with horrid API which requires us to unmap more than the
+ 	   size argument if it happens to be a large-page mapping. */
+@@ -5432,20 +5433,33 @@ static size_t intel_iommu_unmap(struct iommu_domain *domain,
+ 	start_pfn = iova >> VTD_PAGE_SHIFT;
+ 	last_pfn = (iova + size - 1) >> VTD_PAGE_SHIFT;
+ 
+-	freelist = domain_unmap(dmar_domain, start_pfn, last_pfn);
++	*freelist = domain_unmap(dmar_domain, start_pfn, last_pfn, *freelist);
+ 
+-	npages = last_pfn - start_pfn + 1;
++	if (dmar_domain->max_addr == iova + size)
++		dmar_domain->max_addr = iova;
++
++	return size;
++}
++
++static void intel_iommu_flush_iotlb_range(struct iommu_domain *domain,
++		unsigned long iova, size_t size,
++		struct page *freelist)
++{
++	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
++	unsigned long start_pfn, last_pfn;
++	unsigned long iova_pfn = IOVA_PFN(iova);
++	unsigned long nrpages;
++	int iommu_id;
++
++	nrpages = aligned_nrpages(iova, size);
++	start_pfn = mm_to_dma_pfn(iova_pfn);
++	last_pfn = start_pfn + nrpages - 1;
+ 
+ 	for_each_domain_iommu(iommu_id, dmar_domain)
+ 		iommu_flush_iotlb_psi(g_iommus[iommu_id], dmar_domain,
+-				      start_pfn, npages, !freelist, 0);
++				      start_pfn, nrpages, !freelist, 0);
+ 
+ 	dma_free_pagelist(freelist);
+-
+-	if (dmar_domain->max_addr == iova + size)
+-		dmar_domain->max_addr = iova;
+-
+-	return size;
+ }
+ 
+ static phys_addr_t intel_iommu_iova_to_phys(struct iommu_domain *domain,
+@@ -5902,6 +5916,7 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.aux_get_pasid		= intel_iommu_aux_get_pasid,
+ 	.map			= intel_iommu_map,
+ 	.unmap			= intel_iommu_unmap,
++	.flush_iotlb_range      = intel_iommu_flush_iotlb_range,
+ 	.iova_to_phys		= intel_iommu_iova_to_phys,
+ 	.add_device		= intel_iommu_add_device,
+ 	.remove_device		= intel_iommu_remove_device,
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index db7bfd4f2d20..cec728f40d9c 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -667,7 +667,7 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group,
+ 
+ 	}
+ 
+-	iommu_flush_tlb_all(domain);
++	iommu_flush_iotlb_all(domain);
+ 
+ out:
+ 	iommu_put_resv_regions(dev, &mappings);
+@@ -1961,11 +1961,13 @@ EXPORT_SYMBOL_GPL(iommu_map_atomic);
+ 
+ static size_t __iommu_unmap(struct iommu_domain *domain,
+ 			    unsigned long iova, size_t size,
+-			    struct iommu_iotlb_gather *iotlb_gather)
++			    struct iommu_iotlb_gather *iotlb_gather,
++			    struct page **freelist)
+ {
+ 	const struct iommu_ops *ops = domain->ops;
+ 	size_t unmapped_page, unmapped = 0;
+ 	unsigned long orig_iova = iova;
++	struct page *freelist_head = NULL;
+ 	unsigned int min_pagesz;
+ 
+ 	if (unlikely(ops->unmap == NULL ||
+@@ -1998,7 +2000,8 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
+ 	while (unmapped < size) {
+ 		size_t pgsize = iommu_pgsize(domain, iova, size - unmapped);
+ 
+-		unmapped_page = ops->unmap(domain, iova, pgsize, iotlb_gather);
++		unmapped_page = ops->unmap(domain, iova, pgsize, iotlb_gather,
++				&freelist_head);
+ 		if (!unmapped_page)
+ 			break;
+ 
+@@ -2009,6 +2012,9 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
+ 		unmapped += unmapped_page;
+ 	}
+ 
++	if (freelist)
++		*freelist = freelist_head;
++
+ 	trace_unmap(orig_iova, size, unmapped);
+ 	return unmapped;
+ }
+@@ -2016,12 +2022,20 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
+ size_t iommu_unmap(struct iommu_domain *domain,
+ 		   unsigned long iova, size_t size)
+ {
++	const struct iommu_ops *ops = domain->ops;
+ 	struct iommu_iotlb_gather iotlb_gather;
++	struct page *freelist;
+ 	size_t ret;
+ 
+ 	iommu_iotlb_gather_init(&iotlb_gather);
+-	ret = __iommu_unmap(domain, iova, size, &iotlb_gather);
+-	iommu_tlb_sync(domain, &iotlb_gather);
++	ret = __iommu_unmap(domain, iova, size, &iotlb_gather,
++			&freelist);
++
++	if (ops->flush_iotlb_range)
++		ops->flush_iotlb_range(domain, iova, ret,
++				freelist);
++	else
++		iommu_tlb_sync(domain, &iotlb_gather);
+ 
+ 	return ret;
+ }
+@@ -2029,9 +2043,10 @@ EXPORT_SYMBOL_GPL(iommu_unmap);
+ 
+ size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 			unsigned long iova, size_t size,
+-			struct iommu_iotlb_gather *iotlb_gather)
++			struct iommu_iotlb_gather *iotlb_gather,
++			struct page **freelist)
+ {
+-	return __iommu_unmap(domain, iova, size, iotlb_gather);
++	return __iommu_unmap(domain, iova, size, iotlb_gather, freelist);
+ }
+ EXPORT_SYMBOL_GPL(iommu_unmap_fast);
+ 
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index d02edd2751f3..63bbee653859 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -693,7 +693,8 @@ static int ipmmu_map(struct iommu_domain *io_domain, unsigned long iova,
+ }
+ 
+ static size_t ipmmu_unmap(struct iommu_domain *io_domain, unsigned long iova,
+-			  size_t size, struct iommu_iotlb_gather *gather)
++			  size_t size, struct iommu_iotlb_gather *gather,
++			  struct page **freelist)
+ {
+ 	struct ipmmu_vmsa_domain *domain = to_vmsa_domain(io_domain);
+ 
+diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
+index 93f14bca26ee..66d1587ab714 100644
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -518,7 +518,8 @@ static int msm_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ }
+ 
+ static size_t msm_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			      size_t len, struct iommu_iotlb_gather *gather)
++			      size_t len, struct iommu_iotlb_gather *gather,
++			      struct page **freelist)
+ {
+ 	struct msm_priv *priv = to_msm_priv(domain);
+ 	unsigned long flags;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 6fc1f5ecf91e..6bd9f39bb259 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -402,7 +402,8 @@ static int mtk_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 
+ static size_t mtk_iommu_unmap(struct iommu_domain *domain,
+ 			      unsigned long iova, size_t size,
+-			      struct iommu_iotlb_gather *gather)
++			      struct iommu_iotlb_gather *gather,
++			      struct page **freelist)
+ {
+ 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+ 
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index e93b94ecac45..f94d225c3404 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -325,7 +325,8 @@ static int mtk_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 
+ static size_t mtk_iommu_unmap(struct iommu_domain *domain,
+ 			      unsigned long iova, size_t size,
+-			      struct iommu_iotlb_gather *gather)
++			      struct iommu_iotlb_gather *gather,
++			      struct page **freelist)
+ {
+ 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+ 	unsigned long flags;
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index be551cc34be4..c5e012267f2b 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1383,7 +1383,8 @@ static int omap_iommu_map(struct iommu_domain *domain, unsigned long da,
+ }
+ 
+ static size_t omap_iommu_unmap(struct iommu_domain *domain, unsigned long da,
+-			       size_t size, struct iommu_iotlb_gather *gather)
++			       size_t size, struct iommu_iotlb_gather *gather,
++			       struct page **freelist)
+ {
+ 	struct omap_iommu_domain *omap_domain = to_omap_domain(domain);
+ 	struct device *dev = omap_domain->dev;
+diff --git a/drivers/iommu/qcom_iommu.c b/drivers/iommu/qcom_iommu.c
+index 52f38292df5b..99ebf34e50be 100644
+--- a/drivers/iommu/qcom_iommu.c
++++ b/drivers/iommu/qcom_iommu.c
+@@ -440,7 +440,8 @@ static int qcom_iommu_map(struct iommu_domain *domain, unsigned long iova,
+ }
+ 
+ static size_t qcom_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			       size_t size, struct iommu_iotlb_gather *gather)
++			       size_t size, struct iommu_iotlb_gather *gather,
++			       struct page **freelist)
+ {
+ 	size_t ret;
+ 	unsigned long flags;
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index b33cdd5aad81..ec16e01c376a 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -795,7 +795,8 @@ static int rk_iommu_map(struct iommu_domain *domain, unsigned long _iova,
+ }
+ 
+ static size_t rk_iommu_unmap(struct iommu_domain *domain, unsigned long _iova,
+-			     size_t size, struct iommu_iotlb_gather *gather)
++			     size_t size, struct iommu_iotlb_gather *gather,
++			     struct page **freelist)
+ {
+ 	struct rk_iommu_domain *rk_domain = to_rk_domain(domain);
+ 	unsigned long flags;
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 1137f3ddcb85..d69d7cf4dee3 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -315,7 +315,8 @@ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
+ 
+ static size_t s390_iommu_unmap(struct iommu_domain *domain,
+ 			       unsigned long iova, size_t size,
+-			       struct iommu_iotlb_gather *gather)
++			       struct iommu_iotlb_gather *gather,
++			       struct page **freelist)
+ {
+ 	struct s390_domain *s390_domain = to_s390_domain(domain);
+ 	int flags = ZPCI_PTE_INVALID;
+diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
+index 3fb7ba72507d..68e7eee9172f 100644
+--- a/drivers/iommu/tegra-gart.c
++++ b/drivers/iommu/tegra-gart.c
+@@ -207,7 +207,8 @@ static inline int __gart_iommu_unmap(struct gart_device *gart,
+ }
+ 
+ static size_t gart_iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			       size_t bytes, struct iommu_iotlb_gather *gather)
++			       size_t bytes, struct iommu_iotlb_gather *gather,
++			       struct page **freelist)
+ {
+ 	struct gart_device *gart = gart_handle;
+ 	int err;
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index 63a147b623e6..0c5e5f2c3c7d 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -686,7 +686,8 @@ static int tegra_smmu_map(struct iommu_domain *domain, unsigned long iova,
+ }
+ 
+ static size_t tegra_smmu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			       size_t size, struct iommu_iotlb_gather *gather)
++			       size_t size, struct iommu_iotlb_gather *gather,
++			       struct page **freelist)
+ {
+ 	struct tegra_smmu_as *as = to_smmu_as(domain);
+ 	dma_addr_t pte_dma;
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 315c7cc4f99d..e74baab27b61 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -750,7 +750,8 @@ static int viommu_map(struct iommu_domain *domain, unsigned long iova,
+ }
+ 
+ static size_t viommu_unmap(struct iommu_domain *domain, unsigned long iova,
+-			   size_t size, struct iommu_iotlb_gather *gather)
++			   size_t size, struct iommu_iotlb_gather *gather,
++			   struct page *freelist)
+ {
+ 	int ret = 0;
+ 	size_t unmapped;
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 2ada8e6cdb88..d24ea1181c03 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -685,7 +685,7 @@ static size_t unmap_unpin_fast(struct vfio_domain *domain,
+ 
+ 	if (entry) {
+ 		unmapped = iommu_unmap_fast(domain->domain, *iova, len,
+-					    iotlb_gather);
++					    iotlb_gather, NULL);
+ 
+ 		if (!unmapped) {
+ 			kfree(entry);
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index f2223cbb5fd5..61cac25410b5 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -219,6 +219,7 @@ struct iommu_iotlb_gather {
+  * @map: map a physically contiguous memory region to an iommu domain
+  * @unmap: unmap a physically contiguous memory region from an iommu domain
+  * @flush_iotlb_all: Synchronously flush all hardware TLBs for this domain
++ * @flush_iotlb_range: Flush given iova range of hardware TLBs for this domain
+  * @iotlb_sync_map: Sync mappings created recently using @map to the hardware
+  * @iotlb_sync: Flush all queued ranges from the hardware TLBs and empty flush
+  *            queue
+@@ -262,8 +263,12 @@ struct iommu_ops {
+ 	int (*map)(struct iommu_domain *domain, unsigned long iova,
+ 		   phys_addr_t paddr, size_t size, int prot, gfp_t gfp);
+ 	size_t (*unmap)(struct iommu_domain *domain, unsigned long iova,
+-		     size_t size, struct iommu_iotlb_gather *iotlb_gather);
++		     size_t size, struct iommu_iotlb_gather *iotlb_gather,
++		     struct page **freelist);
+ 	void (*flush_iotlb_all)(struct iommu_domain *domain);
++	void (*flush_iotlb_range)(struct iommu_domain *domain,
++			unsigned long iova, size_t size,
++			struct page *freelist);
+ 	void (*iotlb_sync_map)(struct iommu_domain *domain);
+ 	void (*iotlb_sync)(struct iommu_domain *domain,
+ 			   struct iommu_iotlb_gather *iotlb_gather);
+@@ -444,7 +449,8 @@ extern size_t iommu_unmap(struct iommu_domain *domain, unsigned long iova,
+ 			  size_t size);
+ extern size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 			       unsigned long iova, size_t size,
+-			       struct iommu_iotlb_gather *iotlb_gather);
++			       struct iommu_iotlb_gather *iotlb_gather,
++			       struct page **freelist);
+ extern size_t iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 			   struct scatterlist *sg,unsigned int nents, int prot);
+ extern size_t iommu_map_sg_atomic(struct iommu_domain *domain,
+@@ -518,12 +524,20 @@ extern void iommu_domain_window_disable(struct iommu_domain *domain, u32 wnd_nr)
+ extern int report_iommu_fault(struct iommu_domain *domain, struct device *dev,
+ 			      unsigned long iova, int flags);
+ 
+-static inline void iommu_flush_tlb_all(struct iommu_domain *domain)
++static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
+ {
+ 	if (domain->ops->flush_iotlb_all)
+ 		domain->ops->flush_iotlb_all(domain);
+ }
+ 
++static inline void flush_iotlb_range(struct iommu_domain *domain,
++			unsigned long iova, size_t size,
++			struct page *freelist)
++{
++	if (domain->ops->flush_iotlb_range)
++		domain->ops->flush_iotlb_range(domain, iova, size, freelist);
++}
++
+ static inline void iommu_tlb_sync(struct iommu_domain *domain,
+ 				  struct iommu_iotlb_gather *iotlb_gather)
+ {
+@@ -699,7 +713,8 @@ static inline size_t iommu_unmap(struct iommu_domain *domain,
+ 
+ static inline size_t iommu_unmap_fast(struct iommu_domain *domain,
+ 				      unsigned long iova, int gfp_order,
+-				      struct iommu_iotlb_gather *iotlb_gather)
++				      struct iommu_iotlb_gather *iotlb_gather,
++				      struct page **freelist)
+ {
+ 	return 0;
+ }
+@@ -718,7 +733,7 @@ static inline size_t iommu_map_sg_atomic(struct iommu_domain *domain,
+ 	return 0;
+ }
+ 
+-static inline void iommu_flush_tlb_all(struct iommu_domain *domain)
++static inline void iommu_flush_iotlb_all(struct iommu_domain *domain)
+ {
+ }
  
 -- 
-2.18.1
+2.20.1
