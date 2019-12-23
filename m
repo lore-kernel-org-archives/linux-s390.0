@@ -1,64 +1,158 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6214 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3174 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726934AbfLWODl (ORCPT
+        by vger.kernel.org with ESMTP id S1726933AbfLWODk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 23 Dec 2019 09:03:41 -0500
+        Mon, 23 Dec 2019 09:03:40 -0500
 Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE3NRC141748
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE3N3F141708
         for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:39 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2x21wbdfus-1
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2x21wbdftn-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
         for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:03:39 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Mon, 23 Dec 2019 14:03:36 -0000
+        Mon, 23 Dec 2019 14:03:35 -0000
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 4/6] s390/qeth: Fix vnicc_is_in_use if rx_bcast not set
-Date: Mon, 23 Dec 2019 15:03:24 +0100
+Subject: [PATCH net 1/6] s390/qeth: fix qdio teardown after early init error
+Date: Mon, 23 Dec 2019 15:03:21 +0100
 In-Reply-To: <20191223140326.16488-1-jwi@linux.ibm.com>
 References: <20191223140326.16488-1-jwi@linux.ibm.com>
-Message-Id: <20191223140326.16488-5-jwi@linux.ibm.com>
+Message-Id: <20191223140326.16488-2-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+qeth_l?_set_online() goes through a number of initialization steps, and
+on any error uses qeth_l?_stop_card() to tear down the residual state.
 
-Symptom: After vnicc/rx_bcast has been manually set to 0,
-	bridge_* sysfs parameters can still be set or written.
-Only occurs on HiperSockets, as OSA doesn't support changing rx_bcast.
+The first initialization step is qeth_core_hardsetup_card(). When this
+fails after having established a QDIO context on the device
+(ie. somewhere after qeth_mpc_initialize()), qeth_l?_stop_card() doesn't
+shut down this QDIO context again (since the card state hasn't
+progressed from DOWN at this stage).
 
-Vnic characteristics and bridgeport settings are mutually exclusive.
-rx_bcast defaults to 1, so manually setting it to 0 should disable
-bridge_* parameters.
+Even worse, we then call qdio_free() as final teardown step to free the
+QDIO data structures - while some of them are still hooked into wider
+QDIO infrastructure such as the IRQ list. This is inevitably followed by
+use-after-frees and other nastyness.
 
-Instead it makes sense here to check the supported mask. If the card
-does not support vnicc at all, bridge commands are always allowed.
+Fix this by unconditionally calling qeth_qdio_clear_card() to shut down
+the QDIO context, and also to halt/clear any pending activity on the
+various IO channels.
+Remove the naive attempt at handling the teardown in
+qeth_mpc_initialize(), it clearly doesn't suffice and we're handling it
+properly now in the wider teardown code.
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l2_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 20 ++++++++------------
+ drivers/s390/net/qeth_l2_main.c   |  2 +-
+ drivers/s390/net/qeth_l3_main.c   |  2 +-
+ 3 files changed, 10 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index bc4158888af9..324cf22f9111 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2482,50 +2482,46 @@ static int qeth_mpc_initialize(struct qeth_card *card)
+ 	rc = qeth_cm_enable(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "2err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_cm_setup(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "3err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_ulp_enable(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "4err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_ulp_setup(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_alloc_qdio_queues(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "5err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_qdio_establish(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "6err%d", rc);
+ 		qeth_free_qdio_queues(card);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_qdio_activate(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "7err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 	rc = qeth_dm_act(card);
+ 	if (rc) {
+ 		QETH_CARD_TEXT_(card, 2, "8err%d", rc);
+-		goto out_qdio;
++		return rc;
+ 	}
+ 
+ 	return 0;
+-out_qdio:
+-	qeth_qdio_clear_card(card, !IS_IQD(card));
+-	qdio_free(CARD_DDEV(card));
+-	return rc;
+ }
+ 
+ void qeth_print_status_message(struct qeth_card *card)
 diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index fc5d8ed3a737..8024a2112a87 100644
+index 8c95e6019bac..15e2fd65d434 100644
 --- a/drivers/s390/net/qeth_l2_main.c
 +++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1952,8 +1952,7 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
- /* check if VNICC is currently enabled */
- bool qeth_l2_vnicc_is_in_use(struct qeth_card *card)
- {
--	/* if everything is turned off, VNICC is not active */
--	if (!card->options.vnicc.cur_chars)
-+	if (!card->options.vnicc.sup_chars)
- 		return false;
- 	/* default values are only OK if rx_bcast was not enabled by user
- 	 * or the card is offline.
+@@ -287,12 +287,12 @@ static void qeth_l2_stop_card(struct qeth_card *card)
+ 		card->state = CARD_STATE_HARDSETUP;
+ 	}
+ 	if (card->state == CARD_STATE_HARDSETUP) {
+-		qeth_qdio_clear_card(card, 0);
+ 		qeth_drain_output_queues(card);
+ 		qeth_clear_working_pool_list(card);
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
++	qeth_qdio_clear_card(card, 0);
+ 	flush_workqueue(card->event_wq);
+ 	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+ 	card->info.promisc_mode = 0;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 04e301de376f..5508ab89b518 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1307,12 +1307,12 @@ static void qeth_l3_stop_card(struct qeth_card *card)
+ 		card->state = CARD_STATE_HARDSETUP;
+ 	}
+ 	if (card->state == CARD_STATE_HARDSETUP) {
+-		qeth_qdio_clear_card(card, 0);
+ 		qeth_drain_output_queues(card);
+ 		qeth_clear_working_pool_list(card);
+ 		card->state = CARD_STATE_DOWN;
+ 	}
+ 
++	qeth_qdio_clear_card(card, 0);
+ 	flush_workqueue(card->event_wq);
+ 	card->info.promisc_mode = 0;
+ }
 -- 
 2.17.1
