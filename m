@@ -1,119 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388537AbfLKPqS (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35762 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726754AbfLWOEK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Dec 2019 10:46:18 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBBFhM1g027333
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:17 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2wtf8j41wr-1
+        Mon, 23 Dec 2019 09:04:10 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xBNE44v0008165
+        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:04:09 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2x21b0da6d-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Dec 2019 10:46:17 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 23 Dec 2019 09:04:07 -0500
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Wed, 11 Dec 2019 15:46:15 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 2/9] s390x: Use PSW bits definitions in cstart
-Date: Wed, 11 Dec 2019 16:46:03 +0100
-In-Reply-To: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
-References: <1576079170-7244-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1576079170-7244-3-git-send-email-pmorel@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Mon, 23 Dec 2019 14:03:37 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 6/6] s390/qeth: fix initialization on old HW
+Date: Mon, 23 Dec 2019 15:03:26 +0100
+In-Reply-To: <20191223140326.16488-1-jwi@linux.ibm.com>
+References: <20191223140326.16488-1-jwi@linux.ibm.com>
+Message-Id: <20191223140326.16488-7-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This patch defines the PSW bits EA/BA used to initialize the PSW masks
-for exceptions.
+I stumbled over an old OSA model that claims to support DIAG_ASSIST,
+but then rejects the cmd to query its DIAG capabilities.
 
-Since some PSW mask definitions exist already in arch_def.h we add these
-definitions there.
-We move all PSW definitions together and protect assembler code against
-C syntax.
+In the old code this was ok, as the returned raw error code was > 0.
+Now that we translate the raw codes to errnos, the "rc < 0" causes us
+to fail the initialization of the device.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+The fix is trivial: don't bail out when the DIAG query fails. Such an
+error is not critical, we can still use the device (with a slightly
+reduced set of features).
+
+Fixes: 742d4d40831d ("s390/qeth: convert remaining legacy cmd callbacks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- lib/s390x/asm/arch_def.h | 16 ++++++++++++----
- s390x/cstart64.S         | 15 ++++++++-------
- 2 files changed, 20 insertions(+), 11 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index cf6e1ca..b6bb8c1 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -10,15 +10,22 @@
- #ifndef _ASM_S390X_ARCH_DEF_H_
- #define _ASM_S390X_ARCH_DEF_H_
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index c64ef55f0dff..29facb913671 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5026,10 +5026,8 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 	}
+ 	if (qeth_adp_supported(card, IPA_SETADP_SET_DIAG_ASSIST)) {
+ 		rc = qeth_query_setdiagass(card);
+-		if (rc < 0) {
++		if (rc)
+ 			QETH_CARD_TEXT_(card, 2, "8err%d", rc);
+-			goto out;
+-		}
+ 	}
  
-+#define PSW_MASK_IO			0x0200000000000000UL
-+#define PSW_MASK_EXT			0x0100000000000000UL
-+#define PSW_MASK_DAT			0x0400000000000000UL
-+#define PSW_MASK_PSTATE			0x0001000000000000UL
-+#define PSW_MASK_BA			0x0000000080000000UL
-+#define PSW_MASK_EA			0x0000000100000000UL
-+
-+
-+#define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
-+
-+#ifndef __ASSEMBLER__
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
- };
- 
--#define PSW_MASK_EXT			0x0100000000000000UL
--#define PSW_MASK_DAT			0x0400000000000000UL
--#define PSW_MASK_PSTATE			0x0001000000000000UL
--
- #define CR0_EXTM_SCLP			0X0000000000000200UL
- #define CR0_EXTM_EXTC			0X0000000000002000UL
- #define CR0_EXTM_EMGC			0X0000000000004000UL
-@@ -272,3 +279,4 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
- }
- 
- #endif
-+#endif
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index ff05f9b..56a2045 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -12,6 +12,7 @@
-  */
- #include <asm/asm-offsets.h>
- #include <asm/sigp.h>
-+#include <asm/arch_def.h>
- 
- .section .init
- 
-@@ -214,19 +215,19 @@ svc_int:
- 
- 	.align	8
- reset_psw:
--	.quad	0x0008000180000000
-+	.quad	PSW_EXCEPTION_MASK
- initial_psw:
--	.quad	0x0000000180000000, clear_bss_start
-+	.quad	PSW_EXCEPTION_MASK, clear_bss_start
- pgm_int_psw:
--	.quad	0x0000000180000000, pgm_int
-+	.quad	PSW_EXCEPTION_MASK, pgm_int
- ext_int_psw:
--	.quad	0x0000000180000000, ext_int
-+	.quad	PSW_EXCEPTION_MASK, ext_int
- mcck_int_psw:
--	.quad	0x0000000180000000, mcck_int
-+	.quad	PSW_EXCEPTION_MASK, mcck_int
- io_int_psw:
--	.quad	0x0000000180000000, io_int
-+	.quad	PSW_EXCEPTION_MASK, io_int
- svc_int_psw:
--	.quad	0x0000000180000000, svc_int
-+	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
- 	.quad	0x0000000000040000
+ 	if (!qeth_is_diagass_supported(card, QETH_DIAGS_CMD_TRAP) ||
 -- 
-2.17.0
+2.17.1
