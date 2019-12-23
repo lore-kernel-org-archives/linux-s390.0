@@ -1,108 +1,80 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37157 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732178AbfKFQtJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 Nov 2019 11:49:09 -0500
-Date: Wed, 6 Nov 2019 17:48:55 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC 30/37] DOCUMENTATION: protvirt: Diag 308 IPL
-Message-ID: <20191106174855.13a50f42.cohuck@redhat.com>
-In-Reply-To: <20191024114059.102802-31-frankja@linux.ibm.com>
-References: <20191024114059.102802-1-frankja@linux.ibm.com>
-        <20191024114059.102802-31-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
+In-Reply-To: <432d306c-fe9f-75b2-f0f7-27698f1467ad@arm.com>
+References: <20191221150402.13868-1-murphyt7@tcd.ie> <87blrzwcn8.fsf@intel.com> <432d306c-fe9f-75b2-f0f7-27698f1467ad@arm.com>
+Date: Mon, 23 Dec 2019 13:41:33 +0200
+Message-ID: <87o8vzuv4i.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, mihajlov@linux.ibm.com, mimu@linux.ibm.com, gor@linux.ibm.com
+To: Robin Murphy <robin.murphy@arm.com>, Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Eric Auger <eric.auger@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-On Thu, 24 Oct 2019 07:40:52 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On Mon, 23 Dec 2019, Robin Murphy <robin.murphy@arm.com> wrote:
+> On 2019-12-23 10:37 am, Jani Nikula wrote:
+>> On Sat, 21 Dec 2019, Tom Murphy <murphyt7@tcd.ie> wrote:
+>>> This patchset converts the intel iommu driver to the dma-iommu api.
+>>>
+>>> While converting the driver I exposed a bug in the intel i915 driver
+>>> which causes a huge amount of artifacts on the screen of my
+>>> laptop. You can see a picture of it here:
+>>> https://github.com/pippy360/kernelPatches/blob/master/IMG_20191219_225922.jpg
+>>>
+>>> This issue is most likely in the i915 driver and is most likely caused
+>>> by the driver not respecting the return value of the
+>>> dma_map_ops::map_sg function. You can see the driver ignoring the
+>>> return value here:
+>>> https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e495f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
+>>>
+>>> Previously this didn’t cause issues because the intel map_sg always
+>>> returned the same number of elements as the input scatter gather list
+>>> but with the change to this dma-iommu api this is no longer the
+>>> case. I wasn’t able to track the bug down to a specific line of code
+>>> unfortunately.
+>>>
+>>> Could someone from the intel team look at this?
+>> 
+>> Let me get this straight. There is current API that on success always
+>> returns the same number of elements as the input scatter gather
+>> list. You propose to change the API so that this is no longer the case?
+>
+> No, the API for dma_map_sg() has always been that it may return fewer 
+> DMA segments than nents - see Documentation/DMA-API.txt (and otherwise, 
+> the return value would surely be a simple success/fail condition). 
+> Relying on a particular implementation behaviour has never been strictly 
+> correct, even if it does happen to be a very common behaviour.
+>
+>> A quick check of various dma_map_sg() calls in the kernel seems to
+>> indicate checking for 0 for errors and then ignoring the non-zero return
+>> is a common pattern. Are you sure it's okay to make the change you're
+>> proposing?
+>
+> Various code uses tricks like just iterating the mapped list until the 
+> first segment with zero sg_dma_len(). Others may well simply have bugs.
 
-> Description of changes that are necessary to move a KVM VM into
-> Protected Virtualization mode.
->=20
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  Documentation/virtual/kvm/s390-pv-boot.txt | 62 ++++++++++++++++++++++
->  1 file changed, 62 insertions(+)
->  create mode 100644 Documentation/virtual/kvm/s390-pv-boot.txt
->=20
-> diff --git a/Documentation/virtual/kvm/s390-pv-boot.txt b/Documentation/v=
-irtual/kvm/s390-pv-boot.txt
-> new file mode 100644
-> index 000000000000..af883c928c08
-> --- /dev/null
-> +++ b/Documentation/virtual/kvm/s390-pv-boot.txt
-> @@ -0,0 +1,62 @@
-> +Boot/IPL of Protected VMs
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +Summary:
-> +
-> +Protected VMs are encrypted while not running. On IPL a small
-> +plaintext bootloader is started which provides information about the
-> +encrypted components and necessary metadata to KVM to decrypt it.
-> +
-> +Based on this data, KVM will make the PV known to the Ultravisor and
-> +instruct it to secure its memory, decrypt the components and verify
-> +the data and address list hashes, to ensure integrity. Afterwards KVM
-> +can run the PV via SIE which the UV will intercept and execute on
-> +KVM's behalf.
-> +
-> +The switch into PV mode lets us load encrypted guest executables and
-> +data via every available method (network, dasd, scsi, direct kernel,
-> +...) without the need to change the boot process.
-> +
-> +
-> +Diag308:
-> +
-> +This diagnose instruction is the basis vor VM IPL. The VM can set and
+Thanks for the clarification.
 
-s/vor/for/
+BR,
+Jani.
 
-> +retrieve IPL information blocks, that specify the IPL method/devices
-> +and request VM memory and subsystem resets, as well as IPLs.
-> +
-> +For PVs this concept has been continued with new subcodes:
-> +
-> +Subcode 8: Set an IPL Information Block of type 5.
-> +Subcode 9: Store the saved block in guest memory
-> +Subcode 10: Move into Protected Virtualization mode
-> +
-> +The new PV load-device-specific-parameters field specifies all data,
-> +that is necessary to move into PV mode.
-> +
-> +* PV Header origin
-> +* PV Header length
-> +* List of Components composed of:
-> +  * AES-XTS Tweak prefix
-> +  * Origin
-> +  * Size
-> +
-> +The PV header contains the keys and hashes, which the UV will use to
-> +decrypt and verify the PV, as well as control flags and a start PSW.
-> +
-> +The components are for instance an encrypted kernel, kernel cmd and
-> +initrd. The components are decrypted by the UV.
-> +
-> +All non-decrypted data of the non-PV guest instance are zero on first
-> +access of the PV.
-> +
-> +
-> +When running in a protected mode some subcodes will result in
-> +exceptions or return error codes.
-> +
-> +Subcodes 4 and 7 will result in specification exceptions.
-> +When removing a secure VM, the UV will clear all memory, so we can't
-> +have non-clearing IPL subcodes.
-> +
-> +Subcodes 8, 9, 10 will result in specification exceptions.
-> +Re-IPL into a protected mode is only possible via a detour into non
-> +protected mode.
+>
+> Robin.
+>
+>> Anyway, due to the time of year and all, I'd like to ask you to file a
+>> bug against i915 at [1] so this is not forgotten, and please let's not
+>> merge the changes before this is resolved.
+>> 
+>> 
+>> Thanks,
+>> Jani.
+>> 
+>> 
+>> [1] https://gitlab.freedesktop.org/drm/intel/issues/new
+>> 
+>> 
 
-So... what do we IPL from? Is there still a need for the bios?
-
-(Sorry, I'm a bit confused here.)
+-- 
+Jani Nikula, Intel Open Source Graphics Center
