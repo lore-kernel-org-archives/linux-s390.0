@@ -1,13 +1,17 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728345AbfL0RpY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Dec 2019 12:45:24 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 51/57] s390/dasd: fix memleak in path handling error case
-Date: Fri, 27 Dec 2019 13:02:16 -0500
-Message-Id: <20191227180222.7076-51-sashal@kernel.org>
-In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
-References: <20191227180222.7076-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 77/84] s390/dasd: fix memleak in path handling error case
+Date: Fri, 27 Dec 2019 12:43:45 -0500
+Message-Id: <20191227174352.6264-77-sashal@kernel.org>
+In-Reply-To: <20191227174352.6264-1-sashal@kernel.org>
+References: <20191227174352.6264-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Stefan Haberland <sth@linux.ibm.com>, Qian Cai <cai@lca.pw>, Jan Hoeppner <hoeppner@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
@@ -37,10 +41,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 81359312a987..aa651403546f 100644
+index 108fb1c77e1d..a2e34c853ca9 100644
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -1768,7 +1768,7 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+@@ -1770,7 +1770,7 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
  	dasd_free_block(device->block);
  	device->block = NULL;
  out_err1:
@@ -49,7 +53,7 @@ index 81359312a987..aa651403546f 100644
  	kfree(device->private);
  	device->private = NULL;
  	return rc;
-@@ -1777,7 +1777,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+@@ -1779,7 +1779,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
  static void dasd_eckd_uncheck_device(struct dasd_device *device)
  {
  	struct dasd_eckd_private *private = device->private;
@@ -57,7 +61,7 @@ index 81359312a987..aa651403546f 100644
  
  	if (!private)
  		return;
-@@ -1787,21 +1786,7 @@ static void dasd_eckd_uncheck_device(struct dasd_device *device)
+@@ -1789,21 +1788,7 @@ static void dasd_eckd_uncheck_device(struct dasd_device *device)
  	private->sneq = NULL;
  	private->vdsneq = NULL;
  	private->gneq = NULL;
