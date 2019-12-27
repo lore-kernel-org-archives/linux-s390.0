@@ -1,80 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 184/350] s390/mm: add mm_pxd_folded() checks to pxd_free()
-Date: Tue, 10 Dec 2019 16:04:49 -0500
-Message-Id: <20191210210735.9077-145-sashal@kernel.org>
-In-Reply-To: <20191210210735.9077-1-sashal@kernel.org>
-References: <20191210210735.9077-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 51/57] s390/dasd: fix memleak in path handling error case
+Date: Fri, 27 Dec 2019 13:02:16 -0500
+Message-Id: <20191227180222.7076-51-sashal@kernel.org>
+In-Reply-To: <20191227180222.7076-1-sashal@kernel.org>
+References: <20191227180222.7076-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Stefan Haberland <sth@linux.ibm.com>, Qian Cai <cai@lca.pw>, Jan Hoeppner <hoeppner@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit 2416cefc504ba8ae9b17e3e6b40afc72708f96be ]
+[ Upstream commit 00b39f698a4f1ee897227cace2e3937fc4412270 ]
 
-Unlike pxd_free_tlb(), the pxd_free() functions do not check for folded
-page tables. This is not an issue so far, as those functions will actually
-never be called, since no code will reach them when page tables are folded.
+If for whatever reason the dasd_eckd_check_characteristics() function
+exits after at least some paths have their configuration data
+allocated those data is never freed again. In the error case the
+device->private pointer is set to NULL and dasd_eckd_uncheck_device()
+will exit without freeing the path data because of this NULL pointer.
 
-In order to avoid future issues, and to make the s390 code more similar to
-other architectures, add mm_pxd_folded() checks, similar to how it is done
-in pxd_free_tlb().
+Fix by calling dasd_eckd_clear_conf_data() for error cases.
 
-This was found by testing a patch from from Anshuman Khandual, which is
-currently discussed on LKML ("mm/debug: Add tests validating architecture
-page table helpers").
+Also use dasd_eckd_clear_conf_data() in dasd_eckd_uncheck_device()
+to avoid code duplication.
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pgalloc.h | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-index bccb8f4a63e20..77606c4acd58d 100644
---- a/arch/s390/include/asm/pgalloc.h
-+++ b/arch/s390/include/asm/pgalloc.h
-@@ -56,7 +56,12 @@ static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
- 		crst_table_init(table, _REGION2_ENTRY_EMPTY);
- 	return (p4d_t *) table;
- }
--#define p4d_free(mm, p4d) crst_table_free(mm, (unsigned long *) p4d)
-+
-+static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
-+{
-+	if (!mm_p4d_folded(mm))
-+		crst_table_free(mm, (unsigned long *) p4d);
-+}
- 
- static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 81359312a987..aa651403546f 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1768,7 +1768,7 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ 	dasd_free_block(device->block);
+ 	device->block = NULL;
+ out_err1:
+-	kfree(private->conf_data);
++	dasd_eckd_clear_conf_data(device);
+ 	kfree(device->private);
+ 	device->private = NULL;
+ 	return rc;
+@@ -1777,7 +1777,6 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
+ static void dasd_eckd_uncheck_device(struct dasd_device *device)
  {
-@@ -65,7 +70,12 @@ static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
- 		crst_table_init(table, _REGION3_ENTRY_EMPTY);
- 	return (pud_t *) table;
- }
--#define pud_free(mm, pud) crst_table_free(mm, (unsigned long *) pud)
-+
-+static inline void pud_free(struct mm_struct *mm, pud_t *pud)
-+{
-+	if (!mm_pud_folded(mm))
-+		crst_table_free(mm, (unsigned long *) pud);
-+}
+ 	struct dasd_eckd_private *private = device->private;
+-	int i;
  
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
- {
-@@ -83,6 +93,8 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
- 
- static inline void pmd_free(struct mm_struct *mm, pmd_t *pmd)
- {
-+	if (mm_pmd_folded(mm))
-+		return;
- 	pgtable_pmd_page_dtor(virt_to_page(pmd));
- 	crst_table_free(mm, (unsigned long *) pmd);
+ 	if (!private)
+ 		return;
+@@ -1787,21 +1786,7 @@ static void dasd_eckd_uncheck_device(struct dasd_device *device)
+ 	private->sneq = NULL;
+ 	private->vdsneq = NULL;
+ 	private->gneq = NULL;
+-	private->conf_len = 0;
+-	for (i = 0; i < 8; i++) {
+-		kfree(device->path[i].conf_data);
+-		if ((__u8 *)device->path[i].conf_data ==
+-		    private->conf_data) {
+-			private->conf_data = NULL;
+-			private->conf_len = 0;
+-		}
+-		device->path[i].conf_data = NULL;
+-		device->path[i].cssid = 0;
+-		device->path[i].ssid = 0;
+-		device->path[i].chpid = 0;
+-	}
+-	kfree(private->conf_data);
+-	private->conf_data = NULL;
++	dasd_eckd_clear_conf_data(device);
  }
+ 
+ static struct dasd_ccw_req *
 -- 
 2.20.1
