@@ -1,63 +1,180 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from relay.sw.ru ([185.231.240.75]:50866 "EHLO relay.sw.ru"
+Received: from foss.arm.com ([217.140.110.172]:39896 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730242AbgAXFtC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Jan 2020 00:49:02 -0500
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: [PATCH 0/1] s390: seq_file .next functions should increase position
- index
-Message-ID: <8b5e38e4-ca07-b3c7-bdb7-4f4c3ad94233@virtuozzo.com>
-Date: Fri, 24 Jan 2020 08:48:50 +0300
+        id S1727307AbgAFC1r (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Jan 2020 21:27:47 -0500
+Subject: Re: [RFC] mm/memblock: Define memblock_physmem()
+References: <1578040866-3844-1-git-send-email-anshuman.khandual@arm.com>
+ <20200105085921.GB7261@rapoport-lnx>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <1e5e2ff2-03f9-387f-e566-38657cd9dfe2@arm.com>
+Date: Mon, 6 Jan 2020 07:58:54 +0530
 MIME-Version: 1.0
+In-Reply-To: <20200105085921.GB7261@rapoport-lnx>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-mm@kvack.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Collin Walling <walling@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-In Aug 2018 NeilBrown noticed 
-commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-"Some ->next functions do not increment *pos when they return NULL...
-Note that such ->next functions are buggy and should be fixed. 
-A simple demonstration is
-   
-dd if=/proc/swaps bs=1000 skip=1
-    
-Choose any block size larger than the size of /proc/swaps.  This will
-always show the whole last line of /proc/swaps"
 
-Described problem is still actual. If you make lseek into middle of last output line 
-following read will output end of last line and whole last line once again.
+On 01/05/2020 02:29 PM, Mike Rapoport wrote:
+> Hi Anshuman,
+> 
+> On Fri, Jan 03, 2020 at 02:11:06PM +0530, Anshuman Khandual wrote:
+>> On s390 platform memblock.physmem array is being built by directly calling
+>> into memblock_add_range() which is a low level function not intended to be
+>> used outside of memblock. Hence lets conditionally add helper functions for
+>> physmem array when HAVE_MEMBLOCK_PHYS_MAP is enabled. Also use MAX_NUMNODES
+>> instead of 0 as node ID similar to memblock_add() and memblock_reserve().
+>> While here replace some function name strings with (%s __func__) in various
+>> memblock_dbg() call sites.
+>  
+> I'd prefer to have memblock_dbg() updates as a separate patch.
 
-$ dd if=/proc/swaps bs=1  # usual output
-Filename				Type		Size	Used	Priority
-/dev/dm-0                               partition	4194812	97536	-2
-104+0 records in
-104+0 records out
-104 bytes copied
+Sure, will do.
 
-$ dd if=/proc/swaps bs=40 skip=1    # last line was generated twice
-dd: /proc/swaps: cannot skip to specified offset
-v/dm-0                               partition	4194812	97536	-2
-/dev/dm-0                               partition	4194812	97536	-2 
-3+1 records in
-3+1 records out
-131 bytes copied
+> 
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+>> Cc: Collin Walling <walling@linux.ibm.com>
+>> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+>> Cc: Philipp Rudo <prudo@linux.ibm.com>
+>> Cc: Mike Rapoport <rppt@linux.ibm.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>> Only build tested for s390, will appreciate if some one can give it a try
+>> on a real system.
+>>
+>>  arch/s390/kernel/setup.c | 14 ++++----------
+>>  include/linux/memblock.h |  3 +++
+>>  mm/memblock.c            | 20 ++++++++++++++++----
+>>  3 files changed, 23 insertions(+), 14 deletions(-)
+>>
+>> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+>> index 9cbf490fd162..79a7b1872e5a 100644
+>> --- a/arch/s390/kernel/setup.c
+>> +++ b/arch/s390/kernel/setup.c
+>> @@ -761,14 +761,6 @@ static void __init free_mem_detect_info(void)
+>>  		memblock_free(start, size);
+>>  }
+>>  
+>> -static void __init memblock_physmem_add(phys_addr_t start, phys_addr_t size)
+>> -{
+>> -	memblock_dbg("memblock_physmem_add: [%#016llx-%#016llx]\n",
+>> -		     start, start + size - 1);
+>> -	memblock_add_range(&memblock.memory, start, size, 0, 0);
+>> -	memblock_add_range(&memblock.physmem, start, size, 0, 0);
+>> -}
+>> -
+>>  static const char * __init get_mem_info_source(void)
+>>  {
+>>  	switch (mem_detect.info_source) {
+>> @@ -793,8 +785,10 @@ static void __init memblock_add_mem_detect_info(void)
+>>  		     get_mem_info_source(), mem_detect.info_source);
+>>  	/* keep memblock lists close to the kernel */
+>>  	memblock_set_bottom_up(true);
+>> -	for_each_mem_detect_block(i, &start, &end)
+>> -		memblock_physmem_add(start, end - start);
+>> +	for_each_mem_detect_block(i, &start, &end) {
+>> +		memblock_add(start, end - start);
+>> +		memblock_physmem(start, end - start);
+> 
+> Maybe memblock_physmem_add()?
 
-There are lot of other affected files, I've found 30+ including
-/proc/net/ip_tables_matches and /proc/sysvipc/*
+Okay.
 
-Following patch fixes s390-related file
+> 
+> And, since memblock_add_range() will actually become private, cab you
+> please make it static?
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Sure, will do.
 
-Vasily Averin (1):
-  cio_ignore_proc_seq_next should increase position index
-
- drivers/s390/cio/blacklist.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
--- 
-1.8.3.1
+> 
+>> +	}
+>>  	memblock_set_bottom_up(false);
+>>  	memblock_dump_all();
+>>  }
+>> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+>> index 1510b12de031..d17e7b841cb6 100644
+>> --- a/include/linux/memblock.h
+>> +++ b/include/linux/memblock.h
+>> @@ -115,6 +115,9 @@ int memblock_add(phys_addr_t base, phys_addr_t size);
+>>  int memblock_remove(phys_addr_t base, phys_addr_t size);
+>>  int memblock_free(phys_addr_t base, phys_addr_t size);
+>>  int memblock_reserve(phys_addr_t base, phys_addr_t size);
+>> +#ifdef CONFIG_HAVE_MEMBLOCK_PHYS_MAP
+>> +int memblock_physmem(phys_addr_t base, phys_addr_t size);
+>> +#endif
+>>  void memblock_trim_memory(phys_addr_t align);
+>>  bool memblock_overlaps_region(struct memblock_type *type,
+>>  			      phys_addr_t base, phys_addr_t size);
+>> diff --git a/mm/memblock.c b/mm/memblock.c
+>> index 3e20c6ba2101..f6d17a1f30e3 100644
+>> --- a/mm/memblock.c
+>> +++ b/mm/memblock.c
+>> @@ -694,7 +694,7 @@ int __init_memblock memblock_add(phys_addr_t base, phys_addr_t size)
+>>  {
+>>  	phys_addr_t end = base + size - 1;
+>>  
+>> -	memblock_dbg("memblock_add: [%pa-%pa] %pS\n",
+>> +	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
+>>  		     &base, &end, (void *)_RET_IP_);
+>>  
+>>  	return memblock_add_range(&memblock.memory, base, size, MAX_NUMNODES, 0);
+>> @@ -795,7 +795,7 @@ int __init_memblock memblock_remove(phys_addr_t base, phys_addr_t size)
+>>  {
+>>  	phys_addr_t end = base + size - 1;
+>>  
+>> -	memblock_dbg("memblock_remove: [%pa-%pa] %pS\n",
+>> +	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
+>>  		     &base, &end, (void *)_RET_IP_);
+>>  
+>>  	return memblock_remove_range(&memblock.memory, base, size);
+>> @@ -813,7 +813,7 @@ int __init_memblock memblock_free(phys_addr_t base, phys_addr_t size)
+>>  {
+>>  	phys_addr_t end = base + size - 1;
+>>  
+>> -	memblock_dbg("   memblock_free: [%pa-%pa] %pS\n",
+>> +	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
+>>  		     &base, &end, (void *)_RET_IP_);
+>>  
+>>  	kmemleak_free_part_phys(base, size);
+>> @@ -824,12 +824,24 @@ int __init_memblock memblock_reserve(phys_addr_t base, phys_addr_t size)
+>>  {
+>>  	phys_addr_t end = base + size - 1;
+>>  
+>> -	memblock_dbg("memblock_reserve: [%pa-%pa] %pS\n",
+>> +	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
+>>  		     &base, &end, (void *)_RET_IP_);
+>>  
+>>  	return memblock_add_range(&memblock.reserved, base, size, MAX_NUMNODES, 0);
+>>  }
+>>  
+>> +#ifdef CONFIG_HAVE_MEMBLOCK_PHYS_MAP
+>> +int __init_memblock memblock_physmem(phys_addr_t base, phys_addr_t size)
+>> +{
+>> +	phys_addr_t end = base + size - 1;
+>> +
+>> +	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
+>> +		     &base, &end, (void *)_RET_IP_);
+>> +
+>> +	return memblock_add_range(&memblock.physmem, base, size, MAX_NUMNODES, 0);
+>> +}
+>> +#endif
+>> +
+>>  /**
+>>   * memblock_setclr_flag - set or clear flag for a memory region
+>>   * @base: base address of the region
+>> -- 
+>> 2.20.1
+>>
+>>
+> 
