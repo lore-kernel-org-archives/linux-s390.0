@@ -1,285 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50122 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727219AbgAJJrL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 04:47:11 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00A9g5Ki146380
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 04:47:10 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xe0sm866h-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 04:47:09 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 10 Jan 2020 09:47:08 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v5] KVM: s390: Add new reset vcpu API
-Date: Fri, 10 Jan 2020 04:46:59 -0500
+Received: from ale.deltatee.com ([207.54.116.67]:51298 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728298AbgAGVAS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:18 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Tue,  7 Jan 2020 13:59:55 -0700
+Message-Id: <20200107205959.7575-5-logang@deltatee.com>
+In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
+References: <20200107205959.7575-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200110094659.4118-1-frankja@linux.ibm.com>
+Subject: [PATCH v2 4/8] x86/mm: Introduce _set_memory_prot()
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
 
-The architecture states that we need to reset local IRQs for all CPU
-resets. Because the old reset interface did not support the normal CPU
-reset we never did that on a normal reset.
+For use in the 32bit arch_add_memory() to set the pgprot type of the
+memory to add.
 
-Let's implement an interface for the missing normal and clear resets
-and reset all local IRQs, registers and control structures as stated
-in the architecture.
-
-Userspace might already reset the registers via the vcpu run struct,
-but as we need the interface for the interrupt clearing part anyway,
-we implement the resets fully and don't rely on userspace to reset the
-rest.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- Documentation/virt/kvm/api.txt |  45 +++++++++++++
- arch/s390/kvm/kvm-s390.c       | 111 +++++++++++++++++++++++----------
- include/uapi/linux/kvm.h       |   5 ++
- 3 files changed, 127 insertions(+), 34 deletions(-)
+ arch/x86/include/asm/set_memory.h | 1 +
+ arch/x86/mm/pageattr.c            | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
-index ebb37b34dcfc..5203d95b1a21 100644
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -4168,6 +4168,44 @@ This ioctl issues an ultravisor call to terminate the secure guest,
- unpins the VPA pages and releases all the device pages that are used to
- track the secure pages by hypervisor.
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 2ee8e469dcf5..d728c2f3ad96 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -34,6 +34,7 @@
+  * The caller is required to take care of these.
+  */
  
-+4.122 KVM_S390_NORMAL_RESET
-+
-+Capability: KVM_CAP_S390_VCPU_RESETS
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures according to
-+the cpu reset definition in the POP (Principles Of Operation).
-+
-+4.123 KVM_S390_INITIAL_RESET
-+
-+Capability: none
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures according to
-+the initial cpu reset definition in the POP (Principles Of
-+Operation). However, the cpu is not put into ESA mode. This reset is a
-+superset of the normal reset.
-+
-+4.124 KVM_S390_CLEAR_RESET
-+
-+Capability: KVM_CAP_S390_VCPU_RESETS
-+Architectures: s390
-+Type: vcpu ioctl
-+Parameters: none
-+Returns: 0
-+
-+This ioctl resets VCPU registers and control structures according to
-+the clear cpu reset definition in the POP (Principles Of Operation).
-+However, the cpu is not put into ESA mode. This reset is a superset
-+of the initial reset.
-+
-+
- 5. The kvm_run structure
- ------------------------
- 
-@@ -5396,3 +5434,10 @@ handling by KVM (as some KVM hypercall may be mistakenly treated as TLB
- flush hypercalls by Hyper-V) so userspace should disable KVM identification
- in CPUID and only exposes Hyper-V identification. In this case, guest
- thinks it's running on Hyper-V and only use Hyper-V hypercalls.
-+
-+8.22 KVM_CAP_S390_VCPU_RESETS
-+
-+Architectures: s390
-+
-+This capability indicates that the KVM_S390_NORMAL_RESET and
-+KVM_S390_CLEAR_RESET ioctls are available.
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3d54f0..7ed6dc5bd481 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -529,6 +529,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_CMMA_MIGRATION:
- 	case KVM_CAP_S390_AIS:
- 	case KVM_CAP_S390_AIS_MIGRATION:
-+	case KVM_CAP_S390_VCPU_RESETS:
- 		r = 1;
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
-@@ -2844,35 +2845,6 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- 
++int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot);
+ int _set_memory_uc(unsigned long addr, int numpages);
+ int _set_memory_wc(unsigned long addr, int numpages);
+ int _set_memory_wt(unsigned long addr, int numpages);
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index 1b99ad05b117..2f1934d7b8d9 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -1781,6 +1781,13 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
+ 		CPA_PAGES_ARRAY, pages);
  }
  
--static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
--{
--	/* this equals initial cpu reset in pop, but we don't switch to ESA */
--	vcpu->arch.sie_block->gpsw.mask = 0UL;
--	vcpu->arch.sie_block->gpsw.addr = 0UL;
--	kvm_s390_set_prefix(vcpu, 0);
--	kvm_s390_set_cpu_timer(vcpu, 0);
--	vcpu->arch.sie_block->ckc       = 0UL;
--	vcpu->arch.sie_block->todpr     = 0;
--	memset(vcpu->arch.sie_block->gcr, 0, 16 * sizeof(__u64));
--	vcpu->arch.sie_block->gcr[0]  = CR0_UNUSED_56 |
--					CR0_INTERRUPT_KEY_SUBMASK |
--					CR0_MEASUREMENT_ALERT_SUBMASK;
--	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
--					CR14_UNUSED_33 |
--					CR14_EXTERNAL_DAMAGE_SUBMASK;
--	/* make sure the new fpc will be lazily loaded */
--	save_fpu_regs();
--	current->thread.fpu.fpc = 0;
--	vcpu->arch.sie_block->gbea = 1;
--	vcpu->arch.sie_block->pp = 0;
--	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
--	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
--	kvm_clear_async_pf_completion_queue(vcpu);
--	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
--		kvm_s390_vcpu_stop(vcpu);
--	kvm_s390_clear_local_irqs(vcpu);
--}
--
- void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- {
- 	mutex_lock(&vcpu->kvm->lock);
-@@ -3287,10 +3259,74 @@ static int kvm_arch_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu,
- 	return r;
- }
- 
--static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
-+static void kvm_arch_vcpu_ioctl_normal_reset(struct kvm_vcpu *vcpu)
- {
--	kvm_s390_vcpu_initial_reset(vcpu);
--	return 0;
-+	vcpu->arch.sie_block->gpsw.mask = ~PSW_MASK_RI;
-+	vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
-+	memset(vcpu->run->s.regs.riccb, 0, sizeof(vcpu->run->s.regs.riccb));
-+
-+	kvm_clear_async_pf_completion_queue(vcpu);
-+	if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-+		kvm_s390_vcpu_stop(vcpu);
-+	kvm_s390_clear_local_irqs(vcpu);
++int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot)
++{
++	return change_page_attr_set_clr(&addr, numpages, prot,
++					__pgprot(~pgprot_val(prot)), 0, 0,
++					NULL);
 +}
 +
-+static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
-+{
-+	/* this equals initial cpu reset in pop, but we don't switch to ESA */
-+	vcpu->arch.sie_block->gpsw.mask = 0UL;
-+	vcpu->arch.sie_block->gpsw.addr = 0UL;
-+	kvm_s390_set_prefix(vcpu, 0);
-+	kvm_s390_set_cpu_timer(vcpu, 0);
-+	vcpu->arch.sie_block->ckc       = 0UL;
-+	vcpu->arch.sie_block->todpr     = 0;
-+	memset(vcpu->arch.sie_block->gcr, 0, 16 * sizeof(__u64));
-+	vcpu->arch.sie_block->gcr[0]  = CR0_UNUSED_56 |
-+					CR0_INTERRUPT_KEY_SUBMASK |
-+					CR0_MEASUREMENT_ALERT_SUBMASK;
-+	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
-+					CR14_UNUSED_33 |
-+					CR14_EXTERNAL_DAMAGE_SUBMASK;
-+	/* make sure the new fpc will be lazily loaded */
-+	save_fpu_regs();
-+	current->thread.fpu.fpc = 0;
-+	vcpu->arch.sie_block->gbea = 1;
-+	vcpu->arch.sie_block->pp = 0;
-+	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
-+	/* remaining work needs to be done in normal reset */
-+}
-+
-+static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_sync_regs *regs = &vcpu->run->s.regs;
-+
-+	memset(&regs->gprs, 0, sizeof(regs->gprs));
-+	/*
-+	 * Will be picked up via save_fpu_regs() in the initial reset
-+	 * fallthrough.
-+	 */
-+	memset(&regs->vrs, 0, sizeof(regs->vrs));
-+	memset(&regs->acrs, 0, sizeof(regs->acrs));
-+
-+	regs->etoken = 0;
-+	regs->etoken_extension = 0;
-+
-+	memset(&regs->gscb, 0, sizeof(regs->gscb));
-+	if (MACHINE_HAS_GS) {
-+		preempt_disable();
-+		__ctl_set_bit(2, 4);
-+		if (current->thread.gs_cb) {
-+			vcpu->arch.host_gscb = current->thread.gs_cb;
-+			save_gs_cb(vcpu->arch.host_gscb);
-+		}
-+		if (vcpu->arch.gs_enabled) {
-+			current->thread.gs_cb = (struct gs_cb *)
-+				&vcpu->run->s.regs.gscb;
-+			restore_gs_cb(current->thread.gs_cb);
-+		}
-+		preempt_enable();
-+	}
-+	/* remaining work needs to be done in initial and normal reset */
- }
- 
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
-@@ -4344,7 +4380,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	struct kvm_vcpu *vcpu = filp->private_data;
- 	void __user *argp = (void __user *)arg;
- 	int idx;
--	long r;
-+	long r = 0;
- 
- 	vcpu_load(vcpu);
- 
-@@ -4363,8 +4399,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		r = kvm_arch_vcpu_ioctl_set_initial_psw(vcpu, psw);
- 		break;
- 	}
-+
-+	case KVM_S390_CLEAR_RESET:
-+		kvm_arch_vcpu_ioctl_clear_reset(vcpu);
-+		/* fallthrough */
- 	case KVM_S390_INITIAL_RESET:
--		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		/* fallthrough */
-+	case KVM_S390_NORMAL_RESET:
-+		kvm_arch_vcpu_ioctl_normal_reset(vcpu);
- 		break;
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f0a16b4adbbd..4b95f9a31a2f 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1009,6 +1009,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_PPC_GUEST_DEBUG_SSTEP 176
- #define KVM_CAP_ARM_NISV_TO_USER 177
- #define KVM_CAP_ARM_INJECT_EXT_DABT 178
-+#define KVM_CAP_S390_VCPU_RESETS 179
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
-@@ -1473,6 +1474,10 @@ struct kvm_enc_region {
- /* Available with KVM_CAP_ARM_SVE */
- #define KVM_ARM_VCPU_FINALIZE	  _IOW(KVMIO,  0xc2, int)
- 
-+/* Available with  KVM_CAP_S390_VCPU_RESETS */
-+#define KVM_S390_NORMAL_RESET	_IO(KVMIO,   0xc3)
-+#define KVM_S390_CLEAR_RESET	_IO(KVMIO,   0xc4)
-+
- /* Secure Encrypted Virtualization command */
- enum sev_cmd_id {
- 	/* Guest initialization commands */
+ int _set_memory_uc(unsigned long addr, int numpages)
+ {
+ 	/*
 -- 
 2.20.1
