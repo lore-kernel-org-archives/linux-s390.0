@@ -1,148 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:53896 "EHLO foss.arm.com"
+Received: from ale.deltatee.com ([207.54.116.67]:51280 "EHLO ale.deltatee.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726050AbgACIkh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 3 Jan 2020 03:40:37 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [RFC] mm/memblock: Define memblock_physmem()
-Date: Fri,  3 Jan 2020 14:11:06 +0530
-Message-Id: <1578040866-3844-1-git-send-email-anshuman.khandual@arm.com>
+        id S1727257AbgAGVAQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Jan 2020 16:00:16 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Tue,  7 Jan 2020 13:59:59 -0700
+Message-Id: <20200107205959.7575-9-logang@deltatee.com>
+In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
+References: <20200107205959.7575-1-logang@deltatee.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [PATCH v2 8/8] mm/memremap: Set caching mode for PCI P2PDMA memory to WC
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Collin Walling <walling@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Mike Rapoport <rppt@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Jason Gunthorpe <jgg@ziepe.ca>
 
-On s390 platform memblock.physmem array is being built by directly calling
-into memblock_add_range() which is a low level function not intended to be
-used outside of memblock. Hence lets conditionally add helper functions for
-physmem array when HAVE_MEMBLOCK_PHYS_MAP is enabled. Also use MAX_NUMNODES
-instead of 0 as node ID similar to memblock_add() and memblock_reserve().
-While here replace some function name strings with (%s __func__) in various
-memblock_dbg() call sites.
+PCI BAR IO memory should never be mapped as WB, however prior to this
+the PAT bits were set WB and it was typically overridden by MTRR
+registers set by the firmware.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Collin Walling <walling@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-s390@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Set PCI P2PDMA memory to be WC (writecombining) as the only current
+user (the NVMe CMB) was originally mapped WC before the P2PDMA code
+replaced the mapping with devm_memremap_pages().
+
+Future use-cases may need to generalize this by adding flags to
+select the caching type, as some P2PDMA cases will not want WC.
+However, those use-cases are not upstream yet and this can be changed
+when they arrive.
+
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
-Only build tested for s390, will appreciate if some one can give it a try
-on a real system.
+ mm/memremap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
- arch/s390/kernel/setup.c | 14 ++++----------
- include/linux/memblock.h |  3 +++
- mm/memblock.c            | 20 ++++++++++++++++----
- 3 files changed, 23 insertions(+), 14 deletions(-)
-
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 9cbf490fd162..79a7b1872e5a 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -761,14 +761,6 @@ static void __init free_mem_detect_info(void)
- 		memblock_free(start, size);
- }
- 
--static void __init memblock_physmem_add(phys_addr_t start, phys_addr_t size)
--{
--	memblock_dbg("memblock_physmem_add: [%#016llx-%#016llx]\n",
--		     start, start + size - 1);
--	memblock_add_range(&memblock.memory, start, size, 0, 0);
--	memblock_add_range(&memblock.physmem, start, size, 0, 0);
--}
--
- static const char * __init get_mem_info_source(void)
- {
- 	switch (mem_detect.info_source) {
-@@ -793,8 +785,10 @@ static void __init memblock_add_mem_detect_info(void)
- 		     get_mem_info_source(), mem_detect.info_source);
- 	/* keep memblock lists close to the kernel */
- 	memblock_set_bottom_up(true);
--	for_each_mem_detect_block(i, &start, &end)
--		memblock_physmem_add(start, end - start);
-+	for_each_mem_detect_block(i, &start, &end) {
-+		memblock_add(start, end - start);
-+		memblock_physmem(start, end - start);
-+	}
- 	memblock_set_bottom_up(false);
- 	memblock_dump_all();
- }
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 1510b12de031..d17e7b841cb6 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -115,6 +115,9 @@ int memblock_add(phys_addr_t base, phys_addr_t size);
- int memblock_remove(phys_addr_t base, phys_addr_t size);
- int memblock_free(phys_addr_t base, phys_addr_t size);
- int memblock_reserve(phys_addr_t base, phys_addr_t size);
-+#ifdef CONFIG_HAVE_MEMBLOCK_PHYS_MAP
-+int memblock_physmem(phys_addr_t base, phys_addr_t size);
-+#endif
- void memblock_trim_memory(phys_addr_t align);
- bool memblock_overlaps_region(struct memblock_type *type,
- 			      phys_addr_t base, phys_addr_t size);
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 3e20c6ba2101..f6d17a1f30e3 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -694,7 +694,7 @@ int __init_memblock memblock_add(phys_addr_t base, phys_addr_t size)
- {
- 	phys_addr_t end = base + size - 1;
- 
--	memblock_dbg("memblock_add: [%pa-%pa] %pS\n",
-+	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
- 		     &base, &end, (void *)_RET_IP_);
- 
- 	return memblock_add_range(&memblock.memory, base, size, MAX_NUMNODES, 0);
-@@ -795,7 +795,7 @@ int __init_memblock memblock_remove(phys_addr_t base, phys_addr_t size)
- {
- 	phys_addr_t end = base + size - 1;
- 
--	memblock_dbg("memblock_remove: [%pa-%pa] %pS\n",
-+	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
- 		     &base, &end, (void *)_RET_IP_);
- 
- 	return memblock_remove_range(&memblock.memory, base, size);
-@@ -813,7 +813,7 @@ int __init_memblock memblock_free(phys_addr_t base, phys_addr_t size)
- {
- 	phys_addr_t end = base + size - 1;
- 
--	memblock_dbg("   memblock_free: [%pa-%pa] %pS\n",
-+	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
- 		     &base, &end, (void *)_RET_IP_);
- 
- 	kmemleak_free_part_phys(base, size);
-@@ -824,12 +824,24 @@ int __init_memblock memblock_reserve(phys_addr_t base, phys_addr_t size)
- {
- 	phys_addr_t end = base + size - 1;
- 
--	memblock_dbg("memblock_reserve: [%pa-%pa] %pS\n",
-+	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
- 		     &base, &end, (void *)_RET_IP_);
- 
- 	return memblock_add_range(&memblock.reserved, base, size, MAX_NUMNODES, 0);
- }
- 
-+#ifdef CONFIG_HAVE_MEMBLOCK_PHYS_MAP
-+int __init_memblock memblock_physmem(phys_addr_t base, phys_addr_t size)
-+{
-+	phys_addr_t end = base + size - 1;
-+
-+	memblock_dbg("%s: [%pa-%pa] %pS\n", __func__,
-+		     &base, &end, (void *)_RET_IP_);
-+
-+	return memblock_add_range(&memblock.physmem, base, size, MAX_NUMNODES, 0);
-+}
-+#endif
-+
- /**
-  * memblock_setclr_flag - set or clear flag for a memory region
-  * @base: base address of the region
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 45ab4ef0643d..d36ff688b768 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -187,7 +187,10 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
+ 		}
+ 		break;
+ 	case MEMORY_DEVICE_DEVDAX:
++		need_devmap_managed = false;
++		break;
+ 	case MEMORY_DEVICE_PCI_P2PDMA:
++		modifiers.pgprot = pgprot_writecombine(modifiers.pgprot);
+ 		need_devmap_managed = false;
+ 		break;
+ 	default:
 -- 
 2.20.1
