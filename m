@@ -1,152 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22764 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726751AbgA2UDg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Jan 2020 15:03:36 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00TJrkxU132335
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jan 2020 15:03:35 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xuagn5g2r-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jan 2020 15:03:34 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 29 Jan 2020 20:03:32 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v8 4/4] selftests: KVM: testing the local IRQs resets
-Date: Wed, 29 Jan 2020 15:03:12 -0500
-In-Reply-To: <20200129200312.3200-1-frankja@linux.ibm.com>
-References: <20200129200312.3200-1-frankja@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:35919 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727782AbgAHPgJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jan 2020 10:36:09 -0500
+Date: Wed, 8 Jan 2020 16:36:00 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3] KVM: s390: Add new reset vcpu API
+Message-ID: <20200108163600.54981741.cohuck@redhat.com>
+In-Reply-To: <d3370e31-ca33-567d-ce0e-1168f603a686@redhat.com>
+References: <20191205120956.50930-1-frankja@linux.ibm.com>
+        <dd724da0-9bba-079e-6b6f-756762dbc942@de.ibm.com>
+        <d0db08ef-ade9-93d4-105f-ace6fef50c81@linux.ibm.com>
+        <3ddb7aa6-96d4-246f-a8ba-fdf2408a4ff0@de.ibm.com>
+        <d3370e31-ca33-567d-ce0e-1168f603a686@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200129200312.3200-5-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+On Wed, 8 Jan 2020 15:44:57 +0100
+Thomas Huth <thuth@redhat.com> wrote:
 
-Local IRQs are reset by a normal cpu reset.  The initial cpu reset and
-the clear cpu reset, as superset of the normal reset, both clear the
-IRQs too.
+> On 08/01/2020 15.38, Christian Borntraeger wrote:
+> > 
+> > 
+> > On 08.01.20 15:35, Janosch Frank wrote:  
+> >> On 1/8/20 3:28 PM, Christian Borntraeger wrote:  
+> >>>
+> >>>
+> >>> On 05.12.19 13:09, Janosch Frank wrote:
+> >>> [...]  
+> >>>> +4.123 KVM_S390_CLEAR_RESET
+> >>>> +
+> >>>> +Capability: KVM_CAP_S390_VCPU_RESETS
+> >>>> +Architectures: s390
+> >>>> +Type: vcpu ioctl
+> >>>> +Parameters: none
+> >>>> +Returns: 0
+> >>>> +
+> >>>> +This ioctl resets VCPU registers and control structures that QEMU
+> >>>> +can't access via the kvm_run structure. The clear reset is a superset
+> >>>> +of the initial reset and additionally clears general, access, floating
+> >>>> +and vector registers.  
+> >>>
+> >>> As Thomas outlined, make it more obvious that userspace does the remaining
+> >>> parts. I do not think that we want the kernel to do the things (unless it
+> >>> helps you in some way for the ultravisor guests)  
+> >>
+> >> Ok, will do  
+> > 
+> > I changed my mind (see my other mail) but I would like Thomas, Conny or David
+> > to ack/nack.  
+> 
+> I don't mind too much as long as it is properly documented, but I also
+> slightly prefer to be consistent here, i.e. let the kernel clear the
+> rest here, too, just like we do it already with the initial reset.
 
-Let's inject an interrupt to a vCPU before calling a reset and see if
-it is gone after the reset.
+I definitely agree with the 'properly documented' part :) It's probably
+enough to just state that the kernel resets the stuff, no need to go
+into details (and we also don't need to update this for later versions.)
 
-We choose to inject only an emergency interrupt at this point and can
-extend the test to other types of IRQs later.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- tools/testing/selftests/kvm/s390x/resets.c | 57 ++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
-
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index 2b2378cc9e80..299c1686f98c 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -14,6 +14,9 @@
- #include "kvm_util.h"
- 
- #define VCPU_ID 3
-+#define LOCAL_IRQS 32
-+
-+struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
- 
- struct kvm_vm *vm;
- struct kvm_run *run;
-@@ -52,6 +55,29 @@ static void test_one_reg(uint64_t id, uint64_t value)
- 	TEST_ASSERT(eval_reg == value, "value == %s", value);
- }
- 
-+static void assert_noirq(void)
-+{
-+	struct kvm_s390_irq_state irq_state;
-+	int irqs;
-+
-+	if (!(kvm_check_cap(KVM_CAP_S390_INJECT_IRQ) &&
-+	    kvm_check_cap(KVM_CAP_S390_IRQ_STATE)))
-+		return;
-+
-+	irq_state.len = sizeof(buf);
-+	irq_state.buf = (unsigned long)buf;
-+	irqs = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_GET_IRQ_STATE, &irq_state);
-+	/*
-+	 * irqs contains the number of retrieved interrupts, apart from the
-+	 * emergency call that should be cleared by the resets, there should be
-+	 * none.
-+	 */
-+	if (irqs < 0)
-+		printf("Error by getting IRQ: errno %d\n", errno);
-+
-+	TEST_ASSERT(!irqs, "IRQ pending");
-+}
-+
- static void assert_clear(void)
- {
- 	struct kvm_sregs sregs;
-@@ -93,6 +119,31 @@ static void assert_initial(void)
- static void assert_normal(void)
- {
- 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
-+	assert_noirq();
-+}
-+
-+static int inject_irq(int cpu_id)
-+{
-+	struct kvm_s390_irq_state irq_state;
-+	struct kvm_s390_irq *irq = &buf[0];
-+	int irqs;
-+
-+	if (!(kvm_check_cap(KVM_CAP_S390_INJECT_IRQ) &&
-+	    kvm_check_cap(KVM_CAP_S390_IRQ_STATE)))
-+		return 0;
-+
-+	/* Inject IRQ */
-+	irq_state.len = sizeof(struct kvm_s390_irq);
-+	irq_state.buf = (unsigned long)buf;
-+	irq->type = KVM_S390_INT_EMERGENCY;
-+	irq->u.emerg.code = cpu_id;
-+	irqs = _vcpu_ioctl(vm, cpu_id, KVM_S390_SET_IRQ_STATE, &irq_state);
-+	if (irqs < 0) {
-+		printf("Error by injecting INT_EMERGENCY: errno %d\n", errno);
-+		return errno;
-+	}
-+
-+	return 0;
- }
- 
- static void test_normal(void)
-@@ -105,6 +156,8 @@ static void test_normal(void)
- 
- 	_vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
- 	assert_normal();
- 	kvm_vm_free(vm);
-@@ -122,6 +175,8 @@ static int test_initial(void)
- 
- 	rv = _vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
- 	assert_normal();
- 	assert_initial();
-@@ -141,6 +196,8 @@ static int test_clear(void)
- 
- 	rv = _vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
- 	assert_normal();
- 	assert_initial();
--- 
-2.20.1
+Q: Are we sure that we will always be able to reset everything from the
+kernel?
