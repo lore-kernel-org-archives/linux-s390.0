@@ -1,84 +1,108 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46126 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728209AbgAJSk7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 13:40:59 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00AIbJeQ035129
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:58 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xek9sxkhf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:57 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 10 Jan 2020 18:40:56 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 2/4] s390x: sclp: add service call instruction wrapper
-Date: Fri, 10 Jan 2020 19:40:48 +0100
-In-Reply-To: <20200110184050.191506-1-imbrenda@linux.ibm.com>
-References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+References: <20200107205959.7575-1-logang@deltatee.com>
+ <20200107205959.7575-7-logang@deltatee.com>
+ <a5501f2a-ff8d-cea2-1540-1a70ea6bc2d2@redhat.com>
+From: Logan Gunthorpe <logang@deltatee.com>
+Message-ID: <9226e0e4-832b-d873-f433-f29a7853f11e@deltatee.com>
+Date: Wed, 8 Jan 2020 10:20:00 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200110184050.191506-3-imbrenda@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <a5501f2a-ff8d-cea2-1540-1a70ea6bc2d2@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2 6/8] s390/mm: Thread pgprot_t through
+ vmem_add_mapping()
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Add a wrapper for the service call instruction, and use it for SCLP
-interactions instead of using inline assembly everywhere.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h | 13 +++++++++++++
- lib/s390x/sclp.c         |  7 +------
- 2 files changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index cf6e1ca..1a5e3c6 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -271,4 +271,17 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
- 	return cc;
- }
- 
-+static inline int servc(uint32_t command, unsigned long sccb)
-+{
-+	int cc;
-+
-+	asm volatile(
-+		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
-+		"       ipm     %0\n"
-+		"       srl     %0,28"
-+		: "=&d" (cc) : "d" (command), "a" (sccb)
-+		: "cc", "memory");
-+	return cc;
-+}
-+
- #endif
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 123b639..4054d0e 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -116,12 +116,7 @@ int sclp_service_call(unsigned int command, void *sccb)
- 	int cc;
- 
- 	sclp_setup_int();
--	asm volatile(
--		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
--		"       ipm     %0\n"
--		"       srl     %0,28"
--		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
--		: "cc", "memory");
-+	cc = servc(command, __pa(sccb));
- 	sclp_wait_busy();
- 	if (cc == 3)
- 		return -1;
--- 
-2.24.1
+On 2020-01-08 5:43 a.m., David Hildenbrand wrote:
+> On 07.01.20 21:59, Logan Gunthorpe wrote:
+>> In prepartion to support a pgprot_t argument for arch_add_memory().
+>>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+>> ---
+>>  arch/s390/include/asm/pgtable.h |  3 ++-
+>>  arch/s390/mm/extmem.c           |  3 ++-
+>>  arch/s390/mm/init.c             |  2 +-
+>>  arch/s390/mm/vmem.c             | 10 +++++-----
+>>  4 files changed, 10 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+>> index 7b03037a8475..e667a1a96879 100644
+>> --- a/arch/s390/include/asm/pgtable.h
+>> +++ b/arch/s390/include/asm/pgtable.h
+>> @@ -1640,7 +1640,8 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
+>>  
+>>  #define kern_addr_valid(addr)   (1)
+>>  
+>> -extern int vmem_add_mapping(unsigned long start, unsigned long size);
+>> +extern int vmem_add_mapping(unsigned long start, unsigned long size,
+>> +			    pgprot_t prot);
+>>  extern int vmem_remove_mapping(unsigned long start, unsigned long size);
+>>  extern int s390_enable_sie(void);
+>>  extern int s390_enable_skey(void);
+>> diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
+>> index fd0dae9d10f4..6cf7029a7b35 100644
+>> --- a/arch/s390/mm/extmem.c
+>> +++ b/arch/s390/mm/extmem.c
+>> @@ -313,7 +313,8 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
+>>  		goto out_free;
+>>  	}
+>>  
+>> -	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+>> +	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1,
+>> +			      PAGE_KERNEL);
+>>  
+>>  	if (rc)
+>>  		goto out_free;
+>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>> index a0c88c1c9ad0..ef19522ddad2 100644
+>> --- a/arch/s390/mm/init.c
+>> +++ b/arch/s390/mm/init.c
+>> @@ -277,7 +277,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>>  	if (WARN_ON_ONCE(modifiers->altmap))
+>>  		return -EINVAL;
+>>  
+>> -	rc = vmem_add_mapping(start, size);
+>> +	rc = vmem_add_mapping(start, size, PAGE_KERNEL);
+>>  	if (rc)
+>>  		return rc;
+>>  
+>> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+>> index b403fa14847d..8a5e95f184a2 100644
+>> --- a/arch/s390/mm/vmem.c
+>> +++ b/arch/s390/mm/vmem.c
+>> @@ -66,7 +66,7 @@ pte_t __ref *vmem_pte_alloc(void)
+>>  /*
+>>   * Add a physical memory range to the 1:1 mapping.
+>>   */
+>> -static int vmem_add_mem(unsigned long start, unsigned long size)
+>> +static int vmem_add_mem(unsigned long start, unsigned long size, pgprot_t prot)
+>>  {
+>>  	unsigned long pgt_prot, sgt_prot, r3_prot;
+>>  	unsigned long pages4k, pages1m, pages2g;
+>> @@ -79,7 +79,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size)
+>>  	pte_t *pt_dir;
+>>  	int ret = -ENOMEM;
+>>  
+>> -	pgt_prot = pgprot_val(PAGE_KERNEL);
+>> +	pgt_prot = pgprot_val(prot);
+>>  	sgt_prot = pgprot_val(SEGMENT_KERNEL);
+>>  	r3_prot = pgprot_val(REGION3_KERNEL);
+> 
+> So, if we map as huge/gigantic pages, the protection would be discarded?
+> That looks wrong.
+> 
+> s390x does not support ZONE_DEVICE yet. Maybe simply bail out for s390x
+> as you do for sh to make your life easier?
+
+Yeah, ok, makes sense to me; I'll change it for v3.
+
+Logan
