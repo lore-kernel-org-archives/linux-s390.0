@@ -1,54 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:45824 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728121AbgAJOye (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 09:54:34 -0500
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v2 03/10] s390: Remove arch_has_random, arch_has_random_seed
-Date: Fri, 10 Jan 2020 14:54:15 +0000
-Message-Id: <20200110145422.49141-4-broonie@kernel.org>
-In-Reply-To: <20200110145422.49141-1-broonie@kernel.org>
-References: <20200110145422.49141-1-broonie@kernel.org>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24220 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727798AbgAHM13 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jan 2020 07:27:29 -0500
+Subject: Re: [PATCH v2 1/8] mm/memory_hotplug: Drop the flags field from
+ struct mhp_restrictions
+References: <20200107205959.7575-1-logang@deltatee.com>
+ <20200107205959.7575-2-logang@deltatee.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c3c3c475-f828-13f7-b5c9-f691ef0fe1ff@redhat.com>
+Date: Wed, 8 Jan 2020 13:27:14 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200107205959.7575-2-logang@deltatee.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Mark Brown <broonie@kernel.org>
+To: Logan Gunthorpe <logang@deltatee.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>
 
-From: Richard Henderson <richard.henderson@linaro.org>
+On 07.01.20 21:59, Logan Gunthorpe wrote:
+> This variable is not used anywhere and should therefore be removed
+> from the structure.
+> 
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> ---
+>  include/linux/memory_hotplug.h | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+> index ba0dca6aac6e..e47a29761088 100644
+> --- a/include/linux/memory_hotplug.h
+> +++ b/include/linux/memory_hotplug.h
+> @@ -55,11 +55,9 @@ enum {
+>  
+>  /*
+>   * Restrictions for the memory hotplug:
+> - * flags:  MHP_ flags
+>   * altmap: alternative allocator for memmap array
+>   */
+>  struct mhp_restrictions {
+> -	unsigned long flags;
+>  	struct vmem_altmap *altmap;
+>  };
 
-These symbols are currently part of the generic archrandom.h
-interface, but are currently unused and can be removed.
+We wanted to use that for the "vmemmap on added memory" config knob. But
+that might still take some time and we might actually realize it using
+the altmap instead (hopefully :) ).
 
-Signed-off-by: Richard Henderson <rth@twiddle.net>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- arch/s390/include/asm/archrandom.h | 12 ------------
- 1 file changed, 12 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
-index c67b82dfa558..9a6835137a16 100644
---- a/arch/s390/include/asm/archrandom.h
-+++ b/arch/s390/include/asm/archrandom.h
-@@ -21,18 +21,6 @@ extern atomic64_t s390_arch_random_counter;
- 
- bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
- 
--static inline bool arch_has_random(void)
--{
--	return false;
--}
--
--static inline bool arch_has_random_seed(void)
--{
--	if (static_branch_likely(&s390_arch_random_available))
--		return true;
--	return false;
--}
--
- static inline bool arch_get_random_long(unsigned long *v)
- {
- 	return false;
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
