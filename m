@@ -1,55 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:51182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727554AbgAJWFc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:05:32 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 14/26] s390/qeth: vnicc Fix init to default
-Date: Fri, 10 Jan 2020 17:05:07 -0500
-Message-Id: <20200110220519.28250-9-sashal@kernel.org>
-In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
-References: <20200110220519.28250-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27228 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728653AbgAISAz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jan 2020 13:00:55 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 009HvkgG079823
+        for <linux-s390@vger.kernel.org>; Thu, 9 Jan 2020 13:00:54 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xe5rxg0aj-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jan 2020 13:00:54 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Thu, 9 Jan 2020 18:00:52 -0000
+Date: Thu, 9 Jan 2020 19:00:47 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v6 4/4] s390x: SCLP unit test
+In-Reply-To: <9d57b1b1-155f-8f30-0a32-3540492a8c86@linux.ibm.com>
+References: <20200109161625.154894-1-imbrenda@linux.ibm.com>
+        <20200109161625.154894-5-imbrenda@linux.ibm.com>
+        <9d57b1b1-155f-8f30-0a32-3540492a8c86@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200109190047.1fe2e84c@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+On Thu, 9 Jan 2020 18:44:34 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-[ Upstream commit d1b9ae1864fc3c000e0eb4af8482d78c63e0915a ]
+> On 1/9/20 5:16 PM, Claudio Imbrenda wrote:
+> > SCLP unit test. Testing the following:
+> > 
+> > * Correctly ignoring instruction bits that should be ignored
+> > * Privileged instruction check
+> > * Check for addressing exceptions
+> > * Specification exceptions:
+> >   - SCCB size less than 8
+> >   - SCCB unaligned
+> >   - SCCB overlaps prefix or lowcore
+> >   - SCCB address higher than 2GB
+> > * Return codes for
+> >   - Invalid command
+> >   - SCCB too short (but at least 8)
+> >   - SCCB page boundary violation
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Reviewed-by: Thomas Huth <thuth@redhat.com>  
+> 
+> I wonder how fast this will run under z/VM and if we need to increase
+> the timeout.
 
-During vnicc_init wanted_char should be compared to cur_char and not
-to QETH_VNICC_DEFAULT. Without this patch there is no way to enforce
-the default values as desired values.
+I don't know, but it runs pretty fast even on z13
 
-Note, that it is expected, that a card comes online with default values.
-This patch was tested with private card firmware.
+> Nicely done, one comment below.
+> 
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+[...]
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index dcbdaa5ce455..b9b47e74d6c2 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2069,7 +2069,9 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 	/* enforce assumed default values and recover settings, if changed  */
- 	error |= qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
- 					       timeout);
--	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
-+	/* Change chars, if necessary  */
-+	chars_tmp = card->options.vnicc.wanted_chars ^
-+		    card->options.vnicc.cur_chars;
- 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
- 	for_each_set_bit(i, &chars_tmp, chars_len) {
- 		vnicc = BIT(i);
--- 
-2.20.1
+> LC_SIZE?
+> Can also be used in more places below.
+
+hmm yes I'll fix it
