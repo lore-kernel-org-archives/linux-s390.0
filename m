@@ -1,124 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23204 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8958 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726871AbgAPMFc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jan 2020 07:05:32 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00GBvUtT021772
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:31 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xhm35kg7t-1
+        by vger.kernel.org with ESMTP id S1730399AbgAIQQd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jan 2020 11:16:33 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 009G9xc3051375
+        for <linux-s390@vger.kernel.org>; Thu, 9 Jan 2020 11:16:32 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xe0hut334-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:31 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 09 Jan 2020 11:16:31 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 16 Jan 2020 12:05:28 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 2/7] s390x: smp: Only use smp_cpu_setup once
-Date: Thu, 16 Jan 2020 07:05:08 -0500
-In-Reply-To: <20200116120513.2244-1-frankja@linux.ibm.com>
-References: <20200116120513.2244-1-frankja@linux.ibm.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Thu, 9 Jan 2020 16:16:29 -0000
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v6 0/4] s390x: SCLP Unit test
+Date: Thu,  9 Jan 2020 17:16:21 +0100
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200116120513.2244-3-frankja@linux.ibm.com>
+Message-Id: <20200109161625.154894-1-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-Let's stop and start instead of using setup to run a function on a
-cpu.
+This patchset contains some minor cleanup, some preparatory work and
+then the SCLP unit test itself.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- s390x/smp.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+The unit test checks the following:
+    
+    * Correctly ignoring instruction bits that should be ignored
+    * Privileged instruction check
+    * Check for addressing exceptions
+    * Specification exceptions:
+      - SCCB size less than 8
+      - SCCB unaligned
+      - SCCB overlaps prefix or lowcore
+      - SCCB address higher than 2GB
+    * Return codes for
+      - Invalid command
+      - SCCB too short (but at least 8)
+      - SCCB page boundary violation
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 02204fd..d430638 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -47,7 +47,7 @@ static void test_start(void)
- 	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)test_func;
- 
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	report(1, "start");
- }
-@@ -132,9 +132,8 @@ static void test_ecall(void)
- 
- 	report_prefix_push("ecall");
- 	testflag = 0;
--	smp_cpu_destroy(1);
- 
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	testflag = 0;
- 	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
-@@ -167,9 +166,8 @@ static void test_emcall(void)
- 
- 	report_prefix_push("emcall");
- 	testflag = 0;
--	smp_cpu_destroy(1);
- 
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	testflag = 0;
- 	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
-@@ -187,7 +185,7 @@ static void test_reset_initial(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("reset initial");
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 
- 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
- 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-@@ -218,7 +216,7 @@ static void test_reset(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("cpu reset");
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 
- 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
- 	report(smp_cpu_stopped(1), "cpu stopped");
-@@ -227,6 +225,7 @@ static void test_reset(void)
- 
- int main(void)
- {
-+	struct psw psw;
- 	report_prefix_push("smp");
- 
- 	if (smp_query_num_cpus() == 1) {
-@@ -234,6 +233,12 @@ int main(void)
- 		goto done;
- 	}
- 
-+	/* Setting up the cpu to give it a stack and lowcore */
-+	psw.mask = extract_psw_mask();
-+	psw.addr = (unsigned long)cpu_loop;
-+	smp_cpu_setup(1, psw);
-+	smp_cpu_stop(1);
-+
- 	test_start();
- 	test_stop();
- 	test_stop_store_status();
-@@ -242,6 +247,7 @@ int main(void)
- 	test_emcall();
- 	test_reset();
- 	test_reset_initial();
-+	smp_cpu_destroy(1);
- 
- done:
- 	report_prefix_pop();
+v5 -> v6
+* fixed a bug in test_addressing
+* improved comments in test_sccb_prefix
+* replaced all inline assembly usages of spx and stpx with the wrappers
+* added one more wrapper for test_one_sccb for read-only tests
+v4 -> v5
+* updated usage of report()
+* added SPX and STPX wrappers to the library
+* improved readability
+* addressed some more comments
+v3 -> v4
+* export sclp_setup_int instead of copying it
+* add more comments
+* rename some more variables to improve readability
+* improve the prefix test
+* improved the invalid address test
+* addressed further comments received during review
+v2 -> v3
+* generally improved the naming of variables
+* added and fixed comments
+* renamed test_one_run to test_one_simple
+* added some const where needed
+* addresed many more small comments received during review
+v1 -> v2
+* fix many small issues that came up during the first round of reviews
+* add comments to each function
+* use a static buffer for the SCCP template when used
+
+Claudio Imbrenda (4):
+  s390x: export sclp_setup_int
+  s390x: sclp: add service call instruction wrapper
+  s390x: lib: add SPX and STPX instruction wrapper
+  s390x: SCLP unit test
+
+ s390x/Makefile           |   1 +
+ lib/s390x/asm/arch_def.h |  23 ++
+ lib/s390x/sclp.h         |   1 +
+ lib/s390x/sclp.c         |   9 +-
+ s390x/intercept.c        |  33 ++-
+ s390x/sclp.c             | 472 +++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg      |   8 +
+ 7 files changed, 520 insertions(+), 27 deletions(-)
+ create mode 100644 s390x/sclp.c
+
 -- 
-2.20.1
+2.24.1
