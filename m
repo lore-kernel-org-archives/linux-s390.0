@@ -1,105 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35672 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728695AbgANPbP (ORCPT
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:42252 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727698AbgAJOhk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jan 2020 10:31:15 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00EFRTgf115114
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:14 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xh8d3m2bn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:14 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 14 Jan 2020 15:31:12 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 3/4] s390x: smp: Test all CRs on initial reset
-Date: Tue, 14 Jan 2020 10:30:52 -0500
-In-Reply-To: <20200114153054.77082-1-frankja@linux.ibm.com>
-References: <20200114153054.77082-1-frankja@linux.ibm.com>
+        Fri, 10 Jan 2020 09:37:40 -0500
+Subject: Re: [PATCH] KVM: s390: Cleanup initial cpu reset
+References: <b01c38bf-5887-25d8-b787-271e5c2292e2@redhat.com>
+ <20200110134824.37963-1-frankja@linux.ibm.com>
+ <20200110150158.36ded698.cohuck@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <1fe3974f-3853-b670-fbaa-04299a86d170@redhat.com>
+Date: Fri, 10 Jan 2020 15:37:32 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200114153054.77082-4-frankja@linux.ibm.com>
+In-Reply-To: <20200110150158.36ded698.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org
 
-All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
-so we also need to test 1-13 and 15 for 0.
+On 10.01.20 15:01, Cornelia Huck wrote:
+> On Fri, 10 Jan 2020 08:48:24 -0500
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> The code seems to be quite old and uses lots of unneeded spaces for
+>> alignment, which doesn't really help with readability.
+>>
+>> Let's:
+>> * Get rid of the extra spaces
+>> * Remove the ULs as they are not needed on 0s
+>> * Define constants for the CR 0 and 14 initial values
+>> * Use the sizeof of the gcr array to memset it to 0
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>
+>> Something like this?
+> 
+> +1, like.
+> 
+>> Did I forget something?
+>>
+>> ---
+>>  arch/s390/include/asm/kvm_host.h |  5 +++++
+>>  arch/s390/kvm/kvm-s390.c         | 18 +++++++-----------
+>>  2 files changed, 12 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index 02f4c21c57f6..37747db884bd 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -122,6 +122,11 @@ struct mcck_volatile_info {
+>>  	__u32 reserved;
+>>  };
+>>  
+>> +#define CR0_INITIAL (CR0_UNUSED_56 | CR0_INTERRUPT_KEY_SUBMASK | \
+>> +		     CR0_MEASUREMENT_ALERT_SUBMASK)
+>> +#define CR14_INITIAL (CR14_UNUSED_32 | CR14_UNUSED_33 | \
+>> +		      CR14_EXTERNAL_DAMAGE_SUBMASK)
+> 
+> Maybe CR<n>_INITIAL_MASK?
 
-And while we're at it, let's also set some values to cr 1, 7 and 13, so
-we can actually be sure that they will be zeroed.
++1
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/smp.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 767d167..11ab425 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -175,16 +175,31 @@ static void test_emcall(void)
- 	report_prefix_pop();
- }
- 
-+static void test_func_initial(void)
-+{
-+	lctlg(1, 0x42000UL);
-+	lctlg(7, 0x43000UL);
-+	lctlg(13, 0x44000UL);
-+	testflag = 1;
-+	mb();
-+	cpu_loop();
-+}
-+
- static void test_reset_initial(void)
- {
- 	struct cpu_status *status = alloc_pages(0);
-+	uint8_t *nullp = alloc_pages(0);
- 	struct psw psw;
- 
-+	memset(nullp, 0, PAGE_SIZE);
- 	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)test_func;
-+	psw.addr = (unsigned long)test_func_initial;
- 
- 	report_prefix_push("reset initial");
-+	testflag = 0;
-+	mb();
- 	smp_cpu_start(1, psw);
-+	wait_for_flag();
- 
- 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
- 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-@@ -195,6 +210,8 @@ static void test_reset_initial(void)
- 	report(!status->fpc, "fpc");
- 	report(!status->cputm, "cpu timer");
- 	report(!status->todpr, "todpr");
-+	report(!memcmp(&status->crs[1], nullp, sizeof(status->crs[1]) * 12), "cr1-13 == 0");
-+	report(status->crs[15] == 0, "cr15 == 0");
- 	report_prefix_pop();
- 
- 	report_prefix_push("initialized");
-@@ -204,6 +221,7 @@ static void test_reset_initial(void)
- 
- 	report(smp_cpu_stopped(1), "cpu stopped");
- 	free_pages(status, PAGE_SIZE);
-+	free_pages(nullp, PAGE_SIZE);
- 	report_prefix_pop();
- }
- 
-@@ -219,6 +237,7 @@ static void test_reset(void)
- 
- 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
- 	report(smp_cpu_stopped(1), "cpu stopped");
-+	smp_cpu_destroy(1);
- 	report_prefix_pop();
- }
- 
+
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
