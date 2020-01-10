@@ -1,67 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35988 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728794AbgACWdo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jan 2020 17:33:44 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 003MHS1m050426
-        for <linux-s390@vger.kernel.org>; Fri, 3 Jan 2020 17:33:43 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xa2cdkfxy-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 03 Jan 2020 17:33:42 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
-        Fri, 3 Jan 2020 22:33:40 -0000
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Subject: [PATCH v3 2/6] s390/boot: Rename HEAP_SIZE due to name collision
-Date: Fri,  3 Jan 2020 23:33:30 +0100
-In-Reply-To: <20200103223334.20669-1-zaslonko@linux.ibm.com>
-References: <20200103223334.20669-1-zaslonko@linux.ibm.com>
-Message-Id: <20200103223334.20669-3-zaslonko@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:45824 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728121AbgAJOye (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 09:54:34 -0500
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH v2 03/10] s390: Remove arch_has_random, arch_has_random_seed
+Date: Fri, 10 Jan 2020 14:54:15 +0000
+Message-Id: <20200110145422.49141-4-broonie@kernel.org>
+In-Reply-To: <20200110145422.49141-1-broonie@kernel.org>
+References: <20200110145422.49141-1-broonie@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Mark Brown <broonie@kernel.org>
 
-Change the conflicting macro name in preparation for zlib_inflate
-hardware support.
+From: Richard Henderson <richard.henderson@linaro.org>
 
-Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+These symbols are currently part of the generic archrandom.h
+interface, but are currently unused and can be removed.
+
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- arch/s390/boot/compressed/decompressor.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/archrandom.h | 12 ------------
+ 1 file changed, 12 deletions(-)
 
-diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-index 45046630c56a..368fd372c875 100644
---- a/arch/s390/boot/compressed/decompressor.c
-+++ b/arch/s390/boot/compressed/decompressor.c
-@@ -30,13 +30,13 @@ extern unsigned char _compressed_start[];
- extern unsigned char _compressed_end[];
+diff --git a/arch/s390/include/asm/archrandom.h b/arch/s390/include/asm/archrandom.h
+index c67b82dfa558..9a6835137a16 100644
+--- a/arch/s390/include/asm/archrandom.h
++++ b/arch/s390/include/asm/archrandom.h
+@@ -21,18 +21,6 @@ extern atomic64_t s390_arch_random_counter;
  
- #ifdef CONFIG_HAVE_KERNEL_BZIP2
--#define HEAP_SIZE	0x400000
-+#define BOOT_HEAP_SIZE	0x400000
- #else
--#define HEAP_SIZE	0x10000
-+#define BOOT_HEAP_SIZE	0x10000
- #endif
+ bool s390_arch_random_generate(u8 *buf, unsigned int nbytes);
  
- static unsigned long free_mem_ptr = (unsigned long) _end;
--static unsigned long free_mem_end_ptr = (unsigned long) _end + HEAP_SIZE;
-+static unsigned long free_mem_end_ptr = (unsigned long) _end + BOOT_HEAP_SIZE;
- 
- #ifdef CONFIG_KERNEL_GZIP
- #include "../../../../lib/decompress_inflate.c"
-@@ -62,7 +62,7 @@ static unsigned long free_mem_end_ptr = (unsigned long) _end + HEAP_SIZE;
- #include "../../../../lib/decompress_unxz.c"
- #endif
- 
--#define decompress_offset ALIGN((unsigned long)_end + HEAP_SIZE, PAGE_SIZE)
-+#define decompress_offset ALIGN((unsigned long)_end + BOOT_HEAP_SIZE, PAGE_SIZE)
- 
- unsigned long mem_safe_offset(void)
+-static inline bool arch_has_random(void)
+-{
+-	return false;
+-}
+-
+-static inline bool arch_has_random_seed(void)
+-{
+-	if (static_branch_likely(&s390_arch_random_available))
+-		return true;
+-	return false;
+-}
+-
+ static inline bool arch_get_random_long(unsigned long *v)
  {
+ 	return false;
 -- 
-2.17.1
+2.20.1
