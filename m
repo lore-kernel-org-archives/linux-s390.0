@@ -1,53 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2026 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726112AbgATSnE (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:44925 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727223AbgAJKKw (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jan 2020 13:43:04 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00KIcvXX085697
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:03 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xmgha4m1h-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:03 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Mon, 20 Jan 2020 18:43:01 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 3/6] s390x: lib: fix stfl wrapper asm
-Date: Mon, 20 Jan 2020 19:42:53 +0100
-In-Reply-To: <20200120184256.188698-1-imbrenda@linux.ibm.com>
-References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+        Fri, 10 Jan 2020 05:10:52 -0500
+Subject: Re: [PATCH v5] KVM: s390: Add new reset vcpu API
+References: <20200110094659.4118-1-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <ecd8da3a-5232-6074-f123-196f744a8ba6@redhat.com>
+Date: Fri, 10 Jan 2020 11:10:42 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200120184256.188698-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20200110094659.4118-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-the stfl wrapper in lib/s390x/asm/facility.h was lacking the "memory"
-clobber in the inline asm.
+On 10/01/2020 10.46, Janosch Frank wrote:
+> The architecture states that we need to reset local IRQs for all CPU
+> resets. Because the old reset interface did not support the normal CPU
+> reset we never did that on a normal reset.
+> 
+> Let's implement an interface for the missing normal and clear resets
+> and reset all local IRQs, registers and control structures as stated
+> in the architecture.
+> 
+> Userspace might already reset the registers via the vcpu run struct,
+> but as we need the interface for the interrupt clearing part anyway,
+> we implement the resets fully and don't rely on userspace to reset the
+> rest.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  Documentation/virt/kvm/api.txt |  45 +++++++++++++
+>  arch/s390/kvm/kvm-s390.c       | 111 +++++++++++++++++++++++----------
+>  include/uapi/linux/kvm.h       |   5 ++
+>  3 files changed, 127 insertions(+), 34 deletions(-)
+> 
+> diff --git a/Documentation/virt/kvm/api.txt b/Documentation/virt/kvm/api.txt
+> index ebb37b34dcfc..5203d95b1a21 100644
+> --- a/Documentation/virt/kvm/api.txt
+> +++ b/Documentation/virt/kvm/api.txt
+> @@ -4168,6 +4168,44 @@ This ioctl issues an ultravisor call to terminate the secure guest,
+>  unpins the VPA pages and releases all the device pages that are used to
+>  track the secure pages by hypervisor.
+>  
+> +4.122 KVM_S390_NORMAL_RESET
+> +
+> +Capability: KVM_CAP_S390_VCPU_RESETS
+> +Architectures: s390
+> +Type: vcpu ioctl
+> +Parameters: none
+> +Returns: 0
+> +
+> +This ioctl resets VCPU registers and control structures according to
+> +the cpu reset definition in the POP (Principles Of Operation).
+> +
+> +4.123 KVM_S390_INITIAL_RESET
+> +
+> +Capability: none
+> +Architectures: s390
+> +Type: vcpu ioctl
+> +Parameters: none
+> +Returns: 0
+> +
+> +This ioctl resets VCPU registers and control structures according to
+> +the initial cpu reset definition in the POP (Principles Of
+> +Operation).
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/asm/facility.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Nit: You "defined" POP already in the NORMAL_RESET section, so I'd
+either only use the abbreviation here, or spell it out completely, but
+not both again.
 
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index 5103dd4..e34dc2c 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -24,7 +24,7 @@ static inline bool test_facility(int nr)
- 
- static inline void stfl(void)
- {
--	asm volatile("	stfl	0(0)\n");
-+	asm volatile("	stfl	0(0)\n" : : : "memory");
- }
- 
- static inline void stfle(uint8_t *fac, unsigned int len)
--- 
-2.24.1
+> However, the cpu is not put into ESA mode. This reset is a
+> +superset of the normal reset.
+> +
+> +4.124 KVM_S390_CLEAR_RESET
+> +
+> +Capability: KVM_CAP_S390_VCPU_RESETS
+> +Architectures: s390
+> +Type: vcpu ioctl
+> +Parameters: none
+> +Returns: 0
+> +
+> +This ioctl resets VCPU registers and control structures according to
+> +the clear cpu reset definition in the POP (Principles Of Operation).
+
+dito
+
+ Thomas
