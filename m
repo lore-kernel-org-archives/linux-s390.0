@@ -1,109 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28998 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727673AbgAHO2P (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jan 2020 09:28:15 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 008ERFqb019287
-        for <linux-s390@vger.kernel.org>; Wed, 8 Jan 2020 09:28:15 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xb8unwayx-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 08 Jan 2020 09:28:14 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Wed, 8 Jan 2020 14:28:12 -0000
-Subject: Re: [PATCH v3] KVM: s390: Add new reset vcpu API
-References: <20191205120956.50930-1-frankja@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 8 Jan 2020 15:28:08 +0100
+Received: from mail.kernel.org ([198.145.29.99]:51158 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727439AbgAJWFb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:05:31 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 13/26] s390/qeth: Fix vnicc_is_in_use if rx_bcast not set
+Date: Fri, 10 Jan 2020 17:05:06 -0500
+Message-Id: <20200110220519.28250-8-sashal@kernel.org>
+In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
+References: <20200110220519.28250-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20191205120956.50930-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <dd724da0-9bba-079e-6b6f-756762dbc942@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: thuth@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
+From: Alexandra Winter <wintera@linux.ibm.com>
 
+[ Upstream commit e8a66d800471e2df7f0b484e2e46898b21d1fa82 ]
 
-On 05.12.19 13:09, Janosch Frank wrote:
-[...]
-> +4.123 KVM_S390_CLEAR_RESET
-> +
-> +Capability: KVM_CAP_S390_VCPU_RESETS
-> +Architectures: s390
-> +Type: vcpu ioctl
-> +Parameters: none
-> +Returns: 0
-> +
-> +This ioctl resets VCPU registers and control structures that QEMU
-> +can't access via the kvm_run structure. The clear reset is a superset
-> +of the initial reset and additionally clears general, access, floating
-> +and vector registers.
+Symptom: After vnicc/rx_bcast has been manually set to 0,
+	bridge_* sysfs parameters can still be set or written.
+Only occurs on HiperSockets, as OSA doesn't support changing rx_bcast.
 
-As Thomas outlined, make it more obvious that userspace does the remaining
-parts. I do not think that we want the kernel to do the things (unless it
-helps you in some way for the ultravisor guests)
+Vnic characteristics and bridgeport settings are mutually exclusive.
+rx_bcast defaults to 1, so manually setting it to 0 should disable
+bridge_* parameters.
 
-[...]
->  
-> +static int kvm_arch_vcpu_ioctl_normal_reset(struct kvm_vcpu *vcpu)
-> +{
-> +	kvm_clear_async_pf_completion_queue(vcpu);
-> +	kvm_s390_clear_local_irqs(vcpu);
-> +	return 0;
+Instead it makes sense here to check the supported mask. If the card
+does not support vnicc at all, bridge commands are always allowed.
 
-Shouldnt we also do 
-        if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
-                kvm_s390_vcpu_stop(vcpu);
+Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/net/qeth_l2_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-here?
-
-
-> +}
-> +
->  static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
->  {
->  	kvm_s390_vcpu_initial_reset(vcpu);
-> @@ -4363,9 +4371,15 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
->  		r = kvm_arch_vcpu_ioctl_set_initial_psw(vcpu, psw);
->  		break;
->  	}
-> +
-> +	case KVM_S390_CLEAR_RESET:
-> +		/* fallthrough */
->  	case KVM_S390_INITIAL_RESET:
->  		r = kvm_arch_vcpu_ioctl_initial_reset(vcpu);
->  		break;
-
-Then we could also do a fallthrough here and do:
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3..c715ae3 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2867,10 +2867,6 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
-        vcpu->arch.sie_block->pp = 0;
-        vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
-        vcpu->arch.pfault_token = KVM_S390_PFAULT_TOKEN_INVALID;
--       kvm_clear_async_pf_completion_queue(vcpu);
--       if (!kvm_s390_user_cpu_state_ctrl(vcpu->kvm))
--               kvm_s390_vcpu_stop(vcpu);
--       kvm_s390_clear_local_irqs(vcpu);
- }
- 
- void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
-
-
-
-
-> +	case KVM_S390_NORMAL_RESET:
-> +		r = kvm_arch_vcpu_ioctl_normal_reset(vcpu);
-> +		break;
->  	case KVM_SET_ONE_REG:
->  	case KVM_GET_ONE_REG: {
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 5272a4c36db8..dcbdaa5ce455 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1982,8 +1982,7 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
+ /* check if VNICC is currently enabled */
+ bool qeth_l2_vnicc_is_in_use(struct qeth_card *card)
+ {
+-	/* if everything is turned off, VNICC is not active */
+-	if (!card->options.vnicc.cur_chars)
++	if (!card->options.vnicc.sup_chars)
+ 		return false;
+ 	/* default values are only OK if rx_bcast was not enabled by user
+ 	 * or the card is offline.
+-- 
+2.20.1
