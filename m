@@ -1,62 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+Received: from foss.arm.com ([217.140.110.172]:45952 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727526AbgAJWF3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:05:29 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 12/26] s390/qeth: fix false reporting of VNIC CHAR config failure
-Date: Fri, 10 Jan 2020 17:05:05 -0500
-Message-Id: <20200110220519.28250-7-sashal@kernel.org>
-In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
-References: <20200110220519.28250-1-sashal@kernel.org>
+        id S1728381AbgAJOyr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 09:54:47 -0500
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH v2 09/10] powerpc: Mark archrandom.h functions __must_check
+Date: Fri, 10 Jan 2020 14:54:21 +0000
+Message-Id: <20200110145422.49141-10-broonie@kernel.org>
+In-Reply-To: <20200110145422.49141-1-broonie@kernel.org>
+References: <20200110145422.49141-1-broonie@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Michael Ellerman <mpe@ellerman.id.au>, Ard Biesheuvel <ardb@kernel.org>, Richard Henderson <rth@twiddle.net>, Mark Brown <broonie@kernel.org>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: Richard Henderson <richard.henderson@linaro.org>
 
-[ Upstream commit 68c57bfd52836e31bff33e5e1fc64029749d2c35 ]
+We must not use the pointer output without validating the
+success of the random read.
 
-Symptom: Error message "Configuring the VNIC characteristics failed"
-in dmesg whenever an OSA interface on z15 is set online.
-
-The VNIC characteristics get re-programmed when setting a L2 device
-online. This follows the selected 'wanted' characteristics - with the
-exception that the INVISIBLE characteristic unconditionally gets
-switched off.
-
-For devices that don't support INVISIBLE (ie. OSA), the resulting
-IO failure raises a noisy error message
-("Configuring the VNIC characteristics failed").
-For IQD, INVISIBLE is off by default anyways.
-
-So don't unnecessarily special-case the INVISIBLE characteristic, and
-thereby suppress the misleading error message on OSA devices.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/include/asm/archrandom.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 4224a3b7cd07..5272a4c36db8 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2071,7 +2071,6 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 	error |= qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
- 					       timeout);
- 	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
--	chars_tmp |= QETH_VNICC_BRIDGE_INVISIBLE;
- 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
- 	for_each_set_bit(i, &chars_tmp, chars_len) {
- 		vnicc = BIT(i);
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index f0f16b4fc5ea..9a53e29680f4 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -6,17 +6,17 @@
+ 
+ #include <asm/machdep.h>
+ 
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
+ {
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (ppc_md.get_random_seed)
+ 		return ppc_md.get_random_seed(v);
+@@ -24,7 +24,7 @@ static inline bool arch_get_random_seed_long(unsigned long *v)
+ 	return false;
+ }
+ 
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	unsigned long val;
+ 	bool rc;
 -- 
 2.20.1
