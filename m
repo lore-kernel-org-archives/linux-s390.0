@@ -1,97 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43142 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726767AbgAJSk7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 13:40:59 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00AIbIpg031543
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:57 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xe9v0csj4-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:57 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 10 Jan 2020 18:40:55 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 0/4] s390x: SCLP Unit test
-Date: Fri, 10 Jan 2020 19:40:46 +0100
+Received: from foss.arm.com ([217.140.110.172]:45932 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728370AbgAJOyp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 09:54:45 -0500
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH v2 08/10] powerpc: Use bool in archrandom.h
+Date: Fri, 10 Jan 2020 14:54:20 +0000
+Message-Id: <20200110145422.49141-9-broonie@kernel.org>
+In-Reply-To: <20200110145422.49141-1-broonie@kernel.org>
+References: <20200110145422.49141-1-broonie@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200110184050.191506-1-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: linux-arch@vger.kernel.org
+Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ardb@kernel.org>, Richard Henderson <rth@twiddle.net>, Mark Brown <broonie@kernel.org>
 
-This patchset contains some minor cleanup, some preparatory work and
-then the SCLP unit test itself.
+From: Richard Henderson <richard.henderson@linaro.org>
 
-The unit test checks the following:
-    
-    * Correctly ignoring instruction bits that should be ignored
-    * Privileged instruction check
-    * Check for addressing exceptions
-    * Specification exceptions:
-      - SCCB size less than 8
-      - SCCB unaligned
-      - SCCB overlaps prefix or lowcore
-      - SCCB address higher than 2GB
-    * Return codes for
-      - Invalid command
-      - SCCB too short (but at least 8)
-      - SCCB page boundary violation
+The generic interface uses bool not int; match that.
 
-v6 -> v7
-* renamed spx() and stpx() wrappers to set_prefix and get_prefix
-* set_prefix now takes a value and get_prefix now returns a value
-* put back some inline assembly for spx and stpx as a consequence
-* used LC_SIZE instead of 2 * PAGE_SIZE everywhere in the unit test
-v5 -> v6
-* fixed a bug in test_addressing
-* improved comments in test_sccb_prefix
-* replaced all inline assembly usages of spx and stpx with the wrappers
-* added one more wrapper for test_one_sccb for read-only tests
-v4 -> v5
-* updated usage of report()
-* added SPX and STPX wrappers to the library
-* improved readability
-* addressed some more comments
-v3 -> v4
-* export sclp_setup_int instead of copying it
-* add more comments
-* rename some more variables to improve readability
-* improve the prefix test
-* improved the invalid address test
-* addressed further comments received during review
-v2 -> v3
-* generally improved the naming of variables
-* added and fixed comments
-* renamed test_one_run to test_one_simple
-* added some const where needed
-* addresed many more small comments received during review
-v1 -> v2
-* fix many small issues that came up during the first round of reviews
-* add comments to each function
-* use a static buffer for the SCCP template when used
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ arch/powerpc/include/asm/archrandom.h | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-Claudio Imbrenda (4):
-  s390x: export sclp_setup_int
-  s390x: sclp: add service call instruction wrapper
-  s390x: lib: add SPX and STPX instruction wrapper
-  s390x: SCLP unit test
-
- s390x/Makefile           |   1 +
- lib/s390x/asm/arch_def.h |  26 +++
- lib/s390x/sclp.h         |   1 +
- lib/s390x/sclp.c         |   9 +-
- s390x/intercept.c        |  23 +-
- s390x/sclp.c             | 472 +++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   8 +
- 7 files changed, 518 insertions(+), 22 deletions(-)
- create mode 100644 s390x/sclp.c
-
+diff --git a/arch/powerpc/include/asm/archrandom.h b/arch/powerpc/include/asm/archrandom.h
+index 2fa7cdfbba24..f0f16b4fc5ea 100644
+--- a/arch/powerpc/include/asm/archrandom.h
++++ b/arch/powerpc/include/asm/archrandom.h
+@@ -6,27 +6,28 @@
+ 
+ #include <asm/machdep.h>
+ 
+-static inline int arch_get_random_long(unsigned long *v)
++static inline bool arch_get_random_long(unsigned long *v)
+ {
+-	return 0;
++	return false;
+ }
+ 
+-static inline int arch_get_random_int(unsigned int *v)
++static inline bool arch_get_random_int(unsigned int *v)
+ {
+-	return 0;
++	return false;
+ }
+ 
+-static inline int arch_get_random_seed_long(unsigned long *v)
++static inline bool arch_get_random_seed_long(unsigned long *v)
+ {
+ 	if (ppc_md.get_random_seed)
+ 		return ppc_md.get_random_seed(v);
+ 
+-	return 0;
++	return false;
+ }
+-static inline int arch_get_random_seed_int(unsigned int *v)
++
++static inline bool arch_get_random_seed_int(unsigned int *v)
+ {
+ 	unsigned long val;
+-	int rc;
++	bool rc;
+ 
+ 	rc = arch_get_random_seed_long(&val);
+ 	if (rc)
 -- 
-2.24.1
+2.20.1
