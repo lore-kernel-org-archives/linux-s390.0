@@ -1,58 +1,59 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v2 00/10] Impveovements for random.h/archrandom.h
-Date: Fri, 10 Jan 2020 14:54:12 +0000
-Message-Id: <20200110145422.49141-1-broonie@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:51214 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727526AbgAJWFd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:05:33 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 15/26] s390/qeth: fix initialization on old HW
+Date: Fri, 10 Jan 2020 17:05:08 -0500
+Message-Id: <20200110220519.28250-10-sashal@kernel.org>
+In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
+References: <20200110220519.28250-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-arch@vger.kernel.org
-Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-This is a resend of a series from Richard Henderson last posted back in
-November:
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-   https://lore.kernel.org/linux-arm-kernel/20191106141308.30535-1-rth@twiddle.net/
+[ Upstream commit 0b698c838e84149b690c7e979f78cccb6f8aa4b9 ]
 
-Back then Borislav said they looked good and asked if he should take
-them through the tip tree but things seem to have got lost since then.
+I stumbled over an old OSA model that claims to support DIAG_ASSIST,
+but then rejects the cmd to query its DIAG capabilities.
 
-Original cover letter:
+In the old code this was ok, as the returned raw error code was > 0.
+Now that we translate the raw codes to errnos, the "rc < 0" causes us
+to fail the initialization of the device.
 
-During patch review for an addition of archrandom.h for arm64, it was
-suggeted that the arch_random_get_* functions should be marked __must_check.
-Which does sound like a good idea, since the by-reference integer output
-may be uninitialized when the boolean result is false.
+The fix is trivial: don't bail out when the DIAG query fails. Such an
+error is not critical, we can still use the device (with a slightly
+reduced set of features).
 
-In addition, it turns out that arch_has_random() and arch_has_random_seed()
-are not used, and not easy to support for arm64.  Rather than cobble
-something together that would not be testable, remove the interfaces
-against some future accidental use.
+Fixes: 742d4d40831d ("s390/qeth: convert remaining legacy cmd callbacks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/net/qeth_core_main.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-In addition, I noticed a few other minor inconsistencies between the
-different architectures, e.g. powerpc isn't using bool.
-
-Change since v1:
-   * Remove arch_has_random, arch_has_random_seed.
-
-Richard Henderson (10):
-  x86: Remove arch_has_random, arch_has_random_seed
-  powerpc: Remove arch_has_random, arch_has_random_seed
-  s390: Remove arch_has_random, arch_has_random_seed
-  linux/random.h: Remove arch_has_random, arch_has_random_seed
-  linux/random.h: Use false with bool
-  linux/random.h: Mark CONFIG_ARCH_RANDOM functions __must_check
-  x86: Mark archrandom.h functions __must_check
-  powerpc: Use bool in archrandom.h
-  powerpc: Mark archrandom.h functions __must_check
-  s390x: Mark archrandom.h functions __must_check
-
- arch/powerpc/include/asm/archrandom.h | 27 +++++++++-----------------
- arch/s390/include/asm/archrandom.h    | 20 ++++---------------
- arch/x86/include/asm/archrandom.h     | 28 ++++++++++++---------------
- include/linux/random.h                | 24 ++++++++---------------
- 4 files changed, 33 insertions(+), 66 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 7320a187d66a..b60e6b3046ef 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4963,10 +4963,8 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 	}
+ 	if (qeth_adp_supported(card, IPA_SETADP_SET_DIAG_ASSIST)) {
+ 		rc = qeth_query_setdiagass(card);
+-		if (rc < 0) {
++		if (rc)
+ 			QETH_CARD_TEXT_(card, 2, "8err%d", rc);
+-			goto out;
+-		}
+ 	}
+ 	return 0;
+ out:
 -- 
 2.20.1
