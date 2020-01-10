@@ -1,69 +1,95 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21026 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728779AbgAQKrF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Jan 2020 05:47:05 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00HAbvlg043228
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:47:05 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xk0qsrex1-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:47:05 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 17 Jan 2020 10:47:03 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 7/9] s390x: smp: Remove unneeded cpu loops
-Date: Fri, 17 Jan 2020 05:46:38 -0500
-In-Reply-To: <20200117104640.1983-1-frankja@linux.ibm.com>
-References: <20200117104640.1983-1-frankja@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH v2 07/10] x86: Mark archrandom.h functions __must_check
+Date: Fri, 10 Jan 2020 14:54:19 +0000
+Message-Id: <20200110145422.49141-8-broonie@kernel.org>
+In-Reply-To: <20200110145422.49141-1-broonie@kernel.org>
+References: <20200110145422.49141-1-broonie@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200117104640.1983-8-frankja@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: linux-arch@vger.kernel.org
+Cc: Richard Henderson <richard.henderson@linaro.org>, Borislav Petkov <bp@alien8.de>, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, x86@kernel.org, linux-crypto@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ardb@kernel.org>, Richard Henderson <rth@twiddle.net>, Mark Brown <broonie@kernel.org>
 
-Now that we have a loop which is executed after we return from the
-main function of a secondary cpu, we can remove the surplus loops.
+From: Richard Henderson <richard.henderson@linaro.org>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+We must not use the pointer output without validating the
+success of the random read.
+
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Richard Henderson <rth@twiddle.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- s390x/smp.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ arch/x86/include/asm/archrandom.h | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 555ed72..c12a3db 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -29,15 +29,9 @@ static void wait_for_flag(void)
- 	}
- }
+diff --git a/arch/x86/include/asm/archrandom.h b/arch/x86/include/asm/archrandom.h
+index feb59461046c..7a4bb1bd4bdb 100644
+--- a/arch/x86/include/asm/archrandom.h
++++ b/arch/x86/include/asm/archrandom.h
+@@ -27,7 +27,7 @@
  
--static void cpu_loop(void)
--{
--	for (;;) {}
--}
--
- static void test_func(void)
+ /* Unconditional execution of RDRAND and RDSEED */
+ 
+-static inline bool rdrand_long(unsigned long *v)
++static inline bool __must_check rdrand_long(unsigned long *v)
  {
- 	testflag = 1;
--	cpu_loop();
+ 	bool ok;
+ 	unsigned int retry = RDRAND_RETRY_LOOPS;
+@@ -41,7 +41,7 @@ static inline bool rdrand_long(unsigned long *v)
+ 	return false;
  }
  
- static void test_start(void)
-@@ -234,7 +228,7 @@ int main(void)
+-static inline bool rdrand_int(unsigned int *v)
++static inline bool __must_check rdrand_int(unsigned int *v)
+ {
+ 	bool ok;
+ 	unsigned int retry = RDRAND_RETRY_LOOPS;
+@@ -55,7 +55,7 @@ static inline bool rdrand_int(unsigned int *v)
+ 	return false;
+ }
  
- 	/* Setting up the cpu to give it a stack and lowcore */
- 	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)cpu_loop;
-+	psw.addr = (unsigned long)test_func;
- 	smp_cpu_setup(1, psw);
- 	smp_cpu_stop(1);
+-static inline bool rdseed_long(unsigned long *v)
++static inline bool __must_check rdseed_long(unsigned long *v)
+ {
+ 	bool ok;
+ 	asm volatile(RDSEED_LONG
+@@ -64,7 +64,7 @@ static inline bool rdseed_long(unsigned long *v)
+ 	return ok;
+ }
  
+-static inline bool rdseed_int(unsigned int *v)
++static inline bool __must_check rdseed_int(unsigned int *v)
+ {
+ 	bool ok;
+ 	asm volatile(RDSEED_INT
+@@ -80,22 +80,22 @@ static inline bool rdseed_int(unsigned int *v)
+  */
+ #ifdef CONFIG_ARCH_RANDOM
+ 
+-static inline bool arch_get_random_long(unsigned long *v)
++static inline bool __must_check arch_get_random_long(unsigned long *v)
+ {
+ 	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_long(v) : false;
+ }
+ 
+-static inline bool arch_get_random_int(unsigned int *v)
++static inline bool __must_check arch_get_random_int(unsigned int *v)
+ {
+ 	return static_cpu_has(X86_FEATURE_RDRAND) ? rdrand_int(v) : false;
+ }
+ 
+-static inline bool arch_get_random_seed_long(unsigned long *v)
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+ {
+ 	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_long(v) : false;
+ }
+ 
+-static inline bool arch_get_random_seed_int(unsigned int *v)
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+ {
+ 	return static_cpu_has(X86_FEATURE_RDSEED) ? rdseed_int(v) : false;
+ }
 -- 
 2.20.1
