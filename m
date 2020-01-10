@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728060AbgAJWGC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:06:02 -0500
+        id S1727526AbgAJWF3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:05:29 -0500
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 05/11] s390/qeth: fix false reporting of VNIC CHAR config failure
-Date: Fri, 10 Jan 2020 17:05:49 -0500
-Message-Id: <20200110220556.28505-4-sashal@kernel.org>
-In-Reply-To: <20200110220556.28505-1-sashal@kernel.org>
-References: <20200110220556.28505-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 12/26] s390/qeth: fix false reporting of VNIC CHAR config failure
+Date: Fri, 10 Jan 2020 17:05:05 -0500
+Message-Id: <20200110220519.28250-7-sashal@kernel.org>
+In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
+References: <20200110220519.28250-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -47,12 +47,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 95669d47c389..66bc6f1ffd34 100644
+index 4224a3b7cd07..5272a4c36db8 100644
 --- a/drivers/s390/net/qeth_l2_main.c
 +++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2367,7 +2367,6 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
- 	error = qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
- 					      timeout);
+@@ -2071,7 +2071,6 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
+ 	error |= qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
+ 					       timeout);
  	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
 -	chars_tmp |= QETH_VNICC_BRIDGE_INVISIBLE;
  	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
