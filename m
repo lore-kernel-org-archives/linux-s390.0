@@ -1,61 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51850 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730037AbgAXOzG (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46126 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728209AbgAJSk7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Jan 2020 09:55:06 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00OEliIw001933
-        for <linux-s390@vger.kernel.org>; Fri, 24 Jan 2020 09:55:05 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xqmjtjm64-1
+        Fri, 10 Jan 2020 13:40:59 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00AIbJeQ035129
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:58 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xek9sxkhf-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 24 Jan 2020 09:55:04 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:57 -0500
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 24 Jan 2020 14:55:02 -0000
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v1 0/1] vfio-ccw: Fix interrupt handling for HALT/CLEAR
-Date: Fri, 24 Jan 2020 15:54:54 +0100
-Message-Id: <20200124145455.51181-1-farman@linux.ibm.com>
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 10 Jan 2020 18:40:56 -0000
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v7 2/4] s390x: sclp: add service call instruction wrapper
+Date: Fri, 10 Jan 2020 19:40:48 +0100
+In-Reply-To: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200110184050.191506-3-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: "Jason J . Herne" <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-Conny,
+Add a wrapper for the service call instruction, and use it for SCLP
+interactions instead of using inline assembly everywhere.
 
-As I mentioned offline, I have been encountering some problems while
-testing the channel path code.  By pure coincidence, I found some
-really good clues that led me to this proposed fix.  I moved this
-commit to the head of my channel path v2 code, but think maybe it
-should be sent by itself so it doesn't get lost in that noise.
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ lib/s390x/sclp.c         |  7 +------
+ 2 files changed, 14 insertions(+), 6 deletions(-)
 
-Figure 16-6 in SA22-7832-12 (POPS) goes into great detail of the
-contents of the irb.cpa based on the other bits in the IRB.
-Both the existing code and this new patch treates the irb.cpa as
-valid all the time, even though that table has many many entries
-where the cpa contents are "unpredictable."  Methinks that this
-is partially how we got into this mess, so maybe I need to write
-some smarter logic here anyway?  Thoughts?
-
-(Disclaimer1:  I didn't go back and re-read the conversations
-that were had for the commit I marked in the "Fixes:" tag,
-but will just to make sure we didn't miss something.)
-
-(Disclaimer2:  This makes my torturing-of-the-chpids test run
-quite nicely, but I didn't go back to try some of the other
-cruel-and-unusual tests at my disposable to ensure this patch
-doesn't cause any other regressions.  That's on today's agenda.)
-
-Eric Farman (1):
-  vfio-ccw: Don't free channel programs for unrelated interrupts
-
- drivers/s390/cio/vfio_ccw_cp.c  | 11 +++++++++--
- drivers/s390/cio/vfio_ccw_cp.h  |  2 +-
- drivers/s390/cio/vfio_ccw_drv.c |  4 ++--
- 3 files changed, 12 insertions(+), 5 deletions(-)
-
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index cf6e1ca..1a5e3c6 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -271,4 +271,17 @@ static inline int stsi(void *addr, int fc, int sel1, int sel2)
+ 	return cc;
+ }
+ 
++static inline int servc(uint32_t command, unsigned long sccb)
++{
++	int cc;
++
++	asm volatile(
++		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
++		"       ipm     %0\n"
++		"       srl     %0,28"
++		: "=&d" (cc) : "d" (command), "a" (sccb)
++		: "cc", "memory");
++	return cc;
++}
++
+ #endif
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 123b639..4054d0e 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -116,12 +116,7 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 	int cc;
+ 
+ 	sclp_setup_int();
+-	asm volatile(
+-		"       .insn   rre,0xb2200000,%1,%2\n"  /* servc %1,%2 */
+-		"       ipm     %0\n"
+-		"       srl     %0,28"
+-		: "=&d" (cc) : "d" (command), "a" (__pa(sccb))
+-		: "cc", "memory");
++	cc = servc(command, __pa(sccb));
+ 	sclp_wait_busy();
+ 	if (cc == 3)
+ 		return -1;
 -- 
-2.17.1
+2.24.1
