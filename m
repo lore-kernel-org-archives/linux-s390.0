@@ -1,116 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45242 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727341AbgA2UDb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Jan 2020 15:03:31 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00TJsP96078733
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jan 2020 15:03:30 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xu6srkn04-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 29 Jan 2020 15:03:30 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Wed, 29 Jan 2020 20:03:28 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v8 2/4] selftests: KVM: Add fpu and one reg set/get library functions
-Date: Wed, 29 Jan 2020 15:03:10 -0500
-In-Reply-To: <20200129200312.3200-1-frankja@linux.ibm.com>
-References: <20200129200312.3200-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728060AbgAJWGC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 17:06:02 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/11] s390/qeth: fix false reporting of VNIC CHAR config failure
+Date: Fri, 10 Jan 2020 17:05:49 -0500
+Message-Id: <20200110220556.28505-4-sashal@kernel.org>
+In-Reply-To: <20200110220556.28505-1-sashal@kernel.org>
+References: <20200110220556.28505-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200129200312.3200-3-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Add library access to more registers.
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+[ Upstream commit 68c57bfd52836e31bff33e5e1fc64029749d2c35 ]
+
+Symptom: Error message "Configuring the VNIC characteristics failed"
+in dmesg whenever an OSA interface on z15 is set online.
+
+The VNIC characteristics get re-programmed when setting a L2 device
+online. This follows the selected 'wanted' characteristics - with the
+exception that the INVISIBLE characteristic unconditionally gets
+switched off.
+
+For devices that don't support INVISIBLE (ie. OSA), the resulting
+IO failure raises a noisy error message
+("Configuring the VNIC characteristics failed").
+For IQD, INVISIBLE is off by default anyways.
+
+So don't unnecessarily special-case the INVISIBLE characteristic, and
+thereby suppress the misleading error message on OSA devices.
+
+Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/kvm/include/kvm_util.h  |  6 +++
- tools/testing/selftests/kvm/lib/kvm_util.c    | 48 +++++++++++++++++++
- 2 files changed, 54 insertions(+)
+ drivers/s390/net/qeth_l2_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
-index 29cccaf96baf..ae0d14c2540a 100644
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -125,6 +125,12 @@ void vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		    struct kvm_sregs *sregs);
- int _vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
- 		    struct kvm_sregs *sregs);
-+void vcpu_fpu_get(struct kvm_vm *vm, uint32_t vcpuid,
-+		  struct kvm_fpu *fpu);
-+void vcpu_fpu_set(struct kvm_vm *vm, uint32_t vcpuid,
-+		  struct kvm_fpu *fpu);
-+void vcpu_get_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg);
-+void vcpu_set_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg);
- #ifdef __KVM_HAVE_VCPU_EVENTS
- void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
- 		     struct kvm_vcpu_events *events);
-diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
-index 41cf45416060..dae117728ec6 100644
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -1373,6 +1373,54 @@ int _vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_sregs *sregs)
- 	return ioctl(vcpu->fd, KVM_SET_SREGS, sregs);
- }
- 
-+void vcpu_fpu_get(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_fpu *fpu)
-+{
-+	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-+	int ret;
-+
-+	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
-+
-+	ret = ioctl(vcpu->fd, KVM_GET_FPU, fpu);
-+	TEST_ASSERT(ret == 0, "KVM_GET_FPU failed, rc: %i errno: %i",
-+		    ret, errno);
-+}
-+
-+void vcpu_fpu_set(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_fpu *fpu)
-+{
-+	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-+	int ret;
-+
-+	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
-+
-+	ret = ioctl(vcpu->fd, KVM_SET_FPU, fpu);
-+	TEST_ASSERT(ret == 0, "KVM_SET_FPU failed, rc: %i errno: %i",
-+		    ret, errno);
-+}
-+
-+void vcpu_get_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg)
-+{
-+	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-+	int ret;
-+
-+	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
-+
-+	ret = ioctl(vcpu->fd, KVM_GET_ONE_REG, reg);
-+	TEST_ASSERT(ret == 0, "KVM_GET_ONE_REG failed, rc: %i errno: %i",
-+		    ret, errno);
-+}
-+
-+void vcpu_set_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg)
-+{
-+	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-+	int ret;
-+
-+	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
-+
-+	ret = ioctl(vcpu->fd, KVM_SET_ONE_REG, reg);
-+	TEST_ASSERT(ret == 0, "KVM_SET_ONE_REG failed, rc: %i errno: %i",
-+		    ret, errno);
-+}
-+
- /*
-  * VCPU Ioctl
-  *
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 95669d47c389..66bc6f1ffd34 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2367,7 +2367,6 @@ static void qeth_l2_vnicc_init(struct qeth_card *card)
+ 	error = qeth_l2_vnicc_recover_timeout(card, QETH_VNICC_LEARNING,
+ 					      timeout);
+ 	chars_tmp = card->options.vnicc.wanted_chars ^ QETH_VNICC_DEFAULT;
+-	chars_tmp |= QETH_VNICC_BRIDGE_INVISIBLE;
+ 	chars_len = sizeof(card->options.vnicc.wanted_chars) * BITS_PER_BYTE;
+ 	for_each_set_bit(i, &chars_tmp, chars_len) {
+ 		vnicc = BIT(i);
 -- 
 2.20.1
