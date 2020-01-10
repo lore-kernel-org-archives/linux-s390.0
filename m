@@ -1,91 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8958 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13214 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730399AbgAIQQd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jan 2020 11:16:33 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 009G9xc3051375
-        for <linux-s390@vger.kernel.org>; Thu, 9 Jan 2020 11:16:32 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xe0hut334-1
+        by vger.kernel.org with ESMTP id S1728543AbgAJSlA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 13:41:00 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00AIbgj3115947
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:59 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xee3f3a5t-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jan 2020 11:16:31 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:59 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Thu, 9 Jan 2020 16:16:29 -0000
+        Fri, 10 Jan 2020 18:40:56 -0000
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 0/4] s390x: SCLP Unit test
-Date: Thu,  9 Jan 2020 17:16:21 +0100
+Subject: [kvm-unit-tests PATCH v7 1/4] s390x: export sclp_setup_int
+Date: Fri, 10 Jan 2020 19:40:47 +0100
+In-Reply-To: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200109161625.154894-1-imbrenda@linux.ibm.com>
+Message-Id: <20200110184050.191506-2-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-This patchset contains some minor cleanup, some preparatory work and
-then the SCLP unit test itself.
+Export sclp_setup_int() so that it can be used in tests.
 
-The unit test checks the following:
-    
-    * Correctly ignoring instruction bits that should be ignored
-    * Privileged instruction check
-    * Check for addressing exceptions
-    * Specification exceptions:
-      - SCCB size less than 8
-      - SCCB unaligned
-      - SCCB overlaps prefix or lowcore
-      - SCCB address higher than 2GB
-    * Return codes for
-      - Invalid command
-      - SCCB too short (but at least 8)
-      - SCCB page boundary violation
+Needed for an upcoming unit test.
 
-v5 -> v6
-* fixed a bug in test_addressing
-* improved comments in test_sccb_prefix
-* replaced all inline assembly usages of spx and stpx with the wrappers
-* added one more wrapper for test_one_sccb for read-only tests
-v4 -> v5
-* updated usage of report()
-* added SPX and STPX wrappers to the library
-* improved readability
-* addressed some more comments
-v3 -> v4
-* export sclp_setup_int instead of copying it
-* add more comments
-* rename some more variables to improve readability
-* improve the prefix test
-* improved the invalid address test
-* addressed further comments received during review
-v2 -> v3
-* generally improved the naming of variables
-* added and fixed comments
-* renamed test_one_run to test_one_simple
-* added some const where needed
-* addresed many more small comments received during review
-v1 -> v2
-* fix many small issues that came up during the first round of reviews
-* add comments to each function
-* use a static buffer for the SCCP template when used
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/sclp.h | 1 +
+ lib/s390x/sclp.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-Claudio Imbrenda (4):
-  s390x: export sclp_setup_int
-  s390x: sclp: add service call instruction wrapper
-  s390x: lib: add SPX and STPX instruction wrapper
-  s390x: SCLP unit test
-
- s390x/Makefile           |   1 +
- lib/s390x/asm/arch_def.h |  23 ++
- lib/s390x/sclp.h         |   1 +
- lib/s390x/sclp.c         |   9 +-
- s390x/intercept.c        |  33 ++-
- s390x/sclp.c             | 472 +++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   8 +
- 7 files changed, 520 insertions(+), 27 deletions(-)
- create mode 100644 s390x/sclp.c
-
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 6d40fb7..675f07e 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -265,6 +265,7 @@ typedef struct ReadEventData {
+ } __attribute__((packed)) ReadEventData;
+ 
+ extern char _sccb[];
++void sclp_setup_int(void);
+ void sclp_handle_ext(void);
+ void sclp_wait_busy(void);
+ void sclp_mark_busy(void);
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 7798f04..123b639 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -45,7 +45,7 @@ static void mem_init(phys_addr_t mem_end)
+ 	page_alloc_ops_enable();
+ }
+ 
+-static void sclp_setup_int(void)
++void sclp_setup_int(void)
+ {
+ 	uint64_t mask;
+ 
 -- 
 2.24.1
