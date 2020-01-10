@@ -1,373 +1,176 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Axtens <dja@axtens.net>
-Subject: [PATCH 2/2] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
-Date: Wed, 15 Jan 2020 17:37:10 +1100
-Message-Id: <20200115063710.15796-3-dja@axtens.net>
-In-Reply-To: <20200115063710.15796-1-dja@axtens.net>
-References: <20200115063710.15796-1-dja@axtens.net>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:25213 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726694AbgAJJHn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jan 2020 04:07:43 -0500
+Date: Fri, 10 Jan 2020 10:07:22 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4] KVM: s390: Add new reset vcpu API
+Message-ID: <20200110100722.6aad4fdd.cohuck@redhat.com>
+In-Reply-To: <90f65536-c2bb-9234-aef4-7941d477369e@linux.ibm.com>
+References: <20200109155602.18985-1-frankja@linux.ibm.com>
+        <20200109180841.6843cb92.cohuck@redhat.com>
+        <f79b523e-f3e8-95b8-c242-1e7ca0083012@linux.ibm.com>
+        <f18955c0-4002-c494-b14e-1b9733aad20e@redhat.com>
+        <c0049bfb-9516-a382-c69c-0693cb0fbfda@linux.ibm.com>
+        <90f65536-c2bb-9234-aef4-7941d477369e@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="Sig_/cHU2=gSxrCBM3fdq/da8Dmf";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com
-Cc: linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, Daniel Axtens <dja@axtens.net>, Daniel Micay <danielmicay@gmail.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Alexander Potapenko <glider@google.com>, Dmitry Vyukov <dvyukov@google.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com
 
-The memcmp KASAN self-test fails on a kernel with both KASAN and
-FORTIFY_SOURCE.
+--Sig_/cHU2=gSxrCBM3fdq/da8Dmf
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-When FORTIFY_SOURCE is on, a number of functions are replaced with
-fortified versions, which attempt to check the sizes of the operands.
-However, these functions often directly invoke __builtin_foo() once they
-have performed the fortify check. Using __builtins may bypass KASAN
-checks if the compiler decides to inline it's own implementation as
-sequence of instructions, rather than emit a function call that goes out
-to a KASAN-instrumented implementation.
+On Fri, 10 Jan 2020 09:43:33 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Why is only memcmp affected?
-============================
+> On 1/10/20 8:14 AM, Janosch Frank wrote:
+> > On 1/10/20 8:03 AM, Thomas Huth wrote: =20
+> >> On 09/01/2020 18.51, Janosch Frank wrote: =20
 
-Of the string and string-like functions that kasan_test tests, only memcmp
-is replaced by an inline sequence of instructions in my testing on x86 with
-gcc version 9.2.1 20191008 (Ubuntu 9.2.1-9ubuntu2).
+> >>> Reworded explanation:
+> >>> I can't use a fallthrough, because the UV will reject the normal rese=
+t
+> >>> if we do an initial reset (same goes for the clear reset). To address
+> >>> this issue, I added a boolean to the normal and initial reset functio=
+ns
+> >>> which tells the function if it was called directly or was called beca=
+use
+> >>> of the fallthrough.
+> >>>
+> >>> Only if called directly a UV call for the reset is done, that way we =
+can
+> >>> keep the fallthrough. =20
+> >>
+> >> Sounds complicated. And do we need the fallthrough stuff here at all?
+> >> What about doing something like: =20
+> >=20
+> > That would work and I thought about it, it just comes down to taste :-)
+> > I don't have any strong feelings for a specific implementation. =20
 
-I believe this is due to compiler heuristics. For example, if I annotate
-kmalloc calls with the alloc_size annotation (and disable some fortify
-compile-time checking!), the compiler will replace every memset except the
-one in kmalloc_uaf_memset with inline instructions. (I have some WIP
-patches to add this annotation.)
+(...)
 
-Does this affect other functions in string.h?
-=============================================
+> +=09if (kvm_s390_pv_handle_cpu(vcpu) && !chain) {
 
-Yes. Anything that uses __builtin_* rather than __real_* could be
-affected. This looks like:
+I find this 'chain' thingy a bit unwieldy...
 
- - strncpy
- - strcat
- - strlen
- - strlcpy maybe, under some circumstances?
- - strncat under some circumstances
- - memset
- - memcpy
- - memmove
- - memcmp (as noted)
- - memchr
- - strcpy
+> +=09=09rc =3D uv_cmd_nodata(kvm_s390_pv_handle_cpu(vcpu),
+> +=09=09=09=09   UVC_CMD_CPU_RESET, &ret);
+> +=09=09VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: cpu %d rc %x rrc =
+%x",
+> +=09=09=09   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
+> +=09}
+> +
+> +=09return rc;
+>  }
 
-Whether a function call is emitted always depends on the compiler. Most
-bugs should get caught by FORTIFY_SOURCE, but the missed memcmp test shows
-that this is not always the case.
+(...)
 
-Isn't FORTIFY_SOURCE disabled with KASAN?
-========================================-
+>=20
+>  =09case KVM_S390_CLEAR_RESET:
+>  =09=09r =3D kvm_arch_vcpu_ioctl_clear_reset(vcpu);
+> +=09=09if (r)
+> +=09=09=09break;
+>  =09=09/* fallthrough */
+>  =09case KVM_S390_INITIAL_RESET:
+> -=09=09r =3D kvm_arch_vcpu_ioctl_initial_reset(vcpu);
+> +=09=09r =3D kvm_arch_vcpu_ioctl_initial_reset(vcpu, ioctl !=3D
+> KVM_S390_INITIAL_RESET);
+> +=09=09if (r)
+> +=09=09=09break;
+>  =09=09/* fallthrough */
+>  =09case KVM_S390_NORMAL_RESET:
+> -=09=09r =3D kvm_arch_vcpu_ioctl_normal_reset(vcpu);
+> +=09=09r =3D kvm_arch_vcpu_ioctl_normal_reset(vcpu, ioctl !=3D
+> KVM_S390_NORMAL_RESET);
 
-The string headers on all arches supporting KASAN disable fortify with
-kasan, but only when address sanitisation is _also_ disabled. For example
-from x86:
+...especially looking at the invocations.
 
- #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
- /*
-  * For files that are not instrumented (e.g. mm/slub.c) we
-  * should use not instrumented version of mem* functions.
-  */
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
+>  =09=09break;
+>  =09case KVM_SET_ONE_REG:
+>  =09case KVM_GET_ONE_REG: {
+>=20
 
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
+<bikeshed>
+What about the following?
 
- #endif
+static void _do_normal_reset(struct kvm_vcpu *vcpu)
+{
+=09/* do normal reset */
+}
 
-This comes from commit 6974f0c4555e ("include/linux/string.h: add the
-option of fortified string.h functions"), and doesn't work when KASAN is
-enabled and the file is supposed to be sanitised - as with test_kasan.c
+static int kvm_arch_vcpu_ioctl_normal_reset(struct kvm_vcpu *vcpu)
+{
+=09_do_normal_reset(vcpu);
+        if (kvm_s390_pv_handle_cpu(vcpu)) {
+=09=09/* do protected virt normal reset */
+=09}
+}
 
-I'm pretty sure this is backwards: we shouldn't be using __builtin_memcpy
-when we have a KASAN instrumented file, but we can use __builtin_* - and in
-many cases all fortification - in files where we don't have
-instrumentation.
+static void _do_initial_reset(struct kvm_vcpu *vcpu)
+{
+=09/* do initial reset */
+}
 
-What is correct behaviour?
-==========================
+static int kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+{
+=09_do_initial_reset(vcpu);
+=09if (kvm_set_pv_handle_cpu(vcpu)) {
+=09=09/* do protected virt initial reset */
+=09}
+=09_do_normal_reset(vcpu);
+}
 
-Firstly, there is some overlap between fortification and KASAN: both
-provide some level of _runtime_ checking. Only fortify provides
-compile-time checking.
+static void _do_clear_reset(struct kvm_vcpu *vcpu)
+{
+=09/* do clear reset */
+}
 
-KASAN and fortify can pick up different things at runtime:
+static int kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
+{
+=09_do_clear_reset(vcpu);
+=09if (kvm_set_pv_handle_cpu(vcpu)) {
+=09=09/* do protected virt clear reset */
+=09}
+=09_do_initial_reset(vcpu);
+=09_do_normal_reset(vcpu);
+}
 
- - Some fortify functions, notably the string functions, could easily be
-   modified to consider sub-object sizes (e.g. members within a struct),
-   and I have some WIP patches to do this. KASAN cannot detect these
-   because it cannot insert poision between members of a struct.
+And call the *_ioctl_* functions directly without fallthrough.
 
- - KASAN can detect many over-reads/over-writes when the sizes of both
-   operands are unknown, which fortify cannot.
+The nice thing about this is that it makes the call chain explicit and
+does not require parameters.
 
-So there are a couple of options:
+The drawback is that we need more functions, and that it looks a bit
+overcomplicated before the pv stuff is added.
 
- 1) Flip the test: disable fortify in santised files and enable it in
-    unsanitised files. This at least stops us missing KASAN checking, but
-    we lose the fortify checking.
+</bikeshed>
 
- 2) Make the fortify code always call out to real versions. Do this only
-    for KASAN, for fear of losing the inlining opportunities we get from
-    __builtin_*.
+--Sig_/cHU2=gSxrCBM3fdq/da8Dmf
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-(We can't use kasan_check_{read,write}: because the fortify functions are
-_extern inline_, you can't include _static_ inline functions without a
-compiler warning. kasan_check_{read,write} are static inline so we can't
-use them even when they would otherwise be suitable.)
+-----BEGIN PGP SIGNATURE-----
 
-Take approach 2 and call out to real versions when KASAN is enabled.
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl4YPsoACgkQ3s9rk8bw
+L6+/ohAAg+vWecOgEV0vIv9zrzNNs5l7uiu2FW/AIUAelrQpP7FbpNg3GWro7Sjw
+BOaLcNtejnkZy7PdfB7V0OrrJUJeLvynbr32h/mgCmNQyhEUvwY99TxFFhzb5d8/
+VsLZ0g0z1d1MTo5xDLIIJEDsX65ULXAygj3u3C5sFkh/T01jRmGRkg3hjZCf3xm7
+Zz7VwGptEPaUQasoOMOUfi2O7l4bXuotfz8CmE5hehoRbEfMwqpTW85n0IYIj5rz
+yS8sd0kA9FSdx0c1E9JC5NiSvnSjHBKII9vtdVf/I7PDhSVGWmVVWtFewN517z0Y
+RuKOD0Z2zKX6+w2ABTiR9jggpLJEbwl871odqI6ZD/FBzmBD0N6Dq6ZauiCArwFR
+5flhd9Biqh3i0RCEZsCSNZ2q9q2soFn9/r4PR7zt+dP/9HSev4qs9yJphNx5VYCN
+kJ0KrRAmhs58VxgApDmA9yF8ZAMjoF+vve5TItuWEbLWjDUn8h0wbdhlwshASAkm
+B3tPAlzOcccirjMuSGqKC7+Paqf9NShexxIu9CEnRtDugLgH7EQftlchGQJKySzw
+4er3G58WKNHwm61WkqrUQiGC2lAv64x5y13JpKUic2UIlVxZz5JheGapErA9acnj
+DEioMavE4/rsPoa7vuBsg01vpQ3eJYivIqmI1borQW/UUe0c2R8=
+=FEWI
+-----END PGP SIGNATURE-----
 
-Use __underlying_foo to distinguish from __real_foo: __real_foo always
-refers to the kernel's implementation of foo, __underlying_foo could be
-either the kernel implementation or the __builtin_foo implementation.
-
-Remove all the attempted disablement code in arch string headers.
-
-This makes all the tests succeed with FORTIFY_SOURCE enabled.
-
-Cc: Daniel Micay <danielmicay@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Fixes: 6974f0c4555e ("include/linux/string.h: add the option of fortified string.h functions")
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-
----
-
-Dmitry, this might cause a few new syzkaller splats - I first picked it up
-building from a syskaller config. Or it might not, it just depends what gets
-replaced with an inline sequence of instructions.
-
-checkpatch complains about some over-long lines, happy to change the format
-if anyone has better ideas for how to lay it out.
----
- arch/arm64/include/asm/string.h   |  4 ---
- arch/powerpc/include/asm/string.h |  4 ---
- arch/s390/include/asm/string.h    |  4 ---
- arch/x86/include/asm/string_64.h  |  4 ---
- arch/xtensa/include/asm/string.h  |  3 --
- include/linux/string.h            | 49 +++++++++++++++++++++++--------
- 6 files changed, 37 insertions(+), 31 deletions(-)
-
-diff --git a/arch/arm64/include/asm/string.h b/arch/arm64/include/asm/string.h
-index b31e8e87a0db..eafb2c4771fc 100644
---- a/arch/arm64/include/asm/string.h
-+++ b/arch/arm64/include/asm/string.h
-@@ -59,10 +59,6 @@ void memcpy_flushcache(void *dst, const void *src, size_t cnt);
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
- 
--#ifndef __NO_FORTIFY
--#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
--#endif
--
- #endif
- 
- #endif
-diff --git a/arch/powerpc/include/asm/string.h b/arch/powerpc/include/asm/string.h
-index b72692702f35..952c5934596b 100644
---- a/arch/powerpc/include/asm/string.h
-+++ b/arch/powerpc/include/asm/string.h
-@@ -43,10 +43,6 @@ void *__memmove(void *to, const void *from, __kernel_size_t n);
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
- 
--#ifndef __NO_FORTIFY
--#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
--#endif
--
- #endif
- 
- #ifdef CONFIG_PPC64
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 4c0690fc5167..e0b66d8c89a1 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -75,10 +75,6 @@ extern void *__memmove(void *dest, const void *src, size_t n);
- 
- #define __no_sanitize_prefix_strfunc(x) __##x
- 
--#ifndef __NO_FORTIFY
--#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
--#endif
--
- #else
- #define __no_sanitize_prefix_strfunc(x) x
- #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
-diff --git a/arch/x86/include/asm/string_64.h b/arch/x86/include/asm/string_64.h
-index 75314c3dbe47..ec63d11e1f04 100644
---- a/arch/x86/include/asm/string_64.h
-+++ b/arch/x86/include/asm/string_64.h
-@@ -76,10 +76,6 @@ int strcmp(const char *cs, const char *ct);
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
- 
--#ifndef __NO_FORTIFY
--#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
--#endif
--
- #endif
- 
- #define __HAVE_ARCH_MEMCPY_MCSAFE 1
-diff --git a/arch/xtensa/include/asm/string.h b/arch/xtensa/include/asm/string.h
-index 89b51a0c752f..8cf04c5a33fb 100644
---- a/arch/xtensa/include/asm/string.h
-+++ b/arch/xtensa/include/asm/string.h
-@@ -132,9 +132,6 @@ extern void *__memmove(void *__dest, __const__ void *__src, size_t __n);
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
- 
--#ifndef __NO_FORTIFY
--#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
--#endif
- #endif
- 
- #endif	/* _XTENSA_STRING_H */
-diff --git a/include/linux/string.h b/include/linux/string.h
-index 3b8e8b12dd37..4364c106355e 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -317,6 +317,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
- void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
- 
- #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
-+
-+#ifdef CONFIG_KASAN
-+extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
-+extern int __underlying_memcmp(const void *p, const void *q, __kernel_size_t size) __RENAME(memcmp);
-+extern void *__underlying_memcpy(void *p, const void *q, __kernel_size_t size) __RENAME(memcpy);
-+extern void *__underlying_memmove(void *p, const void *q, __kernel_size_t size) __RENAME(memmove);
-+extern void *__underlying_memset(void *p, int c, __kernel_size_t size) __RENAME(memset);
-+extern char *__underlying_strcat(char *p, const char *q) __RENAME(strcat);
-+extern char *__underlying_strcpy(char *p, const char *q) __RENAME(strcpy);
-+extern __kernel_size_t __underlying_strlen(const char *p) __RENAME(strlen);
-+extern char *__underlying_strncat(char *p, const char *q, __kernel_size_t count) __RENAME(strncat);
-+extern char *__underlying_strncpy(char *p, const char *q, __kernel_size_t size) __RENAME(strncpy);
-+#else
-+#define __underlying_memchr	__builtin_memchr
-+#define __underlying_memcmp	__builtin_memcmp
-+#define __underlying_memcpy	__builtin_memcpy
-+#define __underlying_memmove	__builtin_memmove
-+#define __underlying_memset	__builtin_memset
-+#define __underlying_strcat	__builtin_strcat
-+#define __underlying_strcpy	__builtin_strcpy
-+#define __underlying_strlen	__builtin_strlen
-+#define __underlying_strncat	__builtin_strncat
-+#define __underlying_strncpy	__builtin_strncpy
-+#endif
-+
- __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
-@@ -324,14 +349,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_strncpy(p, q, size);
-+	return __underlying_strncpy(p, q, size);
- }
- 
- __FORTIFY_INLINE char *strcat(char *p, const char *q)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
- 	if (p_size == (size_t)-1)
--		return __builtin_strcat(p, q);
-+		return __underlying_strcat(p, q);
- 	if (strlcat(p, q, p_size) >= p_size)
- 		fortify_panic(__func__);
- 	return p;
-@@ -345,7 +370,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
- 	/* Work around gcc excess stack consumption issue */
- 	if (p_size == (size_t)-1 ||
- 	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
--		return __builtin_strlen(p);
-+		return __underlying_strlen(p);
- 	ret = strnlen(p, p_size);
- 	if (p_size <= ret)
- 		fortify_panic(__func__);
-@@ -378,7 +403,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
- 			__write_overflow();
- 		if (len >= p_size)
- 			fortify_panic(__func__);
--		__builtin_memcpy(p, q, len);
-+		__underlying_memcpy(p, q, len);
- 		p[len] = '\0';
- 	}
- 	return ret;
-@@ -391,12 +416,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strncat(p, q, count);
-+		return __underlying_strncat(p, q, count);
- 	p_len = strlen(p);
- 	copy_len = strnlen(q, count);
- 	if (p_size < p_len + copy_len + 1)
- 		fortify_panic(__func__);
--	__builtin_memcpy(p + p_len, q, copy_len);
-+	__underlying_memcpy(p + p_len, q, copy_len);
- 	p[p_len + copy_len] = '\0';
- 	return p;
- }
-@@ -408,7 +433,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memset(p, c, size);
-+	return __underlying_memset(p, c, size);
- }
- 
- __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
-@@ -423,7 +448,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcpy(p, q, size);
-+	return __underlying_memcpy(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
-@@ -438,7 +463,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memmove(p, q, size);
-+	return __underlying_memmove(p, q, size);
- }
- 
- extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
-@@ -464,7 +489,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcmp(p, q, size);
-+	return __underlying_memcmp(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
-@@ -474,7 +499,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
- 		__read_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memchr(p, c, size);
-+	return __underlying_memchr(p, c, size);
- }
- 
- void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
-@@ -505,7 +530,7 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strcpy(p, q);
-+		return __underlying_strcpy(p, q);
- 	memcpy(p, q, strlen(q) + 1);
- 	return p;
- }
--- 
-2.20.1
+--Sig_/cHU2=gSxrCBM3fdq/da8Dmf--
