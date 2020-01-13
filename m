@@ -1,267 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:48225 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728544AbgABO6W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jan 2020 09:58:22 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v3 02/22] compat: provide compat_ptr() on all architectures
-Date: Thu,  2 Jan 2020 15:55:20 +0100
-Message-Id: <20200102145552.1853992-3-arnd@arndb.de>
-In-Reply-To: <20200102145552.1853992-1-arnd@arndb.de>
-References: <20200102145552.1853992-1-arnd@arndb.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11414 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728621AbgAMM1s (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 13 Jan 2020 07:27:48 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00DCMZ2U039908
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2020 07:27:47 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xfvrhtp5j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2020 07:27:47 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Mon, 13 Jan 2020 12:27:45 -0000
+Date: Mon, 13 Jan 2020 13:27:38 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v7 3/4] s390x: lib: add SPX and STPX
+ instruction wrapper
+In-Reply-To: <656129b7-68f2-d3ab-7428-91999c896ca5@linux.ibm.com>
+References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+        <20200110184050.191506-4-imbrenda@linux.ibm.com>
+        <656129b7-68f2-d3ab-7428-91999c896ca5@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200113132738.3c786c63@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paulburton@kernel.org>, James Hogan <jhogan@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Robert Richter <rric@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, oprofile-list@lists.sf.net, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com
 
-In order to avoid needless #ifdef CONFIG_COMPAT checks,
-move the compat_ptr() definition to linux/compat.h
-where it can be seen by any file regardless of the
-architecture.
+On Mon, 13 Jan 2020 10:42:01 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Only s390 needs a special definition, this can use the
-self-#define trick we have elsewhere.
+> On 1/10/20 7:40 PM, Claudio Imbrenda wrote:
+> > Add a wrapper for the SET PREFIX and STORE PREFIX instructions, and
+> > use it instead of using inline assembly.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Reviewed-by: Thomas Huth <thuth@redhat.com>  
+> 
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> > @@ -63,14 +60,10 @@ static void test_spx(void)
+> >  	 * some facility bits there ... at least some of them
+> > should be
+> >  	 * set in our buffer afterwards.
+> >  	 */
+> > -	asm volatile (
+> > -		" stpx	%0\n"
+> > -		" spx	%1\n"
+> > -		" stfl	0\n"
+> > -		" spx	%0\n"
+> > -		: "+Q"(old_prefix)
+> > -		: "Q"(new_prefix)
+> > -		: "memory");
+> > +	old_prefix = get_prefix();
+> > +	set_prefix(new_prefix);
+> > +	asm volatile("	stfl 0" : : : "memory");  
+> 
+> Couldn't we also use stfl from facility.h here?
+> And do we need to add a memory clobber to it?
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/arm64/include/asm/compat.h   | 17 -----------------
- arch/mips/include/asm/compat.h    | 18 ------------------
- arch/parisc/include/asm/compat.h  | 17 -----------------
- arch/powerpc/include/asm/compat.h | 17 -----------------
- arch/powerpc/oprofile/backtrace.c |  2 +-
- arch/s390/include/asm/compat.h    |  6 +-----
- arch/sparc/include/asm/compat.h   | 17 -----------------
- arch/x86/include/asm/compat.h     | 17 -----------------
- include/linux/compat.h            | 18 ++++++++++++++++++
- 9 files changed, 20 insertions(+), 109 deletions(-)
+will do both
 
-diff --git a/arch/arm64/include/asm/compat.h b/arch/arm64/include/asm/compat.h
-index 7b4172ce497c..935d2aa231bf 100644
---- a/arch/arm64/include/asm/compat.h
-+++ b/arch/arm64/include/asm/compat.h
-@@ -114,23 +114,6 @@ typedef u32		compat_sigset_word;
- 
- #define COMPAT_OFF_T_MAX	0x7fffffff
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	return (void __user *)(unsigned long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- #define compat_user_stack_pointer() (user_stack_pointer(task_pt_regs(current)))
- #define COMPAT_MINSIGSTKSZ	2048
- 
-diff --git a/arch/mips/include/asm/compat.h b/arch/mips/include/asm/compat.h
-index c99166eadbde..255afcdd79c9 100644
---- a/arch/mips/include/asm/compat.h
-+++ b/arch/mips/include/asm/compat.h
-@@ -100,24 +100,6 @@ typedef u32		compat_sigset_word;
- 
- #define COMPAT_OFF_T_MAX	0x7fffffff
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	/* cast to a __user pointer via "unsigned long" makes sparse happy */
--	return (void __user *)(unsigned long)(long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- static inline void __user *arch_compat_alloc_user_space(long len)
- {
- 	struct pt_regs *regs = (struct pt_regs *)
-diff --git a/arch/parisc/include/asm/compat.h b/arch/parisc/include/asm/compat.h
-index e03e3c849f40..2f4f66a3bac0 100644
---- a/arch/parisc/include/asm/compat.h
-+++ b/arch/parisc/include/asm/compat.h
-@@ -173,23 +173,6 @@ struct compat_shmid64_ds {
- #define COMPAT_ELF_NGREG 80
- typedef compat_ulong_t compat_elf_gregset_t[COMPAT_ELF_NGREG];
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	return (void __user *)(unsigned long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- static __inline__ void __user *arch_compat_alloc_user_space(long len)
- {
- 	struct pt_regs *regs = &current->thread.regs;
-diff --git a/arch/powerpc/include/asm/compat.h b/arch/powerpc/include/asm/compat.h
-index 74d0db511099..3e3cdfaa76c6 100644
---- a/arch/powerpc/include/asm/compat.h
-+++ b/arch/powerpc/include/asm/compat.h
-@@ -96,23 +96,6 @@ typedef u32		compat_sigset_word;
- 
- #define COMPAT_OFF_T_MAX	0x7fffffff
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	return (void __user *)(unsigned long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- static inline void __user *arch_compat_alloc_user_space(long len)
- {
- 	struct pt_regs *regs = current->thread.regs;
-diff --git a/arch/powerpc/oprofile/backtrace.c b/arch/powerpc/oprofile/backtrace.c
-index 43245f4a9bcb..6ffcb80cf844 100644
---- a/arch/powerpc/oprofile/backtrace.c
-+++ b/arch/powerpc/oprofile/backtrace.c
-@@ -9,7 +9,7 @@
- #include <linux/sched.h>
- #include <asm/processor.h>
- #include <linux/uaccess.h>
--#include <asm/compat.h>
-+#include <linux/compat.h>
- #include <asm/oprofile_impl.h>
- 
- #define STACK_SP(STACK)		*(STACK)
-diff --git a/arch/s390/include/asm/compat.h b/arch/s390/include/asm/compat.h
-index 63b46e30b2c3..9547cd5d6cdc 100644
---- a/arch/s390/include/asm/compat.h
-+++ b/arch/s390/include/asm/compat.h
-@@ -177,11 +177,7 @@ static inline void __user *compat_ptr(compat_uptr_t uptr)
- {
- 	return (void __user *)(unsigned long)(uptr & 0x7fffffffUL);
- }
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
-+#define compat_ptr(uptr) compat_ptr(uptr)
- 
- #ifdef CONFIG_COMPAT
- 
-diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
-index 30b1763580b1..40a267b3bd52 100644
---- a/arch/sparc/include/asm/compat.h
-+++ b/arch/sparc/include/asm/compat.h
-@@ -125,23 +125,6 @@ typedef u32		compat_sigset_word;
- 
- #define COMPAT_OFF_T_MAX	0x7fffffff
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	return (void __user *)(unsigned long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- #ifdef CONFIG_COMPAT
- static inline void __user *arch_compat_alloc_user_space(long len)
- {
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 22c4dfe65992..52e9f3480f69 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -177,23 +177,6 @@ typedef struct user_regs_struct compat_elf_gregset_t;
- 	(!!(task_pt_regs(current)->orig_ax & __X32_SYSCALL_BIT))
- #endif
- 
--/*
-- * A pointer passed in from user mode. This should not
-- * be used for syscall parameters, just declare them
-- * as pointers because the syscall entry code will have
-- * appropriately converted them already.
-- */
--
--static inline void __user *compat_ptr(compat_uptr_t uptr)
--{
--	return (void __user *)(unsigned long)uptr;
--}
--
--static inline compat_uptr_t ptr_to_compat(void __user *uptr)
--{
--	return (u32)(unsigned long)uptr;
--}
--
- static inline void __user *arch_compat_alloc_user_space(long len)
- {
- 	compat_uptr_t sp;
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 68f79d855c3d..11083d84eb23 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -958,4 +958,22 @@ static inline bool in_compat_syscall(void) { return false; }
- 
- #endif /* CONFIG_COMPAT */
- 
-+/*
-+ * A pointer passed in from user mode. This should not
-+ * be used for syscall parameters, just declare them
-+ * as pointers because the syscall entry code will have
-+ * appropriately converted them already.
-+ */
-+#ifndef compat_ptr
-+static inline void __user *compat_ptr(compat_uptr_t uptr)
-+{
-+	return (void __user *)(unsigned long)uptr;
-+}
-+#endif
-+
-+static inline compat_uptr_t ptr_to_compat(void __user *uptr)
-+{
-+	return (u32)(unsigned long)uptr;
-+}
-+
- #endif /* _LINUX_COMPAT_H */
--- 
-2.20.0
+> > +	set_prefix(old_prefix);
+> >  	report(pagebuf[GEN_LC_STFL] != 0, "stfl to new prefix");
+> >  
+> >  	expect_pgm_int();
+> >   
+> 
+> 
