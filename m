@@ -1,75 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11414 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728621AbgAMM1s (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:51134 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726127AbgAMKm0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Jan 2020 07:27:48 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00DCMZ2U039908
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2020 07:27:47 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xfvrhtp5j-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2020 07:27:47 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Mon, 13 Jan 2020 12:27:45 -0000
-Date: Mon, 13 Jan 2020 13:27:38 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+        Mon, 13 Jan 2020 05:42:26 -0500
 Subject: Re: [kvm-unit-tests PATCH v7 3/4] s390x: lib: add SPX and STPX
  instruction wrapper
-In-Reply-To: <656129b7-68f2-d3ab-7428-91999c896ca5@linux.ibm.com>
 References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
-        <20200110184050.191506-4-imbrenda@linux.ibm.com>
-        <656129b7-68f2-d3ab-7428-91999c896ca5@linux.ibm.com>
+ <20200110184050.191506-4-imbrenda@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <81301db1-7fd1-c3ef-ded6-fd682fc24af9@redhat.com>
+Date: Mon, 13 Jan 2020 11:42:18 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200110184050.191506-4-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <20200113132738.3c786c63@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-On Mon, 13 Jan 2020 10:42:01 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+On 10.01.20 19:40, Claudio Imbrenda wrote:
+> Add a wrapper for the SET PREFIX and STORE PREFIX instructions, and
+> use it instead of using inline assembly.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  lib/s390x/asm/arch_def.h | 13 +++++++++++++
+>  s390x/intercept.c        | 23 ++++++++---------------
+>  2 files changed, 21 insertions(+), 15 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 1a5e3c6..15a4d49 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -284,4 +284,17 @@ static inline int servc(uint32_t command, unsigned long sccb)
+>  	return cc;
+>  }
+>  
+> +static inline void set_prefix(uint32_t new_prefix)
+> +{
+> +	asm volatile("	spx %0" : : "Q" (new_prefix) : "memory");
+> +}
+> +
+> +static inline uint32_t get_prefix(void)
+> +{
+> +	uint32_t current_prefix;
+> +
+> +	asm volatile("	stpx %0" : "=Q" (current_prefix));
+> +	return current_prefix;
+> +}
+> +
+>  #endif
+> diff --git a/s390x/intercept.c b/s390x/intercept.c
+> index 3696e33..cd96121 100644
+> --- a/s390x/intercept.c
+> +++ b/s390x/intercept.c
+> @@ -26,13 +26,10 @@ static void test_stpx(void)
+>  	uint32_t new_prefix = (uint32_t)(intptr_t)pagebuf;
+>  
+>  	/* Can we successfully change the prefix? */
+> -	asm volatile (
+> -		" stpx	%0\n"
+> -		" spx	%2\n"
+> -		" stpx	%1\n"
+> -		" spx	%0\n"
+> -		: "+Q"(old_prefix), "+Q"(tst_prefix)
+> -		: "Q"(new_prefix));
+> +	old_prefix = get_prefix();
+> +	set_prefix(new_prefix);
+> +	tst_prefix = get_prefix();
+> +	set_prefix(old_prefix);
+>  	report(old_prefix == 0 && tst_prefix == new_prefix, "store prefix");
+>  
+>  	expect_pgm_int();
+> @@ -63,14 +60,10 @@ static void test_spx(void)
+>  	 * some facility bits there ... at least some of them should be
+>  	 * set in our buffer afterwards.
+>  	 */
+> -	asm volatile (
+> -		" stpx	%0\n"
+> -		" spx	%1\n"
+> -		" stfl	0\n"
+> -		" spx	%0\n"
+> -		: "+Q"(old_prefix)
+> -		: "Q"(new_prefix)
+> -		: "memory");
+> +	old_prefix = get_prefix();
+> +	set_prefix(new_prefix);
+> +	asm volatile("	stfl 0" : : : "memory");
+> +	set_prefix(old_prefix);
+>  	report(pagebuf[GEN_LC_STFL] != 0, "stfl to new prefix");
+>  
+>  	expect_pgm_int();
+> 
 
-> On 1/10/20 7:40 PM, Claudio Imbrenda wrote:
-> > Add a wrapper for the SET PREFIX and STORE PREFIX instructions, and
-> > use it instead of using inline assembly.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Reviewed-by: Thomas Huth <thuth@redhat.com>  
-> 
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> 
-> > @@ -63,14 +60,10 @@ static void test_spx(void)
-> >  	 * some facility bits there ... at least some of them
-> > should be
-> >  	 * set in our buffer afterwards.
-> >  	 */
-> > -	asm volatile (
-> > -		" stpx	%0\n"
-> > -		" spx	%1\n"
-> > -		" stfl	0\n"
-> > -		" spx	%0\n"
-> > -		: "+Q"(old_prefix)
-> > -		: "Q"(new_prefix)
-> > -		: "memory");
-> > +	old_prefix = get_prefix();
-> > +	set_prefix(new_prefix);
-> > +	asm volatile("	stfl 0" : : : "memory");  
-> 
-> Couldn't we also use stfl from facility.h here?
-> And do we need to add a memory clobber to it?
+Besides the comments from Janosch, looks good to me.
 
-will do both
+-- 
+Thanks,
 
-> > +	set_prefix(old_prefix);
-> >  	report(pagebuf[GEN_LC_STFL] != 0, "stfl to new prefix");
-> >  
-> >  	expect_pgm_int();
-> >   
-> 
-> 
+David / dhildenb
