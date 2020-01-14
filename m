@@ -1,96 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389533AbgAPRI5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:57 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 423/671] net/af_iucv: always register net_device notifier
-Date: Thu, 16 Jan 2020 12:01:01 -0500
-Message-Id: <20200116170509.12787-160-sashal@kernel.org>
-In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
-References: <20200116170509.12787-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:43243 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726669AbgANRcT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jan 2020 12:32:19 -0500
+Date: Tue, 14 Jan 2020 18:32:11 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH 1/4] s390x: smp: Cleanup smp.c
+Message-ID: <20200114183211.617ecb7e.cohuck@redhat.com>
+In-Reply-To: <20200114153054.77082-2-frankja@linux.ibm.com>
+References: <20200114153054.77082-1-frankja@linux.ibm.com>
+        <20200114153054.77082-2-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Tue, 14 Jan 2020 10:30:50 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-[ Upstream commit 06996c1d4088a0d5f3e7789d7f96b4653cc947cc ]
+> Let's remove a lot of badly formatted code by introducing the
+> wait_for_flag() function.
+> 
+> Also let's remove some stray spaces.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/smp.c | 41 +++++++++++++++++++++++------------------
+>  1 file changed, 23 insertions(+), 18 deletions(-)
 
-Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
-open HiperTransport-based connections. For robust operation these
-connections require the af_iucv_netdev_notifier, so register it
-unconditionally.
+This looks like some nice copy/paste had been going on :)
 
-Also handle any error that register_netdevice_notifier() returns.
-
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
-
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index e07daee1227c..23a1002ed86d 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2465,6 +2465,13 @@ static int afiucv_iucv_init(void)
- 	return err;
- }
- 
-+static void afiucv_iucv_exit(void)
-+{
-+	device_unregister(af_iucv_dev);
-+	driver_unregister(&af_iucv_driver);
-+	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+}
-+
- static int __init afiucv_init(void)
- {
- 	int err;
-@@ -2498,11 +2505,18 @@ static int __init afiucv_init(void)
- 		err = afiucv_iucv_init();
- 		if (err)
- 			goto out_sock;
--	} else
--		register_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	err = register_netdevice_notifier(&afiucv_netdev_notifier);
-+	if (err)
-+		goto out_notifier;
-+
- 	dev_add_pack(&iucv_packet_type);
- 	return 0;
- 
-+out_notifier:
-+	if (pr_iucv)
-+		afiucv_iucv_exit();
- out_sock:
- 	sock_unregister(PF_IUCV);
- out_proto:
-@@ -2516,12 +2530,11 @@ static int __init afiucv_init(void)
- static void __exit afiucv_exit(void)
- {
- 	if (pr_iucv) {
--		device_unregister(af_iucv_dev);
--		driver_unregister(&af_iucv_driver);
--		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+		afiucv_iucv_exit();
- 		symbol_put(iucv_if);
--	} else
--		unregister_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	unregister_netdevice_notifier(&afiucv_netdev_notifier);
- 	dev_remove_pack(&iucv_packet_type);
- 	sock_unregister(PF_IUCV);
- 	proto_unregister(&iucv_proto);
--- 
-2.20.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
