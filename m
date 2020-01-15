@@ -1,138 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23780 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728365AbgAaKC2 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55114 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729504AbgAOJzJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 05:02:28 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00V9veFQ046971
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 05:02:27 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvfy8vnsg-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 05:02:27 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 31 Jan 2020 10:02:24 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v10 6/6] selftests: KVM: testing the local IRQs resets
-Date: Fri, 31 Jan 2020 05:02:05 -0500
-In-Reply-To: <20200131100205.74720-1-frankja@linux.ibm.com>
-References: <20200131100205.74720-1-frankja@linux.ibm.com>
+        Wed, 15 Jan 2020 04:55:09 -0500
+Subject: Fwd: Re: [PATCH v4] btrfs: Use larger zlib buffer for s390 hardware
+ compression
+References: <20200114161857.GD3929@suse.cz>
+From: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+Message-ID: <e66fa494-e137-ed73-6db3-15fcbd232eb7@linux.ibm.com>
+Date: Wed, 15 Jan 2020 10:54:53 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200131100205.74720-7-frankja@linux.ibm.com>
+In-Reply-To: <20200114161857.GD3929@suse.cz>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Pierre Morel <pmorel@linux.ibm.com>
+Hello Andrew,
 
-Local IRQs are reset by a normal cpu reset.  The initial cpu reset and
-the clear cpu reset, as superset of the normal reset, both clear the
-IRQs too.
+Could you please pick this V4 btrfs patch and the other five patches from V3 patch
+set (https://lkml.org/lkml/2020/1/3/568).
 
-Let's inject an interrupt to a vCPU before calling a reset and see if
-it is gone after the reset.
+Older patches can be dropped from linux-next:
+ * ac2aeaa0f4d3 btrfs: use larger zlib buffer for s390 hardware compression
+ * ac19f15aea33 lib/zlib: add zlib_deflate_dfltcc_enabled() function
+ * 3447c9a51196 s390/boot: add dfltcc= kernel command line parameter
+ * 890060df4401 lib/zlib: add s390 hardware support for kernel zlib_inflate
+ * 148f7d060405 s390/boot: rename HEAP_SIZE due to name collision
+ * bfbef17740fd lib/zlib: add s390 hardware support for kernel zlib_deflate
 
-We choose to inject only an emergency interrupt at this point and can
-extend the test to other types of IRQs later.
+Thanks,
+Mikhail.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>[minor fixups]
----
- tools/testing/selftests/kvm/s390x/resets.c | 42 ++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index fb8e976943a9..1485bc6c8999 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -14,6 +14,9 @@
- #include "kvm_util.h"
- 
- #define VCPU_ID 3
-+#define LOCAL_IRQS 32
-+
-+struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
- 
- struct kvm_vm *vm;
- struct kvm_run *run;
-@@ -53,6 +56,23 @@ static void test_one_reg(uint64_t id, uint64_t value)
- 	TEST_ASSERT(eval_reg == value, "value == %s", value);
- }
- 
-+static void assert_noirq(void)
-+{
-+	struct kvm_s390_irq_state irq_state;
-+	int irqs;
-+
-+	irq_state.len = sizeof(buf);
-+	irq_state.buf = (unsigned long)buf;
-+	irqs = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_GET_IRQ_STATE, &irq_state);
-+	/*
-+	 * irqs contains the number of retrieved interrupts. Any interrupt
-+	 * (notably, the emergency call interrupt we have injected) should
-+	 * be cleared by the resets, so this should be 0.
-+	 */
-+	TEST_ASSERT(irqs >= 0, "Could not fetch IRQs: errno %d\n", errno);
-+	TEST_ASSERT(!irqs, "IRQ pending");
-+}
-+
- static void assert_clear(void)
- {
- 	struct kvm_sregs sregs;
-@@ -94,6 +114,22 @@ static void assert_initial(void)
- static void assert_normal(void)
- {
- 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
-+	assert_noirq();
-+}
-+
-+static void inject_irq(int cpu_id)
-+{
-+	struct kvm_s390_irq_state irq_state;
-+	struct kvm_s390_irq *irq = &buf[0];
-+	int irqs;
-+
-+	/* Inject IRQ */
-+	irq_state.len = sizeof(struct kvm_s390_irq);
-+	irq_state.buf = (unsigned long)buf;
-+	irq->type = KVM_S390_INT_EMERGENCY;
-+	irq->u.emerg.code = cpu_id;
-+	irqs = _vcpu_ioctl(vm, cpu_id, KVM_S390_SET_IRQ_STATE, &irq_state);
-+	TEST_ASSERT(irqs >= 0, "Error injecting EMERGENCY IRQ errno %d\n", errno);
- }
- 
- static void test_normal(void)
-@@ -106,6 +142,8 @@ static void test_normal(void)
- 
- 	vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
- 	assert_normal();
- 	kvm_vm_free(vm);
-@@ -120,6 +158,8 @@ static void test_initial(void)
- 
- 	vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
- 	assert_normal();
- 	assert_initial();
-@@ -135,6 +175,8 @@ static void test_clear(void)
- 
- 	vcpu_run(vm, VCPU_ID);
- 
-+	inject_irq(VCPU_ID);
-+
- 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
- 	assert_normal();
- 	assert_initial();
--- 
-2.20.1
+-------- Forwarded Message --------
+Subject: Re: [PATCH v4] btrfs: Use larger zlib buffer for s390 hardware compression
+Date: Tue, 14 Jan 2020 17:18:57 +0100
+From: David Sterba <dsterba@suse.cz>
+Reply-To: dsterba@suse.cz
+To: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+CC: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>, Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+
+On Wed, Jan 08, 2020 at 11:51:03AM +0100, Mikhail Zaslonko wrote:
+> In order to benefit from s390 zlib hardware compression support,
+> increase the btrfs zlib workspace buffer size from 1 to 4 pages (if
+> s390 zlib hardware support is enabled on the machine). This brings up
+> to 60% better performance in hardware on s390 compared to the PAGE_SIZE
+> buffer and much more compared to the software zlib processing in btrfs.
+> In case of memory pressure, fall back to a single page buffer during
+> workspace allocation.
+> The data compressed with larger input buffers will still conform to zlib
+> standard and thus can be decompressed also on a systems that uses only
+> PAGE_SIZE buffer for btrfs zlib.
+> 
+> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+
+Reviewed-by: David Sterba <dsterba@suse.com>
