@@ -1,58 +1,140 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:52446 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728071AbgAJWGD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:06:03 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 06/11] s390/qeth: Fix vnicc_is_in_use if rx_bcast not set
-Date: Fri, 10 Jan 2020 17:05:50 -0500
-Message-Id: <20200110220556.28505-5-sashal@kernel.org>
-In-Reply-To: <20200110220556.28505-1-sashal@kernel.org>
-References: <20200110220556.28505-1-sashal@kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:43747 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729546AbgAOJ5y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Jan 2020 04:57:54 -0500
+Subject: Re: [kvm-unit-tests PATCH v7 4/4] s390x: SCLP unit test
+References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+ <20200110184050.191506-5-imbrenda@linux.ibm.com>
+ <8d7fb5c4-9e2c-e28a-16c0-658afcc8178d@redhat.com>
+ <20200113133325.417bf657@p-imbrenda>
+ <1b86b00a-261e-3d8c-fa52-c30e67463ad5@redhat.com>
+ <20200113135832.1c6d3bb8@p-imbrenda>
+ <22b5ce6a-18af-edec-efc6-e03450faddf8@redhat.com>
+ <20200113150504.3fd218d5@p-imbrenda>
+ <3db7eaf7-6020-365b-c849-9961e483352e@redhat.com>
+ <20200113162439.7ae81f84@p-imbrenda>
+ <9f0bee07-28bc-8154-3c67-402c82da8f89@redhat.com>
+ <20200113171715.7334c1be@p-imbrenda>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <0842fa2c-62f7-025c-ab01-145ea24328a1@redhat.com>
+Date: Wed, 15 Jan 2020 10:57:48 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200113171715.7334c1be@p-imbrenda>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+On 13.01.20 17:17, Claudio Imbrenda wrote:
+> On Mon, 13 Jan 2020 17:06:05 +0100
+> David Hildenbrand <david@redhat.com> wrote:
+>=20
+> [...]
+>=20
+>>>>> this would be solved by adding special logic to the pgm interrupt
+>>>>> handler (as we have discussed in your previous email)
+>>>>>    =20
+>>>>
+>>>> I see, so the issue should hold for all SCLP checks where we don't
+>>>> expect an exception ... hmmm =20
+>>> =20
+>>> which is why my wrapper in the unit test is so complicated :)
+>>>  =20
+>>
+>> so .... if we would implement my suggestion (if we get an exception
+>> on a servc instruction, clear sclp_busy) that code would get
+>> simplified as well? :)
+>=20
+> sure, as I said, that can be done. The question is if we really want to
+> change something in the interrupt handler (shared by all s390x unit
+> tests) just for the benefit of this one unit test.
+>=20
+> Also consider that the changes to the interrupt handler would not
+> necessarily be trivial. i.e. you need to check that the origin of the
+> pgm interrupt is a SERVC instruction, and then act accordingly.
+>=20
 
-[ Upstream commit e8a66d800471e2df7f0b484e2e46898b21d1fa82 ]
+I suggest something like the following:
 
-Symptom: After vnicc/rx_bcast has been manually set to 0,
-	bridge_* sysfs parameters can still be set or written.
-Only occurs on HiperSockets, as OSA doesn't support changing rx_bcast.
-
-Vnic characteristics and bridgeport settings are mutually exclusive.
-rx_bcast defaults to 1, so manually setting it to 0 should disable
-bridge_* parameters.
-
-Instead it makes sense here to check the supported mask. If the card
-does not support vnicc at all, bridge commands are always allowed.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 66bc6f1ffd34..c238b190b3c9 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2285,8 +2285,7 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
- /* check if VNICC is currently enabled */
- bool qeth_l2_vnicc_is_in_use(struct qeth_card *card)
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 05f30be..d762e83 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -106,10 +106,17 @@ static void fixup_pgm_int(void)
+=20
+ void handle_pgm_int(void)
  {
--	/* if everything is turned off, VNICC is not active */
--	if (!card->options.vnicc.cur_chars)
-+	if (!card->options.vnicc.sup_chars)
- 		return false;
- 	/* default values are only OK if rx_bcast was not enabled by user
- 	 * or the card is offline.
--- 
-2.20.1
+-       if (!pgm_int_expected)
++       if (!pgm_int_expected) {
++               /*
++                * If we get a PGM interrupt while having sclp_busy=3Dtru=
+e, we
++                * will loop forever. Just force sclp_busy=3Dfalse to mak=
+e
++                * progress here.
++                */
++               sclp_handle_ext();
+                report_abort("Unexpected program interrupt: %d at %#lx, i=
+len %d\n",
+                             lc->pgm_int_code, lc->pgm_old_psw.addr,
+                             lc->pgm_int_id);
++       }
+=20
+        pgm_int_expected =3D false;
+        fixup_pgm_int();
+
+Then this test could become something like (not sure about cc handling)
+
+diff --git a/s390x/sclp.c b/s390x/sclp.c
+index 10f0809..81c5a76 100644
+--- a/s390x/sclp.c
++++ b/s390x/sclp.c
+@@ -396,25 +396,18 @@ out:
+ static void test_instbits(void)
+ {
+        SCCBHeader *h =3D (SCCBHeader *)pagebuf;
+-       int cc;
+=20
+-       expect_pgm_int();
+        sclp_mark_busy();
+        h->length =3D 8;
+        sclp_setup_int();
+=20
+        asm volatile(
+-               "       .insn   rre,0xb2204200,%1,%2\n"  /* servc %1,%2 *=
+/
+-               "       ipm     %0\n"
+-               "       srl     %0,28"
+-               : "=3D&d" (cc) : "d" (valid_code), "a" (__pa(pagebuf))
++               "       .insn   rre,0xb2204200,%0,%1\n"
++               :: "d" (valid_code), "a" (__pa(pagebuf))
+                : "cc", "memory");
+-       if (lc->pgm_int_code) {
+-               sclp_handle_ext();
+-               cc =3D 1;
+-       } else if (!cc)
+-               sclp_wait_busy();
+-       report(cc =3D=3D 0, "Instruction format ignored bits");
++       sclp_wait_busy();
++       report(true, "Instruction format ignored bits");
+ }
+
+
+This works correctly. E.g., adding a "*((uint8_t *)-50ul) =3D 2;"
+after the sclp_setup_int(); - to quickly fake a PGM exception - makes the
+test abort correctly:
+
+FAIL sclp-1g (0 tests)
+FAIL sclp-3g (0 tests)
+
+ABORT: sclp: Unexpected program interrupt: 5 at 0x155e8, ilen 6
+
+--=20
+Thanks,
+
+David / dhildenb
