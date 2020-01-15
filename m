@@ -1,563 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60068 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728428AbgAJSlA (ORCPT
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:44391 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726100AbgAOILc (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 13:41:00 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00AIbITZ119458
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:58 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xef1umnu8-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 13:40:58 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 10 Jan 2020 18:40:56 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 4/4] s390x: SCLP unit test
-Date: Fri, 10 Jan 2020 19:40:50 +0100
-In-Reply-To: <20200110184050.191506-1-imbrenda@linux.ibm.com>
-References: <20200110184050.191506-1-imbrenda@linux.ibm.com>
+        Wed, 15 Jan 2020 03:11:32 -0500
+Subject: Re: [kvm-unit-tests PATCH 3/4] s390x: smp: Test all CRs on initial
+ reset
+References: <20200114153054.77082-1-frankja@linux.ibm.com>
+ <20200114153054.77082-4-frankja@linux.ibm.com>
+ <2f190b0a-e403-51e6-27da-7f8f1f6289ac@de.ibm.com>
+ <f120ad03-aab1-a863-636b-b11898d634f5@redhat.com>
+ <3ee92240-56dc-69af-4fca-a4a2156e7749@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <eb8bc589-9efa-f512-34f5-2c4c860106a3@redhat.com>
+Date: Wed, 15 Jan 2020 09:11:20 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200110184050.191506-5-imbrenda@linux.ibm.com>
+In-Reply-To: <3ee92240-56dc-69af-4fca-a4a2156e7749@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-SCLP unit test. Testing the following:
+On 15/01/2020 08.57, Janosch Frank wrote:
+> On 1/15/20 7:17 AM, Thomas Huth wrote:
+>> On 14/01/2020 19.42, Christian Borntraeger wrote:
+>>>
+>>>
+>>> On 14.01.20 16:30, Janosch Frank wrote:
+>>>> All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
+>>>> so we also need to test 1-13 and 15 for 0.
+>>>>
+>>>> And while we're at it, let's also set some values to cr 1, 7 and 13, so
+>>>> we can actually be sure that they will be zeroed.
+>>>
+>>> While it does not hurt to have it here, I think the register check for the reset
+>>> would be better in a kselftest. This allows to check userspace AND guest at the
+>>> same time.
+>>
+>> Agreed. Especially it also allows to test the kernel ioctl on its own,
+>> without QEMU in between (which might also clear some registers), so for
+>> getting the new reset ioctls right, the selftests are certainly the
+>> better place.
+> 
+> Selftests are in development and will be up for discussion this week if
+> all goes well...
+> 
+> While the selftest leaves QEMU out of the picture, we're still using
+> kernel APIs to fetch and reset data, so actually getting guests'
+> register values requires some fiddling in the guest code. So I rather
+> have a test that tells me if KVM + QEMU are correct at the beginning of
+> testing, since that's what most people are using anyways.
 
-* Correctly ignoring instruction bits that should be ignored
-* Privileged instruction check
-* Check for addressing exceptions
-* Specification exceptions:
-  - SCCB size less than 8
-  - SCCB unaligned
-  - SCCB overlaps prefix or lowcore
-  - SCCB address higher than 2GB
-* Return codes for
-  - Invalid command
-  - SCCB too short (but at least 8)
-  - SCCB page boundary violation
+Ok, as Christian already said, it certainly can't hurt to test this in
+kvm-unit-tests, too - I didn't mean that you should drop this code here,
+sorry if that sounded wrong.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/Makefile      |   1 +
- s390x/sclp.c        | 472 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   8 +
- 3 files changed, 481 insertions(+)
- create mode 100644 s390x/sclp.c
-
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 3744372..ddb4b48 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -16,6 +16,7 @@ tests += $(TEST_DIR)/diag288.elf
- tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
-+tests += $(TEST_DIR)/sclp.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-diff --git a/s390x/sclp.c b/s390x/sclp.c
-new file mode 100644
-index 0000000..10f0809
---- /dev/null
-+++ b/s390x/sclp.c
-@@ -0,0 +1,472 @@
-+/*
-+ * Service Call tests
-+ *
-+ * Copyright (c) 2019 IBM Corp
-+ *
-+ * Authors:
-+ *  Claudio Imbrenda <imbrenda@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <asm/page.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+#include <sclp.h>
-+
-+#define PGM_NONE	1
-+#define PGM_BIT_SPEC	(1ULL << PGM_INT_CODE_SPECIFICATION)
-+#define PGM_BIT_ADDR	(1ULL << PGM_INT_CODE_ADDRESSING)
-+#define PGM_BIT_PRIV	(1ULL << PGM_INT_CODE_PRIVILEGED_OPERATION)
-+#define MKPTR(x) ((void *)(uint64_t)(x))
-+
-+#define LC_SIZE (2 * PAGE_SIZE)
-+
-+static uint8_t pagebuf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* scratch pages used for some tests */
-+static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* temporary lowcore for test_sccb_prefix */
-+static uint8_t sccb_template[PAGE_SIZE];				/* SCCB template to be used */
-+static uint32_t valid_code;						/* valid command code for READ SCP INFO */
-+static struct lowcore *lc;
-+
-+/**
-+ * Perform one service call, handling exceptions and interrupts.
-+ */
-+static int sclp_service_call_test(unsigned int command, void *sccb)
-+{
-+	int cc;
-+
-+	sclp_mark_busy();
-+	sclp_setup_int();
-+	cc = servc(command, __pa(sccb));
-+	if (lc->pgm_int_code) {
-+		sclp_handle_ext();
-+		return 0;
-+	}
-+	if (!cc)
-+		sclp_wait_busy();
-+	return cc;
-+}
-+
-+/**
-+ * Perform one test at the given address, optionally using the SCCB template,
-+ * checking for the expected program interrupts and return codes.
-+ *
-+ * The parameter buf_len indicates the number of bytes of the template that
-+ * should be copied to the test address, and should be 0 when the test
-+ * address is invalid, in which case nothing is copied.
-+ *
-+ * The template is used to simplify tests where the same buffer content is
-+ * used many times in a row, at different addresses.
-+ *
-+ * Returns true in case of success or false in case of failure
-+ */
-+static bool test_one_sccb(uint32_t cmd, uint8_t *addr, uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
-+{
-+	SCCBHeader *h = (SCCBHeader *)addr;
-+	int res, pgm;
-+
-+	/* Copy the template to the test address if needed */
-+	if (buf_len)
-+		memcpy(addr, sccb_template, buf_len);
-+	expect_pgm_int();
-+	/* perform the actual call */
-+	res = sclp_service_call_test(cmd, h);
-+	if (res) {
-+		report_info("SCLP not ready (command %#x, address %p, cc %d)", cmd, addr, res);
-+		return false;
-+	}
-+	pgm = clear_pgm_int();
-+	/* Check if the program exception was one of the expected ones */
-+	if (!((1ULL << pgm) & exp_pgm)) {
-+		report_info("First failure at addr %p, buf_len %d, cmd %#x, pgm code %d",
-+				addr, buf_len, cmd, pgm);
-+		return false;
-+	}
-+	/* Check if the response code is the one expected */
-+	if (exp_rc && exp_rc != h->response_code) {
-+		report_info("First failure at addr %p, buf_len %d, cmd %#x, resp code %#x",
-+				addr, buf_len, cmd, h->response_code);
-+		return false;
-+	}
-+	return true;
-+}
-+
-+/**
-+ * Wrapper for test_one_sccb to be used when the template should not be
-+ * copied and the memory address should not be touched.
-+ */
-+static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t exp_rc)
-+{
-+	return test_one_sccb(cmd, addr, 0, exp_pgm, exp_rc);
-+}
-+
-+/**
-+ * Wrapper for test_one_sccb to set up a simple SCCB template.
-+ *
-+ * The parameter sccb_len indicates the value that will be saved in the SCCB
-+ * length field of the SCCB, buf_len indicates the number of bytes of
-+ * template that need to be copied to the actual test address. In many cases
-+ * it's enough to clear/copy the first 8 bytes of the buffer, while the SCCB
-+ * itself can be larger.
-+ *
-+ * Returns true in case of success or false in case of failure
-+ */
-+static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
-+			uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
-+{
-+	memset(sccb_template, 0, sizeof(sccb_template));
-+	((SCCBHeader *)sccb_template)->length = sccb_len;
-+	return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
-+}
-+
-+/**
-+ * Test SCCB lengths < 8.
-+ */
-+static void test_sccb_too_short(void)
-+{
-+	int len;
-+
-+	for (len = 0; len < 8; len++)
-+		if (!test_one_simple(valid_code, pagebuf, len, 8, PGM_BIT_SPEC, 0))
-+			break;
-+
-+	report(len == 8, "SCCB too short");
-+}
-+
-+/**
-+ * Test SCCBs that are not 64-bit aligned.
-+ */
-+static void test_sccb_unaligned(void)
-+{
-+	int offset;
-+
-+	for (offset = 1; offset < 8; offset++)
-+		if (!test_one_simple(valid_code, offset + pagebuf, 8, 8, PGM_BIT_SPEC, 0))
-+			break;
-+	report(offset == 8, "SCCB unaligned");
-+}
-+
-+/**
-+ * Test SCCBs whose address is in the lowcore or prefix area.
-+ */
-+static void test_sccb_prefix(void)
-+{
-+	uint8_t scratch[LC_SIZE];
-+	uint32_t prefix, new_prefix;
-+	int offset;
-+
-+	/*
-+	 * copy the current lowcore to the future new location, otherwise we
-+	 * will not have a valid lowcore after setting the new prefix.
-+	 */
-+	memcpy(prefix_buf, 0, LC_SIZE);
-+	/* save the current prefix (it's probably going to be 0) */
-+	prefix = get_prefix();
-+	/*
-+	 * save the current content of absolute pages 0 and 1, so we can
-+	 * restore them after we trash them later on
-+	 */
-+	memcpy(scratch, (void *)(intptr_t)prefix, LC_SIZE);
-+	/* set the new prefix to prefix_buf */
-+	new_prefix = (uint32_t)(intptr_t)prefix_buf;
-+	set_prefix(new_prefix);
-+
-+	/*
-+	 * testing with SCCB addresses in the lowcore; since we can't
-+	 * actually trash the lowcore (unsurprisingly, things break if we
-+	 * do), this will be a read-only test.
-+	 */
-+	for (offset = 0; offset < LC_SIZE; offset += 8)
-+		if (!test_one_ro(valid_code, MKPTR(offset), PGM_BIT_SPEC, 0))
-+			break;
-+	report(offset == LC_SIZE, "SCCB low pages");
-+
-+	/*
-+	 * the SCLP should not even touch the memory, but we will write the
-+	 * SCCBs all over the two pages starting at absolute address 0, thus
-+	 * trashing them; we will need to restore them later.
-+	 */
-+	for (offset = 0; offset < LC_SIZE; offset += 8)
-+		if (!test_one_simple(valid_code, MKPTR(new_prefix + offset), 8, 8, PGM_BIT_SPEC, 0))
-+			break;
-+	report(offset == LC_SIZE, "SCCB prefix pages");
-+
-+	/* restore the previous contents of absolute pages 0 and 1 */
-+	memcpy(prefix_buf, 0, LC_SIZE);
-+	/* restore the prefix to the original value */
-+	set_prefix(prefix);
-+}
-+
-+/**
-+ * Test SCCBs that are above 2GB. If outside of memory, an addressing
-+ * exception is also allowed.
-+ */
-+static void test_sccb_high(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	uintptr_t a[33 * 4 * 2 + 2];	/* for the list of addresses to test */
-+
-+	uint64_t maxram;
-+	int i, pgm, len = 0;
-+
-+	h->length = 8;
-+	/* addresses with 1 bit set in the first 33 bits */
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 1UL << (i + 31);
-+	/* addresses with 2 consecutive bits set in the first 33 bits */
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 3UL << (i + 31);
-+	/* addresses with all bits set in bits 0..N */
-+	for (i = 0; i < 33; i++)
-+		a[len++] = 0xffffffff80000000UL << i;
-+	/* addresses with all bits set in bits N..33 */
-+	a[len++] = 0x80000000;
-+	for (i = 1; i < 33; i++, len++)
-+		a[len] = a[len - 1] | (1UL << (i + 31));
-+	/* all the addresses above, but adding the offset of a valid buffer */
-+	for (i = 0; i < len; i++)
-+		a[len + i] = a[i] + (intptr_t)h;
-+	len += i;
-+	/* two more hand-crafted addresses */
-+	a[len++] = 0xdeadbeef00000000;
-+	a[len++] = 0xdeaddeadbeef0000;
-+
-+	maxram = get_ram_size();
-+	for (i = 0; i < len; i++) {
-+		pgm = PGM_BIT_SPEC | (a[i] >= maxram ? PGM_BIT_ADDR : 0);
-+		if (!test_one_ro(valid_code, (void *)a[i], pgm, 0))
-+			break;
-+	}
-+	report(i == len, "SCCB high addresses");
-+}
-+
-+/**
-+ * Test invalid commands, both invalid command detail codes and valid
-+ * ones with invalid command class code.
-+ */
-+static void test_inval(void)
-+{
-+	const uint16_t res = SCLP_RC_INVALID_SCLP_COMMAND;
-+	uint32_t cmd;
-+	int i;
-+
-+	report_prefix_push("Invalid command");
-+	for (i = 0; i < 65536; i++) {
-+		cmd = 0xdead0000 | i;
-+		if (!test_one_simple(cmd, pagebuf, PAGE_SIZE, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report(i == 65536, "Command detail code");
-+
-+	for (i = 0; i < 256; i++) {
-+		cmd = (valid_code & ~0xff) | i;
-+		if (cmd == valid_code)
-+			continue;
-+		if (!test_one_simple(cmd, pagebuf, PAGE_SIZE, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report(i == 256, "Command class code");
-+	report_prefix_pop();
-+}
-+
-+
-+/**
-+ * Test short SCCBs (but larger than 8).
-+ */
-+static void test_short(void)
-+{
-+	const uint16_t res = SCLP_RC_INSUFFICIENT_SCCB_LENGTH;
-+	int len;
-+
-+	for (len = 8; len < 144; len++)
-+		if (!test_one_simple(valid_code, pagebuf, len, len, PGM_NONE, res))
-+			break;
-+	report(len == 144, "Insufficient SCCB length (Read SCP info)");
-+
-+	for (len = 8; len < 40; len++)
-+		if (!test_one_simple(SCLP_READ_CPU_INFO, pagebuf, len, len, PGM_NONE, res))
-+			break;
-+	report(len == 40, "Insufficient SCCB length (Read CPU info)");
-+}
-+
-+/**
-+ * Test SCCB page boundary violations.
-+ */
-+static void test_boundary(void)
-+{
-+	const uint32_t cmd = SCLP_CMD_WRITE_EVENT_DATA;
-+	const uint16_t res = SCLP_RC_SCCB_BOUNDARY_VIOLATION;
-+	WriteEventData *sccb = (WriteEventData *)sccb_template;
-+	int len, offset;
-+
-+	memset(sccb_template, 0, sizeof(sccb_template));
-+	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
-+	for (len = 32; len <= 4096; len++) {
-+		offset = len & 7 ? len & ~7 : len - 8;
-+		for (offset = 4096 - offset; offset < 4096; offset += 8) {
-+			sccb->h.length = len;
-+			if (!test_one_sccb(cmd, offset + pagebuf, len, PGM_NONE, res))
-+				goto out;
-+		}
-+	}
-+out:
-+	report(len > 4096 && offset == 4096, "SCCB page boundary violation");
-+}
-+
-+/**
-+ * Test excessively long SCCBs.
-+ */
-+static void test_toolong(void)
-+{
-+	const uint32_t cmd = SCLP_CMD_WRITE_EVENT_DATA;
-+	const uint16_t res = SCLP_RC_SCCB_BOUNDARY_VIOLATION;
-+	WriteEventData *sccb = (WriteEventData *)sccb_template;
-+	int len;
-+
-+	memset(sccb_template, 0, sizeof(sccb_template));
-+	sccb->h.function_code = SCLP_FC_NORMAL_WRITE;
-+	for (len = 4097; len < 8192; len++) {
-+		sccb->h.length = len;
-+		if (!test_one_sccb(cmd, pagebuf, PAGE_SIZE, PGM_NONE, res))
-+			break;
-+	}
-+	report(len == 8192, "SCCB bigger than 4k");
-+}
-+
-+/**
-+ * Test privileged operation.
-+ */
-+static void test_priv(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+
-+	report_prefix_push("Privileged operation");
-+	h->length = 8;
-+	expect_pgm_int();
-+	enter_pstate();
-+	servc(valid_code, __pa(h));
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+}
-+
-+/**
-+ * Test addressing exceptions. We need to test SCCB addresses between the
-+ * end of available memory and 2GB, because after 2GB a specification
-+ * exception is also allowed.
-+ * Only applicable if the VM has less than 2GB of memory
-+ */
-+static void test_addressing(void)
-+{
-+	unsigned long i, maxram = get_ram_size();
-+
-+	/* the VM has more than 2GB of memory */
-+	if (maxram >= 0x80000000) {
-+		report_skip("Invalid SCCB address");
-+		return;
-+	}
-+	/* test all possible valid addresses immediately after the end of memory
-+	 * up to 64KB after the end of memory
-+	 */
-+	for (i = 0; i < 0x10000 && i + maxram < 0x80000000; i += 8)
-+		if (!test_one_ro(valid_code, MKPTR(i + maxram), PGM_BIT_ADDR, 0))
-+			goto out;
-+	/* test more addresses until we reach 1MB after end of memory;
-+	 * increment by a prime number (times 8) in order to test all
-+	 * possible valid offsets inside pages
-+	 */
-+	for (; i < 0x100000 && i + maxram < 0x80000000 ; i += 808)
-+		if (!test_one_ro(valid_code, MKPTR(i + maxram), PGM_BIT_ADDR, 0))
-+			goto out;
-+	/* test the remaining addresses until we reach address 2GB;
-+	 * increment by a prime number (times 8) in order to test all
-+	 * possible valid offsets inside pages
-+	 */
-+	for (; i + maxram < 0x80000000; i += 800024)
-+		if (!test_one_ro(valid_code, MKPTR(i + maxram), PGM_BIT_ADDR, 0))
-+			goto out;
-+out:
-+	report(i + maxram >= 0x80000000, "Invalid SCCB address");
-+}
-+
-+/**
-+ * Test some bits in the instruction format that are specified to be ignored.
-+ */
-+static void test_instbits(void)
-+{
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	int cc;
-+
-+	expect_pgm_int();
-+	sclp_mark_busy();
-+	h->length = 8;
-+	sclp_setup_int();
-+
-+	asm volatile(
-+		"       .insn   rre,0xb2204200,%1,%2\n"  /* servc %1,%2 */
-+		"       ipm     %0\n"
-+		"       srl     %0,28"
-+		: "=&d" (cc) : "d" (valid_code), "a" (__pa(pagebuf))
-+		: "cc", "memory");
-+	if (lc->pgm_int_code) {
-+		sclp_handle_ext();
-+		cc = 1;
-+	} else if (!cc)
-+		sclp_wait_busy();
-+	report(cc == 0, "Instruction format ignored bits");
-+}
-+
-+/**
-+ * Find a valid READ INFO command code; not all codes are always allowed, and
-+ * probing should be performed in the right order.
-+ */
-+static void find_valid_sclp_code(void)
-+{
-+	const unsigned int commands[] = { SCLP_CMDW_READ_SCP_INFO_FORCED,
-+					  SCLP_CMDW_READ_SCP_INFO };
-+	SCCBHeader *h = (SCCBHeader *)pagebuf;
-+	int i, cc;
-+
-+	for (i = 0; i < ARRAY_SIZE(commands); i++) {
-+		sclp_mark_busy();
-+		memset(h, 0, sizeof(*h));
-+		h->length = 4096;
-+
-+		valid_code = commands[i];
-+		cc = sclp_service_call(commands[i], h);
-+		if (cc)
-+			break;
-+		if (h->response_code == SCLP_RC_NORMAL_READ_COMPLETION)
-+			return;
-+		if (h->response_code != SCLP_RC_INVALID_SCLP_COMMAND)
-+			break;
-+	}
-+	valid_code = 0;
-+	report_abort("READ_SCP_INFO failed");
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sclp");
-+	find_valid_sclp_code();
-+
-+	/* Test some basic things */
-+	test_instbits();
-+	test_priv();
-+	test_addressing();
-+
-+	/* Test the specification exceptions */
-+	test_sccb_too_short();
-+	test_sccb_unaligned();
-+	test_sccb_prefix();
-+	test_sccb_high();
-+
-+	/* Test the expected response codes */
-+	test_inval();
-+	test_short();
-+	test_boundary();
-+	test_toolong();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index f1b07cd..07013b2 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -75,3 +75,11 @@ file = stsi.elf
- [smp]
- file = smp.elf
- extra_params =-smp 2
-+
-+[sclp-1g]
-+file = sclp.elf
-+extra_params = -m 1G
-+
-+[sclp-3g]
-+file = sclp.elf
-+extra_params = -m 3G
--- 
-2.24.1
+ Thomas
