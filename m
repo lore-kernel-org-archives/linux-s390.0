@@ -1,73 +1,41 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Thomas Gleixner <tglx@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:35530 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729900AbgAOLlW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Jan 2020 06:41:22 -0500
+Date: Wed, 15 Jan 2020 11:41:12 +0000
+From: Sudeep Holla <sudeep.holla@arm.com>
 Subject: Re: [PATCH v5] reboot: support offline CPUs before reboot
-In-Reply-To: <20200115063410.131692-1-hsinyi@chromium.org>
+Message-ID: <20200115114112.GA3663@bogus>
 References: <20200115063410.131692-1-hsinyi@chromium.org>
-Date: Thu, 16 Jan 2020 01:30:33 +0100
-Message-ID: <8736cgxmxi.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200115063410.131692-1-hsinyi@chromium.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jkosina@suse.cz>, Pavankumar Kondeti <pkondeti@codeaurora.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Will Deacon <will@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, James Morse <james.morse@arm.com>, Mark Rutland <mark.rutland@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <groeck@chromium.org>, Stephen Boyd <swboyd@chromium.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-pm@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jkosina@suse.cz>, Pavankumar Kondeti <pkondeti@codeaurora.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Will Deacon <will@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, James Morse <james.morse@arm.com>, Mark Rutland <mark.rutland@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <groeck@chromium.org>, Stephen Boyd <swboyd@chromium.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, Sudeep Holla <sudeep.holla@arm.com>, linux-pm@vger.kernel.org
 
-Hsin-Yi Wang <hsinyi@chromium.org> writes:
-
+On Wed, Jan 15, 2020 at 02:34:10PM +0800, Hsin-Yi Wang wrote:
 > Currently system reboots uses architecture specific codes (smp_send_stop)
 > to offline non reboot CPUs. Most architecture's implementation is looping
 > through all non reboot online CPUs and call ipi function to each of them. Some
 > architecture like arm64, arm, and x86... would set offline masks to cpu without
 > really offline them. This causes some race condition and kernel warning comes
 > out sometimes when system reboots.
-
-'some race condition and kernel warning' is pretty useless information.
-Please describe exactly which kind of issues are caused by the current
-mechanism. Especially the race conditions are the interesting part (the
-warnings are just a consequence).
-
-> This patch adds a config ARCH_OFFLINE_CPUS_ON_REBOOT, which would
-> offline cpus in
-
-Please read Documentation/process/submitting-patches.rst and search for
-'This patch'.
-
+>
+> This patch adds a config ARCH_OFFLINE_CPUS_ON_REBOOT, which would offline cpus in
 > migrate_to_reboot_cpu(). If non reboot cpus are all offlined here, the loop for
-> checking online cpus would be an empty loop.
+> checking online cpus would be an empty loop. If architecture don't enable this
+> config, or some cpus somehow fails to offline, it would fallback to ipi
+> function.
+>
 
-This does not make any sense. The issues which you are trying to solve
-are going to be still there when CONFIG_HOTPLUG_CPU is disabled.
+What's the timing impact on systems with large number of CPUs(say 256 or
+more) ? I remember we added some change to reduce the wait times for
+offlining CPUs in system suspend path on arm64, still not negligible.
 
-> If architecture don't enable this config, or some cpus somehow fails
-> to offline, it would fallback to ipi function.
-
-This is really a half baken solution which keeps the various pointlessly
-different pseudo reboot/kexec offlining implementations around. So with
-this we have yet more code which only works depending on kernel
-configuration and has the issue of potentially not being able to offline
-a CPU. IOW this is going to fail completely in cases where a system is
-in a state which prevents regular hotplug.
-
-The existing pseudo-offline functions have timeouts and eventually a
-fallback, e.g. the NMI fallback on x86. With this proposed regular
-offline solution this will just get stuck w/o a chance to force
-recovery.
-
-While I like the idea and surely agree that the ideal solution is to
-properly shutdown the CPUs on reboot, we need to take a step back and
-look at the minimum requirements for a regular shutdown/reboot and at
-the same time have a look at the requirements for emergency shutdown and
-kexec/kcrash. Having proper information about the race conditions and
-warnings you mentioned would be a good starting point.
-
-> Opt in this config for architectures that support CONFIG_HOTPLUG_CPU.
-
-This is not opt-in. You force that on all architectures which support
-CONFIG_HOTPLUG_CPU. The way we do this normally is to provide the
-infrastructure first and then have separate patches (one per
-architecture) enabling this, which allows the architecture maintainers
-to decide individually.
-
-Thanks,
-
-        tglx
+--
+Regards,
+Sudeep
