@@ -1,158 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51612 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726495AbgANPbK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jan 2020 10:31:10 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00EFRPMf123245
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:09 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xfvvc56rn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:09 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 14 Jan 2020 15:31:07 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 1/4] s390x: smp: Cleanup smp.c
-Date: Tue, 14 Jan 2020 10:30:50 -0500
-In-Reply-To: <20200114153054.77082-1-frankja@linux.ibm.com>
-References: <20200114153054.77082-1-frankja@linux.ibm.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:51303 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726100AbgAPLLY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Jan 2020 06:11:24 -0500
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v5] reboot: support offline CPUs before reboot
+In-Reply-To: <CAJMQK-jDi+AACE1Cv_hKSMq8VhGTBeh+kyHO2U4sx9w=9bO2mA@mail.gmail.com>
+References: <20200115063410.131692-1-hsinyi@chromium.org> <8736cgxmxi.fsf@nanos.tec.linutronix.de> <CAJMQK-jDi+AACE1Cv_hKSMq8VhGTBeh+kyHO2U4sx9w=9bO2mA@mail.gmail.com>
+Date: Thu, 16 Jan 2020 12:10:56 +0100
+Message-ID: <87h80vwta7.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200114153054.77082-2-frankja@linux.ibm.com>
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jkosina@suse.cz>, Pavankumar Kondeti <pkondeti@codeaurora.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Will Deacon <will@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, James Morse <james.morse@arm.com>, Mark Rutland <mark.rutland@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <groeck@chromium.org>, Stephen Boyd <swboyd@chromium.org>, lkml <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, Linux PM <linux-pm@vger.kernel.org>
 
-Let's remove a lot of badly formatted code by introducing the
-wait_for_flag() function.
+Hsin-Yi Wang <hsinyi@chromium.org> writes:
+> On Thu, Jan 16, 2020 at 8:30 AM Thomas Gleixner <tglx@linutronix.de> wrote:
+> We saw this issue on regular reboot (not panic) on arm64: If tick
+> broadcast and smp_send_stop() happen together and the first broadcast
+> arrives to some idled CPU that hasn't already executed reboot ipi to
+> run in spinloop, it would try to broadcast to another CPU, but that
+> target CPU is already marked as offline by set_cpu_online() in reboot
+> ipi, and a warning comes out since tick_handle_oneshot_broadcast()
+> would check if it tries to broadcast to offline cpus. Most of the time
+> the CPU getting the broadcast interrupt is already in the spinloop and
+> thus isn't going to receive interrupts from the broadcast timer.
 
-Also let's remove some stray spaces.
+The timer broadcasting is obviously broken by the existing reboot unplug
+mechanism as the outgoing CPU should remove itself from the broadcast.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/smp.c | 41 +++++++++++++++++++++++------------------
- 1 file changed, 23 insertions(+), 18 deletions(-)
+Just addressing the broadcast issue is not sufficient as there are tons
+of other places which rely on consistency of the various cpu masks.
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index ab7e46c..4dee43e 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -22,6 +22,13 @@
- 
- static int testflag = 0;
- 
-+static void wait_for_flag(void)
-+{
-+	while (!testflag) {
-+		mb();
-+	}
-+}
-+
- static void cpu_loop(void)
- {
- 	for (;;) {}
-@@ -37,13 +44,11 @@ static void test_func(void)
- static void test_start(void)
- {
- 	struct psw psw;
--	psw.mask =  extract_psw_mask();
-+	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)test_func;
- 
- 	smp_cpu_setup(1, psw);
--	while (!testflag) {
--		mb();
--	}
-+	wait_for_flag();
- 	report(1, "start");
- }
- 
-@@ -115,24 +120,24 @@ static void ecall(void)
- 	testflag = 1;
- 	while (lc->ext_int_code != 0x1202) { mb(); }
- 	report(1, "ecall");
--	testflag= 1;
-+	testflag = 1;
- }
- 
- static void test_ecall(void)
- {
- 	struct psw psw;
--	psw.mask =  extract_psw_mask();
-+	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)ecall;
- 
- 	report_prefix_push("ecall");
--	testflag= 0;
-+	testflag = 0;
- 	smp_cpu_destroy(1);
- 
- 	smp_cpu_setup(1, psw);
--	while (!testflag) { mb(); }
--	testflag= 0;
-+	wait_for_flag();
-+	testflag = 0;
- 	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
--	while(!testflag) {mb();}
-+	wait_for_flag();
- 	smp_cpu_stop(1);
- 	report_prefix_pop();
- }
-@@ -147,7 +152,7 @@ static void emcall(void)
- 	mask = extract_psw_mask();
- 	mask |= PSW_MASK_EXT;
- 	load_psw_mask(mask);
--	testflag= 1;
-+	testflag = 1;
- 	while (lc->ext_int_code != 0x1201) { mb(); }
- 	report(1, "ecall");
- 	testflag = 1;
-@@ -156,18 +161,18 @@ static void emcall(void)
- static void test_emcall(void)
- {
- 	struct psw psw;
--	psw.mask =  extract_psw_mask();
-+	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)emcall;
- 
- 	report_prefix_push("emcall");
--	testflag= 0;
-+	testflag = 0;
- 	smp_cpu_destroy(1);
- 
- 	smp_cpu_setup(1, psw);
--	while (!testflag) { mb(); }
--	testflag= 0;
-+	wait_for_flag();
-+	testflag = 0;
- 	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
--	while(!testflag) { mb(); }
-+	wait_for_flag();
- 	smp_cpu_stop(1);
- 	report_prefix_pop();
- }
-@@ -177,7 +182,7 @@ static void test_reset_initial(void)
- 	struct cpu_status *status = alloc_pages(0);
- 	struct psw psw;
- 
--	psw.mask =  extract_psw_mask();
-+	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("reset initial");
-@@ -208,7 +213,7 @@ static void test_reset(void)
- {
- 	struct psw psw;
- 
--	psw.mask =  extract_psw_mask();
-+	psw.mask = extract_psw_mask();
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("cpu reset");
--- 
-2.20.1
+> If system supports hotplug, _cpu_down() would properly handle tasks
+> termination such as remove CPU from timer broadcasting by
+> tick_offline_cpu()...etc, as well as some interrupt handling.
+
+Well, emphasis on 'if system supports hotplug'. If not, then you are
+back to square one. On ARM64 hotplug is selectable by a config option.
+
+So either we mandate HOTPLUG_CPU for SMP and get rid of all the
+ifdeffery or we need to have a mechanism which works on !HOTPLUG_CPU as
+well.
+
+That whole reboot/shutdown stuff is an unpenetrable mess of notifiers
+and architecture hackery, so something generic and understandable is
+really required.
+
+Thanks,
+
+        tglx
