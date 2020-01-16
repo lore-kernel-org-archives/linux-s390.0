@@ -1,53 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34306 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729092AbgANPbT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jan 2020 10:31:19 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00EFRP2A123261
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:18 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xfvvc56ws-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 10:31:17 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 14 Jan 2020 15:31:15 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 4/4] s390x: smp: Dirty fpc before initial reset test
-Date: Tue, 14 Jan 2020 10:30:53 -0500
-In-Reply-To: <20200114153054.77082-1-frankja@linux.ibm.com>
-References: <20200114153054.77082-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387901AbgAPRAr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:47 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 162/671] net/smc: original socket family in inet_sock_diag
+Date: Thu, 16 Jan 2020 11:51:11 -0500
+Message-Id: <20200116165940.10720-45-sashal@kernel.org>
+In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
+References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200114153054.77082-5-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Eugene Syromiatnikov <esyr@redhat.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-Let's dirty the fpc, before we test if the initial reset sets it to 0.
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+[ Upstream commit 232dc8ef647658a5352da807d9e994e0e03b43cd ]
+
+Commit ed75986f4aae ("net/smc: ipv6 support for smc_diag.c") changed the
+value of the diag_family field. The idea was to indicate the family of
+the IP address in the inet_diag_sockid field. But the change makes it
+impossible to distinguish an inet_sock_diag response message from SMC
+sock_diag response. This patch restores the original behaviour and sends
+AF_SMC as value of the diag_family field.
+
+Fixes: ed75986f4aae ("net/smc: ipv6 support for smc_diag.c")
+Reported-by: Eugene Syromiatnikov <esyr@redhat.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- s390x/smp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/smc/smc_diag.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 11ab425..cd32342 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -177,6 +177,9 @@ static void test_emcall(void)
- 
- static void test_func_initial(void)
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index dbf64a93d68a..371b4cf31fcd 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -38,6 +38,7 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
  {
-+	asm volatile(
-+		"	sfpc	%0\n"
-+		: : "d" (0x11) : );
- 	lctlg(1, 0x42000UL);
- 	lctlg(7, 0x43000UL);
- 	lctlg(13, 0x44000UL);
+ 	struct smc_sock *smc = smc_sk(sk);
+ 
++	r->diag_family = sk->sk_family;
+ 	if (!smc->clcsock)
+ 		return;
+ 	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
+@@ -45,14 +46,12 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
+ 	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
+ 	sock_diag_save_cookie(sk, r->id.idiag_cookie);
+ 	if (sk->sk_protocol == SMCPROTO_SMC) {
+-		r->diag_family = PF_INET;
+ 		memset(&r->id.idiag_src, 0, sizeof(r->id.idiag_src));
+ 		memset(&r->id.idiag_dst, 0, sizeof(r->id.idiag_dst));
+ 		r->id.idiag_src[0] = smc->clcsock->sk->sk_rcv_saddr;
+ 		r->id.idiag_dst[0] = smc->clcsock->sk->sk_daddr;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else if (sk->sk_protocol == SMCPROTO_SMC6) {
+-		r->diag_family = PF_INET6;
+ 		memcpy(&r->id.idiag_src, &smc->clcsock->sk->sk_v6_rcv_saddr,
+ 		       sizeof(smc->clcsock->sk->sk_v6_rcv_saddr));
+ 		memcpy(&r->id.idiag_dst, &smc->clcsock->sk->sk_v6_daddr,
 -- 
 2.20.1
