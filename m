@@ -1,76 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61880 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729224AbgAaPJA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 10:09:00 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF7D7Q123357
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:08:59 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvkrfftpd-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:08:58 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 31 Jan 2020 15:03:54 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/7] KVM: s390: Fixes and cleanups for 5.6
-Date: Fri, 31 Jan 2020 16:03:41 +0100
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:45460 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729660AbgAPG0b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 16 Jan 2020 01:26:31 -0500
+Received: by mail-pl1-f195.google.com with SMTP id b22so7885296pls.12
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2020 22:26:31 -0800 (PST)
+From: Daniel Axtens <dja@axtens.net>
+Subject: [PATCH v2 0/3] Fix some incompatibilites between KASAN and FORTIFY_SOURCE
+Date: Thu, 16 Jan 2020 17:26:22 +1100
+Message-Id: <20200116062625.32692-1-dja@axtens.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200131150348.73360-1-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com
+Cc: linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, dvyukov@google.com, christophe.leroy@c-s.fr, Daniel Axtens <dja@axtens.net>
 
-Paolo,
-mostly fixes and cleanups for 5.6.
-Patch 2 has cc stable.
+3 KASAN self-tests fail on a kernel with both KASAN and FORTIFY_SOURCE:
+memchr, memcmp and strlen. I have observed this on x86 and powerpc.
 
-The following changes since commit d1eef1c619749b2a57e514a3fa67d9a516ffa919:
+When FORTIFY_SOURCE is on, a number of functions are replaced with
+fortified versions, which attempt to check the sizes of the
+operands. However, these functions often directly invoke __builtin_foo()
+once they have performed the fortify check.
 
-  Linux 5.5-rc2 (2019-12-15 15:16:08 -0800)
+This breaks things in 2 ways:
 
-are available in the Git repository at:
+ - the three function calls are technically dead code, and can be
+   eliminated. When __builtin_ versions are used, the compiler can detect
+   this.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.6-1
+ - Using __builtins may bypass KASAN checks if the compiler decides to
+   inline it's own implementation as sequence of instructions, rather than
+   emit a function call that goes out to a KASAN-instrumented
+   implementation.
 
-for you to fetch changes up to b2ff728bae9b04b533fbc8de66f1719c4dc889de:
+The patches address each reason in turn. Finally, test_memcmp used a
+stack array without explicit initialisation, which can sometimes break
+too, so fix that up.
 
-  selftests: KVM: testing the local IRQs resets (2020-01-31 13:17:21 +0100)
+v2: - some cleanups, don't mess with arch code as I missed some wrinkles.
+    - add stack array init (patch 3)
 
-----------------------------------------------------------------
-KVM: s390: Fixes and cleanups for 5.6
-- fix register corruption
-- ENOTSUPP/EOPNOTSUPP mixed
-- reset cleanups/fixes
-- selftests
+Daniel Axtens (3):
+  kasan: stop tests being eliminated as dead code with FORTIFY_SOURCE
+  string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
+  kasan: initialise array in kasan_memcmp test
 
-----------------------------------------------------------------
-Christian Borntraeger (2):
-      KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
-      KVM: s390: do not clobber registers during guest reset/store status
+ include/linux/string.h | 60 +++++++++++++++++++++++++++++++++---------
+ lib/test_kasan.c       | 32 +++++++++++++---------
+ 2 files changed, 68 insertions(+), 24 deletions(-)
 
-Janosch Frank (4):
-      KVM: s390: Cleanup initial cpu reset
-      KVM: s390: Add new reset vcpu API
-      selftests: KVM: Add fpu and one reg set/get library functions
-      selftests: KVM: s390x: Add reset tests
-
-Pierre Morel (1):
-      selftests: KVM: testing the local IRQs resets
-
- Documentation/virt/kvm/api.txt                 |  43 ++++++
- arch/s390/include/asm/kvm_host.h               |   5 +
- arch/s390/kvm/interrupt.c                      |   6 +-
- arch/s390/kvm/kvm-s390.c                       |  92 +++++++-----
- include/uapi/linux/kvm.h                       |   5 +
- tools/testing/selftests/kvm/Makefile           |   1 +
- tools/testing/selftests/kvm/include/kvm_util.h |   6 +
- tools/testing/selftests/kvm/lib/kvm_util.c     |  36 +++++
- tools/testing/selftests/kvm/s390x/resets.c     | 197 +++++++++++++++++++++++++
- 9 files changed, 354 insertions(+), 37 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/s390x/resets.c
+-- 
+2.20.1
