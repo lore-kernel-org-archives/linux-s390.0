@@ -1,59 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:36916 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726075AbgAOGhc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jan 2020 01:37:32 -0500
-Received: by mail-pf1-f193.google.com with SMTP id p14so8028221pfn.4
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2020 22:37:31 -0800 (PST)
-From: Daniel Axtens <dja@axtens.net>
-Subject: [PATCH 0/2] Fix some incompatibilites between KASAN and FORTIFY_SOURCE
-Date: Wed, 15 Jan 2020 17:37:08 +1100
-Message-Id: <20200115063710.15796-1-dja@axtens.net>
+Received: from mail.kernel.org ([198.145.29.99]:56666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390610AbgAPRM4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:12:56 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 593/671] net/smc: receive returns without data
+Date: Thu, 16 Jan 2020 12:03:51 -0500
+Message-Id: <20200116170509.12787-330-sashal@kernel.org>
+In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
+References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com
-Cc: linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, Daniel Axtens <dja@axtens.net>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <jakub.kicinski@netronome.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-3 KASAN self-tests fail on a kernel with both KASAN and FORTIFY_SOURCE:
-memchr, memcmp and strlen. I have observed this on x86 and powerpc.
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-When FORTIFY_SOURCE is on, a number of functions are replaced with
-fortified versions, which attempt to check the sizes of the
-operands. However, these functions often directly invoke __builtin_foo()
-once they have performed the fortify check.
+[ Upstream commit 882dcfe5a1785c20f45820cbe6fec4b8b647c946 ]
 
-This breaks things in 2 ways:
+smc_cdc_rxed_any_close_or_senddone() is used as an end condition for the
+receive loop. This conflicts with smc_cdc_msg_recv_action() which could
+run in parallel and set the bits checked by
+smc_cdc_rxed_any_close_or_senddone() before the receive is processed.
+In that case we could return from receive with no data, although data is
+available. The same applies to smc_rx_wait().
+Fix this by checking for RCV_SHUTDOWN only, which is set in
+smc_cdc_msg_recv_action() after the receive was actually processed.
 
- - the three function calls are technically dead code, and can be
-   eliminated. When __builtin_ versions are used, the compiler can detect
-   this.
+Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/smc/smc_rx.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
- - Using __builtins may bypass KASAN checks if the compiler decides to
-   inline it's own implementation as sequence of instructions, rather than
-   emit a function call that goes out to a KASAN-instrumented
-   implementation.
-
-The patches address each reason in turn.
-
-As a result, we're also able to remove a snippet of code copy-pasted
-between every KASAN implementation that tries (largely unsuccessfully) to
-disable FORTIFY_SOURCE under KASAN.
-
-Daniel Axtens (2):
-  kasan: stop tests being eliminated as dead code with FORTIFY_SOURCE
-  string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
-
- arch/arm64/include/asm/string.h   |  4 ---
- arch/powerpc/include/asm/string.h |  4 ---
- arch/s390/include/asm/string.h    |  4 ---
- arch/x86/include/asm/string_64.h  |  4 ---
- arch/xtensa/include/asm/string.h  |  3 --
- include/linux/string.h            | 49 +++++++++++++++++++++++--------
- lib/test_kasan.c                  | 30 ++++++++++++-------
- 7 files changed, 56 insertions(+), 42 deletions(-)
-
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index bbcf0fe4ae10..1ee5fdbf8284 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -212,8 +212,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
+ 	rc = sk_wait_event(sk, timeo,
+ 			   sk->sk_err ||
+ 			   sk->sk_shutdown & RCV_SHUTDOWN ||
+-			   fcrit(conn) ||
+-			   smc_cdc_rxed_any_close_or_senddone(conn),
++			   fcrit(conn),
+ 			   &wait);
+ 	remove_wait_queue(sk_sleep(sk), &wait);
+ 	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+@@ -311,7 +310,6 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+ 			smc_rx_update_cons(smc, 0);
+ 
+ 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
+-		    smc_cdc_rxed_any_close_or_senddone(conn) ||
+ 		    conn->local_tx_ctrl.conn_state_flags.peer_conn_abort)
+ 			break;
+ 
 -- 
 2.20.1
