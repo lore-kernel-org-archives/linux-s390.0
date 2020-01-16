@@ -1,103 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Tue,  7 Jan 2020 13:59:51 -0700
-Message-Id: <20200107205959.7575-1-logang@deltatee.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52326 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726088AbgAPMFb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jan 2020 07:05:31 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00GBvR08112605
+        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:30 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xjmynd4ry-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:30 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 16 Jan 2020 12:05:28 -0000
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/7] s390x: smp: Improve smp code and reset checks
+Date: Thu, 16 Jan 2020 07:05:06 -0500
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH v2 0/8] Allow setting caching mode in arch_add_memory() for P2PDMA
-Sender: linux-kernel-owner@vger.kernel.org
+Message-Id: <20200116120513.2244-1-frankja@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-Hi,
+Let's extend sigp reset testing and clean up the smp library as well.
 
-The main feedback from v1 was around the interface for arch_add_memory().
-Per Dan's suggestions I've renamed the mhp_restrictions structure to
-mhp_modifiers and put a pgprot_t field in that structure. I've also
-included patch to drop the unused flags field.
+GIT: https://github.com/frankjaa/kvm-unit-tests/tree/smp_cleanup
 
-Thanks,
+v2:
+	* Added cpu stop to test_store_status()
+	* Added smp_cpu_destroy() to the end of smp.c main()
+	* New patch that prints cpu id on interrupt errors
+	* New patch that reworks cpu start in the smp library (needed for lpar)
+	* New patch that waits for cpu setup in smp_cpu_setup() (needed for lpar)
+	* nullp is now an array
 
-Logan
+Janosch Frank (7):
+  s390x: smp: Cleanup smp.c
+  s390x: smp: Only use smp_cpu_setup once
+  s390x: Add cpu id to interrupt error prints
+  s390x: smp: Rework cpu start and active tracking
+  s390x: smp: Wait for cpu setup to finish
+  s390x: smp: Test all CRs on initial reset
+  s390x: smp: Dirty fpc before initial reset test
 
---
+ lib/s390x/interrupt.c | 20 +++++------
+ lib/s390x/smp.c       | 47 +++++++++++++-----------
+ s390x/cstart64.S      |  2 ++
+ s390x/smp.c           | 84 +++++++++++++++++++++++++++++--------------
+ 4 files changed, 96 insertions(+), 57 deletions(-)
 
-Changes in v2:
- * Rebased onto v5.5-rc5
- * Renamed mhp_restrictions to mhp_modifiers and added the pgprot field
-   to that structure instead of using an argument for
-   arch_add_memory().
- * Add patch to drop the unused flags field in mhp_restrictions
-
-A git branch is available here:
-
-https://github.com/sbates130272/linux-p2pmem remap_pages_cache_v2
-
---
-
-Currently, the page tables created using memremap_pages() are always
-created with the PAGE_KERNEL cacheing mode. However, the P2PDMA code
-is creating pages for PCI BAR memory which should never be accessed
-through the cache and instead use either WC or UC. This still works in
-most cases, on x86, because the MTRR registers typically override the
-caching settings in the page tables for all of the IO memory to be
-UC-. However, this tends not to work so well on other arches or
-some rare x86 machines that have firmware which does not setup the
-MTRR registers in this way.
-
-Instead of this, this series proposes a change to arch_add_memory()
-to take the pgprot required by the mapping which allows us to
-explicitly set pagetable entries for P2PDMA memory to WC.
-
-This changes is pretty routine for most of the arches: x86_64, s390, arm64
-and powerpc simply need to thread the pgprot through to where the page
-tables are setup. x86_32 unfortunately sets up the page tables at boot so
-must use _set_memory_prot() to change their caching mode. ia64 and sh
-don't appear to have an easy way to change the page tables so, for now
-at least, we just return -EINVAL on such mappings and thus they will
-not support P2PDMA memory until the work for this is done.
-
---
-
-Logan Gunthorpe (8):
-  mm/memory_hotplug: Drop the flags field from struct mhp_restrictions
-  mm/memory_hotplug: Rename mhp_restrictions to mhp_modifiers
-  x86/mm: Thread pgprot_t through init_memory_mapping()
-  x86/mm: Introduce _set_memory_prot()
-  powerpc/mm: Thread pgprot_t through create_section_mapping()
-  s390/mm: Thread pgprot_t through vmem_add_mapping()
-  mm/memory_hotplug: Add pgprot_t to mhp_modifiers
-  mm/memremap: Set caching mode for PCI P2PDMA memory to WC
-
- arch/arm64/mm/mmu.c                        |  7 ++--
- arch/ia64/mm/init.c                        |  6 +++-
- arch/powerpc/include/asm/book3s/64/hash.h  |  3 +-
- arch/powerpc/include/asm/book3s/64/radix.h |  3 +-
- arch/powerpc/include/asm/sparsemem.h       |  3 +-
- arch/powerpc/mm/book3s64/hash_utils.c      |  5 +--
- arch/powerpc/mm/book3s64/pgtable.c         |  7 ++--
- arch/powerpc/mm/book3s64/radix_pgtable.c   | 18 ++++++----
- arch/powerpc/mm/mem.c                      | 10 +++---
- arch/s390/include/asm/pgtable.h            |  3 +-
- arch/s390/mm/extmem.c                      |  3 +-
- arch/s390/mm/init.c                        |  8 ++---
- arch/s390/mm/vmem.c                        | 10 +++---
- arch/sh/mm/init.c                          |  7 ++--
- arch/x86/include/asm/page_types.h          |  3 --
- arch/x86/include/asm/pgtable.h             |  3 ++
- arch/x86/include/asm/set_memory.h          |  1 +
- arch/x86/kernel/amd_gart_64.c              |  3 +-
- arch/x86/mm/init.c                         |  9 ++---
- arch/x86/mm/init_32.c                      | 12 +++++--
- arch/x86/mm/init_64.c                      | 40 ++++++++++++----------
- arch/x86/mm/mm_internal.h                  |  3 +-
- arch/x86/mm/pageattr.c                     |  7 ++++
- arch/x86/platform/efi/efi_64.c             |  3 +-
- include/linux/memory_hotplug.h             | 16 ++++-----
- mm/memory_hotplug.c                        |  8 ++---
- mm/memremap.c                              | 17 +++++----
- 27 files changed, 132 insertions(+), 86 deletions(-)
-
---
+-- 
 2.20.1
