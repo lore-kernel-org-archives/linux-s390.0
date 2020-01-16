@@ -1,100 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2856 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726873AbgA3JLF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jan 2020 04:11:05 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00U9AFMR016313
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 04:11:04 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xubct5xbw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 04:11:04 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 30 Jan 2020 09:11:02 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH] KVM: s390: Cleanup initial cpu reset
-Date: Thu, 30 Jan 2020 04:10:55 -0500
-In-Reply-To: <20200129200312.3200-1-frankja@linux.ibm.com>
-References: <20200129200312.3200-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388493AbgAPRGZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:06:25 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 314/671] s390/kexec_file: Fix potential segment overlap in ELF loader
+Date: Thu, 16 Jan 2020 11:59:12 -0500
+Message-Id: <20200116170509.12787-51-sashal@kernel.org>
+In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
+References: <20200116170509.12787-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200130091055.1857-1-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Philipp Rudo <prudo@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-The code seems to be quite old and uses lots of unneeded spaces for
-alignment, which doesn't really help with readability.
+From: Philipp Rudo <prudo@linux.ibm.com>
 
-Let's:
-* Get rid of the extra spaces
-* Remove the ULs as they are not needed on 0s
-* Define constants for the CR 0 and 14 initial values
-* Use the sizeof of the gcr array to memset it to 0
+[ Upstream commit 6339a3889ad4d0dd930ed7a1e873fb81d3e690f7 ]
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+When loading an ELF image via kexec_file the segment alignment is ignored
+in the calculation for the load address of the next segment. When there are
+multiple segments this can lead to segment overlap and thus load failure.
+
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Fixes: 8be018827154 ("s390/kexec_file: Add ELF loader")
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ arch/s390/kernel/kexec_elf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I only send out 4 of the 5 patches...
-
----
- arch/s390/include/asm/kvm_host.h |  5 +++++
- arch/s390/kvm/kvm-s390.c         | 18 +++++++-----------
- 2 files changed, 12 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 02f4c21c57f6..73044545ecac 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -122,6 +122,11 @@ struct mcck_volatile_info {
- 	__u32 reserved;
- };
+diff --git a/arch/s390/kernel/kexec_elf.c b/arch/s390/kernel/kexec_elf.c
+index 602e7cc26d11..5cf340b778f1 100644
+--- a/arch/s390/kernel/kexec_elf.c
++++ b/arch/s390/kernel/kexec_elf.c
+@@ -58,7 +58,7 @@ static int kexec_file_add_elf_kernel(struct kimage *image,
+ 		if (ret)
+ 			return ret;
  
-+#define CR0_INITIAL_MASK (CR0_UNUSED_56 | CR0_INTERRUPT_KEY_SUBMASK | \
-+			  CR0_MEASUREMENT_ALERT_SUBMASK)
-+#define CR14_INITIAL_MASK (CR14_UNUSED_32 | CR14_UNUSED_33 | \
-+			   CR14_EXTERNAL_DAMAGE_SUBMASK)
-+
- #define CPUSTAT_STOPPED    0x80000000
- #define CPUSTAT_WAIT       0x10000000
- #define CPUSTAT_ECALL_PEND 0x08000000
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3d54f0..c5f520de39a6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2847,19 +2847,15 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
- {
- 	/* this equals initial cpu reset in pop, but we don't switch to ESA */
--	vcpu->arch.sie_block->gpsw.mask = 0UL;
--	vcpu->arch.sie_block->gpsw.addr = 0UL;
-+	vcpu->arch.sie_block->gpsw.mask = 0;
-+	vcpu->arch.sie_block->gpsw.addr = 0;
- 	kvm_s390_set_prefix(vcpu, 0);
- 	kvm_s390_set_cpu_timer(vcpu, 0);
--	vcpu->arch.sie_block->ckc       = 0UL;
--	vcpu->arch.sie_block->todpr     = 0;
--	memset(vcpu->arch.sie_block->gcr, 0, 16 * sizeof(__u64));
--	vcpu->arch.sie_block->gcr[0]  = CR0_UNUSED_56 |
--					CR0_INTERRUPT_KEY_SUBMASK |
--					CR0_MEASUREMENT_ALERT_SUBMASK;
--	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
--					CR14_UNUSED_33 |
--					CR14_EXTERNAL_DAMAGE_SUBMASK;
-+	vcpu->arch.sie_block->ckc = 0;
-+	vcpu->arch.sie_block->todpr = 0;
-+	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
-+	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
-+	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
- 	/* make sure the new fpc will be lazily loaded */
- 	save_fpu_regs();
- 	current->thread.fpu.fpc = 0;
+-		data->memsz += buf.memsz;
++		data->memsz = ALIGN(data->memsz, phdr->p_align) + buf.memsz;
+ 	}
+ 
+ 	return 0;
 -- 
 2.20.1
