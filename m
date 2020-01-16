@@ -1,140 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37436 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729210AbgAQIDj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Jan 2020 03:03:39 -0500
-Received: by mail-wr1-f67.google.com with SMTP id w15so21745896wru.4
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 00:03:37 -0800 (PST)
-From: Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH v2 1/2] asm-generic: Make dma-contiguous.h a mandatory include/asm header
-Date: Fri, 17 Jan 2020 09:03:31 +0100
-Message-Id: <0274919c5e3b134df19d943f99cb7e84e5135ccd.1579248206.git.michal.simek@xilinx.com>
-In-Reply-To: <cover.1579248206.git.michal.simek@xilinx.com>
-References: <cover.1579248206.git.michal.simek@xilinx.com>
+Received: from mail.kernel.org ([198.145.29.99]:55828 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393476AbgAPRj2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:39:28 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 155/251] net/af_iucv: always register net_device notifier
+Date: Thu, 16 Jan 2020 12:35:04 -0500
+Message-Id: <20200116173641.22137-115-sashal@kernel.org>
+In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
+References: <20200116173641.22137-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu, michal.simek@xilinx.com, git@xilinx.com, Christoph Hellwig <hch@lst.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Paul Burton <paulburton@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Palmer Dabbelt <palmer@dabbelt.com>, x86@kernel.org, Guo Ren <guoren@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, Wesley Terpstra <wesley@sifive.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ralf Baechle <ralf@linux-mips.org>, Paul Walmsley <paul.walmsley@sifive.com>, Max Filippov <jcmvbkbc@gmail.com>, linux-xtensa@linux-xtensa.org, "H. Peter Anvin" <hpa@zytor.com>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Deepa Dinamani <deepa.kernel@gmail.com>, Chris Zankel <chris@zankel.net>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, linux-arm-kernel@lists.infradead.org, Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>, James Hogan <jhogan@kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
 
-dma-continuguous.h is generic for all architectures except arm32 which has
-its own version.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Similar change was done for msi.h by commit a1b39bae16a6
-("asm-generic: Make msi.h a mandatory include/asm header")
+[ Upstream commit 06996c1d4088a0d5f3e7789d7f96b4653cc947cc ]
 
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
+open HiperTransport-based connections. For robust operation these
+connections require the af_iucv_netdev_notifier, so register it
+unconditionally.
+
+Also handle any error that register_netdevice_notifier() returns.
+
+Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-Changes in v2:
-- New patch suggested by Christoph
-
- arch/arm64/include/asm/Kbuild  | 1 -
- arch/csky/include/asm/Kbuild   | 1 -
- arch/mips/include/asm/Kbuild   | 1 -
- arch/riscv/include/asm/Kbuild  | 1 -
- arch/s390/include/asm/Kbuild   | 1 -
- arch/x86/include/asm/Kbuild    | 1 -
- arch/xtensa/include/asm/Kbuild | 1 -
- include/asm-generic/Kbuild     | 1 +
- 8 files changed, 1 insertion(+), 7 deletions(-)
-
-diff --git a/arch/arm64/include/asm/Kbuild b/arch/arm64/include/asm/Kbuild
-index bd23f87d6c55..d3077c991962 100644
---- a/arch/arm64/include/asm/Kbuild
-+++ b/arch/arm64/include/asm/Kbuild
-@@ -3,7 +3,6 @@ generic-y += bugs.h
- generic-y += delay.h
- generic-y += div64.h
- generic-y += dma.h
--generic-y += dma-contiguous.h
- generic-y += dma-mapping.h
- generic-y += early_ioremap.h
- generic-y += emergency-restart.h
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index 4d4754e6bf89..bc15a26c782f 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -7,7 +7,6 @@ generic-y += delay.h
- generic-y += device.h
- generic-y += div64.h
- generic-y += dma.h
--generic-y += dma-contiguous.h
- generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
-diff --git a/arch/mips/include/asm/Kbuild b/arch/mips/include/asm/Kbuild
-index 61b0fc2026e6..179403ae5837 100644
---- a/arch/mips/include/asm/Kbuild
-+++ b/arch/mips/include/asm/Kbuild
-@@ -6,7 +6,6 @@ generated-y += syscall_table_64_n64.h
- generated-y += syscall_table_64_o32.h
- generic-y += current.h
- generic-y += device.h
--generic-y += dma-contiguous.h
- generic-y += emergency-restart.h
- generic-y += export.h
- generic-y += irq_work.h
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index 1efaeddf1e4b..ec0ca8c6ab64 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -7,7 +7,6 @@ generic-y += div64.h
- generic-y += extable.h
- generic-y += flat.h
- generic-y += dma.h
--generic-y += dma-contiguous.h
- generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 2531f673f099..1832ae6442ef 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -7,7 +7,6 @@ generated-y += unistd_nr.h
- generic-y += asm-offsets.h
- generic-y += cacheflush.h
- generic-y += device.h
--generic-y += dma-contiguous.h
- generic-y += dma-mapping.h
- generic-y += div64.h
- generic-y += emergency-restart.h
-diff --git a/arch/x86/include/asm/Kbuild b/arch/x86/include/asm/Kbuild
-index 8b52bc5ddf69..ea34464d6221 100644
---- a/arch/x86/include/asm/Kbuild
-+++ b/arch/x86/include/asm/Kbuild
-@@ -7,7 +7,6 @@ generated-y += unistd_32_ia32.h
- generated-y += unistd_64_x32.h
- generated-y += xen-hypercalls.h
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index c2dfc32eb9f2..02e10deef5b4 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -2431,6 +2431,13 @@ static int afiucv_iucv_init(void)
+ 	return err;
+ }
  
--generic-y += dma-contiguous.h
- generic-y += early_ioremap.h
- generic-y += export.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index 3acc31e55e02..271917c24b7f 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -4,7 +4,6 @@ generic-y += bug.h
- generic-y += compat.h
- generic-y += device.h
- generic-y += div64.h
--generic-y += dma-contiguous.h
- generic-y += dma-mapping.h
- generic-y += emergency-restart.h
- generic-y += exec.h
-diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
-index ddfee1bd9dc1..cd17d50697cc 100644
---- a/include/asm-generic/Kbuild
-+++ b/include/asm-generic/Kbuild
-@@ -4,5 +4,6 @@
- # (This file is not included when SRCARCH=um since UML borrows several
- # asm headers from the host architecutre.)
++static void afiucv_iucv_exit(void)
++{
++	device_unregister(af_iucv_dev);
++	driver_unregister(&af_iucv_driver);
++	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
++}
++
+ static int __init afiucv_init(void)
+ {
+ 	int err;
+@@ -2464,11 +2471,18 @@ static int __init afiucv_init(void)
+ 		err = afiucv_iucv_init();
+ 		if (err)
+ 			goto out_sock;
+-	} else
+-		register_netdevice_notifier(&afiucv_netdev_notifier);
++	}
++
++	err = register_netdevice_notifier(&afiucv_netdev_notifier);
++	if (err)
++		goto out_notifier;
++
+ 	dev_add_pack(&iucv_packet_type);
+ 	return 0;
  
-+mandatory-y += dma-contiguous.h
- mandatory-y += msi.h
- mandatory-y += simd.h
++out_notifier:
++	if (pr_iucv)
++		afiucv_iucv_exit();
+ out_sock:
+ 	sock_unregister(PF_IUCV);
+ out_proto:
+@@ -2482,12 +2496,11 @@ static int __init afiucv_init(void)
+ static void __exit afiucv_exit(void)
+ {
+ 	if (pr_iucv) {
+-		device_unregister(af_iucv_dev);
+-		driver_unregister(&af_iucv_driver);
+-		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
++		afiucv_iucv_exit();
+ 		symbol_put(iucv_if);
+-	} else
+-		unregister_netdevice_notifier(&afiucv_netdev_notifier);
++	}
++
++	unregister_netdevice_notifier(&afiucv_netdev_notifier);
+ 	dev_remove_pack(&iucv_packet_type);
+ 	sock_unregister(PF_IUCV);
+ 	proto_unregister(&iucv_proto);
 -- 
-2.25.0
+2.20.1
