@@ -1,56 +1,54 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:51280 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727257AbgAGVAQ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:16 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Tue,  7 Jan 2020 13:59:59 -0700
-Message-Id: <20200107205959.7575-9-logang@deltatee.com>
-In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
-References: <20200107205959.7575-1-logang@deltatee.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [PATCH v2 8/8] mm/memremap: Set caching mode for PCI P2PDMA memory to WC
-Sender: linux-s390-owner@vger.kernel.org
+References: <20200114110620.164861-1-hsinyi@chromium.org> <a701522f-73aa-2277-4a25-f84a27f38118@landley.net>
+In-Reply-To: <a701522f-73aa-2277-4a25-f84a27f38118@landley.net>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
+Date: Fri, 17 Jan 2020 12:20:56 +0800
+Message-ID: <CAJMQK-iH7FPgj2cNZr==Szd8bnRyHC7=GzQt6-zsFq3eCdWJ1Q@mail.gmail.com>
+Subject: Re: [PATCH RESEND v4] reboot: support offline CPUs before reboot
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Jason Gunthorpe <jgg@ziepe.ca>
+To: Rob Landley <rob@landley.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Josh Poimboeuf <jpoimboe@redhat.com>, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Jiri Kosina <jkosina@suse.cz>, Pavankumar Kondeti <pkondeti@codeaurora.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, Aaro Koskinen <aaro.koskinen@nokia.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Will Deacon <will@kernel.org>, Fenghua Yu <fenghua.yu@intel.com>, James Morse <james.morse@arm.com>, Mark Rutland <mark.rutland@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Guenter Roeck <groeck@chromium.org>, Stephen Boyd <swboyd@chromium.org>, lkml <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-csky@vger.kernel.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, Linux-sh list <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, Linux PM <linux-pm@vger.kernel.org>
 
-PCI BAR IO memory should never be mapped as WB, however prior to this
-the PAT bits were set WB and it was typically overridden by MTRR
-registers set by the firmware.
+On Fri, Jan 17, 2020 at 12:16 PM Rob Landley <rob@landley.net> wrote:
+>
+> On 1/14/20 5:06 AM, Hsin-Yi Wang wrote:
+> > This patch adds a config ARCH_OFFLINE_CPUS_ON_REBOOT, which would offline cpus in
+> > migrate_to_reboot_cpu(). If non reboot cpus are all offlined here, the loop for
+> > checking online cpus would be an empty loop. If architecture don't enable this
+> > config, or some cpus somehow fails to offline, it would fallback to ipi
+> > function.
+>
+> I'm curious:
+>
+> > +# Select to do a full offline on secondary CPUs before reboot.
+> > +config ARCH_OFFLINE_CPUS_ON_REBOOT
+> > +     bool "Support for offline CPUs before reboot"
+> > +     depends on HOTPLUG_CPU
+>
+> The new symbol can't be selected without the other symbol.
+>
+> > +     select ARCH_OFFLINE_CPUS_ON_REBOOT if HOTPLUG_CPU
+>
+> And the other symbol automatically selects the new one.
+>
+> Why are you adding a second symbol that means the same thing as the existing symbol?
+>
 
-Set PCI P2PDMA memory to be WC (writecombining) as the only current
-user (the NVMe CMB) was originally mapped WC before the P2PDMA code
-replaced the mapping with devm_memremap_pages().
+I should make the arch selecting this symbol in other patches and let
+the arch decides if they want to opt in, as Thomas pointed out in v5:
+https://lore.kernel.org/lkml/8736cgxmxi.fsf@nanos.tec.linutronix.de/
 
-Future use-cases may need to generalize this by adding flags to
-select the caching type, as some P2PDMA cases will not want WC.
-However, those use-cases are not upstream yet and this can be changed
-when they arrive.
+Current solution is not sufficient since it only solve problems for
+system that enables HOTPLUG_CPU.
 
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- mm/memremap.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 45ab4ef0643d..d36ff688b768 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -187,7 +187,10 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 		}
- 		break;
- 	case MEMORY_DEVICE_DEVDAX:
-+		need_devmap_managed = false;
-+		break;
- 	case MEMORY_DEVICE_PCI_P2PDMA:
-+		modifiers.pgprot = pgprot_writecombine(modifiers.pgprot);
- 		need_devmap_managed = false;
- 		break;
- 	default:
--- 
-2.20.1
+> > +#if defined(CONFIG_PM_SLEEP_SMP) || defined(CONFIG_ARCH_OFFLINE_CPUS_ON_REBOOT)
+> > +extern int freeze_secondary_cpus(int primary, bool reboot);
+> > +#endif
+>
+> Couldn't that just test HOTPLUG_CPU? What's the second symbol for? (You can have
+> empty stub functions when architectures don't support a thing...)
+>
+> Rob
