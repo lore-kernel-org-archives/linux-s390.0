@@ -1,88 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14526 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728851AbgAQKrI (ORCPT
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54705 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726573AbgATMCm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Jan 2020 05:47:08 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00HAbui1087639
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:47:07 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xk0qr8r2p-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:47:07 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 17 Jan 2020 10:47:05 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 8/9] s390x: smp: Test all CRs on initial reset
-Date: Fri, 17 Jan 2020 05:46:39 -0500
-In-Reply-To: <20200117104640.1983-1-frankja@linux.ibm.com>
+        Mon, 20 Jan 2020 07:02:42 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 1/9] s390x: smp: Cleanup smp.c
 References: <20200117104640.1983-1-frankja@linux.ibm.com>
+ <20200117104640.1983-2-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <7b41b492-efb0-b695-0cd7-4f82bc2db143@redhat.com>
+Date: Mon, 20 Jan 2020 13:02:35 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200117104640.1983-9-frankja@linux.ibm.com>
+In-Reply-To: <20200117104640.1983-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, cohuck@redhat.com
 
-All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
-so we also need to test 1-13 and 15 for 0.
+On 17.01.20 11:46, Janosch Frank wrote:
+> Let's remove a lot of badly formatted code by introducing the
+> wait_for_flag() function.
+> 
+> Also let's remove some stray spaces.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  s390x/smp.c | 42 +++++++++++++++++++++++-------------------
+>  1 file changed, 23 insertions(+), 19 deletions(-)
+> 
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index ab7e46c..8d8e3a5 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -22,6 +22,13 @@
+>  
+>  static int testflag = 0;
+>  
+> +static void wait_for_flag(void)
+> +{
+> +	while (!testflag) {
+> +		mb();
+> +	}
 
-And while we're at it, let's also set some values to cr 1, 7 and 13, so
-we can actually be sure that they will be zeroed.
+No need for the {}
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/smp.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index c12a3db..1385488 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -169,16 +169,30 @@ static void test_emcall(void)
- 	report_prefix_pop();
- }
- 
-+/* Used to dirty registers of cpu #1 before it is reset */
-+static void test_func_initial(void)
-+{
-+	lctlg(1, 0x42000UL);
-+	lctlg(7, 0x43000UL);
-+	lctlg(13, 0x44000UL);
-+	mb();
-+	testflag = 1;
-+}
-+
- static void test_reset_initial(void)
- {
- 	struct cpu_status *status = alloc_pages(0);
-+	uint64_t nullp[12] = {};
- 	struct psw psw;
- 
- 	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)test_func;
-+	psw.addr = (unsigned long)test_func_initial;
- 
- 	report_prefix_push("reset initial");
-+	testflag = 0;
-+	mb();
- 	smp_cpu_start(1, psw);
-+	wait_for_flag();
- 
- 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
- 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-@@ -189,6 +203,8 @@ static void test_reset_initial(void)
- 	report(!status->fpc, "fpc");
- 	report(!status->cputm, "cpu timer");
- 	report(!status->todpr, "todpr");
-+	report(!memcmp(&status->crs[1], nullp, sizeof(status->crs[1]) * 12), "cr1-13 == 0");
-+	report(status->crs[15] == 0, "cr15 == 0");
- 	report_prefix_pop();
- 
- 	report_prefix_push("initialized");
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
