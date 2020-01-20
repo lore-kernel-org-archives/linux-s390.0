@@ -1,68 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6428 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728737AbgAIQQc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jan 2020 11:16:32 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 009GA1Na140847
-        for <linux-s390@vger.kernel.org>; Thu, 9 Jan 2020 11:16:31 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xe1snpxcf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 09 Jan 2020 11:16:31 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Thu, 9 Jan 2020 16:16:29 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 1/4] s390x: export sclp_setup_int
-Date: Thu,  9 Jan 2020 17:16:22 +0100
-In-Reply-To: <20200109161625.154894-1-imbrenda@linux.ibm.com>
-References: <20200109161625.154894-1-imbrenda@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:47890 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726642AbgATOxc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jan 2020 09:53:32 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 4/9] s390x: smp: Rework cpu start and
+ active tracking
+References: <20200117104640.1983-1-frankja@linux.ibm.com>
+ <20200117104640.1983-5-frankja@linux.ibm.com>
+ <0f9984f0-9768-dba8-5e36-8e667bc05c88@redhat.com>
+ <22cbcc9d-1d32-a5c9-4f3f-7892e28bc705@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <66fde098-e238-e590-a9c5-44c552e1a32b@redhat.com>
+Date: Mon, 20 Jan 2020 15:53:26 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200109161625.154894-2-imbrenda@linux.ibm.com>
+In-Reply-To: <22cbcc9d-1d32-a5c9-4f3f-7892e28bc705@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, cohuck@redhat.com
 
-Export sclp_setup_int() so that it can be used in tests.
+> Well, I have restarts in the smp test and I don't want to always pass a
+> psw if I know what the last restart psw was.
+> Simply restarting into test_func or wait_for_flag is certainly no problem.
+> 
+>>
 
-Needed for an upcoming unit test.
+Makes sense.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/sclp.h | 1 +
- lib/s390x/sclp.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+>>> +	rc = sigp(addr, SIGP_RESTART, 0, NULL);
+>>> +	if (rc)
+>>> +		return rc;
+>>> +	/*
+>>> +	 * The order has been accepted, but the actual restart may not
+>>> +	 * have been performed yet, so wait until the cpu is running.
+>>> +	 */
+>>> +	while (!smp_cpu_running(addr))
+>>> +		mb();
+>>
+>> Should you make sure to stop the CPU before issuing the restart?
+>> Otherwise you will get false positives if it is still running (but
+>> hasn't processed the RESTART yet)
+> 
+> Good point
+> 
 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 6d40fb7..675f07e 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -265,6 +265,7 @@ typedef struct ReadEventData {
- } __attribute__((packed)) ReadEventData;
- 
- extern char _sccb[];
-+void sclp_setup_int(void);
- void sclp_handle_ext(void);
- void sclp_wait_busy(void);
- void sclp_mark_busy(void);
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 7798f04..123b639 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -45,7 +45,7 @@ static void mem_init(phys_addr_t mem_end)
- 	page_alloc_ops_enable();
- }
- 
--static void sclp_setup_int(void)
-+void sclp_setup_int(void)
- {
- 	uint64_t mask;
- 
+
 -- 
-2.24.1
+Thanks,
+
+David / dhildenb
