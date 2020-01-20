@@ -1,69 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49082 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726589AbgATSnF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jan 2020 13:43:05 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00KIcr3F035950
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:04 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xmgf04hr3-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:03 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Mon, 20 Jan 2020 18:43:01 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 1/6] s390x: export sclp_setup_int
-Date: Mon, 20 Jan 2020 19:42:51 +0100
-In-Reply-To: <20200120184256.188698-1-imbrenda@linux.ibm.com>
-References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:54618 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726876AbgATOx4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jan 2020 09:53:56 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 8/9] s390x: smp: Test all CRs on initial
+ reset
+References: <20200117104640.1983-1-frankja@linux.ibm.com>
+ <20200117104640.1983-9-frankja@linux.ibm.com>
+ <15f8b733-1b81-4a1b-22fe-53099878c013@redhat.com>
+ <d866273e-5108-e634-4e92-93aa66bbed57@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <87b89c08-bd94-967a-f61b-18a9cdfa7453@redhat.com>
+Date: Mon, 20 Jan 2020 15:53:48 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200120184256.188698-2-imbrenda@linux.ibm.com>
+In-Reply-To: <d866273e-5108-e634-4e92-93aa66bbed57@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, cohuck@redhat.com
 
-Export sclp_setup_int() so that it can be used in tests.
+On 20.01.20 15:49, Janosch Frank wrote:
+> On 1/20/20 1:10 PM, David Hildenbrand wrote:
+>> On 17.01.20 11:46, Janosch Frank wrote:
+>>> All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
+>>> so we also need to test 1-13 and 15 for 0.
+>>>
+>>> And while we're at it, let's also set some values to cr 1, 7 and 13, so
+>>> we can actually be sure that they will be zeroed.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>  s390x/smp.c | 18 +++++++++++++++++-
+>>>  1 file changed, 17 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/s390x/smp.c b/s390x/smp.c
+>>> index c12a3db..1385488 100644
+>>> --- a/s390x/smp.c
+>>> +++ b/s390x/smp.c
+>>> @@ -169,16 +169,30 @@ static void test_emcall(void)
+>>>  	report_prefix_pop();
+>>>  }
+>>>  
+>>> +/* Used to dirty registers of cpu #1 before it is reset */
+>>> +static void test_func_initial(void)
+>>> +{
+>>> +	lctlg(1, 0x42000UL);
+>>> +	lctlg(7, 0x43000UL);
+>>> +	lctlg(13, 0x44000UL);
+>>> +	mb();
+>>> +	testflag = 1;
+>>> +}
+>>> +
+>>>  static void test_reset_initial(void)
+>>>  {
+>>>  	struct cpu_status *status = alloc_pages(0);
+>>> +	uint64_t nullp[12] = {};
+>>>  	struct psw psw;
+>>>  
+>>>  	psw.mask = extract_psw_mask();
+>>> -	psw.addr = (unsigned long)test_func;
+>>> +	psw.addr = (unsigned long)test_func_initial;
+>>>  
+>>>  	report_prefix_push("reset initial");
+>>> +	testflag = 0;
+>>> +	mb();
+>>
+>> maybe use a  set_flag() function like
+>>
+>> mb();
+>> testflag = val;
+>> mb();
+>>
+>> and use it everywhere you set the flag? (e.g., in test_func_initial())
+> 
+> Hmm, so basically a set_test_flag() function in a new patch :)
+> Ok, I'll have a look.
 
-Needed for an upcoming unit test.
+Sorry that this patch set keeps exploding :)
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/sclp.h | 1 +
- lib/s390x/sclp.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 6d40fb7..675f07e 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -265,6 +265,7 @@ typedef struct ReadEventData {
- } __attribute__((packed)) ReadEventData;
- 
- extern char _sccb[];
-+void sclp_setup_int(void);
- void sclp_handle_ext(void);
- void sclp_wait_busy(void);
- void sclp_mark_busy(void);
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 7798f04..123b639 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -45,7 +45,7 @@ static void mem_init(phys_addr_t mem_end)
- 	page_alloc_ops_enable();
- }
- 
--static void sclp_setup_int(void)
-+void sclp_setup_int(void)
- {
- 	uint64_t mask;
- 
 -- 
-2.24.1
+Thanks,
+
+David / dhildenb
