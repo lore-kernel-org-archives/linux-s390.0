@@ -1,58 +1,114 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:51158 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727439AbgAJWFb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 17:05:31 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 13/26] s390/qeth: Fix vnicc_is_in_use if rx_bcast not set
-Date: Fri, 10 Jan 2020 17:05:06 -0500
-Message-Id: <20200110220519.28250-8-sashal@kernel.org>
-In-Reply-To: <20200110220519.28250-1-sashal@kernel.org>
-References: <20200110220519.28250-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55108 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726935AbgATSnG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Jan 2020 13:43:06 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00KIcsYi023951
+        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:05 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xmgbpc4a1-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:05 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Mon, 20 Jan 2020 18:43:03 -0000
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v8 4/6] s390x: lib: add SPX and STPX instruction wrapper
+Date: Mon, 20 Jan 2020 19:42:54 +0100
+In-Reply-To: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200120184256.188698-5-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+Add a wrapper for the SET PREFIX and STORE PREFIX instructions, and
+use it instead of using inline assembly.
 
-[ Upstream commit e8a66d800471e2df7f0b484e2e46898b21d1fa82 ]
-
-Symptom: After vnicc/rx_bcast has been manually set to 0,
-	bridge_* sysfs parameters can still be set or written.
-Only occurs on HiperSockets, as OSA doesn't support changing rx_bcast.
-
-Vnic characteristics and bridgeport settings are mutually exclusive.
-rx_bcast defaults to 1, so manually setting it to 0 should disable
-bridge_* parameters.
-
-Instead it makes sense here to check the supported mask. If the card
-does not support vnicc at all, bridge commands are always allowed.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l2_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ s390x/intercept.c        | 24 +++++++++---------------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 5272a4c36db8..dcbdaa5ce455 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1982,8 +1982,7 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
- /* check if VNICC is currently enabled */
- bool qeth_l2_vnicc_is_in_use(struct qeth_card *card)
- {
--	/* if everything is turned off, VNICC is not active */
--	if (!card->options.vnicc.cur_chars)
-+	if (!card->options.vnicc.sup_chars)
- 		return false;
- 	/* default values are only OK if rx_bcast was not enabled by user
- 	 * or the card is offline.
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 1a5e3c6..15a4d49 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -284,4 +284,17 @@ static inline int servc(uint32_t command, unsigned long sccb)
+ 	return cc;
+ }
+ 
++static inline void set_prefix(uint32_t new_prefix)
++{
++	asm volatile("	spx %0" : : "Q" (new_prefix) : "memory");
++}
++
++static inline uint32_t get_prefix(void)
++{
++	uint32_t current_prefix;
++
++	asm volatile("	stpx %0" : "=Q" (current_prefix));
++	return current_prefix;
++}
++
+ #endif
+diff --git a/s390x/intercept.c b/s390x/intercept.c
+index 3696e33..5f46b82 100644
+--- a/s390x/intercept.c
++++ b/s390x/intercept.c
+@@ -13,6 +13,7 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/interrupt.h>
+ #include <asm/page.h>
++#include <asm/facility.h>
+ 
+ static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+ 
+@@ -26,13 +27,10 @@ static void test_stpx(void)
+ 	uint32_t new_prefix = (uint32_t)(intptr_t)pagebuf;
+ 
+ 	/* Can we successfully change the prefix? */
+-	asm volatile (
+-		" stpx	%0\n"
+-		" spx	%2\n"
+-		" stpx	%1\n"
+-		" spx	%0\n"
+-		: "+Q"(old_prefix), "+Q"(tst_prefix)
+-		: "Q"(new_prefix));
++	old_prefix = get_prefix();
++	set_prefix(new_prefix);
++	tst_prefix = get_prefix();
++	set_prefix(old_prefix);
+ 	report(old_prefix == 0 && tst_prefix == new_prefix, "store prefix");
+ 
+ 	expect_pgm_int();
+@@ -63,14 +61,10 @@ static void test_spx(void)
+ 	 * some facility bits there ... at least some of them should be
+ 	 * set in our buffer afterwards.
+ 	 */
+-	asm volatile (
+-		" stpx	%0\n"
+-		" spx	%1\n"
+-		" stfl	0\n"
+-		" spx	%0\n"
+-		: "+Q"(old_prefix)
+-		: "Q"(new_prefix)
+-		: "memory");
++	old_prefix = get_prefix();
++	set_prefix(new_prefix);
++	stfl();
++	set_prefix(old_prefix);
+ 	report(pagebuf[GEN_LC_STFL] != 0, "stfl to new prefix");
+ 
+ 	expect_pgm_int();
 -- 
-2.20.1
+2.24.1
