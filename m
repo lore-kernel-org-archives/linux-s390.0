@@ -1,25 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45614 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728093AbgAUJSH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jan 2020 04:18:07 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:36226 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725789AbgAUGPt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 21 Jan 2020 01:15:49 -0500
 Subject: Re: [kvm-unit-tests PATCH v8 3/6] s390x: lib: fix stfl wrapper asm
 References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
  <20200120184256.188698-4-imbrenda@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <9f89b339-f9e1-57e5-da0a-d8a090b558cc@redhat.com>
-Date: Tue, 21 Jan 2020 10:17:58 +0100
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <810e2bb3-42b9-2b23-6ea6-1023d496cc3b@redhat.com>
+Date: Tue, 21 Jan 2020 07:15:38 +0100
 MIME-Version: 1.0
 In-Reply-To: <20200120184256.188698-4-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-On 20.01.20 19:42, Claudio Imbrenda wrote:
+On 20/01/2020 19.42, Claudio Imbrenda wrote:
 > the stfl wrapper in lib/s390x/asm/facility.h was lacking the "memory"
 > clobber in the inline asm.
 > 
@@ -43,9 +44,4 @@ On 20.01.20 19:42, Claudio Imbrenda wrote:
 >  static inline void stfle(uint8_t *fac, unsigned int len)
 > 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Thomas Huth <thuth@redhat.com>
