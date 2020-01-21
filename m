@@ -1,99 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12700 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727904AbgAJNsh (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20050 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729297AbgAUNn1 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jan 2020 08:48:37 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00ADlJEQ011899
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 08:48:36 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xedstmuf9-1
+        Tue, 21 Jan 2020 08:43:27 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00LDh8t5092345
+        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:26 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xmg3b14q1-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2020 08:48:36 -0500
+        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:26 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 10 Jan 2020 13:48:34 -0000
+        Tue, 21 Jan 2020 13:43:24 -0000
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH] KVM: s390: Cleanup initial cpu reset
-Date: Fri, 10 Jan 2020 08:48:24 -0500
-In-Reply-To: <b01c38bf-5887-25d8-b787-271e5c2292e2@redhat.com>
-References: <b01c38bf-5887-25d8-b787-271e5c2292e2@redhat.com>
+Subject: [kvm-unit-tests PATCH v4 8/9] s390x: smp: Test all CRs on initial reset
+Date: Tue, 21 Jan 2020 08:42:53 -0500
+In-Reply-To: <20200121134254.4570-1-frankja@linux.ibm.com>
+References: <20200121134254.4570-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200110134824.37963-1-frankja@linux.ibm.com>
+Message-Id: <20200121134254.4570-9-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-The code seems to be quite old and uses lots of unneeded spaces for
-alignment, which doesn't really help with readability.
+All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
+so we also need to test 1-13 and 15 for 0.
 
-Let's:
-* Get rid of the extra spaces
-* Remove the ULs as they are not needed on 0s
-* Define constants for the CR 0 and 14 initial values
-* Use the sizeof of the gcr array to memset it to 0
+And while we're at it, let's also set some values to cr 1, 7 and 13, so
+we can actually be sure that they will be zeroed.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
+ s390x/smp.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-Something like this?
-Did I forget something?
-
----
- arch/s390/include/asm/kvm_host.h |  5 +++++
- arch/s390/kvm/kvm-s390.c         | 18 +++++++-----------
- 2 files changed, 12 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 02f4c21c57f6..37747db884bd 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -122,6 +122,11 @@ struct mcck_volatile_info {
- 	__u32 reserved;
- };
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 45f1d80..e36ab8c 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -176,16 +176,28 @@ static void test_emcall(void)
+ 	report_prefix_pop();
+ }
  
-+#define CR0_INITIAL (CR0_UNUSED_56 | CR0_INTERRUPT_KEY_SUBMASK | \
-+		     CR0_MEASUREMENT_ALERT_SUBMASK)
-+#define CR14_INITIAL (CR14_UNUSED_32 | CR14_UNUSED_33 | \
-+		      CR14_EXTERNAL_DAMAGE_SUBMASK)
++/* Used to dirty registers of cpu #1 before it is reset */
++static void test_func_initial(void)
++{
++	lctlg(1, 0x42000UL);
++	lctlg(7, 0x43000UL);
++	lctlg(13, 0x44000UL);
++	set_flag(1);
++}
 +
- #define CPUSTAT_STOPPED    0x80000000
- #define CPUSTAT_WAIT       0x10000000
- #define CPUSTAT_ECALL_PEND 0x08000000
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d9e6bf3d54f0..c163311e7f3d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2847,19 +2847,15 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
+ static void test_reset_initial(void)
  {
- 	/* this equals initial cpu reset in pop, but we don't switch to ESA */
--	vcpu->arch.sie_block->gpsw.mask = 0UL;
--	vcpu->arch.sie_block->gpsw.addr = 0UL;
-+	vcpu->arch.sie_block->gpsw.mask = 0;
-+	vcpu->arch.sie_block->gpsw.addr = 0;
- 	kvm_s390_set_prefix(vcpu, 0);
- 	kvm_s390_set_cpu_timer(vcpu, 0);
--	vcpu->arch.sie_block->ckc       = 0UL;
--	vcpu->arch.sie_block->todpr     = 0;
--	memset(vcpu->arch.sie_block->gcr, 0, 16 * sizeof(__u64));
--	vcpu->arch.sie_block->gcr[0]  = CR0_UNUSED_56 |
--					CR0_INTERRUPT_KEY_SUBMASK |
--					CR0_MEASUREMENT_ALERT_SUBMASK;
--	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
--					CR14_UNUSED_33 |
--					CR14_EXTERNAL_DAMAGE_SUBMASK;
-+	vcpu->arch.sie_block->ckc = 0;
-+	vcpu->arch.sie_block->todpr = 0;
-+	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
-+	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL;
-+	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL;
- 	/* make sure the new fpc will be lazily loaded */
- 	save_fpu_regs();
- 	current->thread.fpu.fpc = 0;
+ 	struct cpu_status *status = alloc_pages(0);
++	uint64_t nullp[12] = {};
+ 	struct psw psw;
+ 
+ 	psw.mask = extract_psw_mask();
+-	psw.addr = (unsigned long)test_func;
++	psw.addr = (unsigned long)test_func_initial;
+ 
+ 	report_prefix_push("reset initial");
++	set_flag(0);
+ 	smp_cpu_start(1, psw);
++	wait_for_flag();
+ 
+ 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
+ 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
+@@ -196,6 +208,8 @@ static void test_reset_initial(void)
+ 	report(!status->fpc, "fpc");
+ 	report(!status->cputm, "cpu timer");
+ 	report(!status->todpr, "todpr");
++	report(!memcmp(&status->crs[1], nullp, sizeof(status->crs[1]) * 12), "cr1-13 == 0");
++	report(status->crs[15] == 0, "cr15 == 0");
+ 	report_prefix_pop();
+ 
+ 	report_prefix_push("initialized");
 -- 
 2.20.1
