@@ -1,26 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20220 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728186AbgAURgr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jan 2020 12:36:47 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:28862 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727255AbgAUO24 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 21 Jan 2020 09:28:56 -0500
+Date: Tue, 21 Jan 2020 15:28:44 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [kvm-unit-tests PATCH v4 6/9] s390x: smp: Loop if secondary cpu
  returns into cpu setup again
-References: <20200121134254.4570-1-frankja@linux.ibm.com>
- <20200121134254.4570-7-frankja@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <2e601bc3-dd4e-9883-4c4d-e107ffcd84f7@redhat.com>
-Date: Tue, 21 Jan 2020 18:36:36 +0100
-MIME-Version: 1.0
+Message-ID: <20200121152844.22fd9e03.cohuck@redhat.com>
 In-Reply-To: <20200121134254.4570-7-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
+References: <20200121134254.4570-1-frankja@linux.ibm.com>
+        <20200121134254.4570-7-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, cohuck@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com
 
-On 21.01.20 14:42, Janosch Frank wrote:
+On Tue, 21 Jan 2020 08:42:51 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
 > Up to now a secondary cpu could have returned from the function it was
 > executing and ending up somewhere in cstart64.S. This was mostly
 > circumvented by an endless loop in the function that it executed.
@@ -46,11 +48,5 @@ On 21.01.20 14:42, Janosch Frank wrote:
 >  
 >  pgm_int:
 >  	SAVE_REGS
-> 
 
-Acked-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+Acked-by: Cornelia Huck <cohuck@redhat.com>
