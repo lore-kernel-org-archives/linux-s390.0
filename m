@@ -1,64 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46684 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726752AbgATSnG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jan 2020 13:43:06 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00KIcrGq090490
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:06 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xmgdk8qq1-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2020 13:43:05 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Mon, 20 Jan 2020 18:43:03 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 5/6] s390x: lib: fix program interrupt handler if sclp_busy was set
-Date: Mon, 20 Jan 2020 19:42:55 +0100
-In-Reply-To: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:51619 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725802AbgAVPBe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jan 2020 10:01:34 -0500
+Subject: Re: strict aliasing in kvm-unit-tests (was: Re: [kvm-unit-tests PATCH
+ v8 6/6] s390x: SCLP unit test)
 References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+ <20200120184256.188698-7-imbrenda@linux.ibm.com>
+ <35e59971-c09e-2808-1be6-f2ccd555c4f6@redhat.com>
+ <42c5b040-733d-4e5b-0276-5b94315336bb@redhat.com>
+ <e406268e-7881-f5c3-7b28-70e355765539@redhat.com>
+ <997a62b7-7ab7-6119-4948-e8779e639101@redhat.com>
+ <4d09b567-c2ae-ec9d-59d0-bd259a86b14d@redhat.com>
+ <946e1194-4607-c928-6d66-9e306dc1216a@redhat.com>
+ <d467e614-621b-aca7-4255-dfe5707b5dd7@redhat.com>
+ <ddf083a3-7d29-ca78-0fd9-e7e3c38e0f04@redhat.com>
+ <aa3c6235-7a9e-d7c5-bd9d-974f2b947992@redhat.com>
+From: Laurent Vivier <lvivier@redhat.com>
+Message-ID: <3ab57ab8-d015-3ae6-550c-39db94d52265@redhat.com>
+Date: Wed, 22 Jan 2020 16:01:19 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200120184256.188698-6-imbrenda@linux.ibm.com>
+In-Reply-To: <aa3c6235-7a9e-d7c5-bd9d-974f2b947992@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-Fix the program interrupt handler for the case where sclp_busy is set.
+On 22/01/2020 15:42, Paolo Bonzini wrote:
+> On 22/01/20 15:15, Thomas Huth wrote:
+>> On 22/01/2020 13.16, Thomas Huth wrote:
+>>> On 22/01/2020 11.40, David Hildenbrand wrote:
+>>>> On 22.01.20 11:39, Thomas Huth wrote:
+>>>>> On 22/01/2020 11.32, David Hildenbrand wrote:
+>>>>>> On 22.01.20 11:31, Thomas Huth wrote:
+>>>>>>> On 22/01/2020 11.22, David Hildenbrand wrote:
+>>>>>>>> On 22.01.20 11:10, David Hildenbrand wrote:
+>>> [...]
+>>>>>>>>> Doing a fresh ./configure + make on RHEL7 gives me
+>>>>>>>>>
+>>>>>>>>> [linux1@rhkvm01 kvm-unit-tests]$ make
+>>>>>>>>> gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
+>>>>>>>>> s390x/sclp.c: In function 'test_one_simple':
+>>>>>>>>> s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+>>>>>>>>>   ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>>>>>>   ^
+>>>>>>>>> s390x/sclp.c: At top level:
+>>>>>>>>> cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
+>>>>>>>>> cc1: all warnings being treated as errors
+>>>>>>>>> make: *** [s390x/sclp.o] Error 1
+>>>>>>>>
+>>>>>>>> The following makes it work:
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> diff --git a/s390x/sclp.c b/s390x/sclp.c
+>>>>>>>> index c13fa60..0b8117a 100644
+>>>>>>>> --- a/s390x/sclp.c
+>>>>>>>> +++ b/s390x/sclp.c
+>>>>>>>> @@ -117,8 +117,10 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
+>>>>>>>>  static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
+>>>>>>>>                         uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
+>>>>>>>>  {
+>>>>>>>> +       SCCBHeader *header = (void *)sccb_template;
+>>>>>>>> +
+>>>>>>>>         memset(sccb_template, 0, sizeof(sccb_template));
+>>>>>>>> -       ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>>>>> +       header->length = sccb_len;
+>>>>>>>
+>>>>>>> While that might silence the compiler warning, we still might get
+>>>>>>> aliasing problems here, I think.
+>>>>>>> The right way to solve this problem is to turn sccb_template into a
+>>>>>>> union of the various structs/arrays that you want to use and then access
+>>>>>>> the fields through the union instead ("type-punning through union").
+>>>>>>
+>>>>>> We do have the exact same thing in lib/s390x/sclp.c already, no?
+>>>>>
+>>>>> Maybe we should carefully check that code, too...
+>>>>>
+>>>>>> Especially, new compilers don't seem to care?
+>>>>>
+>>>>> I've seen horrible bugs due to these aliasing problems in the past -
+>>>>> without compiler warnings showing up! Certain versions of GCC assume
+>>>>> that they can re-order code with pointers that point to types of
+>>>>> different sizes, i.e. in the above example, I think they could assume
+>>>>> that they could re-order the memset() and the header->length = ... line.
+>>>>> I'd feel better if we play safe and use a union here.
+>>>>
+>>>> Should we simply allow type-punning?
+>>>
+>>> Maybe yes. The kernel also compiles with "-fno-strict-aliasing", and
+>>> since kvm-unit-tests is mainly a "playground" for people who do kernel
+>>> development, too, we should maybe also compile the unit tests with
+>>> "-fno-strict-aliasing".
+>>>
+>>> Paolo, Andrew, Laurent, what do you think?
+> 
+> I think enabling -fno-strict-aliasing is a good idea.
 
-The interrupt handler will attempt to write an error message on the
-console using the SCLP, and will wait for sclp_busy to become false
-before doing so. If an exception happenes between setting the flag and
-the SCLP call, or if the call itself raises an exception, we need to
-clear the flag so we can successfully print the error message.
+I agree too
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/interrupt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 05f30be..ccb376a 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -106,10 +106,13 @@ static void fixup_pgm_int(void)
- 
- void handle_pgm_int(void)
- {
--	if (!pgm_int_expected)
-+	if (!pgm_int_expected) {
-+		/* Force sclp_busy to false, otherwise we will loop forever */
-+		sclp_handle_ext();
- 		report_abort("Unexpected program interrupt: %d at %#lx, ilen %d\n",
- 			     lc->pgm_int_code, lc->pgm_old_psw.addr,
- 			     lc->pgm_int_id);
-+	}
- 
- 	pgm_int_expected = false;
- 	fixup_pgm_int();
--- 
-2.24.1
+Laurent
