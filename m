@@ -1,208 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:51290 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728293AbgAGVAR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:17 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Tue,  7 Jan 2020 13:59:56 -0700
-Message-Id: <20200107205959.7575-6-logang@deltatee.com>
-In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
-References: <20200107205959.7575-1-logang@deltatee.com>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:30799 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729016AbgAVKC5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Jan 2020 05:02:57 -0500
+Subject: Re: [kvm-unit-tests PATCH v8 0/6] s390x: SCLP Unit test
+From: David Hildenbrand <david@redhat.com>
+References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+ <b47c3b26-398a-1791-802d-8f6f6abf3498@redhat.com>
+Message-ID: <3919c77f-1b89-07b2-8bb9-67ba5289defc@redhat.com>
+Date: Wed, 22 Jan 2020 11:02:48 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [PATCH v2 5/8] powerpc/mm: Thread pgprot_t through create_section_mapping()
+In-Reply-To: <b47c3b26-398a-1791-802d-8f6f6abf3498@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-In prepartion to support a pgprot_t argument for arch_add_memory().
+On 22.01.20 10:55, David Hildenbrand wrote:
+> On 20.01.20 19:42, Claudio Imbrenda wrote:
+>> This patchset contains some minor cleanup, some preparatory work and
+>> then the SCLP unit test itself.
+>>
+>> The unit test checks the following:
+>>     
+>>     * Correctly ignoring instruction bits that should be ignored
+>>     * Privileged instruction check
+>>     * Check for addressing exceptions
+>>     * Specification exceptions:
+>>       - SCCB size less than 8
+>>       - SCCB unaligned
+>>       - SCCB overlaps prefix or lowcore
+>>       - SCCB address higher than 2GB
+>>     * Return codes for
+>>       - Invalid command
+>>       - SCCB too short (but at least 8)
+>>       - SCCB page boundary violation
+>>
+>> v7 -> v8
+>> * fixed existing stfl asm wrapper
+>> * now using stfl asm wrapper in intercept.c
+>> * patched the program interrupt handler to clear the sclp_busy bit
+>> * removed now unnecessary expect_pgm_int from the unit test
+>> v6 -> v7
+>> * renamed spx() and stpx() wrappers to set_prefix and get_prefix
+>> * set_prefix now takes a value and get_prefix now returns a value
+>> * put back some inline assembly for spx and stpx as a consequence
+>> * used LC_SIZE instead of 2 * PAGE_SIZE everywhere in the unit test
+>> v5 -> v6
+>> * fixed a bug in test_addressing
+>> * improved comments in test_sccb_prefix
+>> * replaced all inline assembly usages of spx and stpx with the wrappers
+>> * added one more wrapper for test_one_sccb for read-only tests
+>> v4 -> v5
+>> * updated usage of report()
+>> * added SPX and STPX wrappers to the library
+>> * improved readability
+>> * addressed some more comments
+>> v3 -> v4
+>> * export sclp_setup_int instead of copying it
+>> * add more comments
+>> * rename some more variables to improve readability
+>> * improve the prefix test
+>> * improved the invalid address test
+>> * addressed further comments received during review
+>> v2 -> v3
+>> * generally improved the naming of variables
+>> * added and fixed comments
+>> * renamed test_one_run to test_one_simple
+>> * added some const where needed
+>> * addresed many more small comments received during review
+>> v1 -> v2
+>> * fix many small issues that came up during the first round of reviews
+>> * add comments to each function
+>> * use a static buffer for the SCCP template when used
+>>
+>> Claudio Imbrenda (6):
+>>   s390x: export sclp_setup_int
+>>   s390x: sclp: add service call instruction wrapper
+>>   s390x: lib: fix stfl wrapper asm
+>>   s390x: lib: add SPX and STPX instruction wrapper
+>>   s390x: lib: fix program interrupt handler if sclp_busy was set
+>>   s390x: SCLP unit test
+>>
+>>  s390x/Makefile           |   1 +
+>>  lib/s390x/asm/arch_def.h |  26 +++
+>>  lib/s390x/asm/facility.h |   2 +-
+>>  lib/s390x/sclp.h         |   1 +
+>>  lib/s390x/interrupt.c    |   5 +-
+>>  lib/s390x/sclp.c         |   9 +-
+>>  s390x/intercept.c        |  24 +-
+>>  s390x/sclp.c             | 474 +++++++++++++++++++++++++++++++++++++++
+>>  s390x/unittests.cfg      |   8 +
+>>  9 files changed, 526 insertions(+), 24 deletions(-)
+>>  create mode 100644 s390x/sclp.c
+>>
+> 
+> Queued to
+> 
+> https://github.com/davidhildenbrand/qemu.git s390-tcg-next
 
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- arch/powerpc/include/asm/book3s/64/hash.h  |  3 ++-
- arch/powerpc/include/asm/book3s/64/radix.h |  3 ++-
- arch/powerpc/include/asm/sparsemem.h       |  3 ++-
- arch/powerpc/mm/book3s64/hash_utils.c      |  5 +++--
- arch/powerpc/mm/book3s64/pgtable.c         |  7 ++++---
- arch/powerpc/mm/book3s64/radix_pgtable.c   | 18 +++++++++++-------
- arch/powerpc/mm/mem.c                      |  5 +++--
- 7 files changed, 27 insertions(+), 17 deletions(-)
+Lol, wrong shortcut (thanks Thomas :) )
 
-diff --git a/arch/powerpc/include/asm/book3s/64/hash.h b/arch/powerpc/include/asm/book3s/64/hash.h
-index 2781ebf6add4..6fc4520092c7 100644
---- a/arch/powerpc/include/asm/book3s/64/hash.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash.h
-@@ -251,7 +251,8 @@ extern int __meminit hash__vmemmap_create_mapping(unsigned long start,
- extern void hash__vmemmap_remove_mapping(unsigned long start,
- 				     unsigned long page_size);
- 
--int hash__create_section_mapping(unsigned long start, unsigned long end, int nid);
-+int hash__create_section_mapping(unsigned long start, unsigned long end,
-+				 int nid, pgprot_t prot);
- int hash__remove_section_mapping(unsigned long start, unsigned long end);
- 
- #endif /* !__ASSEMBLY__ */
-diff --git a/arch/powerpc/include/asm/book3s/64/radix.h b/arch/powerpc/include/asm/book3s/64/radix.h
-index d97db3ad9aae..46799f3c3d1d 100644
---- a/arch/powerpc/include/asm/book3s/64/radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/radix.h
-@@ -289,7 +289,8 @@ static inline unsigned long radix__get_tree_size(void)
- }
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
--int radix__create_section_mapping(unsigned long start, unsigned long end, int nid);
-+int radix__create_section_mapping(unsigned long start, unsigned long end,
-+				  int nid, pgprot_t prot);
- int radix__remove_section_mapping(unsigned long start, unsigned long end);
- #endif /* CONFIG_MEMORY_HOTPLUG */
- #endif /* __ASSEMBLY__ */
-diff --git a/arch/powerpc/include/asm/sparsemem.h b/arch/powerpc/include/asm/sparsemem.h
-index 3192d454a733..c89b32443cff 100644
---- a/arch/powerpc/include/asm/sparsemem.h
-+++ b/arch/powerpc/include/asm/sparsemem.h
-@@ -13,7 +13,8 @@
- #endif /* CONFIG_SPARSEMEM */
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
--extern int create_section_mapping(unsigned long start, unsigned long end, int nid);
-+extern int create_section_mapping(unsigned long start, unsigned long end,
-+				  int nid, pgprot_t prot);
- extern int remove_section_mapping(unsigned long start, unsigned long end);
- 
- #ifdef CONFIG_PPC_BOOK3S_64
-diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
-index b30435c7d804..276e353d5264 100644
---- a/arch/powerpc/mm/book3s64/hash_utils.c
-+++ b/arch/powerpc/mm/book3s64/hash_utils.c
-@@ -800,7 +800,8 @@ int resize_hpt_for_hotplug(unsigned long new_mem_size)
- 	return 0;
- }
- 
--int hash__create_section_mapping(unsigned long start, unsigned long end, int nid)
-+int hash__create_section_mapping(unsigned long start, unsigned long end,
-+				 int nid, pgprot_t prot)
- {
- 	int rc;
- 
-@@ -810,7 +811,7 @@ int hash__create_section_mapping(unsigned long start, unsigned long end, int nid
- 	}
- 
- 	rc = htab_bolt_mapping(start, end, __pa(start),
--			       pgprot_val(PAGE_KERNEL), mmu_linear_psize,
-+			       pgprot_val(prot), mmu_linear_psize,
- 			       mmu_kernel_ssize);
- 
- 	if (rc < 0) {
-diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
-index 75483b40fcb1..b60c18d2e5c9 100644
---- a/arch/powerpc/mm/book3s64/pgtable.c
-+++ b/arch/powerpc/mm/book3s64/pgtable.c
-@@ -171,12 +171,13 @@ void mmu_cleanup_all(void)
- }
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
--int __meminit create_section_mapping(unsigned long start, unsigned long end, int nid)
-+int __meminit create_section_mapping(unsigned long start, unsigned long end,
-+				     int nid, pgprot_t prot)
- {
- 	if (radix_enabled())
--		return radix__create_section_mapping(start, end, nid);
-+		return radix__create_section_mapping(start, end, nid, prot);
- 
--	return hash__create_section_mapping(start, end, nid);
-+	return hash__create_section_mapping(start, end, nid, prot);
- }
- 
- int __meminit remove_section_mapping(unsigned long start, unsigned long end)
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index 974109bb85db..2a21fb4a22b2 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -253,7 +253,7 @@ static unsigned long next_boundary(unsigned long addr, unsigned long end)
- 
- static int __meminit create_physical_mapping(unsigned long start,
- 					     unsigned long end,
--					     int nid)
-+					     int nid, pgprot_t _prot)
- {
- 	unsigned long vaddr, addr, mapping_size = 0;
- 	bool prev_exec, exec = false;
-@@ -289,7 +289,7 @@ static int __meminit create_physical_mapping(unsigned long start,
- 			prot = PAGE_KERNEL_X;
- 			exec = true;
- 		} else {
--			prot = PAGE_KERNEL;
-+			prot = _prot;
- 			exec = false;
- 		}
- 
-@@ -333,7 +333,7 @@ static void __init radix_init_pgtable(void)
- 
- 		WARN_ON(create_physical_mapping(reg->base,
- 						reg->base + reg->size,
--						-1));
-+						-1, PAGE_KERNEL));
- 	}
- 
- 	/* Find out how many PID bits are supported */
-@@ -708,8 +708,10 @@ static int __meminit stop_machine_change_mapping(void *data)
- 
- 	spin_unlock(&init_mm.page_table_lock);
- 	pte_clear(&init_mm, params->aligned_start, params->pte);
--	create_physical_mapping(__pa(params->aligned_start), __pa(params->start), -1);
--	create_physical_mapping(__pa(params->end), __pa(params->aligned_end), -1);
-+	create_physical_mapping(__pa(params->aligned_start),
-+				__pa(params->start), -1, PAGE_KERNEL);
-+	create_physical_mapping(__pa(params->end), __pa(params->aligned_end),
-+				-1, PAGE_KERNEL);
- 	spin_lock(&init_mm.page_table_lock);
- 	return 0;
- }
-@@ -866,14 +868,16 @@ static void __meminit remove_pagetable(unsigned long start, unsigned long end)
- 	radix__flush_tlb_kernel_range(start, end);
- }
- 
--int __meminit radix__create_section_mapping(unsigned long start, unsigned long end, int nid)
-+int __meminit radix__create_section_mapping(unsigned long start,
-+					    unsigned long end, int nid,
-+					    pgprot_t prot)
- {
- 	if (end >= RADIX_VMALLOC_START) {
- 		pr_warn("Outside the supported range\n");
- 		return -1;
- 	}
- 
--	return create_physical_mapping(__pa(start), __pa(end), nid);
-+	return create_physical_mapping(__pa(start), __pa(end), nid, prot);
- }
- 
- int __meminit radix__remove_section_mapping(unsigned long start, unsigned long end)
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 9dd9c3c1be7f..631ee684721f 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -95,7 +95,8 @@ int memory_add_physaddr_to_nid(u64 start)
- }
- #endif
- 
--int __weak create_section_mapping(unsigned long start, unsigned long end, int nid)
-+int __weak create_section_mapping(unsigned long start, unsigned long end,
-+				  int nid, pgprot_t prot)
- {
- 	return -ENODEV;
- }
-@@ -136,7 +137,7 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
- 	resize_hpt_for_hotplug(memblock_phys_mem_size());
- 
- 	start = (unsigned long)__va(start);
--	rc = create_section_mapping(start, start + size, nid);
-+	rc = create_section_mapping(start, start + size, nid, PAGE_KERNEL);
- 	if (rc) {
- 		pr_warn("Unable to create mapping for hot added memory 0x%llx..0x%llx: %d\n",
- 			start, start + size, rc);
+Queued to
+
+https://github.com/davidhildenbrand/kvm-unit-tests.git s390x-next
+
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
