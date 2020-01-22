@@ -1,119 +1,93 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Tue,  7 Jan 2020 13:59:57 -0700
-Message-Id: <20200107205959.7575-7-logang@deltatee.com>
-In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
-References: <20200107205959.7575-1-logang@deltatee.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:58967 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728811AbgAVMQ2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jan 2020 07:16:28 -0500
+Subject: Re: [kvm-unit-tests PATCH v8 6/6] s390x: SCLP unit test
+References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
+ <20200120184256.188698-7-imbrenda@linux.ibm.com>
+ <35e59971-c09e-2808-1be6-f2ccd555c4f6@redhat.com>
+ <42c5b040-733d-4e5b-0276-5b94315336bb@redhat.com>
+ <e406268e-7881-f5c3-7b28-70e355765539@redhat.com>
+ <997a62b7-7ab7-6119-4948-e8779e639101@redhat.com>
+ <4d09b567-c2ae-ec9d-59d0-bd259a86b14d@redhat.com>
+ <946e1194-4607-c928-6d66-9e306dc1216a@redhat.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <d467e614-621b-aca7-4255-dfe5707b5dd7@redhat.com>
+Date: Wed, 22 Jan 2020 13:16:18 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [PATCH v2 6/8] s390/mm: Thread pgprot_t through vmem_add_mapping()
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <946e1194-4607-c928-6d66-9e306dc1216a@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Andrew Jones <drjones@redhat.com>, Laurent Vivier <lvivier@redhat.com>
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-In prepartion to support a pgprot_t argument for arch_add_memory().
+On 22/01/2020 11.40, David Hildenbrand wrote:
+> On 22.01.20 11:39, Thomas Huth wrote:
+>> On 22/01/2020 11.32, David Hildenbrand wrote:
+>>> On 22.01.20 11:31, Thomas Huth wrote:
+>>>> On 22/01/2020 11.22, David Hildenbrand wrote:
+>>>>> On 22.01.20 11:10, David Hildenbrand wrote:
+[...]
+>>>>>> Doing a fresh ./configure + make on RHEL7 gives me
+>>>>>>
+>>>>>> [linux1@rhkvm01 kvm-unit-tests]$ make
+>>>>>> gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
+>>>>>> s390x/sclp.c: In function 'test_one_simple':
+>>>>>> s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+>>>>>>   ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>>>   ^
+>>>>>> s390x/sclp.c: At top level:
+>>>>>> cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
+>>>>>> cc1: all warnings being treated as errors
+>>>>>> make: *** [s390x/sclp.o] Error 1
+>>>>>
+>>>>> The following makes it work:
+>>>>>
+>>>>>
+>>>>> diff --git a/s390x/sclp.c b/s390x/sclp.c
+>>>>> index c13fa60..0b8117a 100644
+>>>>> --- a/s390x/sclp.c
+>>>>> +++ b/s390x/sclp.c
+>>>>> @@ -117,8 +117,10 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
+>>>>>  static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
+>>>>>                         uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
+>>>>>  {
+>>>>> +       SCCBHeader *header = (void *)sccb_template;
+>>>>> +
+>>>>>         memset(sccb_template, 0, sizeof(sccb_template));
+>>>>> -       ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>> +       header->length = sccb_len;
+>>>>
+>>>> While that might silence the compiler warning, we still might get
+>>>> aliasing problems here, I think.
+>>>> The right way to solve this problem is to turn sccb_template into a
+>>>> union of the various structs/arrays that you want to use and then access
+>>>> the fields through the union instead ("type-punning through union").
+>>>
+>>> We do have the exact same thing in lib/s390x/sclp.c already, no?
+>>
+>> Maybe we should carefully check that code, too...
+>>
+>>> Especially, new compilers don't seem to care?
+>>
+>> I've seen horrible bugs due to these aliasing problems in the past -
+>> without compiler warnings showing up! Certain versions of GCC assume
+>> that they can re-order code with pointers that point to types of
+>> different sizes, i.e. in the above example, I think they could assume
+>> that they could re-order the memset() and the header->length = ... line.
+>> I'd feel better if we play safe and use a union here.
+> 
+> Should we simply allow type-punning?
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
----
- arch/s390/include/asm/pgtable.h |  3 ++-
- arch/s390/mm/extmem.c           |  3 ++-
- arch/s390/mm/init.c             |  2 +-
- arch/s390/mm/vmem.c             | 10 +++++-----
- 4 files changed, 10 insertions(+), 8 deletions(-)
+Maybe yes. The kernel also compiles with "-fno-strict-aliasing", and
+since kvm-unit-tests is mainly a "playground" for people who do kernel
+development, too, we should maybe also compile the unit tests with
+"-fno-strict-aliasing".
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 7b03037a8475..e667a1a96879 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1640,7 +1640,8 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
- 
- #define kern_addr_valid(addr)   (1)
- 
--extern int vmem_add_mapping(unsigned long start, unsigned long size);
-+extern int vmem_add_mapping(unsigned long start, unsigned long size,
-+			    pgprot_t prot);
- extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
- extern int s390_enable_skey(void);
-diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
-index fd0dae9d10f4..6cf7029a7b35 100644
---- a/arch/s390/mm/extmem.c
-+++ b/arch/s390/mm/extmem.c
-@@ -313,7 +313,8 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 		goto out_free;
- 	}
- 
--	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
-+	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1,
-+			      PAGE_KERNEL);
- 
- 	if (rc)
- 		goto out_free;
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index a0c88c1c9ad0..ef19522ddad2 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -277,7 +277,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	if (WARN_ON_ONCE(modifiers->altmap))
- 		return -EINVAL;
- 
--	rc = vmem_add_mapping(start, size);
-+	rc = vmem_add_mapping(start, size, PAGE_KERNEL);
- 	if (rc)
- 		return rc;
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index b403fa14847d..8a5e95f184a2 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -66,7 +66,7 @@ pte_t __ref *vmem_pte_alloc(void)
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
--static int vmem_add_mem(unsigned long start, unsigned long size)
-+static int vmem_add_mem(unsigned long start, unsigned long size, pgprot_t prot)
- {
- 	unsigned long pgt_prot, sgt_prot, r3_prot;
- 	unsigned long pages4k, pages1m, pages2g;
-@@ -79,7 +79,7 @@ static int vmem_add_mem(unsigned long start, unsigned long size)
- 	pte_t *pt_dir;
- 	int ret = -ENOMEM;
- 
--	pgt_prot = pgprot_val(PAGE_KERNEL);
-+	pgt_prot = pgprot_val(prot);
- 	sgt_prot = pgprot_val(SEGMENT_KERNEL);
- 	r3_prot = pgprot_val(REGION3_KERNEL);
- 	if (!MACHINE_HAS_NX) {
-@@ -362,7 +362,7 @@ int vmem_remove_mapping(unsigned long start, unsigned long size)
- 	return ret;
- }
- 
--int vmem_add_mapping(unsigned long start, unsigned long size)
-+int vmem_add_mapping(unsigned long start, unsigned long size, pgprot_t prot)
- {
- 	struct memory_segment *seg;
- 	int ret;
-@@ -379,7 +379,7 @@ int vmem_add_mapping(unsigned long start, unsigned long size)
- 	if (ret)
- 		goto out_free;
- 
--	ret = vmem_add_mem(start, size);
-+	ret = vmem_add_mem(start, size, prot);
- 	if (ret)
- 		goto out_remove;
- 	goto out;
-@@ -403,7 +403,7 @@ void __init vmem_map_init(void)
- 	struct memblock_region *reg;
- 
- 	for_each_memblock(memory, reg)
--		vmem_add_mem(reg->base, reg->size);
-+		vmem_add_mem(reg->base, reg->size, PAGE_KERNEL);
- 	__set_memory((unsigned long)_stext,
- 		     (unsigned long)(_etext - _stext) >> PAGE_SHIFT,
- 		     SET_MEMORY_RO | SET_MEMORY_X);
--- 
-2.20.1
+Paolo, Andrew, Laurent, what do you think?
+
+ Thomas
