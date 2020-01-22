@@ -1,126 +1,121 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19576 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729187AbgAUNnX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Jan 2020 08:43:23 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00LDgMuw023010
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:22 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xkxhy4ah5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:21 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 21 Jan 2020 13:43:19 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 4/9] s390x: smp: Rework cpu start and active tracking
-Date: Tue, 21 Jan 2020 08:42:49 -0500
-In-Reply-To: <20200121134254.4570-1-frankja@linux.ibm.com>
-References: <20200121134254.4570-1-frankja@linux.ibm.com>
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:52245 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725871AbgAVGrs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jan 2020 01:47:48 -0500
+Received: by mail-wm1-f67.google.com with SMTP id p9so5595666wmc.2
+        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 22:47:46 -0800 (PST)
+Subject: Re: [PATCH v2 1/2] asm-generic: Make dma-contiguous.h a mandatory
+ include/asm header
+References: <cover.1579248206.git.michal.simek@xilinx.com>
+ <0274919c5e3b134df19d943f99cb7e84e5135ccd.1579248206.git.michal.simek@xilinx.com>
+ <CAK7LNARdiTxajZcXH0g7t6nEis-1ebv7Ta6wBdgGgS6O29O7+A@mail.gmail.com>
+From: Michal Simek <monstr@monstr.eu>
+Message-ID: <5dac2fdd-6e4e-dd16-a149-fbdd8117ac1c@monstr.eu>
+Date: Wed, 22 Jan 2020 07:47:27 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200121134254.4570-5-frankja@linux.ibm.com>
+In-Reply-To: <CAK7LNARdiTxajZcXH0g7t6nEis-1ebv7Ta6wBdgGgS6O29O7+A@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="2dbNcSDggiI5dxMnAV22UCPQ9muiAKI4S"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Masahiro Yamada <masahiroy@kernel.org>, Michal Simek <michal.simek@xilinx.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, git@xilinx.com, Christoph Hellwig <hch@lst.de>, Christoph Hellwig <hch@infradead.org>, Paul Burton <paulburton@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Catalin Marinas <catalin.marinas@arm.com>, "open list:SIFIVE DRIVERS" <linux-riscv@lists.infradead.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, X86 ML <x86@kernel.org>, Guo Ren <guoren@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, Wesley Terpstra <wesley@sifive.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ralf Baechle <ralf@linux-mips.org>, Paul Walmsley <paul.walmsley@sifive.com>, Max Filippov <jcmvbkbc@gmail.com>, linux-xtensa@linux-xtensa.org, "H. Peter Anvin" <hpa@zytor.com>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Deepa Dinamani <deepa.kernel@gmail.com>, Chris Zankel <chris@zankel.net>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>, James Hogan <jhogan@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-The architecture specifies that processing sigp orders may be
-asynchronous, and this is indeed the case on some hypervisors, so we
-need to wait until the cpu runs before we return from the setup/start
-function.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--2dbNcSDggiI5dxMnAV22UCPQ9muiAKI4S
+Content-Type: multipart/mixed; boundary="FbunjY3XOg7TLNQEYAVrl68e0gK20Tj5W";
+ protected-headers="v1"
+From: Michal Simek <monstr@monstr.eu>
+To: Masahiro Yamada <masahiroy@kernel.org>,
+ Michal Simek <michal.simek@xilinx.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, git@xilinx.com,
+ Christoph Hellwig <hch@lst.de>, Christoph Hellwig <hch@infradead.org>,
+ Paul Burton <paulburton@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Borislav Petkov <bp@alien8.de>, linux-mips@vger.kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ "open list:SIFIVE DRIVERS" <linux-riscv@lists.infradead.org>,
+ linux-arch <linux-arch@vger.kernel.org>,
+ linux-s390 <linux-s390@vger.kernel.org>, Palmer Dabbelt
+ <palmer@dabbelt.com>, X86 ML <x86@kernel.org>, Guo Ren <guoren@kernel.org>,
+ Kate Stewart <kstewart@linuxfoundation.org>,
+ Wesley Terpstra <wesley@sifive.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Ralf Baechle <ralf@linux-mips.org>, Paul Walmsley
+ <paul.walmsley@sifive.com>, Max Filippov <jcmvbkbc@gmail.com>,
+ linux-xtensa@linux-xtensa.org, "H. Peter Anvin" <hpa@zytor.com>,
+ "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+ Will Deacon <will@kernel.org>, Christian Borntraeger
+ <borntraeger@de.ibm.com>, Deepa Dinamani <deepa.kernel@gmail.com>,
+ Chris Zankel <chris@zankel.net>, Ingo Molnar <mingo@redhat.com>,
+ Waiman Long <longman@redhat.com>,
+ linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+ Albert Ou <aou@eecs.berkeley.edu>, Vasily Gorbik <gor@linux.ibm.com>,
+ James Hogan <jhogan@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+Message-ID: <5dac2fdd-6e4e-dd16-a149-fbdd8117ac1c@monstr.eu>
+Subject: Re: [PATCH v2 1/2] asm-generic: Make dma-contiguous.h a mandatory
+ include/asm header
+References: <cover.1579248206.git.michal.simek@xilinx.com>
+ <0274919c5e3b134df19d943f99cb7e84e5135ccd.1579248206.git.michal.simek@xilinx.com>
+ <CAK7LNARdiTxajZcXH0g7t6nEis-1ebv7Ta6wBdgGgS6O29O7+A@mail.gmail.com>
+In-Reply-To: <CAK7LNARdiTxajZcXH0g7t6nEis-1ebv7Ta6wBdgGgS6O29O7+A@mail.gmail.com>
 
-As there was a lot of duplicate code, a common function for cpu
-restarts has been introduced.
+--FbunjY3XOg7TLNQEYAVrl68e0gK20Tj5W
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/smp.c | 50 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+On 21. 01. 20 16:43, Masahiro Yamada wrote:
+> Hi.
+>=20
+> On Fri, Jan 17, 2020 at 5:03 PM Michal Simek <michal.simek@xilinx.com> =
+wrote:
+>>
+>> dma-continuguous.h is generic for all architectures except arm32 which=
+ has
+>> its own version.
+>=20
+>=20
+>=20
+> Currently, <asm/dma-contiguous.h> is present
+> for only architectures that select HAVE_DMA_CONTIGUOUS.
+>=20
+> After this commit, the other architectures will end
+> up with generating the unused header.
+>=20
+> That would not be a big deal, but
+> it could be mentioned in the commit message?
 
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index f57f420..84e681d 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -104,35 +104,46 @@ int smp_cpu_stop_store_status(uint16_t addr)
- 	return rc;
- }
- 
-+static int smp_cpu_restart_nolock(uint16_t addr, struct psw *psw)
-+{
-+	int rc;
-+	struct cpu *cpu = smp_cpu_from_addr(addr);
-+
-+	if (!cpu)
-+		return -1;
-+	if (psw) {
-+		cpu->lowcore->restart_new_psw.mask = psw->mask;
-+		cpu->lowcore->restart_new_psw.addr = psw->addr;
-+	}
-+	rc = sigp(addr, SIGP_RESTART, 0, NULL);
-+	if (rc)
-+		return rc;
-+	/*
-+	 * The order has been accepted, but the actual restart may not
-+	 * have been performed yet, so wait until the cpu is running.
-+	 */
-+	while (!smp_cpu_running(addr))
-+		mb();
-+	cpu->active = true;
-+	return 0;
-+}
-+
- int smp_cpu_restart(uint16_t addr)
- {
--	int rc = -1;
--	struct cpu *cpu;
-+	int rc;
- 
- 	spin_lock(&lock);
--	cpu = smp_cpu_from_addr(addr);
--	if (cpu) {
--		rc = sigp(addr, SIGP_RESTART, 0, NULL);
--		cpu->active = true;
--	}
-+	rc = smp_cpu_restart_nolock(addr, NULL);
- 	spin_unlock(&lock);
- 	return rc;
- }
- 
- int smp_cpu_start(uint16_t addr, struct psw psw)
- {
--	int rc = -1;
--	struct cpu *cpu;
--	struct lowcore *lc;
-+	int rc;
- 
- 	spin_lock(&lock);
--	cpu = smp_cpu_from_addr(addr);
--	if (cpu) {
--		lc = cpu->lowcore;
--		lc->restart_new_psw.mask = psw.mask;
--		lc->restart_new_psw.addr = psw.addr;
--		rc = sigp(addr, SIGP_RESTART, 0, NULL);
--	}
-+	rc = smp_cpu_restart_nolock(addr, &psw);
- 	spin_unlock(&lock);
- 	return rc;
- }
-@@ -192,10 +203,7 @@ int smp_cpu_setup(uint16_t addr, struct psw psw)
- 	lc->sw_int_crs[0] = 0x0000000000040000UL;
- 
- 	/* Start processing */
--	rc = sigp_retry(cpu->addr, SIGP_RESTART, 0, NULL);
--	if (!rc)
--		cpu->active = true;
--
-+	smp_cpu_restart_nolock(addr, NULL);
- out:
- 	spin_unlock(&lock);
- 	return rc;
--- 
-2.20.1
+I have not a problem with mentioning it but not sure if this was done in
+past.
+
+Thanks,
+Michal
+
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Xilinx Microblaze
+Maintainer of Linux kernel - Xilinx Zynq ARM and ZynqMP ARM64 SoCs
+U-Boot custodian - Xilinx Microblaze/Zynq/ZynqMP/Versal SoCs
+
+
+
+--FbunjY3XOg7TLNQEYAVrl68e0gK20Tj5W--
+
+--2dbNcSDggiI5dxMnAV22UCPQ9muiAKI4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQQbPNTMvXmYlBPRwx7KSWXLKUoMIQUCXifv/wAKCRDKSWXLKUoM
+IVUkAJ9gJ/92v49cM3s26jCgIZyQ1BDZJwCggrGUMIoHH0J6KEp9UuM3wHKXoAo=
+=zquH
+-----END PGP SIGNATURE-----
+
+--2dbNcSDggiI5dxMnAV22UCPQ9muiAKI4S--
