@@ -1,17 +1,17 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36723 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726191AbgAVKWZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jan 2020 05:22:25 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:20582 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728981AbgAVKKf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Jan 2020 05:10:35 -0500
 Subject: Re: [kvm-unit-tests PATCH v8 6/6] s390x: SCLP unit test
-From: David Hildenbrand <david@redhat.com>
 References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
  <20200120184256.188698-7-imbrenda@linux.ibm.com>
- <35e59971-c09e-2808-1be6-f2ccd555c4f6@redhat.com>
-Message-ID: <42c5b040-733d-4e5b-0276-5b94315336bb@redhat.com>
-Date: Wed, 22 Jan 2020 11:22:15 +0100
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <35e59971-c09e-2808-1be6-f2ccd555c4f6@redhat.com>
+Date: Wed, 22 Jan 2020 11:10:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <35e59971-c09e-2808-1be6-f2ccd555c4f6@redhat.com>
+In-Reply-To: <20200120184256.188698-7-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -20,206 +20,187 @@ List-ID: <linux-s390.vger.kernel.org>
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-On 22.01.20 11:10, David Hildenbrand wrote:
-> On 20.01.20 19:42, Claudio Imbrenda wrote:
->> SCLP unit test. Testing the following:
->>
->> * Correctly ignoring instruction bits that should be ignored
->> * Privileged instruction check
->> * Check for addressing exceptions
->> * Specification exceptions:
->>   - SCCB size less than 8
->>   - SCCB unaligned
->>   - SCCB overlaps prefix or lowcore
->>   - SCCB address higher than 2GB
->> * Return codes for
->>   - Invalid command
->>   - SCCB too short (but at least 8)
->>   - SCCB page boundary violation
->>
->> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
->> Reviewed-by: Thomas Huth <thuth@redhat.com>
->> Acked-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>  s390x/Makefile      |   1 +
->>  s390x/sclp.c        | 474 ++++++++++++++++++++++++++++++++++++++++++++
->>  s390x/unittests.cfg |   8 +
->>  3 files changed, 483 insertions(+)
->>  create mode 100644 s390x/sclp.c
->>
->> diff --git a/s390x/Makefile b/s390x/Makefile
->> index 3744372..ddb4b48 100644
->> --- a/s390x/Makefile
->> +++ b/s390x/Makefile
->> @@ -16,6 +16,7 @@ tests += $(TEST_DIR)/diag288.elf
->>  tests += $(TEST_DIR)/stsi.elf
->>  tests += $(TEST_DIR)/skrf.elf
->>  tests += $(TEST_DIR)/smp.elf
->> +tests += $(TEST_DIR)/sclp.elf
->>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
->>  
->>  all: directories test_cases test_cases_binary
->> diff --git a/s390x/sclp.c b/s390x/sclp.c
->> new file mode 100644
->> index 0000000..215347e
->> --- /dev/null
->> +++ b/s390x/sclp.c
->> @@ -0,0 +1,474 @@
->> +/*
->> + * Service Call tests
->> + *
->> + * Copyright (c) 2019 IBM Corp
->> + *
->> + * Authors:
->> + *  Claudio Imbrenda <imbrenda@linux.ibm.com>
->> + *
->> + * This code is free software; you can redistribute it and/or modify it
->> + * under the terms of the GNU General Public License version 2.
->> + */
->> +
->> +#include <libcflat.h>
->> +#include <asm/page.h>
->> +#include <asm/asm-offsets.h>
->> +#include <asm/interrupt.h>
->> +#include <sclp.h>
->> +
->> +#define PGM_NONE	1
->> +#define PGM_BIT_SPEC	(1ULL << PGM_INT_CODE_SPECIFICATION)
->> +#define PGM_BIT_ADDR	(1ULL << PGM_INT_CODE_ADDRESSING)
->> +#define PGM_BIT_PRIV	(1ULL << PGM_INT_CODE_PRIVILEGED_OPERATION)
->> +#define MKPTR(x) ((void *)(uint64_t)(x))
->> +
->> +#define LC_SIZE (2 * PAGE_SIZE)
->> +
->> +static uint8_t pagebuf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* scratch pages used for some tests */
->> +static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* temporary lowcore for test_sccb_prefix */
->> +static uint8_t sccb_template[PAGE_SIZE];				/* SCCB template to be used */
->> +static uint32_t valid_code;						/* valid command code for READ SCP INFO */
->> +static struct lowcore *lc;
->> +
->> +/**
->> + * Perform one service call, handling exceptions and interrupts.
->> + */
->> +static int sclp_service_call_test(unsigned int command, void *sccb)
->> +{
->> +	int cc;
->> +
->> +	sclp_mark_busy();
->> +	sclp_setup_int();
->> +	cc = servc(command, __pa(sccb));
->> +	if (lc->pgm_int_code) {
->> +		sclp_handle_ext();
->> +		return 0;
->> +	}
->> +	if (!cc)
->> +		sclp_wait_busy();
->> +	return cc;
->> +}
->> +
->> +/**
->> + * Perform one test at the given address, optionally using the SCCB template,
->> + * checking for the expected program interrupts and return codes.
->> + *
->> + * The parameter buf_len indicates the number of bytes of the template that
->> + * should be copied to the test address, and should be 0 when the test
->> + * address is invalid, in which case nothing is copied.
->> + *
->> + * The template is used to simplify tests where the same buffer content is
->> + * used many times in a row, at different addresses.
->> + *
->> + * Returns true in case of success or false in case of failure
->> + */
->> +static bool test_one_sccb(uint32_t cmd, uint8_t *addr, uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
->> +{
->> +	SCCBHeader *h = (SCCBHeader *)addr;
->> +	int res, pgm;
->> +
->> +	/* Copy the template to the test address if needed */
->> +	if (buf_len)
->> +		memcpy(addr, sccb_template, buf_len);
->> +	if (exp_pgm != PGM_NONE)
->> +		expect_pgm_int();
->> +	/* perform the actual call */
->> +	res = sclp_service_call_test(cmd, h);
->> +	if (res) {
->> +		report_info("SCLP not ready (command %#x, address %p, cc %d)", cmd, addr, res);
->> +		return false;
->> +	}
->> +	pgm = clear_pgm_int();
->> +	/* Check if the program exception was one of the expected ones */
->> +	if (!((1ULL << pgm) & exp_pgm)) {
->> +		report_info("First failure at addr %p, buf_len %d, cmd %#x, pgm code %d",
->> +				addr, buf_len, cmd, pgm);
->> +		return false;
->> +	}
->> +	/* Check if the response code is the one expected */
->> +	if (exp_rc && exp_rc != h->response_code) {
->> +		report_info("First failure at addr %p, buf_len %d, cmd %#x, resp code %#x",
->> +				addr, buf_len, cmd, h->response_code);
->> +		return false;
->> +	}
->> +	return true;
->> +}
->> +
->> +/**
->> + * Wrapper for test_one_sccb to be used when the template should not be
->> + * copied and the memory address should not be touched.
->> + */
->> +static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t exp_rc)
->> +{
->> +	return test_one_sccb(cmd, addr, 0, exp_pgm, exp_rc);
->> +}
->> +
->> +/**
->> + * Wrapper for test_one_sccb to set up a simple SCCB template.
->> + *
->> + * The parameter sccb_len indicates the value that will be saved in the SCCB
->> + * length field of the SCCB, buf_len indicates the number of bytes of
->> + * template that need to be copied to the actual test address. In many cases
->> + * it's enough to clear/copy the first 8 bytes of the buffer, while the SCCB
->> + * itself can be larger.
->> + *
->> + * Returns true in case of success or false in case of failure
->> + */
->> +static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
->> +			uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
->> +{
->> +	memset(sccb_template, 0, sizeof(sccb_template));
->> +	((SCCBHeader *)sccb_template)->length = sccb_len;
->> +	return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
+On 20.01.20 19:42, Claudio Imbrenda wrote:
+> SCLP unit test. Testing the following:
 > 
-> Doing a fresh ./configure + make on RHEL7 gives me
+> * Correctly ignoring instruction bits that should be ignored
+> * Privileged instruction check
+> * Check for addressing exceptions
+> * Specification exceptions:
+>   - SCCB size less than 8
+>   - SCCB unaligned
+>   - SCCB overlaps prefix or lowcore
+>   - SCCB address higher than 2GB
+> * Return codes for
+>   - Invalid command
+>   - SCCB too short (but at least 8)
+>   - SCCB page boundary violation
 > 
-> [linux1@rhkvm01 kvm-unit-tests]$ make
-> gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
-> s390x/sclp.c: In function 'test_one_simple':
-> s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
->   ((SCCBHeader *)sccb_template)->length = sccb_len;
->   ^
-> s390x/sclp.c: At top level:
-> cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
-> cc1: all warnings being treated as errors
-> make: *** [s390x/sclp.o] Error 1
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/Makefile      |   1 +
+>  s390x/sclp.c        | 474 ++++++++++++++++++++++++++++++++++++++++++++
+>  s390x/unittests.cfg |   8 +
+>  3 files changed, 483 insertions(+)
+>  create mode 100644 s390x/sclp.c
+> 
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 3744372..ddb4b48 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -16,6 +16,7 @@ tests += $(TEST_DIR)/diag288.elf
+>  tests += $(TEST_DIR)/stsi.elf
+>  tests += $(TEST_DIR)/skrf.elf
+>  tests += $(TEST_DIR)/smp.elf
+> +tests += $(TEST_DIR)/sclp.elf
+>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>  
+>  all: directories test_cases test_cases_binary
+> diff --git a/s390x/sclp.c b/s390x/sclp.c
+> new file mode 100644
+> index 0000000..215347e
+> --- /dev/null
+> +++ b/s390x/sclp.c
+> @@ -0,0 +1,474 @@
+> +/*
+> + * Service Call tests
+> + *
+> + * Copyright (c) 2019 IBM Corp
+> + *
+> + * Authors:
+> + *  Claudio Imbrenda <imbrenda@linux.ibm.com>
+> + *
+> + * This code is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2.
+> + */
+> +
+> +#include <libcflat.h>
+> +#include <asm/page.h>
+> +#include <asm/asm-offsets.h>
+> +#include <asm/interrupt.h>
+> +#include <sclp.h>
+> +
+> +#define PGM_NONE	1
+> +#define PGM_BIT_SPEC	(1ULL << PGM_INT_CODE_SPECIFICATION)
+> +#define PGM_BIT_ADDR	(1ULL << PGM_INT_CODE_ADDRESSING)
+> +#define PGM_BIT_PRIV	(1ULL << PGM_INT_CODE_PRIVILEGED_OPERATION)
+> +#define MKPTR(x) ((void *)(uint64_t)(x))
+> +
+> +#define LC_SIZE (2 * PAGE_SIZE)
+> +
+> +static uint8_t pagebuf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* scratch pages used for some tests */
+> +static uint8_t prefix_buf[LC_SIZE] __attribute__((aligned(LC_SIZE)));	/* temporary lowcore for test_sccb_prefix */
+> +static uint8_t sccb_template[PAGE_SIZE];				/* SCCB template to be used */
+> +static uint32_t valid_code;						/* valid command code for READ SCP INFO */
+> +static struct lowcore *lc;
+> +
+> +/**
+> + * Perform one service call, handling exceptions and interrupts.
+> + */
+> +static int sclp_service_call_test(unsigned int command, void *sccb)
+> +{
+> +	int cc;
+> +
+> +	sclp_mark_busy();
+> +	sclp_setup_int();
+> +	cc = servc(command, __pa(sccb));
+> +	if (lc->pgm_int_code) {
+> +		sclp_handle_ext();
+> +		return 0;
+> +	}
+> +	if (!cc)
+> +		sclp_wait_busy();
+> +	return cc;
+> +}
+> +
+> +/**
+> + * Perform one test at the given address, optionally using the SCCB template,
+> + * checking for the expected program interrupts and return codes.
+> + *
+> + * The parameter buf_len indicates the number of bytes of the template that
+> + * should be copied to the test address, and should be 0 when the test
+> + * address is invalid, in which case nothing is copied.
+> + *
+> + * The template is used to simplify tests where the same buffer content is
+> + * used many times in a row, at different addresses.
+> + *
+> + * Returns true in case of success or false in case of failure
+> + */
+> +static bool test_one_sccb(uint32_t cmd, uint8_t *addr, uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
+> +{
+> +	SCCBHeader *h = (SCCBHeader *)addr;
+> +	int res, pgm;
+> +
+> +	/* Copy the template to the test address if needed */
+> +	if (buf_len)
+> +		memcpy(addr, sccb_template, buf_len);
+> +	if (exp_pgm != PGM_NONE)
+> +		expect_pgm_int();
+> +	/* perform the actual call */
+> +	res = sclp_service_call_test(cmd, h);
+> +	if (res) {
+> +		report_info("SCLP not ready (command %#x, address %p, cc %d)", cmd, addr, res);
+> +		return false;
+> +	}
+> +	pgm = clear_pgm_int();
+> +	/* Check if the program exception was one of the expected ones */
+> +	if (!((1ULL << pgm) & exp_pgm)) {
+> +		report_info("First failure at addr %p, buf_len %d, cmd %#x, pgm code %d",
+> +				addr, buf_len, cmd, pgm);
+> +		return false;
+> +	}
+> +	/* Check if the response code is the one expected */
+> +	if (exp_rc && exp_rc != h->response_code) {
+> +		report_info("First failure at addr %p, buf_len %d, cmd %#x, resp code %#x",
+> +				addr, buf_len, cmd, h->response_code);
+> +		return false;
+> +	}
+> +	return true;
+> +}
+> +
+> +/**
+> + * Wrapper for test_one_sccb to be used when the template should not be
+> + * copied and the memory address should not be touched.
+> + */
+> +static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t exp_rc)
+> +{
+> +	return test_one_sccb(cmd, addr, 0, exp_pgm, exp_rc);
+> +}
+> +
+> +/**
+> + * Wrapper for test_one_sccb to set up a simple SCCB template.
+> + *
+> + * The parameter sccb_len indicates the value that will be saved in the SCCB
+> + * length field of the SCCB, buf_len indicates the number of bytes of
+> + * template that need to be copied to the actual test address. In many cases
+> + * it's enough to clear/copy the first 8 bytes of the buffer, while the SCCB
+> + * itself can be larger.
+> + *
+> + * Returns true in case of success or false in case of failure
+> + */
+> +static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
+> +			uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
+> +{
+> +	memset(sccb_template, 0, sizeof(sccb_template));
+> +	((SCCBHeader *)sccb_template)->length = sccb_len;
+> +	return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
 
-The following makes it work:
+Doing a fresh ./configure + make on RHEL7 gives me
+
+[linux1@rhkvm01 kvm-unit-tests]$ make
+gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
+s390x/sclp.c: In function 'test_one_simple':
+s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+  ((SCCBHeader *)sccb_template)->length = sccb_len;
+  ^
+s390x/sclp.c: At top level:
+cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
+cc1: all warnings being treated as errors
+make: *** [s390x/sclp.o] Error 1
 
 
-diff --git a/s390x/sclp.c b/s390x/sclp.c
-index c13fa60..0b8117a 100644
---- a/s390x/sclp.c
-+++ b/s390x/sclp.c
-@@ -117,8 +117,10 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
- static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
-                        uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
- {
-+       SCCBHeader *header = (void *)sccb_template;
-+
-        memset(sccb_template, 0, sizeof(sccb_template));
--       ((SCCBHeader *)sccb_template)->length = sccb_len;
-+       header->length = sccb_len;
-        return test_one_sccb(cmd, addr, buf_len, exp_pgm, exp_rc);
- }
- 
 
 -- 
 Thanks,
