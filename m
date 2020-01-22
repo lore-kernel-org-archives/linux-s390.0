@@ -1,8 +1,11 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:51619 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725802AbgAVPBe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jan 2020 10:01:34 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:47245 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725924AbgAVOmq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Jan 2020 09:42:46 -0500
+Received: by mail-wr1-f71.google.com with SMTP id w6so3154760wrm.16
+        for <linux-s390@vger.kernel.org>; Wed, 22 Jan 2020 06:42:43 -0800 (PST)
 Subject: Re: strict aliasing in kvm-unit-tests (was: Re: [kvm-unit-tests PATCH
  v8 6/6] s390x: SCLP unit test)
 References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
@@ -15,90 +18,86 @@ References: <20200120184256.188698-1-imbrenda@linux.ibm.com>
  <946e1194-4607-c928-6d66-9e306dc1216a@redhat.com>
  <d467e614-621b-aca7-4255-dfe5707b5dd7@redhat.com>
  <ddf083a3-7d29-ca78-0fd9-e7e3c38e0f04@redhat.com>
- <aa3c6235-7a9e-d7c5-bd9d-974f2b947992@redhat.com>
-From: Laurent Vivier <lvivier@redhat.com>
-Message-ID: <3ab57ab8-d015-3ae6-550c-39db94d52265@redhat.com>
-Date: Wed, 22 Jan 2020 16:01:19 +0100
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <aa3c6235-7a9e-d7c5-bd9d-974f2b947992@redhat.com>
+Date: Wed, 22 Jan 2020 15:42:38 +0100
 MIME-Version: 1.0
-In-Reply-To: <aa3c6235-7a9e-d7c5-bd9d-974f2b947992@redhat.com>
+In-Reply-To: <ddf083a3-7d29-ca78-0fd9-e7e3c38e0f04@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>
+To: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, Andrew Jones <drjones@redhat.com>, Laurent Vivier <lvivier@redhat.com>
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com
 
-On 22/01/2020 15:42, Paolo Bonzini wrote:
-> On 22/01/20 15:15, Thomas Huth wrote:
->> On 22/01/2020 13.16, Thomas Huth wrote:
->>> On 22/01/2020 11.40, David Hildenbrand wrote:
->>>> On 22.01.20 11:39, Thomas Huth wrote:
->>>>> On 22/01/2020 11.32, David Hildenbrand wrote:
->>>>>> On 22.01.20 11:31, Thomas Huth wrote:
->>>>>>> On 22/01/2020 11.22, David Hildenbrand wrote:
->>>>>>>> On 22.01.20 11:10, David Hildenbrand wrote:
->>> [...]
->>>>>>>>> Doing a fresh ./configure + make on RHEL7 gives me
->>>>>>>>>
->>>>>>>>> [linux1@rhkvm01 kvm-unit-tests]$ make
->>>>>>>>> gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
->>>>>>>>> s390x/sclp.c: In function 'test_one_simple':
->>>>>>>>> s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
->>>>>>>>>   ((SCCBHeader *)sccb_template)->length = sccb_len;
->>>>>>>>>   ^
->>>>>>>>> s390x/sclp.c: At top level:
->>>>>>>>> cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
->>>>>>>>> cc1: all warnings being treated as errors
->>>>>>>>> make: *** [s390x/sclp.o] Error 1
+On 22/01/20 15:15, Thomas Huth wrote:
+> On 22/01/2020 13.16, Thomas Huth wrote:
+>> On 22/01/2020 11.40, David Hildenbrand wrote:
+>>> On 22.01.20 11:39, Thomas Huth wrote:
+>>>> On 22/01/2020 11.32, David Hildenbrand wrote:
+>>>>> On 22.01.20 11:31, Thomas Huth wrote:
+>>>>>> On 22/01/2020 11.22, David Hildenbrand wrote:
+>>>>>>> On 22.01.20 11:10, David Hildenbrand wrote:
+>> [...]
+>>>>>>>> Doing a fresh ./configure + make on RHEL7 gives me
 >>>>>>>>
->>>>>>>> The following makes it work:
->>>>>>>>
->>>>>>>>
->>>>>>>> diff --git a/s390x/sclp.c b/s390x/sclp.c
->>>>>>>> index c13fa60..0b8117a 100644
->>>>>>>> --- a/s390x/sclp.c
->>>>>>>> +++ b/s390x/sclp.c
->>>>>>>> @@ -117,8 +117,10 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
->>>>>>>>  static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
->>>>>>>>                         uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
->>>>>>>>  {
->>>>>>>> +       SCCBHeader *header = (void *)sccb_template;
->>>>>>>> +
->>>>>>>>         memset(sccb_template, 0, sizeof(sccb_template));
->>>>>>>> -       ((SCCBHeader *)sccb_template)->length = sccb_len;
->>>>>>>> +       header->length = sccb_len;
+>>>>>>>> [linux1@rhkvm01 kvm-unit-tests]$ make
+>>>>>>>> gcc  -std=gnu99 -ffreestanding -I /home/linux1/git/kvm-unit-tests/lib -I /home/linux1/git/kvm-unit-tests/lib/s390x -I lib -O2 -march=zEC12 -fno-delete-null-pointer-checks -g -MMD -MF s390x/.sclp.d -Wall -Wwrite-strings -Wempty-body -Wuninitialized -Wignored-qualifiers -Werror  -fomit-frame-pointer    -Wno-frame-address   -fno-pic    -Wclobbered  -Wunused-but-set-parameter  -Wmissing-parameter-type  -Wold-style-declaration -Woverride-init -Wmissing-prototypes -Wstrict-prototypes   -c -o s390x/sclp.o s390x/sclp.c
+>>>>>>>> s390x/sclp.c: In function 'test_one_simple':
+>>>>>>>> s390x/sclp.c:121:2: error: dereferencing type-punned pointer will break strict-aliasing rules [-Werror=strict-aliasing]
+>>>>>>>>   ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>>>>>   ^
+>>>>>>>> s390x/sclp.c: At top level:
+>>>>>>>> cc1: error: unrecognized command line option "-Wno-frame-address" [-Werror]
+>>>>>>>> cc1: all warnings being treated as errors
+>>>>>>>> make: *** [s390x/sclp.o] Error 1
 >>>>>>>
->>>>>>> While that might silence the compiler warning, we still might get
->>>>>>> aliasing problems here, I think.
->>>>>>> The right way to solve this problem is to turn sccb_template into a
->>>>>>> union of the various structs/arrays that you want to use and then access
->>>>>>> the fields through the union instead ("type-punning through union").
+>>>>>>> The following makes it work:
+>>>>>>>
+>>>>>>>
+>>>>>>> diff --git a/s390x/sclp.c b/s390x/sclp.c
+>>>>>>> index c13fa60..0b8117a 100644
+>>>>>>> --- a/s390x/sclp.c
+>>>>>>> +++ b/s390x/sclp.c
+>>>>>>> @@ -117,8 +117,10 @@ static bool test_one_ro(uint32_t cmd, uint8_t *addr, uint64_t exp_pgm, uint16_t
+>>>>>>>  static bool test_one_simple(uint32_t cmd, uint8_t *addr, uint16_t sccb_len,
+>>>>>>>                         uint16_t buf_len, uint64_t exp_pgm, uint16_t exp_rc)
+>>>>>>>  {
+>>>>>>> +       SCCBHeader *header = (void *)sccb_template;
+>>>>>>> +
+>>>>>>>         memset(sccb_template, 0, sizeof(sccb_template));
+>>>>>>> -       ((SCCBHeader *)sccb_template)->length = sccb_len;
+>>>>>>> +       header->length = sccb_len;
 >>>>>>
->>>>>> We do have the exact same thing in lib/s390x/sclp.c already, no?
+>>>>>> While that might silence the compiler warning, we still might get
+>>>>>> aliasing problems here, I think.
+>>>>>> The right way to solve this problem is to turn sccb_template into a
+>>>>>> union of the various structs/arrays that you want to use and then access
+>>>>>> the fields through the union instead ("type-punning through union").
 >>>>>
->>>>> Maybe we should carefully check that code, too...
->>>>>
->>>>>> Especially, new compilers don't seem to care?
->>>>>
->>>>> I've seen horrible bugs due to these aliasing problems in the past -
->>>>> without compiler warnings showing up! Certain versions of GCC assume
->>>>> that they can re-order code with pointers that point to types of
->>>>> different sizes, i.e. in the above example, I think they could assume
->>>>> that they could re-order the memset() and the header->length = ... line.
->>>>> I'd feel better if we play safe and use a union here.
+>>>>> We do have the exact same thing in lib/s390x/sclp.c already, no?
 >>>>
->>>> Should we simply allow type-punning?
+>>>> Maybe we should carefully check that code, too...
+>>>>
+>>>>> Especially, new compilers don't seem to care?
+>>>>
+>>>> I've seen horrible bugs due to these aliasing problems in the past -
+>>>> without compiler warnings showing up! Certain versions of GCC assume
+>>>> that they can re-order code with pointers that point to types of
+>>>> different sizes, i.e. in the above example, I think they could assume
+>>>> that they could re-order the memset() and the header->length = ... line.
+>>>> I'd feel better if we play safe and use a union here.
 >>>
->>> Maybe yes. The kernel also compiles with "-fno-strict-aliasing", and
->>> since kvm-unit-tests is mainly a "playground" for people who do kernel
->>> development, too, we should maybe also compile the unit tests with
->>> "-fno-strict-aliasing".
->>>
->>> Paolo, Andrew, Laurent, what do you think?
-> 
-> I think enabling -fno-strict-aliasing is a good idea.
+>>> Should we simply allow type-punning?
+>>
+>> Maybe yes. The kernel also compiles with "-fno-strict-aliasing", and
+>> since kvm-unit-tests is mainly a "playground" for people who do kernel
+>> development, too, we should maybe also compile the unit tests with
+>> "-fno-strict-aliasing".
+>>
+>> Paolo, Andrew, Laurent, what do you think?
 
-I agree too
+I think enabling -fno-strict-aliasing is a good idea.
 
-Laurent
+Paolo
