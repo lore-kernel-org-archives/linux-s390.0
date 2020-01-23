@@ -1,87 +1,132 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20050 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729297AbgAUNn1 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53310 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726260AbgAWJOu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Jan 2020 08:43:27 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00LDh8t5092345
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:26 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xmg3b14q1-1
+        Thu, 23 Jan 2020 04:14:50 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00N9CZld034959
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jan 2020 04:14:48 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xkwqa0cse-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2020 08:43:26 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jan 2020 04:14:47 -0500
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 21 Jan 2020 13:43:24 -0000
+        Thu, 23 Jan 2020 09:14:40 -0000
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 8/9] s390x: smp: Test all CRs on initial reset
-Date: Tue, 21 Jan 2020 08:42:53 -0500
-In-Reply-To: <20200121134254.4570-1-frankja@linux.ibm.com>
-References: <20200121134254.4570-1-frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH] s390x: smp: Rework cpu start and active tracking
+Date: Thu, 23 Jan 2020 04:14:21 -0500
+In-Reply-To: <bf356a2c-702e-0ecd-d24c-f7a1b7c18d2a@redhat.com>
+References: <bf356a2c-702e-0ecd-d24c-f7a1b7c18d2a@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200121134254.4570-9-frankja@linux.ibm.com>
+Message-Id: <20200123091421.3409-1-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
-so we also need to test 1-13 and 15 for 0.
+The architecture specifies that processing sigp orders may be
+asynchronous, and this is indeed the case on some hypervisors, so we
+need to wait until the cpu runs before we return from the setup/start
+function.
 
-And while we're at it, let's also set some values to cr 1, 7 and 13, so
-we can actually be sure that they will be zeroed.
+As there was a lot of duplicate code, a common function for cpu
+restarts has been introduced.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- s390x/smp.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ lib/s390x/smp.c | 56 ++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 35 insertions(+), 21 deletions(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 45f1d80..e36ab8c 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -176,16 +176,28 @@ static void test_emcall(void)
- 	report_prefix_pop();
+diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+index f57f420..4578003 100644
+--- a/lib/s390x/smp.c
++++ b/lib/s390x/smp.c
+@@ -104,35 +104,52 @@ int smp_cpu_stop_store_status(uint16_t addr)
+ 	return rc;
  }
  
-+/* Used to dirty registers of cpu #1 before it is reset */
-+static void test_func_initial(void)
++static int smp_cpu_restart_nolock(uint16_t addr, struct psw *psw)
 +{
-+	lctlg(1, 0x42000UL);
-+	lctlg(7, 0x43000UL);
-+	lctlg(13, 0x44000UL);
-+	set_flag(1);
++	int rc;
++	struct cpu *cpu = smp_cpu_from_addr(addr);
++
++	if (!cpu)
++		return -1;
++	if (psw) {
++		cpu->lowcore->restart_new_psw.mask = psw->mask;
++		cpu->lowcore->restart_new_psw.addr = psw->addr;
++	}
++	/*
++	 * Stop the cpu, so we don't have a race between a running cpu
++	 * and the restart in the test that checks if the cpu is
++	 * running after the restart.
++	 */
++	smp_cpu_stop_nolock(addr, false);
++	rc = sigp(addr, SIGP_RESTART, 0, NULL);
++	if (rc)
++		return rc;
++	/*
++	 * The order has been accepted, but the actual restart may not
++	 * have been performed yet, so wait until the cpu is running.
++	 */
++	while (!smp_cpu_running(addr))
++		mb();
++	cpu->active = true;
++	return 0;
 +}
 +
- static void test_reset_initial(void)
+ int smp_cpu_restart(uint16_t addr)
  {
- 	struct cpu_status *status = alloc_pages(0);
-+	uint64_t nullp[12] = {};
- 	struct psw psw;
+-	int rc = -1;
+-	struct cpu *cpu;
++	int rc;
  
- 	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)test_func;
-+	psw.addr = (unsigned long)test_func_initial;
+ 	spin_lock(&lock);
+-	cpu = smp_cpu_from_addr(addr);
+-	if (cpu) {
+-		rc = sigp(addr, SIGP_RESTART, 0, NULL);
+-		cpu->active = true;
+-	}
++	rc = smp_cpu_restart_nolock(addr, NULL);
+ 	spin_unlock(&lock);
+ 	return rc;
+ }
  
- 	report_prefix_push("reset initial");
-+	set_flag(0);
- 	smp_cpu_start(1, psw);
-+	wait_for_flag();
+ int smp_cpu_start(uint16_t addr, struct psw psw)
+ {
+-	int rc = -1;
+-	struct cpu *cpu;
+-	struct lowcore *lc;
++	int rc;
  
- 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
- 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-@@ -196,6 +208,8 @@ static void test_reset_initial(void)
- 	report(!status->fpc, "fpc");
- 	report(!status->cputm, "cpu timer");
- 	report(!status->todpr, "todpr");
-+	report(!memcmp(&status->crs[1], nullp, sizeof(status->crs[1]) * 12), "cr1-13 == 0");
-+	report(status->crs[15] == 0, "cr15 == 0");
- 	report_prefix_pop();
+ 	spin_lock(&lock);
+-	cpu = smp_cpu_from_addr(addr);
+-	if (cpu) {
+-		lc = cpu->lowcore;
+-		lc->restart_new_psw.mask = psw.mask;
+-		lc->restart_new_psw.addr = psw.addr;
+-		rc = sigp(addr, SIGP_RESTART, 0, NULL);
+-	}
++	rc = smp_cpu_restart_nolock(addr, &psw);
+ 	spin_unlock(&lock);
+ 	return rc;
+ }
+@@ -192,10 +209,7 @@ int smp_cpu_setup(uint16_t addr, struct psw psw)
+ 	lc->sw_int_crs[0] = 0x0000000000040000UL;
  
- 	report_prefix_push("initialized");
+ 	/* Start processing */
+-	rc = sigp_retry(cpu->addr, SIGP_RESTART, 0, NULL);
+-	if (!rc)
+-		cpu->active = true;
+-
++	smp_cpu_restart_nolock(addr, NULL);
+ out:
+ 	spin_unlock(&lock);
+ 	return rc;
 -- 
 2.20.1
