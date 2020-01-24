@@ -1,58 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27682 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729191AbgAaPCY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 10:02:24 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF16nP056858
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:22 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvfy9812b-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:20 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 31 Jan 2020 15:02:12 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 01/12] MAINTAINERS: Update S390 PCI Maintainer
-Date: Fri, 31 Jan 2020 16:01:56 +0100
-In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
-References: <20200131150207.73127-1-borntraeger@de.ibm.com>
-Message-Id: <20200131150207.73127-2-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+Received: from relay.sw.ru ([185.231.240.75]:50866 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730242AbgAXFtC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Jan 2020 00:49:02 -0500
+From: Vasily Averin <vvs@virtuozzo.com>
+Subject: [PATCH 0/1] s390: seq_file .next functions should increase position
+ index
+Message-ID: <8b5e38e4-ca07-b3c7-bdb7-4f4c3ad94233@virtuozzo.com>
+Date: Fri, 24 Jan 2020 08:48:50 +0300
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: linux-s390@vger.kernel.org
+Cc: Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-From: Matthew Rosato <mjrosato@linux.ibm.com>
+In Aug 2018 NeilBrown noticed 
+commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
+"Some ->next functions do not increment *pos when they return NULL...
+Note that such ->next functions are buggy and should be fixed. 
+A simple demonstration is
+   
+dd if=/proc/swaps bs=1000 skip=1
+    
+Choose any block size larger than the size of /proc/swaps.  This will
+always show the whole last line of /proc/swaps"
 
-As discussed previously with Collin, I will take over maintaining
-s390 pci.
+Described problem is still actual. If you make lseek into middle of last output line 
+following read will output end of last line and whole last line once again.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Message-Id: <1569590461-12562-1-git-send-email-mjrosato@linux.ibm.com>
-Acked-by: Collin Walling <walling@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+$ dd if=/proc/swaps bs=1  # usual output
+Filename				Type		Size	Used	Priority
+/dev/dm-0                               partition	4194812	97536	-2
+104+0 records in
+104+0 records out
+104 bytes copied
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bd7ee2310184..21264eae9c43 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1206,7 +1206,7 @@ T: git https://github.com/borntraeger/qemu.git s390-next
- L: qemu-s390x@nongnu.org
- 
- S390 PCI
--M: Collin Walling <walling@linux.ibm.com>
-+M: Matthew Rosato <mjrosato@linux.ibm.com>
- S: Supported
- F: hw/s390x/s390-pci*
- L: qemu-s390x@nongnu.org
+$ dd if=/proc/swaps bs=40 skip=1    # last line was generated twice
+dd: /proc/swaps: cannot skip to specified offset
+v/dm-0                               partition	4194812	97536	-2
+/dev/dm-0                               partition	4194812	97536	-2 
+3+1 records in
+3+1 records out
+131 bytes copied
+
+There are lot of other affected files, I've found 30+ including
+/proc/net/ip_tables_matches and /proc/sysvipc/*
+
+Following patch fixes s390-related file
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+
+Vasily Averin (1):
+  cio_ignore_proc_seq_next should increase position index
+
+ drivers/s390/cio/blacklist.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
 -- 
-2.21.0
+1.8.3.1
