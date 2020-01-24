@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Steven Price <steven.price@arm.com>
-Subject: [PATCH v16 08/25] s390: mm: Add p?d_leaf() definitions
-Date: Fri,  6 Dec 2019 13:52:59 +0000
-Message-Id: <20191206135316.47703-9-steven.price@arm.com>
-In-Reply-To: <20191206135316.47703-1-steven.price@arm.com>
-References: <20191206135316.47703-1-steven.price@arm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:26229 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729375AbgAXJYl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Jan 2020 04:24:41 -0500
+Date: Fri, 24 Jan 2020 10:24:32 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] cio_ignore_proc_seq_next should increase position
+ index
+Message-ID: <20200124102432.0458ad45.cohuck@redhat.com>
+In-Reply-To: <d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com>
+References: <d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
-Cc: Steven Price <steven.price@arm.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, James Morse <james.morse@arm.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mark Rutland <Mark.Rutland@arm.com>, "Liang, Kan" <kan.liang@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Vasily Averin <vvs@virtuozzo.com>
+Cc: linux-s390@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-walk_page_range() is going to be allowed to walk page tables other than
-those of user space. For this it needs to know when it has reached a
-'leaf' entry in the page tables. This information is provided by the
-p?d_leaf() functions/macros.
+On Fri, 24 Jan 2020 08:48:55 +0300
+Vasily Averin <vvs@virtuozzo.com> wrote:
 
-For s390, pud_large() and pmd_large() are already implemented as static
-inline functions. Add a macro to provide the p?d_leaf names for the
-generic code to use.
+$SUBJECT: "s390/cio: ..." ?
 
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Steven Price <steven.price@arm.com>
----
- arch/s390/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+> if seq_file .next fuction does not change position index,
+> read after some lseek can generate unexpected output.
+> 
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 7b03037a8475..137a3920ca36 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -673,6 +673,7 @@ static inline int pud_none(pud_t pud)
- 	return pud_val(pud) == _REGION3_ENTRY_EMPTY;
- }
- 
-+#define pud_leaf	pud_large
- static inline int pud_large(pud_t pud)
- {
- 	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) != _REGION_ENTRY_TYPE_R3)
-@@ -690,6 +691,7 @@ static inline unsigned long pud_pfn(pud_t pud)
- 	return (pud_val(pud) & origin_mask) >> PAGE_SHIFT;
- }
- 
-+#define pmd_leaf	pmd_large
- static inline int pmd_large(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & _SEGMENT_ENTRY_LARGE) != 0;
--- 
-2.20.1
+Fixes: 678a395b356a ("[PATCH] s390: convert /proc/cio_ignore")
+
+> https://bugzilla.kernel.org/show_bug.cgi?id=206283
+> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+> ---
+>  drivers/s390/cio/blacklist.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+> index 2a3f874..9cebff8 100644
+> --- a/drivers/s390/cio/blacklist.c
+> +++ b/drivers/s390/cio/blacklist.c
+> @@ -303,8 +303,10 @@ struct ccwdev_iter {
+>  cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+>  {
+>  	struct ccwdev_iter *iter;
+> +	loff_t p = *offset;
+
+I was asking myself if we could avoid the new variable, but anything I
+could think of looked worse.
+
+>  
+> -	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+> +	(*offset)++;
+> +	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+>  		return NULL;
+>  	iter = it;
+>  	if (iter->devno == __MAX_SUBCHANNEL) {
+> @@ -314,7 +316,6 @@ struct ccwdev_iter {
+>  			return NULL;
+>  	} else
+>  		iter->devno++;
+> -	(*offset)++;
+>  	return iter;
+>  }
+>  
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
