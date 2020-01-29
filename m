@@ -1,118 +1,148 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46296 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7024 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726370AbgAPMFg (ORCPT
+        by vger.kernel.org with ESMTP id S1726498AbgA2Qsk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jan 2020 07:05:36 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00GBwA9W031666
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:35 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xh7h9sw9u-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2020 07:05:34 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 16 Jan 2020 12:05:33 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 4/7] s390x: smp: Rework cpu start and active tracking
-Date: Thu, 16 Jan 2020 07:05:10 -0500
-In-Reply-To: <20200116120513.2244-1-frankja@linux.ibm.com>
-References: <20200116120513.2244-1-frankja@linux.ibm.com>
+        Wed, 29 Jan 2020 11:48:40 -0500
+Subject: Re: [PATCH v1 1/1] vfio-ccw: Don't free channel programs for
+ unrelated interrupts
+References: <20200124145455.51181-1-farman@linux.ibm.com>
+ <20200124145455.51181-2-farman@linux.ibm.com>
+ <20200124163305.3d6f0d47.cohuck@redhat.com>
+ <50a0fe00-a7c1-50e4-12f5-412ee7a0e522@linux.ibm.com>
+ <20200127135235.1f783f1b.cohuck@redhat.com>
+ <eb3f3887-50f2-ef4d-0b98-b25936047a49@linux.ibm.com>
+ <20200128105820.081a4b79.cohuck@redhat.com>
+ <6661ad52-0108-e2ae-be19-46ee95e9aa0e@linux.ibm.com>
+ <9635c45f-4652-c837-d256-46f426737a5e@linux.ibm.com>
+ <20200129130048.39e1b898.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <a3a759ab-89de-c805-ac03-ddb42023a246@linux.ibm.com>
+Date: Wed, 29 Jan 2020 11:48:36 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200116120513.2244-5-frankja@linux.ibm.com>
+In-Reply-To: <20200129130048.39e1b898.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, "Jason J . Herne" <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-sigp is not synchronous on all hypervisors, so we need to wait until
-the cpu runs until we return from the setup/start function.
 
-As there was a lot of duplicate code a common function for cpu
-restarts has been intropduced.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/smp.c | 45 ++++++++++++++++++++++++---------------------
- 1 file changed, 24 insertions(+), 21 deletions(-)
+On 1/29/20 7:00 AM, Cornelia Huck wrote:
+> On Tue, 28 Jan 2020 23:13:30 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> On 1/28/20 9:42 AM, Eric Farman wrote:
+>>>
+>>>
+>>> On 1/28/20 4:58 AM, Cornelia Huck wrote:  
+>>>> On Mon, 27 Jan 2020 16:28:18 -0500  
+>>
+>> ...snip...
+>>
+>>>>
+>>>> cp_init checking cp->initialized would probably be good to catch
+>>>> errors, in any case. (Maybe put a trace there, just to see if it fires?)  
+>>>
+>>> I did this last night, and got frustrated.  The unfortunate thing was
+>>> that once it fires, we end up flooding our trace buffers with errors as
+>>> the guest continually retries.  So I need to either make a smarter trace
+>>> that is rate limited or just crash my host once this condition occurs.
+>>> Will try to do that between meetings today.
+>>>   
+>>
+>> I reverted the subject patch, and simply triggered
+>> BUG_ON(cp->initialized) in cp_init().  It sprung VERY quickly (all
+>> traces are for the same device):
+>>
+>> 366.399682 03 ...sch_io_todo state=4 o.cpa=03017810
+>>                              i.w0=00c04007 i.cpa=03017818 i.w2=0c000000
+>> 366.399832 03 ...sch_io_todo state=3 o.cpa=7f53dd30 UNSOLICITED
+>>                              i.w0=00c00011 i.cpa=03017818 i.w2=85000000
+>> 366.400086 03 ...sch_io_todo state=2 o.cpa=03017930
+>>                              i.w0=00c04007 i.cpa=03017938 i.w2=0c000000
+>> 366.400313 03 ...sch_io_todo state=3 o.cpa=03017930
+>>                              i.w0=00001001 i.cpa=03017938 i.w2=00000000
+>>
+>> Ah, of course...  Unsolicited interrupts DO reset private->state back to
+>> idle, but leave cp->initialized and any channel_program struct remains
+>> allocated.  So there's one problem (a memory leak), and an easy one to
+>> rectify.
+> 
+> For a moment, I suspected a deferred condition code here, but it seems
+> to be a pure unsolicited interrupt.
+> 
+> But that got me thinking: If we get an unsolicited interrupt while
+> building the cp, it means that the guest is currently executing ssch.
+> We need to get the unsolicited interrupt to the guest, while not
+> executing the ssch. So maybe we need to do the following:
+> 
+> - deliver the unsolicited interrupt to the guest
+> - make sure we don't execute the ssch, but relay a cc 1 for it back to
+>   the guest
+> - clean up the cp
+> 
+> Maybe not avoiding issuing the ssch is what gets us in that pickle? We
+> either leak memory or free too much, it seems.
 
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index f57f420..f984a34 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -104,35 +104,41 @@ int smp_cpu_stop_store_status(uint16_t addr)
- 	return rc;
- }
- 
-+static int smp_cpu_restart_nolock(uint16_t addr, struct psw *psw)
-+{
-+	int rc;
-+	struct cpu *cpu = smp_cpu_from_addr(addr);
-+
-+	if (!cpu)
-+		return -1;
-+	if (psw) {
-+		cpu->lowcore->restart_new_psw.mask = psw->mask;
-+		cpu->lowcore->restart_new_psw.addr = psw->addr;
-+	}
-+	rc = sigp(addr, SIGP_RESTART, 0, NULL);
-+	if (rc)
-+		return rc;
-+	while (!smp_cpu_running(addr)) { mb(); }
-+	cpu->active = true;
-+	return 0;
-+}
-+
- int smp_cpu_restart(uint16_t addr)
- {
--	int rc = -1;
--	struct cpu *cpu;
-+	int rc;
- 
- 	spin_lock(&lock);
--	cpu = smp_cpu_from_addr(addr);
--	if (cpu) {
--		rc = sigp(addr, SIGP_RESTART, 0, NULL);
--		cpu->active = true;
--	}
-+	rc = smp_cpu_restart_nolock(addr, NULL);
- 	spin_unlock(&lock);
- 	return rc;
- }
- 
- int smp_cpu_start(uint16_t addr, struct psw psw)
- {
--	int rc = -1;
--	struct cpu *cpu;
--	struct lowcore *lc;
-+	int rc;
- 
- 	spin_lock(&lock);
--	cpu = smp_cpu_from_addr(addr);
--	if (cpu) {
--		lc = cpu->lowcore;
--		lc->restart_new_psw.mask = psw.mask;
--		lc->restart_new_psw.addr = psw.addr;
--		rc = sigp(addr, SIGP_RESTART, 0, NULL);
--	}
-+	rc = smp_cpu_restart_nolock(addr, &psw);
- 	spin_unlock(&lock);
- 	return rc;
- }
-@@ -192,10 +198,7 @@ int smp_cpu_setup(uint16_t addr, struct psw psw)
- 	lc->sw_int_crs[0] = 0x0000000000040000UL;
- 
- 	/* Start processing */
--	rc = sigp_retry(cpu->addr, SIGP_RESTART, 0, NULL);
--	if (!rc)
--		cpu->active = true;
--
-+	smp_cpu_restart_nolock(addr, NULL);
- out:
- 	spin_unlock(&lock);
- 	return rc;
--- 
-2.20.1
+It's possible...  I'll try hacking at that for a bit.
+
+> 
+>>
+>> After more than a few silly rabbit holes, I had this trace:
+>>
+>> 429.928480 07 ...sch_io_todo state=4 init=1 o.cpa=7fed8e10
+>>                              i.w0=00001001 i.cpa=7fed8e18 i.w2=00000000
+>> 429.929132 07 ...sch_io_todo state=4 init=1 o.cpa=0305aed0
+>>                              i.w0=00c04007 i.cpa=0305aed8 i.w2=0c000000
+>> 429.929538 07 ...sch_io_todo state=4 init=1 o.cpa=0305af30
+>>                              i.w0=00c04007 i.cpa=0305af38 i.w2=0c000000
+>> 467.339389 07   ...chp_event mask=0x80 event=1
+>> 467.339865 03 ...sch_io_todo state=3 init=0 o.cpa=01814548
+>>                              i.w0=00c02001 i.cpa=0305af38 i.w2=00000000
+>>
+>> So my trace is at the beginning of vfio_ccw_sch_io_todo(), but the
+>> BUG_ON() is at the end of that function where private->state is
+>> (possibly) updated.  Looking at the contents of the vfio_ccw_private
+>> struct in the dump, the failing device is currently state=4 init=1
+>> instead of 3/0 as in the above trace.  So an I/O was being built in
+>> parallel here, and there's no serializing action within the stacked
+>> vfio_ccw_sch_io_todo() call to ensure they don't stomp on one another.
+>> The io_mutex handles the region changes, and the subchannel lock handles
+>> the start/halt/clear subchannel instructions, but nothing on the
+>> interrupt side, nor contention between them.  Sigh.
+> 
+> I feel we've been here a few times already, and never seem to come up
+> with a complete solution :(
+> 
+> There had been some changes by Pierre regarding locking the fsm; maybe
+> that's what's needed here?
+
+Hrm...  I'd forgotten all about those.  I found them on
+patchwork.kernel.org; will see what they encompass.
+
+> 
+>>
+>> My brain hurts.  I re-applied this patch (with some validation that the
+>> cpa is valid) to my current franken-code, and will let it run overnight.
+>>  I think it's going to be racing other CPUs and I'll find a dead system
+>> by morning, but who knows.  Maybe not.  :)
+>>
+> 
+> I can relate to the brain hurting part :)
+> 
+
+:)
+
+My system crashed after about six hours, but not because of the BUG_ON()
+traps I placed.  Rather, dma-kmalloc-8 got clobbered again with what
+looks like x100 bytes of data from one of the other CCWs.  Of course, I
+didn't trace the CCW/IDA data this time, so I don't know when the memory
+in question was allocated/released/used.  But, there are 35 deferred
+cc=1 interrupts in the trace though, so I'll give some some thought to
+the ideas above while re-running with the full traces in place.
+
+Thanks!
