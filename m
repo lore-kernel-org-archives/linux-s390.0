@@ -1,150 +1,247 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13976 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728781AbgACWdn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jan 2020 17:33:43 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 003MHDRS029007
-        for <linux-s390@vger.kernel.org>; Fri, 3 Jan 2020 17:33:42 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2x62rc0721-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 03 Jan 2020 17:33:42 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <zaslonko@linux.ibm.com>;
-        Fri, 3 Jan 2020 22:33:40 -0000
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Subject: [PATCH v3 0/6] S390 hardware support for kernel zlib
-Date: Fri,  3 Jan 2020 23:33:28 +0100
-Message-Id: <20200103223334.20669-1-zaslonko@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43866 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726980AbgA3LhB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Jan 2020 06:37:01 -0500
+Subject: Re: [PATCH v8 3/4] selftests: KVM: s390x: Add reset tests
+References: <20200129200312.3200-1-frankja@linux.ibm.com>
+ <20200129200312.3200-4-frankja@linux.ibm.com>
+ <e0f72503-d292-edc4-67e1-abe1cbab3f96@redhat.com>
+ <0993d789-5cfd-d4c3-a39e-28d22d82dd43@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <d3ed6702-a96d-b0bb-c768-5c59f40444e7@redhat.com>
+Date: Thu, 30 Jan 2020 12:36:45 +0100
+MIME-Version: 1.0
+In-Reply-To: <0993d789-5cfd-d4c3-a39e-28d22d82dd43@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>, David Sterba <dsterba@suse.com>
-Cc: Richard Purdie <rpurdie@rpsys.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eduard Shishkin <edward6@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-With IBM z15 mainframe the new DFLTCC instruction is available. It
-implements deflate algorithm in hardware (Nest Acceleration Unit - NXU)
-with estimated compression and decompression performance orders of
-magnitude faster than the current zlib.
+On 30/01/2020 12.32, Janosch Frank wrote:
+> On 1/30/20 11:51 AM, Thomas Huth wrote:
+>> On 29/01/2020 21.03, Janosch Frank wrote:
+>>> Test if the registers end up having the correct values after a normal,
+>>> initial and clear reset.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>  tools/testing/selftests/kvm/Makefile       |   1 +
+>>>  tools/testing/selftests/kvm/s390x/resets.c | 165 +++++++++++++++++++++
+>>>  2 files changed, 166 insertions(+)
+>>>  create mode 100644 tools/testing/selftests/kvm/s390x/resets.c
+>>>
+>>> diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+>>> index 3138a916574a..fe1ea294730c 100644
+>>> --- a/tools/testing/selftests/kvm/Makefile
+>>> +++ b/tools/testing/selftests/kvm/Makefile
+>>> @@ -36,6 +36,7 @@ TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
+>>>  
+>>>  TEST_GEN_PROGS_s390x = s390x/memop
+>>>  TEST_GEN_PROGS_s390x += s390x/sync_regs_test
+>>> +TEST_GEN_PROGS_s390x += s390x/resets
+>>>  TEST_GEN_PROGS_s390x += dirty_log_test
+>>>  TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
+>>>  
+>>> diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+>>> new file mode 100644
+>>> index 000000000000..2b2378cc9e80
+>>> --- /dev/null
+>>> +++ b/tools/testing/selftests/kvm/s390x/resets.c
+>>> @@ -0,0 +1,165 @@
+>>> +// SPDX-License-Identifier: GPL-2.0-or-later
+>>> +/*
+>>> + * Test for s390x CPU resets
+>>> + *
+>>> + * Copyright (C) 2020, IBM
+>>> + */
+>>> +
+>>> +#include <stdio.h>
+>>> +#include <stdlib.h>
+>>> +#include <string.h>
+>>> +#include <sys/ioctl.h>
+>>> +
+>>> +#include "test_util.h"
+>>> +#include "kvm_util.h"
+>>> +
+>>> +#define VCPU_ID 3
+>>> +
+>>> +struct kvm_vm *vm;
+>>> +struct kvm_run *run;
+>>> +struct kvm_sync_regs *regs;
+>>> +static uint64_t regs_null[16];
+>>> +
+>>> +static uint64_t crs[16] = { 0x40000ULL,
+>>> +			    0x42000ULL,
+>>> +			    0, 0, 0, 0, 0,
+>>> +			    0x43000ULL,
+>>> +			    0, 0, 0, 0, 0,
+>>> +			    0x44000ULL,
+>>> +			    0, 0
+>>> +};
+>>> +
+>>> +static void guest_code_initial(void)
+>>> +{
+>>> +	/* Round toward 0 */
+>>> +	uint32_t fpc = 0x11;
+>>> +
+>>> +	/* Dirty registers */
+>>> +	asm volatile (
+>>> +		"	lctlg	0,15,%0\n"
+>>> +		"	sfpc	%1\n"
+>>> +		: : "Q" (crs), "d" (fpc));
+>>
+>> I'd recommend to add a GUEST_SYNC(0) here ... otherwise the guest code
+>> tries to return from this function and will cause a crash - which will
+>> also finish execution of the guest, but might have unexpected side effects.
+> 
+> Ok
+> 
+>>
+>>> +}
+>>> +
+>>> +static void test_one_reg(uint64_t id, uint64_t value)
+>>> +{
+>>> +	struct kvm_one_reg reg;
+>>> +	uint64_t eval_reg;
+>>> +
+>>> +	reg.addr = (uintptr_t)&eval_reg;
+>>> +	reg.id = id;
+>>> +	vcpu_get_reg(vm, VCPU_ID, &reg);
+>>> +	TEST_ASSERT(eval_reg == value, "value == %s", value);
+>>> +}
+>>> +
+>>> +static void assert_clear(void)
+>>> +{
+>>> +	struct kvm_sregs sregs;
+>>> +	struct kvm_regs regs;
+>>> +	struct kvm_fpu fpu;
+>>> +
+>>> +	vcpu_regs_get(vm, VCPU_ID, &regs);
+>>> +	TEST_ASSERT(!memcmp(&regs.gprs, regs_null, sizeof(regs.gprs)), "grs == 0");
+>>> +
+>>> +	vcpu_sregs_get(vm, VCPU_ID, &sregs);
+>>> +	TEST_ASSERT(!memcmp(&sregs.acrs, regs_null, sizeof(sregs.acrs)), "acrs == 0");
+>>> +
+>>> +	vcpu_fpu_get(vm, VCPU_ID, &fpu);
+>>> +	TEST_ASSERT(!memcmp(&fpu.fprs, regs_null, sizeof(fpu.fprs)), "fprs == 0");
+>>> +}
+>>> +
+>>> +static void assert_initial(void)
+>>> +{
+>>> +	struct kvm_sregs sregs;
+>>> +	struct kvm_fpu fpu;
+>>> +
+>>> +	vcpu_sregs_get(vm, VCPU_ID, &sregs);
+>>> +	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0");
+>>> +	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL, "cr14 == 0xC2000000");
+>>> +	TEST_ASSERT(!memcmp(&sregs.crs[1], regs_null, sizeof(sregs.crs[1]) * 12),
+>>> +		    "cr1-13 == 0");
+>>> +	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0");
+>>> +
+>>> +	vcpu_fpu_get(vm, VCPU_ID, &fpu);
+>>> +	TEST_ASSERT(!fpu.fpc, "fpc == 0");
+>>> +
+>>> +	test_one_reg(KVM_REG_S390_GBEA, 1);
+>>> +	test_one_reg(KVM_REG_S390_PP, 0);
+>>> +	test_one_reg(KVM_REG_S390_TODPR, 0);
+>>> +	test_one_reg(KVM_REG_S390_CPU_TIMER, 0);
+>>> +	test_one_reg(KVM_REG_S390_CLOCK_COMP, 0);
+>>> +}
+>>> +
+>>> +static void assert_normal(void)
+>>> +{
+>>> +	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
+>>> +}
+>>> +
+>>> +static void test_normal(void)
+>>> +{
+>>> +	printf("Testing notmal reset\n");
+>>> +	/* Create VM */
+>>> +	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+>>> +	run = vcpu_state(vm, VCPU_ID);
+>>> +	regs = &run->s.regs;
+>>> +
+>>> +	_vcpu_run(vm, VCPU_ID);
+>>
+>> Could you use vcpu_run() instead of _vcpu_run() ?
+> 
+> Done.
+> 
+>>
+>>> +	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
+>>> +	assert_normal();
+>>> +	kvm_vm_free(vm);
+>>> +}
+>>> +
+>>> +static int test_initial(void)
+>>> +{
+>>> +	int rv;
+>>> +
+>>> +	printf("Testing initial reset\n");
+>>> +	/* Create VM */
+>>> +	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+>>> +	run = vcpu_state(vm, VCPU_ID);
+>>> +	regs = &run->s.regs;
+>>> +
+>>> +	rv = _vcpu_run(vm, VCPU_ID);
+>>
+>> Extra bonus points if you check here that the registers contain the
+>> values that have been set by the guest ;-)
+> 
+> I started working on that yesterday
+> 
+>>
+>>> +	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
+>>> +	assert_normal();
+>>> +	assert_initial();
+>>> +	kvm_vm_free(vm);
+>>> +	return rv;
+>>> +}
+>>> +
+>>> +static int test_clear(void)
+>>> +{
+>>> +	int rv;
+>>> +
+>>> +	printf("Testing clear reset\n");
+>>> +	/* Create VM */
+>>> +	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+>>> +	run = vcpu_state(vm, VCPU_ID);
+>>> +	regs = &run->s.regs;
+>>> +
+>>> +	rv = _vcpu_run(vm, VCPU_ID);
+>>> +
+>>> +	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
+>>> +	assert_normal();
+>>> +	assert_initial();
+>>> +	assert_clear();
+>>> +	kvm_vm_free(vm);
+>>> +	return rv;
+>>> +}
+>>> +
+>>> +int main(int argc, char *argv[])
+>>> +{
+>>> +	int addl_resets;
+>>> +
+>>> +	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
+>>> +	addl_resets = kvm_check_cap(KVM_CAP_S390_VCPU_RESETS);
+>>> +
+>>> +	test_initial();
+>>> +	if (addl_resets) {
+>>
+>> I think you could still fit this into one line, without the need to
+>> declare the addl_resets variable:
+> 
+> The other question is if we still need to check that if the test is
+> bundled with the kernel anyway?
 
-This patch-set adds s390 hardware compression support to kernel zlib.
-The code is based on the userspace zlib implementation:
-https://github.com/madler/zlib/pull/410
-The coding style is also preserved for future maintainability.
-There is only limited set of userspace zlib functions represented in
-kernel. Apart from that, all the memory allocation should be performed
-in advance. Thus, the workarea structures are extended with the parameter
-lists required for the DEFLATE CONVENTION CALL instruction.
-Since kernel zlib itself does not support gzip headers, only Adler-32
-checksum is processed (also can be produced by DFLTCC facility).
-Like it was implemented for userspace, kernel zlib will compress in
-hardware on level 1, and in software on all other levels. Decompression
-will always happen in hardware (when enabled).
-Two DFLTCC compression calls produce the same results only when they
-both are made on machines of the same generation, and when the
-respective buffers have the same offset relative to the start of the
-page. Therefore care should be taken when using hardware compression
-when reproducible results are desired. However it does always produce
-the standard conform output which can be inflated anyway.
-The new kernel command line parameter 'dfltcc' is introduced to
-configure s390 zlib hardware support:
-    Format: { on | off | def_only | inf_only | always }
-     on:       s390 zlib hardware support for compression on
-               level 1 and decompression (default)
-     off:      No s390 zlib hardware support
-     def_only: s390 zlib hardware support for deflate
-               only (compression on level 1)
-     inf_only: s390 zlib hardware support for inflate
-               only (decompression)
-     always:   Same as 'on' but ignores the selected compression
-               level always using hardware support (used for debugging)
+For brand new capabilities, I think it would be nice to have the check,
+in case somebody (like me) wants to backport the test to slightly older
+kernels. For capabilities that have been in the kernel since a long time
+(like the IRQ caps in the next patch), I think you can also skip the check.
 
-The main purpose of the integration of the NXU support into the kernel zlib
-is the use of hardware deflate in btrfs filesystem with on-the-fly
-compression enabled. Apart from that, hardware support can also be used
-during boot for decompressing the kernel or the ramdisk image 
-
-With the patch for btrfs expanding zlib buffer from 1 to 4 pages (patch 6)
-the following performance results have been achieved using the ramdisk
-with btrfs. These are relative numbers based on throughput rate and
-compression ratio for zlib level 1:
-
-  Input data              Deflate rate   Inflate rate   Compression ratio
-                          NXU/Software   NXU/Software   NXU/Software
-  stream of zeroes        1.46           1.02           1.00
-  random ASCII data       10.44          3.00           0.96
-  ASCII text (dickens)    6,21           3.33           0.94
-  binary data (vmlinux)   8,37           3.90           1.02
-
-This means that s390 hardware deflate can provide up to 10 times faster
-compression (on level 1) and up to 4 times faster decompression (refers to
-all compression  levels) for btrfs zlib.
-
-Disclaimer: Performance results are based on IBM internal tests using DD
-command-line utility on btrfs on a Fedora 30 based internal driver in native
-LPAR on a z15 system. Results may vary based on individual workload,
-configuration and software levels.
-
-Changelog:
-v2 -> v3:
- - In btrfs zlib_compress_pages() do not copy input pages to the workspace
-   buffer if no s390 hardware compression is enabled or the remaining
-   input data fits in one page.
- - Leave just a single Kconfig option for s390 zlib hardware
-   support (CONFIG_ZLIB_DFLTCC)
- - Fix the issues reported by kbuild test robot.
-v1 -> v2:
- - Added new external zlib function to check if s390 Deflate-Conversion
-   facility is installed and enabled (see patch 5).
- - The larger buffer for btrfs zlib workspace is allocated only if
-   s390 hardware compression is enabled. In case of failure to allocate
-   4-page buffer, we fall back to a PAGE_SIZE buffer, as proposed
-   by Josef Bacik (see patch 6).
-
-
-
-Mikhail Zaslonko (6):
-  lib/zlib: Add s390 hardware support for kernel zlib_deflate
-  s390/boot: Rename HEAP_SIZE due to name collision
-  lib/zlib: Add s390 hardware support for kernel zlib_inflate
-  s390/boot: Add dfltcc= kernel command line parameter
-  lib/zlib: Add zlib_deflate_dfltcc_enabled() function
-  btrfs: Use larger zlib buffer for s390 hardware compression
-
- .../admin-guide/kernel-parameters.txt         |  12 +
- arch/s390/boot/compressed/decompressor.c      |   8 +-
- arch/s390/boot/ipl_parm.c                     |  14 +
- arch/s390/include/asm/setup.h                 |   7 +
- arch/s390/kernel/setup.c                      |   2 +
- fs/btrfs/compression.c                        |   2 +-
- fs/btrfs/zlib.c                               | 128 +++++---
- include/linux/zlib.h                          |   6 +
- lib/Kconfig                                   |   7 +
- lib/Makefile                                  |   1 +
- lib/decompress_inflate.c                      |  13 +
- lib/zlib_deflate/deflate.c                    |  85 +++---
- lib/zlib_deflate/deflate_syms.c               |   1 +
- lib/zlib_deflate/deftree.c                    |  54 ----
- lib/zlib_deflate/defutil.h                    | 134 ++++++++-
- lib/zlib_dfltcc/Makefile                      |  11 +
- lib/zlib_dfltcc/dfltcc.c                      |  55 ++++
- lib/zlib_dfltcc/dfltcc.h                      | 155 ++++++++++
- lib/zlib_dfltcc/dfltcc_deflate.c              | 280 ++++++++++++++++++
- lib/zlib_dfltcc/dfltcc_inflate.c              | 149 ++++++++++
- lib/zlib_dfltcc/dfltcc_syms.c                 |  17 ++
- lib/zlib_dfltcc/dfltcc_util.h                 | 103 +++++++
- lib/zlib_inflate/inflate.c                    |  32 +-
- lib/zlib_inflate/inflate.h                    |   8 +
- lib/zlib_inflate/infutil.h                    |  18 +-
- 25 files changed, 1150 insertions(+), 152 deletions(-)
- create mode 100644 lib/zlib_dfltcc/Makefile
- create mode 100644 lib/zlib_dfltcc/dfltcc.c
- create mode 100644 lib/zlib_dfltcc/dfltcc.h
- create mode 100644 lib/zlib_dfltcc/dfltcc_deflate.c
- create mode 100644 lib/zlib_dfltcc/dfltcc_inflate.c
- create mode 100644 lib/zlib_dfltcc/dfltcc_syms.c
- create mode 100644 lib/zlib_dfltcc/dfltcc_util.h
-
--- 
-2.17.1
+ Thomas
