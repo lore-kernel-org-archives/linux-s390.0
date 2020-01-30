@@ -1,94 +1,142 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24093 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727263AbgA3Q2M (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jan 2020 11:28:12 -0500
-Date: Thu, 30 Jan 2020 17:27:57 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v9 6/6] selftests: KVM: testing the local IRQs resets
-Message-ID: <20200130172757.09b1bbed.cohuck@redhat.com>
-In-Reply-To: <20200130123434.68129-7-frankja@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9618 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727168AbgA3MfB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Jan 2020 07:35:01 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00UCHAif119380
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 07:35:00 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xrj74sq2j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 07:34:59 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 30 Jan 2020 12:34:56 -0000
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH v9 6/6] selftests: KVM: testing the local IRQs resets
+Date: Thu, 30 Jan 2020 07:34:34 -0500
+In-Reply-To: <20200130123434.68129-1-frankja@linux.ibm.com>
 References: <20200130123434.68129-1-frankja@linux.ibm.com>
-        <20200130123434.68129-7-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200130123434.68129-7-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-On Thu, 30 Jan 2020 07:34:34 -0500
-Janosch Frank <frankja@linux.ibm.com> wrote:
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-> From: Pierre Morel <pmorel@linux.ibm.com>
-> 
-> Local IRQs are reset by a normal cpu reset.  The initial cpu reset and
-> the clear cpu reset, as superset of the normal reset, both clear the
-> IRQs too.
-> 
-> Let's inject an interrupt to a vCPU before calling a reset and see if
-> it is gone after the reset.
-> 
-> We choose to inject only an emergency interrupt at this point and can
-> extend the test to other types of IRQs later.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>[minor fixups]
-> ---
->  tools/testing/selftests/kvm/s390x/resets.c | 46 ++++++++++++++++++++++
->  1 file changed, 46 insertions(+)
-> 
-> diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-> index 4e173517f909..8a2507930e7d 100644
-> --- a/tools/testing/selftests/kvm/s390x/resets.c
-> +++ b/tools/testing/selftests/kvm/s390x/resets.c
-> @@ -14,6 +14,9 @@
->  #include "kvm_util.h"
->  
->  #define VCPU_ID 3
-> +#define LOCAL_IRQS 32
+Local IRQs are reset by a normal cpu reset.  The initial cpu reset and
+the clear cpu reset, as superset of the normal reset, both clear the
+IRQs too.
 
-The choice of 32 here is still a bit unclear (although not a problem).
+Let's inject an interrupt to a vCPU before calling a reset and see if
+it is gone after the reset.
 
-> +
-> +struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
->  
->  struct kvm_vm *vm;
->  struct kvm_run *run;
-> @@ -53,6 +56,27 @@ static void test_one_reg(uint64_t id, uint64_t value)
->  	TEST_ASSERT(eval_reg == value, "value == %s", value);
->  }
->  
-> +static void assert_noirq(void)
-> +{
-> +	struct kvm_s390_irq_state irq_state;
-> +	int irqs;
-> +
-> +	if (!(kvm_check_cap(KVM_CAP_S390_INJECT_IRQ) &&
-> +	    kvm_check_cap(KVM_CAP_S390_IRQ_STATE)))
-> +		return;
+We choose to inject only an emergency interrupt at this point and can
+extend the test to other types of IRQs later.
 
-I think you should drop the capability check here as well.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>[minor fixups]
+---
+ tools/testing/selftests/kvm/s390x/resets.c | 46 ++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-> +
-> +	irq_state.len = sizeof(buf);
-> +	irq_state.buf = (unsigned long)buf;
-> +	irqs = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_GET_IRQ_STATE, &irq_state);
-> +	/*
-> +	 * irqs contains the number of retrieved interrupts, apart from the
-> +	 * emergency call that should be cleared by the resets, there should be
-> +	 * none.
-
-What about the updated comment? :)
-
-> +	 */
-> +	TEST_ASSERT(irqs >= 0, "Could not fetch IRQs: errno %d\n", errno);
-> +	TEST_ASSERT(!irqs, "IRQ pending");
-> +}
-> +
->  static void assert_clear(void)
->  {
->  	struct kvm_sregs sregs;
-
-Else, looks sane to me.
+diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+index 4e173517f909..8a2507930e7d 100644
+--- a/tools/testing/selftests/kvm/s390x/resets.c
++++ b/tools/testing/selftests/kvm/s390x/resets.c
+@@ -14,6 +14,9 @@
+ #include "kvm_util.h"
+ 
+ #define VCPU_ID 3
++#define LOCAL_IRQS 32
++
++struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
+ 
+ struct kvm_vm *vm;
+ struct kvm_run *run;
+@@ -53,6 +56,27 @@ static void test_one_reg(uint64_t id, uint64_t value)
+ 	TEST_ASSERT(eval_reg == value, "value == %s", value);
+ }
+ 
++static void assert_noirq(void)
++{
++	struct kvm_s390_irq_state irq_state;
++	int irqs;
++
++	if (!(kvm_check_cap(KVM_CAP_S390_INJECT_IRQ) &&
++	    kvm_check_cap(KVM_CAP_S390_IRQ_STATE)))
++		return;
++
++	irq_state.len = sizeof(buf);
++	irq_state.buf = (unsigned long)buf;
++	irqs = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_GET_IRQ_STATE, &irq_state);
++	/*
++	 * irqs contains the number of retrieved interrupts, apart from the
++	 * emergency call that should be cleared by the resets, there should be
++	 * none.
++	 */
++	TEST_ASSERT(irqs >= 0, "Could not fetch IRQs: errno %d\n", errno);
++	TEST_ASSERT(!irqs, "IRQ pending");
++}
++
+ static void assert_clear(void)
+ {
+ 	struct kvm_sregs sregs;
+@@ -94,6 +118,22 @@ static void assert_initial(void)
+ static void assert_normal(void)
+ {
+ 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
++	assert_noirq();
++}
++
++static void inject_irq(int cpu_id)
++{
++	struct kvm_s390_irq_state irq_state;
++	struct kvm_s390_irq *irq = &buf[0];
++	int irqs;
++
++	/* Inject IRQ */
++	irq_state.len = sizeof(struct kvm_s390_irq);
++	irq_state.buf = (unsigned long)buf;
++	irq->type = KVM_S390_INT_EMERGENCY;
++	irq->u.emerg.code = cpu_id;
++	irqs = _vcpu_ioctl(vm, cpu_id, KVM_S390_SET_IRQ_STATE, &irq_state);
++	TEST_ASSERT(irqs >= 0, "Error injecting EMERGENCY IRQ errno %d\n", errno);
+ }
+ 
+ static void test_normal(void)
+@@ -106,6 +146,8 @@ static void test_normal(void)
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
++	inject_irq(VCPU_ID);
++
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
+ 	assert_normal();
+ 	kvm_vm_free(vm);
+@@ -121,6 +163,8 @@ static void test_initial(void)
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
++	inject_irq(VCPU_ID);
++
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
+ 	assert_normal();
+ 	assert_initial();
+@@ -137,6 +181,8 @@ static void test_clear(void)
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
++	inject_irq(VCPU_ID);
++
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
+ 	assert_normal();
+ 	assert_initial();
+-- 
+2.20.1
