@@ -1,151 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49720 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729211AbgAaPDV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 10:03:21 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF1mOp085191
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:03:20 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xuvd6s4ms-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:03:19 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 31 Jan 2020 15:02:16 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 11/12] s390: do not call memory_region_allocate_system_memory() multiple times
-Date: Fri, 31 Jan 2020 16:02:06 +0100
-In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
-References: <20200131150207.73127-1-borntraeger@de.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24093 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727263AbgA3Q2M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jan 2020 11:28:12 -0500
+Date: Thu, 30 Jan 2020 17:27:57 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v9 6/6] selftests: KVM: testing the local IRQs resets
+Message-ID: <20200130172757.09b1bbed.cohuck@redhat.com>
+In-Reply-To: <20200130123434.68129-7-frankja@linux.ibm.com>
+References: <20200130123434.68129-1-frankja@linux.ibm.com>
+        <20200130123434.68129-7-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200131150207.73127-12-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
 
-From: Igor Mammedov <imammedo@redhat.com>
+On Thu, 30 Jan 2020 07:34:34 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-s390 was trying to solve limited KVM memslot size issue by abusing
-memory_region_allocate_system_memory(), which breaks API contract
-where the function might be called only once.
+> From: Pierre Morel <pmorel@linux.ibm.com>
+> 
+> Local IRQs are reset by a normal cpu reset.  The initial cpu reset and
+> the clear cpu reset, as superset of the normal reset, both clear the
+> IRQs too.
+> 
+> Let's inject an interrupt to a vCPU before calling a reset and see if
+> it is gone after the reset.
+> 
+> We choose to inject only an emergency interrupt at this point and can
+> extend the test to other types of IRQs later.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>[minor fixups]
+> ---
+>  tools/testing/selftests/kvm/s390x/resets.c | 46 ++++++++++++++++++++++
+>  1 file changed, 46 insertions(+)
+> 
+> diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+> index 4e173517f909..8a2507930e7d 100644
+> --- a/tools/testing/selftests/kvm/s390x/resets.c
+> +++ b/tools/testing/selftests/kvm/s390x/resets.c
+> @@ -14,6 +14,9 @@
+>  #include "kvm_util.h"
+>  
+>  #define VCPU_ID 3
+> +#define LOCAL_IRQS 32
 
-Beside an invalid use of API, the approach also introduced migration
-issue, since RAM chunks for each KVM_SLOT_MAX_BYTES are transferred in
-migration stream as separate RAMBlocks.
+The choice of 32 here is still a bit unclear (although not a problem).
 
-After discussion [1], it was agreed to break migration from older
-QEMU for guest with RAM >8Tb (as it was relatively new (since 2.12)
-and considered to be not actually used downstream).
-Migration should keep working for guests with less than 8TB and for
-more than 8TB with QEMU 4.2 and newer binary.
-In case user tries to migrate more than 8TB guest, between incompatible
-QEMU versions, migration should fail gracefully due to non-exiting
-RAMBlock ID or RAMBlock size mismatch.
+> +
+> +struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
+>  
+>  struct kvm_vm *vm;
+>  struct kvm_run *run;
+> @@ -53,6 +56,27 @@ static void test_one_reg(uint64_t id, uint64_t value)
+>  	TEST_ASSERT(eval_reg == value, "value == %s", value);
+>  }
+>  
+> +static void assert_noirq(void)
+> +{
+> +	struct kvm_s390_irq_state irq_state;
+> +	int irqs;
+> +
+> +	if (!(kvm_check_cap(KVM_CAP_S390_INJECT_IRQ) &&
+> +	    kvm_check_cap(KVM_CAP_S390_IRQ_STATE)))
+> +		return;
 
-Taking in account above and that now KVM code is able to split too
-big MemorySection into several memslots, partially revert commit
- (bb223055b s390-ccw-virtio: allow for systems larger that 7.999TB)
-and use kvm_set_max_memslot_size() to set KVMSlot size to
-KVM_SLOT_MAX_BYTES.
+I think you should drop the capability check here as well.
 
-1) [PATCH RFC v2 4/4] s390: do not call  memory_region_allocate_system_memory() multiple times
+> +
+> +	irq_state.len = sizeof(buf);
+> +	irq_state.buf = (unsigned long)buf;
+> +	irqs = _vcpu_ioctl(vm, VCPU_ID, KVM_S390_GET_IRQ_STATE, &irq_state);
+> +	/*
+> +	 * irqs contains the number of retrieved interrupts, apart from the
+> +	 * emergency call that should be cleared by the resets, there should be
+> +	 * none.
 
-Signed-off-by: Igor Mammedov <imammedo@redhat.com>
-Message-Id: <20190924144751.24149-5-imammedo@redhat.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- hw/s390x/s390-virtio-ccw.c | 30 +++---------------------------
- target/s390x/kvm.c         | 11 +++++++++++
- 2 files changed, 14 insertions(+), 27 deletions(-)
+What about the updated comment? :)
 
-diff --git a/hw/s390x/s390-virtio-ccw.c b/hw/s390x/s390-virtio-ccw.c
-index 8bfb6684cb72..18ad279a00a3 100644
---- a/hw/s390x/s390-virtio-ccw.c
-+++ b/hw/s390x/s390-virtio-ccw.c
-@@ -154,39 +154,15 @@ static void virtio_ccw_register_hcalls(void)
-                                    virtio_ccw_hcall_early_printk);
- }
- 
--/*
-- * KVM does only support memory slots up to KVM_MEM_MAX_NR_PAGES pages
-- * as the dirty bitmap must be managed by bitops that take an int as
-- * position indicator. If we have a guest beyond that we will split off
-- * new subregions. The split must happen on a segment boundary (1MB).
-- */
--#define KVM_MEM_MAX_NR_PAGES ((1ULL << 31) - 1)
--#define SEG_MSK (~0xfffffULL)
--#define KVM_SLOT_MAX_BYTES ((KVM_MEM_MAX_NR_PAGES * TARGET_PAGE_SIZE) & SEG_MSK)
- static void s390_memory_init(ram_addr_t mem_size)
- {
-     MemoryRegion *sysmem = get_system_memory();
--    ram_addr_t chunk, offset = 0;
--    unsigned int number = 0;
-+    MemoryRegion *ram = g_new(MemoryRegion, 1);
-     Error *local_err = NULL;
--    gchar *name;
- 
-     /* allocate RAM for core */
--    name = g_strdup_printf("s390.ram");
--    while (mem_size) {
--        MemoryRegion *ram = g_new(MemoryRegion, 1);
--        uint64_t size = mem_size;
--
--        /* KVM does not allow memslots >= 8 TB */
--        chunk = MIN(size, KVM_SLOT_MAX_BYTES);
--        memory_region_allocate_system_memory(ram, NULL, name, chunk);
--        memory_region_add_subregion(sysmem, offset, ram);
--        mem_size -= chunk;
--        offset += chunk;
--        g_free(name);
--        name = g_strdup_printf("s390.ram.%u", ++number);
--    }
--    g_free(name);
-+    memory_region_allocate_system_memory(ram, NULL, "s390.ram", mem_size);
-+    memory_region_add_subregion(sysmem, 0, ram);
- 
-     /*
-      * Configure the maximum page size. As no memory devices were created
-diff --git a/target/s390x/kvm.c b/target/s390x/kvm.c
-index 97a662ad0ebf..54864c259c5e 100644
---- a/target/s390x/kvm.c
-+++ b/target/s390x/kvm.c
-@@ -28,6 +28,7 @@
- #include "cpu.h"
- #include "internal.h"
- #include "kvm_s390x.h"
-+#include "sysemu/kvm_int.h"
- #include "qapi/error.h"
- #include "qemu/error-report.h"
- #include "qemu/timer.h"
-@@ -122,6 +123,15 @@
-  */
- #define VCPU_IRQ_BUF_SIZE(max_cpus) (sizeof(struct kvm_s390_irq) * \
-                                      (max_cpus + NR_LOCAL_IRQS))
-+/*
-+ * KVM does only support memory slots up to KVM_MEM_MAX_NR_PAGES pages
-+ * as the dirty bitmap must be managed by bitops that take an int as
-+ * position indicator. If we have a guest beyond that we will split off
-+ * new subregions. The split must happen on a segment boundary (1MB).
-+ */
-+#define KVM_MEM_MAX_NR_PAGES ((1ULL << 31) - 1)
-+#define SEG_MSK (~0xfffffULL)
-+#define KVM_SLOT_MAX_BYTES ((KVM_MEM_MAX_NR_PAGES * TARGET_PAGE_SIZE) & SEG_MSK)
- 
- static CPUWatchpoint hw_watchpoint;
- /*
-@@ -355,6 +365,7 @@ int kvm_arch_init(MachineState *ms, KVMState *s)
-      */
-     /* kvm_vm_enable_cap(s, KVM_CAP_S390_AIS, 0); */
- 
-+    kvm_set_max_memslot_size(KVM_SLOT_MAX_BYTES);
-     return 0;
- }
- 
--- 
-2.21.0
+> +	 */
+> +	TEST_ASSERT(irqs >= 0, "Could not fetch IRQs: errno %d\n", errno);
+> +	TEST_ASSERT(!irqs, "IRQ pending");
+> +}
+> +
+>  static void assert_clear(void)
+>  {
+>  	struct kvm_sregs sregs;
+
+Else, looks sane to me.
