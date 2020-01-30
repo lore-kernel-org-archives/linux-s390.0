@@ -1,27 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57788 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49366 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726980AbgA3NAq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jan 2020 08:00:46 -0500
-Date: Thu, 30 Jan 2020 14:00:37 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        with ESMTP id S1726980AbgA3Mjm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Jan 2020 07:39:42 -0500
 Subject: Re: [PATCH v9 1/6] KVM: s390: do not clobber registers during guest
  reset/store status
-Message-ID: <20200130140037.11c4cf33.cohuck@redhat.com>
-In-Reply-To: <20200130123434.68129-2-frankja@linux.ibm.com>
 References: <20200130123434.68129-1-frankja@linux.ibm.com>
-        <20200130123434.68129-2-frankja@linux.ibm.com>
+ <20200130123434.68129-2-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <a8d55fbd-402d-6ee5-b0b4-a47b32b8f0cf@redhat.com>
+Date: Thu, 30 Jan 2020 13:39:29 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200130123434.68129-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-On Thu, 30 Jan 2020 07:34:29 -0500
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
+On 30.01.20 13:34, Janosch Frank wrote:
 > From: Christian Borntraeger <borntraeger@de.ibm.com>
 > 
 > The initial CPU reset clobbers the userspace fpc and the store status
@@ -33,11 +32,38 @@ Janosch Frank <frankja@linux.ibm.com> wrote:
 > Fixes: e1788bb995be ("KVM: s390: handle floating point registers in the run ioctl not in vcpu_put/load")
 > Fixes: 31d8b8d41a7e ("KVM: s390: handle access registers in the run ioctl not in vcpu_put/load")
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-Add your s-o-b?
-
 > ---
 >  arch/s390/kvm/kvm-s390.c | 5 ++---
 >  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index c059b86aacd4..328dee666b24 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2824,8 +2824,7 @@ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
+>  	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
+>  					CR14_UNUSED_33 |
+>  					CR14_EXTERNAL_DAMAGE_SUBMASK;
+> -	/* make sure the new fpc will be lazily loaded */
+> -	save_fpu_regs();
+> +	vcpu->run->s.regs.fpc = 0;
+>  	current->thread.fpu.fpc = 0;
+>  	vcpu->arch.sie_block->gbea = 1;
+>  	vcpu->arch.sie_block->pp = 0;
+> @@ -4343,7 +4342,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+>  	switch (ioctl) {
+>  	case KVM_S390_STORE_STATUS:
+>  		idx = srcu_read_lock(&vcpu->kvm->srcu);
+> -		r = kvm_s390_vcpu_store_status(vcpu, arg);
+> +		r = kvm_s390_store_status_unloaded(vcpu, arg);
+>  		srcu_read_unlock(&vcpu->kvm->srcu, idx);
+>  		break;
+>  	case KVM_S390_SET_INITIAL_PSW: {
+> 
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
