@@ -1,96 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36822 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406125AbgAPRpO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:45:14 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 102/174] net/af_iucv: always register net_device notifier
-Date: Thu, 16 Jan 2020 12:41:39 -0500
-Message-Id: <20200116174251.24326-102-sashal@kernel.org>
-In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
-References: <20200116174251.24326-1-sashal@kernel.org>
-MIME-Version: 1.0
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27682 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729191AbgAaPCY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jan 2020 10:02:24 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF16nP056858
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:22 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvfy9812b-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:20 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 31 Jan 2020 15:02:12 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PULL 01/12] MAINTAINERS: Update S390 PCI Maintainer
+Date: Fri, 31 Jan 2020 16:01:56 +0100
+In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
+References: <20200131150207.73127-1-borntraeger@de.ibm.com>
+Message-Id: <20200131150207.73127-2-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
 
-[ Upstream commit 06996c1d4088a0d5f3e7789d7f96b4653cc947cc ]
+As discussed previously with Collin, I will take over maintaining
+s390 pci.
 
-Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
-open HiperTransport-based connections. For robust operation these
-connections require the af_iucv_netdev_notifier, so register it
-unconditionally.
-
-Also handle any error that register_netdevice_notifier() returns.
-
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-Id: <1569590461-12562-1-git-send-email-mjrosato@linux.ibm.com>
+Acked-by: Collin Walling <walling@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 5984cc35d508..3edffb7bf2a4 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2392,6 +2392,13 @@ static int afiucv_iucv_init(void)
- 	return err;
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bd7ee2310184..21264eae9c43 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1206,7 +1206,7 @@ T: git https://github.com/borntraeger/qemu.git s390-next
+ L: qemu-s390x@nongnu.org
  
-+static void afiucv_iucv_exit(void)
-+{
-+	device_unregister(af_iucv_dev);
-+	driver_unregister(&af_iucv_driver);
-+	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+}
-+
- static int __init afiucv_init(void)
- {
- 	int err;
-@@ -2425,11 +2432,18 @@ static int __init afiucv_init(void)
- 		err = afiucv_iucv_init();
- 		if (err)
- 			goto out_sock;
--	} else
--		register_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	err = register_netdevice_notifier(&afiucv_netdev_notifier);
-+	if (err)
-+		goto out_notifier;
-+
- 	dev_add_pack(&iucv_packet_type);
- 	return 0;
- 
-+out_notifier:
-+	if (pr_iucv)
-+		afiucv_iucv_exit();
- out_sock:
- 	sock_unregister(PF_IUCV);
- out_proto:
-@@ -2443,12 +2457,11 @@ static int __init afiucv_init(void)
- static void __exit afiucv_exit(void)
- {
- 	if (pr_iucv) {
--		device_unregister(af_iucv_dev);
--		driver_unregister(&af_iucv_driver);
--		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+		afiucv_iucv_exit();
- 		symbol_put(iucv_if);
--	} else
--		unregister_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	unregister_netdevice_notifier(&afiucv_netdev_notifier);
- 	dev_remove_pack(&iucv_packet_type);
- 	sock_unregister(PF_IUCV);
- 	proto_unregister(&iucv_proto);
+ S390 PCI
+-M: Collin Walling <walling@linux.ibm.com>
++M: Matthew Rosato <mjrosato@linux.ibm.com>
+ S: Supported
+ F: hw/s390x/s390-pci*
+ L: qemu-s390x@nongnu.org
 -- 
-2.20.1
+2.21.0
