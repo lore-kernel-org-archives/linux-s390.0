@@ -1,59 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37856 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729161AbgAaPCT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 10:02:19 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF0HgG143026
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:18 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xv7e2x7da-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:17 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 31 Jan 2020 15:02:13 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 05/12] s390x: sclp: fix error handling for oversize control blocks
-Date: Fri, 31 Jan 2020 16:02:00 +0100
-In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
-References: <20200131150207.73127-1-borntraeger@de.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47483 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728500AbgAaN7J (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 31 Jan 2020 08:59:09 -0500
+Received: by mail-wr1-f70.google.com with SMTP id s13so3372635wru.7
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 05:59:06 -0800 (PST)
+Subject: Re: [PATCH v10 4/6] selftests: KVM: Add fpu and one reg set/get
+ library functions
+References: <20200131100205.74720-1-frankja@linux.ibm.com>
+ <20200131100205.74720-5-frankja@linux.ibm.com>
+ <6a990f23-832b-86f7-28bf-761e84fd33fb@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <75bddb63-fb5a-90b0-64bf-2de1d53f2b82@redhat.com>
+Date: Fri, 31 Jan 2020 14:59:01 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200131150207.73127-6-borntraeger@de.ibm.com>
+In-Reply-To: <6a990f23-832b-86f7-28bf-761e84fd33fb@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On 31/01/20 12:43, Christian Borntraeger wrote:
+> Paolo,
+> 
+> are you ok with me taking this patch for my s390 pull request to you?
+> Ideally still for 5.6?
 
-Requests over 4k are not a spec exception.
+Yes to both questions, of course.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
-Message-Id: <1569591203-15258-4-git-send-email-imbrenda@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- hw/s390x/sclp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Paolo
 
-diff --git a/hw/s390x/sclp.c b/hw/s390x/sclp.c
-index 73244c938b10..abb6e5011f9c 100644
---- a/hw/s390x/sclp.c
-+++ b/hw/s390x/sclp.c
-@@ -213,8 +213,7 @@ int sclp_service_call(CPUS390XState *env, uint64_t sccb, uint32_t code)
-     cpu_physical_memory_read(sccb, &work_sccb, sccb_len);
- 
-     /* Valid sccb sizes */
--    if (be16_to_cpu(work_sccb.h.length) < sizeof(SCCBHeader) ||
--        be16_to_cpu(work_sccb.h.length) > SCCB_SIZE) {
-+    if (be16_to_cpu(work_sccb.h.length) < sizeof(SCCBHeader)) {
-         r = -PGM_SPECIFICATION;
-         goto out;
-     }
--- 
-2.21.0
+> On 31.01.20 11:02, Janosch Frank wrote:
+>> Add library access to more registers.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>  .../testing/selftests/kvm/include/kvm_util.h  |  6 ++++
+>>  tools/testing/selftests/kvm/lib/kvm_util.c    | 36 +++++++++++++++++++
+>>  2 files changed, 42 insertions(+)
+>>
+>> diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+>> index 29cccaf96baf..ae0d14c2540a 100644
+>> --- a/tools/testing/selftests/kvm/include/kvm_util.h
+>> +++ b/tools/testing/selftests/kvm/include/kvm_util.h
+>> @@ -125,6 +125,12 @@ void vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
+>>  		    struct kvm_sregs *sregs);
+>>  int _vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid,
+>>  		    struct kvm_sregs *sregs);
+>> +void vcpu_fpu_get(struct kvm_vm *vm, uint32_t vcpuid,
+>> +		  struct kvm_fpu *fpu);
+>> +void vcpu_fpu_set(struct kvm_vm *vm, uint32_t vcpuid,
+>> +		  struct kvm_fpu *fpu);
+>> +void vcpu_get_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg);
+>> +void vcpu_set_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg);
+>>  #ifdef __KVM_HAVE_VCPU_EVENTS
+>>  void vcpu_events_get(struct kvm_vm *vm, uint32_t vcpuid,
+>>  		     struct kvm_vcpu_events *events);
+>> diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+>> index 41cf45416060..a6dd0401eb50 100644
+>> --- a/tools/testing/selftests/kvm/lib/kvm_util.c
+>> +++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+>> @@ -1373,6 +1373,42 @@ int _vcpu_sregs_set(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_sregs *sregs)
+>>  	return ioctl(vcpu->fd, KVM_SET_SREGS, sregs);
+>>  }
+>>
+>> +void vcpu_fpu_get(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_fpu *fpu)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = _vcpu_ioctl(vm, vcpuid, KVM_GET_FPU, fpu);
+>> +	TEST_ASSERT(ret == 0, "KVM_GET_FPU failed, rc: %i errno: %i (%s)",
+>> +		    ret, errno, strerror(errno));
+>> +}
+>> +
+>> +void vcpu_fpu_set(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_fpu *fpu)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = _vcpu_ioctl(vm, vcpuid, KVM_SET_FPU, fpu);
+>> +	TEST_ASSERT(ret == 0, "KVM_SET_FPU failed, rc: %i errno: %i (%s)",
+>> +		    ret, errno, strerror(errno));
+>> +}
+>> +
+>> +void vcpu_get_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = _vcpu_ioctl(vm, vcpuid, KVM_GET_ONE_REG, reg);
+>> +	TEST_ASSERT(ret == 0, "KVM_GET_ONE_REG failed, rc: %i errno: %i (%s)",
+>> +		    ret, errno, strerror(errno));
+>> +}
+>> +
+>> +void vcpu_set_reg(struct kvm_vm *vm, uint32_t vcpuid, struct kvm_one_reg *reg)
+>> +{
+>> +	int ret;
+>> +
+>> +	ret = _vcpu_ioctl(vm, vcpuid, KVM_SET_ONE_REG, reg);
+>> +	TEST_ASSERT(ret == 0, "KVM_SET_ONE_REG failed, rc: %i errno: %i (%s)",
+>> +		    ret, errno, strerror(errno));
+>> +}
+>> +
+>>  /*
+>>   * VCPU Ioctl
+>>   *
+>>
+> 
