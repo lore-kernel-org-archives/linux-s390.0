@@ -1,217 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55742 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61880 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727125AbgA3Me7 (ORCPT
+        by vger.kernel.org with ESMTP id S1729224AbgAaPJA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jan 2020 07:34:59 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00UCHAMw119379
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 07:34:58 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xrj74sq1y-1
+        Fri, 31 Jan 2020 10:09:00 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF7D7Q123357
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:08:59 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvkrfftpd-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 30 Jan 2020 07:34:57 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:08:58 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 30 Jan 2020 12:34:55 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v9 5/6] selftests: KVM: s390x: Add reset tests
-Date: Thu, 30 Jan 2020 07:34:33 -0500
-In-Reply-To: <20200130123434.68129-1-frankja@linux.ibm.com>
-References: <20200130123434.68129-1-frankja@linux.ibm.com>
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 31 Jan 2020 15:03:54 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/7] KVM: s390: Fixes and cleanups for 5.6
+Date: Fri, 31 Jan 2020 16:03:41 +0100
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200130123434.68129-6-frankja@linux.ibm.com>
+Message-Id: <20200131150348.73360-1-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-Test if the registers end up having the correct values after a normal,
-initial and clear reset.
+Paolo,
+mostly fixes and cleanups for 5.6.
+Patch 2 has cc stable.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- tools/testing/selftests/kvm/Makefile       |   1 +
- tools/testing/selftests/kvm/s390x/resets.c | 157 +++++++++++++++++++++
- 2 files changed, 158 insertions(+)
+The following changes since commit d1eef1c619749b2a57e514a3fa67d9a516ffa919:
+
+  Linux 5.5-rc2 (2019-12-15 15:16:08 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.6-1
+
+for you to fetch changes up to b2ff728bae9b04b533fbc8de66f1719c4dc889de:
+
+  selftests: KVM: testing the local IRQs resets (2020-01-31 13:17:21 +0100)
+
+----------------------------------------------------------------
+KVM: s390: Fixes and cleanups for 5.6
+- fix register corruption
+- ENOTSUPP/EOPNOTSUPP mixed
+- reset cleanups/fixes
+- selftests
+
+----------------------------------------------------------------
+Christian Borntraeger (2):
+      KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+      KVM: s390: do not clobber registers during guest reset/store status
+
+Janosch Frank (4):
+      KVM: s390: Cleanup initial cpu reset
+      KVM: s390: Add new reset vcpu API
+      selftests: KVM: Add fpu and one reg set/get library functions
+      selftests: KVM: s390x: Add reset tests
+
+Pierre Morel (1):
+      selftests: KVM: testing the local IRQs resets
+
+ Documentation/virt/kvm/api.txt                 |  43 ++++++
+ arch/s390/include/asm/kvm_host.h               |   5 +
+ arch/s390/kvm/interrupt.c                      |   6 +-
+ arch/s390/kvm/kvm-s390.c                       |  92 +++++++-----
+ include/uapi/linux/kvm.h                       |   5 +
+ tools/testing/selftests/kvm/Makefile           |   1 +
+ tools/testing/selftests/kvm/include/kvm_util.h |   6 +
+ tools/testing/selftests/kvm/lib/kvm_util.c     |  36 +++++
+ tools/testing/selftests/kvm/s390x/resets.c     | 197 +++++++++++++++++++++++++
+ 9 files changed, 354 insertions(+), 37 deletions(-)
  create mode 100644 tools/testing/selftests/kvm/s390x/resets.c
-
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 3138a916574a..fe1ea294730c 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -36,6 +36,7 @@ TEST_GEN_PROGS_aarch64 += kvm_create_max_vcpus
- 
- TEST_GEN_PROGS_s390x = s390x/memop
- TEST_GEN_PROGS_s390x += s390x/sync_regs_test
-+TEST_GEN_PROGS_s390x += s390x/resets
- TEST_GEN_PROGS_s390x += dirty_log_test
- TEST_GEN_PROGS_s390x += kvm_create_max_vcpus
- 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-new file mode 100644
-index 000000000000..4e173517f909
---- /dev/null
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -0,0 +1,157 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Test for s390x CPU resets
-+ *
-+ * Copyright (C) 2020, IBM
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/ioctl.h>
-+
-+#include "test_util.h"
-+#include "kvm_util.h"
-+
-+#define VCPU_ID 3
-+
-+struct kvm_vm *vm;
-+struct kvm_run *run;
-+struct kvm_sync_regs *regs;
-+static uint64_t regs_null[16];
-+
-+static uint64_t crs[16] = { 0x40000ULL,
-+			    0x42000ULL,
-+			    0, 0, 0, 0, 0,
-+			    0x43000ULL,
-+			    0, 0, 0, 0, 0,
-+			    0x44000ULL,
-+			    0, 0
-+};
-+
-+static void guest_code_initial(void)
-+{
-+	/* Round toward 0 */
-+	uint32_t fpc = 0x11;
-+
-+	/* Dirty registers */
-+	asm volatile (
-+		"	lctlg	0,15,%0\n"
-+		"	sfpc	%1\n"
-+		: : "Q" (crs), "d" (fpc));
-+	GUEST_SYNC(0);
-+}
-+
-+static void test_one_reg(uint64_t id, uint64_t value)
-+{
-+	struct kvm_one_reg reg;
-+	uint64_t eval_reg;
-+
-+	reg.addr = (uintptr_t)&eval_reg;
-+	reg.id = id;
-+	vcpu_get_reg(vm, VCPU_ID, &reg);
-+	TEST_ASSERT(eval_reg == value, "value == %s", value);
-+}
-+
-+static void assert_clear(void)
-+{
-+	struct kvm_sregs sregs;
-+	struct kvm_regs regs;
-+	struct kvm_fpu fpu;
-+
-+	vcpu_regs_get(vm, VCPU_ID, &regs);
-+	TEST_ASSERT(!memcmp(&regs.gprs, regs_null, sizeof(regs.gprs)), "grs == 0");
-+
-+	vcpu_sregs_get(vm, VCPU_ID, &sregs);
-+	TEST_ASSERT(!memcmp(&sregs.acrs, regs_null, sizeof(sregs.acrs)), "acrs == 0");
-+
-+	vcpu_fpu_get(vm, VCPU_ID, &fpu);
-+	TEST_ASSERT(!memcmp(&fpu.fprs, regs_null, sizeof(fpu.fprs)), "fprs == 0");
-+}
-+
-+static void assert_initial(void)
-+{
-+	struct kvm_sregs sregs;
-+	struct kvm_fpu fpu;
-+
-+	vcpu_sregs_get(vm, VCPU_ID, &sregs);
-+	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0");
-+	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL, "cr14 == 0xC2000000");
-+	TEST_ASSERT(!memcmp(&sregs.crs[1], regs_null, sizeof(sregs.crs[1]) * 12),
-+		    "cr1-13 == 0");
-+	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0");
-+
-+	vcpu_fpu_get(vm, VCPU_ID, &fpu);
-+	TEST_ASSERT(!fpu.fpc, "fpc == 0");
-+
-+	test_one_reg(KVM_REG_S390_GBEA, 1);
-+	test_one_reg(KVM_REG_S390_PP, 0);
-+	test_one_reg(KVM_REG_S390_TODPR, 0);
-+	test_one_reg(KVM_REG_S390_CPU_TIMER, 0);
-+	test_one_reg(KVM_REG_S390_CLOCK_COMP, 0);
-+}
-+
-+static void assert_normal(void)
-+{
-+	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
-+}
-+
-+static void test_normal(void)
-+{
-+	printf("Testing notmal reset\n");
-+	/* Create VM */
-+	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
-+	run = vcpu_state(vm, VCPU_ID);
-+	regs = &run->s.regs;
-+
-+	vcpu_run(vm, VCPU_ID);
-+
-+	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
-+	assert_normal();
-+	kvm_vm_free(vm);
-+}
-+
-+static void test_initial(void)
-+{
-+	printf("Testing initial reset\n");
-+	/* Create VM */
-+	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
-+	run = vcpu_state(vm, VCPU_ID);
-+	regs = &run->s.regs;
-+
-+	vcpu_run(vm, VCPU_ID);
-+
-+	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
-+	assert_normal();
-+	assert_initial();
-+	kvm_vm_free(vm);
-+}
-+
-+static void test_clear(void)
-+{
-+	printf("Testing clear reset\n");
-+	/* Create VM */
-+	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
-+	run = vcpu_state(vm, VCPU_ID);
-+	regs = &run->s.regs;
-+
-+	vcpu_run(vm, VCPU_ID);
-+
-+	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
-+	assert_normal();
-+	assert_initial();
-+	assert_clear();
-+	kvm_vm_free(vm);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	setbuf(stdout, NULL);	/* Tell stdout not to buffer its content */
-+
-+	test_initial();
-+	if (kvm_check_cap(KVM_CAP_S390_VCPU_RESETS)) {
-+		test_normal();
-+		test_clear();
-+	}
-+	return 0;
-+}
--- 
-2.20.1
