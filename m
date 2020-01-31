@@ -1,65 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41092 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726982AbgAQKqy (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35590 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728860AbgAaPGB (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Jan 2020 05:46:54 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00HAcs07078575
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:46:53 -0500
+        Fri, 31 Jan 2020 10:06:01 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF5opu125617
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:06:00 -0500
 Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xk0qu0hb0-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xvkpaf32c-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2020 05:46:53 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:05:57 -0500
 Received: from localhost
         by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Fri, 17 Jan 2020 10:46:51 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 0/9] s390x: smp: Improve smp code and reset checks
-Date: Fri, 17 Jan 2020 05:46:31 -0500
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 31 Jan 2020 15:03:55 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/7] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date: Fri, 31 Jan 2020 16:03:42 +0100
+In-Reply-To: <20200131150348.73360-1-borntraeger@de.ibm.com>
+References: <20200131150348.73360-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200117104640.1983-1-frankja@linux.ibm.com>
+Message-Id: <20200131150348.73360-2-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-Let's extend sigp reset testing and clean up the smp library as well.
+There is no ENOTSUPP for userspace.
 
-GIT: https://github.com/frankjaa/kvm-unit-tests/tree/smp_cleanup
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-v3:
-	* Added patch to introduce cpu loop in cpu setup
-	* Added patch that removes cpu loops in favor of the previously introduced one
-	* Fixed inline assembly for fpc dirtying
-	* Moved cpu stop hunk from first into the second patch
-	* Reworked patch #4 commit message and added a comment when waiting for PU
-
-v2:
-	* Added cpu stop to test_store_status()
-	* Added smp_cpu_destroy() to the end of smp.c main()
-	* New patch that prints cpu id on interrupt errors
-	* New patch that reworks cpu start in the smp library (needed for lpar)
-	* nullp is now an array
-
-Janosch Frank (9):
-  s390x: smp: Cleanup smp.c
-  s390x: smp: Only use smp_cpu_setup once
-  s390x: Add cpu id to interrupt error prints
-  s390x: smp: Rework cpu start and active tracking
-  s390x: smp: Wait for cpu setup to finish
-  s390x: smp: Loop if secondary cpu returns into cpu setup again
-  s390x: smp: Remove unneeded cpu loops
-  s390x: smp: Test all CRs on initial reset
-  s390x: smp: Dirty fpc before initial reset test
-
- lib/s390x/interrupt.c | 20 +++++------
- lib/s390x/smp.c       | 52 ++++++++++++++++-----------
- s390x/cstart64.S      |  4 +++
- s390x/smp.c           | 82 +++++++++++++++++++++++++++----------------
- 4 files changed, 97 insertions(+), 61 deletions(-)
-
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 165dea4c7f19..c06c89d370a7 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2190,7 +2190,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2499,7 +2499,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2579,7 +2579,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
 -- 
-2.20.1
+2.21.0
