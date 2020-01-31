@@ -1,180 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59198 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729163AbgAaPCX (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9932 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729071AbgAaPD4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jan 2020 10:02:23 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF0Iif143032
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:22 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xv7e2x7jc-1
+        Fri, 31 Jan 2020 10:03:56 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VF1rtB117634
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:03:55 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xvd70468a-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:20 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:03:55 -0500
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 31 Jan 2020 15:02:16 -0000
+        Fri, 31 Jan 2020 15:03:53 -0000
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PULL 08/12] kvm: extract kvm_log_clear_one_slot
-Date: Fri, 31 Jan 2020 16:02:03 +0100
-In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
-References: <20200131150207.73127-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
+Subject: [GIT PULL 3/7] KVM: s390: Cleanup initial cpu reset
+Date: Fri, 31 Jan 2020 16:03:44 +0100
+In-Reply-To: <20200131150348.73360-1-borntraeger@de.ibm.com>
+References: <20200131150348.73360-1-borntraeger@de.ibm.com>
+Message-Id: <20200131150348.73360-4-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200131150207.73127-9-borntraeger@de.ibm.com>
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-We may need to clear the dirty bitmap for more than one KVM memslot.
-First do some code movement with no semantic change.
+The code seems to be quite old and uses lots of unneeded spaces for
+alignment, which doesn't really help with readability.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Igor Mammedov <imammedo@redhat.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Message-Id: <20190924144751.24149-2-imammedo@redhat.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Let's:
+* Get rid of the extra spaces
+* Remove the ULs as they are not needed on 0s
+* Define constants for the CR 0 and 14 initial values
+* Use the sizeof of the gcr array to memset it to 0
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Link: https://lore.kernel.org/r/20200131100205.74720-3-frankja@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[fixup line break]
 ---
- accel/kvm/kvm-all.c | 103 ++++++++++++++++++++++++--------------------
- 1 file changed, 57 insertions(+), 46 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  5 +++++
+ arch/s390/kvm/kvm-s390.c         | 18 +++++++-----------
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/accel/kvm/kvm-all.c b/accel/kvm/kvm-all.c
-index b09bad08048d..a85ec09486dd 100644
---- a/accel/kvm/kvm-all.c
-+++ b/accel/kvm/kvm-all.c
-@@ -575,55 +575,14 @@ out:
- #define KVM_CLEAR_LOG_ALIGN  (qemu_real_host_page_size << KVM_CLEAR_LOG_SHIFT)
- #define KVM_CLEAR_LOG_MASK   (-KVM_CLEAR_LOG_ALIGN)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 02f4c21c57f6..73044545ecac 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -122,6 +122,11 @@ struct mcck_volatile_info {
+ 	__u32 reserved;
+ };
  
--/**
-- * kvm_physical_log_clear - Clear the kernel's dirty bitmap for range
-- *
-- * NOTE: this will be a no-op if we haven't enabled manual dirty log
-- * protection in the host kernel because in that case this operation
-- * will be done within log_sync().
-- *
-- * @kml:     the kvm memory listener
-- * @section: the memory range to clear dirty bitmap
-- */
--static int kvm_physical_log_clear(KVMMemoryListener *kml,
--                                  MemoryRegionSection *section)
-+static int kvm_log_clear_one_slot(KVMSlot *mem, int as_id, uint64_t start,
-+                                  uint64_t size)
++#define CR0_INITIAL_MASK (CR0_UNUSED_56 | CR0_INTERRUPT_KEY_SUBMASK | \
++			  CR0_MEASUREMENT_ALERT_SUBMASK)
++#define CR14_INITIAL_MASK (CR14_UNUSED_32 | CR14_UNUSED_33 | \
++			   CR14_EXTERNAL_DAMAGE_SUBMASK)
++
+ #define CPUSTAT_STOPPED    0x80000000
+ #define CPUSTAT_WAIT       0x10000000
+ #define CPUSTAT_ECALL_PEND 0x08000000
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 876802894b35..bb072866bd69 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2847,19 +2847,15 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+ static void kvm_s390_vcpu_initial_reset(struct kvm_vcpu *vcpu)
  {
-     KVMState *s = kvm_state;
-+    uint64_t end, bmap_start, start_delta, bmap_npages;
-     struct kvm_clear_dirty_log d;
--    uint64_t start, end, bmap_start, start_delta, bmap_npages, size;
-     unsigned long *bmap_clear = NULL, psize = qemu_real_host_page_size;
--    KVMSlot *mem = NULL;
--    int ret, i;
--
--    if (!s->manual_dirty_log_protect) {
--        /* No need to do explicit clear */
--        return 0;
--    }
--
--    start = section->offset_within_address_space;
--    size = int128_get64(section->size);
--
--    if (!size) {
--        /* Nothing more we can do... */
--        return 0;
--    }
--
--    kvm_slots_lock(kml);
--
--    /* Find any possible slot that covers the section */
--    for (i = 0; i < s->nr_slots; i++) {
--        mem = &kml->slots[i];
--        if (mem->start_addr <= start &&
--            start + size <= mem->start_addr + mem->memory_size) {
--            break;
--        }
--    }
--
--    /*
--     * We should always find one memslot until this point, otherwise
--     * there could be something wrong from the upper layer
--     */
--    assert(mem && i != s->nr_slots);
-+    int ret;
- 
-     /*
-      * We need to extend either the start or the size or both to
-@@ -694,7 +653,7 @@ static int kvm_physical_log_clear(KVMMemoryListener *kml,
-     /* It should never overflow.  If it happens, say something */
-     assert(bmap_npages <= UINT32_MAX);
-     d.num_pages = bmap_npages;
--    d.slot = mem->slot | (kml->as_id << 16);
-+    d.slot = mem->slot | (as_id << 16);
- 
-     if (kvm_vm_ioctl(s, KVM_CLEAR_DIRTY_LOG, &d) == -1) {
-         ret = -errno;
-@@ -717,6 +676,58 @@ static int kvm_physical_log_clear(KVMMemoryListener *kml,
-                  size / psize);
-     /* This handles the NULL case well */
-     g_free(bmap_clear);
-+    return ret;
-+}
-+
-+
-+/**
-+ * kvm_physical_log_clear - Clear the kernel's dirty bitmap for range
-+ *
-+ * NOTE: this will be a no-op if we haven't enabled manual dirty log
-+ * protection in the host kernel because in that case this operation
-+ * will be done within log_sync().
-+ *
-+ * @kml:     the kvm memory listener
-+ * @section: the memory range to clear dirty bitmap
-+ */
-+static int kvm_physical_log_clear(KVMMemoryListener *kml,
-+                                  MemoryRegionSection *section)
-+{
-+    KVMState *s = kvm_state;
-+    uint64_t start, size;
-+    KVMSlot *mem = NULL;
-+    int ret, i;
-+
-+    if (!s->manual_dirty_log_protect) {
-+        /* No need to do explicit clear */
-+        return 0;
-+    }
-+
-+    start = section->offset_within_address_space;
-+    size = int128_get64(section->size);
-+
-+    if (!size) {
-+        /* Nothing more we can do... */
-+        return 0;
-+    }
-+
-+    kvm_slots_lock(kml);
-+
-+    /* Find any possible slot that covers the section */
-+    for (i = 0; i < s->nr_slots; i++) {
-+        mem = &kml->slots[i];
-+        if (mem->start_addr <= start &&
-+            start + size <= mem->start_addr + mem->memory_size) {
-+            break;
-+        }
-+    }
-+
-+    /*
-+     * We should always find one memslot until this point, otherwise
-+     * there could be something wrong from the upper layer
-+     */
-+    assert(mem && i != s->nr_slots);
-+    ret = kvm_log_clear_one_slot(mem, kml->as_id, start, size);
- 
-     kvm_slots_unlock(kml);
- 
+ 	/* this equals initial cpu reset in pop, but we don't switch to ESA */
+-	vcpu->arch.sie_block->gpsw.mask = 0UL;
+-	vcpu->arch.sie_block->gpsw.addr = 0UL;
++	vcpu->arch.sie_block->gpsw.mask = 0;
++	vcpu->arch.sie_block->gpsw.addr = 0;
+ 	kvm_s390_set_prefix(vcpu, 0);
+ 	kvm_s390_set_cpu_timer(vcpu, 0);
+-	vcpu->arch.sie_block->ckc       = 0UL;
+-	vcpu->arch.sie_block->todpr     = 0;
+-	memset(vcpu->arch.sie_block->gcr, 0, 16 * sizeof(__u64));
+-	vcpu->arch.sie_block->gcr[0]  = CR0_UNUSED_56 |
+-					CR0_INTERRUPT_KEY_SUBMASK |
+-					CR0_MEASUREMENT_ALERT_SUBMASK;
+-	vcpu->arch.sie_block->gcr[14] = CR14_UNUSED_32 |
+-					CR14_UNUSED_33 |
+-					CR14_EXTERNAL_DAMAGE_SUBMASK;
++	vcpu->arch.sie_block->ckc = 0;
++	vcpu->arch.sie_block->todpr = 0;
++	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
++	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
++	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
+ 	vcpu->run->s.regs.fpc = 0;
+ 	vcpu->arch.sie_block->gbea = 1;
+ 	vcpu->arch.sie_block->pp = 0;
 -- 
 2.21.0
