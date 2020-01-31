@@ -1,324 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:51292 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728294AbgAGVAR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Jan 2020 16:00:17 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Tue,  7 Jan 2020 13:59:53 -0700
-Message-Id: <20200107205959.7575-3-logang@deltatee.com>
-In-Reply-To: <20200107205959.7575-1-logang@deltatee.com>
-References: <20200107205959.7575-1-logang@deltatee.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61754 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729111AbgAaPCR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jan 2020 10:02:17 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 00VExZbL021201
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:16 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2xv7deqsat-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2020 10:02:15 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 31 Jan 2020 15:02:13 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PULL 04/12] s390x: sclp: boundary check
+Date: Fri, 31 Jan 2020 16:01:59 +0100
+In-Reply-To: <20200131150207.73127-1-borntraeger@de.ibm.com>
+References: <20200131150207.73127-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH v2 2/8] mm/memory_hotplug: Rename mhp_restrictions to mhp_modifiers
+Message-Id: <20200131150207.73127-5-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-The mhp_restrictions struct really doesn't specify anything resembling
-a restriction anymore so rename it to be mhp_modifiers.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+All sclp codes need to be checked for page boundary violations.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+Message-Id: <1569591203-15258-3-git-send-email-imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/arm64/mm/mmu.c            |  4 ++--
- arch/ia64/mm/init.c            |  4 ++--
- arch/powerpc/mm/mem.c          |  4 ++--
- arch/s390/mm/init.c            |  6 +++---
- arch/sh/mm/init.c              |  4 ++--
- arch/x86/mm/init_32.c          |  4 ++--
- arch/x86/mm/init_64.c          |  8 ++++----
- include/linux/memory_hotplug.h | 12 ++++++------
- mm/memory_hotplug.c            |  8 ++++----
- mm/memremap.c                  |  8 ++++----
- 10 files changed, 31 insertions(+), 31 deletions(-)
+ hw/s390x/sclp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 40797cbfba2d..3320406579c3 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1050,7 +1050,7 @@ int p4d_free_pud_page(p4d_t *p4d, unsigned long addr)
+diff --git a/hw/s390x/sclp.c b/hw/s390x/sclp.c
+index 95ebfe7bd2f1..73244c938b10 100644
+--- a/hw/s390x/sclp.c
++++ b/hw/s390x/sclp.c
+@@ -234,6 +234,11 @@ int sclp_service_call(CPUS390XState *env, uint64_t sccb, uint32_t code)
+         goto out_write;
+     }
  
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	int flags = 0;
- 
-@@ -1063,7 +1063,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	memblock_clear_nomap(start, size);
- 
- 	return __add_pages(nid, start >> PAGE_SHIFT, size >> PAGE_SHIFT,
--			   restrictions);
-+			   modifiers);
- }
- void arch_remove_memory(int nid, u64 start, u64 size,
- 			struct vmem_altmap *altmap)
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index b01d68a2d5d9..daf438e08b96 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -670,13 +670,13 @@ mem_init (void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	int ret;
- 
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, modifiers);
- 	if (ret)
- 		printk("%s: Problem encountered in __add_pages() as ret=%d\n",
- 		       __func__,  ret);
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index f5535eae637f..9dd9c3c1be7f 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -127,7 +127,7 @@ static void flush_dcache_range_chunked(unsigned long start, unsigned long stop,
- }
- 
- int __ref arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+			  struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
-@@ -143,7 +143,7 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
- 		return -EFAULT;
- 	}
- 
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, modifiers);
- }
- 
- void __ref arch_remove_memory(int nid, u64 start, u64 size,
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index ac44bd76db4b..a0c88c1c9ad0 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -268,20 +268,20 @@ device_initcall(s390_cma_mem_init);
- #endif /* CONFIG_CMA */
- 
- int arch_add_memory(int nid, u64 start, u64 size,
--		struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long size_pages = PFN_DOWN(size);
- 	int rc;
- 
--	if (WARN_ON_ONCE(restrictions->altmap))
-+	if (WARN_ON_ONCE(modifiers->altmap))
- 		return -EINVAL;
- 
- 	rc = vmem_add_mapping(start, size);
- 	if (rc)
- 		return rc;
- 
--	rc = __add_pages(nid, start_pfn, size_pages, restrictions);
-+	rc = __add_pages(nid, start_pfn, size_pages, modifiers);
- 	if (rc)
- 		vmem_remove_mapping(start, size);
- 	return rc;
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index d1b1ff2be17a..7e64f42fb570 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -406,14 +406,14 @@ void __init mem_init(void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	int ret;
- 
- 	/* We only have ZONE_NORMAL, so this is easy.. */
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, modifiers);
- 	if (unlikely(ret))
- 		printk("%s: Failed, __add_pages() == %d\n", __func__, ret);
- 
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 0a74407ef92e..e6fce2d547f0 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -852,12 +852,12 @@ void __init mem_init(void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, modifiers);
- }
- 
- void arch_remove_memory(int nid, u64 start, u64 size,
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index bcfede46fe02..516133f555e9 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -844,11 +844,11 @@ static void update_end_of_memory_vars(u64 start, u64 size)
- }
- 
- int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--				struct mhp_restrictions *restrictions)
-+	      struct mhp_modifiers *modifiers)
- {
- 	int ret;
- 
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, modifiers);
- 	WARN_ON_ONCE(ret);
- 
- 	/* update max_pfn, max_low_pfn and high_memory */
-@@ -859,14 +859,14 @@ int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_modifiers *modifiers)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
- 	init_memory_mapping(start, start + size);
- 
--	return add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return add_pages(nid, start_pfn, nr_pages, modifiers);
- }
- 
- #define PAGE_INUSE 0xFD
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index e47a29761088..2152efae2f4b 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -57,7 +57,7 @@ enum {
-  * Restrictions for the memory hotplug:
-  * altmap: alternative allocator for memmap array
-  */
--struct mhp_restrictions {
-+struct mhp_modifiers {
- 	struct vmem_altmap *altmap;
- };
- 
-@@ -107,7 +107,7 @@ extern int restore_online_page_callback(online_page_callback_t callback);
- extern int try_online_node(int nid);
- 
- extern int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions);
-+			   struct mhp_modifiers *modifiers);
- extern u64 max_mem_size;
- 
- extern bool memhp_auto_online;
-@@ -125,17 +125,17 @@ extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
- 
- /* reasonably generic interface to expand the physical pages */
- extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--		       struct mhp_restrictions *restrictions);
-+		       struct mhp_modifiers *modifiers);
- 
- #ifndef CONFIG_ARCH_HAS_ADD_PAGES
- static inline int add_pages(int nid, unsigned long start_pfn,
--		unsigned long nr_pages, struct mhp_restrictions *restrictions)
-+		unsigned long nr_pages, struct mhp_modifiers *modifiers)
- {
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, modifiers);
- }
- #else /* ARCH_HAS_ADD_PAGES */
- int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--	      struct mhp_restrictions *restrictions);
-+	      struct mhp_modifiers *modifiers);
- #endif /* ARCH_HAS_ADD_PAGES */
- 
- #ifdef CONFIG_NUMA
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index a91a072f2b2c..1bb3f92e087d 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -299,11 +299,11 @@ static int check_hotplug_memory_addressable(unsigned long pfn,
-  * add the new pages.
-  */
- int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
--		struct mhp_restrictions *restrictions)
-+		      struct mhp_modifiers *modifiers)
- {
- 	int err;
- 	unsigned long nr, start_sec, end_sec;
--	struct vmem_altmap *altmap = restrictions->altmap;
-+	struct vmem_altmap *altmap = modifiers->altmap;
- 
- 	err = check_hotplug_memory_addressable(pfn, nr_pages);
- 	if (err)
-@@ -1027,7 +1027,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
-  */
- int __ref add_memory_resource(int nid, struct resource *res)
- {
--	struct mhp_restrictions restrictions = {};
-+	struct mhp_modifiers modifiers = {};
- 	u64 start, size;
- 	bool new_node = false;
- 	int ret;
-@@ -1055,7 +1055,7 @@ int __ref add_memory_resource(int nid, struct resource *res)
- 	new_node = ret;
- 
- 	/* call arch's memory hotadd */
--	ret = arch_add_memory(nid, start, size, &restrictions);
-+	ret = arch_add_memory(nid, start, size, &modifiers);
- 	if (ret < 0)
- 		goto error;
- 
-diff --git a/mm/memremap.c b/mm/memremap.c
-index c51c6bd2fe34..e30be8ba706b 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -158,7 +158,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- {
- 	struct resource *res = &pgmap->res;
- 	struct dev_pagemap *conflict_pgmap;
--	struct mhp_restrictions restrictions = {
-+	struct mhp_modifiers modifiers = {
- 		/*
- 		 * We do not want any optional features only our own memmap
- 		 */
-@@ -272,7 +272,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 	 */
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
- 		error = add_pages(nid, PHYS_PFN(res->start),
--				PHYS_PFN(resource_size(res)), &restrictions);
-+				PHYS_PFN(resource_size(res)), &modifiers);
- 	} else {
- 		error = kasan_add_zero_shadow(__va(res->start), resource_size(res));
- 		if (error) {
-@@ -281,7 +281,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 		}
- 
- 		error = arch_add_memory(nid, res->start, resource_size(res),
--					&restrictions);
-+					&modifiers);
- 	}
- 
- 	if (!error) {
-@@ -289,7 +289,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 
- 		zone = &NODE_DATA(nid)->node_zones[ZONE_DEVICE];
- 		move_pfn_range_to_zone(zone, PHYS_PFN(res->start),
--				PHYS_PFN(resource_size(res)), restrictions.altmap);
-+				PHYS_PFN(resource_size(res)), modifiers.altmap);
- 	}
- 
- 	mem_hotplug_done();
++    if ((sccb + be16_to_cpu(work_sccb.h.length)) > ((sccb & PAGE_MASK) + PAGE_SIZE)) {
++        work_sccb.h.response_code = cpu_to_be16(SCLP_RC_SCCB_BOUNDARY_VIOLATION);
++        goto out_write;
++    }
++
+     sclp_c->execute(sclp, &work_sccb, code);
+ out_write:
+     cpu_physical_memory_write(sccb, &work_sccb,
 -- 
-2.20.1
+2.21.0
