@@ -1,212 +1,132 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27692 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727075AbgBGLkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 25/35] KVM: s390: protvirt: Only sync fmt4 registers
-Date: Fri,  7 Feb 2020 06:39:48 -0500
-Message-Id: <20200207113958.7320-26-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16234 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726934AbgBAP3I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 1 Feb 2020 10:29:08 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 011FIDxp038952
+        for <linux-s390@vger.kernel.org>; Sat, 1 Feb 2020 10:29:07 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2xwak3j5r9-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Sat, 01 Feb 2020 10:29:06 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Sat, 1 Feb 2020 15:29:05 -0000
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 5/7] s390x: smp: Only use smp_cpu_setup once
+Date: Sat,  1 Feb 2020 10:28:49 -0500
+In-Reply-To: <20200201152851.82867-1-frankja@linux.ibm.com>
+References: <20200201152851.82867-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200201152851.82867-6-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
-
-A lot of the registers are controlled by the Ultravisor and never
-visible to KVM. Also some registers are overlayed, like gbea is with
-sidad, which might leak data to userspace.
-
-Hence we sync a minimal set of registers for both SIE formats and then
-check and sync format 2 registers if necessary.
+Let's stop and start instead of using setup to run a function on a
+cpu.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kvm/kvm-s390.c | 116 ++++++++++++++++++++++++---------------
- 1 file changed, 72 insertions(+), 44 deletions(-)
+ s390x/smp.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f995040102ea..7df48cc942fd 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3447,9 +3447,11 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
- 	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
- 	vcpu->run->s.regs.fpc = 0;
--	vcpu->arch.sie_block->gbea = 1;
--	vcpu->arch.sie_block->pp = 0;
--	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
-+	if (!kvm_s390_pv_handle_cpu(vcpu)) {
-+		vcpu->arch.sie_block->gbea = 1;
-+		vcpu->arch.sie_block->pp = 0;
-+		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
-+	}
- }
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 93a9594..fa40753 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -53,7 +53,7 @@ static void test_start(void)
+ 	psw.addr = (unsigned long)test_func;
  
- static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
-@@ -4060,25 +4062,16 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 	return rc;
+ 	set_flag(0);
+-	smp_cpu_setup(1, psw);
++	smp_cpu_start(1, psw);
+ 	wait_for_flag();
+ 	report(1, "start");
  }
+@@ -109,6 +109,7 @@ static void test_store_status(void)
+ 	report(1, "status written");
+ 	free_pages(status, PAGE_SIZE * 2);
+ 	report_prefix_pop();
++	smp_cpu_stop(1);
  
--static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	report_prefix_pop();
+ }
+@@ -137,9 +138,8 @@ static void test_ecall(void)
+ 
+ 	report_prefix_push("ecall");
+ 	set_flag(0);
+-	smp_cpu_destroy(1);
+ 
+-	smp_cpu_setup(1, psw);
++	smp_cpu_start(1, psw);
+ 	wait_for_flag();
+ 	set_flag(0);
+ 	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
+@@ -172,9 +172,8 @@ static void test_emcall(void)
+ 
+ 	report_prefix_push("emcall");
+ 	set_flag(0);
+-	smp_cpu_destroy(1);
+ 
+-	smp_cpu_setup(1, psw);
++	smp_cpu_start(1, psw);
+ 	wait_for_flag();
+ 	set_flag(0);
+ 	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
+@@ -192,7 +191,7 @@ static void test_reset_initial(void)
+ 	psw.addr = (unsigned long)test_func;
+ 
+ 	report_prefix_push("reset initial");
+-	smp_cpu_setup(1, psw);
++	smp_cpu_start(1, psw);
+ 
+ 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
+ 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
+@@ -223,7 +222,7 @@ static void test_reset(void)
+ 	psw.addr = (unsigned long)test_func;
+ 
+ 	report_prefix_push("cpu reset");
+-	smp_cpu_setup(1, psw);
++	smp_cpu_start(1, psw);
+ 
+ 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
+ 	report(smp_cpu_stopped(1), "cpu stopped");
+@@ -232,6 +231,7 @@ static void test_reset(void)
+ 
+ int main(void)
  {
- 	struct runtime_instr_cb *riccb;
- 	struct gs_cb *gscb;
++	struct psw psw;
+ 	report_prefix_push("smp");
  
--	riccb = (struct runtime_instr_cb *) &kvm_run->s.regs.riccb;
--	gscb = (struct gs_cb *) &kvm_run->s.regs.gscb;
- 	vcpu->arch.sie_block->gpsw.mask = kvm_run->psw_mask;
- 	vcpu->arch.sie_block->gpsw.addr = kvm_run->psw_addr;
--	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
--		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
--	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
--		memcpy(&vcpu->arch.sie_block->gcr, &kvm_run->s.regs.crs, 128);
--		/* some control register changes require a tlb flush */
--		kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
--	}
-+	riccb = (struct runtime_instr_cb *) &kvm_run->s.regs.riccb;
-+	gscb = (struct gs_cb *) &kvm_run->s.regs.gscb;
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_ARCH0) {
--		kvm_s390_set_cpu_timer(vcpu, kvm_run->s.regs.cputm);
--		vcpu->arch.sie_block->ckc = kvm_run->s.regs.ckc;
- 		vcpu->arch.sie_block->todpr = kvm_run->s.regs.todpr;
- 		vcpu->arch.sie_block->pp = kvm_run->s.regs.pp;
- 		vcpu->arch.sie_block->gbea = kvm_run->s.regs.gbea;
-@@ -4119,6 +4112,47 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
- 		vcpu->arch.sie_block->fpf |= kvm_run->s.regs.bpbc ? FPF_BPBC : 0;
+ 	if (smp_query_num_cpus() == 1) {
+@@ -239,6 +239,12 @@ int main(void)
+ 		goto done;
  	}
-+	if (MACHINE_HAS_GS) {
-+		preempt_disable();
-+		__ctl_set_bit(2, 4);
-+		if (current->thread.gs_cb) {
-+			vcpu->arch.host_gscb = current->thread.gs_cb;
-+			save_gs_cb(vcpu->arch.host_gscb);
-+		}
-+		if (vcpu->arch.gs_enabled) {
-+			current->thread.gs_cb = (struct gs_cb *)
-+						&vcpu->run->s.regs.gscb;
-+			restore_gs_cb(current->thread.gs_cb);
-+		}
-+		preempt_enable();
-+	}
-+	/* SIE will load etoken directly from SDNX and therefore kvm_run */
-+}
-+
-+static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	/*
-+	 * at several places we have to modify our internal view to not do
-+	 * things that are disallowed by the ultravisor. For example we must
-+	 * not inject interrupts after specific exits (e.g. 112). We do this
-+	 * by turning off the MIE bits of our PSW copy. To avoid getting
-+	 * validity intercepts, we do only accept the condition code from
-+	 * userspace.
-+	 */
-+	vcpu->arch.sie_block->gpsw.mask &= ~PSW_MASK_CC;
-+	vcpu->arch.sie_block->gpsw.mask |= kvm_run->psw_mask & PSW_MASK_CC;
-+
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
-+		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
-+		memcpy(&vcpu->arch.sie_block->gcr, &kvm_run->s.regs.crs, 128);
-+		/* some control register changes require a tlb flush */
-+		kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
-+	}
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_ARCH0) {
-+		kvm_s390_set_cpu_timer(vcpu, kvm_run->s.regs.cputm);
-+		vcpu->arch.sie_block->ckc = kvm_run->s.regs.ckc;
-+	}
- 	save_access_regs(vcpu->arch.host_acrs);
- 	restore_access_regs(vcpu->run->s.regs.acrs);
- 	/* save host (userspace) fprs/vrs */
-@@ -4133,23 +4167,31 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	if (test_fp_ctl(current->thread.fpu.fpc))
- 		/* User space provided an invalid FPC, let's clear it */
- 		current->thread.fpu.fpc = 0;
-+
-+	/* Sync fmt2 only data */
-+	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
-+		sync_regs_fmt2(vcpu, kvm_run);
-+	kvm_run->kvm_dirty_regs = 0;
-+}
-+
-+static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+{
-+	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
-+	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
-+	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
- 	if (MACHINE_HAS_GS) {
--		preempt_disable();
- 		__ctl_set_bit(2, 4);
--		if (current->thread.gs_cb) {
--			vcpu->arch.host_gscb = current->thread.gs_cb;
--			save_gs_cb(vcpu->arch.host_gscb);
--		}
--		if (vcpu->arch.gs_enabled) {
--			current->thread.gs_cb = (struct gs_cb *)
--						&vcpu->run->s.regs.gscb;
--			restore_gs_cb(current->thread.gs_cb);
--		}
-+		if (vcpu->arch.gs_enabled)
-+			save_gs_cb(current->thread.gs_cb);
-+		preempt_disable();
-+		current->thread.gs_cb = vcpu->arch.host_gscb;
-+		restore_gs_cb(vcpu->arch.host_gscb);
- 		preempt_enable();
-+		if (!vcpu->arch.host_gscb)
-+			__ctl_clear_bit(2, 4);
-+		vcpu->arch.host_gscb = NULL;
- 	}
--	/* SIE will load etoken directly from SDNX and therefore kvm_run */
--
--	kvm_run->kvm_dirty_regs = 0;
-+	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
  
- static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-@@ -4161,12 +4203,9 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	kvm_run->s.regs.cputm = kvm_s390_get_cpu_timer(vcpu);
- 	kvm_run->s.regs.ckc = vcpu->arch.sie_block->ckc;
- 	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
--	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
--	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
- 	kvm_run->s.regs.pft = vcpu->arch.pfault_token;
- 	kvm_run->s.regs.pfs = vcpu->arch.pfault_select;
- 	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
--	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
- 	save_access_regs(vcpu->run->s.regs.acrs);
- 	restore_access_regs(vcpu->arch.host_acrs);
- 	/* Save guest register state */
-@@ -4175,19 +4214,8 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* Restore will be done lazily at return */
- 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
- 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
--	if (MACHINE_HAS_GS) {
--		__ctl_set_bit(2, 4);
--		if (vcpu->arch.gs_enabled)
--			save_gs_cb(current->thread.gs_cb);
--		preempt_disable();
--		current->thread.gs_cb = vcpu->arch.host_gscb;
--		restore_gs_cb(vcpu->arch.host_gscb);
--		preempt_enable();
--		if (!vcpu->arch.host_gscb)
--			__ctl_clear_bit(2, 4);
--		vcpu->arch.host_gscb = NULL;
--	}
--	/* SIE will save etoken directly into SDNX and therefore kvm_run */
-+	if (likely(!kvm_s390_pv_is_protected(vcpu->kvm)))
-+		store_regs_fmt2(vcpu, kvm_run);
- }
++	/* Setting up the cpu to give it a stack and lowcore */
++	psw.mask = extract_psw_mask();
++	psw.addr = (unsigned long)cpu_loop;
++	smp_cpu_setup(1, psw);
++	smp_cpu_stop(1);
++
+ 	test_start();
+ 	test_stop();
+ 	test_stop_store_status();
+@@ -247,6 +253,7 @@ int main(void)
+ 	test_emcall();
+ 	test_reset();
+ 	test_reset_initial();
++	smp_cpu_destroy(1);
  
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ done:
+ 	report_prefix_pop();
 -- 
-2.24.0
+2.20.1
