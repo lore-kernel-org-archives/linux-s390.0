@@ -1,81 +1,99 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52886 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727959AbgBNW1Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:24 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 19/42] KVM: s390: protvirt: Add new gprs location handling
-Date: Fri, 14 Feb 2020 17:26:35 -0500
-Message-Id: <20200214222658.12946-20-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+Received: from mga06.intel.com ([134.134.136.31]:30679 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727068AbgBEKHK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 5 Feb 2020 05:07:10 -0500
+Date: Wed, 5 Feb 2020 18:07:23 +0800
+From: Wei Yang <richardw.yang@linux.intel.com>
+Subject: Re: [PATCH v6 09/10] mm/memory_hotplug: Drop local variables in
+ shrink_zone_span()
+Message-ID: <20200205100723.GD24162@richard>
+Reply-To: Wei Yang <richardw.yang@linux.intel.com>
+References: <20191006085646.5768-1-david@redhat.com>
+ <20191006085646.5768-10-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191006085646.5768-10-david@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On Sun, Oct 06, 2019 at 10:56:45AM +0200, David Hildenbrand wrote:
+>Get rid of the unnecessary local variables.
+>
+>Cc: Andrew Morton <akpm@linux-foundation.org>
+>Cc: Oscar Salvador <osalvador@suse.de>
+>Cc: David Hildenbrand <david@redhat.com>
+>Cc: Michal Hocko <mhocko@suse.com>
+>Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+>Cc: Dan Williams <dan.j.williams@intel.com>
+>Cc: Wei Yang <richardw.yang@linux.intel.com>
+>Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Guest registers for protected guests are stored at offset 0x380.
+Looks reasonable.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  4 +++-
- arch/s390/kvm/kvm-s390.c         | 11 +++++++++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+Reviewed-by: Wei Yang <richardw.yang@linux.intel.com>
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index ba3364b37159..4fcbb055a565 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -343,7 +343,9 @@ struct kvm_s390_itdb {
- struct sie_page {
- 	struct kvm_s390_sie_block sie_block;
- 	struct mcck_volatile_info mcck_info;	/* 0x0200 */
--	__u8 reserved218[1000];		/* 0x0218 */
-+	__u8 reserved218[360];		/* 0x0218 */
-+	__u64 pv_grregs[16];		/* 0x0380 */
-+	__u8 reserved400[512];		/* 0x0400 */
- 	struct kvm_s390_itdb itdb;	/* 0x0600 */
- 	__u8 reserved700[2304];		/* 0x0700 */
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index a85e50075d99..6ebb0dae5a2e 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3999,6 +3999,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- static int __vcpu_run(struct kvm_vcpu *vcpu)
- {
- 	int rc, exit_reason;
-+	struct sie_page *sie_page = (struct sie_page *)vcpu->arch.sie_block;
- 
- 	/*
- 	 * We try to hold kvm->srcu during most of vcpu_run (except when run-
-@@ -4020,8 +4021,18 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 		guest_enter_irqoff();
- 		__disable_cpu_timer_accounting(vcpu);
- 		local_irq_enable();
-+		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+			memcpy(sie_page->pv_grregs,
-+			       vcpu->run->s.regs.gprs,
-+			       sizeof(sie_page->pv_grregs));
-+		}
- 		exit_reason = sie64a(vcpu->arch.sie_block,
- 				     vcpu->run->s.regs.gprs);
-+		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+			memcpy(vcpu->run->s.regs.gprs,
-+			       sie_page->pv_grregs,
-+			       sizeof(sie_page->pv_grregs));
-+		}
- 		local_irq_disable();
- 		__enable_cpu_timer_accounting(vcpu);
- 		guest_exit_irqoff();
+>---
+> mm/memory_hotplug.c | 15 ++++++---------
+> 1 file changed, 6 insertions(+), 9 deletions(-)
+>
+>diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+>index 8dafa1ba8d9f..843481bd507d 100644
+>--- a/mm/memory_hotplug.c
+>+++ b/mm/memory_hotplug.c
+>@@ -374,14 +374,11 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
+> static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+> 			     unsigned long end_pfn)
+> {
+>-	unsigned long zone_start_pfn = zone->zone_start_pfn;
+>-	unsigned long z = zone_end_pfn(zone); /* zone_end_pfn namespace clash */
+>-	unsigned long zone_end_pfn = z;
+> 	unsigned long pfn;
+> 	int nid = zone_to_nid(zone);
+> 
+> 	zone_span_writelock(zone);
+>-	if (zone_start_pfn == start_pfn) {
+>+	if (zone->zone_start_pfn == start_pfn) {
+> 		/*
+> 		 * If the section is smallest section in the zone, it need
+> 		 * shrink zone->zone_start_pfn and zone->zone_spanned_pages.
+>@@ -389,25 +386,25 @@ static void shrink_zone_span(struct zone *zone, unsigned long start_pfn,
+> 		 * for shrinking zone.
+> 		 */
+> 		pfn = find_smallest_section_pfn(nid, zone, end_pfn,
+>-						zone_end_pfn);
+>+						zone_end_pfn(zone));
+> 		if (pfn) {
+>+			zone->spanned_pages = zone_end_pfn(zone) - pfn;
+> 			zone->zone_start_pfn = pfn;
+>-			zone->spanned_pages = zone_end_pfn - pfn;
+> 		} else {
+> 			zone->zone_start_pfn = 0;
+> 			zone->spanned_pages = 0;
+> 		}
+>-	} else if (zone_end_pfn == end_pfn) {
+>+	} else if (zone_end_pfn(zone) == end_pfn) {
+> 		/*
+> 		 * If the section is biggest section in the zone, it need
+> 		 * shrink zone->spanned_pages.
+> 		 * In this case, we find second biggest valid mem_section for
+> 		 * shrinking zone.
+> 		 */
+>-		pfn = find_biggest_section_pfn(nid, zone, zone_start_pfn,
+>+		pfn = find_biggest_section_pfn(nid, zone, zone->zone_start_pfn,
+> 					       start_pfn);
+> 		if (pfn)
+>-			zone->spanned_pages = pfn - zone_start_pfn + 1;
+>+			zone->spanned_pages = pfn - zone->zone_start_pfn + 1;
+> 		else {
+> 			zone->zone_start_pfn = 0;
+> 			zone->spanned_pages = 0;
+>-- 
+>2.21.0
+
 -- 
-2.25.0
+Wei Yang
+Help you, Help me
