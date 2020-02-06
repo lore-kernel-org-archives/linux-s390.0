@@ -1,68 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:39294 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726413AbgBZXsd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Feb 2020 18:48:33 -0500
-Received: by mail-pl1-f196.google.com with SMTP id g6so341152plp.6
-        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 15:48:32 -0800 (PST)
-From: Daniel Axtens <dja@axtens.net>
-Subject: Re: [PATCH v2 0/3] Fix some incompatibilites between KASAN and FORTIFY_SOURCE
-In-Reply-To: <20200116062625.32692-1-dja@axtens.net>
-References: <20200116062625.32692-1-dja@axtens.net>
-Date: Thu, 27 Feb 2020 10:48:26 +1100
-Message-ID: <87o8tkrjud.fsf@dja-thinkpad.axtens.net>
-MIME-Version: 1.0
-Content-Type: text/plain
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58908 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727512AbgBFVie (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Feb 2020 16:38:34 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 016LaTec088594
+        for <linux-s390@vger.kernel.org>; Thu, 6 Feb 2020 16:38:33 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y0n7gm14x-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 06 Feb 2020 16:38:33 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Thu, 6 Feb 2020 21:38:31 -0000
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [RFC PATCH v2 6/9] vfio-ccw: Refactor IRQ handlers
+Date: Thu,  6 Feb 2020 22:38:22 +0100
+In-Reply-To: <20200206213825.11444-1-farman@linux.ibm.com>
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+Message-Id: <20200206213825.11444-7-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, kasan-dev@googlegroups.com
-Cc: linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-xtensa@linux-xtensa.org, x86@kernel.org, dvyukov@google.com, christophe.leroy@c-s.fr
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Daniel Axtens <dja@axtens.net> writes:
+To simplify future expansion.
 
-> 3 KASAN self-tests fail on a kernel with both KASAN and FORTIFY_SOURCE:
-> memchr, memcmp and strlen. I have observed this on x86 and powerpc.
->
-> When FORTIFY_SOURCE is on, a number of functions are replaced with
-> fortified versions, which attempt to check the sizes of the
-> operands. However, these functions often directly invoke __builtin_foo()
-> once they have performed the fortify check.
->
-> This breaks things in 2 ways:
->
->  - the three function calls are technically dead code, and can be
->    eliminated. When __builtin_ versions are used, the compiler can detect
->    this.
->
->  - Using __builtins may bypass KASAN checks if the compiler decides to
->    inline it's own implementation as sequence of instructions, rather than
->    emit a function call that goes out to a KASAN-instrumented
->    implementation.
->
-> The patches address each reason in turn. Finally, test_memcmp used a
-> stack array without explicit initialisation, which can sometimes break
-> too, so fix that up.
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+---
 
-Hi all,
+Notes:
+    v1->v2:
+     - Add Conny's r-b
 
-It doesn't look like this has been picked up yet. Is there anything I
-can do to help things along?
+ drivers/s390/cio/vfio_ccw_ops.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-Regards,
-Daniel
-
->
-> v2: - some cleanups, don't mess with arch code as I missed some wrinkles.
->     - add stack array init (patch 3)
->
-> Daniel Axtens (3):
->   kasan: stop tests being eliminated as dead code with FORTIFY_SOURCE
->   string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
->   kasan: initialise array in kasan_memcmp test
->
->  include/linux/string.h | 60 +++++++++++++++++++++++++++++++++---------
->  lib/test_kasan.c       | 32 +++++++++++++---------
->  2 files changed, 68 insertions(+), 24 deletions(-)
->
-> -- 
-> 2.20.1
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index edec0fb7ace8..f3033f8fc96d 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -391,17 +391,21 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+ 
+ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+ {
+-	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
++	switch (info->index) {
++	case VFIO_CCW_IO_IRQ_INDEX:
++		info->count = 1;
++		info->flags = VFIO_IRQ_INFO_EVENTFD;
++		break;
++	default:
+ 		return -EINVAL;
+-
+-	info->count = 1;
+-	info->flags = VFIO_IRQ_INFO_EVENTFD;
++	}
+ 
+ 	return 0;
+ }
+ 
+ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 				  uint32_t flags,
++				  uint32_t index,
+ 				  void __user *data)
+ {
+ 	struct vfio_ccw_private *private;
+@@ -411,7 +415,14 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 		return -EINVAL;
+ 
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
+-	ctx = &private->io_trigger;
++
++	switch (index) {
++	case VFIO_CCW_IO_IRQ_INDEX:
++		ctx = &private->io_trigger;
++		break;
++	default:
++		return -EINVAL;
++	}
+ 
+ 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
+ 	case VFIO_IRQ_SET_DATA_NONE:
+@@ -583,7 +594,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 			return ret;
+ 
+ 		data = (void __user *)(arg + minsz);
+-		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
++		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
+ 	}
+ 	case VFIO_DEVICE_RESET:
+ 		return vfio_ccw_mdev_reset(mdev);
+-- 
+2.17.1
