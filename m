@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31786 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727076AbgBGLkH (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37692 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727032AbgBGLkH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 06/35] s390/mm: add (non)secure page access exceptions handlers
-Date: Fri,  7 Feb 2020 06:39:29 -0500
-Message-Id: <20200207113958.7320-7-borntraeger@de.ibm.com>
+Subject: [PATCH 13/35] KVM: s390: protvirt: Instruction emulation
+Date: Fri,  7 Feb 2020 06:39:36 -0500
+Message-Id: <20200207113958.7320-14-borntraeger@de.ibm.com>
 In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
@@ -14,141 +14,72 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Add exceptions handlers performing transparent transition of non-secure
-pages to secure (import) upon guest access and secure pages to
-non-secure (export) upon hypervisor access.
+We have two new SIE exit codes dealing with instructions.
+104 (0x68) for a secure instruction interception, on which the SIE needs
+hypervisor action to complete the instruction. We can piggy-back on the
+existing instruction handlers.
 
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-[frankja@linux.ibm.com: adding checks for failures]
+108 which is merely a notification and provides data for tracking and
+management. For example this is used to tell the host about a new value
+for the prefix register. As there will be several special case handlers
+in later patches, we handle this in a separate function.
+
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[imbrenda@linux.ibm.com:  adding a check for gmap fault]
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/kernel/pgm_check.S |  4 +-
- arch/s390/mm/fault.c         | 86 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 88 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/kvm/intercept.c        | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/arch/s390/kernel/pgm_check.S b/arch/s390/kernel/pgm_check.S
-index 59dee9d3bebf..27ac4f324c70 100644
---- a/arch/s390/kernel/pgm_check.S
-+++ b/arch/s390/kernel/pgm_check.S
-@@ -78,8 +78,8 @@ PGM_CHECK(do_dat_exception)		/* 39 */
- PGM_CHECK(do_dat_exception)		/* 3a */
- PGM_CHECK(do_dat_exception)		/* 3b */
- PGM_CHECK_DEFAULT			/* 3c */
--PGM_CHECK_DEFAULT			/* 3d */
--PGM_CHECK_DEFAULT			/* 3e */
-+PGM_CHECK(do_secure_storage_access)	/* 3d */
-+PGM_CHECK(do_non_secure_storage_access)	/* 3e */
- PGM_CHECK_DEFAULT			/* 3f */
- PGM_CHECK_DEFAULT			/* 40 */
- PGM_CHECK_DEFAULT			/* 41 */
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 7b0bb475c166..fab4219fa0be 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -38,6 +38,7 @@
- #include <asm/irq.h>
- #include <asm/mmu_context.h>
- #include <asm/facility.h>
-+#include <asm/uv.h>
- #include "../kernel/entry.h"
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 08acf280c4b0..ae7c611ee9dd 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
+ #define ICPT_KSS	0x5c
+ #define ICPT_MCHKREQ	0x60
+ #define ICPT_INT_ENABLE	0x64
++#define ICPT_PV_INSTR	0x68
++#define ICPT_PV_NOTIFY	0x6c
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 6aeb4b36042c..6fdbac696f65 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
+ }
  
- #define __FAIL_ADDR_MASK -4096L
-@@ -816,3 +817,88 @@ static int __init pfault_irq_init(void)
- early_initcall(pfault_irq_init);
- 
- #endif /* CONFIG_PFAULT */
-+
-+#if IS_ENABLED(CONFIG_KVM)
-+void do_secure_storage_access(struct pt_regs *regs)
++static int handle_pv_notification(struct kvm_vcpu *vcpu)
 +{
-+	unsigned long addr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
-+	struct page *page;
-+	int rc;
++	return handle_instruction(vcpu);
++}
 +
-+	switch (get_fault_type(regs)) {
-+	case USER_FAULT:
-+		mm = current->mm;
-+		down_read(&mm->mmap_sem);
-+		vma = find_vma(mm, addr);
-+		if (!vma) {
-+			up_read(&mm->mmap_sem);
-+			do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+			break;
-+		}
-+		page = follow_page(vma, addr, FOLL_WRITE | FOLL_GET);
-+		if (IS_ERR_OR_NULL(page)) {
-+			up_read(&mm->mmap_sem);
-+			break;
-+		}
-+		if (arch_make_page_accessible(page))
-+			send_sig(SIGSEGV, current, 0);
-+		put_page(page);
-+		up_read(&mm->mmap_sem);
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, per_rc = 0;
+@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 		 */
+ 		rc = 0;
+ 		break;
++	case ICPT_PV_INSTR:
++		rc = handle_instruction(vcpu);
 +		break;
-+	case KERNEL_FAULT:
-+		page = phys_to_page(addr);
-+		if (unlikely(!try_get_page(page)))
-+			break;
-+		rc = arch_make_page_accessible(page);
-+		put_page(page);
-+		if (rc)
-+			BUG();
++	case ICPT_PV_NOTIFY:
++		rc = handle_pv_notification(vcpu);
 +		break;
-+	case VDSO_FAULT:
-+		/* fallthrough */
-+	case GMAP_FAULT:
-+		/* fallthrough */
-+	default:
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+NOKPROBE_SYMBOL(do_secure_storage_access);
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	unsigned long gaddr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct gmap *gmap = (struct gmap *)S390_lowcore.gmap;
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd = UVC_CMD_CONV_TO_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.guest_handle = gmap->guest_handle,
-+		.gaddr = gaddr,
-+	};
-+	int rc;
-+
-+	if (get_fault_type(regs) != GMAP_FAULT) {
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+		return;
-+	}
-+
-+	rc = uv_make_secure(gmap, gaddr, &uvcb);
-+	if (rc == -EINVAL && uvcb.header.rc != 0x104)
-+		send_sig(SIGSEGV, current, 0);
-+}
-+NOKPROBE_SYMBOL(do_non_secure_storage_access);
-+
-+#else
-+void do_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+#endif
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
 -- 
 2.24.0
