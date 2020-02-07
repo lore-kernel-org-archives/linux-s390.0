@@ -1,87 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40210 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726329AbgBDJq6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Feb 2020 04:46:58 -0500
-Date: Tue, 4 Feb 2020 10:46:53 +0100
-From: Oscar Salvador <osalvador@suse.de>
-Subject: Re: [PATCH v6 10/10] mm/memory_hotplug: Cleanup __remove_pages()
-Message-ID: <20200204094652.GE6494@linux>
-References: <20191006085646.5768-1-david@redhat.com>
- <20191006085646.5768-11-david@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20754 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726954AbgBGLkP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:15 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 22/35] KVM: s390: protvirt: Write sthyi data to instruction data area
+Date: Fri,  7 Feb 2020 06:39:45 -0500
+Message-Id: <20200207113958.7320-23-borntraeger@de.ibm.com>
+In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191006085646.5768-11-david@redhat.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-On Sun, Oct 06, 2019 at 10:56:46AM +0200, David Hildenbrand wrote:
-> Let's drop the basically unused section stuff and simplify.
-> 
-> Also, let's use a shorter variant to calculate the number of pages to
-> the next section boundary.
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Wei Yang <richardw.yang@linux.intel.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-I have to confess that it took me while to wrap around my head
-with the new min() change, but looks ok:
+STHYI data has to go through the bounce buffer.
 
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/intercept.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-> ---
->  mm/memory_hotplug.c | 17 ++++++-----------
->  1 file changed, 6 insertions(+), 11 deletions(-)
-> 
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 843481bd507d..2275240cfa10 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -490,25 +490,20 @@ static void __remove_section(unsigned long pfn, unsigned long nr_pages,
->  void __remove_pages(unsigned long pfn, unsigned long nr_pages,
->  		    struct vmem_altmap *altmap)
->  {
-> +	const unsigned long end_pfn = pfn + nr_pages;
-> +	unsigned long cur_nr_pages;
->  	unsigned long map_offset = 0;
-> -	unsigned long nr, start_sec, end_sec;
->  
->  	map_offset = vmem_altmap_offset(altmap);
->  
->  	if (check_pfn_span(pfn, nr_pages, "remove"))
->  		return;
->  
-> -	start_sec = pfn_to_section_nr(pfn);
-> -	end_sec = pfn_to_section_nr(pfn + nr_pages - 1);
-> -	for (nr = start_sec; nr <= end_sec; nr++) {
-> -		unsigned long pfns;
-> -
-> +	for (; pfn < end_pfn; pfn += cur_nr_pages) {
->  		cond_resched();
-> -		pfns = min(nr_pages, PAGES_PER_SECTION
-> -				- (pfn & ~PAGE_SECTION_MASK));
-> -		__remove_section(pfn, pfns, map_offset, altmap);
-> -		pfn += pfns;
-> -		nr_pages -= pfns;
-> +		/* Select all remaining pages up to the next section boundary */
-> +		cur_nr_pages = min(end_pfn - pfn, -(pfn | PAGE_SECTION_MASK));
-> +		__remove_section(pfn, cur_nr_pages, map_offset, altmap);
->  		map_offset = 0;
->  	}
->  }
-> -- 
-> 2.21.0
-> 
-> 
-
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index e155389a4a66..51a8bb7e956a 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -392,7 +392,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 		goto out;
+ 	}
+ 
+-	if (addr & ~PAGE_MASK)
++	if (!kvm_s390_pv_is_protected(vcpu->kvm) && (addr & ~PAGE_MASK))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+ 	sctns = (void *)get_zeroed_page(GFP_KERNEL);
+@@ -403,10 +403,15 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 
+ out:
+ 	if (!cc) {
+-		r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
+-		if (r) {
+-			free_page((unsigned long)sctns);
+-			return kvm_s390_inject_prog_cond(vcpu, r);
++		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++			memcpy((void *)(sida_origin(vcpu->arch.sie_block)),
++			       sctns, PAGE_SIZE);
++		} else {
++			r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
++			if (r) {
++				free_page((unsigned long)sctns);
++				return kvm_s390_inject_prog_cond(vcpu, r);
++			}
+ 		}
+ 	}
+ 
 -- 
-Oscar Salvador
-SUSE L3
+2.24.0
