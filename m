@@ -1,63 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:53813 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725769AbgB1QfT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Feb 2020 11:35:19 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH v6 3/6] s390,dcssblk,dax: Add dax zero_page_range operation to dcssblk driver
-Date: Fri, 28 Feb 2020 11:34:53 -0500
-Message-Id: <20200228163456.1587-4-vgoyal@redhat.com>
-In-Reply-To: <20200228163456.1587-1-vgoyal@redhat.com>
-References: <20200228163456.1587-1-vgoyal@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23414 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726897AbgBGN1A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 08:27:00 -0500
+Subject: Re: [RFC PATCH v2 0/9] s390x/vfio-ccw: Channel Path Handling
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+ <20200207101220.2d057f18.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <1018eade-df1b-a24c-466c-c9c2ea72c2fb@linux.ibm.com>
+Date: Fri, 7 Feb 2020 08:26:49 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200207101220.2d057f18.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org, hch@infradead.org, dan.j.williams@intel.com
-Cc: vgoyal@redhat.com, david@fromorbit.com, jmoyer@redhat.com, dm-devel@redhat.com, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Add dax operation zero_page_range for dcssblk driver.
 
-CC: linux-s390@vger.kernel.org
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- drivers/s390/block/dcssblk.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 63502ca537eb..ab3e2898816c 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -57,11 +57,26 @@ static size_t dcssblk_dax_copy_to_iter(struct dax_dev=
-ice *dax_dev,
- 	return copy_to_iter(addr, bytes, i);
- }
-=20
-+static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev,
-+				       pgoff_t pgoff, size_t nr_pages)
-+{
-+	long rc;
-+	void *kaddr;
-+
-+	rc =3D dax_direct_access(dax_dev, pgoff, nr_pages, &kaddr, NULL);
-+	if (rc < 0)
-+		return rc;
-+	memset(kaddr, 0, nr_pages << PAGE_SHIFT);
-+	dax_flush(dax_dev, kaddr, nr_pages << PAGE_SHIFT);
-+	return 0;
-+}
-+
- static const struct dax_operations dcssblk_dax_ops =3D {
- 	.direct_access =3D dcssblk_dax_direct_access,
- 	.dax_supported =3D generic_fsdax_supported,
- 	.copy_from_iter =3D dcssblk_dax_copy_from_iter,
- 	.copy_to_iter =3D dcssblk_dax_copy_to_iter,
-+	.zero_page_range =3D dcssblk_dax_zero_page_range,
- };
-=20
- struct dcssblk_dev_info {
---=20
-2.20.1
+On 2/7/20 4:12 AM, Cornelia Huck wrote:
+> On Thu,  6 Feb 2020 22:38:16 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> Here is a new pass at the channel-path handling code for vfio-ccw.
+>> This was initially developed by Farhan Ali this past summer, and
+>> picked up by me.  For my own benefit/sanity, I made a small changelog
+>> in the commit message for each patch, describing the changes I've
+>> made to his original code beyond just rebasing to master, rather than
+>> a giant list appended here.
+>>
+>> I had been encountering a host crash which I think was triggered by
+>> this code rather than existing within it.  I'd sent a potential fix
+>> for that separately, but need more diagnosis.  So while that is
+>> outstanding, I think I've gotten most (but probably not all) comments
+>> from v1 addressed within.
+>>
+>> With this, and the corresponding QEMU series (to be posted momentarily),
+>> applied I am able to configure off/on a CHPID (for example, by issuing
+>> "chchp -c 0/1 xx" on the host), and the guest is able to see both the
+>> events and reflect the updated path masks in its structures.
+>>
+>> For reasons that are hopefully obvious, issuing chchp within the guest
+>> only works for the logical vary.  Configuring it off/on does not work,
+>> which I think is fine.
+> 
+> Before I delve into this: While the basic architecture here (and in the
+> QEMU part) is still similar, you changed things like handling multiple
+> CRWs? That's at least the impression I got from a very high-level skim.
+
+I hope so.  :)
+
+I'm not chaining any CRWs together using the CRW.C flag, since that will
+expose other more interesting problems if we go beyond two.  It should
+help handle the "guest processes one while another is added" scenario,
+even though I've got some racing during the management of the list itself.
+
+> 
+>>
+>> v1: https://lore.kernel.org/kvm/20191115025620.19593-1-farman@linux.ibm.com/
+>>
+>> Eric Farman (4):
+>>   vfio-ccw: Refactor the unregister of the async regions
+>>   vfio-ccw: Refactor IRQ handlers
+>>   vfio-ccw: Add trace for CRW event
+>>   vfio-ccw: Remove inline get_schid() routine
+>>
+>> Farhan Ali (5):
+>>   vfio-ccw: Introduce new helper functions to free/destroy regions
+>>   vfio-ccw: Register a chp_event callback for vfio-ccw
+>>   vfio-ccw: Introduce a new schib region
+>>   vfio-ccw: Introduce a new CRW region
+>>   vfio-ccw: Wire up the CRW irq and CRW region
+>>
+>>  Documentation/s390/vfio-ccw.rst     |  31 ++++-
+>>  drivers/s390/cio/Makefile           |   2 +-
+>>  drivers/s390/cio/vfio_ccw_chp.c     | 136 ++++++++++++++++++++
+>>  drivers/s390/cio/vfio_ccw_drv.c     | 186 ++++++++++++++++++++++++++--
+>>  drivers/s390/cio/vfio_ccw_fsm.c     |   8 +-
+>>  drivers/s390/cio/vfio_ccw_ops.c     |  65 +++++++---
+>>  drivers/s390/cio/vfio_ccw_private.h |  16 +++
+>>  drivers/s390/cio/vfio_ccw_trace.c   |   1 +
+>>  drivers/s390/cio/vfio_ccw_trace.h   |  30 +++++
+>>  include/uapi/linux/vfio.h           |   3 +
+>>  include/uapi/linux/vfio_ccw.h       |  19 +++
+>>  11 files changed, 463 insertions(+), 34 deletions(-)
+>>  create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
+>>
+> 
