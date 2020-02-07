@@ -1,104 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57782 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18730 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728523AbgBTQIC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 11:08:02 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KFxfPZ025924
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 11:08:01 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y93kg66ac-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 11:08:01 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Thu, 20 Feb 2020 16:07:59 -0000
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
-Date: Thu, 20 Feb 2020 17:06:05 +0100
-In-Reply-To: <20200220160606.53156-1-pasic@linux.ibm.com>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
-Message-Id: <20200220160606.53156-2-pasic@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1727005AbgBGLkG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:06 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 14/35] KVM: s390: protvirt: Add interruption injection controls
+Date: Fri,  7 Feb 2020 06:39:37 -0500
+Message-Id: <20200207113958.7320-15-borntraeger@de.ibm.com>
+In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-Currently force_dma_unencrypted() is only used by the direct
-implementation of the DMA API, and thus resides in dma-direct.h. But
-there is nothing dma-direct specific about it: if one was -- for
-whatever reason -- to implement custom DMA ops that have to in the
-encrypted/protected scenarios dma-direct currently deals with, one would
-need exactly this kind of information.
+From: Michael Mueller <mimu@linux.ibm.com>
 
-More importantly, virtio has to use DMA API (so that the memory
-encryption (x86) or protection (power, s390) is handled) under the very
-same circumstances force_dma_unencrypted() returns true. Furthermore,
-the in these cases the reason to go via the DMA API is distinct,
-compared to the reason indicated by VIRTIO_F_IOMMU_PLATFORM: we need to
-use DMA API independently of the device's properties with regards to
-access to memory. I.e. the addresses in the descriptors are still guest
-physical addresses, the device may still be implemented by a SMP CPU,
-and thus the device shall use those without any further translation. See
-[1].
+This defines the necessary data structures in the SIE control block to
+inject machine checks,external and I/O interrupts. We first define the
+the interrupt injection control, which defines the next interrupt to
+inject. Then we define the fields that contain the payload for machine
+checks,external and I/O interrupts
 
-Let's move force_dma_unencrypted() the so virtio, or other
-implementations of DMA ops can make the right decisions.
-
-[1] https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-4100006
-(In the spec VIRTIO_F_IOMMU_PLATFORM is called
-VIRTIO_F_ACCESS_PLATFORM).
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Ram Pai <linuxram@us.ibm.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/dma-direct.h  |  9 ---------
- include/linux/mem_encrypt.h | 10 ++++++++++
- 2 files changed, 10 insertions(+), 9 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 56 +++++++++++++++++++++++++-------
+ 1 file changed, 44 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
-index 24b8684aa21d..590b15d881b0 100644
---- a/include/linux/dma-direct.h
-+++ b/include/linux/dma-direct.h
-@@ -26,15 +26,6 @@ static inline phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dev_addr)
- }
- #endif /* !CONFIG_ARCH_HAS_PHYS_TO_DMA */
- 
--#ifdef CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED
--bool force_dma_unencrypted(struct device *dev);
--#else
--static inline bool force_dma_unencrypted(struct device *dev)
--{
--	return false;
--}
--#endif /* CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED */
--
- /*
-  * If memory encryption is supported, phys_to_dma will set the memory encryption
-  * bit in the DMA address, and dma_to_phys will clear it.  The raw __phys_to_dma
-diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
-index 5c4a18a91f89..64a48c4b01a2 100644
---- a/include/linux/mem_encrypt.h
-+++ b/include/linux/mem_encrypt.h
-@@ -22,6 +22,16 @@ static inline bool mem_encrypt_active(void) { return false; }
- 
- #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
- 
-+struct device;
-+#ifdef CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED
-+bool force_dma_unencrypted(struct device *dev);
-+#else
-+static inline bool force_dma_unencrypted(struct device *dev)
-+{
-+	return false;
-+}
-+#endif /* CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED */
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- /*
-  * The __sme_set() and __sme_clr() macros are useful for adding or removing
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index ae7c611ee9dd..a453670d37fa 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -222,7 +222,15 @@ struct kvm_s390_sie_block {
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+-	__u8	reserved54[2];		/* 0x0054 */
++	__u8	reserved54;		/* 0x0054 */
++#define IICTL_CODE_NONE		 0x00
++#define IICTL_CODE_MCHK		 0x01
++#define IICTL_CODE_EXT		 0x02
++#define IICTL_CODE_IO		 0x03
++#define IICTL_CODE_RESTART	 0x04
++#define IICTL_CODE_SPECIFICATION 0x10
++#define IICTL_CODE_OPERAND	 0x11
++	__u8	iictl;			/* 0x0055 */
+ 	__u16	ipa;			/* 0x0056 */
+ 	__u32	ipb;			/* 0x0058 */
+ 	__u32	scaoh;			/* 0x005c */
+@@ -259,24 +267,48 @@ struct kvm_s390_sie_block {
+ #define HPID_KVM	0x4
+ #define HPID_VSIE	0x5
+ 	__u8	hpid;			/* 0x00b8 */
+-	__u8	reservedb9[11];		/* 0x00b9 */
+-	__u16	extcpuaddr;		/* 0x00c4 */
+-	__u16	eic;			/* 0x00c6 */
++	__u8	reservedb9[7];		/* 0x00b9 */
++	union {
++		struct {
++			__u32	eiparams;	/* 0x00c0 */
++			__u16	extcpuaddr;	/* 0x00c4 */
++			__u16	eic;		/* 0x00c6 */
++		};
++		__u64	mcic;			/* 0x00c0 */
++	} __packed;
+ 	__u32	reservedc8;		/* 0x00c8 */
+-	__u16	pgmilc;			/* 0x00cc */
+-	__u16	iprcc;			/* 0x00ce */
+-	__u32	dxc;			/* 0x00d0 */
+-	__u16	mcn;			/* 0x00d4 */
+-	__u8	perc;			/* 0x00d6 */
+-	__u8	peratmid;		/* 0x00d7 */
++	union {
++		struct {
++			__u16	pgmilc;		/* 0x00cc */
++			__u16	iprcc;		/* 0x00ce */
++		};
++		__u32	edc;			/* 0x00cc */
++	} __packed;
++	union {
++		struct {
++			__u32	dxc;		/* 0x00d0 */
++			__u16	mcn;		/* 0x00d4 */
++			__u8	perc;		/* 0x00d6 */
++			__u8	peratmid;	/* 0x00d7 */
++		};
++		__u64	faddr;			/* 0x00d0 */
++	} __packed;
+ 	__u64	peraddr;		/* 0x00d8 */
+ 	__u8	eai;			/* 0x00e0 */
+ 	__u8	peraid;			/* 0x00e1 */
+ 	__u8	oai;			/* 0x00e2 */
+ 	__u8	armid;			/* 0x00e3 */
+ 	__u8	reservede4[4];		/* 0x00e4 */
+-	__u64	tecmc;			/* 0x00e8 */
+-	__u8	reservedf0[12];		/* 0x00f0 */
++	union {
++		__u64	tecmc;		/* 0x00e8 */
++		struct {
++			__u16	subchannel_id;	/* 0x00e8 */
++			__u16	subchannel_nr;	/* 0x00ea */
++			__u32	io_int_parm;	/* 0x00ec */
++			__u32	io_int_word;	/* 0x00f0 */
++		};
++	} __packed;
++	__u8	reservedf4[8];		/* 0x00f4 */
+ #define CRYCB_FORMAT_MASK 0x00000003
+ #define CRYCB_FORMAT0 0x00000000
+ #define CRYCB_FORMAT1 0x00000001
 -- 
-2.17.1
+2.24.0
