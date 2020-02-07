@@ -1,79 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4982 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19704 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727964AbgBTMAx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 07:00:53 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KBrrtv097273
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:52 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y99pfr5m7-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:51 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 20 Feb 2020 12:00:49 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 03/10] s390x: cr0: adding AFP-register control bit
-Date: Thu, 20 Feb 2020 13:00:36 +0100
-In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1582200043-21760-4-git-send-email-pmorel@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1727018AbgBGLkG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:06 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 17/35] KVM: s390: protvirt: Handle spec exception loops
+Date: Fri,  7 Feb 2020 06:39:40 -0500
+Message-Id: <20200207113958.7320-18-borntraeger@de.ibm.com>
+In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-While adding the definition for the AFP-Register control bit, move all
-existing definitions for CR0 out of the C zone to the assmbler zone to
-keep the definitions concerning CR0 together.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+SIE intercept code 8 is used only on exception loops for protected
+guests. That means we need to stop the guest when we see it. This is
+done by userspace.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- lib/s390x/asm/arch_def.h | 11 ++++++-----
- s390x/cstart64.S         |  2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ arch/s390/kvm/intercept.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 69a8256..863c2bf 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -18,6 +18,12 @@
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index d50a0214eba1..db3dd5ee0b7a 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -231,6 +231,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
  
- #define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
+ 	vcpu->stat.exit_program_interruption++;
  
-+#define CR0_EXTM_SCLP			0X0000000000000200UL
-+#define CR0_EXTM_EXTC			0X0000000000002000UL
-+#define CR0_EXTM_EMGC			0X0000000000004000UL
-+#define CR0_EXTM_MASK			0X0000000000006200UL
-+#define CR0_AFP_REG_CRTL		0x0000000000040000UL
++	/*
++	 * Intercept 8 indicates a loop of specification exceptions
++	 * for protected guests.
++	 */
++	if (kvm_s390_pv_is_protected(vcpu->kvm))
++		return -EOPNOTSUPP;
 +
- #ifndef __ASSEMBLER__
- 
- struct psw {
-@@ -25,11 +31,6 @@ struct psw {
- 	uint64_t	addr;
- };
- 
--#define CR0_EXTM_SCLP			0X0000000000000200UL
--#define CR0_EXTM_EXTC			0X0000000000002000UL
--#define CR0_EXTM_EMGC			0X0000000000004000UL
--#define CR0_EXTM_MASK			0X0000000000006200UL
--
- struct lowcore {
- 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
- 	uint32_t	ext_int_param;			/* 0x0080 */
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 2885a36..3b59bd1 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -230,4 +230,4 @@ svc_int_psw:
- 	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
--	.quad	0x0000000000040000
-+	.quad	CR0_AFP_REG_CRTL
+ 	if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
+ 		rc = kvm_s390_handle_per_event(vcpu);
+ 		if (rc)
 -- 
-2.17.0
+2.24.0
