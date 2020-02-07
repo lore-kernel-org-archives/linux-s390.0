@@ -1,72 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46540 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727499AbgBFVid (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Feb 2020 16:38:33 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 016LaQr4138239
-        for <linux-s390@vger.kernel.org>; Thu, 6 Feb 2020 16:38:32 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xyhmpps9h-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 06 Feb 2020 16:38:31 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Thu, 6 Feb 2020 21:38:29 -0000
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v2 9/9] vfio-ccw: Remove inline get_schid() routine
-Date: Thu,  6 Feb 2020 22:38:25 +0100
-In-Reply-To: <20200206213825.11444-1-farman@linux.ibm.com>
-References: <20200206213825.11444-1-farman@linux.ibm.com>
-Message-Id: <20200206213825.11444-10-farman@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21608 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727047AbgBGLkH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 12/35] KVM: s390: protvirt: Handle SE notification interceptions
+Date: Fri,  7 Feb 2020 06:39:35 -0500
+Message-Id: <20200207113958.7320-13-borntraeger@de.ibm.com>
+In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-This seems misplaced in the middle of FSM, returning the schid
-field from inside the private struct.  We could move this macro
-into vfio_ccw_private.h, but this doesn't seem to simplify things
-that much.  Let's just remove it, and use the field directly.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Since there is no interception for load control and load psw
+instruction in the protected mode, we need a new way to get notified
+whenever we can inject an IRQ right after the guest has just enabled
+the possibility for receiving them.
+
+The new interception codes solve that problem by providing a
+notification for changes to IRQ enablement relevant bits in CRs 0, 6
+and 14, as well a the machine check mask bit in the PSW.
+
+No special handling is needed for these interception codes, the KVM
+pre-run code will consult all necessary CRs and PSW bits and inject
+IRQs the guest is enabled for.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_fsm.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 2 ++
+ arch/s390/kvm/intercept.c        | 9 +++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
-index 23e61aa638e4..c4c303645d7d 100644
---- a/drivers/s390/cio/vfio_ccw_fsm.c
-+++ b/drivers/s390/cio/vfio_ccw_fsm.c
-@@ -228,10 +228,6 @@ static void fsm_disabled_irq(struct vfio_ccw_private *private,
- 	 */
- 	cio_disable_subchannel(sch);
- }
--inline struct subchannel_id get_schid(struct vfio_ccw_private *p)
--{
--	return p->sch->schid;
--}
- 
- /*
-  * Deal with the ccw command request from the userspace.
-@@ -244,7 +240,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
- 	struct ccw_io_region *io_region = private->io_region;
- 	struct mdev_device *mdev = private->mdev;
- 	char *errstr = "request";
--	struct subchannel_id schid = get_schid(private);
-+	struct subchannel_id schid = private->sch->schid;
- 
- 	private->state = VFIO_CCW_STATE_CP_PROCESSING;
- 	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
-@@ -342,7 +338,7 @@ static void fsm_async_request(struct vfio_ccw_private *private,
- 		cmd_region->ret_code = -EINVAL;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 3ed31c5f80e1..08acf280c4b0 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -215,6 +215,8 @@ struct kvm_s390_sie_block {
+ #define ICPT_PARTEXEC	0x38
+ #define ICPT_IOINST	0x40
+ #define ICPT_KSS	0x5c
++#define ICPT_MCHKREQ	0x60
++#define ICPT_INT_ENABLE	0x64
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index a389fa85cca2..6aeb4b36042c 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -480,6 +480,15 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 	case ICPT_KSS:
+ 		rc = kvm_s390_skey_check_enable(vcpu);
+ 		break;
++	case ICPT_MCHKREQ:
++	case ICPT_INT_ENABLE:
++		/*
++		 * PSW bit 13 or a CR (0, 6, 14) changed and we might
++		 * now be able to deliver interrupts. The pre-run code
++		 * will take care of this.
++		 */
++		rc = 0;
++		break;
+ 	default:
+ 		return -EOPNOTSUPP;
  	}
- 
--	trace_vfio_ccw_fsm_async_request(get_schid(private),
-+	trace_vfio_ccw_fsm_async_request(private->sch->schid,
- 					 cmd_region->command,
- 					 cmd_region->ret_code);
- }
 -- 
-2.17.1
+2.24.0
