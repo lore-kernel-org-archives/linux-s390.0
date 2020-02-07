@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26136 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33884 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727117AbgBGLkI (ORCPT
+        by vger.kernel.org with ESMTP id S1727178AbgBGLkI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:08 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 02/35] KVM: s390/interrupt: do not pin adapter interrupt pages
-Date: Fri,  7 Feb 2020 06:39:25 -0500
-Message-Id: <20200207113958.7320-3-borntraeger@de.ibm.com>
+Subject: [PATCH 10/35] KVM: s390: protvirt: Secure memory is not mergeable
+Date: Fri,  7 Feb 2020 06:39:33 -0500
+Message-Id: <20200207113958.7320-11-borntraeger@de.ibm.com>
 In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
@@ -14,335 +14,112 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
 
-From: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-The adapter interrupt page containing the indicator bits is currently
-pinned. That means that a guest with many devices can pin a lot of
-memory pages in the host. This also complicates the reference tracking
-which is needed for memory management handling of protected virtual
-machines.
-We can reuse the pte notifiers to "cache" the page without pinning it.
+KSM will not work on secure pages, because when the kernel reads a
+secure page, it will be encrypted and hence no two pages will look the
+same.
 
-Signed-off-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Suggested-by: Andrea Arcangeli <aarcange@redhat.com>
+Let's mark the guest pages as unmergeable when we transition to secure
+mode.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |   4 +-
- arch/s390/kvm/interrupt.c        | 155 +++++++++++++++++++++++--------
- arch/s390/kvm/kvm-s390.c         |   4 +
- arch/s390/kvm/kvm-s390.h         |   2 +
- 4 files changed, 123 insertions(+), 42 deletions(-)
+ arch/s390/include/asm/gmap.h |  1 +
+ arch/s390/kvm/kvm-s390.c     |  8 ++++++++
+ arch/s390/mm/gmap.c          | 30 ++++++++++++++++++++----------
+ 3 files changed, 29 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 73044545ecac..884503e05424 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -701,9 +701,9 @@ struct s390_io_adapter {
- 	bool masked;
- 	bool swap;
- 	bool suppressible;
--	struct rw_semaphore maps_lock;
-+	spinlock_t maps_lock;
- 	struct list_head maps;
--	atomic_t nr_maps;
-+	int nr_maps;
- };
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index e2d2f48c5c7c..e1f2cc0b2b00 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -146,4 +146,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
  
- #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index c06c89d370a7..4bfb2f8fe57c 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -28,6 +28,7 @@
- #include <asm/switch_to.h>
- #include <asm/nmi.h>
- #include <asm/airq.h>
-+#include <linux/pagemap.h>
- #include "kvm-s390.h"
- #include "gaccess.h"
- #include "trace-s390.h"
-@@ -2328,8 +2329,8 @@ static int register_io_adapter(struct kvm_device *dev,
- 		return -ENOMEM;
- 
- 	INIT_LIST_HEAD(&adapter->maps);
--	init_rwsem(&adapter->maps_lock);
--	atomic_set(&adapter->nr_maps, 0);
-+	spin_lock_init(&adapter->maps_lock);
-+	adapter->nr_maps = 0;
- 	adapter->id = adapter_info.id;
- 	adapter->isc = adapter_info.isc;
- 	adapter->maskable = adapter_info.maskable;
-@@ -2375,19 +2376,15 @@ static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
- 		ret = -EFAULT;
- 		goto out;
- 	}
--	ret = get_user_pages_fast(map->addr, 1, FOLL_WRITE, &map->page);
--	if (ret < 0)
--		goto out;
--	BUG_ON(ret != 1);
--	down_write(&adapter->maps_lock);
--	if (atomic_inc_return(&adapter->nr_maps) < MAX_S390_ADAPTER_MAPS) {
-+	spin_lock(&adapter->maps_lock);
-+	if (adapter->nr_maps < MAX_S390_ADAPTER_MAPS) {
-+		adapter->nr_maps++;
- 		list_add_tail(&map->list, &adapter->maps);
- 		ret = 0;
- 	} else {
--		put_page(map->page);
- 		ret = -EINVAL;
- 	}
--	up_write(&adapter->maps_lock);
-+	spin_unlock(&adapter->maps_lock);
- out:
- 	if (ret)
- 		kfree(map);
-@@ -2403,18 +2400,17 @@ static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
- 	if (!adapter || !addr)
- 		return -EINVAL;
- 
--	down_write(&adapter->maps_lock);
-+	spin_lock(&adapter->maps_lock);
- 	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
- 		if (map->guest_addr == addr) {
- 			found = 1;
--			atomic_dec(&adapter->nr_maps);
-+			adapter->nr_maps--;
- 			list_del(&map->list);
--			put_page(map->page);
- 			kfree(map);
- 			break;
- 		}
- 	}
--	up_write(&adapter->maps_lock);
-+	spin_unlock(&adapter->maps_lock);
- 
- 	return found ? 0 : -EINVAL;
- }
-@@ -2430,7 +2426,6 @@ void kvm_s390_destroy_adapters(struct kvm *kvm)
- 		list_for_each_entry_safe(map, tmp,
- 					 &kvm->arch.adapters[i]->maps, list) {
- 			list_del(&map->list);
--			put_page(map->page);
- 			kfree(map);
- 		}
- 		kfree(kvm->arch.adapters[i]);
-@@ -2690,6 +2685,31 @@ struct kvm_device_ops kvm_flic_ops = {
- 	.destroy = flic_destroy,
- };
- 
-+void kvm_s390_adapter_gmap_notifier(struct gmap *gmap, unsigned long start,
-+				    unsigned long end)
-+{
-+	struct kvm *kvm = gmap->private;
-+	struct s390_map_info *map, *tmp;
-+	int i;
-+
-+	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++) {
-+		struct s390_io_adapter *adapter = kvm->arch.adapters[i];
-+
-+		if (!adapter)
-+			continue;
-+		spin_lock(&adapter->maps_lock);
-+		list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
-+			if (start <= map->guest_addr && map->guest_addr < end) {
-+				if (IS_ERR(map->page))
-+					map->page = ERR_PTR(-EAGAIN);
-+				else
-+					map->page = NULL;
-+			}
-+		}
-+		spin_unlock(&adapter->maps_lock);
-+	}
-+}
-+
- static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
- {
- 	unsigned long bit;
-@@ -2699,19 +2719,71 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
- 	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
- }
- 
--static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
--					  u64 addr)
-+static struct page *get_map_page(struct kvm *kvm,
-+				 struct s390_io_adapter *adapter,
-+				 u64 addr)
- {
- 	struct s390_map_info *map;
-+	unsigned long uaddr;
-+	struct page *page;
-+	bool need_retry;
-+	int ret;
- 
- 	if (!adapter)
- 		return NULL;
-+retry:
-+	page = NULL;
-+	uaddr = 0;
-+	spin_lock(&adapter->maps_lock);
-+	list_for_each_entry(map, &adapter->maps, list)
-+		if (map->guest_addr == addr) {
-+			uaddr = map->addr;
-+			page = map->page;
-+			if (!page)
-+				map->page = ERR_PTR(-EBUSY);
-+			else if (IS_ERR(page) || !page_cache_get_speculative(page)) {
-+				spin_unlock(&adapter->maps_lock);
-+				goto retry;
-+			}
-+			break;
-+		}
-+	spin_unlock(&adapter->maps_lock);
-+
-+	if (page)
-+		return page;
-+	if (!uaddr)
-+		return NULL;
- 
--	list_for_each_entry(map, &adapter->maps, list) {
--		if (map->guest_addr == addr)
--			return map;
-+	down_read(&kvm->mm->mmap_sem);
-+	ret = set_pgste_bits(kvm->mm, uaddr, PGSTE_IN_BIT, PGSTE_IN_BIT);
-+	if (ret)
-+		goto fail;
-+	ret = get_user_pages_remote(NULL, kvm->mm, uaddr, 1, FOLL_WRITE,
-+				    &page, NULL, NULL);
-+	if (ret < 1)
-+		page = NULL;
-+fail:
-+	up_read(&kvm->mm->mmap_sem);
-+	need_retry = true;
-+	spin_lock(&adapter->maps_lock);
-+	list_for_each_entry(map, &adapter->maps, list)
-+		if (map->guest_addr == addr) {
-+			if (map->page == ERR_PTR(-EBUSY)) {
-+				map->page = page;
-+				need_retry = false;
-+			} else if (IS_ERR(map->page)) {
-+				map->page = NULL;
-+			}
-+			break;
-+		}
-+	spin_unlock(&adapter->maps_lock);
-+	if (need_retry) {
-+		if (page)
-+			put_page(page);
-+		goto retry;
- 	}
--	return NULL;
-+
-+	return page;
- }
- 
- static int adapter_indicators_set(struct kvm *kvm,
-@@ -2720,30 +2792,35 @@ static int adapter_indicators_set(struct kvm *kvm,
- {
- 	unsigned long bit;
- 	int summary_set, idx;
--	struct s390_map_info *info;
-+	struct page *ind_page, *summary_page;
- 	void *map;
- 
--	info = get_map_info(adapter, adapter_int->ind_addr);
--	if (!info)
-+	ind_page = get_map_page(kvm, adapter, adapter_int->ind_addr);
-+	if (!ind_page)
- 		return -1;
--	map = page_address(info->page);
--	bit = get_ind_bit(info->addr, adapter_int->ind_offset, adapter->swap);
--	set_bit(bit, map);
--	idx = srcu_read_lock(&kvm->srcu);
--	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
--	set_page_dirty_lock(info->page);
--	info = get_map_info(adapter, adapter_int->summary_addr);
--	if (!info) {
--		srcu_read_unlock(&kvm->srcu, idx);
-+	summary_page = get_map_page(kvm, adapter, adapter_int->summary_addr);
-+	if (!summary_page) {
-+		put_page(ind_page);
- 		return -1;
- 	}
--	map = page_address(info->page);
--	bit = get_ind_bit(info->addr, adapter_int->summary_offset,
--			  adapter->swap);
-+
-+	idx = srcu_read_lock(&kvm->srcu);
-+	map = page_address(ind_page);
-+	bit = get_ind_bit(adapter_int->ind_addr,
-+			  adapter_int->ind_offset, adapter->swap);
-+	set_bit(bit, map);
-+	mark_page_dirty(kvm, adapter_int->ind_addr >> PAGE_SHIFT);
-+	set_page_dirty_lock(ind_page);
-+	map = page_address(summary_page);
-+	bit = get_ind_bit(adapter_int->summary_addr,
-+			  adapter_int->summary_offset, adapter->swap);
- 	summary_set = test_and_set_bit(bit, map);
--	mark_page_dirty(kvm, info->guest_addr >> PAGE_SHIFT);
--	set_page_dirty_lock(info->page);
-+	mark_page_dirty(kvm, adapter_int->summary_addr >> PAGE_SHIFT);
-+	set_page_dirty_lock(summary_page);
- 	srcu_read_unlock(&kvm->srcu, idx);
-+
-+	put_page(ind_page);
-+	put_page(summary_page);
- 	return summary_set ? 0 : 1;
- }
- 
-@@ -2765,9 +2842,7 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
- 	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
- 	if (!adapter)
- 		return -1;
--	down_read(&adapter->maps_lock);
- 	ret = adapter_indicators_set(kvm, adapter, &e->adapter);
--	up_read(&adapter->maps_lock);
- 	if ((ret > 0) && !adapter->masked) {
- 		ret = kvm_s390_inject_airq(kvm, adapter);
- 		if (ret == 0)
+ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
++int gmap_mark_unmergeable(void);
+ #endif /* _ASM_S390_GMAP_H */
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e39f6ef97b09..1a48214ac507 100644
+index e1bccbb41fdd..ad86e74e27ec 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -219,6 +219,7 @@ static struct kvm_s390_vm_cpu_subfunc kvm_s390_available_subfunc;
+@@ -2182,6 +2182,14 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+ 		if (r)
+ 			break;
  
- static struct gmap_notifier gmap_notifier;
- static struct gmap_notifier vsie_gmap_notifier;
-+static struct gmap_notifier adapter_gmap_notifier;
- debug_info_t *kvm_s390_dbf;
- 
- /* Section: not file related */
-@@ -299,6 +300,8 @@ int kvm_arch_hardware_setup(void)
- 	gmap_register_pte_notifier(&gmap_notifier);
- 	vsie_gmap_notifier.notifier_call = kvm_s390_vsie_gmap_notifier;
- 	gmap_register_pte_notifier(&vsie_gmap_notifier);
-+	adapter_gmap_notifier.notifier_call = kvm_s390_adapter_gmap_notifier;
-+	gmap_register_pte_notifier(&adapter_gmap_notifier);
- 	atomic_notifier_chain_register(&s390_epoch_delta_notifier,
- 				       &kvm_clock_notifier);
- 	return 0;
-@@ -308,6 +311,7 @@ void kvm_arch_hardware_unsetup(void)
- {
- 	gmap_unregister_pte_notifier(&gmap_notifier);
- 	gmap_unregister_pte_notifier(&vsie_gmap_notifier);
-+	gmap_unregister_pte_notifier(&adapter_gmap_notifier);
- 	atomic_notifier_chain_unregister(&s390_epoch_delta_notifier,
- 					 &kvm_clock_notifier);
++		down_write(&current->mm->mmap_sem);
++		r = gmap_mark_unmergeable();
++		up_write(&current->mm->mmap_sem);
++		if (r) {
++			kvm_s390_pv_dealloc_vm(kvm);
++			break;
++		}
++
+ 		mutex_lock(&kvm->lock);
+ 		kvm_s390_vcpu_block_all(kvm);
+ 		/* FMT 4 SIE needs esca */
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index edcdca97e85e..7291452fe5f0 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2548,6 +2548,22 @@ int s390_enable_sie(void)
  }
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 6d9448dbd052..54c5eb4b275d 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -367,6 +367,8 @@ int s390int_to_s390irq(struct kvm_s390_interrupt *s390int,
- 			struct kvm_s390_irq *s390irq);
+ EXPORT_SYMBOL_GPL(s390_enable_sie);
  
- /* implemented in interrupt.c */
-+void kvm_s390_adapter_gmap_notifier(struct gmap *gmap, unsigned long start,
-+				    unsigned long end);
- int kvm_s390_vcpu_has_irq(struct kvm_vcpu *vcpu, int exclude_stop);
- int psw_extint_disabled(struct kvm_vcpu *vcpu);
- void kvm_s390_destroy_adapters(struct kvm *kvm);
++int gmap_mark_unmergeable(void)
++{
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
++
++	for (vma = mm->mmap; vma; vma = vma->vm_next) {
++		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
++				MADV_UNMERGEABLE, &vma->vm_flags)) {
++			return -ENOMEM;
++		}
++	}
++	mm->def_flags &= ~VM_MERGEABLE;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(gmap_mark_unmergeable);
++
+ /*
+  * Enable storage key handling from now on and initialize the storage
+  * keys with the default key.
+@@ -2593,7 +2609,6 @@ static const struct mm_walk_ops enable_skey_walk_ops = {
+ int s390_enable_skey(void)
+ {
+ 	struct mm_struct *mm = current->mm;
+-	struct vm_area_struct *vma;
+ 	int rc = 0;
+ 
+ 	down_write(&mm->mmap_sem);
+@@ -2601,16 +2616,11 @@ int s390_enable_skey(void)
+ 		goto out_up;
+ 
+ 	mm->context.uses_skeys = 1;
+-	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+-		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
+-				MADV_UNMERGEABLE, &vma->vm_flags)) {
+-			mm->context.uses_skeys = 0;
+-			rc = -ENOMEM;
+-			goto out_up;
+-		}
++	rc = gmap_mark_unmergeable();
++	if (rc) {
++		mm->context.uses_skeys = 0;
++		goto out_up;
+ 	}
+-	mm->def_flags &= ~VM_MERGEABLE;
+-
+ 	walk_page_range(mm, 0, TASK_SIZE, &enable_skey_walk_ops, NULL);
+ 
+ out_up:
 -- 
 2.24.0
