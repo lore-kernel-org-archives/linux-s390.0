@@ -1,132 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16234 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726934AbgBAP3I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 1 Feb 2020 10:29:08 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 011FIDxp038952
-        for <linux-s390@vger.kernel.org>; Sat, 1 Feb 2020 10:29:07 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2xwak3j5r9-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Sat, 01 Feb 2020 10:29:06 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Sat, 1 Feb 2020 15:29:05 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 5/7] s390x: smp: Only use smp_cpu_setup once
-Date: Sat,  1 Feb 2020 10:28:49 -0500
-In-Reply-To: <20200201152851.82867-1-frankja@linux.ibm.com>
-References: <20200201152851.82867-1-frankja@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:29394 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727682AbgBIPw7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Feb 2020 10:52:59 -0500
+Subject: Re: [PATCH 26/35] KVM: s390: protvirt: Add program exception
+ injection
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-27-borntraeger@de.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <cbdd3e0a-1c88-51a2-04b4-1e507dbf1093@redhat.com>
+Date: Sun, 9 Feb 2020 16:52:46 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200201152851.82867-6-frankja@linux.ibm.com>
+In-Reply-To: <20200207113958.7320-27-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-Let's stop and start instead of using setup to run a function on a
-cpu.
+On 07/02/2020 12.39, Christian Borntraeger wrote:
+> From: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Only two program exceptions can be injected for a protected guest:
+> specification and operand.
+> 
+> For both, a code needs to be specified in the interrupt injection
+> control of the state description, as the guest prefix page is not
+> accessible to KVM for such guests.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/interrupt.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index c28fa09cb557..2df6459ab98b 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -837,6 +837,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+>  	return rc ? -EFAULT : 0;
+>  }
+>  
+> +static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
+> +{
+> +	switch (code) {
+> +	case PGM_SPECIFICATION:
+> +		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
+> +		break;
+> +	case PGM_OPERAND:
+> +		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +	return 0;
+> +}
+> +
+>  static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+>  {
+>  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+> @@ -857,6 +872,9 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+>  	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+>  					 pgm_info.code, 0);
+>  
+> +	if (kvm_s390_pv_is_protected(vcpu->kvm))
+> +		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
+> +
+>  	switch (pgm_info.code & ~PGM_PER) {
+>  	case PGM_AFX_TRANSLATION:
+>  	case PGM_ASX_TRANSLATION:
+> 
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
----
- s390x/smp.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
-
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 93a9594..fa40753 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -53,7 +53,7 @@ static void test_start(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	set_flag(0);
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	report(1, "start");
- }
-@@ -109,6 +109,7 @@ static void test_store_status(void)
- 	report(1, "status written");
- 	free_pages(status, PAGE_SIZE * 2);
- 	report_prefix_pop();
-+	smp_cpu_stop(1);
- 
- 	report_prefix_pop();
- }
-@@ -137,9 +138,8 @@ static void test_ecall(void)
- 
- 	report_prefix_push("ecall");
- 	set_flag(0);
--	smp_cpu_destroy(1);
- 
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	set_flag(0);
- 	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
-@@ -172,9 +172,8 @@ static void test_emcall(void)
- 
- 	report_prefix_push("emcall");
- 	set_flag(0);
--	smp_cpu_destroy(1);
- 
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 	wait_for_flag();
- 	set_flag(0);
- 	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
-@@ -192,7 +191,7 @@ static void test_reset_initial(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("reset initial");
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 
- 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
- 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
-@@ -223,7 +222,7 @@ static void test_reset(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("cpu reset");
--	smp_cpu_setup(1, psw);
-+	smp_cpu_start(1, psw);
- 
- 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
- 	report(smp_cpu_stopped(1), "cpu stopped");
-@@ -232,6 +231,7 @@ static void test_reset(void)
- 
- int main(void)
- {
-+	struct psw psw;
- 	report_prefix_push("smp");
- 
- 	if (smp_query_num_cpus() == 1) {
-@@ -239,6 +239,12 @@ int main(void)
- 		goto done;
- 	}
- 
-+	/* Setting up the cpu to give it a stack and lowcore */
-+	psw.mask = extract_psw_mask();
-+	psw.addr = (unsigned long)cpu_loop;
-+	smp_cpu_setup(1, psw);
-+	smp_cpu_stop(1);
-+
- 	test_start();
- 	test_stop();
- 	test_stop_store_status();
-@@ -247,6 +253,7 @@ int main(void)
- 	test_emcall();
- 	test_reset();
- 	test_reset_initial();
-+	smp_cpu_destroy(1);
- 
- done:
- 	report_prefix_pop();
--- 
-2.20.1
