@@ -1,42 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:26395 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731275AbgBJN3A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 10 Feb 2020 08:29:00 -0500
-Date: Mon, 10 Feb 2020 14:28:45 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29770 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727682AbgBIQHc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 9 Feb 2020 11:07:32 -0500
 Subject: Re: [PATCH 32/35] KVM: s390: protvirt: Mask PSW interrupt bits for
  interception 104 and 112
-Message-ID: <20200210142845.2188b008.cohuck@redhat.com>
-In-Reply-To: <20200207113958.7320-33-borntraeger@de.ibm.com>
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
-        <20200207113958.7320-33-borntraeger@de.ibm.com>
+ <20200207113958.7320-33-borntraeger@de.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <66cb29f7-b190-2faa-ab32-9cfd149fa3e4@redhat.com>
+Date: Sun, 9 Feb 2020 17:07:18 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200207113958.7320-33-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-On Fri,  7 Feb 2020 06:39:55 -0500
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
+On 07/02/2020 12.39, Christian Borntraeger wrote:
 > From: Janosch Frank <frankja@linux.ibm.com>
 > 
 > We're not allowed to inject interrupts on intercepts that leave the
 > guest state in an "in-beetween" state where the next SIE entry will do a
-
-s/beetween/between/
-
 > continuation.  Namely secure instruction interception and secure prefix
-
-s/continuation. Namely/continuation, namely,/
-
-Add which one is 104 and which one is 112, so you can match up the
-description with the subject?
-
-
 > interception.
 > As our PSW is just a copy of the real one that will be replaced on the
 > next exit, we can mask out the interrupt bits in the PSW to make sure
@@ -65,9 +54,6 @@ description with the subject?
 >  			memcpy(vcpu->run->s.regs.gprs,
 >  			       sie_page->pv_grregs,
 >  			       sizeof(sie_page->pv_grregs));
-
-Add a comment, as suggested by Thomas last time?
-
 > +			if (vcpu->arch.sie_block->icptcode == ICPT_PV_INSTR ||
 > +			    vcpu->arch.sie_block->icptcode == ICPT_PV_PREF) {
 > +				vcpu->arch.sie_block->gpsw.mask &= ~PSW_INT_MASK;
@@ -75,3 +61,6 @@ Add a comment, as suggested by Thomas last time?
 >  		}
 >  		local_irq_disable();
 >  		__enable_cpu_timer_accounting(vcpu);
+> 
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
