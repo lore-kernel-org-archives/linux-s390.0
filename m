@@ -1,64 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65412 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25420 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727913AbgBTKka (ORCPT
+        by vger.kernel.org with ESMTP id S1730469AbgBJMni (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 23/37] KVM: s390: protvirt: STSI handling
-Date: Thu, 20 Feb 2020 05:40:06 -0500
-Message-Id: <20200220104020.5343-24-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+        Mon, 10 Feb 2020 07:43:38 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01ACeF2s017960
+        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 07:43:37 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y1u8050nf-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 07:43:37 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
+        Mon, 10 Feb 2020 12:43:35 -0000
+Date: Mon, 10 Feb 2020 13:43:30 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PULL 0/1] one vfio-ccw patch for 5.6
+References: <20200206170331.1032-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200206170331.1032-1-cohuck@redhat.com>
+Message-Id: <your-ad-here.call-01581338610-ext-6781@work.hours>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
-
-Save response to sidad and disable address checking for protected
-guests.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/priv.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index ed52ffa8d5d4..394b57090ff6 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -872,7 +872,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 
- 	operand2 = kvm_s390_get_base_disp_s(vcpu, &ar);
- 
--	if (operand2 & 0xfff)
-+	if (!kvm_s390_pv_cpu_is_protected(vcpu) && (operand2 & 0xfff))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
- 	switch (fc) {
-@@ -893,8 +893,13 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 		handle_stsi_3_2_2(vcpu, (void *) mem);
- 		break;
- 	}
--
--	rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
-+		       PAGE_SIZE);
-+		rc = 0;
-+	} else {
-+		rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
-+	}
- 	if (rc) {
- 		rc = kvm_s390_inject_prog_cond(vcpu, rc);
- 		goto out;
--- 
-2.25.0
+On Thu, Feb 06, 2020 at 06:03:30PM +0100, Cornelia Huck wrote:
+> The following changes since commit d1eef1c619749b2a57e514a3fa67d9a516ffa919:
+> 
+>   Linux 5.5-rc2 (2019-12-15 15:16:08 -0800)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/vfio-ccw.git tags/vfio-ccw-20200206
+> 
+> for you to fetch changes up to dbaf10027ae92a66f0dfad33e1e3453daa16373f:
+> 
+>   vfio-ccw: Use the correct style for SPDX License Identifier (2020-01-07 10:37:34 +0100)
+> 
+> ----------------------------------------------------------------
+> fix style of SPDX License Identifier
+> 
+> ----------------------------------------------------------------
+> 
+> Nishad Kamdar (1):
+>   vfio-ccw: Use the correct style for SPDX License Identifier
+> 
+>  drivers/s390/cio/vfio_ccw_trace.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> -- 
+> 2.21.1
+> 
+Pulled into fixes, thanks!
