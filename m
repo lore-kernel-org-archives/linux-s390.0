@@ -1,63 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53540 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729788AbgBJMy7 (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23598 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726991AbgBJMbe (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Feb 2020 07:54:59 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01ACnIQi043509
-        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 07:54:58 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y1u9nw7p5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 07:54:57 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 10 Feb 2020 12:54:56 -0000
+        Mon, 10 Feb 2020 07:31:34 -0500
+Date: Mon, 10 Feb 2020 13:31:22 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 03/35] s390/protvirt: introduce host side setup
+Message-ID: <20200210133122.2a5a799c.cohuck@redhat.com>
+In-Reply-To: <f8175088-2041-46ac-dee7-8d0e7b22863d@de.ibm.com>
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
- <20200207113958.7320-4-borntraeger@de.ibm.com>
- <ad0d8be2-7af8-d195-ba08-157a649a9ab1@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 10 Feb 2020 13:54:51 +0100
+        <20200207113958.7320-4-borntraeger@de.ibm.com>
+        <20200210125452.7f66706d.cohuck@redhat.com>
+        <f8175088-2041-46ac-dee7-8d0e7b22863d@de.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <ad0d8be2-7af8-d195-ba08-157a649a9ab1@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <af6b0234-c9c8-fdf2-40ea-36621ee5eb44@de.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
+On Mon, 10 Feb 2020 13:14:03 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-
-On 10.02.20 13:38, David Hildenbrand wrote:
-
->> +		pr_info("Running as protected virtualization guest.");
+> On 10.02.20 12:54, Cornelia Huck wrote:
+> > On Fri,  7 Feb 2020 06:39:26 -0500
+> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >   
+> >> From: Vasily Gorbik <gor@linux.ibm.com>
+> >>
+> >> Add "prot_virt" command line option which controls if the kernel
+> >> protected VMs support is enabled at early boot time. This has to be
+> >> done early, because it needs large amounts of memory and will disable
+> >> some features like STP time sync for the lpar.
+> >>
+> >> Extend ultravisor info definitions and expose it via uv_info struct
+> >> filled in during startup.
+> >>
+> >> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+> >> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> >> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >> ---
+> >>  .../admin-guide/kernel-parameters.txt         |  5 ++
+> >>  arch/s390/boot/Makefile                       |  2 +-
+> >>  arch/s390/boot/uv.c                           | 21 +++++++-
+> >>  arch/s390/include/asm/uv.h                    | 46 +++++++++++++++--
+> >>  arch/s390/kernel/Makefile                     |  1 +
+> >>  arch/s390/kernel/setup.c                      |  4 --
+> >>  arch/s390/kernel/uv.c                         | 49 +++++++++++++++++++
+> >>  7 files changed, 119 insertions(+), 9 deletions(-)
+> >>  create mode 100644 arch/s390/kernel/uv.c  
+> > 
+> > (...)
+> >   
+> >> diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+> >> index e2c47d3a1c89..30f1811540c5 100644
+> >> --- a/arch/s390/boot/Makefile
+> >> +++ b/arch/s390/boot/Makefile
+> >> @@ -37,7 +37,7 @@ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+> >>  obj-y	:= head.o als.o startup.o mem_detect.o ipl_parm.o ipl_report.o
+> >>  obj-y	+= string.o ebcdic.o sclp_early_core.o mem.o ipl_vmparm.o cmdline.o
+> >>  obj-y	+= version.o pgm_check_info.o ctype.o text_dma.o
+> >> -obj-$(CONFIG_PROTECTED_VIRTUALIZATION_GUEST)	+= uv.o
+> >> +obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+= uv.o  
+> > 
+> > I'm wondering why you're checking CONFIG_PGSTE here...  
 > 
-> /me confused about gluing an informative message to disabling a feature.
-> 
-> Should this actually be a
-> 
-> pr_warn("Protected virtualization not available in protected guests.");
+> It was just simpler for a Makefile, because CONFIG_KVM can be m or y.
+> PGSTE is always y when CONFIG_KVM is set. Suggestions welcome.
 
-Yes, this is probably better.
+My only complaint is that it is a bit non-obvious at a glance... but
+yeah, I don't have a better suggestion, either.
 
 > 
->> +	}
->> +
->> +	if (prot_virt_host && !test_facility(158)) {
->> +		prot_virt_host = 0;
->> +		pr_info("The ultravisor call facility is not available.");
+> [...]
 > 
-> It's somehwhat confusing for a user to requested "prot_virt" and get
-> that error message.
+> >> +		prot_virt_host = 0;
+> >> +		pr_info("Running as protected virtualization guest.");
+> >> +	}
+> >> +
+> >> +	if (prot_virt_host && !test_facility(158)) {
+> >> +		prot_virt_host = 0;
+> >> +		pr_info("The ultravisor call facility is not available.");
+> >> +	}  
+> > 
+> > What about prefixing these two with 'prot_virt:'? It seems the name is
+> > settled now?  
 > 
-> pr_warn("Protected virtualization not supported by the hardware".);
+> It is not settled, but I can certainly do something like
+> 
+> #define KMSG_COMPONENT "prot_virt"
+> #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+> 
+> 
+> to prefix all pr_* calls in this file.
 
-
-The name is still in flux, but we can change that later on. Will use your 
-variant.
+That would make it easier to associate any messages (especially the
+second message here) with this feature, I think.
