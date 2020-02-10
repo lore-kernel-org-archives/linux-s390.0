@@ -1,87 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62912 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727935AbgBTKkb (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:34644 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726451AbgBJKDp (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:31 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 36/37] KVM: s390: rstify new ioctls in api.rst
-Date: Thu, 20 Feb 2020 05:40:19 -0500
-Message-Id: <20200220104020.5343-37-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+        Mon, 10 Feb 2020 05:03:45 -0500
+Subject: Re: [PATCH 15/35] KVM: s390: protvirt: Implement interruption
+ injection
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-16-borntraeger@de.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <f25f7092-3410-bdcd-8b4a-994b84d37efa@redhat.com>
+Date: Mon, 10 Feb 2020 11:03:34 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200207113958.7320-16-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-We also need to rstify the new ioctls that we added in parallel to the
-rstification of the kvm docs.
+On 07/02/2020 12.39, Christian Borntraeger wrote:
+> From: Michael Mueller <mimu@linux.ibm.com>
+> 
+> The patch implements interruption injection for the following
+> list of interruption types:
+> 
+>    - I/O (uses inject io interruption)
+>      __deliver_io
+> 
+>    - External (uses inject external interruption)
+>      __deliver_cpu_timer
+>      __deliver_ckc
+>      __deliver_emergency_signal
+>      __deliver_external_call
+> 
+>    - cpu restart (uses inject restart interruption)
+>      __deliver_restart
+> 
+>    - machine checks (uses mcic, failing address and external damage)
+>      __write_machine_check
+> 
+> Please note that posted interrupts (GISA) are not used for protected
+> guests as of today.
+> 
+> The service interrupt is handled in a followup patch.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host.h |   6 ++
+>  arch/s390/kvm/interrupt.c        | 106 +++++++++++++++++++++++--------
+>  2 files changed, 86 insertions(+), 26 deletions(-)
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- Documentation/virt/kvm/api.rst | 33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
-
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 58be7aba0db2..faca9977cbe7 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -4613,35 +4613,38 @@ unpins the VPA pages and releases all the device pages that are used to
- track the secure pages by hypervisor.
- 
- 4.122 KVM_S390_NORMAL_RESET
-+---------------------------
- 
--Capability: KVM_CAP_S390_VCPU_RESETS
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: KVM_CAP_S390_VCPU_RESETS
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
- 
- This ioctl resets VCPU registers and control structures according to
- the cpu reset definition in the POP (Principles Of Operation).
- 
- 4.123 KVM_S390_INITIAL_RESET
-+----------------------------
- 
--Capability: none
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: none
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
- 
- This ioctl resets VCPU registers and control structures according to
- the initial cpu reset definition in the POP. However, the cpu is not
- put into ESA mode. This reset is a superset of the normal reset.
- 
- 4.124 KVM_S390_CLEAR_RESET
-+--------------------------
- 
--Capability: KVM_CAP_S390_VCPU_RESETS
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: KVM_CAP_S390_VCPU_RESETS
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
- 
- This ioctl resets VCPU registers and control structures according to
- the clear cpu reset definition in the POP. However, the cpu is not put
--- 
-2.25.0
+Reviewed-by: Thomas Huth <thuth@redhat.com>
