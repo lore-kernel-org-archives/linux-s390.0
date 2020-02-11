@@ -1,20 +1,20 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48338 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56128 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726968AbgBMOs1 (ORCPT
+        by vger.kernel.org with ESMTP id S1728435AbgBKLnY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Feb 2020 09:48:27 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01DET1fR089312
-        for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2020 09:48:25 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y4wutxa6f-1
+        Tue, 11 Feb 2020 06:43:24 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01BBZK9j077439
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 06:43:22 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y38gy4t7s-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2020 09:48:25 -0500
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 06:43:22 -0500
 Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Thu, 13 Feb 2020 14:48:23 -0000
+        Tue, 11 Feb 2020 11:43:20 -0000
 Subject: Re: [PATCH 01/35] mm:gup/writeback: add callbacks for inaccessible
  pages
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
@@ -22,13 +22,13 @@ References: <20200207113958.7320-1-borntraeger@de.ibm.com>
  <28792269-e053-ac70-a344-45612ee5c729@de.ibm.com>
  <20200211112611.GD8560@willie-the-truck>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 13 Feb 2020 15:48:16 +0100
+Date: Tue, 11 Feb 2020 12:43:13 +0100
 MIME-Version: 1.0
 In-Reply-To: <20200211112611.GD8560@willie-the-truck>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <618384fa-fa5e-66e8-221a-726e7dcf1d8c@de.ibm.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <05f1450e-230f-444d-1b3e-c0c50d089a93@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Will Deacon <will@kernel.org>
@@ -48,16 +48,14 @@ On 11.02.20 12:26, Will Deacon wrote:
 > KSM or swapping out), so all we'd probably want at the moment is to be
 > able to return an error back from arch_make_page_accessible(). Its return
 > code is ignored in this patch :/
+> 
+> One thing I don't grok about the ultravisor encryption is how it avoids
+> replay attacks when paging back in. For example, if the host is compromised
+> and replaces the page contents with an old encrypted value. Are you storing
+> per-page metadata somewhere to ensure "freshness" of the encrypted data?
 
-I think there are two ways at the moment. One is to keep the memory away from
-Linux, e.g. by using the memory as device driver memory like kmalloc. This is
-kind of what Power does. And I understand you as you want to follow that model
-and do not want to use paging, file backing or so.
-Our approach tries to fully integrate into the existing Linux LRU methods.
-
-Back to your approach. What happens when a malicious QEMU would start direct I/O
-on such isolated memory? Is that what you meant by adding error checking in these
-hooks. For the gup.c code returning an error seems straightforward.
-
-I have no idea what to do in writeback. When somebody managed to trigger writeback
-on such a page, it already seems too late. 
+Cant talk about the others, but on s390 the ultravisor stores counter,
+tweak, address and hashing information. No replay or page exchange within
+the guest is possible. (We can move the guest content to a different host
+page though be using the export/import as this will revalidate the 
+correctness from the guest point of view)
