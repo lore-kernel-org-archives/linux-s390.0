@@ -1,147 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5274 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727592AbgBTKkc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:32 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 06/37] s390/mm: add (non)secure page access exceptions handlers
-Date: Thu, 20 Feb 2020 05:39:49 -0500
-Message-Id: <20200220104020.5343-7-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:33027 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728918AbgBKU0n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Feb 2020 15:26:43 -0500
+Date: Tue, 11 Feb 2020 13:26:40 -0700
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: Re: -Wtautological-constant-compare in arch/s390/include/asm/page.h
+Message-ID: <20200211202640.GA12483@ubuntu-m2-xlarge-x86>
+References: <20200208125714.GA9164@ubuntu-x2-xlarge-x86>
+ <1f54ae4c-8748-496b-0833-80749d8d4f6c@de.ibm.com>
+ <your-ad-here.call-01581426089-ext-6170@work.hours>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <your-ad-here.call-01581426089-ext-6170@work.hours>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org, Janosch Frank <frankja@linux.ibm.com>
+To: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On Tue, Feb 11, 2020 at 02:01:29PM +0100, Vasily Gorbik wrote:
+> On Mon, Feb 10, 2020 at 08:55:46AM +0100, Christian Borntraeger wrote:
+> > 
+> > 
+> > On 08.02.20 13:57, Nathan Chancellor wrote:
+> > > Hi all,
+> > > 
+> > > We noticed that you all added support for building s390 with clang,
+> > > which is great! I have noticed a few warnings for which I will send
+> > > patches but this one has me stumped.
+> > > 
+> > > In file included from ../lib/crypto/sha256.c:16:
+> > > In file included from ../include/linux/module.h:13:
+> > > In file included from ../include/linux/stat.h:19:
+> > > In file included from ../include/linux/time.h:6:
+> > > In file included from ../include/linux/seqlock.h:36:
+> > > In file included from ../include/linux/spinlock.h:51:
+> > > In file included from ../include/linux/preempt.h:78:
+> > > In file included from ../arch/s390/include/asm/preempt.h:6:
+> > > In file included from ../include/linux/thread_info.h:38:
+> > > In file included from ../arch/s390/include/asm/thread_info.h:26:
+> > > ../arch/s390/include/asm/page.h:45:6: warning: converting the result of '<<' to a boolean always evaluates to false [-Wtautological-constant-compare]
+> > >         if (PAGE_DEFAULT_KEY)
+> > >             ^
+> > > ../arch/s390/include/asm/page.h:23:44: note: expanded from macro 'PAGE_DEFAULT_KEY'
+> > > #define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
+> > >                                                   ^
+> > > 1 warning generated.
+> 
+> This warning only shows up for the decompressor code and purgatory which
+> have separate set of build flags not derived from top level KBUILD_CFLAGS.
+> For the rest of the code this warning is suppressed by:
+> Makefile:
+>  740 ifdef CONFIG_CC_IS_CLANG
+> ...
+>  744 # Quiet clang warning: comparison of unsigned expression < 0 is always false
+>  745 KBUILD_CFLAGS += -Wno-tautological-compare
+> 
+> At the same time both decompressor and purgatory Makefiles include
+> CLANG_FLAGS into their CFLAGS. And this -Wno-tautological-compare is
+> clang specific. So I believe this option belongs to CLANG_FLAGS
+> rather than being included into KBUILD_CFLAGS under ifdef
+> CONFIG_CC_IS_CLANG. But this raises question about other clang
+> specific options inside that ifdef CONFIG_CC_IS_CLANG. Should they all
+> be made part of CLANG_FLAGS?
 
-Add exceptions handlers performing transparent transition of non-secure
-pages to secure (import) upon guest access and secure pages to
-non-secure (export) upon hypervisor access.
+Hi Vasily,
 
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-[frankja@linux.ibm.com: adding checks for failures]
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[imbrenda@linux.ibm.com:  adding a check for gmap fault]
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kernel/pgm_check.S |  4 +-
- arch/s390/mm/fault.c         | 78 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 80 insertions(+), 2 deletions(-)
+I am trying to turn on -Wtautological-compare for the kernel as a whole,
+hence me trying to deal with this one now :) That flag controls a bunch
+of useful subwarnings that can point out potentially problematic code.
 
-diff --git a/arch/s390/kernel/pgm_check.S b/arch/s390/kernel/pgm_check.S
-index eee3a482195a..2c27907a5ffc 100644
---- a/arch/s390/kernel/pgm_check.S
-+++ b/arch/s390/kernel/pgm_check.S
-@@ -78,8 +78,8 @@ PGM_CHECK(do_dat_exception)		/* 39 */
- PGM_CHECK(do_dat_exception)		/* 3a */
- PGM_CHECK(do_dat_exception)		/* 3b */
- PGM_CHECK_DEFAULT			/* 3c */
--PGM_CHECK_DEFAULT			/* 3d */
--PGM_CHECK_DEFAULT			/* 3e */
-+PGM_CHECK(do_secure_storage_access)	/* 3d */
-+PGM_CHECK(do_non_secure_storage_access)	/* 3e */
- PGM_CHECK_DEFAULT			/* 3f */
- PGM_CHECK(monitor_event_exception)	/* 40 */
- PGM_CHECK_DEFAULT			/* 41 */
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 7b0bb475c166..7bd86ebc882f 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -38,6 +38,7 @@
- #include <asm/irq.h>
- #include <asm/mmu_context.h>
- #include <asm/facility.h>
-+#include <asm/uv.h>
- #include "../kernel/entry.h"
- 
- #define __FAIL_ADDR_MASK -4096L
-@@ -816,3 +817,80 @@ static int __init pfault_irq_init(void)
- early_initcall(pfault_irq_init);
- 
- #endif /* CONFIG_PFAULT */
-+
-+#if IS_ENABLED(CONFIG_PGSTE)
-+void do_secure_storage_access(struct pt_regs *regs)
-+{
-+	unsigned long addr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
-+	struct page *page;
-+	int rc;
-+
-+	switch (get_fault_type(regs)) {
-+	case USER_FAULT:
-+		mm = current->mm;
-+		down_read(&mm->mmap_sem);
-+		vma = find_vma(mm, addr);
-+		if (!vma) {
-+			up_read(&mm->mmap_sem);
-+			do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+			break;
-+		}
-+		page = follow_page(vma, addr, FOLL_WRITE | FOLL_GET);
-+		if (IS_ERR_OR_NULL(page)) {
-+			up_read(&mm->mmap_sem);
-+			break;
-+		}
-+		if (arch_make_page_accessible(page))
-+			send_sig(SIGSEGV, current, 0);
-+		put_page(page);
-+		up_read(&mm->mmap_sem);
-+		break;
-+	case KERNEL_FAULT:
-+		page = phys_to_page(addr);
-+		if (unlikely(!try_get_page(page)))
-+			break;
-+		rc = arch_make_page_accessible(page);
-+		put_page(page);
-+		if (rc)
-+			BUG();
-+		break;
-+	case VDSO_FAULT:
-+		/* fallthrough */
-+	case GMAP_FAULT:
-+		/* fallthrough */
-+	default:
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+NOKPROBE_SYMBOL(do_secure_storage_access);
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	unsigned long gaddr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct gmap *gmap = (struct gmap *)S390_lowcore.gmap;
-+
-+	if (get_fault_type(regs) != GMAP_FAULT) {
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+		return;
-+	}
-+
-+	if (gmap_convert_to_secure(gmap, gaddr) == -EINVAL)
-+		send_sig(SIGSEGV, current, 0);
-+}
-+NOKPROBE_SYMBOL(do_non_secure_storage_access);
-+
-+#else
-+void do_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+#endif
--- 
-2.25.0
+I think that it would be worth adding warnings that we want disabled in
+all code to CLANG_FLAGS but as of right now, this is the only instance
+of this warning that I see within the s390 code so it is probably just
+worth silencing with an explicit comparison (!= 0). I will send a patch
+for this later.
+
+Cheers,
+Nathan
