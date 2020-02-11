@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 433/542] s390: adjust -mpacked-stack support check for clang 10
-Date: Fri, 14 Feb 2020 10:47:05 -0500
-Message-Id: <20200214154854.6746-433-sashal@kernel.org>
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39942 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728276AbgBKK0U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 11 Feb 2020 05:26:20 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01BAIiZ0071463
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 05:26:18 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y1tne33bn-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 05:26:18 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 11 Feb 2020 10:26:16 -0000
+Subject: Re: [PATCH 1/1] cio_ignore_proc_seq_next should increase position
+ index
+References: <d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 11 Feb 2020 11:26:12 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <818b8989-4294-b5fb-d2d5-da3f2c0b903c@de.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com
+To: Vasily Averin <vvs@virtuozzo.com>, linux-s390@vger.kernel.org
+Cc: Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On 24.01.20 06:48, Vasily Averin wrote:
+> if seq_file .next fuction does not change position index,
+> read after some lseek can generate unexpected output.
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=206283
+> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 253b3c4b2920e07ce9e2b18800b9b65245e2fafa ]
-
-clang 10 introduces -mpacked-stack compiler option implementation. At the
-same time currently it does not support a combination of -mpacked-stack
-and -mbackchain. This leads to the following build error:
-
-clang: error: unsupported option '-mpacked-stack with -mbackchain' for
-target 's390x-ibm-linux'
-
-If/when clang adds support for a combination of -mpacked-stack and
--mbackchain it would also require -msoft-float (like gcc does). According
-to Ulrich Weigand "stack slot assigned to the kernel backchain overlaps
-the stack slot assigned to the FPR varargs (both are required to be
-placed immediately after the saved r15 slot if present)."
-
-Extend -mpacked-stack compiler option support check to include all 3
-options -mpacked-stack -mbackchain -msoft-float which must present to
-support -mpacked-stack with -mbackchain.
-
-Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index ba8556bb0fb15..e0e3a465bbfd6 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -69,7 +69,7 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
- #
- cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
- 
--ifeq ($(call cc-option-yn,-mpacked-stack),y)
-+ifeq ($(call cc-option-yn,-mpacked-stack -mbackchain -msoft-float),y)
- cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
- aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
- endif
--- 
-2.20.1
+thanks applied. 
+> ---
+>  drivers/s390/cio/blacklist.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+> index 2a3f874..9cebff8 100644
+> --- a/drivers/s390/cio/blacklist.c
+> +++ b/drivers/s390/cio/blacklist.c
+> @@ -303,8 +303,10 @@ struct ccwdev_iter {
+>  cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+>  {
+>  	struct ccwdev_iter *iter;
+> +	loff_t p = *offset;
+>  
+> -	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+> +	(*offset)++;
+> +	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+>  		return NULL;
+>  	iter = it;
+>  	if (iter->devno == __MAX_SUBCHANNEL) {
+> @@ -314,7 +316,6 @@ struct ccwdev_iter {
+>  			return NULL;
+>  	} else
+>  		iter->devno++;
+> -	(*offset)++;
+>  	return iter;
+>  }
+>  
+> 
