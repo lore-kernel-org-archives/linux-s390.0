@@ -1,86 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57428 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4354 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727046AbgBTKk3 (ORCPT
+        by vger.kernel.org with ESMTP id S1727762AbgBKUGU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:29 -0500
+        Tue, 11 Feb 2020 15:06:20 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01BK5N6i037498
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 15:06:19 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y38gymd78-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 11 Feb 2020 15:06:18 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 11 Feb 2020 20:06:17 -0000
+Subject: Re: [PATCH 16/35] KVM: s390: protvirt: Add SCLP interrupt handling
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-17-borntraeger@de.ibm.com>
+ <dbeb32f7-7cf5-ad93-fb79-94d4ac7e3d8c@redhat.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 14/37] KVM: s390: protvirt: Instruction emulation
-Date: Thu, 20 Feb 2020 05:39:57 -0500
-Message-Id: <20200220104020.5343-15-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Date: Tue, 11 Feb 2020 21:06:12 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <dbeb32f7-7cf5-ad93-fb79-94d4ac7e3d8c@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <56e8d455-d5f1-4fb2-38ee-052cc1abc8a0@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
 
-We have two new SIE exit codes dealing with instructions.
-104 (0x68) for a secure instruction interception, on which the SIE needs
-hypervisor action to complete the instruction. We can piggy-back on the
-existing instruction handlers.
 
-108 which is merely a notification and provides data for tracking and
-management. For example this is used to tell the host about a new value
-for the prefix register. As there will be several special case handlers
-in later patches, we handle this in a separate function.
+On 11.02.20 13:00, Thomas Huth wrote:
+[...]
+>> +
+>> +static int write_sclp(struct kvm_vcpu *vcpu, u32 parm)
+>> +{
+>> +	int rc;
+>> +
+>> +	if (kvm_s390_pv_handle_cpu(vcpu)) {
+>> +		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
+>> +		vcpu->arch.sie_block->eic = EXT_IRQ_SERVICE_SIG;
+>> +		vcpu->arch.sie_block->eiparams = parm;
+>> +		return 0;
+>> +	}
+>> +
+>> +	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
+>> +	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
+>> +	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
+>> +			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+>> +	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
+>> +			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
+>> +	rc |= put_guest_lc(vcpu, parm,
+>> +			   (u32 *)__LC_EXT_PARAMS);
+>> +	return rc;
+> 
+> I think it would be nicer to move the "return rc ? -EFAULT : 0;" here
+> instead of using it in the __deliver_service* functions...
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/intercept.c        | 11 +++++++++++
- 2 files changed, 13 insertions(+)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index fdc6ceff6397..c6694f47b73b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
- #define ICPT_KSS	0x5c
- #define ICPT_MCHKREQ	0x60
- #define ICPT_INT_ENABLE	0x64
-+#define ICPT_PV_INSTR	0x68
-+#define ICPT_PV_NOTIFY	0x6c
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 6aeb4b36042c..6fdbac696f65 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
- 
-+static int handle_pv_notification(struct kvm_vcpu *vcpu)
-+{
-+	return handle_instruction(vcpu);
-+}
-+
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- {
- 	int rc, per_rc = 0;
-@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		 */
- 		rc = 0;
- 		break;
-+	case ICPT_PV_INSTR:
-+		rc = handle_instruction(vcpu);
-+		break;
-+	case ICPT_PV_NOTIFY:
-+		rc = handle_pv_notification(vcpu);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
--- 
-2.25.0
+ack. That would also allow to get rid of rc in the deliver functions.
