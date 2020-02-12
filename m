@@ -1,218 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:53353 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727041AbgBLMj3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Feb 2020 07:39:29 -0500
-Date: Wed, 12 Feb 2020 13:39:08 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 RFC] KVM: s390/interrupt: do not pin adapter
- interrupt pages
-Message-ID: <20200212133908.6c6c9072.cohuck@redhat.com>
-In-Reply-To: <20200211092341.3965-1-borntraeger@de.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49812 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726351AbgBLMXB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Feb 2020 07:23:01 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01CCJdEp089841
+        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2020 07:23:00 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y1u2g8gv2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2020 07:23:00 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Wed, 12 Feb 2020 12:22:57 -0000
+Subject: Re: [PATCH v2 RFC] KVM: s390/interrupt: do not pin adapter interrupt
+ pages
 References: <567B980B-BDA5-4EF3-A96E-1542D11F2BD4@redhat.com>
-        <20200211092341.3965-1-borntraeger@de.ibm.com>
+ <20200211092341.3965-1-borntraeger@de.ibm.com>
+ <01d1c188-38fb-e405-83d7-6184adccba5a@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 12 Feb 2020 13:22:52 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <01d1c188-38fb-e405-83d7-6184adccba5a@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <b72359a7-fb4b-6862-33e2-5cba9d48ab56@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: david@redhat.com, Ulrich.Weigand@de.ibm.com, aarcange@redhat.com, akpm@linux-foundation.org, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+To: David Hildenbrand <david@redhat.com>
+Cc: Ulrich.Weigand@de.ibm.com, aarcange@redhat.com, akpm@linux-foundation.org, cohuck@redhat.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com, "dgilbert@redhat.com" <dgilbert@redhat.com>
 
-On Tue, 11 Feb 2020 04:23:41 -0500
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-> From: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+
+On 12.02.20 13:16, David Hildenbrand wrote:
 > 
-> The adapter interrupt page containing the indicator bits is currently
-> pinned. That means that a guest with many devices can pin a lot of
-> memory pages in the host. This also complicates the reference tracking
-> which is needed for memory management handling of protected virtual
-> machines.
-> We can simply try to get the userspace page set the bits and free the
-> page. By storing the userspace address in the irq routing entry instead
-> of the guest address we can actually avoid many lookups and list walks
-> so that this variant is very likely not slower.
+>> +	/*
+>> +	 * We resolve the gpa to hva when setting the IRQ routing. If userspace
+>> +	 * decides to mess with the memslots it better also updates the irq
+>> +	 * routing. Otherwise we will write to the wrong userspace address.
+>> +	 */
 > 
-> Signed-off-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-> [borntraeger@de.ibm.com: patch simplification]
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
-> quick and dirty, how this could look like
+> I guess this is just as old handling, where a page was pinned. But
+> slightly better :) So the pages are definitely part of guest memory.
 > 
+> Fun stuff: If (a nasty) guest (in current code) zappes this page using
+> balloon inflation and the page is re-accessed (e.g., by the guest or by
+> the host), a new page will be faulted in, and there will be an
+> inconsistency between what the guest/user space sees and what this code
+> sees. Going via the user space address looks cleaner.
 > 
->  arch/s390/include/asm/kvm_host.h |   3 -
->  arch/s390/kvm/interrupt.c        | 146 +++++++++++--------------------
->  2 files changed, 49 insertions(+), 100 deletions(-)
+> Now, with postcopy live migration, we will also zap all guest memory
+> before starting the guest, I do wonder if that produces a similar
+> inconsistency ... usually, when pages are pinned in the kernel, we
+> inhibit the balloon and implicitly also postcopy.
 > 
+> If so, this actually fixes an issue. But might depend on the order
+> things are initialized in user space. Or I am messing up things :)
 
-(...)
+Yes, the current code has some corner cases where a guest can shoot himself
+in the foot. This variant could actually be safer. 
+> 
+> [...]
+> 
+>>  static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
+>>  {
+>> -	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
+>> -	struct s390_map_info *map, *tmp;
+>> -	int found = 0;
+>> -
+>> -	if (!adapter || !addr)
+>> -		return -EINVAL;
+>> -
+>> -	down_write(&adapter->maps_lock);
+>> -	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
+>> -		if (map->guest_addr == addr) {
+>> -			found = 1;
+>> -			atomic_dec(&adapter->nr_maps);
+>> -			list_del(&map->list);
+>> -			put_page(map->page);
+>> -			kfree(map);
+>> -			break;
+>> -		}
+>> -	}
+>> -	up_write(&adapter->maps_lock);
+>> -
+>> -	return found ? 0 : -EINVAL;
+>> +	return 0;
+> 
+> Can we get rid of this function?
 
-> @@ -2488,83 +2485,26 @@ int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked)
->  
->  static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
->  {
-> -	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-> -	struct s390_map_info *map;
-> -	int ret;
-> -
-> -	if (!adapter || !addr)
-> -		return -EINVAL;
-> -
-> -	map = kzalloc(sizeof(*map), GFP_KERNEL);
-> -	if (!map) {
-> -		ret = -ENOMEM;
-> -		goto out;
-> -	}
-> -	INIT_LIST_HEAD(&map->list);
-> -	map->guest_addr = addr;
-> -	map->addr = gmap_translate(kvm->arch.gmap, addr);
-> -	if (map->addr == -EFAULT) {
-> -		ret = -EFAULT;
-> -		goto out;
-> -	}
-> -	ret = get_user_pages_fast(map->addr, 1, FOLL_WRITE, &map->page);
-> -	if (ret < 0)
-> -		goto out;
-> -	BUG_ON(ret != 1);
-> -	down_write(&adapter->maps_lock);
-> -	if (atomic_inc_return(&adapter->nr_maps) < MAX_S390_ADAPTER_MAPS) {
-> -		list_add_tail(&map->list, &adapter->maps);
-> -		ret = 0;
-> -	} else {
-> -		put_page(map->page);
-> -		ret = -EINVAL;
-> +	/*
-> +	 * We resolve the gpa to hva when setting the IRQ routing. If userspace
-> +	 * decides to mess with the memslots it better also updates the irq
-> +	 * routing. Otherwise we will write to the wrong userspace address.
-> +	 */
-> +	return 0;
+And do a return in the handler? maybe yes. Will have a look.
+> 
+>>  }
+> 
+>> +static struct page *get_map_page(struct kvm *kvm,
+>> +				 struct s390_io_adapter *adapter,
+>> +				 u64 uaddr)
+>>  {
+>> -	struct s390_map_info *map;
+>> +	struct page *page;
+>> +	int ret;
+>>  
+>>  	if (!adapter)
+>>  		return NULL;
+>> -
+>> -	list_for_each_entry(map, &adapter->maps, list) {
+>> -		if (map->guest_addr == addr)
+>> -			return map;
+>> -	}
+>> -	return NULL;
+>> +	page = NULL;
+> 
+> struct page *page = NULL;
+> 
+>> +	if (!uaddr)
+>> +		return NULL;
+>> +	down_read(&kvm->mm->mmap_sem);
+>> +	ret = get_user_pages_remote(NULL, kvm->mm, uaddr, 1, FOLL_WRITE,
+>> +				    &page, NULL, NULL);
+>> +	if (ret < 1)
+>> +		page = NULL;
+> 
+> Is that really necessary? According to the doc, pinned pages are stored
+> to the array.  ret < 1 means "no pages" were pinned, so nothing should
+> be stored.
 
-Given that this function now always returns 0, we basically get a
-completely useless roundtrip into the kernel when userspace is trying
-to setup the mappings.
-
-Can we define a new IO_ADAPTER_MAPPING_NOT_NEEDED or so capability that
-userspace can check?
-
-This change in behaviour probably wants a change in the documentation
-as well.
-
->  	}
-> -	up_write(&adapter->maps_lock);
-> -out:
-> -	if (ret)
-> -		kfree(map);
-> -	return ret;
-> -}
->  
->  static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
->  {
-> -	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
-> -	struct s390_map_info *map, *tmp;
-> -	int found = 0;
-> -
-> -	if (!adapter || !addr)
-> -		return -EINVAL;
-> -
-> -	down_write(&adapter->maps_lock);
-> -	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
-> -		if (map->guest_addr == addr) {
-> -			found = 1;
-> -			atomic_dec(&adapter->nr_maps);
-> -			list_del(&map->list);
-> -			put_page(map->page);
-> -			kfree(map);
-> -			break;
-> -		}
-> -	}
-> -	up_write(&adapter->maps_lock);
-> -
-> -	return found ? 0 : -EINVAL;
-> +	return 0;
-
-Same here.
-
->  }
->  
->  void kvm_s390_destroy_adapters(struct kvm *kvm)
->  {
->  	int i;
-> -	struct s390_map_info *map, *tmp;
->  
->  	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++) {
->  		if (!kvm->arch.adapters[i])
->  			continue;
-> -		list_for_each_entry_safe(map, tmp,
-> -					 &kvm->arch.adapters[i]->maps, list) {
-> -			list_del(&map->list);
-> -			put_page(map->page);
-> -			kfree(map);
-> -		}
->  		kfree(kvm->arch.adapters[i]);
-
-Call kfree() unconditionally?
-
->  	}
->  }
-> @@ -2831,19 +2771,25 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
->  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
->  }
->  
-> -static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
-> -					  u64 addr)
-> +static struct page *get_map_page(struct kvm *kvm,
-> +				 struct s390_io_adapter *adapter,
-> +				 u64 uaddr)
->  {
-> -	struct s390_map_info *map;
-> +	struct page *page;
-> +	int ret;
->  
->  	if (!adapter)
->  		return NULL;
-> -
-> -	list_for_each_entry(map, &adapter->maps, list) {
-> -		if (map->guest_addr == addr)
-> -			return map;
-> -	}
-> -	return NULL;
-> +	page = NULL;
-> +	if (!uaddr)
-> +		return NULL;
-> +	down_read(&kvm->mm->mmap_sem);
-> +	ret = get_user_pages_remote(NULL, kvm->mm, uaddr, 1, FOLL_WRITE,
-> +				    &page, NULL, NULL);
-> +	if (ret < 1)
-> +		page = NULL;
-> +	up_read(&kvm->mm->mmap_sem);
-> +	return page;
->  }
->  
->  static int adapter_indicators_set(struct kvm *kvm,
-
-(...)
-
-> @@ -2951,12 +2900,15 @@ int kvm_set_routing_entry(struct kvm *kvm,
->  			  const struct kvm_irq_routing_entry *ue)
->  {
->  	int ret;
-> +	u64 uaddr;
->  
->  	switch (ue->type) {
->  	case KVM_IRQ_ROUTING_S390_ADAPTER:
->  		e->set = set_adapter_int;
-> -		e->adapter.summary_addr = ue->u.adapter.summary_addr;
-> -		e->adapter.ind_addr = ue->u.adapter.ind_addr;
-> +		uaddr =  gmap_translate(kvm->arch.gmap, ue->u.adapter.summary_addr);
-
-Can gmap_translate() return -EFAULT here? The code above only seems to
-check for 0... do we want to return an error here?
-
-> +		e->adapter.summary_addr = uaddr;
-> +		uaddr =  gmap_translate(kvm->arch.gmap, ue->u.adapter.ind_addr);
-> +		e->adapter.ind_addr = uaddr;
->  		e->adapter.summary_offset = ue->u.adapter.summary_offset;
->  		e->adapter.ind_offset = ue->u.adapter.ind_offset;
->  		e->adapter.adapter_id = ue->u.adapter.adapter_id;
+Probably. Will have a look.
