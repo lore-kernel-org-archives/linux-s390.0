@@ -1,130 +1,209 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22400 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58308 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727049AbgBGLkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 07/35] KVM: s390: add new variants of UV CALL
-Date: Fri,  7 Feb 2020 06:39:30 -0500
-Message-Id: <20200207113958.7320-8-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
+        by vger.kernel.org with ESMTP id S1727279AbgBLQhF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Feb 2020 11:37:05 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01CGZPfv086317
+        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2020 11:37:04 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y4bp9enc6-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2020 11:37:03 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Wed, 12 Feb 2020 16:37:02 -0000
+Subject: Re: [PATCH 35/35] DOCUMENTATION: Protected virtual machine
+ introduction and IPL
 References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-36-borntraeger@de.ibm.com>
+ <20200212120104.106e8ce2.cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 12 Feb 2020 17:36:56 +0100
 MIME-Version: 1.0
+In-Reply-To: <20200212120104.106e8ce2.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Message-Id: <5928cacb-8f4b-c865-32f6-c478db68e330@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
 
-This add 2 new variants of the UV CALL.
 
-The first variant handles UV CALLs that might have longer busy
-conditions or just need longer when doing partial completion. We should
-schedule when necessary.
+On 12.02.20 12:01, Cornelia Huck wrote:
+> On Fri,  7 Feb 2020 06:39:58 -0500
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> From: Janosch Frank <frankja@linux.ibm.com>
+>>
+>> Add documentation about protected KVM guests and description of changes
+>> that are necessary to move a KVM VM into Protected Virtualization mode.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> [borntraeger@de.ibm.com: fixing and conversion to rst]
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>  Documentation/virt/kvm/index.rst        |   2 +
+>>  Documentation/virt/kvm/s390-pv-boot.rst |  79 ++++++++++++++++
+>>  Documentation/virt/kvm/s390-pv.rst      | 116 ++++++++++++++++++++++++
+>>  MAINTAINERS                             |   1 +
+>>  4 files changed, 198 insertions(+)
+>>  create mode 100644 Documentation/virt/kvm/s390-pv-boot.rst
+>>  create mode 100644 Documentation/virt/kvm/s390-pv.rst
+>>
+> (...)
+>> diff --git a/Documentation/virt/kvm/s390-pv-boot.rst b/Documentation/virt/kvm/s390-pv-boot.rst
+>> new file mode 100644
+>> index 000000000000..47814e53369a
+>> --- /dev/null
+>> +++ b/Documentation/virt/kvm/s390-pv-boot.rst
+>> @@ -0,0 +1,79 @@
+>> +.. SPDX-License-Identifier: GPL-2.0
+>> +
+>> +======================================
+>> +s390 (IBM Z) Boot/IPL of Protected VMs
+>> +======================================
+>> +
+>> +Summary
+>> +-------
+>> +Protected Virtual Machines (PVM) are not accessible by I/O or the
+>> +hypervisor.  When the hypervisor wants to access the memory of PVMs
+>> +the memory needs to be made accessible. When doing so, the memory will
+>> +be encrypted.  See :doc:`s390-pv` for details.
+> 
+> Maybe
+> 
+> "The memory of Protected Virtual Machines (PVMs) is not accessible to
+> I/O or the hypervisor. In those cases where the hypervisor needs to
+> access the memory of a PVM, that memory must be made accessible. Memory
+> made accessible to the hypervisor will be encrypted. See :doc:`s390-pv`
+> for details."
 
-The second variant handles UV CALLs that only need the handle but have
-no payload (e.g. destroying a VM). We can provide a simple wrapper for
-those.
+looks good.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/uv.h | 59 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+> 
+> ?
+> 
+>> +
+>> +On IPL a small plaintext bootloader is started which provides
+> 
+> "On IPL (boot), a small plaintext bootloader is started, which..."
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 1b97230a57ba..e1cef772fde1 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -14,6 +14,7 @@
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/bug.h>
-+#include <linux/sched.h>
- #include <asm/page.h>
- #include <asm/gmap.h>
- 
-@@ -91,6 +92,19 @@ struct uv_cb_cfs {
- 	u64 paddr;
- } __packed __aligned(8);
- 
-+/*
-+ * A common UV call struct for calls that take no payload
-+ * Examples:
-+ * Destroy cpu/config
-+ * Verify
-+ */
-+struct uv_cb_nodata {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 handle;
-+	u64 reserved20[4];
-+} __packed __aligned(8);
-+
- struct uv_cb_share {
- 	struct uv_cb_header header;
- 	u64 reserved08[3];
-@@ -98,6 +112,31 @@ struct uv_cb_share {
- 	u64 reserved28;
- } __packed __aligned(8);
- 
-+/*
-+ * Low level uv_call that takes r1 and r2 as parameter and avoids
-+ * stalls for long running busy conditions by doing schedule
-+ */
-+static inline int uv_call_sched(unsigned long r1, unsigned long r2)
-+{
-+	int cc;
-+
-+	do {
-+		asm volatile(
-+			"0:	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
-+			"		ipm	%[cc]\n"
-+			"		srl	%[cc],28\n"
-+			: [cc] "=d" (cc)
-+			: [r1] "d" (r1), [r2] "d" (r2)
-+			: "memory", "cc");
-+		if (need_resched())
-+			schedule();
-+	} while (cc > 1);
-+	return cc;
-+}
-+
-+/*
-+ * Low level uv_call that takes r1 and r2 as parameter
-+ */
- static inline int uv_call(unsigned long r1, unsigned long r2)
- {
- 	int cc;
-@@ -113,6 +152,26 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
- 
-+/*
-+ * special variant of uv_call that only transports the cpu or guest
-+ * handle and the command, like destroy or verify.
-+ */
-+static inline int uv_cmd_nodata(u64 handle, u16 cmd, u32 *ret)
-+{
-+	int rc;
-+	struct uv_cb_nodata uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.handle = handle,
-+	};
-+
-+	WARN(!handle, "No handle provided to Ultravisor call cmd %x\n", cmd);
-+	rc = uv_call_sched(0, (u64)&uvcb);
-+	if (ret)
-+		*ret = *(u32 *)&uvcb.header.rc;
-+	return rc ? -EINVAL : 0;
-+}
-+
- struct uv_info {
- 	unsigned long inst_calls_list[4];
- 	unsigned long uv_base_stor_len;
--- 
-2.24.0
+ok
+
+
+> 
+> ?
+> 
+>> +information about the encrypted components and necessary metadata to
+>> +KVM to decrypt the protected virtual machine.
+> 
+> (...)
+> 
+>> +Diag308
+>> +-------
+>> +This diagnose instruction is the basis for VM IPL. The VM can set and
+> 
+> "This diagnose instruction is the basic mechanism to handle IPL and
+> related operations for virtual machines." ?
+
+
+ok
+
+
+> 
+>> +retrieve IPL information blocks, that specify the IPL method/devices
+>> +and request VM memory and subsystem resets, as well as IPLs.
+>> +
+>> +For PVs this concept has been extended with new subcodes:
+> 
+> s/For PVs/For PVMs,/
+
+ok
+> 
+> (...)
+> 
+>> +When running in protected mode some subcodes will result in exceptions
+> 
+> s/When running in protected mode/When running in protected virtualization mode,/
+> 
+ok
+
+> ?
+> 
+>> +or return error codes.
+>> +
+>> +Subcodes 4 and 7 will result in specification exceptions as they would
+>> +not clear out the guest memory.
+>> +When removing a secure VM, the UV will clear all memory, so we can't
+>> +have non-clearing IPL subcodes.
+> 
+> "Subcodes 4 and 7, which specify operations that do not clear the guest
+> memory, will result in specification exceptions. This is because the UV
+> will clear all memory when a secure VM is removed, and therefore
+> non-clearing IPL subcodes are not allowed."
+
+ok
+
+
+> 
+> ?
+> 
+> (...)
+>> diff --git a/Documentation/virt/kvm/s390-pv.rst b/Documentation/virt/kvm/s390-pv.rst
+>> new file mode 100644
+>> index 000000000000..dbe9110dfd1e
+>> --- /dev/null
+>> +++ b/Documentation/virt/kvm/s390-pv.rst
+>> @@ -0,0 +1,116 @@
+>> +.. SPDX-License-Identifier: GPL-2.0
+>> +
+>> +=========================================
+>> +s390 (IBM Z) Ultravisor and Protected VMs
+>> +=========================================
+>> +
+>> +Summary
+>> +-------
+>> +Protected virtual machines (PVM) are KVM VMs, where KVM can't access
+>> +the VM's state like guest memory and guest registers anymore. Instead,
+> 
+> "...are KVM VMs that do not allow KVM to access VM state like guest
+> memory or guest registers."
+> 
+> ?
+> 
+> (...)
+> 
+>> +The Interception Parameters state description field still contains the
+>> +the bytes of the instruction text, but with pre-set register values
+>> +instead of the actual ones. I.e. each instruction always uses the same
+>> +instruction text, in order not to leak guest instruction text.
+>> +This also implies that the register content that a guest had in r<n>
+>> +may be in r<m> from the hypervisors point of view.
+> 
+> s/hypervisors/hypervisor's/
+
+ack.
+
+> 
+>> +
+>> +The Secure Instruction Data Area contains instruction storage
+>> +data. Instruction data, i.e. data being referenced by an instruction
+>> +like the SCCB for sclp, is moved over the SIDA. When an instruction is
+> 
+> s/over/via/ ?
+
+ack
+> 
+>> +intercepted, the SIE will only allow data and program interrupts for
+>> +this instruction to be moved to the guest via the two data areas
+>> +discussed before. Other data is either ignored or results in validity
+>> +interceptions.
+> 
+> (...)
+> 
