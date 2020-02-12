@@ -1,87 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5582 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728158AbgBNW1q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:46 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 42/42] KVM: s390: rstify new ioctls in api.rst
-Date: Fri, 14 Feb 2020 17:26:58 -0500
-Message-Id: <20200214222658.12946-43-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:37941 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728483AbgBLIEk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 12 Feb 2020 03:04:40 -0500
+Date: Wed, 12 Feb 2020 13:34:37 +0530
+From: afzal mohammed <afzal.mohd.ma@gmail.com>
+Subject: [PATCH 11/18] s390: replace setup_irq() by request_irq()
+Message-ID: <30f6d47f87ec794ea3fb91387d43d19016fa10bc.1581478324.git.afzal.mohd.ma@gmail.com>
+References: <cover.1581478323.git.afzal.mohd.ma@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1581478323.git.afzal.mohd.ma@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 
-We also need to rstify the new ioctls that we added in parallel to the
-rstification of the kvm docs.
+request_irq() is preferred over setup_irq(). Existing callers of
+setup_irq() reached mostly via 'init_IRQ()' & 'time_init()', while
+memory allocators are ready by 'mm_init()'.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Per tglx[1], setup_irq() existed in olden days when allocators were not
+ready by the time early interrupts were initialized.
+
+Hence replace setup_irq() by request_irq().
+
+Seldom remove_irq() usage has been observed coupled with setup_irq(),
+wherever that has been found, it too has been replaced by free_irq().
+
+[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+
+Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
 ---
- Documentation/virt/kvm/api.rst | 33 ++++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index a82166e5f7d9..89e9c34bc5d3 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -4613,35 +4613,38 @@ unpins the VPA pages and releases all the device pages that are used to
- track the secure pages by hypervisor.
+Since cc'ing cover letter to all maintainers/reviewers would be too
+many, refer for cover letter,
+ https://lkml.kernel.org/r/cover.1581478323.git.afzal.mohd.ma@gmail.com
+
+ arch/s390/kernel/irq.c  | 8 ++------
+ drivers/s390/cio/airq.c | 8 ++------
+ drivers/s390/cio/cio.c  | 8 ++------
+ 3 files changed, 6 insertions(+), 18 deletions(-)
+
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index 8371855042dc..6dd90e8d4e3a 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -294,11 +294,6 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
+ 	return IRQ_HANDLED;
+ }
  
- 4.122 KVM_S390_NORMAL_RESET
-+---------------------------
+-static struct irqaction external_interrupt = {
+-	.name	 = "EXT",
+-	.handler = do_ext_interrupt,
+-};
+-
+ void __init init_ext_interrupts(void)
+ {
+ 	int idx;
+@@ -308,7 +303,8 @@ void __init init_ext_interrupts(void)
  
--Capability: KVM_CAP_S390_VCPU_RESETS
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: KVM_CAP_S390_VCPU_RESETS
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
+ 	irq_set_chip_and_handler(EXT_INTERRUPT,
+ 				 &dummy_irq_chip, handle_percpu_irq);
+-	setup_irq(EXT_INTERRUPT, &external_interrupt);
++	if (request_irq(EXT_INTERRUPT, do_ext_interrupt, 0, "EXT", NULL))
++		pr_err("request_irq() on %s failed\n", "EXT");
+ }
  
- This ioctl resets VCPU registers and control structures according to
- the cpu reset definition in the POP (Principles Of Operation).
+ static DEFINE_SPINLOCK(irq_subclass_lock);
+diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
+index 427b2e24a8ce..773208a3bb68 100644
+--- a/drivers/s390/cio/airq.c
++++ b/drivers/s390/cio/airq.c
+@@ -105,16 +105,12 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
+ 	return IRQ_HANDLED;
+ }
  
- 4.123 KVM_S390_INITIAL_RESET
-+----------------------------
+-static struct irqaction airq_interrupt = {
+-	.name	 = "AIO",
+-	.handler = do_airq_interrupt,
+-};
+-
+ void __init init_airq_interrupts(void)
+ {
+ 	irq_set_chip_and_handler(THIN_INTERRUPT,
+ 				 &dummy_irq_chip, handle_percpu_irq);
+-	setup_irq(THIN_INTERRUPT, &airq_interrupt);
++	if (request_irq(THIN_INTERRUPT, do_airq_interrupt, 0, "AIO", NULL))
++		pr_err("request_irq() on %s failed\n", "AIO");
+ }
  
--Capability: none
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: none
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
+ static inline unsigned long iv_size(unsigned long bits)
+diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
+index 18f5458f90e8..1b87e2e84007 100644
+--- a/drivers/s390/cio/cio.c
++++ b/drivers/s390/cio/cio.c
+@@ -563,16 +563,12 @@ static irqreturn_t do_cio_interrupt(int irq, void *dummy)
+ 	return IRQ_HANDLED;
+ }
  
- This ioctl resets VCPU registers and control structures according to
- the initial cpu reset definition in the POP. However, the cpu is not
- put into ESA mode. This reset is a superset of the normal reset.
+-static struct irqaction io_interrupt = {
+-	.name	 = "I/O",
+-	.handler = do_cio_interrupt,
+-};
+-
+ void __init init_cio_interrupts(void)
+ {
+ 	irq_set_chip_and_handler(IO_INTERRUPT,
+ 				 &dummy_irq_chip, handle_percpu_irq);
+-	setup_irq(IO_INTERRUPT, &io_interrupt);
++	if (request_irq(IO_INTERRUPT, do_cio_interrupt, 0, "I/O", NULL))
++		pr_err("request_irq() on %s failed\n", "I/O");
+ }
  
- 4.124 KVM_S390_CLEAR_RESET
-+--------------------------
- 
--Capability: KVM_CAP_S390_VCPU_RESETS
--Architectures: s390
--Type: vcpu ioctl
--Parameters: none
--Returns: 0
-+:Capability: KVM_CAP_S390_VCPU_RESETS
-+:Architectures: s390
-+:Type: vcpu ioctl
-+:Parameters: none
-+:Returns: 0
- 
- This ioctl resets VCPU registers and control structures according to
- the clear cpu reset definition in the POP. However, the cpu is not put
+ #ifdef CONFIG_CCW_CONSOLE
 -- 
-2.25.0
+2.24.1
