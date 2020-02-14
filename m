@@ -1,64 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:32991 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727196AbgBHOKg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 8 Feb 2020 09:10:36 -0500
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH] s390/time: Fix clk type in get_tod_clock
-Date: Sat,  8 Feb 2020 07:08:59 -0700
-Message-Id: <20200208140858.47970-1-natechancellor@gmail.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1722 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729434AbgBNVWN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 16:22:13 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01ELKa5a051039
+        for <linux-s390@vger.kernel.org>; Fri, 14 Feb 2020 16:22:12 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y4j8963n0-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 14 Feb 2020 16:22:12 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 14 Feb 2020 21:22:10 -0000
+Subject: Re: [PATCH 08/35] KVM: s390: protvirt: Add initial lifecycle handling
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-9-borntraeger@de.ibm.com>
+ <e627e0a6-b27a-7e3a-05cd-056eb49ed16e@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Fri, 14 Feb 2020 22:22:05 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <e627e0a6-b27a-7e3a-05cd-056eb49ed16e@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <c764c5c8-9e09-b980-2f85-a7860ae998a4@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-Clang warns:
 
-In file included from ../arch/s390/boot/startup.c:3:
-In file included from ../include/linux/elf.h:5:
-In file included from ../arch/s390/include/asm/elf.h:132:
-In file included from ../include/linux/compat.h:10:
-In file included from ../include/linux/time.h:74:
-In file included from ../include/linux/time32.h:13:
-In file included from ../include/linux/timex.h:65:
-../arch/s390/include/asm/timex.h:160:20: warning: passing 'unsigned char
-[16]' to parameter of type 'char *' converts between pointers to integer
-types with different sign [-Wpointer-sign]
-        get_tod_clock_ext(clk);
-                          ^~~
-../arch/s390/include/asm/timex.h:149:44: note: passing argument to
-parameter 'clk' here
-static inline void get_tod_clock_ext(char *clk)
-                                           ^
 
-Change clk's type to just be char so that it matches what happens in
-get_tod_clock_ext.
+On 14.02.20 19:39, David Hildenbrand wrote:
+> On 07.02.20 12:39, Christian Borntraeger wrote:
+>> From: Janosch Frank <frankja@linux.ibm.com>
+>>
+>> This contains 3 main changes:
+>> 1. changes in SIE control block handling for secure guests
+>> 2. helper functions for create/destroy/unpack secure guests
+>> 3. KVM_S390_PV_COMMAND ioctl to allow userspace dealing with secure
+>> machines
+[...]
+> 
+> I feel like my review comments for this patch were lost, so not
+> repeating them
 
-Fixes: 57b28f66316d ("[S390] s390_hypfs: Add new attributes")
-Link: https://github.com/ClangBuiltLinux/linux/issues/861
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
----
+Basically you only asked if we could combine vm/vcpu_create/destroy into
+enable/disable. Janosch came up with some cases regarding error handling
+where the enable/disable would be hard to do right and exposing the single
+interfaces provide some advantages.
 
-Alternatively, changing the clk type in get_tod_clock_ext to unsigned
-which is what it was in the early 2000s.
-
- arch/s390/include/asm/timex.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/timex.h b/arch/s390/include/asm/timex.h
-index 670f14a228e5..6bf3a45ccfec 100644
---- a/arch/s390/include/asm/timex.h
-+++ b/arch/s390/include/asm/timex.h
-@@ -155,7 +155,7 @@ static inline void get_tod_clock_ext(char *clk)
- 
- static inline unsigned long long get_tod_clock(void)
- {
--	unsigned char clk[STORE_CLOCK_EXT_SIZE];
-+	char clk[STORE_CLOCK_EXT_SIZE];
- 
- 	get_tod_clock_ext(clk);
- 	return *((unsigned long long *)&clk[1]);
--- 
-2.25.0
+If you still want to go down that path, please look at the next round of
+kernel/qemu patches and then lets discuss.
