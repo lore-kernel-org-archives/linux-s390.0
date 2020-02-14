@@ -1,36 +1,23 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64548 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726879AbgBQRHn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Feb 2020 12:07:43 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HH57vx021624
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:07:42 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y6b55rtyh-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:07:42 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Mon, 17 Feb 2020 17:07:39 -0000
-Date: Mon, 17 Feb 2020 18:07:33 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against
- zero in storage_key_init_range
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against zero
+ in storage_key_init_range
 References: <20200214064207.10381-1-natechancellor@gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Fri, 14 Feb 2020 08:34:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 In-Reply-To: <20200214064207.10381-1-natechancellor@gmail.com>
-Message-Id: <your-ad-here.call-01581959253-ext-9953@work.hours>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <e93b8ff2-0203-445c-c226-df482e542cb0@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+To: Nathan Chancellor <natechancellor@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 
-On Thu, Feb 13, 2020 at 11:42:07PM -0700, Nathan Chancellor wrote:
+
+
+On 14.02.20 07:42, Nathan Chancellor wrote:
 > Clang warns:
 > 
 >  In file included from ../arch/s390/purgatory/purgatory.c:10:
@@ -56,5 +43,24 @@ On Thu, Feb 13, 2020 at 11:42:07PM -0700, Nathan Chancellor wrote:
 > Fixes: de3fa841e429 ("s390/mm: fix compile for PAGE_DEFAULT_KEY != 0")
 > Link: https://github.com/ClangBuiltLinux/linux/issues/860
 > Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
 > ---
-Applied to fixes, thanks
+>  arch/s390/include/asm/page.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+> index 85e944f04c70..1019efd85b9d 100644
+> --- a/arch/s390/include/asm/page.h
+> +++ b/arch/s390/include/asm/page.h
+> @@ -42,7 +42,7 @@ void __storage_key_init_range(unsigned long start, unsigned long end);
+>  
+>  static inline void storage_key_init_range(unsigned long start, unsigned long end)
+>  {
+> -	if (PAGE_DEFAULT_KEY)
+> +	if (PAGE_DEFAULT_KEY != 0)
+>  		__storage_key_init_range(start, end);
+>  }
+>  
+> 
