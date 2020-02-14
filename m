@@ -1,55 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13100 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726974AbgB1Pne (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Feb 2020 10:43:34 -0500
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01SFZc2G062735
-        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:43:33 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yepwsuh6q-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:43:33 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 28 Feb 2020 15:43:30 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [RFC v1 1/2] mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track FOLL_PIN pages"
-Date: Fri, 28 Feb 2020 16:43:21 +0100
-In-Reply-To: <20200228154322.329228-1-imbrenda@linux.ibm.com>
-References: <20200228154322.329228-1-imbrenda@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404205AbgBNQQE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:04 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 203/252] s390: adjust -mpacked-stack support check for clang 10
+Date: Fri, 14 Feb 2020 11:10:58 -0500
+Message-Id: <20200214161147.15842-203-sashal@kernel.org>
+In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200228154322.329228-3-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-next@vger.kernel.org, akpm@linux-foundation.org
-Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com
 
-In case pin fails, we need to unpin, a simple put_page will not be enough
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+[ Upstream commit 253b3c4b2920e07ce9e2b18800b9b65245e2fafa ]
+
+clang 10 introduces -mpacked-stack compiler option implementation. At the
+same time currently it does not support a combination of -mpacked-stack
+and -mbackchain. This leads to the following build error:
+
+clang: error: unsupported option '-mpacked-stack with -mbackchain' for
+target 's390x-ibm-linux'
+
+If/when clang adds support for a combination of -mpacked-stack and
+-mbackchain it would also require -msoft-float (like gcc does). According
+to Ulrich Weigand "stack slot assigned to the kernel backchain overlaps
+the stack slot assigned to the FPR varargs (both are required to be
+placed immediately after the saved r15 slot if present)."
+
+Extend -mpacked-stack compiler option support check to include all 3
+options -mpacked-stack -mbackchain -msoft-float which must present to
+support -mpacked-stack with -mbackchain.
+
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/gup.c b/mm/gup.c
-index f589299b0d4a..0b9a806898f3 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2134,7 +2134,10 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
- 			goto pte_unmap;
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index e6c2e8925fefa..4bccde36cb161 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -63,7 +63,7 @@ cflags-y += -Wa,-I$(srctree)/arch/$(ARCH)/include
+ #
+ cflags-$(CONFIG_FRAME_POINTER) += -fno-optimize-sibling-calls
  
- 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
--			put_page(head);
-+			if (flags & FOLL_GET)
-+				put_page(head);
-+			else if (flags & FOLL_PIN)
-+				unpin_user_page(head);
- 			goto pte_unmap;
- 		}
- 
+-ifeq ($(call cc-option-yn,-mpacked-stack),y)
++ifeq ($(call cc-option-yn,-mpacked-stack -mbackchain -msoft-float),y)
+ cflags-$(CONFIG_PACK_STACK)  += -mpacked-stack -D__PACK_STACK
+ aflags-$(CONFIG_PACK_STACK)  += -D__PACK_STACK
+ endif
 -- 
-2.24.1
+2.20.1
