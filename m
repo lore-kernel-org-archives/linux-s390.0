@@ -1,80 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29676 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727118AbgBGLkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 30/35] KVM: s390: protvirt: Support cmd 5 operation state
-Date: Fri,  7 Feb 2020 06:39:53 -0500
-Message-Id: <20200207113958.7320-31-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:46676 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404216AbgBNQQG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:16:06 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 204/252] s390/ftrace: generate traced function stack frame
+Date: Fri, 14 Feb 2020 11:10:59 -0500
+Message-Id: <20200214161147.15842-204-sashal@kernel.org>
+In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+References: <20200214161147.15842-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Code 5 for the set cpu state UV call tells the UV to load a PSW from
-the SE header (first IPL) or from guest location 0x0 (diag 308 subcode
-0/1). Also it sets the cpu into operating state afterwards, so we can
-start it.
+[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Currently backtrace from ftraced function does not contain ftraced
+function itself. e.g. for "path_openat":
+
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15e/0x3d8
+ftrace_graph_caller+0x0/0x1c <-- ftrace code
+do_filp_open+0x7c/0xe8 <-- ftraced function caller
+do_open_execat+0x76/0x1b8
+open_exec+0x52/0x78
+load_elf_binary+0x180/0x1160
+search_binary_handler+0x8e/0x288
+load_script+0x2a8/0x2b8
+search_binary_handler+0x8e/0x288
+__do_execve_file.isra.39+0x6fa/0xb40
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
+
+Ftraced function is expected in the backtrace by ftrace kselftests, which
+are now failing. It would also be nice to have it for clarity reasons.
+
+"ftrace_caller" itself is called without stack frame allocated for it
+and does not store its caller (ftraced function). Instead it simply
+allocates a stack frame for "ftrace_trace_function" and sets backchain
+to point to ftraced function stack frame (which contains ftraced function
+caller in saved r14).
+
+To fix this issue make "ftrace_caller" allocate a stack frame
+for itself just to store ftraced function for the stack unwinder.
+As a result backtrace looks like the following:
+
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15e/0x3d8
+ftrace_graph_caller+0x0/0x1c <-- ftrace code
+path_openat+0x6/0xd60  <-- ftraced function
+do_filp_open+0x7c/0xe8 <-- ftraced function caller
+do_open_execat+0x76/0x1b8
+open_exec+0x52/0x78
+load_elf_binary+0x180/0x1160
+search_binary_handler+0x8e/0x288
+load_script+0x2a8/0x2b8
+search_binary_handler+0x8e/0x288
+__do_execve_file.isra.39+0x6fa/0xb40
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
+
+Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
+Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/uv.h | 1 +
- arch/s390/kvm/kvm-s390.c   | 7 +++++++
- include/uapi/linux/kvm.h   | 1 +
- 3 files changed, 9 insertions(+)
+ arch/s390/kernel/mcount.S | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 237d0b417d07..94fc0b60e4c8 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -175,6 +175,7 @@ struct uv_cb_unp {
- #define PV_CPU_STATE_OPR	1
- #define PV_CPU_STATE_STP	2
- #define PV_CPU_STATE_CHKSTP	3
-+#define PV_CPU_STATE_OPR_LOAD	5
+diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
+index e93fbf02490cf..83afd5b78e16a 100644
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -25,6 +25,12 @@ ENTRY(ftrace_stub)
+ #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
+ #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
+ #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
++#ifdef __PACK_STACK
++/* allocate just enough for r14, r15 and backchain */
++#define TRACED_FUNC_FRAME_SIZE	24
++#else
++#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
++#endif
  
- struct uv_cb_cpu_set_state {
- 	struct uv_cb_header header;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ee98799212d3..3a06622c52fb 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4667,6 +4667,13 @@ static int kvm_s390_handle_pv_vcpu(struct kvm_vcpu *vcpu,
- 		r = kvm_s390_pv_destroy_cpu(vcpu);
- 		break;
- 	}
-+	case KVM_PV_VCPU_SET_IPL_PSW: {
-+		if (!kvm_s390_pv_handle_cpu(vcpu))
-+			return -EINVAL;
-+
-+		r = kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR_LOAD);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 864e73bd40e4..9125d6b2a974 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1504,6 +1504,7 @@ enum pv_cmd_id {
- 	KVM_PV_VM_UNSHARE_ALL,
- 	KVM_PV_VCPU_CREATE,
- 	KVM_PV_VCPU_DESTROY,
-+	KVM_PV_VCPU_SET_IPL_PSW,
- };
- 
- struct kvm_pv_cmd {
+ ENTRY(_mcount)
+ 	BR_EX	%r14
+@@ -38,9 +44,16 @@ ENTRY(ftrace_caller)
+ #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
+ 	aghi	%r0,MCOUNT_RETURN_FIXUP
+ #endif
+-	aghi	%r15,-STACK_FRAME_SIZE
++	# allocate stack frame for ftrace_caller to contain traced function
++	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
+ 	stg	%r1,__SF_BACKCHAIN(%r15)
++	stg	%r0,(__SF_GPRS+8*8)(%r15)
++	stg	%r15,(__SF_GPRS+9*8)(%r15)
++	# allocate pt_regs and stack frame for ftrace_trace_function
++	aghi	%r15,-STACK_FRAME_SIZE
+ 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
++	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
++	stg	%r1,__SF_BACKCHAIN(%r15)
+ 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
+ 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
+ #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
 -- 
-2.24.0
+2.20.1
