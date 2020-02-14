@@ -1,107 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20052 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727619AbgBXLlT (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43310 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727860AbgBNW1T (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:19 -0500
+        Fri, 14 Feb 2020 17:27:19 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 27/36] KVM: s390: protvirt: UV calls in support of diag308 0, 1
-Date: Mon, 24 Feb 2020 06:40:58 -0500
-Message-Id: <20200224114107.4646-28-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+Subject: [PATCH v2 12/42] KVM: s390/mm: Make pages accessible before destroying the guest
+Date: Fri, 14 Feb 2020 17:26:28 -0500
+Message-Id: <20200214222658.12946-13-borntraeger@de.ibm.com>
+In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Before we destroy the secure configuration, we better make all
+pages accessible again. This also happens during reboot, where we reboot
+into a non-secure guest that then can go again into secure mode. As
+this "new" secure guest will have a new ID we cannot reuse the old page
+state.
 
-diag 308 subcode 0 and 1 require several KVM and Ultravisor interactions.
-Specific to these "soft" reboots are
-
-* The "unshare all" UVC
-* The "prepare for reset" UVC
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/include/asm/uv.h |  4 ++++
- arch/s390/kvm/kvm-s390.c   | 22 ++++++++++++++++++++++
- include/uapi/linux/kvm.h   |  2 ++
- 3 files changed, 28 insertions(+)
+ arch/s390/include/asm/gmap.h |  1 +
+ arch/s390/kvm/pv.c           |  2 ++
+ arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 09dc6dba94a4..a7595c647759 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -36,6 +36,8 @@
- #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
- #define UVC_CMD_UNPACK_IMG		0x0301
- #define UVC_CMD_VERIFY_IMG		0x0302
-+#define UVC_CMD_PREPARE_RESET		0x0320
-+#define UVC_CMD_SET_UNSHARE_ALL		0x0340
- #define UVC_CMD_PIN_PAGE_SHARED		0x0341
- #define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
- #define UVC_CMD_SET_SHARED_ACCESS	0x1000
-@@ -56,6 +58,8 @@ enum uv_cmds_inst {
- 	BIT_UVC_CMD_SET_SEC_PARMS = 11,
- 	BIT_UVC_CMD_UNPACK_IMG = 13,
- 	BIT_UVC_CMD_VERIFY_IMG = 14,
-+	BIT_UVC_CMD_PREPARE_RESET = 18,
-+	BIT_UVC_CMD_UNSHARE_ALL = 20,
- 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
- 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d6dcd0f5859f..f318603be34c 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2330,6 +2330,28 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 			     cmd->rrc);
- 		break;
- 	}
-+	case KVM_PV_PREP_RESET: {
-+		r = -EINVAL;
-+		if (!kvm_s390_pv_is_protected(kvm))
-+			break;
-+
-+		r = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
-+				  UVC_CMD_PREPARE_RESET, &cmd->rc, &cmd->rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT PREP RESET: rc %x rrc %x",
-+			     cmd->rc, cmd->rrc);
-+		break;
-+	}
-+	case KVM_PV_UNSHARE_ALL: {
-+		r = -EINVAL;
-+		if (!kvm_s390_pv_is_protected(kvm))
-+			break;
-+
-+		r = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
-+				  UVC_CMD_SET_UNSHARE_ALL, &cmd->rc, &cmd->rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT UNSHARE: rc %x rrc %x",
-+			     cmd->rc, cmd->rrc);
-+		break;
-+	}
- 	default:
- 		return -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f4cac1c09e97..2c354ba3a610 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1500,6 +1500,8 @@ enum pv_cmd_id {
- 	KVM_PV_SET_SEC_PARMS,
- 	KVM_PV_UNPACK,
- 	KVM_PV_VERIFY,
-+	KVM_PV_PREP_RESET,
-+	KVM_PV_UNSHARE_ALL,
- };
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 6f9ff7a69fa2..a816fb4734b8 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
+ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
+ int gmap_mark_unmergeable(void);
++void s390_reset_acc(struct mm_struct *mm);
+ #endif /* _ASM_S390_GMAP_H */
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index bf00cde1ead8..09573e36c329 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	int cc;
  
- struct kvm_pv_cmd {
++	/* make all pages accessible before destroying the guest */
++	s390_reset_acc(kvm->mm);
+ 	cc = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
+ 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+ 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 7291452fe5f0..27926a06df32 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
+ 	up_write(&mm->mmap_sem);
+ }
+ EXPORT_SYMBOL_GPL(s390_reset_cmma);
++
++/*
++ * make inaccessible pages accessible again
++ */
++static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
++			    unsigned long next, struct mm_walk *walk)
++{
++	pte_t pte = READ_ONCE(*ptep);
++
++	if (pte_present(pte))
++		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
++	return 0;
++}
++
++static const struct mm_walk_ops reset_acc_walk_ops = {
++	.pte_entry		= __s390_reset_acc,
++};
++
++#include <linux/sched/mm.h>
++void s390_reset_acc(struct mm_struct *mm)
++{
++	/*
++	 * we might be called during
++	 * reset:                             we walk the pages and clear
++	 * close of all kvm file descriptors: we walk the pages and clear
++	 * exit of process on fd closure:     vma already gone, do nothing
++	 */
++	if (!mmget_not_zero(mm))
++		return;
++	down_read(&mm->mmap_sem);
++	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
++	up_read(&mm->mmap_sem);
++	mmput(mm);
++}
++EXPORT_SYMBOL_GPL(s390_reset_acc);
 -- 
 2.25.0
