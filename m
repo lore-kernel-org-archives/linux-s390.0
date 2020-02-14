@@ -1,133 +1,106 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15024 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2393566AbgBNQf0 (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:31778 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729156AbgBNML6 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:35:26 -0500
+        Fri, 14 Feb 2020 07:11:58 -0500
+Date: Fri, 14 Feb 2020 13:11:47 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC PATCH v2 2/9] vfio-ccw: Register a chp_event callback for
  vfio-ccw
+Message-ID: <20200214131147.0a98dd7d.cohuck@redhat.com>
+In-Reply-To: <20200206213825.11444-3-farman@linux.ibm.com>
 References: <20200206213825.11444-1-farman@linux.ibm.com>
- <20200206213825.11444-3-farman@linux.ibm.com>
- <20200214131147.0a98dd7d.cohuck@redhat.com>
-From: Eric Farman <farman@linux.ibm.com>
-Message-ID: <459a60d1-699d-2f16-bb59-23f11b817b81@linux.ibm.com>
-Date: Fri, 14 Feb 2020 11:35:21 -0500
+        <20200206213825.11444-3-farman@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200214131147.0a98dd7d.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Eric Farman <farman@linux.ibm.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
+On Thu,  6 Feb 2020 22:38:18 +0100
+Eric Farman <farman@linux.ibm.com> wrote:
 
-
-On 2/14/20 7:11 AM, Cornelia Huck wrote:
-> On Thu,  6 Feb 2020 22:38:18 +0100
-> Eric Farman <farman@linux.ibm.com> wrote:
+> From: Farhan Ali <alifm@linux.ibm.com>
 > 
->> From: Farhan Ali <alifm@linux.ibm.com>
->>
->> Register the chp_event callback to receive channel path related
->> events for the subchannels managed by vfio-ccw.
-> 
-> I'm wondering how useful this patch would be on its own.
+> Register the chp_event callback to receive channel path related
+> events for the subchannels managed by vfio-ccw.
 
-Probably not much.  I can't speak to his original thoughts on the
-matter, but it doesn't seem to buy us much by itself other than a
-consumable sized patch.
+I'm wondering how useful this patch would be on its own.
 
 > 
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>
->> Notes:
->>     v1->v2:
->>      - Move s390dbf before cio_update_schib() call [CH]
->>     
->>     v0->v1: [EF]
->>      - Add s390dbf trace
->>
->>  drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
->>  1 file changed, 44 insertions(+)
->>
-> (...)
->> @@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
->>  	return rc;
->>  }
->>  
->> +static int vfio_ccw_chp_event(struct subchannel *sch,
->> +			      struct chp_link *link, int event)
->> +{
->> +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
->> +	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
->> +	int retry = 255;
->> +
->> +	if (!private || !mask)
->> +		return 0;
->> +
->> +	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
->> +			   mdev_uuid(private->mdev), sch->schid.cssid,
->> +			   sch->schid.ssid, sch->schid.sch_no,
->> +			   mask, event);
->> +
->> +	if (cio_update_schib(sch))
->> +		return -ENODEV;
->> +
->> +	switch (event) {
->> +	case CHP_VARY_OFF:
->> +		/* Path logically turned off */
->> +		sch->opm &= ~mask;
->> +		sch->lpm &= ~mask;
->> +		break;
->> +	case CHP_OFFLINE:
->> +		/* Path is gone */
->> +		cio_cancel_halt_clear(sch, &retry);
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
 > 
-> Any reason you do this only for CHP_OFFLINE and not for CHP_VARY_OFF?
-
-Hrm...  No reason that I can think of.  I can fix this.
-
+> Notes:
+>     v1->v2:
+>      - Move s390dbf before cio_update_schib() call [CH]
+>     
+>     v0->v1: [EF]
+>      - Add s390dbf trace
 > 
->> +		break;
->> +	case CHP_VARY_ON:
->> +		/* Path logically turned on */
->> +		sch->opm |= mask;
->> +		sch->lpm |= mask;
->> +		break;
->> +	case CHP_ONLINE:
->> +		/* Path became available */
->> +		sch->lpm |= mask & sch->opm;
+>  drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
+>  1 file changed, 44 insertions(+)
 > 
-> If I'm not mistaken, this patch introduces the first usage of sch->opm
-> in the vfio-ccw code. 
+(...)
+> @@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+>  	return rc;
+>  }
+>  
+> +static int vfio_ccw_chp_event(struct subchannel *sch,
+> +			      struct chp_link *link, int event)
+> +{
+> +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+> +	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
+> +	int retry = 255;
+> +
+> +	if (!private || !mask)
+> +		return 0;
+> +
+> +	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
+> +			   mdev_uuid(private->mdev), sch->schid.cssid,
+> +			   sch->schid.ssid, sch->schid.sch_no,
+> +			   mask, event);
+> +
+> +	if (cio_update_schib(sch))
+> +		return -ENODEV;
+> +
+> +	switch (event) {
+> +	case CHP_VARY_OFF:
+> +		/* Path logically turned off */
+> +		sch->opm &= ~mask;
+> +		sch->lpm &= ~mask;
+> +		break;
+> +	case CHP_OFFLINE:
+> +		/* Path is gone */
+> +		cio_cancel_halt_clear(sch, &retry);
 
-Correct.
+Any reason you do this only for CHP_OFFLINE and not for CHP_VARY_OFF?
 
-> Are we missing something?
+> +		break;
+> +	case CHP_VARY_ON:
+> +		/* Path logically turned on */
+> +		sch->opm |= mask;
+> +		sch->lpm |= mask;
+> +		break;
+> +	case CHP_ONLINE:
+> +		/* Path became available */
+> +		sch->lpm |= mask & sch->opm;
 
-Maybe?  :)
+If I'm not mistaken, this patch introduces the first usage of sch->opm
+in the vfio-ccw code. Are we missing something? Or am I missing
+something? :)
 
->Or am I missing
-> something? :)
-> 
-
-Since it's only used in this code, for acting as a step between
-vary/config off/on, maybe this only needs to be dealing with the lpm
-field itself?
-
->> +		break;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->>  static struct css_device_id vfio_ccw_sch_ids[] = {
->>  	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
->>  	{ /* end of list */ },
-> (...)
-> 
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static struct css_device_id vfio_ccw_sch_ids[] = {
+>  	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
+>  	{ /* end of list */ },
+(...)
