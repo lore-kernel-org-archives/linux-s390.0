@@ -1,87 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17588 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6580 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728042AbgBTMBP (ORCPT
+        by vger.kernel.org with ESMTP id S2405960AbgBNQYn (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 07:01:15 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KC1AmM014621
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:14 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y8ucn0t0k-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:11 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 20 Feb 2020 12:00:48 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 01/10] s390x: saving regs for interrupts
-Date: Thu, 20 Feb 2020 13:00:34 +0100
-In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1582200043-21760-2-git-send-email-pmorel@linux.ibm.com>
+        Fri, 14 Feb 2020 11:24:43 -0500
+Subject: Re: [RFC PATCH v2 7/9] vfio-ccw: Wire up the CRW irq and CRW region
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+ <20200206213825.11444-8-farman@linux.ibm.com>
+ <20200214143400.175c9e5e.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <75bb9119-8692-c18e-1e7b-c7598d8ef25a@linux.ibm.com>
+Date: Fri, 14 Feb 2020 11:24:39 -0500
+MIME-Version: 1.0
+In-Reply-To: <20200214143400.175c9e5e.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
 
-Instead of saving at a static memory address, let's save the base
-registers and the floating point registers on the stack.
 
-Note that we keep the static register saving to recover from the
-RESET tests.
+On 2/14/20 8:34 AM, Cornelia Huck wrote:
+> On Thu,  6 Feb 2020 22:38:23 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> From: Farhan Ali <alifm@linux.ibm.com>
+>>
+>> Use an IRQ to notify userspace that there is a CRW
+>> pending in the region, related to path-availability
+>> changes on the passthrough subchannel.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>
+>> Notes:
+>>     v1->v2:
+>>      - Remove extraneous 0x0 in crw.rsid assignment [CH]
+>>      - Refactor the building/queueing of a crw into its own routine [EF]
+>>     
+>>     v0->v1: [EF]
+>>      - Place the non-refactoring changes from the previous patch here
+>>      - Clean up checkpatch (whitespace) errors
+>>      - s/chp_crw/crw/
+>>      - Move acquire/release of io_mutex in vfio_ccw_crw_region_read()
+>>        into patch that introduces that region
+>>      - Remove duplicate include from vfio_ccw_drv.c
+>>      - Reorder include in vfio_ccw_private.h
+>>
+>>  drivers/s390/cio/vfio_ccw_chp.c     |  5 ++
+>>  drivers/s390/cio/vfio_ccw_drv.c     | 73 +++++++++++++++++++++++++++++
+>>  drivers/s390/cio/vfio_ccw_ops.c     |  4 ++
+>>  drivers/s390/cio/vfio_ccw_private.h |  9 ++++
+>>  include/uapi/linux/vfio.h           |  1 +
+>>  5 files changed, 92 insertions(+)
+>>
+> (...)
+>> +static void vfio_ccw_alloc_crw(struct vfio_ccw_private *private,
+>> +			       struct chp_link *link,
+>> +			       unsigned int erc)
+>> +{
+>> +	struct vfio_ccw_crw *vc_crw;
+>> +	struct crw *crw;
+>> +
+>> +	/*
+>> +	 * If unable to allocate a CRW, just drop the event and
+>> +	 * carry on.  The guest will either see a later one or
+>> +	 * learn when it issues its own store subchannel.
+>> +	 */
+>> +	vc_crw = kzalloc(sizeof(*vc_crw), GFP_ATOMIC);
+>> +	if (!vc_crw)
+>> +		return;
+>> +
+>> +	/*
+>> +	 * Build in the first CRW space, but don't chain anything
+>> +	 * into the second one even though the space exists.
+>> +	 */
+>> +	crw = &vc_crw->crw[0];
+>> +
+>> +	/*
+>> +	 * Presume every CRW we handle is reported by a channel-path.
+>> +	 * Maybe not future-proof, but good for what we're doing now.
+> 
+> You could pass in a source indication, maybe? Presumably, at least one
+> of the callers further up the chain knows...
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/cstart64.S | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+The "chain" is the vfio_ccw_chp_event() function called off the
+.chp_event callback, and then to this point.  So I don't think there's
+much we can get back from our callchain, other than the CHP_xxxLINE
+event that got us here.
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 9af6bb3..45da523 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -118,6 +118,25 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
- 
-+/* Save registers on the stack, so we can have stacked interrupts. */
-+	.macro SAVE_IRQ_REGS
-+	slgfi   %r15, 15 * 8
-+	stmg    %r0, %r14, 0(%r15)
-+	slgfi   %r15, 16 * 8
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	.endm
-+
-+	.macro RESTORE_IRQ_REGS
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	algfi   %r15, 16 * 8
-+	lmg     %r0, %r14, 0(%r15)
-+	algfi   %r15, 15 * 8
-+	.endm
-+
- .section .text
- /*
-  * load_reset calling convention:
-@@ -182,9 +201,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
- 
- io_int:
--	SAVE_REGS
-+	SAVE_IRQ_REGS
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_IRQ_REGS
- 	lpswe	GEN_LC_IO_OLD_PSW
- 
- svc_int:
--- 
-2.17.0
+> 
+>> +	 *
+>> +	 * FIXME Sort of a lie, since we're converting a CRW
+>> +	 * reported by a channel-path into one issued to each
+>> +	 * subchannel, but still saying it's coming from the path.
+> 
+> It's still channel-path related, though :)
+> 
+> The important point is probably is that userspace needs to be aware
+> that the same channel-path related event is reported on all affected
+> subchannels, and they therefore need some appropriate handling on their
+> side.
+
+This is true.  And the fact that the RSC and RSID fields will be in
+agreement is helpful.  But yes, the fact that userspace should expect
+the possibility of more than one CRW per channel path is the thing I'm
+still not enjoying.  Mostly because of the race between queueing
+additional ones, and unqueuing them on the other side.  So probably not
+much that can be done here but awareness.
+
+> 
+>> +	 */
+>> +	crw->rsc = CRW_RSC_CPATH;
+>> +	crw->rsid = (link->chpid.cssid << 8) | link->chpid.id;
+>> +	crw->erc = erc;
+>> +
+>> +	list_add_tail(&vc_crw->next, &private->crw);
+>> +	queue_work(vfio_ccw_work_q, &private->crw_work);
+>> +}
+>> +
+>>  static int vfio_ccw_chp_event(struct subchannel *sch,
+>>  			      struct chp_link *link, int event)
+>>  {
+> (...)
+> 
