@@ -1,53 +1,64 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:39503 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727773AbgBFRD4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Feb 2020 12:03:56 -0500
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] vfio-ccw: Use the correct style for SPDX License Identifier
-Date: Thu,  6 Feb 2020 18:03:31 +0100
-Message-Id: <20200206170331.1032-2-cohuck@redhat.com>
-In-Reply-To: <20200206170331.1032-1-cohuck@redhat.com>
-References: <20200206170331.1032-1-cohuck@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 043/186] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date: Fri, 14 Feb 2020 11:14:52 -0500
+Message-Id: <20200214161715.18113-43-sashal@kernel.org>
+In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
+References: <20200214161715.18113-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>, Cornelia Huck <cohuck@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Nishad Kamdar <nishadkamdar@gmail.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-This patch corrects the SPDX License Identifier style in
-header file related to S/390 common i/o drivers.
-It assigns explicit block comment to the SPDX License
-Identifier.
+[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
 
-Changes made by using a script provided by Joe Perches here:
-https://lkml.org/lkml/2019/2/7/46.
+There is no ENOTSUPP for userspace.
 
-Fixes: 3cd90214b70f ("vfio: ccw: add tracepoints for interesting error pa=
-ths")
-Suggested-by: Joe Perches <joe@perches.com>
-Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
-Message-Id: <20191225122054.GA4598@nishad>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_trace.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_cc=
-w_trace.h
-index 30162a318a8a..f5d31887d413 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -1,5 +1,5 @@
--/* SPDX-License-Identifier: GPL-2.0
-- * Tracepoints for vfio_ccw driver
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/* Tracepoints for vfio_ccw driver
-  *
-  * Copyright IBM Corp. 2018
-  *
---=20
-2.21.1
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 28f3796d23c8f..61d25e2c82efa 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1913,7 +1913,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2214,7 +2214,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2294,7 +2294,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
+-- 
+2.20.1
