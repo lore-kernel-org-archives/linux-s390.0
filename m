@@ -1,92 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57596 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727874AbgBTKka (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45346 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726635AbgBNH7O (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 07/37] KVM: s390: protvirt: Add UV debug trace
-Date: Thu, 20 Feb 2020 05:39:50 -0500
-Message-Id: <20200220104020.5343-8-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Fri, 14 Feb 2020 02:59:14 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01E7sOKQ052166
+        for <linux-s390@vger.kernel.org>; Fri, 14 Feb 2020 02:59:13 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y4j88d3jk-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 14 Feb 2020 02:59:12 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
+        Fri, 14 Feb 2020 07:59:11 -0000
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 2/2] net/smc: no peer ID in CLC decline for SMCD
+Date: Fri, 14 Feb 2020 08:59:00 +0100
+In-Reply-To: <20200214075900.31624-1-kgraul@linux.ibm.com>
+References: <20200214075900.31624-1-kgraul@linux.ibm.com>
+Message-Id: <20200214075900.31624-3-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Let's have some debug traces which stay around for longer than the
-guest.
+Just SMCR requires a CLC Peer ID, but not SMCD. The field should be
+zero for SMCD.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: c758dfddc1b5 ("net/smc: add SMC-D support in CLC messages")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c |  9 ++++++++-
- arch/s390/kvm/kvm-s390.h | 11 +++++++++++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ net/smc/smc_clc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d7ff30e45589..cc7793525a69 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -220,6 +220,7 @@ static struct kvm_s390_vm_cpu_subfunc kvm_s390_available_subfunc;
- static struct gmap_notifier gmap_notifier;
- static struct gmap_notifier vsie_gmap_notifier;
- debug_info_t *kvm_s390_dbf;
-+debug_info_t *kvm_s390_dbf_uv;
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 0879f7bed967..86cccc24e52e 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -372,7 +372,9 @@ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info)
+ 	dclc.hdr.length = htons(sizeof(struct smc_clc_msg_decline));
+ 	dclc.hdr.version = SMC_CLC_V1;
+ 	dclc.hdr.flag = (peer_diag_info == SMC_CLC_DECL_SYNCERR) ? 1 : 0;
+-	memcpy(dclc.id_for_peer, local_systemid, sizeof(local_systemid));
++	if (smc->conn.lgr && !smc->conn.lgr->is_smcd)
++		memcpy(dclc.id_for_peer, local_systemid,
++		       sizeof(local_systemid));
+ 	dclc.peer_diagnosis = htonl(peer_diag_info);
+ 	memcpy(dclc.trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
  
- /* Section: not file related */
- int kvm_arch_hardware_enable(void)
-@@ -460,7 +461,12 @@ int kvm_arch_init(void *opaque)
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
- 
--	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view))
-+	kvm_s390_dbf_uv = debug_register("kvm-uv", 32, 1, 7 * sizeof(long));
-+	if (!kvm_s390_dbf_uv)
-+		goto out;
-+
-+	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view) ||
-+	    debug_register_view(kvm_s390_dbf_uv, &debug_sprintf_view))
- 		goto out;
- 
- 	kvm_s390_cpu_feat_init();
-@@ -487,6 +493,7 @@ void kvm_arch_exit(void)
- {
- 	kvm_s390_gib_destroy();
- 	debug_unregister(kvm_s390_dbf);
-+	debug_unregister(kvm_s390_dbf_uv);
- }
- 
- /* Section: device related */
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 6d9448dbd052..83dabb18e4d9 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -25,6 +25,17 @@
- #define IS_ITDB_VALID(vcpu)	((*(char *)vcpu->arch.sie_block->itdba == TDB_FORMAT1))
- 
- extern debug_info_t *kvm_s390_dbf;
-+extern debug_info_t *kvm_s390_dbf_uv;
-+
-+#define KVM_UV_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
-+do { \
-+	debug_sprintf_event((d_kvm)->arch.dbf, d_loglevel, d_string "\n", \
-+	  d_args); \
-+	debug_sprintf_event(kvm_s390_dbf_uv, d_loglevel, \
-+			    "%d: " d_string "\n", (d_kvm)->userspace_pid, \
-+			    d_args); \
-+} while (0)
-+
- #define KVM_EVENT(d_loglevel, d_string, d_args...)\
- do { \
- 	debug_sprintf_event(kvm_s390_dbf, d_loglevel, d_string "\n", \
 -- 
-2.25.0
+2.17.1
