@@ -1,363 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59780 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727576AbgBTKka (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 15/37] KVM: s390: protvirt: Implement interrupt injection
-Date: Thu, 20 Feb 2020 05:39:58 -0500
-Message-Id: <20200220104020.5343-16-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:41868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388511AbgBNP6M (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:58:12 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 434/542] s390/ftrace: generate traced function stack frame
+Date: Fri, 14 Feb 2020 10:47:06 -0500
+Message-Id: <20200214154854.6746-434-sashal@kernel.org>
+In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
+References: <20200214154854.6746-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-This defines the necessary data structures in the SIE control block to
-inject machine checks,external and I/O interrupts. We first define the
-the interrupt injection control, which defines the next interrupt to
-inject. Then we define the fields that contain the payload for machine
-checks,external and I/O interrupts.
-This is then used to implement interruption injection for the following
-list of interruption types:
+[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
 
-   - I/O (uses inject io interruption)
-     __deliver_io
+Currently backtrace from ftraced function does not contain ftraced
+function itself. e.g. for "path_openat":
 
-   - External (uses inject external interruption)
-     __deliver_cpu_timer
-     __deliver_ckc
-     __deliver_emergency_signal
-     __deliver_external_call
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15e/0x3d8
+ftrace_graph_caller+0x0/0x1c <-- ftrace code
+do_filp_open+0x7c/0xe8 <-- ftraced function caller
+do_open_execat+0x76/0x1b8
+open_exec+0x52/0x78
+load_elf_binary+0x180/0x1160
+search_binary_handler+0x8e/0x288
+load_script+0x2a8/0x2b8
+search_binary_handler+0x8e/0x288
+__do_execve_file.isra.39+0x6fa/0xb40
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
 
-   - cpu restart (uses inject restart interruption)
-     __deliver_restart
+Ftraced function is expected in the backtrace by ftrace kselftests, which
+are now failing. It would also be nice to have it for clarity reasons.
 
-   - machine checks (uses mcic, failing address and external damage)
-     __write_machine_check
+"ftrace_caller" itself is called without stack frame allocated for it
+and does not store its caller (ftraced function). Instead it simply
+allocates a stack frame for "ftrace_trace_function" and sets backchain
+to point to ftraced function stack frame (which contains ftraced function
+caller in saved r14).
 
-Please note that posted interrupts (GISA) are not used for protected
-guests as of today.
+To fix this issue make "ftrace_caller" allocate a stack frame
+for itself just to store ftraced function for the stack unwinder.
+As a result backtrace looks like the following:
 
-The service interrupt is handled in a followup patch.
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15e/0x3d8
+ftrace_graph_caller+0x0/0x1c <-- ftrace code
+path_openat+0x6/0xd60  <-- ftraced function
+do_filp_open+0x7c/0xe8 <-- ftraced function caller
+do_open_execat+0x76/0x1b8
+open_exec+0x52/0x78
+load_elf_binary+0x180/0x1160
+search_binary_handler+0x8e/0x288
+load_script+0x2a8/0x2b8
+search_binary_handler+0x8e/0x288
+__do_execve_file.isra.39+0x6fa/0xb40
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
+Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/kvm_host.h |  62 +++++++++++++----
- arch/s390/kvm/interrupt.c        | 115 +++++++++++++++++++++++--------
- 2 files changed, 138 insertions(+), 39 deletions(-)
+ arch/s390/kernel/mcount.S | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index c6694f47b73b..a13dc77f8b07 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -222,7 +222,15 @@ struct kvm_s390_sie_block {
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
--	__u8	reserved54[2];		/* 0x0054 */
-+	__u8	reserved54;		/* 0x0054 */
-+#define IICTL_CODE_NONE		 0x00
-+#define IICTL_CODE_MCHK		 0x01
-+#define IICTL_CODE_EXT		 0x02
-+#define IICTL_CODE_IO		 0x03
-+#define IICTL_CODE_RESTART	 0x04
-+#define IICTL_CODE_SPECIFICATION 0x10
-+#define IICTL_CODE_OPERAND	 0x11
-+	__u8	iictl;			/* 0x0055 */
- 	__u16	ipa;			/* 0x0056 */
- 	__u32	ipb;			/* 0x0058 */
- 	__u32	scaoh;			/* 0x005c */
-@@ -259,24 +267,48 @@ struct kvm_s390_sie_block {
- #define HPID_KVM	0x4
- #define HPID_VSIE	0x5
- 	__u8	hpid;			/* 0x00b8 */
--	__u8	reservedb9[11];		/* 0x00b9 */
--	__u16	extcpuaddr;		/* 0x00c4 */
--	__u16	eic;			/* 0x00c6 */
-+	__u8	reservedb9[7];		/* 0x00b9 */
-+	union {
-+		struct {
-+			__u32	eiparams;	/* 0x00c0 */
-+			__u16	extcpuaddr;	/* 0x00c4 */
-+			__u16	eic;		/* 0x00c6 */
-+		};
-+		__u64	mcic;			/* 0x00c0 */
-+	} __packed;
- 	__u32	reservedc8;		/* 0x00c8 */
--	__u16	pgmilc;			/* 0x00cc */
--	__u16	iprcc;			/* 0x00ce */
--	__u32	dxc;			/* 0x00d0 */
--	__u16	mcn;			/* 0x00d4 */
--	__u8	perc;			/* 0x00d6 */
--	__u8	peratmid;		/* 0x00d7 */
-+	union {
-+		struct {
-+			__u16	pgmilc;		/* 0x00cc */
-+			__u16	iprcc;		/* 0x00ce */
-+		};
-+		__u32	edc;			/* 0x00cc */
-+	} __packed;
-+	union {
-+		struct {
-+			__u32	dxc;		/* 0x00d0 */
-+			__u16	mcn;		/* 0x00d4 */
-+			__u8	perc;		/* 0x00d6 */
-+			__u8	peratmid;	/* 0x00d7 */
-+		};
-+		__u64	faddr;			/* 0x00d0 */
-+	} __packed;
- 	__u64	peraddr;		/* 0x00d8 */
- 	__u8	eai;			/* 0x00e0 */
- 	__u8	peraid;			/* 0x00e1 */
- 	__u8	oai;			/* 0x00e2 */
- 	__u8	armid;			/* 0x00e3 */
- 	__u8	reservede4[4];		/* 0x00e4 */
--	__u64	tecmc;			/* 0x00e8 */
--	__u8	reservedf0[12];		/* 0x00f0 */
-+	union {
-+		__u64	tecmc;		/* 0x00e8 */
-+		struct {
-+			__u16	subchannel_id;	/* 0x00e8 */
-+			__u16	subchannel_nr;	/* 0x00ea */
-+			__u32	io_int_parm;	/* 0x00ec */
-+			__u32	io_int_word;	/* 0x00f0 */
-+		};
-+	} __packed;
-+	__u8	reservedf4[8];		/* 0x00f4 */
- #define CRYCB_FORMAT_MASK 0x00000003
- #define CRYCB_FORMAT0 0x00000000
- #define CRYCB_FORMAT1 0x00000001
-@@ -546,6 +578,12 @@ enum irq_types {
- #define IRQ_PEND_MCHK_MASK ((1UL << IRQ_PEND_MCHK_REP) | \
- 			    (1UL << IRQ_PEND_MCHK_EX))
+diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
+index c3597d2e2ae0e..f942341429b1c 100644
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -26,6 +26,12 @@ ENDPROC(ftrace_stub)
+ #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
+ #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
+ #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
++#ifdef __PACK_STACK
++/* allocate just enough for r14, r15 and backchain */
++#define TRACED_FUNC_FRAME_SIZE	24
++#else
++#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
++#endif
  
-+#define IRQ_PEND_EXT_II_MASK ((1UL << IRQ_PEND_EXT_CPU_TIMER)  | \
-+			      (1UL << IRQ_PEND_EXT_CLOCK_COMP) | \
-+			      (1UL << IRQ_PEND_EXT_EMERGENCY)  | \
-+			      (1UL << IRQ_PEND_EXT_EXTERNAL)   | \
-+			      (1UL << IRQ_PEND_EXT_SERVICE))
-+
- struct kvm_s390_interrupt_info {
- 	struct list_head list;
- 	u64	type;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 0cebebf56515..61310b1f5b62 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -387,6 +387,12 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
- 	if (psw_mchk_disabled(vcpu))
- 		active_mask &= ~IRQ_PEND_MCHK_MASK;
-+	/* PV guest cpus can have a single interruption injected at a time. */
-+	if (kvm_s390_pv_cpu_is_protected(vcpu) &&
-+	    vcpu->arch.sie_block->iictl != IICTL_CODE_NONE)
-+		active_mask &= ~(IRQ_PEND_EXT_II_MASK |
-+				 IRQ_PEND_IO_MASK |
-+				 IRQ_PEND_MCHK_MASK);
- 	/*
- 	 * Check both floating and local interrupt's cr14 because
- 	 * bit IRQ_PEND_MCHK_REP could be set in both cases.
-@@ -479,19 +485,23 @@ static void set_intercept_indicators(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	vcpu->stat.deliver_cputm++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
- 					 0, 0);
--
--	rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
--			   (u16 *)__LC_EXT_INT_CODE);
--	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
--	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_CPU_TIMER;
-+	} else {
-+		rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
-+				   (u16 *)__LC_EXT_INT_CODE);
-+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
-+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -499,19 +509,23 @@ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_ckc(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	vcpu->stat.deliver_ckc++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
- 					 0, 0);
--
--	rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
--			   (u16 __user *)__LC_EXT_INT_CODE);
--	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
--	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_CLK_COMP;
-+	} else {
-+		rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
-+				   (u16 __user *)__LC_EXT_INT_CODE);
-+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
-+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -553,6 +567,20 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
- 	union mci mci;
- 	int rc;
- 
-+	/*
-+	 * All other possible payload for a machine check (e.g. the register
-+	 * contents in the save area) will be handled by the ultravisor, as
-+	 * the hypervisor does not not have the needed information for
-+	 * protected guests.
-+	 */
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_MCHK;
-+		vcpu->arch.sie_block->mcic = mchk->mcic;
-+		vcpu->arch.sie_block->faddr = mchk->failing_storage_address;
-+		vcpu->arch.sie_block->edc = mchk->ext_damage_code;
-+		return 0;
-+	}
-+
- 	mci.val = mchk->mcic;
- 	/* take care of lazy register loading */
- 	save_fpu_regs();
-@@ -696,17 +724,21 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
- 	vcpu->stat.deliver_restart_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
- 
--	rc  = write_guest_lc(vcpu,
--			     offsetof(struct lowcore, restart_old_psw),
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_RESTART;
-+	} else {
-+		rc  = write_guest_lc(vcpu,
-+				     offsetof(struct lowcore, restart_old_psw),
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_RESTART, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -748,6 +780,12 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
- 	vcpu->stat.deliver_emergency_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
- 					 cpu_addr, 0);
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_EMERGENCY_SIG;
-+		vcpu->arch.sie_block->extcpuaddr = cpu_addr;
-+		return 0;
-+	}
- 
- 	rc  = put_guest_lc(vcpu, EXT_IRQ_EMERGENCY_SIG,
- 			   (u16 *)__LC_EXT_INT_CODE);
-@@ -776,6 +814,12 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 					 KVM_S390_INT_EXTERNAL_CALL,
- 					 extcall.code, 0);
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_EXTERNAL_CALL;
-+		vcpu->arch.sie_block->extcpuaddr = extcall.code;
-+		return 0;
-+	}
- 
- 	rc  = put_guest_lc(vcpu, EXT_IRQ_EXTERNAL_CALL,
- 			   (u16 *)__LC_EXT_INT_CODE);
-@@ -1028,6 +1072,15 @@ static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
- {
- 	int rc;
- 
-+	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_IO;
-+		vcpu->arch.sie_block->subchannel_id = io->subchannel_id;
-+		vcpu->arch.sie_block->subchannel_nr = io->subchannel_nr;
-+		vcpu->arch.sie_block->io_int_parm = io->io_int_parm;
-+		vcpu->arch.sie_block->io_int_word = io->io_int_word;
-+		return 0;
-+	}
-+
- 	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
- 	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
- 	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
-@@ -1421,7 +1474,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
- 		return -EINVAL;
- 
--	if (sclp.has_sigpif)
-+	if (sclp.has_sigpif && !kvm_s390_pv_cpu_get_handle(vcpu))
- 		return sca_inject_ext_call(vcpu, src_id);
- 
- 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
-@@ -1773,7 +1826,14 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	kvm->stat.inject_io++;
- 	isc = int_word_to_isc(inti->io.io_int_word);
- 
--	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+	/*
-+	 * Do not make use of gisa in protected mode. We do not use the lock
-+	 * checking variant as this is just a performance optimization and we
-+	 * do not hold the lock here. This is ok as the code will pick
-+	 * interrupts from both "lists" for delivery.
-+	 */
-+	if (!kvm_s390_pv_get_handle(kvm) &&
-+	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
- 		gisa_set_ipm_gisc(gi->origin, isc);
- 		kfree(inti);
-@@ -1834,7 +1894,8 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
- 		break;
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 		if (!(type & KVM_S390_INT_IO_AI_MASK &&
--		      kvm->arch.gisa_int.origin))
-+		      kvm->arch.gisa_int.origin) ||
-+		      kvm_s390_pv_cpu_get_handle(dst_vcpu))
- 			kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_IO_INT);
- 		break;
- 	default:
+ ENTRY(_mcount)
+ 	BR_EX	%r14
+@@ -40,9 +46,16 @@ ENTRY(ftrace_caller)
+ #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
+ 	aghi	%r0,MCOUNT_RETURN_FIXUP
+ #endif
+-	aghi	%r15,-STACK_FRAME_SIZE
++	# allocate stack frame for ftrace_caller to contain traced function
++	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
+ 	stg	%r1,__SF_BACKCHAIN(%r15)
++	stg	%r0,(__SF_GPRS+8*8)(%r15)
++	stg	%r15,(__SF_GPRS+9*8)(%r15)
++	# allocate pt_regs and stack frame for ftrace_trace_function
++	aghi	%r15,-STACK_FRAME_SIZE
+ 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
++	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
++	stg	%r1,__SF_BACKCHAIN(%r15)
+ 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
+ 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
+ #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
 -- 
-2.25.0
+2.20.1
