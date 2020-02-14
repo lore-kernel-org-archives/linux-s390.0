@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39342 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37620 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727930AbgBNW1Y (ORCPT
+        by vger.kernel.org with ESMTP id S1727864AbgBNW1R (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:24 -0500
+        Fri, 14 Feb 2020 17:27:17 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 16/42] KVM: s390: protvirt: Implement interruption injection
-Date: Fri, 14 Feb 2020 17:26:32 -0500
-Message-Id: <20200214222658.12946-17-borntraeger@de.ibm.com>
+Subject: [PATCH v2 10/42] KVM: s390: protvirt: Add KVM api documentation
+Date: Fri, 14 Feb 2020 17:26:26 -0500
+Message-Id: <20200214222658.12946-11-borntraeger@de.ibm.com>
 In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
 References: <20200214222658.12946-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
@@ -15,262 +15,103 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-The patch implements interruption injection for the following
-list of interruption types:
+Add documentation for KVM_CAP_S390_PROTECTED capability and the
+KVM_S390_PV_COMMAND and KVM_S390_PV_COMMAND_VCPU ioctls.
 
-   - I/O (uses inject io interruption)
-     __deliver_io
-
-   - External (uses inject external interruption)
-     __deliver_cpu_timer
-     __deliver_ckc
-     __deliver_emergency_signal
-     __deliver_external_call
-
-   - cpu restart (uses inject restart interruption)
-     __deliver_restart
-
-   - machine checks (uses mcic, failing address and external damage)
-     __write_machine_check
-
-Please note that posted interrupts (GISA) are not used for protected
-guests as of today.
-
-The service interrupt is handled in a followup patch.
-
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |   6 ++
- arch/s390/kvm/interrupt.c        | 110 +++++++++++++++++++++++--------
- 2 files changed, 89 insertions(+), 27 deletions(-)
+ Documentation/virt/kvm/api.rst | 69 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 69 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 834b3b7a6e23..a13dc77f8b07 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -578,6 +578,12 @@ enum irq_types {
- #define IRQ_PEND_MCHK_MASK ((1UL << IRQ_PEND_MCHK_REP) | \
- 			    (1UL << IRQ_PEND_MCHK_EX))
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 97a72a53fa4b..cb58714fe60d 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -4646,6 +4646,68 @@ the clear cpu reset definition in the POP. However, the cpu is not put
+ into ESA mode. This reset is a superset of the initial reset.
  
-+#define IRQ_PEND_EXT_II_MASK ((1UL << IRQ_PEND_EXT_CPU_TIMER)  | \
-+			      (1UL << IRQ_PEND_EXT_CLOCK_COMP) | \
-+			      (1UL << IRQ_PEND_EXT_EMERGENCY)  | \
-+			      (1UL << IRQ_PEND_EXT_EXTERNAL)   | \
-+			      (1UL << IRQ_PEND_EXT_SERVICE))
+ 
++4.125 KVM_S390_PV_COMMAND
++-------------------------
 +
- struct kvm_s390_interrupt_info {
- 	struct list_head list;
- 	u64	type;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 0cebebf56515..3fc748c0d924 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -387,6 +387,12 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
- 	if (psw_mchk_disabled(vcpu))
- 		active_mask &= ~IRQ_PEND_MCHK_MASK;
-+	/* PV guest cpus can have a single interruption injected at a time. */
-+	if (kvm_s390_pv_is_protected(vcpu->kvm) &&
-+	    vcpu->arch.sie_block->iictl != IICTL_CODE_NONE)
-+		active_mask &= ~(IRQ_PEND_EXT_II_MASK |
-+				 IRQ_PEND_IO_MASK |
-+				 IRQ_PEND_MCHK_MASK);
- 	/*
- 	 * Check both floating and local interrupt's cr14 because
- 	 * bit IRQ_PEND_MCHK_REP could be set in both cases.
-@@ -479,19 +485,23 @@ static void set_intercept_indicators(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	vcpu->stat.deliver_cputm++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CPU_TIMER,
- 					 0, 0);
--
--	rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
--			   (u16 *)__LC_EXT_INT_CODE);
--	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
--	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_CPU_TIMER;
-+	} else {
-+		rc  = put_guest_lc(vcpu, EXT_IRQ_CPU_TIMER,
-+				   (u16 *)__LC_EXT_INT_CODE);
-+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
-+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_EXT_CPU_TIMER, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -499,19 +509,23 @@ static int __must_check __deliver_cpu_timer(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_ckc(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	vcpu->stat.deliver_ckc++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_CLOCK_COMP,
- 					 0, 0);
--
--	rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
--			   (u16 __user *)__LC_EXT_INT_CODE);
--	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
--	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_CLK_COMP;
-+	} else {
-+		rc  = put_guest_lc(vcpu, EXT_IRQ_CLK_COMP,
-+				   (u16 __user *)__LC_EXT_INT_CODE);
-+		rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
-+		rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -553,6 +567,20 @@ static int __write_machine_check(struct kvm_vcpu *vcpu,
- 	union mci mci;
- 	int rc;
- 
-+	/*
-+	 * All other possible payload for a machine check (e.g. the register
-+	 * contents in the save area) will be handled by the ultravisor, as
-+	 * the hypervisor does not not have the needed information for
-+	 * protected guests.
-+	 */
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_MCHK;
-+		vcpu->arch.sie_block->mcic = mchk->mcic;
-+		vcpu->arch.sie_block->faddr = mchk->failing_storage_address;
-+		vcpu->arch.sie_block->edc = mchk->ext_damage_code;
-+		return 0;
-+	}
++:Capability: KVM_CAP_S390_PROTECTED
++:Architectures: s390
++:Type: vm ioctl
++:Parameters: struct kvm_pv_cmd
++:Returns: 0 on success, < 0 on error
 +
- 	mci.val = mchk->mcic;
- 	/* take care of lazy register loading */
- 	save_fpu_regs();
-@@ -696,17 +724,21 @@ static int __must_check __deliver_machine_check(struct kvm_vcpu *vcpu)
- static int __must_check __deliver_restart(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
--	int rc;
-+	int rc = 0;
- 
- 	VCPU_EVENT(vcpu, 3, "%s", "deliver: cpu restart");
- 	vcpu->stat.deliver_restart_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_RESTART, 0, 0);
- 
--	rc  = write_guest_lc(vcpu,
--			     offsetof(struct lowcore, restart_old_psw),
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_RESTART;
-+	} else {
-+		rc  = write_guest_lc(vcpu,
-+				     offsetof(struct lowcore, restart_old_psw),
-+				     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+		rc |= read_guest_lc(vcpu, offsetof(struct lowcore, restart_psw),
-+				    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	}
- 	clear_bit(IRQ_PEND_RESTART, &li->pending_irqs);
- 	return rc ? -EFAULT : 0;
- }
-@@ -748,6 +780,12 @@ static int __must_check __deliver_emergency_signal(struct kvm_vcpu *vcpu)
- 	vcpu->stat.deliver_emergency_signal++;
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_EMERGENCY,
- 					 cpu_addr, 0);
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_EMERGENCY_SIG;
-+		vcpu->arch.sie_block->extcpuaddr = cpu_addr;
-+		return 0;
-+	}
- 
- 	rc  = put_guest_lc(vcpu, EXT_IRQ_EMERGENCY_SIG,
- 			   (u16 *)__LC_EXT_INT_CODE);
-@@ -776,6 +814,12 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id,
- 					 KVM_S390_INT_EXTERNAL_CALL,
- 					 extcall.code, 0);
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_EXTERNAL_CALL;
-+		vcpu->arch.sie_block->extcpuaddr = extcall.code;
-+		return 0;
-+	}
- 
- 	rc  = put_guest_lc(vcpu, EXT_IRQ_EXTERNAL_CALL,
- 			   (u16 *)__LC_EXT_INT_CODE);
-@@ -1028,6 +1072,15 @@ static int __do_deliver_io(struct kvm_vcpu *vcpu, struct kvm_s390_io_info *io)
- {
- 	int rc;
- 
-+	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_IO;
-+		vcpu->arch.sie_block->subchannel_id = io->subchannel_id;
-+		vcpu->arch.sie_block->subchannel_nr = io->subchannel_nr;
-+		vcpu->arch.sie_block->io_int_parm = io->io_int_parm;
-+		vcpu->arch.sie_block->io_int_word = io->io_int_word;
-+		return 0;
-+	}
++::
 +
- 	rc  = put_guest_lc(vcpu, io->subchannel_id, (u16 *)__LC_SUBCHANNEL_ID);
- 	rc |= put_guest_lc(vcpu, io->subchannel_nr, (u16 *)__LC_SUBCHANNEL_NR);
- 	rc |= put_guest_lc(vcpu, io->io_int_parm, (u32 *)__LC_IO_INT_PARM);
-@@ -1421,7 +1474,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
- 		return -EINVAL;
++  struct kvm_pv_cmd {
++	__u32 cmd;	/* Command to be executed */
++	__u16 rc;	/* Ultravisor return code */
++	__u16 rrc;	/* Ultravisor return reason code */
++	__u64 data;	/* Data or address */
++	__u32 flags;    /* flags for future extensions. Must be 0 for now */
++	__u32 reserved[3];
++  };
++
++cmd values:
++
++KVM_PV_VM_CREATE
++  Allocate memory and register the VM with the Ultravisor, thereby
++  donating memory to the Ultravisor making it inaccessible to KVM.
++
++KVM_PV_VM_DESTROY
++  Deregisters the VM from the Ultravisor and frees memory that was
++  donated, so the kernel can use it again. All registered VCPUs have to
++  be unregistered beforehand and all memory has to be exported or
++  shared.
++
++KVM_PV_VM_SET_SEC_PARMS
++  Pass the image header from VM memory to the Ultravisor in
++  preparation of image unpacking and verification.
++
++KVM_PV_VM_UNPACK
++  Unpack (protect and decrypt) a page of the encrypted boot image.
++
++KVM_PV_VM_VERIFY
++  Verify the integrity of the unpacked image. Only if this succeeds,
++  KVM is allowed to start protected VCPUs.
++
++4.126 KVM_S390_PV_COMMAND_VCPU
++------------------------------
++
++:Capability: KVM_CAP_S390_PROTECTED
++:Architectures: s390
++:Type: vcpu ioctl
++:Parameters: struct kvm_pv_cmd
++:Returns: 0 on success, < 0 on error
++
++cmd values:
++
++KVM_PV_VCPU_CREATE
++  Allocate memory and register a VCPU with the Ultravisor, thereby
++  donating memory to the Ultravisor making it inaccessible to KVM.
++
++KVM_PV_VCPU_DESTROY
++  Unregisters the VCPU from the Ultravisor and frees memory that was
++  donated, so the kernel can use it again.
++
+ 5. The kvm_run structure
+ ========================
  
--	if (sclp.has_sigpif)
-+	if (sclp.has_sigpif && !kvm_s390_pv_handle_cpu(vcpu))
- 		return sca_inject_ext_call(vcpu, src_id);
+@@ -6024,3 +6086,10 @@ Architectures: s390
  
- 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
-@@ -1773,7 +1826,9 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
- 	kvm->stat.inject_io++;
- 	isc = int_word_to_isc(inti->io.io_int_word);
- 
--	if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
-+	/* do not make use of gisa in protected mode */
-+	if (!kvm_s390_pv_is_protected(kvm) &&
-+	    gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
- 		VM_EVENT(kvm, 4, "%s isc %1u", "inject: I/O (AI/gisa)", isc);
- 		gisa_set_ipm_gisc(gi->origin, isc);
- 		kfree(inti);
-@@ -1834,7 +1889,8 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
- 		break;
- 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
- 		if (!(type & KVM_S390_INT_IO_AI_MASK &&
--		      kvm->arch.gisa_int.origin))
-+		      kvm->arch.gisa_int.origin) ||
-+		      kvm_s390_pv_handle_cpu(dst_vcpu))
- 			kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_IO_INT);
- 		break;
- 	default:
+ This capability indicates that the KVM_S390_NORMAL_RESET and
+ KVM_S390_CLEAR_RESET ioctls are available.
++
++8.23 KVM_CAP_S390_PROTECTED
++
++Architecture: s390
++
++This capability indicates that KVM can start protected VMs and the
++Ultravisor has therefore been initialized.
 -- 
 2.25.0
