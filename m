@@ -1,55 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from conuserg-08.nifty.com ([210.131.2.75]:49712 "EHLO
-        conuserg-08.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728198AbgBPOsq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 16 Feb 2020 09:48:46 -0500
-From: Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH] s390: make 'install' not depend on vmlinux
-Date: Sun, 16 Feb 2020 23:48:29 +0900
-Message-Id: <20200216144829.27023-1-masahiroy@kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:56626 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730802AbgBNPve (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:51:34 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 122/542] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
+Date: Fri, 14 Feb 2020 10:41:54 -0500
+Message-Id: <20200214154854.6746-122-sashal@kernel.org>
+In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
+References: <20200214154854.6746-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
-Cc: Masahiro Yamada <masahiroy@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-For the same reason as commit 19514fc665ff ("arm, kbuild: make "make
-install" not depend on vmlinux"), the install targets should never
-trigger the rebuild of the kernel.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-The variable, CONFIGURE, is not set by anyone. Remove it as well.
+[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
 
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+There is no ENOTSUPP for userspace.
+
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
+Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ arch/s390/kvm/interrupt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
- arch/s390/Makefile      | 2 +-
- arch/s390/boot/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index e0e3a465bbfd..8dfa2cf1f05c 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -146,7 +146,7 @@ all: bzImage
- #KBUILD_IMAGE is necessary for packaging targets like rpm-pkg, deb-pkg...
- KBUILD_IMAGE	:= $(boot)/bzImage
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 165dea4c7f193..c06c89d370a73 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2190,7 +2190,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 		return -EINVAL;
  
--install: vmlinux
-+install:
- 	$(Q)$(MAKE) $(build)=$(boot) $@
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
- bzImage: vmlinux
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index e2c47d3a1c89..0ff9261c915e 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -70,7 +70,7 @@ $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
- $(obj)/startup.a: $(OBJECTS) FORCE
- 	$(call if_changed,ar)
+ 	mutex_lock(&fi->ais_lock);
+ 	ais.simm = fi->simm;
+@@ -2499,7 +2499,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	int ret = 0;
  
--install: $(CONFIGURE) $(obj)/bzImage
-+install:
- 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
- 	      System.map "$(INSTALL_PATH)"
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
+ 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
+ 		return -EFAULT;
+@@ -2579,7 +2579,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
+ 	struct kvm_s390_ais_all ais;
+ 
+ 	if (!test_kvm_facility(kvm, 72))
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
+ 		return -EFAULT;
 -- 
-2.17.1
+2.20.1
