@@ -1,125 +1,200 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42524 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726826AbgBQLIk (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35254 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727936AbgBNW10 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Feb 2020 06:08:40 -0500
-Subject: Re: [PATCH v2 20/42] KVM: S390: protvirt: Introduce instruction data
- area bounce buffer
+        Fri, 14 Feb 2020 17:27:26 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v2 20/42] KVM: S390: protvirt: Introduce instruction data area bounce buffer
+Date: Fri, 14 Feb 2020 17:26:36 -0500
+Message-Id: <20200214222658.12946-21-borntraeger@de.ibm.com>
+In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
 References: <20200214222658.12946-1-borntraeger@de.ibm.com>
- <20200214222658.12946-21-borntraeger@de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <ad84934a-3d18-d56e-5658-1d8b8292f6b3@redhat.com>
-Date: Mon, 17 Feb 2020 12:08:23 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200214222658.12946-21-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-> @@ -4460,6 +4489,10 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->  
->  	switch (mop->op) {
->  	case KVM_S390_MEMOP_LOGICAL_READ:
-> +		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-> +			r = -EINVAL;
-> +			break;
-> +		}
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Could we have a possible race with disabling code, especially while
-concurrently freeing? (sorry if I ask again, there was just a flood of
-emails)
+Now that we can't access guest memory anymore, we have a dedicated
+satellite block that's a bounce buffer for instruction data.
 
->  		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
->  			r = check_gva_range(vcpu, mop->gaddr, mop->ar,
->  					    mop->size, GACC_FETCH);
-> @@ -4472,6 +4505,10 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->  		}
->  		break;
->  	case KVM_S390_MEMOP_LOGICAL_WRITE:
-> +		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-> +			r = -EINVAL;
-> +			break;
-> +		}
+We re-use the memop interface to copy the instruction data to / from
+userspace. This lets us re-use a lot of QEMU code which used that
+interface to make logical guest memory accesses which are not possible
+anymore in protected mode anyway.
 
-dito
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h | 11 ++++++++-
+ arch/s390/kvm/kvm-s390.c         | 42 ++++++++++++++++++++++++++++++++
+ arch/s390/kvm/pv.c               |  9 +++++++
+ include/uapi/linux/kvm.h         |  6 ++++-
+ 4 files changed, 66 insertions(+), 2 deletions(-)
 
->  		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
->  			r = check_gva_range(vcpu, mop->gaddr, mop->ar,
->  					    mop->size, GACC_STORE);
-> @@ -4483,6 +4520,11 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
->  		}
->  		r = write_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
->  		break;
-> +	case KVM_S390_MEMOP_SIDA_READ:
-> +	case KVM_S390_MEMOP_SIDA_WRITE:
-> +		/* we are locked against sida going away by the vcpu->mutex */
-> +		r = kvm_s390_guest_sida_op(vcpu, mop);
-> +		break;
->  	default:
->  		r = -EINVAL;
->  	}
-> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-> index 09573e36c329..80169a9b43ec 100644
-> --- a/arch/s390/kvm/pv.c
-> +++ b/arch/s390/kvm/pv.c
-> @@ -92,6 +92,7 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
->  
->  	free_pages(vcpu->arch.pv.stor_base,
->  		   get_order(uv_info.guest_cpu_stor_len));
-> +	free_page(sida_origin(vcpu->arch.sie_block));
->  	vcpu->arch.sie_block->pv_handle_cpu = 0;
->  	vcpu->arch.sie_block->pv_handle_config = 0;
->  	memset(&vcpu->arch.pv, 0, sizeof(vcpu->arch.pv));
-> @@ -121,6 +122,14 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
->  	uvcb.state_origin = (u64)vcpu->arch.sie_block;
->  	uvcb.stor_origin = (u64)vcpu->arch.pv.stor_base;
->  
-> +	/* Alloc Secure Instruction Data Area Designation */
-> +	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL | __GFP_ZERO);
-> +	if (!vcpu->arch.sie_block->sidad) {
-> +		free_pages(vcpu->arch.pv.stor_base,
-> +			   get_order(uv_info.guest_cpu_stor_len));
-> +		return -ENOMEM;
-> +	}
-> +
->  	cc = uv_call(0, (u64)&uvcb);
->  	*rc = uvcb.header.rc;
->  	*rrc = uvcb.header.rrc;
-> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-> index 207915488502..0fdee1bc3798 100644
-> --- a/include/uapi/linux/kvm.h
-> +++ b/include/uapi/linux/kvm.h
-> @@ -475,11 +475,15 @@ struct kvm_s390_mem_op {
->  	__u32 op;		/* type of operation */
->  	__u64 buf;		/* buffer in userspace */
->  	__u8 ar;		/* the access register number */
-> -	__u8 reserved[31];	/* should be set to 0 */
-> +	__u8 reserved21[3];	/* should be set to 0 */
-> +	__u32 sida_offset;	/* offset into the sida */
-> +	__u8 reserved28[24];	/* should be set to 0 */
->  };
-
-As discussed, I'd prefer an overlaying layout for the sida, as the ar
-does not make any sense (correct me if I'm wrong :) )
-
-__u32 op;		/* type of operation */
-__u64 buf;		/* buffer in userspace */
-uinon {
-	__u8 ar;		/* the access register number */
-	__u32 sida_offset;	/* offset into the sida */
-	__u8 reserved[32];	/* should be set to 0 */
-};
-
-With something like that
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 4fcbb055a565..aa945b101fff 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -127,6 +127,12 @@ struct mcck_volatile_info {
+ #define CR14_INITIAL_MASK (CR14_UNUSED_32 | CR14_UNUSED_33 | \
+ 			   CR14_EXTERNAL_DAMAGE_SUBMASK)
+ 
++#define SIDAD_SIZE_MASK		0xff
++#define sida_origin(sie_block) \
++	((sie_block)->sidad & PAGE_MASK)
++#define sida_size(sie_block) \
++	((((sie_block)->sidad & SIDAD_SIZE_MASK) + 1) * PAGE_SIZE)
++
+ #define CPUSTAT_STOPPED    0x80000000
+ #define CPUSTAT_WAIT       0x10000000
+ #define CPUSTAT_ECALL_PEND 0x08000000
+@@ -315,7 +321,10 @@ struct kvm_s390_sie_block {
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+ 	__u64	gcr[16];		/* 0x0100 */
+-	__u64	gbea;			/* 0x0180 */
++	union {
++		__u64	gbea;		/* 0x0180 */
++		__u64	sidad;
++	};
+ 	__u8    reserved188[8];		/* 0x0188 */
+ 	__u64   sdnxo;			/* 0x0190 */
+ 	__u8    reserved198[8];		/* 0x0198 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6ebb0dae5a2e..8db82aaf1275 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4435,6 +4435,34 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
+ 	return r;
+ }
+ 
++static long kvm_s390_guest_sida_op(struct kvm_vcpu *vcpu,
++				   struct kvm_s390_mem_op *mop)
++{
++	void __user *uaddr = (void __user *)mop->buf;
++	int r = 0;
++
++	if (mop->flags || !mop->size)
++		return -EINVAL;
++	if (mop->size + mop->sida_offset < mop->size)
++		return -EINVAL;
++	if (mop->size + mop->sida_offset > sida_size(vcpu->arch.sie_block))
++		return -E2BIG;
++
++	switch (mop->op) {
++	case KVM_S390_MEMOP_SIDA_READ:
++		if (copy_to_user(uaddr, (void *)(sida_origin(vcpu->arch.sie_block) +
++				 mop->sida_offset), mop->size))
++			r = -EFAULT;
++
++		break;
++	case KVM_S390_MEMOP_SIDA_WRITE:
++		if (copy_from_user((void *)(sida_origin(vcpu->arch.sie_block) +
++				   mop->sida_offset), uaddr, mop->size))
++			r = -EFAULT;
++		break;
++	}
++	return r;
++}
+ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 				  struct kvm_s390_mem_op *mop)
+ {
+@@ -4444,6 +4472,7 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+ 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+ 
++	BUILD_BUG_ON(sizeof(*mop) != 64);
+ 	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
+ 		return -EINVAL;
+ 
+@@ -4460,6 +4489,10 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 
+ 	switch (mop->op) {
+ 	case KVM_S390_MEMOP_LOGICAL_READ:
++		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++			r = -EINVAL;
++			break;
++		}
+ 		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+ 			r = check_gva_range(vcpu, mop->gaddr, mop->ar,
+ 					    mop->size, GACC_FETCH);
+@@ -4472,6 +4505,10 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 		}
+ 		break;
+ 	case KVM_S390_MEMOP_LOGICAL_WRITE:
++		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
++			r = -EINVAL;
++			break;
++		}
+ 		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+ 			r = check_gva_range(vcpu, mop->gaddr, mop->ar,
+ 					    mop->size, GACC_STORE);
+@@ -4483,6 +4520,11 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 		}
+ 		r = write_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
+ 		break;
++	case KVM_S390_MEMOP_SIDA_READ:
++	case KVM_S390_MEMOP_SIDA_WRITE:
++		/* we are locked against sida going away by the vcpu->mutex */
++		r = kvm_s390_guest_sida_op(vcpu, mop);
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 	}
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 09573e36c329..80169a9b43ec 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -92,6 +92,7 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ 
+ 	free_pages(vcpu->arch.pv.stor_base,
+ 		   get_order(uv_info.guest_cpu_stor_len));
++	free_page(sida_origin(vcpu->arch.sie_block));
+ 	vcpu->arch.sie_block->pv_handle_cpu = 0;
+ 	vcpu->arch.sie_block->pv_handle_config = 0;
+ 	memset(&vcpu->arch.pv, 0, sizeof(vcpu->arch.pv));
+@@ -121,6 +122,14 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ 	uvcb.state_origin = (u64)vcpu->arch.sie_block;
+ 	uvcb.stor_origin = (u64)vcpu->arch.pv.stor_base;
+ 
++	/* Alloc Secure Instruction Data Area Designation */
++	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL | __GFP_ZERO);
++	if (!vcpu->arch.sie_block->sidad) {
++		free_pages(vcpu->arch.pv.stor_base,
++			   get_order(uv_info.guest_cpu_stor_len));
++		return -ENOMEM;
++	}
++
+ 	cc = uv_call(0, (u64)&uvcb);
+ 	*rc = uvcb.header.rc;
+ 	*rrc = uvcb.header.rrc;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 207915488502..0fdee1bc3798 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -475,11 +475,15 @@ struct kvm_s390_mem_op {
+ 	__u32 op;		/* type of operation */
+ 	__u64 buf;		/* buffer in userspace */
+ 	__u8 ar;		/* the access register number */
+-	__u8 reserved[31];	/* should be set to 0 */
++	__u8 reserved21[3];	/* should be set to 0 */
++	__u32 sida_offset;	/* offset into the sida */
++	__u8 reserved28[24];	/* should be set to 0 */
+ };
+ /* types for kvm_s390_mem_op->op */
+ #define KVM_S390_MEMOP_LOGICAL_READ	0
+ #define KVM_S390_MEMOP_LOGICAL_WRITE	1
++#define KVM_S390_MEMOP_SIDA_READ	2
++#define KVM_S390_MEMOP_SIDA_WRITE	3
+ /* flags for kvm_s390_mem_op->flags */
+ #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
+ #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
 -- 
-Thanks,
-
-David / dhildenb
+2.25.0
