@@ -1,163 +1,48 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net] net/smc: fix cleanup for linkgroup setup failures
-Date: Tue, 25 Feb 2020 16:34:36 +0100
-Message-Id: <20200225153436.26498-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36798 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728114AbgBNW1l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 14 Feb 2020 17:27:41 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v2 37/42] s390/uv: Fix handling of length extensions (already in s390 tree)
+Date: Fri, 14 Feb 2020 17:26:53 -0500
+Message-Id: <20200214222658.12946-38-borntraeger@de.ibm.com>
+In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, stable@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+The query parameter block might contain additional information and can
+be extended in the future. If the size of the block does not suffice we
+get an error code of rc=0x100.  The buffer will contain all information
+up to the specified size and the hypervisor/guest simply do not need the
+additional information as they do not know about the new data.  That
+means that we can (and must) accept rc=0x100 as success.
 
-If an SMC connection to a certain peer is setup the first time,
-a new linkgroup is created. In case of setup failures, such a
-linkgroup is unusable and should disappear. As a first step the
-linkgroup is removed from the linkgroup list in smc_lgr_forget().
-
-There are 2 problems:
-smc_listen_decline() might be called before linkgroup creation
-resulting in a crash due to calling smc_lgr_forget() with
-parameter NULL.
-If a setup failure occurs after linkgroup creation, the connection
-is never unregistered from the linkgroup, preventing linkgroup
-freeing.
-
-This patch introduces an enhanced smc_lgr_cleanup_early() function
-which
-* contains a linkgroup check for early smc_listen_decline()
-  invocations
-* invokes smc_conn_free() to guarantee unregistering of the
-  connection.
-* schedules fast linkgroup removal of the unusable linkgroup
-
-And the unused function smcd_conn_free() is removed from smc_core.h.
-
-Fixes: 3b2dec2603d5b ("net/smc: restructure client and server code in af_smc")
-Fixes: 2a0674fffb6bc ("net/smc: improve abnormal termination of link groups")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: 5abb9351dfd9 ("s390/uv: introduce guest side ultravisor code")
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- net/smc/af_smc.c   | 25 +++++++++++++++----------
- net/smc/smc_core.c | 12 ++++++++++++
- net/smc/smc_core.h |  2 +-
- 3 files changed, 28 insertions(+), 11 deletions(-)
+ arch/s390/boot/uv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 90988a511cd5..6fd44bdb0fc3 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -512,15 +512,18 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code)
- static int smc_connect_abort(struct smc_sock *smc, int reason_code,
- 			     int local_contact)
- {
-+	bool is_smcd = smc->conn.lgr->is_smcd;
-+
- 	if (local_contact == SMC_FIRST_CONTACT)
--		smc_lgr_forget(smc->conn.lgr);
--	if (smc->conn.lgr->is_smcd)
-+		smc_lgr_cleanup_early(&smc->conn);
-+	else
-+		smc_conn_free(&smc->conn);
-+	if (is_smcd)
- 		/* there is only one lgr role for SMC-D; use server lock */
- 		mutex_unlock(&smc_server_lgr_pending);
- 	else
- 		mutex_unlock(&smc_client_lgr_pending);
- 
--	smc_conn_free(&smc->conn);
- 	smc->connect_nonblock = 0;
- 	return reason_code;
- }
-@@ -1091,7 +1094,6 @@ static void smc_listen_out_err(struct smc_sock *new_smc)
- 	if (newsmcsk->sk_state == SMC_INIT)
- 		sock_put(&new_smc->sk); /* passive closing */
- 	newsmcsk->sk_state = SMC_CLOSED;
--	smc_conn_free(&new_smc->conn);
- 
- 	smc_listen_out(new_smc);
- }
-@@ -1102,12 +1104,13 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- {
- 	/* RDMA setup failed, switch back to TCP */
- 	if (local_contact == SMC_FIRST_CONTACT)
--		smc_lgr_forget(new_smc->conn.lgr);
-+		smc_lgr_cleanup_early(&new_smc->conn);
-+	else
-+		smc_conn_free(&new_smc->conn);
- 	if (reason_code < 0) { /* error, no fallback possible */
- 		smc_listen_out_err(new_smc);
+diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+index af9e1cc93c68..c003593664cd 100644
+--- a/arch/s390/boot/uv.c
++++ b/arch/s390/boot/uv.c
+@@ -21,7 +21,7 @@ void uv_query_info(void)
+ 	if (!test_facility(158))
  		return;
- 	}
--	smc_conn_free(&new_smc->conn);
- 	smc_switch_to_fallback(new_smc);
- 	new_smc->fallback_rsn = reason_code;
- 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
-@@ -1170,16 +1173,18 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 			    new_smc->conn.lgr->vlan_id,
- 			    new_smc->conn.lgr->smcd)) {
- 		if (ini->cln_first_contact == SMC_FIRST_CONTACT)
--			smc_lgr_forget(new_smc->conn.lgr);
--		smc_conn_free(&new_smc->conn);
-+			smc_lgr_cleanup_early(&new_smc->conn);
-+		else
-+			smc_conn_free(&new_smc->conn);
- 		return SMC_CLC_DECL_SMCDNOTALK;
- 	}
  
- 	/* Create send and receive buffers */
- 	if (smc_buf_create(new_smc, true)) {
- 		if (ini->cln_first_contact == SMC_FIRST_CONTACT)
--			smc_lgr_forget(new_smc->conn.lgr);
--		smc_conn_free(&new_smc->conn);
-+			smc_lgr_cleanup_early(&new_smc->conn);
-+		else
-+			smc_conn_free(&new_smc->conn);
- 		return SMC_CLC_DECL_MEM;
- 	}
+-	if (uv_call(0, (uint64_t)&uvcb))
++	if (uv_call(0, (uint64_t)&uvcb) && uvcb.header.rc != 0x100)
+ 		return;
  
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2249de5379ee..5b085efa3bce 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -162,6 +162,18 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- 	conn->lgr = NULL;
- }
- 
-+void smc_lgr_cleanup_early(struct smc_connection *conn)
-+{
-+	struct smc_link_group *lgr = conn->lgr;
-+
-+	if (!lgr)
-+		return;
-+
-+	smc_conn_free(conn);
-+	smc_lgr_forget(lgr);
-+	smc_lgr_schedule_free_work_fast(lgr);
-+}
-+
- /* Send delete link, either as client to request the initiation
-  * of the DELETE LINK sequence from server; or as server to
-  * initiate the delete processing. See smc_llc_rx_delete_link().
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index c472e12951d1..234ae25f0025 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -296,6 +296,7 @@ struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
- 
- void smc_lgr_forget(struct smc_link_group *lgr);
-+void smc_lgr_cleanup_early(struct smc_connection *conn);
- void smc_lgr_terminate(struct smc_link_group *lgr, bool soft);
- void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport);
- void smc_smcd_terminate(struct smcd_dev *dev, u64 peer_gid,
-@@ -316,7 +317,6 @@ int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini);
- 
- void smc_conn_free(struct smc_connection *conn);
- int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini);
--void smcd_conn_free(struct smc_connection *conn);
- void smc_lgr_schedule_free_work_fast(struct smc_link_group *lgr);
- int smc_core_init(void);
- void smc_core_exit(void);
+ 	if (IS_ENABLED(CONFIG_KVM)) {
 -- 
-2.17.1
+2.25.0
