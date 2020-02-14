@@ -1,125 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21110 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60016 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727310AbgBXLlP (ORCPT
+        by vger.kernel.org with ESMTP id S1728123AbgBNO14 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:15 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 10/36] KVM: s390: protvirt: Secure memory is not mergeable
-Date: Mon, 24 Feb 2020 06:40:41 -0500
-Message-Id: <20200224114107.4646-11-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+        Fri, 14 Feb 2020 09:27:56 -0500
+Subject: Re: [RFC PATCH v2 9/9] vfio-ccw: Remove inline get_schid() routine
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+ <20200206213825.11444-10-farman@linux.ibm.com>
+ <20200214142706.4d6a1efc.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <202b7945-0701-cbd2-6da3-279b63a02199@linux.ibm.com>
+Date: Fri, 14 Feb 2020 09:27:52 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200214142706.4d6a1efc.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
 
-KSM will not work on secure pages, because when the kernel reads a
-secure page, it will be encrypted and hence no two pages will look the
-same.
 
-Let's mark the guest pages as unmergeable when we transition to secure
-mode.
+On 2/14/20 8:27 AM, Cornelia Huck wrote:
+> On Thu,  6 Feb 2020 22:38:25 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> This seems misplaced in the middle of FSM, returning the schid
+>> field from inside the private struct.  We could move this macro
+>> into vfio_ccw_private.h, but this doesn't seem to simplify things
+>> that much.  Let's just remove it, and use the field directly.
+> 
+> It had been introduced with the first set of traces, I'm now wondering
+> why, as it doesn't do any checking.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/kvm/kvm-s390.c     |  6 ++++++
- arch/s390/mm/gmap.c          | 30 ++++++++++++++++++++----------
- 3 files changed, 27 insertions(+), 10 deletions(-)
+Hrm, that's a decent question.  I could refactor this, moving the
+routine into vfio_ccw_private.h and add those checks, rather than
+removing it outright.
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 3c4926aa78f4..6f9ff7a69fa2 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -148,4 +148,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
- 
- void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
- 			     unsigned long gaddr, unsigned long vmaddr);
-+int gmap_mark_unmergeable(void);
- #endif /* _ASM_S390_GMAP_H */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 04754bc37e99..b06a74ab01e6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2236,6 +2236,12 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		if (r)
- 			break;
- 
-+		down_write(&current->mm->mmap_sem);
-+		r = gmap_mark_unmergeable();
-+		up_write(&current->mm->mmap_sem);
-+		if (r)
-+			break;
-+
- 		r = kvm_s390_pv_init_vm(kvm, &cmd->rc, &cmd->rrc);
- 		if (r)
- 			break;
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index edcdca97e85e..7291452fe5f0 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2548,6 +2548,22 @@ int s390_enable_sie(void)
- }
- EXPORT_SYMBOL_GPL(s390_enable_sie);
- 
-+int gmap_mark_unmergeable(void)
-+{
-+	struct mm_struct *mm = current->mm;
-+	struct vm_area_struct *vma;
-+
-+	for (vma = mm->mmap; vma; vma = vma->vm_next) {
-+		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
-+				MADV_UNMERGEABLE, &vma->vm_flags)) {
-+			return -ENOMEM;
-+		}
-+	}
-+	mm->def_flags &= ~VM_MERGEABLE;
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(gmap_mark_unmergeable);
-+
- /*
-  * Enable storage key handling from now on and initialize the storage
-  * keys with the default key.
-@@ -2593,7 +2609,6 @@ static const struct mm_walk_ops enable_skey_walk_ops = {
- int s390_enable_skey(void)
- {
- 	struct mm_struct *mm = current->mm;
--	struct vm_area_struct *vma;
- 	int rc = 0;
- 
- 	down_write(&mm->mmap_sem);
-@@ -2601,16 +2616,11 @@ int s390_enable_skey(void)
- 		goto out_up;
- 
- 	mm->context.uses_skeys = 1;
--	for (vma = mm->mmap; vma; vma = vma->vm_next) {
--		if (ksm_madvise(vma, vma->vm_start, vma->vm_end,
--				MADV_UNMERGEABLE, &vma->vm_flags)) {
--			mm->context.uses_skeys = 0;
--			rc = -ENOMEM;
--			goto out_up;
--		}
-+	rc = gmap_mark_unmergeable();
-+	if (rc) {
-+		mm->context.uses_skeys = 0;
-+		goto out_up;
- 	}
--	mm->def_flags &= ~VM_MERGEABLE;
--
- 	walk_page_range(mm, 0, TASK_SIZE, &enable_skey_walk_ops, NULL);
- 
- out_up:
--- 
-2.25.0
+I honestly only stumbled on this when I tried to use get_schid()
+somewhere else, not realizing the definition was actually tucked away in
+here.  And so I've left it on the end of this series as a matter of
+convenience/non-forgetfulness, but splitting it out by itself would be fine.
+
+> 
+>>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>  drivers/s390/cio/vfio_ccw_fsm.c | 8 ++------
+>>  1 file changed, 2 insertions(+), 6 deletions(-)
+> 
