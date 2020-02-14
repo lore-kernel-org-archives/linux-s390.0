@@ -1,151 +1,147 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26050 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727518AbgBJStq (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23668 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727809AbgBNW1P (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Feb 2020 13:49:46 -0500
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01AIeJkC038803
-        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 13:49:45 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y1tn52vsg-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 10 Feb 2020 13:49:45 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <prudo@linux.ibm.com>;
-        Mon, 10 Feb 2020 18:49:43 -0000
-Date: Mon, 10 Feb 2020 19:49:36 +0100
-From: Philipp Rudo <prudo@linux.ibm.com>
-Subject: Re: s390 depending on cc-options makes it difficult to configure
-In-Reply-To: <20191211171822.GA36366@dev.jcline.org>
-References: <20191209164155.GA78160@dev.jcline.org>
-        <20191210090108.GA22512@unicorn.suse.cz>
-        <20191211171822.GA36366@dev.jcline.org>
+        Fri, 14 Feb 2020 17:27:15 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v2 06/42] s390/mm: add (non)secure page access exceptions handlers
+Date: Fri, 14 Feb 2020 17:26:22 -0500
+Message-Id: <20200214222658.12946-7-borntraeger@de.ibm.com>
+In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20200210194936.511ef603@laptop2-ibm.local>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jeremy Cline <jcline@redhat.com>
-Cc: Michal Kubecek <mkubecek@suse.cz>, linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org, Janosch Frank <frankja@linux.ibm.com>
 
-Hey Jeremy,
-Hey Michal,
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-sorry for the late response. The mail got lost in the pre-xmas rush...
+Add exceptions handlers performing transparent transition of non-secure
+pages to secure (import) upon guest access and secure pages to
+non-secure (export) upon hypervisor access.
 
-In my opinion the problem goes beyond s390 and the commit you mentioned. So I'm
-also adding Masahiro as Kconfig maintainer and author of cc-option.
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+[frankja@linux.ibm.com: adding checks for failures]
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+[imbrenda@linux.ibm.com:  adding a check for gmap fault]
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kernel/pgm_check.S |  4 +-
+ arch/s390/mm/fault.c         | 78 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 80 insertions(+), 2 deletions(-)
 
-
-On Wed, 11 Dec 2019 12:18:22 -0500
-Jeremy Cline <jcline@redhat.com> wrote:
-
-> On Tue, Dec 10, 2019 at 10:01:08AM +0100, Michal Kubecek wrote:
-> > On Mon, Dec 09, 2019 at 11:41:55AM -0500, Jeremy Cline wrote:  
-> > > Hi folks,
-> > > 
-> > > Commit 5474080a3a0a ("s390/Kconfig: make use of 'depends on cc-option'")
-> > > makes it difficult to produce an s390 configuration for Fedora and Red
-> > > Hat kernels.
-> > > 
-> > > The issue is I have the following configurations:
-> > > 
-> > > CONFIG_MARCH_Z13=y
-> > > CONFIG_TUNE_Z14=y
-> > > # CONFIG_TUNE_DEFAULT is not set
-> > > 
-> > > When the configuration is prepared on a non-s390x host without a
-> > > compiler with -march=z* it changes CONFIG_TUNE_DEFAULT to y which, as
-> > > far as I can tell, leads to a kernel tuned for z13 instead of z14.
-> > > Fedora and Red Hat build processes produce complete configurations from
-> > > snippets on any available host in the build infrastructure which very
-> > > frequently is *not* s390.  
-> > 
-> > We have exactly the same problem. Our developers need to update config
-> > files for different architectures and different kernel versions on their
-> > machines which are usually x86_64 but that often produces different
-> > configs than the real build environment.
-> >   
-> > This is not an issue for upstream development as one usually updates
-> > configs on the same system where the build takes place but it's a big
-> > problem for distribution maintainers.
-
-If I recall correct the goal was to avoid trouble with clang, as it does not
-support all processor types with -march. But yeah, in the original
-consideration we only thought about upstream development and forgot the
-distros.
-
-> > > I did a quick search and couldn't find any other examples of Kconfigs
-> > > depending on march or mtune compiler flags and it seems like it'd
-> > > generally problematic for people preparing configurations.  
-
-True, but not the whole story. Power and Arm64 use cc-option to check for
--mstack-protector*, which do not exist on s390. So you have the same problem 
-when you prepare a config for any of them on s390. Thus simply reverting the
-commit you mentioned above does not solve the problem but merely hides one
-symptom. Which also means that the original problem will return over and over
-again in the future.
-
-An other reason why I don't think it makes sens to revert the commit is that it
-would make cc-option as a whole useless. What's the benefit in having cc-option
-when you are not allowed to use it? Or less provocative, in which use cases is
-allowed to use cc-option?
-
-> > There are more issues like this. In general, since 4.17 or 4.18, the
-> > resulting config depends on both architecture and compiler version.
-> > Earlier, you could simply run "ARCH=... make oldconfig" (or menuconfig)
-> > to update configs for all architectures and distribution versions.
-> > Today, you need to use the right compiler version (results with e.g.
-> > 4.8, 7.4 and 9.2 differ) and architecture.
-> >   
-> 
-> Yeah, that's also troublesome. This is by no means the first problem
-> related to the environment at configuration time, but it the most
-> bothersome to work around (at least for Fedora kernel configuration).
-> 
-> > At the moment, I'm working around the issue by using chroot environments
-> > with target distributions (e.g. openSUSE Tumbleweed) and set of cross
-> > compilers for supported architectures but it's far from perfect and even
-> > this way, there are problemantic points, e.g. BPFILTER_UMH which depends
-> > on gcc being able to not only compile but also link.
-> > 
-> > IMHO the key problem is that .config mixes configuration with
-> > description of build environment. I have an idea of a solution which
-> > would consist of
-> > 
-> >   - an option to extract "config" options which describe build
-> >     environment (i.e. their values are determined by running some
-> >     command, rather than reading from a file or asking user) into
-> >     a cache file
-> >   - an option telling "make *config" to use such cache file for these
-> >     environment "config" options instead of running the test scripts
-> >     (and probably issue an error if an environment option is missing)
-> >   
-> 
-> I agree that the issue is mixing kernel configuration with build
-> environment. I suppose a cache file would work, but it still sounds like
-> a difficult process that is working around that fact that folks are
-> coupling the configuration step with the build step.
-
-An other solution would be a "I know better" switch which simply disables
-cc-option for that run. That would allow the use of cc-option for upstream
-development and provide a simple way for distros to turn it off.
-
-> I would advocate that this patch be reverted and an effort made to not
-> mix build environment checks into the configuration. I'm much happier
-> for the build to fail because the configuration can't be satisfied by
-> the environment than I am for the configuration to quietly change or for
-> the tools to not allow me to make the configuration in the first place.
-> Ideally the tools would warn the user if their environment won't build
-> the configuration, but that's a nice-to-have.
-
-I too would prefer to have a warning instead of the config being silently
-changed. But again, the problem goes beyond what was reported.
-
-@Masahiro: What do you think about it?
-
-Thanks
-Philipp  
+diff --git a/arch/s390/kernel/pgm_check.S b/arch/s390/kernel/pgm_check.S
+index eee3a482195a..2c27907a5ffc 100644
+--- a/arch/s390/kernel/pgm_check.S
++++ b/arch/s390/kernel/pgm_check.S
+@@ -78,8 +78,8 @@ PGM_CHECK(do_dat_exception)		/* 39 */
+ PGM_CHECK(do_dat_exception)		/* 3a */
+ PGM_CHECK(do_dat_exception)		/* 3b */
+ PGM_CHECK_DEFAULT			/* 3c */
+-PGM_CHECK_DEFAULT			/* 3d */
+-PGM_CHECK_DEFAULT			/* 3e */
++PGM_CHECK(do_secure_storage_access)	/* 3d */
++PGM_CHECK(do_non_secure_storage_access)	/* 3e */
+ PGM_CHECK_DEFAULT			/* 3f */
+ PGM_CHECK(monitor_event_exception)	/* 40 */
+ PGM_CHECK_DEFAULT			/* 41 */
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 7b0bb475c166..7bd86ebc882f 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -38,6 +38,7 @@
+ #include <asm/irq.h>
+ #include <asm/mmu_context.h>
+ #include <asm/facility.h>
++#include <asm/uv.h>
+ #include "../kernel/entry.h"
+ 
+ #define __FAIL_ADDR_MASK -4096L
+@@ -816,3 +817,80 @@ static int __init pfault_irq_init(void)
+ early_initcall(pfault_irq_init);
+ 
+ #endif /* CONFIG_PFAULT */
++
++#if IS_ENABLED(CONFIG_PGSTE)
++void do_secure_storage_access(struct pt_regs *regs)
++{
++	unsigned long addr = regs->int_parm_long & __FAIL_ADDR_MASK;
++	struct vm_area_struct *vma;
++	struct mm_struct *mm;
++	struct page *page;
++	int rc;
++
++	switch (get_fault_type(regs)) {
++	case USER_FAULT:
++		mm = current->mm;
++		down_read(&mm->mmap_sem);
++		vma = find_vma(mm, addr);
++		if (!vma) {
++			up_read(&mm->mmap_sem);
++			do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
++			break;
++		}
++		page = follow_page(vma, addr, FOLL_WRITE | FOLL_GET);
++		if (IS_ERR_OR_NULL(page)) {
++			up_read(&mm->mmap_sem);
++			break;
++		}
++		if (arch_make_page_accessible(page))
++			send_sig(SIGSEGV, current, 0);
++		put_page(page);
++		up_read(&mm->mmap_sem);
++		break;
++	case KERNEL_FAULT:
++		page = phys_to_page(addr);
++		if (unlikely(!try_get_page(page)))
++			break;
++		rc = arch_make_page_accessible(page);
++		put_page(page);
++		if (rc)
++			BUG();
++		break;
++	case VDSO_FAULT:
++		/* fallthrough */
++	case GMAP_FAULT:
++		/* fallthrough */
++	default:
++		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
++		WARN_ON_ONCE(1);
++	}
++}
++NOKPROBE_SYMBOL(do_secure_storage_access);
++
++void do_non_secure_storage_access(struct pt_regs *regs)
++{
++	unsigned long gaddr = regs->int_parm_long & __FAIL_ADDR_MASK;
++	struct gmap *gmap = (struct gmap *)S390_lowcore.gmap;
++
++	if (get_fault_type(regs) != GMAP_FAULT) {
++		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
++		WARN_ON_ONCE(1);
++		return;
++	}
++
++	if (gmap_convert_to_secure(gmap, gaddr) == -EINVAL)
++		send_sig(SIGSEGV, current, 0);
++}
++NOKPROBE_SYMBOL(do_non_secure_storage_access);
++
++#else
++void do_secure_storage_access(struct pt_regs *regs)
++{
++	default_trap_handler(regs);
++}
++
++void do_non_secure_storage_access(struct pt_regs *regs)
++{
++	default_trap_handler(regs);
++}
++#endif
+-- 
+2.25.0
