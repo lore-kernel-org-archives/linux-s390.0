@@ -1,190 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4318 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727979AbgBTKkc (ORCPT
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54753 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388860AbgBNSlI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:32 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 00/37] KVM: s390: Add support for protected VMs
-Date: Thu, 20 Feb 2020 05:39:43 -0500
-Message-Id: <20200220104020.5343-1-borntraeger@de.ibm.com>
+        Fri, 14 Feb 2020 13:41:08 -0500
+Subject: Re: [PATCH 11/35] KVM: s390/mm: Make pages accessible before
+ destroying the guest
+References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+ <20200207113958.7320-12-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <d44194a4-c9f0-7114-c633-327ebb553517@redhat.com>
+Date: Fri, 14 Feb 2020 19:40:56 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200207113958.7320-12-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
 
-mm people: This series contains a "pretty small" common code memory
-management change that will allow paging, guest backing with files etc
-almost just like normal VMs. It should be a no-op for all architectures
-not opting in. And it should be usable for others that also try to get
-notified on "the pages are in the process of being used for things like
-I/O". This time I included error handling and an ACK from Will Deacon.
+On 07.02.20 12:39, Christian Borntraeger wrote:
+> Before we destroy the secure configuration, we better make all
+> pages accessible again. This also happens during reboot, where we reboot
+> into a non-secure guest that then can go again into secure mode. As
+> this "new" secure guest will have a new ID we cannot reuse the old page
+> state.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  arch/s390/include/asm/pgtable.h |  1 +
+>  arch/s390/kvm/pv.c              |  2 ++
+>  arch/s390/mm/gmap.c             | 35 +++++++++++++++++++++++++++++++++
+>  3 files changed, 38 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index dbd1453e6924..3e2ea997c334 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -1669,6 +1669,7 @@ extern int vmem_remove_mapping(unsigned long start, unsigned long size);
+>  extern int s390_enable_sie(void);
+>  extern int s390_enable_skey(void);
+>  extern void s390_reset_cmma(struct mm_struct *mm);
+> +extern void s390_reset_acc(struct mm_struct *mm);
+>  
+>  /* s390 has a private copy of get unmapped area to deal with cache synonyms */
+>  #define HAVE_ARCH_UNMAPPED_AREA
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index 4795e61f4e16..392795a92bd9 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
+>  	int rc;
+>  	u32 ret;
+>  
+> +	/* make all pages accessible before destroying the guest */
+> +	s390_reset_acc(kvm->mm);
+>  	rc = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
+>  			   UVC_CMD_DESTROY_SEC_CONF, &ret);
+>  	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 7291452fe5f0..27926a06df32 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
+>  	up_write(&mm->mmap_sem);
+>  }
+>  EXPORT_SYMBOL_GPL(s390_reset_cmma);
+> +
+> +/*
+> + * make inaccessible pages accessible again
+> + */
+> +static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
+> +			    unsigned long next, struct mm_walk *walk)
+> +{
+> +	pte_t pte = READ_ONCE(*ptep);
+> +
+> +	if (pte_present(pte))
+> +		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
+> +	return 0;
+> +}
+> +
+> +static const struct mm_walk_ops reset_acc_walk_ops = {
+> +	.pte_entry		= __s390_reset_acc,
+> +};
+> +
+> +#include <linux/sched/mm.h>
+> +void s390_reset_acc(struct mm_struct *mm)
+> +{
+> +	/*
+> +	 * we might be called during
+> +	 * reset:                             we walk the pages and clear
+> +	 * close of all kvm file descriptors: we walk the pages and clear
+> +	 * exit of process on fd closure:     vma already gone, do nothing
+> +	 */
+> +	if (!mmget_not_zero(mm))
+> +		return;
+> +	down_read(&mm->mmap_sem);
+> +	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
+> +	up_read(&mm->mmap_sem);
+> +	mmput(mm);
+> +}
+> +EXPORT_SYMBOL_GPL(s390_reset_acc);
+> 
 
-mm-related patches CCed on linux-mm, the complete list can be found on
-the KVM and linux-s390 list. 
-
-Andrew, any chance to either take " mm:gup/writeback: add callbacks for
-inaccessible pages" or ACK so that I can take it?
-
-Overview
---------
-Protected VMs (PVM) are KVM VMs, where KVM can't access the VM's state
-like guest memory and guest registers anymore. Instead the PVMs are
-mostly managed by a new entity called Ultravisor (UV), which provides
-an API, so KVM and the PV can request management actions.
-
-PVMs are encrypted at rest and protected from hypervisor access while
-running. They switch from a normal operation into protected mode, so
-we can still use the standard boot process to load a encrypted blob
-and then move it into protected mode.
-
-Rebooting is only possible by passing through the unprotected/normal
-mode and switching to protected again.
-
-All patches are in the protvirtv4 branch of the korg s390 kvm git
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=protvirtv5
-
-Claudio presented the technology at his presentation at KVM Forum
-2019.
-
-https://static.sched.com/hosted_files/kvmforum2019/3b/ibm_protected_vms_s390x.pdf
-
-
-v2 -> v3
-- rebase against v5.6-rc2
-- move some checks into the callers
-- typo fixes
-- extend UV query size
-- do a tlb flush when entering/exiting protected mode
-- more comments
-- change interface to PV_ENABLE/DISABLE instead of vcpu/vm
-  create/destroy
-- lockdep checks for *is_protected calls
-- locking improments
-- move facility 161 to qemu
-- checkpatch fixes
-- merged error handling in mm patch
-- removed vcpu pv commands
-- use mp_state for setting the IPL PSW
-
-
-v1 -> v2
-- rebase on top of kvm/master
-- pipe through rc and rrc. This might have created some churn here and
-  there
-- turn off sclp masking when rebooting into "unsecure"
-- memory management simplification
-- prefix page handling now via intercept 112
-- io interrupt intervention request fix (do not use GISA)
-- api.txt conversion to rst
-- sample patches on top of mm/gup/writeback
-- tons of review feedback
-- kvm_uv debug feature fixes and unifications
-- ultravisor information for /sys/firmware
-- 
-
-RFCv2 -> v1 (you can diff the protvirtv2 and the protvirtv3 branch)
-- tons of review feedback integrated (see mail thread)
-- memory management now complete and working
-- Documentation patches merged
-- interrupt patches merged
-- CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST removed
-- SIDA interface integrated into memop
-- for merged patches I removed reviews that were not in all patches
-
-
-Christian Borntraeger (5):
-  KVM: s390/mm: Make pages accessible before destroying the guest
-  KVM: s390: protvirt: Add SCLP interrupt handling
-  KVM: s390: protvirt: do not inject interrupts after start
-  KVM: s390: rstify new ioctls in api.rst
-  KVM: s390: protvirt: introduce and enable KVM_CAP_S390_PROTECTED
-
-Claudio Imbrenda (3):
-  mm:gup/writeback: add callbacks for inaccessible pages
-  s390/mm: provide memory management functions for protected KVM guests
-  KVM: s390/mm: handle guest unpin events
-
-Janosch Frank (24):
-  KVM: s390: protvirt: Add UV debug trace
-  KVM: s390: add new variants of UV CALL
-  KVM: s390: protvirt: Add initial vm and cpu lifecycle handling
-  KVM: s390: protvirt: Add KVM api documentation
-  KVM: s390: protvirt: Secure memory is not mergeable
-  KVM: s390: protvirt: Handle SE notification interceptions
-  KVM: s390: protvirt: Instruction emulation
-  KVM: s390: protvirt: Handle spec exception loops
-  KVM: s390: protvirt: Add new gprs location handling
-  KVM: S390: protvirt: Introduce instruction data area bounce buffer
-  KVM: s390: protvirt: handle secure guest prefix pages
-  KVM: s390: protvirt: Write sthyi data to instruction data area
-  KVM: s390: protvirt: STSI handling
-  KVM: s390: protvirt: disallow one_reg
-  KVM: s390: protvirt: Do only reset registers that are accessible
-  KVM: s390: protvirt: Only sync fmt4 registers
-  KVM: s390: protvirt: Add program exception injection
-  KVM: s390: protvirt: UV calls in support of diag308 0, 1
-  KVM: s390: protvirt: Report CPU state to Ultravisor
-  KVM: s390: protvirt: Support cmd 5 operation state
-  KVM: s390: protvirt: Mask PSW interrupt bits for interception 104 and
-    112
-  KVM: s390: protvirt: Add UV cpu reset calls
-  DOCUMENTATION: Protected virtual machine introduction and IPL
-  s390: protvirt: Add sysfs firmware interface for Ultravisor
-    information
-
-Michael Mueller (1):
-  KVM: s390: protvirt: Implement interrupt injection
-
-Ulrich Weigand (1):
-  KVM: s390/interrupt: do not pin adapter interrupt pages
-
-Vasily Gorbik (3):
-  s390/protvirt: introduce host side setup
-  s390/protvirt: add ultravisor initialization
-  s390/mm: add (non)secure page access exceptions handlers
-
- .../admin-guide/kernel-parameters.txt         |   5 +
- Documentation/virt/kvm/api.rst                |  91 +++-
- Documentation/virt/kvm/devices/s390_flic.rst  |  11 +-
- Documentation/virt/kvm/index.rst              |   2 +
- Documentation/virt/kvm/s390-pv-boot.rst       |  83 +++
- Documentation/virt/kvm/s390-pv.rst            | 116 ++++
- MAINTAINERS                                   |   1 +
- arch/s390/boot/Makefile                       |   2 +-
- arch/s390/boot/uv.c                           |  21 +-
- arch/s390/include/asm/gmap.h                  |   6 +
- arch/s390/include/asm/kvm_host.h              | 113 +++-
- arch/s390/include/asm/mmu.h                   |   2 +
- arch/s390/include/asm/mmu_context.h           |   1 +
- arch/s390/include/asm/page.h                  |   5 +
- arch/s390/include/asm/pgtable.h               |  35 +-
- arch/s390/include/asm/uv.h                    | 252 ++++++++-
- arch/s390/kernel/Makefile                     |   1 +
- arch/s390/kernel/pgm_check.S                  |   4 +-
- arch/s390/kernel/setup.c                      |   9 +-
- arch/s390/kernel/uv.c                         | 413 ++++++++++++++
- arch/s390/kvm/Makefile                        |   2 +-
- arch/s390/kvm/diag.c                          |   4 +
- arch/s390/kvm/intercept.c                     | 115 +++-
- arch/s390/kvm/interrupt.c                     | 399 ++++++++------
- arch/s390/kvm/kvm-s390.c                      | 509 +++++++++++++++---
- arch/s390/kvm/kvm-s390.h                      |  51 +-
- arch/s390/kvm/priv.c                          |  11 +-
- arch/s390/kvm/pv.c                            | 286 ++++++++++
- arch/s390/mm/fault.c                          |  78 +++
- arch/s390/mm/gmap.c                           |  65 ++-
- include/linux/gfp.h                           |   6 +
- include/uapi/linux/kvm.h                      |  43 +-
- mm/gup.c                                      |  15 +-
- mm/page-writeback.c                           |   5 +
- 34 files changed, 2442 insertions(+), 320 deletions(-)
- create mode 100644 Documentation/virt/kvm/s390-pv-boot.rst
- create mode 100644 Documentation/virt/kvm/s390-pv.rst
- create mode 100644 arch/s390/kernel/uv.c
- create mode 100644 arch/s390/kvm/pv.c
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
-2.25.0
+Thanks,
+
+David / dhildenb
