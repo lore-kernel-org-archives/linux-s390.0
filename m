@@ -1,191 +1,273 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50146 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726252AbgBRJXZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Feb 2020 04:23:25 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01I9JNK6013712
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:23 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y85f3e3ht-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:23 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <vneethv@linux.ibm.com>;
-        Tue, 18 Feb 2020 09:23:22 -0000
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: [RFC v2 2/2] s390/cio: add support for fces status notification
-Date: Tue, 18 Feb 2020 10:23:17 +0100
-In-Reply-To: <20200218092317.49846-1-vneethv@linux.ibm.com>
-References: <20200218092317.49846-1-vneethv@linux.ibm.com>
-Message-Id: <20200218092317.49846-3-vneethv@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:48406 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728217AbgBQLOH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Feb 2020 06:14:07 -0500
+Subject: Re: [PATCH v2 03/42] s390/protvirt: introduce host side setup
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+ <20200214222658.12946-4-borntraeger@de.ibm.com>
+ <8b6f790f-8d41-f9a8-1c9c-df900d22fa47@redhat.com>
+ <66cf54a2-8fec-e992-18a9-d72b22d46b97@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <2d46521e-97d4-ec48-36c3-5bf769a2d97d@redhat.com>
+Date: Mon, 17 Feb 2020 12:13:51 +0100
+MIME-Version: 1.0
+In-Reply-To: <66cf54a2-8fec-e992-18a9-d72b22d46b97@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: oberpar@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-Fiber channel endpoint security event is received as an sei:nt0 type
-in the cio-chsc layer. this information needs to be shared with the
-ccwdev devices (dasd for instance) using path_events. Send this
-information to the sch layer which will internally use the path-event
-for this notification.
+On 17.02.20 12:11, Christian Borntraeger wrote:
+> 
+> 
+> On 17.02.20 10:53, David Hildenbrand wrote:
+>> On 14.02.20 23:26, Christian Borntraeger wrote:
+>>> From: Vasily Gorbik <gor@linux.ibm.com>
+>>>
+>>> Add "prot_virt" command line option which controls if the kernel
+>>> protected VMs support is enabled at early boot time. This has to be
+>>> done early, because it needs large amounts of memory and will disable
+>>> some features like STP time sync for the lpar.
+>>>
+>>> Extend ultravisor info definitions and expose it via uv_info struct
+>>> filled in during startup.
+>>>
+>>> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+>>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>>> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> ---
+>>>  .../admin-guide/kernel-parameters.txt         |  5 ++
+>>>  arch/s390/boot/Makefile                       |  2 +-
+>>>  arch/s390/boot/uv.c                           | 21 +++++++-
+>>>  arch/s390/include/asm/uv.h                    | 45 +++++++++++++++-
+>>>  arch/s390/kernel/Makefile                     |  1 +
+>>>  arch/s390/kernel/setup.c                      |  4 --
+>>>  arch/s390/kernel/uv.c                         | 52 +++++++++++++++++++
+>>>  7 files changed, 122 insertions(+), 8 deletions(-)
+>>>  create mode 100644 arch/s390/kernel/uv.c
+>>>
+>>> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+>>> index dbc22d684627..b0beae9b9e36 100644
+>>> --- a/Documentation/admin-guide/kernel-parameters.txt
+>>> +++ b/Documentation/admin-guide/kernel-parameters.txt
+>>> @@ -3795,6 +3795,11 @@
+>>>  			before loading.
+>>>  			See Documentation/admin-guide/blockdev/ramdisk.rst.
+>>>  
+>>> +	prot_virt=	[S390] enable hosting protected virtual machines
+>>> +			isolated from the hypervisor (if hardware supports
+>>> +			that).
+>>> +			Format: <bool>
+>>> +
+>>>  	psi=		[KNL] Enable or disable pressure stall information
+>>>  			tracking.
+>>>  			Format: <bool>
+>>> diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+>>> index e2c47d3a1c89..30f1811540c5 100644
+>>> --- a/arch/s390/boot/Makefile
+>>> +++ b/arch/s390/boot/Makefile
+>>> @@ -37,7 +37,7 @@ CFLAGS_sclp_early_core.o += -I$(srctree)/drivers/s390/char
+>>>  obj-y	:= head.o als.o startup.o mem_detect.o ipl_parm.o ipl_report.o
+>>>  obj-y	+= string.o ebcdic.o sclp_early_core.o mem.o ipl_vmparm.o cmdline.o
+>>>  obj-y	+= version.o pgm_check_info.o ctype.o text_dma.o
+>>> -obj-$(CONFIG_PROTECTED_VIRTUALIZATION_GUEST)	+= uv.o
+>>> +obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+= uv.o
+>>>  obj-$(CONFIG_RELOCATABLE)	+= machine_kexec_reloc.o
+>>>  obj-$(CONFIG_RANDOMIZE_BASE)	+= kaslr.o
+>>>  targets	:= bzImage startup.a section_cmp.boot.data section_cmp.boot.preserved.data $(obj-y)
+>>> diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
+>>> index ed007f4a6444..af9e1cc93c68 100644
+>>> --- a/arch/s390/boot/uv.c
+>>> +++ b/arch/s390/boot/uv.c
+>>> @@ -3,7 +3,13 @@
+>>>  #include <asm/facility.h>
+>>>  #include <asm/sections.h>
+>>>  
+>>> +/* will be used in arch/s390/kernel/uv.c */
+>>> +#ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+>>>  int __bootdata_preserved(prot_virt_guest);
+>>> +#endif
+>>> +#if IS_ENABLED(CONFIG_KVM)
+>>> +struct uv_info __bootdata_preserved(uv_info);
+>>> +#endif
+>>>  
+>>>  void uv_query_info(void)
+>>>  {
+>>> @@ -18,7 +24,20 @@ void uv_query_info(void)
+>>>  	if (uv_call(0, (uint64_t)&uvcb))
+>>>  		return;
+>>>  
+>>> -	if (test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, (unsigned long *)uvcb.inst_calls_list) &&
+>>> +	if (IS_ENABLED(CONFIG_KVM)) {
+>>> +		memcpy(uv_info.inst_calls_list, uvcb.inst_calls_list, sizeof(uv_info.inst_calls_list));
+>>> +		uv_info.uv_base_stor_len = uvcb.uv_base_stor_len;
+>>> +		uv_info.guest_base_stor_len = uvcb.conf_base_phys_stor_len;
+>>> +		uv_info.guest_virt_base_stor_len = uvcb.conf_base_virt_stor_len;
+>>> +		uv_info.guest_virt_var_stor_len = uvcb.conf_virt_var_stor_len;
+>>> +		uv_info.guest_cpu_stor_len = uvcb.cpu_stor_len;
+>>> +		uv_info.max_sec_stor_addr = ALIGN(uvcb.max_guest_stor_addr, PAGE_SIZE);
+>>> +		uv_info.max_num_sec_conf = uvcb.max_num_sec_conf;
+>>> +		uv_info.max_guest_cpus = uvcb.max_guest_cpus;
+>>> +	}
+>>> +
+>>> +	if (IS_ENABLED(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) &&
+>>> +	    test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, (unsigned long *)uvcb.inst_calls_list) &&
+>>>  	    test_bit_inv(BIT_UVC_CMD_REMOVE_SHARED_ACCESS, (unsigned long *)uvcb.inst_calls_list))
+>>>  		prot_virt_guest = 1;
+>>>  }
+>>> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+>>> index 4093a2856929..34b1114dcc38 100644
+>>> --- a/arch/s390/include/asm/uv.h
+>>> +++ b/arch/s390/include/asm/uv.h
+>>> @@ -44,7 +44,19 @@ struct uv_cb_qui {
+>>>  	struct uv_cb_header header;
+>>>  	u64 reserved08;
+>>>  	u64 inst_calls_list[4];
+>>> -	u64 reserved30[15];
+>>> +	u64 reserved30[2];
+>>> +	u64 uv_base_stor_len;
+>>> +	u64 reserved48;
+>>> +	u64 conf_base_phys_stor_len;
+>>> +	u64 conf_base_virt_stor_len;
+>>> +	u64 conf_virt_var_stor_len;
+>>> +	u64 cpu_stor_len;
+>>> +	u32 reserved70[3];
+>>> +	u32 max_num_sec_conf;
+>>> +	u64 max_guest_stor_addr;
+>>> +	u8  reserved88[158-136];
+>>> +	u16 max_guest_cpus;
+>>> +	u64 reserveda0;
+>>>  } __packed __aligned(8);
+>>>  
+>>>  struct uv_cb_share {
+>>> @@ -69,6 +81,19 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
+>>>  	return cc;
+>>>  }
+>>>  
+>>> +struct uv_info {
+>>> +	unsigned long inst_calls_list[4];
+>>> +	unsigned long uv_base_stor_len;
+>>> +	unsigned long guest_base_stor_len;
+>>> +	unsigned long guest_virt_base_stor_len;
+>>> +	unsigned long guest_virt_var_stor_len;
+>>> +	unsigned long guest_cpu_stor_len;
+>>> +	unsigned long max_sec_stor_addr;
+>>> +	unsigned int max_num_sec_conf;
+>>> +	unsigned short max_guest_cpus;
+>>> +};
+>>> +extern struct uv_info uv_info;
+>>> +
+>>>  #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+>>>  extern int prot_virt_guest;
+>>>  
+>>> @@ -121,11 +146,27 @@ static inline int uv_remove_shared(unsigned long addr)
+>>>  	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
+>>>  }
+>>>  
+>>> -void uv_query_info(void);
+>>>  #else
+>>>  #define is_prot_virt_guest() 0
+>>>  static inline int uv_set_shared(unsigned long addr) { return 0; }
+>>>  static inline int uv_remove_shared(unsigned long addr) { return 0; }
+>>> +#endif
+>>> +
+>>> +#if IS_ENABLED(CONFIG_KVM)
+>>> +extern int prot_virt_host;
+>>> +
+>>> +static inline int is_prot_virt_host(void)
+>>> +{
+>>> +	return prot_virt_host;
+>>> +}
+>>> +#else
+>>> +#define is_prot_virt_host() 0
+>>> +#endif
+>>> +
+>>> +#if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
+>>> +	IS_ENABLED(CONFIG_KVM)
+>>> +void uv_query_info(void);
+>>> +#else
+>>>  static inline void uv_query_info(void) {}
+>>>  #endif
+>>>  
+>>> diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+>>> index 2b1203cf7be6..22bfb8d5084e 100644
+>>> --- a/arch/s390/kernel/Makefile
+>>> +++ b/arch/s390/kernel/Makefile
+>>> @@ -78,6 +78,7 @@ obj-$(CONFIG_PERF_EVENTS)	+= perf_cpum_cf_events.o perf_regs.o
+>>>  obj-$(CONFIG_PERF_EVENTS)	+= perf_cpum_cf_diag.o
+>>>  
+>>>  obj-$(CONFIG_TRACEPOINTS)	+= trace.o
+>>> +obj-$(findstring y, $(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) $(CONFIG_PGSTE))	+= uv.o
+>>>  
+>>>  # vdso
+>>>  obj-y				+= vdso64/
+>>> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+>>> index b2c2f75860e8..a2496382175e 100644
+>>> --- a/arch/s390/kernel/setup.c
+>>> +++ b/arch/s390/kernel/setup.c
+>>> @@ -92,10 +92,6 @@ char elf_platform[ELF_PLATFORM_SIZE];
+>>>  
+>>>  unsigned long int_hwcap = 0;
+>>>  
+>>> -#ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+>>> -int __bootdata_preserved(prot_virt_guest);
+>>> -#endif
+>>> -
+>>>  int __bootdata(noexec_disabled);
+>>>  int __bootdata(memory_end_set);
+>>>  unsigned long __bootdata(memory_end);
+>>> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+>>> new file mode 100644
+>>> index 000000000000..b1f936710360
+>>> --- /dev/null
+>>> +++ b/arch/s390/kernel/uv.c
+>>> @@ -0,0 +1,52 @@
+>>> +// SPDX-License-Identifier: GPL-2.0
+>>> +/*
+>>> + * Common Ultravisor functions and initialization
+>>> + *
+>>> + * Copyright IBM Corp. 2019, 2020
+>>> + */
+>>> +#define KMSG_COMPONENT "prot_virt"
+>>> +#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+>>> +
+>>> +#include <linux/kernel.h>
+>>> +#include <linux/types.h>
+>>> +#include <linux/sizes.h>
+>>> +#include <linux/bitmap.h>
+>>> +#include <linux/memblock.h>
+>>> +#include <asm/facility.h>
+>>> +#include <asm/sections.h>
+>>> +#include <asm/uv.h>
+>>> +
+>>> +/* the bootdata_preserved fields come from ones in arch/s390/boot/uv.c */
+>>> +#ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
+>>> +int __bootdata_preserved(prot_virt_guest);
+>>> +#endif
+>>> +
+>>> +#if IS_ENABLED(CONFIG_KVM)
+>>
+>>
+>> Why is that glued to CONFIG_KVM? Can't we glue all that stuff to
+>> CONFIG_PROTECTED_VIRTUALIZATION_GUEST and make in kconfig
+>> CONFIG_PROTECTED_VIRTUALIZATION_GUEST depend on CONFIG_KVM?
+> 
+> 
+> CONFIG_PROTECTED_VIRTUALIZATION_GUEST is for the GUEST part (the virtio-ccw changes
+> inside the guest). The other thing is for the host and here we bind it
+> to CONFIG_KVM (or PGSTE for mm code).
 
-Reference-ID: IO1812
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
----
- arch/s390/include/asm/ccwdev.h |  1 +
- drivers/s390/cio/chp.h         |  1 +
- drivers/s390/cio/chsc.c        | 50 ++++++++++++++++++++++++++++++----
- drivers/s390/cio/device.c      | 19 ++++++++++++-
- 4 files changed, 65 insertions(+), 6 deletions(-)
+Ahh, sorry messed that up. Think I had another (in previous versions?)
+config option in mind.
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 865ce1cb86d5..3662bb27bd01 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -103,6 +103,7 @@ struct ccw_device {
- 					       was successfully verified. */
- #define PE_PATHGROUP_ESTABLISHED	0x4 /* A pathgroup was reset and had
- 					       to be established again. */
-+#define PE_PATH_FCES_EVENT		0x8 /* An event from FCES */
- 
- /*
-  * Possible CIO actions triggered by the unit check handler.
-diff --git a/drivers/s390/cio/chp.h b/drivers/s390/cio/chp.h
-index 20259f3fbf45..7ee9eba0abcb 100644
---- a/drivers/s390/cio/chp.h
-+++ b/drivers/s390/cio/chp.h
-@@ -23,6 +23,7 @@
- #define CHP_OFFLINE 1
- #define CHP_VARY_ON 2
- #define CHP_VARY_OFF 3
-+#define CHP_FCES_EVENT 4
- 
- struct chp_link {
- 	struct chp_id chpid;
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index 6218bcb8d21f..c7371b5241a2 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -37,6 +37,10 @@ static void *sei_page;
- static void *chsc_page;
- static DEFINE_SPINLOCK(chsc_page_lock);
- 
-+/* Store Event Information VF field definitions*/
-+#define SEI_VF_FLA	0xc0 /* Full Link Address*/
-+#define SEI_RS_CHPID	0x4  /* 4 in RS field indicates CHPID*/
-+
- /**
-  * chsc_error_from_response() - convert a chsc response to an error
-  * @response: chsc response code
-@@ -283,6 +287,29 @@ static void s390_process_res_acc(struct chp_link *link)
- 	css_schedule_reprobe();
- }
- 
-+static int __s390_process_fces_event(struct subchannel *sch, void *data)
-+{
-+	spin_lock_irq(sch->lock);
-+	if (sch->driver && sch->driver->chp_event)
-+		sch->driver->chp_event(sch, data, CHP_FCES_EVENT);
-+	spin_unlock_irq(sch->lock);
-+	fces_event = 0;
-+	return 0;
-+}
-+
-+
-+static void s390_process_fces_event(struct chp_link *link)
-+{
-+	/* Wait until previous actions have settled. */
-+	css_wait_for_slow_path();
-+	/*
-+	 * Scan through all subchannels that may be concerned and
-+	 * do a validation on those.
-+	 */
-+	for_each_subchannel_staged(__s390_process_fces_event, NULL, link);
-+}
-+
-+
- struct chsc_sei_nt0_area {
- 	u8  flags;
- 	u8  vf;				/* validity flags */
-@@ -569,13 +596,15 @@ static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
- static void chsc_process_sei_esc_change(struct chsc_sei_nt0_area *sei_area)
- {
- 	struct channel_path *chp;
-+	struct chp_link link;
- 	struct chp_id chpid;
- 	int status;
- 
--	CIO_CRW_EVENT(4, "chsc: endpoint security status notification (rs=%02x, "
--		      "rs_id=%04x, esc=%x)\n", sei_area->rs, sei_area->rsid,
--		      sei_area->ccdf[0]);
--	if (sei_area->rs != 4)
-+	CIO_CRW_EVENT(4, "chsc: endpoint security status notification (rs=%02x "
-+			" rs_id=%04x, esc=%x)\n", sei_area->rs, sei_area->rsid,
-+			sei_area->ccdf[0]);
-+
-+	if (sei_area->rs != SEI_RS_CHPID)
- 		return;
- 	chp_id_init(&chpid);
- 	chpid.id = sei_area->rsid;
-@@ -593,7 +622,18 @@ static void chsc_process_sei_esc_change(struct chsc_sei_nt0_area *sei_area)
- 		mutex_unlock(&chp->lock);
- 	}
- 
--	/* notify driver? check I/O? */
-+	memset(&link, 0, sizeof(struct chp_link));
-+	link.chpid = chpid;
-+	if ((sei_area->vf & SEI_VF_FLA) != 0) {
-+		link.fla = sei_area->fla;
-+		if ((sei_area->vf & SEI_VF_FLA) == SEI_VF_FLA)
-+			/* full link address */
-+			link.fla_mask = 0xffff;
-+		else
-+			/* link address */
-+			link.fla_mask = 0xff00;
-+	}
-+	s390_process_fces_event(&link);
- }
- 
- static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 0c6245fc7706..518794a7fab5 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1165,7 +1165,8 @@ static int io_subchannel_chp_event(struct subchannel *sch,
- 				   struct chp_link *link, int event)
- {
- 	struct ccw_device *cdev = sch_get_cdev(sch);
--	int mask;
-+	int mask, chpid, maskval;
-+	int path_event[8];
- 
- 	mask = chp_ssd_get_mask(&sch->ssd_info, link);
- 	if (!mask)
-@@ -1200,6 +1201,22 @@ static int io_subchannel_chp_event(struct subchannel *sch,
- 			cdev->private->path_new_mask |= mask;
- 		io_subchannel_verify(sch);
- 		break;
-+	case CHP_FCES_EVENT:
-+		/* call the path_event functionality and let the
-+		 * consumer device know about the end-point security
-+		 * event
-+		 */
-+		for (chpid = 0, maskval = 0x80; chpid < 8; chpid++,
-+				maskval >>= 1) {
-+			path_event[chpid] = PE_NONE;
-+			if (mask == maskval)
-+				path_event[chpid] = PE_PATH_FCES_EVENT;
-+		}
-+		spin_lock_irq(cdev->ccwlock);
-+		if (cdev)
-+			cdev->drv->path_event(cdev, path_event);
-+		spin_unlock_irq(cdev->ccwlock);
-+		break;
- 	}
- 	return 0;
- }
+Makes sense
+
 -- 
-2.17.1
+Thanks,
+
+David / dhildenb
