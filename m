@@ -1,85 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49206 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13048 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728040AbgBNW12 (ORCPT
+        by vger.kernel.org with ESMTP id S1727601AbgBQRIy (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:28 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 22/42] KVM: s390/mm: handle guest unpin events
-Date: Fri, 14 Feb 2020 17:26:38 -0500
-Message-Id: <20200214222658.12946-23-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+        Mon, 17 Feb 2020 12:08:54 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HH8rgA138040
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:08:53 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y6e1gmqc2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:08:52 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
+        Mon, 17 Feb 2020 17:08:33 -0000
+Date: Mon, 17 Feb 2020 18:08:28 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH trivial] s390/pkey/zcrypt: spelling s/crytp/crypt/
+References: <20200212084622.9219-1-geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200212084622.9219-1-geert+renesas@glider.be>
+Message-Id: <your-ad-here.call-01581959308-ext-9465@work.hours>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jiri Kosina <trivial@kernel.org>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-The current code tries to first pin shared pages, if that fails (e.g.
-because the page is not shared) it will export them. For shared pages
-this means that we get a new intercept telling us that the guest is
-unsharing that page. We will make the page secure at that point in time
-and revoke the host access. This is synchronized with other host events,
-e.g. the code will wait until host I/O has finished.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/intercept.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 6c9db886381c..1e231058e4b3 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -16,6 +16,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/irq.h>
- #include <asm/sysinfo.h>
-+#include <asm/uv.h>
- 
- #include "kvm-s390.h"
- #include "gaccess.h"
-@@ -484,12 +485,35 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static int handle_pv_uvc(struct kvm_vcpu *vcpu)
-+{
-+	struct uv_cb_share *guest_uvcb = (void *)vcpu->arch.sie_block->sidad;
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd	= UVC_CMD_UNPIN_PAGE_SHARED,
-+		.header.len	= sizeof(uvcb),
-+		.guest_handle	= kvm_s390_pv_handle(vcpu->kvm),
-+		.gaddr		= guest_uvcb->paddr,
-+	};
-+	int rc;
-+
-+	if (guest_uvcb->header.cmd != UVC_CMD_REMOVE_SHARED_ACCESS) {
-+		WARN_ONCE(1, "Unexpected UVC 0x%x!\n", guest_uvcb->header.cmd);
-+		return 0;
-+	}
-+	rc = gmap_make_secure(vcpu->arch.gmap, uvcb.gaddr, &uvcb);
-+	if (rc == -EINVAL)
-+		return 0;
-+	return rc;
-+}
-+
- static int handle_pv_notification(struct kvm_vcpu *vcpu)
- {
- 	if (vcpu->arch.sie_block->ipa == 0xb210)
- 		return handle_pv_spx(vcpu);
- 	if (vcpu->arch.sie_block->ipa == 0xb220)
- 		return handle_pv_sclp(vcpu);
-+	if (vcpu->arch.sie_block->ipa == 0xb9a4)
-+		return handle_pv_uvc(vcpu);
- 
- 	return handle_instruction(vcpu);
- }
--- 
-2.25.0
+On Wed, Feb 12, 2020 at 09:46:22AM +0100, Geert Uytterhoeven wrote:
+> Fix typos in a comments.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  drivers/s390/crypto/zcrypt_ep11misc.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+> index d4caf46ff9df1559..2afe2153b34e32e9 100644
+> --- a/drivers/s390/crypto/zcrypt_ep11misc.c
+> +++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+> @@ -887,7 +887,7 @@ static int ep11_unwrapkey(u16 card, u16 domain,
+>  	/* empty pin tag */
+>  	*p++ = 0x04;
+>  	*p++ = 0;
+> -	/* encrytped key value tag and bytes */
+> +	/* encrypted key value tag and bytes */
+>  	p += asn1tag_write(p, 0x04, enckey, enckeysize);
+>  
+>  	/* reply cprb and payload */
+> @@ -1095,7 +1095,7 @@ int ep11_clr2keyblob(u16 card, u16 domain, u32 keybitsize, u32 keygenflags,
+>  
+>  	/* Step 1: generate AES 256 bit random kek key */
+>  	rc = ep11_genaeskey(card, domain, 256,
+> -			    0x00006c00, /* EN/DECRYTP, WRAP/UNWRAP */
+> +			    0x00006c00, /* EN/DECRYPT, WRAP/UNWRAP */
+>  			    kek, &keklen);
+>  	if (rc) {
+>  		DEBUG_ERR(
+> -- 
+> 2.17.1
+> 
+Applied, thanks
