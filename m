@@ -1,115 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46676 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404216AbgBNQQG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:16:06 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 204/252] s390/ftrace: generate traced function stack frame
-Date: Fri, 14 Feb 2020 11:10:59 -0500
-Message-Id: <20200214161147.15842-204-sashal@kernel.org>
-In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
-References: <20200214161147.15842-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64548 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726879AbgBQRHn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 Feb 2020 12:07:43 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HH57vx021624
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:07:42 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y6b55rtyh-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 12:07:42 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
+        Mon, 17 Feb 2020 17:07:39 -0000
+Date: Mon, 17 Feb 2020 18:07:33 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH] s390/mm: Explicitly compare PAGE_DEFAULT_KEY against
+ zero in storage_key_init_range
+References: <20200214064207.10381-1-natechancellor@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200214064207.10381-1-natechancellor@gmail.com>
+Message-Id: <your-ad-here.call-01581959253-ext-9953@work.hours>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 
-From: Vasily Gorbik <gor@linux.ibm.com>
-
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
-
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
-
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
-
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index e93fbf02490cf..83afd5b78e16a 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -25,6 +25,12 @@ ENTRY(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
- 
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -38,9 +44,16 @@ ENTRY(ftrace_caller)
- #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
--- 
-2.20.1
+On Thu, Feb 13, 2020 at 11:42:07PM -0700, Nathan Chancellor wrote:
+> Clang warns:
+> 
+>  In file included from ../arch/s390/purgatory/purgatory.c:10:
+>  In file included from ../include/linux/kexec.h:18:
+>  In file included from ../include/linux/crash_core.h:6:
+>  In file included from ../include/linux/elfcore.h:5:
+>  In file included from ../include/linux/user.h:1:
+>  In file included from ../arch/s390/include/asm/user.h:11:
+>  ../arch/s390/include/asm/page.h:45:6: warning: converting the result of
+>  '<<' to a boolean always evaluates to false
+>  [-Wtautological-constant-compare]
+>          if (PAGE_DEFAULT_KEY)
+>             ^
+>  ../arch/s390/include/asm/page.h:23:44: note: expanded from macro
+>  'PAGE_DEFAULT_KEY'
+>  #define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
+>                                                   ^
+>  1 warning generated.
+> 
+> Explicitly compare this against zero to silence the warning as it is
+> intended to be used in a boolean context.
+> 
+> Fixes: de3fa841e429 ("s390/mm: fix compile for PAGE_DEFAULT_KEY != 0")
+> Link: https://github.com/ClangBuiltLinux/linux/issues/860
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+Applied to fixes, thanks
