@@ -1,103 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4298 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727686AbgBTKka (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 12/37] KVM: s390/mm: Make pages accessible before destroying the guest
-Date: Thu, 20 Feb 2020 05:39:55 -0500
-Message-Id: <20200220104020.5343-13-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45009 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727485AbgBQKla (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Feb 2020 05:41:30 -0500
+Subject: Re: [PATCH v2 07/42] KVM: s390: protvirt: Add UV debug trace
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+ <20200214222658.12946-8-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <d33fd043-a350-bc75-87d0-e6485163ae17@redhat.com>
+Date: Mon, 17 Feb 2020 11:41:15 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200214222658.12946-8-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-Before we destroy the secure configuration, we better make all
-pages accessible again. This also happens during reboot, where we reboot
-into a non-secure guest that then can go again into secure mode. As
-this "new" secure guest will have a new ID we cannot reuse the old page
-state.
+On 14.02.20 23:26, Christian Borntraeger wrote:
+> From: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Let's have some debug traces which stay around for longer than the
+> guest.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c |  9 ++++++++-
+>  arch/s390/kvm/kvm-s390.h | 11 +++++++++++
+>  2 files changed, 19 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index d7ff30e45589..cc7793525a69 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -220,6 +220,7 @@ static struct kvm_s390_vm_cpu_subfunc kvm_s390_available_subfunc;
+>  static struct gmap_notifier gmap_notifier;
+>  static struct gmap_notifier vsie_gmap_notifier;
+>  debug_info_t *kvm_s390_dbf;
+> +debug_info_t *kvm_s390_dbf_uv;
+>  
+>  /* Section: not file related */
+>  int kvm_arch_hardware_enable(void)
+> @@ -460,7 +461,12 @@ int kvm_arch_init(void *opaque)
+>  	if (!kvm_s390_dbf)
+>  		return -ENOMEM;
+>  
+> -	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view))
+> +	kvm_s390_dbf_uv = debug_register("kvm-uv", 32, 1, 7 * sizeof(long));
+> +	if (!kvm_s390_dbf_uv)
+> +		goto out;
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+
 Reviewed-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/kvm/pv.c           |  2 ++
- arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 38 insertions(+)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 6f9ff7a69fa2..a816fb4734b8 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
- void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
- 			     unsigned long gaddr, unsigned long vmaddr);
- int gmap_mark_unmergeable(void);
-+void s390_reset_acc(struct mm_struct *mm);
- #endif /* _ASM_S390_GMAP_H */
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 67ea9a18ed8f..7d95d7437140 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- {
- 	int cc;
- 
-+	/* make all pages accessible before destroying the guest */
-+	s390_reset_acc(kvm->mm);
- 	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
- 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
- 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 7291452fe5f0..27926a06df32 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
- 	up_write(&mm->mmap_sem);
- }
- EXPORT_SYMBOL_GPL(s390_reset_cmma);
-+
-+/*
-+ * make inaccessible pages accessible again
-+ */
-+static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
-+			    unsigned long next, struct mm_walk *walk)
-+{
-+	pte_t pte = READ_ONCE(*ptep);
-+
-+	if (pte_present(pte))
-+		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
-+	return 0;
-+}
-+
-+static const struct mm_walk_ops reset_acc_walk_ops = {
-+	.pte_entry		= __s390_reset_acc,
-+};
-+
-+#include <linux/sched/mm.h>
-+void s390_reset_acc(struct mm_struct *mm)
-+{
-+	/*
-+	 * we might be called during
-+	 * reset:                             we walk the pages and clear
-+	 * close of all kvm file descriptors: we walk the pages and clear
-+	 * exit of process on fd closure:     vma already gone, do nothing
-+	 */
-+	if (!mmget_not_zero(mm))
-+		return;
-+	down_read(&mm->mmap_sem);
-+	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
-+	up_read(&mm->mmap_sem);
-+	mmput(mm);
-+}
-+EXPORT_SYMBOL_GPL(s390_reset_acc);
 -- 
-2.25.0
+Thanks,
+
+David / dhildenb
