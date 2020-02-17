@@ -1,50 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:40562 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726527AbgBHM5R (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 8 Feb 2020 07:57:17 -0500
-Date: Sat, 8 Feb 2020 05:57:14 -0700
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: -Wtautological-constant-compare in arch/s390/include/asm/page.h
-Message-ID: <20200208125714.GA9164@ubuntu-x2-xlarge-x86>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49892 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728794AbgBQPZI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 17 Feb 2020 10:25:08 -0500
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HFKqLO144889
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:07 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y6e1gh690-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:07 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
+        Mon, 17 Feb 2020 15:25:05 -0000
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net-next 1/6] net/smc: improve smc_lgr_cleanup()
+Date: Mon, 17 Feb 2020 16:24:50 +0100
+In-Reply-To: <20200217152455.15341-1-ubraun@linux.ibm.com>
+References: <20200217152455.15341-1-ubraun@linux.ibm.com>
+Message-Id: <20200217152455.15341-2-ubraun@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
 
-Hi all,
+From: Karsten Graul <kgraul@linux.ibm.com>
 
-We noticed that you all added support for building s390 with clang,
-which is great! I have noticed a few warnings for which I will send
-patches but this one has me stumped.
+smc_lgr_cleanup() is called during termination processing, there is no
+need to send a DELETE_LINK at that time. A DELETE_LINK should have been
+sent before the termination is initiated, if needed.
+And remove the extra call to wake_up(&lnk->wr_reg_wait) because
+smc_llc_link_inactive() already calls the related helper function
+smc_wr_wakeup_reg_wait().
 
-In file included from ../lib/crypto/sha256.c:16:
-In file included from ../include/linux/module.h:13:
-In file included from ../include/linux/stat.h:19:
-In file included from ../include/linux/time.h:6:
-In file included from ../include/linux/seqlock.h:36:
-In file included from ../include/linux/spinlock.h:51:
-In file included from ../include/linux/preempt.h:78:
-In file included from ../arch/s390/include/asm/preempt.h:6:
-In file included from ../include/linux/thread_info.h:38:
-In file included from ../arch/s390/include/asm/thread_info.h:26:
-../arch/s390/include/asm/page.h:45:6: warning: converting the result of '<<' to a boolean always evaluates to false [-Wtautological-constant-compare]
-        if (PAGE_DEFAULT_KEY)
-            ^
-../arch/s390/include/asm/page.h:23:44: note: expanded from macro 'PAGE_DEFAULT_KEY'
-#define PAGE_DEFAULT_KEY        (PAGE_DEFAULT_ACC << 4)
-                                                  ^
-1 warning generated.
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/smc_core.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-PAGE_DEFAULT_PAGE is always 0, meaning this function never does what it
-is supposed to. Is this intentional? It seems that commit 0b642ede4796
-("[PATCH] s390: default storage key") added this and it mentions that it
-can be overwritten at build time but I do not see any infrastructure for
-doing that. Any clarification that you can give so we can solve this
-warning would be much appreciated!
-
-Cheers,
-Nathan
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2249de5379ee..8f3c1fced334 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -576,11 +576,8 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 	} else {
+ 		struct smc_link *lnk = &lgr->lnk[SMC_SINGLE_LINK];
+ 
+-		wake_up(&lnk->wr_reg_wait);
+-		if (lnk->state != SMC_LNK_INACTIVE) {
+-			smc_link_send_delete(lnk, false);
++		if (lnk->state != SMC_LNK_INACTIVE)
+ 			smc_llc_link_inactive(lnk);
+-		}
+ 	}
+ }
+ 
+-- 
+2.17.1
