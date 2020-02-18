@@ -1,35 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17894 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728845AbgBQOxI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Feb 2020 09:53:08 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/2] example changes
-Date: Mon, 17 Feb 2020 09:53:00 -0500
-Message-Id: <20200217145302.19085-1-borntraeger@de.ibm.com>
-In-Reply-To: <c77dbb1b-0f4b-e40a-52a4-7110aec75e32@redhat.com>
-References: <c77dbb1b-0f4b-e40a-52a4-7110aec75e32@redhat.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58026 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726225AbgBRJ2S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Feb 2020 04:28:18 -0500
+Subject: Re: [PATCH v2 26/42] KVM: s390: protvirt: Do only reset registers
+ that are accessible
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+ <20200214222658.12946-27-borntraeger@de.ibm.com>
+ <9b66eb07-9755-4afe-6837-6197acd5fa09@redhat.com>
+ <1893c520-165d-6006-47cd-0e7498f39188@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <88acfaf1-b8d1-da77-79b1-52be912fd53b@redhat.com>
+Date: Tue, 18 Feb 2020 10:28:08 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1893c520-165d-6006-47cd-0e7498f39188@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: david@redhat.com
-Cc: Ulrich.Weigand@de.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-I also need to rename the ioctls and do more testing,
-but this is probably what you want?
+On 18.02.20 10:20, Christian Borntraeger wrote:
+> 
+> 
+> On 18.02.20 09:42, David Hildenbrand wrote:
+>> On 14.02.20 23:26, Christian Borntraeger wrote:
+>>> From: Janosch Frank <frankja@linux.ibm.com>
+>>>
+>>> For protected VMs the hypervisor can not access guest breaking event
+>>> address, program parameter, bpbc and todpr. Do not reset those fields
+>>> as the control block does not provide access to these fields.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> ---
+>>>  arch/s390/kvm/kvm-s390.c | 10 ++++++----
+>>>  1 file changed, 6 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index d20a7fa9d480..5b551cc73540 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -3442,14 +3442,16 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+>>>  	kvm_s390_set_prefix(vcpu, 0);
+>>>  	kvm_s390_set_cpu_timer(vcpu, 0);
+>>>  	vcpu->arch.sie_block->ckc = 0;
+>>> -	vcpu->arch.sie_block->todpr = 0;
+>>>  	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
+>>>  	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
+>>>  	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
+>>>  	vcpu->run->s.regs.fpc = 0;
+>>> -	vcpu->arch.sie_block->gbea = 1;
+>>> -	vcpu->arch.sie_block->pp = 0;
+>>> -	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+>>> +	if (!kvm_s390_pv_handle_cpu(vcpu)) {
+>>
+>> Shouldn't we instead check if the VM is in PV mode? (with changed
+>> lifecycle handling). Easier to understand.
+> 
+> No. these ioctls are under the vcpu->mutex, so I am going to compare
+> against the per cpu variant.
+> 
+> I will use kvm_s390_pv_cpu_is_protected instead to have the lockdep assertion.
 
-Christian Borntraeger (2):
-  lock changes
-  merge vm/cpu create
+That's what I meant!
 
- arch/s390/kvm/intercept.c |  6 +--
- arch/s390/kvm/interrupt.c | 35 ++++++++++-------
- arch/s390/kvm/kvm-s390.c  | 83 +++++++++++++++++++++++++--------------
- arch/s390/kvm/kvm-s390.h  | 18 ++++++---
- arch/s390/kvm/priv.c      |  4 +-
- 5 files changed, 92 insertions(+), 54 deletions(-)
 
 -- 
-2.25.0
+Thanks,
+
+David / dhildenb
