@@ -1,38 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33494 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726415AbgBRKFy (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:42083 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726193AbgBRKCp (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Feb 2020 05:05:54 -0500
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01IA4Q7N027692
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 05:05:53 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y6e2f8pc0-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 05:05:53 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 18 Feb 2020 10:05:51 -0000
+        Tue, 18 Feb 2020 05:02:45 -0500
 Subject: Re: [PATCH v2 33/42] KVM: s390: protvirt: Mask PSW interrupt bits for
  interception 104 and 112
+From: David Hildenbrand <david@redhat.com>
 References: <20200214222658.12946-1-borntraeger@de.ibm.com>
  <20200214222658.12946-34-borntraeger@de.ibm.com>
  <70f30f71-f7f2-8286-aafb-ea5ca5fb86e9@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Tue, 18 Feb 2020 11:05:43 +0100
+Message-ID: <b9220515-6d9e-a338-e4f8-4c11c795315a@redhat.com>
+Date: Tue, 18 Feb 2020 11:02:37 +0100
 MIME-Version: 1.0
 In-Reply-To: <70f30f71-f7f2-8286-aafb-ea5ca5fb86e9@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <6206d179-f9c4-be76-25cd-0cd9cefa2c2c@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
-
 
 On 18.02.20 10:53, David Hildenbrand wrote:
 > On 14.02.20 23:26, Christian Borntraeger wrote:
@@ -87,6 +75,12 @@ On 18.02.20 10:53, David Hildenbrand wrote:
 > interrupts until the intercept has been handled. Does not look clean to
 > me TBH.
 
-The only purpose of the PSW mask in PV is to tell the hypervisor what interrupts
-are deliverable or if we are in wait state.  In fact those bits are the only
-ones that we see. So I think its fair to use those.
+After reading the patch description again :)
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+
+-- 
+Thanks,
+
+David / dhildenb
