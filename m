@@ -1,149 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33126 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727451AbgBXLlQ (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:35004 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726199AbgBRJNz (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:16 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 06/36] s390/mm: add (non)secure page access exceptions handlers
-Date: Mon, 24 Feb 2020 06:40:37 -0500
-Message-Id: <20200224114107.4646-7-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+        Tue, 18 Feb 2020 04:13:55 -0500
+Subject: Re: [PATCH v2 24/42] KVM: s390: protvirt: STSI handling
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+ <20200214222658.12946-25-borntraeger@de.ibm.com>
+ <380a9214-ad1a-42a0-0d7b-49289a20ff37@redhat.com>
+ <aaa49efd-3c81-dcd6-cfcb-e45fb85541e8@de.ibm.com>
+ <148c5d6c-fef4-6cec-af85-8b48c936cc79@redhat.com>
+ <c9df9696-a2b0-fd19-cfc7-1c382e8ac4fa@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <8270819c-b9d8-eb35-49b9-dc16419a95ab@redhat.com>
+Date: Tue, 18 Feb 2020 10:13:46 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <c9df9696-a2b0-fd19-cfc7-1c382e8ac4fa@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+>> Yeah, but can this ever trigger without the check? AFAIKs, no. So why
+>> add it?
+> 
+> It can. the GPRS can contain stale data and so can operand2.
+> 
 
-Add exceptions handlers performing transparent transition of non-secure
-pages to secure (import) upon guest access and secure pages to
-non-secure (export) upon hypervisor access.
+Oh, ok. Makes sense.
 
-Acked-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-[frankja@linux.ibm.com: adding checks for failures]
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[imbrenda@linux.ibm.com:  adding a check for gmap fault]
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kernel/pgm_check.S |  4 +-
- arch/s390/mm/fault.c         | 78 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 80 insertions(+), 2 deletions(-)
+>>
+>> (rather add a BUG_ON in kvm_s390_inject_program_int() in case we are in
+>> PV mode)
+>>
+>>>>
+>>>>>  
+>>>>>  	switch (fc) {
+>>>>> @@ -893,8 +893,13 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+>>>>>  		handle_stsi_3_2_2(vcpu, (void *) mem);
+>>>>>  		break;
+>>>>>  	}
+>>>>> -
+>>>>> -	rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
+>>>>> +	if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>>>>> +		memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
+>>>>> +		       PAGE_SIZE);
+>>>>> +		rc = 0;
+>>>>> +	} else {
+>>>>> +		rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
+>>>>> +	}
+>>>>>  	if (rc) {
+>>>>>  		rc = kvm_s390_inject_prog_cond(vcpu, rc);
+>>>>>  		goto out;
+>>>>>
+>>>>
+>>>> I'd pull the interrupt injection into the else case, makes things clearer.
+>>>
+>>> Well, no. Thhe else case could set rc to 0.
+>>
+>> Huh?!
+>>
+>> if (kvm_s390_pv_is_protected(vcpu->kvm)) {
+>> 	memcpy((void *)sida_origin(vcpu->arch.sie_block), (void *)mem,
+>> 	rc = 0;
+>> } else {
+>> 	rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
+>> 	if (rc) {
+>> 		rc = kvm_s390_inject_prog_cond(vcpu, rc);
+>> 		goto out;
+>> 	}
+>> }
+>>
+> 
+> Hmm, I find that one harder to read.
 
-diff --git a/arch/s390/kernel/pgm_check.S b/arch/s390/kernel/pgm_check.S
-index eee3a482195a..2c27907a5ffc 100644
---- a/arch/s390/kernel/pgm_check.S
-+++ b/arch/s390/kernel/pgm_check.S
-@@ -78,8 +78,8 @@ PGM_CHECK(do_dat_exception)		/* 39 */
- PGM_CHECK(do_dat_exception)		/* 3a */
- PGM_CHECK(do_dat_exception)		/* 3b */
- PGM_CHECK_DEFAULT			/* 3c */
--PGM_CHECK_DEFAULT			/* 3d */
--PGM_CHECK_DEFAULT			/* 3e */
-+PGM_CHECK(do_secure_storage_access)	/* 3d */
-+PGM_CHECK(do_non_secure_storage_access)	/* 3e */
- PGM_CHECK_DEFAULT			/* 3f */
- PGM_CHECK(monitor_event_exception)	/* 40 */
- PGM_CHECK_DEFAULT			/* 41 */
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 7b0bb475c166..7bd86ebc882f 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -38,6 +38,7 @@
- #include <asm/irq.h>
- #include <asm/mmu_context.h>
- #include <asm/facility.h>
-+#include <asm/uv.h>
- #include "../kernel/entry.h"
- 
- #define __FAIL_ADDR_MASK -4096L
-@@ -816,3 +817,80 @@ static int __init pfault_irq_init(void)
- early_initcall(pfault_irq_init);
- 
- #endif /* CONFIG_PFAULT */
-+
-+#if IS_ENABLED(CONFIG_PGSTE)
-+void do_secure_storage_access(struct pt_regs *regs)
-+{
-+	unsigned long addr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct vm_area_struct *vma;
-+	struct mm_struct *mm;
-+	struct page *page;
-+	int rc;
-+
-+	switch (get_fault_type(regs)) {
-+	case USER_FAULT:
-+		mm = current->mm;
-+		down_read(&mm->mmap_sem);
-+		vma = find_vma(mm, addr);
-+		if (!vma) {
-+			up_read(&mm->mmap_sem);
-+			do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+			break;
-+		}
-+		page = follow_page(vma, addr, FOLL_WRITE | FOLL_GET);
-+		if (IS_ERR_OR_NULL(page)) {
-+			up_read(&mm->mmap_sem);
-+			break;
-+		}
-+		if (arch_make_page_accessible(page))
-+			send_sig(SIGSEGV, current, 0);
-+		put_page(page);
-+		up_read(&mm->mmap_sem);
-+		break;
-+	case KERNEL_FAULT:
-+		page = phys_to_page(addr);
-+		if (unlikely(!try_get_page(page)))
-+			break;
-+		rc = arch_make_page_accessible(page);
-+		put_page(page);
-+		if (rc)
-+			BUG();
-+		break;
-+	case VDSO_FAULT:
-+		/* fallthrough */
-+	case GMAP_FAULT:
-+		/* fallthrough */
-+	default:
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+NOKPROBE_SYMBOL(do_secure_storage_access);
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	unsigned long gaddr = regs->int_parm_long & __FAIL_ADDR_MASK;
-+	struct gmap *gmap = (struct gmap *)S390_lowcore.gmap;
-+
-+	if (get_fault_type(regs) != GMAP_FAULT) {
-+		do_fault_error(regs, VM_READ | VM_WRITE, VM_FAULT_BADMAP);
-+		WARN_ON_ONCE(1);
-+		return;
-+	}
-+
-+	if (gmap_convert_to_secure(gmap, gaddr) == -EINVAL)
-+		send_sig(SIGSEGV, current, 0);
-+}
-+NOKPROBE_SYMBOL(do_non_secure_storage_access);
-+
-+#else
-+void do_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+
-+void do_non_secure_storage_access(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
-+#endif
+It's clearer that you only inject a program check when not in pv mode
+... ;) No strong feelings.
+
 -- 
-2.25.0
+Thanks,
+
+David / dhildenb
