@@ -1,163 +1,108 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44246 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727144AbgBGLkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:08 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 31/35] KVM: s390: protvirt: Add UV debug trace
-Date: Fri,  7 Feb 2020 06:39:54 -0500
-Message-Id: <20200207113958.7320-32-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12624 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726323AbgBRJiA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Feb 2020 04:38:00 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01I9TKZ8057913
+        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:37:59 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y85f3emcr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:37:58 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <prudo@linux.ibm.com>;
+        Tue, 18 Feb 2020 09:37:57 -0000
+Date: Tue, 18 Feb 2020 10:37:52 +0100
+From: Philipp Rudo <prudo@linux.ibm.com>
+Subject: Re: s390 depending on cc-options makes it difficult to configure
+In-Reply-To: <20200216185759.GA4091960@dev.jcline.org>
+References: <20191209164155.GA78160@dev.jcline.org>
+        <20191210090108.GA22512@unicorn.suse.cz>
+        <20191211171822.GA36366@dev.jcline.org>
+        <20200210194936.511ef603@laptop2-ibm.local>
+        <CAK7LNATL3Oyn=FLKm0TcB9SkJLuCOWV06a_t-FRtFiFp9Vda1g@mail.gmail.com>
+        <20200214203536.GA133402@laptop.jcline.org>
+        <CAK7LNAQ9+n8eRyUVrqTNDu915VcE+uHQoewH8WzJqpOpi8rT0Q@mail.gmail.com>
+        <20200216185759.GA4091960@dev.jcline.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200218103752.6d4b9167@laptop2-ibm.local>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Jeremy Cline <jcline@redhat.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Michal Kubecek <mkubecek@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Hi Masahiro,
 
-Let's have some debug traces which stay around for longer than the
-guest.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c |  9 ++++++++-
- arch/s390/kvm/kvm-s390.h |  9 +++++++++
- arch/s390/kvm/pv.c       | 20 +++++++++++++++++++-
- 3 files changed, 36 insertions(+), 2 deletions(-)
+On Sun, 16 Feb 2020 13:57:59 -0500
+Jeremy Cline <jcline@redhat.com> wrote:
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3a06622c52fb..ced2bac251a6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -222,6 +222,7 @@ static struct gmap_notifier gmap_notifier;
- static struct gmap_notifier vsie_gmap_notifier;
- static struct gmap_notifier adapter_gmap_notifier;
- debug_info_t *kvm_s390_dbf;
-+debug_info_t *kvm_s390_dbf_uv;
- 
- /* Section: not file related */
- int kvm_arch_hardware_enable(void)
-@@ -466,7 +467,12 @@ int kvm_arch_init(void *opaque)
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
- 
--	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view))
-+	kvm_s390_dbf_uv = debug_register("kvm-uv", 32, 1, 7 * sizeof(long));
-+	if (!kvm_s390_dbf_uv)
-+		goto out;
-+
-+	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view) ||
-+	    debug_register_view(kvm_s390_dbf_uv, &debug_sprintf_view))
- 		goto out;
- 
- 	kvm_s390_cpu_feat_init();
-@@ -493,6 +499,7 @@ void kvm_arch_exit(void)
- {
- 	kvm_s390_gib_destroy();
- 	debug_unregister(kvm_s390_dbf);
-+	debug_unregister(kvm_s390_dbf_uv);
- }
- 
- /* Section: device related */
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 7530042a44e9..0121a5b36e54 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -25,6 +25,15 @@
- #define IS_ITDB_VALID(vcpu)	((*(char *)vcpu->arch.sie_block->itdba == TDB_FORMAT1))
- 
- extern debug_info_t *kvm_s390_dbf;
-+extern debug_info_t *kvm_s390_dbf_uv;
-+
-+#define KVM_UV_EVENT(d_kvm, d_loglevel, d_string, d_args...)\
-+do { \
-+	debug_sprintf_event(kvm_s390_dbf_uv, d_loglevel, \
-+			    "%s: " d_string "\n", d_kvm->arch.dbf->name, \
-+			    d_args); \
-+} while (0)
-+
- #define KVM_EVENT(d_loglevel, d_string, d_args...)\
- do { \
- 	debug_sprintf_event(kvm_s390_dbf, d_loglevel, d_string "\n", \
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index a58f5106ba5f..da281d8dcc92 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -74,6 +74,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
- 	atomic_set(&kvm->mm->context.is_protected, 0);
- 	VM_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
- 		 ret >> 16, ret & 0x0000ffff);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
-+		 ret >> 16, ret & 0x0000ffff);
- 	return rc;
- }
- 
-@@ -89,6 +91,8 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
- 
- 		VCPU_EVENT(vcpu, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
- 			   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
-+			     vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
- 	}
- 
- 	free_pages(vcpu->arch.pv.stor_base,
-@@ -135,6 +139,10 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
- 		   vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
- 		   uvcb.header.rrc);
-+	KVM_UV_EVENT(vcpu->kvm, 3,
-+		     "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
-+		     vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
-+		     uvcb.header.rrc);
- 
- 	if (rc) {
- 		kvm_s390_pv_destroy_cpu(vcpu);
-@@ -174,6 +182,10 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
- 		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
- 		 uvcb.header.rrc);
- 
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
-+		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
-+		 uvcb.header.rrc);
-+
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
- 
-@@ -204,6 +216,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
- 	rc = uv_call(0, (u64)&uvcb);
- 	VM_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		 uvcb.header.rc, uvcb.header.rrc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
-+		     uvcb.header.rc, uvcb.header.rrc);
- 	if (rc)
- 		return -EINVAL;
- 	return 0;
-@@ -223,9 +237,12 @@ static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak[2])
- 
- 	rc = uv_make_secure(kvm->arch.gmap, addr, &uvcb);
- 
--	if (rc)
-+	if (rc) {
- 		VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx rc %x rrc %x",
- 			 uvcb.gaddr, uvcb.header.rc, uvcb.header.rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed with rc %x rrc %x",
-+			     uvcb.header.rc, uvcb.header.rrc);
-+	}
- 	return rc;
- }
- 
-@@ -251,6 +268,7 @@ int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
- 		tw[1] += PAGE_SIZE;
- 	}
- 	VM_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x", rc);
-+	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: finished with rc %x", rc);
- 	return rc;
- }
- 
--- 
-2.24.0
+> On Sun, Feb 16, 2020 at 01:08:49PM +0900, Masahiro Yamada wrote:
+> > On Sat, Feb 15, 2020 at 5:35 AM Jeremy Cline <jcline@redhat.com> wrote:  
+> > >
+> > > On Fri, Feb 14, 2020 at 12:31:05PM +0900, Masahiro Yamada wrote:  
+> > > > Hi.
+> > > >
+> > > > On Tue, Feb 11, 2020 at 3:49 AM Philipp Rudo <prudo@linux.ibm.com> wrote:  
+
+[...]
+
+> > > > One idea to workaround this is
+> > > > to use a fake script that accepts any flag,
+> > > > and use it as $(CC) in Kconfig.
+> > > >
+> > > > RFC patch is attached.
+> > > >
+> > > > This is not a perfect solution, of course.
+
+I like the approach as it gives both sides what they need without blowing up
+Kconfig.
+
+> > > The attached patch doesn't looks like it'd work for what we need,  
+> > 
+> > I thought turning all cc-options to y would work
+> > for what you need.
+> > 
+> > With this, you can enable
+> > CONFIG_MARCH_Z13=y and CONFIG_TUNE_Z14=y
+> > instead of CONFIG_TUNE_DEFAULT.
+> > 
+> > If this approach does not work for you,
+> > what is your requirement?
+> >   
+> 
+> Oof, this was an awful typo. It *would* work for what we need. Sorry for
+> the confusion :(.
+> 
+> > 
+> >   
+> > > although I wonder if it's easier to just check when cc-options is
+> > > defined for an environment variable or something and always return y
+> > > instead of calling out to $(CC) at all. Comes to the same thing, I
+> > > suppose.  
+> > 
+> > 
+> > The macro definition in scripts/Kconfig.include
+> > takes precedence over any environment variable.
+> > 
+> > So, if you want to hack it from the environment,
+> > you need to change the code somehow.
+> > 
+> > The scripts/dummy-tools/ approach does not change
+> > anything for the use-case in upstream.
+> > 
+> > The result is the same, of course.
+> >   
+> 
+> Indeed. Since I'm not maintaining it I don't have a particularly strong
+> opinion about the approach. Whatever you like most works for me.
+
+I agree with Jeremy. Just pick what you think is best.
+
+Thanks a lot
+Philipp
