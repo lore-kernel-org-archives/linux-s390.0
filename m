@@ -1,115 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54214 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392854AbgBNQUa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:20:30 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 151/186] s390/ftrace: generate traced function stack frame
-Date: Fri, 14 Feb 2020 11:16:40 -0500
-Message-Id: <20200214161715.18113-151-sashal@kernel.org>
-In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
-References: <20200214161715.18113-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:46720 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726199AbgBRJXX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Feb 2020 04:23:23 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01I9L3RA153719
+        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:22 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y6dq6wbcs-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:22 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <vneethv@linux.ibm.com>;
+        Tue, 18 Feb 2020 09:23:20 -0000
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
+Subject: [RFC v2 1/2] s390/cio: handle changes related to endpoint security
+Date: Tue, 18 Feb 2020 10:23:16 +0100
+In-Reply-To: <20200218092317.49846-1-vneethv@linux.ibm.com>
+References: <20200218092317.49846-1-vneethv@linux.ibm.com>
+Message-Id: <20200218092317.49846-2-vneethv@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: oberpar@linux.ibm.com
+Cc: linux-s390@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Sebastian Ott <sebott@linux.ibm.com>
 
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
-
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
-
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
-
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reference-ID: IO1812
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
 ---
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/s390/cio/chsc.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 27110f3294edc..0cfd5a83a1daa 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -25,6 +25,12 @@ ENTRY(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index b7256ea5b669..6218bcb8d21f 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -566,6 +566,36 @@ static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
+ 	ap_bus_cfg_chg();
+ }
  
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -38,9 +44,16 @@ ENTRY(ftrace_caller)
- #ifndef CC_USING_HOTPATCH
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
++static void chsc_process_sei_esc_change(struct chsc_sei_nt0_area *sei_area)
++{
++	struct channel_path *chp;
++	struct chp_id chpid;
++	int status;
++
++	CIO_CRW_EVENT(4, "chsc: endpoint security status notification (rs=%02x, "
++		      "rs_id=%04x, esc=%x)\n", sei_area->rs, sei_area->rsid,
++		      sei_area->ccdf[0]);
++	if (sei_area->rs != 4)
++		return;
++	chp_id_init(&chpid);
++	chpid.id = sei_area->rsid;
++	/* allocate a new channel path structure, if needed */
++	status = chp_get_status(chpid);
++	if (!status)
++		return;
++
++	if (status < 0) {
++		chp_new(chpid);
++	} else {
++		chp = chpid_to_chp(chpid);
++		mutex_lock(&chp->lock);
++		chp_update_desc(chp);
++		mutex_unlock(&chp->lock);
++	}
++
++	/* notify driver? check I/O? */
++}
++
+ static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
+ {
+ 	switch (sei_area->cc) {
+@@ -607,6 +637,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
+ 	case 14: /* scm available notification */
+ 		chsc_process_sei_scm_avail(sei_area);
+ 		break;
++	case 15: /* endpoint security status update notification */
++		chsc_process_sei_esc_change(sei_area);
++		break;
+ 	default: /* other stuff */
+ 		CIO_CRW_EVENT(2, "chsc: sei nt0 unhandled cc=%d\n",
+ 			      sei_area->cc);
 -- 
-2.20.1
+2.17.1
