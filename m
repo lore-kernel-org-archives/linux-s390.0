@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH trivial] s390/pkey/zcrypt: spelling s/crytp/crypt/
-Date: Wed, 12 Feb 2020 09:46:22 +0100
-Message-Id: <20200212084622.9219-1-geert+renesas@glider.be>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50792 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727982AbgBRVtD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Feb 2020 16:49:03 -0500
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: [PATCH v5 5/8] s390,dcssblk,dax: Add dax zero_page_range operation to dcssblk driver
+Date: Tue, 18 Feb 2020 16:48:38 -0500
+Message-Id: <20200218214841.10076-6-vgoyal@redhat.com>
+In-Reply-To: <20200218214841.10076-1-vgoyal@redhat.com>
+References: <20200218214841.10076-1-vgoyal@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jiri Kosina <trivial@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+To: linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org, hch@infradead.org, dan.j.williams@intel.com
+Cc: dm-devel@redhat.com, vishal.l.verma@intel.com, vgoyal@redhat.com, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Fix typos in a comments.
+Add dax operation zero_page_range for dcssblk driver.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+CC: linux-s390@vger.kernel.org
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- drivers/s390/crypto/zcrypt_ep11misc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/block/dcssblk.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
-index d4caf46ff9df1559..2afe2153b34e32e9 100644
---- a/drivers/s390/crypto/zcrypt_ep11misc.c
-+++ b/drivers/s390/crypto/zcrypt_ep11misc.c
-@@ -887,7 +887,7 @@ static int ep11_unwrapkey(u16 card, u16 domain,
- 	/* empty pin tag */
- 	*p++ = 0x04;
- 	*p++ = 0;
--	/* encrytped key value tag and bytes */
-+	/* encrypted key value tag and bytes */
- 	p += asn1tag_write(p, 0x04, enckey, enckeysize);
- 
- 	/* reply cprb and payload */
-@@ -1095,7 +1095,7 @@ int ep11_clr2keyblob(u16 card, u16 domain, u32 keybitsize, u32 keygenflags,
- 
- 	/* Step 1: generate AES 256 bit random kek key */
- 	rc = ep11_genaeskey(card, domain, 256,
--			    0x00006c00, /* EN/DECRYTP, WRAP/UNWRAP */
-+			    0x00006c00, /* EN/DECRYPT, WRAP/UNWRAP */
- 			    kek, &keklen);
- 	if (rc) {
- 		DEBUG_ERR(
--- 
-2.17.1
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 63502ca537eb..331abab5d066 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -57,11 +57,28 @@ static size_t dcssblk_dax_copy_to_iter(struct dax_dev=
+ice *dax_dev,
+ 	return copy_to_iter(addr, bytes, i);
+ }
+=20
++static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev, u64 o=
+ffset,
++				       size_t len)
++{
++	long rc;
++	void *kaddr;
++	pgoff_t pgoff =3D offset >> PAGE_SHIFT;
++	unsigned page_offset =3D offset_in_page(offset);
++
++	rc =3D dax_direct_access(dax_dev, pgoff, 1, &kaddr, NULL);
++	if (rc < 0)
++		return rc;
++	memset(kaddr + page_offset, 0, len);
++	dax_flush(dax_dev, kaddr + page_offset, len);
++	return 0;
++}
++
+ static const struct dax_operations dcssblk_dax_ops =3D {
+ 	.direct_access =3D dcssblk_dax_direct_access,
+ 	.dax_supported =3D generic_fsdax_supported,
+ 	.copy_from_iter =3D dcssblk_dax_copy_from_iter,
+ 	.copy_to_iter =3D dcssblk_dax_copy_to_iter,
++	.zero_page_range =3D dcssblk_dax_zero_page_range,
+ };
+=20
+ struct dcssblk_dev_info {
+--=20
+2.20.1
