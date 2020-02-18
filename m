@@ -1,55 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54166 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728791AbgBQPZH (ORCPT
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:39215 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726193AbgBRJjV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Feb 2020 10:25:07 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HFKqgd144906
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:07 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y6e1gh68r-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:06 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
-        Mon, 17 Feb 2020 15:25:04 -0000
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 2/6] net/smc: use termination worker under send_lock
-Date: Mon, 17 Feb 2020 16:24:51 +0100
-In-Reply-To: <20200217152455.15341-1-ubraun@linux.ibm.com>
-References: <20200217152455.15341-1-ubraun@linux.ibm.com>
-Message-Id: <20200217152455.15341-3-ubraun@linux.ibm.com>
+        Tue, 18 Feb 2020 04:39:21 -0500
+Subject: Re: [PATCH v2 28/42] KVM: s390: protvirt: Add program exception
+ injection
+References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+ <20200214222658.12946-29-borntraeger@de.ibm.com>
+ <0911c8c1-0877-047b-0da5-4c7f79aef3ae@redhat.com>
+ <2374ea8d-0244-f710-36b9-54ec1e9b4b7f@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <e0af7b49-bda2-ef73-a06e-ea9cd60978ef@redhat.com>
+Date: Tue, 18 Feb 2020 10:39:10 +0100
+MIME-Version: 1.0
+In-Reply-To: <2374ea8d-0244-f710-36b9-54ec1e9b4b7f@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+On 18.02.20 10:37, Christian Borntraeger wrote:
+> 
+> 
+> On 18.02.20 10:33, David Hildenbrand wrote:
+> eliver_prog(struct kvm_vcpu *vcpu)
+>>>  {
+>>>  	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+>>> @@ -856,6 +871,9 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+>>>  	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+>>>  					 pgm_info.code, 0);
+>>>  
+>>> +	if (kvm_s390_pv_is_protected(vcpu->kvm))
+>>
+>> Can we actually ever have PER set, and what would happen if so?
+>> Shouldn't we also return -EINVAL?
+> 
+> The ultravisor would add a concurrent PER event if appropriate.
+> 
 
-smc_tx_rdma_write() is called under the send_lock and should not call
-smc_lgr_terminate() directly. Call smc_lgr_terminate_sched() instead
-which schedules a worker.
+Please add that to the patch description.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-index 0d42e7716b91..9f1ade86d70e 100644
---- a/net/smc/smc_tx.c
-+++ b/net/smc/smc_tx.c
-@@ -284,7 +284,7 @@ static int smc_tx_rdma_write(struct smc_connection *conn, int peer_rmbe_offset,
- 	rdma_wr->rkey = lgr->rtokens[conn->rtoken_idx][SMC_SINGLE_LINK].rkey;
- 	rc = ib_post_send(link->roce_qp, &rdma_wr->wr, NULL);
- 	if (rc)
--		smc_lgr_terminate(lgr, true);
-+		smc_lgr_terminate_sched(lgr);
- 	return rc;
- }
- 
 -- 
-2.17.1
+Thanks,
+
+David / dhildenb
