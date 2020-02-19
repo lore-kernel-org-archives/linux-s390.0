@@ -1,117 +1,63 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25258 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727559AbgBFVie (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Feb 2020 16:38:34 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 016LaIUh132609
-        for <linux-s390@vger.kernel.org>; Thu, 6 Feb 2020 16:38:33 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y0neckcdt-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 06 Feb 2020 16:38:32 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Thu, 6 Feb 2020 21:38:30 -0000
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v2 2/9] vfio-ccw: Register a chp_event callback for vfio-ccw
-Date: Thu,  6 Feb 2020 22:38:18 +0100
-In-Reply-To: <20200206213825.11444-1-farman@linux.ibm.com>
-References: <20200206213825.11444-1-farman@linux.ibm.com>
-Message-Id: <20200206213825.11444-3-farman@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 19 Feb 2020 15:11:34 +0000
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 0/2] virtio-blk: improve handling of DMA mapping failures
+Message-ID: <20200219151134.GI1078625@stefanha-x1.localdomain>
+References: <20200213123728.61216-1-pasic@linux.ibm.com>
+MIME-Version: 1.0
+In-Reply-To: <20200213123728.61216-1-pasic@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="zqjkMoGlbUJ91oFe"
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+--zqjkMoGlbUJ91oFe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Register the chp_event callback to receive channel path related
-events for the subchannels managed by vfio-ccw.
+On Thu, Feb 13, 2020 at 01:37:26PM +0100, Halil Pasic wrote:
+> Two patches are handling new edge cases introduced by doing DMA mappings
+> (which can fail) in virtio core.
+>=20
+> I stumbled upon this while stress testing I/O for Protected Virtual
+> Machines. I deliberately chose a tiny swiotlb size and have generated
+> load with fio. With more than one virtio-blk disk in use I experienced
+> hangs.
+>=20
+> The goal of this series is to fix those hangs.
+>=20
+> Halil Pasic (2):
+>   virtio-blk: fix hw_queue stopped on arbitrary error
+>   virtio-blk: improve virtqueue error to BLK_STS
+>=20
+>  drivers/block/virtio_blk.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
+>=20
+>=20
+> base-commit: 39bed42de2e7d74686a2d5a45638d6a5d7e7d473
+> --=20
+> 2.17.1
+>=20
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Notes:
-    v1->v2:
-     - Move s390dbf before cio_update_schib() call [CH]
-    
-    v0->v1: [EF]
-     - Add s390dbf trace
+--zqjkMoGlbUJ91oFe
+Content-Type: application/pgp-signature; name="signature.asc"
 
- drivers/s390/cio/vfio_ccw_drv.c | 44 +++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 91989269faf1..a99705e2fd73 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -19,6 +19,7 @@
- 
- #include <asm/isc.h>
- 
-+#include "chp.h"
- #include "ioasm.h"
- #include "css.h"
- #include "vfio_ccw_private.h"
-@@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static int vfio_ccw_chp_event(struct subchannel *sch,
-+			      struct chp_link *link, int event)
-+{
-+	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-+	int retry = 255;
-+
-+	if (!private || !mask)
-+		return 0;
-+
-+	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-+			   mdev_uuid(private->mdev), sch->schid.cssid,
-+			   sch->schid.ssid, sch->schid.sch_no,
-+			   mask, event);
-+
-+	if (cio_update_schib(sch))
-+		return -ENODEV;
-+
-+	switch (event) {
-+	case CHP_VARY_OFF:
-+		/* Path logically turned off */
-+		sch->opm &= ~mask;
-+		sch->lpm &= ~mask;
-+		break;
-+	case CHP_OFFLINE:
-+		/* Path is gone */
-+		cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_VARY_ON:
-+		/* Path logically turned on */
-+		sch->opm |= mask;
-+		sch->lpm |= mask;
-+		break;
-+	case CHP_ONLINE:
-+		/* Path became available */
-+		sch->lpm |= mask & sch->opm;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static struct css_device_id vfio_ccw_sch_ids[] = {
- 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
- 	{ /* end of list */ },
-@@ -274,6 +317,7 @@ static struct css_driver vfio_ccw_sch_driver = {
- 	.remove = vfio_ccw_sch_remove,
- 	.shutdown = vfio_ccw_sch_shutdown,
- 	.sch_event = vfio_ccw_sch_event,
-+	.chp_event = vfio_ccw_chp_event,
- };
- 
- static int __init vfio_ccw_debug_init(void)
--- 
-2.17.1
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl5NUCYACgkQnKSrs4Gr
+c8j5Pgf+MI41fd9a93cz9zlmiW7E/b+B99Zg/shlPYBcQXo0INymDnvknnpzLpqK
+uHn5ZGq85kM6+ls29Zhh4w7bxiJlBBNRzCkIIRxe5CwyOptQPcKHONreD1suCGT0
+boXaZtrbU1Wt1bWRBK4F9OLZcyIFxUESQ36b1r1VddZsKeFETUXAwjpSEU9bVCZ6
+qJfDp9RLYVvFISB17avVnsqyw8xO9mVI3RyIdzQATERL9W3DVxaacULruMmlBHvq
+T3nt4WcQjbTHEmTjvpnwGg2Oz4uvaRGm617bv082XAOP+Xr0h9uNU119WKCYk1Qk
+VML23VMN5owhMcib+gUXV3/9bQQkYQ==
+=GsRc
+-----END PGP SIGNATURE-----
+
+--zqjkMoGlbUJ91oFe--
