@@ -1,138 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3200 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1508 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727984AbgBTKkc (ORCPT
+        by vger.kernel.org with ESMTP id S1727930AbgBTKkb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:32 -0500
+        Thu, 20 Feb 2020 05:40:31 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 01/37] mm:gup/writeback: add callbacks for inaccessible pages
-Date: Thu, 20 Feb 2020 05:39:44 -0500
-Message-Id: <20200220104020.5343-2-borntraeger@de.ibm.com>
+Subject: [PATCH v3 33/37] KVM: s390: protvirt: Add UV cpu reset calls
+Date: Thu, 20 Feb 2020 05:40:16 -0500
+Message-Id: <20200220104020.5343-34-borntraeger@de.ibm.com>
 In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
 References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org, Will Deacon <will@kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-With the introduction of protected KVM guests on s390 there is now a
-concept of inaccessible pages. These pages need to be made accessible
-before the host can access them.
+For protected VMs, the VCPU resets are done by the Ultravisor, as KVM
+has no access to the VCPU registers.
 
-While cpu accesses will trigger a fault that can be resolved, I/O
-accesses will just fail.  We need to add a callback into architecture
-code for places that will do I/O, namely when writeback is started or
-when a page reference is taken.
+Note that the ultravisor will only accept a call for the exact reset
+that has been requested.
 
-This is not only to enable paging, file backing etc, it is also
-necessary to protect the host against a malicious user space. For
-example a bad QEMU could simply start direct I/O on such protected
-memory.  We do not want userspace to be able to trigger I/O errors and
-thus we the logic is "whenever somebody accesses that page (gup) or
-doing I/O, make sure that this page can be accessed. When the guest
-tries to access that page we will wait in the page fault handler for
-writeback to have finished and for the page_ref to be the expected
-value.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/gfp.h |  6 ++++++
- mm/gup.c            | 15 ++++++++++++---
- mm/page-writeback.c |  5 +++++
- 3 files changed, 23 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/uv.h |  6 ++++++
+ arch/s390/kvm/kvm-s390.c   | 20 ++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index e5b817cb86e7..be2754841369 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -485,6 +485,12 @@ static inline void arch_free_page(struct page *page, int order) { }
- #ifndef HAVE_ARCH_ALLOC_PAGE
- static inline void arch_alloc_page(struct page *page, int order) { }
- #endif
-+#ifndef HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
-+static inline int arch_make_page_accessible(struct page *page)
-+{
-+	return 0;
-+}
-+#endif
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 4945e44e1528..cb95763ffb30 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -36,7 +36,10 @@
+ #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
+ #define UVC_CMD_UNPACK_IMG		0x0301
+ #define UVC_CMD_VERIFY_IMG		0x0302
++#define UVC_CMD_CPU_RESET		0x0310
++#define UVC_CMD_CPU_RESET_INITIAL	0x0311
+ #define UVC_CMD_PREPARE_RESET		0x0320
++#define UVC_CMD_CPU_RESET_CLEAR		0x0321
+ #define UVC_CMD_CPU_SET_STATE		0x0330
+ #define UVC_CMD_SET_UNSHARE_ALL		0x0340
+ #define UVC_CMD_PIN_PAGE_SHARED		0x0341
+@@ -59,8 +62,11 @@ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_SET_SEC_PARMS = 11,
+ 	BIT_UVC_CMD_UNPACK_IMG = 13,
+ 	BIT_UVC_CMD_VERIFY_IMG = 14,
++	BIT_UVC_CMD_CPU_RESET = 15,
++	BIT_UVC_CMD_CPU_RESET_INITIAL = 16,
+ 	BIT_UVC_CMD_CPU_SET_STATE = 17,
+ 	BIT_UVC_CMD_PREPARE_RESET = 18,
++	BIT_UVC_CMD_CPU_PERFORM_CLEAR_RESET = 19,
+ 	BIT_UVC_CMD_UNSHARE_ALL = 20,
+ 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
+ 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 76ab9e4c8f55..d79ccd34b5cb 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4705,6 +4705,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 	void __user *argp = (void __user *)arg;
+ 	int idx;
+ 	long r;
++	u16 rc, rrc;
  
- struct page *
- __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int preferred_nid,
-diff --git a/mm/gup.c b/mm/gup.c
-index 1b521e0ac1de..354bcfbd844b 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -193,6 +193,7 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	struct page *page;
- 	spinlock_t *ptl;
- 	pte_t *ptep, pte;
-+	int ret;
+ 	vcpu_load(vcpu);
  
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
-@@ -250,8 +251,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 		if (is_zero_pfn(pte_pfn(pte))) {
- 			page = pte_page(pte);
- 		} else {
--			int ret;
--
- 			ret = follow_pfn_pte(vma, address, ptep, flags);
- 			page = ERR_PTR(ret);
- 			goto out;
-@@ -259,7 +258,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	}
- 
- 	if (flags & FOLL_SPLIT && PageTransCompound(page)) {
--		int ret;
- 		get_page(page);
- 		pte_unmap_unlock(ptep, ptl);
- 		lock_page(page);
-@@ -276,6 +274,12 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 			page = ERR_PTR(-ENOMEM);
- 			goto out;
- 		}
-+		ret = arch_make_page_accessible(page);
-+		if (ret) {
-+			put_page(page);
-+			page = ERR_PTR(ret);
-+			goto out;
+@@ -4726,14 +4727,33 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 	case KVM_S390_CLEAR_RESET:
+ 		r = 0;
+ 		kvm_arch_vcpu_ioctl_clear_reset(vcpu);
++		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
++					  UVC_CMD_CPU_RESET_CLEAR, &rc, &rrc);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET CLEAR VCPU: rc %x rrc %x",
++				   rc, rrc);
 +		}
- 	}
- 	if (flags & FOLL_TOUCH) {
- 		if ((flags & FOLL_WRITE) &&
-@@ -1919,6 +1923,11 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
- 
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
- 
-+		ret = arch_make_page_accessible(page);
-+		if (ret) {
-+			put_page(head);
-+			goto pte_unmap;
+ 		break;
+ 	case KVM_S390_INITIAL_RESET:
+ 		r = 0;
+ 		kvm_arch_vcpu_ioctl_initial_reset(vcpu);
++		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
++					  UVC_CMD_CPU_RESET_INITIAL,
++					  &rc, &rrc);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET INITIAL VCPU: rc %x rrc %x",
++				   rc, rrc);
 +		}
- 		SetPageReferenced(page);
- 		pages[*nr] = page;
- 		(*nr)++;
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index 2caf780a42e7..558d7063c117 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -2807,6 +2807,11 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
- 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
- 	}
- 	unlock_page_memcg(page);
-+	/*
-+	 * If writeback has been triggered on a page that cannot be made
-+	 * accessible, it is too late.
-+	 */
-+	WARN_ON(arch_make_page_accessible(page));
- 	return ret;
- 
- }
+ 		break;
+ 	case KVM_S390_NORMAL_RESET:
+ 		r = 0;
+ 		kvm_arch_vcpu_ioctl_normal_reset(vcpu);
++		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
++					  UVC_CMD_CPU_RESET, &rc, &rrc);
++			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: rc %x rrc %x",
++				   rc, rrc);
++		}
+ 		break;
+ 	case KVM_SET_ONE_REG:
+ 	case KVM_GET_ONE_REG: {
 -- 
 2.25.0
