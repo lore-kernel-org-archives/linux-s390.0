@@ -1,69 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43900 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726196AbgBDJG2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 4 Feb 2020 04:06:28 -0500
-Date: Tue, 4 Feb 2020 10:06:22 +0100
-From: Oscar Salvador <osalvador@suse.de>
-Subject: Re: [PATCH v6 07/10] mm/memory_hotplug: We always have a zone in
- find_(smallest|biggest)_section_pfn
-Message-ID: <20200204090622.GB6494@linux>
-References: <20191006085646.5768-1-david@redhat.com>
- <20191006085646.5768-8-david@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14118 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727910AbgBTKka (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 05:40:30 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v3 27/37] KVM: s390: protvirt: Add program exception injection
+Date: Thu, 20 Feb 2020 05:40:10 -0500
+Message-Id: <20200220104020.5343-28-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191006085646.5768-8-david@redhat.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-On Sun, Oct 06, 2019 at 10:56:43AM +0200, David Hildenbrand wrote:
-> With shrink_pgdat_span() out of the way, we now always have a valid
-> zone.
-> 
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Wei Yang <richardw.yang@linux.intel.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Only two program exceptions can be injected for a protected guest:
+specification and operand.
 
-> ---
->  mm/memory_hotplug.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index bf5173e7913d..f294918f7211 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -337,7 +337,7 @@ static unsigned long find_smallest_section_pfn(int nid, struct zone *zone,
->  		if (unlikely(pfn_to_nid(start_pfn) != nid))
->  			continue;
->  
-> -		if (zone && zone != page_zone(pfn_to_page(start_pfn)))
-> +		if (zone != page_zone(pfn_to_page(start_pfn)))
->  			continue;
->  
->  		return start_pfn;
-> @@ -362,7 +362,7 @@ static unsigned long find_biggest_section_pfn(int nid, struct zone *zone,
->  		if (unlikely(pfn_to_nid(pfn) != nid))
->  			continue;
->  
-> -		if (zone && zone != page_zone(pfn_to_page(pfn)))
-> +		if (zone != page_zone(pfn_to_page(pfn)))
->  			continue;
->  
->  		return pfn;
-> -- 
-> 2.21.0
-> 
+For both, a code needs to be specified in the interrupt injection
+control of the state description, as the guest prefix page is not
+accessible to KVM for such guests.
 
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/interrupt.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index aaff3dbd669e..41b7faa8e5de 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -836,6 +836,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+ 	return rc ? -EFAULT : 0;
+ }
+ 
++static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
++{
++	switch (code) {
++	case PGM_SPECIFICATION:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
++		break;
++	case PGM_OPERAND:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
++		break;
++	default:
++		return -EINVAL;
++	}
++	return 0;
++}
++
+ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -856,6 +871,10 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+ 					 pgm_info.code, 0);
+ 
++	/* PER is handled by the ultravisor */
++	if (kvm_s390_pv_cpu_is_protected(vcpu))
++		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
++
+ 	switch (pgm_info.code & ~PGM_PER) {
+ 	case PGM_AFX_TRANSLATION:
+ 	case PGM_ASX_TRANSLATION:
 -- 
-Oscar Salvador
-SUSE L3
+2.25.0
