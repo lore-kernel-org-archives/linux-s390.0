@@ -1,21 +1,21 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14380 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64666 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731637AbgBUIJs (ORCPT
+        by vger.kernel.org with ESMTP id S1727263AbgBTKk3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Feb 2020 03:09:48 -0500
+        Thu, 20 Feb 2020 05:40:29 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3.1 02/37] KVM: s390/interrupt: do not pin adapter interrupt pages
-Date: Fri, 21 Feb 2020 03:09:42 -0500
-Message-Id: <20200221080942.10334-1-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-3-borntraeger@de.ibm.com>
-References: <20200220104020.5343-3-borntraeger@de.ibm.com>
+Subject: [PATCH v3 02/37] KVM: s390/interrupt: do not pin adapter interrupt pages
+Date: Thu, 20 Feb 2020 05:39:45 -0500
+Message-Id: <20200220104020.5343-3-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: borntraeger@de.ibm.com
-Cc: Ulrich.Weigand@de.ibm.com, cohuck@redhat.com, david@redhat.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
 From: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
 
@@ -42,8 +42,8 @@ Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
  Documentation/virt/kvm/devices/s390_flic.rst |  11 +-
  arch/s390/include/asm/kvm_host.h             |   3 -
- arch/s390/kvm/interrupt.c                    | 172 ++++++-------------
- 3 files changed, 52 insertions(+), 134 deletions(-)
+ arch/s390/kvm/interrupt.c                    | 170 ++++++-------------
+ 3 files changed, 53 insertions(+), 131 deletions(-)
 
 diff --git a/Documentation/virt/kvm/devices/s390_flic.rst b/Documentation/virt/kvm/devices/s390_flic.rst
 index 954190da7d04..ea96559ba501 100644
@@ -83,18 +83,9 @@ index 1726224e7772..d058289385a5 100644
  
  #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index c06c89d370a7..50ccadaf4953 100644
+index c06c89d370a7..0cebebf56515 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -2,7 +2,7 @@
- /*
-  * handling kvm guest interrupts
-  *
-- * Copyright IBM Corp. 2008, 2015
-+ * Copyright IBM Corp. 2008, 2020
-  *
-  *    Author(s): Carsten Otte <cotte@de.ibm.com>
-  */
 @@ -2327,9 +2327,6 @@ static int register_io_adapter(struct kvm_device *dev,
  	if (!adapter)
  		return -ENOMEM;
@@ -200,7 +191,7 @@ index c06c89d370a7..50ccadaf4953 100644
  		break;
 +	/*
 +	 * We resolve the gpa to hva when setting the IRQ routing. the set_irq
-+	 * code uses get_user_pages_remote() to do the actual write.
++	 * code uses get_user_pages_remote to do the actual write.
 +	 */
  	case KVM_S390_IO_ADAPTER_MAP:
 -		ret = kvm_s390_adapter_map(dev->kvm, req.id, req.addr);
@@ -212,7 +203,7 @@ index c06c89d370a7..50ccadaf4953 100644
  	default:
  		ret = -EINVAL;
  	}
-@@ -2699,19 +2622,17 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+@@ -2699,19 +2622,21 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
  }
  
@@ -223,16 +214,18 @@ index c06c89d370a7..50ccadaf4953 100644
 +				 u64 uaddr)
  {
 -	struct s390_map_info *map;
--
--	if (!adapter)
--		return NULL;
 +	struct page *page = NULL;
  
+ 	if (!adapter)
+ 		return NULL;
+-
 -	list_for_each_entry(map, &adapter->maps, list) {
 -		if (map->guest_addr == addr)
 -			return map;
 -	}
 -	return NULL;
++	if (!uaddr)
++		return NULL;
 +	down_read(&kvm->mm->mmap_sem);
 +	get_user_pages_remote(NULL, kvm->mm, uaddr, 1, FOLL_WRITE,
 +			      &page, NULL, NULL);
@@ -241,7 +234,7 @@ index c06c89d370a7..50ccadaf4953 100644
  }
  
  static int adapter_indicators_set(struct kvm *kvm,
-@@ -2720,30 +2641,35 @@ static int adapter_indicators_set(struct kvm *kvm,
+@@ -2720,30 +2645,35 @@ static int adapter_indicators_set(struct kvm *kvm,
  {
  	unsigned long bit;
  	int summary_set, idx;
@@ -294,7 +287,7 @@ index c06c89d370a7..50ccadaf4953 100644
  	return summary_set ? 0 : 1;
  }
  
-@@ -2765,9 +2691,7 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
+@@ -2765,9 +2695,7 @@ static int set_adapter_int(struct kvm_kernel_irq_routing_entry *e,
  	adapter = get_io_adapter(kvm, e->adapter.adapter_id);
  	if (!adapter)
  		return -1;
@@ -304,7 +297,7 @@ index c06c89d370a7..50ccadaf4953 100644
  	if ((ret > 0) && !adapter->masked) {
  		ret = kvm_s390_inject_airq(kvm, adapter);
  		if (ret == 0)
-@@ -2818,23 +2742,27 @@ int kvm_set_routing_entry(struct kvm *kvm,
+@@ -2818,23 +2746,27 @@ int kvm_set_routing_entry(struct kvm *kvm,
  			  struct kvm_kernel_irq_routing_entry *e,
  			  const struct kvm_irq_routing_entry *ue)
  {
