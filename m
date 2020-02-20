@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 051/252] KVM: s390: ENOTSUPP -> EOPNOTSUPP fixups
-Date: Fri, 14 Feb 2020 11:08:26 -0500
-Message-Id: <20200214161147.15842-51-sashal@kernel.org>
-In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
-References: <20200214161147.15842-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4228 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727952AbgBTKkb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 05:40:31 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v3 21/37] KVM: s390/mm: handle guest unpin events
+Date: Thu, 20 Feb 2020 05:40:04 -0500
+Message-Id: <20200220104020.5343-22-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-[ Upstream commit c611990844c28c61ca4b35ff69d3a2ae95ccd486 ]
+The current code tries to first pin shared pages, if that fails (e.g.
+because the page is not shared) it will export them. For shared pages
+this means that we get a new intercept telling us that the guest is
+unsharing that page. We will make the page secure at that point in time
+and revoke the host access. This is synchronized with other host events,
+e.g. the code will wait until host I/O has finished.
 
-There is no ENOTSUPP for userspace.
-
-Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
-Fixes: 519783935451 ("KVM: s390: introduce ais mode modify function")
-Fixes: 2c1a48f2e5ed ("KVM: S390: add new group for flic")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kvm/intercept.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 05ea466b9e403..3515f2b55eb9e 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2109,7 +2109,7 @@ static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 		return -EINVAL;
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index f4d533554157..850045034016 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -16,6 +16,7 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/irq.h>
+ #include <asm/sysinfo.h>
++#include <asm/uv.h>
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+ #include "kvm-s390.h"
+ #include "gaccess.h"
+@@ -484,12 +485,35 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
  
- 	mutex_lock(&fi->ais_lock);
- 	ais.simm = fi->simm;
-@@ -2412,7 +2412,7 @@ static int modify_ais_mode(struct kvm *kvm, struct kvm_device_attr *attr)
- 	int ret = 0;
++static int handle_pv_uvc(struct kvm_vcpu *vcpu)
++{
++	struct uv_cb_share *guest_uvcb = (void *)vcpu->arch.sie_block->sidad;
++	struct uv_cb_cts uvcb = {
++		.header.cmd	= UVC_CMD_UNPIN_PAGE_SHARED,
++		.header.len	= sizeof(uvcb),
++		.guest_handle	= kvm_s390_pv_get_handle(vcpu->kvm),
++		.gaddr		= guest_uvcb->paddr,
++	};
++	int rc;
++
++	if (guest_uvcb->header.cmd != UVC_CMD_REMOVE_SHARED_ACCESS) {
++		WARN_ONCE(1, "Unexpected UVC 0x%x!\n", guest_uvcb->header.cmd);
++		return 0;
++	}
++	rc = gmap_make_secure(vcpu->arch.gmap, uvcb.gaddr, &uvcb);
++	if (rc == -EINVAL)
++		return 0;
++	return rc;
++}
++
+ static int handle_pv_notification(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu->arch.sie_block->ipa == 0xb210)
+ 		return handle_pv_spx(vcpu);
+ 	if (vcpu->arch.sie_block->ipa == 0xb220)
+ 		return handle_pv_sclp(vcpu);
++	if (vcpu->arch.sie_block->ipa == 0xb9a4)
++		return handle_pv_uvc(vcpu);
  
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (copy_from_user(&req, (void __user *)attr->addr, sizeof(req)))
- 		return -EFAULT;
-@@ -2492,7 +2492,7 @@ static int flic_ais_mode_set_all(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_ais_all ais;
- 
- 	if (!test_kvm_facility(kvm, 72))
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (copy_from_user(&ais, (void __user *)attr->addr, sizeof(ais)))
- 		return -EFAULT;
+ 	return handle_instruction(vcpu);
+ }
 -- 
-2.20.1
+2.25.0
