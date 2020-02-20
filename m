@@ -1,361 +1,347 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57212 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728248AbgBTTom (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:35016 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727967AbgBTNDD (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 14:44:42 -0500
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KJeCl9134791
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 14:44:40 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y93kgb9e8-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 14:44:39 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Thu, 20 Feb 2020 19:44:38 -0000
+        Thu, 20 Feb 2020 08:03:03 -0500
 Subject: Re: [PATCH v3 09/37] KVM: s390: protvirt: Add initial vm and cpu
  lifecycle handling
 References: <20200220104020.5343-1-borntraeger@de.ibm.com>
  <20200220104020.5343-10-borntraeger@de.ibm.com>
- <1f0c2c5a-5964-dc34-73af-7b1776391276@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Thu, 20 Feb 2020 20:44:30 +0100
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <1f0c2c5a-5964-dc34-73af-7b1776391276@redhat.com>
+Date: Thu, 20 Feb 2020 14:02:24 +0100
 MIME-Version: 1.0
-In-Reply-To: <1f0c2c5a-5964-dc34-73af-7b1776391276@redhat.com>
+In-Reply-To: <20200220104020.5343-10-borntraeger@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <b9aa96ce-9701-cefb-68d8-76d1cba4d5c7@de.ibm.com>
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
 
+> +static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+> +{
+> +	int r =3D 0;
+> +	u16 dummy;
+> +	void __user *argp =3D (void __user *)cmd->data;
+> +
+> +	switch (cmd->cmd) {
+> +	case KVM_PV_ENABLE: {
+> +		r =3D -EINVAL;
+> +		if (kvm_s390_pv_is_protected(kvm))
+> +			break;
+> +
+> +		r =3D kvm_s390_pv_alloc_vm(kvm);
+> +		if (r)
+> +			break;
+> +
+> +		/* FMT 4 SIE needs esca */
+> +		r =3D sca_switch_to_extended(kvm);
+> +		if (r) {
+> +			kvm_s390_pv_dealloc_vm(kvm);
+> +			kvm_s390_vcpu_unblock_all(kvm);
 
-On 20.02.20 14:02, David Hildenbrand wrote:
-> 
->> +static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
->> +{
->> +	int r = 0;
->> +	u16 dummy;
->> +	void __user *argp = (void __user *)cmd->data;
->> +
->> +	switch (cmd->cmd) {
->> +	case KVM_PV_ENABLE: {
->> +		r = -EINVAL;
->> +		if (kvm_s390_pv_is_protected(kvm))
->> +			break;
->> +
->> +		r = kvm_s390_pv_alloc_vm(kvm);
->> +		if (r)
->> +			break;
->> +
->> +		/* FMT 4 SIE needs esca */
->> +		r = sca_switch_to_extended(kvm);
->> +		if (r) {
->> +			kvm_s390_pv_dealloc_vm(kvm);
->> +			kvm_s390_vcpu_unblock_all(kvm);
-> 
-> You forgot to remove that.
+You forgot to remove that.
 
-ack.
-> 
->> +			mutex_unlock(&kvm->lock);
-> 
-> That's certainly wrong as well.
+> +			mutex_unlock(&kvm->lock);
 
-ack.
+That's certainly wrong as well.
 
-> 
->> +			break;
->> +		}
->> +		r = kvm_s390_pv_create_vm(kvm, &cmd->rc, &cmd->rrc);
->> +		if (!r)
->> +			r = kvm_s390_cpus_to_pv(kvm, &cmd->rc, &cmd->rrc);
->> +		if (r)
->> +			kvm_s390_pv_destroy_vm(kvm, &dummy, &dummy);
-> 
-> Should there be a kvm_s390_pv_dealloc_vm() as well?
+> +			break;
+> +		}
+> +		r =3D kvm_s390_pv_create_vm(kvm, &cmd->rc, &cmd->rrc);
+> +		if (!r)
+> +			r =3D kvm_s390_cpus_to_pv(kvm, &cmd->rc, &cmd->rrc);
+> +		if (r)
+> +			kvm_s390_pv_destroy_vm(kvm, &dummy, &dummy);
 
-Hmm yes. But only if destroy does not fail...... see below.
+Should there be a kvm_s390_pv_dealloc_vm() as well?
 
-> 
->> +
->> +		break;
->> +	}
->> +	case KVM_PV_DISABLE: {
->> +		r = -EINVAL;
->> +		if (!kvm_s390_pv_is_protected(kvm))
->> +			break;
->> +
->> +		kvm_s390_cpus_from_pv(kvm, &cmd->rc, &cmd->rrc);
->> +		r = kvm_s390_pv_destroy_vm(kvm, &cmd->rc, &cmd->rrc);
->> +		if (!r)
->> +			kvm_s390_pv_dealloc_vm(kvm);
-> 
-> Hm, if destroy fails, the CPUs would already have been removed.
-> 
-> Is there a way to make kvm_s390_pv_destroy_vm() never fail? The return
-> value is always ignored except here ... which looks wrong.
+> +
+> +		break;
+> +	}
+> +	case KVM_PV_DISABLE: {
+> +		r =3D -EINVAL;
+> +		if (!kvm_s390_pv_is_protected(kvm))
+> +			break;
+> +
+> +		kvm_s390_cpus_from_pv(kvm, &cmd->rc, &cmd->rrc);
+> +		r =3D kvm_s390_pv_destroy_vm(kvm, &cmd->rc, &cmd->rrc);
+> +		if (!r)
+> +			kvm_s390_pv_dealloc_vm(kvm);
 
-This should not fail. But if it does we should not free the memory that
-we donated to the ultravisor. We then do have a memory leak, but this is 
-necessary to keep the integrity of the host. 
-I will fix the other places to only call dealloc when destroy succeeded.
+Hm, if destroy fails, the CPUs would already have been removed.
 
-Same for VCPU destroy. If that fails I should not free arch.pv.stor_base
-will fix.
+Is there a way to make kvm_s390_pv_destroy_vm() never fail? The return
+value is always ignored except here ... which looks wrong.
 
-
-> 
->> +		break;
->> +	}
-> 
-> [...]
-> 
->> @@ -2558,10 +2724,21 @@ static void kvm_free_vcpus(struct kvm *kvm)
->>  
->>  void kvm_arch_destroy_vm(struct kvm *kvm)
->>  {
->> +	u16 rc, rrc;
->>  	kvm_free_vcpus(kvm);
->>  	sca_dispose(kvm);
->> -	debug_unregister(kvm->arch.dbf);
->>  	kvm_s390_gisa_destroy(kvm);
->> +	/*
->> +	 * We are already at the end of life and kvm->lock is not taken.
->> +	 * This is ok as the file descriptor is closed by now and nobody
->> +	 * can mess with the pv state. To avoid lockdep_assert_held from
->> +	 * complaining we do not use kvm_s390_pv_is_protected.
->> +	 */
->> +	if (kvm_s390_pv_get_handle(kvm)) {
-> 
-> I'd prefer something like kvm_s390_pv_is_protected_unlocked(), but I
-> guess for these few use cases, this is fine.
-
-yes lets leave it as is... :-)
-
-
-> 
-> 
->> +		kvm_s390_pv_destroy_vm(kvm, &rc, &rrc);
->> +		kvm_s390_pv_dealloc_vm(kvm);
->> +	}
->> +	debug_unregister(kvm->arch.dbf);
->>  	free_page((unsigned long)kvm->arch.sie_page2);
->>  	if (!kvm_is_ucontrol(kvm))
->>  		gmap_remove(kvm->arch.gmap);
->> @@ -2657,6 +2834,9 @@ static int sca_switch_to_extended(struct kvm *kvm)
->>  	unsigned int vcpu_idx;
->>  	u32 scaol, scaoh;
->>  
->> +	if (kvm->arch.use_esca)
->> +		return 0;
->> +
->>  	new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL|__GFP_ZERO);
->>  	if (!new_sca)
->>  		return -ENOMEM;
->> @@ -2908,6 +3088,7 @@ static void kvm_s390_vcpu_setup_model(struct kvm_vcpu *vcpu)
->>  static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->>  {
->>  	int rc = 0;
->> +	u16 uvrc, uvrrc;
->>  
->>  	atomic_set(&vcpu->arch.sie_block->cpuflags, CPUSTAT_ZARCH |
->>  						    CPUSTAT_SM |
->> @@ -2975,6 +3156,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->>  
->>  	kvm_s390_vcpu_crypto_setup(vcpu);
->>  
->> +	mutex_lock(&vcpu->kvm->lock);
->> +	if (kvm_s390_pv_is_protected(vcpu->kvm))
->> +		rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
->> +	mutex_unlock(&vcpu->kvm->lock);
-> 
-> Do we have to cleanup anything? (e.g., cmma page) I *think*
-> kvm_arch_vcpu_destroy() is not called when kvm_arch_vcpu_create() fails ...
-
-Right we need to call kvm_s390_vcpu_unsetup_cmma. To me it looks like
-this can be done unconditionally if rc!=0:
-
-@@ -3156,8 +3158,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
-        kvm_s390_vcpu_crypto_setup(vcpu);
- 
-        mutex_lock(&vcpu->kvm->lock);
--       if (kvm_s390_pv_is_protected(vcpu->kvm))
-+       if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-                rc = kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
-+               if (rc)
-+                       kvm_s390_vcpu_unsetup_cmma(vcpu);
-+       }
-        mutex_unlock(&vcpu->kvm->lock);
- 
-        return rc;
-
-
-Everything else looks ok, no need to deallocate or so.
+> +		break;
+> +	}
 
 [...]
 
- */
->>  int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
->>  void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu);
->> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
->> new file mode 100644
->> index 000000000000..67ea9a18ed8f
->> --- /dev/null
->> +++ b/arch/s390/kvm/pv.c
->> @@ -0,0 +1,256 @@
->> +// SPDX-License-Identifier: GPL-2.0
->> +/*
->> + * Hosting Secure Execution virtual machines
->> + *
->> + * Copyright IBM Corp. 2019
->> + *    Author(s): Janosch Frank <frankja@linux.ibm.com>
-> 
-> I'd assume you're an author as well at this point ;)
+> @@ -2558,10 +2724,21 @@ static void kvm_free_vcpus(struct kvm *kvm)
+> =20
+>  void kvm_arch_destroy_vm(struct kvm *kvm)
+>  {
+> +	u16 rc, rrc;
+>  	kvm_free_vcpus(kvm);
+>  	sca_dispose(kvm);
+> -	debug_unregister(kvm->arch.dbf);
+>  	kvm_s390_gisa_destroy(kvm);
+> +	/*
+> +	 * We are already at the end of life and kvm->lock is not taken.
+> +	 * This is ok as the file descriptor is closed by now and nobody
+> +	 * can mess with the pv state. To avoid lockdep_assert_held from
+> +	 * complaining we do not use kvm_s390_pv_is_protected.
+> +	 */
+> +	if (kvm_s390_pv_get_handle(kvm)) {
 
-I personally prefer to not have authors in files and after all
-I am just cleaning up so that Janosch can take care of QEMU.
-But I will at least fixup the Copyright year.
+I'd prefer something like kvm_s390_pv_is_protected_unlocked(), but I
+guess for these few use cases, this is fine.
 
 
-> 
-> [...]
-> 
->> +
->> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
->> +			      u16 *rrc)
->> +{
->> +	struct uv_cb_ssc uvcb = {
->> +		.header.cmd = UVC_CMD_SET_SEC_CONF_PARAMS,
->> +		.header.len = sizeof(uvcb),
->> +		.sec_header_origin = (u64)hdr,
->> +		.sec_header_len = length,
->> +		.guest_handle = kvm_s390_pv_get_handle(kvm),
->> +	};
->> +	int cc;
->> +
->> +	cc = uv_call(0, (u64)&uvcb);
-> 
-> int cc = ... could be done.
-> 
+> +		kvm_s390_pv_destroy_vm(kvm, &rc, &rrc);
+> +		kvm_s390_pv_dealloc_vm(kvm);
+> +	}
+> +	debug_unregister(kvm->arch.dbf);
+>  	free_page((unsigned long)kvm->arch.sie_page2);
+>  	if (!kvm_is_ucontrol(kvm))
+>  		gmap_remove(kvm->arch.gmap);
+> @@ -2657,6 +2834,9 @@ static int sca_switch_to_extended(struct kvm *kvm=
+)
+>  	unsigned int vcpu_idx;
+>  	u32 scaol, scaoh;
+> =20
+> +	if (kvm->arch.use_esca)
+> +		return 0;
+> +
+>  	new_sca =3D alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL|__GFP_ZERO=
+);
+>  	if (!new_sca)
+>  		return -ENOMEM;
+> @@ -2908,6 +3088,7 @@ static void kvm_s390_vcpu_setup_model(struct kvm_=
+vcpu *vcpu)
+>  static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
+>  {
+>  	int rc =3D 0;
+> +	u16 uvrc, uvrrc;
+> =20
+>  	atomic_set(&vcpu->arch.sie_block->cpuflags, CPUSTAT_ZARCH |
+>  						    CPUSTAT_SM |
+> @@ -2975,6 +3156,11 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *=
+vcpu)
+> =20
+>  	kvm_s390_vcpu_crypto_setup(vcpu);
+> =20
+> +	mutex_lock(&vcpu->kvm->lock);
+> +	if (kvm_s390_pv_is_protected(vcpu->kvm))
+> +		rc =3D kvm_s390_pv_create_cpu(vcpu, &uvrc, &uvrrc);
+> +	mutex_unlock(&vcpu->kvm->lock);
 
-ack. 
-> 
->> +	*rc = uvcb.header.rc;
->> +	*rrc = uvcb.header.rrc;
->> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
->> +		     *rc, *rrc);
->> +	if (cc)
->> +		return -EINVAL;
->> +	return 0;
->> +}
->> +
->> +static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak[2],
->> +		      u16 *rc, u16 *rrc)
->> +{
->> +	struct uv_cb_unp uvcb = {
->> +		.header.cmd = UVC_CMD_UNPACK_IMG,
->> +		.header.len = sizeof(uvcb),
->> +		.guest_handle = kvm_s390_pv_get_handle(kvm),
->> +		.gaddr = addr,
->> +		.tweak[0] = tweak[0],
->> +		.tweak[1] = tweak[1],
->> +	};
->> +	int ret;
->> +
->> +	ret = gmap_make_secure(kvm->arch.gmap, addr, &uvcb);
-> 
-> ... similarly, with ret.
+Do we have to cleanup anything? (e.g., cmma page) I *think*
+kvm_arch_vcpu_destroy() is not called when kvm_arch_vcpu_create() fails .=
+..
+
+> +
+>  	return rc;
+>  }
+> =20
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 83dabb18e4d9..d62de29b2d6c 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -15,6 +15,7 @@
+>  #include <linux/hrtimer.h>
+>  #include <linux/kvm.h>
+>  #include <linux/kvm_host.h>
+> +#include <linux/lockdep.h>
+>  #include <asm/facility.h>
+>  #include <asm/processor.h>
+>  #include <asm/sclp.h>
+> @@ -207,6 +208,40 @@ static inline int kvm_s390_user_cpu_state_ctrl(str=
+uct kvm *kvm)
+>  	return kvm->arch.user_cpu_state_ctrl !=3D 0;
+>  }
+> =20
+> +/* implemented in pv.c */
+> +void kvm_s390_pv_dealloc_vm(struct kvm *kvm);
+> +int kvm_s390_pv_alloc_vm(struct kvm *kvm);
+> +int kvm_s390_pv_create_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+> +int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc);
+> +int kvm_s390_pv_destroy_vm(struct kvm *kvm, u16 *rc, u16 *rrc);
+> +void kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)=
+;
+> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, =
+u16 *rc,
+> +			      u16 *rrc);
+> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned l=
+ong size,
+> +		       unsigned long tweak, u16 *rc, u16 *rrc);
+> +
+> +static inline u64 kvm_s390_pv_get_handle(struct kvm *kvm)
+> +{
+> +	return kvm->arch.pv.handle;
+> +}
+> +
+> +static inline u64 kvm_s390_pv_cpu_get_handle(struct kvm_vcpu *vcpu)
+> +{
+> +	return vcpu->arch.pv.handle;
+> +}
+> +
+> +static inline bool kvm_s390_pv_is_protected(struct kvm *kvm)
+
+Could have been "kvm_s390_is_protected" or "kvm_s390_is_pv", but also
+fine with me. (maybe I even suggested that one without caring about that
+detail :) )
+
+[...]
+
+> +
+>  /* implemented in interrupt.c */
+>  int kvm_s390_handle_wait(struct kvm_vcpu *vcpu);
+>  void kvm_s390_vcpu_wakeup(struct kvm_vcpu *vcpu);
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> new file mode 100644
+> index 000000000000..67ea9a18ed8f
+> --- /dev/null
+> +++ b/arch/s390/kvm/pv.c
+> @@ -0,0 +1,256 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Hosting Secure Execution virtual machines
+> + *
+> + * Copyright IBM Corp. 2019
+> + *    Author(s): Janosch Frank <frankja@linux.ibm.com>
+
+I'd assume you're an author as well at this point ;)
+
+[...]
+
+> +
+> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, =
+u16 *rc,
+> +			      u16 *rrc)
+> +{
+> +	struct uv_cb_ssc uvcb =3D {
+> +		.header.cmd =3D UVC_CMD_SET_SEC_CONF_PARAMS,
+> +		.header.len =3D sizeof(uvcb),
+> +		.sec_header_origin =3D (u64)hdr,
+> +		.sec_header_len =3D length,
+> +		.guest_handle =3D kvm_s390_pv_get_handle(kvm),
+> +	};
+> +	int cc;
+> +
+> +	cc =3D uv_call(0, (u64)&uvcb);
+
+int cc =3D ... could be done.
 
 
-ack
+> +	*rc =3D uvcb.header.rc;
+> +	*rrc =3D uvcb.header.rrc;
+> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
+> +		     *rc, *rrc);
+> +	if (cc)
+> +		return -EINVAL;
+> +	return 0;
+> +}
+> +
+> +static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak[2=
+],
+> +		      u16 *rc, u16 *rrc)
+> +{
+> +	struct uv_cb_unp uvcb =3D {
+> +		.header.cmd =3D UVC_CMD_UNPACK_IMG,
+> +		.header.len =3D sizeof(uvcb),
+> +		.guest_handle =3D kvm_s390_pv_get_handle(kvm),
+> +		.gaddr =3D addr,
+> +		.tweak[0] =3D tweak[0],
+> +		.tweak[1] =3D tweak[1],
+> +	};
+> +	int ret;
+> +
+> +	ret =3D gmap_make_secure(kvm->arch.gmap, addr, &uvcb);
 
-> 
->> +	*rc = uvcb.header.rc;
->> +	*rrc = uvcb.header.rrc;
->> +
->> +	if (ret && ret != -EAGAIN)
->> +		KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx with rc %x rrc %x",
->> +			     uvcb.gaddr, *rc, *rrc);
->> +	return ret;
->> +}
->> +
->> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
->> +		       unsigned long tweak, u16 *rc, u16 *rrc)
->> +{
->> +	u64 tw[2] = {tweak, 0};
-> 
-> I have no idea what tweaks are in this context. So I have to trust you
-> guys on the implementation, because I don't understand it.
+... similarly, with ret.
 
-Its the crypto term. Basically similar idea like salt or nonce.
+> +	*rc =3D uvcb.header.rc;
+> +	*rrc =3D uvcb.header.rrc;
+> +
+> +	if (ret && ret !=3D -EAGAIN)
+> +		KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: failed addr %llx with rc %=
+x rrc %x",
+> +			     uvcb.gaddr, *rc, *rrc);
+> +	return ret;
+> +}
+> +
+> +int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned l=
+ong size,
+> +		       unsigned long tweak, u16 *rc, u16 *rrc)
+> +{
+> +	u64 tw[2] =3D {tweak, 0};
 
-> 
-> Especially, why can't we simply have
-> 
-> s/tweak/tweak/
+I have no idea what tweaks are in this context. So I have to trust you
+guys on the implementation, because I don't understand it.
 
-? 
+Especially, why can't we simply have
 
-> 
-> offset = 0;
-> 
-> while (offset < size) {
-> 	...
-> 	ret = unpack_one(kvm, addr, tweak, offset, rc, rrc);
-> 				    ^ no idea what tweak is
-> 	...
-> 	... offset +=  PAGE_SIZE;
-> }
-> 
-> But maybe I am missing what the whole array is about.
+s/tweak/tweak/
 
-Both values (the initial 64bit value and the address) form the 128 bit
-tweak for the decryption. So the offset is actually part of the tweak.
+offset =3D 0;
 
-So yes we could rewrite that using offset and not passing through an array
-but tweak + offset as separate u64.
+while (offset < size) {
+	...
+	ret =3D unpack_one(kvm, addr, tweak, offset, rc, rrc);
+				    ^ no idea what tweak is
+	...
+	... offset +=3D  PAGE_SIZE;
+}
 
-will check if this makes it any clearer
-> 
->> +	int ret = 0;
->> +
->> +	if (addr & ~PAGE_MASK || !size || size & ~PAGE_MASK)
->> +		return -EINVAL;
->> +
->> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %lx size %lx",
->> +		     addr, size);
->> +
->> +	while (tw[1] < size) {
+But maybe I am missing what the whole array is about.
 
-> +		ret = unpack_one(kvm, addr, tw, rc, rrc);
->> +		if (ret == -EAGAIN) {
->> +			cond_resched();
->> +			if (fatal_signal_pending(current))
->> +				break;
->> +			continue;
->> +		}
->> +		if (ret)
->> +			break;
->> +		addr += PAGE_SIZE;
->> +		tw[1] += PAGE_SIZE;
->> +	}
->> +	if (!ret)
->> +		KVM_UV_EVENT(kvm, 3, "%s", "PROTVIRT VM UNPACK: successful");
->> +	return ret;
->> +}
-> 
-> [...]
->> +enum pv_cmd_id {
->> +	KVM_PV_ENABLE,
->> +	KVM_PV_DISABLE,
->> +	KVM_PV_VM_SET_SEC_PARMS,
->> +	KVM_PV_VM_UNPACK,
->> +	KVM_PV_VM_VERIFY,
-> 
-> I wonder if we should just drop "_VM" from all of these ...
+> +	int ret =3D 0;
+> +
+> +	if (addr & ~PAGE_MASK || !size || size & ~PAGE_MASK)
+> +		return -EINVAL;
+> +
+> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM UNPACK: start addr %lx size %lx",
+> +		     addr, size);
+> +
+> +	while (tw[1] < size) {> +		ret =3D unpack_one(kvm, addr, tw, rc, rrc)=
+;
+> +		if (ret =3D=3D -EAGAIN) {
+> +			cond_resched();
+> +			if (fatal_signal_pending(current))
+> +				break;
+> +			continue;
+> +		}
+> +		if (ret)
+> +			break;
+> +		addr +=3D PAGE_SIZE;
+> +		tw[1] +=3D PAGE_SIZE;
+> +	}
+> +	if (!ret)
+> +		KVM_UV_EVENT(kvm, 3, "%s", "PROTVIRT VM UNPACK: successful");
+> +	return ret;
+> +}
+
+[...]
+> +enum pv_cmd_id {
+> +	KVM_PV_ENABLE,
+> +	KVM_PV_DISABLE,
+> +	KVM_PV_VM_SET_SEC_PARMS,
+> +	KVM_PV_VM_UNPACK,
+> +	KVM_PV_VM_VERIFY,
+
+I wonder if we should just drop "_VM" from all of these ...
+
+[...]
+
+
+--=20
+Thanks,
+
+David / dhildenb
