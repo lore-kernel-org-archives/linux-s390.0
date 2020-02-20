@@ -1,17 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:32860 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728400AbgBTUz2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Feb 2020 15:55:28 -0500
-Received: by mail-qt1-f197.google.com with SMTP id r30so21553qtb.10
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 12:55:23 -0800 (PST)
-Date: Thu, 20 Feb 2020 15:55:14 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
+Received: from verein.lst.de ([213.95.11.211]:50190 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727233AbgBTQNM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 11:13:12 -0500
+Date: Thu, 20 Feb 2020 17:13:09 +0100
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
  protected
-Message-ID: <20200220154904-mutt-send-email-mst@kernel.org>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-3-pasic@linux.ibm.com>
+Message-ID: <20200220161309.GB12709@lst.de>
+References: <20200220160606.53156-1-pasic@linux.ibm.com> <20200220160606.53156-3-pasic@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,63 +16,9 @@ In-Reply-To: <20200220160606.53156-3-pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 
 On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
-> Currently the advanced guest memory protection technologies (AMD SEV,
-> powerpc secure guest technology and s390 Protected VMs) abuse the
-> VIRTIO_F_IOMMU_PLATFORM flag to make virtio core use the DMA API, which
-> is in turn necessary, to make IO work with guest memory protection.
-> 
-> But VIRTIO_F_IOMMU_PLATFORM a.k.a. VIRTIO_F_ACCESS_PLATFORM is really a
-> different beast: with virtio devices whose implementation runs on an SMP
-> CPU we are still fine with doing all the usual optimizations, it is just
-> that we need to make sure that the memory protection mechanism does not
-> get in the way. The VIRTIO_F_ACCESS_PLATFORM mandates more work on the
-> side of the guest (and possibly he host side as well) than we actually
-> need.
-> 
-> An additional benefit of teaching the guest to make the right decision
-> (and use DMA API) on it's own is: removing the need, to mandate special
-> VM configuration for guests that may run with protection. This is
-> especially interesting for s390 as VIRTIO_F_IOMMU_PLATFORM pushes all
-> the virtio control structures into the first 2G of guest memory:
-> something we don't necessarily want to do per-default.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Tested-by: Ram Pai <linuxram@us.ibm.com>
-> Tested-by: Michael Mueller <mimu@linux.ibm.com>
-
-This might work for you but it's fragile, since without
-VIRTIO_F_ACCESS_PLATFORM hypervisor assumes it gets
-GPA's, not DMA addresses.
-
-
-
-IOW this looks like another iteration of:
-
-	virtio: Support encrypted memory on powerpc secure guests
-
-which I was under the impression was abandoned as unnecessary.
-
-
-To summarize, the necessary conditions for a hack along these lines
-(using DMA API without VIRTIO_F_ACCESS_PLATFORM) are that we detect that:
-
-  - secure guest mode is enabled - so we know that since we don't share
-    most memory regular virtio code won't
-    work, even though the buggy hypervisor didn't set VIRTIO_F_ACCESS_PLATFORM
-  - DMA API is giving us addresses that are actually also physical
-    addresses
-  - Hypervisor is buggy and didn't enable VIRTIO_F_ACCESS_PLATFORM
- 
-I don't see how this patch does this.
-
-
-> ---
->  drivers/virtio/virtio_ring.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
 > index 867c7ebd3f10..fafc8f924955 100644
 > --- a/drivers/virtio/virtio_ring.c
@@ -86,9 +29,11 @@ I don't see how this patch does this.
 >  
 > +	if (force_dma_unencrypted(&vdev->dev))
 > +		return true;
-> +
->  	/* Otherwise, we are left to guess. */
->  	/*
->  	 * In theory, it's possible to have a buggy QEMU-supposed
-> -- 
-> 2.17.1
+
+Hell no.  This is a detail of the platform DMA direct implementation.
+Drivers have no business looking at this flag, and virtio finally needs
+to be fixed to use the DMA API properly for everything but legacy devices.
+
+No amount of desparate hacks is going to fix that fundamental problem,
+and I'm starting to get really sick and tired of all the crap patches
+published in this area.
