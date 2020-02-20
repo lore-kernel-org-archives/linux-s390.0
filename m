@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is protected
-Date: Thu, 20 Feb 2020 17:06:06 +0100
-In-Reply-To: <20200220160606.53156-1-pasic@linux.ibm.com>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
-Message-Id: <20200220160606.53156-3-pasic@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17588 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728042AbgBTMBP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 07:01:15 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KC1AmM014621
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:14 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y8ucn0t0k-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:11 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 20 Feb 2020 12:00:48 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 01/10] s390x: saving regs for interrupts
+Date: Thu, 20 Feb 2020 13:00:34 +0100
+In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
+References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1582200043-21760-2-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-Currently the advanced guest memory protection technologies (AMD SEV,
-powerpc secure guest technology and s390 Protected VMs) abuse the
-VIRTIO_F_IOMMU_PLATFORM flag to make virtio core use the DMA API, which
-is in turn necessary, to make IO work with guest memory protection.
+If we use multiple source of interrupts, for example, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
 
-But VIRTIO_F_IOMMU_PLATFORM a.k.a. VIRTIO_F_ACCESS_PLATFORM is really a
-different beast: with virtio devices whose implementation runs on an SMP
-CPU we are still fine with doing all the usual optimizations, it is just
-that we need to make sure that the memory protection mechanism does not
-get in the way. The VIRTIO_F_ACCESS_PLATFORM mandates more work on the
-side of the guest (and possibly he host side as well) than we actually
-need.
+Instead of saving at a static memory address, let's save the base
+registers and the floating point registers on the stack.
 
-An additional benefit of teaching the guest to make the right decision
-(and use DMA API) on it's own is: removing the need, to mandate special
-VM configuration for guests that may run with protection. This is
-especially interesting for s390 as VIRTIO_F_IOMMU_PLATFORM pushes all
-the virtio control structures into the first 2G of guest memory:
-something we don't necessarily want to do per-default.
+Note that we keep the static register saving to recover from the
+RESET tests.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Ram Pai <linuxram@us.ibm.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/virtio/virtio_ring.c | 3 +++
- 1 file changed, 3 insertions(+)
+ s390x/cstart64.S | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 867c7ebd3f10..fafc8f924955 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
- 	if (!virtio_has_iommu_quirk(vdev))
- 		return true;
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index 9af6bb3..45da523 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,25 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
  
-+	if (force_dma_unencrypted(&vdev->dev))
-+		return true;
++/* Save registers on the stack, so we can have stacked interrupts. */
++	.macro SAVE_IRQ_REGS
++	slgfi   %r15, 15 * 8
++	stmg    %r0, %r14, 0(%r15)
++	slgfi   %r15, 16 * 8
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	.endm
 +
- 	/* Otherwise, we are left to guess. */
- 	/*
- 	 * In theory, it's possible to have a buggy QEMU-supposed
++	.macro RESTORE_IRQ_REGS
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	algfi   %r15, 16 * 8
++	lmg     %r0, %r14, 0(%r15)
++	algfi   %r15, 15 * 8
++	.endm
++
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -182,9 +201,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
+ 
+ io_int:
+-	SAVE_REGS
++	SAVE_IRQ_REGS
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_IRQ_REGS
+ 	lpswe	GEN_LC_IO_OLD_PSW
+ 
+ svc_int:
 -- 
-2.17.1
+2.17.0
