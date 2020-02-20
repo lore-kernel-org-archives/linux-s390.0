@@ -1,115 +1,469 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25678 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35974 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728816AbgBQPZJ (ORCPT
+        by vger.kernel.org with ESMTP id S1728026AbgBTMA4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 17 Feb 2020 10:25:09 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01HFKRrF073968
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:07 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y7uafne3n-1
+        Thu, 20 Feb 2020 07:00:56 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KBxFZj011998
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:54 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y8ubwpkgq-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 17 Feb 2020 10:25:07 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:54 -0500
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <ubraun@linux.ibm.com>;
-        Mon, 17 Feb 2020 15:25:05 -0000
-From: Ursula Braun <ubraun@linux.ibm.com>
-Subject: [PATCH net-next 6/6] net/smc: reduce port_event scheduling
-Date: Mon, 17 Feb 2020 16:24:55 +0100
-In-Reply-To: <20200217152455.15341-1-ubraun@linux.ibm.com>
-References: <20200217152455.15341-1-ubraun@linux.ibm.com>
-Message-Id: <20200217152455.15341-7-ubraun@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 20 Feb 2020 12:00:51 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 06/10] s390x: Library resources for CSS tests
+Date: Thu, 20 Feb 2020 13:00:39 +0100
+In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
+References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1582200043-21760-7-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-IB event handlers schedule the port event worker for further
-processing of port state changes. This patch reduces the number of
-schedules to avoid duplicate processing of the same port change.
+These are the include and library utilities for the css tests patch
+series.
 
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Debug function can be activated by defining DEBUG_CSS before the
+inclusion of the css.h header file.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- net/smc/smc_ib.c | 44 +++++++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
+ lib/s390x/css.h      | 256 +++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c | 157 ++++++++++++++++++++++++++
+ 2 files changed, 413 insertions(+)
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 548632621f4b..6756bd5a3fe4 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -257,6 +257,7 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 					struct ib_event *ibevent)
- {
- 	struct smc_ib_device *smcibdev;
-+	bool schedule = false;
- 	u8 port_idx;
- 
- 	smcibdev = container_of(handler, struct smc_ib_device, event_handler);
-@@ -266,22 +267,35 @@ static void smc_ib_global_event_handler(struct ib_event_handler *handler,
- 		/* terminate all ports on device */
- 		for (port_idx = 0; port_idx < SMC_MAX_PORTS; port_idx++) {
- 			set_bit(port_idx, &smcibdev->port_event_mask);
--			set_bit(port_idx, smcibdev->ports_going_away);
-+			if (!test_and_set_bit(port_idx,
-+					      smcibdev->ports_going_away))
-+				schedule = true;
- 		}
--		schedule_work(&smcibdev->port_event_work);
-+		if (schedule)
-+			schedule_work(&smcibdev->port_event_work);
- 		break;
--	case IB_EVENT_PORT_ERR:
- 	case IB_EVENT_PORT_ACTIVE:
--	case IB_EVENT_GID_CHANGE:
- 		port_idx = ibevent->element.port_num - 1;
--		if (port_idx < SMC_MAX_PORTS) {
--			set_bit(port_idx, &smcibdev->port_event_mask);
--			if (ibevent->event == IB_EVENT_PORT_ERR)
--				set_bit(port_idx, smcibdev->ports_going_away);
--			else if (ibevent->event == IB_EVENT_PORT_ACTIVE)
--				clear_bit(port_idx, smcibdev->ports_going_away);
-+		if (port_idx >= SMC_MAX_PORTS)
-+			break;
-+		set_bit(port_idx, &smcibdev->port_event_mask);
-+		if (test_and_clear_bit(port_idx, smcibdev->ports_going_away))
-+			schedule_work(&smcibdev->port_event_work);
-+		break;
-+	case IB_EVENT_PORT_ERR:
-+		port_idx = ibevent->element.port_num - 1;
-+		if (port_idx >= SMC_MAX_PORTS)
-+			break;
-+		set_bit(port_idx, &smcibdev->port_event_mask);
-+		if (!test_and_set_bit(port_idx, smcibdev->ports_going_away))
- 			schedule_work(&smcibdev->port_event_work);
--		}
-+		break;
-+	case IB_EVENT_GID_CHANGE:
-+		port_idx = ibevent->element.port_num - 1;
-+		if (port_idx >= SMC_MAX_PORTS)
-+			break;
-+		set_bit(port_idx, &smcibdev->port_event_mask);
-+		schedule_work(&smcibdev->port_event_work);
- 		break;
- 	default:
- 		break;
-@@ -316,11 +330,11 @@ static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- 	case IB_EVENT_QP_FATAL:
- 	case IB_EVENT_QP_ACCESS_ERR:
- 		port_idx = ibevent->element.qp->port - 1;
--		if (port_idx < SMC_MAX_PORTS) {
--			set_bit(port_idx, &smcibdev->port_event_mask);
--			set_bit(port_idx, smcibdev->ports_going_away);
-+		if (port_idx >= SMC_MAX_PORTS)
-+			break;
-+		set_bit(port_idx, &smcibdev->port_event_mask);
-+		if (!test_and_set_bit(port_idx, smcibdev->ports_going_away))
- 			schedule_work(&smcibdev->port_event_work);
--		}
- 		break;
- 	default:
- 		break;
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+new file mode 100644
+index 0000000..8144a21
+--- /dev/null
++++ b/lib/s390x/css.h
+@@ -0,0 +1,256 @@
++/*
++ * CSS definitions
++ *
++ * Copyright IBM, Corp. 2019
++ * Author: Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or (at
++ * your option) any later version. See the COPYING file in the top-level
++ * directory.
++ */
++
++#ifndef CSS_H
++#define CSS_H
++
++#define CCW_F_CD	0x80
++#define CCW_F_CC	0x40
++#define CCW_F_SLI	0x20
++#define CCW_F_SKP	0x10
++#define CCW_F_PCI	0x08
++#define CCW_F_IDA	0x04
++#define CCW_F_S		0x02
++#define CCW_F_MIDA	0x01
++
++#define CCW_C_NOP	0x03
++#define CCW_C_TIC	0x08
++
++struct ccw1 {
++	unsigned char code;
++	unsigned char flags;
++	unsigned short count;
++	uint32_t data_address;
++} __attribute__ ((aligned(4)));
++
++#define ORB_M_KEY	0xf0000000
++#define ORB_F_SUSPEND	0x08000000
++#define ORB_F_STREAMING	0x04000000
++#define ORB_F_MODIFCTRL	0x02000000
++#define ORB_F_SYNC	0x01000000
++#define ORB_F_FORMAT	0x00800000
++#define ORB_F_PREFETCH	0x00400000
++#define ORB_F_INIT_IRQ	0x00200000
++#define ORB_F_ADDRLIMIT	0x00100000
++#define ORB_F_SUSP_IRQ	0x00080000
++#define ORB_F_TRANSPORT	0x00040000
++#define ORB_F_IDAW2	0x00020000
++#define ORB_F_IDAW_2K	0x00010000
++#define ORB_M_LPM	0x0000ff00
++#define ORB_F_LPM_DFLT	0x00008000
++#define ORB_F_ILSM	0x00000080
++#define ORB_F_CCW_IND	0x00000040
++#define ORB_F_ORB_EXT	0x00000001
++
++struct orb {
++	uint32_t intparm;
++	uint32_t ctrl;
++	uint32_t cpa;
++	uint32_t prio;
++	uint32_t reserved[4];
++} __attribute__ ((aligned(4)));
++
++struct scsw {
++	uint32_t ctrl;
++	uint32_t ccw_addr;
++	uint8_t  dev_stat;
++	uint8_t  sch_stat;
++	uint16_t count;
++};
++
++struct pmcw {
++	uint32_t intparm;
++#define PMCW_DNV        0x0001
++#define PMCW_ENABLE     0x0080
++	uint16_t flags;
++	uint16_t devnum;
++	uint8_t  lpm;
++	uint8_t  pnom;
++	uint8_t  lpum;
++	uint8_t  pim;
++	uint16_t mbi;
++	uint8_t  pom;
++	uint8_t  pam;
++	uint8_t  chpid[8];
++	uint32_t flags2;
++};
++
++struct schib {
++	struct pmcw pmcw;
++	struct scsw scsw;
++	uint8_t  md[12];
++} __attribute__ ((aligned(4)));
++
++struct irb {
++	struct scsw scsw;
++	uint32_t esw[5];
++	uint32_t ecw[8];
++	uint32_t emw[8];
++} __attribute__ ((aligned(4)));
++
++/* CSS low level access functions */
++
++static inline int ssch(unsigned long schid, struct orb *addr)
++{
++	register long long reg1 asm("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	ssch	0(%2)\n"
++		"	ipm	%0\n"
++		"	srl	%0,28\n"
++		: "=d" (cc)
++		: "d" (reg1), "a" (addr), "m" (*addr)
++		: "cc", "memory");
++	return cc;
++}
++
++static inline int stsch(unsigned long schid, struct schib *addr)
++{
++	register unsigned long reg1 asm ("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	stsch	0(%3)\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc), "=m" (*addr)
++		: "d" (reg1), "a" (addr)
++		: "cc");
++	return cc;
++}
++
++static inline int msch(unsigned long schid, struct schib *addr)
++{
++	register unsigned long reg1 asm ("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	msch	0(%3)\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc), "=m" (*addr)
++		: "d" (reg1), "a" (addr)
++		: "cc");
++	return cc;
++}
++
++static inline int tsch(unsigned long schid, struct irb *addr)
++{
++	register unsigned long reg1 asm ("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	tsch	0(%3)\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc), "=m" (*addr)
++		: "d" (reg1), "a" (addr)
++		: "cc");
++	return cc;
++}
++
++static inline int hsch(unsigned long schid)
++{
++	register unsigned long reg1 asm("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	hsch\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc)
++		: "d" (reg1)
++		: "cc");
++	return cc;
++}
++
++static inline int xsch(unsigned long schid)
++{
++	register unsigned long reg1 asm("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	xsch\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc)
++		: "d" (reg1)
++		: "cc");
++	return cc;
++}
++
++static inline int csch(unsigned long schid)
++{
++	register unsigned long reg1 asm("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	csch\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc)
++		: "d" (reg1)
++		: "cc");
++	return cc;
++}
++
++static inline int rsch(unsigned long schid)
++{
++	register unsigned long reg1 asm("1") = schid;
++	int cc;
++
++	asm volatile(
++		"	rsch\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc)
++		: "d" (reg1)
++		: "cc");
++	return cc;
++}
++
++static inline int rchp(unsigned long chpid)
++{
++	register unsigned long reg1 asm("1") = chpid;
++	int cc;
++
++	asm volatile(
++		"	rchp\n"
++		"	ipm	%0\n"
++		"	srl	%0,28"
++		: "=d" (cc)
++		: "d" (reg1)
++		: "cc");
++	return cc;
++}
++
++/* Debug functions */
++char *dump_pmcw_flags(uint16_t f);
++char *dump_scsw_flags(uint32_t f);
++
++#ifdef DEBUG_CSS
++void dump_scsw(struct scsw *);
++void dump_irb(struct irb *irbp);
++void dump_schib(struct schib *sch);
++struct ccw *dump_ccw(struct ccw *cp);
++#else
++static inline void dump_scsw(struct scsw *scsw) {}
++static inline void dump_irb(struct irb *irbp) {}
++static inline void dump_pmcw(struct pmcw *p) {}
++static inline void dump_schib(struct schib *sch) {}
++static inline void dump_orb(struct orb *op) {}
++static inline struct ccw *dump_ccw(struct ccw *cp)
++{
++	return NULL;
++}
++#endif /* DEBUG_CSS */
++#endif
+diff --git a/lib/s390x/css_dump.c b/lib/s390x/css_dump.c
+new file mode 100644
+index 0000000..e34c391
+--- /dev/null
++++ b/lib/s390x/css_dump.c
+@@ -0,0 +1,157 @@
++/*
++ * Channel subsystem structures dumping
++ *
++ * Copyright (c) 2019 IBM Corp.
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU Library General Public License version 2.
++ *
++ * Description:
++ * Provides the dumping functions for various structures used by subchannels:
++ * - ORB  : Operation request block, describes the I/O operation and points to
++ *          a CCW chain
++ * - CCW  : Channel Command Word, describes the data and flow control
++ * - IRB  : Interuption response Block, describes the result of an operation
++ *          holds a SCSW and model-dependent data.
++ * - SCHIB: SubCHannel Information Block composed of:
++ *   - SCSW: SubChannel Status Word, status of the channel.
++ *   - PMCW: Path Management Control Word
++ * You need the QEMU ccw-pong device in QEMU to answer the I/O transfers.
++ */
++
++#include <unistd.h>
++#include <stdio.h>
++#include <stdint.h>
++#include <string.h>
++
++#undef DEBUG_CSS
++#include <css.h>
++
++/*
++ * Try to have a more human representation of the SCSW flags:
++ * each letter in the two strings represent the first
++ * letter of the associated bit in the flag fields.
++ */
++static const char *scsw_str = "kkkkslccfpixuzen";
++static const char *scsw_str2 = "1SHCrshcsdsAIPSs";
++static char scsw_line[64] = {};
++
++char *dump_scsw_flags(uint32_t f)
++{
++	int i;
++
++	for (i = 0; i < 16; i++) {
++		if ((f << i) & 0x80000000)
++			scsw_line[i] = scsw_str[i];
++		else
++			scsw_line[i] = '_';
++	}
++	scsw_line[i] = ' ';
++	for (; i < 32; i++) {
++		if ((f << i) & 0x80000000)
++			scsw_line[i + 1] = scsw_str2[i - 16];
++		else
++			scsw_line[i + 1] = '_';
++	}
++	return scsw_line;
++}
++
++/*
++ * Try o have a more human representation of the PMCW flags
++ * each letter in the two strings he under represent the first
++ * letter of the associated bit in the flag.
++ */
++static const char *pmcw_str = "11iii111ellmmdtv";
++static char pcmw_line[32] = {};
++char *dump_pmcw_flags(uint16_t f)
++{
++	int i;
++
++	for (i = 0; i < 16; i++) {
++		if ((f << i) & 0x8000)
++			pcmw_line[i] = pmcw_str[i];
++		else
++			pcmw_line[i] = '_';
++	}
++	return pcmw_line;
++}
++
++#ifdef DEBUG_CSS
++void dump_scsw(struct scsw *s)
++{
++	dump_scsw_flags(s->ctrl);
++	printf("scsw->flags: %s\n", line);
++	printf("scsw->addr : %08x\n", s->addr);
++	printf("scsw->devs : %02x\n", s->devs);
++	printf("scsw->schs : %02x\n", s->schs);
++	printf("scsw->count: %04x\n", s->count);
++}
++
++void dump_irb(struct irb *irbp)
++{
++	int i;
++	uint32_t *p = (uint32_t *)irbp;
++
++	dump_scsw(&irbp->scsw);
++	for (i = 0; i < sizeof(*irbp)/sizeof(*p); i++, p++)
++		printf("irb[%02x] : %08x\n", i, *p);
++}
++
++void dump_pmcw(struct pmcw *p)
++{
++	int i;
++
++	printf("pmcw->intparm  : %08x\n", p->intparm);
++	printf("pmcw->flags    : %04x\n", p->flags);
++	dump_pmcw_flags(p->flags);
++	printf("pmcw->devnum   : %04x\n", p->devnum);
++	printf("pmcw->lpm      : %02x\n", p->lpm);
++	printf("pmcw->pnom     : %02x\n", p->pnom);
++	printf("pmcw->lpum     : %02x\n", p->lpum);
++	printf("pmcw->pim      : %02x\n", p->pim);
++	printf("pmcw->mbi      : %04x\n", p->mbi);
++	printf("pmcw->pom      : %02x\n", p->pom);
++	printf("pmcw->pam      : %02x\n", p->pam);
++	printf("pmcw->mbi      : %04x\n", p->mbi);
++	for (i = 0; i < 8; i++)
++		printf("pmcw->chpid[%d]: %02x\n", i, p->chpid[i]);
++	printf("pmcw->flags2  : %08x\n", p->flags2);
++}
++
++void dump_schib(struct schib *sch)
++{
++	struct pmcw *p = &sch->pmcw;
++	struct scsw *s = &sch->scsw;
++
++	printf("--SCHIB--\n");
++	dump_pmcw(p);
++	dump_scsw(s);
++}
++
++struct ccw *dump_ccw(struct ccw *cp)
++{
++	printf("CCW: code: %02x flags: %02x count: %04x data: %08x\n", cp->code,
++	    cp->flags, cp->count, cp->data);
++
++	if (cp->code == CCW_C_TIC)
++		return (struct ccw *)(long)cp->data;
++
++	return (cp->flags & CCW_F_CC) ? cp + 1 : NULL;
++}
++
++void dump_orb(struct orb *op)
++{
++	struct ccw *cp;
++
++	printf("ORB: intparm : %08x\n", op->intparm);
++	printf("ORB: ctrl    : %08x\n", op->ctrl);
++	printf("ORB: prio    : %08x\n", op->prio);
++	cp = (struct ccw *)(long) (op->cpa);
++	while (cp)
++		cp = dump_ccw(cp);
++}
++
++#endif
 -- 
-2.17.1
+2.17.0
