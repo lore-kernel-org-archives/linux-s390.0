@@ -1,74 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23904 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729892AbgB0RIb (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61996 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727939AbgBTKkb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Feb 2020 12:08:31 -0500
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RH6ePT027744
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:30 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ydqfw7xsc-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:30 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 27 Feb 2020 17:08:28 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/8] s390/qeth: reset seqnos on connection startup
-Date: Thu, 27 Feb 2020 18:08:13 +0100
-In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
-References: <20200227170816.101286-1-jwi@linux.ibm.com>
-Message-Id: <20200227170816.101286-6-jwi@linux.ibm.com>
+        Thu, 20 Feb 2020 05:40:31 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v3 30/37] KVM: s390: protvirt: Support cmd 5 operation state
+Date: Thu, 20 Feb 2020 05:40:13 -0500
+Message-Id: <20200220104020.5343-31-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-This let's us start every new IDX connection with clean seqnos.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Code 5 for the set cpu state UV call tells the UV to load a PSW from
+the SE header (first IPL) or from guest location 0x0 (diag 308 subcode
+0/1). Also it sets the cpu into operating state afterwards, so we can
+start it.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/uv.h | 1 +
+ arch/s390/kvm/kvm-s390.c   | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5efcaa43615b..ba1e50ed50ec 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1624,17 +1624,16 @@ static void qeth_set_blkt_defaults(struct qeth_card *card)
- 	}
- }
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 99e1a14ef909..4945e44e1528 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -169,6 +169,7 @@ struct uv_cb_unp {
+ #define PV_CPU_STATE_OPR	1
+ #define PV_CPU_STATE_STP	2
+ #define PV_CPU_STATE_CHKSTP	3
++#define PV_CPU_STATE_OPR_LOAD	5
  
--static void qeth_init_tokens(struct qeth_card *card)
-+static void qeth_idx_init(struct qeth_card *card)
- {
-+	memset(&card->seqno, 0, sizeof(card->seqno));
-+
- 	card->token.issuer_rm_w = 0x00010103UL;
- 	card->token.cm_filter_w = 0x00010108UL;
- 	card->token.cm_connection_w = 0x0001010aUL;
- 	card->token.ulp_filter_w = 0x0001010bUL;
- 	card->token.ulp_connection_w = 0x0001010dUL;
--}
- 
--static void qeth_init_func_level(struct qeth_card *card)
--{
- 	switch (card->info.type) {
- 	case QETH_CARD_TYPE_IQD:
- 		card->info.func_level =	QETH_IDX_FUNC_LEVEL_IQD;
-@@ -4952,9 +4951,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
- 		else
- 			goto retry;
- 	}
-+
- 	qeth_determine_capabilities(card);
--	qeth_init_tokens(card);
--	qeth_init_func_level(card);
-+	qeth_idx_init(card);
- 
- 	rc = qeth_idx_activate_read_channel(card);
- 	if (rc == -EINTR) {
+ struct uv_cb_cpu_set_state {
+ 	struct uv_cb_header header;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 036bff58e75a..f0b6609b65b6 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3707,6 +3707,12 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 		rc = kvm_s390_vcpu_start(vcpu);
+ 		break;
+ 	case KVM_MP_STATE_LOAD:
++		if (!kvm_s390_pv_cpu_is_protected(vcpu)) {
++			rc = -ENXIO;
++			break;
++		}
++		rc = kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR_LOAD);
++		break;
+ 	case KVM_MP_STATE_CHECK_STOP:
+ 		/* fall through - CHECK_STOP and LOAD are not supported yet */
+ 	default:
 -- 
-2.17.1
+2.25.0
