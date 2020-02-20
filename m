@@ -1,181 +1,61 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 8/8] s390/qeth: support configurable RX copybreak
-Date: Thu, 27 Feb 2020 18:08:16 +0100
-In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
-References: <20200227170816.101286-1-jwi@linux.ibm.com>
-Message-Id: <20200227170816.101286-9-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52507 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726952AbgBTMPX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Feb 2020 07:15:23 -0500
+Subject: Re: [PATCH v3 01/37] mm:gup/writeback: add callbacks for inaccessible
+ pages
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+ <20200220104020.5343-2-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c47b3511-2447-e463-abb8-9bd3f35932c8@redhat.com>
+Date: Thu, 20 Feb 2020 13:15:05 +0100
+MIME-Version: 1.0
+In-Reply-To: <20200220104020.5343-2-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org, Will Deacon <will@kernel.org>
 
-Implement the ethtool hooks for the ETHTOOL_RX_COPYBREAK tunable.
+On 20.02.20 11:39, Christian Borntraeger wrote:
+> From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>=20
+> With the introduction of protected KVM guests on s390 there is now a
+> concept of inaccessible pages. These pages need to be made accessible
+> before the host can access them.
+>=20
+> While cpu accesses will trigger a fault that can be resolved, I/O
+> accesses will just fail.  We need to add a callback into architecture
+> code for places that will do I/O, namely when writeback is started or
+> when a page reference is taken.
+>=20
+> This is not only to enable paging, file backing etc, it is also
+> necessary to protect the host against a malicious user space. For
+> example a bad QEMU could simply start direct I/O on such protected
+> memory.  We do not want userspace to be able to trigger I/O errors and
+> thus we the logic is "whenever somebody accesses that page (gup) or
+> doing I/O, make sure that this page can be accessed. When the guest
+> tries to access that page we will wait in the page fault handler for
+> writeback to have finished and for the page_ref to be the expected
+> value.
 
-The copybreak is stored into netdev_priv, so that we automatically go
-back to the default value if the netdev is re-allocated.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      | 10 ++++++----
- drivers/s390/net/qeth_core_main.c | 17 +++++++++++------
- drivers/s390/net/qeth_ethtool.c   | 31 +++++++++++++++++++++++++++++++
- 3 files changed, 48 insertions(+), 10 deletions(-)
+Subject: "mm: gup..."
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 9575a627a1e1..b7d64690ea38 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -189,6 +189,8 @@ struct qeth_vnicc_info {
- #define QETH_IQD_MIN_TXQ	2	/* One for ucast, one for mcast. */
- #define QETH_IQD_MCAST_TXQ	0
- #define QETH_IQD_MIN_UCAST_TXQ	1
-+
-+#define QETH_RX_COPYBREAK      (PAGE_SIZE >> 1)
- #define QETH_IN_BUF_SIZE_DEFAULT 65536
- #define QETH_IN_BUF_COUNT_DEFAULT 64
- #define QETH_IN_BUF_COUNT_HSDEFAULT 128
-@@ -219,9 +221,6 @@ struct qeth_vnicc_info {
- #define QETH_HIGH_WATERMARK_PACK 5
- #define QETH_WATERMARK_PACK_FUZZ 1
- 
--/* large receive scatter gather copy break */
--#define QETH_RX_SG_CB (PAGE_SIZE >> 1)
--
- struct qeth_hdr_layer3 {
- 	__u8  id;
- 	__u8  flags;
-@@ -711,7 +710,6 @@ struct qeth_card_options {
- 	struct qeth_vnicc_info vnicc; /* VNICC options */
- 	int fake_broadcast;
- 	enum qeth_discipline_id layer;
--	int rx_sg_cb;
- 	enum qeth_ipa_isolation_modes isolation;
- 	enum qeth_ipa_isolation_modes prev_isolation;
- 	int sniffer;
-@@ -770,6 +768,10 @@ struct qeth_switch_info {
- 	__u32 settings;
- };
- 
-+struct qeth_priv {
-+	unsigned int rx_copybreak;
-+};
-+
- #define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
- 
- struct qeth_card {
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index cbd2b4c46ea4..1bcac50bb395 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1257,7 +1257,6 @@ static void qeth_set_initial_options(struct qeth_card *card)
- {
- 	card->options.route4.type = NO_ROUTER;
- 	card->options.route6.type = NO_ROUTER;
--	card->options.rx_sg_cb = QETH_RX_SG_CB;
- 	card->options.isolation = ISOLATION_MODE_NONE;
- 	card->options.cq = QETH_CQ_DISABLED;
- 	card->options.layer = QETH_DISCIPLINE_UNDETERMINED;
-@@ -5268,6 +5267,7 @@ static int qeth_extract_skb(struct qeth_card *card,
- 			    int *__offset)
- {
- 	struct qdio_buffer_element *element = *__element;
-+	struct qeth_priv *priv = netdev_priv(card->dev);
- 	struct qdio_buffer *buffer = qethbuffer->buffer;
- 	struct napi_struct *napi = &card->napi;
- 	unsigned int linear_len = 0;
-@@ -5343,7 +5343,7 @@ static int qeth_extract_skb(struct qeth_card *card,
- 	}
- 
- 	use_rx_sg = (card->options.cq == QETH_CQ_ENABLED) ||
--		    (skb_len > card->options.rx_sg_cb &&
-+		    (skb_len > READ_ONCE(priv->rx_copybreak) &&
- 		     !atomic_read(&card->force_alloc_skb) &&
- 		     !IS_OSN(card));
- 
-@@ -5892,25 +5892,30 @@ static void qeth_clear_dbf_list(void)
- static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
- {
- 	struct net_device *dev;
-+	struct qeth_priv *priv;
- 
- 	switch (card->info.type) {
- 	case QETH_CARD_TYPE_IQD:
--		dev = alloc_netdev_mqs(0, "hsi%d", NET_NAME_UNKNOWN,
-+		dev = alloc_netdev_mqs(sizeof(*priv), "hsi%d", NET_NAME_UNKNOWN,
- 				       ether_setup, QETH_MAX_QUEUES, 1);
- 		break;
- 	case QETH_CARD_TYPE_OSM:
--		dev = alloc_etherdev(0);
-+		dev = alloc_etherdev(sizeof(*priv));
- 		break;
- 	case QETH_CARD_TYPE_OSN:
--		dev = alloc_netdev(0, "osn%d", NET_NAME_UNKNOWN, ether_setup);
-+		dev = alloc_netdev(sizeof(*priv), "osn%d", NET_NAME_UNKNOWN,
-+				   ether_setup);
- 		break;
- 	default:
--		dev = alloc_etherdev_mqs(0, QETH_MAX_QUEUES, 1);
-+		dev = alloc_etherdev_mqs(sizeof(*priv), QETH_MAX_QUEUES, 1);
- 	}
- 
- 	if (!dev)
- 		return NULL;
- 
-+	priv = netdev_priv(dev);
-+	priv->rx_copybreak = QETH_RX_COPYBREAK;
-+
- 	dev->ml_priv = card;
- 	dev->watchdog_timeo = QETH_TX_TIMEOUT;
- 	dev->min_mtu = IS_OSN(card) ? 64 : 576;
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index ab59bc975719..9052c72d5b8f 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -175,6 +175,35 @@ static void qeth_get_channels(struct net_device *dev,
- 	channels->combined_count = 0;
- }
- 
-+static int qeth_get_tunable(struct net_device *dev,
-+			    const struct ethtool_tunable *tuna, void *data)
-+{
-+	struct qeth_priv *priv = netdev_priv(dev);
-+
-+	switch (tuna->id) {
-+	case ETHTOOL_RX_COPYBREAK:
-+		*(u32 *)data = priv->rx_copybreak;
-+		return 0;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static int qeth_set_tunable(struct net_device *dev,
-+			    const struct ethtool_tunable *tuna,
-+			    const void *data)
-+{
-+	struct qeth_priv *priv = netdev_priv(dev);
-+
-+	switch (tuna->id) {
-+	case ETHTOOL_RX_COPYBREAK:
-+		WRITE_ONCE(priv->rx_copybreak, *(u32 *)data);
-+		return 0;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
- /* Helper function to fill 'advertising' and 'supported' which are the same. */
- /* Autoneg and full-duplex are supported and advertised unconditionally.     */
- /* Always advertise and support all speeds up to specified, and only one     */
-@@ -381,6 +410,8 @@ const struct ethtool_ops qeth_ethtool_ops = {
- 	.get_sset_count = qeth_get_sset_count,
- 	.get_drvinfo = qeth_get_drvinfo,
- 	.get_channels = qeth_get_channels,
-+	.get_tunable = qeth_get_tunable,
-+	.set_tunable = qeth_set_tunable,
- 	.get_link_ksettings = qeth_get_link_ksettings,
- };
- 
--- 
-2.17.1
+And I'd probably add that on s390x, it's unlikely to ever return !0.
+(why the WARN_ON is okay and has to be tackled once relevant)
+
+>=20
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Acked-by: Will Deacon <will@kernel.org>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+--=20
+Thanks,
+
+David / dhildenb
