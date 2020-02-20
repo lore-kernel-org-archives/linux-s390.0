@@ -1,103 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45460 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57428 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727162AbgBGLkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:08 -0500
+        by vger.kernel.org with ESMTP id S1727046AbgBTKk3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 05:40:29 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 11/35] KVM: s390/mm: Make pages accessible before destroying the guest
-Date: Fri,  7 Feb 2020 06:39:34 -0500
-Message-Id: <20200207113958.7320-12-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Subject: [PATCH v3 14/37] KVM: s390: protvirt: Instruction emulation
+Date: Thu, 20 Feb 2020 05:39:57 -0500
+Message-Id: <20200220104020.5343-15-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-Before we destroy the secure configuration, we better make all
-pages accessible again. This also happens during reboot, where we reboot
-into a non-secure guest that then can go again into secure mode. As
-this "new" secure guest will have a new ID we cannot reuse the old page
-state.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+We have two new SIE exit codes dealing with instructions.
+104 (0x68) for a secure instruction interception, on which the SIE needs
+hypervisor action to complete the instruction. We can piggy-back on the
+existing instruction handlers.
+
+108 which is merely a notification and provides data for tracking and
+management. For example this is used to tell the host about a new value
+for the prefix register. As there will be several special case handlers
+in later patches, we handle this in a separate function.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h |  1 +
- arch/s390/kvm/pv.c              |  2 ++
- arch/s390/mm/gmap.c             | 35 +++++++++++++++++++++++++++++++++
- 3 files changed, 38 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/kvm/intercept.c        | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index dbd1453e6924..3e2ea997c334 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1669,6 +1669,7 @@ extern int vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
- extern int s390_enable_skey(void);
- extern void s390_reset_cmma(struct mm_struct *mm);
-+extern void s390_reset_acc(struct mm_struct *mm);
- 
- /* s390 has a private copy of get unmapped area to deal with cache synonyms */
- #define HAVE_ARCH_UNMAPPED_AREA
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 4795e61f4e16..392795a92bd9 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
- 	int rc;
- 	u32 ret;
- 
-+	/* make all pages accessible before destroying the guest */
-+	s390_reset_acc(kvm->mm);
- 	rc = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
- 			   UVC_CMD_DESTROY_SEC_CONF, &ret);
- 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 7291452fe5f0..27926a06df32 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
- 	up_write(&mm->mmap_sem);
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index fdc6ceff6397..c6694f47b73b 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
+ #define ICPT_KSS	0x5c
+ #define ICPT_MCHKREQ	0x60
+ #define ICPT_INT_ENABLE	0x64
++#define ICPT_PV_INSTR	0x68
++#define ICPT_PV_NOTIFY	0x6c
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 6aeb4b36042c..6fdbac696f65 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
  }
- EXPORT_SYMBOL_GPL(s390_reset_cmma);
-+
-+/*
-+ * make inaccessible pages accessible again
-+ */
-+static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
-+			    unsigned long next, struct mm_walk *walk)
+ 
++static int handle_pv_notification(struct kvm_vcpu *vcpu)
 +{
-+	pte_t pte = READ_ONCE(*ptep);
-+
-+	if (pte_present(pte))
-+		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
-+	return 0;
++	return handle_instruction(vcpu);
 +}
 +
-+static const struct mm_walk_ops reset_acc_walk_ops = {
-+	.pte_entry		= __s390_reset_acc,
-+};
-+
-+#include <linux/sched/mm.h>
-+void s390_reset_acc(struct mm_struct *mm)
-+{
-+	/*
-+	 * we might be called during
-+	 * reset:                             we walk the pages and clear
-+	 * close of all kvm file descriptors: we walk the pages and clear
-+	 * exit of process on fd closure:     vma already gone, do nothing
-+	 */
-+	if (!mmget_not_zero(mm))
-+		return;
-+	down_read(&mm->mmap_sem);
-+	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
-+	up_read(&mm->mmap_sem);
-+	mmput(mm);
-+}
-+EXPORT_SYMBOL_GPL(s390_reset_acc);
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, per_rc = 0;
+@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 		 */
+ 		rc = 0;
+ 		break;
++	case ICPT_PV_INSTR:
++		rc = handle_instruction(vcpu);
++		break;
++	case ICPT_PV_NOTIFY:
++		rc = handle_pv_notification(vcpu);
++		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
 -- 
-2.24.0
+2.25.0
