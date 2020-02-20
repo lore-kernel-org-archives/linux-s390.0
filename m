@@ -1,50 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22362 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726252AbgBRJXX (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53168 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727034AbgBTKk3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Feb 2020 04:23:23 -0500
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01I9JBXb132469
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:22 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y6e1hdbq6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2020 04:23:22 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <vneethv@linux.ibm.com>;
-        Tue, 18 Feb 2020 09:23:20 -0000
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
-Subject: [RFC v2 0/2] fces event support in cio
-Date: Tue, 18 Feb 2020 10:23:15 +0100
-Message-Id: <20200218092317.49846-1-vneethv@linux.ibm.com>
+        Thu, 20 Feb 2020 05:40:29 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v3 17/37] KVM: s390: protvirt: Handle spec exception loops
+Date: Thu, 20 Feb 2020 05:40:00 -0500
+Message-Id: <20200220104020.5343-18-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: oberpar@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-Compared to the previous version of this RFC(RFC v1 0/2] support
-FC-Endpoint Security events), there is a change in the information we
-passed to the consumer-devices using path-event. 
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Previously we used to share the exact event of fces, which is derived
-from the sei_area->ccdf[0]. In this patch, instead of sending the right
-event, simply inform the ccwdev about the occurance of 'fces event'
-using path_event. The ccwdev then query more information about the
-fces-event using the chsc_scud() call and notify based on the reply.
+SIE intercept code 8 is used only on exception loops for protected
+guests. That means we need to stop the guest when we see it. This is
+done by userspace.
 
-Sebastian Ott (1):
-  s390/cio: handle changes related to endpoint security
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/intercept.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Vineeth Vijayan (1):
-  s390/cio: add support for fces status notification
-
- arch/s390/include/asm/ccwdev.h |  1 +
- drivers/s390/cio/chp.h         |  1 +
- drivers/s390/cio/chsc.c        | 73 ++++++++++++++++++++++++++++++++++
- drivers/s390/cio/device.c      | 19 ++++++++-
- 4 files changed, 93 insertions(+), 1 deletion(-)
-
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index d50a0214eba1..cf4c0da4e956 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -231,6 +231,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
+ 
+ 	vcpu->stat.exit_program_interruption++;
+ 
++	/*
++	 * Intercept 8 indicates a loop of specification exceptions
++	 * for protected guests.
++	 */
++	if (kvm_s390_pv_cpu_is_protected(vcpu))
++		return -EOPNOTSUPP;
++
+ 	if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
+ 		rc = kvm_s390_handle_per_event(vcpu);
+ 		if (rc)
 -- 
-2.17.1
+2.25.0
