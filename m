@@ -1,66 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20754 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62480 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726954AbgBGLkP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:15 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 22/35] KVM: s390: protvirt: Write sthyi data to instruction data area
-Date: Fri,  7 Feb 2020 06:39:45 -0500
-Message-Id: <20200207113958.7320-23-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        by vger.kernel.org with ESMTP id S1728420AbgBTOzJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 09:55:09 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KEoUu1023720
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 09:55:09 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y8ubgctr2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 09:55:08 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 20 Feb 2020 14:55:06 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 2/3] s390/qeth: don't warn for napi with 0 budget
+Date: Thu, 20 Feb 2020 15:54:55 +0100
+In-Reply-To: <20200220145456.11571-1-jwi@linux.ibm.com>
+References: <20200220145456.11571-1-jwi@linux.ibm.com>
+Message-Id: <20200220145456.11571-3-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Calling napi->poll() with 0 budget is a legitimate use by netpoll.
 
-STHYI data has to go through the bounce buffer.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kvm/intercept.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index e155389a4a66..51a8bb7e956a 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -392,7 +392,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 		goto out;
- 	}
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 9639938581f5..2264c6619def 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5447,7 +5447,6 @@ static int qeth_extract_skbs(struct qeth_card *card, int budget,
+ {
+ 	int work_done = 0;
  
--	if (addr & ~PAGE_MASK)
-+	if (!kvm_s390_pv_is_protected(vcpu->kvm) && (addr & ~PAGE_MASK))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+-	WARN_ON_ONCE(!budget);
+ 	*done = false;
  
- 	sctns = (void *)get_zeroed_page(GFP_KERNEL);
-@@ -403,10 +403,15 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 
- out:
- 	if (!cc) {
--		r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
--		if (r) {
--			free_page((unsigned long)sctns);
--			return kvm_s390_inject_prog_cond(vcpu, r);
-+		if (kvm_s390_pv_is_protected(vcpu->kvm)) {
-+			memcpy((void *)(sida_origin(vcpu->arch.sie_block)),
-+			       sctns, PAGE_SIZE);
-+		} else {
-+			r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
-+			if (r) {
-+				free_page((unsigned long)sctns);
-+				return kvm_s390_inject_prog_cond(vcpu, r);
-+			}
- 		}
- 	}
- 
+ 	while (budget) {
 -- 
-2.24.0
+2.17.1
