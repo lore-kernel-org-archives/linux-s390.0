@@ -1,132 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48946 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727504AbgBXLlR (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4298 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727686AbgBTKka (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:17 -0500
+        Thu, 20 Feb 2020 05:40:30 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 34/36] s390: protvirt: Add sysfs firmware interface for Ultravisor information
-Date: Mon, 24 Feb 2020 06:41:05 -0500
-Message-Id: <20200224114107.4646-35-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+Subject: [PATCH v3 12/37] KVM: s390/mm: Make pages accessible before destroying the guest
+Date: Thu, 20 Feb 2020 05:39:55 -0500
+Message-Id: <20200220104020.5343-13-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Before we destroy the secure configuration, we better make all
+pages accessible again. This also happens during reboot, where we reboot
+into a non-secure guest that then can go again into secure mode. As
+this "new" secure guest will have a new ID we cannot reuse the old page
+state.
 
-That information, e.g. the maximum number of guests or installed
-Ultravisor facilities, is interesting for QEMU, Libvirt and
-administrators.
-
-Let's provide an easily parsable API to get that information.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/uv.c | 86 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 86 insertions(+)
+ arch/s390/include/asm/gmap.h |  1 +
+ arch/s390/kvm/pv.c           |  2 ++
+ arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+)
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 4539003dac9d..550e9617c459 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -323,5 +323,91 @@ int arch_make_page_accessible(struct page *page)
- 	return rc;
- }
- EXPORT_SYMBOL_GPL(arch_make_page_accessible);
-+#endif
-+
-+#if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) || IS_ENABLED(CONFIG_KVM)
-+static ssize_t uv_query_facilities(struct kobject *kobj,
-+				   struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%lx\n%lx\n%lx\n%lx\n",
-+			uv_info.inst_calls_list[0],
-+			uv_info.inst_calls_list[1],
-+			uv_info.inst_calls_list[2],
-+			uv_info.inst_calls_list[3]);
-+}
-+
-+static struct kobj_attribute uv_query_facilities_attr =
-+	__ATTR(facilities, 0444, uv_query_facilities, NULL);
-+
-+static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
-+				       struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%d\n",
-+			uv_info.max_guest_cpus);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_cpus_attr =
-+	__ATTR(max_cpus, 0444, uv_query_max_guest_cpus, NULL);
-+
-+static ssize_t uv_query_max_guest_vms(struct kobject *kobj,
-+				      struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%d\n",
-+			uv_info.max_num_sec_conf);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_vms_attr =
-+	__ATTR(max_guests, 0444, uv_query_max_guest_vms, NULL);
-+
-+static ssize_t uv_query_max_guest_addr(struct kobject *kobj,
-+				       struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%lx\n",
-+			uv_info.max_sec_stor_addr);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_addr_attr =
-+	__ATTR(max_address, 0444, uv_query_max_guest_addr, NULL);
-+
-+static struct attribute *uv_query_attrs[] = {
-+	&uv_query_facilities_attr.attr,
-+	&uv_query_max_guest_cpus_attr.attr,
-+	&uv_query_max_guest_vms_attr.attr,
-+	&uv_query_max_guest_addr_attr.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group uv_query_attr_group = {
-+	.attrs = uv_query_attrs,
-+};
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 6f9ff7a69fa2..a816fb4734b8 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
+ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
+ int gmap_mark_unmergeable(void);
++void s390_reset_acc(struct mm_struct *mm);
+ #endif /* _ASM_S390_GMAP_H */
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 67ea9a18ed8f..7d95d7437140 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	int cc;
  
-+static struct kset *uv_query_kset;
-+struct kobject *uv_kobj;
++	/* make all pages accessible before destroying the guest */
++	s390_reset_acc(kvm->mm);
+ 	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+ 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+ 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 7291452fe5f0..27926a06df32 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
+ 	up_write(&mm->mmap_sem);
+ }
+ EXPORT_SYMBOL_GPL(s390_reset_cmma);
 +
-+static int __init uv_info_init(void)
++/*
++ * make inaccessible pages accessible again
++ */
++static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
++			    unsigned long next, struct mm_walk *walk)
 +{
-+	int rc = -ENOMEM;
++	pte_t pte = READ_ONCE(*ptep);
 +
-+	if (!test_facility(158))
-+		return 0;
-+
-+	uv_kobj = kobject_create_and_add("uv", firmware_kobj);
-+	if (!uv_kobj)
-+		return -ENOMEM;
-+
-+	uv_query_kset = kset_create_and_add("query", NULL, uv_kobj);
-+	if (!uv_query_kset)
-+		goto out_kobj;
-+
-+	rc = sysfs_create_group(&uv_query_kset->kobj, &uv_query_attr_group);
-+	if (!rc)
-+		return 0;
-+
-+	kset_unregister(uv_query_kset);
-+out_kobj:
-+	kobject_del(uv_kobj);
-+	kobject_put(uv_kobj);
-+	return rc;
++	if (pte_present(pte))
++		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
++	return 0;
 +}
-+device_initcall(uv_info_init);
- #endif
++
++static const struct mm_walk_ops reset_acc_walk_ops = {
++	.pte_entry		= __s390_reset_acc,
++};
++
++#include <linux/sched/mm.h>
++void s390_reset_acc(struct mm_struct *mm)
++{
++	/*
++	 * we might be called during
++	 * reset:                             we walk the pages and clear
++	 * close of all kvm file descriptors: we walk the pages and clear
++	 * exit of process on fd closure:     vma already gone, do nothing
++	 */
++	if (!mmget_not_zero(mm))
++		return;
++	down_read(&mm->mmap_sem);
++	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
++	up_read(&mm->mmap_sem);
++	mmput(mm);
++}
++EXPORT_SYMBOL_GPL(s390_reset_acc);
 -- 
 2.25.0
