@@ -1,143 +1,162 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63212 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11474 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727282AbgBXLlO (ORCPT
+        by vger.kernel.org with ESMTP id S1728003AbgBTMBU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:14 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 08/36] KVM: s390: add new variants of UV CALL
-Date: Mon, 24 Feb 2020 06:40:39 -0500
-Message-Id: <20200224114107.4646-9-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 20 Feb 2020 07:01:20 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KC1Amh014621
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:19 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y8ucn0t0n-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:17 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Thu, 20 Feb 2020 12:00:48 -0000
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v5 00/10] s390x: Testing the Channel Subsystem I/O
+Date: Thu, 20 Feb 2020 13:00:33 +0100
+Message-Id: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Goal of the series is to have a framwork to test Channel-Subsystem I/O with
+QEMU/KVM.
+  
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
+  
+We add a registration for IRQ callbacks to the test programm to define its own
+interrupt handler. We need to do special work under interrupt like acknoledging
+the interrupt.
+  
+Being working on PSW bits to allow I/O interrupt, we define new PSW bits
+in arch_def.h and use __ASSEMBLER__ define to be able to include this header
+in an assembler source file.
 
-This adds two new helper functions for doing UV CALLs.
-
-The first variant handles UV CALLs that might have longer busy
-conditions or just need longer when doing partial completion. We should
-schedule when necessary.
-
-The second variant handles UV CALLs that only need the handle but have
-no payload (e.g. destroying a VM). We can provide a simple wrapper for
-those.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/uv.h | 65 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 60 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 7956868340c1..a81af06507a9 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -14,6 +14,7 @@
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/bug.h>
-+#include <linux/sched.h>
- #include <asm/page.h>
- #include <asm/gmap.h>
+This series presents four major tests:
+- Enumeration:
+        The CSS is enumerated using the STSCH instruction recursively on all
+        potentially existing channels.
+        Keeping the first channel found as a reference for future use.
+        Checks STSCH
  
-@@ -91,6 +92,19 @@ struct uv_cb_cfs {
- 	u64 paddr;
- } __packed __aligned(8);
+- Enable:
+        If the enumeration succeeded the tests enables the reference
+        channel with MSCH and verifies with STSCH that the channel is
+        effectively enabled  
+        Checks MSCH       
  
-+/*
-+ * A common UV call struct for calls that take no payload
-+ * Examples:
-+ * Destroy cpu/config
-+ * Verify
-+ */
-+struct uv_cb_nodata {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 handle;
-+	u64 reserved20[4];
-+} __packed __aligned(8);
-+
- struct uv_cb_share {
- 	struct uv_cb_header header;
- 	u64 reserved08[3];
-@@ -98,21 +112,62 @@ struct uv_cb_share {
- 	u64 reserved28;
- } __packed __aligned(8);
- 
--static inline int uv_call(unsigned long r1, unsigned long r2)
-+static inline int __uv_call(unsigned long r1, unsigned long r2)
- {
- 	int cc;
- 
- 	asm volatile(
--		"0:	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
--		"		brc	3,0b\n"
--		"		ipm	%[cc]\n"
--		"		srl	%[cc],28\n"
-+		"	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
-+		"	ipm	%[cc]\n"
-+		"	srl	%[cc],28\n"
- 		: [cc] "=d" (cc)
- 		: [r1] "a" (r1), [r2] "a" (r2)
- 		: "memory", "cc");
- 	return cc;
- }
- 
-+static inline int uv_call(unsigned long r1, unsigned long r2)
-+{
-+	int cc;
-+
-+	do {
-+		cc = __uv_call(r1, r2);
-+	} while (cc > 1);
-+	return cc;
-+}
-+
-+/* Low level uv_call that avoids stalls for long running busy conditions  */
-+static inline int uv_call_sched(unsigned long r1, unsigned long r2)
-+{
-+	int cc;
-+
-+	do {
-+		cc = __uv_call(r1, r2);
-+		cond_resched();
-+	} while (cc > 1);
-+	return cc;
-+}
-+
-+/*
-+ * special variant of uv_call that only transports the cpu or guest
-+ * handle and the command, like destroy or verify.
-+ */
-+static inline int uv_cmd_nodata(u64 handle, u16 cmd, u16 *rc, u16 *rrc)
-+{
-+	struct uv_cb_nodata uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.handle = handle,
-+	};
-+	int cc;
-+
-+	WARN(!handle, "No handle provided to Ultravisor call cmd %x\n", cmd);
-+	cc = uv_call_sched(0, (u64)&uvcb);
-+	*rc = uvcb.header.rc;
-+	*rrc = uvcb.header.rrc;
-+	return cc ? -EINVAL : 0;
-+}
-+
- struct uv_info {
- 	unsigned long inst_calls_list[4];
- 	unsigned long uv_base_stor_len;
+- Sense:
+        If the channel is enabled this test sends a SENSE_ID command
+        to the reference channel, analysing the answer and expecting
+        the Control unit type being 0xc0ca
+        Checks SSCH(READ) and IO-IRQ
+
+- ping-pong:
+        If the reference channel leads to the PONG device (0xc0ca),
+        the test exchanges a string containing a 9 digit number with
+        the PONG device and expecting this number to be incremented
+        by the PONG device.
+        Checks SSCH(WRITE)
+
+
+Pierre Morel (10):
+  s390x: saving regs for interrupts
+  s390x: Use PSW bits definitions in cstart
+  s390x: cr0: adding AFP-register control bit
+  s390x: interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+  s390x: css: ping pong
+
+ lib/s390x/asm/arch_def.h |  19 ++-
+ lib/s390x/asm/time.h     |  36 +++++
+ lib/s390x/css.h          | 277 +++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c     | 157 ++++++++++++++++++
+ lib/s390x/css_lib.c      |  55 +++++++
+ lib/s390x/interrupt.c    |  22 ++-
+ lib/s390x/interrupt.h    |   7 +
+ s390x/Makefile           |   3 +
+ s390x/css.c              | 341 +++++++++++++++++++++++++++++++++++++++
+ s390x/cstart64.S         |  40 +++--
+ s390x/intercept.c        |  11 +-
+ s390x/unittests.cfg      |   4 +
+ 12 files changed, 946 insertions(+), 26 deletions(-)
+ create mode 100644 lib/s390x/asm/time.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 lib/s390x/interrupt.h
+ create mode 100644 s390x/css.c
+
 -- 
-2.25.0
+2.17.0
+
+Changelog:
+from v4 to v5
+- add a patch to explicitely define the initial_cr0
+  value
+  (Janosch)
+- add RB from Janosh on interrupt registration
+- several formating, typo correction and removing
+  unnecessary initialization in "linrary resources..."
+  (Janosch)
+- several formating and typo corrections on
+  "stsch enumeration test"
+  (Connie)
+- reworking the msch test
+  (Connie)
+- reworking of ssch test, pack the sense-id structure
+  (Connie)
+
+from v3 to v4
+- add RB from David and Thomas for patchs 
+  (3) irq registration and (4) clock export
+- rework the PSW bit definitions
+  (Thomas)
+- Suppress undef DEBUG from css_dump
+  (Thomas)
+- rework report() functions using new scheme
+  (Thomas)
+- suppress un-necessary report_info()
+- more spelling corrections
+- add a loop around enable bit testing
+  (Connie)
+- rework IRQ testing
+  (Connie)
+- Test data addresses to be under 2G
+  (Connie)
+
+from v2 to v3:
+- Rework spelling
+  (Connie)
+- More descriptions
+  (Connie)
+- use __ASSEMBLER__ preprocessing to keep
+  bits definitions and C structures in the same file
+  (David)
+- rename the new file clock.h as time.h
+  (Janosch, David?)
+- use registration for the IO interruption
+  (David, Thomas)
+- test the SCHIB to verify it has really be modified
+  (Connie)
+- Lot of simplifications in the tests
+  (Connie)
+
+from v1 to v2:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
