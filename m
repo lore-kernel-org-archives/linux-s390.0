@@ -1,15 +1,15 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15042 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64212 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727185AbgBXLlS (ORCPT
+        by vger.kernel.org with ESMTP id S1727909AbgBTKka (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:18 -0500
+        Thu, 20 Feb 2020 05:40:30 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 36/36] KVM: s390: protvirt: Add KVM api documentation
-Date: Mon, 24 Feb 2020 06:41:07 -0500
-Message-Id: <20200224114107.4646-37-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+Subject: [PATCH v3 31/37] KVM: s390: protvirt: Mask PSW interrupt bits for interception 104 and 112
+Date: Thu, 20 Feb 2020 05:40:14 -0500
+Message-Id: <20200220104020.5343-32-borntraeger@de.ibm.com>
+In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -19,85 +19,52 @@ Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbr
 
 From: Janosch Frank <frankja@linux.ibm.com>
 
-Add documentation for KVM_CAP_S390_PROTECTED capability and the
-KVM_S390_PV_COMMAND ioctl.
+We're not allowed to inject interrupts on intercepts that leave the
+guest state in an "in-between" state where the next SIE entry will do a
+continuation, namely secure instruction interception (104) and secure
+prefix interception (112).
+As our PSW is just a copy of the real one that will be replaced on the
+next exit, we can mask out the interrupt bits in the PSW to make sure
+that we do not inject anything.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- Documentation/virt/kvm/api.rst | 55 ++++++++++++++++++++++++++++++++++
- 1 file changed, 55 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 7505d7a6c0d8..20abb8b2594e 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -4648,6 +4648,51 @@ the clear cpu reset definition in the POP. However, the cpu is not put
- into ESA mode. This reset is a superset of the initial reset.
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index f0b6609b65b6..4503f153efd7 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4064,6 +4064,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	return vcpu_post_run_fault_in_sie(vcpu);
+ }
  
- 
-+4.125 KVM_S390_PV_COMMAND
-+-------------------------
-+
-+:Capability: KVM_CAP_S390_PROTECTED
-+:Architectures: s390
-+:Type: vm ioctl
-+:Parameters: struct kvm_pv_cmd
-+:Returns: 0 on success, < 0 on error
-+
-+::
-+
-+  struct kvm_pv_cmd {
-+	__u32 cmd;	/* Command to be executed */
-+	__u16 rc;	/* Ultravisor return code */
-+	__u16 rrc;	/* Ultravisor return reason code */
-+	__u64 data;	/* Data or address */
-+	__u32 flags;    /* flags for future extensions. Must be 0 for now */
-+	__u32 reserved[3];
-+  };
-+
-+cmd values:
-+
-+KVM_PV_ENABLE
-+  Allocate memory and register the VM with the Ultravisor, thereby
-+  donating memory to the Ultravisor making it inaccessible to KVM.
-+  Also converts all existing CPUs to protected ones. Future hotplug
-+  CPUs will become protected during creation.
-+
-+KVM_PV_DISABLE
-+  Deregisters the VM from the Ultravisor and frees memory that was
-+  donated, so the kernel can use it again. All registered VCPUs are
-+  converted back to non-protected ones.
-+
-+KVM_PV_VM_SET_SEC_PARMS
-+  Pass the image header from VM memory to the Ultravisor in
-+  preparation of image unpacking and verification.
-+
-+KVM_PV_VM_UNPACK
-+  Unpack (protect and decrypt) a page of the encrypted boot image.
-+
-+KVM_PV_VM_VERIFY
-+  Verify the integrity of the unpacked image. Only if this succeeds,
-+  KVM is allowed to start protected VCPUs.
-+
-+
- 5. The kvm_run structure
- ========================
- 
-@@ -6026,3 +6071,13 @@ Architectures: s390
- 
- This capability indicates that the KVM_S390_NORMAL_RESET and
- KVM_S390_CLEAR_RESET ioctls are available.
-+
-+8.23 KVM_CAP_S390_PROTECTED
-+
-+Architecture: s390
-+
-+This capability indicates that KVM can start protected VMs and the
-+Ultravisor has therefore been initialized.
-+This will provide the new KVM_S390_PV_COMMAND ioctl and it will allow
-+KVM_MP_STATE_LOAD as new MP_STATE. KVM_SET_MP_STATE can now fail for
-+protected guests when the state change is invalid.
++#define PSW_INT_MASK (PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_MCHECK)
+ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, exit_reason;
+@@ -4100,6 +4101,16 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 			memcpy(vcpu->run->s.regs.gprs,
+ 			       sie_page->pv_grregs,
+ 			       sizeof(sie_page->pv_grregs));
++			/*
++			 * We're not allowed to inject interrupts on intercepts
++			 * that leave the guest state in an "in-between" state
++			 * where the next SIE entry will do a continuation.
++			 * Fence interrupts in our "internal" PSW.
++			 */
++			if (vcpu->arch.sie_block->icptcode == ICPT_PV_INSTR ||
++			    vcpu->arch.sie_block->icptcode == ICPT_PV_PREF) {
++				vcpu->arch.sie_block->gpsw.mask &= ~PSW_INT_MASK;
++			}
+ 		}
+ 		local_irq_disable();
+ 		__enable_cpu_timer_accounting(vcpu);
 -- 
 2.25.0
