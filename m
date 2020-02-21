@@ -1,28 +1,27 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:46666 "EHLO
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:44180 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726934AbgBUKmP (ORCPT
+        by vger.kernel.org with ESMTP id S1728392AbgBUJui (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Feb 2020 05:42:15 -0500
-Date: Fri, 21 Feb 2020 11:41:58 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        Fri, 21 Feb 2020 04:50:38 -0500
 Subject: Re: [PATCH v3.1 02/37] KVM: s390/interrupt: do not pin adapter
  interrupt pages
-Message-ID: <20200221114158.2eeca512.cohuck@redhat.com>
-In-Reply-To: <20200221080942.10334-1-borntraeger@de.ibm.com>
 References: <20200220104020.5343-3-borntraeger@de.ibm.com>
-        <20200221080942.10334-1-borntraeger@de.ibm.com>
+ <20200221080942.10334-1-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <fee9853c-7230-68a7-f44f-47bac7057cc3@redhat.com>
+Date: Fri, 21 Feb 2020 10:50:25 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200221080942.10334-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Ulrich.Weigand@de.ibm.com, david@redhat.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+Cc: Ulrich.Weigand@de.ibm.com, cohuck@redhat.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
 
-On Fri, 21 Feb 2020 03:09:42 -0500
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-
+On 21.02.20 09:09, Christian Borntraeger wrote:
 > From: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
 > 
 > The adapter interrupt page containing the indicator bits is currently
@@ -50,9 +49,156 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 >  arch/s390/include/asm/kvm_host.h             |   3 -
 >  arch/s390/kvm/interrupt.c                    | 172 ++++++-------------
 >  3 files changed, 52 insertions(+), 134 deletions(-)
-
-(...)
-
+> 
+> diff --git a/Documentation/virt/kvm/devices/s390_flic.rst b/Documentation/virt/kvm/devices/s390_flic.rst
+> index 954190da7d04..ea96559ba501 100644
+> --- a/Documentation/virt/kvm/devices/s390_flic.rst
+> +++ b/Documentation/virt/kvm/devices/s390_flic.rst
+> @@ -108,16 +108,9 @@ Groups:
+>        mask or unmask the adapter, as specified in mask
+>  
+>      KVM_S390_IO_ADAPTER_MAP
+> -      perform a gmap translation for the guest address provided in addr,
+> -      pin a userspace page for the translated address and add it to the
+> -      list of mappings
+> -
+> -      .. note:: A new mapping will be created unconditionally; therefore,
+> -	        the calling code should avoid making duplicate mappings.
+> -
+> +      This is now a no-op. The mapping is purely done by the irq route.
+>      KVM_S390_IO_ADAPTER_UNMAP
+> -      release a userspace page for the translated address specified in addr
+> -      from the list of mappings
+> +      This is now a no-op. The mapping is purely done by the irq route.
+>  
+>    KVM_DEV_FLIC_AISM
+>      modify the adapter-interruption-suppression mode for a given isc if the
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 1726224e7772..d058289385a5 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -701,9 +701,6 @@ struct s390_io_adapter {
+>  	bool masked;
+>  	bool swap;
+>  	bool suppressible;
+> -	struct rw_semaphore maps_lock;
+> -	struct list_head maps;
+> -	atomic_t nr_maps;
+>  };
+>  
+>  #define MAX_S390_IO_ADAPTERS ((MAX_ISC + 1) * 8)
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index c06c89d370a7..50ccadaf4953 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2,7 +2,7 @@
+>  /*
+>   * handling kvm guest interrupts
+>   *
+> - * Copyright IBM Corp. 2008, 2015
+> + * Copyright IBM Corp. 2008, 2020
+>   *
+>   *    Author(s): Carsten Otte <cotte@de.ibm.com>
+>   */
+> @@ -2327,9 +2327,6 @@ static int register_io_adapter(struct kvm_device *dev,
+>  	if (!adapter)
+>  		return -ENOMEM;
+>  
+> -	INIT_LIST_HEAD(&adapter->maps);
+> -	init_rwsem(&adapter->maps_lock);
+> -	atomic_set(&adapter->nr_maps, 0);
+>  	adapter->id = adapter_info.id;
+>  	adapter->isc = adapter_info.isc;
+>  	adapter->maskable = adapter_info.maskable;
+> @@ -2354,87 +2351,12 @@ int kvm_s390_mask_adapter(struct kvm *kvm, unsigned int id, bool masked)
+>  	return ret;
+>  }
+>  
+> -static int kvm_s390_adapter_map(struct kvm *kvm, unsigned int id, __u64 addr)
+> -{
+> -	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
+> -	struct s390_map_info *map;
+> -	int ret;
+> -
+> -	if (!adapter || !addr)
+> -		return -EINVAL;
+> -
+> -	map = kzalloc(sizeof(*map), GFP_KERNEL);
+> -	if (!map) {
+> -		ret = -ENOMEM;
+> -		goto out;
+> -	}
+> -	INIT_LIST_HEAD(&map->list);
+> -	map->guest_addr = addr;
+> -	map->addr = gmap_translate(kvm->arch.gmap, addr);
+> -	if (map->addr == -EFAULT) {
+> -		ret = -EFAULT;
+> -		goto out;
+> -	}
+> -	ret = get_user_pages_fast(map->addr, 1, FOLL_WRITE, &map->page);
+> -	if (ret < 0)
+> -		goto out;
+> -	BUG_ON(ret != 1);
+> -	down_write(&adapter->maps_lock);
+> -	if (atomic_inc_return(&adapter->nr_maps) < MAX_S390_ADAPTER_MAPS) {
+> -		list_add_tail(&map->list, &adapter->maps);
+> -		ret = 0;
+> -	} else {
+> -		put_page(map->page);
+> -		ret = -EINVAL;
+> -	}
+> -	up_write(&adapter->maps_lock);
+> -out:
+> -	if (ret)
+> -		kfree(map);
+> -	return ret;
+> -}
+> -
+> -static int kvm_s390_adapter_unmap(struct kvm *kvm, unsigned int id, __u64 addr)
+> -{
+> -	struct s390_io_adapter *adapter = get_io_adapter(kvm, id);
+> -	struct s390_map_info *map, *tmp;
+> -	int found = 0;
+> -
+> -	if (!adapter || !addr)
+> -		return -EINVAL;
+> -
+> -	down_write(&adapter->maps_lock);
+> -	list_for_each_entry_safe(map, tmp, &adapter->maps, list) {
+> -		if (map->guest_addr == addr) {
+> -			found = 1;
+> -			atomic_dec(&adapter->nr_maps);
+> -			list_del(&map->list);
+> -			put_page(map->page);
+> -			kfree(map);
+> -			break;
+> -		}
+> -	}
+> -	up_write(&adapter->maps_lock);
+> -
+> -	return found ? 0 : -EINVAL;
+> -}
+> -
+>  void kvm_s390_destroy_adapters(struct kvm *kvm)
+>  {
+>  	int i;
+> -	struct s390_map_info *map, *tmp;
+>  
+> -	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++) {
+> -		if (!kvm->arch.adapters[i])
+> -			continue;
+> -		list_for_each_entry_safe(map, tmp,
+> -					 &kvm->arch.adapters[i]->maps, list) {
+> -			list_del(&map->list);
+> -			put_page(map->page);
+> -			kfree(map);
+> -		}
+> +	for (i = 0; i < MAX_S390_IO_ADAPTERS; i++)
+>  		kfree(kvm->arch.adapters[i]);
+> -	}
+>  }
+>  
+>  static int modify_io_adapter(struct kvm_device *dev,
 > @@ -2456,12 +2378,13 @@ static int modify_io_adapter(struct kvm_device *dev,
 >  		if (ret > 0)
 >  			ret = 0;
@@ -61,13 +207,6 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > +	 * We resolve the gpa to hva when setting the IRQ routing. the set_irq
 > +	 * code uses get_user_pages_remote() to do the actual write.
 > +	 */
-
-What about:
-
-"The following operations are no longer needed and therefore no-ops.
-The gpa to hva translation is done when an IRQ route is set up. The
-set_irq code uses get_user_pages_remote() to do the actual write."
-
 >  	case KVM_S390_IO_ADAPTER_MAP:
 > -		ret = kvm_s390_adapter_map(dev->kvm, req.id, req.addr);
 > -		break;
@@ -75,13 +214,6 @@ set_irq code uses get_user_pages_remote() to do the actual write."
 > -		ret = kvm_s390_adapter_unmap(dev->kvm, req.id, req.addr);
 > -		break;
 > +		return 0;
-
-I think
-		ret = 0;
-		break;
-
-would be better, as the other cases do not do a direct return, either.
-
 >  	default:
 >  		ret = -EINVAL;
 >  	}
@@ -93,10 +225,6 @@ would be better, as the other cases do not do a direct return, either.
 > -					  u64 addr)
 > +static struct page *get_map_page(struct kvm *kvm,
 > +				 struct s390_io_adapter *adapter,
-
-adapter seems to be unused in this function now? Should we remove it from the parameter list?
-
-
 > +				 u64 uaddr)
 >  {
 > -	struct s390_map_info *map;
@@ -217,3 +345,11 @@ adapter seems to be unused in this function now? Should we remove it from the pa
 >  }
 >  
 >  int kvm_set_msi(struct kvm_kernel_irq_routing_entry *e, struct kvm *kvm,
+> 
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
