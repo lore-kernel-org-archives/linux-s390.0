@@ -1,86 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56168 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727581AbgBNW1V (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:21 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 14/42] KVM: s390: protvirt: Instruction emulation
-Date: Fri, 14 Feb 2020 17:26:30 -0500
-Message-Id: <20200214222658.12946-15-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46472 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728280AbgBUKro (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Feb 2020 05:47:44 -0500
+Subject: Re: [PATCH v3 37/37] KVM: s390: protvirt: introduce and enable
+ KVM_CAP_S390_PROTECTED
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+ <20200220104020.5343-38-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <dd6ebcdb-2d28-eecc-6520-456e22c95e8c@redhat.com>
+Date: Fri, 21 Feb 2020 11:47:35 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200220104020.5343-38-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On 20.02.20 11:40, Christian Borntraeger wrote:
+> Now that everything is in place, we can announce the feature.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 3 +++
+>  include/uapi/linux/kvm.h | 1 +
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index d79ccd34b5cb..e5f823840c29 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -574,6 +574,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  	case KVM_CAP_S390_BPB:
+>  		r = test_facility(82);
+>  		break;
+> +	case KVM_CAP_S390_PROTECTED:
+> +		r = is_prot_virt_host();
+> +		break;
+>  	default:
+>  		r = 0;
+>  	}
+> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> index 60efbbc86209..2551de8bec57 100644
+> --- a/include/uapi/linux/kvm.h
+> +++ b/include/uapi/linux/kvm.h
+> @@ -1015,6 +1015,7 @@ struct kvm_ppc_resize_hpt {
+>  #define KVM_CAP_ARM_NISV_TO_USER 177
+>  #define KVM_CAP_ARM_INJECT_EXT_DABT 178
+>  #define KVM_CAP_S390_VCPU_RESETS 179
+> +#define KVM_CAP_S390_PROTECTED 180
+>  
+>  #ifdef KVM_CAP_IRQ_ROUTING
 
-We have two new SIE exit codes dealing with instructions.
-104 (0x68) for a secure instruction interception, on which the SIE needs
-hypervisor action to complete the instruction. We can piggy-back on the
-existing instruction handlers.
-
-108 which is merely a notification and provides data for tracking and
-management. For example this is used to tell the host about a new value
-for the prefix register. As there will be several special case handlers
-in later patches, we handle this in a separate function.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/intercept.c        | 11 +++++++++++
- 2 files changed, 13 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index fdc6ceff6397..c6694f47b73b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
- #define ICPT_KSS	0x5c
- #define ICPT_MCHKREQ	0x60
- #define ICPT_INT_ENABLE	0x64
-+#define ICPT_PV_INSTR	0x68
-+#define ICPT_PV_NOTIFY	0x6c
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 6aeb4b36042c..6fdbac696f65 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
- 
-+static int handle_pv_notification(struct kvm_vcpu *vcpu)
-+{
-+	return handle_instruction(vcpu);
-+}
-+
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- {
- 	int rc, per_rc = 0;
-@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		 */
- 		rc = 0;
- 		break;
-+	case ICPT_PV_INSTR:
-+		rc = handle_instruction(vcpu);
-+		break;
-+	case ICPT_PV_NOTIFY:
-+		rc = handle_pv_notification(vcpu);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
+
 -- 
-2.25.0
+Thanks,
+
+David / dhildenb
