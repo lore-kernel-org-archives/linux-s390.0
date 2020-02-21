@@ -1,98 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:46591 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729636AbgBUD1u (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 22:27:50 -0500
-Date: Fri, 21 Feb 2020 13:59:15 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
- protected
-Message-ID: <20200221025915.GB2298@umbus.fritz.box>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55524 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729456AbgBUBSE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 20 Feb 2020 20:18:04 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01L1877L165523
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 20:18:03 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2y92xeybfq-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 20:18:02 -0500
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <linuxram@us.ibm.com>;
+        Fri, 21 Feb 2020 01:18:01 -0000
+Date: Thu, 20 Feb 2020 17:17:48 -0800
+From: Ram Pai <linuxram@us.ibm.com>
+Reply-To: Ram Pai <linuxram@us.ibm.com>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
  <20200220160606.53156-3-pasic@linux.ibm.com>
- <20200220161309.GB12709@lst.de>
+ <20200220154904-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
-Content-Disposition: inline
-In-Reply-To: <20200220161309.GB12709@lst.de>
-Sender: linux-s390-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
-
-
---5/uDoXvLw7AC5HRs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200220154904-mutt-send-email-mst@kernel.org>
+Message-Id: <20200221011748.GE5713@oc0525413822.ibm.com>
+Subject: RE: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is protected
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 
-On Thu, Feb 20, 2020 at 05:13:09PM +0100, Christoph Hellwig wrote:
+On Thu, Feb 20, 2020 at 03:55:14PM -0500, Michael S. Tsirkin wrote:
 > On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 867c7ebd3f10..fafc8f924955 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_device =
-*vdev)
-> >  	if (!virtio_has_iommu_quirk(vdev))
-> >  		return true;
-> > =20
-> > +	if (force_dma_unencrypted(&vdev->dev))
-> > +		return true;
->=20
-> Hell no.  This is a detail of the platform DMA direct implementation.
-> Drivers have no business looking at this flag, and virtio finally needs
-> to be fixed to use the DMA API properly for everything but legacy devices.
+> > Currently the advanced guest memory protection technologies (AMD SEV,
+> > powerpc secure guest technology and s390 Protected VMs) abuse the
+> > VIRTIO_F_IOMMU_PLATFORM flag to make virtio core use the DMA API, which
+> > is in turn necessary, to make IO work with guest memory protection.
+> > 
+> > But VIRTIO_F_IOMMU_PLATFORM a.k.a. VIRTIO_F_ACCESS_PLATFORM is really a
+> > different beast: with virtio devices whose implementation runs on an SMP
+> > CPU we are still fine with doing all the usual optimizations, it is just
+> > that we need to make sure that the memory protection mechanism does not
+> > get in the way. The VIRTIO_F_ACCESS_PLATFORM mandates more work on the
+> > side of the guest (and possibly he host side as well) than we actually
+> > need.
+> > 
+> > An additional benefit of teaching the guest to make the right decision
+> > (and use DMA API) on it's own is: removing the need, to mandate special
+> > VM configuration for guests that may run with protection. This is
+> > especially interesting for s390 as VIRTIO_F_IOMMU_PLATFORM pushes all
+> > the virtio control structures into the first 2G of guest memory:
+> > something we don't necessarily want to do per-default.
+> > 
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > Tested-by: Ram Pai <linuxram@us.ibm.com>
+> > Tested-by: Michael Mueller <mimu@linux.ibm.com>
+> 
+> This might work for you but it's fragile, since without
+> VIRTIO_F_ACCESS_PLATFORM hypervisor assumes it gets
+> GPA's, not DMA addresses.
+> 
+> 
+> 
+> IOW this looks like another iteration of:
+> 
+> 	virtio: Support encrypted memory on powerpc secure guests
+> 
+> which I was under the impression was abandoned as unnecessary.
 
-So, this patch definitely isn't right as it stands, but I'm struggling
-to understand what it is you're saying is the right way.
+It has been abondoned on powerpc. We enabled VIRTIO_F_ACCESS_PLATFORM;
+by default, flag on powerpc.
 
-By "legacy devices" I assume you mean pre-virtio-1.0 devices, that
-lack the F_VERSION_1 feature flag.  Is that right?  Because I don't
-see how being a legacy device or not relates to use of the DMA API.
+We would like to enable secure guests on powerpc without this flag
+aswell enabled, but past experience has educated us that its not a easy
+path.  However if Halil makes some inroads in this path for s390, we
+will like to support him.
 
-I *think* what you are suggesting here is that virtio devices that
-have !F_IOMMU_PLATFORM should have their dma_ops set up so that the
-DMA API treats IOVA=3D=3DPA, which will satisfy what the device expects.
-Then the virtio driver can use the DMA API the same way for both
-F_IOMMU_PLATFORM and !F_IOMMU_PLATFORM devices.
 
-But if that works for !F_IOMMU_PLATFORM_DEVICES+F_VERSION_1 devices,
-then AFAICT it will work equally well for legacy devices.
-
-Using the DMA API for *everything* in virtio, legacy or not, seems
-like a reasonable approach to me.  But, AFAICT, that does require the
-DMA layer to have some kind of explicit call to turn on this
-behaviour, which the virtio driver would call during initializsation.
-I don't think we can do it 100% within the DMA layer, because only the
-driver can reasonably know when a device has this weird non-standard
-DMA behaviour.
-
---=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
-
---5/uDoXvLw7AC5HRs
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5PR4EACgkQbDjKyiDZ
-s5LraA/+KQYlg3wZ+0krCgI0rnOA1c4Rh7dkchkUxj0XPpjfegrcik9vB4AEk1uV
-NViHfw9TklofjnE59FOo9Rexy90uk2aepCPMiba2Aidm0X+E9OMWIZ75l+9IyNod
-fnTLSUCP45wGHQUcjIE1iL3TNJrTZ+F0bQkuu1rwZhtBHx+mKYmS005cUmOuiYQi
-+gZAl8VlR/Ar3QktvDq1ChJai/rB22k+AWL9eL6fgpFGZv/E13hM25tKU61acUZh
-WbtOBNEDoDs792CWCbIs9gqoeq1Whd555JS3nbAlDqNykTUMrfqDbbX/FdJlciPu
-b1TlYEWQLmJDCv8xdPNj8Iep747a3Pc8pDhe7cALeEGvR8dEgbXE7+cx6l5rX6FW
-glvHUQbw8/iD2tRbMLEfk1z/uyL7Gzugk7P6Xfeg+fNcGoL6ADR3DFCBUn1eD0Bf
-EHyBM/WOmi1kn9p52fC3waAPg5BqftyrxFdGd2dI7mUjLvGeT/gxPnqfdaEDbdku
-nlBw4/tcIdlesiIAiI+bCe4bX111KgcJvqVSjaRiS1YqFumJ1aySBzXpAfjqWW/p
-2MU+m6v1xqCEDc7UY+aFtHrRw+CsByowyIFYfNcfSgDMvB9uFkvme4opmrdyAe+g
-G/3fLNvewrGHvqTITJtkyQGQnyJEmHbcQMnWbSdQyqbQU+qO8tg=
-=dMlk
------END PGP SIGNATURE-----
-
---5/uDoXvLw7AC5HRs--
+RP
