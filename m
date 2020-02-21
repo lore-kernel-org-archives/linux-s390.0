@@ -1,120 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:37638 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727165AbgBXAvo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Feb 2020 19:51:44 -0500
-Date: Mon, 24 Feb 2020 06:21:41 +0530
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: [PATCH v2 11/18] s390: replace setup_irq() by request_irq()
-Message-ID: <463586b1fb5ca6dd60b4b5264312f86924281552.1582471508.git.afzal.mohd.ma@gmail.com>
-References: <cover.1582471508.git.afzal.mohd.ma@gmail.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:40188 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727077AbgBUKjf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 21 Feb 2020 05:39:35 -0500
+Subject: Re: [PATCH v3 25/37] KVM: s390: protvirt: Do only reset registers
+ that are accessible
+References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+ <20200220104020.5343-26-borntraeger@de.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <e7d8fd95-320f-0cfc-23da-ae777b959b8d@redhat.com>
+Date: Fri, 21 Feb 2020 11:39:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1582471508.git.afzal.mohd.ma@gmail.com>
+In-Reply-To: <20200220104020.5343-26-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-request_irq() is preferred over setup_irq(). The early boot setup_irq()
-invocations happen either via 'init_IRQ()' or 'time_init()', while
-memory allocators are ready by 'mm_init()'.
+On 20.02.20 11:40, Christian Borntraeger wrote:
+> From: Janosch Frank <frankja@linux.ibm.com>
+> 
+> For protected VMs the hypervisor can not access guest breaking event
+> address, program parameter, bpbc and todpr. Do not reset those fields
+> as the control block does not provide access to these fields.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 436778d3dc14..db28a717a622 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -3478,14 +3478,16 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+>  	kvm_s390_set_prefix(vcpu, 0);
+>  	kvm_s390_set_cpu_timer(vcpu, 0);
+>  	vcpu->arch.sie_block->ckc = 0;
+> -	vcpu->arch.sie_block->todpr = 0;
+>  	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
+>  	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
+>  	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
+>  	vcpu->run->s.regs.fpc = 0;
+> -	vcpu->arch.sie_block->gbea = 1;
+> -	vcpu->arch.sie_block->pp = 0;
+> -	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+> +	if (!kvm_s390_pv_cpu_is_protected(vcpu)) {
+> +		vcpu->arch.sie_block->gbea = 1;
+> +		vcpu->arch.sie_block->pp = 0;
+> +		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+> +		vcpu->arch.sie_block->todpr = 0;
+> +	}
+>  }
+>  
+>  static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
+> 
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Hence replace setup_irq() by request_irq().
-
-Seldom remove_irq() usage has been observed coupled with setup_irq(),
-wherever that has been found, it too has been replaced by free_irq().
-
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
-
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
----
-
-v2:
- * Replace pr_err("request_irq() on %s failed" by
-           pr_err("%s: request_irq() failed"
- * Commit message massage
-
- arch/s390/kernel/irq.c  | 8 ++------
- drivers/s390/cio/airq.c | 8 ++------
- drivers/s390/cio/cio.c  | 8 ++------
- 3 files changed, 6 insertions(+), 18 deletions(-)
-
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index 8371855042dc..2cbe7296f069 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -294,11 +294,6 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction external_interrupt = {
--	.name	 = "EXT",
--	.handler = do_ext_interrupt,
--};
--
- void __init init_ext_interrupts(void)
- {
- 	int idx;
-@@ -308,7 +303,8 @@ void __init init_ext_interrupts(void)
- 
- 	irq_set_chip_and_handler(EXT_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(EXT_INTERRUPT, &external_interrupt);
-+	if (request_irq(EXT_INTERRUPT, do_ext_interrupt, 0, "EXT", NULL))
-+		pr_err("%s: request_irq() failed\n", "EXT");
- }
- 
- static DEFINE_SPINLOCK(irq_subclass_lock);
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index 427b2e24a8ce..8d062d8ff669 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -105,16 +105,12 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction airq_interrupt = {
--	.name	 = "AIO",
--	.handler = do_airq_interrupt,
--};
--
- void __init init_airq_interrupts(void)
- {
- 	irq_set_chip_and_handler(THIN_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(THIN_INTERRUPT, &airq_interrupt);
-+	if (request_irq(THIN_INTERRUPT, do_airq_interrupt, 0, "AIO", NULL))
-+		pr_err("%s: request_irq() failed\n", "AIO");
- }
- 
- static inline unsigned long iv_size(unsigned long bits)
-diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
-index 18f5458f90e8..703265786756 100644
---- a/drivers/s390/cio/cio.c
-+++ b/drivers/s390/cio/cio.c
-@@ -563,16 +563,12 @@ static irqreturn_t do_cio_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction io_interrupt = {
--	.name	 = "I/O",
--	.handler = do_cio_interrupt,
--};
--
- void __init init_cio_interrupts(void)
- {
- 	irq_set_chip_and_handler(IO_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(IO_INTERRUPT, &io_interrupt);
-+	if (request_irq(IO_INTERRUPT, do_cio_interrupt, 0, "I/O", NULL))
-+		pr_err("%s: request_irq() failed\n", "I/O");
- }
- 
- #ifdef CONFIG_CCW_CONSOLE
 -- 
-2.25.1
+Thanks,
+
+David / dhildenb
